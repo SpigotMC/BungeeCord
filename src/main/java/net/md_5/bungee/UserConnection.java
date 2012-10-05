@@ -53,6 +53,11 @@ public class UserConnection extends GenericConnection implements CommandSender {
                 upBridge = new UpstreamBridge();
                 upBridge.start();
             } else {
+                downBridge.alive = false;
+                try {
+                    downBridge.join();
+                } catch (InterruptedException ie) {
+                }
                 server.disconnect("Quitting");
                 out.write(new Packet9Respawn((byte) 1, (byte) 0, (byte) 0, (short) 256, "DEFAULT").getPacket());
                 out.write(new Packet9Respawn((byte) -1, (byte) 0, (byte) 0, (short) 256, "DEFAULT").getPacket());
@@ -143,14 +148,16 @@ public class UserConnection extends GenericConnection implements CommandSender {
 
     private class DownstreamBridge extends Thread {
 
+        private volatile boolean alive = true;
+
         public DownstreamBridge() {
             super("Downstream Bridge - " + username);
         }
 
         @Override
         public void run() {
-            while (!server.socket.isClosed()) {
-                try {
+            try {
+                while (alive) {
                     byte[] packet = server.in.readPacket();
                     boolean sendPacket = true;
 
@@ -175,10 +182,10 @@ public class UserConnection extends GenericConnection implements CommandSender {
                     if (sendPacket) {
                         out.write(packet);
                     }
-                } catch (IOException ex) {
-                } catch (Exception ex) {
-                    destory(Util.exception(ex));
                 }
+            } catch (IOException ex) {
+            } catch (Exception ex) {
+                destory(Util.exception(ex));
             }
         }
     }

@@ -8,6 +8,7 @@ import javax.crypto.SecretKey;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet2Handshake;
 import net.md_5.bungee.packet.PacketCDClientStatus;
+import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketFCEncryptionResponse;
 import net.md_5.bungee.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.packet.PacketFFKick;
@@ -58,6 +59,7 @@ public class ServerConnection extends GenericConnection {
                 throw new KickException("[Kicked] " + new PacketFFKick(loginResponse).message);
             }
             Packet1Login login = new Packet1Login(loginResponse);
+            out.write(new PacketFAPluginMessage("REGISTER", "RubberBand".getBytes()).getPacket());
 
             return new ServerConnection(name, socket, in, out, login);
         } catch (KickException ex) {
