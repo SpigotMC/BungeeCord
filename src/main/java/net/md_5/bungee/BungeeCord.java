@@ -14,7 +14,9 @@ import java.util.concurrent.Executors;
 import static net.md_5.bungee.Logger.$;
 import net.md_5.bungee.command.Command;
 import net.md_5.bungee.command.CommandEnd;
+import net.md_5.bungee.command.CommandList;
 import net.md_5.bungee.command.CommandSender;
+import net.md_5.bungee.command.CommandServer;
 import net.md_5.bungee.command.ConsoleCommandSender;
 
 public class BungeeCord {
@@ -58,6 +60,8 @@ public class BungeeCord {
 
     {
         commandMap.put("end", new CommandEnd());
+        commandMap.put("glist", new CommandList());
+        commandMap.put("server", new CommandServer());
     }
 
     public static void main(String[] args) throws IOException {

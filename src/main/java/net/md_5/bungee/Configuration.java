@@ -194,10 +194,11 @@ public class Configuration {
 
     public InetSocketAddress getServer(String name) {
         String hostline = (name == null) ? defaultServerName : name;
-        if (hostline != null) {
-            return Util.getAddr(hostline);
+        String server = servers.get(hostline);
+        if (server != null) {
+            return Util.getAddr(server);
         } else {
-            throw new IllegalArgumentException("No server by name " + name);
+            return Util.getAddr(servers.get(defaultServerName));
         }
     }
 
