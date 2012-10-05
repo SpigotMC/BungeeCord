@@ -42,7 +42,6 @@ public abstract class DefinedPacket implements DataInput, DataOutput {
         out = ByteStreams.newDataOutput();
         this.id = id;
         writeByte(id);
-        packet = null;
     }
 
     public byte[] getPacket() {
