@@ -57,7 +57,9 @@ public class EncryptionUtil {
         return new PacketFDEncryptionRequest(hash, pubKey, verify);
     }
 
-    public static SecretKey getSecret(PacketFCEncryptionResponse resp, PacketFDEncryptionRequest request) throws Exception {
+    public static SecretKey getSecret(PacketFCEncryptionResponse resp, PacketFDEncryptionRequest request) throws BadPaddingException, IllegalBlockSizeException,
+            IllegalStateException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
+
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.DECRYPT_MODE, keys.getPrivate());
         byte[] decrypted = cipher.doFinal(resp.verifyToken);
@@ -113,7 +115,7 @@ public class EncryptionUtil {
         return hasher.doFinal(b);
     }
 
-   public static byte[] getShared(SecretKey key, PublicKey pubkey) throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
+    public static byte[] getShared(SecretKey key, PublicKey pubkey) throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.ENCRYPT_MODE, pubkey);
         return cipher.doFinal(key.getEncoded());

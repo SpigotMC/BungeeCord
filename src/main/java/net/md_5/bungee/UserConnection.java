@@ -37,19 +37,16 @@ public class UserConnection extends GenericConnection implements CommandSender {
 
     public void connect(String server) {
         InetSocketAddress addr = BungeeCord.instance.config.getServer(server);
-        if (addr == null) {
-            sendMessage(ChatColor.RED + "Specified server does not exist");
+        if (addr.equals(curServer())) {
+            sendMessage(ChatColor.RED + "You are already on this server");
             return;
         }
-        connect(addr);
+        connect(server, addr);
     }
 
-    public void connect(InetSocketAddress serverAddr) {
+    private void connect(String name, InetSocketAddress serverAddr) {
         try {
-            ServerConnection newServer = ServerConnection.connect(serverAddr, handshake, true);
-            if (downBridge != null) {
-                downBridge.interrupt();
-            }
+            ServerConnection newServer = ServerConnection.connect(name, serverAddr, handshake, server == null);
             if (server == null) {
                 clientEntityId = newServer.loginPacket.entityId;
                 out.write(newServer.loginPacket.getPacket());
@@ -59,10 +56,10 @@ public class UserConnection extends GenericConnection implements CommandSender {
                 server.disconnect("Quitting");
                 out.write(new Packet9Respawn((byte) 1, (byte) 0, (byte) 0, (short) 256, "DEFAULT").getPacket());
                 out.write(new Packet9Respawn((byte) -1, (byte) 0, (byte) 0, (short) 256, "DEFAULT").getPacket());
-                out.write(new Packet46GameState((byte) 2, (byte) 0).getPacket());
                 Packet1Login login = newServer.loginPacket;
                 serverEntityId = login.entityId;
                 out.write(new Packet9Respawn(login.dimension, login.difficulty, login.gameMode, (short) 256, login.levelType).getPacket());
+                out.write(new Packet46GameState((byte) 2, (byte) 0).getPacket());
                 if (heldItem != null) {
                     newServer.out.write(heldItem.getPacket());
                 }
@@ -85,19 +82,20 @@ public class UserConnection extends GenericConnection implements CommandSender {
         BungeeCord.instance.connections.put(username, this);
     }
 
+    private InetSocketAddress curServer() {
+        return (server == null) ? null : new InetSocketAddress(server.socket.getInetAddress(), server.socket.getPort());
+    }
+
     private void destory(String reason) {
         if (BungeeCord.instance.isRunning) {
             BungeeCord.instance.connections.remove(username);
         }
-        if (upBridge != null) {
-            upBridge.interrupt();
-        }
-        if (downBridge != null) {
-            downBridge.interrupt();
-        }
         disconnect(reason);
         if (server != null) {
             server.disconnect("Quitting");
+        }
+        if (server != null) {
+            BungeeCord.instance.config.setHostFor(this, server.name);
         }
     }
 
@@ -114,7 +112,7 @@ public class UserConnection extends GenericConnection implements CommandSender {
 
         @Override
         public void run() {
-            while (!interrupted()) {
+            while (!socket.isClosed()) {
                 try {
                     byte[] packet = in.readPacket();
                     boolean sendPacket = true;
@@ -151,7 +149,7 @@ public class UserConnection extends GenericConnection implements CommandSender {
 
         @Override
         public void run() {
-            while (!interrupted()) {
+            while (!server.socket.isClosed()) {
                 try {
                     byte[] packet = server.in.readPacket();
                     boolean sendPacket = true;

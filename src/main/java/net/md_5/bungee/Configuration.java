@@ -172,24 +172,21 @@ public class Configuration {
         }
     }
 
-    public InetSocketAddress getHostFor(String user, String requestedHost) {
-        String entry = user + ";" + requestedHost;
-
-        String hostLine;
+    public String getServerFor(String user, String requestedHost) {
+        String server;
         if (forcedServers.containsKey(requestedHost)) {
-            hostLine = servers.get(forcedServers.get(requestedHost));
+            server = servers.get(forcedServers.get(requestedHost));
         } else {
-            hostLine = reconnectLocations.get(entry);
+            server = reconnectLocations.get(user);
         }
-        if (hostLine == null) {
-            hostLine = servers.get(defaultServerName);
+        if (server == null) {
+            server = servers.get(defaultServerName);
         }
-        return Util.getAddr(hostLine);
+        return server;
     }
 
-    public void setHostFor(UserConnection user, String host) {
-        String entry = user.username + ";" + Util.getAddr(user.handshake.host);
-        reconnectLocations.put(entry, host);
+    public void setHostFor(UserConnection user, String server) {
+        reconnectLocations.put(user.username, server);
     }
 
     public InetSocketAddress getServer(String name) {
@@ -198,7 +195,7 @@ public class Configuration {
         if (server != null) {
             return Util.getAddr(server);
         } else {
-            return Util.getAddr(servers.get(defaultServerName));
+            return getServer(null);
         }
     }
 

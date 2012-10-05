@@ -17,14 +17,16 @@ import org.bouncycastle.crypto.io.CipherOutputStream;
 
 public class ServerConnection extends GenericConnection {
 
+    public final String name;
     public final Packet1Login loginPacket;
 
-    public ServerConnection(Socket socket, PacketInputStream in, OutputStream out, Packet1Login loginPacket) {
+    public ServerConnection(String name, Socket socket, PacketInputStream in, OutputStream out, Packet1Login loginPacket) {
         super(socket, in, out);
+        this.name = name;
         this.loginPacket = loginPacket;
     }
 
-    public static ServerConnection connect(InetSocketAddress address, Packet2Handshake handshake, boolean retry) {
+    public static ServerConnection connect(String name, InetSocketAddress address, Packet2Handshake handshake, boolean retry) {
         try {
             Socket socket = new Socket();
             socket.connect(address, BungeeCord.instance.config.timeout);
@@ -57,13 +59,13 @@ public class ServerConnection extends GenericConnection {
             }
             Packet1Login login = new Packet1Login(loginResponse);
 
-            return new ServerConnection(socket, in, out, login);
+            return new ServerConnection(name, socket, in, out, login);
         } catch (KickException ex) {
             throw ex;
         } catch (Exception ex) {
             InetSocketAddress def = BungeeCord.instance.config.getServer(null);
             if (retry && address != def) {
-                return connect(def, handshake, false);
+                return connect(name, def, handshake, false);
             } else {
                 throw new RuntimeException("Could not connect to target server");
             }

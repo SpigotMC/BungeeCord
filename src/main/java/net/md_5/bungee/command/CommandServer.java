@@ -13,8 +13,8 @@ public class CommandServer extends Command {
             return;
         }
         UserConnection con = (UserConnection) sender;
+        Collection<String> servers = BungeeCord.instance.config.servers.keySet();
         if (args.length <= 0) {
-            Collection<String> servers = BungeeCord.instance.config.servers.keySet();
             StringBuilder serverList = new StringBuilder();
             for (String server : servers) {
                 serverList.append(server);
@@ -24,7 +24,11 @@ public class CommandServer extends Command {
             con.sendMessage(ChatColor.GOLD + "You may connect to the following servers at this time: " + serverList.toString());
         } else {
             String server = args[0];
-            con.connect(server);
+            if (!servers.contains(server)) {
+                con.sendMessage(ChatColor.RED + "The specified server does not exist");
+            } else {
+                con.connect(server);
+            }
         }
     }
 }

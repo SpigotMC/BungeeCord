@@ -1,6 +1,5 @@
 package net.md_5.bungee;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -53,7 +52,7 @@ public class InitialHandler implements Runnable {
 
                     UserConnection userCon = new UserConnection(socket, in, out, handshake);
                     userCon.register();
-                    userCon.connect(BungeeCord.instance.config.getHostFor(handshake.username, handshake.host));
+                    userCon.connect(BungeeCord.instance.config.getServerFor(handshake.username, handshake.host));
                     break;
                 case 0xFE:
                     throw new KickException(BungeeCord.instance.config.motd + ChatColor.COLOR_CHAR + BungeeCord.instance.connections.size() + ChatColor.COLOR_CHAR + BungeeCord.instance.config.maxPlayers);

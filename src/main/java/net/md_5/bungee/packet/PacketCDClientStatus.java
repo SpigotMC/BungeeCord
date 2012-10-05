@@ -14,6 +14,6 @@ public class PacketCDClientStatus extends DefinedPacket {
      */
     public PacketCDClientStatus(byte payload) {
         super(0xCD);
-        super.writeByte(payload);
+        writeByte(payload);
     }
 }
