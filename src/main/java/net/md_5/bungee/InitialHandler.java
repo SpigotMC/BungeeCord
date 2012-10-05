@@ -53,7 +53,7 @@ public class InitialHandler implements Runnable {
 
                     break;
                 case 0xFE:
-                    throw new KickException(BungeeCord.instance.config.motd + ChatColor.COLOR_CHAR + BungeeCord.instance.getOnlinePlayers() + ChatColor.COLOR_CHAR + BungeeCord.instance.config.maxPlayers);
+                    throw new KickException(BungeeCord.instance.config.motd + ChatColor.COLOR_CHAR + BungeeCord.instance.connections.size() + ChatColor.COLOR_CHAR + BungeeCord.instance.config.maxPlayers);
                 default:
                     throw new IllegalArgumentException("Wasn't ready for packet id " + Util.hex(id));
             }

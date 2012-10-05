@@ -16,6 +16,12 @@ public class PacketFCEncryptionResponse extends DefinedPacket {
         writeArray(new byte[0]);
     }
 
+    public PacketFCEncryptionResponse(byte[] sharedSecret, byte[] verifyToken) {
+        super(0xFC);
+        writeArray(sharedSecret);
+        writeArray(verifyToken);
+    }
+
     public PacketFCEncryptionResponse(byte[] buf) {
         super(0xFC, buf);
         this.sharedSecret = readArray();

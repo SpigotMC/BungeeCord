@@ -92,6 +92,10 @@ public class Configuration {
             add("mbaxter");
         }
     };
+    /**
+     * Maximum number of lines to log before old ones are removed.
+     */
+    public int logNumLines = 1 << 14;
 
     public void load() {
         try {
@@ -124,7 +128,6 @@ public class Configuration {
                     }
                 }
             }
-
             $().info("-----------------------------------------------------");
 
             if (servers.get(defaultServerName) == null) {
@@ -190,7 +193,7 @@ public class Configuration {
         if (hostline != null) {
             return Util.getAddr(hostline);
         } else {
-            return null;
+            throw new IllegalArgumentException("No server by name " + name);
         }
     }
 

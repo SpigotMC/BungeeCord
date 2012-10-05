@@ -20,4 +20,11 @@ public class PacketFDEncryptionRequest extends DefinedPacket {
         this.publicKey = publicKey;
         this.verifyToken = verifyToken;
     }
+
+    public PacketFDEncryptionRequest(byte[] buf) {
+        super(0xFD, buf);
+        serverId = readUTF();
+        publicKey = readArray();
+        verifyToken = readArray();
+    }
 }

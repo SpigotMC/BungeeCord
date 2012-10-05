@@ -6,15 +6,24 @@ import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.InvalidKeyException;
 import java.security.Key;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.Security;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Random;
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import net.md_5.bungee.packet.PacketFCEncryptionResponse;
@@ -28,6 +37,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class EncryptionUtil {
 
+    private static final Random secure = new SecureRandom();
     private static final Random random = new Random();
     private static KeyPair keys;
 
@@ -85,5 +95,27 @@ public class EncryptionUtil {
         BufferedBlockCipher cip = new BufferedBlockCipher(new CFBBlockCipher(new AESFastEngine(), 8));
         cip.init(forEncryption, new ParametersWithIV(new KeyParameter(shared.getEncoded()), shared.getEncoded(), 0, 16));
         return cip;
+    }
+
+    public static SecretKey getSecret() {
+        byte[] rand = new byte[32];
+        secure.nextBytes(rand);
+        return new SecretKeySpec(rand, "AES");
+    }
+
+    public static PublicKey getPubkey(PacketFDEncryptionRequest request) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        return KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(request.publicKey));
+    }
+
+    public static byte[] encrypt(Key key, byte[] b) throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
+        Cipher hasher = Cipher.getInstance("RSA");
+        hasher.init(Cipher.ENCRYPT_MODE, key);
+        return hasher.doFinal(b);
+    }
+
+   public static byte[] getShared(SecretKey key, PublicKey pubkey) throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, pubkey);
+        return cipher.doFinal(key.getEncoded());
     }
 }
