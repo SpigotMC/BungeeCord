@@ -2,6 +2,7 @@ package net.md_5.bungee.packet;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import net.md_5.bungee.Util;
@@ -20,6 +21,9 @@ public class PacketInputStream {
     public byte[] readPacket() throws IOException {
         tracker.out.reset();
         int id = tracker.read();
+        if (id == -1) {
+            throw new EOFException();
+        }
         Packet codec = VanillaPackets.packets[id];
         if (codec == null) {
             throw new RuntimeException("No Packet id: " + Util.hex(id));

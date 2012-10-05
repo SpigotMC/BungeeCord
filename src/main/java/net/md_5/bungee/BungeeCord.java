@@ -61,7 +61,6 @@ public class BungeeCord {
     }
 
     public static void main(String[] args) throws IOException {
-        System.out.println(Util.hex(15));
         instance = new BungeeCord();
         $().info("Enabled BungeeCord version " + instance.version);
         instance.start();

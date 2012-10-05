@@ -44,13 +44,16 @@ public class InitialHandler implements Runnable {
 
                     out.write(new PacketFCEncryptionResponse().getPacket());
                     in = new PacketInputStream(new CipherInputStream(socket.getInputStream(), EncryptionUtil.getCipher(false, shared)));
-                    out = new BufferedOutputStream(new CipherOutputStream(socket.getOutputStream(), EncryptionUtil.getCipher(true, shared)), 5120);
+                    out = new CipherOutputStream(socket.getOutputStream(), EncryptionUtil.getCipher(true, shared));
 
                     int ciphId = Util.getId(in.readPacket());
                     if (ciphId != 0xCD) {
                         throw new KickException("Unable to receive encrypted client status");
                     }
 
+                    UserConnection userCon = new UserConnection(socket, in, out, handshake);
+                    userCon.register();
+                    userCon.connect(BungeeCord.instance.config.getHostFor(handshake.username, handshake.host));
                     break;
                 case 0xFE:
                     throw new KickException(BungeeCord.instance.config.motd + ChatColor.COLOR_CHAR + BungeeCord.instance.connections.size() + ChatColor.COLOR_CHAR + BungeeCord.instance.config.maxPlayers);
@@ -70,16 +73,10 @@ public class InitialHandler implements Runnable {
         } catch (IOException ioe) {
         } finally {
             try {
+                out.flush();
                 socket.close();
             } catch (IOException ioe2) {
             }
-        }
-    }
-
-    private class KickException extends RuntimeException {
-
-        public KickException(String message) {
-            super(message);
         }
     }
 }

@@ -15,9 +15,6 @@ public class Util {
      */
     public static InetSocketAddress getAddr(String hostline) {
         String[] split = hostline.split(":");
-        if (split.length < 2) {
-            throw new IllegalArgumentException("Invalid split format");
-        }
         int port = DEFAULT_PORT;
         if (split.length > 1) {
             port = Integer.parseInt(split[1]);

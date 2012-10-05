@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+import static net.md_5.bungee.Logger.$;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketInputStream;
 
@@ -12,13 +13,18 @@ import net.md_5.bungee.packet.PacketInputStream;
 @RequiredArgsConstructor
 public class GenericConnection {
 
-    private final Socket socket;
-    private final PacketInputStream in;
-    private final OutputStream out;
+    protected final Socket socket;
+    protected final PacketInputStream in;
+    protected final OutputStream out;
+    public String username;
 
     public void disconnect(String reason) {
+        if (socket.isClosed()) {
+            return;
+        }
+        log("disconnected with " + reason);
         try {
-            out.write(new PacketFFKick(reason).getPacket());
+            out.write(new PacketFFKick("[Proxy] " + reason).getPacket());
         } catch (IOException ex) {
         } finally {
             try {
@@ -27,5 +33,9 @@ public class GenericConnection {
             } catch (IOException ioe) {
             }
         }
+    }
+
+    public void log(String message) {
+        $().info(socket.getInetAddress() + ((username == null) ? " " : " [" + username + "] ") + message);
     }
 }
