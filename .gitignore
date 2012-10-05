@@ -34,5 +34,5 @@
 .idea/
 
 # other files
-*log*
+/*log*
 *.yml
