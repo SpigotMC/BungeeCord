@@ -18,6 +18,7 @@ import net.md_5.bungee.command.CommandList;
 import net.md_5.bungee.command.CommandSender;
 import net.md_5.bungee.command.CommandServer;
 import net.md_5.bungee.command.ConsoleCommandSender;
+import net.md_5.bungee.plugin.JavaPluginManager;
 
 public class BungeeCord {
 
@@ -56,7 +57,11 @@ public class BungeeCord {
     /**
      * Registered commands.
      */
-    private Map<String, Command> commandMap = new HashMap<>();
+    public Map<String, Command> commandMap = new HashMap<>();
+    /**
+     * Plugin manager.
+     */
+    public final JavaPluginManager pluginManager = new JavaPluginManager();
 
     {
         commandMap.put("end", new CommandEnd());
@@ -105,6 +110,8 @@ public class BungeeCord {
         config.load();
         isRunning = true;
 
+        pluginManager.loadPlugins();
+
         InetSocketAddress addr = Util.getAddr(config.bindHost);
         listener = new ListenThread(addr);
         listener.start();
@@ -115,6 +122,8 @@ public class BungeeCord {
 
     public void stop() {
         this.isRunning = false;
+        $().info("Disabling plugin");
+        pluginManager.onDisable();
 
         $().info("Closing listen thread");
         try {

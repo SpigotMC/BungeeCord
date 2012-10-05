@@ -9,6 +9,7 @@ import net.md_5.bungee.packet.PacketFCEncryptionResponse;
 import net.md_5.bungee.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketInputStream;
+import net.md_5.bungee.plugin.ConnectEvent;
 import org.bouncycastle.crypto.io.CipherInputStream;
 import org.bouncycastle.crypto.io.CipherOutputStream;
 
@@ -32,6 +33,13 @@ public class InitialHandler implements Runnable {
             switch (id) {
                 case 0x02:
                     Packet2Handshake handshake = new Packet2Handshake(packet);
+                    // fire connect event
+                    ConnectEvent event = new ConnectEvent(handshake.username, socket.getInetAddress());
+                    BungeeCord.instance.pluginManager.onConnect(event);
+                    if (event.isCancelled()) {
+                        throw new KickException(event.getCancelReason());
+                    }
+
                     PacketFDEncryptionRequest request = EncryptionUtil.encryptRequest();
                     out.write(request.getPacket());
                     PacketFCEncryptionResponse response = new PacketFCEncryptionResponse(in.readPacket());
