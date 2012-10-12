@@ -69,7 +69,7 @@ public class ServerConnection extends GenericConnection {
             throw ex;
         } catch (Exception ex) {
             InetSocketAddress def = BungeeCord.instance.config.getServer(null);
-            if (retry && address != def) {
+            if (retry && !address.equals(def)) {
                 return connect(name, def, handshake, false);
             } else {
                 throw new RuntimeException("Could not connect to target server");

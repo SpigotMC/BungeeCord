@@ -28,6 +28,7 @@ public class UserConnection extends GenericConnection implements CommandSender {
     private Packet10HeldItem heldItem;
     private int clientEntityId;
     private int serverEntityId;
+    private volatile boolean reconnecting;
 
     public UserConnection(Socket socket, PacketInputStream in, OutputStream out, Packet2Handshake handshake) {
         super(socket, in, out);
@@ -43,6 +44,13 @@ public class UserConnection extends GenericConnection implements CommandSender {
 
     private void connect(String name, InetSocketAddress serverAddr) {
         try {
+            reconnecting = true;
+
+            if (server != null) {
+                out.write(new Packet9Respawn((byte) 1, (byte) 0, (byte) 0, (short) 256, "DEFAULT").getPacket());
+                out.write(new Packet9Respawn((byte) -1, (byte) 0, (byte) 0, (short) 256, "DEFAULT").getPacket());
+            }
+
             ServerConnection newServer = ServerConnection.connect(name, serverAddr, handshake, server == null);
             if (server == null) {
                 clientEntityId = newServer.loginPacket.entityId;
@@ -50,14 +58,14 @@ public class UserConnection extends GenericConnection implements CommandSender {
                 upBridge = new UpstreamBridge();
                 upBridge.start();
             } else {
-                downBridge.alive = false;
                 try {
+                    downBridge.interrupt();
                     downBridge.join();
                 } catch (InterruptedException ie) {
                 }
+
                 server.disconnect("Quitting");
-                out.write(new Packet9Respawn((byte) 1, (byte) 0, (byte) 0, (short) 256, "DEFAULT").getPacket());
-                out.write(new Packet9Respawn((byte) -1, (byte) 0, (byte) 0, (short) 256, "DEFAULT").getPacket());
+
                 Packet1Login login = newServer.loginPacket;
                 serverEntityId = login.entityId;
                 out.write(new Packet9Respawn(login.dimension, login.difficulty, login.gameMode, (short) 256, login.levelType).getPacket());
@@ -66,17 +74,14 @@ public class UserConnection extends GenericConnection implements CommandSender {
                     newServer.out.write(heldItem.getPacket());
                 }
             }
+            reconnecting = false;
             downBridge = new DownstreamBridge();
             server = newServer;
             downBridge.start();
         } catch (KickException ex) {
             destory(ex.getMessage());
         } catch (Exception ex) {
-            if (server == null) {
-                destory("Could not connect to server");
-            } else {
-                packetQueue.add(new Packet3Chat(ChatColor.YELLOW + "The server you selected is not up at the moment."));
-            }
+            destory("Could not connect to server");
         }
     }
 
@@ -135,8 +140,6 @@ public class UserConnection extends GenericConnection implements CommandSender {
 
     private class DownstreamBridge extends Thread {
 
-        private volatile boolean alive = true;
-
         public DownstreamBridge() {
             super("Downstream Bridge - " + username);
         }
@@ -144,7 +147,7 @@ public class UserConnection extends GenericConnection implements CommandSender {
         @Override
         public void run() {
             try {
-                while (alive) {
+                while (!reconnecting) {
                     byte[] packet = server.in.readPacket();
                     boolean sendPacket = true;
 
@@ -154,7 +157,7 @@ public class UserConnection extends GenericConnection implements CommandSender {
                         if (message.tag.equals("RubberBand")) {
                             String server = new String(message.data);
                             connect(server);
-                            sendPacket = false;
+                            break;
                         }
                     }
 
