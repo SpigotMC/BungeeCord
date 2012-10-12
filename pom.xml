@@ -9,8 +9,13 @@
     <packaging>jar</packaging>
 
     <name>BungeeCord</name>
-    <url>https://github.com/Shadowraze/BungeeCord</url>
+    <description>Proxy component of the Elastic Portal Suite</description>
+    <url>https://github.com/ElasticPortalSuite/BungeeCord</url>
     <inceptionYear>2012</inceptionYear>
+    <organization>
+        <name>Elastic Portal Suite</name>
+        <url>https://github.com/ElasticPortalSuite</url>
+    </organization>
     <licenses>
         <license>
             <name>The BSD 3-Clause License</name>
@@ -18,20 +23,39 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
- 
+
+    <developers>
+        <developer>
+            <id>md_5</id>
+        </developer>
+        <developer>
+            <id>mbaxter</id>
+        </developer>
+    </developers>
+
     <scm>
-        <connection>scm:git:git@github.com:Shadowraze/BungeeCord.git</connection>
-        <developerConnection>scm:git:git@github.com:Shadowraze/BungeeCord.git</developerConnection>
-        <url>git@github.com:Shadowraze/BungeeCord.git</url>
+        <connection>scm:git:git@github.com:ElasticPortalSuite/BungeeCord.git</connection>
+        <developerConnection>scm:git:git@github.com:ElasticPortalSuite/BungeeCord.git</developerConnection>
+        <url>git@github.com:ElasticPortalSuite/BungeeCord.git</url>
     </scm>
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/Shadowraze/BungeeCord/issues</url>
+        <url>https://github.com/ElasticPortalSuite/BungeeCord/issues</url>
     </issueManagement>
     <ciManagement>
         <system>jenkins</system>
         <url>http://ci.md-5.net/job/BungeeCord</url>
     </ciManagement>
+    <distributionManagement>
+        <repository>
+            <id>md_5-release</id>
+            <url>http://repo.md-5.net/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>md_5-snapshot</id>
+            <url>http://repo.md-5.net/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -70,17 +94,16 @@
 
     <repositories>
         <repository>
-            <id>repobo-snap</id>
-            <url>http://repo.bukkit.org/content/groups/public</url>
+            <id>md_5-public</id>
+            <url>http://repo.md-5.net/content/groups/public</url>
         </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
-            <id>bukkit-plugins</id>
-            <url>http://repo.bukkit.org/content/groups/public</url>
+            <id>md_5-public</id>
+            <url>http://repo.md-5.net/content/groups/public</url>
         </pluginRepository>
     </pluginRepositories>
-
     <build>
         <finalName>${project.name}</finalName>
         <plugins>
@@ -146,9 +169,9 @@
                         </filter>
                         <filter>
                             <artifact>org.bukkit:minecraft-server</artifact>
-                            <excludes>
-                                <exclude>org/bouncycastle/**</exclude>
-                            </excludes>
+                            <includes>
+                                <include>net/minecraft/server/**</include>
+                            </includes>
                         </filter>
                     </filters>
                     <minimizeJar>true</minimizeJar>
