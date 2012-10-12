@@ -33,14 +33,11 @@ public class UserConnection extends GenericConnection implements CommandSender {
         super(socket, in, out);
         this.handshake = handshake;
         username = handshake.username;
+        BungeeCord.instance.connections.put(username, this);
     }
 
     public void connect(String server) {
         InetSocketAddress addr = BungeeCord.instance.config.getServer(server);
-        if (addr.equals(curServer())) {
-            sendMessage(ChatColor.RED + "You are already on this server");
-            return;
-        }
         connect(server, addr);
     }
 
@@ -83,14 +80,6 @@ public class UserConnection extends GenericConnection implements CommandSender {
         }
     }
 
-    public void register() {
-        BungeeCord.instance.connections.put(username, this);
-    }
-
-    private InetSocketAddress curServer() {
-        return (server == null) ? null : new InetSocketAddress(server.socket.getInetAddress(), server.socket.getPort());
-    }
-
     private void destory(String reason) {
         if (BungeeCord.instance.isRunning) {
             BungeeCord.instance.connections.remove(username);
@@ -98,9 +87,7 @@ public class UserConnection extends GenericConnection implements CommandSender {
         disconnect(reason);
         if (server != null) {
             server.disconnect("Quitting");
-        }
-        if (server != null) {
-            BungeeCord.instance.config.setHostFor(this, server.name);
+            BungeeCord.instance.config.setServer(this, server.name);
         }
     }
 

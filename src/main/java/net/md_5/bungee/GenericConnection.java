@@ -9,6 +9,9 @@ import static net.md_5.bungee.Logger.$;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketInputStream;
 
+/**
+ * Class to represent a Minecraft connection.
+ */
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class GenericConnection {
@@ -18,6 +21,11 @@ public class GenericConnection {
     protected final OutputStream out;
     public String username;
 
+    /**
+     * Close the socket with the specified reason.
+     *
+     * @param reason to disconnect
+     */
     public void disconnect(String reason) {
         if (socket.isClosed()) {
             return;

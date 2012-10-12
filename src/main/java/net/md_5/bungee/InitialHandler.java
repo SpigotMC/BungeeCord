@@ -9,7 +9,7 @@ import net.md_5.bungee.packet.PacketFCEncryptionResponse;
 import net.md_5.bungee.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketInputStream;
-import net.md_5.bungee.plugin.ConnectEvent;
+import net.md_5.bungee.plugin.HandshakeEvent;
 import org.bouncycastle.crypto.io.CipherInputStream;
 import org.bouncycastle.crypto.io.CipherOutputStream;
 
@@ -34,8 +34,8 @@ public class InitialHandler implements Runnable {
                 case 0x02:
                     Packet2Handshake handshake = new Packet2Handshake(packet);
                     // fire connect event
-                    ConnectEvent event = new ConnectEvent(handshake.username, socket.getInetAddress());
-                    BungeeCord.instance.pluginManager.onConnect(event);
+                    HandshakeEvent event = new HandshakeEvent(handshake.username, socket.getInetAddress());
+                    BungeeCord.instance.pluginManager.onHandshake(event);
                     if (event.isCancelled()) {
                         throw new KickException(event.getCancelReason());
                     }
@@ -59,8 +59,7 @@ public class InitialHandler implements Runnable {
                     }
 
                     UserConnection userCon = new UserConnection(socket, in, out, handshake);
-                    userCon.register();
-                    userCon.connect(BungeeCord.instance.config.getServerFor(handshake.username, handshake.host));
+                    userCon.connect(BungeeCord.instance.config.getServer(handshake.username, handshake.host));
                     break;
                 case 0xFE:
                     throw new KickException(BungeeCord.instance.config.motd + ChatColor.COLOR_CHAR + BungeeCord.instance.connections.size() + ChatColor.COLOR_CHAR + BungeeCord.instance.config.maxPlayers);

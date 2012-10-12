@@ -1,5 +1,8 @@
 package net.md_5.bungee;
 
+/**
+ * Class to rewrite integers within packets.
+ */
 public class EntityMap {
 
     public final static int[][] entityIds = new int[256][];

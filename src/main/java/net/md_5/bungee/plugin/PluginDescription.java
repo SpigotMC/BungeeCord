@@ -5,6 +5,10 @@ import java.lang.reflect.Field;
 import lombok.Data;
 import org.yaml.snakeyaml.Yaml;
 
+/**
+ * File which contains information about a plugin, its authors, and how to load
+ * it.
+ */
 @Data
 public class PluginDescription {
 

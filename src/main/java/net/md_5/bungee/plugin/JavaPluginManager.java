@@ -12,11 +12,22 @@ import java.util.zip.ZipEntry;
 import lombok.Getter;
 import static net.md_5.bungee.Logger.$;
 
+/**
+ * Plugin manager to handle loading and saving other JavaPlugin's. This class is
+ * itself a plugin for ease of use.
+ */
 public class JavaPluginManager extends JavaPlugin {
 
+    /**
+     * Set of loaded plugins.
+     */
     @Getter
     private final Set<JavaPlugin> plugins = new HashSet<>();
 
+    /**
+     * Load all plugins from the plugins folder. This method must only be called
+     * once per instance.
+     */
     public void loadPlugins() {
         File dir = new File("plugins");
         dir.mkdir();
@@ -58,9 +69,9 @@ public class JavaPluginManager extends JavaPlugin {
     }
 
     @Override
-    public void onConnect(ConnectEvent event) {
+    public void onHandshake(HandshakeEvent event) {
         for (JavaPlugin p : plugins) {
-            p.onConnect(event);
+            p.onHandshake(event);
         }
     }
 }

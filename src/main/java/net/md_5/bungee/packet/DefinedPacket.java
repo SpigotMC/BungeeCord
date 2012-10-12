@@ -8,6 +8,11 @@ import java.io.DataOutput;
 import lombok.Delegate;
 import net.md_5.bungee.Util;
 
+/**
+ * This class represents a packet which has been given a special definition. All
+ * subclasses can read and write to the backing byte array which can be
+ * retrieved via the {@link #getPacket()} method.
+ */
 public abstract class DefinedPacket implements DataInput, DataOutput {
 
     private interface Overriden {
@@ -44,6 +49,12 @@ public abstract class DefinedPacket implements DataInput, DataOutput {
         writeByte(id);
     }
 
+    /**
+     * Gets the bytes that make up this packet.
+     *
+     * @return the bytes which make up this packet, either the original byte
+     * array or the newly written one.
+     */
     public byte[] getPacket() {
         return packet == null ? out.toByteArray() : packet;
     }

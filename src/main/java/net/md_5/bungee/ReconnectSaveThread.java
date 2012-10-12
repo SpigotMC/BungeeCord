@@ -1,5 +1,9 @@
 package net.md_5.bungee;
 
+/**
+ * Class to call the {@link Configuration#saveHosts() } method at 5 minute
+ * intervals.
+ */
 public class ReconnectSaveThread extends Thread {
 
     public ReconnectSaveThread() {

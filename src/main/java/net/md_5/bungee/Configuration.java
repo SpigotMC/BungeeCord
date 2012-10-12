@@ -17,6 +17,9 @@ import static net.md_5.bungee.Logger.$;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
+/**
+ * Core configuration for the proxy.
+ */
 public class Configuration {
 
     /**
@@ -97,6 +100,9 @@ public class Configuration {
      */
     public int logNumLines = 1 << 14;
 
+    /**
+     * Load the configuration and save default values.
+     */
     public void load() {
         try {
             file.createNewFile();
@@ -172,11 +178,17 @@ public class Configuration {
         }
     }
 
-    public String getServerFor(String user, String requestedHost) {
-        String server;
-        if (forcedServers.containsKey(requestedHost)) {
-            server = servers.get(forcedServers.get(requestedHost));
-        } else {
+    /**
+     * Get which server a user should be connected to, taking into account their
+     * name and virtual host.
+     *
+     * @param user to get a server for
+     * @param requestedHost the host which they connected to
+     * @return the name of the server which they should be connected to.
+     */
+    public String getServer(String user, String requestedHost) {
+        String server = forcedServers.get(requestedHost);
+        if (server == null) {
             server = reconnectLocations.get(user);
         }
         if (server == null) {
@@ -185,20 +197,30 @@ public class Configuration {
         return server;
     }
 
-    public void setHostFor(UserConnection user, String server) {
+    /**
+     * Save the last server which the user was on.
+     *
+     * @param user the name of the user
+     * @param server which they were last on
+     */
+    public void setServer(UserConnection user, String server) {
         reconnectLocations.put(user.username, server);
     }
 
+    /**
+     * Gets the connectable address of a server defined in the configuration.
+     *
+     * @param name the friendly name of a server
+     * @return the usable {@link InetSocketAddress} mapped to this server
+     */
     public InetSocketAddress getServer(String name) {
-        String hostline = (name == null) ? defaultServerName : name;
-        String server = servers.get(hostline);
-        if (server != null) {
-            return Util.getAddr(server);
-        } else {
-            return getServer(null);
-        }
+        String server = servers.get((name == null) ? defaultServerName : name);
+        return (server != null) ? Util.getAddr(server) : getServer(null);
     }
 
+    /**
+     * Save the current mappings of users to servers.
+     */
     public void saveHosts() {
         save(reconnect, reconnectLocations);
         $().info("Saved reconnect locations to " + reconnect);

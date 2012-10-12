@@ -8,6 +8,10 @@ import java.io.InputStream;
 import net.md_5.bungee.Util;
 import net.minecraft.server.Packet;
 
+/**
+ * A specialized input stream to parse packets using the Mojang packet
+ * definitions and then return them as a byte array.
+ */
 public class PacketInputStream {
 
     private final DataInputStream dataInput;
@@ -18,6 +22,12 @@ public class PacketInputStream {
         dataInput = new DataInputStream(tracker);
     }
 
+    /**
+     * Read an entire packet from the stream and return it as a byte array.
+     *
+     * @return the read packet
+     * @throws IOException when the underlying input stream throws an exception
+     */
     public byte[] readPacket() throws IOException {
         tracker.out.reset();
         int id = tracker.read();
@@ -33,6 +43,10 @@ public class PacketInputStream {
 
     }
 
+    /**
+     * Input stream which will wrap another stream and copy all bytes read to a
+     * {@link ByteArrayOutputStream}.
+     */
     private class TrackingInputStream extends InputStream {
 
         private final ByteArrayOutputStream out = new ByteArrayOutputStream();

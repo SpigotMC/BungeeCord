@@ -9,6 +9,9 @@ import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
+/**
+ * Logger to handle formatting and storage of the proxy's logger.
+ */
 public class Logger extends java.util.logging.Logger {
 
     private static final Formatter formatter = new ConsoleLogFormatter();
@@ -20,7 +23,7 @@ public class Logger extends java.util.logging.Logger {
             FileHandler handler = new FileHandler("proxy.log", BungeeCord.instance.config.logNumLines, 1, true);
             handler.setFormatter(formatter);
             addHandler(handler);
-        } catch (IOException | SecurityException ex) {
+        } catch (IOException ex) {
             System.err.println("Could not register logger!");
             ex.printStackTrace();
         }
@@ -37,6 +40,11 @@ public class Logger extends java.util.logging.Logger {
         }
     }
 
+    /**
+     * Gets the current logger instance.
+     *
+     * @return the current logger instance
+     */
     public static Logger $() {
         return instance;
     }

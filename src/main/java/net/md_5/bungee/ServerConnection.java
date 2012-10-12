@@ -16,6 +16,9 @@ import net.md_5.bungee.packet.PacketInputStream;
 import org.bouncycastle.crypto.io.CipherInputStream;
 import org.bouncycastle.crypto.io.CipherOutputStream;
 
+/**
+ * Class representing a connection from the proxy to the server; ie upstream.
+ */
 public class ServerConnection extends GenericConnection {
 
     public final String name;

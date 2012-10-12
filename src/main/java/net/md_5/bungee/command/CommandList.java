@@ -5,6 +5,9 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.ChatColor;
 import net.md_5.bungee.UserConnection;
 
+/**
+ * Command to list all players connected to the proxy.
+ */
 public class CommandList extends Command {
 
     @Override
@@ -14,7 +17,6 @@ public class CommandList extends Command {
 
         for (UserConnection con : connections) {
             users.append(con.username);
-            users.append(ChatColor.RESET.toString());
             users.append(", ");
         }
 

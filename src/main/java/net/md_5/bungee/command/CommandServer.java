@@ -5,6 +5,9 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.ChatColor;
 import net.md_5.bungee.UserConnection;
 
+/**
+ * Command to list and switch a player between availible servers.
+ */
 public class CommandServer extends Command {
 
     @Override

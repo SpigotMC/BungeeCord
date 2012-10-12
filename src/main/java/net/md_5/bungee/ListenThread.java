@@ -7,6 +7,9 @@ import java.net.Socket;
 import java.net.SocketException;
 import static net.md_5.bungee.Logger.$;
 
+/**
+ * Thread to listen and dispatch incoming connections to the proxy.
+ */
 public class ListenThread extends Thread {
 
     public final ServerSocket socket;

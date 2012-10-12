@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 import static net.md_5.bungee.Logger.$;
 import net.md_5.bungee.command.Command;
 import net.md_5.bungee.command.CommandEnd;
@@ -20,6 +21,9 @@ import net.md_5.bungee.command.CommandServer;
 import net.md_5.bungee.command.ConsoleCommandSender;
 import net.md_5.bungee.plugin.JavaPluginManager;
 
+/**
+ * Main BungeeCord proxy class.
+ */
 public class BungeeCord {
 
     /**
@@ -69,6 +73,12 @@ public class BungeeCord {
         commandMap.put("server", new CommandServer());
     }
 
+    /**
+     * Starts a new instance of BungeeCord.
+     *
+     * @param args command line arguments, currently none are used
+     * @throws IOException when the server cannot be started
+     */
     public static void main(String[] args) throws IOException {
         instance = new BungeeCord();
         $().info("Enabled BungeeCord version " + instance.version);
@@ -86,26 +96,38 @@ public class BungeeCord {
         }
     }
 
+    /**
+     * Dispatch a command by formatting the arguments and then executing it.
+     *
+     * @param commandLine the entire command and arguments string
+     * @param sender which executed the command
+     * @return whether the command was handled or not.
+     */
     public boolean dispatchCommand(String commandLine, CommandSender sender) {
         String[] split = commandLine.trim().split(" ");
         String commandName = split[0].toLowerCase();
-        if (commandMap.containsKey(commandName)) {
+        Command command = commandMap.get(commandName);
+        if (command != null) {
             String[] args = Arrays.copyOfRange(split, 1, split.length);
-            Command c = commandMap.get(commandName);
             try {
-                c.execute(sender, args);
+                command.execute(sender, args);
             } catch (Exception ex) {
                 sender.sendMessage(ChatColor.RED + "An error occurred while executing this command!");
-                System.err.println("----------------------- [Start of command error] -----------------------");
-                ex.printStackTrace();
-                System.err.println("----------------------- [End of command error] -----------------------");
+                $().severe("----------------------- [Start of command error] -----------------------");
+                $().log(Level.SEVERE, "", ex);
+                $().severe("----------------------- [End of command error] -----------------------");
             }
-            return true;
-        } else {
-            return false;
         }
+
+        return command != null;
     }
 
+    /**
+     * Start this proxy instance by loading the configuration, plugins and
+     * starting the connect thread.
+     *
+     * @throws IOException
+     */
     public void start() throws IOException {
         config.load();
         isRunning = true;
@@ -120,6 +142,10 @@ public class BungeeCord {
         $().info("Listening on " + addr);
     }
 
+    /**
+     * Destroy this proxy instance cleanly by kicking all users, saving the
+     * configuration and closing all sockets.
+     */
     public void stop() {
         this.isRunning = false;
         $().info("Disabling plugin");
@@ -151,6 +177,13 @@ public class BungeeCord {
         $().info("Thank you and goodbye");
     }
 
+    /**
+     * Miscellaneous method to set options on a socket based on those in the
+     * configuration.
+     *
+     * @param socket to set the options on
+     * @throws IOException when the underlying set methods thrown an exception
+     */
     public void setSocketOptions(Socket socket) throws IOException {
         socket.setSoTimeout(config.timeout);
         socket.setTrafficClass(0x18);

@@ -35,6 +35,9 @@ import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+/**
+ * Class containing all encryption related methods for the proxy.
+ */
 public class EncryptionUtil {
 
     private static final Random secure = new SecureRandom();
@@ -57,9 +60,7 @@ public class EncryptionUtil {
         return new PacketFDEncryptionRequest(hash, pubKey, verify);
     }
 
-    public static SecretKey getSecret(PacketFCEncryptionResponse resp, PacketFDEncryptionRequest request) throws BadPaddingException, IllegalBlockSizeException,
-            IllegalStateException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
-
+    public static SecretKey getSecret(PacketFCEncryptionResponse resp, PacketFDEncryptionRequest request) throws BadPaddingException, IllegalBlockSizeException, IllegalStateException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.DECRYPT_MODE, keys.getPrivate());
         byte[] decrypted = cipher.doFinal(resp.verifyToken);

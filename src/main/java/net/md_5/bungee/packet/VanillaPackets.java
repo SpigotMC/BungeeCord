@@ -80,13 +80,25 @@ import net.minecraft.server.Packet7UseEntity;
 import net.minecraft.server.Packet8UpdateHealth;
 import net.minecraft.server.Packet9Respawn;
 
+/**
+ * Class containing instances of all Vanilla Minecraft packets.
+ */
 public class VanillaPackets {
 
+    /**
+     * Array of packet instances ordered by packet id.
+     */
     public static Packet[] packets = new Packet[256];
 
-    private static void map(int id, Class clazz) {
+    /**
+     * Adds a new instance of a packet class to the array storage.
+     *
+     * @param id of the packet to add
+     * @param clazz class of the packet to add
+     */
+    private static void map(int id, Class<? extends Packet> clazz) {
         try {
-            packets[id] = (Packet) clazz.getDeclaredConstructor().newInstance();
+            packets[id] = clazz.getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException ex) {
             $().severe("Could not register packet id " + Util.hex(id));
         }
