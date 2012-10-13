@@ -54,6 +54,7 @@ public class UserConnection extends GenericConnection implements CommandSender {
             ServerConnection newServer = ServerConnection.connect(name, serverAddr, handshake, server == null);
             if (server == null) {
                 clientEntityId = newServer.loginPacket.entityId;
+                serverEntityId = newServer.loginPacket.entityId;
                 out.write(newServer.loginPacket.getPacket());
                 upBridge = new UpstreamBridge();
                 upBridge.start();
