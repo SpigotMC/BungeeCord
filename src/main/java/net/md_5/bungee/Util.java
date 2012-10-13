@@ -71,6 +71,6 @@ public class Util {
      * @return a string representing information about the {@link Throwable}
      */
     public static String exception(Throwable t) {
-        return t.getClass().getSimpleName() + " : " + t.getMessage() + " @ " + t.getStackTrace()[0].getFileName() + ":" + t.getStackTrace()[0].getLineNumber();
+        return t.getClass().getSimpleName() + " : " + t.getMessage() + " @ " + t.getStackTrace()[0].getClassName() + ":" + t.getStackTrace()[0].getLineNumber();
     }
 }

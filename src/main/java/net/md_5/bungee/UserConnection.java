@@ -79,13 +79,13 @@ public class UserConnection extends GenericConnection implements CommandSender {
             server = newServer;
             downBridge.start();
         } catch (KickException ex) {
-            destory(ex.getMessage());
+            destroySelf(ex.getMessage());
         } catch (Exception ex) {
-            destory("Could not connect to server");
+            destroySelf("Could not connect to server");
         }
     }
 
-    private void destory(String reason) {
+    private void destroySelf(String reason) {
         if (BungeeCord.instance.isRunning) {
             BungeeCord.instance.connections.remove(username);
         }
@@ -130,9 +130,9 @@ public class UserConnection extends GenericConnection implements CommandSender {
                         server.out.write(packet);
                     }
                 } catch (IOException ex) {
-                    destory("Reached end of stream");
+                    destroySelf("Reached end of stream");
                 } catch (Exception ex) {
-                    destory(Util.exception(ex));
+                    destroySelf(Util.exception(ex));
                 }
             }
         }
@@ -149,7 +149,6 @@ public class UserConnection extends GenericConnection implements CommandSender {
             try {
                 while (!reconnecting) {
                     byte[] packet = server.in.readPacket();
-                    boolean sendPacket = true;
 
                     int id = Util.getId(packet);
                     if (id == 0xFA) {
@@ -169,13 +168,10 @@ public class UserConnection extends GenericConnection implements CommandSender {
                     }
 
                     EntityMap.rewrite(packet, serverEntityId, clientEntityId);
-                    if (sendPacket) {
-                        out.write(packet);
-                    }
+                    out.write(packet);
                 }
-            } catch (IOException ex) {
             } catch (Exception ex) {
-                destory(Util.exception(ex));
+                destroySelf(Util.exception(ex));
             }
         }
     }
