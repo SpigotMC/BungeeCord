@@ -42,9 +42,9 @@ public abstract class Packet {
         }
     }
 
-    public abstract void a(DataInputStream datainputstream);
+    public abstract void a(DataInputStream datainputstream) throws IOException;
 
-    public abstract void a(DataOutputStream dataoutputstream);
+    public abstract void a(DataOutputStream dataoutputstream) throws IOException;
 
     public abstract void handle(NetHandler nethandler);
 
