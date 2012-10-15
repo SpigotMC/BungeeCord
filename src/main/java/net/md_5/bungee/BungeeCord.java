@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import static net.md_5.bungee.Logger.$;
 import net.md_5.bungee.command.Command;
 import net.md_5.bungee.command.CommandEnd;
+import net.md_5.bungee.command.CommandIP;
 import net.md_5.bungee.command.CommandList;
 import net.md_5.bungee.command.CommandSender;
 import net.md_5.bungee.command.CommandServer;
@@ -71,6 +72,7 @@ public class BungeeCord {
         commandMap.put("end", new CommandEnd());
         commandMap.put("glist", new CommandList());
         commandMap.put("server", new CommandServer());
+        commandMap.put("ip", new CommandIP());
     }
 
     /**
@@ -107,7 +109,7 @@ public class BungeeCord {
         String[] split = commandLine.trim().split(" ");
         String commandName = split[0].toLowerCase();
         Command command = commandMap.get(commandName);
-        if (command != null) {
+        if (command != null && !config.disabledCommands.contains(commandName)) {
             String[] args = Arrays.copyOfRange(split, 1, split.length);
             try {
                 command.execute(sender, args);

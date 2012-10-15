@@ -2,8 +2,10 @@ package net.md_5.bungee;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import net.md_5.bungee.command.CommandSender;
@@ -86,6 +88,10 @@ public class UserConnection extends GenericConnection implements CommandSender {
         }
     }
 
+    public SocketAddress getAddress() {
+        return socket.getRemoteSocketAddress();
+    }
+
     private void destroySelf(String reason) {
         if (BungeeCord.instance.isRunning) {
             BungeeCord.instance.connections.remove(username);
@@ -100,6 +106,11 @@ public class UserConnection extends GenericConnection implements CommandSender {
     @Override
     public void sendMessage(String message) {
         packetQueue.add(new Packet3Chat(message));
+    }
+
+    @Override
+    public String getName() {
+        return username;
     }
 
     private class UpstreamBridge extends Thread {

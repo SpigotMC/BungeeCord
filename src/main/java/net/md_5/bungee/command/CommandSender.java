@@ -8,4 +8,11 @@ public interface CommandSender {
      * @param message the message to send
      */
     public abstract void sendMessage(String message);
+
+    /**
+     * Get the senders name or CONSOLE for console.
+     *
+     * @return the friendly name of the player.
+     */
+    public abstract String getName();
 }

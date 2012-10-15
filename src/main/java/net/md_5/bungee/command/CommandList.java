@@ -16,8 +16,17 @@ public class CommandList extends Command {
         Collection<UserConnection> connections = BungeeCord.instance.connections.values();
 
         for (UserConnection con : connections) {
+            switch (getPermission(con)) {
+                case ADMIN:
+                    users.append(ChatColor.RED);
+                    break;
+                case MODERATOR:
+                    users.append(ChatColor.GREEN);
+                    break;
+            }
             users.append(con.username);
             users.append(", ");
+            users.append(ChatColor.RESET);
         }
 
         users.setLength(users.length() - 2);
