@@ -87,7 +87,7 @@ public class Configuration {
      */
     public List<String> admins = new ArrayList<String>() {
         {
-            add("md_5");
+            add("Insert Admins Here");
         }
     };
     /**
@@ -95,7 +95,7 @@ public class Configuration {
      */
     public List<String> moderators = new ArrayList<String>() {
         {
-            add("mbaxter");
+            add("Insert Moderators Here");
         }
     };
     /**
