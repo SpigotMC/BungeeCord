@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import static net.md_5.bungee.Logger.$;
 import net.md_5.bungee.command.CommandSender;
 import net.md_5.bungee.command.ConsoleCommandSender;
@@ -109,6 +110,10 @@ public class Configuration {
      * Maximum number of lines to log before old ones are removed.
      */
     public int logNumLines = 1 << 14;
+    /**
+     * UUID for Metrics.
+     */
+    public String statsUuid = UUID.randomUUID().toString();
 
     /**
      * Load the configuration and save default values.

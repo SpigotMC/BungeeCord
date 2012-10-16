@@ -54,7 +54,7 @@ public class BungeeCord {
     /**
      * Current version.
      */
-    private String version = (getClass().getPackage().getImplementationVersion() == null) ? "unknown" : getClass().getPackage().getImplementationVersion();
+    public String version = (getClass().getPackage().getImplementationVersion() == null) ? "unknown" : getClass().getPackage().getImplementationVersion();
     /**
      * Fully qualified connections.
      */
@@ -142,6 +142,8 @@ public class BungeeCord {
 
         saveThread.start();
         $().info("Listening on " + addr);
+
+        new Metrics().start();
     }
 
     /**
