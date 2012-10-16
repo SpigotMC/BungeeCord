@@ -14,6 +14,7 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import static net.md_5.bungee.Logger.$;
 import net.md_5.bungee.command.Command;
+import net.md_5.bungee.command.CommandAlert;
 import net.md_5.bungee.command.CommandEnd;
 import net.md_5.bungee.command.CommandIP;
 import net.md_5.bungee.command.CommandList;
@@ -73,6 +74,7 @@ public class BungeeCord {
         commandMap.put("glist", new CommandList());
         commandMap.put("server", new CommandServer());
         commandMap.put("ip", new CommandIP());
+        commandMap.put("alert", new CommandAlert());
     }
 
     /**
