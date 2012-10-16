@@ -23,7 +23,8 @@ import org.yaml.snakeyaml.Yaml;
 /**
  * Core configuration for the proxy.
  */
-public class Configuration {
+public class Configuration
+{
 
     /**
      * Reconnect locations file.
@@ -68,7 +69,9 @@ public class Configuration {
     /**
      * All servers.
      */
-    public Map<String, String> servers = new HashMap<String, String>() {
+    public Map<String, String> servers = new HashMap<String, String>()
+    {
+
         {
             put(defaultServerName, "127.0.0.1:1338");
             put("pvp", "127.0.0.1:1337");
@@ -77,7 +80,9 @@ public class Configuration {
     /**
      * Forced servers.
      */
-    public Map<String, String> forcedServers = new HashMap<String, String>() {
+    public Map<String, String> forcedServers = new HashMap<String, String>()
+    {
+
         {
             put("pvp.md-5.net", "pvp");
         }
@@ -85,7 +90,9 @@ public class Configuration {
     /**
      * Proxy admins.
      */
-    public List<String> admins = new ArrayList<String>() {
+    public List<String> admins = new ArrayList<String>()
+    {
+
         {
             add("Insert Admins Here");
         }
@@ -93,7 +100,9 @@ public class Configuration {
     /**
      * Proxy moderators.
      */
-    public List<String> moderators = new ArrayList<String>() {
+    public List<String> moderators = new ArrayList<String>()
+    {
+
         {
             add("Insert Moderators Here");
         }
@@ -101,7 +110,9 @@ public class Configuration {
     /**
      * Commands which will be blocked completely.
      */
-    public List<String> disabledCommands = new ArrayList<String>() {
+    public List<String> disabledCommands = new ArrayList<String>()
+    {
+
         {
             add("glist");
         }
@@ -118,76 +129,96 @@ public class Configuration {
     /**
      * Load the configuration and save default values.
      */
-    public void load() {
-        try {
+    public void load()
+    {
+        try
+        {
             file.createNewFile();
             DumperOptions options = new DumperOptions();
             options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
             yaml = new Yaml(options);
 
-            try (InputStream is = new FileInputStream(file)) {
+            try (InputStream is = new FileInputStream(file))
+            {
                 config = (Map) yaml.load(is);
             }
 
-            if (config == null) {
+            if (config == null)
+            {
                 config = new LinkedHashMap<>();
             }
 
             $().info("-------------- Loading configuration ----------------");
-            for (Field field : getClass().getDeclaredFields()) {
-                if (!Modifier.isTransient(field.getModifiers())) {
+            for (Field field : getClass().getDeclaredFields())
+            {
+                if (!Modifier.isTransient(field.getModifiers()))
+                {
                     String name = Util.normalize(field.getName());
-                    try {
+                    try
+                    {
                         Object def = field.get(this);
                         Object value = get(name, def);
 
                         field.set(this, value);
 
                         $().info(name + ": " + value);
-                    } catch (IllegalAccessException ex) {
+                    } catch (IllegalAccessException ex)
+                    {
                         $().severe("Could not get config node: " + name);
                     }
                 }
             }
             $().info("-----------------------------------------------------");
 
-            if (servers.get(defaultServerName) == null) {
+            if (servers.get(defaultServerName) == null)
+            {
                 throw new IllegalArgumentException("Server '" + defaultServerName + "' not defined");
             }
-            for (String server : forcedServers.values()) {
-                if (!servers.containsKey(server)) {
+            for (String server : forcedServers.values())
+            {
+                if (!servers.containsKey(server))
+                {
                     throw new IllegalArgumentException("Forced server " + server + " is not defined in servers");
                 }
             }
 
             reconnect.createNewFile();
-            try (FileInputStream recon = new FileInputStream(reconnect)) {
+            try (FileInputStream recon = new FileInputStream(reconnect))
+            {
                 reconnectLocations = (Map) yaml.load(recon);
             }
-            if (reconnectLocations == null) {
+            if (reconnectLocations == null)
+            {
                 reconnectLocations = new LinkedHashMap<>();
             }
 
-        } catch (IOException ex) {
+        } catch (IOException ex)
+        {
             $().severe("Could not load config!");
             ex.printStackTrace();
         }
     }
 
-    private <T> T get(String path, T def) {
-        if (!config.containsKey(path)) {
+    private <T> T get(String path, T def)
+    {
+        if (!config.containsKey(path))
+        {
             config.put(path, def);
             save(file, config);
         }
         return (T) config.get(path);
     }
 
-    private void save(File fileToSave, Map toSave) {
-        try {
-            try (FileWriter wr = new FileWriter(fileToSave)) {
+    private void save(File fileToSave, Map toSave)
+    {
+        try
+        {
+            try (FileWriter wr = new FileWriter(fileToSave))
+            {
                 yaml.dump(toSave, wr);
             }
-        } catch (IOException ex) {
+        } catch (IOException ex)
+        {
             $().severe("Could not save config file " + fileToSave);
             ex.printStackTrace();
         }
@@ -201,12 +232,15 @@ public class Configuration {
      * @param requestedHost the host which they connected to
      * @return the name of the server which they should be connected to.
      */
-    public String getServer(String user, String requestedHost) {
+    public String getServer(String user, String requestedHost)
+    {
         String server = forcedServers.get(requestedHost);
-        if (server == null) {
+        if (server == null)
+        {
             server = reconnectLocations.get(user);
         }
-        if (server == null) {
+        if (server == null)
+        {
             server = servers.get(defaultServerName);
         }
         return server;
@@ -218,7 +252,8 @@ public class Configuration {
      * @param user the name of the user
      * @param server which they were last on
      */
-    public void setServer(UserConnection user, String server) {
+    public void setServer(UserConnection user, String server)
+    {
         reconnectLocations.put(user.username, server);
     }
 
@@ -228,7 +263,8 @@ public class Configuration {
      * @param name the friendly name of a server
      * @return the usable {@link InetSocketAddress} mapped to this server
      */
-    public InetSocketAddress getServer(String name) {
+    public InetSocketAddress getServer(String name)
+    {
         String server = servers.get((name == null) ? defaultServerName : name);
         return (server != null) ? Util.getAddr(server) : getServer(null);
     }
@@ -236,7 +272,8 @@ public class Configuration {
     /**
      * Save the current mappings of users to servers.
      */
-    public void saveHosts() {
+    public void saveHosts()
+    {
         save(reconnect, reconnectLocations);
         $().info("Saved reconnect locations to " + reconnect);
     }
@@ -247,11 +284,14 @@ public class Configuration {
      * @param sender to get permissions of
      * @return their permission
      */
-    public Permission getPermission(CommandSender sender) {
+    public Permission getPermission(CommandSender sender)
+    {
         Permission permission = Permission.DEFAULT;
-        if (admins.contains(sender.getName()) || sender instanceof ConsoleCommandSender) {
+        if (admins.contains(sender.getName()) || sender instanceof ConsoleCommandSender)
+        {
             permission = Permission.ADMIN;
-        } else if (moderators.contains(sender.getName())) {
+        } else if (moderators.contains(sender.getName()))
+        {
             permission = Permission.MODERATOR;
         }
         return permission;

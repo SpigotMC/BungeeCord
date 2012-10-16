@@ -10,27 +10,34 @@ import static net.md_5.bungee.Logger.$;
 /**
  * Thread to listen and dispatch incoming connections to the proxy.
  */
-public class ListenThread extends Thread {
+public class ListenThread extends Thread
+{
 
     public final ServerSocket socket;
 
-    public ListenThread(InetSocketAddress addr) throws IOException {
+    public ListenThread(InetSocketAddress addr) throws IOException
+    {
         super("Listen Thread");
         socket = new ServerSocket();
         socket.bind(addr);
     }
 
     @Override
-    public void run() {
-        while (BungeeCord.instance.isRunning) {
-            try {
+    public void run()
+    {
+        while (BungeeCord.instance.isRunning)
+        {
+            try
+            {
                 Socket client = socket.accept();
                 BungeeCord.instance.setSocketOptions(client);
                 $().info(client.getInetAddress() + " has connected");
                 InitialHandler handler = new InitialHandler(client);
                 BungeeCord.instance.threadPool.submit(handler);
-            } catch (SocketException ex) {
-            } catch (IOException ex) {
+            } catch (SocketException ex)
+            {
+            } catch (IOException ex)
+            {
                 ex.printStackTrace(); // TODO
             }
         }

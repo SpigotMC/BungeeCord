@@ -9,7 +9,8 @@ import lombok.Data;
  * such as logging at the username has not yet been verified with Mojang.
  */
 @Data
-public class HandshakeEvent implements Cancellable {
+public class HandshakeEvent implements Cancellable
+{
 
     /**
      * Canceled state.

@@ -5,13 +5,15 @@ import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class PacketFDEncryptionRequest extends DefinedPacket {
+public class PacketFDEncryptionRequest extends DefinedPacket
+{
 
     public String serverId;
     public byte[] publicKey;
     public byte[] verifyToken;
 
-    public PacketFDEncryptionRequest(String serverId, byte[] publicKey, byte[] verifyToken) {
+    public PacketFDEncryptionRequest(String serverId, byte[] publicKey, byte[] verifyToken)
+    {
         super(0xFD);
         writeUTF(serverId);
         writeArray(publicKey);
@@ -21,7 +23,8 @@ public class PacketFDEncryptionRequest extends DefinedPacket {
         this.verifyToken = verifyToken;
     }
 
-    public PacketFDEncryptionRequest(byte[] buf) {
+    public PacketFDEncryptionRequest(byte[] buf)
+    {
         super(0xFD, buf);
         serverId = readUTF();
         publicKey = readArray();

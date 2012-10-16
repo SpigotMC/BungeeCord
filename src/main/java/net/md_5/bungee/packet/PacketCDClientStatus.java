@@ -5,14 +5,16 @@ import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class PacketCDClientStatus extends DefinedPacket {
+public class PacketCDClientStatus extends DefinedPacket
+{
 
     /**
      * Sent from the client to the server upon respawn,
      *
      * @param payload 0 if initial spawn, 1 if respawn after death.
      */
-    public PacketCDClientStatus(byte payload) {
+    public PacketCDClientStatus(byte payload)
+    {
         super(0xCD);
         writeByte(payload);
     }

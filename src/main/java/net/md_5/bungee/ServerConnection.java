@@ -19,19 +19,23 @@ import org.bouncycastle.crypto.io.CipherOutputStream;
 /**
  * Class representing a connection from the proxy to the server; ie upstream.
  */
-public class ServerConnection extends GenericConnection {
+public class ServerConnection extends GenericConnection
+{
 
     public final String name;
     public final Packet1Login loginPacket;
 
-    public ServerConnection(String name, Socket socket, PacketInputStream in, OutputStream out, Packet1Login loginPacket) {
+    public ServerConnection(String name, Socket socket, PacketInputStream in, OutputStream out, Packet1Login loginPacket)
+    {
         super(socket, in, out);
         this.name = name;
         this.loginPacket = loginPacket;
     }
 
-    public static ServerConnection connect(String name, InetSocketAddress address, Packet2Handshake handshake, boolean retry) {
-        try {
+    public static ServerConnection connect(String name, InetSocketAddress address, Packet2Handshake handshake, boolean retry)
+    {
+        try
+        {
             Socket socket = new Socket();
             socket.connect(address, BungeeCord.instance.config.timeout);
             BungeeCord.instance.setSocketOptions(socket);
@@ -49,7 +53,8 @@ public class ServerConnection extends GenericConnection {
             out.write(response.getPacket());
 
             int ciphId = Util.getId(in.readPacket());
-            if (ciphId != 0xFC) {
+            if (ciphId != 0xFC)
+            {
                 throw new RuntimeException("Server did not send encryption enable");
             }
 
@@ -58,20 +63,25 @@ public class ServerConnection extends GenericConnection {
 
             out.write(new PacketCDClientStatus((byte) 0).getPacket());
             byte[] loginResponse = in.readPacket();
-            if (Util.getId(loginResponse) == 0xFF) {
+            if (Util.getId(loginResponse) == 0xFF)
+            {
                 throw new KickException("[Kicked] " + new PacketFFKick(loginResponse).message);
             }
             Packet1Login login = new Packet1Login(loginResponse);
             out.write(new PacketFAPluginMessage("REGISTER", "RubberBand".getBytes()).getPacket());
 
             return new ServerConnection(name, socket, in, out, login);
-        } catch (KickException ex) {
+        } catch (KickException ex)
+        {
             throw ex;
-        } catch (Exception ex) {
+        } catch (Exception ex)
+        {
             InetSocketAddress def = BungeeCord.instance.config.getServer(null);
-            if (retry && !address.equals(def)) {
+            if (retry && !address.equals(def))
+            {
                 return connect(name, def, handshake, false);
-            } else {
+            } else
+            {
                 throw new RuntimeException("Could not connect to target server");
             }
         }

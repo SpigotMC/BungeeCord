@@ -14,7 +14,8 @@ import net.md_5.bungee.packet.PacketInputStream;
  */
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public class GenericConnection {
+public class GenericConnection
+{
 
     protected final Socket socket;
     protected final PacketInputStream in;
@@ -26,24 +27,32 @@ public class GenericConnection {
      *
      * @param reason to disconnect
      */
-    public void disconnect(String reason) {
-        if (socket.isClosed()) {
+    public void disconnect(String reason)
+    {
+        if (socket.isClosed())
+        {
             return;
         }
         log("disconnected with " + reason);
-        try {
+        try
+        {
             out.write(new PacketFFKick("[Proxy] " + reason).getPacket());
-        } catch (IOException ex) {
-        } finally {
-            try {
+        } catch (IOException ex)
+        {
+        } finally
+        {
+            try
+            {
                 out.flush();
                 socket.close();
-            } catch (IOException ioe) {
+            } catch (IOException ioe)
+            {
             }
         }
     }
 
-    public void log(String message) {
+    public void log(String message)
+    {
         $().info(socket.getInetAddress() + ((username == null) ? " " : " [" + username + "] ") + message);
     }
 }

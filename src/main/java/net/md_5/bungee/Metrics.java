@@ -10,7 +10,8 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import static net.md_5.bungee.Logger.$;
 
-public class Metrics extends Thread {
+public class Metrics extends Thread
+{
 
     /**
      * The current revision number
@@ -29,16 +30,20 @@ public class Metrics extends Thread {
      */
     private final static int PING_INTERVAL = 10;
 
-    public Metrics() {
+    public Metrics()
+    {
         super("Metrics Gathering Thread");
         setDaemon(true);
     }
 
     @Override
-    public void run() {
+    public void run()
+    {
         boolean firstPost = true;
-        while (true) {
-            try {
+        while (true)
+        {
+            try
+            {
                 // We use the inverse of firstPost because if it is the first time we are posting,
                 // it is not a interval ping, so it evaluates to FALSE
                 // Each time thereafter it will evaluate to TRUE, i.e PING!
@@ -47,12 +52,15 @@ public class Metrics extends Thread {
                 // After the first post we set firstPost to false
                 // Each post thereafter will be a ping
                 firstPost = false;
-            } catch (IOException ex) {
+            } catch (IOException ex)
+            {
                 $().info("[Metrics] " + ex.getMessage());
             }
-            try {
+            try
+            {
                 sleep(PING_INTERVAL * 1000 * 60);
-            } catch (InterruptedException ex) {
+            } catch (InterruptedException ex)
+            {
                 break;
             }
         }
@@ -61,7 +69,8 @@ public class Metrics extends Thread {
     /**
      * Generic method that posts a plugin to the metrics website
      */
-    private void postPlugin(boolean isPing) throws IOException {
+    private void postPlugin(boolean isPing) throws IOException
+    {
         // Construct the post data
         final StringBuilder data = new StringBuilder();
         data.append(encode("guid")).append('=').append(encode(BungeeCord.instance.config.statsUuid));
@@ -71,7 +80,8 @@ public class Metrics extends Thread {
         encodeDataPair(data, "revision", String.valueOf(REVISION));
 
         // If we're pinging, append it
-        if (isPing) {
+        if (isPing)
+        {
             encodeDataPair(data, "ping", "true");
         }
 
@@ -86,7 +96,8 @@ public class Metrics extends Thread {
         connection.setDoOutput(true);
         final BufferedReader reader;
         final String response;
-        try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())) {
+        try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream()))
+        {
             writer.write(data.toString());
             writer.flush();
             reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -94,7 +105,8 @@ public class Metrics extends Thread {
         }
         reader.close();
 
-        if (response == null || response.startsWith("ERR")) {
+        if (response == null || response.startsWith("ERR"))
+        {
             throw new IOException(response); //Throw the exception
         }
     }
@@ -113,7 +125,8 @@ public class Metrics extends Thread {
      * @param key the key value
      * @param value the value
      */
-    private static void encodeDataPair(final StringBuilder buffer, final String key, final String value) throws UnsupportedEncodingException {
+    private static void encodeDataPair(final StringBuilder buffer, final String key, final String value) throws UnsupportedEncodingException
+    {
         buffer.append('&').append(encode(key)).append('=').append(encode(value));
     }
 
@@ -123,7 +136,8 @@ public class Metrics extends Thread {
      * @param text the text to encode
      * @return the encoded text, as UTF-8
      */
-    private static String encode(final String text) throws UnsupportedEncodingException {
+    private static String encode(final String text) throws UnsupportedEncodingException
+    {
         return URLEncoder.encode(text, "UTF-8");
     }
 }

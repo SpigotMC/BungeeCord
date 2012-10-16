@@ -1,6 +1,7 @@
 package net.md_5.bungee;
 
-public enum Permission {
+public enum Permission
+{
 
     /**
      * Can access all commands.

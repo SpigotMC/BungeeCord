@@ -5,16 +5,19 @@ import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class PacketFFKick extends DefinedPacket {
+public class PacketFFKick extends DefinedPacket
+{
 
     public String message;
 
-    public PacketFFKick(String message) {
+    public PacketFFKick(String message)
+    {
         super(0xFF);
         writeUTF(message);
     }
 
-    public PacketFFKick(byte[] buf) {
+    public PacketFFKick(byte[] buf)
+    {
         super(0xFF, buf);
         this.message = readUTF();
     }

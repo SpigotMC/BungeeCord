@@ -5,7 +5,8 @@ import java.util.regex.Pattern;
 /**
  * Simplistic enumeration of all supported color values for chat.
  */
-public enum ChatColor {
+public enum ChatColor
+{
 
     /**
      * Represents black.
@@ -109,12 +110,17 @@ public enum ChatColor {
      */
     private final String toString;
 
-    private ChatColor(char code) {
-        this.toString = new String(new char[]{COLOR_CHAR, code});
+    private ChatColor(char code)
+    {
+        this.toString = new String(new char[]
+                {
+                    COLOR_CHAR, code
+                });
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return toString;
     }
 
@@ -124,8 +130,10 @@ public enum ChatColor {
      * @param input String to strip of color
      * @return A copy of the input string, without any coloring
      */
-    public static String stripColor(final String input) {
-        if (input == null) {
+    public static String stripColor(final String input)
+    {
+        if (input == null)
+        {
             return null;
         }
 

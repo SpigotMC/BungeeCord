@@ -13,30 +13,36 @@ import net.md_5.bungee.plugin.HandshakeEvent;
 import org.bouncycastle.crypto.io.CipherInputStream;
 import org.bouncycastle.crypto.io.CipherOutputStream;
 
-public class InitialHandler implements Runnable {
+public class InitialHandler implements Runnable
+{
 
     private final Socket socket;
     private PacketInputStream in;
     private OutputStream out;
 
-    public InitialHandler(Socket socket) throws IOException {
+    public InitialHandler(Socket socket) throws IOException
+    {
         this.socket = socket;
         in = new PacketInputStream(socket.getInputStream());
         out = socket.getOutputStream();
     }
 
     @Override
-    public void run() {
-        try {
+    public void run()
+    {
+        try
+        {
             byte[] packet = in.readPacket();
             int id = Util.getId(packet);
-            switch (id) {
+            switch (id)
+            {
                 case 0x02:
                     Packet2Handshake handshake = new Packet2Handshake(packet);
                     // fire connect event
                     HandshakeEvent event = new HandshakeEvent(handshake.username, socket.getInetAddress());
                     BungeeCord.instance.pluginManager.onHandshake(event);
-                    if (event.isCancelled()) {
+                    if (event.isCancelled())
+                    {
                         throw new KickException(event.getCancelReason());
                     }
 
@@ -45,7 +51,8 @@ public class InitialHandler implements Runnable {
                     PacketFCEncryptionResponse response = new PacketFCEncryptionResponse(in.readPacket());
 
                     SecretKey shared = EncryptionUtil.getSecret(response, request);
-                    if (!EncryptionUtil.isAuthenticated(handshake.username, request.serverId, shared)) {
+                    if (!EncryptionUtil.isAuthenticated(handshake.username, request.serverId, shared))
+                    {
                         throw new KickException("Not authenticated with minecraft.net");
                     }
 
@@ -54,7 +61,8 @@ public class InitialHandler implements Runnable {
                     out = new CipherOutputStream(socket.getOutputStream(), EncryptionUtil.getCipher(true, shared));
 
                     int ciphId = Util.getId(in.readPacket());
-                    if (ciphId != 0xCD) {
+                    if (ciphId != 0xCD)
+                    {
                         throw new KickException("Unable to receive encrypted client status");
                     }
 
@@ -66,22 +74,30 @@ public class InitialHandler implements Runnable {
                 default:
                     throw new IllegalArgumentException("Wasn't ready for packet id " + Util.hex(id));
             }
-        } catch (KickException ex) {
+        } catch (KickException ex)
+        {
             kick(ex.getMessage());
-        } catch (Exception ex) {
+        } catch (Exception ex)
+        {
             kick("[Proxy Error] " + Util.exception(ex));
         }
     }
 
-    private void kick(String message) {
-        try {
+    private void kick(String message)
+    {
+        try
+        {
             out.write(new PacketFFKick(message).getPacket());
-        } catch (IOException ioe) {
-        } finally {
-            try {
+        } catch (IOException ioe)
+        {
+        } finally
+        {
+            try
+            {
                 out.flush();
                 socket.close();
-            } catch (IOException ioe2) {
+            } catch (IOException ioe2)
+            {
             }
         }
     }

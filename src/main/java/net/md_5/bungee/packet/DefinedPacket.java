@@ -13,9 +13,11 @@ import net.md_5.bungee.Util;
  * subclasses can read and write to the backing byte array which can be
  * retrieved via the {@link #getPacket()} method.
  */
-public abstract class DefinedPacket implements DataInput, DataOutput {
+public abstract class DefinedPacket implements DataInput, DataOutput
+{
 
-    private interface Overriden {
+    private interface Overriden
+    {
 
         void readUTF();
 
@@ -34,16 +36,19 @@ public abstract class DefinedPacket implements DataInput, DataOutput {
      */
     private byte[] packet;
 
-    public DefinedPacket(int id, byte[] buf) {
+    public DefinedPacket(int id, byte[] buf)
+    {
         in = ByteStreams.newDataInput(buf);
-        if (readUnsignedByte() != id) {
+        if (readUnsignedByte() != id)
+        {
             throw new IllegalArgumentException("Wasn't expecting packet id " + Util.hex(id));
         }
         this.id = id;
         packet = buf;
     }
 
-    public DefinedPacket(int id) {
+    public DefinedPacket(int id)
+    {
         out = ByteStreams.newDataOutput();
         this.id = id;
         writeByte(id);
@@ -55,32 +60,38 @@ public abstract class DefinedPacket implements DataInput, DataOutput {
      * @return the bytes which make up this packet, either the original byte
      * array or the newly written one.
      */
-    public byte[] getPacket() {
+    public byte[] getPacket()
+    {
         return packet == null ? out.toByteArray() : packet;
     }
 
     @Override
-    public void writeUTF(String s) {
+    public void writeUTF(String s)
+    {
         writeShort(s.length());
         writeChars(s);
     }
 
     @Override
-    public String readUTF() {
+    public String readUTF()
+    {
         short len = readShort();
         char[] chars = new char[len];
-        for (int i = 0; i < len; i++) {
+        for (int i = 0; i < len; i++)
+        {
             chars[i] = this.readChar();
         }
         return new String(chars);
     }
 
-    public void writeArray(byte[] b) {
+    public void writeArray(byte[] b)
+    {
         writeShort(b.length);
         write(b);
     }
 
-    public byte[] readArray() {
+    public byte[] readArray()
+    {
         short len = readShort();
         byte[] ret = new byte[len];
         readFully(ret);

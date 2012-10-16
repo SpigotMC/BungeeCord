@@ -83,7 +83,8 @@ import net.minecraft.server.Packet9Respawn;
 /**
  * Class containing instances of all Vanilla Minecraft packets.
  */
-public class VanillaPackets {
+public class VanillaPackets
+{
 
     /**
      * Array of packet instances ordered by packet id.
@@ -96,15 +97,19 @@ public class VanillaPackets {
      * @param id of the packet to add
      * @param clazz class of the packet to add
      */
-    private static void map(int id, Class<? extends Packet> clazz) {
-        try {
+    private static void map(int id, Class<? extends Packet> clazz)
+    {
+        try
+        {
             packets[id] = clazz.getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException ex) {
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException ex)
+        {
             $().severe("Could not register packet id " + Util.hex(id));
         }
     }
 
-    static {
+    static
+    {
         map(0, Packet0KeepAlive.class);
         map(1, Packet1Login.class);
         map(2, Packet2Handshake.class);

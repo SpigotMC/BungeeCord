@@ -5,14 +5,16 @@ import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class Packet2Handshake extends DefinedPacket {
+public class Packet2Handshake extends DefinedPacket
+{
 
     public byte procolVersion;
     public String username;
     public String host;
     public int port;
 
-    public Packet2Handshake(byte protocolVersion, String username, String host, int port) {
+    public Packet2Handshake(byte protocolVersion, String username, String host, int port)
+    {
         super(0x02);
         writeByte(protocolVersion);
         writeUTF(username);
@@ -20,7 +22,8 @@ public class Packet2Handshake extends DefinedPacket {
         writeInt(port);
     }
 
-    public Packet2Handshake(byte[] buf) {
+    public Packet2Handshake(byte[] buf)
+    {
         super(0x02, buf);
         this.procolVersion = readByte();
         this.username = readUTF();

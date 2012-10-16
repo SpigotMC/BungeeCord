@@ -4,10 +4,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class Packet51MapChunk extends Packet {
+public class Packet51MapChunk extends Packet
+{
 
     @Override
-    public void a(DataInputStream datainputstream) throws IOException {
+    public void a(DataInputStream datainputstream) throws IOException
+    {
         datainputstream.readInt();
         datainputstream.readInt();
         datainputstream.readBoolean();
@@ -19,15 +21,18 @@ public class Packet51MapChunk extends Packet {
     }
 
     @Override
-    public void a(DataOutputStream dataoutputstream) throws IOException {
+    public void a(DataOutputStream dataoutputstream) throws IOException
+    {
     }
 
     @Override
-    public void handle(NetHandler nethandler) {
+    public void handle(NetHandler nethandler)
+    {
     }
 
     @Override
-    public int a() {
+    public int a()
+    {
         return 0;
     }
 }

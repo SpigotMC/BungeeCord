@@ -8,15 +8,19 @@ import net.md_5.bungee.UserConnection;
 /**
  * Command to list all players connected to the proxy.
  */
-public class CommandList extends Command {
+public class CommandList extends Command
+{
 
     @Override
-    public void execute(CommandSender sender, String[] args) {
+    public void execute(CommandSender sender, String[] args)
+    {
         StringBuilder users = new StringBuilder();
         Collection<UserConnection> connections = BungeeCord.instance.connections.values();
 
-        for (UserConnection con : connections) {
-            switch (getPermission(con)) {
+        for (UserConnection con : connections)
+        {
+            switch (getPermission(con))
+            {
                 case ADMIN:
                     users.append(ChatColor.RED);
                     break;

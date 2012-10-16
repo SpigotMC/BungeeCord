@@ -3,7 +3,8 @@ package net.md_5.bungee.plugin;
 /**
  * An event which may be canceled and this be prevented from happening.
  */
-public interface Cancellable {
+public interface Cancellable
+{
 
     /**
      * Sets the canceled state of this event.

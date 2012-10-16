@@ -2,7 +2,6 @@ package net.md_5.bungee;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -19,7 +18,8 @@ import net.md_5.bungee.packet.Packet9Respawn;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketInputStream;
 
-public class UserConnection extends GenericConnection implements CommandSender {
+public class UserConnection extends GenericConnection implements CommandSender
+{
 
     public final Packet2Handshake handshake;
     public Queue<DefinedPacket> packetQueue = new ConcurrentLinkedQueue<>();
@@ -32,39 +32,48 @@ public class UserConnection extends GenericConnection implements CommandSender {
     private int serverEntityId;
     private volatile boolean reconnecting;
 
-    public UserConnection(Socket socket, PacketInputStream in, OutputStream out, Packet2Handshake handshake) {
+    public UserConnection(Socket socket, PacketInputStream in, OutputStream out, Packet2Handshake handshake)
+    {
         super(socket, in, out);
         this.handshake = handshake;
         username = handshake.username;
         BungeeCord.instance.connections.put(username, this);
     }
 
-    public void connect(String server) {
+    public void connect(String server)
+    {
         InetSocketAddress addr = BungeeCord.instance.config.getServer(server);
         connect(server, addr);
     }
 
-    private void connect(String name, InetSocketAddress serverAddr) {
-        try {
+    private void connect(String name, InetSocketAddress serverAddr)
+    {
+        try
+        {
             reconnecting = true;
 
-            if (server != null) {
+            if (server != null)
+            {
                 out.write(new Packet9Respawn((byte) 1, (byte) 0, (byte) 0, (short) 256, "DEFAULT").getPacket());
                 out.write(new Packet9Respawn((byte) -1, (byte) 0, (byte) 0, (short) 256, "DEFAULT").getPacket());
             }
 
             ServerConnection newServer = ServerConnection.connect(name, serverAddr, handshake, server == null);
-            if (server == null) {
+            if (server == null)
+            {
                 clientEntityId = newServer.loginPacket.entityId;
                 serverEntityId = newServer.loginPacket.entityId;
                 out.write(newServer.loginPacket.getPacket());
                 upBridge = new UpstreamBridge();
                 upBridge.start();
-            } else {
-                try {
+            } else
+            {
+                try
+                {
                     downBridge.interrupt();
                     downBridge.join();
-                } catch (InterruptedException ie) {
+                } catch (InterruptedException ie)
+                {
                 }
 
                 server.disconnect("Quitting");
@@ -73,7 +82,8 @@ public class UserConnection extends GenericConnection implements CommandSender {
                 serverEntityId = login.entityId;
                 out.write(new Packet9Respawn(login.dimension, login.difficulty, login.gameMode, (short) 256, login.levelType).getPacket());
                 out.write(new Packet46GameState((byte) 2, (byte) 0).getPacket());
-                if (heldItem != null) {
+                if (heldItem != null)
+                {
                     newServer.out.write(heldItem.getPacket());
                 }
             }
@@ -81,100 +91,128 @@ public class UserConnection extends GenericConnection implements CommandSender {
             downBridge = new DownstreamBridge();
             server = newServer;
             downBridge.start();
-        } catch (KickException ex) {
+        } catch (KickException ex)
+        {
             destroySelf(ex.getMessage());
-        } catch (Exception ex) {
+        } catch (Exception ex)
+        {
             destroySelf("Could not connect to server");
         }
     }
 
-    public SocketAddress getAddress() {
+    public SocketAddress getAddress()
+    {
         return socket.getRemoteSocketAddress();
     }
 
-    private void destroySelf(String reason) {
-        if (BungeeCord.instance.isRunning) {
+    private void destroySelf(String reason)
+    {
+        if (BungeeCord.instance.isRunning)
+        {
             BungeeCord.instance.connections.remove(username);
         }
         disconnect(reason);
-        if (server != null) {
+        if (server != null)
+        {
             server.disconnect("Quitting");
             BungeeCord.instance.config.setServer(this, server.name);
         }
     }
 
     @Override
-    public void sendMessage(String message) {
+    public void sendMessage(String message)
+    {
         packetQueue.add(new Packet3Chat(message));
     }
 
     @Override
-    public String getName() {
+    public String getName()
+    {
         return username;
     }
 
-    private class UpstreamBridge extends Thread {
+    private class UpstreamBridge extends Thread
+    {
 
-        public UpstreamBridge() {
+        public UpstreamBridge()
+        {
             super("Upstream Bridge - " + username);
         }
 
         @Override
-        public void run() {
-            while (!socket.isClosed()) {
-                try {
+        public void run()
+        {
+            while (!socket.isClosed())
+            {
+                try
+                {
                     byte[] packet = in.readPacket();
                     boolean sendPacket = true;
 
                     int id = Util.getId(packet);
-                    if (id == 0x03) {
+                    if (id == 0x03)
+                    {
                         Packet3Chat chat = new Packet3Chat(packet);
                         String message = chat.message;
-                        if (message.startsWith("/")) {
+                        if (message.startsWith("/"))
+                        {
                             sendPacket = !BungeeCord.instance.dispatchCommand(message.substring(1), UserConnection.this);
                         }
-                    } else if (id == 0x10) {
+                    } else if (id == 0x10)
+                    {
                         heldItem = new Packet10HeldItem(packet);
                     }
 
                     EntityMap.rewrite(packet, clientEntityId, serverEntityId);
-                    if (sendPacket && !server.socket.isClosed()) {
+                    if (sendPacket && !server.socket.isClosed())
+                    {
                         server.out.write(packet);
                     }
-                } catch (IOException ex) {
+                } catch (IOException ex)
+                {
                     destroySelf("Reached end of stream");
-                } catch (Exception ex) {
+                } catch (Exception ex)
+                {
                     destroySelf(Util.exception(ex));
                 }
             }
         }
     }
 
-    private class DownstreamBridge extends Thread {
+    private class DownstreamBridge extends Thread
+    {
 
-        public DownstreamBridge() {
+        public DownstreamBridge()
+        {
             super("Downstream Bridge - " + username);
         }
 
         @Override
-        public void run() {
-            try {
-                while (!reconnecting) {
+        public void run()
+        {
+            try
+            {
+                while (!reconnecting)
+                {
                     byte[] packet = server.in.readPacket();
 
                     int id = Util.getId(packet);
-                    if (id == 0xFA) {
+                    if (id == 0xFA)
+                    {
                         PacketFAPluginMessage message = new PacketFAPluginMessage(packet);
-                        if (message.tag.equals("RubberBand")) {
+                        if (message.tag.equals("RubberBand"))
+                        {
                             String server = new String(message.data);
                             connect(server);
                             break;
                         }
                     }
 
-                    while (!packetQueue.isEmpty()) {
+                    while (!packetQueue.isEmpty())
+                    {
                         DefinedPacket p = packetQueue.poll();
-                        if (p != null) {
+                        if (p != null)
+                        {
                             out.write(p.getPacket());
                         }
                     }
@@ -182,7 +220,8 @@ public class UserConnection extends GenericConnection implements CommandSender {
                     EntityMap.rewrite(packet, serverEntityId, clientEntityId);
                     out.write(packet);
                 }
-            } catch (Exception ex) {
+            } catch (Exception ex)
+            {
                 destroySelf(Util.exception(ex));
             }
         }

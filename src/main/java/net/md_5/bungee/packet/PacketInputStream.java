@@ -12,12 +12,14 @@ import net.minecraft.server.Packet;
  * A specialized input stream to parse packets using the Mojang packet
  * definitions and then return them as a byte array.
  */
-public class PacketInputStream {
+public class PacketInputStream
+{
 
     private final DataInputStream dataInput;
     private final TrackingInputStream tracker;
 
-    public PacketInputStream(InputStream in) {
+    public PacketInputStream(InputStream in)
+    {
         tracker = new TrackingInputStream(in);
         dataInput = new DataInputStream(tracker);
     }
@@ -28,14 +30,17 @@ public class PacketInputStream {
      * @return the read packet
      * @throws IOException when the underlying input stream throws an exception
      */
-    public byte[] readPacket() throws IOException {
+    public byte[] readPacket() throws IOException
+    {
         tracker.out.reset();
         int id = tracker.read();
-        if (id == -1) {
+        if (id == -1)
+        {
             throw new EOFException();
         }
         Packet codec = VanillaPackets.packets[id];
-        if (codec == null) {
+        if (codec == null)
+        {
             throw new RuntimeException("No Packet id: " + Util.hex(id));
         }
         codec.a(dataInput);
@@ -47,17 +52,20 @@ public class PacketInputStream {
      * Input stream which will wrap another stream and copy all bytes read to a
      * {@link ByteArrayOutputStream}.
      */
-    private class TrackingInputStream extends InputStream {
+    private class TrackingInputStream extends InputStream
+    {
 
         private final ByteArrayOutputStream out = new ByteArrayOutputStream();
         private final InputStream wrapped;
 
-        public TrackingInputStream(InputStream wrapped) {
+        public TrackingInputStream(InputStream wrapped)
+        {
             this.wrapped = wrapped;
         }
 
         @Override
-        public int read() throws IOException {
+        public int read() throws IOException
+        {
             int ret = wrapped.read();
             out.write(ret);
             return ret;

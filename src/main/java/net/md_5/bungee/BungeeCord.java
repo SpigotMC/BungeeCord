@@ -26,7 +26,8 @@ import net.md_5.bungee.plugin.JavaPluginManager;
 /**
  * Main BungeeCord proxy class.
  */
-public class BungeeCord {
+public class BungeeCord
+{
 
     /**
      * Current software instance.
@@ -69,6 +70,7 @@ public class BungeeCord {
      */
     public final JavaPluginManager pluginManager = new JavaPluginManager();
 
+
     {
         commandMap.put("end", new CommandEnd());
         commandMap.put("glist", new CommandList());
@@ -83,17 +85,21 @@ public class BungeeCord {
      * @param args command line arguments, currently none are used
      * @throws IOException when the server cannot be started
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException
+    {
         instance = new BungeeCord();
         $().info("Enabled BungeeCord version " + instance.version);
         instance.start();
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        while (instance.isRunning) {
+        while (instance.isRunning)
+        {
             String line = br.readLine();
-            if (line != null) {
+            if (line != null)
+            {
                 boolean handled = instance.dispatchCommand(line, ConsoleCommandSender.instance);
-                if (!handled) {
+                if (!handled)
+                {
                     System.err.println("Command not found");
                 }
             }
@@ -107,15 +113,19 @@ public class BungeeCord {
      * @param sender which executed the command
      * @return whether the command was handled or not.
      */
-    public boolean dispatchCommand(String commandLine, CommandSender sender) {
+    public boolean dispatchCommand(String commandLine, CommandSender sender)
+    {
         String[] split = commandLine.trim().split(" ");
         String commandName = split[0].toLowerCase();
         Command command = commandMap.get(commandName);
-        if (command != null && !config.disabledCommands.contains(commandName)) {
+        if (command != null && !config.disabledCommands.contains(commandName))
+        {
             String[] args = Arrays.copyOfRange(split, 1, split.length);
-            try {
+            try
+            {
                 command.execute(sender, args);
-            } catch (Exception ex) {
+            } catch (Exception ex)
+            {
                 sender.sendMessage(ChatColor.RED + "An error occurred while executing this command!");
                 $().severe("----------------------- [Start of command error] -----------------------");
                 $().log(Level.SEVERE, "", ex);
@@ -132,7 +142,8 @@ public class BungeeCord {
      *
      * @throws IOException
      */
-    public void start() throws IOException {
+    public void start() throws IOException
+    {
         config.load();
         isRunning = true;
 
@@ -152,16 +163,19 @@ public class BungeeCord {
      * Destroy this proxy instance cleanly by kicking all users, saving the
      * configuration and closing all sockets.
      */
-    public void stop() {
+    public void stop()
+    {
         this.isRunning = false;
         $().info("Disabling plugin");
         pluginManager.onDisable();
 
         $().info("Closing listen thread");
-        try {
+        try
+        {
             listener.socket.close();
             listener.join();
-        } catch (InterruptedException | IOException ex) {
+        } catch (InterruptedException | IOException ex)
+        {
             $().severe("Could not close listen thread");
         }
 
@@ -169,15 +183,18 @@ public class BungeeCord {
         threadPool.shutdown();
 
         $().info("Disconnecting " + connections.size() + " connections");
-        for (UserConnection user : connections.values()) {
+        for (UserConnection user : connections.values())
+        {
             user.disconnect("Proxy restarting, brb.");
         }
 
         $().info("Saving reconnect locations");
         saveThread.interrupt();
-        try {
+        try
+        {
             saveThread.join();
-        } catch (InterruptedException ex) {
+        } catch (InterruptedException ex)
+        {
         }
 
         $().info("Thank you and goodbye");
@@ -190,7 +207,8 @@ public class BungeeCord {
      * @param socket to set the options on
      * @throws IOException when the underlying set methods thrown an exception
      */
-    public void setSocketOptions(Socket socket) throws IOException {
+    public void setSocketOptions(Socket socket) throws IOException
+    {
         socket.setSoTimeout(config.timeout);
         socket.setTrafficClass(0x18);
         socket.setTcpNoDelay(true);

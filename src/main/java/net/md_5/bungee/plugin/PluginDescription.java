@@ -10,28 +10,36 @@ import org.yaml.snakeyaml.Yaml;
  * it.
  */
 @Data
-public class PluginDescription {
+public class PluginDescription
+{
 
     private String name;
     private String main;
     private String version;
     private String author;
 
-    private PluginDescription() {
+    private PluginDescription()
+    {
     }
 
-    public static PluginDescription load(InputStream is) {
+    public static PluginDescription load(InputStream is)
+    {
         PluginDescription ret = new Yaml().loadAs(is, PluginDescription.class);
-        if (ret == null) {
+        if (ret == null)
+        {
             throw new InvalidPluginException("Could not load plugin description file.");
         }
 
-        for (Field f : PluginDescription.class.getDeclaredFields()) {
-            try {
-                if (f.get(ret) == null) {
+        for (Field f : PluginDescription.class.getDeclaredFields())
+        {
+            try
+            {
+                if (f.get(ret) == null)
+                {
                     throw new InvalidPluginException(f.getName() + " is not set properly in plugin description");
                 }
-            } catch (IllegalArgumentException | IllegalAccessException ex) {
+            } catch (IllegalArgumentException | IllegalAccessException ex)
+            {
             }
         }
 

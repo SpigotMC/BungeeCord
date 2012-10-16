@@ -5,7 +5,8 @@ import java.net.InetSocketAddress;
 /**
  * Series of utility classes to perform various operations.
  */
-public class Util {
+public class Util
+{
 
     private static final int DEFAULT_PORT = 25565;
 
@@ -15,10 +16,12 @@ public class Util {
      * @param hostline in the format of 'host:port'
      * @return the constructed hostname + port.
      */
-    public static InetSocketAddress getAddr(String hostline) {
+    public static InetSocketAddress getAddr(String hostline)
+    {
         String[] split = hostline.split(":");
         int port = DEFAULT_PORT;
-        if (split.length > 1) {
+        if (split.length > 1)
+        {
             port = Integer.parseInt(split[1]);
         }
         return new InetSocketAddress(split[0], port);
@@ -31,7 +34,8 @@ public class Util {
      * @param b the array to read from
      * @return the unsigned value of the first byte
      */
-    public static int getId(byte[] b) {
+    public static int getId(byte[] b)
+    {
         return b[0] & 0xFF;
     }
 
@@ -42,10 +46,13 @@ public class Util {
      * @param s the string to normalize
      * @return the normalized path
      */
-    public static String normalize(String s) {
+    public static String normalize(String s)
+    {
         StringBuilder result = new StringBuilder();
-        for (char c : s.toCharArray()) {
-            if (Character.isUpperCase(c)) {
+        for (char c : s.toCharArray())
+        {
+            if (Character.isUpperCase(c))
+            {
                 result.append("_");
             }
             result.append(Character.toLowerCase(c));
@@ -59,7 +66,8 @@ public class Util {
      * @param i the integer to format
      * @return the hex representation of the integer
      */
-    public static String hex(int i) {
+    public static String hex(int i)
+    {
         return String.format("0x%02X", i);
     }
 
@@ -70,7 +78,8 @@ public class Util {
      * @param t the {@link Throwable} to format.
      * @return a string representing information about the {@link Throwable}
      */
-    public static String exception(Throwable t) {
+    public static String exception(Throwable t)
+    {
         return t.getClass().getSimpleName() + " : " + t.getMessage() + " @ " + t.getStackTrace()[0].getClassName() + ":" + t.getStackTrace()[0].getLineNumber();
     }
 }

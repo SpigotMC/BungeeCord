@@ -5,7 +5,8 @@ import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class Packet1Login extends DefinedPacket {
+public class Packet1Login extends DefinedPacket
+{
 
     public int entityId;
     public String levelType;
@@ -15,7 +16,8 @@ public class Packet1Login extends DefinedPacket {
     public byte unused;
     public byte maxPlayers;
 
-    public Packet1Login(int entityId, String levelType, byte gameMode, byte dimension, byte difficulty, byte unused, byte maxPlayers) {
+    public Packet1Login(int entityId, String levelType, byte gameMode, byte dimension, byte difficulty, byte unused, byte maxPlayers)
+    {
         super(0x01);
         writeInt(entityId);
         writeUTF(levelType);
@@ -26,7 +28,8 @@ public class Packet1Login extends DefinedPacket {
         writeByte(maxPlayers);
     }
 
-    public Packet1Login(byte[] buf) {
+    public Packet1Login(byte[] buf)
+    {
         super(0x01, buf);
         this.entityId = readInt();
         this.levelType = readUTF();
