@@ -70,7 +70,7 @@ public class Configuration {
      */
     public Map<String, String> servers = new HashMap<String, String>() {
         {
-            put(defaultServerName, "127.0.0.1");
+            put(defaultServerName, "127.0.0.1:1338");
             put("pvp", "127.0.0.1:1337");
         }
     };
