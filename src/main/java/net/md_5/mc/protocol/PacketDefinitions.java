@@ -14,10 +14,8 @@ public class PacketDefinitions {
     private static final Instruction LONG = new JumpOpCode(8);
     private static final Instruction DOUBLE = LONG;
     private static final Instruction SHORT_BYTE = new ShortHeader(BYTE);
-    private static final Instruction BYTE_BYTE = new ByteHeader(BYTE);
     private static final Instruction BYTE_INT = new ByteHeader(INT);
     private static final Instruction INT_BYTE = new IntHeader(BYTE);
-    private static final Instruction INT_INT = new IntHeader(INT);
     private static final Instruction INT_3 = new IntHeader(new JumpOpCode(3));
     private static final Instruction STRING = new Instruction() {
         @Override
@@ -80,6 +78,13 @@ public class PacketDefinitions {
             skip(in, count * 12);
         }
     };
+    private static final Instruction UBYTE_BYTE = new Instruction() {
+        @Override
+        void read(DataInput in) throws IOException {
+            int size = in.readUnsignedByte();
+            skip(in, size);
+        }
+    };
 
     static {
         opCodes[0x00] = new Instruction[]{INT};
@@ -90,6 +95,7 @@ public class PacketDefinitions {
         opCodes[0x05] = new Instruction[]{INT, SHORT, ITEM};
         opCodes[0x06] = new Instruction[]{INT, INT, INT};
         opCodes[0x07] = new Instruction[]{INT, INT, BOOLEAN};
+        opCodes[0x08] = new Instruction[]{SHORT, SHORT, FLOAT};
         opCodes[0x09] = new Instruction[]{INT, BYTE, BYTE, SHORT, STRING};
         opCodes[0x0A] = new Instruction[]{BOOLEAN};
         opCodes[0x0B] = new Instruction[]{DOUBLE, DOUBLE, DOUBLE, DOUBLE, BOOLEAN};
@@ -131,7 +137,7 @@ public class PacketDefinitions {
         //
         //
         opCodes[0x33] = new Instruction[]{INT, INT, BOOLEAN, SHORT, SHORT, INT_BYTE};
-        opCodes[0x34] = new Instruction[]{INT, INT, SHORT, INT_INT};
+        opCodes[0x34] = new Instruction[]{INT, INT, SHORT, INT_BYTE};
         opCodes[0x35] = new Instruction[]{INT, BYTE, INT, SHORT, BYTE};
         opCodes[0x36] = new Instruction[]{INT, SHORT, INT, BYTE, BYTE, SHORT};
         opCodes[0x37] = new Instruction[]{INT, INT, INT, INT, BYTE};
@@ -169,7 +175,7 @@ public class PacketDefinitions {
         //
         //
         opCodes[0x82] = new Instruction[]{INT, SHORT, INT, STRING, STRING, STRING, STRING};
-        opCodes[0x83] = new Instruction[]{SHORT, SHORT, BYTE_BYTE}; // TODO: Ubyte?
+        opCodes[0x83] = new Instruction[]{SHORT, SHORT, UBYTE_BYTE};
         opCodes[0x84] = new Instruction[]{INT, SHORT, INT, BYTE, SHORT_BYTE};
         //
         //
@@ -201,7 +207,7 @@ public class PacketDefinitions {
         if (instructions == null) {
             throw new IOException("Unknown packet id " + packetId);
         }
-
+        System.out.println(Integer.toHexString(packetId));
         for (Instruction instruction : instructions) {
             instruction.read(in);
         }
@@ -212,9 +218,8 @@ public class PacketDefinitions {
         abstract void read(DataInput in) throws IOException;
 
         final void skip(DataInput in, int len) throws IOException {
-            int n = 0;
-            while (n < len) {
-                n += in.readByte();
+            for (int i = 0; i < len; i++) {
+                in.readByte();
             }
         }
     }
