@@ -6,7 +6,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import net.md_5.bungee.Util;
-import net.minecraft.server.Packet;
+import net.md_5.mc.protocol.PacketDefinitions;
 
 /**
  * A specialized input stream to parse packets using the Mojang packet
@@ -33,19 +33,8 @@ public class PacketInputStream
     public byte[] readPacket() throws IOException
     {
         tracker.out.reset();
-        int id = tracker.read();
-        if (id == -1)
-        {
-            throw new EOFException();
-        }
-        Packet codec = VanillaPackets.packets[id];
-        if (codec == null)
-        {
-            throw new RuntimeException("No Packet id: " + Util.hex(id));
-        }
-        codec.a(dataInput);
+        PacketDefinitions.readPacket(dataInput);
         return tracker.out.toByteArray();
-
     }
 
     /**

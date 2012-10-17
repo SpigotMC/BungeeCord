@@ -44,6 +44,7 @@ public class GenericConnection
             try
             {
                 out.flush();
+                out.close();
                 socket.close();
             } catch (IOException ioe)
             {
