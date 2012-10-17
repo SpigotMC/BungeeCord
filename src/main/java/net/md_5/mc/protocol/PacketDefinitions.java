@@ -2,6 +2,9 @@ package net.md_5.mc.protocol;
 
 import java.io.DataInput;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class PacketDefinitions {
 
@@ -23,6 +26,11 @@ public class PacketDefinitions {
             short len = in.readShort();
             skip(in, len * 2);
         }
+
+        @Override
+        public String toString() {
+            return "String";
+        }
     };
     private static final Instruction ITEM = new Instruction() {
         @Override
@@ -32,6 +40,11 @@ public class PacketDefinitions {
                 skip(in, 3);
                 SHORT_BYTE.read(in);
             }
+        }
+
+        @Override
+        public String toString() {
+            return "Item";
         }
     };
     private static final Instruction SHORT_ITEM = new ShortHeader(ITEM);
@@ -69,6 +82,11 @@ public class PacketDefinitions {
                 x = in.readByte();
             }
         }
+
+        @Override
+        public String toString() {
+            return "Metadata";
+        }
     };
     private static final Instruction BULK_CHUNK = new Instruction() {
         @Override
@@ -77,12 +95,22 @@ public class PacketDefinitions {
             INT_BYTE.read(in);
             skip(in, count * 12);
         }
+
+        @Override
+        public String toString() {
+            return "Bulk Chunk";
+        }
     };
     private static final Instruction UBYTE_BYTE = new Instruction() {
         @Override
         void read(DataInput in) throws IOException {
             int size = in.readUnsignedByte();
             skip(in, size);
+        }
+
+        @Override
+        public String toString() {
+            return "Unsigned Byte Byte";
         }
     };
 
@@ -199,6 +227,33 @@ public class PacketDefinitions {
         opCodes[0xFD] = new Instruction[]{STRING, SHORT_BYTE, SHORT_BYTE};
         opCodes[0xFE] = new Instruction[]{};
         opCodes[0xFF] = new Instruction[]{STRING};
+
+        crushInstructions();
+    }
+
+    private static void crushInstructions() {
+        for (int i = 0; i < opCodes.length; i++) {
+            Instruction[] instructions = opCodes[i];
+            if (instructions != null) {
+                List<Instruction> crushed = new ArrayList<Instruction>();
+                int nextJumpSize = 0;
+                for (Instruction child : instructions) {
+                    if (child instanceof JumpOpCode) {
+                        nextJumpSize += ((JumpOpCode) child).len;
+                    } else {
+                        if (nextJumpSize != 0) {
+                            crushed.add(new JumpOpCode(nextJumpSize));
+                        }
+                        crushed.add(child);
+                        nextJumpSize = 0;
+                    }
+                }
+                if (nextJumpSize != 0) {
+                    crushed.add(new JumpOpCode(nextJumpSize));
+                }
+                opCodes[i] = crushed.toArray(new Instruction[crushed.size()]);
+            }
+        }
     }
 
     public static void readPacket(DataInput in) throws IOException {
@@ -207,7 +262,7 @@ public class PacketDefinitions {
         if (instructions == null) {
             throw new IOException("Unknown packet id " + packetId);
         }
-        System.out.println(Integer.toHexString(packetId));
+
         for (Instruction instruction : instructions) {
             instruction.read(in);
         }
@@ -222,6 +277,9 @@ public class PacketDefinitions {
                 in.readByte();
             }
         }
+
+        @Override
+        public abstract String toString();
     }
 
     static class JumpOpCode extends Instruction {
@@ -238,6 +296,11 @@ public class PacketDefinitions {
         @Override
         void read(DataInput in) throws IOException {
             skip(in, len);
+        }
+
+        @Override
+        public String toString() {
+            return "Jump(" + len + ")";
         }
     }
 
@@ -256,6 +319,11 @@ public class PacketDefinitions {
                 child.read(in);
             }
         }
+
+        @Override
+        public String toString() {
+            return "ByteHeader(" + child + ")";
+        }
     }
 
     static class ShortHeader extends Instruction {
@@ -273,6 +341,11 @@ public class PacketDefinitions {
                 child.read(in);
             }
         }
+
+        @Override
+        public String toString() {
+            return "ShortHeader(" + child + ")";
+        }
     }
 
     static class IntHeader extends Instruction {
@@ -289,6 +362,11 @@ public class PacketDefinitions {
             for (int i = 0; i < size; i++) {
                 child.read(in);
             }
+        }
+
+        @Override
+        public String toString() {
+            return "IntHeader(" + child + ")";
         }
     }
 }
