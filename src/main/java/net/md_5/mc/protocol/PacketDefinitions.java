@@ -39,7 +39,7 @@ public class PacketDefinitions {
     private static final Instruction METADATA = new Instruction() {
         @Override
         void read(DataInput in) throws IOException {
-            byte x = in.readByte();
+            int x = in.readUnsignedByte();
             while (x != 127) {
                 int type = x >> 5;
                 switch (type) {
