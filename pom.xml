@@ -28,9 +28,6 @@
         <developer>
             <id>md_5</id>
         </developer>
-        <developer>
-            <id>mbaxter</id>
-        </developer>
     </developers>
 
     <scm>
@@ -65,13 +62,23 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>13.0.1</version>
         </dependency>
         <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>mc-protocol-lib</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
+            <artifactId>bcprov-ext-jdk15on</artifactId>
             <version>1.47</version>
         </dependency>
         <dependency>
@@ -84,11 +91,6 @@
             <artifactId>lombok</artifactId>
             <version>0.11.4</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.md-5</groupId>
-            <artifactId>mc-protocol-lib</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
@@ -163,13 +165,46 @@
                         <filter>
                             <artifact>*:*</artifact>
                             <excludes>
-                                <exclude>META-INF/*.SF</exclude>
-                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>**/*.java</exclude>
+                                <exclude>**/*.properties</exclude>
+                                <exclude>**/*.SF</exclude>
+                                <exclude>**/*.DSA</exclude>
                             </excludes>
                         </filter>
                     </filters>
-                    <minimizeJar>true</minimizeJar>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.wvengen</groupId>
+                <artifactId>proguard-maven-plugin</artifactId>
+                <version>2.0.6</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>proguard</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <addMavenDescriptor>true</addMavenDescriptor>
+                    <includeDependency>false</includeDependency>
+                    <libs>
+                        <lib>${java.home}/lib/rt.jar</lib>
+                        <lib>${java.home}/lib/jce.jar</lib>
+                    </libs>
+                    <obfuscate>false</obfuscate>
+                    <options>
+                        <option>-keep class net.md_5.bungee.** { *; }</option>
+                    </options>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>net.sf.proguard</groupId>
+                        <artifactId>proguard-base</artifactId>
+                        <version>4.8</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
