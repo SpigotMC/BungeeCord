@@ -3,7 +3,6 @@ package net.md_5.mc.protocol;
 import java.io.DataInput;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class PacketDefinitions {
@@ -20,18 +19,7 @@ public class PacketDefinitions {
     private static final Instruction BYTE_INT = new ByteHeader(INT);
     private static final Instruction INT_BYTE = new IntHeader(BYTE);
     private static final Instruction INT_3 = new IntHeader(new JumpOpCode(3));
-    private static final Instruction STRING = new Instruction() {
-        @Override
-        void read(DataInput in) throws IOException {
-            short len = in.readShort();
-            skip(in, len * 2);
-        }
-
-        @Override
-        public String toString() {
-            return "String";
-        }
-    };
+    private static final Instruction STRING = new ShortHeader(SHORT);
     private static final Instruction ITEM = new Instruction() {
         @Override
         void read(DataInput in) throws IOException {
