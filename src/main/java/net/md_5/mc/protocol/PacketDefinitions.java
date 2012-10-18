@@ -118,7 +118,7 @@ public class PacketDefinitions {
         opCodes[0x0C] = new Instruction[]{FLOAT, FLOAT, BOOLEAN};
         opCodes[0x0D] = new Instruction[]{DOUBLE, DOUBLE, DOUBLE, DOUBLE, FLOAT, FLOAT, BOOLEAN};
         opCodes[0x0E] = new Instruction[]{BYTE, INT, BYTE, INT, BYTE};
-        opCodes[0x0F] = new Instruction[]{INT, BYTE, INT, ITEM, BYTE, BYTE, BYTE};
+        opCodes[0x0F] = new Instruction[]{INT, BYTE, INT, BYTE, ITEM, BYTE, BYTE, BYTE};
         opCodes[0x10] = new Instruction[]{SHORT};
         opCodes[0x11] = new Instruction[]{INT, BYTE, INT, BYTE, INT};
         opCodes[0x12] = new Instruction[]{INT, BYTE};
