@@ -43,4 +43,17 @@ public abstract class JavaPlugin
     {
         BungeeCord.instance.commandMap.put(label, command);
     }
+    
+    /**
+     * Makes the plugin subscribe to a packet.
+     */
+    public void subscribe(int packetId, StreamDirection direction, JavaPlugin plugin) {
+    	BungeeCord.instance.pluginManager.subscribe(packetId, direction, plugin);
+    }
+    
+    /**
+     * Called when a subscribed packet is sent through the proxy
+     */
+	public void onReceivePacket(PacketEvent event) {
+	}
 }

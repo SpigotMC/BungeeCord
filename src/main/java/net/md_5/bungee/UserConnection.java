@@ -17,6 +17,9 @@ import net.md_5.bungee.packet.Packet46GameState;
 import net.md_5.bungee.packet.Packet9Respawn;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketInputStream;
+import net.md_5.bungee.packet.UndefinedPacket;
+import net.md_5.bungee.plugin.StreamDirection;
+import net.md_5.bungee.plugin.PacketEvent;
 
 public class UserConnection extends GenericConnection implements CommandSender
 {
@@ -130,6 +133,26 @@ public class UserConnection extends GenericConnection implements CommandSender
     {
         return username;
     }
+    
+    private boolean runEvents(int packetId, byte[] packet, StreamDirection direction) {
+    	if(!BungeeCord.instance.pluginManager.packetHasSubscribers(packetId, direction))
+    		return false;
+    	
+    	final PacketEvent event = new PacketEvent(packetId, packet, server.name, username, direction);
+    	BungeeCord.instance.threadPool.execute(new Runnable(){
+			@Override
+			public void run()
+			{
+				BungeeCord.instance.pluginManager.onReceivePacket(event);
+				if(!event.isCancelled())
+				{
+					packetQueue.add(new UndefinedPacket(event.getPacketId(), event.getPacketData()));
+				}
+			}
+    	});
+    	
+    	return true;
+    }
 
     private class UpstreamBridge extends Thread
     {
@@ -162,10 +185,16 @@ public class UserConnection extends GenericConnection implements CommandSender
                     {
                         heldItem = new Packet10HeldItem(packet);
                     }
-
+                    
                     EntityMap.rewrite(packet, clientEntityId, serverEntityId);
+                    
                     if (sendPacket && !server.socket.isClosed())
                     {
+                        if(runEvents(id, packet, StreamDirection.UP))
+                        {
+                        	continue;
+                        }
+                        
                         server.out.write(packet);
                     }
                 } catch (IOException ex)
@@ -216,8 +245,14 @@ public class UserConnection extends GenericConnection implements CommandSender
                             out.write(p.getPacket());
                         }
                     }
-
+                    
                     EntityMap.rewrite(packet, serverEntityId, clientEntityId);
+                    
+                    if(runEvents(id, packet, StreamDirection.DOWN))
+                    {
+                    	continue;
+                    }
+                    
                     out.write(packet);
                 }
             } catch (Exception ex)
