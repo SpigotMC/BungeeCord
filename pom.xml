@@ -195,6 +195,7 @@
                     </libs>
                     <obfuscate>false</obfuscate>
                     <options>
+                        <option>-dontoptimize</option>
                         <option>-keep class net.md_5.bungee.** { *; }</option>
                     </options>
                 </configuration>
