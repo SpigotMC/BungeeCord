@@ -1,6 +1,7 @@
 package net.md_5.mc.protocol;
 
 import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -262,7 +263,7 @@ public class PacketDefinitions {
 
         final void skip(DataInput in, int len) throws IOException {
             for (int i = 0; i < len; i++) {
-                in.readByte();
+                in.readUnsignedByte();
             }
         }
 
