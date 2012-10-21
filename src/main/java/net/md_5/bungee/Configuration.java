@@ -174,11 +174,15 @@ public class Configuration
             {
                 throw new IllegalArgumentException("Server '" + defaultServerName + "' not defined");
             }
-            for (String server : forcedServers.values())
+
+            if (forcedServers != null)
             {
-                if (!servers.containsKey(server))
+                for (String server : forcedServers.values())
                 {
-                    throw new IllegalArgumentException("Forced server " + server + " is not defined in servers");
+                    if (!servers.containsKey(server))
+                    {
+                        throw new IllegalArgumentException("Forced server " + server + " is not defined in servers");
+                    }
                 }
             }
 
