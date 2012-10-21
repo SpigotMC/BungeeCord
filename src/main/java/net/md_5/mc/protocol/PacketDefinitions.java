@@ -20,6 +20,7 @@ public class PacketDefinitions {
     private static final Instruction BYTE_INT = new ByteHeader(INT);
     private static final Instruction INT_BYTE = new IntHeader(BYTE);
     private static final Instruction INT_3 = new IntHeader(new JumpOpCode(3));
+    private static final Instruction INT_6 = new IntHeader(new JumpOpCode(6));
     private static final Instruction STRING = new ShortHeader(SHORT);
     private static final Instruction ITEM = new Instruction() {
         @Override
@@ -127,7 +128,7 @@ public class PacketDefinitions {
         opCodes[0x14] = new Instruction[]{INT, STRING, INT, INT, INT, BYTE, BYTE, SHORT, METADATA};
         opCodes[0x15] = new Instruction[]{INT, SHORT, BYTE, SHORT, INT, INT, INT, BYTE, BYTE, BYTE};
         opCodes[0x16] = new Instruction[]{INT, INT};
-        opCodes[0x17] = new Instruction[]{INT, BYTE, INT, INT, INT, INT, SHORT, SHORT, SHORT};
+        opCodes[0x17] = new Instruction[]{INT, BYTE, INT, INT, INT, INT_6};
         opCodes[0x18] = new Instruction[]{INT, BYTE, INT, INT, INT, BYTE, BYTE, BYTE, SHORT, SHORT, SHORT, METADATA};
         opCodes[0x19] = new Instruction[]{INT, STRING, INT, INT, INT, INT};
         opCodes[0x1A] = new Instruction[]{INT, INT, INT, INT, SHORT};
