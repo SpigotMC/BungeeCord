@@ -1,7 +1,6 @@
 package net.md_5.mc.protocol;
 
 import java.io.DataInput;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -172,7 +171,7 @@ public class PacketDefinitions {
         //
         //
         opCodes[0x46] = new Instruction[]{BYTE, BYTE};
-        opCodes[0x47] = new Instruction[]{INT, BOOLEAN, INT, INT, INT};
+        opCodes[0x47] = new Instruction[]{INT, BYTE, INT, INT, INT};
         //
         //
         // 0x4A -> 0x63 Do not exist
