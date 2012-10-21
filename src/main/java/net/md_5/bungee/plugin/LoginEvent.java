@@ -4,12 +4,10 @@ import java.net.InetAddress;
 import lombok.Data;
 
 /**
- * Event called once a remote connection has begun the login procedure. This
- * event is ideal for IP banning, however must be used with care in other places
- * such as logging at the username has not yet been verified with Mojang.
+ * Event called to represent a player logging in.
  */
 @Data
-public class HandshakeEvent implements Cancellable
+public class LoginEvent implements Cancellable
 {
 
     /**

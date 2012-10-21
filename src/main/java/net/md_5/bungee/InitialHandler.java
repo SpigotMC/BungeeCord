@@ -9,7 +9,7 @@ import net.md_5.bungee.packet.PacketFCEncryptionResponse;
 import net.md_5.bungee.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketInputStream;
-import net.md_5.bungee.plugin.HandshakeEvent;
+import net.md_5.bungee.plugin.LoginEvent;
 import org.bouncycastle.crypto.io.CipherInputStream;
 import org.bouncycastle.crypto.io.CipherOutputStream;
 
@@ -39,7 +39,7 @@ public class InitialHandler implements Runnable
                 case 0x02:
                     Packet2Handshake handshake = new Packet2Handshake(packet);
                     // fire connect event
-                    HandshakeEvent event = new HandshakeEvent(handshake.username, socket.getInetAddress());
+                    LoginEvent event = new LoginEvent(handshake.username, socket.getInetAddress());
                     BungeeCord.instance.pluginManager.onHandshake(event);
                     if (event.isCancelled())
                     {
@@ -54,6 +54,13 @@ public class InitialHandler implements Runnable
                     if (!EncryptionUtil.isAuthenticated(handshake.username, request.serverId, shared))
                     {
                         throw new KickException("Not authenticated with minecraft.net");
+                    }
+
+                    // fire post auth event
+                    BungeeCord.instance.pluginManager.onHandshake(event);
+                    if (event.isCancelled())
+                    {
+                        throw new KickException(event.getCancelReason());
                     }
 
                     out.write(new PacketFCEncryptionResponse().getPacket());

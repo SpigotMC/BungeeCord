@@ -81,11 +81,20 @@ public class JavaPluginManager extends JavaPlugin
     }
 
     @Override
-    public void onHandshake(HandshakeEvent event)
+    public void onHandshake(LoginEvent event)
     {
         for (JavaPlugin p : plugins)
         {
             p.onHandshake(event);
+        }
+    }
+
+    @Override
+    public void onLogin(LoginEvent event)
+    {
+        for (JavaPlugin p : plugins)
+        {
+            p.onLogin(event);
         }
     }
 }

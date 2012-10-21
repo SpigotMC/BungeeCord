@@ -100,12 +100,6 @@
             <url>http://repo.md-5.net/content/groups/public</url>
         </repository>
     </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>md_5-public</id>
-            <url>http://repo.md-5.net/content/groups/public</url>
-        </pluginRepository>
-    </pluginRepositories>
     <build>
         <finalName>${project.name}</finalName>
         <plugins>

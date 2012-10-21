@@ -32,7 +32,15 @@ public abstract class JavaPlugin
      * Called when a user connects with their name and address. To keep things
      * simple this name has not been checked with minecraft.net.
      */
-    public void onHandshake(HandshakeEvent event)
+    public void onHandshake(LoginEvent event)
+    {
+    }
+
+    /**
+     * Called after a user has been authed with minecraftt.net and is about to
+     * log into the proxy.
+     */
+    public void onLogin(LoginEvent event)
     {
     }
 
