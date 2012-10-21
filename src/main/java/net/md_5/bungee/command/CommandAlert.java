@@ -27,11 +27,12 @@ public class CommandAlert extends Command
             for (String s : args)
             {
                 builder.append(s);
+                builder.append(" ");
             }
-            String message = builder.toString();
+            String message = builder.substring(0, builder.length() - 1);
             for (UserConnection con : BungeeCord.instance.connections.values())
             {
-                con.sendMessage(message.toString());
+                con.sendMessage(message);
             }
         }
     }
