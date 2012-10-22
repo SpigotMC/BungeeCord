@@ -24,19 +24,18 @@ public class CommandAlert extends Command
             StringBuilder builder = new StringBuilder();
             if (!args[0].contains("&h")) //They want to hide the alert prefix
             {
-                builder.append(ChatColor.DARK_PURPLE);
-                builder.append("[Alert] "); //No space at start.
-            } else
-            {
-                args[0].replaceAll("&h", ""); //Remove hide control code from message
+            builder.append(ChatColor.DARK_PURPLE);
+            builder.append("[Alert] "); //No space at start.
             }
-
+            
+            
             for (String s : args)
             {
-
+                s = s.replaceAll("&h", ""); //Fix replace
                 builder.append(ChatColor.translateAlternateColorCodes('&', s)); //Allow custom colours
                 builder.append(" ");
             }
+            
             String message = builder.substring(0, builder.length() - 1);
             for (UserConnection con : BungeeCord.instance.connections.values())
             {
