@@ -22,20 +22,19 @@ public class CommandAlert extends Command
         } else
         {
             StringBuilder builder = new StringBuilder();
-            if (!args[0].contains("&h")) //They want to hide the alert prefix
+            if (!args[0].startsWith("&h"))
             {
-            builder.append(ChatColor.DARK_PURPLE);
-            builder.append("[Alert] "); //No space at start.
+                builder.append(ChatColor.DARK_PURPLE);
+                builder.append("[Alert] ");
             }
-            
-            
+
             for (String s : args)
             {
-                s = s.replaceAll("&h", ""); //Fix replace
-                builder.append(ChatColor.translateAlternateColorCodes('&', s)); //Allow custom colours
+                s = s.replace("&h", "");
+                builder.append(ChatColor.translateAlternateColorCodes('&', s));
                 builder.append(" ");
             }
-            
+
             String message = builder.substring(0, builder.length() - 1);
             for (UserConnection con : BungeeCord.instance.connections.values())
             {

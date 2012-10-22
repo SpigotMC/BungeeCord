@@ -1,10 +1,12 @@
 package net.md_5.bungee.command;
 
 import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.ChatColor;
 import net.md_5.bungee.Permission;
 
 /**
- * Command to set a temp copy of the motd in real-time without stopping the proxy
+ * Command to set a temp copy of the motd in real-time without stopping the
+ * proxy.
  */
 public class CommandMotd extends Command
 {
@@ -18,11 +20,11 @@ public class CommandMotd extends Command
         } else
         {
             String newMOTD = "";
-            for (String s: args)
+            for (String s : args)
             {
                 newMOTD = newMOTD + s + " ";
             }
-            newMOTD = newMOTD.substring(0, newMOTD.length()-1);
+            newMOTD = newMOTD.substring(0, newMOTD.length() - 1);
             BungeeCord.instance.config.motd = newMOTD;
         }
     }
