@@ -27,17 +27,15 @@ public class CommandAlert extends Command
             builder.append(ChatColor.DARK_PURPLE);
             builder.append("[Alert] "); //No space at start.
             }
-            else
-            {
-                args[0].replaceAll("&h", ""); //Remove hide control code from message
-            }
+            
             
             for (String s : args)
             {
-                
+                s = s.replaceAll("&h", ""); //Fix replace
                 builder.append(ChatColor.translateAlternateColorCodes('&', s)); //Allow custom colours
                 builder.append(" ");
             }
+            
             String message = builder.substring(0, builder.length() - 1);
             for (UserConnection con : BungeeCord.instance.connections.values())
             {
