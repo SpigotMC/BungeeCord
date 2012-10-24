@@ -79,6 +79,7 @@ public class BungeeCord
         commandMap.put("ip", new CommandIP());
         commandMap.put("alert", new CommandAlert());
         commandMap.put("motd", new CommandMotd());
+        commandMap.put("sendall", new CommandSendAll());
     }
 
     /**
