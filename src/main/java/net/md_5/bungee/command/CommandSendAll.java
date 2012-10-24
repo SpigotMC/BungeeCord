@@ -26,6 +26,7 @@ public class CommandSendAll extends Command
         } else
         {
             String server = args[0];
+            Collection<String> servers = BungeeCord.instance.config.servers.keySet();
             if (!servers.contains(server))
             {
                 sender.sendMessage(ChatColor.RED + "The specified server does not exist");
