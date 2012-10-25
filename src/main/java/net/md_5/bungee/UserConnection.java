@@ -9,11 +9,9 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import net.md_5.bungee.command.CommandSender;
 import net.md_5.bungee.packet.DefinedPacket;
-import net.md_5.bungee.packet.Packet10HeldItem;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet2Handshake;
 import net.md_5.bungee.packet.Packet3Chat;
-import net.md_5.bungee.packet.Packet46GameState;
 import net.md_5.bungee.packet.Packet9Respawn;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketInputStream;
@@ -27,7 +25,6 @@ public class UserConnection extends GenericConnection implements CommandSender
     private UpstreamBridge upBridge;
     private DownstreamBridge downBridge;
     // reconnect stuff
-    private Packet10HeldItem heldItem;
     private int clientEntityId;
     private int serverEntityId;
     private volatile boolean reconnecting;
@@ -81,11 +78,6 @@ public class UserConnection extends GenericConnection implements CommandSender
                 Packet1Login login = newServer.loginPacket;
                 serverEntityId = login.entityId;
                 out.write(new Packet9Respawn(login.dimension, login.difficulty, login.gameMode, (short) 256, login.levelType).getPacket());
-                out.write(new Packet46GameState((byte) 2, (byte) 0).getPacket());
-                if (heldItem != null)
-                {
-                    newServer.out.write(heldItem.getPacket());
-                }
             }
             reconnecting = false;
             downBridge = new DownstreamBridge();
@@ -158,9 +150,6 @@ public class UserConnection extends GenericConnection implements CommandSender
                         {
                             sendPacket = !BungeeCord.instance.dispatchCommand(message.substring(1), UserConnection.this);
                         }
-                    } else if (id == 0x10)
-                    {
-                        heldItem = new Packet10HeldItem(packet);
                     }
 
                     EntityMap.rewrite(packet, clientEntityId, serverEntityId);
