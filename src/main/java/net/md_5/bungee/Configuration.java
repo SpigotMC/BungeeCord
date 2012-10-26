@@ -194,6 +194,8 @@ public class Configuration
                 }
             }
 
+            motd = ChatColor.translateAlternateColorCodes('&', motd);
+
             reconnect.createNewFile();
             try (FileInputStream recon = new FileInputStream(reconnect))
             {
