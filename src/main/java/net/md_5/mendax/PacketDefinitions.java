@@ -16,7 +16,7 @@ public class PacketDefinitions {
         opCodes[0x01] = new OpCode[]{INT, STRING, BYTE, BYTE, BYTE, BYTE, BYTE};
         opCodes[0x02] = new OpCode[]{BYTE, STRING, STRING, INT};
         opCodes[0x03] = new OpCode[]{STRING};
-        opCodes[0x04] = new OpCode[]{LONG};
+        opCodes[0x04] = new OpCode[]{LONG, LONG};
         opCodes[0x05] = new OpCode[]{INT, SHORT, ITEM};
         opCodes[0x06] = new OpCode[]{INT, INT, INT};
         opCodes[0x07] = new OpCode[]{INT, INT, BOOLEAN};
@@ -33,7 +33,7 @@ public class PacketDefinitions {
         opCodes[0x12] = new OpCode[]{INT, BYTE};
         opCodes[0x13] = new OpCode[]{INT, BYTE};
         opCodes[0x14] = new OpCode[]{INT, STRING, INT, INT, INT, BYTE, BYTE, SHORT, METADATA};
-        opCodes[0x15] = new OpCode[]{INT, SHORT, BYTE, SHORT, INT, INT, INT, BYTE, BYTE, BYTE};
+        opCodes[0x15] = new OpCode[]{INT, ITEM,  INT, INT, INT, BYTE, BYTE, BYTE};
         opCodes[0x16] = new OpCode[]{INT, INT};
         opCodes[0x17] = new OpCode[]{INT, BYTE, INT, INT, INT, OPTIONAL_MOTION};
         opCodes[0x18] = new OpCode[]{INT, BYTE, INT, INT, INT, BYTE, BYTE, BYTE, SHORT, SHORT, SHORT, METADATA};
@@ -71,7 +71,7 @@ public class PacketDefinitions {
         opCodes[0x3A] = null; // Does not exist
         opCodes[0x3B] = null; // Does not exist
         opCodes[0x3C] = new OpCode[]{DOUBLE, DOUBLE, DOUBLE, FLOAT, INT_3, FLOAT, FLOAT, FLOAT};
-        opCodes[0x3D] = new OpCode[]{INT, INT, BYTE, INT, INT};
+        opCodes[0x3D] = new OpCode[]{INT, INT, BYTE, INT, INT, BOOLEAN};
         opCodes[0x3E] = new OpCode[]{STRING, INT, INT, INT, FLOAT, BYTE};
         //
         //
@@ -87,7 +87,7 @@ public class PacketDefinitions {
         //
         opCodes[0x64] = new OpCode[]{BYTE, BYTE, STRING, BYTE};
         opCodes[0x65] = new OpCode[]{BYTE};
-        opCodes[0x66] = new OpCode[]{BYTE, SHORT, BOOLEAN, SHORT, BOOLEAN, ITEM};
+        opCodes[0x66] = new OpCode[]{BYTE, SHORT, BYTE, SHORT, BYTE, ITEM};
         opCodes[0x67] = new OpCode[]{BYTE, SHORT, ITEM};
         opCodes[0x68] = new OpCode[]{BYTE, SHORT_ITEM};
         opCodes[0x69] = new OpCode[]{BYTE, SHORT, SHORT};
@@ -111,7 +111,7 @@ public class PacketDefinitions {
         opCodes[0xC9] = new OpCode[]{STRING, BOOLEAN, SHORT};
         opCodes[0xCA] = new OpCode[]{BYTE, BYTE, BYTE};
         opCodes[0xCB] = new OpCode[]{STRING};
-        opCodes[0xCC] = new OpCode[]{STRING, BYTE, BYTE, BYTE};
+        opCodes[0xCC] = new OpCode[]{STRING, BYTE, BYTE, BYTE, BOOLEAN};
         opCodes[0xCD] = new OpCode[]{BYTE};
         //
         //
@@ -122,7 +122,7 @@ public class PacketDefinitions {
         opCodes[0xFB] = null; // Does not exist
         opCodes[0xFC] = new OpCode[]{SHORT_BYTE, SHORT_BYTE};
         opCodes[0xFD] = new OpCode[]{STRING, SHORT_BYTE, SHORT_BYTE};
-        opCodes[0xFE] = new OpCode[]{};
+        opCodes[0xFE] = new OpCode[]{BYTE};
         opCodes[0xFF] = new OpCode[]{STRING};
     }
 }

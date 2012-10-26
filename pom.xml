@@ -4,7 +4,7 @@
 
     <groupId>net.md-5</groupId>
     <artifactId>mendax</artifactId>
-    <version>1.3.2-SNAPSHOT</version>
+    <version>1.4.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Mendax</name>
