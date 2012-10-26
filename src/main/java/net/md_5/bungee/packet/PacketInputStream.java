@@ -6,7 +6,8 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import net.md_5.bungee.Util;
-import net.md_5.mc.protocol.PacketDefinitions;
+import net.md_5.mendax.PacketDefinitions;
+import net.md_5.mendax.datainput.DataInputPacketReader;
 
 /**
  * A specialized input stream to parse packets using the Mojang packet
@@ -33,7 +34,7 @@ public class PacketInputStream
     public byte[] readPacket() throws IOException
     {
         tracker.out.reset();
-        PacketDefinitions.readPacket(dataInput);
+        DataInputPacketReader.readPacket(dataInput);
         return tracker.out.toByteArray();
     }
 
