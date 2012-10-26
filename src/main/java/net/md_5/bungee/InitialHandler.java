@@ -77,7 +77,13 @@ public class InitialHandler implements Runnable
                     userCon.connect(BungeeCord.instance.config.getServer(handshake.username, handshake.host));
                     break;
                 case 0xFE:
-                    throw new KickException(BungeeCord.instance.config.motd + ChatColor.COLOR_CHAR + BungeeCord.instance.connections.size() + ChatColor.COLOR_CHAR + BungeeCord.instance.config.maxPlayers);
+                    Configuration conf = BungeeCord.instance.config;
+                    throw new KickException(ChatColor.COLOR_CHAR + "1"
+                            + "\00" + conf.protcolVersion
+                            + "\00" + conf.gameVersion
+                            + "\00" + conf.motd
+                            + "\00" + BungeeCord.instance.connections.size()
+                            + "\00" + conf.maxPlayers);
                 default:
                     throw new IllegalArgumentException("Wasn't ready for packet id " + Util.hex(id));
             }
