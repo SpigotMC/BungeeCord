@@ -9,6 +9,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import net.md_5.bungee.command.CommandSender;
 import net.md_5.bungee.packet.DefinedPacket;
+import net.md_5.bungee.packet.Packet0KeepAlive;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet2Handshake;
 import net.md_5.bungee.packet.Packet3Chat;
@@ -28,6 +29,9 @@ public class UserConnection extends GenericConnection implements CommandSender
     private int clientEntityId;
     private int serverEntityId;
     private volatile boolean reconnecting;
+    private int trackingPingId;
+    private long pingTime;
+    private int ping;
 
     public UserConnection(Socket socket, PacketInputStream in, OutputStream out, Packet2Handshake handshake)
     {
@@ -96,6 +100,11 @@ public class UserConnection extends GenericConnection implements CommandSender
     {
         return socket.getRemoteSocketAddress();
     }
+    
+    public int getPing()
+    {
+        return ping;
+    }
 
     private void destroySelf(String reason)
     {
@@ -140,7 +149,7 @@ public class UserConnection extends GenericConnection implements CommandSender
                 {
                     byte[] packet = in.readPacket();
                     boolean sendPacket = true;
-
+                    
                     int id = Util.getId(packet);
                     if (id == 0x03)
                     {
@@ -149,6 +158,13 @@ public class UserConnection extends GenericConnection implements CommandSender
                         if (message.startsWith("/"))
                         {
                             sendPacket = !BungeeCord.instance.dispatchCommand(message.substring(1), UserConnection.this);
+                        }
+                    }
+                    else if(id == 0x00)
+                    {
+                        if(trackingPingId == new Packet0KeepAlive(packet).id)
+                        {
+                        	ping = (int) (System.currentTimeMillis()-pingTime);
                         }
                     }
 
@@ -195,6 +211,16 @@ public class UserConnection extends GenericConnection implements CommandSender
                             connect(server);
                             break;
                         }
+                    }
+                    else if(id == 0x00)
+                    {
+                    	trackingPingId = new Packet0KeepAlive(packet).id;
+                    	pingTime = System.currentTimeMillis();
+                    }
+                    else if(id == 0xC9)
+                    {
+                        //This packet is handled by bungeecord so don't send it.
+                        continue;
                     }
 
                     while (!packetQueue.isEmpty())

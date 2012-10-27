@@ -63,6 +63,10 @@ public class BungeeCord
      */
     public Map<String, UserConnection> connections = new ConcurrentHashMap<>();
     /**
+     * Tab List Emulator
+     */
+    public final TabListEmulator tablistEmulator = new TabListEmulator(connections);
+    /**
      * Registered commands.
      */
     public Map<String, Command> commandMap = new HashMap<>();
@@ -150,7 +154,9 @@ public class BungeeCord
         isRunning = true;
 
         pluginManager.loadPlugins();
-
+        
+        tablistEmulator.start();
+        
         InetSocketAddress addr = Util.getAddr(config.bindHost);
         listener = new ListenThread(addr);
         listener.start();
@@ -183,6 +189,16 @@ public class BungeeCord
 
         $().info("Closing pending connections");
         threadPool.shutdown();
+        
+        $().info("Shutting down the tablist emulator");
+        try
+        {
+            tablistEmulator.safeStop();
+            tablistEmulator.join();
+        } catch (InterruptedException e)
+        {
+            $().severe("Could not shut down the tablist emulator");
+        }
 
         $().info("Disconnecting " + connections.size() + " connections");
         for (UserConnection user : connections.values())
