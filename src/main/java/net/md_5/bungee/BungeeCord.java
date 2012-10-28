@@ -22,7 +22,12 @@ import net.md_5.bungee.command.CommandMotd;
 import net.md_5.bungee.command.CommandSender;
 import net.md_5.bungee.command.CommandServer;
 import net.md_5.bungee.command.ConsoleCommandSender;
+import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.plugin.JavaPluginManager;
+import net.md_5.bungee.tablist.GlobalPingTabList;
+import net.md_5.bungee.tablist.GlobalTabList;
+import net.md_5.bungee.tablist.ServerUnqiueTabList;
+import net.md_5.bungee.tablist.TabListHandler;
 
 /**
  * Main BungeeCord proxy class.
@@ -66,6 +71,10 @@ public class BungeeCord
      * Registered commands.
      */
     public Map<String, Command> commandMap = new HashMap<>();
+    /**
+     * Tab list handler
+     */
+    public TabListHandler tabListHandler;
     /**
      * Plugin manager.
      */
@@ -150,7 +159,14 @@ public class BungeeCord
         isRunning = true;
 
         pluginManager.loadPlugins();
-
+        
+        switch(config.tabList)
+        {
+            case 1: tabListHandler = new GlobalPingTabList(); break;
+            case 2: tabListHandler = new GlobalTabList(); break;
+            case 3: tabListHandler = new ServerUnqiueTabList(); break;
+        }
+        
         InetSocketAddress addr = Util.getAddr(config.bindHost);
         listener = new ListenThread(addr);
         listener.start();
@@ -214,5 +230,18 @@ public class BungeeCord
         socket.setSoTimeout(config.timeout);
         socket.setTrafficClass(0x18);
         socket.setTcpNoDelay(true);
+    }
+    
+    /**
+     * Broadcasts a packet to all clients that is connected to this instance.
+     *
+     * @param packet the packet to send
+     */
+    public void broadcast(DefinedPacket packet)
+    {
+        for(UserConnection con : connections.values()) 
+        {
+            con.packetQueue.add(packet);
+        }
     }
 }

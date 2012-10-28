@@ -9,16 +9,17 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import net.md_5.bungee.command.CommandSender;
 import net.md_5.bungee.packet.DefinedPacket;
+import net.md_5.bungee.packet.Packet0KeepAlive;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet2Handshake;
 import net.md_5.bungee.packet.Packet3Chat;
 import net.md_5.bungee.packet.Packet9Respawn;
+import net.md_5.bungee.packet.PacketC9PlayerListItem;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketInputStream;
 
 public class UserConnection extends GenericConnection implements CommandSender
-{
-
+{    
     public final Packet2Handshake handshake;
     public Queue<DefinedPacket> packetQueue = new ConcurrentLinkedQueue<>();
     private ServerConnection server;
@@ -28,6 +29,10 @@ public class UserConnection extends GenericConnection implements CommandSender
     private int clientEntityId;
     private int serverEntityId;
     private volatile boolean reconnecting;
+    // ping stuff
+    private int trackingPingId;
+    private long pingTime;
+    private int ping;
 
     public UserConnection(Socket socket, PacketInputStream in, OutputStream out, Packet2Handshake handshake)
     {
@@ -35,6 +40,7 @@ public class UserConnection extends GenericConnection implements CommandSender
         this.handshake = handshake;
         username = handshake.username;
         BungeeCord.instance.connections.put(username, this);
+        BungeeCord.instance.tabListHandler.onJoin(this);
     }
 
     public void connect(String server)
@@ -45,6 +51,7 @@ public class UserConnection extends GenericConnection implements CommandSender
 
     private void connect(String name, InetSocketAddress serverAddr)
     {
+        BungeeCord.instance.tabListHandler.onServerChange(this);
         try
         {
             reconnecting = true;
@@ -96,6 +103,17 @@ public class UserConnection extends GenericConnection implements CommandSender
     {
         return socket.getRemoteSocketAddress();
     }
+    
+    public int getPing()
+    {
+        return ping;
+    }
+    
+    private void setPing(int ping)
+    {
+        BungeeCord.instance.tabListHandler.onPingChange(this, ping);
+        this.ping = ping;
+    }
 
     private void destroySelf(String reason)
     {
@@ -109,6 +127,12 @@ public class UserConnection extends GenericConnection implements CommandSender
             server.disconnect("Quitting");
             BungeeCord.instance.config.setServer(this, server.name);
         }
+    }
+    
+    @Override
+    public void disconnect(String reason) {
+        BungeeCord.instance.tabListHandler.onDisconnect(this);
+        super.disconnect(reason);
     }
 
     @Override
@@ -140,7 +164,7 @@ public class UserConnection extends GenericConnection implements CommandSender
                 {
                     byte[] packet = in.readPacket();
                     boolean sendPacket = true;
-
+                    
                     int id = Util.getId(packet);
                     if (id == 0x03)
                     {
@@ -149,6 +173,13 @@ public class UserConnection extends GenericConnection implements CommandSender
                         if (message.startsWith("/"))
                         {
                             sendPacket = !BungeeCord.instance.dispatchCommand(message.substring(1), UserConnection.this);
+                        }
+                    }
+                    else if(id == 0x00)
+                    {
+                        if(trackingPingId == new Packet0KeepAlive(packet).id)
+                        {
+                            setPing((int) (System.currentTimeMillis()-pingTime));
                         }
                     }
 
@@ -194,6 +225,18 @@ public class UserConnection extends GenericConnection implements CommandSender
                             String server = new String(message.data);
                             connect(server);
                             break;
+                        }
+                    }
+                    else if(id == 0x00)
+                    {
+                        trackingPingId = new Packet0KeepAlive(packet).id;
+                        pingTime = System.currentTimeMillis();
+                    }
+                    else if(id == 0xC9)
+                    {
+                        if(!BungeeCord.instance.tabListHandler.onPacketC9(UserConnection.this, new PacketC9PlayerListItem(packet)))
+                        {    
+                            continue;
                         }
                     }
 
