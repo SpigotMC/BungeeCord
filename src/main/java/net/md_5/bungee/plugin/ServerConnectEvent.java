@@ -15,8 +15,7 @@ public class ServerConnectEvent
      */
     private final boolean firstTime;
     /**
-     * Message to send just before the change.
-     * null for no message
+     * Message to send just before the change. null for no message
      */
     private String message;
     /**
