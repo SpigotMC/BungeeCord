@@ -37,7 +37,7 @@ class MetaData extends Instruction {
                 default:
                     throw new IllegalArgumentException("Unknown metadata type " + type);
             }
-            x = in.readByte();
+            x = in.readUnsignedByte();
         }
     }
 }
