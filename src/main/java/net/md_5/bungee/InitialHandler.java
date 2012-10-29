@@ -78,11 +78,11 @@ public class InitialHandler implements Runnable
                     break;
                 case 0xFE:
                     socket.setSoTimeout(100);
-                    boolean newPing = true;
+                    boolean newPing = false;
                     try
                     {
                         socket.getInputStream().read();
-                        newPing = false;
+                        newPing = true;
                     } catch (IOException ex)
                     {
                     }

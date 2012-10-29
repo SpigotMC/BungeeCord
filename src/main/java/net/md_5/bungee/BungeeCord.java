@@ -200,6 +200,7 @@ public class BungeeCord
         }
 
         $().info("Thank you and goodbye");
+        System.exit(0);
     }
 
     /**
