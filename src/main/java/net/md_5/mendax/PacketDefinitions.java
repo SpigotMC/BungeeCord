@@ -122,7 +122,7 @@ public class PacketDefinitions {
         opCodes[0xFB] = null; // Does not exist
         opCodes[0xFC] = new OpCode[]{SHORT_BYTE, SHORT_BYTE};
         opCodes[0xFD] = new OpCode[]{STRING, SHORT_BYTE, SHORT_BYTE};
-        opCodes[0xFE] = new OpCode[]{BYTE};
+        opCodes[0xFE] = new OpCode[]{}; // Should be byte, screw you too bitchy server admins!
         opCodes[0xFF] = new OpCode[]{STRING};
     }
 }
