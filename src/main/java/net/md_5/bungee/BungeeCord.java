@@ -21,6 +21,7 @@ import net.md_5.bungee.command.CommandList;
 import net.md_5.bungee.command.CommandMotd;
 import net.md_5.bungee.command.CommandSender;
 import net.md_5.bungee.command.CommandServer;
+import net.md_5.bungee.command.CommandSendAll;
 import net.md_5.bungee.command.ConsoleCommandSender;
 import net.md_5.bungee.plugin.JavaPluginManager;
 
@@ -79,6 +80,7 @@ public class BungeeCord
         commandMap.put("ip", new CommandIP());
         commandMap.put("alert", new CommandAlert());
         commandMap.put("motd", new CommandMotd());
+        commandMap.put("sendall", new CommandSendAll());
     }
 
     /**
