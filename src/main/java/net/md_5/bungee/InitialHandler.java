@@ -57,7 +57,7 @@ public class InitialHandler implements Runnable
                     }
 
                     // fire post auth event
-                    BungeeCord.instance.pluginManager.onHandshake(event);
+                    BungeeCord.instance.pluginManager.onLogin(event);
                     if (event.isCancelled())
                     {
                         throw new KickException(event.getCancelReason());
