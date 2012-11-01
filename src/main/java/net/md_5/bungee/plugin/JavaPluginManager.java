@@ -97,4 +97,13 @@ public class JavaPluginManager extends JavaPlugin
             p.onLogin(event);
         }
     }
+
+    @Override
+    public void onServerConnect(ServerConnectEvent event)
+    {
+        for (JavaPlugin p : plugins)
+        {
+            p.onServerConnect(event);
+        }
+    }
 }

@@ -15,6 +15,7 @@ import net.md_5.bungee.packet.Packet3Chat;
 import net.md_5.bungee.packet.Packet9Respawn;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketInputStream;
+import net.md_5.bungee.plugin.ServerConnectEvent;
 
 public class UserConnection extends GenericConnection implements CommandSender
 {
@@ -39,7 +40,10 @@ public class UserConnection extends GenericConnection implements CommandSender
 
     public void connect(String server)
     {
-        InetSocketAddress addr = BungeeCord.instance.config.getServer(server);
+        ServerConnectEvent event = new ServerConnectEvent(this, server);
+        event.setNewServer(server);
+        BungeeCord.instance.pluginManager.onServerConnect(event);
+        InetSocketAddress addr = BungeeCord.instance.config.getServer(event.getNewServer());
         connect(server, addr);
     }
 

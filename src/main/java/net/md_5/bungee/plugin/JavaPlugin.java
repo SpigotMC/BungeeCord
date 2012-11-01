@@ -45,6 +45,13 @@ public abstract class JavaPlugin
     }
 
     /**
+     * Called when a user is connecting to a new server.
+     */
+    public void onServerConnect(ServerConnectEvent event)
+    {
+    }
+
+    /**
      * Register a command for use with the proxy.
      */
     protected final void registerCommand(String label, Command command)
