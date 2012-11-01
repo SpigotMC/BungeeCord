@@ -26,4 +26,8 @@ public class LoginEvent implements Cancellable
      * IP address of the remote connection.
      */
     private final InetAddress address;
+    /**
+     * Hostname which the user tried to connect to.
+     */
+    private final String hostname;
 }

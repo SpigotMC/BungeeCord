@@ -39,7 +39,7 @@ public class InitialHandler implements Runnable
                 case 0x02:
                     Packet2Handshake handshake = new Packet2Handshake(packet);
                     // fire connect event
-                    LoginEvent event = new LoginEvent(handshake.username, socket.getInetAddress());
+                    LoginEvent event = new LoginEvent(handshake.username, socket.getInetAddress(), handshake.host);
                     BungeeCord.instance.pluginManager.onHandshake(event);
                     if (event.isCancelled())
                     {
