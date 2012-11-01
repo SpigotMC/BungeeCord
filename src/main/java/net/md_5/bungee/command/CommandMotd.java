@@ -25,7 +25,7 @@ public class CommandMotd extends Command
                 newMOTD = newMOTD + s + " ";
             }
             newMOTD = newMOTD.substring(0, newMOTD.length() - 1);
-            BungeeCord.instance.config.motd = newMOTD;
+            BungeeCord.instance.config.motd = ChatColor.translateAlternateColorCodes('&', newMOTD);
         }
     }
 }
