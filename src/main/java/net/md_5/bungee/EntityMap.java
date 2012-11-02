@@ -90,6 +90,10 @@ public class EntityMap
         {
             1
         };
+        entityIds[0x29] = new int[]
+        {
+            1
+        };
         entityIds[0x47] = new int[]
         {
             1
