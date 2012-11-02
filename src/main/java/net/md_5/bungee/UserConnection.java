@@ -40,9 +40,23 @@ public class UserConnection extends GenericConnection implements CommandSender
 
     public void connect(String server)
     {
-        ServerConnectEvent event = new ServerConnectEvent(this, server);
+        ServerConnectEvent event = new ServerConnectEvent(this.server == null, this, server);
         event.setNewServer(server);
         BungeeCord.instance.pluginManager.onServerConnect(event);
+        if (event.getMessage() != null)
+        {
+            this.sendMessage(event.getMessage());
+        }
+        if (event.getNewServer() == null)
+        {
+            if (event.isFirstTime())
+            {
+                event.setNewServer(BungeeCord.instance.config.defaultServerName);
+            } else
+            {
+                return;
+            }
+        }
         InetSocketAddress addr = BungeeCord.instance.config.getServer(event.getNewServer());
         connect(server, addr);
     }
