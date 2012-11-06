@@ -120,7 +120,7 @@ public class BungeeCord
         String[] split = commandLine.trim().split(" ");
         String commandName = split[0].toLowerCase();
         Command command = commandMap.get(commandName);
-        if (config.disabledCommands == null || !config.disabledCommands.contains(commandName))
+        if (config.disabledCommands != null && config.disabledCommands.contains(commandName))
         {
             return false;
         } else if (command != null)
