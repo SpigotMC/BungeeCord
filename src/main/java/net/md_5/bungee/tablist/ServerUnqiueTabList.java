@@ -24,16 +24,16 @@ public class ServerUnqiueTabList implements TabListHandler
     public void onServerChange(UserConnection con)
     {
         Set<String> usernames = sentUsernames.get(con);
-        synchronized (usernames)
+        if (usernames != null)
         {
-            if (usernames != null)
-            {
-                for (String username : usernames)
-                {
-                    con.packetQueue.add(new PacketC9PlayerListItem(username, false, 9999));
-                }
-            }
-            usernames.clear();
+	        synchronized (usernames)
+	        {
+	            for (String username : usernames)
+	            {
+	                con.packetQueue.add(new PacketC9PlayerListItem(username, false, 9999));
+	            }
+	            usernames.clear();
+	        }
         }
     }
 

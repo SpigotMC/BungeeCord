@@ -165,7 +165,7 @@ public class BungeeCord
 
         switch (config.tabList)
         {
-            case 1:
+            default: case 1:
                 tabListHandler = new GlobalPingTabList();
                 break;
             case 2:
