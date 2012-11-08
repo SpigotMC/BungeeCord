@@ -9,11 +9,10 @@ import java.util.WeakHashMap;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.packet.PacketC9PlayerListItem;
 
-public class ServerUnqiueTabList implements TabListHandler
+public class ServerUniqueTabList implements TabListHandler
 {
 
-    private Map<UserConnection, Set<String>> sentUsernames =
-            Collections.synchronizedMap(new WeakHashMap<UserConnection, Set<String>>());
+    private Map<UserConnection, Set<String>> sentUsernames = Collections.synchronizedMap(new WeakHashMap<UserConnection, Set<String>>());
 
     @Override
     public void onJoin(UserConnection con)
@@ -26,14 +25,14 @@ public class ServerUnqiueTabList implements TabListHandler
         Set<String> usernames = sentUsernames.get(con);
         if (usernames != null)
         {
-	        synchronized (usernames)
-	        {
-	            for (String username : usernames)
-	            {
-	                con.packetQueue.add(new PacketC9PlayerListItem(username, false, 9999));
-	            }
-	            usernames.clear();
-	        }
+            synchronized (usernames)
+            {
+                for (String username : usernames)
+                {
+                    con.packetQueue.add(new PacketC9PlayerListItem(username, false, 9999));
+                }
+                usernames.clear();
+            }
         }
     }
 

@@ -26,7 +26,7 @@ import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.plugin.JavaPluginManager;
 import net.md_5.bungee.tablist.GlobalPingTabList;
 import net.md_5.bungee.tablist.GlobalTabList;
-import net.md_5.bungee.tablist.ServerUnqiueTabList;
+import net.md_5.bungee.tablist.ServerUniqueTabList;
 import net.md_5.bungee.tablist.TabListHandler;
 
 /**
@@ -165,14 +165,15 @@ public class BungeeCord
 
         switch (config.tabList)
         {
-            default: case 1:
+            default:
+            case 1:
                 tabListHandler = new GlobalPingTabList();
                 break;
             case 2:
                 tabListHandler = new GlobalTabList();
                 break;
             case 3:
-                tabListHandler = new ServerUnqiueTabList();
+                tabListHandler = new ServerUniqueTabList();
                 break;
         }
 

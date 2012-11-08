@@ -72,9 +72,9 @@ public class Configuration
     public int maxPlayers = 1;
     /**
      * Tab list 1: For a tab list that is global over all server (using their
-     * minecraft name) and updating their ping frequently 2: Same as 1 but does
-     * not update their ping frequently, just once. 3: Makes the individual
-     * servers handle the tab list (server unique)
+     * Minecraft name) and updating their ping frequently 2: Same as 1 but does
+     * not update their ping frequently, just once, 3: Makes the individual
+     * servers handle the tab list (server unique).
      */
     public int tabList = 1;
     /**

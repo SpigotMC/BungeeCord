@@ -12,8 +12,7 @@ public class GlobalPingTabList extends GlobalTabList
 {
 
     public static final int PING_THRESHOLD = 20;
-    private Map<UserConnection, Integer> lastPings =
-            Collections.synchronizedMap(new WeakHashMap<UserConnection, Integer>());
+    private Map<UserConnection, Integer> lastPings = Collections.synchronizedMap(new WeakHashMap<UserConnection, Integer>());
 
     @Override
     public void onPingChange(final UserConnection con, final int ping)

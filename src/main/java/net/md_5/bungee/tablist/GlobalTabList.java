@@ -16,9 +16,9 @@ public class GlobalTabList implements TabListHandler
     @Override
     public void onJoin(UserConnection con)
     {
-        for (UserConnection con2 : BungeeCord.instance.connections.values())
+        for (UserConnection c : BungeeCord.instance.connections.values())
         {
-            con.packetQueue.add(new PacketC9PlayerListItem(con2.username, true, con2.getPing()));
+            con.packetQueue.add(new PacketC9PlayerListItem(c.username, true, c.getPing()));
         }
     }
 
