@@ -34,7 +34,14 @@ import net.md_5.bungee.tablist.TabListHandler;
  */
 public class BungeeCord
 {
-
+    /**
+     * Server protocol version.
+     */
+    public static final int PROTOCOL_VERSION= 47;
+    /**
+     * Server game version.
+     */
+    public static final String GAME_VERSION = "1.4.2";
     /**
      * Current software instance.
      */

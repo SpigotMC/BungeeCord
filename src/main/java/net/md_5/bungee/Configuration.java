@@ -55,14 +55,6 @@ public class Configuration
      */
     public String motd = "BungeeCord Proxy Instance";
     /**
-     * Server protocol version.
-     */
-    public int protcolVersion = 47;
-    /**
-     * Server game version.
-     */
-    public String gameVersion = "1.4.2";
-    /**
      * Name of default server.
      */
     public String defaultServerName = "default";

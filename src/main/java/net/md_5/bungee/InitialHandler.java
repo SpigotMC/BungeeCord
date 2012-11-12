@@ -88,8 +88,8 @@ public class InitialHandler implements Runnable
                     }
                     Configuration conf = BungeeCord.instance.config;
                     String ping = (newPing) ? ChatColor.COLOR_CHAR + "1"
-                            + "\00" + conf.protcolVersion
-                            + "\00" + conf.gameVersion
+                            + "\00" + BungeeCord.PROTOCOL_VERSION
+                            + "\00" + BungeeCord.GAME_VERSION
                             + "\00" + conf.motd
                             + "\00" + BungeeCord.instance.connections.size()
                             + "\00" + conf.maxPlayers
