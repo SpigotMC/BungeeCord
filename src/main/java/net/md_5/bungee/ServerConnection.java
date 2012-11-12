@@ -32,7 +32,7 @@ public class ServerConnection extends GenericConnection
         this.loginPacket = loginPacket;
     }
 
-    public static ServerConnection connect(String name, InetSocketAddress address, Packet2Handshake handshake, boolean retry)
+    public static ServerConnection connect(UserConnection user, String name, InetSocketAddress address, Packet2Handshake handshake, boolean retry)
     {
         try
         {
@@ -61,6 +61,11 @@ public class ServerConnection extends GenericConnection
             in = new PacketInputStream(new CipherInputStream(socket.getInputStream(), EncryptionUtil.getCipher(false, myKey)));
             out = new CipherOutputStream(out, EncryptionUtil.getCipher(true, myKey));
 
+            for (byte[] custom : user.loginPackets)
+            {
+                out.write(custom);
+            }
+
             out.write(new PacketCDClientStatus((byte) 0).getPacket());
             byte[] loginResponse = in.readPacket();
             if (Util.getId(loginResponse) == 0xFF)
@@ -79,7 +84,7 @@ public class ServerConnection extends GenericConnection
             InetSocketAddress def = BungeeCord.instance.config.getServer(null);
             if (retry && !address.equals(def))
             {
-                return connect(name, def, handshake, false);
+                return connect(user, name, def, handshake, false);
             } else
             {
                 throw new RuntimeException("Could not connect to target server");

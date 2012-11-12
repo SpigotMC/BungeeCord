@@ -5,6 +5,8 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import net.md_5.bungee.command.CommandSender;
@@ -24,6 +26,7 @@ public class UserConnection extends GenericConnection implements CommandSender
 
     public final Packet2Handshake handshake;
     public Queue<DefinedPacket> packetQueue = new ConcurrentLinkedQueue<>();
+    public List<byte[]> loginPackets = new ArrayList<>();
     private ServerConnection server;
     private UpstreamBridge upBridge;
     private DownstreamBridge downBridge;
@@ -36,11 +39,12 @@ public class UserConnection extends GenericConnection implements CommandSender
     private long pingTime;
     private int ping;
 
-    public UserConnection(Socket socket, PacketInputStream in, OutputStream out, Packet2Handshake handshake)
+    public UserConnection(Socket socket, PacketInputStream in, OutputStream out, Packet2Handshake handshake, List<byte[]> loginPackets)
     {
         super(socket, in, out);
         this.handshake = handshake;
         username = handshake.username;
+        this.loginPackets = loginPackets;
         BungeeCord.instance.connections.put(username, this);
         BungeeCord.instance.tabListHandler.onJoin(this);
     }
@@ -81,7 +85,7 @@ public class UserConnection extends GenericConnection implements CommandSender
                 out.write(new Packet9Respawn((byte) -1, (byte) 0, (byte) 0, (short) 256, "DEFAULT").getPacket());
             }
 
-            ServerConnection newServer = ServerConnection.connect(name, serverAddr, handshake, server == null);
+            ServerConnection newServer = ServerConnection.connect(this, name, serverAddr, handshake, server == null);
             if (server == null)
             {
                 clientEntityId = newServer.loginPacket.entityId;

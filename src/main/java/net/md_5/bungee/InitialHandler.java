@@ -3,6 +3,8 @@ package net.md_5.bungee;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import javax.crypto.SecretKey;
 import net.md_5.bungee.packet.Packet2Handshake;
 import net.md_5.bungee.packet.PacketFCEncryptionResponse;
@@ -66,14 +68,14 @@ public class InitialHandler implements Runnable
                     out.write(new PacketFCEncryptionResponse().getPacket());
                     in = new PacketInputStream(new CipherInputStream(socket.getInputStream(), EncryptionUtil.getCipher(false, shared)));
                     out = new CipherOutputStream(socket.getOutputStream(), EncryptionUtil.getCipher(true, shared));
-
-                    int ciphId = Util.getId(in.readPacket());
-                    if (ciphId != 0xCD)
+                    List<byte[]> customPackets = new ArrayList<>();
+                    byte[] custom;
+                    while (Util.getId((custom = in.readPacket())) != 0xCD)
                     {
-                        throw new KickException("Unable to receive encrypted client status");
+                        customPackets.add(custom);
                     }
 
-                    UserConnection userCon = new UserConnection(socket, in, out, handshake);
+                    UserConnection userCon = new UserConnection(socket, in, out, handshake, customPackets);
                     userCon.connect(BungeeCord.instance.config.getServer(handshake.username, handshake.host));
                     break;
                 case 0xFE:
