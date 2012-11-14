@@ -100,7 +100,7 @@ public class PacketDefinitions {
         //
         //
         opCodes[0x82] = new OpCode[]{INT, SHORT, INT, STRING, STRING, STRING, STRING};
-        opCodes[0x83] = new OpCode[]{SHORT, SHORT, UBYTE_BYTE};
+        opCodes[0x83] = new OpCode[]{SHORT, SHORT, SHORT_BYTE};
         opCodes[0x84] = new OpCode[]{INT, SHORT, INT, BYTE, SHORT_BYTE};
         //
         //
