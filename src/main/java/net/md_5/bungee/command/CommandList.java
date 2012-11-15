@@ -17,7 +17,8 @@ public class CommandList extends Command
         StringBuilder users = new StringBuilder();
         Collection<UserConnection> connections = BungeeCord.instance.connections.values();
 
-        if (connections.size() == 0) {
+        if (connections.size() == 0)
+        {
             sender.sendMessage(ChatColor.BLUE + "Currently no players online.");
             return;
         }
