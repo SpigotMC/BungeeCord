@@ -4,6 +4,9 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.PublicKey;
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.CipherOutputStream;
 import javax.crypto.SecretKey;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet2Handshake;
@@ -13,8 +16,6 @@ import net.md_5.bungee.packet.PacketFCEncryptionResponse;
 import net.md_5.bungee.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketInputStream;
-import org.bouncycastle.crypto.io.CipherInputStream;
-import org.bouncycastle.crypto.io.CipherOutputStream;
 
 /**
  * Class representing a connection from the proxy to the server; ie upstream.
@@ -58,8 +59,8 @@ public class ServerConnection extends GenericConnection
                 throw new RuntimeException("Server did not send encryption enable");
             }
 
-            in = new PacketInputStream(new CipherInputStream(socket.getInputStream(), EncryptionUtil.getCipher(false, myKey)));
-            out = new CipherOutputStream(out, EncryptionUtil.getCipher(true, myKey));
+            in = new PacketInputStream(new CipherInputStream(socket.getInputStream(), EncryptionUtil.getCipher(Cipher.DECRYPT_MODE, myKey)));
+            out = new CipherOutputStream(out, EncryptionUtil.getCipher(Cipher.ENCRYPT_MODE, myKey));
 
             for (byte[] custom : user.loginPackets)
             {

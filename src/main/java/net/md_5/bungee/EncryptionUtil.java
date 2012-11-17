@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyFactory;
@@ -15,7 +16,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.Security;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
@@ -25,15 +25,10 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import net.md_5.bungee.packet.PacketFCEncryptionResponse;
 import net.md_5.bungee.packet.PacketFDEncryptionRequest;
-import org.bouncycastle.crypto.BufferedBlockCipher;
-import org.bouncycastle.crypto.engines.AESFastEngine;
-import org.bouncycastle.crypto.modes.CFBBlockCipher;
-import org.bouncycastle.crypto.params.KeyParameter;
-import org.bouncycastle.crypto.params.ParametersWithIV;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
  * Class containing all encryption related methods for the proxy.
@@ -44,11 +39,6 @@ public class EncryptionUtil
     private static final Random secure = new SecureRandom();
     private static final Random random = new Random();
     private static KeyPair keys;
-
-    static
-    {
-        Security.addProvider(new BouncyCastleProvider());
-    }
 
     public static PacketFDEncryptionRequest encryptRequest() throws NoSuchAlgorithmException
     {
@@ -106,16 +96,16 @@ public class EncryptionUtil
         return "YES".equals(reply);
     }
 
-    public static BufferedBlockCipher getCipher(boolean forEncryption, Key shared)
+    public static Cipher getCipher(int opMode, Key shared) throws InvalidAlgorithmParameterException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException
     {
-        BufferedBlockCipher cip = new BufferedBlockCipher(new CFBBlockCipher(new AESFastEngine(), 8));
-        cip.init(forEncryption, new ParametersWithIV(new KeyParameter(shared.getEncoded()), shared.getEncoded(), 0, 16));
+        Cipher cip = Cipher.getInstance("AES/CFB8/NoPadding");
+        cip.init(opMode, shared, new IvParameterSpec(shared.getEncoded()));
         return cip;
     }
 
     public static SecretKey getSecret()
     {
-        byte[] rand = new byte[32];
+        byte[] rand = new byte[16];
         secure.nextBytes(rand);
         return new SecretKeySpec(rand, "AES");
     }

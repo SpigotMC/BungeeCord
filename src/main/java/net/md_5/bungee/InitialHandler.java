@@ -5,6 +5,9 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.CipherOutputStream;
 import javax.crypto.SecretKey;
 import net.md_5.bungee.packet.Packet2Handshake;
 import net.md_5.bungee.packet.PacketFCEncryptionResponse;
@@ -12,8 +15,6 @@ import net.md_5.bungee.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketInputStream;
 import net.md_5.bungee.plugin.LoginEvent;
-import org.bouncycastle.crypto.io.CipherInputStream;
-import org.bouncycastle.crypto.io.CipherOutputStream;
 
 public class InitialHandler implements Runnable
 {
@@ -66,8 +67,8 @@ public class InitialHandler implements Runnable
                     }
 
                     out.write(new PacketFCEncryptionResponse().getPacket());
-                    in = new PacketInputStream(new CipherInputStream(socket.getInputStream(), EncryptionUtil.getCipher(false, shared)));
-                    out = new CipherOutputStream(socket.getOutputStream(), EncryptionUtil.getCipher(true, shared));
+                    in = new PacketInputStream(new CipherInputStream(socket.getInputStream(), EncryptionUtil.getCipher(Cipher.DECRYPT_MODE, shared)));
+                    out = new CipherOutputStream(socket.getOutputStream(), EncryptionUtil.getCipher(Cipher.ENCRYPT_MODE, shared));
                     List<byte[]> customPackets = new ArrayList<>();
                     byte[] custom;
                     while (Util.getId((custom = in.readPacket())) != 0xCD)
