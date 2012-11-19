@@ -87,7 +87,7 @@ public class ServerConnection extends GenericConnection
                 return connect(user, name, def, handshake, false);
             } else
             {
-                throw new RuntimeException("Could not connect to target server");
+                throw new RuntimeException("Could not connect to target server " + Util.exception(ex));
             }
         }
     }

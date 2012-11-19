@@ -14,7 +14,6 @@ import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.security.Security;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
@@ -43,6 +42,7 @@ public class EncryptionUtil
 
     private static final Random random = new Random();
     private static KeyPair keys;
+    private static SecretKey secret = new SecretKeySpec(new byte[16], "AES");
 
     static
     {
@@ -114,9 +114,7 @@ public class EncryptionUtil
 
     public static SecretKey getSecret()
     {
-        byte[] rand = new byte[16];
-        random.nextBytes(rand);
-        return new SecretKeySpec(rand, "AES");
+        return secret;
     }
 
     public static PublicKey getPubkey(PacketFDEncryptionRequest request) throws InvalidKeySpecException, NoSuchAlgorithmException
