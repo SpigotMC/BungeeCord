@@ -41,7 +41,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 public class EncryptionUtil
 {
 
-    private static final Random secure = new SecureRandom();
     private static final Random random = new Random();
     private static KeyPair keys;
 
@@ -109,14 +108,14 @@ public class EncryptionUtil
     public static BufferedBlockCipher getCipher(boolean forEncryption, Key shared)
     {
         BufferedBlockCipher cip = new BufferedBlockCipher(new CFBBlockCipher(new AESFastEngine(), 8));
-        cip.init(forEncryption, new ParametersWithIV(new KeyParameter(shared.getEncoded()), shared.getEncoded(), 0, 16));
+        cip.init(forEncryption, new ParametersWithIV(new KeyParameter(shared.getEncoded()), shared.getEncoded()));
         return cip;
     }
 
     public static SecretKey getSecret()
     {
-        byte[] rand = new byte[32];
-        secure.nextBytes(rand);
+        byte[] rand = new byte[16];
+        random.nextBytes(rand);
         return new SecretKeySpec(rand, "AES");
     }
 
