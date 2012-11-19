@@ -22,7 +22,7 @@ abstract class Instruction {
     static final Instruction SHORT_BYTE = new ShortHeader(BYTE);
     static final Instruction SHORT_ITEM = new ShortHeader(ITEM);
     static final Instruction STRING = new ShortHeader(new Jump(2));
-    static final Instruction UBYTE_BYTE = new UnsignedByteByte();
+    static final Instruction USHORT_BYTE = new UnsignedShortByte();
     // Illegal forward references below this line
     static final Instruction BYTE_INT = new ByteHeader(INT);
 

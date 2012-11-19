@@ -27,13 +27,7 @@ class MetaData extends Instruction {
                     STRING.read(in);
                     break;
                 case 5:
-                    if (in.readShort() > 0) {
-                        skip(in, 3);
-                        short len = in.readShort();
-                        if (len > 0 ) {
-                            skip(in, len);
-                        }
-                    }
+                    ITEM.read(in);
                     break;
                 case 6:
                     skip(in, 12); //  int, int, int

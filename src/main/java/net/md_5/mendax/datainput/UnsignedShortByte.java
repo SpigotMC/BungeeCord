@@ -3,11 +3,11 @@ package net.md_5.mendax.datainput;
 import java.io.DataInput;
 import java.io.IOException;
 
-public class UnsignedByteByte extends Instruction {
+public class UnsignedShortByte extends Instruction {
 
     @Override
     void read(DataInput in) throws IOException {
-        int size = in.readUnsignedByte();
+        int size = in.readUnsignedShort();
         skip(in, size);
     }
 }

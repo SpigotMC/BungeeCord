@@ -8,7 +8,7 @@ public class PacketDefinitions {
 
     public enum OpCode {
 
-        BOOLEAN, BULK_CHUNK, BYTE, BYTE_INT, DOUBLE, FLOAT, INT, INT_3, INT_BYTE, ITEM, LONG, METADATA, OPTIONAL_MOTION, SHORT, SHORT_BYTE, SHORT_ITEM, STRING, UBYTE_BYTE
+        BOOLEAN, BULK_CHUNK, BYTE, BYTE_INT, DOUBLE, FLOAT, INT, INT_3, INT_BYTE, ITEM, LONG, METADATA, OPTIONAL_MOTION, SHORT, SHORT_BYTE, SHORT_ITEM, STRING, USHORT_BYTE
     }
 
     static {
@@ -100,7 +100,7 @@ public class PacketDefinitions {
         //
         //
         opCodes[0x82] = new OpCode[]{INT, SHORT, INT, STRING, STRING, STRING, STRING};
-        opCodes[0x83] = new OpCode[]{SHORT, SHORT, SHORT_BYTE};
+        opCodes[0x83] = new OpCode[]{SHORT, SHORT, USHORT_BYTE};
         opCodes[0x84] = new OpCode[]{INT, SHORT, INT, BYTE, SHORT_BYTE};
         //
         //
