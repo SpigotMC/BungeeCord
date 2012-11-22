@@ -54,6 +54,10 @@ public class EntityMap
         {
             1
         };
+        entityIds[0x1A] = new int[]
+        {
+            1
+        };
         entityIds[0x1C] = new int[]
         {
             1
@@ -78,6 +82,10 @@ public class EntityMap
         {
             1
         };
+        entityIds[0x23] = new int[]
+        {
+            1
+        };
         entityIds[0x26] = new int[]
         {
             1
@@ -98,6 +106,11 @@ public class EntityMap
         {
             1
         };
+        entityIds[0x37] = new int[]
+        {
+            1
+        };
+
         entityIds[0x47] = new int[]
         {
             1
