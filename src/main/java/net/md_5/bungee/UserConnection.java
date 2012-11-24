@@ -20,6 +20,8 @@ import net.md_5.bungee.packet.PacketC9PlayerListItem;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketInputStream;
 import net.md_5.bungee.plugin.ServerConnectEvent;
+import net.md_5.bungee.plugin.PluginMessageEvent;
+import net.md_5.bungee.plugin.PluginMessageEvent.Destination;
 
 public class UserConnection extends GenericConnection implements CommandSender
 {
@@ -38,6 +40,7 @@ public class UserConnection extends GenericConnection implements CommandSender
     private int trackingPingId;
     private long pingTime;
     private int ping;
+    public UserConnection instance = this;
 
     public UserConnection(Socket socket, PacketInputStream in, OutputStream out, Packet2Handshake handshake, List<byte[]> loginPackets)
     {
@@ -165,6 +168,11 @@ public class UserConnection extends GenericConnection implements CommandSender
         packetQueue.add(new Packet3Chat(message));
     }
 
+    public void sendPluginMessage(String tag, byte[] data)
+    {
+         server.packetQueue.add(new PacketFAPluginMessage(tag, data));
+    }
+
     @Override
     public String getName()
     {
@@ -190,7 +198,20 @@ public class UserConnection extends GenericConnection implements CommandSender
                     boolean sendPacket = true;
 
                     int id = Util.getId(packet);
-                    if (id == 0x03)
+                    if (id == 0xFA)
+                    {
+                        // Call the onPluginMessage event
+                        PacketFAPluginMessage message = new PacketFAPluginMessage(packet);
+                        PluginMessageEvent event = new PluginMessageEvent(Destination.SERVER, instance);
+                        event.setTag(message.tag);
+                        event.setData(new String(message.data));
+                        BungeeCord.instance.pluginManager.onPluginMessage(event);
+
+                        if (event.isCancelled())
+                        {
+                            continue;
+                        }
+                    } else if (id == 0x03)
                     {
                         Packet3Chat chat = new Packet3Chat(packet);
                         String message = chat.message;
@@ -203,6 +224,15 @@ public class UserConnection extends GenericConnection implements CommandSender
                         if (trackingPingId == new Packet0KeepAlive(packet).id)
                         {
                             setPing((int) (System.currentTimeMillis() - pingTime));
+                        }
+                    }
+
+                    while (!server.packetQueue.isEmpty())
+                    {
+                        DefinedPacket p = server.packetQueue.poll();
+                        if (p != null)
+                        {
+                            server.out.write(p.getPacket());
                         }
                     }
 
@@ -242,7 +272,27 @@ public class UserConnection extends GenericConnection implements CommandSender
                     int id = Util.getId(packet);
                     if (id == 0xFA)
                     {
+                        // Call the onPluginMessage event
                         PacketFAPluginMessage message = new PacketFAPluginMessage(packet);
+                        PluginMessageEvent event = new PluginMessageEvent(Destination.CLIENT, instance);
+                        event.setTag(message.tag);
+                        event.setData(new String(message.data));
+                        BungeeCord.instance.pluginManager.onPluginMessage(event);
+
+                        if (event.isCancelled())
+                        {
+                            continue;
+                        }
+
+                        message.tag = event.getTag();
+                        message.data = event.getData().getBytes();
+                        
+                        // Allow a message for killing the connection outright
+                        if (message.tag.equals("KillCon"))
+                        {
+                            break;
+                        }
+
                         if (message.tag.equals("RubberBand"))
                         {
                             String server = new String(message.data);
