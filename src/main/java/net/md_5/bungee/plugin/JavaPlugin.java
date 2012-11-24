@@ -50,7 +50,10 @@ public abstract class JavaPlugin
     public void onServerConnect(ServerConnectEvent event)
     {
     }
-
+	
+	public void onDisconnect(DisconnectEvent event) 
+	{
+	}
     /**
      * Register a command for use with the proxy.
      */

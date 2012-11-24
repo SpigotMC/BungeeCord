@@ -156,6 +156,10 @@ public class UserConnection extends GenericConnection implements CommandSender
     public void disconnect(String reason)
     {
         BungeeCord.instance.tabListHandler.onDisconnect(this);
+		DisconnectEvent de = new DisconnectEvent();
+		de.disconnectedPlayer = username;
+		de.disconnectReason = reason;
+		BungeeCord.instance.pluginManager.onDisconnect(de);
         super.disconnect(reason);
     }
 

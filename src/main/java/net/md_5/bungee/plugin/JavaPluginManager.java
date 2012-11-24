@@ -106,4 +106,11 @@ public class JavaPluginManager extends JavaPlugin
             p.onServerConnect(event);
         }
     }
+	@Override
+	public void onDisconnect(DisconnectEvent event) {
+	for (JavaPlugin p : plugins)
+        {
+            p.onDisconnect(event);
+        }
+	}
 }
