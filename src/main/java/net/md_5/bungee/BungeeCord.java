@@ -8,7 +8,9 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -23,6 +25,7 @@ import net.md_5.bungee.command.CommandSender;
 import net.md_5.bungee.command.CommandServer;
 import net.md_5.bungee.command.ConsoleCommandSender;
 import net.md_5.bungee.packet.DefinedPacket;
+import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.plugin.JavaPluginManager;
 import net.md_5.bungee.tablist.GlobalPingTabList;
 import net.md_5.bungee.tablist.GlobalTabList;
@@ -82,6 +85,10 @@ public class BungeeCord
      * Tab list handler
      */
     public TabListHandler tabListHandler;
+    /**
+     * Registered Global Plugin Channels
+     */
+    public Queue<String> globalPluginChannels = new ConcurrentLinkedQueue<>();
     /**
      * Plugin manager.
      */
@@ -184,6 +191,9 @@ public class BungeeCord
                 break;
         }
 
+        // Add RubberBand to the global plugin channel list
+        globalPluginChannels.add("RubberBand");
+
         InetSocketAddress addr = Util.getAddr(config.bindHost);
         listener = new ListenThread(addr);
         listener.start();
@@ -261,5 +271,16 @@ public class BungeeCord
         {
             con.packetQueue.add(packet);
         }
+    }
+
+    /**
+     * Register a plugin channel for all users
+     * 
+     * @param channel name
+     */
+    public void registerPluginChannel(String channel)
+    {
+        globalPluginChannels.add(channel);
+        broadcast(new PacketFAPluginMessage("REGISTER", channel.getBytes()));
     }
 }

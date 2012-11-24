@@ -52,6 +52,13 @@ public abstract class JavaPlugin
     }
 
     /**
+     * Called when a plugin message is sent to the client or server
+     */
+    public void onPluginMessage(PluginMessageEvent event)
+    {
+    }
+    
+    /**
      * Register a command for use with the proxy.
      */
     protected final void registerCommand(String label, Command command)

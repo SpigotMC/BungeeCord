@@ -4,7 +4,10 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.PublicKey;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.crypto.SecretKey;
+import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet2Handshake;
 import net.md_5.bungee.packet.PacketCDClientStatus;
@@ -24,6 +27,7 @@ public class ServerConnection extends GenericConnection
 
     public final String name;
     public final Packet1Login loginPacket;
+    public Queue<DefinedPacket> packetQueue = new ConcurrentLinkedQueue<>();
 
     public ServerConnection(String name, Socket socket, PacketInputStream in, OutputStream out, Packet1Login loginPacket)
     {
@@ -73,7 +77,13 @@ public class ServerConnection extends GenericConnection
                 throw new KickException("[Kicked] " + new PacketFFKick(loginResponse).message);
             }
             Packet1Login login = new Packet1Login(loginResponse);
-            out.write(new PacketFAPluginMessage("REGISTER", "RubberBand".getBytes()).getPacket());
+
+            // Register all global plugin message channels
+            // TODO: Allow player-specific plugin message channels for full mod support
+            for (String channel : BungeeCord.instance.globalPluginChannels)
+            {
+                out.write(new PacketFAPluginMessage("REGISTER", channel.getBytes()).getPacket());
+            }
 
             return new ServerConnection(name, socket, in, out, login);
         } catch (KickException ex)
