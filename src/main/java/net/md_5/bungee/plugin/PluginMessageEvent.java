@@ -4,7 +4,7 @@ import lombok.Data;
 import net.md_5.bungee.UserConnection;
 
 /**
- * Event called when the decision is made to decide which server to connect to.
+ * Event called when a plugin message is sent to the client or server
  */
 @Data
 public class PluginMessageEvent implements Cancellable
