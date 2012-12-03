@@ -88,7 +88,7 @@ public class UserConnection extends GenericConnection implements CommandSender
                 out.write(new Packet9Respawn((byte) -1, (byte) 0, (byte) 0, (short) 256, "DEFAULT").getPacket());
             }
 
-            ServerConnection newServer = ServerConnection.connect(this, name, serverAddr, handshake, server == null);
+            ServerConnection newServer = ServerConnection.connect(this, name, serverAddr, handshake, true);
             if (server == null)
             {
                 clientEntityId = newServer.loginPacket.entityId;
@@ -286,7 +286,7 @@ public class UserConnection extends GenericConnection implements CommandSender
 
                         message.tag = event.getTag();
                         message.data = event.getData().getBytes();
-                        
+
                         // Allow a message for killing the connection outright
                         if (message.tag.equals("KillCon"))
                         {
