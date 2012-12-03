@@ -50,27 +50,12 @@ public class ServerConnection extends GenericConnection
             out.write(handshake.getPacket());
             PacketFDEncryptionRequest encryptRequest = new PacketFDEncryptionRequest(in.readPacket());
 
-            SecretKey myKey = EncryptionUtil.getSecret();
-            PublicKey pub = EncryptionUtil.getPubkey(encryptRequest);
-
-            PacketFCEncryptionResponse response = new PacketFCEncryptionResponse(EncryptionUtil.getShared(myKey, pub), EncryptionUtil.encrypt(pub, encryptRequest.verifyToken));
-            out.write(response.getPacket());
-
-            int ciphId = Util.getId(in.readPacket());
-            if (ciphId != 0xFC)
-            {
-                throw new RuntimeException("Server did not send encryption enable");
-            }
-
-            in = new PacketInputStream(new CipherInputStream(socket.getInputStream(), EncryptionUtil.getCipher(false, myKey)));
-            out = new CipherOutputStream(out, EncryptionUtil.getCipher(true, myKey));
-
+            out.write(new PacketCDClientStatus((byte) 0).getPacket());
             for (byte[] custom : user.loginPackets)
             {
                 out.write(custom);
             }
 
-            out.write(new PacketCDClientStatus((byte) 0).getPacket());
             byte[] loginResponse = in.readPacket();
             if (Util.getId(loginResponse) == 0xFF)
             {
