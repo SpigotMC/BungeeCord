@@ -121,7 +121,8 @@ public class UserConnection extends GenericConnection implements CommandSender
             destroySelf(ex.getMessage());
         } catch (Exception ex)
         {
-            destroySelf("Could not connect to server");
+            destroySelf("Could not connect to server - " + ex.getClass().getSimpleName());
+            ex.printStackTrace(); // TODO: Remove
         }
     }
 
