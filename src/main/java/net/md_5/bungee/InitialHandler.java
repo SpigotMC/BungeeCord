@@ -98,7 +98,13 @@ public class InitialHandler implements Runnable
                             : conf.motd + ChatColor.COLOR_CHAR + BungeeCord.instance.connections.size() + ChatColor.COLOR_CHAR + conf.maxPlayers;
                     throw new KickException(ping);
                 default:
-                    throw new IllegalArgumentException("Wasn't ready for packet id " + Util.hex(id));
+                    if (id == 0xFA)
+                    {
+                        run(); // WTF Spoutcraft
+                    } else
+                    {
+                        // throw new IllegalArgumentException("Wasn't ready for packet id " + Util.hex(id));
+                    }
             }
         } catch (KickException ex)
         {
