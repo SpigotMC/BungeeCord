@@ -57,6 +57,13 @@ public abstract class JavaPlugin
     public void onPluginMessage(PluginMessageEvent event)
     {
     }
+
+	/**
+	 * Called when a chat message is sent to the client or server
+	 */
+	public void onChat(ChatEvent event)
+	{
+	}
     
     /**
      * Register a command for use with the proxy.
