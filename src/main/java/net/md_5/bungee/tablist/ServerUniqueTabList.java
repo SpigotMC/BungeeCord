@@ -5,7 +5,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
-
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.packet.PacketC9PlayerListItem;
 

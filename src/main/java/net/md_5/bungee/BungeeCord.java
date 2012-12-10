@@ -15,15 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import static net.md_5.bungee.Logger.$;
-import net.md_5.bungee.command.Command;
-import net.md_5.bungee.command.CommandAlert;
-import net.md_5.bungee.command.CommandEnd;
-import net.md_5.bungee.command.CommandIP;
-import net.md_5.bungee.command.CommandList;
-import net.md_5.bungee.command.CommandMotd;
-import net.md_5.bungee.command.CommandSender;
-import net.md_5.bungee.command.CommandServer;
-import net.md_5.bungee.command.ConsoleCommandSender;
+import net.md_5.bungee.command.*;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.plugin.JavaPluginManager;
@@ -37,10 +29,11 @@ import net.md_5.bungee.tablist.TabListHandler;
  */
 public class BungeeCord
 {
+
     /**
      * Server protocol version.
      */
-    public static final int PROTOCOL_VERSION= 49;
+    public static final int PROTOCOL_VERSION = 49;
     /**
      * Server game version.
      */
@@ -275,7 +268,7 @@ public class BungeeCord
 
     /**
      * Register a plugin channel for all users
-     * 
+     *
      * @param channel name
      */
     public void registerPluginChannel(String channel)

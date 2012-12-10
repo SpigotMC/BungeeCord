@@ -10,18 +10,11 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import net.md_5.bungee.command.CommandSender;
-import net.md_5.bungee.packet.DefinedPacket;
-import net.md_5.bungee.packet.Packet0KeepAlive;
-import net.md_5.bungee.packet.Packet1Login;
-import net.md_5.bungee.packet.Packet2Handshake;
-import net.md_5.bungee.packet.Packet3Chat;
-import net.md_5.bungee.packet.Packet9Respawn;
-import net.md_5.bungee.packet.PacketC9PlayerListItem;
-import net.md_5.bungee.packet.PacketFAPluginMessage;
-import net.md_5.bungee.packet.PacketInputStream;
-import net.md_5.bungee.plugin.ServerConnectEvent;
+import net.md_5.bungee.packet.*;
+import net.md_5.bungee.plugin.ChatEvent;
 import net.md_5.bungee.plugin.PluginMessageEvent;
 import net.md_5.bungee.plugin.PluginMessageEvent.Destination;
+import net.md_5.bungee.plugin.ServerConnectEvent;
 
 public class UserConnection extends GenericConnection implements CommandSender
 {
@@ -47,8 +40,16 @@ public class UserConnection extends GenericConnection implements CommandSender
         super(socket, in, out);
         this.handshake = handshake;
         username = handshake.username;
+        tabListName = handshake.username;
         this.loginPackets = loginPackets;
         BungeeCord.instance.connections.put(username, this);
+        BungeeCord.instance.tabListHandler.onJoin(this);
+    }
+
+    public void setTabListName(String newName)
+    {
+        BungeeCord.instance.tabListHandler.onDisconnect(this);
+        tabListName = newName;
         BungeeCord.instance.tabListHandler.onJoin(this);
     }
 
@@ -171,7 +172,7 @@ public class UserConnection extends GenericConnection implements CommandSender
 
     public void sendPluginMessage(String tag, byte[] data)
     {
-         server.packetQueue.add(new PacketFAPluginMessage(tag, data));
+        server.packetQueue.add(new PacketFAPluginMessage(tag, data));
     }
 
     @Override
@@ -219,6 +220,12 @@ public class UserConnection extends GenericConnection implements CommandSender
                         if (message.startsWith("/"))
                         {
                             sendPacket = !BungeeCord.instance.dispatchCommand(message.substring(1), UserConnection.this);
+                        } else
+                        {
+                            ChatEvent chatEvent = new ChatEvent(ChatEvent.Destination.SERVER, instance);
+                            chatEvent.setText(message);
+                            BungeeCord.instance.pluginManager.onChat(chatEvent);
+                            sendPacket = !chatEvent.isCancelled();
                         }
                     } else if (id == 0x00)
                     {
@@ -304,6 +311,17 @@ public class UserConnection extends GenericConnection implements CommandSender
                     {
                         trackingPingId = new Packet0KeepAlive(packet).id;
                         pingTime = System.currentTimeMillis();
+                    } else if (id == 0x03)
+                    {
+                        Packet3Chat chat = new Packet3Chat(packet);
+                        String message = chat.message;
+                        ChatEvent chatEvent = new ChatEvent(ChatEvent.Destination.CLIENT, instance);
+                        chatEvent.setText(message);
+                        BungeeCord.instance.pluginManager.onChat(chatEvent);
+                        if (chatEvent.isCancelled())
+                        {
+                            continue;
+                        }
                     } else if (id == 0xC9)
                     {
                         if (!BungeeCord.instance.tabListHandler.onPacketC9(UserConnection.this, new PacketC9PlayerListItem(packet)))

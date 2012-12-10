@@ -21,6 +21,7 @@ public class GenericConnection
     protected final PacketInputStream in;
     protected final OutputStream out;
     public String username;
+    public String tabListName;
 
     /**
      * Close the socket with the specified reason.

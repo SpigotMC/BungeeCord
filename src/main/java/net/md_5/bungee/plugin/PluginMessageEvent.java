@@ -9,6 +9,7 @@ import net.md_5.bungee.UserConnection;
 @Data
 public class PluginMessageEvent implements Cancellable
 {
+
     /**
      * Canceled state.
      */
@@ -39,6 +40,7 @@ public class PluginMessageEvent implements Cancellable
      */
     public enum Destination
     {
+
         SERVER,
         CLIENT
     }

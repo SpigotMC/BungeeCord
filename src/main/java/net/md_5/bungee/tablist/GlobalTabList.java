@@ -3,7 +3,6 @@ package net.md_5.bungee.tablist;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.packet.PacketC9PlayerListItem;
@@ -18,7 +17,7 @@ public class GlobalTabList implements TabListHandler
     {
         for (UserConnection c : BungeeCord.instance.connections.values())
         {
-            con.packetQueue.add(new PacketC9PlayerListItem(c.username, true, c.getPing()));
+            con.packetQueue.add(new PacketC9PlayerListItem(c.tabListName, true, c.getPing()));
         }
     }
 
@@ -32,7 +31,7 @@ public class GlobalTabList implements TabListHandler
     {
         if (!sentPings.contains(con))
         {
-            BungeeCord.instance.broadcast(new PacketC9PlayerListItem(con.username, true, con.getPing()));
+            BungeeCord.instance.broadcast(new PacketC9PlayerListItem(con.tabListName, true, con.getPing()));
             sentPings.add(con);
         }
     }
@@ -40,7 +39,7 @@ public class GlobalTabList implements TabListHandler
     @Override
     public void onDisconnect(final UserConnection con)
     {
-        BungeeCord.instance.broadcast(new PacketC9PlayerListItem(con.username, false, 9999));
+        BungeeCord.instance.broadcast(new PacketC9PlayerListItem(con.tabListName, false, 9999));
         sentPings.remove(con);
     }
 

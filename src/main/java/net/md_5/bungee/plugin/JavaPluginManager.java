@@ -115,4 +115,13 @@ public class JavaPluginManager extends JavaPlugin
             p.onPluginMessage(event);
         }
     }
+
+    @Override
+    public void onChat(ChatEvent event)
+    {
+        for (JavaPlugin p : plugins)
+        {
+            p.onChat(event);
+        }
+    }
 }
