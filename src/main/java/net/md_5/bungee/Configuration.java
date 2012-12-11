@@ -254,7 +254,7 @@ public class Configuration
         }
         if (server == null)
         {
-            server = servers.get(defaultServerName);
+            server = defaultServerName;
         }
         return server;
     }
