@@ -4,6 +4,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.PublicKey;
+import java.util.ArrayList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.crypto.SecretKey;
@@ -18,6 +19,10 @@ import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketInputStream;
 import org.bouncycastle.crypto.io.CipherInputStream;
 import org.bouncycastle.crypto.io.CipherOutputStream;
+import java.io.BufferedOutputStream;
+
+import net.md_5.bungee.packet.*;
+import net.md_5.mendax.protocols.PacketDefinitions;
 
 /**
  * Class representing a connection from the proxy to the server; ie upstream.
@@ -28,12 +33,14 @@ public class ServerConnection extends GenericConnection
     public final String name;
     public final Packet1Login loginPacket;
     public Queue<DefinedPacket> packetQueue = new ConcurrentLinkedQueue<>();
+	public final ArrayList<byte[]> customServerLoginPackets;
 
-    public ServerConnection(String name, Socket socket, PacketInputStream in, OutputStream out, Packet1Login loginPacket)
+    public ServerConnection(String name, Socket socket, PacketInputStream in, OutputStream out, Packet1Login loginPacket, ArrayList<byte[]> customServerLoginPackets)
     {
         super(socket, in, out);
         this.name = name;
         this.loginPacket = loginPacket;
+		this.customServerLoginPackets = customServerLoginPackets;
     }
 
     public static ServerConnection connect(UserConnection user, String name, InetSocketAddress address, Packet2Handshake handshake, boolean retry)
@@ -71,12 +78,50 @@ public class ServerConnection extends GenericConnection
             }
 
             out.write(new PacketCDClientStatus((byte) 0).getPacket());
-            byte[] loginResponse = in.readPacket();
-            if (Util.getId(loginResponse) == 0xFF)
-            {
-                throw new KickException("[Kicked] " + new PacketFFKick(loginResponse).message);
-            }
-            Packet1Login login = new Packet1Login(loginResponse);
+
+			ArrayList<byte[]> customServerLoginPackets = new ArrayList<>();
+
+			byte[] custom;
+			boolean customProtocol = false;
+			while ((custom = in.readPacket()) != null)
+			{
+				int customID = Util.getId(custom);
+				if (customID == 0xFF)
+				{
+					throw new KickException("[Kicked] " + new PacketFFKick(custom).message);
+				}
+				else if(customID == 0xFA)
+				{
+					PacketFAPluginMessage customPacket = new PacketFAPluginMessage(custom);
+					if(customPacket.tag.equals("FML") && customPacket.data[0] == 0) {
+						if(!customProtocol) {
+							in.setPacketDefinitions(PacketDefinitions.FORGE);
+							customProtocol = true;
+						}
+						if(user.fmlModResponsePacket != null) {
+							out.write(user.fmlModResponsePacket.getPacket());
+						} else {
+							throw new KickException("[Kicke] You need forge to connect to this server");
+						}
+						continue;
+					}
+				}
+				else if(customID == 0x01)
+				{
+					break;
+				}
+				customServerLoginPackets.add(custom);
+			}
+
+			Packet1Login login;
+			if(in.getPacketDefinitions() == PacketDefinitions.FORGE)
+			{
+				login = new Packet1LoginForge(custom);
+			}
+			else
+			{
+				login = new Packet1Login(custom);
+			}
 
             // Register all global plugin message channels
             // TODO: Allow player-specific plugin message channels for full mod support
@@ -85,13 +130,15 @@ public class ServerConnection extends GenericConnection
                 out.write(new PacketFAPluginMessage("REGISTER", channel.getBytes()).getPacket());
             }
 
-            return new ServerConnection(name, socket, in, out, login);
+            return new ServerConnection(name, socket, in, out, login, customServerLoginPackets);
         } catch (KickException ex)
         {
             throw ex;
         } catch (Exception ex)
         {
             InetSocketAddress def = BungeeCord.instance.config.getServer(null);
+			System.out.println("Exception switching server:");
+			ex.printStackTrace();
             if (retry && !address.equals(def))
             {
                 return connect(user, name, def, handshake, false);

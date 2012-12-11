@@ -1,5 +1,13 @@
 package net.md_5.bungee;
 
+import net.md_5.bungee.command.CommandSender;
+import net.md_5.bungee.packet.*;
+import net.md_5.bungee.plugin.ChatEvent;
+import net.md_5.bungee.plugin.PluginMessageEvent;
+import net.md_5.bungee.plugin.PluginMessageEvent.Destination;
+import net.md_5.bungee.plugin.ServerConnectEvent;
+import net.md_5.mendax.protocols.PacketDefinitions;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -9,12 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import net.md_5.bungee.command.CommandSender;
-import net.md_5.bungee.packet.*;
-import net.md_5.bungee.plugin.ChatEvent;
-import net.md_5.bungee.plugin.PluginMessageEvent;
-import net.md_5.bungee.plugin.PluginMessageEvent.Destination;
-import net.md_5.bungee.plugin.ServerConnectEvent;
 
 public class UserConnection extends GenericConnection implements CommandSender
 {
@@ -34,8 +36,9 @@ public class UserConnection extends GenericConnection implements CommandSender
     private long pingTime;
     private int ping;
     public UserConnection instance = this;
+	protected PacketFAPluginMessage fmlModResponsePacket = null;
 
-    public UserConnection(Socket socket, PacketInputStream in, OutputStream out, Packet2Handshake handshake, List<byte[]> loginPackets)
+    public UserConnection(Socket socket, PacketInputStream in, OutputStream out, Packet2Handshake handshake, List<byte[]> loginPackets, PacketFAPluginMessage fmlModResponsePacket)
     {
         super(socket, in, out);
         this.handshake = handshake;
@@ -44,6 +47,7 @@ public class UserConnection extends GenericConnection implements CommandSender
         this.loginPackets = loginPackets;
         BungeeCord.instance.connections.put(username, this);
         BungeeCord.instance.tabListHandler.onJoin(this);
+		this.fmlModResponsePacket = fmlModResponsePacket;
     }
 
     public void setTabListName(String newName)
@@ -94,7 +98,12 @@ public class UserConnection extends GenericConnection implements CommandSender
             {
                 clientEntityId = newServer.loginPacket.entityId;
                 serverEntityId = newServer.loginPacket.entityId;
-                out.write(newServer.loginPacket.getPacket());
+
+				for(byte[] packet : newServer.customServerLoginPackets) {
+					out.write(packet);
+				}
+
+                out.write(newServer.loginPacket.getPacketForProtocol(in.getPacketDefinitions()).getPacket());
                 upBridge = new UpstreamBridge();
                 upBridge.start();
             } else
@@ -209,6 +218,12 @@ public class UserConnection extends GenericConnection implements CommandSender
                     {
                         // Call the onPluginMessage event
                         PacketFAPluginMessage message = new PacketFAPluginMessage(packet);
+
+						if(message.tag.equals("FML") && (message.data[0] == 0 || message.data[0] == 1)) {
+							in.setPacketDefinitions(PacketDefinitions.FORGE);
+							continue;
+						}
+
                         PluginMessageEvent event = new PluginMessageEvent(Destination.SERVER, instance);
                         event.setTag(message.tag);
                         event.setData(new String(message.data));
@@ -287,7 +302,13 @@ public class UserConnection extends GenericConnection implements CommandSender
                     {
                         // Call the onPluginMessage event
                         PacketFAPluginMessage message = new PacketFAPluginMessage(packet);
-                        PluginMessageEvent event = new PluginMessageEvent(Destination.CLIENT, instance);
+
+						if(message.tag.equals("FML") && (message.data[0] == 0 || message.data[0] == 1)) {
+							server.in.setPacketDefinitions(PacketDefinitions.FORGE);
+							continue;
+						}
+
+						PluginMessageEvent event = new PluginMessageEvent(Destination.CLIENT, instance);
                         event.setTag(message.tag);
                         event.setData(new String(message.data));
                         BungeeCord.instance.pluginManager.onPluginMessage(event);

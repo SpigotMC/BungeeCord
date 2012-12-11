@@ -1,23 +1,28 @@
 package net.md_5.bungee;
 
 import java.io.BufferedOutputStream;
+
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+
+import net.md_5.bungee.packet.*;
+import net.md_5.bungee.plugin.LoginEvent;
+import net.md_5.mendax.protocols.PacketDefinitions;
+import org.bouncycastle.crypto.io.CipherInputStream;
+import org.bouncycastle.crypto.io.CipherOutputStream;
+
+import javax.crypto.SecretKey;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import javax.crypto.SecretKey;
-import net.md_5.bungee.packet.Packet2Handshake;
-import net.md_5.bungee.packet.PacketFCEncryptionResponse;
-import net.md_5.bungee.packet.PacketFDEncryptionRequest;
-import net.md_5.bungee.packet.PacketFFKick;
-import net.md_5.bungee.packet.PacketInputStream;
-import net.md_5.bungee.plugin.LoginEvent;
-import org.bouncycastle.crypto.io.CipherInputStream;
-import org.bouncycastle.crypto.io.CipherOutputStream;
 
 public class InitialHandler implements Runnable
 {
+
+	private static byte[] FML_MOD_REQUEST = null;
 
     private final Socket socket;
     private PacketInputStream in;
@@ -25,12 +30,24 @@ public class InitialHandler implements Runnable
 
     public InitialHandler(Socket socket) throws IOException
     {
+		if(FML_MOD_REQUEST == null) {
+			ByteArrayDataOutput fmlModRequestBuilder = ByteStreams.newDataOutput();
+			fmlModRequestBuilder.writeByte(0);
+			List<String> mods = BungeeCord.instance.config.requiredForgeMods;
+			fmlModRequestBuilder.writeInt(mods.size());
+			for(String mod : mods) {
+				fmlModRequestBuilder.writeUTF(mod);
+			}
+			fmlModRequestBuilder.writeByte(2);
+			FML_MOD_REQUEST = fmlModRequestBuilder.toByteArray();
+		}
+
         this.socket = socket;
         in = new PacketInputStream(socket.getInputStream());
-        out = socket.getOutputStream();
-    }
+		out = socket.getOutputStream();
+	}
 
-    @Override
+	@Override
     public void run()
     {
         try
@@ -40,6 +57,13 @@ public class InitialHandler implements Runnable
             switch (id)
             {
                 case 0x02:
+					out.write(new PacketFAPluginMessage("FML", FML_MOD_REQUEST).getPacket());
+
+					List<byte[]> customPackets = new ArrayList<>();
+					byte[] custom;
+					boolean customProtocol = false;
+					PacketFAPluginMessage fmlModResponsePacket = null;
+
                     Packet2Handshake handshake = new Packet2Handshake(packet);
                     // fire connect event
                     LoginEvent event = new LoginEvent(handshake.username, socket.getInetAddress(), handshake.host);
@@ -51,7 +75,20 @@ public class InitialHandler implements Runnable
 
                     PacketFDEncryptionRequest request = EncryptionUtil.encryptRequest();
                     out.write(request.getPacket());
-                    PacketFCEncryptionResponse response = new PacketFCEncryptionResponse(in.readPacket());
+					while (Util.getId((custom = in.readPacket())) != 0xFC)
+					{
+						if(!customProtocol && Util.getId(custom) == 0xFA) {
+							PacketFAPluginMessage customPacket = new PacketFAPluginMessage(custom);
+							if(customPacket.tag.equals("FML") && customPacket.data[0] == 1) {
+								in.setPacketDefinitions(PacketDefinitions.FORGE);
+								customProtocol = true;
+								fmlModResponsePacket = customPacket;
+								continue;
+							}
+						}
+						customPackets.add(custom);
+					}
+                    PacketFCEncryptionResponse response = new PacketFCEncryptionResponse(custom);
 
                     SecretKey shared = EncryptionUtil.getSecret(response, request);
                     if (!EncryptionUtil.isAuthenticated(handshake.username, request.serverId, shared))
@@ -69,14 +106,13 @@ public class InitialHandler implements Runnable
                     out.write(new PacketFCEncryptionResponse().getPacket());
                     in = new PacketInputStream(new CipherInputStream(socket.getInputStream(), EncryptionUtil.getCipher(false, shared)));
                     out = new CipherOutputStream(socket.getOutputStream(), EncryptionUtil.getCipher(true, shared));
-                    List<byte[]> customPackets = new ArrayList<>();
-                    byte[] custom;
+
                     while (Util.getId((custom = in.readPacket())) != 0xCD)
                     {
                         customPackets.add(custom);
                     }
 
-                    UserConnection userCon = new UserConnection(socket, in, out, handshake, customPackets);
+                    UserConnection userCon = new UserConnection(socket, in, out, handshake, customPackets, fmlModResponsePacket);
                     String server = (BungeeCord.instance.config.forceDefaultServer) ? BungeeCord.instance.config.defaultServerName : BungeeCord.instance.config.getServer(handshake.username, handshake.host);
                     userCon.connect(server);
                     break;
