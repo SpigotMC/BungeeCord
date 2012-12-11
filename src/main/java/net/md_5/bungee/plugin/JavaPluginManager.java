@@ -1,6 +1,8 @@
 package net.md_5.bungee.plugin;
 
 import com.google.common.io.PatternFilenameFilter;
+import lombok.Getter;
+
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
@@ -9,7 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-import lombok.Getter;
+
 import static net.md_5.bungee.Logger.$;
 
 /**
@@ -115,4 +117,13 @@ public class JavaPluginManager extends JavaPlugin
             p.onPluginMessage(event);
         }
     }
+
+	@Override
+	public void onChat(ChatEvent event)
+	{
+		for (JavaPlugin p : plugins)
+		{
+			p.onChat(event);
+		}
+	}
 }

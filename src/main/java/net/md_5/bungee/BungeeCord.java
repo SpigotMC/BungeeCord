@@ -1,5 +1,14 @@
 package net.md_5.bungee;
 
+import net.md_5.bungee.command.*;
+import net.md_5.bungee.packet.DefinedPacket;
+import net.md_5.bungee.packet.PacketFAPluginMessage;
+import net.md_5.bungee.plugin.JavaPluginManager;
+import net.md_5.bungee.tablist.GlobalPingTabList;
+import net.md_5.bungee.tablist.GlobalTabList;
+import net.md_5.bungee.tablist.ServerUniqueTabList;
+import net.md_5.bungee.tablist.TabListHandler;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,23 +23,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
+
 import static net.md_5.bungee.Logger.$;
-import net.md_5.bungee.command.Command;
-import net.md_5.bungee.command.CommandAlert;
-import net.md_5.bungee.command.CommandEnd;
-import net.md_5.bungee.command.CommandIP;
-import net.md_5.bungee.command.CommandList;
-import net.md_5.bungee.command.CommandMotd;
-import net.md_5.bungee.command.CommandSender;
-import net.md_5.bungee.command.CommandServer;
-import net.md_5.bungee.command.ConsoleCommandSender;
-import net.md_5.bungee.packet.DefinedPacket;
-import net.md_5.bungee.packet.PacketFAPluginMessage;
-import net.md_5.bungee.plugin.JavaPluginManager;
-import net.md_5.bungee.tablist.GlobalPingTabList;
-import net.md_5.bungee.tablist.GlobalTabList;
-import net.md_5.bungee.tablist.ServerUniqueTabList;
-import net.md_5.bungee.tablist.TabListHandler;
 
 /**
  * Main BungeeCord proxy class.
