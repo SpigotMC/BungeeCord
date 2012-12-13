@@ -35,7 +35,7 @@ public class PacketDefinitions {
         opCodes[0x14] = new OpCode[]{INT, STRING, INT, INT, INT, BYTE, BYTE, SHORT, METADATA};
         opCodes[0x15] = new OpCode[]{INT, ITEM,  INT, INT, INT, BYTE, BYTE, BYTE};
         opCodes[0x16] = new OpCode[]{INT, INT};
-        opCodes[0x17] = new OpCode[]{INT, BYTE, INT, INT, INT, OPTIONAL_MOTION};
+        opCodes[0x17] = new OpCode[]{INT, BYTE, INT, INT, INT, BYTE, BYTE, OPTIONAL_MOTION};
         opCodes[0x18] = new OpCode[]{INT, BYTE, INT, INT, INT, BYTE, BYTE, BYTE, SHORT, SHORT, SHORT, METADATA};
         opCodes[0x19] = new OpCode[]{INT, STRING, INT, INT, INT, INT};
         opCodes[0x1A] = new OpCode[]{INT, INT, INT, INT, SHORT};

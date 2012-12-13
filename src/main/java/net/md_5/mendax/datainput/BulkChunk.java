@@ -8,7 +8,8 @@ public class BulkChunk extends Instruction {
     @Override
     void read(DataInput in) throws IOException {
         short count = in.readShort();
-        INT_BYTE.read(in);
-        skip(in, count * 12);
+        int size = in.readInt();
+        in.readBoolean();
+        skip(in, size + count * 12);
     }
 }
