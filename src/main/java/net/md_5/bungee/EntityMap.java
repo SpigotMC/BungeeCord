@@ -34,10 +34,6 @@ public class EntityMap
         {
             1
         };
-        entityIds[0x15] = new int[]
-        {
-            1
-        };
         entityIds[0x16] = new int[]
         {
             1, 5
