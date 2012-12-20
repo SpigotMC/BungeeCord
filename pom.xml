@@ -74,7 +74,7 @@
         <dependency>
             <groupId>net.md-5</groupId>
             <artifactId>mendax</artifactId>
-            <version>1.4.4-SNAPSHOT</version>
+            <version>1.4.6-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>

@@ -33,11 +33,11 @@ public class BungeeCord
     /**
      * Server protocol version.
      */
-    public static final int PROTOCOL_VERSION = 49;
+    public static final int PROTOCOL_VERSION = 51;
     /**
      * Server game version.
      */
-    public static final String GAME_VERSION = "1.4.4";
+    public static final String GAME_VERSION = "1.4.6";
     /**
      * Current software instance.
      */
