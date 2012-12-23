@@ -1,5 +1,6 @@
 package net.md_5.bungee;
 
+import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -64,6 +65,8 @@ public class ServerConnection extends GenericConnection
             {
                 out.write(new PacketFAPluginMessage("REGISTER", channel.getBytes()).getPacket());
             }
+
+            out = new BufferedOutputStream(out);
 
             return new ServerConnection(name, socket, in, out, login);
         } catch (KickException ex)

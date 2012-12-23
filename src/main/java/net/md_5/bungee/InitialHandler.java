@@ -1,5 +1,6 @@
 package net.md_5.bungee;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -67,7 +68,7 @@ public class InitialHandler implements Runnable
 
                     out.write(new PacketFCEncryptionResponse().getPacket());
                     in = new PacketInputStream(new CipherInputStream(socket.getInputStream(), EncryptionUtil.getCipher(false, shared)));
-                    out = new CipherOutputStream(socket.getOutputStream(), EncryptionUtil.getCipher(true, shared));
+                    out = new CipherOutputStream(new BufferedOutputStream(socket.getOutputStream()), EncryptionUtil.getCipher(true, shared));
                     List<byte[]> customPackets = new ArrayList<>();
                     byte[] custom;
                     while (Util.getId((custom = in.readPacket())) != 0xCD)
