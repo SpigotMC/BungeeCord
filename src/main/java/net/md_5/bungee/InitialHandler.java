@@ -68,7 +68,7 @@ public class InitialHandler implements Runnable
 
                     out.write(new PacketFCEncryptionResponse().getPacket());
                     in = new PacketInputStream(new CipherInputStream(socket.getInputStream(), EncryptionUtil.getCipher(false, shared)));
-                    out = new CipherOutputStream(new BufferedOutputStream(socket.getOutputStream()), EncryptionUtil.getCipher(true, shared));
+                    out = new CipherOutputStream(new BufferedOutputStream(socket.getOutputStream(), 4096), EncryptionUtil.getCipher(true, shared));
                     List<byte[]> customPackets = new ArrayList<>();
                     byte[] custom;
                     while (Util.getId((custom = in.readPacket())) != 0xCD)
