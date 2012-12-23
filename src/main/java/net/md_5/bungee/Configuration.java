@@ -132,6 +132,7 @@ public class Configuration
      * UUID for Metrics.
      */
     public String statsUuid = UUID.randomUUID().toString();
+    public boolean metricsEnabled = true;
 
     /**
      * Load the configuration and save default values.

@@ -89,6 +89,7 @@ public class BungeeCord
 
 
     {
+        commandMap.put("greload",new CommandReload());
         commandMap.put("end", new CommandEnd());
         commandMap.put("glist", new CommandList());
         commandMap.put("server", new CommandServer());
@@ -194,7 +195,10 @@ public class BungeeCord
         saveThread.start();
         $().info("Listening on " + addr);
 
-        new Metrics().start();
+        if (config.metricsEnabled)
+        {
+            new Metrics().start();
+        }
     }
 
     /**
