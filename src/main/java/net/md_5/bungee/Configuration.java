@@ -133,6 +133,7 @@ public class Configuration
      */
     public String statsUuid = UUID.randomUUID().toString();
     public boolean metricsEnabled = true;
+    public int bufferSize = 2048;
 
     /**
      * Load the configuration and save default values.

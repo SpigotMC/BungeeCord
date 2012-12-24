@@ -66,7 +66,7 @@ public class ServerConnection extends GenericConnection
                 out.write(new PacketFAPluginMessage("REGISTER", channel.getBytes()).getPacket());
             }
 
-            out = new BufferedOutputStream(out, 4096);
+            out = new BufferedOutputStream(out, BungeeCord.instance.config.bufferSize);
 
             return new ServerConnection(name, socket, in, out, login);
         } catch (KickException ex)
