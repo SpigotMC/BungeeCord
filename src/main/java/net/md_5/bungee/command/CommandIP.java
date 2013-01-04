@@ -11,7 +11,7 @@ public class CommandIP extends Command
     @Override
     public void execute(CommandSender sender, String[] args)
     {
-        if (getPermission(sender) != Permission.ADMIN)
+        if (getPermission(sender) != Permission.MODERATOR && getPermission(sender) != Permission.ADMIN)
         {
             sender.sendMessage(ChatColor.RED + "You do not have permission to use this command");
             return;
