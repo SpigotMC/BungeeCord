@@ -77,7 +77,8 @@ public class InitialHandler implements Runnable
                     }
 
                     UserConnection userCon = new UserConnection(socket, in, out, handshake, customPackets);
-                    userCon.connect(BungeeCord.instance.config.getServer(handshake.username, handshake.host));
+                    String server = (BungeeCord.instance.config.forceDefaultServer) ? BungeeCord.instance.config.defaultServerName : BungeeCord.instance.config.getServer(handshake.username, handshake.host);
+                    userCon.connect(server);
                     break;
                 case 0xFE:
                     socket.setSoTimeout(100);

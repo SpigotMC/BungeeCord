@@ -133,6 +133,7 @@ public class Configuration
      */
     public String statsUuid = UUID.randomUUID().toString();
     public boolean metricsEnabled = true;
+    public boolean forceDefaultServer = false;
 
     /**
      * Load the configuration and save default values.
