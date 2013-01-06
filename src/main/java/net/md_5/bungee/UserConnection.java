@@ -127,6 +127,11 @@ public class UserConnection extends GenericConnection implements CommandSender
         }
     }
 
+    public String getServer()
+    {
+        return server.name;
+    }
+
     public SocketAddress getAddress()
     {
         return socket.getRemoteSocketAddress();
