@@ -126,6 +126,11 @@ public class UserConnection extends GenericConnection implements CommandSender
             ex.printStackTrace(); // TODO: Remove
         }
     }
+    
+    public String getServer()
+    {
+        return server.getName();
+    }
 
     public SocketAddress getAddress()
     {
