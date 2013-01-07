@@ -3,6 +3,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord</artifactId>
     <version>1.0-SNAPSHOT</version>
@@ -43,16 +49,6 @@
         <system>jenkins</system>
         <url>http://ci.md-5.net/job/BungeeCord</url>
     </ciManagement>
-    <distributionManagement>
-        <repository>
-            <id>md_5-release</id>
-            <url>http://repo.md-5.net/content/repositories/releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>md_5-snapshot</id>
-            <url>http://repo.md-5.net/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -89,17 +85,11 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>0.11.4</version>
+            <version>0.11.6</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>md_5-public</id>
-            <url>http://repo.md-5.net/content/groups/public</url>
-        </repository>
-    </repositories>
     <build>
         <finalName>${project.name}</finalName>
         <plugins>
@@ -123,7 +113,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
+                <version>3.0</version>
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
