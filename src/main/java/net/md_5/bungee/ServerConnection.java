@@ -101,4 +101,9 @@ public class ServerConnection extends GenericConnection
             }
         }
     }
+    
+    public String getName()
+    {
+        return name;
+    }
 }
