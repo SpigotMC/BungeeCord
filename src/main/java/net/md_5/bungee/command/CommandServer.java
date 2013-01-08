@@ -36,6 +36,9 @@ public class CommandServer extends Command
             if (!servers.contains(server))
             {
                 con.sendMessage(ChatColor.RED + "The specified server does not exist");
+            } else if (args[0].equals(con.getServer()))
+            {
+                con.sendMessage(ChatColor.RED + "You are already on this server.");
             } else
             {
                 con.connect(server);
