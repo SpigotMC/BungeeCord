@@ -7,6 +7,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -70,6 +71,7 @@ public class BungeeCord
      * Fully qualified connections.
      */
     public Map<String, UserConnection> connections = new ConcurrentHashMap<>();
+    public Map<String, List<UserConnection>> connectionsByServer = new ConcurrentHashMap<>();
     /**
      * Registered commands.
      */
@@ -89,7 +91,7 @@ public class BungeeCord
 
 
     {
-        commandMap.put("greload",new CommandReload());
+        commandMap.put("greload", new CommandReload());
         commandMap.put("end", new CommandEnd());
         commandMap.put("glist", new CommandList());
         commandMap.put("server", new CommandServer());
@@ -267,6 +269,60 @@ public class BungeeCord
         for (UserConnection con : connections.values())
         {
             con.packetQueue.add(packet);
+        }
+    }
+
+    /**
+     * Broadcasts a plugin message to all servers with currently connected
+     * players.
+     *
+     * @param channel name
+     * @param message to send
+     */
+    public void broadcastPluginMessage(String channel, String message)
+    {
+        broadcastPluginMessage(channel, message, null);
+    }
+
+    /**
+     * Broadcasts a plugin message to all servers with currently connected
+     * players.
+     *
+     * @param channel name
+     * @param message to send
+     * @param server the message was sent from originally
+     */
+    public void broadcastPluginMessage(String channel, String message, String sourceServer)
+    {
+        for (String server : connectionsByServer.keySet())
+        {
+            if (sourceServer == null || !sourceServer.equals(server))
+            {
+                List<UserConnection> conns = BungeeCord.instance.connectionsByServer.get(server);
+                if (conns != null && conns.size() > 0)
+                {
+                    UserConnection user = conns.get(0);
+                    user.sendPluginMessage(channel, message.getBytes());
+                }
+            }
+        }
+    }
+
+    /**
+     * Send a plugin message to a specific server if it has currently connected
+     * players.
+     *
+     * @param channel name
+     * @param message to send
+     * @param server the message is to be sent to
+     */
+    public void sendPluginMessage(String channel, String message, String targetServer)
+    {
+        List<UserConnection> conns = BungeeCord.instance.connectionsByServer.get(targetServer);
+        if (conns != null && conns.size() > 0)
+        {
+            UserConnection user = conns.get(0);
+            user.sendPluginMessage(channel, message.getBytes());
         }
     }
 
