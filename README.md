@@ -14,6 +14,6 @@ BungeeCord does not do this and therefore is not a 'cloud'. Please do not refer 
 
 Installation & Usage
 --------------------
-For and in depth guide to the installation and usage of BungeeCord you should check the current primary download location, which at this point in time is DevBukkit. The current link is provided below for your convenience.
+For and in depth guide to the installation and usage of BungeeCord you should check the current primary download location, which at this point in time is BukkitDev. The current link is provided below for your convenience.
 
 <http://dev.bukkit.org/server-mods/bungee-cord/>
