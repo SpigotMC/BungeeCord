@@ -3,15 +3,24 @@ package net.md_5.bungee.api;
 import net.md_5.bungee.api.plugin.PluginManager;
 import com.google.common.base.Preconditions;
 import java.util.Collection;
+import java.util.logging.Logger;
 import lombok.Getter;
 
-public abstract class ProxyServer {
+public abstract class ProxyServer
+{
 
     @Getter
     private static ProxyServer instance;
 
-    public static void setInstance(ProxyServer instance) {
-        Preconditions.checkNotNull(instance, "Instance null");
+    /**
+     * Sets the proxy instance. This method may only be called once per an
+     * application.
+     *
+     * @param instance the new instance to set
+     */
+    public static void setInstance(ProxyServer instance)
+    {
+        Preconditions.checkNotNull(instance, "instance");
         Preconditions.checkArgument(instance == null, "Instance already set");
         ProxyServer.instance = instance;
     }
@@ -37,6 +46,14 @@ public abstract class ProxyServer {
      * @return current player count
      */
     public abstract int playerCount();
+
+    /**
+     * Gets the main logger which can be used as a suitable replacement for
+     * {@link System#out} and {@link System#err}.
+     *
+     * @return the {@link Logger} instance
+     */
+    public abstract Logger getLogger();
 
     /**
      * Return all currently networked connections to this proxy.

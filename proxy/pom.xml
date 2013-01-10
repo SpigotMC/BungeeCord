@@ -39,11 +39,6 @@
             <artifactId>bcprov-ext-jdk15on</artifactId>
             <version>1.47</version>
         </dependency>
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>1.11</version>
-        </dependency>
     </dependencies>
 
     <build>

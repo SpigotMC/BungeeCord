@@ -7,7 +7,8 @@ import java.net.InetSocketAddress;
  * It should expose information about the remote peer, however not be specific
  * to a type of connection, whether server or player.
  */
-public abstract class ProxyConnection {
+public abstract class ProxyConnection
+{
 
     /**
      * Gets the remote address of this connection.
