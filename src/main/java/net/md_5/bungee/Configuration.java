@@ -1,24 +1,17 @@
 package net.md_5.bungee;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import static net.md_5.bungee.Logger.$;
 import net.md_5.bungee.command.CommandSender;
 import net.md_5.bungee.command.ConsoleCommandSender;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+
+import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.net.InetSocketAddress;
+import java.util.*;
+
+import static net.md_5.bungee.Logger.$;
 
 /**
  * Core configuration for the proxy.
@@ -134,6 +127,13 @@ public class Configuration
     public String statsUuid = UUID.randomUUID().toString();
     public boolean metricsEnabled = true;
     public boolean forceDefaultServer = false;
+
+	public List<String> requiredForgeMods = new ArrayList<String>()
+	{
+		{
+
+		}
+	};
 
     /**
      * Load the configuration and save default values.

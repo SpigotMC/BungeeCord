@@ -39,9 +39,10 @@ public abstract class DefinedPacket implements DataInput, DataOutput
     public DefinedPacket(int id, byte[] buf)
     {
         in = ByteStreams.newDataInput(buf);
-        if (readUnsignedByte() != id)
+		int realID = readUnsignedByte();
+        if (realID != id)
         {
-            throw new IllegalArgumentException("Wasn't expecting packet id " + Util.hex(id));
+            throw new IllegalArgumentException("Was expecting packet id " + Util.hex(id) + " got " + Util.hex(realID));
         }
         this.id = id;
         packet = buf;
