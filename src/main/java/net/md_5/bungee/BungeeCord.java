@@ -66,7 +66,7 @@ public class BungeeCord
     /**
      * Current version.
      */
-    public String version = (getClass().getPackage().getImplementationVersion() == null) ? "unknown" : getClass().getPackage().getImplementationVersion();
+    public static String version = (BungeeCord.class.getPackage().getImplementationVersion() == null) ? "unknown" : BungeeCord.class.getPackage().getImplementationVersion();
     /**
      * Fully qualified connections.
      */
@@ -98,6 +98,7 @@ public class BungeeCord
         commandMap.put("ip", new CommandIP());
         commandMap.put("alert", new CommandAlert());
         commandMap.put("motd", new CommandMotd());
+        commandMap.put("bungee", new CommandBungee());
     }
 
     /**
