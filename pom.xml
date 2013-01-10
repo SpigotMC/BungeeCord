@@ -1,6 +1,5 @@
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -15,7 +14,7 @@
     <packaging>pom</packaging>
 
     <name>BungeeCord</name>
-    <description>Proxy component of the Elastic Portal Suite</description>
+    <description>Parent project for all BungeeCord modules.</description>
     <url>https://github.com/ElasticPortalSuite/BungeeCord</url>
     <inceptionYear>2012</inceptionYear>
     <organization>
@@ -38,6 +37,7 @@
 
     <modules>
         <module>proxy</module>
+        <module>api</module>
     </modules>
 
     <scm>
@@ -57,7 +57,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <build.number>unknown</build.number>
-        <main.class>net.md_5.bungee.BungeeCord</main.class>
     </properties>
 
     <dependencies>
@@ -70,7 +69,6 @@
     </dependencies>
 
     <build>
-        <finalName>${project.name}</finalName>
         <plugins>
             <plugin>
                 <groupId>com.lukegb.mojo</groupId>
@@ -97,39 +95,6 @@
                     <source>1.7</source>
                     <target>1.7</target>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.github.wvengen</groupId>
-                <artifactId>proguard-maven-plugin</artifactId>
-                <version>2.0.6</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>proguard</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <addMavenDescriptor>true</addMavenDescriptor>
-                    <includeDependency>false</includeDependency>
-                    <libs>
-                        <lib>${java.home}/lib/rt.jar</lib>
-                        <lib>${java.home}/lib/jce.jar</lib>
-                    </libs>
-                    <obfuscate>false</obfuscate>
-                    <options>
-                        <option>-dontoptimize</option>
-                        <option>-keep class net.md_5.bungee.** { *; }</option>
-                    </options>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>net.sf.proguard</groupId>
-                        <artifactId>proguard-base</artifactId>
-                        <version>4.8</version>
-                    </dependency>
-                </dependencies>
             </plugin>
         </plugins>
     </build>

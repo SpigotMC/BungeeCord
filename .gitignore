@@ -1,31 +1,31 @@
 # Eclipse stuff
-/.classpath
-/.project
-/.settings
+.classpath/
+.project/
+.settings/
 
 # netbeans
-/nbproject
+nbproject/
 nbactions.xml
 nb-configuration.xml
 
 # we use maven!
-/build.xml
+build.xml
 
 # maven
-/target
-/dependency-reduced-pom.xml
+target/
+dependency-reduced-pom.xml
 
 # vim
 .*.sw[a-p]
 
 # various other potential build files
-/build
-/bin
-/dist
-/manifest.mf
+build/
+bin/
+dist/
+manifest.mf
 
 # Mac filesystem dust
-/.DS_Store
+.DS_Store/
 
 # intellij
 *.iml
@@ -34,5 +34,5 @@ nb-configuration.xml
 .idea/
 
 # other files
-/*log*
+*.log*
 *.yml
