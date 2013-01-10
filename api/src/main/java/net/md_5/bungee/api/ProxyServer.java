@@ -5,21 +5,12 @@ import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.logging.Logger;
 import lombok.Getter;
-import org.yaml.snakeyaml.Yaml;
 
 public abstract class ProxyServer
 {
 
     @Getter
     private static ProxyServer instance;
-    private ThreadLocal<Yaml> yaml = new ThreadLocal<Yaml>()
-    {
-        @Override
-        protected Yaml initialValue()
-        {
-            return new Yaml();
-        }
-    };
 
     /**
      * Sets the proxy instance. This method may only be called once per an
@@ -32,16 +23,6 @@ public abstract class ProxyServer
         Preconditions.checkNotNull(instance, "instance");
         Preconditions.checkArgument(instance == null, "Instance already set");
         ProxyServer.instance = instance;
-    }
-
-    /**
-     * Gets a reusable, thread safe {@link Yaml} instance.
-     *
-     * @return an {@link Yaml} instance
-     */
-    public Yaml getYaml()
-    {
-        return yaml.get();
     }
 
     /**
@@ -71,7 +52,7 @@ public abstract class ProxyServer
      *
      * @return all networked users
      */
-    public abstract Collection<ProxyConnection> getConnections();
+    public abstract Collection<Connection> getConnections();
 
     /**
      * Get the {@link PluginManager} associated with loading plugins and

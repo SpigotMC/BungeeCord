@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
  * Represents a destination which this proxy might connect to.
  */
 @RequiredArgsConstructor
-public abstract class RemoteServer extends ProxyConnection
+public abstract class Server implements Connection
 {
 
     @Getter

@@ -6,24 +6,19 @@
     <parent>
         <groupId>net.md-5</groupId>
         <artifactId>bungeecord-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.4.7-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-proxy</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.4.7-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>BungeeCord-Proxy</name>
     <description>Proxy component of the Elastic Portal Suite</description>
 
     <dependencies>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-            <version>2.0.1</version>
-        </dependency>
         <dependency>
             <groupId>net.md-5</groupId>
             <artifactId>mendax</artifactId>
@@ -36,7 +31,7 @@
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-ext-jdk15on</artifactId>
+            <artifactId>bcprov-jdk15on</artifactId>
             <version>1.47</version>
         </dependency>
     </dependencies>
@@ -81,40 +76,8 @@
                             </excludes>
                         </filter>
                     </filters>
+                    <minimizeJar>true</minimizeJar>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.github.wvengen</groupId>
-                <artifactId>proguard-maven-plugin</artifactId>
-                <version>2.0.6</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>proguard</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <addMavenDescriptor>true</addMavenDescriptor>
-                    <includeDependency>false</includeDependency>
-                    <libs>
-                        <lib>${java.home}/lib/rt.jar</lib>
-                        <lib>${java.home}/lib/jce.jar</lib>
-                    </libs>
-                    <obfuscate>false</obfuscate>
-                    <options>
-                        <option>-dontoptimize</option>
-                        <option>-keep class net.md_5.bungee.** { *; }</option>
-                    </options>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>net.sf.proguard</groupId>
-                        <artifactId>proguard-base</artifactId>
-                        <version>4.8</version>
-                    </dependency>
-                </dependencies>
             </plugin>
         </plugins>
     </build>

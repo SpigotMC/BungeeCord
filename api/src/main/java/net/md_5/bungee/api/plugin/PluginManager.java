@@ -14,6 +14,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
+import org.yaml.snakeyaml.Yaml;
 
 /**
  * Class to manage bridging between plugin duties and implementation duties, for
@@ -22,6 +23,7 @@ import net.md_5.bungee.api.ProxyServer;
 public class PluginManager
 {
 
+    private final Yaml yaml = new Yaml();
     private final EventBus eventBus = new EventBus();
     private final Map<String, Plugin> plugins = new HashMap<>();
 
@@ -63,7 +65,7 @@ public class PluginManager
             JarEntry pdf = jar.getJarEntry("plugin.yml");
             try (InputStream in = jar.getInputStream(pdf))
             {
-                PluginDescription desc = ProxyServer.getInstance().getYaml().loadAs(in, PluginDescription.class);
+                PluginDescription desc = yaml.loadAs(in, PluginDescription.class);
                 URLClassLoader loader = new URLClassLoader(new URL[]
                         {
                             file.toURI().toURL()
