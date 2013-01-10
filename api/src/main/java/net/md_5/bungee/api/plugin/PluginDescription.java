@@ -10,5 +10,4 @@ public class PluginDescription
     private final String main;
     private final String version;
     private final String author;
-    private final String id;
 }

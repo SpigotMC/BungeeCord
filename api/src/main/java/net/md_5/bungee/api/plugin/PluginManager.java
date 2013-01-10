@@ -4,9 +4,16 @@ import com.google.common.base.Preconditions;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.logging.Level;
+import net.md_5.bungee.api.ProxyServer;
 
 /**
  * Class to manage bridging between plugin duties and implementation duties, for
@@ -40,15 +47,35 @@ public class PluginManager
     }
 
     /**
-     * Load a plugin from the specified file. This file must be in jar or zip
-     * format.
+     * Load a plugin from the specified file. This file must be in jar format.
      *
      * @param file the file to load from
+     * @throws Exception Any exceptions encountered when loading a plugin from
+     * this file.
      */
-    public void load(File file)
+    public void load(File file) throws Exception
     {
         Preconditions.checkNotNull(file, "file");
         Preconditions.checkArgument(file.isFile(), "Must load from file");
+
+        try (JarFile jar = new JarFile(file))
+        {
+            JarEntry pdf = jar.getJarEntry("plugin.yml");
+            try (InputStream in = jar.getInputStream(pdf))
+            {
+                PluginDescription desc = ProxyServer.getInstance().getYaml().loadAs(in, PluginDescription.class);
+                URLClassLoader loader = new URLClassLoader(new URL[]
+                        {
+                            file.toURI().toURL()
+                        });
+                Class<?> main = loader.loadClass(desc.getMain());
+                Plugin plugin = (Plugin) main.getDeclaredConstructor().newInstance();
+
+                plugin.init(desc);
+                plugins.put(pdf.getName(), plugin);
+                plugin.onEnable();
+            }
+        }
     }
 
     /**
@@ -65,7 +92,13 @@ public class PluginManager
         {
             if (file.getName().endsWith(".jar"))
             {
-                load(file);
+                try
+                {
+                    load(file);
+                } catch (Exception ex)
+                {
+                    ProxyServer.getInstance().getLogger().log(Level.WARNING, "Could not load plugin from file " + file, ex);
+                }
             }
         }
     }

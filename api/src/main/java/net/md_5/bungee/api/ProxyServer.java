@@ -5,12 +5,21 @@ import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.logging.Logger;
 import lombok.Getter;
+import org.yaml.snakeyaml.Yaml;
 
 public abstract class ProxyServer
 {
 
     @Getter
     private static ProxyServer instance;
+    private ThreadLocal<Yaml> yaml = new ThreadLocal<Yaml>()
+    {
+        @Override
+        protected Yaml initialValue()
+        {
+            return new Yaml();
+        }
+    };
 
     /**
      * Sets the proxy instance. This method may only be called once per an
@@ -26,6 +35,16 @@ public abstract class ProxyServer
     }
 
     /**
+     * Gets a reusable, thread safe {@link Yaml} instance.
+     *
+     * @return an {@link Yaml} instance
+     */
+    public Yaml getYaml()
+    {
+        return yaml.get();
+    }
+
+    /**
      * Gets the name of the currently running proxy software.
      *
      * @return the name of this instance
@@ -38,14 +57,6 @@ public abstract class ProxyServer
      * @return the version of this instance
      */
     public abstract String getVersion();
-
-    /**
-     * The current number of players connected to this proxy. This total should
-     * include virtual players that may be connected from other servers.
-     *
-     * @return current player count
-     */
-    public abstract int playerCount();
 
     /**
      * Gets the main logger which can be used as a suitable replacement for
