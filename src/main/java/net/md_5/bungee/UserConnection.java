@@ -115,6 +115,14 @@ public class UserConnection extends GenericConnection implements CommandSender
             }
             reconnecting = false;
             downBridge = new DownstreamBridge();
+            if (server != null)
+            {
+                List<UserConnection> conns = BungeeCord.instance.connectionsByServer.get(server.name);
+                if (conns != null)
+                {
+                    conns.remove(this);
+                }
+            }
             server = newServer;
             List<UserConnection> conns = BungeeCord.instance.connectionsByServer.get(server.name);
             if (conns == null)
@@ -122,7 +130,10 @@ public class UserConnection extends GenericConnection implements CommandSender
                 conns = new ArrayList<>();
                 BungeeCord.instance.connectionsByServer.put(server.name, conns);
             }
-            conns.add(this);
+            if (!conns.contains(this))
+            {
+                conns.add(this);
+            }
             downBridge.start();
         } catch (KickException ex)
         {
