@@ -24,9 +24,7 @@ public abstract class Server implements Connection
     /**
      * Asynchronously gets the current player count on this server.
      *
-     * TODO: Return all info available via the standard query protocol
-     *
      * @param callback the callback to call when the count has been retrieved.
      */
-    public abstract void getPlayerCount(Callback<Integer> callback);
+    public abstract void getPlayerCount(Callback<ServerPing> callback);
 }
