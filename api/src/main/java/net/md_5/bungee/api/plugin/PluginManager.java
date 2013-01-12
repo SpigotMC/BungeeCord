@@ -177,7 +177,7 @@ public class PluginManager
 
         for (File file : folder.listFiles())
         {
-            if (file.getName().endsWith(".jar"))
+            if (file.isFile() && file.getName().endsWith(".jar"))
             {
                 try
                 {
