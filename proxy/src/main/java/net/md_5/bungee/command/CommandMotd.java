@@ -1,8 +1,8 @@
 package net.md_5.bungee.command;
 
 import net.md_5.bungee.BungeeCord;
-import net.md_5.bungee.ChatColor;
 import net.md_5.bungee.Permission;
+import net.md_5.bungee.api.ChatColor;
 
 /**
  * Command to set a temp copy of the motd in real-time without stopping the

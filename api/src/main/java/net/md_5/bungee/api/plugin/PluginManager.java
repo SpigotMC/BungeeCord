@@ -7,12 +7,16 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
+import java.util.regex.Pattern;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import org.yaml.snakeyaml.Yaml;
 
@@ -23,9 +27,72 @@ import org.yaml.snakeyaml.Yaml;
 public class PluginManager
 {
 
+    private static final Pattern argsSplit = Pattern.compile(" ");
+    /*========================================================================*/
     private final Yaml yaml = new Yaml();
     private final EventBus eventBus = new EventBus();
     private final Map<String, Plugin> plugins = new HashMap<>();
+    private final Map<String, Command> commandMap = new HashMap<>();
+
+    /**
+     * Register a command so that it may be executed.
+     *
+     * @param command the command to register
+     */
+    public void registerCommand(Command command)
+    {
+        commandMap.put(command.getName(), command);
+        for (String alias : command.getAliases())
+        {
+            commandMap.put(alias, command);
+        }
+    }
+
+    /**
+     * Unregister a command so it will no longer be executed.
+     *
+     * @param command the command to unregister
+     */
+    public void unregisterCommand(Command command)
+    {
+        commandMap.values().remove(command);
+    }
+
+    /**
+     * Execute a command if it is registered, else return false.
+     *
+     * @param sender the sender executing the command
+     * @param commandLine the complete command line including command name and
+     * arguments
+     * @return whether the command was handled
+     */
+    public boolean dispatchCommand(CommandSender sender, String commandLine)
+    {
+        String[] split = argsSplit.split(commandLine);
+        Command command = commandMap.get(split[0]);
+        if (command == null)
+        {
+            return false;
+        }
+
+        String permission = command.getPermission();
+        if (permission != null && !permission.isEmpty() && !sender.hasPermission(permission))
+        {
+            sender.sendMessage(ChatColor.RED + "You do not have permission to execute this command!");
+            return true;
+        }
+
+        String[] args = Arrays.copyOfRange(split, 1, split.length);
+        try
+        {
+            command.execute(sender, args);
+        } catch (Exception ex)
+        {
+            sender.sendMessage(ChatColor.RED + "An internal error occurred whilst executing this command, please check the console log for details.");
+            ProxyServer.getInstance().getLogger().log(Level.WARNING, "Error in dispatching command", ex);
+        }
+        return true;
+    }
 
     /**
      * Returns the {@link Plugin} objects corresponding to all loaded plugins.

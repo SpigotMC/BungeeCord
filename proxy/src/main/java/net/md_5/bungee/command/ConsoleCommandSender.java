@@ -1,6 +1,6 @@
 package net.md_5.bungee.command;
 
-import net.md_5.bungee.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 
 /**
  * Command sender representing the proxy console.

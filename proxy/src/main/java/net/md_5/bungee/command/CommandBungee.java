@@ -1,7 +1,7 @@
 package net.md_5.bungee.command;
 
 import net.md_5.bungee.BungeeCord;
-import net.md_5.bungee.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 
 public class CommandBungee extends Command
 {

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import static net.md_5.bungee.Logger.$;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.command.CommandSender;
 import net.md_5.bungee.command.ConsoleCommandSender;
 import org.yaml.snakeyaml.DumperOptions;

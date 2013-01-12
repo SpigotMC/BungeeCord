@@ -1,4 +1,4 @@
-package net.md_5.bungee;
+package net.md_5.bungee.api;
 
 import java.util.regex.Pattern;
 
