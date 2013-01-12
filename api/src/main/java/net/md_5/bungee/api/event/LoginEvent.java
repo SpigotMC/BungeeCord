@@ -1,7 +1,7 @@
 package net.md_5.bungee.api.event;
 
-import java.net.InetAddress;
 import lombok.Data;
+import net.md_5.bungee.api.PendingConnection;
 import net.md_5.bungee.api.plugin.Cancellable;
 
 /**
@@ -20,15 +20,7 @@ public class LoginEvent implements Cancellable
      */
     private String cancelReason;
     /**
-     * Username which the player wishes to use.
+     * Connection attempting to login.
      */
-    private final String username;
-    /**
-     * IP address of the remote connection.
-     */
-    private final InetAddress address;
-    /**
-     * Hostname which the user tried to connect to.
-     */
-    private final String hostname;
+    private final PendingConnection connection;
 }

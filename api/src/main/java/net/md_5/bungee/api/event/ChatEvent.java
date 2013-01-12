@@ -1,12 +1,19 @@
 package net.md_5.bungee.api.event;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import net.md_5.bungee.api.Connection;
-import net.md_5.bungee.api.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Cancellable;
 
+/**
+ * Event called when a player sends a message to a server, or a server sends a
+ * message to a player.
+ */
 @Data
-public class ChatEvent implements Cancellable
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class ChatEvent extends TargetedEvent implements Cancellable
 {
 
     /**
@@ -14,15 +21,13 @@ public class ChatEvent implements Cancellable
      */
     private boolean cancelled;
     /**
-     * Where this message is being sent to.
-     */
-    private final Connection destination;
-    /**
-     * User involved with sending or receiving this message.
-     */
-    private final ProxiedPlayer player;
-    /**
      * Text contained in this chat.
      */
     private String message;
+
+    public ChatEvent(Connection sender, Connection receiver, String message)
+    {
+        super(sender, receiver);
+        this.message = message;
+    }
 }

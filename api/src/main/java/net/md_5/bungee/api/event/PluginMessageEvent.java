@@ -1,29 +1,24 @@
 package net.md_5.bungee.api.event;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import net.md_5.bungee.api.Connection;
-import net.md_5.bungee.api.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Cancellable;
 
 /**
  * Event called when a plugin message is sent to the client or server.
  */
 @Data
-public class PluginMessageEvent implements Cancellable
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class PluginMessageEvent extends TargetedEvent implements Cancellable
 {
 
     /**
      * Cancelled state.
      */
     private boolean cancelled;
-    /**
-     * Dispatcher of this message.
-     */
-    private final Connection sender;
-    /**
-     * Player involved with sending or receiving this message.
-     */
-    private final ProxiedPlayer player;
     /**
      * Tag specified for this plugin message.
      */
@@ -32,4 +27,11 @@ public class PluginMessageEvent implements Cancellable
      * Data contained in this plugin message.
      */
     private byte[] data;
+
+    public PluginMessageEvent(Connection sender, Connection receiver, String tag, byte[] data)
+    {
+        super(sender, receiver);
+        this.tag = tag;
+        this.data = data;
+    }
 }
