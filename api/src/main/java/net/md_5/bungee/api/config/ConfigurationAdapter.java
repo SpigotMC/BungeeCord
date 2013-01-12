@@ -1,8 +1,6 @@
 package net.md_5.bungee.api.config;
 
 import java.util.Collection;
-import java.util.List;
-import net.md_5.bungee.api.CommandSender;
 
 /**
  * This class allows plugins to set their own configuration adapter to load
@@ -50,12 +48,12 @@ public interface ConfigurationAdapter
     public Collection<ListenerInfo> getListeners();
 
     /**
-     * Get all groups this user is in.
+     * Get all groups this player is in.
      *
-     * @param user the user to check
-     * @return all the user's groups.
+     * @param player the player to check
+     * @return all the player's groups.
      */
-    public Collection<String> getGroups(String user);
+    public Collection<String> getGroups(String player);
 
     /**
      * Get all permission corresponding to the specified group. The result of

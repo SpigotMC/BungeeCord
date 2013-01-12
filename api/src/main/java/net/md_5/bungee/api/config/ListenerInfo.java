@@ -16,7 +16,7 @@ public class ListenerInfo
      */
     private final InetSocketAddress host;
     /**
-     * Displayed motd.
+     * Displayed MOTD.
      */
     private final String motd;
     /**

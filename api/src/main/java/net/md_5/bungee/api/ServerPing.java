@@ -10,9 +10,24 @@ import lombok.Data;
 public class ServerPing
 {
 
+    /**
+     * Numeric protocol version supported by the server.
+     */
     private final byte protocolVersion;
+    /**
+     * Human readable game version.
+     */
     private final String gameVersion;
+    /**
+     * Server MOTD.
+     */
     private final String motd;
+    /**
+     * Current amount of players on the server.
+     */
     private final String currentPlayers;
+    /**
+     * Max amount of players the server will allow.
+     */
     private final String maxPlayers;
 }

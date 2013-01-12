@@ -15,6 +15,12 @@ import net.md_5.bungee.api.connection.Connection;
 public abstract class TargetedEvent
 {
 
+    /**
+     * Creator of the action.
+     */
     private Connection sender;
+    /**
+     * Receiver of the action.
+     */
     private Connection receiver;
 }
