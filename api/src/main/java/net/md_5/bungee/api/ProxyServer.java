@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.logging.Logger;
 import lombok.Getter;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 
 public abstract class ProxyServer
@@ -51,11 +52,11 @@ public abstract class ProxyServer
     public abstract Logger getLogger();
 
     /**
-     * Return all currently networked connections to this proxy.
+     * Return all players currently connected.
      *
-     * @return all networked users
+     * @return all connected players
      */
-    public abstract Collection<Connection> getConnections();
+    public abstract Collection<ProxiedPlayer> getPlayers();
 
     /**
      * Get the {@link PluginManager} associated with loading plugins and
