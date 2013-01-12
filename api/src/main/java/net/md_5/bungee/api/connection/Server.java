@@ -1,8 +1,10 @@
 package net.md_5.bungee.api.connection;
 
+import java.net.InetSocketAddress;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.Callback;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.ServerPing;
 
 /**
@@ -12,8 +14,18 @@ import net.md_5.bungee.api.ServerPing;
 public abstract class Server implements Connection
 {
 
+    /**
+     * Information about the address, name and configuration regarding this
+     * server.
+     */
     @Getter
-    private final String name;
+    private final ServerInfo info;
+
+    @Override
+    public InetSocketAddress getAddress()
+    {
+        return info.getAddress();
+    }
 
     /**
      * Send data by any available means to this server.

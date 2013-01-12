@@ -116,13 +116,31 @@ public class PluginManager
     }
 
     /**
+     * Enable all plugins by calling the {@link Plugin#onEnable()} method.
+     */
+    public void enablePlugins()
+    {
+        for (Map.Entry<String, Plugin> plugin : plugins.entrySet())
+        {
+            try
+            {
+                plugin.getValue().onEnable();
+            } catch (Exception ex)
+            {
+                ProxyServer.getInstance().getLogger().log(Level.WARNING, "Exception encountered when loading plugin: " + plugin.getKey(), ex);
+            }
+        }
+    }
+
+    /**
      * Load a plugin from the specified file. This file must be in jar format.
+     * This will not enable plugins, {@link #enablePlugins()} must be called.
      *
      * @param file the file to load from
      * @throws Exception Any exceptions encountered when loading a plugin from
      * this file.
      */
-    public void load(File file) throws Exception
+    public void loadPlugin(File file) throws Exception
     {
         Preconditions.checkNotNull(file, "file");
         Preconditions.checkArgument(file.isFile(), "Must load from file");
@@ -142,7 +160,7 @@ public class PluginManager
 
                 plugin.init(desc);
                 plugins.put(pdf.getName(), plugin);
-                plugin.onEnable();
+                plugin.onLoad();
             }
         }
     }
@@ -152,7 +170,7 @@ public class PluginManager
      *
      * @param folder the folder to search for plugins in
      */
-    public void loadAll(File folder)
+    public void loadPlugins(File folder)
     {
         Preconditions.checkNotNull(folder, "folder");
         Preconditions.checkArgument(folder.isDirectory(), "Must load from a directory");
@@ -163,7 +181,7 @@ public class PluginManager
             {
                 try
                 {
-                    load(file);
+                    loadPlugin(file);
                 } catch (Exception ex)
                 {
                     ProxyServer.getInstance().getLogger().log(Level.WARNING, "Could not load plugin from file " + file, ex);

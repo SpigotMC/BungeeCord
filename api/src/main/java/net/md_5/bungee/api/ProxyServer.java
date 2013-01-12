@@ -6,6 +6,8 @@ import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.logging.Logger;
 import lombok.Getter;
+import net.md_5.bungee.api.config.ConfigurationAdapter;
+import net.md_5.bungee.api.plugin.Plugin;
 
 public abstract class ProxyServer
 {
@@ -63,4 +65,12 @@ public abstract class ProxyServer
      * @return the plugin manager
      */
     public abstract PluginManager getPluginManager();
+
+    /**
+     * Set the configuration adapter to be used. Must be called from
+     * {@link Plugin#onLoad()}.
+     *
+     * @param adapter the adapter to use
+     */
+    public abstract void setConfigurationAdapter(ConfigurationAdapter adapter);
 }
