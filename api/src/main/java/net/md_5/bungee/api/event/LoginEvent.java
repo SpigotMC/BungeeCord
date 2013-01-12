@@ -1,14 +1,19 @@
 package net.md_5.bungee.api.event;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.plugin.Cancellable;
+import net.md_5.bungee.api.plugin.Event;
 
 /**
  * Event called to represent a player logging in.
  */
 @Data
-public class LoginEvent implements Cancellable
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class LoginEvent extends Event implements Cancellable
 {
 
     /**

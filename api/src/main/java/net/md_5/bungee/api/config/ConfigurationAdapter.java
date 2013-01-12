@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.config;
 
+import java.util.Collection;
 import java.util.List;
 import net.md_5.bungee.api.CommandSender;
 
@@ -32,26 +33,36 @@ public interface ConfigurationAdapter
      * @param path the path to retrieve the list from.
      * @return the retrieved list.
      */
-    public List<String> getStringList(String path);
+    public Collection<String> getStrings(String path);
 
     /**
      * Get the configuration all servers which may be accessible via the proxy.
      *
      * @return all accessible servers
      */
-    public List<ServerInfo> getServers();
+    public Collection<ServerInfo> getServers();
 
     /**
      * Get information about all hosts to bind the proxy to.
      *
      * @return a list of all hosts to bind to
      */
-    public List<ListenerInfo> getListeners();
+    public Collection<ListenerInfo> getListeners();
 
     /**
-     * Set the permissions of the specified {@link CommandSender}
+     * Get all groups this user is in.
      *
-     * @param sender the sender to set permissions on.
+     * @param user the user to check
+     * @return all the user's groups.
      */
-    public void setPermissions(CommandSender sender);
+    public Collection<String> getGroups(String user);
+
+    /**
+     * Get all permission corresponding to the specified group. The result of
+     * this method may or may not be cached, depending on the implementation.
+     *
+     * @param group the group to check
+     * @return all true permissions for this group
+     */
+    public Collection<String> getPermissions(String group);
 }
