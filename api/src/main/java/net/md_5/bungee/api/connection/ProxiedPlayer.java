@@ -1,4 +1,6 @@
-package net.md_5.bungee.api;
+package net.md_5.bungee.api.connection;
+
+import net.md_5.bungee.api.CommandSender;
 
 /**
  * Represents a player who's connection is being connected to somewhere else,

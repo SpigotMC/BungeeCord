@@ -1,7 +1,9 @@
-package net.md_5.bungee.api;
+package net.md_5.bungee.api.connection;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.api.Callback;
+import net.md_5.bungee.api.ServerPing;
 
 /**
  * Represents a destination which this proxy might connect to.

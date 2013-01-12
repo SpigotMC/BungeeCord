@@ -1,5 +1,6 @@
 package net.md_5.bungee.api;
 
+import net.md_5.bungee.api.connection.Connection;
 import net.md_5.bungee.api.plugin.PluginManager;
 import com.google.common.base.Preconditions;
 import java.util.Collection;

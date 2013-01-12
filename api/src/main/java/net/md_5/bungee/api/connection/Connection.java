@@ -1,4 +1,4 @@
-package net.md_5.bungee.api;
+package net.md_5.bungee.api.connection;
 
 import java.net.InetSocketAddress;
 

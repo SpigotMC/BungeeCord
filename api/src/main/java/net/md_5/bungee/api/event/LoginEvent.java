@@ -1,7 +1,7 @@
 package net.md_5.bungee.api.event;
 
 import lombok.Data;
-import net.md_5.bungee.api.PendingConnection;
+import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.plugin.Cancellable;
 
 /**
