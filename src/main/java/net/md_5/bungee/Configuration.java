@@ -249,7 +249,7 @@ public class Configuration
      */
     public String getServer(String user, String requestedHost)
     {
-        String server = (forcedServers == null) ? null : forcedServers.get(requestedHost);
+        String server = (forcedServers == null) ? null : forcedServers.get(requestedHost.toLowerCase());
         if (server == null)
         {
             server = reconnectLocations.get(user);
