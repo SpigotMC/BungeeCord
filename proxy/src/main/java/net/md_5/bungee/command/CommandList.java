@@ -1,9 +1,11 @@
 package net.md_5.bungee.command;
 
 import java.util.Collection;
-import net.md_5.bungee.BungeeCord;
-import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.plugin.Command;
 
 /**
  * Command to list all players connected to the proxy.
@@ -11,11 +13,16 @@ import net.md_5.bungee.api.ChatColor;
 public class CommandList extends Command
 {
 
+    public CommandList()
+    {
+        super("list", "bungeecord.command.list");
+    }
+
     @Override
     public void execute(CommandSender sender, String[] args)
     {
         StringBuilder users = new StringBuilder();
-        Collection<UserConnection> connections = BungeeCord.instance.connections.values();
+        Collection<ProxiedPlayer> connections = ProxyServer.getInstance().getPlayers();
 
         if (connections.isEmpty())
         {
@@ -23,18 +30,9 @@ public class CommandList extends Command
             return;
         }
 
-        for (UserConnection con : connections)
+        for (ProxiedPlayer player : connections)
         {
-            switch (getPermission(con))
-            {
-                case ADMIN:
-                    users.append(ChatColor.RED);
-                    break;
-                case MODERATOR:
-                    users.append(ChatColor.GREEN);
-                    break;
-            }
-            users.append(con.username);
+            users.append(player.getDisplayName());
             users.append(", ");
             users.append(ChatColor.RESET);
         }

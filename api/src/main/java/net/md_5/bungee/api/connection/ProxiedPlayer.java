@@ -28,6 +28,13 @@ public abstract class ProxiedPlayer implements Connection, CommandSender
     public abstract void connect(Server server);
 
     /**
+     * Gets the server this player is connected to.
+     *
+     * @return the server this player is connected to
+     */
+    public abstract Server getServer();
+
+    /**
      * Gets the ping time between the proxy and this connection.
      *
      * @return the current ping time

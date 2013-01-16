@@ -4,6 +4,11 @@ import java.util.Collection;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.connection.Server;
+import net.md_5.bungee.api.plugin.Command;
 
 /**
  * Command to list and switch a player between available servers.
@@ -11,37 +16,42 @@ import net.md_5.bungee.api.ChatColor;
 public class CommandServer extends Command
 {
 
+    public CommandServer()
+    {
+        super("server", "bungeecord.command.server");
+    }
+
     @Override
     public void execute(CommandSender sender, String[] args)
     {
-        if (!(sender instanceof UserConnection))
+        if (!(sender instanceof ProxiedPlayer))
         {
             return;
         }
-        UserConnection con = (UserConnection) sender;
-        Collection<String> servers = BungeeCord.instance.config.servers.keySet();
-        if (args.length <= 0)
+        ProxiedPlayer player = (ProxiedPlayer) sender;
+        Collection<Server> servers = ProxyServer.getInstance().getServers();
+        if (args.length == 0)
         {
             StringBuilder serverList = new StringBuilder();
-            for (String server : servers)
+            for (Server server : servers)
             {
-                serverList.append(server);
+                serverList.append(server.getInfo().getName());
                 serverList.append(", ");
             }
             serverList.setLength(serverList.length() - 2);
-            con.sendMessage(ChatColor.GOLD + "You may connect to the following servers at this time: " + serverList.toString());
+            player.sendMessage(ChatColor.GOLD + "You may connect to the following servers at this time: " + serverList.toString());
         } else
         {
-            String server = args[0];
-            if (!servers.contains(server))
+            Server server = ProxyServer.getInstance().getServer(args[0]);
+            if (server == null)
             {
-                con.sendMessage(ChatColor.RED + "The specified server does not exist");
-            } else if (args[0].equals(con.getServer()))
+                player.sendMessage(ChatColor.RED + "The specified server does not exist");
+            } else if (server == player.getServer())
             {
-                con.sendMessage(ChatColor.RED + "You are already on this server.");
+                player.sendMessage(ChatColor.RED + "You are already on this server.");
             } else
             {
-                con.connect(server);
+                player.connect(server);
             }
         }
     }

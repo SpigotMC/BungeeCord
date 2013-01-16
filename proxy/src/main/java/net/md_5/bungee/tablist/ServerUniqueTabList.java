@@ -5,30 +5,41 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
-import net.md_5.bungee.UserConnection;
+import net.md_5.bungee.api.TabListHandler;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.packet.PacketC9PlayerListItem;
 
 public class ServerUniqueTabList implements TabListHandler
 {
 
-    private Map<UserConnection, Set<String>> sentUsernames = Collections.synchronizedMap(new WeakHashMap<UserConnection, Set<String>>());
+    private Map<ProxiedPlayer, Set<String>> sentUsernames = Collections.synchronizedMap(new WeakHashMap<ProxiedPlayer, Set<String>>());
 
     @Override
-    public void onJoin(UserConnection con)
+    public void onConnect(ProxiedPlayer player)
     {
     }
 
     @Override
-    public void onServerChange(UserConnection con)
+    public void onPingChange(ProxiedPlayer player, int ping)
     {
-        Set<String> usernames = sentUsernames.get(con);
+    }
+
+    @Override
+    public void onDisconnect(ProxiedPlayer player)
+    {
+    }
+
+    @Override
+    public void onServerChange(ProxiedPlayer player)
+    {
+        Set<String> usernames = sentUsernames.get(player);
         if (usernames != null)
         {
             synchronized (usernames)
             {
                 for (String username : usernames)
                 {
-                    con.packetQueue.add(new PacketC9PlayerListItem(username, false, 9999));
+                    player.packetQueue.add(new PacketC9PlayerListItem(username, false, 9999));
                 }
                 usernames.clear();
             }
@@ -36,31 +47,21 @@ public class ServerUniqueTabList implements TabListHandler
     }
 
     @Override
-    public void onPingChange(UserConnection con, int ping)
+    public boolean onListUpdate(ProxiedPlayer player, String name, boolean online, int ping)
     {
-    }
-
-    @Override
-    public void onDisconnect(UserConnection con)
-    {
-    }
-
-    @Override
-    public boolean onPacketC9(final UserConnection con, final PacketC9PlayerListItem packet)
-    {
-        Set<String> usernames = sentUsernames.get(con);
+        Set<String> usernames = sentUsernames.get(player);
         if (usernames == null)
         {
             usernames = new LinkedHashSet<>();
-            sentUsernames.put(con, usernames);
+            sentUsernames.put(player, usernames);
         }
 
-        if (packet.online)
+        if (online)
         {
-            usernames.add(packet.username);
+            usernames.add(name);
         } else
         {
-            usernames.remove(packet.username);
+            usernames.remove(name);
         }
 
         return true;

@@ -6,17 +6,26 @@ import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+import lombok.Getter;
 import static net.md_5.bungee.Logger.$;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ConfigurationAdapter;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.connection.Server;
+import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.command.*;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
@@ -29,7 +38,7 @@ import net.md_5.bungee.tablist.TabListHandler;
 /**
  * Main BungeeCord proxy class.
  */
-public class BungeeCord
+public class BungeeCord extends ProxyServer
 {
 
     /**
@@ -40,10 +49,6 @@ public class BungeeCord
      * Server game version.
      */
     public static final String GAME_VERSION = "1.4.6";
-    /**
-     * Current software instance.
-     */
-    public static BungeeCord instance;
     /**
      * Current operation state.
      */
@@ -59,7 +64,7 @@ public class BungeeCord
     /**
      * locations.yml save thread.
      */
-    private final ReconnectSaveThread saveThread = new ReconnectSaveThread();
+    private final Timer saveThread = new Timer("Reconnect Saver");
     /**
      * Server socket listener.
      */
@@ -88,18 +93,20 @@ public class BungeeCord
     /**
      * Plugin manager.
      */
-    public final JavaPluginManager pluginManager = new JavaPluginManager();
+    @Getter
+    public final PluginManager pluginManager = new PluginManager();
 
 
     {
-        commandMap.put("greload", new CommandReload());
-        commandMap.put("end", new CommandEnd());
-        commandMap.put("glist", new CommandList());
-        commandMap.put("server", new CommandServer());
-        commandMap.put("ip", new CommandIP());
-        commandMap.put("alert", new CommandAlert());
-        commandMap.put("motd", new CommandMotd());
-        commandMap.put("bungee", new CommandBungee());
+        getPluginManager().registerCommand(new CommandReload());
+        getPluginManager().registerCommand(new CommandReload());
+        getPluginManager().registerCommand(new CommandEnd());
+        getPluginManager().registerCommand(new CommandList());
+        getPluginManager().registerCommand(new CommandServer());
+        getPluginManager().registerCommand(new CommandIP());
+        getPluginManager().registerCommand(new CommandAlert());
+        getPluginManager().registerCommand(new CommandMotd());
+        getPluginManager().registerCommand(new CommandBungee());
     }
 
     /**
@@ -110,17 +117,18 @@ public class BungeeCord
      */
     public static void main(String[] args) throws IOException
     {
-        instance = new BungeeCord();
-        $().info("Enabled BungeeCord version " + instance.version);
-        instance.start();
+        BungeeCord bungee = new BungeeCord();
+        ProxyServer.setInstance(bungee);
+        $().info("Enabled BungeeCord version " + bungee.getVersion());
+        bungee.start();
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        while (instance.isRunning)
+        while (bungee.isRunning)
         {
             String line = br.readLine();
             if (line != null)
             {
-                boolean handled = instance.dispatchCommand(line, ConsoleCommandSender.instance);
+                boolean handled = getInstance().getPluginManager().dispatchCommand(ConsoleCommandSender.instance, line);
                 if (!handled)
                 {
                     System.err.println("Command not found");
@@ -337,5 +345,53 @@ public class BungeeCord
     {
         globalPluginChannels.add(channel);
         broadcast(new PacketFAPluginMessage("REGISTER", channel.getBytes()));
+    }
+
+    @Override
+    public String getName()
+    {
+        return "BungeeCord";
+    }
+
+    @Override
+    public String getVersion()
+    {
+        return version;
+    }
+
+    @Override
+    public Logger getLogger()
+    {
+        return $();
+    }
+
+    @Override
+    public Collection<ProxiedPlayer> getPlayers()
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public ProxiedPlayer getPlayer(String name)
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Server getServer(String name)
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Collection<Server> getServers()
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setConfigurationAdapter(ConfigurationAdapter adapter)
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

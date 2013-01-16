@@ -18,6 +18,16 @@ public abstract class Command
     private final String[] aliases;
 
     /**
+     * Construct a new command with no permissions or aliases.
+     *
+     * @param name the name of this command
+     */
+    public Command(String name)
+    {
+        this(name, null);
+    }
+
+    /**
      * Construct a new command.
      *
      * @param name primary name of this command

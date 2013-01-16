@@ -97,4 +97,14 @@ public abstract class ProxyServer
      * @param adapter the adapter to use
      */
     public abstract void setConfigurationAdapter(ConfigurationAdapter adapter);
+
+    /**
+     * Gracefully mark this instance for shutdown.
+     */
+    public abstract void stop();
+
+    /**
+     * Start this instance so that it may accept connections.
+     */
+    public abstract void start();
 }

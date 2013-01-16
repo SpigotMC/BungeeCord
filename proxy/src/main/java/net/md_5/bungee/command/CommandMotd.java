@@ -1,8 +1,10 @@
 package net.md_5.bungee.command;
 
 import net.md_5.bungee.BungeeCord;
-import net.md_5.bungee.Permission;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.plugin.Command;
 
 /**
  * Command to set a temp copy of the motd in real-time without stopping the
@@ -11,21 +13,20 @@ import net.md_5.bungee.api.ChatColor;
 public class CommandMotd extends Command
 {
 
+    public CommandMotd()
+    {
+        super("bungeecord.command.motd");
+    }
+
     @Override
     public void execute(CommandSender sender, String[] args)
     {
-        if (getPermission(sender) != Permission.ADMIN)
+        StringBuilder newMOTD = new StringBuilder();
+        for (String s : args)
         {
-            sender.sendMessage(ChatColor.RED + "You do not have permission to use this command");
-        } else
-        {
-            String newMOTD = "";
-            for (String s : args)
-            {
-                newMOTD = newMOTD + s + " ";
-            }
-            newMOTD = newMOTD.substring(0, newMOTD.length() - 1);
-            BungeeCord.instance.config.motd = ChatColor.translateAlternateColorCodes('&', newMOTD);
+            newMOTD.append(s);
+            newMOTD.append(" ");
         }
+        ((BungeeCord) ProxyServer.getInstance()).config.motd = ChatColor.translateAlternateColorCodes('&', newMOTD.substring(0, newMOTD.length() - 1));
     }
 }

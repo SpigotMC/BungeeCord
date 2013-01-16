@@ -1,21 +1,22 @@
 package net.md_5.bungee.command;
 
-import net.md_5.bungee.BungeeCord;
-import net.md_5.bungee.Permission;
-import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.plugin.Command;
 
 public class CommandAlert extends Command
 {
 
+    public CommandAlert()
+    {
+        super("alert", "bungee.command.alert");
+    }
+
     @Override
     public void execute(CommandSender sender, String[] args)
     {
-        if (getPermission(sender) != Permission.ADMIN)
-        {
-            sender.sendMessage(ChatColor.RED + "You do not have permission to execute this command!");
-            return;
-        }
         if (args.length == 0)
         {
             sender.sendMessage(ChatColor.RED + "You must supply a message.");
@@ -36,9 +37,9 @@ public class CommandAlert extends Command
             }
 
             String message = builder.substring(0, builder.length() - 1);
-            for (UserConnection con : BungeeCord.instance.connections.values())
+            for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers())
             {
-                con.sendMessage(message);
+                player.sendMessage(message);
             }
         }
     }
