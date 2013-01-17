@@ -23,7 +23,7 @@ public class Logger extends java.util.logging.Logger
         super("RubberBand", null);
         try
         {
-            FileHandler handler = new FileHandler("proxy.log", BungeeCord.instance.config.logNumLines, 1, true);
+            FileHandler handler = new FileHandler("proxy.log", BungeeCord.getInstance().config.logNumLines, 1, true);
             handler.setFormatter(formatter);
             addHandler(handler);
         } catch (IOException ex)

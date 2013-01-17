@@ -105,6 +105,9 @@ public abstract class ProxyServer
 
     /**
      * Start this instance so that it may accept connections.
+     *
+     * @throws Exception any exception thrown during startup causing the
+     * instance to fail to boot
      */
-    public abstract void start();
+    public abstract void start() throws Exception;
 }

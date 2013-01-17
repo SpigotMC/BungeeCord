@@ -25,15 +25,15 @@ public class ListenThread extends Thread
     @Override
     public void run()
     {
-        while (BungeeCord.instance.isRunning)
+        while (BungeeCord.getInstance().isRunning)
         {
             try
             {
                 Socket client = socket.accept();
-                BungeeCord.instance.setSocketOptions(client);
+                BungeeCord.getInstance().setSocketOptions(client);
                 $().info(client.getInetAddress() + " has connected");
                 InitialHandler handler = new InitialHandler(client);
-                BungeeCord.instance.threadPool.submit(handler);
+                BungeeCord.getInstance().threadPool.submit(handler);
             } catch (SocketException ex)
             {
             } catch (IOException ex)

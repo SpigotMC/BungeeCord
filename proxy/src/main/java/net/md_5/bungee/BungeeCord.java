@@ -1,13 +1,12 @@
 package net.md_5.bungee;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -16,12 +15,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
 import static net.md_5.bungee.Logger.$;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.TabListHandler;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
@@ -29,11 +27,9 @@ import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.command.*;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
-import net.md_5.bungee.plugin.JavaPluginManager;
 import net.md_5.bungee.tablist.GlobalPingTabList;
 import net.md_5.bungee.tablist.GlobalTabList;
 import net.md_5.bungee.tablist.ServerUniqueTabList;
-import net.md_5.bungee.tablist.TabListHandler;
 
 /**
  * Main BungeeCord proxy class.
@@ -79,10 +75,6 @@ public class BungeeCord extends ProxyServer
     public Map<String, UserConnection> connections = new ConcurrentHashMap<>();
     public Map<String, List<UserConnection>> connectionsByServer = new ConcurrentHashMap<>();
     /**
-     * Registered commands.
-     */
-    public Map<String, Command> commandMap = new HashMap<>();
-    /**
      * Tab list handler
      */
     public TabListHandler tabListHandler;
@@ -107,6 +99,11 @@ public class BungeeCord extends ProxyServer
         getPluginManager().registerCommand(new CommandAlert());
         getPluginManager().registerCommand(new CommandMotd());
         getPluginManager().registerCommand(new CommandBungee());
+    }
+
+    public static BungeeCord getInstance()
+    {
+        return (BungeeCord) ProxyServer.getInstance();
     }
 
     /**
@@ -138,39 +135,6 @@ public class BungeeCord extends ProxyServer
     }
 
     /**
-     * Dispatch a command by formatting the arguments and then executing it.
-     *
-     * @param commandLine the entire command and arguments string
-     * @param sender which executed the command
-     * @return whether the command was handled or not.
-     */
-    public boolean dispatchCommand(String commandLine, CommandSender sender)
-    {
-        String[] split = commandLine.trim().split(" ");
-        String commandName = split[0].toLowerCase();
-        Command command = commandMap.get(commandName);
-        if (config.disabledCommands != null && config.disabledCommands.contains(commandName))
-        {
-            return false;
-        } else if (command != null)
-        {
-            String[] args = Arrays.copyOfRange(split, 1, split.length);
-            try
-            {
-                command.execute(sender, args);
-            } catch (Exception ex)
-            {
-                sender.sendMessage(ChatColor.RED + "An error occurred while executing this command!");
-                $().severe("----------------------- [Start of command error] -----------------------");
-                $().log(Level.SEVERE, "", ex);
-                $().severe("----------------------- [End of command error] -----------------------");
-            }
-        }
-
-        return command != null;
-    }
-
-    /**
      * Start this proxy instance by loading the configuration, plugins and
      * starting the connect thread.
      *
@@ -181,7 +145,9 @@ public class BungeeCord extends ProxyServer
         config.load();
         isRunning = true;
 
-        pluginManager.loadPlugins();
+        File plugins = new File("plugins");
+        plugins.mkdir();
+        pluginManager.loadPlugins(plugins);
 
         switch (config.tabList)
         {
@@ -328,7 +294,7 @@ public class BungeeCord extends ProxyServer
      */
     public void sendPluginMessage(String channel, String message, String targetServer)
     {
-        List<UserConnection> conns = BungeeCord.instance.connectionsByServer.get(targetServer);
+        List<UserConnection> conns = connectionsByServer.get(targetServer);
         if (conns != null && conns.size() > 0)
         {
             UserConnection user = conns.get(0);

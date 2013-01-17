@@ -16,8 +16,6 @@ import java.util.Map;
 import java.util.UUID;
 import static net.md_5.bungee.Logger.$;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.command.CommandSender;
-import net.md_5.bungee.command.ConsoleCommandSender;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -292,24 +290,5 @@ public class Configuration
     {
         save(reconnect, reconnectLocations);
         $().info("Saved reconnect locations to " + reconnect);
-    }
-
-    /**
-     * Get the highest permission a player has.
-     *
-     * @param sender to get permissions of
-     * @return their permission
-     */
-    public Permission getPermission(CommandSender sender)
-    {
-        Permission permission = Permission.DEFAULT;
-        if (admins.contains(sender.getName()) || sender instanceof ConsoleCommandSender)
-        {
-            permission = Permission.ADMIN;
-        } else if (moderators.contains(sender.getName()))
-        {
-            permission = Permission.MODERATOR;
-        }
-        return permission;
     }
 }

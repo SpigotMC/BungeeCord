@@ -9,6 +9,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import static net.md_5.bungee.Logger.$;
+import net.md_5.bungee.api.ProxyServer;
 
 public class Metrics extends Thread
 {
@@ -73,10 +74,10 @@ public class Metrics extends Thread
     {
         // Construct the post data
         final StringBuilder data = new StringBuilder();
-        data.append(encode("guid")).append('=').append(encode(BungeeCord.instance.config.statsUuid));
-        encodeDataPair(data, "version", BungeeCord.instance.version);
+        data.append(encode("guid")).append('=').append(encode(BungeeCord.getInstance().config.statsUuid));
+        encodeDataPair(data, "version", ProxyServer.getInstance().getVersion());
         encodeDataPair(data, "server", "0");
-        encodeDataPair(data, "players", Integer.toString(BungeeCord.instance.connections.size()));
+        encodeDataPair(data, "players", Integer.toString(ProxyServer.getInstance().getPlayers().size()));
         encodeDataPair(data, "revision", String.valueOf(REVISION));
 
         // If we're pinging, append it

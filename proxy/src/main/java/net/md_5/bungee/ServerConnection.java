@@ -4,9 +4,15 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.PublicKey;
+import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.crypto.SecretKey;
+import net.md_5.bungee.api.Callback;
+import net.md_5.bungee.api.ServerPing;
+import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet2Handshake;
@@ -22,7 +28,7 @@ import org.bouncycastle.crypto.io.CipherOutputStream;
 /**
  * Class representing a connection from the proxy to the server; ie upstream.
  */
-public class ServerConnection extends GenericConnection
+public class ServerConnection extends GenericConnection implements Server
 {
 
     public final String name;
@@ -41,8 +47,8 @@ public class ServerConnection extends GenericConnection
         try
         {
             Socket socket = new Socket();
-            socket.connect(address, BungeeCord.instance.config.timeout);
-            BungeeCord.instance.setSocketOptions(socket);
+            socket.connect(address, BungeeCord.getInstance().config.timeout);
+            BungeeCord.getInstance().setSocketOptions(socket);
 
             PacketInputStream in = new PacketInputStream(socket.getInputStream());
             OutputStream out = socket.getOutputStream();
@@ -80,7 +86,7 @@ public class ServerConnection extends GenericConnection
 
             // Register all global plugin message channels
             // TODO: Allow player-specific plugin message channels for full mod support
-            for (String channel : BungeeCord.instance.globalPluginChannels)
+            for (String channel : BungeeCord.getInstance().globalPluginChannels)
             {
                 out.write(new PacketFAPluginMessage("REGISTER", channel.getBytes()).getPacket());
             }
@@ -91,7 +97,7 @@ public class ServerConnection extends GenericConnection
             throw ex;
         } catch (Exception ex)
         {
-            InetSocketAddress def = BungeeCord.instance.config.getServer(null);
+            InetSocketAddress def = BungeeCord.getInstance().config.getServer(null);
             if (retry && !address.equals(def))
             {
                 return connect(user, name, def, handshake, false);
@@ -100,5 +106,35 @@ public class ServerConnection extends GenericConnection
                 throw new RuntimeException("Could not connect to target server " + Util.exception(ex));
             }
         }
+    }
+
+    @Override
+    public ServerInfo getInfo()
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void sendData(String channel, byte[] data)
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void ping(Callback<ServerPing> callback)
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Collection<ProxiedPlayer> getPlayers()
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public InetSocketAddress getAddress()
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

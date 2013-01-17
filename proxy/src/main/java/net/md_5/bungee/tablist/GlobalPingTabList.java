@@ -19,7 +19,7 @@ public class GlobalPingTabList extends GlobalTabList
         Integer lastPing = lastPings.get(player);
         if (lastPing == null || (ping - PING_THRESHOLD > lastPing && ping + PING_THRESHOLD < lastPing))
         {
-            BungeeCord.instance.broadcast(new PacketC9PlayerListItem(player.getDisplayName(), true, ping));
+            BungeeCord.getInstance().broadcast(new PacketC9PlayerListItem(player.getDisplayName(), true, ping));
             lastPings.put(player, ping);
         }
     }

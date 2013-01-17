@@ -6,17 +6,18 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import net.md_5.bungee.command.CommandSender;
+import javax.print.attribute.standard.Destination;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.connection.Server;
+import net.md_5.bungee.api.event.ChatEvent;
+import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.packet.*;
-import net.md_5.bungee.plugin.ChatEvent;
-import net.md_5.bungee.plugin.PluginMessageEvent;
-import net.md_5.bungee.plugin.PluginMessageEvent.Destination;
-import net.md_5.bungee.plugin.ServerConnectEvent;
 
-public class UserConnection extends GenericConnection implements CommandSender
+public class UserConnection extends GenericConnection implements ProxiedPlayer
 {
 
     public final Packet2Handshake handshake;
@@ -210,6 +211,72 @@ public class UserConnection extends GenericConnection implements CommandSender
     public String getName()
     {
         return username;
+    }
+
+    @Override
+    public String getDisplayName()
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setDisplayName(String name)
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void connect(Server server)
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Server getServer()
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void sendData(String channel, byte[] data)
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public InetSocketAddress getAddress()
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Collection<String> getGroups()
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void addGroups(String... groups)
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void removeGroups(String... groups)
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean hasPermission(String permission)
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setPermission(String permission, boolean value)
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     private class UpstreamBridge extends Thread

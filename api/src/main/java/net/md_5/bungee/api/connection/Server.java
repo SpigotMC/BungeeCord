@@ -11,22 +11,15 @@ import net.md_5.bungee.api.ServerPing;
 /**
  * Represents a destination which this proxy might connect to.
  */
-@RequiredArgsConstructor
-public abstract class Server implements Connection
+public interface Server extends Connection
 {
 
     /**
-     * Information about the address, name and configuration regarding this
-     * server.
+     * Returns the basic information about this server.
+     *
+     * @return the {@link ServerInfo} for this server
      */
-    @Getter
-    private final ServerInfo info;
-
-    @Override
-    public InetSocketAddress getAddress()
-    {
-        return info.getAddress();
-    }
+    public ServerInfo getInfo();
 
     /**
      * Send data by any available means to this server.

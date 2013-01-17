@@ -8,15 +8,23 @@ import net.md_5.bungee.api.CommandSender;
  * Represents a player who's connection is being connected to somewhere else,
  * whether it be a remote or embedded server.
  */
-public abstract class ProxiedPlayer implements Connection, CommandSender
+public interface ProxiedPlayer extends Connection, CommandSender
 {
 
     /**
-     * Name displayed to other users in areas such as the tab list.
+     * Gets this player's display name.
+     *
+     * @return the players current display name
      */
-    @Getter
-    @Setter
-    private String displayName;
+    public String getDisplayName();
+
+    /**
+     * Sets this players display name to be used as their nametag and tab list
+     * name.
+     *
+     * @param name the name to set
+     */
+    public void setDisplayName(String name);
 
     /**
      * Connects / transfers this user to the specified connection, gracefully
@@ -25,21 +33,21 @@ public abstract class ProxiedPlayer implements Connection, CommandSender
      *
      * @param server the new server to connect to
      */
-    public abstract void connect(Server server);
+    public void connect(Server server);
 
     /**
      * Gets the server this player is connected to.
      *
      * @return the server this player is connected to
      */
-    public abstract Server getServer();
+    public Server getServer();
 
     /**
      * Gets the ping time between the proxy and this connection.
      *
      * @return the current ping time
      */
-    public abstract int getPing();
+    public int getPing();
 
     /**
      * Completely kick this user from the proxy and all of its child
@@ -47,7 +55,7 @@ public abstract class ProxiedPlayer implements Connection, CommandSender
      *
      * @param reason the disconnect reason displayed to the player
      */
-    public abstract void disconnect(String reason);
+    public void disconnect(String reason);
 
     /**
      * Send a plugin message to this player.
@@ -55,5 +63,5 @@ public abstract class ProxiedPlayer implements Connection, CommandSender
      * @param channel the channel to send this data via
      * @param data the data to send
      */
-    public abstract void sendData(String channel, byte[] data);
+    public void sendData(String channel, byte[] data);
 }
