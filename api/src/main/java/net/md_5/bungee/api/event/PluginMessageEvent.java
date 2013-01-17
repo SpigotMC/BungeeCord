@@ -22,11 +22,11 @@ public class PluginMessageEvent extends TargetedEvent implements Cancellable
     /**
      * Tag specified for this plugin message.
      */
-    private String tag;
+    private final String tag;
     /**
      * Data contained in this plugin message.
      */
-    private byte[] data;
+    private final byte[] data;
 
     public PluginMessageEvent(Connection sender, Connection receiver, String tag, byte[] data)
     {

@@ -268,7 +268,7 @@ public class Configuration
      */
     public void setServer(UserConnection user, String server)
     {
-        reconnectLocations.put(user.username, server);
+        reconnectLocations.put(user.name, server);
     }
 
     /**

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import static net.md_5.bungee.Logger.$;
 import net.md_5.bungee.packet.PacketFFKick;
@@ -20,8 +21,10 @@ public class GenericConnection
     protected final Socket socket;
     protected final PacketInputStream in;
     protected final OutputStream out;
-    public String username;
-    public String tabListName;
+    @Getter
+    public String name;
+    @Getter
+    public String displayName;
 
     /**
      * Close the socket with the specified reason.
@@ -55,6 +58,6 @@ public class GenericConnection
 
     public void log(String message)
     {
-        $().info(socket.getInetAddress() + ((username == null) ? " " : " [" + username + "] ") + message);
+        $().info(socket.getInetAddress() + ((name == null) ? " " : " [" + name + "] ") + message);
     }
 }

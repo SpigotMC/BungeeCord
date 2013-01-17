@@ -4,17 +4,18 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import javax.print.attribute.standard.Destination;
+import lombok.Getter;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.packet.*;
 
 public class UserConnection extends GenericConnection implements ProxiedPlayer
@@ -23,6 +24,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     public final Packet2Handshake handshake;
     public Queue<DefinedPacket> packetQueue = new ConcurrentLinkedQueue<>();
     public List<byte[]> loginPackets = new ArrayList<>();
+    @Getter
     private ServerConnection server;
     private UpstreamBridge upBridge;
     private DownstreamBridge downBridge;
@@ -33,6 +35,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     // ping stuff
     private int trackingPingId;
     private long pingTime;
+    @Getter
     private int ping;
     public UserConnection instance = this;
 
@@ -40,39 +43,25 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     {
         super(socket, in, out);
         this.handshake = handshake;
-        username = handshake.username;
-        tabListName = handshake.username;
+        name = handshake.username;
+        displayName = handshake.username;
         this.loginPackets = loginPackets;
-        BungeeCord.instance.connections.put(username, this);
+        BungeeCord.instance.connections.put(name, this);
         BungeeCord.instance.tabListHandler.onJoin(this);
     }
 
-    public void setTabListName(String newName)
+    @Override
+    public void setDisplayName(String name)
     {
-        BungeeCord.instance.tabListHandler.onDisconnect(this);
-        tabListName = newName;
-        BungeeCord.instance.tabListHandler.onJoin(this);
+        ProxyServer.getInstance().getTabListHandler().onDisconnect(this);
+        displayName = name;
+        ProxyServer.getInstance().getTabListHandler().onConnect(this);
     }
 
-    public void connect(String server)
+    public void connect(Server server)
     {
-        ServerConnectEvent event = new ServerConnectEvent(this.server == null, this, server);
-        event.setNewServer(server);
-        BungeeCord.instance.pluginManager.onServerConnect(event);
-        if (event.getMessage() != null)
-        {
-            this.sendMessage(event.getMessage());
-        }
-        if (event.getNewServer() == null)
-        {
-            if (event.isFirstTime())
-            {
-                event.setNewServer(BungeeCord.instance.config.defaultServerName);
-            } else
-            {
-                return;
-            }
-        }
+        ServerConnectEvent event = new ServerConnectEvent(this, server);
+        BungeeCord.getInstance().getPluginManager().callEvent(event);
         InetSocketAddress addr = BungeeCord.instance.config.getServer(event.getNewServer());
         connect(server, addr);
     }
@@ -146,21 +135,6 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
         }
     }
 
-    public String getServer()
-    {
-        return server.name;
-    }
-
-    public SocketAddress getAddress()
-    {
-        return socket.getRemoteSocketAddress();
-    }
-
-    public int getPing()
-    {
-        return ping;
-    }
-
     private void setPing(int ping)
     {
         BungeeCord.instance.tabListHandler.onPingChange(this, ping);
@@ -171,7 +145,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     {
         if (BungeeCord.instance.isRunning)
         {
-            BungeeCord.instance.connections.remove(username);
+            BungeeCord.instance.connections.remove(name);
             if (server != null)
             {
                 List<UserConnection> conns = BungeeCord.instance.connectionsByServer.get(server.name);
@@ -202,45 +176,10 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
         packetQueue.add(new Packet3Chat(message));
     }
 
-    public void sendPluginMessage(String tag, byte[] data)
-    {
-        server.packetQueue.add(new PacketFAPluginMessage(tag, data));
-    }
-
-    @Override
-    public String getName()
-    {
-        return username;
-    }
-
-    @Override
-    public String getDisplayName()
-    {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void setDisplayName(String name)
-    {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void connect(Server server)
-    {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Server getServer()
-    {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     @Override
     public void sendData(String channel, byte[] data)
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        server.packetQueue.add(new PacketFAPluginMessage(channel, data));
     }
 
     @Override
@@ -284,7 +223,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
 
         public UpstreamBridge()
         {
-            super("Upstream Bridge - " + username);
+            super("Upstream Bridge - " + name);
         }
 
         @Override
@@ -298,39 +237,37 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                     boolean sendPacket = true;
 
                     int id = Util.getId(packet);
-                    if (id == 0xFA)
+                    switch (id)
                     {
-                        // Call the onPluginMessage event
-                        PacketFAPluginMessage message = new PacketFAPluginMessage(packet);
-                        PluginMessageEvent event = new PluginMessageEvent(Destination.SERVER, instance);
-                        event.setTag(message.tag);
-                        event.setData(new String(message.data));
-                        BungeeCord.instance.pluginManager.onPluginMessage(event);
+                        case 0x00:
+                            if (trackingPingId == new Packet0KeepAlive(packet).id)
+                            {
+                                setPing((int) (System.currentTimeMillis() - pingTime));
+                            }
+                            break;
+                        case 0x03:
+                            Packet3Chat chat = new Packet3Chat(packet);
+                            if (chat.message.startsWith("/"))
+                            {
+                                sendPacket = !ProxyServer.getInstance().getPluginManager().dispatchCommand(UserConnection.this, chat.message.substring(1));
+                            } else
+                            {
+                                ChatEvent chatEvent = new ChatEvent(UserConnection.this, server, chat.message);
+                                ProxyServer.getInstance().getPluginManager().callEvent(chatEvent);
+                                sendPacket = !chatEvent.isCancelled();
+                            }
+                            break;
+                        case 0xFA:
+                            // Call the onPluginMessage event
+                            PacketFAPluginMessage message = new PacketFAPluginMessage(packet);
+                            PluginMessageEvent event = new PluginMessageEvent(UserConnection.this, server, message.tag, message.data);
+                            ProxyServer.getInstance().getPluginManager().callEvent(event);
 
-                        if (event.isCancelled())
-                        {
-                            continue;
-                        }
-                    } else if (id == 0x03)
-                    {
-                        Packet3Chat chat = new Packet3Chat(packet);
-                        String message = chat.message;
-                        if (message.startsWith("/"))
-                        {
-                            sendPacket = !BungeeCord.instance.dispatchCommand(message.substring(1), UserConnection.this);
-                        } else
-                        {
-                            ChatEvent chatEvent = new ChatEvent(ChatEvent.Destination.SERVER, instance);
-                            chatEvent.setText(message);
-                            BungeeCord.instance.pluginManager.onChat(chatEvent);
-                            sendPacket = !chatEvent.isCancelled();
-                        }
-                    } else if (id == 0x00)
-                    {
-                        if (trackingPingId == new Packet0KeepAlive(packet).id)
-                        {
-                            setPing((int) (System.currentTimeMillis() - pingTime));
-                        }
+                            if (event.isCancelled())
+                            {
+                                continue;
+                            }
+                            break;
                     }
 
                     while (!server.packetQueue.isEmpty())
@@ -363,7 +300,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
 
         public DownstreamBridge()
         {
-            super("Downstream Bridge - " + username);
+            super("Downstream Bridge - " + name);
         }
 
         @Override
@@ -371,61 +308,59 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
         {
             try
             {
+                outer:
                 while (!reconnecting)
                 {
                     byte[] packet = server.in.readPacket();
 
                     int id = Util.getId(packet);
-                    if (id == 0xFA)
+                    switch (id)
                     {
-                        // Call the onPluginMessage event
-                        PacketFAPluginMessage message = new PacketFAPluginMessage(packet);
-                        PluginMessageEvent event = new PluginMessageEvent(Destination.CLIENT, instance);
-                        event.setTag(message.tag);
-                        event.setData(new String(message.data));
-                        BungeeCord.instance.pluginManager.onPluginMessage(event);
-
-                        if (event.isCancelled())
-                        {
-                            continue;
-                        }
-
-                        message.tag = event.getTag();
-                        message.data = event.getData().getBytes();
-
-                        // Allow a message for killing the connection outright
-                        if (message.tag.equals("KillCon"))
-                        {
+                        case 0x00:
+                            trackingPingId = new Packet0KeepAlive(packet).id;
+                            pingTime = System.currentTimeMillis();
                             break;
-                        }
+                        case 0x03:
+                            Packet3Chat chat = new Packet3Chat(packet);
+                            ChatEvent chatEvent = new ChatEvent(server, UserConnection.this, chat.message);
+                            ProxyServer.getInstance().getPluginManager().callEvent(chatEvent);
 
-                        if (message.tag.equals("RubberBand"))
-                        {
-                            String server = new String(message.data);
-                            connect(server);
+                            if (chatEvent.isCancelled())
+                            {
+                                continue;
+                            }
                             break;
-                        }
-                    } else if (id == 0x00)
-                    {
-                        trackingPingId = new Packet0KeepAlive(packet).id;
-                        pingTime = System.currentTimeMillis();
-                    } else if (id == 0x03)
-                    {
-                        Packet3Chat chat = new Packet3Chat(packet);
-                        String message = chat.message;
-                        ChatEvent chatEvent = new ChatEvent(ChatEvent.Destination.CLIENT, instance);
-                        chatEvent.setText(message);
-                        BungeeCord.instance.pluginManager.onChat(chatEvent);
-                        if (chatEvent.isCancelled())
-                        {
-                            continue;
-                        }
-                    } else if (id == 0xC9)
-                    {
-                        if (!BungeeCord.instance.tabListHandler.onPacketC9(UserConnection.this, new PacketC9PlayerListItem(packet)))
-                        {
-                            continue;
-                        }
+                        case 0xC9:
+                            PacketC9PlayerListItem playerList = new PacketC9PlayerListItem(packet);
+                            if (!ProxyServer.getInstance().getTabListHandler().onListUpdate(instance, playerList.username, playerList.online, playerList.ping))
+                            {
+                                continue;
+                            }
+                            break;
+                        case 0xFA:
+                            // Call the onPluginMessage event
+                            PacketFAPluginMessage message = new PacketFAPluginMessage(packet);
+                            PluginMessageEvent event = new PluginMessageEvent(server, UserConnection.this, message.tag, message.data);
+                            ProxyServer.getInstance().getPluginManager().callEvent(event);
+
+                            if (event.isCancelled())
+                            {
+                                continue;
+                            }
+
+                            switch (message.tag)
+                            {
+                                case "BungeeCord::Disconnect":
+                                    break outer;
+                                case "BungeeCord::Connect":
+                                    Server server = ProxyServer.getInstance().getServer(new String(message.data));
+                                    if (server != null)
+                                    {
+                                        connect(server);
+                                        break outer;
+                                    }
+                                    break;
+                            }
                     }
 
                     while (!packetQueue.isEmpty())
