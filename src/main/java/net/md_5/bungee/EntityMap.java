@@ -40,7 +40,7 @@ public class EntityMap
         };
         entityIds[0x17] = new int[]
         {
-            1, 18
+            1, 20
         };
         entityIds[0x18] = new int[]
         {
