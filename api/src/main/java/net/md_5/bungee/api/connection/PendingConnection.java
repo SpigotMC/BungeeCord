@@ -28,4 +28,12 @@ public interface PendingConnection extends Connection
      * @return request virtual host or null if invalid / not specified.
      */
     public InetSocketAddress getVirtualHost();
+
+    /**
+     * Completely kick this user from the proxy and all of its child
+     * connections.
+     *
+     * @param reason the disconnect reason displayed to the player
+     */
+    public void disconnect(String reason);
 }

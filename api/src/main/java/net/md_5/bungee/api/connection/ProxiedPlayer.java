@@ -50,14 +50,6 @@ public interface ProxiedPlayer extends Connection, CommandSender
     public int getPing();
 
     /**
-     * Completely kick this user from the proxy and all of its child
-     * connections.
-     *
-     * @param reason the disconnect reason displayed to the player
-     */
-    public void disconnect(String reason);
-
-    /**
      * Send a plugin message to this player.
      *
      * @param channel the channel to send this data via

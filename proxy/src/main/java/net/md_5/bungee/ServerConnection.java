@@ -17,7 +17,6 @@ import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet2Handshake;
 import net.md_5.bungee.packet.PacketCDClientStatus;
-import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketFCEncryptionResponse;
 import net.md_5.bungee.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.packet.PacketFFKick;
@@ -83,13 +82,6 @@ public class ServerConnection extends GenericConnection implements Server
                 throw new KickException("[Kicked] " + new PacketFFKick(loginResponse).message);
             }
             Packet1Login login = new Packet1Login(loginResponse);
-
-            // Register all global plugin message channels
-            // TODO: Allow player-specific plugin message channels for full mod support
-            for (String channel : BungeeCord.getInstance().globalPluginChannels)
-            {
-                out.write(new PacketFAPluginMessage("REGISTER", channel.getBytes()).getPacket());
-            }
 
             return new ServerConnection(name, socket, in, out, login);
         } catch (KickException ex)

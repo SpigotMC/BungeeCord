@@ -114,6 +114,20 @@ public abstract class ProxyServer
     public abstract void setTabListHandler(TabListHandler handler);
 
     /**
+     * Get the currently in use reconnect handler.
+     *
+     * @return the in use reconnect handler
+     */
+    public abstract ReconnectHandler getReconnectHandler();
+
+    /**
+     * Sets the reconnect handler to be used for subsequent connections.
+     *
+     * @param handler the new handler
+     */
+    public abstract void setReconnectHandler(ReconnectHandler handler);
+
+    /**
      * Gracefully mark this instance for shutdown.
      */
     public abstract void stop();

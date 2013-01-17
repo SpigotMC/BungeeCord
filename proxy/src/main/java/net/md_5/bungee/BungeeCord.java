@@ -9,24 +9,26 @@ import java.net.Socket;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import lombok.Getter;
+import lombok.Setter;
 import static net.md_5.bungee.Logger.$;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.ReconnectHandler;
 import net.md_5.bungee.api.TabListHandler;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
+import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.command.*;
 import net.md_5.bungee.packet.DefinedPacket;
-import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.tablist.GlobalPingTabList;
 import net.md_5.bungee.tablist.GlobalTabList;
 import net.md_5.bungee.tablist.ServerUniqueTabList;
@@ -66,10 +68,6 @@ public class BungeeCord extends ProxyServer
      */
     private ListenThread listener;
     /**
-     * Current version.
-     */
-    public static String version = (BungeeCord.class.getPackage().getImplementationVersion() == null) ? "unknown" : BungeeCord.class.getPackage().getImplementationVersion();
-    /**
      * Fully qualified connections.
      */
     public Map<String, UserConnection> connections = new ConcurrentHashMap<>();
@@ -77,16 +75,17 @@ public class BungeeCord extends ProxyServer
     /**
      * Tab list handler
      */
+    @Getter
+    @Setter
     public TabListHandler tabListHandler;
-    /**
-     * Registered Global Plugin Channels
-     */
-    public Queue<String> globalPluginChannels = new ConcurrentLinkedQueue<>();
     /**
      * Plugin manager.
      */
     @Getter
     public final PluginManager pluginManager = new PluginManager();
+    @Getter
+    @Setter
+    private ReconnectHandler reconnectHandler;
 
 
     {
@@ -163,14 +162,18 @@ public class BungeeCord extends ProxyServer
                 break;
         }
 
-        // Add RubberBand to the global plugin channel list
-        globalPluginChannels.add("RubberBand");
-
         InetSocketAddress addr = Util.getAddr(config.bindHost);
         listener = new ListenThread(addr);
         listener.start();
 
-        saveThread.start();
+        saveThread.scheduleAtFixedRate(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                getReconnectHandler().save();
+            }
+        }, 0, TimeUnit.MINUTES.toMillis(5));
         $().info("Listening on " + addr);
 
         if (config.metricsEnabled)
@@ -186,8 +189,11 @@ public class BungeeCord extends ProxyServer
     public void stop()
     {
         this.isRunning = false;
-        $().info("Disabling plugin");
-        pluginManager.onDisable();
+        $().info("Disabling plugins");
+        for (Plugin plugin : pluginManager.getPlugins())
+        {
+            plugin.onDisable();
+        }
 
         $().info("Closing listen thread");
         try
@@ -209,13 +215,7 @@ public class BungeeCord extends ProxyServer
         }
 
         $().info("Saving reconnect locations");
-        saveThread.interrupt();
-        try
-        {
-            saveThread.join();
-        } catch (InterruptedException ex)
-        {
-        }
+        saveThread.cancel();
 
         $().info("Thank you and goodbye");
         System.exit(0);
@@ -248,71 +248,6 @@ public class BungeeCord extends ProxyServer
         }
     }
 
-    /**
-     * Broadcasts a plugin message to all servers with currently connected
-     * players.
-     *
-     * @param channel name
-     * @param message to send
-     */
-    public void broadcastPluginMessage(String channel, String message)
-    {
-        broadcastPluginMessage(channel, message, null);
-    }
-
-    /**
-     * Broadcasts a plugin message to all servers with currently connected
-     * players.
-     *
-     * @param channel name
-     * @param message to send
-     * @param server the message was sent from originally
-     */
-    public void broadcastPluginMessage(String channel, String message, String sourceServer)
-    {
-        for (String server : connectionsByServer.keySet())
-        {
-            if (sourceServer == null || !sourceServer.equals(server))
-            {
-                List<UserConnection> conns = BungeeCord.instance.connectionsByServer.get(server);
-                if (conns != null && conns.size() > 0)
-                {
-                    UserConnection user = conns.get(0);
-                    user.sendPluginMessage(channel, message.getBytes());
-                }
-            }
-        }
-    }
-
-    /**
-     * Send a plugin message to a specific server if it has currently connected
-     * players.
-     *
-     * @param channel name
-     * @param message to send
-     * @param server the message is to be sent to
-     */
-    public void sendPluginMessage(String channel, String message, String targetServer)
-    {
-        List<UserConnection> conns = connectionsByServer.get(targetServer);
-        if (conns != null && conns.size() > 0)
-        {
-            UserConnection user = conns.get(0);
-            user.sendPluginMessage(channel, message.getBytes());
-        }
-    }
-
-    /**
-     * Register a plugin channel for all users
-     *
-     * @param channel name
-     */
-    public void registerPluginChannel(String channel)
-    {
-        globalPluginChannels.add(channel);
-        broadcast(new PacketFAPluginMessage("REGISTER", channel.getBytes()));
-    }
-
     @Override
     public String getName()
     {
@@ -322,7 +257,7 @@ public class BungeeCord extends ProxyServer
     @Override
     public String getVersion()
     {
-        return version;
+        return (BungeeCord.class.getPackage().getImplementationVersion() == null) ? "unknown" : BungeeCord.class.getPackage().getImplementationVersion();
     }
 
     @Override
@@ -332,15 +267,16 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
+    @SuppressWarnings("unchecked") // TODO: Abstract more
     public Collection<ProxiedPlayer> getPlayers()
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return (Collection) connections.values();
     }
 
     @Override
     public ProxiedPlayer getPlayer(String name)
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return connections.get(name);
     }
 
     @Override

@@ -2,26 +2,30 @@ package net.md_5.bungee;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import javax.crypto.SecretKey;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.connection.PendingConnection;
+import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.packet.Packet2Handshake;
 import net.md_5.bungee.packet.PacketFCEncryptionResponse;
 import net.md_5.bungee.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketInputStream;
-import net.md_5.bungee.plugin.LoginEvent;
 import org.bouncycastle.crypto.io.CipherInputStream;
 import org.bouncycastle.crypto.io.CipherOutputStream;
 
-public class InitialHandler implements Runnable
+public class InitialHandler implements Runnable, PendingConnection
 {
 
     private final Socket socket;
     private PacketInputStream in;
     private OutputStream out;
+    private Packet2Handshake handshake;
 
     public InitialHandler(Socket socket) throws IOException
     {
@@ -40,15 +44,7 @@ public class InitialHandler implements Runnable
             switch (id)
             {
                 case 0x02:
-                    Packet2Handshake handshake = new Packet2Handshake(packet);
-                    // fire connect event
-                    LoginEvent event = new LoginEvent(handshake.username, socket.getInetAddress(), handshake.host);
-                    BungeeCord.instance.pluginManager.onHandshake(event);
-                    if (event.isCancelled())
-                    {
-                        throw new KickException(event.getCancelReason());
-                    }
-
+                    handshake = new Packet2Handshake(packet);
                     PacketFDEncryptionRequest request = EncryptionUtil.encryptRequest();
                     out.write(request.getPacket());
                     PacketFCEncryptionResponse response = new PacketFCEncryptionResponse(in.readPacket());
@@ -59,8 +55,8 @@ public class InitialHandler implements Runnable
                         throw new KickException("Not authenticated with minecraft.net");
                     }
 
-                    // fire post auth event
-                    BungeeCord.instance.pluginManager.onLogin(event);
+                    // fire login event
+                    LoginEvent event = new LoginEvent(this);
                     if (event.isCancelled())
                     {
                         throw new KickException(event.getCancelReason());
@@ -77,8 +73,6 @@ public class InitialHandler implements Runnable
                     }
 
                     UserConnection userCon = new UserConnection(socket, in, out, handshake, customPackets);
-                    String server = (BungeeCord.instance.config.forceDefaultServer) ? BungeeCord.instance.config.defaultServerName : BungeeCord.instance.config.getServer(handshake.username, handshake.host);
-                    userCon.connect(server);
                     break;
                 case 0xFE:
                     socket.setSoTimeout(100);
@@ -90,14 +84,14 @@ public class InitialHandler implements Runnable
                     } catch (IOException ex)
                     {
                     }
-                    Configuration conf = BungeeCord.instance.config;
+                    Configuration conf = BungeeCord.getInstance().config;
                     String ping = (newPing) ? ChatColor.COLOR_CHAR + "1"
                             + "\00" + BungeeCord.PROTOCOL_VERSION
                             + "\00" + BungeeCord.GAME_VERSION
                             + "\00" + conf.motd
-                            + "\00" + BungeeCord.instance.connections.size()
+                            + "\00" + ProxyServer.getInstance().getPlayers().size()
                             + "\00" + conf.maxPlayers
-                            : conf.motd + ChatColor.COLOR_CHAR + BungeeCord.instance.connections.size() + ChatColor.COLOR_CHAR + conf.maxPlayers;
+                            : conf.motd + ChatColor.COLOR_CHAR + ProxyServer.getInstance().getPlayers().size() + ChatColor.COLOR_CHAR + conf.maxPlayers;
                     throw new KickException(ping);
                 default:
                     if (id == 0xFA)
@@ -110,18 +104,19 @@ public class InitialHandler implements Runnable
             }
         } catch (KickException ex)
         {
-            kick(ex.getMessage());
+            disconnect(ex.getMessage());
         } catch (Exception ex)
         {
-            kick("[Proxy Error] " + Util.exception(ex));
+            disconnect("[Proxy Error] " + Util.exception(ex));
         }
     }
 
-    private void kick(String message)
+    @Override
+    public void disconnect(String reason)
     {
         try
         {
-            out.write(new PacketFFKick(message).getPacket());
+            out.write(new PacketFFKick(reason).getPacket());
         } catch (IOException ioe)
         {
         } finally
@@ -134,5 +129,29 @@ public class InitialHandler implements Runnable
             {
             }
         }
+    }
+
+    @Override
+    public String getName()
+    {
+        return (handshake == null) ? null : handshake.username;
+    }
+
+    @Override
+    public byte getVersion()
+    {
+        return (handshake == null) ? -1 : handshake.procolVersion;
+    }
+
+    @Override
+    public InetSocketAddress getVirtualHost()
+    {
+        return (handshake == null) ? null : new InetSocketAddress(handshake.host, handshake.port);
+    }
+
+    @Override
+    public InetSocketAddress getAddress()
+    {
+        return (InetSocketAddress) socket.getRemoteSocketAddress();
     }
 }
