@@ -58,6 +58,11 @@ public class InitialHandler implements Runnable
                     {
                         throw new KickException("Not authenticated with minecraft.net");
                     }
+                    
+                    //Check for multiple connections
+                    if(BungeeCord.instance.connections.containsKey(handshake.username)) {
+                        throw new KickException("You are already connected to the server");
+                    }
 
                     // Check for multiple connections
                     if(BungeeCord.instance.connections.containsKey(handshake.username)) {
