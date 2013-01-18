@@ -82,4 +82,16 @@ public class Util
     {
         return t.getClass().getSimpleName() + " : " + t.getMessage() + " @ " + t.getStackTrace()[0].getClassName() + ":" + t.getStackTrace()[0].getLineNumber();
     }
+    
+    /**
+     * Translates color codes to a color in a message.
+     * The color code character is &
+     *
+     * @param s the message with color codes
+     * @return the resulting message with colors
+     */
+    public static String replaceColorCodes(String s)
+    {
+        return ChatColor.translateAlternateColorCodes('&', s);
+    }
 }
