@@ -56,13 +56,12 @@ public class InitialHandler implements Runnable
                     SecretKey shared = EncryptionUtil.getSecret(response, request);
                     if (!EncryptionUtil.isAuthenticated(handshake.username, request.serverId, shared))
                     {
-                        throw new KickException("Not authenticated with minecraft.net");
+                        throw new KickException(Util.replaceColorCodes(BungeeCord.instance.config.msgNoMcAuth));
                     }
-
+                    
                     // Check for multiple connections
-                    if (BungeeCord.instance.connections.containsKey(handshake.username))
-                    {
-                        throw new KickException("You are already connected to the server");
+                    if(BungeeCord.instance.connections.containsKey(handshake.username)) {
+                    	throw new KickException(Util.replaceColorCodes(BungeeCord.instance.config.msgAlreadyConnected));
                     }
 
                     // fire post auth event

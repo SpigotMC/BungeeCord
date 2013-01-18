@@ -37,7 +37,7 @@ public class GenericConnection
         log("disconnected with " + reason);
         try
         {
-            out.write(new PacketFFKick("[Proxy] " + reason).getPacket());
+            out.write(new PacketFFKick(Util.replaceColorCodes(BungeeCord.instance.config.msgProxyTag) + reason).getPacket());
         } catch (IOException ex)
         {
         } finally

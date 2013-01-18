@@ -134,7 +134,13 @@ public class Configuration
     public String statsUuid = UUID.randomUUID().toString();
     public boolean metricsEnabled = true;
     public boolean forceDefaultServer = false;
-
+    /**
+     * Proxy messages.
+     */
+    public String msgProxyTag = "[Proxy] ";
+    public String msgNoMcAuth = "Not authenticated with minecraft.net ";
+    public String msgAlreadyConnected = "You are already connected to the server ";
+    public String msgProxyRestarting = "Proxy restarting, brb. ";            
     /**
      * Load the configuration and save default values.
      */

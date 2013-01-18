@@ -228,7 +228,7 @@ public class BungeeCord
         $().info("Disconnecting " + connections.size() + " connections");
         for (UserConnection user : connections.values())
         {
-            user.disconnect("Proxy restarting, brb.");
+            user.disconnect(Util.replaceColorCodes(config.msgProxyRestarting));
         }
 
         $().info("Saving reconnect locations");
