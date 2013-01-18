@@ -63,7 +63,7 @@ public class InitialHandler implements Runnable
                     UserConnection uc = BungeeCord.instance.connections.get(handshake.username);
                     if (uc != null)
                     {
-                    	uc.disconnect("Someone tried to login with your account on this server");
+                        uc.disconnect("Someone tried to login with your account on this server");
                         throw new KickException("You are already connected to the server");
                     }
 
