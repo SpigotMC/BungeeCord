@@ -14,6 +14,14 @@ public interface ReconnectHandler
     public String getServer(ProxiedPlayer player);
 
     /**
+     * Save the server of this player before they disconnect so it can be
+     * retrieved later.
+     *
+     * @param player the player to save
+     */
+    public void setServer(ProxiedPlayer player);
+
+    /**
      * Save all pending reconnect locations. Whilst not used for database
      * connections, this method will be called at a predefined interval to allow
      * the saving of reconnect files.

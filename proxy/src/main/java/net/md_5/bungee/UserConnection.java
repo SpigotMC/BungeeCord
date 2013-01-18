@@ -1,15 +1,22 @@
 package net.md_5.bungee;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.Getter;
+import lombok.Synchronized;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
@@ -37,7 +44,9 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     private long pingTime;
     @Getter
     private int ping;
-    public UserConnection instance = this;
+    // Permissions
+    private final Collection<String> groups = new HashSet<>();
+    private final Map<String, Boolean> permissions = new HashMap<>();
 
     public UserConnection(Socket socket, PacketInputStream in, OutputStream out, Packet2Handshake handshake, List<byte[]> loginPackets)
     {
@@ -135,12 +144,6 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
         }
     }
 
-    private void setPing(int ping)
-    {
-        BungeeCord.instance.tabListHandler.onPingChange(this, ping);
-        this.ping = ping;
-    }
-
     private void destroySelf(String reason)
     {
         if (BungeeCord.instance.isRunning)
@@ -159,14 +162,14 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
         if (server != null)
         {
             server.disconnect("Quitting");
-            BungeeCord.instance.config.setServer(this, server.name);
+            ProxyServer.getInstance().getReconnectHandler().setServer(this);
         }
     }
 
     @Override
     public void disconnect(String reason)
     {
-        BungeeCord.instance.tabListHandler.onDisconnect(this);
+        ProxyServer.getInstance().getTabListHandler().onDisconnect(this);
         super.disconnect(reason);
     }
 
@@ -185,37 +188,57 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     @Override
     public InetSocketAddress getAddress()
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return (InetSocketAddress) socket.getRemoteSocketAddress();
     }
 
     @Override
+    @Synchronized(value = "permMutex")
     public Collection<String> getGroups()
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return Collections.unmodifiableCollection(groups);
     }
 
     @Override
+    @Synchronized(value = "permMutex")
     public void addGroups(String... groups)
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        for (String group : groups)
+        {
+            this.groups.add(group);
+            for (String permission : ProxyServer.getInstance().getConfigurationAdapter().getPermissions(group))
+            {
+                setPermission(permission, true);
+            }
+        }
     }
 
     @Override
+    @Synchronized(value = "permMutex")
     public void removeGroups(String... groups)
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        for (String group : groups)
+        {
+            this.groups.remove(group);
+            for (String permission : ProxyServer.getInstance().getConfigurationAdapter().getPermissions(group))
+            {
+                setPermission(permission, false);
+            }
+        }
     }
 
     @Override
+    @Synchronized(value = "permMutex")
     public boolean hasPermission(String permission)
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Boolean val = permissions.get(permission);
+        return (val == null) ? false : val;
     }
 
     @Override
+    @Synchronized(value = "permMutex")
     public void setPermission(String permission, boolean value)
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        permissions.put(permission, value);
     }
 
     private class UpstreamBridge extends Thread
@@ -235,14 +258,16 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                 {
                     byte[] packet = in.readPacket();
                     boolean sendPacket = true;
-
                     int id = Util.getId(packet);
+
                     switch (id)
                     {
                         case 0x00:
                             if (trackingPingId == new Packet0KeepAlive(packet).id)
                             {
-                                setPing((int) (System.currentTimeMillis() - pingTime));
+                                int newPing = (int) (System.currentTimeMillis() - pingTime);
+                                ProxyServer.getInstance().getTabListHandler().onPingChange(UserConnection.this, newPing);
+                                ping = newPing;
                             }
                             break;
                         case 0x03:
@@ -312,8 +337,8 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                 while (!reconnecting)
                 {
                     byte[] packet = server.in.readPacket();
-
                     int id = Util.getId(packet);
+
                     switch (id)
                     {
                         case 0x00:
@@ -332,7 +357,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                             break;
                         case 0xC9:
                             PacketC9PlayerListItem playerList = new PacketC9PlayerListItem(packet);
-                            if (!ProxyServer.getInstance().getTabListHandler().onListUpdate(instance, playerList.username, playerList.online, playerList.ping))
+                            if (!ProxyServer.getInstance().getTabListHandler().onListUpdate(UserConnection.this, playerList.username, playerList.online, playerList.ping))
                             {
                                 continue;
                             }
@@ -340,6 +365,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                         case 0xFA:
                             // Call the onPluginMessage event
                             PacketFAPluginMessage message = new PacketFAPluginMessage(packet);
+                            DataInputStream in = new DataInputStream(new ByteArrayInputStream(message.data));
                             PluginMessageEvent event = new PluginMessageEvent(server, UserConnection.this, message.tag, message.data);
                             ProxyServer.getInstance().getPluginManager().callEvent(event);
 
@@ -352,8 +378,15 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                             {
                                 case "BungeeCord::Disconnect":
                                     break outer;
+                                case "BungeeCord::Forward":
+                                    String target = in.readUTF();
+                                    String channel = in.readUTF();
+                                    short len = in.readShort();
+                                    byte[] data = new byte[len];
+                                    in.readFully(data);
+                                    break;
                                 case "BungeeCord::Connect":
-                                    Server server = ProxyServer.getInstance().getServer(new String(message.data));
+                                    Server server = ProxyServer.getInstance().getServer(in.readUTF());
                                     if (server != null)
                                     {
                                         connect(server);

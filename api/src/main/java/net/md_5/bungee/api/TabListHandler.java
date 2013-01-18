@@ -20,7 +20,8 @@ public interface TabListHandler
     public void onServerChange(ProxiedPlayer player);
 
     /**
-     * Called when a players ping changes.
+     * Called when a players ping changes. The new ping will have not updated in
+     * the player instance until this method returns.
      *
      * @param player the player who's ping changed
      * @param ping the player's new ping.

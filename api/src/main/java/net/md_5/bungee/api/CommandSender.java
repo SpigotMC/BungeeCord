@@ -20,7 +20,8 @@ public interface CommandSender
     public void sendMessage(String message);
 
     /**
-     * Get all groups this user is part of.
+     * Get all groups this user is part of. This returns an unmodifiable
+     * collection.
      *
      * @return the users groups
      */

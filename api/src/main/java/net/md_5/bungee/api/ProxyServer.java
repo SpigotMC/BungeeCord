@@ -91,6 +91,13 @@ public abstract class ProxyServer
     public abstract PluginManager getPluginManager();
 
     /**
+     * Returns the currently in use configuration adapter.
+     *
+     * @return the used configuration adapter
+     */
+    public abstract ConfigurationAdapter getConfigurationAdapter();
+
+    /**
      * Set the configuration adapter to be used. Must be called from
      * {@link Plugin#onLoad()}.
      *
