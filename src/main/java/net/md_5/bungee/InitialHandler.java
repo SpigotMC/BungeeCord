@@ -60,8 +60,10 @@ public class InitialHandler implements Runnable
                     }
 
                     // Check for multiple connections
-                    if (BungeeCord.instance.connections.containsKey(handshake.username))
+                    UserConnection uc = BungeeCord.instance.connections.get(handshake.username);
+                    if (uc != null)
                     {
+                        uc.disconnect("Someone tried to login with your account on this server");
                         throw new KickException("You are already connected to the server");
                     }
 
