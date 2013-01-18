@@ -18,8 +18,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.Getter;
 import lombok.Synchronized;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
@@ -56,8 +56,6 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
         name = handshake.username;
         displayName = handshake.username;
         this.loginPackets = loginPackets;
-        BungeeCord.instance.connections.put(name, this);
-        BungeeCord.instance.tabListHandler.onJoin(this);
     }
 
     @Override
@@ -68,17 +66,21 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
         ProxyServer.getInstance().getTabListHandler().onConnect(this);
     }
 
-    public void connect(Server server)
+    @Override
+    public void connect(ServerInfo target)
     {
-        ServerConnectEvent event = new ServerConnectEvent(this, server);
-        BungeeCord.getInstance().getPluginManager().callEvent(event);
-        InetSocketAddress addr = BungeeCord.instance.config.getServer(event.getNewServer());
-        connect(server, addr);
-    }
+        if (server == null)
+        {
+            // First join
+            ProxyServer.getInstance().getPlayers().add(this);
+            ProxyServer.getInstance().getTabListHandler().onConnect(this);
+        }
 
-    private void connect(String name, InetSocketAddress serverAddr)
-    {
-        BungeeCord.instance.tabListHandler.onServerChange(this);
+        ServerConnectEvent event = new ServerConnectEvent(this, target);
+        BungeeCord.getInstance().getPluginManager().callEvent(event);
+        target = event.getTarget(); // Update in case the event changed target
+
+        ProxyServer.getInstance().getTabListHandler().onServerChange(this);
         try
         {
             reconnecting = true;
@@ -89,9 +91,10 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                 out.write(new Packet9Respawn((byte) -1, (byte) 0, (byte) 0, (short) 256, "DEFAULT").getPacket());
             }
 
-            ServerConnection newServer = ServerConnection.connect(this, name, serverAddr, handshake, true);
+            ServerConnection newServer = ServerConnection.connect(this, name, target.getAddress(), handshake, true);
             if (server == null)
             {
+                // Once again, first connection
                 clientEntityId = newServer.loginPacket.entityId;
                 serverEntityId = newServer.loginPacket.entityId;
                 out.write(newServer.loginPacket.getPacket());
@@ -113,27 +116,18 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                 serverEntityId = login.entityId;
                 out.write(new Packet9Respawn(login.dimension, login.difficulty, login.gameMode, (short) 256, login.levelType).getPacket());
             }
+
+            // Reconnect process has finished, lets get the player moving again
             reconnecting = false;
-            downBridge = new DownstreamBridge();
-            if (server != null)
-            {
-                List<UserConnection> conns = BungeeCord.instance.connectionsByServer.get(server.name);
-                if (conns != null)
-                {
-                    conns.remove(this);
-                }
-            }
+
+            // Remove from the old by server list
+            server.getInfo().removePlayer(this);
+            // Add to new
+            target.addPlayer(this);
+
+            // Start the bridges and move on
             server = newServer;
-            List<UserConnection> conns = BungeeCord.instance.connectionsByServer.get(server.name);
-            if (conns == null)
-            {
-                conns = new ArrayList<>();
-                BungeeCord.instance.connectionsByServer.put(server.name, conns);
-            }
-            if (!conns.contains(this))
-            {
-                conns.add(this);
-            }
+            downBridge = new DownstreamBridge();
             downBridge.start();
         } catch (KickException ex)
         {
@@ -147,18 +141,9 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
 
     private void destroySelf(String reason)
     {
-        if (BungeeCord.instance.isRunning)
-        {
-            BungeeCord.instance.connections.remove(name);
-            if (server != null)
-            {
-                List<UserConnection> conns = BungeeCord.instance.connectionsByServer.get(server.name);
-                if (conns != null)
-                {
-                    conns.remove(this);
-                }
-            }
-        }
+        server.getInfo().removePlayer(this);
+        ProxyServer.getInstance().getPlayers().remove(this);
+
         disconnect(reason);
         if (server != null)
         {
@@ -193,14 +178,14 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     }
 
     @Override
-    @Synchronized(value = "permMutex")
+    @Synchronized("permMutex")
     public Collection<String> getGroups()
     {
         return Collections.unmodifiableCollection(groups);
     }
 
     @Override
-    @Synchronized(value = "permMutex")
+    @Synchronized("permMutex")
     public void addGroups(String... groups)
     {
         for (String group : groups)
@@ -214,7 +199,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     }
 
     @Override
-    @Synchronized(value = "permMutex")
+    @Synchronized( "permMutex")
     public void removeGroups(String... groups)
     {
         for (String group : groups)
@@ -228,7 +213,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     }
 
     @Override
-    @Synchronized(value = "permMutex")
+    @Synchronized("permMutex")
     public boolean hasPermission(String permission)
     {
         Boolean val = permissions.get(permission);
@@ -236,7 +221,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     }
 
     @Override
-    @Synchronized(value = "permMutex")
+    @Synchronized( "permMutex")
     public void setPermission(String permission, boolean value)
     {
         permissions.put(permission, value);
@@ -387,7 +372,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                                     in.readFully(data);
                                     break;
                                 case "BungeeCord::Connect":
-                                    Server server = ProxyServer.getInstance().getServer(in.readUTF());
+                                    ServerInfo server = ProxyServer.getInstance().getConfigurationAdapter().getServers().get(in.readUTF());
                                     if (server != null)
                                     {
                                         connect(server);

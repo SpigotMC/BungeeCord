@@ -1,9 +1,10 @@
 package net.md_5.bungee.command;
 
-import java.util.Collection;
+import java.util.Map;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Command;
@@ -27,20 +28,20 @@ public class CommandServer extends Command
             return;
         }
         ProxiedPlayer player = (ProxiedPlayer) sender;
-        Collection<Server> servers = ProxyServer.getInstance().getServers();
+        Map<String, ServerInfo> servers = ProxyServer.getInstance().getConfigurationAdapter().getServers();
         if (args.length == 0)
         {
             StringBuilder serverList = new StringBuilder();
-            for (Server server : servers)
+            for (String server : servers.keySet())
             {
-                serverList.append(server.getInfo().getName());
+                serverList.append(server);
                 serverList.append(", ");
             }
             serverList.setLength(serverList.length() - 2);
             player.sendMessage(ChatColor.GOLD + "You may connect to the following servers at this time: " + serverList.toString());
         } else
         {
-            Server server = ProxyServer.getInstance().getServer(args[0]);
+            ServerInfo server = servers.get(args[0]);
             if (server == null)
             {
                 player.sendMessage(ChatColor.RED + "The specified server does not exist");

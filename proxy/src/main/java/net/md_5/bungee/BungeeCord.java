@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -16,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,15 +26,14 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ReconnectHandler;
 import net.md_5.bungee.api.TabListHandler;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
+import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.command.*;
+import net.md_5.bungee.config.YamlConfig;
 import net.md_5.bungee.packet.DefinedPacket;
-import net.md_5.bungee.tablist.GlobalPingTabList;
-import net.md_5.bungee.tablist.GlobalTabList;
-import net.md_5.bungee.tablist.ServerUniqueTabList;
 
 /**
  * Main BungeeCord proxy class.
@@ -67,7 +68,7 @@ public class BungeeCord extends ProxyServer
     /**
      * Server socket listener.
      */
-    private ListenThread listener;
+    private Collection<ListenThread> listeners = new HashSet<>();
     /**
      * Fully qualified connections.
      */
@@ -87,17 +88,18 @@ public class BungeeCord extends ProxyServer
     @Getter
     @Setter
     private ReconnectHandler reconnectHandler;
+    @Getter
+    @Setter
+    private ConfigurationAdapter configurationAdapter = new YamlConfig();
 
 
     {
-        getPluginManager().registerCommand(new CommandReload());
         getPluginManager().registerCommand(new CommandReload());
         getPluginManager().registerCommand(new CommandEnd());
         getPluginManager().registerCommand(new CommandList());
         getPluginManager().registerCommand(new CommandServer());
         getPluginManager().registerCommand(new CommandIP());
         getPluginManager().registerCommand(new CommandAlert());
-        getPluginManager().registerCommand(new CommandMotd());
         getPluginManager().registerCommand(new CommandBungee());
     }
 
@@ -125,7 +127,7 @@ public class BungeeCord extends ProxyServer
             String line = br.readLine();
             if (line != null)
             {
-                boolean handled = getInstance().getPluginManager().dispatchCommand(ConsoleCommandSender.instance, line);
+                boolean handled = getInstance().getPluginManager().dispatchCommand(ConsoleCommandSender.getInstance(), line);
                 if (!handled)
                 {
                     System.err.println("Command not found");
@@ -149,23 +151,14 @@ public class BungeeCord extends ProxyServer
         plugins.mkdir();
         pluginManager.loadPlugins(plugins);
 
-        switch (config.tabList)
+        for (ListenerInfo info : config.getListeners())
         {
-            default:
-            case 1:
-                tabListHandler = new GlobalPingTabList();
-                break;
-            case 2:
-                tabListHandler = new GlobalTabList();
-                break;
-            case 3:
-                tabListHandler = new ServerUniqueTabList();
-                break;
+            InetSocketAddress addr = info.getHost();
+            $().info("Listening on " + addr);
+            ListenThread listener = new ListenThread(addr);
+            listener.start();
+            listeners.add(listener);
         }
-
-        InetSocketAddress addr = Util.getAddr(config.bindHost);
-        listener = new ListenThread(addr);
-        listener.start();
 
         saveThread.scheduleAtFixedRate(new TimerTask()
         {
@@ -175,18 +168,11 @@ public class BungeeCord extends ProxyServer
                 getReconnectHandler().save();
             }
         }, 0, TimeUnit.MINUTES.toMillis(5));
-        $().info("Listening on " + addr);
 
-        if (config.metricsEnabled)
-        {
-            new Metrics().start();
-        }
+        new Metrics().start();
     }
 
-    /**
-     * Destroy this proxy instance cleanly by kicking all users, saving the
-     * configuration and closing all sockets.
-     */
+    @Override
     public void stop()
     {
         this.isRunning = false;
@@ -196,14 +182,17 @@ public class BungeeCord extends ProxyServer
             plugin.onDisable();
         }
 
-        $().info("Closing listen thread");
-        try
+        for (ListenThread listener : listeners)
         {
-            listener.socket.close();
-            listener.join();
-        } catch (InterruptedException | IOException ex)
-        {
-            $().severe("Could not close listen thread");
+            $().log(Level.INFO, "Closing listen thread {0}", listener.socket);
+            try
+            {
+                listener.socket.close();
+                listener.join();
+            } catch (InterruptedException | IOException ex)
+            {
+                $().severe("Could not close listen thread");
+            }
         }
 
         $().info("Closing pending connections");
@@ -216,6 +205,7 @@ public class BungeeCord extends ProxyServer
         }
 
         $().info("Saving reconnect locations");
+        reconnectHandler.save();
         saveThread.cancel();
 
         $().info("Thank you and goodbye");
@@ -231,7 +221,7 @@ public class BungeeCord extends ProxyServer
      */
     public void setSocketOptions(Socket socket) throws IOException
     {
-        socket.setSoTimeout(config.timeout);
+        socket.setSoTimeout(config.getTimeout());
         socket.setTrafficClass(0x18);
         socket.setTcpNoDelay(true);
     }
@@ -283,18 +273,7 @@ public class BungeeCord extends ProxyServer
     @Override
     public Server getServer(String name)
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Collection<Server> getServers()
-    {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void setConfigurationAdapter(ConfigurationAdapter adapter)
-    {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        List<UserConnection> users = connectionsByServer.get(name);
+        return (users != null && !users.isEmpty()) ? users.get(0).getServer() : null;
     }
 }

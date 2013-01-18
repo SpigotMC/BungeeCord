@@ -1,8 +1,7 @@
 package net.md_5.bungee.api.connection;
 
-import lombok.Getter;
-import lombok.Setter;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.config.ServerInfo;
 
 /**
  * Represents a player who's connection is being connected to somewhere else,
@@ -31,9 +30,9 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * closing the current one. Depending on the implementation, this method
      * might return before the user has been connected.
      *
-     * @param server the new server to connect to
+     * @param target the new server to connect to
      */
-    public void connect(Server server);
+    public void connect(ServerInfo target);
 
     /**
      * Gets the server this player is connected to.
