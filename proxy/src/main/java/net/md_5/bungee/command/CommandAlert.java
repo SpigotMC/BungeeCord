@@ -31,7 +31,7 @@ public class CommandAlert extends Command
 
             for (String s : args)
             {
-                s = s.replace("&h", "");
+                s = s.substring(1, s.length());
                 builder.append(ChatColor.translateAlternateColorCodes('&', s));
                 builder.append(" ");
             }

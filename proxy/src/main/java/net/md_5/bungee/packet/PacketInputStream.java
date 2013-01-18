@@ -2,11 +2,8 @@ package net.md_5.bungee.packet;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import net.md_5.bungee.Util;
-import net.md_5.mendax.PacketDefinitions;
 import net.md_5.mendax.datainput.DataInputPacketReader;
 
 /**

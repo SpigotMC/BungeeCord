@@ -2,6 +2,7 @@ package net.md_5.bungee.command;
 
 import java.util.Collection;
 import java.util.Collections;
+import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 
@@ -11,7 +12,12 @@ import net.md_5.bungee.api.CommandSender;
 public class ConsoleCommandSender implements CommandSender
 {
 
-    public static final ConsoleCommandSender instance = new ConsoleCommandSender();
+    @Getter
+    private static final ConsoleCommandSender instance = new ConsoleCommandSender();
+
+    private ConsoleCommandSender()
+    {
+    }
 
     @Override
     public void sendMessage(String message)
