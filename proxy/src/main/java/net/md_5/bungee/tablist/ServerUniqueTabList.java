@@ -1,10 +1,9 @@
 package net.md_5.bungee.tablist;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.TabListHandler;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -13,7 +12,7 @@ import net.md_5.bungee.packet.PacketC9PlayerListItem;
 public class ServerUniqueTabList implements TabListHandler
 {
 
-    private Map<ProxiedPlayer, Set<String>> sentUsernames = Collections.synchronizedMap(new WeakHashMap<ProxiedPlayer, Set<String>>());
+    private final Map<ProxiedPlayer, Set<String>> sentUsernames = new ConcurrentHashMap<>();
 
     @Override
     public void onConnect(ProxiedPlayer player)
@@ -28,6 +27,7 @@ public class ServerUniqueTabList implements TabListHandler
     @Override
     public void onDisconnect(ProxiedPlayer player)
     {
+        sentUsernames.remove(player);
     }
 
     @Override
@@ -53,16 +53,19 @@ public class ServerUniqueTabList implements TabListHandler
         Set<String> usernames = sentUsernames.get(player);
         if (usernames == null)
         {
-            usernames = new LinkedHashSet<>();
+            usernames = new HashSet<>();
             sentUsernames.put(player, usernames);
         }
 
-        if (online)
+        synchronized (usernames)
         {
-            usernames.add(name);
-        } else
-        {
-            usernames.remove(name);
+            if (online)
+            {
+                usernames.add(name);
+            } else
+            {
+                usernames.remove(name);
+            }
         }
 
         return true;

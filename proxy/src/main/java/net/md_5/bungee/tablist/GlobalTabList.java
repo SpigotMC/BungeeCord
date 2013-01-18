@@ -1,8 +1,8 @@
 package net.md_5.bungee.tablist;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.Synchronized;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.TabListHandler;
@@ -12,7 +12,7 @@ import net.md_5.bungee.packet.PacketC9PlayerListItem;
 public class GlobalTabList implements TabListHandler
 {
 
-    private Set<ProxiedPlayer> sentPings = Collections.synchronizedSet(new HashSet<ProxiedPlayer>());
+    private final Set<ProxiedPlayer> sentPings = new HashSet<>();
 
     @Override
     public void onConnect(ProxiedPlayer player)
@@ -24,6 +24,7 @@ public class GlobalTabList implements TabListHandler
     }
 
     @Override
+    @Synchronized(value = "sentPings")
     public void onPingChange(ProxiedPlayer player, int ping)
     {
         if (!sentPings.contains(player))
@@ -34,6 +35,7 @@ public class GlobalTabList implements TabListHandler
     }
 
     @Override
+    @Synchronized(value = "sentPings")
     public void onDisconnect(ProxiedPlayer player)
     {
         BungeeCord.getInstance().broadcast(new PacketC9PlayerListItem(player.getDisplayName(), false, 9999));
