@@ -23,4 +23,13 @@ public class ListenerInfo
      * Max amount of slots displayed on the ping page.
      */
     private final int maxPlayers;
+    /**
+     * Name of the server which users will be taken to by default.
+     */
+    private final String defaultServer;
+    /**
+     * Whether reconnect locations will be used, or else the user is simply
+     * transferred to the default server on connect.
+     */
+    private final boolean forceDefault;
 }

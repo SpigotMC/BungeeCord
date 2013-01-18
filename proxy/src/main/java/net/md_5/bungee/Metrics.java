@@ -74,7 +74,7 @@ public class Metrics extends Thread
     {
         // Construct the post data
         final StringBuilder data = new StringBuilder();
-        data.append(encode("guid")).append('=').append(encode(BungeeCord.getInstance().config.statsUuid));
+        data.append(encode("guid")).append('=').append(encode(BungeeCord.getInstance().config.getUuid()));
         encodeDataPair(data, "version", ProxyServer.getInstance().getVersion());
         encodeDataPair(data, "server", "0");
         encodeDataPair(data, "players", Integer.toString(ProxyServer.getInstance().getPlayers().size()));

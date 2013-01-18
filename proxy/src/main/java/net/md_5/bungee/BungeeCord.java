@@ -1,5 +1,6 @@
 package net.md_5.bungee;
 
+import net.md_5.bungee.config.Configuration;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;

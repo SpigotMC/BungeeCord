@@ -47,6 +47,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     // Permissions
     private final Collection<String> groups = new HashSet<>();
     private final Map<String, Boolean> permissions = new HashMap<>();
+    private final Object permMutex = new Object();
 
     public UserConnection(Socket socket, PacketInputStream in, OutputStream out, Packet2Handshake handshake, List<byte[]> loginPackets)
     {

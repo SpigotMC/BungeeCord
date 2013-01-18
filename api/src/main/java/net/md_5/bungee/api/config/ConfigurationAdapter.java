@@ -1,6 +1,7 @@
 package net.md_5.bungee.api.config;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * This class allows plugins to set their own configuration adapter to load
@@ -13,32 +14,26 @@ public interface ConfigurationAdapter
      * Gets an integer from the specified path.
      *
      * @param path the path to retrieve the integer from
+     * @param def the default value
      * @return the retrieved integer
      */
-    public int getInt(String path);
+    public int getInt(String path, int def);
 
     /**
      * Gets a string from the specified path.
      *
      * @param path the path to retrieve the string from.
+     * @param def the default value
      * @return the retrieved string
      */
-    public String getString(String path);
-
-    /**
-     * Get a string list from the specified path.
-     *
-     * @param path the path to retrieve the list from.
-     * @return the retrieved list.
-     */
-    public Collection<String> getStrings(String path);
+    public String getString(String path, String def);
 
     /**
      * Get the configuration all servers which may be accessible via the proxy.
      *
-     * @return all accessible servers
+     * @return all accessible servers, keyed by name
      */
-    public Collection<ServerInfo> getServers();
+    public Map<String, ServerInfo> getServers();
 
     /**
      * Get information about all hosts to bind the proxy to.
