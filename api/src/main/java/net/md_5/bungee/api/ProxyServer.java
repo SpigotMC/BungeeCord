@@ -27,7 +27,7 @@ public abstract class ProxyServer
     public static void setInstance(ProxyServer instance)
     {
         Preconditions.checkNotNull(instance, "instance");
-        Preconditions.checkArgument(instance == null, "Instance already set");
+        Preconditions.checkArgument(ProxyServer.instance == null, "Instance already set");
         ProxyServer.instance = instance;
     }
 

@@ -26,10 +26,6 @@ public class ServerInfo
      */
     private final InetSocketAddress address;
     /**
-     * Permission node required to access this server.
-     */
-    private String permission;
-    /**
      * Players connected to a server defined by these properties.
      */
     private final Collection<ProxiedPlayer> players = new ArrayList<>();
