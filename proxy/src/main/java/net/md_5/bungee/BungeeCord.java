@@ -87,7 +87,7 @@ public class BungeeCord extends ProxyServer
     public final PluginManager pluginManager = new PluginManager();
     @Getter
     @Setter
-    private ReconnectHandler reconnectHandler;
+    private ReconnectHandler reconnectHandler = new YamlReconnectHandler();
     @Getter
     @Setter
     private ConfigurationAdapter configurationAdapter = new YamlConfig();

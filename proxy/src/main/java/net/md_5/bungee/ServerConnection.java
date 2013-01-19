@@ -87,7 +87,7 @@ public class ServerConnection extends GenericConnection implements Server
             throw ex;
         } catch (Exception ex)
         {
-            InetSocketAddress def = BungeeCord.getInstance().config.getServers().get(user.info.getDefaultServer()).getAddress();
+            InetSocketAddress def = BungeeCord.getInstance().config.getServers().get(user.getPendingConnection().getListener().getDefaultServer()).getAddress();
             if (retry && !address.equals(def))
             {
                 return connect(user, name, def, handshake, false);

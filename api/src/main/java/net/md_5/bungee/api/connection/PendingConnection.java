@@ -1,6 +1,7 @@
 package net.md_5.bungee.api.connection;
 
 import java.net.InetSocketAddress;
+import net.md_5.bungee.api.config.ListenerInfo;
 
 /**
  * Represents a user attempting to log into the proxy.
@@ -36,4 +37,11 @@ public interface PendingConnection extends Connection
      * @param reason the disconnect reason displayed to the player
      */
     public void disconnect(String reason);
+
+    /**
+     * Get the listener that accepted this connection.
+     *
+     * @return the accepting listener
+     */
+    public ListenerInfo getListener();
 }

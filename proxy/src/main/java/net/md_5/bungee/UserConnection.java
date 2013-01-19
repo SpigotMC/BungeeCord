@@ -20,6 +20,7 @@ import lombok.Synchronized;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
@@ -32,7 +33,8 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     public final Packet2Handshake handshake;
     public Queue<DefinedPacket> packetQueue = new ConcurrentLinkedQueue<>();
     public List<byte[]> loginPackets = new ArrayList<>();
-final ListenerInfo info;
+    @Getter
+    private final PendingConnection pendingConnection;
     @Getter
     private ServerConnection server;
     private UpstreamBridge upBridge;
@@ -51,11 +53,11 @@ final ListenerInfo info;
     private final Map<String, Boolean> permissions = new HashMap<>();
     private final Object permMutex = new Object();
 
-    public UserConnection(Socket socket, ListenerInfo info, PacketInputStream in, OutputStream out, Packet2Handshake handshake, List<byte[]> loginPackets)
+    public UserConnection(Socket socket, PendingConnection pendingConnection, PacketInputStream in, OutputStream out, Packet2Handshake handshake, List<byte[]> loginPackets)
     {
         super(socket, in, out);
-        this.info = info;
         this.handshake = handshake;
+        this.pendingConnection = pendingConnection;
         name = handshake.username;
         displayName = handshake.username;
         this.loginPackets = loginPackets;

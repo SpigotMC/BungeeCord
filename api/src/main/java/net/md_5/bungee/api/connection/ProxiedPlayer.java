@@ -55,4 +55,11 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param data the data to send
      */
     public void sendData(String channel, byte[] data);
+
+    /**
+     * Get the pending connection that belongs to this player.
+     *
+     * @return the pending connection that this player used
+     */
+    public PendingConnection getPendingConnection();
 }
