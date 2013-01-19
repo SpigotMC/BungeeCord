@@ -5,7 +5,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Collection;
 import java.util.HashSet;
@@ -27,6 +26,7 @@ import net.md_5.bungee.api.ReconnectHandler;
 import net.md_5.bungee.api.TabListHandler;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -153,9 +153,8 @@ public class BungeeCord extends ProxyServer
 
         for (ListenerInfo info : config.getListeners())
         {
-            InetSocketAddress addr = info.getHost();
-            $().info("Listening on " + addr);
-            ListenThread listener = new ListenThread(addr);
+            $().info("Listening on " + info.getHost());
+            ListenThread listener = new ListenThread(info);
             listener.start();
             listeners.add(listener);
         }
@@ -275,5 +274,11 @@ public class BungeeCord extends ProxyServer
     {
         List<UserConnection> users = connectionsByServer.get(name);
         return (users != null && !users.isEmpty()) ? users.get(0).getServer() : null;
+    }
+
+    @Override
+    public Map<String, ServerInfo> getServers()
+    {
+        return config.getServers();
     }
 }

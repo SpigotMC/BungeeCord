@@ -3,6 +3,7 @@ package net.md_5.bungee.api;
 import net.md_5.bungee.api.plugin.PluginManager;
 import com.google.common.base.Preconditions;
 import java.util.Collection;
+import java.util.Map;
 import java.util.logging.Logger;
 import lombok.Getter;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
@@ -68,12 +69,23 @@ public abstract class ProxyServer
     public abstract ProxiedPlayer getPlayer(String name);
 
     /**
-     * Get a server by its name.
+     * Get a server by its name. The instance returned will be taken from a
+     * player currently on that server to facilitate abstract proxy -> server
+     * actions.
      *
      * @param name the name to lookup
      * @return the associated server
      */
     public abstract Server getServer(String name);
+
+    /**
+     * Return all servers registered to this proxy, keyed by name. Unlike the
+     * methods in {@link ConfigurationAdapter#getServers()}, this will not
+     * return a fresh map each time.
+     *
+     * @return all registered remote server destinations
+     */
+    public abstract Map<String, ServerInfo> getServers();
 
     /**
      * Get the {@link PluginManager} associated with loading plugins and

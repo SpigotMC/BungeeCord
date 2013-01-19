@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.Getter;
 import lombok.Synchronized;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
@@ -31,6 +32,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     public final Packet2Handshake handshake;
     public Queue<DefinedPacket> packetQueue = new ConcurrentLinkedQueue<>();
     public List<byte[]> loginPackets = new ArrayList<>();
+final ListenerInfo info;
     @Getter
     private ServerConnection server;
     private UpstreamBridge upBridge;
@@ -49,9 +51,10 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     private final Map<String, Boolean> permissions = new HashMap<>();
     private final Object permMutex = new Object();
 
-    public UserConnection(Socket socket, PacketInputStream in, OutputStream out, Packet2Handshake handshake, List<byte[]> loginPackets)
+    public UserConnection(Socket socket, ListenerInfo info, PacketInputStream in, OutputStream out, Packet2Handshake handshake, List<byte[]> loginPackets)
     {
         super(socket, in, out);
+        this.info = info;
         this.handshake = handshake;
         name = handshake.username;
         displayName = handshake.username;
@@ -372,7 +375,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                                     in.readFully(data);
                                     break;
                                 case "BungeeCord::Connect":
-                                    ServerInfo server = ProxyServer.getInstance().getConfigurationAdapter().getServers().get(in.readUTF());
+                                    ServerInfo server = BungeeCord.getInstance().config.getServers().get(in.readUTF());
                                     if (server != null)
                                     {
                                         connect(server);

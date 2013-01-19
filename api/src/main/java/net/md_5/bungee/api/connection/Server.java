@@ -1,9 +1,5 @@
 package net.md_5.bungee.api.connection;
 
-import java.net.InetSocketAddress;
-import java.util.Collection;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.ServerPing;
@@ -35,11 +31,4 @@ public interface Server extends Connection
      * @param callback the callback to call when the count has been retrieved.
      */
     public abstract void ping(Callback<ServerPing> callback);
-
-    /**
-     * Get all players on this instance connected to this server.
-     *
-     * @return all players connected to this server
-     */
-    public abstract Collection<ProxiedPlayer> getPlayers();
 }

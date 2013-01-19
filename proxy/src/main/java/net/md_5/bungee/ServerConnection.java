@@ -4,14 +4,12 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.PublicKey;
-import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.crypto.SecretKey;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.Packet1Login;
@@ -46,7 +44,7 @@ public class ServerConnection extends GenericConnection implements Server
         try
         {
             Socket socket = new Socket();
-            socket.connect(address, BungeeCord.getInstance().config.timeout);
+            socket.connect(address, BungeeCord.getInstance().config.getTimeout());
             BungeeCord.getInstance().setSocketOptions(socket);
 
             PacketInputStream in = new PacketInputStream(socket.getInputStream());
@@ -89,7 +87,7 @@ public class ServerConnection extends GenericConnection implements Server
             throw ex;
         } catch (Exception ex)
         {
-            InetSocketAddress def = BungeeCord.getInstance().config.getServer(null);
+            InetSocketAddress def = BungeeCord.getInstance().config.getServers().get(user.info.getDefaultServer()).getAddress();
             if (retry && !address.equals(def))
             {
                 return connect(user, name, def, handshake, false);
@@ -119,14 +117,8 @@ public class ServerConnection extends GenericConnection implements Server
     }
 
     @Override
-    public Collection<ProxiedPlayer> getPlayers()
-    {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public InetSocketAddress getAddress()
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return getInfo().getAddress();
     }
 }

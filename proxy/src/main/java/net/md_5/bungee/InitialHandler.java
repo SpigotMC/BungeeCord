@@ -10,6 +10,8 @@ import java.util.List;
 import javax.crypto.SecretKey;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ListenerInfo;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.packet.Packet2Handshake;
@@ -24,13 +26,15 @@ public class InitialHandler implements Runnable, PendingConnection
 {
 
     private final Socket socket;
+    private final ListenerInfo info;
     private PacketInputStream in;
     private OutputStream out;
     private Packet2Handshake handshake;
 
-    public InitialHandler(Socket socket) throws IOException
+    public InitialHandler(Socket socket, ListenerInfo info) throws IOException
     {
         this.socket = socket;
+        this.info = info;
         in = new PacketInputStream(socket.getInputStream());
         out = socket.getOutputStream();
     }
@@ -73,7 +77,10 @@ public class InitialHandler implements Runnable, PendingConnection
                         customPackets.add(custom);
                     }
 
-                    UserConnection userCon = new UserConnection(socket, in, out, handshake, customPackets);
+                    UserConnection userCon = new UserConnection(socket, info, in, out, handshake, customPackets);
+                    String server = ProxyServer.getInstance().getReconnectHandler().getServer(userCon);
+                    ServerInfo s = BungeeCord.getInstance().config.getServers().get(server);
+                    userCon.connect(s);
                     break;
                 case 0xFE:
                     socket.setSoTimeout(100);
@@ -89,10 +96,10 @@ public class InitialHandler implements Runnable, PendingConnection
                     String ping = (newPing) ? ChatColor.COLOR_CHAR + "1"
                             + "\00" + BungeeCord.PROTOCOL_VERSION
                             + "\00" + BungeeCord.GAME_VERSION
-                            + "\00" + conf.motd
+                            + "\00" + info.getMotd()
                             + "\00" + ProxyServer.getInstance().getPlayers().size()
-                            + "\00" + conf.maxPlayers
-                            : conf.motd + ChatColor.COLOR_CHAR + ProxyServer.getInstance().getPlayers().size() + ChatColor.COLOR_CHAR + conf.maxPlayers;
+                            + "\00" + info.getMaxPlayers()
+                            : info.getMotd() + ChatColor.COLOR_CHAR + ProxyServer.getInstance().getPlayers().size() + ChatColor.COLOR_CHAR + info.getMaxPlayers();
                     throw new KickException(ping);
                 default:
                     if (id == 0xFA)
