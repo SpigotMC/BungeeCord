@@ -8,9 +8,11 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.crypto.SecretKey;
 import net.md_5.bungee.api.Callback;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.Server;
+import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet2Handshake;
@@ -81,7 +83,10 @@ public class ServerConnection extends GenericConnection implements Server
             }
             Packet1Login login = new Packet1Login(loginResponse);
 
-            return new ServerConnection(name, socket, in, out, login);
+            ServerConnection server = new ServerConnection(name, socket, in, out, login);
+            ServerConnectedEvent event = new ServerConnectedEvent(user, server);
+            ProxyServer.getInstance().getPluginManager().callEvent(event);
+            return server;
         } catch (KickException ex)
         {
             throw ex;
