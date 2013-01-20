@@ -28,7 +28,7 @@ public class YamlConfig implements ConfigurationAdapter
     private boolean loaded;
     private Yaml yaml;
     private Map config;
-    File file = new File("config.yml");
+    private final File file = new File("config.yml");
 
     public void load()
     {
