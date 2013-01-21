@@ -118,6 +118,7 @@ public class InitialHandler implements Runnable, PendingConnection
         } catch (Exception ex)
         {
             disconnect("[Proxy Error] " + Util.exception(ex));
+            ex.printStackTrace();
         }
     }
 

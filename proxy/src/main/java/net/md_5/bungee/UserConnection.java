@@ -18,10 +18,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.Getter;
 import lombok.Synchronized;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
@@ -77,7 +77,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
         if (server == null)
         {
             // First join
-            ProxyServer.getInstance().getPlayers().add(this);
+            BungeeCord.getInstance().connections.put(name, this);
             ProxyServer.getInstance().getTabListHandler().onConnect(this);
         }
 
@@ -118,6 +118,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                 }
 
                 server.disconnect("Quitting");
+                server.getInfo().removePlayer(this);
 
                 Packet1Login login = newServer.loginPacket;
                 serverEntityId = login.entityId;
@@ -127,8 +128,6 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
             // Reconnect process has finished, lets get the player moving again
             reconnecting = false;
 
-            // Remove from the old by server list
-            server.getInfo().removePlayer(this);
             // Add to new
             target.addPlayer(this);
 
@@ -141,8 +140,8 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
             destroySelf(ex.getMessage());
         } catch (Exception ex)
         {
-            destroySelf("Could not connect to server - " + ex.getClass().getSimpleName());
             ex.printStackTrace(); // TODO: Remove
+            destroySelf("Could not connect to server - " + ex.getClass().getSimpleName());
         }
     }
 
@@ -377,6 +376,20 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                                     short len = in.readShort();
                                     byte[] data = new byte[len];
                                     in.readFully(data);
+
+                                    if (target.equals("ALL"))
+                                    {
+                                        for (String s : BungeeCord.getInstance().getServers().keySet())
+                                        {
+                                            Server server = BungeeCord.getInstance().getServer(s);
+                                            server.sendData(channel, data);
+                                        }
+                                    } else
+                                    {
+                                        Server server = BungeeCord.getInstance().getServer(target);
+                                        server.sendData(channel, data);
+                                    }
+
                                     break;
                                 case "BungeeCord::Connect":
                                     ServerInfo server = BungeeCord.getInstance().config.getServers().get(in.readUTF());

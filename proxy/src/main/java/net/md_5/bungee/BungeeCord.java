@@ -89,7 +89,7 @@ public class BungeeCord extends ProxyServer
     public final PluginManager pluginManager = new PluginManager();
     @Getter
     @Setter
-    private ReconnectHandler reconnectHandler = new YamlReconnectHandler();
+    private ReconnectHandler reconnectHandler;
     @Getter
     @Setter
     private ConfigurationAdapter configurationAdapter = new YamlConfig();
@@ -104,6 +104,10 @@ public class BungeeCord extends ProxyServer
         getPluginManager().registerCommand(new CommandIP());
         getPluginManager().registerCommand(new CommandAlert());
         getPluginManager().registerCommand(new CommandBungee());
+
+        registerChannel("BungeeCord::Disconnect");
+        registerChannel("BungeeCord::Connect");
+        registerChannel("BungeeCord::Forward");
     }
 
     public static BungeeCord getInstance()
@@ -148,6 +152,7 @@ public class BungeeCord extends ProxyServer
     public void start() throws IOException
     {
         config.load();
+        reconnectHandler = new YamlReconnectHandler();
         isRunning = true;
 
         File plugins = new File("plugins");

@@ -25,9 +25,13 @@ public class YamlReconnectHandler implements ReconnectHandler
     @SuppressWarnings("unchecked")
     public YamlReconnectHandler()
     {
-        try (FileReader rd = new FileReader(file))
+        try
         {
-            data = yaml.loadAs(rd, Map.class);
+            file.createNewFile();
+            try (FileReader rd = new FileReader(file))
+            {
+                data = yaml.loadAs(rd, Map.class);
+            }
         } catch (IOException ex)
         {
             ProxyServer.getInstance().getLogger().log(Level.WARNING, "Could not load reconnect locations", ex);
