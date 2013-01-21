@@ -152,4 +152,26 @@ public abstract class ProxyServer
      * instance to fail to boot
      */
     public abstract void start() throws Exception;
+
+    /**
+     * Register a channel for use with plugin messages. This is required by some
+     * server / client implementations.
+     *
+     * @param channel the channel to register
+     */
+    public abstract void registerChannel(String channel);
+
+    /**
+     * Unregister a previously registered channel.
+     *
+     * @param channel the channel to unregister
+     */
+    public abstract void unregisterChannel(String channel);
+
+    /**
+     * Get an immutable set of all registered plugin channels.
+     *
+     * @return registered plugin channels
+     */
+    public abstract Collection<String> getChannels();
 }

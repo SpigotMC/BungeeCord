@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Synchronized;
 import static net.md_5.bungee.Logger.$;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ReconnectHandler;
@@ -34,6 +36,7 @@ import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.command.*;
 import net.md_5.bungee.config.YamlConfig;
 import net.md_5.bungee.packet.DefinedPacket;
+import net.md_5.bungee.packet.PacketFAPluginMessage;
 
 /**
  * Main BungeeCord proxy class.
@@ -73,7 +76,6 @@ public class BungeeCord extends ProxyServer
      * Fully qualified connections.
      */
     public Map<String, UserConnection> connections = new ConcurrentHashMap<>();
-    public Map<String, List<UserConnection>> connectionsByServer = new ConcurrentHashMap<>();
     /**
      * Tab list handler
      */
@@ -91,6 +93,7 @@ public class BungeeCord extends ProxyServer
     @Getter
     @Setter
     private ConfigurationAdapter configurationAdapter = new YamlConfig();
+    private final Collection<String> pluginChannels = new HashSet<>();
 
 
     {
@@ -272,13 +275,46 @@ public class BungeeCord extends ProxyServer
     @Override
     public Server getServer(String name)
     {
-        List<UserConnection> users = connectionsByServer.get(name);
-        return (users != null && !users.isEmpty()) ? users.get(0).getServer() : null;
+        Collection<ProxiedPlayer> users = getServers().get(name).getPlayers();
+        return (users != null && !users.isEmpty()) ? users.iterator().next().getServer() : null;
     }
 
     @Override
     public Map<String, ServerInfo> getServers()
     {
         return config.getServers();
+    }
+
+    @Override
+    @Synchronized("pluginChannels")
+    public void registerChannel(String channel)
+    {
+        pluginChannels.add(channel);
+    }
+
+    @Override
+    @Synchronized("pluginChannels")
+    public void unregisterChannel(String channel)
+    {
+        pluginChannels.remove(channel);
+    }
+
+    @Override
+    @Synchronized("pluginChannels")
+    public Collection<String> getChannels()
+    {
+        return Collections.unmodifiableCollection(pluginChannels);
+    }
+
+    public PacketFAPluginMessage registerChannels()
+    {
+        StringBuilder sb = new StringBuilder();
+        for (String s : getChannels())
+        {
+            sb.append(s);
+            sb.append('\00');
+        }
+        byte[] payload = sb.substring(0, sb.length() - 1).getBytes();
+        return new PacketFAPluginMessage("REGISTER", payload);
     }
 }

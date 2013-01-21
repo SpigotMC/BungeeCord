@@ -103,6 +103,8 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                 clientEntityId = newServer.loginPacket.entityId;
                 serverEntityId = newServer.loginPacket.entityId;
                 out.write(newServer.loginPacket.getPacket());
+                out.write(BungeeCord.getInstance().registerChannels().getPacket());
+
                 upBridge = new UpstreamBridge();
                 upBridge.start();
             } else

@@ -89,6 +89,9 @@ public class ServerConnection extends GenericConnection implements Server
             ServerConnection server = new ServerConnection(socket, info, in, out, login);
             ServerConnectedEvent event = new ServerConnectedEvent(user, server);
             ProxyServer.getInstance().getPluginManager().callEvent(event);
+
+            out.write(BungeeCord.getInstance().registerChannels().getPacket());
+
             return server;
         } catch (KickException ex)
         {
