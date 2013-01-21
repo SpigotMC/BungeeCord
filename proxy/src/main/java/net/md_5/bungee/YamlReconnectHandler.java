@@ -50,8 +50,8 @@ public class YamlReconnectHandler implements ReconnectHandler
         {
             return listener.getDefaultServer();
         }
-
-        String server = data.get(key(player));
+        String forced = listener.getForcedHosts().get(player.getPendingConnection().getVirtualHost().getHostName());
+        String server = (forced == null) ? data.get(key(player)) : forced;
         return (server != null) ? server : listener.getDefaultServer();
     }
 

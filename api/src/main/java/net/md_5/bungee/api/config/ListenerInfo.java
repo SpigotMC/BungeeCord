@@ -1,6 +1,7 @@
 package net.md_5.bungee.api.config;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 import lombok.Data;
 
 /**
@@ -32,4 +33,9 @@ public class ListenerInfo
      * transferred to the default server on connect.
      */
     private final boolean forceDefault;
+    /**
+     * A list of host to server name mappings which will force a user to be
+     * transferred depending on the host they connect to.
+     */
+    private final Map<String, String> forcedHosts;
 }

@@ -147,6 +147,9 @@ public class YamlConfig implements ConfigurationAdapter
                 {
                     new HashMap()
                 }));
+        Map<String, String> forcedDef = new HashMap<>();
+        forcedDef.put("pvp.md-5.net", "pvp");
+
         Collection<ListenerInfo> ret = new HashSet<>();
 
         for (Map<String, Object> val : base)
@@ -157,7 +160,8 @@ public class YamlConfig implements ConfigurationAdapter
             boolean forceDefault = get("force_default_server", false, val);
             String host = get("host", "0.0.0.0:25577", val);
             InetSocketAddress address = Util.getAddr(host);
-            ListenerInfo info = new ListenerInfo(address, motd, maxPlayers, defaultServer, forceDefault);
+            Map<String, String> forced = get("forced_hosts", forcedDef, val);
+            ListenerInfo info = new ListenerInfo(address, motd, maxPlayers, defaultServer, forceDefault, forced);
             ret.add(info);
         }
 
