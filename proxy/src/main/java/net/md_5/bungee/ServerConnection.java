@@ -7,6 +7,7 @@ import java.security.PublicKey;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.crypto.SecretKey;
+import lombok.Getter;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerPing;
@@ -17,6 +18,7 @@ import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet2Handshake;
 import net.md_5.bungee.packet.PacketCDClientStatus;
+import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketFCEncryptionResponse;
 import net.md_5.bungee.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.packet.PacketFFKick;
@@ -30,23 +32,24 @@ import org.bouncycastle.crypto.io.CipherOutputStream;
 public class ServerConnection extends GenericConnection implements Server
 {
 
-    public final String name;
+    @Getter
+    private final ServerInfo info;
     public final Packet1Login loginPacket;
     public Queue<DefinedPacket> packetQueue = new ConcurrentLinkedQueue<>();
 
-    public ServerConnection(String name, Socket socket, PacketInputStream in, OutputStream out, Packet1Login loginPacket)
+    public ServerConnection(Socket socket, ServerInfo info, PacketInputStream in, OutputStream out, Packet1Login loginPacket)
     {
         super(socket, in, out);
-        this.name = name;
+        this.info = info;
         this.loginPacket = loginPacket;
     }
 
-    public static ServerConnection connect(UserConnection user, String name, InetSocketAddress address, Packet2Handshake handshake, boolean retry)
+    public static ServerConnection connect(UserConnection user, ServerInfo info, Packet2Handshake handshake, boolean retry)
     {
         try
         {
             Socket socket = new Socket();
-            socket.connect(address, BungeeCord.getInstance().config.getTimeout());
+            socket.connect(info.getAddress(), BungeeCord.getInstance().config.getTimeout());
             BungeeCord.getInstance().setSocketOptions(socket);
 
             PacketInputStream in = new PacketInputStream(socket.getInputStream());
@@ -83,7 +86,7 @@ public class ServerConnection extends GenericConnection implements Server
             }
             Packet1Login login = new Packet1Login(loginResponse);
 
-            ServerConnection server = new ServerConnection(name, socket, in, out, login);
+            ServerConnection server = new ServerConnection(socket, info, in, out, login);
             ServerConnectedEvent event = new ServerConnectedEvent(user, server);
             ProxyServer.getInstance().getPluginManager().callEvent(event);
             return server;
@@ -92,10 +95,10 @@ public class ServerConnection extends GenericConnection implements Server
             throw ex;
         } catch (Exception ex)
         {
-            InetSocketAddress def = BungeeCord.getInstance().config.getServers().get(user.getPendingConnection().getListener().getDefaultServer()).getAddress();
-            if (retry && !address.equals(def))
+            ServerInfo def = ProxyServer.getInstance().getServers().get(user.getPendingConnection().getListener().getDefaultServer());
+            if (retry && !info.equals(def))
             {
-                return connect(user, name, def, handshake, false);
+                return connect(user, def, handshake, false);
             } else
             {
                 throw new RuntimeException("Could not connect to target server " + Util.exception(ex));
@@ -104,15 +107,9 @@ public class ServerConnection extends GenericConnection implements Server
     }
 
     @Override
-    public ServerInfo getInfo()
-    {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public void sendData(String channel, byte[] data)
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        packetQueue.add(new PacketFAPluginMessage(channel, data));
     }
 
     @Override
