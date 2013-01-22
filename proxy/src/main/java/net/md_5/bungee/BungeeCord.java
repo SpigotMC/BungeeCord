@@ -151,13 +151,14 @@ public class BungeeCord extends ProxyServer
      */
     public void start() throws IOException
     {
+        File plugins = new File("plugins");
+        plugins.mkdir();
+        pluginManager.loadPlugins(plugins);
         config.load();
         reconnectHandler = new YamlReconnectHandler();
         isRunning = true;
 
-        File plugins = new File("plugins");
-        plugins.mkdir();
-        pluginManager.loadPlugins(plugins);
+        pluginManager.enablePlugins();
 
         for (ListenerInfo info : config.getListeners())
         {
