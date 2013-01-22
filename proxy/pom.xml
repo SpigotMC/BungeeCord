@@ -30,6 +30,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.22</version>
+        </dependency>
+        <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
             <version>1.47</version>
@@ -74,6 +79,13 @@
                                 <exclude>**/*.SF</exclude>
                                 <exclude>**/*.DSA</exclude>
                             </excludes>
+                        </filter>
+                        <!-- Don't allow the main MySQL class to be removed -->
+                        <filter>
+                            <artifact>mysql:mysql-connector-java</artifact>
+                            <includes>
+                                <include>com.mysql.jdbc.Driver</include>
+                            </includes>
                         </filter>
                     </filters>
                     <minimizeJar>true</minimizeJar>
