@@ -46,13 +46,32 @@ public class YamlConfig implements ConfigurationAdapter
 
             if (config == null)
             {
-                config = new LinkedHashMap<>();
+                config = new HashMap();
             }
 
             loaded = true;
         } catch (IOException ex)
         {
             throw new RuntimeException("Could not load configuration!", ex);
+        }
+
+        Map<String, Object> permissions = get("permissions", new HashMap<String, Object>());
+        if (permissions.isEmpty())
+        {
+            permissions.put("default", Arrays.asList(new String[]
+                    {
+                        "bungeecord.command.server", "bungeecord.command.list"
+                    }));
+            permissions.put("admin", Arrays.asList(new String[]
+                    {
+                        "bungeecord.command.alert", "bungeecord.command.end", "bungeecord.command.ip", "bungeecord.command.reload"
+                    }));
+        }
+
+        Map<String, Object> groups = get("groups", new HashMap<String, Object>());
+        if (groups.isEmpty())
+        {
+            groups.put("md_5", Collections.singletonList("admin"));
         }
     }
 
@@ -87,7 +106,7 @@ public class YamlConfig implements ConfigurationAdapter
         } else
         {
             String first = path.substring(0, index);
-            String second = path.substring(index, path.length());
+            String second = path.substring(index + 1, path.length());
             Map sub = (Map) submap.get(first);
             return (sub != null) ? get(second, def, sub) : def;
         }
@@ -172,7 +191,7 @@ public class YamlConfig implements ConfigurationAdapter
     @SuppressWarnings("unchecked")
     public Collection<String> getGroups(String player)
     {
-        return get("groups." + player, Collections.EMPTY_SET);
+        return get("groups." + player, Collections.singleton("default"));
     }
 
     @Override
