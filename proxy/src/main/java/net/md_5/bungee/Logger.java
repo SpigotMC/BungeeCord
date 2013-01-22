@@ -3,6 +3,7 @@ package net.md_5.bungee;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
@@ -90,7 +91,7 @@ public class Logger extends java.util.logging.Logger
                 formatted.append(" [SEVERE] ");
             }
 
-            formatted.append(logrecord.getMessage());
+            formatted.append(MessageFormat.format(logrecord.getMessage(), logrecord.getParameters()));
             formatted.append('\n');
             Throwable throwable = logrecord.getThrown();
 
