@@ -23,7 +23,11 @@ public class CommandAlert extends Command
         } else
         {
             StringBuilder builder = new StringBuilder();
-            if (!args[0].startsWith("&h"))
+            if (args[0].startsWith("&h"))
+            {
+                // Remove &h
+                args[0] = args[0].substring(2, args[0].length());
+            } else
             {
                 builder.append(ChatColor.DARK_PURPLE);
                 builder.append("[Alert] ");
@@ -31,7 +35,6 @@ public class CommandAlert extends Command
 
             for (String s : args)
             {
-                s = s.substring(1, s.length());
                 builder.append(ChatColor.translateAlternateColorCodes('&', s));
                 builder.append(" ");
             }
