@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.crypto.SecretKey;
 import lombok.Getter;
 import net.md_5.bungee.api.Callback;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -101,6 +102,7 @@ public class ServerConnection extends GenericConnection implements Server
             ServerInfo def = ProxyServer.getInstance().getServers().get(user.getPendingConnection().getListener().getDefaultServer());
             if (retry && !info.equals(def))
             {
+                user.sendMessage(ChatColor.RED + "Could not connect to target server, you have been moved to the default server");
                 return connect(user, def, handshake, false);
             } else
             {

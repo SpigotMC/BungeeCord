@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import net.md_5.bungee.Util;
@@ -191,7 +190,10 @@ public class YamlConfig implements ConfigurationAdapter
     @SuppressWarnings("unchecked")
     public Collection<String> getGroups(String player)
     {
-        return get("groups." + player, Collections.singleton("default"));
+        Collection<String> groups = get("groups." + player, Collections.EMPTY_LIST);
+        Collection<String> ret = new HashSet<>(groups);
+        ret.add("default");
+        return ret;
     }
 
     @Override

@@ -61,6 +61,11 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
         name = handshake.username;
         displayName = handshake.username;
         this.loginPackets = loginPackets;
+        Collection<String> g = ProxyServer.getInstance().getConfigurationAdapter().getGroups(name);
+        for (String s : g)
+        {
+            addGroups(s);
+        }
     }
 
     @Override
