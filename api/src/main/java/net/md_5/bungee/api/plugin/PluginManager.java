@@ -120,14 +120,19 @@ public class PluginManager
      */
     public void enablePlugins()
     {
-        for (Map.Entry<String, Plugin> plugin : plugins.entrySet())
+        for (Map.Entry<String, Plugin> entry : plugins.entrySet())
         {
+            Plugin plugin = entry.getValue();
             try
             {
-                plugin.getValue().onEnable();
+                plugin.onEnable();
+                ProxyServer.getInstance().getLogger().log(Level.INFO, "Enabled plugin {0} version {1} by {2}", new Object[]
+                        {
+                            entry.getKey(), plugin.getDescription().getVersion(), plugin.getDescription().getAuthor()
+                        });
             } catch (Exception ex)
             {
-                ProxyServer.getInstance().getLogger().log(Level.WARNING, "Exception encountered when loading plugin: " + plugin.getKey(), ex);
+                ProxyServer.getInstance().getLogger().log(Level.WARNING, "Exception encountered when loading plugin: " + entry.getKey(), ex);
             }
         }
     }
@@ -161,6 +166,10 @@ public class PluginManager
                 plugin.init(desc);
                 plugins.put(pdf.getName(), plugin);
                 plugin.onLoad();
+                ProxyServer.getInstance().getLogger().log(Level.INFO, "Loaded plugin {0} version {1} by {2}", new Object[]
+                        {
+                            plugin.getDescription().getName(), plugin.getDescription().getVersion(), plugin.getDescription().getAuthor()
+                        });
             }
         }
     }
