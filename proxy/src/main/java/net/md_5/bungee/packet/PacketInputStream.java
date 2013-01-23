@@ -10,7 +10,7 @@ import net.md_5.mendax.datainput.DataInputPacketReader;
  * A specialized input stream to parse packets using the Mojang packet
  * definitions and then return them as a byte array.
  */
-public class PacketInputStream
+public class PacketInputStream implements AutoCloseable
 {
 
     private final DataInputStream dataInput;
@@ -33,6 +33,12 @@ public class PacketInputStream
         tracker.out.reset();
         DataInputPacketReader.readPacket(dataInput);
         return tracker.out.toByteArray();
+    }
+
+    @Override
+    public void close() throws Exception
+    {
+        dataInput.close();
     }
 
     /**

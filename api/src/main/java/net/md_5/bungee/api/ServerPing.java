@@ -25,9 +25,9 @@ public class ServerPing
     /**
      * Current amount of players on the server.
      */
-    private final String currentPlayers;
+    private final int currentPlayers;
     /**
      * Max amount of players the server will allow.
      */
-    private final String maxPlayers;
+    private final int maxPlayers;
 }

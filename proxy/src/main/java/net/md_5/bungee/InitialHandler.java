@@ -11,11 +11,13 @@ import javax.crypto.SecretKey;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
+import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.packet.Packet2Handshake;
 import net.md_5.bungee.packet.PacketFCEncryptionResponse;
 import net.md_5.bungee.packet.PacketFDEncryptionRequest;
@@ -102,14 +104,19 @@ public class InitialHandler implements Runnable, PendingConnection
                     } catch (IOException ex)
                     {
                     }
-                    Configuration conf = BungeeCord.getInstance().config;
+
+                    ServerPing pingevent = new ServerPing(BungeeCord.PROTOCOL_VERSION, BungeeCord.GAME_VERSION,
+                            listener.getMotd(), ProxyServer.getInstance().getPlayers().size(), listener.getMaxPlayers());
+
+                    ProxyServer.getInstance().getPluginManager().callEvent(new ProxyPingEvent(this, pingevent));
+
                     String ping = (newPing) ? ChatColor.COLOR_CHAR + "1"
-                            + "\00" + BungeeCord.PROTOCOL_VERSION
-                            + "\00" + BungeeCord.GAME_VERSION
-                            + "\00" + listener.getMotd()
-                            + "\00" + ProxyServer.getInstance().getPlayers().size()
-                            + "\00" + listener.getMaxPlayers()
-                            : listener.getMotd() + ChatColor.COLOR_CHAR + ProxyServer.getInstance().getPlayers().size() + ChatColor.COLOR_CHAR + listener.getMaxPlayers();
+                            + "\00" + pingevent.getProtocolVersion()
+                            + "\00" + pingevent.getGameVersion()
+                            + "\00" + pingevent.getMotd()
+                            + "\00" + pingevent.getCurrentPlayers()
+                            + "\00" + pingevent.getMaxPlayers()
+                            : pingevent.getMotd() + ChatColor.COLOR_CHAR + pingevent.getCurrentPlayers() + ChatColor.COLOR_CHAR + pingevent.getMaxPlayers();
                     throw new KickException(ping);
                 default:
                     if (id == 0xFA)
