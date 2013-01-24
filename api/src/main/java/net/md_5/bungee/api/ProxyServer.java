@@ -182,4 +182,18 @@ public abstract class ProxyServer
      * @return registered plugin channels
      */
     public abstract Collection<String> getChannels();
+
+    /**
+     * Get the Minecraft version supported by this proxy.
+     *
+     * @return the supported Minecraft version
+     */
+    public abstract String getGameVersion();
+
+    /**
+     * Get the Minecraft protocol version supported by this proxy.
+     *
+     * @return the Minecraft protocol version
+     */
+    public abstract byte getProtocolVersion();
 }

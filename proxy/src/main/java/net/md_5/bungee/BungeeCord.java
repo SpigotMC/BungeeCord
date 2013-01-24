@@ -327,4 +327,16 @@ public class BungeeCord extends ProxyServer
         byte[] payload = sb.substring(0, sb.length() - 1).getBytes();
         return new PacketFAPluginMessage("REGISTER", payload);
     }
+
+    @Override
+    public byte getProtocolVersion()
+    {
+        return PROTOCOL_VERSION;
+    }
+
+    @Override
+    public String getGameVersion()
+    {
+        return GAME_VERSION;
+    }
 }
