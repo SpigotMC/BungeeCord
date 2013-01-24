@@ -152,12 +152,12 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
 
     private void destroySelf(String reason)
     {
-        server.getInfo().removePlayer(this);
         ProxyServer.getInstance().getPlayers().remove(this);
 
         disconnect(reason);
         if (server != null)
         {
+            server.getInfo().removePlayer(this);
             server.disconnect("Quitting");
             ProxyServer.getInstance().getReconnectHandler().setServer(this);
         }
