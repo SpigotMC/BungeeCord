@@ -86,7 +86,7 @@ public class PacketDefinitions {
         //
         opCodes[0x64] = new OpCode[]{BYTE, BYTE, STRING, BYTE};
         opCodes[0x65] = new OpCode[]{BYTE};
-        opCodes[0x66] = new OpCode[]{BYTE, SHORT, BYTE, SHORT, BYTE, ITEM};
+        opCodes[0x66] = new OpCode[]{BYTE, SHORT, BYTE, SHORT, BOOLEAN, ITEM};
         opCodes[0x67] = new OpCode[]{BYTE, SHORT, ITEM};
         opCodes[0x68] = new OpCode[]{BYTE, SHORT_ITEM};
         opCodes[0x69] = new OpCode[]{BYTE, SHORT, SHORT};
