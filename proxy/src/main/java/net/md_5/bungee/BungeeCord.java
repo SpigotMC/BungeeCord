@@ -105,9 +105,7 @@ public class BungeeCord extends ProxyServer
         getPluginManager().registerCommand(new CommandAlert());
         getPluginManager().registerCommand(new CommandBungee());
 
-        registerChannel("BungeeCord::Disconnect");
-        registerChannel("BungeeCord::Connect");
-        registerChannel("BungeeCord::Forward");
+        registerChannel("BungeeCord");
     }
 
     public static BungeeCord getInstance()
@@ -289,6 +287,12 @@ public class BungeeCord extends ProxyServer
     public Map<String, ServerInfo> getServers()
     {
         return config.getServers();
+    }
+
+    @Override
+    public ServerInfo getServerInfo(String name)
+    {
+        return getServers().get(name);
     }
 
     @Override

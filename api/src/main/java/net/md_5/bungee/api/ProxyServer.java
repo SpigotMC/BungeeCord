@@ -88,6 +88,14 @@ public abstract class ProxyServer
     public abstract Map<String, ServerInfo> getServers();
 
     /**
+     * Gets the server info of a server.
+     *
+     * @param name the name of the configured server
+     * @return the server info belonging to the specified server
+     */
+    public abstract ServerInfo getServerInfo(String name);
+
+    /**
      * Get the {@link PluginManager} associated with loading plugins and
      * dispatching events. It is recommended that implementations use the
      * provided PluginManager class.

@@ -282,6 +282,13 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                         case 0xFA:
                             // Call the onPluginMessage event
                             PacketFAPluginMessage message = new PacketFAPluginMessage(packet);
+
+                            // Might matter in the future
+                            if (message.tag.equals("BungeeCord"))
+                            {
+                                continue;
+                            }
+
                             PluginMessageEvent event = new PluginMessageEvent(UserConnection.this, server, message.tag, message.data);
                             ProxyServer.getInstance().getPluginManager().callEvent(event);
 
@@ -371,39 +378,42 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                                 continue;
                             }
 
-                            switch (message.tag)
+                            if (message.tag.equals("BungeeCord"))
                             {
-                                case "BungeeCord::Disconnect":
-                                    break outer;
-                                case "BungeeCord::Forward":
-                                    String target = in.readUTF();
-                                    String channel = in.readUTF();
-                                    short len = in.readShort();
-                                    byte[] data = new byte[len];
-                                    in.readFully(data);
+                                switch (in.readUTF())
+                                {
+                                    case "Disconnect":
+                                        break outer;
+                                    case "Forward":
+                                        String target = in.readUTF();
+                                        String channel = in.readUTF();
+                                        short len = in.readShort();
+                                        byte[] data = new byte[len];
+                                        in.readFully(data);
 
-                                    if (target.equals("ALL"))
-                                    {
-                                        for (String s : BungeeCord.getInstance().getServers().keySet())
+                                        if (target.equals("ALL"))
                                         {
-                                            Server server = BungeeCord.getInstance().getServer(s);
+                                            for (String s : BungeeCord.getInstance().getServers().keySet())
+                                            {
+                                                Server server = BungeeCord.getInstance().getServer(s);
+                                                server.sendData(channel, data);
+                                            }
+                                        } else
+                                        {
+                                            Server server = BungeeCord.getInstance().getServer(target);
                                             server.sendData(channel, data);
                                         }
-                                    } else
-                                    {
-                                        Server server = BungeeCord.getInstance().getServer(target);
-                                        server.sendData(channel, data);
-                                    }
 
-                                    break;
-                                case "BungeeCord::Connect":
-                                    ServerInfo server = BungeeCord.getInstance().config.getServers().get(in.readUTF());
-                                    if (server != null)
-                                    {
-                                        connect(server);
-                                        break outer;
-                                    }
-                                    break;
+                                        break;
+                                    case "Connect":
+                                        ServerInfo server = BungeeCord.getInstance().config.getServers().get(in.readUTF());
+                                        if (server != null)
+                                        {
+                                            connect(server);
+                                            break outer;
+                                        }
+                                        break;
+                                }
                             }
                     }
 
