@@ -25,12 +25,12 @@ abstract class Instruction {
     static final Instruction USHORT_BYTE = new UnsignedShortByte();
     // Illegal forward references below this line
     static final Instruction BYTE_INT = new ByteHeader(INT);
+    // Buffer used to read all skips, make sure it is sufficiently large (1mb packet at the moment)
+    static final byte[] buf = new byte[1 << 20];
 
     abstract void read(DataInput in) throws IOException;
 
     final void skip(DataInput in, int len) throws IOException {
-        for (int i = 0; i < len; i++) {
-            in.readUnsignedByte();
-        }
+        in.readFully(buf, 0, len);
     }
 }
