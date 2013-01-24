@@ -11,7 +11,7 @@ public class CommandAlert extends Command
 
     public CommandAlert()
     {
-        super("alert", "bungee.command.alert");
+        super("alert", "bungeecord.command.alert");
     }
 
     @Override
