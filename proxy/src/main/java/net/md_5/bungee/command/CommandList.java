@@ -15,7 +15,7 @@ public class CommandList extends Command
 
     public CommandList()
     {
-        super("list", "bungeecord.command.list");
+        super("glist", "bungeecord.command.list");
     }
 
     @Override
