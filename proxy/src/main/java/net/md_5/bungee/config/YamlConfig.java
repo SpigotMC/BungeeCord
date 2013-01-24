@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.logging.Level;
 import net.md_5.bungee.Util;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
@@ -173,6 +174,8 @@ public class YamlConfig implements ConfigurationAdapter
         for (Map<String, Object> val : base)
         {
             String motd = get("motd", "Another Bungee server", val);
+            motd = ChatColor.translateAlternateColorCodes('&', motd);
+
             int maxPlayers = get("max_players", 1, val);
             String defaultServer = get("default_server", "lobby", val);
             boolean forceDefault = get("force_default_server", false, val);
