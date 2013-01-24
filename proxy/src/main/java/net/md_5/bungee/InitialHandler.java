@@ -108,7 +108,7 @@ public class InitialHandler implements Runnable, PendingConnection
                     ServerPing pingevent = new ServerPing(BungeeCord.PROTOCOL_VERSION, BungeeCord.GAME_VERSION,
                             listener.getMotd(), ProxyServer.getInstance().getPlayers().size(), listener.getMaxPlayers());
 
-                    ProxyServer.getInstance().getPluginManager().callEvent(new ProxyPingEvent(this, pingevent));
+                    pingevent = ProxyServer.getInstance().getPluginManager().callEvent(new ProxyPingEvent(this, pingevent)).getResponse();
 
                     String ping = (newPing) ? ChatColor.COLOR_CHAR + "1"
                             + "\00" + pingevent.getProtocolVersion()
