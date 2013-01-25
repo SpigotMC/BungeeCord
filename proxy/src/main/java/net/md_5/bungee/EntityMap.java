@@ -120,9 +120,13 @@ public class EntityMap
         { // bulk entity
             for (int pos = 2; pos < packet.length; pos += 4)
             {
-                if (oldId == readInt(packet, pos))
+                int readId = readInt(packet, pos);
+                if (readId == oldId)
                 {
                     setInt(packet, pos, newId);
+                } else if (readId == newId)
+                {
+                    setInt(packet, pos, oldId);
                 }
             }
         } else
@@ -132,9 +136,13 @@ public class EntityMap
             {
                 for (int pos : idArray)
                 {
-                    if (oldId == readInt(packet, pos))
+                    int readId = readInt(packet, pos);
+                    if (readId == oldId)
                     {
                         setInt(packet, pos, newId);
+                    } else if (readId == newId)
+                    {
+                        setInt(packet, pos, oldId);
                     }
                 }
             }
