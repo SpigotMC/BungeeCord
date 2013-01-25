@@ -5,6 +5,7 @@ import java.util.Set;
 import lombok.Synchronized;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.TabListHandler;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.packet.PacketC9PlayerListItem;
@@ -17,9 +18,10 @@ public class GlobalTabList implements TabListHandler
     @Override
     public void onConnect(ProxiedPlayer player)
     {
-        for (UserConnection c : BungeeCord.getInstance().connections.values())
+        UserConnection con = (UserConnection) player;
+        for (ProxiedPlayer p : ProxyServer.getInstance().getPlayers())
         {
-            c.packetQueue.add(new PacketC9PlayerListItem(c.displayName, true, c.getPing()));
+            con.packetQueue.add(new PacketC9PlayerListItem(p.getDisplayName(), true, p.getPing()));
         }
         BungeeCord.getInstance().broadcast(new PacketC9PlayerListItem(player.getDisplayName(), true, player.getPing()));
     }
