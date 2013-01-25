@@ -21,6 +21,7 @@ public class GlobalTabList implements TabListHandler
         {
             c.packetQueue.add(new PacketC9PlayerListItem(c.displayName, true, c.getPing()));
         }
+        BungeeCord.getInstance().broadcast(new PacketC9PlayerListItem(player.getDisplayName(), true, player.getPing()));
     }
 
     @Override
