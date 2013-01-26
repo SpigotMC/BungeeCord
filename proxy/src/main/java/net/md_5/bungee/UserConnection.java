@@ -425,6 +425,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                                         getServer().sendData("BungeeCord", b.toByteArray());
                                         break;
                                 }
+                                continue;
                             }
                     }
 
