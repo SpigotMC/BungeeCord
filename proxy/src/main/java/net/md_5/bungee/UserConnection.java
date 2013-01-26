@@ -419,7 +419,6 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                                         ByteArrayOutputStream b = new ByteArrayOutputStream();
                                         DataOutputStream out = new DataOutputStream(b);
                                         out.writeUTF("IP");
-                                        out.writeUTF(name);
                                         out.writeUTF(getAddress().getHostString());
                                         out.writeInt(getAddress().getPort());
                                         getServer().sendData("BungeeCord", b.toByteArray());
