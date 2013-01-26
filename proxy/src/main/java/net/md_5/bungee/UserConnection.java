@@ -382,47 +382,86 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
 
                             if (message.tag.equals("BungeeCord"))
                             {
-                                switch (in.readUTF())
+                                String subChannel = in.readUTF();
+                                if (subChannel.equals("Disconnect"))
                                 {
-                                    case "Disconnect":
-                                        break outer;
-                                    case "Forward":
-                                        String target = in.readUTF();
-                                        String channel = in.readUTF();
-                                        short len = in.readShort();
-                                        byte[] data = new byte[len];
-                                        in.readFully(data);
+                                    break;
+                                }
+                                if (subChannel.equals("Forward"))
+                                {
+                                    String target = in.readUTF();
+                                    String channel = in.readUTF();
+                                    short len = in.readShort();
+                                    byte[] data = new byte[len];
+                                    in.readFully(data);
 
-                                        if (target.equals("ALL"))
+                                    if (target.equals("ALL"))
+                                    {
+                                        for (String s : BungeeCord.getInstance().getServers().keySet())
                                         {
-                                            for (String s : BungeeCord.getInstance().getServers().keySet())
-                                            {
-                                                Server server = BungeeCord.getInstance().getServer(s);
-                                                server.sendData(channel, data);
-                                            }
-                                        } else
-                                        {
-                                            Server server = BungeeCord.getInstance().getServer(target);
+                                            Server server = BungeeCord.getInstance().getServer(s);
                                             server.sendData(channel, data);
                                         }
-
-                                        break;
-                                    case "Connect":
-                                        ServerInfo server = BungeeCord.getInstance().config.getServers().get(in.readUTF());
+                                    } else
+                                    {
+                                        Server server = BungeeCord.getInstance().getServer(target);
                                         if (server != null)
                                         {
-                                            connect(server);
-                                            break outer;
+                                            server.sendData(channel, data);
                                         }
-                                        break;
-                                    case "IP":
+                                    }
+                                }
+                                if (subChannel.equals("Connect"))
+                                {
+                                    ServerInfo server = BungeeCord.getInstance().config.getServers().get(in.readUTF());
+                                    if (server != null)
+                                    {
+                                        connect(server);
+                                        break outer;
+                                    }
+                                }
+                                if (subChannel.equals("IP"))
+                                {
+                                    ByteArrayOutputStream b = new ByteArrayOutputStream();
+                                    DataOutputStream out = new DataOutputStream(b);
+                                    out.writeUTF("IP");
+                                    out.writeUTF(getAddress().getHostString());
+                                    out.writeInt(getAddress().getPort());
+                                    getServer().sendData("BungeeCord", b.toByteArray());
+                                }
+                                if (subChannel.equals("PlayerCount"))
+                                {
+                                    ServerInfo server = BungeeCord.getInstance().config.getServers().get(in.readUTF());
+                                    if (server != null)
+                                    {
                                         ByteArrayOutputStream b = new ByteArrayOutputStream();
                                         DataOutputStream out = new DataOutputStream(b);
-                                        out.writeUTF("IP");
-                                        out.writeUTF(getAddress().getHostString());
-                                        out.writeInt(getAddress().getPort());
+                                        out.writeUTF("PlayerCount");
+                                        out.writeUTF(server.getName());
+                                        out.writeInt(server.getPlayers().size());
                                         getServer().sendData("BungeeCord", b.toByteArray());
-                                        break;
+                                    }
+                                }
+                                if (subChannel.equals("PlayerList"))
+                                {
+                                    ServerInfo server = BungeeCord.getInstance().config.getServers().get(in.readUTF());
+                                    if (server != null)
+                                    {
+                                        ByteArrayOutputStream b = new ByteArrayOutputStream();
+                                        DataOutputStream out = new DataOutputStream(b);
+                                        out.writeUTF("PlayerList");
+                                        out.writeUTF(server.getName());
+
+                                        StringBuilder sb = new StringBuilder();
+                                        for (ProxiedPlayer p : server.getPlayers())
+                                        {
+                                            sb.append(p.getName());
+                                            sb.append(",");
+                                        }
+                                        out.writeUTF(sb.substring(0, sb.length() - 1));
+
+                                        getServer().sendData("BungeeCord", b.toByteArray());
+                                    }
                                 }
                                 continue;
                             }
