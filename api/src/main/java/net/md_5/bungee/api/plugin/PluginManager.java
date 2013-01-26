@@ -153,6 +153,8 @@ public class PluginManager
         try (JarFile jar = new JarFile(file))
         {
             JarEntry pdf = jar.getJarEntry("plugin.yml");
+            Preconditions.checkNotNull(pdf, "Plugin must have a plugin.yml");
+
             try (InputStream in = jar.getInputStream(pdf))
             {
                 PluginDescription desc = yaml.loadAs(in, PluginDescription.class);
