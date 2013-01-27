@@ -63,5 +63,13 @@ public class PacketInputStream implements AutoCloseable
             out.write(ret);
             return ret;
         }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException
+        {
+            int ret = wrapped.read(b, off, len);
+            out.write(b, off, ret);
+            return ret;
+        }
     }
 }
