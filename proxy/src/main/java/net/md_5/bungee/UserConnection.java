@@ -395,19 +395,26 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                                     byte[] data = new byte[len];
                                     in.readFully(data);
 
+
+                                    ByteArrayOutputStream b = new ByteArrayOutputStream();
+                                    DataOutputStream out = new DataOutputStream(b);
+                                    out.writeUTF(channel);
+                                    out.writeShort(data.length);
+                                    out.write(data);
+
                                     if (target.equals("ALL"))
                                     {
                                         for (String s : BungeeCord.getInstance().getServers().keySet())
                                         {
                                             Server server = BungeeCord.getInstance().getServer(s);
-                                            server.sendData(channel, data);
+                                            server.sendData("BungeeCord", b.toByteArray());
                                         }
                                     } else
                                     {
                                         Server server = BungeeCord.getInstance().getServer(target);
                                         if (server != null)
                                         {
-                                            server.sendData(channel, data);
+                                            server.sendData("BungeeCord", b.toByteArray());
                                         }
                                     }
                                 }
