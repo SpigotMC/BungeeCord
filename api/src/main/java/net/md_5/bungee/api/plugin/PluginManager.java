@@ -166,11 +166,11 @@ public class PluginManager
                 Plugin plugin = (Plugin) main.getDeclaredConstructor().newInstance();
 
                 plugin.init(desc);
-                plugins.put(pdf.getName(), plugin);
+                plugins.put(desc.getName(), plugin);
                 plugin.onLoad();
                 ProxyServer.getInstance().getLogger().log(Level.INFO, "Loaded plugin {0} version {1} by {2}", new Object[]
                         {
-                            plugin.getDescription().getName(), plugin.getDescription().getVersion(), plugin.getDescription().getAuthor()
+                            desc.getName(), desc.getVersion(), desc.getAuthor()
                         });
             }
         }
