@@ -84,7 +84,7 @@
                         <filter>
                             <artifact>mysql:mysql-connector-java</artifact>
                             <includes>
-                                <include>com.mysql.jdbc.Driver</include>
+                                <include>**</include>
                             </includes>
                         </filter>
                     </filters>
