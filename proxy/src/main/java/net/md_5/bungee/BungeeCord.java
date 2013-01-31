@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Collection;
 import java.util.Collections;
@@ -338,5 +339,11 @@ public class BungeeCord extends ProxyServer
     public String getGameVersion()
     {
         return GAME_VERSION;
+    }
+
+    @Override
+    public ServerInfo constructServerInfo(String name, InetSocketAddress address)
+    {
+        return new BungeeServerInfo(name, address);
     }
 }

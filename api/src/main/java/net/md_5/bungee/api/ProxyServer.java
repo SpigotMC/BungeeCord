@@ -2,6 +2,7 @@ package net.md_5.bungee.api;
 
 import net.md_5.bungee.api.plugin.PluginManager;
 import com.google.common.base.Preconditions;
+import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -75,7 +76,11 @@ public abstract class ProxyServer
      *
      * @param name the name to lookup
      * @return the associated server
+     * @deprecated in most cases the {@link #getServerInfo(java.lang.String)}
+     * method should be used, as it will return a server even when no players
+     * are online.
      */
+    @Deprecated
     public abstract Server getServer(String name);
 
     /**
@@ -196,4 +201,14 @@ public abstract class ProxyServer
      * @return the Minecraft protocol version
      */
     public abstract byte getProtocolVersion();
+
+    /**
+     * Factory method to construct an implementation specific server info
+     * instance.
+     *
+     * @param name name of the server
+     * @param address connectable Minecraft address + port of the server
+     * @return the constructed instance
+     */
+    public abstract ServerInfo constructServerInfo(String name, InetSocketAddress address);
 }

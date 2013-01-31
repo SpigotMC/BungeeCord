@@ -7,6 +7,8 @@ import java.util.Collections;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Synchronized;
+import net.md_5.bungee.api.Callback;
+import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 /**
@@ -14,7 +16,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
  */
 @Data
 @AllArgsConstructor
-public class ServerInfo
+public abstract class ServerInfo
 {
 
     /**
@@ -62,4 +64,19 @@ public class ServerInfo
     {
         return Collections.unmodifiableCollection(players);
     }
+
+    /**
+     * Send data by any available means to this server.
+     *
+     * @param channel the channel to send this data via
+     * @param data the data to send
+     */
+    public abstract void sendData(String channel, byte[] data);
+
+    /**
+     * Asynchronously gets the current player count on this server.
+     *
+     * @param callback the callback to call when the count has been retrieved.
+     */
+    public abstract void ping(Callback<ServerPing> callback);
 }

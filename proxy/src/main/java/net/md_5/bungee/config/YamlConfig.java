@@ -151,7 +151,7 @@ public class YamlConfig implements ConfigurationAdapter
             String name = entry.getKey();
             String addr = get("address", "localhost:25565", val);
             InetSocketAddress address = Util.getAddr(addr);
-            ServerInfo info = new ServerInfo(name, address);
+            ServerInfo info = ProxyServer.getInstance().constructServerInfo(name, address);
             ret.put(name, info);
         }
 

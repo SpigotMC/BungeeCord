@@ -95,6 +95,12 @@ public class ServerConnection extends GenericConnection implements Server
 
             out.write(BungeeCord.getInstance().registerChannels().getPacket());
 
+            Queue<DefinedPacket> packetQueue = ((BungeeServerInfo) info).getPacketQueue();
+            while (!packetQueue.isEmpty())
+            {
+                out.write(packetQueue.poll().getPacket());
+            }
+
             return server;
         } catch (KickException ex)
         {
@@ -122,35 +128,7 @@ public class ServerConnection extends GenericConnection implements Server
     @Override
     public void ping(final Callback<ServerPing> callback)
     {
-        new Thread()
-        {
-            @Override
-            public void run()
-            {
-                try
-                {
-                    Socket socket = new Socket();
-                    socket.connect(getAddress());
-                    try (DataOutputStream out = new DataOutputStream(socket.getOutputStream()))
-                    {
-                        out.write(0xFE);
-                        out.write(0x01);
-                    }
-                    try (PacketInputStream in = new PacketInputStream(socket.getInputStream()))
-                    {
-                        PacketFFKick response = new PacketFFKick(in.readPacket());
-
-                        String[] split = response.message.split("\00");
-
-                        ServerPing ping = new ServerPing(Byte.parseByte(split[1]), split[2], split[3], Integer.parseInt(split[4]), Integer.parseInt(split[5]));
-                        callback.done(ping, null);
-                    }
-                } catch (Throwable t)
-                {
-                    callback.done(null, t);
-                }
-            }
-        }.start();
+        getInfo().ping(callback);
     }
 
     @Override
