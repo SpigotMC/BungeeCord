@@ -49,7 +49,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     private int trackingPingId;
     private long pingTime;
     @Getter
-    private int ping;
+    private int ping = 1000;
     // Permissions
     private final Collection<String> groups = new HashSet<>();
     private final Map<String, Boolean> permissions = new HashMap<>();
