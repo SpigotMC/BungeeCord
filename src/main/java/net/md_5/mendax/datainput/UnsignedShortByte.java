@@ -6,8 +6,8 @@ import java.io.IOException;
 public class UnsignedShortByte extends Instruction {
 
     @Override
-    void read(DataInput in) throws IOException {
+    void read(DataInput in, byte[] buffer) throws IOException {
         int size = in.readUnsignedShort();
-        skip(in, size);
+        skip(in, buffer, size);
     }
 }

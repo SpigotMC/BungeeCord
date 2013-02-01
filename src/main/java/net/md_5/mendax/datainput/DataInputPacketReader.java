@@ -47,7 +47,7 @@ public class DataInputPacketReader {
         }
     }
 
-    public static void readPacket(DataInput in) throws IOException {
+    public static void readPacket(DataInput in, byte[] buffer) throws IOException {
         int packetId = in.readUnsignedByte();
         Instruction[] packetDef = instructions[packetId];
 
@@ -56,7 +56,7 @@ public class DataInputPacketReader {
         }
 
         for (Instruction instruction : packetDef) {
-            instruction.read(in);
+            instruction.read(in, buffer);
         }
     }
 }

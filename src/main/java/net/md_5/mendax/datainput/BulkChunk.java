@@ -6,10 +6,10 @@ import java.io.IOException;
 public class BulkChunk extends Instruction {
 
     @Override
-    void read(DataInput in) throws IOException {
+    void read(DataInput in, byte[] buffer) throws IOException {
         short count = in.readShort();
         int size = in.readInt();
         in.readBoolean();
-        skip(in, size + count * 12);
+        skip(in, buffer, size + count * 12);
     }
 }

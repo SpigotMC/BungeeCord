@@ -12,10 +12,10 @@ class IntHeader extends Instruction {
     }
 
     @Override
-    void read(DataInput in) throws IOException {
+    void read(DataInput in, byte[] buffer) throws IOException {
         int size = in.readInt();
         for (int i = 0; i < size; i++) {
-            child.read(in);
+            child.read(in, buffer);
         }
     }
 }

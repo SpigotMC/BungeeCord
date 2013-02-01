@@ -12,10 +12,10 @@ class ShortHeader extends Instruction {
     }
 
     @Override
-    void read(DataInput in) throws IOException {
+    void read(DataInput in, byte[] buffer) throws IOException {
         short size = in.readShort();
         for (short s = 0; s < size; s++) {
-            child.read(in);
+            child.read(in, buffer);
         }
     }
 }

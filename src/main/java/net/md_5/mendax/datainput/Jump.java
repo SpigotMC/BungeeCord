@@ -15,7 +15,7 @@ class Jump extends Instruction {
     }
 
     @Override
-    void read(DataInput in) throws IOException {
-        skip(in, len);
+    void read(DataInput in, byte[] buffer) throws IOException {
+        skip(in, buffer, len);
     }
 }

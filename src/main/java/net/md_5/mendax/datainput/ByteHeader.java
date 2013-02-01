@@ -12,10 +12,10 @@ class ByteHeader extends Instruction {
     }
 
     @Override
-    void read(DataInput in) throws IOException {
+    void read(DataInput in, byte[] buffer) throws IOException {
         byte size = in.readByte();
         for (byte b = 0; b < size; b++) {
-            child.read(in);
+            child.read(in, buffer);
         }
     }
 }
