@@ -21,11 +21,14 @@ public class PluginClassloader extends URLClassLoader
     {
         for (PluginClassloader loader : allLoaders)
         {
-            try
+            if (loader != this)
             {
-                return loader.loadClass(name);
-            } catch (ClassNotFoundException ex)
-            {
+                try
+                {
+                    return loader.loadClass(name);
+                } catch (ClassNotFoundException ex)
+                {
+                }
             }
         }
         throw new ClassNotFoundException();
