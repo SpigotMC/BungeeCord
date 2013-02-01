@@ -5,6 +5,8 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import java.io.DataInput;
 import java.io.DataOutput;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import lombok.Delegate;
 import net.md_5.bungee.Util;
 
@@ -106,4 +108,46 @@ public abstract class DefinedPacket implements DataInput, DataOutput
 
     @Override
     public abstract String toString();
+
+    public void handle(PacketHandler handler) throws Exception
+    {
+        handler.handle(this);
+    }
+    private static Class<? extends DefinedPacket>[] classes = new Class[256];
+
+    public static DefinedPacket packet(byte[] buf)
+    {
+        int id = Util.getId(buf);
+        Class<? extends DefinedPacket> clazz = classes[id];
+        DefinedPacket ret = null;
+        if (clazz != null)
+        {
+            try
+            {
+                Constructor<? extends DefinedPacket> constructor = clazz.getDeclaredConstructor(byte[].class);
+                if (constructor != null)
+                {
+                    ret = constructor.newInstance(buf);
+                }
+            } catch (IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException ex)
+            {
+            }
+        }
+        return ret;
+    }
+
+    static
+    {
+        classes[0x00] = Packet0KeepAlive.class;
+        classes[0x01] = Packet1Login.class;
+        classes[0x02] = Packet2Handshake.class;
+        classes[0x03] = Packet3Chat.class;
+        classes[0x09] = Packet9Respawn.class;
+        classes[0xC9] = PacketC9PlayerListItem.class;
+        classes[0xCD] = PacketCDClientStatus.class;
+        classes[0xFA] = PacketFAPluginMessage.class;
+        classes[0xFC] = PacketFCEncryptionResponse.class;
+        classes[0xFE] = PacketFEPing.class;
+        classes[0xFF] = PacketFFKick.class;
+    }
 }

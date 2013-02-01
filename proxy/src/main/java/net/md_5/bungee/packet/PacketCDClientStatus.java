@@ -18,4 +18,15 @@ public class PacketCDClientStatus extends DefinedPacket
         super(0xCD);
         writeByte(payload);
     }
+
+    public PacketCDClientStatus(byte[] buf)
+    {
+        super(0xCD, buf);
+    }
+
+    @Override
+    public void handle(PacketHandler handler) throws Exception
+    {
+        handler.handle(this);
+    }
 }

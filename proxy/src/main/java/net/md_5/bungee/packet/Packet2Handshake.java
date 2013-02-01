@@ -30,4 +30,10 @@ public class Packet2Handshake extends DefinedPacket
         this.host = readUTF();
         this.port = readInt();
     }
+
+    @Override
+    public void handle(PacketHandler handler) throws Exception
+    {
+        handler.handle(this);
+    }
 }

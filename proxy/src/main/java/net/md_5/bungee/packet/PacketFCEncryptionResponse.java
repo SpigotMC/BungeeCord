@@ -31,4 +31,10 @@ public class PacketFCEncryptionResponse extends DefinedPacket
         this.sharedSecret = readArray();
         this.verifyToken = readArray();
     }
+
+    @Override
+    public void handle(PacketHandler handler) throws Exception
+    {
+        handler.handle(this);
+    }
 }

@@ -30,4 +30,10 @@ public class PacketFDEncryptionRequest extends DefinedPacket
         publicKey = readArray();
         verifyToken = readArray();
     }
+
+    @Override
+    public void handle(PacketHandler handler) throws Exception
+    {
+        handler.handle(this);
+    }
 }
