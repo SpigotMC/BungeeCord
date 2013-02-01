@@ -2,9 +2,11 @@ package net.md_5.bungee.packet;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import net.md_5.mendax.datainput.DataInputPacketReader;
+import org.bouncycastle.crypto.io.CipherInputStream;
 
 /**
  * A specialized input stream to parse packets using the Mojang packet
@@ -15,6 +17,7 @@ public class PacketInputStream implements AutoCloseable
 
     private final DataInputStream dataInput;
     private final TrackingInputStream tracker;
+    private final byte[] buffer = new byte[1 << 18];
 
     public PacketInputStream(InputStream in)
     {
@@ -31,7 +34,7 @@ public class PacketInputStream implements AutoCloseable
     public byte[] readPacket() throws IOException
     {
         tracker.out.reset();
-        DataInputPacketReader.readPacket(dataInput);
+        DataInputPacketReader.readPacket(dataInput, buffer);
         return tracker.out.toByteArray();
     }
 
@@ -45,22 +48,29 @@ public class PacketInputStream implements AutoCloseable
      * Input stream which will wrap another stream and copy all bytes read to a
      * {@link ByteArrayOutputStream}.
      */
-    private class TrackingInputStream extends InputStream
+    private class TrackingInputStream extends FilterInputStream
     {
 
         private final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        private final InputStream wrapped;
 
-        public TrackingInputStream(InputStream wrapped)
+        public TrackingInputStream(InputStream in)
         {
-            this.wrapped = wrapped;
+            super(in);
         }
 
         @Override
         public int read() throws IOException
         {
-            int ret = wrapped.read();
+            int ret = in.read();
             out.write(ret);
+            return ret;
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException
+        {
+            int ret = in.read(b, off, len);
+            out.write(b, off, ret);
             return ret;
         }
     }
