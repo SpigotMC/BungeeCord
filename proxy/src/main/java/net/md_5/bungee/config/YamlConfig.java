@@ -96,7 +96,7 @@ public class YamlConfig implements ConfigurationAdapter
         if (index == -1)
         {
             Object val = submap.get(path);
-            if (val == null)
+            if (val == null && def != null)
             {
                 val = def;
                 submap.put(path, def);
@@ -193,8 +193,8 @@ public class YamlConfig implements ConfigurationAdapter
     @SuppressWarnings("unchecked")
     public Collection<String> getGroups(String player)
     {
-        Collection<String> groups = get("groups." + player, Collections.EMPTY_LIST);
-        Collection<String> ret = new HashSet<>(groups);
+        Collection<String> groups = get("groups." + player, null);
+        Collection<String> ret = (groups == null) ? new HashSet<String>() : new HashSet<>(groups);
         ret.add("default");
         return ret;
     }
@@ -203,6 +203,6 @@ public class YamlConfig implements ConfigurationAdapter
     @SuppressWarnings("unchecked")
     public Collection<String> getPermissions(String group)
     {
-        return get("permissions." + group, Collections.EMPTY_SET);
+        return get("permissions." + group, Collections.EMPTY_LIST);
     }
 }
