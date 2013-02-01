@@ -404,14 +404,13 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
 
                                     if (target.equals("ALL"))
                                     {
-                                        for (String s : BungeeCord.getInstance().getServers().keySet())
+                                        for (ServerInfo server : BungeeCord.getInstance().getServers().values())
                                         {
-                                            Server server = BungeeCord.getInstance().getServer(s);
                                             server.sendData("BungeeCord", b.toByteArray());
                                         }
                                     } else
                                     {
-                                        Server server = BungeeCord.getInstance().getServer(target);
+                                        ServerInfo server = BungeeCord.getInstance().getServerInfo(target);
                                         if (server != null)
                                         {
                                             server.sendData("BungeeCord", b.toByteArray());
@@ -420,7 +419,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                                 }
                                 if (subChannel.equals("Connect"))
                                 {
-                                    ServerInfo server = BungeeCord.getInstance().config.getServers().get(in.readUTF());
+                                    ServerInfo server = ProxyServer.getInstance().getServerInfo(in.readUTF());
                                     if (server != null)
                                     {
                                         connect(server);
@@ -438,7 +437,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                                 }
                                 if (subChannel.equals("PlayerCount"))
                                 {
-                                    ServerInfo server = BungeeCord.getInstance().config.getServers().get(in.readUTF());
+                                    ServerInfo server = ProxyServer.getInstance().getServerInfo(in.readUTF());
                                     if (server != null)
                                     {
                                         ByteArrayOutputStream b = new ByteArrayOutputStream();
@@ -451,7 +450,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                                 }
                                 if (subChannel.equals("PlayerList"))
                                 {
-                                    ServerInfo server = BungeeCord.getInstance().config.getServers().get(in.readUTF());
+                                    ServerInfo server = ProxyServer.getInstance().getServerInfo(in.readUTF());
                                     if (server != null)
                                     {
                                         ByteArrayOutputStream b = new ByteArrayOutputStream();
