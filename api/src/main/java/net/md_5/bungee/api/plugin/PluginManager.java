@@ -158,7 +158,7 @@ public class PluginManager
             try (InputStream in = jar.getInputStream(pdf))
             {
                 PluginDescription desc = yaml.loadAs(in, PluginDescription.class);
-                URLClassLoader loader = new URLClassLoader(new URL[]
+                URLClassLoader loader = new PluginClassloader(new URL[]
                         {
                             file.toURI().toURL()
                         });
