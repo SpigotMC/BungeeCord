@@ -17,17 +17,31 @@ public class PluginClassloader extends URLClassLoader
     }
 
     @Override
-    protected Class<?> findClass(String name) throws ClassNotFoundException
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException
     {
-        for (PluginClassloader loader : allLoaders)
+        return loadClass0(name, resolve, true);
+    }
+
+    private Class<?> loadClass0(String name, boolean resolve, boolean checkOther) throws ClassNotFoundException
+    {
+        try
         {
-            if (loader != this)
+            return super.loadClass(name, resolve);
+        } catch (ClassNotFoundException ex)
+        {
+        }
+        if (checkOther)
+        {
+            for (PluginClassloader loader : allLoaders)
             {
-                try
+                if (loader != this)
                 {
-                    return loader.loadClass(name);
-                } catch (ClassNotFoundException ex)
-                {
+                    try
+                    {
+                        return loader.loadClass0(name, resolve, false);
+                    } catch (ClassNotFoundException ex)
+                    {
+                    }
                 }
             }
         }
