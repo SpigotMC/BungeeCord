@@ -39,4 +39,10 @@ public class Packet1Login extends DefinedPacket
         this.unused = readByte();
         this.maxPlayers = readByte();
     }
+
+    @Override
+    public void handle(PacketHandler handler) throws Exception
+    {
+        handler.handle(this);
+    }
 }

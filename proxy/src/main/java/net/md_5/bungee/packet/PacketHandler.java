@@ -8,11 +8,19 @@ public abstract class PacketHandler
         throw new UnsupportedOperationException("No handler defined for packet " + packet.getClass());
     }
 
+    public void handle(Packet1Login login) throws Exception
+    {
+    }
+
     public void handle(Packet2Handshake handshake) throws Exception
     {
     }
 
     public void handle(PacketCDClientStatus clientStatus) throws Exception
+    {
+    }
+
+    public void handle(PacketFAPluginMessage pluginMessage) throws Exception
     {
     }
 

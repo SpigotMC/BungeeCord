@@ -26,4 +26,10 @@ public class PacketFAPluginMessage extends DefinedPacket
         this.tag = readUTF();
         this.data = readArray();
     }
+
+    @Override
+    public void handle(PacketHandler handler) throws Exception
+    {
+        handler.handle(this);
+    }
 }
