@@ -44,7 +44,7 @@ public class PluginManager
         commandMap.put(command.getName().toLowerCase(), command);
         for (String alias : command.getAliases())
         {
-            commandMap.put(alias, command);
+            commandMap.put(alias.toLowerCase(), command);
         }
     }
 
