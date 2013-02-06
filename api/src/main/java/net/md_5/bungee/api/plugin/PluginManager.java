@@ -41,7 +41,7 @@ public class PluginManager
      */
     public void registerCommand(Command command)
     {
-        commandMap.put(command.getName(), command);
+        commandMap.put(command.getName().toLowerCase(), command);
         for (String alias : command.getAliases())
         {
             commandMap.put(alias, command);
@@ -69,7 +69,7 @@ public class PluginManager
     public boolean dispatchCommand(CommandSender sender, String commandLine)
     {
         String[] split = argsSplit.split(commandLine);
-        Command command = commandMap.get(split[0]);
+        Command command = commandMap.get(split[0].toLowerCase());
         if (command == null)
         {
             return false;

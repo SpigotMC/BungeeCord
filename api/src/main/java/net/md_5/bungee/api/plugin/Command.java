@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.plugin;
 
+import com.google.common.base.Preconditions;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ public abstract class Command
      */
     public Command(String name, String permission, String... aliases)
     {
+        Preconditions.checkArgument(name != null, "name");
         this.name = name;
         this.permission = permission;
         this.aliases = aliases;
