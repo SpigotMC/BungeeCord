@@ -383,10 +383,6 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                             if (message.tag.equals("BungeeCord"))
                             {
                                 String subChannel = in.readUTF();
-                                if (subChannel.equals("Disconnect"))
-                                {
-                                    break;
-                                }
                                 if (subChannel.equals("Forward"))
                                 {
                                     String target = in.readUTF();
