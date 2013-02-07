@@ -212,7 +212,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     }
 
     @Override
-    @Synchronized( "permMutex")
+    @Synchronized("permMutex")
     public void removeGroups(String... groups)
     {
         for (String group : groups)
@@ -234,7 +234,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     }
 
     @Override
-    @Synchronized( "permMutex")
+    @Synchronized("permMutex")
     public void setPermission(String permission, boolean value)
     {
         permissions.put(permission, value);
@@ -480,6 +480,14 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                                     out.writeUTF(sb.substring(0, sb.length() - 1));
 
                                     getServer().sendData("BungeeCord", b.toByteArray());
+                                }
+                                if (subChannel.equals("Message"))
+                                {
+                                    ProxiedPlayer target = ProxyServer.getInstance().getPlayer(in.readUTF());
+                                    if (target != null)
+                                    {
+                                        target.sendMessage(in.readUTF());
+                                    }
                                 }
                                 continue;
                             }
