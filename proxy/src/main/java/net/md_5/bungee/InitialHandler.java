@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.ArrayList;
 import javax.crypto.SecretKey;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
@@ -86,7 +85,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     @Override
     public void handle(Packet2Handshake handshake) throws Exception
     {
-        Preconditions.checkState(thisState == State.HANDSHAKE);
+        Preconditions.checkState(thisState == State.HANDSHAKE, "Not expecting HANDSHAKE");
         this.handshake = handshake;
         request = EncryptionUtil.encryptRequest();
         out.write(request.getPacket());
@@ -96,7 +95,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     @Override
     public void handle(PacketFCEncryptionResponse encryptResponse) throws Exception
     {
-        Preconditions.checkState(thisState == State.ENCRYPT);
+        Preconditions.checkState(thisState == State.ENCRYPT, "Not expecting ENCRYPT");
 
         SecretKey shared = EncryptionUtil.getSecret(encryptResponse, request);
         if (!EncryptionUtil.isAuthenticated(handshake.username, request.serverId, shared))
@@ -128,7 +127,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     @Override
     public void handle(PacketCDClientStatus clientStatus) throws Exception
     {
-        Preconditions.checkState(thisState == State.LOGIN);
+        Preconditions.checkState(thisState == State.LOGIN, "Not expecting LOGIN");
 
         UserConnection userCon = new UserConnection(socket, this, in, out, handshake);
         String server = ProxyServer.getInstance().getReconnectHandler().getServer(userCon);
