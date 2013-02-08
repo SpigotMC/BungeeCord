@@ -52,14 +52,9 @@ public class ServerConnection extends GenericConnection implements Server
             OutputStream out = socket.getOutputStream();
 
             out.write(handshake.getPacket());
+            out.write(new PacketCDClientStatus((byte) 0).getPacket());
             in.readPacket();
 
-            for (byte[] custom : user.loginPackets)
-            {
-                out.write(custom);
-            }
-
-            out.write(new PacketCDClientStatus((byte) 0).getPacket());
             byte[] loginResponse = in.readPacket();
             if (Util.getId(loginResponse) == 0xFF)
             {

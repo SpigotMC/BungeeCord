@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,7 +22,6 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
@@ -34,7 +32,6 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
 
     public final Packet2Handshake handshake;
     public Queue<DefinedPacket> packetQueue = new ConcurrentLinkedQueue<>();
-    public List<byte[]> loginPackets = new ArrayList<>();
     @Getter
     private final PendingConnection pendingConnection;
     @Getter
@@ -55,14 +52,14 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     private final Map<String, Boolean> permissions = new HashMap<>();
     private final Object permMutex = new Object();
 
-    public UserConnection(Socket socket, PendingConnection pendingConnection, PacketInputStream in, OutputStream out, Packet2Handshake handshake, List<byte[]> loginPackets)
+    public UserConnection(Socket socket, PendingConnection pendingConnection, PacketInputStream in, OutputStream out, Packet2Handshake handshake)
     {
         super(socket, in, out);
         this.handshake = handshake;
         this.pendingConnection = pendingConnection;
         name = handshake.username;
         displayName = handshake.username;
-        this.loginPackets = loginPackets;
+
         Collection<String> g = ProxyServer.getInstance().getConfigurationAdapter().getGroups(name);
         for (String s : g)
         {
