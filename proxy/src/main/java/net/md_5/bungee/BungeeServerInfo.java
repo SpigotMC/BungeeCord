@@ -14,7 +14,7 @@ import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketFFKick;
-import net.md_5.bungee.packet.PacketInputStream;
+import net.md_5.bungee.packet.PacketStream;
 
 public class BungeeServerInfo extends ServerInfo
 {
@@ -57,7 +57,7 @@ public class BungeeServerInfo extends ServerInfo
                         out.write(0xFE);
                         out.write(0x01);
                     }
-                    try (PacketInputStream in = new PacketInputStream(socket.getInputStream()))
+                    try (PacketStream in = new PacketStream(socket.getInputStream()))
                     {
                         PacketFFKick response = new PacketFFKick(in.readPacket());
 

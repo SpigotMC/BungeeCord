@@ -54,9 +54,9 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     // Hack for connect timings
     private ServerInfo nextServer;
 
-    public UserConnection(Socket socket, PendingConnection pendingConnection, PacketInputStream in, OutputStream out, Packet2Handshake handshake)
+    public UserConnection(Socket socket, PendingConnection pendingConnection, PacketStream stream, Packet2Handshake handshake)
     {
-        super(socket, in, out);
+        super(socket, stream);
         this.handshake = handshake;
         this.pendingConnection = pendingConnection;
         name = handshake.username;
@@ -103,8 +103,8 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
 
             if (server != null)
             {
-                out.write(new Packet9Respawn((byte) 1, (byte) 0, (byte) 0, (short) 256, "DEFAULT").getPacket());
-                out.write(new Packet9Respawn((byte) -1, (byte) 0, (byte) 0, (short) 256, "DEFAULT").getPacket());
+                stream.write(new Packet9Respawn((byte) 1, (byte) 0, (byte) 0, (short) 256, "DEFAULT"));
+                stream.write(new Packet9Respawn((byte) -1, (byte) 0, (byte) 0, (short) 256, "DEFAULT"));
             }
 
             ServerConnection newServer = ServerConnection.connect(this, target, handshake, true);
@@ -113,8 +113,8 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                 // Once again, first connection
                 clientEntityId = newServer.loginPacket.entityId;
                 serverEntityId = newServer.loginPacket.entityId;
-                out.write(newServer.loginPacket.getPacket());
-                out.write(BungeeCord.getInstance().registerChannels().getPacket());
+                stream.write(newServer.loginPacket);
+                stream.write(BungeeCord.getInstance().registerChannels());
 
                 upBridge = new UpstreamBridge();
                 upBridge.start();
@@ -133,7 +133,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
 
                 Packet1Login login = newServer.loginPacket;
                 serverEntityId = login.entityId;
-                out.write(new Packet9Respawn(login.dimension, login.difficulty, login.gameMode, (short) 256, login.levelType).getPacket());
+                stream.write(new Packet9Respawn(login.dimension, login.difficulty, login.gameMode, (short) 256, login.levelType));
             }
 
             // Reconnect process has finished, lets get the player moving again
@@ -259,7 +259,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
             {
                 try
                 {
-                    byte[] packet = in.readPacket();
+                    byte[] packet = stream.readPacket();
                     boolean sendPacket = true;
                     int id = Util.getId(packet);
 
@@ -310,14 +310,14 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                         DefinedPacket p = server.packetQueue.poll();
                         if (p != null)
                         {
-                            server.out.write(p.getPacket());
+                            server.stream.write(p);
                         }
                     }
 
                     EntityMap.rewrite(packet, clientEntityId, serverEntityId);
                     if (sendPacket && !server.socket.isClosed())
                     {
-                        server.out.write(packet);
+                        server.stream.write(packet);
                     }
                 } catch (IOException ex)
                 {
@@ -346,7 +346,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                 outer:
                 while (!reconnecting)
                 {
-                    byte[] packet = server.in.readPacket();
+                    byte[] packet = server.stream.readPacket();
                     int id = Util.getId(packet);
 
                     switch (id)
@@ -502,12 +502,12 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                         DefinedPacket p = packetQueue.poll();
                         if (p != null)
                         {
-                            out.write(p.getPacket());
+                            stream.write(p);
                         }
                     }
 
                     EntityMap.rewrite(packet, serverEntityId, clientEntityId);
-                    out.write(packet);
+                    stream.write(packet);
 
                     if (nextServer != null)
                     {

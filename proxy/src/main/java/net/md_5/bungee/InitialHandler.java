@@ -24,7 +24,7 @@ import net.md_5.bungee.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.packet.PacketFEPing;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketHandler;
-import net.md_5.bungee.packet.PacketInputStream;
+import net.md_5.bungee.packet.PacketStream;
 import org.bouncycastle.crypto.io.CipherInputStream;
 import org.bouncycastle.crypto.io.CipherOutputStream;
 
@@ -34,8 +34,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     private final Socket socket;
     @Getter
     private final ListenerInfo listener;
-    private PacketInputStream in;
-    private OutputStream out;
+    private PacketStream stream;
     private Packet2Handshake handshake;
     private PacketFDEncryptionRequest request;
     private State thisState = State.HANDSHAKE;
@@ -44,8 +43,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     {
         this.socket = socket;
         this.listener = info;
-        in = new PacketInputStream(socket.getInputStream());
-        out = socket.getOutputStream();
+        stream = new PacketStream(socket.getInputStream(), socket.getOutputStream());
     }
 
     private enum State
@@ -88,7 +86,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
         Preconditions.checkState(thisState == State.HANDSHAKE, "Not expecting HANDSHAKE");
         this.handshake = handshake;
         request = EncryptionUtil.encryptRequest();
-        out.write(request.getPacket());
+        stream.write(request);
         thisState = State.ENCRYPT;
     }
 
@@ -117,9 +115,9 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
             disconnect(event.getCancelReason());
         }
 
-        out.write(new PacketFCEncryptionResponse().getPacket());
-        in = new PacketInputStream(new CipherInputStream(socket.getInputStream(), EncryptionUtil.getCipher(false, shared)));
-        out = new CipherOutputStream(socket.getOutputStream(), EncryptionUtil.getCipher(true, shared));
+        stream.write(new PacketFCEncryptionResponse());
+        stream = new PacketStream(new CipherInputStream(socket.getInputStream(),
+                EncryptionUtil.getCipher(false, shared)), new CipherOutputStream(socket.getOutputStream(), EncryptionUtil.getCipher(true, shared)));
 
         thisState = State.LOGIN;
     }
@@ -129,7 +127,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     {
         Preconditions.checkState(thisState == State.LOGIN, "Not expecting LOGIN");
 
-        UserConnection userCon = new UserConnection(socket, this, in, out, handshake);
+        UserConnection userCon = new UserConnection(socket, this, stream, handshake);
         String server = ProxyServer.getInstance().getReconnectHandler().getServer(userCon);
         ServerInfo s = BungeeCord.getInstance().config.getServers().get(server);
         userCon.connect(s, true);
@@ -144,7 +142,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
         {
             while (thisState != State.FINISHED)
             {
-                byte[] buf = in.readPacket();
+                byte[] buf = stream.readPacket();
                 DefinedPacket packet = DefinedPacket.packet(buf);
                 packet.handle(this);
             }
@@ -161,7 +159,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
         thisState = State.FINISHED;
         try
         {
-            out.write(new PacketFFKick(reason).getPacket());
+            stream.write(new PacketFFKick(reason));
         } catch (IOException ioe)
         {
         } finally

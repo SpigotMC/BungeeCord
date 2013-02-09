@@ -1,6 +1,5 @@
 package net.md_5.bungee;
 
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Queue;
@@ -18,9 +17,8 @@ import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet2Handshake;
 import net.md_5.bungee.packet.PacketCDClientStatus;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
-import net.md_5.bungee.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.packet.PacketFFKick;
-import net.md_5.bungee.packet.PacketInputStream;
+import net.md_5.bungee.packet.PacketStream;
 
 /**
  * Class representing a connection from the proxy to the server; ie upstream.
@@ -33,9 +31,9 @@ public class ServerConnection extends GenericConnection implements Server
     public final Packet1Login loginPacket;
     public Queue<DefinedPacket> packetQueue = new ConcurrentLinkedQueue<>();
 
-    public ServerConnection(Socket socket, ServerInfo info, PacketInputStream in, OutputStream out, Packet1Login loginPacket)
+    public ServerConnection(Socket socket, ServerInfo info, PacketStream stream, Packet1Login loginPacket)
     {
-        super(socket, in, out);
+        super(socket, stream);
         this.info = info;
         this.loginPacket = loginPacket;
     }
@@ -48,30 +46,29 @@ public class ServerConnection extends GenericConnection implements Server
             socket.connect(info.getAddress(), BungeeCord.getInstance().config.getTimeout());
             BungeeCord.getInstance().setSocketOptions(socket);
 
-            PacketInputStream in = new PacketInputStream(socket.getInputStream());
-            OutputStream out = socket.getOutputStream();
+            PacketStream stream = new PacketStream(socket.getInputStream(), socket.getOutputStream());
 
-            out.write(handshake.getPacket());
-            out.write(new PacketCDClientStatus((byte) 0).getPacket());
-            in.readPacket();
+            stream.write(handshake);
+            stream.write(new PacketCDClientStatus((byte) 0));
+            stream.readPacket();
 
-            byte[] loginResponse = in.readPacket();
+            byte[] loginResponse = stream.readPacket();
             if (Util.getId(loginResponse) == 0xFF)
             {
                 throw new KickException("[Kicked] " + new PacketFFKick(loginResponse).message);
             }
             Packet1Login login = new Packet1Login(loginResponse);
 
-            ServerConnection server = new ServerConnection(socket, info, in, out, login);
+            ServerConnection server = new ServerConnection(socket, info, stream, login);
             ServerConnectedEvent event = new ServerConnectedEvent(user, server);
             ProxyServer.getInstance().getPluginManager().callEvent(event);
 
-            out.write(BungeeCord.getInstance().registerChannels().getPacket());
+            stream.write(BungeeCord.getInstance().registerChannels());
 
             Queue<DefinedPacket> packetQueue = ((BungeeServerInfo) info).getPacketQueue();
             while (!packetQueue.isEmpty())
             {
-                out.write(packetQueue.poll().getPacket());
+                stream.write(packetQueue.poll());
             }
 
             return server;

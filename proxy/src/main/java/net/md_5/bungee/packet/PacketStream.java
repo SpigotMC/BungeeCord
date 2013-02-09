@@ -5,24 +5,44 @@ import java.io.DataInputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import lombok.Getter;
+import lombok.Setter;
 import net.md_5.mendax.datainput.DataInputPacketReader;
-import org.bouncycastle.crypto.io.CipherInputStream;
 
 /**
  * A specialized input stream to parse packets using the Mojang packet
  * definitions and then return them as a byte array.
  */
-public class PacketInputStream implements AutoCloseable
+public class PacketStream implements AutoCloseable
 {
 
     private final DataInputStream dataInput;
+    @Getter
+    private OutputStream out;
     private final TrackingInputStream tracker;
     private final byte[] buffer = new byte[1 << 18];
 
-    public PacketInputStream(InputStream in)
+    public PacketStream(InputStream in)
+    {
+        this(in, null);
+    }
+
+    public PacketStream(InputStream in, OutputStream out)
     {
         tracker = new TrackingInputStream(in);
         dataInput = new DataInputStream(tracker);
+        this.out = out;
+    }
+
+    public void write(byte[] b) throws IOException
+    {
+        out.write(b);
+    }
+
+    public void write(DefinedPacket packet) throws IOException
+    {
+        out.write(packet.getPacket());
     }
 
     /**

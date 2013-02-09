@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import static net.md_5.bungee.Logger.$;
 import net.md_5.bungee.packet.PacketFFKick;
-import net.md_5.bungee.packet.PacketInputStream;
+import net.md_5.bungee.packet.PacketStream;
 
 /**
  * Class to represent a Minecraft connection.
@@ -19,8 +19,7 @@ public class GenericConnection
 {
 
     protected final Socket socket;
-    protected final PacketInputStream in;
-    protected final OutputStream out;
+    protected final PacketStream stream;
     @Getter
     public String name;
     @Getter
@@ -40,15 +39,14 @@ public class GenericConnection
         log("disconnected with " + reason);
         try
         {
-            out.write(new PacketFFKick("[Proxy] " + reason).getPacket());
+            stream.write(new PacketFFKick("[Proxy] " + reason));
         } catch (IOException ex)
         {
         } finally
         {
             try
             {
-                out.flush();
-                out.close();
+                socket.shutdownOutput();
                 socket.close();
             } catch (IOException ioe)
             {
