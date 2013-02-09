@@ -8,6 +8,8 @@ import lombok.ToString;
 public class PacketCDClientStatus extends DefinedPacket
 {
 
+    public static PacketCDClientStatus CLIENT_LOGIN = new PacketCDClientStatus( (byte) 0 );
+
     /**
      * Sent from the client to the server upon respawn,
      *

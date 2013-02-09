@@ -49,7 +49,7 @@ public class ServerConnection extends GenericConnection implements Server
             PacketStream stream = new PacketStream( socket.getInputStream(), socket.getOutputStream() );
 
             stream.write( handshake );
-            stream.write( new PacketCDClientStatus( (byte) 0 ) );
+            stream.write( PacketCDClientStatus.CLIENT_LOGIN );
             stream.readPacket();
 
             byte[] loginResponse = stream.readPacket();

@@ -64,7 +64,7 @@ public abstract class DefinedPacket implements DataInput, DataOutput
      */
     public byte[] getPacket()
     {
-        return packet == null ? out.toByteArray() : packet;
+        return packet == null ? packet = out.toByteArray() : packet;
     }
 
     @Override
