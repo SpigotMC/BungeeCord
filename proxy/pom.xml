@@ -88,6 +88,7 @@
                         </filter>
                     </filters>
                     <minimizeJar>true</minimizeJar>
+                    <shadedArtifactAttached>true</shadedArtifactAttached>
                 </configuration>
             </plugin>
         </plugins>
