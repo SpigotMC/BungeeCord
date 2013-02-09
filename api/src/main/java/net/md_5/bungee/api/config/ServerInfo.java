@@ -40,7 +40,7 @@ public abstract class ServerInfo
     @Synchronized("players")
     public void addPlayer(ProxiedPlayer player)
     {
-        players.add(player);
+        players.add( player );
     }
 
     /**
@@ -51,7 +51,7 @@ public abstract class ServerInfo
     @Synchronized("players")
     public void removePlayer(ProxiedPlayer player)
     {
-        players.remove(player);
+        players.remove( player );
     }
 
     /**
@@ -62,7 +62,7 @@ public abstract class ServerInfo
     @Synchronized("players")
     public Collection<ProxiedPlayer> getPlayers()
     {
-        return Collections.unmodifiableCollection(players);
+        return Collections.unmodifiableCollection( players );
     }
 
     /**

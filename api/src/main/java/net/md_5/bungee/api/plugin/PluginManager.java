@@ -27,7 +27,7 @@ import org.yaml.snakeyaml.Yaml;
 public class PluginManager
 {
 
-    private static final Pattern argsSplit = Pattern.compile(" ");
+    private static final Pattern argsSplit = Pattern.compile( " " );
     /*========================================================================*/
     private final Yaml yaml = new Yaml();
     private final EventBus eventBus = new EventBus();
@@ -41,10 +41,10 @@ public class PluginManager
      */
     public void registerCommand(Command command)
     {
-        commandMap.put(command.getName().toLowerCase(), command);
-        for (String alias : command.getAliases())
+        commandMap.put( command.getName().toLowerCase(), command );
+        for ( String alias : command.getAliases() )
         {
-            commandMap.put(alias.toLowerCase(), command);
+            commandMap.put( alias.toLowerCase(), command );
         }
     }
 
@@ -55,7 +55,7 @@ public class PluginManager
      */
     public void unregisterCommand(Command command)
     {
-        commandMap.values().remove(command);
+        commandMap.values().remove( command );
     }
 
     /**
@@ -68,28 +68,28 @@ public class PluginManager
      */
     public boolean dispatchCommand(CommandSender sender, String commandLine)
     {
-        String[] split = argsSplit.split(commandLine);
-        Command command = commandMap.get(split[0].toLowerCase());
-        if (command == null)
+        String[] split = argsSplit.split( commandLine );
+        Command command = commandMap.get( split[0].toLowerCase() );
+        if ( command == null )
         {
             return false;
         }
 
         String permission = command.getPermission();
-        if (permission != null && !permission.isEmpty() && !sender.hasPermission(permission))
+        if ( permission != null && !permission.isEmpty() && !sender.hasPermission( permission ) )
         {
-            sender.sendMessage(ChatColor.RED + "You do not have permission to execute this command!");
+            sender.sendMessage( ChatColor.RED + "You do not have permission to execute this command!" );
             return true;
         }
 
-        String[] args = Arrays.copyOfRange(split, 1, split.length);
+        String[] args = Arrays.copyOfRange( split, 1, split.length );
         try
         {
-            command.execute(sender, args);
-        } catch (Exception ex)
+            command.execute( sender, args );
+        } catch ( Exception ex )
         {
-            sender.sendMessage(ChatColor.RED + "An internal error occurred whilst executing this command, please check the console log for details.");
-            ProxyServer.getInstance().getLogger().log(Level.WARNING, "Error in dispatching command", ex);
+            sender.sendMessage( ChatColor.RED + "An internal error occurred whilst executing this command, please check the console log for details." );
+            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Error in dispatching command", ex );
         }
         return true;
     }
@@ -112,7 +112,7 @@ public class PluginManager
      */
     public Plugin getPlugin(String name)
     {
-        return plugins.get(name);
+        return plugins.get( name );
     }
 
     /**
@@ -120,19 +120,19 @@ public class PluginManager
      */
     public void enablePlugins()
     {
-        for (Map.Entry<String, Plugin> entry : plugins.entrySet())
+        for ( Map.Entry<String, Plugin> entry : plugins.entrySet() )
         {
             Plugin plugin = entry.getValue();
             try
             {
                 plugin.onEnable();
-                ProxyServer.getInstance().getLogger().log(Level.INFO, "Enabled plugin {0} version {1} by {2}", new Object[]
+                ProxyServer.getInstance().getLogger().log( Level.INFO, "Enabled plugin {0} version {1} by {2}", new Object[]
                 {
                     entry.getKey(), plugin.getDescription().getVersion(), plugin.getDescription().getAuthor()
-                });
-            } catch (Exception ex)
+                } );
+            } catch ( Exception ex )
             {
-                ProxyServer.getInstance().getLogger().log(Level.WARNING, "Exception encountered when loading plugin: " + entry.getKey(), ex);
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Exception encountered when loading plugin: " + entry.getKey(), ex );
             }
         }
     }
@@ -147,31 +147,31 @@ public class PluginManager
      */
     public void loadPlugin(File file) throws Exception
     {
-        Preconditions.checkNotNull(file, "file");
-        Preconditions.checkArgument(file.isFile(), "Must load from file");
+        Preconditions.checkNotNull( file, "file" );
+        Preconditions.checkArgument( file.isFile(), "Must load from file" );
 
-        try (JarFile jar = new JarFile(file))
+        try ( JarFile jar = new JarFile( file ) )
         {
-            JarEntry pdf = jar.getJarEntry("plugin.yml");
-            Preconditions.checkNotNull(pdf, "Plugin must have a plugin.yml");
+            JarEntry pdf = jar.getJarEntry( "plugin.yml" );
+            Preconditions.checkNotNull( pdf, "Plugin must have a plugin.yml" );
 
-            try (InputStream in = jar.getInputStream(pdf))
+            try ( InputStream in = jar.getInputStream( pdf ) )
             {
-                PluginDescription desc = yaml.loadAs(in, PluginDescription.class);
-                URLClassLoader loader = new PluginClassloader(new URL[]
+                PluginDescription desc = yaml.loadAs( in, PluginDescription.class );
+                URLClassLoader loader = new PluginClassloader( new URL[]
                 {
                     file.toURI().toURL()
-                });
-                Class<?> main = loader.loadClass(desc.getMain());
+                } );
+                Class<?> main = loader.loadClass( desc.getMain() );
                 Plugin plugin = (Plugin) main.getDeclaredConstructor().newInstance();
 
-                plugin.init(desc);
-                plugins.put(desc.getName(), plugin);
+                plugin.init( desc );
+                plugins.put( desc.getName(), plugin );
                 plugin.onLoad();
-                ProxyServer.getInstance().getLogger().log(Level.INFO, "Loaded plugin {0} version {1} by {2}", new Object[]
+                ProxyServer.getInstance().getLogger().log( Level.INFO, "Loaded plugin {0} version {1} by {2}", new Object[]
                 {
                     desc.getName(), desc.getVersion(), desc.getAuthor()
-                });
+                } );
             }
         }
     }
@@ -183,19 +183,19 @@ public class PluginManager
      */
     public void loadPlugins(File folder)
     {
-        Preconditions.checkNotNull(folder, "folder");
-        Preconditions.checkArgument(folder.isDirectory(), "Must load from a directory");
+        Preconditions.checkNotNull( folder, "folder" );
+        Preconditions.checkArgument( folder.isDirectory(), "Must load from a directory" );
 
-        for (File file : folder.listFiles())
+        for ( File file : folder.listFiles() )
         {
-            if (file.isFile() && file.getName().endsWith(".jar"))
+            if ( file.isFile() && file.getName().endsWith( ".jar" ) )
             {
                 try
                 {
-                    loadPlugin(file);
-                } catch (Exception ex)
+                    loadPlugin( file );
+                } catch ( Exception ex )
                 {
-                    ProxyServer.getInstance().getLogger().log(Level.WARNING, "Could not load plugin from file " + file, ex);
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load plugin from file " + file, ex );
                 }
             }
         }
@@ -211,7 +211,7 @@ public class PluginManager
      */
     public <T extends Event> T callEvent(T event)
     {
-        eventBus.post(event);
+        eventBus.post( event );
         return event;
     }
 
@@ -224,6 +224,6 @@ public class PluginManager
      */
     public void registerListener(Listener listener)
     {
-        eventBus.register(listener);
+        eventBus.register( listener );
     }
 }

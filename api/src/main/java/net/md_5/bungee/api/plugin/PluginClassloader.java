@@ -12,34 +12,34 @@ public class PluginClassloader extends URLClassLoader
 
     public PluginClassloader(URL[] urls)
     {
-        super(urls);
-        allLoaders.add(this);
+        super( urls );
+        allLoaders.add( this );
     }
 
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException
     {
-        return loadClass0(name, resolve, true);
+        return loadClass0( name, resolve, true );
     }
 
     private Class<?> loadClass0(String name, boolean resolve, boolean checkOther) throws ClassNotFoundException
     {
         try
         {
-            return super.loadClass(name, resolve);
-        } catch (ClassNotFoundException ex)
+            return super.loadClass( name, resolve );
+        } catch ( ClassNotFoundException ex )
         {
         }
-        if (checkOther)
+        if ( checkOther )
         {
-            for (PluginClassloader loader : allLoaders)
+            for ( PluginClassloader loader : allLoaders )
             {
-                if (loader != this)
+                if ( loader != this )
                 {
                     try
                     {
-                        return loader.loadClass0(name, resolve, false);
-                    } catch (ClassNotFoundException ex)
+                        return loader.loadClass0( name, resolve, false );
+                    } catch ( ClassNotFoundException ex )
                     {
                     }
                 }

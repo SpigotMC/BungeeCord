@@ -27,7 +27,7 @@ public class ChatEvent extends TargetedEvent implements Cancellable
 
     public ChatEvent(Connection sender, Connection receiver, String message)
     {
-        super(sender, receiver);
+        super( sender, receiver );
         this.message = message;
     }
 }

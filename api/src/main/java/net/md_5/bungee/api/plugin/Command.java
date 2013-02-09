@@ -25,7 +25,7 @@ public abstract class Command
      */
     public Command(String name)
     {
-        this(name, null);
+        this( name, null );
     }
 
     /**
@@ -38,7 +38,7 @@ public abstract class Command
      */
     public Command(String name, String permission, String... aliases)
     {
-        Preconditions.checkArgument(name != null, "name");
+        Preconditions.checkArgument( name != null, "name" );
         this.name = name;
         this.permission = permission;
         this.aliases = aliases;
