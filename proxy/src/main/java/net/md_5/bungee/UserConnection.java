@@ -51,6 +51,8 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     private final Collection<String> groups = new HashSet<>();
     private final Map<String, Boolean> permissions = new HashMap<>();
     private final Object permMutex = new Object();
+    // Hack for connect timings
+    private ServerInfo nextServer;
 
     public UserConnection(Socket socket, PendingConnection pendingConnection, PacketInputStream in, OutputStream out, Packet2Handshake handshake)
     {
@@ -77,6 +79,11 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
 
     @Override
     public void connect(ServerInfo target)
+    {
+        nextServer = target;
+    }
+
+    public void connect(ServerInfo target, boolean force)
     {
         if (server == null)
         {
@@ -415,7 +422,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                                     ServerInfo server = ProxyServer.getInstance().getServerInfo(in.readUTF());
                                     if (server != null)
                                     {
-                                        connect(server);
+                                        connect(server, true);
                                         break outer;
                                     }
                                 }
@@ -501,6 +508,12 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
 
                     EntityMap.rewrite(packet, serverEntityId, clientEntityId);
                     out.write(packet);
+
+                    if (nextServer != null)
+                    {
+                        connect(nextServer, true);
+                        break outer;
+                    }
                 }
             } catch (Exception ex)
             {

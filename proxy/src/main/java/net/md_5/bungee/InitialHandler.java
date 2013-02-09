@@ -132,7 +132,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
         UserConnection userCon = new UserConnection(socket, this, in, out, handshake);
         String server = ProxyServer.getInstance().getReconnectHandler().getServer(userCon);
         ServerInfo s = BungeeCord.getInstance().config.getServers().get(server);
-        userCon.connect(s);
+        userCon.connect(s, true);
 
         thisState = State.FINISHED;
     }
