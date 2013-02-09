@@ -38,6 +38,7 @@
 
     <modules>
         <module>api</module>
+        <module>protocol</module>
         <module>proxy</module>
     </modules>
 
