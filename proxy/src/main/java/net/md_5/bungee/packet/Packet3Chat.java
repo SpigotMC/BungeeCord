@@ -21,4 +21,10 @@ public class Packet3Chat extends DefinedPacket
         super( 0x03, buf );
         this.message = readUTF();
     }
+
+    @Override
+    public void handle(PacketHandler handler) throws Exception
+    {
+        handler.handle( this );
+    }
 }

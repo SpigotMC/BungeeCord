@@ -27,4 +27,10 @@ public class PacketC9PlayerListItem extends DefinedPacket
         writeBoolean( online );
         writeShort( ping );
     }
+
+    @Override
+    public void handle(PacketHandler handler) throws Exception
+    {
+        handler.handle( this );
+    }
 }

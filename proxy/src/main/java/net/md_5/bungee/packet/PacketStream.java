@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import lombok.Getter;
-import lombok.Setter;
 import net.md_5.mendax.datainput.DataInputPacketReader;
 
 /**

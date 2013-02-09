@@ -109,10 +109,7 @@ public abstract class DefinedPacket implements DataInput, DataOutput
     @Override
     public abstract String toString();
 
-    public void handle(PacketHandler handler) throws Exception
-    {
-        handler.handle( this );
-    }
+    public abstract void handle(PacketHandler handler) throws Exception;
     private static Class<? extends DefinedPacket>[] classes = new Class[ 256 ];
 
     public static DefinedPacket packet(byte[] buf)

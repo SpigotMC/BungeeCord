@@ -21,4 +21,10 @@ public class PacketFFKick extends DefinedPacket
         super( 0xFF, buf );
         this.message = readUTF();
     }
+
+    @Override
+    public void handle(PacketHandler handler) throws Exception
+    {
+        handler.handle( this );
+    }
 }

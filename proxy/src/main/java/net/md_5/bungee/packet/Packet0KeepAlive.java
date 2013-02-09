@@ -15,4 +15,10 @@ public class Packet0KeepAlive extends DefinedPacket
         super( 0x00, buffer );
         id = readInt();
     }
+
+    @Override
+    public void handle(PacketHandler handler) throws Exception
+    {
+        handler.handle( this );
+    }
 }

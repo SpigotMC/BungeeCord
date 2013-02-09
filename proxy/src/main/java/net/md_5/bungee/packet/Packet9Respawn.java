@@ -33,4 +33,10 @@ public class Packet9Respawn extends DefinedPacket
         this.worldHeight = readShort();
         this.levelType = readUTF();
     }
+
+    @Override
+    public void handle(PacketHandler handler) throws Exception
+    {
+        handler.handle( this );
+    }
 }
