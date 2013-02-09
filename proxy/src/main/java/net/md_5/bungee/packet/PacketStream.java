@@ -21,28 +21,28 @@ public class PacketStream implements AutoCloseable
     @Getter
     private OutputStream out;
     private final TrackingInputStream tracker;
-    private final byte[] buffer = new byte[1 << 18];
+    private final byte[] buffer = new byte[ 1 << 18 ];
 
     public PacketStream(InputStream in)
     {
-        this(in, null);
+        this( in, null );
     }
 
     public PacketStream(InputStream in, OutputStream out)
     {
-        tracker = new TrackingInputStream(in);
-        dataInput = new DataInputStream(tracker);
+        tracker = new TrackingInputStream( in );
+        dataInput = new DataInputStream( tracker );
         this.out = out;
     }
 
     public void write(byte[] b) throws IOException
     {
-        out.write(b);
+        out.write( b );
     }
 
     public void write(DefinedPacket packet) throws IOException
     {
-        out.write(packet.getPacket());
+        out.write( packet.getPacket() );
     }
 
     /**
@@ -54,7 +54,7 @@ public class PacketStream implements AutoCloseable
     public byte[] readPacket() throws IOException
     {
         tracker.out.reset();
-        DataInputPacketReader.readPacket(dataInput, buffer);
+        DataInputPacketReader.readPacket( dataInput, buffer );
         return tracker.out.toByteArray();
     }
 
@@ -75,22 +75,22 @@ public class PacketStream implements AutoCloseable
 
         public TrackingInputStream(InputStream in)
         {
-            super(in);
+            super( in );
         }
 
         @Override
         public int read() throws IOException
         {
             int ret = in.read();
-            out.write(ret);
+            out.write( ret );
             return ret;
         }
 
         @Override
         public int read(byte[] b, int off, int len) throws IOException
         {
-            int ret = in.read(b, off, len);
-            out.write(b, off, ret);
+            int ret = in.read( b, off, len );
+            out.write( b, off, ret );
             return ret;
         }
     }

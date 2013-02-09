@@ -11,38 +11,38 @@ public class CommandAlert extends Command
 
     public CommandAlert()
     {
-        super("alert", "bungeecord.command.alert");
+        super( "alert", "bungeecord.command.alert" );
     }
 
     @Override
     public void execute(CommandSender sender, String[] args)
     {
-        if (args.length == 0)
+        if ( args.length == 0 )
         {
-            sender.sendMessage(ChatColor.RED + "You must supply a message.");
+            sender.sendMessage( ChatColor.RED + "You must supply a message." );
         } else
         {
             StringBuilder builder = new StringBuilder();
-            if (args[0].startsWith("&h"))
+            if ( args[0].startsWith( "&h" ) )
             {
                 // Remove &h
-                args[0] = args[0].substring(2, args[0].length());
+                args[0] = args[0].substring( 2, args[0].length() );
             } else
             {
-                builder.append(ChatColor.DARK_PURPLE);
-                builder.append("[Alert] ");
+                builder.append( ChatColor.DARK_PURPLE );
+                builder.append( "[Alert] " );
             }
 
-            for (String s : args)
+            for ( String s : args )
             {
-                builder.append(ChatColor.translateAlternateColorCodes('&', s));
-                builder.append(" ");
+                builder.append( ChatColor.translateAlternateColorCodes( '&', s ) );
+                builder.append( " " );
             }
 
-            String message = builder.substring(0, builder.length() - 1);
-            for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers())
+            String message = builder.substring( 0, builder.length() - 1 );
+            for ( ProxiedPlayer player : ProxyServer.getInstance().getPlayers() )
             {
-                player.sendMessage(message);
+                player.sendMessage( message );
             }
         }
     }

@@ -12,7 +12,7 @@ public class CommandEnd extends Command
 
     public CommandEnd()
     {
-        super("end", "bungeecord.command.end");
+        super( "end", "bungeecord.command.end" );
     }
 
     @Override

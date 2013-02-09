@@ -14,10 +14,10 @@ public class PacketFDEncryptionRequest extends DefinedPacket
 
     public PacketFDEncryptionRequest(String serverId, byte[] publicKey, byte[] verifyToken)
     {
-        super(0xFD);
-        writeUTF(serverId);
-        writeArray(publicKey);
-        writeArray(verifyToken);
+        super( 0xFD );
+        writeUTF( serverId );
+        writeArray( publicKey );
+        writeArray( verifyToken );
         this.serverId = serverId;
         this.publicKey = publicKey;
         this.verifyToken = verifyToken;
@@ -25,7 +25,7 @@ public class PacketFDEncryptionRequest extends DefinedPacket
 
     public PacketFDEncryptionRequest(byte[] buf)
     {
-        super(0xFD, buf);
+        super( 0xFD, buf );
         serverId = readUTF();
         publicKey = readArray();
         verifyToken = readArray();
@@ -34,6 +34,6 @@ public class PacketFDEncryptionRequest extends DefinedPacket
     @Override
     public void handle(PacketHandler handler) throws Exception
     {
-        handler.handle(this);
+        handler.handle( this );
     }
 }

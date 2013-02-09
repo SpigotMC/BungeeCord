@@ -68,7 +68,7 @@ public class BungeeCord extends ProxyServer
     /**
      * locations.yml save thread.
      */
-    private final Timer saveThread = new Timer("Reconnect Saver");
+    private final Timer saveThread = new Timer( "Reconnect Saver" );
     /**
      * Server socket listener.
      */
@@ -96,17 +96,17 @@ public class BungeeCord extends ProxyServer
     private ConfigurationAdapter configurationAdapter = new YamlConfig();
     private final Collection<String> pluginChannels = new HashSet<>();
 
-
+    
     {
-        getPluginManager().registerCommand(new CommandReload());
-        getPluginManager().registerCommand(new CommandEnd());
-        getPluginManager().registerCommand(new CommandList());
-        getPluginManager().registerCommand(new CommandServer());
-        getPluginManager().registerCommand(new CommandIP());
-        getPluginManager().registerCommand(new CommandAlert());
-        getPluginManager().registerCommand(new CommandBungee());
+        getPluginManager().registerCommand( new CommandReload() );
+        getPluginManager().registerCommand( new CommandEnd() );
+        getPluginManager().registerCommand( new CommandList() );
+        getPluginManager().registerCommand( new CommandServer() );
+        getPluginManager().registerCommand( new CommandIP() );
+        getPluginManager().registerCommand( new CommandAlert() );
+        getPluginManager().registerCommand( new CommandBungee() );
 
-        registerChannel("BungeeCord");
+        registerChannel( "BungeeCord" );
     }
 
     public static BungeeCord getInstance()
@@ -123,20 +123,20 @@ public class BungeeCord extends ProxyServer
     public static void main(String[] args) throws IOException
     {
         BungeeCord bungee = new BungeeCord();
-        ProxyServer.setInstance(bungee);
-        $().info("Enabled BungeeCord version " + bungee.getVersion());
+        ProxyServer.setInstance( bungee );
+        $().info( "Enabled BungeeCord version " + bungee.getVersion() );
         bungee.start();
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        while (bungee.isRunning)
+        BufferedReader br = new BufferedReader( new InputStreamReader( System.in ) );
+        while ( bungee.isRunning )
         {
             String line = br.readLine();
-            if (line != null)
+            if ( line != null )
             {
-                boolean handled = getInstance().getPluginManager().dispatchCommand(ConsoleCommandSender.getInstance(), line);
-                if (!handled)
+                boolean handled = getInstance().getPluginManager().dispatchCommand( ConsoleCommandSender.getInstance(), line );
+                if ( !handled )
                 {
-                    System.err.println("Command not found");
+                    System.err.println( "Command not found" );
                 }
             }
         }
@@ -150,31 +150,31 @@ public class BungeeCord extends ProxyServer
      */
     public void start() throws IOException
     {
-        File plugins = new File("plugins");
+        File plugins = new File( "plugins" );
         plugins.mkdir();
-        pluginManager.loadPlugins(plugins);
+        pluginManager.loadPlugins( plugins );
         config.load();
         reconnectHandler = new YamlReconnectHandler();
         isRunning = true;
 
         pluginManager.enablePlugins();
 
-        for (ListenerInfo info : config.getListeners())
+        for ( ListenerInfo info : config.getListeners() )
         {
-            $().info("Listening on " + info.getHost());
-            ListenThread listener = new ListenThread(info);
+            $().info( "Listening on " + info.getHost() );
+            ListenThread listener = new ListenThread( info );
             listener.start();
-            listeners.add(listener);
+            listeners.add( listener );
         }
 
-        saveThread.scheduleAtFixedRate(new TimerTask()
+        saveThread.scheduleAtFixedRate( new TimerTask()
         {
             @Override
             public void run()
             {
                 getReconnectHandler().save();
             }
-        }, 0, TimeUnit.MINUTES.toMillis(5));
+        }, 0, TimeUnit.MINUTES.toMillis( 5 ) );
 
         new Metrics().start();
     }
@@ -183,40 +183,40 @@ public class BungeeCord extends ProxyServer
     public void stop()
     {
         this.isRunning = false;
-        $().info("Disabling plugins");
-        for (Plugin plugin : pluginManager.getPlugins())
+        $().info( "Disabling plugins" );
+        for ( Plugin plugin : pluginManager.getPlugins() )
         {
             plugin.onDisable();
         }
 
-        for (ListenThread listener : listeners)
+        for ( ListenThread listener : listeners )
         {
-            $().log(Level.INFO, "Closing listen thread {0}", listener.socket);
+            $().log( Level.INFO, "Closing listen thread {0}", listener.socket );
             try
             {
                 listener.socket.close();
                 listener.join();
-            } catch (InterruptedException | IOException ex)
+            } catch ( InterruptedException | IOException ex )
             {
-                $().severe("Could not close listen thread");
+                $().severe( "Could not close listen thread" );
             }
         }
 
-        $().info("Closing pending connections");
+        $().info( "Closing pending connections" );
         threadPool.shutdown();
 
-        $().info("Disconnecting " + connections.size() + " connections");
-        for (UserConnection user : connections.values())
+        $().info( "Disconnecting " + connections.size() + " connections" );
+        for ( UserConnection user : connections.values() )
         {
-            user.disconnect("Proxy restarting, brb.");
+            user.disconnect( "Proxy restarting, brb." );
         }
 
-        $().info("Saving reconnect locations");
+        $().info( "Saving reconnect locations" );
         reconnectHandler.save();
         saveThread.cancel();
 
-        $().info("Thank you and goodbye");
-        System.exit(0);
+        $().info( "Thank you and goodbye" );
+        System.exit( 0 );
     }
 
     /**
@@ -228,9 +228,9 @@ public class BungeeCord extends ProxyServer
      */
     public void setSocketOptions(Socket socket) throws IOException
     {
-        socket.setSoTimeout(config.getTimeout());
-        socket.setTrafficClass(0x18);
-        socket.setTcpNoDelay(true);
+        socket.setSoTimeout( config.getTimeout() );
+        socket.setTrafficClass( 0x18 );
+        socket.setTcpNoDelay( true );
     }
 
     /**
@@ -240,9 +240,9 @@ public class BungeeCord extends ProxyServer
      */
     public void broadcast(DefinedPacket packet)
     {
-        for (UserConnection con : connections.values())
+        for ( UserConnection con : connections.values() )
         {
-            con.packetQueue.add(packet);
+            con.packetQueue.add( packet );
         }
     }
 
@@ -255,7 +255,7 @@ public class BungeeCord extends ProxyServer
     @Override
     public String getVersion()
     {
-        return (BungeeCord.class.getPackage().getImplementationVersion() == null) ? "unknown" : BungeeCord.class.getPackage().getImplementationVersion();
+        return ( BungeeCord.class.getPackage().getImplementationVersion() == null ) ? "unknown" : BungeeCord.class.getPackage().getImplementationVersion();
     }
 
     @Override
@@ -274,14 +274,14 @@ public class BungeeCord extends ProxyServer
     @Override
     public ProxiedPlayer getPlayer(String name)
     {
-        return connections.get(name);
+        return connections.get( name );
     }
 
     @Override
     public Server getServer(String name)
     {
-        Collection<ProxiedPlayer> users = getServers().get(name).getPlayers();
-        return (users != null && !users.isEmpty()) ? users.iterator().next().getServer() : null;
+        Collection<ProxiedPlayer> users = getServers().get( name ).getPlayers();
+        return ( users != null && !users.isEmpty() ) ? users.iterator().next().getServer() : null;
     }
 
     @Override
@@ -293,40 +293,40 @@ public class BungeeCord extends ProxyServer
     @Override
     public ServerInfo getServerInfo(String name)
     {
-        return getServers().get(name);
+        return getServers().get( name );
     }
 
     @Override
     @Synchronized("pluginChannels")
     public void registerChannel(String channel)
     {
-        pluginChannels.add(channel);
+        pluginChannels.add( channel );
     }
 
     @Override
     @Synchronized("pluginChannels")
     public void unregisterChannel(String channel)
     {
-        pluginChannels.remove(channel);
+        pluginChannels.remove( channel );
     }
 
     @Override
     @Synchronized("pluginChannels")
     public Collection<String> getChannels()
     {
-        return Collections.unmodifiableCollection(pluginChannels);
+        return Collections.unmodifiableCollection( pluginChannels );
     }
 
     public PacketFAPluginMessage registerChannels()
     {
         StringBuilder sb = new StringBuilder();
-        for (String s : getChannels())
+        for ( String s : getChannels() )
         {
-            sb.append(s);
-            sb.append('\00');
+            sb.append( s );
+            sb.append( '\00' );
         }
-        byte[] payload = sb.substring(0, sb.length() - 1).getBytes();
-        return new PacketFAPluginMessage("REGISTER", payload);
+        byte[] payload = sb.substring( 0, sb.length() - 1 ).getBytes();
+        return new PacketFAPluginMessage( "REGISTER", payload );
     }
 
     @Override
@@ -344,6 +344,6 @@ public class BungeeCord extends ProxyServer
     @Override
     public ServerInfo constructServerInfo(String name, InetSocketAddress address)
     {
-        return new BungeeServerInfo(name, address);
+        return new BungeeServerInfo( name, address );
     }
 }

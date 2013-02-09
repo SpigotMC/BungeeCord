@@ -127,9 +127,9 @@ public class PluginManager
             {
                 plugin.onEnable();
                 ProxyServer.getInstance().getLogger().log(Level.INFO, "Enabled plugin {0} version {1} by {2}", new Object[]
-                        {
-                            entry.getKey(), plugin.getDescription().getVersion(), plugin.getDescription().getAuthor()
-                        });
+                {
+                    entry.getKey(), plugin.getDescription().getVersion(), plugin.getDescription().getAuthor()
+                });
             } catch (Exception ex)
             {
                 ProxyServer.getInstance().getLogger().log(Level.WARNING, "Exception encountered when loading plugin: " + entry.getKey(), ex);
@@ -159,9 +159,9 @@ public class PluginManager
             {
                 PluginDescription desc = yaml.loadAs(in, PluginDescription.class);
                 URLClassLoader loader = new PluginClassloader(new URL[]
-                        {
-                            file.toURI().toURL()
-                        });
+                {
+                    file.toURI().toURL()
+                });
                 Class<?> main = loader.loadClass(desc.getMain());
                 Plugin plugin = (Plugin) main.getDeclaredConstructor().newInstance();
 
@@ -169,9 +169,9 @@ public class PluginManager
                 plugins.put(desc.getName(), plugin);
                 plugin.onLoad();
                 ProxyServer.getInstance().getLogger().log(Level.INFO, "Loaded plugin {0} version {1} by {2}", new Object[]
-                        {
-                            desc.getName(), desc.getVersion(), desc.getAuthor()
-                        });
+                {
+                    desc.getName(), desc.getVersion(), desc.getAuthor()
+                });
             }
         }
     }

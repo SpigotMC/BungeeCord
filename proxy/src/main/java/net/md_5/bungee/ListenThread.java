@@ -18,27 +18,27 @@ public class ListenThread extends Thread
 
     public ListenThread(ListenerInfo info) throws IOException
     {
-        super("Listen Thread - "+ info);
+        super( "Listen Thread - " + info );
         this.info = info;
         socket = new ServerSocket();
-        socket.bind(info.getHost());
+        socket.bind( info.getHost() );
     }
 
     @Override
     public void run()
     {
-        while (BungeeCord.getInstance().isRunning)
+        while ( BungeeCord.getInstance().isRunning )
         {
             try
             {
                 Socket client = socket.accept();
-                BungeeCord.getInstance().setSocketOptions(client);
-                $().info(client.getInetAddress() + " has connected");
-                InitialHandler handler = new InitialHandler(client,info);
-                BungeeCord.getInstance().threadPool.submit(handler);
-            } catch (SocketException ex)
+                BungeeCord.getInstance().setSocketOptions( client );
+                $().info( client.getInetAddress() + " has connected" );
+                InitialHandler handler = new InitialHandler( client, info );
+                BungeeCord.getInstance().threadPool.submit( handler );
+            } catch ( SocketException ex )
             {
-            } catch (IOException ex)
+            } catch ( IOException ex )
             {
                 ex.printStackTrace(); // TODO
             }

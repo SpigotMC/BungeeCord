@@ -10,13 +10,13 @@ public class CommandReload extends Command
 
     public CommandReload()
     {
-        super("greload", "bungeecord.command.reload");
+        super( "greload", "bungeecord.command.reload" );
     }
 
     @Override
     public void execute(CommandSender sender, String[] args)
     {
         BungeeCord.getInstance().config.load();
-        sender.sendMessage(ChatColor.GREEN + "Reloaded config, please restart if you have any issues");
+        sender.sendMessage( ChatColor.GREEN + "Reloaded config, please restart if you have any issues" );
     }
 }

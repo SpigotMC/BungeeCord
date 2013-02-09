@@ -15,18 +15,18 @@ public class PacketCDClientStatus extends DefinedPacket
      */
     public PacketCDClientStatus(byte payload)
     {
-        super(0xCD);
-        writeByte(payload);
+        super( 0xCD );
+        writeByte( payload );
     }
 
     public PacketCDClientStatus(byte[] buf)
     {
-        super(0xCD, buf);
+        super( 0xCD, buf );
     }
 
     @Override
     public void handle(PacketHandler handler) throws Exception
     {
-        handler.handle(this);
+        handler.handle( this );
     }
 }

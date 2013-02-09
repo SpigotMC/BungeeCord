@@ -33,7 +33,7 @@ public class ServerConnection extends GenericConnection implements Server
 
     public ServerConnection(Socket socket, ServerInfo info, PacketStream stream, Packet1Login loginPacket)
     {
-        super(socket, stream);
+        super( socket, stream );
         this.info = info;
         this.loginPacket = loginPacket;
     }
@@ -43,48 +43,48 @@ public class ServerConnection extends GenericConnection implements Server
         try
         {
             Socket socket = new Socket();
-            socket.connect(info.getAddress(), BungeeCord.getInstance().config.getTimeout());
-            BungeeCord.getInstance().setSocketOptions(socket);
+            socket.connect( info.getAddress(), BungeeCord.getInstance().config.getTimeout() );
+            BungeeCord.getInstance().setSocketOptions( socket );
 
-            PacketStream stream = new PacketStream(socket.getInputStream(), socket.getOutputStream());
+            PacketStream stream = new PacketStream( socket.getInputStream(), socket.getOutputStream() );
 
-            stream.write(handshake);
-            stream.write(new PacketCDClientStatus((byte) 0));
+            stream.write( handshake );
+            stream.write( new PacketCDClientStatus( (byte) 0 ) );
             stream.readPacket();
 
             byte[] loginResponse = stream.readPacket();
-            if (Util.getId(loginResponse) == 0xFF)
+            if ( Util.getId( loginResponse ) == 0xFF )
             {
-                throw new KickException("[Kicked] " + new PacketFFKick(loginResponse).message);
+                throw new KickException( "[Kicked] " + new PacketFFKick( loginResponse ).message );
             }
-            Packet1Login login = new Packet1Login(loginResponse);
+            Packet1Login login = new Packet1Login( loginResponse );
 
-            ServerConnection server = new ServerConnection(socket, info, stream, login);
-            ServerConnectedEvent event = new ServerConnectedEvent(user, server);
-            ProxyServer.getInstance().getPluginManager().callEvent(event);
+            ServerConnection server = new ServerConnection( socket, info, stream, login );
+            ServerConnectedEvent event = new ServerConnectedEvent( user, server );
+            ProxyServer.getInstance().getPluginManager().callEvent( event );
 
-            stream.write(BungeeCord.getInstance().registerChannels());
+            stream.write( BungeeCord.getInstance().registerChannels() );
 
-            Queue<DefinedPacket> packetQueue = ((BungeeServerInfo) info).getPacketQueue();
-            while (!packetQueue.isEmpty())
+            Queue<DefinedPacket> packetQueue = ( (BungeeServerInfo) info ).getPacketQueue();
+            while ( !packetQueue.isEmpty() )
             {
-                stream.write(packetQueue.poll());
+                stream.write( packetQueue.poll() );
             }
 
             return server;
-        } catch (KickException ex)
+        } catch ( KickException ex )
         {
             throw ex;
-        } catch (Exception ex)
+        } catch ( Exception ex )
         {
-            ServerInfo def = ProxyServer.getInstance().getServers().get(user.getPendingConnection().getListener().getDefaultServer());
-            if (retry && !info.equals(def))
+            ServerInfo def = ProxyServer.getInstance().getServers().get( user.getPendingConnection().getListener().getDefaultServer() );
+            if ( retry && !info.equals( def ) )
             {
-                user.sendMessage(ChatColor.RED + "Could not connect to target server, you have been moved to the default server");
-                return connect(user, def, handshake, false);
+                user.sendMessage( ChatColor.RED + "Could not connect to target server, you have been moved to the default server" );
+                return connect( user, def, handshake, false );
             } else
             {
-                throw new RuntimeException("Could not connect to target server " + Util.exception(ex));
+                throw new RuntimeException( "Could not connect to target server " + Util.exception( ex ) );
             }
         }
     }
@@ -92,13 +92,13 @@ public class ServerConnection extends GenericConnection implements Server
     @Override
     public void sendData(String channel, byte[] data)
     {
-        packetQueue.add(new PacketFAPluginMessage(channel, data));
+        packetQueue.add( new PacketFAPluginMessage( channel, data ) );
     }
 
     @Override
     public void ping(final Callback<ServerPing> callback)
     {
-        getInfo().ping(callback);
+        getInfo().ping( callback );
     }
 
     @Override

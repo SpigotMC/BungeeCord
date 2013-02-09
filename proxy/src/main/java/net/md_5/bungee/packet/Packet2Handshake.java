@@ -15,16 +15,16 @@ public class Packet2Handshake extends DefinedPacket
 
     public Packet2Handshake(byte protocolVersion, String username, String host, int port)
     {
-        super(0x02);
-        writeByte(protocolVersion);
-        writeUTF(username);
-        writeUTF(host);
-        writeInt(port);
+        super( 0x02 );
+        writeByte( protocolVersion );
+        writeUTF( username );
+        writeUTF( host );
+        writeInt( port );
     }
 
     public Packet2Handshake(byte[] buf)
     {
-        super(0x02, buf);
+        super( 0x02, buf );
         this.procolVersion = readByte();
         this.username = readUTF();
         this.host = readUTF();
@@ -34,6 +34,6 @@ public class Packet2Handshake extends DefinedPacket
     @Override
     public void handle(PacketHandler handler) throws Exception
     {
-        handler.handle(this);
+        handler.handle( this );
     }
 }

@@ -18,19 +18,19 @@ public class Packet1Login extends DefinedPacket
 
     public Packet1Login(int entityId, String levelType, byte gameMode, byte dimension, byte difficulty, byte unused, byte maxPlayers)
     {
-        super(0x01);
-        writeInt(entityId);
-        writeUTF(levelType);
-        writeByte(gameMode);
-        writeByte(dimension);
-        writeByte(difficulty);
-        writeByte(unused);
-        writeByte(maxPlayers);
+        super( 0x01 );
+        writeInt( entityId );
+        writeUTF( levelType );
+        writeByte( gameMode );
+        writeByte( dimension );
+        writeByte( difficulty );
+        writeByte( unused );
+        writeByte( maxPlayers );
     }
 
     public Packet1Login(byte[] buf)
     {
-        super(0x01, buf);
+        super( 0x01, buf );
         this.entityId = readInt();
         this.levelType = readUTF();
         this.gameMode = readByte();
@@ -43,6 +43,6 @@ public class Packet1Login extends DefinedPacket
     @Override
     public void handle(PacketHandler handler) throws Exception
     {
-        handler.handle(this);
+        handler.handle( this );
     }
 }

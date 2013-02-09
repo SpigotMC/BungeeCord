@@ -5,7 +5,7 @@ public abstract class PacketHandler
 
     public void handle(DefinedPacket packet) throws Exception
     {
-        throw new UnsupportedOperationException("No handler defined for packet " + packet.getClass());
+        throw new UnsupportedOperationException( "No handler defined for packet " + packet.getClass() );
     }
 
     public void handle(Packet1Login login) throws Exception

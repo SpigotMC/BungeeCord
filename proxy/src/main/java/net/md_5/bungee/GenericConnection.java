@@ -32,15 +32,15 @@ public class GenericConnection
      */
     public void disconnect(String reason)
     {
-        if (socket.isClosed())
+        if ( socket.isClosed() )
         {
             return;
         }
-        log("disconnected with " + reason);
+        log( "disconnected with " + reason );
         try
         {
-            stream.write(new PacketFFKick("[Proxy] " + reason));
-        } catch (IOException ex)
+            stream.write( new PacketFFKick( "[Proxy] " + reason ) );
+        } catch ( IOException ex )
         {
         } finally
         {
@@ -48,7 +48,7 @@ public class GenericConnection
             {
                 socket.shutdownOutput();
                 socket.close();
-            } catch (IOException ioe)
+            } catch ( IOException ioe )
             {
             }
         }
@@ -56,6 +56,6 @@ public class GenericConnection
 
     public void log(String message)
     {
-        $().info(socket.getInetAddress() + ((name == null) ? " " : " [" + name + "] ") + message);
+        $().info( socket.getInetAddress() + ( ( name == null ) ? " " : " [" + name + "] " ) + message );
     }
 }

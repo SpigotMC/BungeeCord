@@ -41,69 +41,69 @@ public class EncryptionUtil
 
     static
     {
-        Security.addProvider(new BouncyCastleProvider());
+        Security.addProvider( new BouncyCastleProvider() );
     }
 
     public static PacketFDEncryptionRequest encryptRequest() throws NoSuchAlgorithmException
     {
-        if (keys == null)
+        if ( keys == null )
         {
-            keys = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+            keys = KeyPairGenerator.getInstance( "RSA" ).generateKeyPair();
         }
 
-        String hash = Long.toString(random.nextLong(), 16);
+        String hash = Long.toString( random.nextLong(), 16 );
         byte[] pubKey = keys.getPublic().getEncoded();
-        byte[] verify = new byte[4];
-        random.nextBytes(verify);
-        return new PacketFDEncryptionRequest(hash, pubKey, verify);
+        byte[] verify = new byte[ 4 ];
+        random.nextBytes( verify );
+        return new PacketFDEncryptionRequest( hash, pubKey, verify );
     }
 
     public static SecretKey getSecret(PacketFCEncryptionResponse resp, PacketFDEncryptionRequest request) throws BadPaddingException, IllegalBlockSizeException, IllegalStateException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException
     {
-        Cipher cipher = Cipher.getInstance("RSA");
-        cipher.init(Cipher.DECRYPT_MODE, keys.getPrivate());
-        byte[] decrypted = cipher.doFinal(resp.verifyToken);
+        Cipher cipher = Cipher.getInstance( "RSA" );
+        cipher.init( Cipher.DECRYPT_MODE, keys.getPrivate() );
+        byte[] decrypted = cipher.doFinal( resp.verifyToken );
 
-        if (!Arrays.equals(request.verifyToken, decrypted))
+        if ( !Arrays.equals( request.verifyToken, decrypted ) )
         {
-            throw new IllegalStateException("Key pairs do not match!");
+            throw new IllegalStateException( "Key pairs do not match!" );
         }
 
-        cipher.init(Cipher.DECRYPT_MODE, keys.getPrivate());
+        cipher.init( Cipher.DECRYPT_MODE, keys.getPrivate() );
         byte[] shared = resp.sharedSecret;
-        byte[] secret = cipher.doFinal(shared);
+        byte[] secret = cipher.doFinal( shared );
 
-        return new SecretKeySpec(secret, "AES");
+        return new SecretKeySpec( secret, "AES" );
     }
 
     public static boolean isAuthenticated(String username, String connectionHash, SecretKey shared) throws NoSuchAlgorithmException, IOException
     {
-        String encName = URLEncoder.encode(username, "UTF-8");
+        String encName = URLEncoder.encode( username, "UTF-8" );
 
-        MessageDigest sha = MessageDigest.getInstance("SHA-1");
-        for (byte[] bit : new byte[][]
-                {
-                    connectionHash.getBytes("ISO_8859_1"), shared.getEncoded(), keys.getPublic().getEncoded()
-                })
+        MessageDigest sha = MessageDigest.getInstance( "SHA-1" );
+        for ( byte[] bit : new byte[][]
         {
-            sha.update(bit);
+            connectionHash.getBytes( "ISO_8859_1" ), shared.getEncoded(), keys.getPublic().getEncoded()
+        } )
+        {
+            sha.update( bit );
         }
 
-        String encodedHash = URLEncoder.encode(new BigInteger(sha.digest()).toString(16), "UTF-8");
+        String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
         String authURL = "http://session.minecraft.net/game/checkserver.jsp?user=" + encName + "&serverId=" + encodedHash;
         String reply;
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(new URL(authURL).openStream())))
+        try ( BufferedReader in = new BufferedReader( new InputStreamReader( new URL( authURL ).openStream() ) ) )
         {
             reply = in.readLine();
         }
 
-        return "YES".equals(reply);
+        return "YES".equals( reply );
     }
 
     public static BufferedBlockCipher getCipher(boolean forEncryption, Key shared)
     {
-        BufferedBlockCipher cip = new BufferedBlockCipher(new CFBBlockCipher(new AESFastEngine(), 8));
-        cip.init(forEncryption, new ParametersWithIV(new KeyParameter(shared.getEncoded()), shared.getEncoded()));
+        BufferedBlockCipher cip = new BufferedBlockCipher( new CFBBlockCipher( new AESFastEngine(), 8 ) );
+        cip.init( forEncryption, new ParametersWithIV( new KeyParameter( shared.getEncoded() ), shared.getEncoded() ) );
         return cip;
     }
 }

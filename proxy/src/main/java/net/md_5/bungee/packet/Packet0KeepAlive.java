@@ -12,7 +12,7 @@ public class Packet0KeepAlive extends DefinedPacket
 
     public Packet0KeepAlive(byte[] buffer)
     {
-        super(0x00, buffer);
+        super( 0x00, buffer );
         id = readInt();
     }
 }

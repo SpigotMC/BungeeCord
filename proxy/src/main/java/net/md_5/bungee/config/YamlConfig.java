@@ -28,7 +28,7 @@ public class YamlConfig implements ConfigurationAdapter
     private boolean loaded;
     private Yaml yaml;
     private Map config;
-    private final File file = new File("config.yml");
+    private final File file = new File( "config.yml" );
 
     public void load()
     {
@@ -36,79 +36,79 @@ public class YamlConfig implements ConfigurationAdapter
         {
             file.createNewFile();
             DumperOptions options = new DumperOptions();
-            options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-            yaml = new Yaml(options);
+            options.setDefaultFlowStyle( DumperOptions.FlowStyle.BLOCK );
+            yaml = new Yaml( options );
 
-            try (InputStream is = new FileInputStream(file))
+            try ( InputStream is = new FileInputStream( file ) )
             {
-                config = (Map) yaml.load(is);
+                config = (Map) yaml.load( is );
             }
 
-            if (config == null)
+            if ( config == null )
             {
                 config = new HashMap();
             }
 
             loaded = true;
-        } catch (IOException ex)
+        } catch ( IOException ex )
         {
-            throw new RuntimeException("Could not load configuration!", ex);
+            throw new RuntimeException( "Could not load configuration!", ex );
         }
 
-        Map<String, Object> permissions = get("permissions", new HashMap<String, Object>());
-        if (permissions.isEmpty())
+        Map<String, Object> permissions = get( "permissions", new HashMap<String, Object>() );
+        if ( permissions.isEmpty() )
         {
-            permissions.put("default", Arrays.asList(new String[]
-                    {
-                        "bungeecord.command.server", "bungeecord.command.list"
-                    }));
-            permissions.put("admin", Arrays.asList(new String[]
-                    {
-                        "bungeecord.command.alert", "bungeecord.command.end", "bungeecord.command.ip", "bungeecord.command.reload"
-                    }));
+            permissions.put( "default", Arrays.asList( new String[]
+            {
+                "bungeecord.command.server", "bungeecord.command.list"
+            } ) );
+            permissions.put( "admin", Arrays.asList( new String[]
+            {
+                "bungeecord.command.alert", "bungeecord.command.end", "bungeecord.command.ip", "bungeecord.command.reload"
+            } ) );
         }
 
-        Map<String, Object> groups = get("groups", new HashMap<String, Object>());
-        if (groups.isEmpty())
+        Map<String, Object> groups = get( "groups", new HashMap<String, Object>() );
+        if ( groups.isEmpty() )
         {
-            groups.put("md_5", Collections.singletonList("admin"));
+            groups.put( "md_5", Collections.singletonList( "admin" ) );
         }
     }
 
     private <T> T get(String path, T def)
     {
-        if (!loaded)
+        if ( !loaded )
         {
             load();
         }
-        return get(path, def, config);
+        return get( path, def, config );
     }
 
     @SuppressWarnings("unchecked")
     private <T> T get(String path, T def, Map submap)
     {
-        if (!loaded)
+        if ( !loaded )
         {
             load();
         }
 
-        int index = path.indexOf('.');
-        if (index == -1)
+        int index = path.indexOf( '.' );
+        if ( index == -1 )
         {
-            Object val = submap.get(path);
-            if (val == null && def != null)
+            Object val = submap.get( path );
+            if ( val == null && def != null )
             {
                 val = def;
-                submap.put(path, def);
+                submap.put( path, def );
                 save();
             }
             return (T) val;
         } else
         {
-            String first = path.substring(0, index);
-            String second = path.substring(index + 1, path.length());
-            Map sub = (Map) submap.get(first);
-            return (sub != null) ? get(second, def, sub) : def;
+            String first = path.substring( 0, index );
+            String second = path.substring( index + 1, path.length() );
+            Map sub = (Map) submap.get( first );
+            return ( sub != null ) ? get( second, def, sub ) : def;
         }
     }
 
@@ -116,43 +116,43 @@ public class YamlConfig implements ConfigurationAdapter
     {
         try
         {
-            try (FileWriter wr = new FileWriter(file))
+            try ( FileWriter wr = new FileWriter( file ) )
             {
-                yaml.dump(config, wr);
+                yaml.dump( config, wr );
             }
-        } catch (IOException ex)
+        } catch ( IOException ex )
         {
-            ProxyServer.getInstance().getLogger().log(Level.WARNING, "Could not save config", ex);
+            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not save config", ex );
         }
     }
 
     @Override
     public int getInt(String path, int def)
     {
-        return get(path, def);
+        return get( path, def );
     }
 
     @Override
     public String getString(String path, String def)
     {
-        return get(path, def);
+        return get( path, def );
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Map<String, ServerInfo> getServers()
     {
-        Map<String, Map<String, Object>> base = get("servers", (Map) Collections.singletonMap("lobby", new HashMap<>()));
+        Map<String, Map<String, Object>> base = get( "servers", (Map) Collections.singletonMap( "lobby", new HashMap<>() ) );
         Map<String, ServerInfo> ret = new HashMap<>();
 
-        for (Map.Entry<String, Map<String, Object>> entry : base.entrySet())
+        for ( Map.Entry<String, Map<String, Object>> entry : base.entrySet() )
         {
             Map<String, Object> val = entry.getValue();
             String name = entry.getKey();
-            String addr = get("address", "localhost:25565", val);
-            InetSocketAddress address = Util.getAddr(addr);
-            ServerInfo info = ProxyServer.getInstance().constructServerInfo(name, address);
-            ret.put(name, info);
+            String addr = get( "address", "localhost:25565", val );
+            InetSocketAddress address = Util.getAddr( addr );
+            ServerInfo info = ProxyServer.getInstance().constructServerInfo( name, address );
+            ret.put( name, info );
         }
 
         return ret;
@@ -162,28 +162,28 @@ public class YamlConfig implements ConfigurationAdapter
     @SuppressWarnings("unchecked")
     public Collection<ListenerInfo> getListeners()
     {
-        Collection<Map<String, Object>> base = get("listeners", (Collection) Arrays.asList(new Map[]
-                {
-                    new HashMap()
-                }));
+        Collection<Map<String, Object>> base = get( "listeners", (Collection) Arrays.asList( new Map[]
+        {
+            new HashMap()
+        } ) );
         Map<String, String> forcedDef = new HashMap<>();
-        forcedDef.put("pvp.md-5.net", "pvp");
+        forcedDef.put( "pvp.md-5.net", "pvp" );
 
         Collection<ListenerInfo> ret = new HashSet<>();
 
-        for (Map<String, Object> val : base)
+        for ( Map<String, Object> val : base )
         {
-            String motd = get("motd", "Another Bungee server", val);
-            motd = ChatColor.translateAlternateColorCodes('&', motd);
+            String motd = get( "motd", "Another Bungee server", val );
+            motd = ChatColor.translateAlternateColorCodes( '&', motd );
 
-            int maxPlayers = get("max_players", 1, val);
-            String defaultServer = get("default_server", "lobby", val);
-            boolean forceDefault = get("force_default_server", false, val);
-            String host = get("host", "0.0.0.0:25577", val);
-            InetSocketAddress address = Util.getAddr(host);
-            Map<String, String> forced = get("forced_hosts", forcedDef, val);
-            ListenerInfo info = new ListenerInfo(address, motd, maxPlayers, defaultServer, forceDefault, forced);
-            ret.add(info);
+            int maxPlayers = get( "max_players", 1, val );
+            String defaultServer = get( "default_server", "lobby", val );
+            boolean forceDefault = get( "force_default_server", false, val );
+            String host = get( "host", "0.0.0.0:25577", val );
+            InetSocketAddress address = Util.getAddr( host );
+            Map<String, String> forced = get( "forced_hosts", forcedDef, val );
+            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, defaultServer, forceDefault, forced );
+            ret.add( info );
         }
 
         return ret;
@@ -193,9 +193,9 @@ public class YamlConfig implements ConfigurationAdapter
     @SuppressWarnings("unchecked")
     public Collection<String> getGroups(String player)
     {
-        Collection<String> groups = get("groups." + player, null);
-        Collection<String> ret = (groups == null) ? new HashSet<String>() : new HashSet<>(groups);
-        ret.add("default");
+        Collection<String> groups = get( "groups." + player, null );
+        Collection<String> ret = ( groups == null ) ? new HashSet<String>() : new HashSet<>( groups );
+        ret.add( "default" );
         return ret;
     }
 
@@ -203,6 +203,6 @@ public class YamlConfig implements ConfigurationAdapter
     @SuppressWarnings("unchecked")
     public Collection<String> getPermissions(String group)
     {
-        return get("permissions." + group, Collections.EMPTY_LIST);
+        return get( "permissions." + group, Collections.EMPTY_LIST );
     }
 }

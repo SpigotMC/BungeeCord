@@ -11,24 +11,24 @@ public class CommandIP extends Command
 
     public CommandIP()
     {
-        super("ip", "bungeecord.command.ip");
+        super( "ip", "bungeecord.command.ip" );
     }
 
     @Override
     public void execute(CommandSender sender, String[] args)
     {
-        if (args.length < 1)
+        if ( args.length < 1 )
         {
-            sender.sendMessage(ChatColor.RED + "Please follow this command by a user name");
+            sender.sendMessage( ChatColor.RED + "Please follow this command by a user name" );
             return;
         }
-        ProxiedPlayer user = ProxyServer.getInstance().getPlayer(args[0]);
-        if (user == null)
+        ProxiedPlayer user = ProxyServer.getInstance().getPlayer( args[0] );
+        if ( user == null )
         {
-            sender.sendMessage(ChatColor.RED + "That user is not online");
+            sender.sendMessage( ChatColor.RED + "That user is not online" );
         } else
         {
-            sender.sendMessage(ChatColor.BLUE + "IP of " + args[0] + " is " + user.getAddress());
+            sender.sendMessage( ChatColor.BLUE + "IP of " + args[0] + " is " + user.getAddress() );
         }
     }
 }

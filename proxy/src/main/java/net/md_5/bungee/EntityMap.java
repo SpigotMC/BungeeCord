@@ -6,7 +6,7 @@ package net.md_5.bungee;
 public class EntityMap
 {
 
-    public final static int[][] entityIds = new int[256][];
+    public final static int[][] entityIds = new int[ 256 ][];
 
     static
     {
@@ -115,34 +115,34 @@ public class EntityMap
 
     public static void rewrite(byte[] packet, int oldId, int newId)
     {
-        int packetId = Util.getId(packet);
-        if (packetId == 0x1D)
+        int packetId = Util.getId( packet );
+        if ( packetId == 0x1D )
         { // bulk entity
-            for (int pos = 2; pos < packet.length; pos += 4)
+            for ( int pos = 2; pos < packet.length; pos += 4 )
             {
-                int readId = readInt(packet, pos);
-                if (readId == oldId)
+                int readId = readInt( packet, pos );
+                if ( readId == oldId )
                 {
-                    setInt(packet, pos, newId);
-                } else if (readId == newId)
+                    setInt( packet, pos, newId );
+                } else if ( readId == newId )
                 {
-                    setInt(packet, pos, oldId);
+                    setInt( packet, pos, oldId );
                 }
             }
         } else
         {
             int[] idArray = entityIds[packetId];
-            if (idArray != null)
+            if ( idArray != null )
             {
-                for (int pos : idArray)
+                for ( int pos : idArray )
                 {
-                    int readId = readInt(packet, pos);
-                    if (readId == oldId)
+                    int readId = readInt( packet, pos );
+                    if ( readId == oldId )
                     {
-                        setInt(packet, pos, newId);
-                    } else if (readId == newId)
+                        setInt( packet, pos, newId );
+                    } else if ( readId == newId )
                     {
-                        setInt(packet, pos, oldId);
+                        setInt( packet, pos, oldId );
                     }
                 }
             }
@@ -151,14 +151,14 @@ public class EntityMap
 
     private static void setInt(byte[] buf, int pos, int i)
     {
-        buf[pos] = (byte) (i >> 24);
-        buf[pos + 1] = (byte) (i >> 16);
-        buf[pos + 2] = (byte) (i >> 8);
+        buf[pos] = (byte) ( i >> 24 );
+        buf[pos + 1] = (byte) ( i >> 16 );
+        buf[pos + 2] = (byte) ( i >> 8 );
         buf[pos + 3] = (byte) i;
     }
 
     private static int readInt(byte[] buf, int pos)
     {
-        return (((buf[pos] & 0xFF) << 24) | ((buf[pos + 1] & 0xFF) << 16) | ((buf[pos + 2] & 0xFF) << 8) | buf[pos + 3] & 0xFF);
+        return ( ( ( buf[pos] & 0xFF ) << 24 ) | ( ( buf[pos + 1] & 0xFF ) << 16 ) | ( ( buf[pos + 2] & 0xFF ) << 8 ) | buf[pos + 3] & 0xFF );
     }
 }

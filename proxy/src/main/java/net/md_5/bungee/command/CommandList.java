@@ -15,7 +15,7 @@ public class CommandList extends Command
 
     public CommandList()
     {
-        super("glist", "bungeecord.command.list");
+        super( "glist", "bungeecord.command.list" );
     }
 
     @Override
@@ -24,20 +24,20 @@ public class CommandList extends Command
         StringBuilder users = new StringBuilder();
         Collection<ProxiedPlayer> connections = ProxyServer.getInstance().getPlayers();
 
-        if (connections.isEmpty())
+        if ( connections.isEmpty() )
         {
-            sender.sendMessage(ChatColor.BLUE + "Currently no players online.");
+            sender.sendMessage( ChatColor.BLUE + "Currently no players online." );
             return;
         }
 
-        for (ProxiedPlayer player : connections)
+        for ( ProxiedPlayer player : connections )
         {
-            users.append(player.getDisplayName());
-            users.append(", ");
-            users.append(ChatColor.RESET);
+            users.append( player.getDisplayName() );
+            users.append( ", " );
+            users.append( ChatColor.RESET );
         }
 
-        users.setLength(users.length() - 2);
-        sender.sendMessage(ChatColor.BLUE + "Currently online across all servers (" + connections.size() + "): " + ChatColor.RESET + users);
+        users.setLength( users.length() - 2 );
+        sender.sendMessage( ChatColor.BLUE + "Currently online across all servers (" + connections.size() + "): " + ChatColor.RESET + users );
     }
 }

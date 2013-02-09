@@ -9,6 +9,6 @@ public class KickException extends RuntimeException
 
     public KickException(String message)
     {
-        super(message);
+        super( message );
     }
 }

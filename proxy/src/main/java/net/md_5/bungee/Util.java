@@ -18,13 +18,13 @@ public class Util
      */
     public static InetSocketAddress getAddr(String hostline)
     {
-        String[] split = hostline.split(":");
+        String[] split = hostline.split( ":" );
         int port = DEFAULT_PORT;
-        if (split.length > 1)
+        if ( split.length > 1 )
         {
-            port = Integer.parseInt(split[1]);
+            port = Integer.parseInt( split[1] );
         }
-        return new InetSocketAddress(split[0], port);
+        return new InetSocketAddress( split[0], port );
     }
 
     /**
@@ -49,13 +49,13 @@ public class Util
     public static String normalize(String s)
     {
         StringBuilder result = new StringBuilder();
-        for (char c : s.toCharArray())
+        for ( char c : s.toCharArray() )
         {
-            if (Character.isUpperCase(c))
+            if ( Character.isUpperCase( c ) )
             {
-                result.append("_");
+                result.append( "_" );
             }
-            result.append(Character.toLowerCase(c));
+            result.append( Character.toLowerCase( c ) );
         }
         return result.toString();
     }
@@ -68,7 +68,7 @@ public class Util
      */
     public static String hex(int i)
     {
-        return String.format("0x%02X", i);
+        return String.format( "0x%02X", i );
     }
 
     /**

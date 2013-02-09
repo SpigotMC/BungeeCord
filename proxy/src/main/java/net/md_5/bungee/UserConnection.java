@@ -5,14 +5,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -56,25 +54,25 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
 
     public UserConnection(Socket socket, PendingConnection pendingConnection, PacketStream stream, Packet2Handshake handshake)
     {
-        super(socket, stream);
+        super( socket, stream );
         this.handshake = handshake;
         this.pendingConnection = pendingConnection;
         name = handshake.username;
         displayName = handshake.username;
 
-        Collection<String> g = ProxyServer.getInstance().getConfigurationAdapter().getGroups(name);
-        for (String s : g)
+        Collection<String> g = ProxyServer.getInstance().getConfigurationAdapter().getGroups( name );
+        for ( String s : g )
         {
-            addGroups(s);
+            addGroups( s );
         }
     }
 
     @Override
     public void setDisplayName(String name)
     {
-        ProxyServer.getInstance().getTabListHandler().onDisconnect(this);
+        ProxyServer.getInstance().getTabListHandler().onDisconnect( this );
         displayName = name;
-        ProxyServer.getInstance().getTabListHandler().onConnect(this);
+        ProxyServer.getInstance().getTabListHandler().onConnect( this );
     }
 
     @Override
@@ -85,36 +83,36 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
 
     public void connect(ServerInfo target, boolean force)
     {
-        if (server == null)
+        if ( server == null )
         {
             // First join
-            BungeeCord.getInstance().connections.put(name, this);
-            ProxyServer.getInstance().getTabListHandler().onConnect(this);
+            BungeeCord.getInstance().connections.put( name, this );
+            ProxyServer.getInstance().getTabListHandler().onConnect( this );
         }
 
-        ServerConnectEvent event = new ServerConnectEvent(this, target);
-        BungeeCord.getInstance().getPluginManager().callEvent(event);
+        ServerConnectEvent event = new ServerConnectEvent( this, target );
+        BungeeCord.getInstance().getPluginManager().callEvent( event );
         target = event.getTarget(); // Update in case the event changed target
 
-        ProxyServer.getInstance().getTabListHandler().onServerChange(this);
+        ProxyServer.getInstance().getTabListHandler().onServerChange( this );
         try
         {
             reconnecting = true;
 
-            if (server != null)
+            if ( server != null )
             {
-                stream.write(new Packet9Respawn((byte) 1, (byte) 0, (byte) 0, (short) 256, "DEFAULT"));
-                stream.write(new Packet9Respawn((byte) -1, (byte) 0, (byte) 0, (short) 256, "DEFAULT"));
+                stream.write( new Packet9Respawn( (byte) 1, (byte) 0, (byte) 0, (short) 256, "DEFAULT" ) );
+                stream.write( new Packet9Respawn( (byte) -1, (byte) 0, (byte) 0, (short) 256, "DEFAULT" ) );
             }
 
-            ServerConnection newServer = ServerConnection.connect(this, target, handshake, true);
-            if (server == null)
+            ServerConnection newServer = ServerConnection.connect( this, target, handshake, true );
+            if ( server == null )
             {
                 // Once again, first connection
                 clientEntityId = newServer.loginPacket.entityId;
                 serverEntityId = newServer.loginPacket.entityId;
-                stream.write(newServer.loginPacket);
-                stream.write(BungeeCord.getInstance().registerChannels());
+                stream.write( newServer.loginPacket );
+                stream.write( BungeeCord.getInstance().registerChannels() );
 
                 upBridge = new UpstreamBridge();
                 upBridge.start();
@@ -124,68 +122,68 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                 {
                     downBridge.interrupt();
                     downBridge.join();
-                } catch (InterruptedException ie)
+                } catch ( InterruptedException ie )
                 {
                 }
 
-                server.disconnect("Quitting");
-                server.getInfo().removePlayer(this);
+                server.disconnect( "Quitting" );
+                server.getInfo().removePlayer( this );
 
                 Packet1Login login = newServer.loginPacket;
                 serverEntityId = login.entityId;
-                stream.write(new Packet9Respawn(login.dimension, login.difficulty, login.gameMode, (short) 256, login.levelType));
+                stream.write( new Packet9Respawn( login.dimension, login.difficulty, login.gameMode, (short) 256, login.levelType ) );
             }
 
             // Reconnect process has finished, lets get the player moving again
             reconnecting = false;
 
             // Add to new
-            target.addPlayer(this);
+            target.addPlayer( this );
 
             // Start the bridges and move on
             server = newServer;
             downBridge = new DownstreamBridge();
             downBridge.start();
-        } catch (KickException ex)
+        } catch ( KickException ex )
         {
-            destroySelf(ex.getMessage());
-        } catch (Exception ex)
+            destroySelf( ex.getMessage() );
+        } catch ( Exception ex )
         {
             ex.printStackTrace(); // TODO: Remove
-            destroySelf("Could not connect to server - " + ex.getClass().getSimpleName());
+            destroySelf( "Could not connect to server - " + ex.getClass().getSimpleName() );
         }
     }
 
     private void destroySelf(String reason)
     {
-        ProxyServer.getInstance().getPlayers().remove(this);
+        ProxyServer.getInstance().getPlayers().remove( this );
 
-        disconnect(reason);
-        if (server != null)
+        disconnect( reason );
+        if ( server != null )
         {
-            server.getInfo().removePlayer(this);
-            server.disconnect("Quitting");
-            ProxyServer.getInstance().getReconnectHandler().setServer(this);
+            server.getInfo().removePlayer( this );
+            server.disconnect( "Quitting" );
+            ProxyServer.getInstance().getReconnectHandler().setServer( this );
         }
     }
 
     @Override
     public void disconnect(String reason)
     {
-        ProxyServer.getInstance().getTabListHandler().onDisconnect(this);
-        super.disconnect(reason);
+        ProxyServer.getInstance().getTabListHandler().onDisconnect( this );
+        super.disconnect( reason );
     }
 
     @Override
     public void sendMessage(String message)
     {
-        packetQueue.add(new Packet3Chat(message));
+        packetQueue.add( new Packet3Chat( message ) );
     }
 
     @Override
     public void sendData(String channel, byte[] data)
     {
-        server.packetQueue.add(new PacketFAPluginMessage(channel, data));
+        server.packetQueue.add( new PacketFAPluginMessage( channel, data ) );
     }
 
     @Override
@@ -198,19 +196,19 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     @Synchronized("permMutex")
     public Collection<String> getGroups()
     {
-        return Collections.unmodifiableCollection(groups);
+        return Collections.unmodifiableCollection( groups );
     }
 
     @Override
     @Synchronized("permMutex")
     public void addGroups(String... groups)
     {
-        for (String group : groups)
+        for ( String group : groups )
         {
-            this.groups.add(group);
-            for (String permission : ProxyServer.getInstance().getConfigurationAdapter().getPermissions(group))
+            this.groups.add( group );
+            for ( String permission : ProxyServer.getInstance().getConfigurationAdapter().getPermissions( group ) )
             {
-                setPermission(permission, true);
+                setPermission( permission, true );
             }
         }
     }
@@ -219,12 +217,12 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     @Synchronized("permMutex")
     public void removeGroups(String... groups)
     {
-        for (String group : groups)
+        for ( String group : groups )
         {
-            this.groups.remove(group);
-            for (String permission : ProxyServer.getInstance().getConfigurationAdapter().getPermissions(group))
+            this.groups.remove( group );
+            for ( String permission : ProxyServer.getInstance().getConfigurationAdapter().getPermissions( group ) )
             {
-                setPermission(permission, false);
+                setPermission( permission, false );
             }
         }
     }
@@ -233,15 +231,15 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     @Synchronized("permMutex")
     public boolean hasPermission(String permission)
     {
-        Boolean val = permissions.get(permission);
-        return (val == null) ? false : val;
+        Boolean val = permissions.get( permission );
+        return ( val == null ) ? false : val;
     }
 
     @Override
     @Synchronized("permMutex")
     public void setPermission(String permission, boolean value)
     {
-        permissions.put(permission, value);
+        permissions.put( permission, value );
     }
 
     private class UpstreamBridge extends Thread
@@ -249,82 +247,82 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
 
         public UpstreamBridge()
         {
-            super("Upstream Bridge - " + name);
+            super( "Upstream Bridge - " + name );
         }
 
         @Override
         public void run()
         {
-            while (!socket.isClosed())
+            while ( !socket.isClosed() )
             {
                 try
                 {
                     byte[] packet = stream.readPacket();
                     boolean sendPacket = true;
-                    int id = Util.getId(packet);
+                    int id = Util.getId( packet );
 
-                    switch (id)
+                    switch ( id )
                     {
                         case 0x00:
-                            if (trackingPingId == new Packet0KeepAlive(packet).id)
+                            if ( trackingPingId == new Packet0KeepAlive( packet ).id )
                             {
-                                int newPing = (int) (System.currentTimeMillis() - pingTime);
-                                ProxyServer.getInstance().getTabListHandler().onPingChange(UserConnection.this, newPing);
+                                int newPing = (int) ( System.currentTimeMillis() - pingTime );
+                                ProxyServer.getInstance().getTabListHandler().onPingChange( UserConnection.this, newPing );
                                 ping = newPing;
                             }
                             break;
                         case 0x03:
-                            Packet3Chat chat = new Packet3Chat(packet);
-                            if (chat.message.startsWith("/"))
+                            Packet3Chat chat = new Packet3Chat( packet );
+                            if ( chat.message.startsWith( "/" ) )
                             {
-                                sendPacket = !ProxyServer.getInstance().getPluginManager().dispatchCommand(UserConnection.this, chat.message.substring(1));
+                                sendPacket = !ProxyServer.getInstance().getPluginManager().dispatchCommand( UserConnection.this, chat.message.substring( 1 ) );
                             } else
                             {
-                                ChatEvent chatEvent = new ChatEvent(UserConnection.this, server, chat.message);
-                                ProxyServer.getInstance().getPluginManager().callEvent(chatEvent);
+                                ChatEvent chatEvent = new ChatEvent( UserConnection.this, server, chat.message );
+                                ProxyServer.getInstance().getPluginManager().callEvent( chatEvent );
                                 sendPacket = !chatEvent.isCancelled();
                             }
                             break;
                         case 0xFA:
                             // Call the onPluginMessage event
-                            PacketFAPluginMessage message = new PacketFAPluginMessage(packet);
+                            PacketFAPluginMessage message = new PacketFAPluginMessage( packet );
 
                             // Might matter in the future
-                            if (message.tag.equals("BungeeCord"))
+                            if ( message.tag.equals( "BungeeCord" ) )
                             {
                                 continue;
                             }
 
-                            PluginMessageEvent event = new PluginMessageEvent(UserConnection.this, server, message.tag, message.data);
-                            ProxyServer.getInstance().getPluginManager().callEvent(event);
+                            PluginMessageEvent event = new PluginMessageEvent( UserConnection.this, server, message.tag, message.data );
+                            ProxyServer.getInstance().getPluginManager().callEvent( event );
 
-                            if (event.isCancelled())
+                            if ( event.isCancelled() )
                             {
                                 continue;
                             }
                             break;
                     }
 
-                    while (!server.packetQueue.isEmpty())
+                    while ( !server.packetQueue.isEmpty() )
                     {
                         DefinedPacket p = server.packetQueue.poll();
-                        if (p != null)
+                        if ( p != null )
                         {
-                            server.stream.write(p);
+                            server.stream.write( p );
                         }
                     }
 
-                    EntityMap.rewrite(packet, clientEntityId, serverEntityId);
-                    if (sendPacket && !server.socket.isClosed())
+                    EntityMap.rewrite( packet, clientEntityId, serverEntityId );
+                    if ( sendPacket && !server.socket.isClosed() )
                     {
-                        server.stream.write(packet);
+                        server.stream.write( packet );
                     }
-                } catch (IOException ex)
+                } catch ( IOException ex )
                 {
-                    destroySelf("Reached end of stream");
-                } catch (Exception ex)
+                    destroySelf( "Reached end of stream" );
+                } catch ( Exception ex )
                 {
-                    destroySelf(Util.exception(ex));
+                    destroySelf( Util.exception( ex ) );
                 }
             }
         }
@@ -335,7 +333,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
 
         public DownstreamBridge()
         {
-            super("Downstream Bridge - " + name);
+            super( "Downstream Bridge - " + name );
         }
 
         @Override
@@ -344,180 +342,180 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
             try
             {
                 outer:
-                while (!reconnecting)
+                while ( !reconnecting )
                 {
                     byte[] packet = server.stream.readPacket();
-                    int id = Util.getId(packet);
+                    int id = Util.getId( packet );
 
-                    switch (id)
+                    switch ( id )
                     {
                         case 0x00:
-                            trackingPingId = new Packet0KeepAlive(packet).id;
+                            trackingPingId = new Packet0KeepAlive( packet ).id;
                             pingTime = System.currentTimeMillis();
                             break;
                         case 0x03:
-                            Packet3Chat chat = new Packet3Chat(packet);
-                            ChatEvent chatEvent = new ChatEvent(server, UserConnection.this, chat.message);
-                            ProxyServer.getInstance().getPluginManager().callEvent(chatEvent);
+                            Packet3Chat chat = new Packet3Chat( packet );
+                            ChatEvent chatEvent = new ChatEvent( server, UserConnection.this, chat.message );
+                            ProxyServer.getInstance().getPluginManager().callEvent( chatEvent );
 
-                            if (chatEvent.isCancelled())
+                            if ( chatEvent.isCancelled() )
                             {
                                 continue;
                             }
                             break;
                         case 0xC9:
-                            PacketC9PlayerListItem playerList = new PacketC9PlayerListItem(packet);
-                            if (!ProxyServer.getInstance().getTabListHandler().onListUpdate(UserConnection.this, playerList.username, playerList.online, playerList.ping))
+                            PacketC9PlayerListItem playerList = new PacketC9PlayerListItem( packet );
+                            if ( !ProxyServer.getInstance().getTabListHandler().onListUpdate( UserConnection.this, playerList.username, playerList.online, playerList.ping ) )
                             {
                                 continue;
                             }
                             break;
                         case 0xFA:
                             // Call the onPluginMessage event
-                            PacketFAPluginMessage message = new PacketFAPluginMessage(packet);
-                            DataInputStream in = new DataInputStream(new ByteArrayInputStream(message.data));
-                            PluginMessageEvent event = new PluginMessageEvent(server, UserConnection.this, message.tag, message.data);
-                            ProxyServer.getInstance().getPluginManager().callEvent(event);
+                            PacketFAPluginMessage message = new PacketFAPluginMessage( packet );
+                            DataInputStream in = new DataInputStream( new ByteArrayInputStream( message.data ) );
+                            PluginMessageEvent event = new PluginMessageEvent( server, UserConnection.this, message.tag, message.data );
+                            ProxyServer.getInstance().getPluginManager().callEvent( event );
 
-                            if (event.isCancelled())
+                            if ( event.isCancelled() )
                             {
                                 continue;
                             }
 
-                            if (message.tag.equals("BungeeCord"))
+                            if ( message.tag.equals( "BungeeCord" ) )
                             {
                                 String subChannel = in.readUTF();
-                                if (subChannel.equals("Forward"))
+                                if ( subChannel.equals( "Forward" ) )
                                 {
                                     String target = in.readUTF();
                                     String channel = in.readUTF();
                                     short len = in.readShort();
-                                    byte[] data = new byte[len];
-                                    in.readFully(data);
+                                    byte[] data = new byte[ len ];
+                                    in.readFully( data );
 
 
                                     ByteArrayOutputStream b = new ByteArrayOutputStream();
-                                    DataOutputStream out = new DataOutputStream(b);
-                                    out.writeUTF(channel);
-                                    out.writeShort(data.length);
-                                    out.write(data);
+                                    DataOutputStream out = new DataOutputStream( b );
+                                    out.writeUTF( channel );
+                                    out.writeShort( data.length );
+                                    out.write( data );
 
-                                    if (target.equals("ALL"))
+                                    if ( target.equals( "ALL" ) )
                                     {
-                                        for (ServerInfo server : BungeeCord.getInstance().getServers().values())
+                                        for ( ServerInfo server : BungeeCord.getInstance().getServers().values() )
                                         {
-                                            server.sendData("BungeeCord", b.toByteArray());
+                                            server.sendData( "BungeeCord", b.toByteArray() );
                                         }
                                     } else
                                     {
-                                        ServerInfo server = BungeeCord.getInstance().getServerInfo(target);
-                                        if (server != null)
+                                        ServerInfo server = BungeeCord.getInstance().getServerInfo( target );
+                                        if ( server != null )
                                         {
-                                            server.sendData("BungeeCord", b.toByteArray());
+                                            server.sendData( "BungeeCord", b.toByteArray() );
                                         }
                                     }
                                 }
-                                if (subChannel.equals("Connect"))
+                                if ( subChannel.equals( "Connect" ) )
                                 {
-                                    ServerInfo server = ProxyServer.getInstance().getServerInfo(in.readUTF());
-                                    if (server != null)
+                                    ServerInfo server = ProxyServer.getInstance().getServerInfo( in.readUTF() );
+                                    if ( server != null )
                                     {
-                                        connect(server, true);
+                                        connect( server, true );
                                         break outer;
                                     }
                                 }
-                                if (subChannel.equals("IP"))
+                                if ( subChannel.equals( "IP" ) )
                                 {
                                     ByteArrayOutputStream b = new ByteArrayOutputStream();
-                                    DataOutputStream out = new DataOutputStream(b);
-                                    out.writeUTF("IP");
-                                    out.writeUTF(getAddress().getHostString());
-                                    out.writeInt(getAddress().getPort());
-                                    getServer().sendData("BungeeCord", b.toByteArray());
+                                    DataOutputStream out = new DataOutputStream( b );
+                                    out.writeUTF( "IP" );
+                                    out.writeUTF( getAddress().getHostString() );
+                                    out.writeInt( getAddress().getPort() );
+                                    getServer().sendData( "BungeeCord", b.toByteArray() );
                                 }
-                                if (subChannel.equals("PlayerCount"))
+                                if ( subChannel.equals( "PlayerCount" ) )
                                 {
-                                    ServerInfo server = ProxyServer.getInstance().getServerInfo(in.readUTF());
-                                    if (server != null)
+                                    ServerInfo server = ProxyServer.getInstance().getServerInfo( in.readUTF() );
+                                    if ( server != null )
                                     {
                                         ByteArrayOutputStream b = new ByteArrayOutputStream();
-                                        DataOutputStream out = new DataOutputStream(b);
-                                        out.writeUTF("PlayerCount");
-                                        out.writeUTF(server.getName());
-                                        out.writeInt(server.getPlayers().size());
-                                        getServer().sendData("BungeeCord", b.toByteArray());
+                                        DataOutputStream out = new DataOutputStream( b );
+                                        out.writeUTF( "PlayerCount" );
+                                        out.writeUTF( server.getName() );
+                                        out.writeInt( server.getPlayers().size() );
+                                        getServer().sendData( "BungeeCord", b.toByteArray() );
                                     }
                                 }
-                                if (subChannel.equals("PlayerList"))
+                                if ( subChannel.equals( "PlayerList" ) )
                                 {
-                                    ServerInfo server = ProxyServer.getInstance().getServerInfo(in.readUTF());
-                                    if (server != null)
+                                    ServerInfo server = ProxyServer.getInstance().getServerInfo( in.readUTF() );
+                                    if ( server != null )
                                     {
                                         ByteArrayOutputStream b = new ByteArrayOutputStream();
-                                        DataOutputStream out = new DataOutputStream(b);
-                                        out.writeUTF("PlayerList");
-                                        out.writeUTF(server.getName());
+                                        DataOutputStream out = new DataOutputStream( b );
+                                        out.writeUTF( "PlayerList" );
+                                        out.writeUTF( server.getName() );
 
                                         StringBuilder sb = new StringBuilder();
-                                        for (ProxiedPlayer p : server.getPlayers())
+                                        for ( ProxiedPlayer p : server.getPlayers() )
                                         {
-                                            sb.append(p.getName());
-                                            sb.append(",");
+                                            sb.append( p.getName() );
+                                            sb.append( "," );
                                         }
-                                        out.writeUTF(sb.substring(0, sb.length() - 1));
+                                        out.writeUTF( sb.substring( 0, sb.length() - 1 ) );
 
-                                        getServer().sendData("BungeeCord", b.toByteArray());
+                                        getServer().sendData( "BungeeCord", b.toByteArray() );
                                     }
                                 }
-                                if (subChannel.equals("GetServers"))
+                                if ( subChannel.equals( "GetServers" ) )
                                 {
                                     ByteArrayOutputStream b = new ByteArrayOutputStream();
-                                    DataOutputStream out = new DataOutputStream(b);
-                                    out.writeUTF("GetServers");
+                                    DataOutputStream out = new DataOutputStream( b );
+                                    out.writeUTF( "GetServers" );
 
                                     StringBuilder sb = new StringBuilder();
-                                    for (String server : ProxyServer.getInstance().getServers().keySet())
+                                    for ( String server : ProxyServer.getInstance().getServers().keySet() )
                                     {
-                                        sb.append(server);
-                                        sb.append(",");
+                                        sb.append( server );
+                                        sb.append( "," );
                                     }
-                                    out.writeUTF(sb.substring(0, sb.length() - 1));
+                                    out.writeUTF( sb.substring( 0, sb.length() - 1 ) );
 
-                                    getServer().sendData("BungeeCord", b.toByteArray());
+                                    getServer().sendData( "BungeeCord", b.toByteArray() );
                                 }
-                                if (subChannel.equals("Message"))
+                                if ( subChannel.equals( "Message" ) )
                                 {
-                                    ProxiedPlayer target = ProxyServer.getInstance().getPlayer(in.readUTF());
-                                    if (target != null)
+                                    ProxiedPlayer target = ProxyServer.getInstance().getPlayer( in.readUTF() );
+                                    if ( target != null )
                                     {
-                                        target.sendMessage(in.readUTF());
+                                        target.sendMessage( in.readUTF() );
                                     }
                                 }
                                 continue;
                             }
                     }
 
-                    while (!packetQueue.isEmpty())
+                    while ( !packetQueue.isEmpty() )
                     {
                         DefinedPacket p = packetQueue.poll();
-                        if (p != null)
+                        if ( p != null )
                         {
-                            stream.write(p);
+                            stream.write( p );
                         }
                     }
 
-                    EntityMap.rewrite(packet, serverEntityId, clientEntityId);
-                    stream.write(packet);
+                    EntityMap.rewrite( packet, serverEntityId, clientEntityId );
+                    stream.write( packet );
 
-                    if (nextServer != null)
+                    if ( nextServer != null )
                     {
-                        connect(nextServer, true);
+                        connect( nextServer, true );
                         break outer;
                     }
                 }
-            } catch (Exception ex)
+            } catch ( Exception ex )
             {
-                destroySelf(Util.exception(ex));
+                destroySelf( Util.exception( ex ) );
             }
         }
     }

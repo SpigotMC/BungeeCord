@@ -16,17 +16,17 @@ public class Packet9Respawn extends DefinedPacket
 
     public Packet9Respawn(int dimension, byte difficulty, byte gameMode, short worldHeight, String levelType)
     {
-        super(0x09);
-        writeInt(dimension);
-        writeByte(difficulty);
-        writeByte(gameMode);
-        writeShort(worldHeight);
-        writeUTF(levelType);
+        super( 0x09 );
+        writeInt( dimension );
+        writeByte( difficulty );
+        writeByte( gameMode );
+        writeShort( worldHeight );
+        writeUTF( levelType );
     }
 
     public Packet9Respawn(byte[] buf)
     {
-        super(0x09, buf);
+        super( 0x09, buf );
         this.dimension = readInt();
         this.difficulty = readByte();
         this.gameMode = readByte();

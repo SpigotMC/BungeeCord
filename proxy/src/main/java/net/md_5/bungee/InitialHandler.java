@@ -43,7 +43,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     {
         this.socket = socket;
         this.listener = info;
-        stream = new PacketStream(socket.getInputStream(), socket.getOutputStream());
+        stream = new PacketStream( socket.getInputStream(), socket.getOutputStream() );
     }
 
     private enum State
@@ -55,69 +55,69 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     @Override
     public void handle(PacketFEPing ping) throws Exception
     {
-        socket.setSoTimeout(100);
+        socket.setSoTimeout( 100 );
         boolean newPing = false;
         try
         {
             socket.getInputStream().read();
             newPing = true;
-        } catch (IOException ex)
+        } catch ( IOException ex )
         {
         }
 
-        ServerPing pingevent = new ServerPing(BungeeCord.PROTOCOL_VERSION, BungeeCord.GAME_VERSION,
-                listener.getMotd(), ProxyServer.getInstance().getPlayers().size(), listener.getMaxPlayers());
+        ServerPing pingevent = new ServerPing( BungeeCord.PROTOCOL_VERSION, BungeeCord.GAME_VERSION,
+                listener.getMotd(), ProxyServer.getInstance().getPlayers().size(), listener.getMaxPlayers() );
 
-        pingevent = ProxyServer.getInstance().getPluginManager().callEvent(new ProxyPingEvent(this, pingevent)).getResponse();
+        pingevent = ProxyServer.getInstance().getPluginManager().callEvent( new ProxyPingEvent( this, pingevent ) ).getResponse();
 
-        String response = (newPing) ? ChatColor.COLOR_CHAR + "1"
+        String response = ( newPing ) ? ChatColor.COLOR_CHAR + "1"
                 + "\00" + pingevent.getProtocolVersion()
                 + "\00" + pingevent.getGameVersion()
                 + "\00" + pingevent.getMotd()
                 + "\00" + pingevent.getCurrentPlayers()
                 + "\00" + pingevent.getMaxPlayers()
                 : pingevent.getMotd() + ChatColor.COLOR_CHAR + pingevent.getCurrentPlayers() + ChatColor.COLOR_CHAR + pingevent.getMaxPlayers();
-        disconnect(response);
+        disconnect( response );
     }
 
     @Override
     public void handle(Packet2Handshake handshake) throws Exception
     {
-        Preconditions.checkState(thisState == State.HANDSHAKE, "Not expecting HANDSHAKE");
+        Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
         this.handshake = handshake;
         request = EncryptionUtil.encryptRequest();
-        stream.write(request);
+        stream.write( request );
         thisState = State.ENCRYPT;
     }
 
     @Override
     public void handle(PacketFCEncryptionResponse encryptResponse) throws Exception
     {
-        Preconditions.checkState(thisState == State.ENCRYPT, "Not expecting ENCRYPT");
+        Preconditions.checkState( thisState == State.ENCRYPT, "Not expecting ENCRYPT" );
 
-        SecretKey shared = EncryptionUtil.getSecret(encryptResponse, request);
-        if (!EncryptionUtil.isAuthenticated(handshake.username, request.serverId, shared))
+        SecretKey shared = EncryptionUtil.getSecret( encryptResponse, request );
+        if ( !EncryptionUtil.isAuthenticated( handshake.username, request.serverId, shared ) )
         {
-            throw new KickException("Not authenticated with minecraft.net");
+            throw new KickException( "Not authenticated with minecraft.net" );
         }
 
         // Check for multiple connections
-        ProxiedPlayer old = ProxyServer.getInstance().getPlayer(handshake.username);
-        if (old != null)
+        ProxiedPlayer old = ProxyServer.getInstance().getPlayer( handshake.username );
+        if ( old != null )
         {
-            old.disconnect("You are already connected to the server");
+            old.disconnect( "You are already connected to the server" );
         }
 
         // fire login event
-        LoginEvent event = new LoginEvent(this);
-        if (event.isCancelled())
+        LoginEvent event = new LoginEvent( this );
+        if ( event.isCancelled() )
         {
-            disconnect(event.getCancelReason());
+            disconnect( event.getCancelReason() );
         }
 
-        stream.write(new PacketFCEncryptionResponse());
-        stream = new PacketStream(new CipherInputStream(socket.getInputStream(),
-                EncryptionUtil.getCipher(false, shared)), new CipherOutputStream(socket.getOutputStream(), EncryptionUtil.getCipher(true, shared)));
+        stream.write( new PacketFCEncryptionResponse() );
+        stream = new PacketStream( new CipherInputStream( socket.getInputStream(),
+                EncryptionUtil.getCipher( false, shared ) ), new CipherOutputStream( socket.getOutputStream(), EncryptionUtil.getCipher( true, shared ) ) );
 
         thisState = State.LOGIN;
     }
@@ -125,12 +125,12 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     @Override
     public void handle(PacketCDClientStatus clientStatus) throws Exception
     {
-        Preconditions.checkState(thisState == State.LOGIN, "Not expecting LOGIN");
+        Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
-        UserConnection userCon = new UserConnection(socket, this, stream, handshake);
-        String server = ProxyServer.getInstance().getReconnectHandler().getServer(userCon);
-        ServerInfo s = BungeeCord.getInstance().config.getServers().get(server);
-        userCon.connect(s, true);
+        UserConnection userCon = new UserConnection( socket, this, stream, handshake );
+        String server = ProxyServer.getInstance().getReconnectHandler().getServer( userCon );
+        ServerInfo s = BungeeCord.getInstance().config.getServers().get( server );
+        userCon.connect( s, true );
 
         thisState = State.FINISHED;
     }
@@ -140,15 +140,15 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     {
         try
         {
-            while (thisState != State.FINISHED)
+            while ( thisState != State.FINISHED )
             {
                 byte[] buf = stream.readPacket();
-                DefinedPacket packet = DefinedPacket.packet(buf);
-                packet.handle(this);
+                DefinedPacket packet = DefinedPacket.packet( buf );
+                packet.handle( this );
             }
-        } catch (Exception ex)
+        } catch ( Exception ex )
         {
-            disconnect("[Proxy Error] " + Util.exception(ex));
+            disconnect( "[Proxy Error] " + Util.exception( ex ) );
             ex.printStackTrace();
         }
     }
@@ -159,8 +159,8 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
         thisState = State.FINISHED;
         try
         {
-            stream.write(new PacketFFKick(reason));
-        } catch (IOException ioe)
+            stream.write( new PacketFFKick( reason ) );
+        } catch ( IOException ioe )
         {
         } finally
         {
@@ -168,7 +168,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
             {
                 socket.shutdownOutput();
                 socket.close();
-            } catch (IOException ioe2)
+            } catch ( IOException ioe2 )
             {
             }
         }
@@ -177,19 +177,19 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     @Override
     public String getName()
     {
-        return (handshake == null) ? null : handshake.username;
+        return ( handshake == null ) ? null : handshake.username;
     }
 
     @Override
     public byte getVersion()
     {
-        return (handshake == null) ? -1 : handshake.procolVersion;
+        return ( handshake == null ) ? -1 : handshake.procolVersion;
     }
 
     @Override
     public InetSocketAddress getVirtualHost()
     {
-        return (handshake == null) ? null : new InetSocketAddress(handshake.host, handshake.port);
+        return ( handshake == null ) ? null : new InetSocketAddress( handshake.host, handshake.port );
     }
 
     @Override

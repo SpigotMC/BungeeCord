@@ -13,16 +13,16 @@ public class PacketFAPluginMessage extends DefinedPacket
 
     public PacketFAPluginMessage(String tag, byte[] data)
     {
-        super(0xFA);
-        writeUTF(tag);
-        writeArray(data);
+        super( 0xFA );
+        writeUTF( tag );
+        writeArray( data );
         this.tag = tag;
         this.data = data;
     }
 
     public PacketFAPluginMessage(byte[] buf)
     {
-        super(0xFA, buf);
+        super( 0xFA, buf );
         this.tag = readUTF();
         this.data = readArray();
     }
@@ -30,6 +30,6 @@ public class PacketFAPluginMessage extends DefinedPacket
     @Override
     public void handle(PacketHandler handler) throws Exception
     {
-        handler.handle(this);
+        handler.handle( this );
     }
 }

@@ -49,36 +49,36 @@ public class Configuration
     {
         ConfigurationAdapter adapter = ProxyServer.getInstance().getConfigurationAdapter();
 
-        timeout = adapter.getInt("timeout", timeout);
-        uuid = adapter.getString("stats", uuid);
+        timeout = adapter.getInt( "timeout", timeout );
+        uuid = adapter.getString( "stats", uuid );
 
-        DefaultTabList tab = DefaultTabList.valueOf(adapter.getString("tab_list", "GLOBAL_PING"));
-        if (tab == null)
+        DefaultTabList tab = DefaultTabList.valueOf( adapter.getString( "tab_list", "GLOBAL_PING" ) );
+        if ( tab == null )
         {
             tab = DefaultTabList.GLOBAL_PING;
         }
-        switch (tab)
+        switch ( tab )
         {
             case GLOBAL:
-                ProxyServer.getInstance().setTabListHandler(new GlobalTabList());
+                ProxyServer.getInstance().setTabListHandler( new GlobalTabList() );
                 break;
             case GLOBAL_PING:
-                ProxyServer.getInstance().setTabListHandler(new GlobalPingTabList());
+                ProxyServer.getInstance().setTabListHandler( new GlobalPingTabList() );
                 break;
             case SERVER:
-                ProxyServer.getInstance().setTabListHandler(new ServerUniqueTabList());
+                ProxyServer.getInstance().setTabListHandler( new ServerUniqueTabList() );
                 break;
         }
 
         listeners = adapter.getListeners();
-        Preconditions.checkArgument(listeners != null && !listeners.isEmpty(), "No listeners defined.");
+        Preconditions.checkArgument( listeners != null && !listeners.isEmpty(), "No listeners defined." );
 
         servers = adapter.getServers();
-        Preconditions.checkArgument(servers != null && !servers.isEmpty(), "No servers defined");
+        Preconditions.checkArgument( servers != null && !servers.isEmpty(), "No servers defined" );
 
-        for (ListenerInfo listener : listeners)
+        for ( ListenerInfo listener : listeners )
         {
-            Preconditions.checkArgument(servers.containsKey(listener.getDefaultServer()));
+            Preconditions.checkArgument( servers.containsKey( listener.getDefaultServer() ) );
         }
     }
 }

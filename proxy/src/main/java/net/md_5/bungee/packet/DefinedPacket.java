@@ -40,10 +40,10 @@ public abstract class DefinedPacket implements DataInput, DataOutput
 
     public DefinedPacket(int id, byte[] buf)
     {
-        in = ByteStreams.newDataInput(buf);
-        if (readUnsignedByte() != id)
+        in = ByteStreams.newDataInput( buf );
+        if ( readUnsignedByte() != id )
         {
-            throw new IllegalArgumentException("Wasn't expecting packet id " + Util.hex(id));
+            throw new IllegalArgumentException( "Wasn't expecting packet id " + Util.hex( id ) );
         }
         this.id = id;
         packet = buf;
@@ -53,7 +53,7 @@ public abstract class DefinedPacket implements DataInput, DataOutput
     {
         out = ByteStreams.newDataOutput();
         this.id = id;
-        writeByte(id);
+        writeByte( id );
     }
 
     /**
@@ -70,33 +70,33 @@ public abstract class DefinedPacket implements DataInput, DataOutput
     @Override
     public void writeUTF(String s)
     {
-        writeShort(s.length());
-        writeChars(s);
+        writeShort( s.length() );
+        writeChars( s );
     }
 
     @Override
     public String readUTF()
     {
         short len = readShort();
-        char[] chars = new char[len];
-        for (int i = 0; i < len; i++)
+        char[] chars = new char[ len ];
+        for ( int i = 0; i < len; i++ )
         {
             chars[i] = this.readChar();
         }
-        return new String(chars);
+        return new String( chars );
     }
 
     public void writeArray(byte[] b)
     {
-        writeShort(b.length);
-        write(b);
+        writeShort( b.length );
+        write( b );
     }
 
     public byte[] readArray()
     {
         short len = readShort();
-        byte[] ret = new byte[len];
-        readFully(ret);
+        byte[] ret = new byte[ len ];
+        readFully( ret );
         return ret;
     }
 
@@ -111,25 +111,25 @@ public abstract class DefinedPacket implements DataInput, DataOutput
 
     public void handle(PacketHandler handler) throws Exception
     {
-        handler.handle(this);
+        handler.handle( this );
     }
-    private static Class<? extends DefinedPacket>[] classes = new Class[256];
+    private static Class<? extends DefinedPacket>[] classes = new Class[ 256 ];
 
     public static DefinedPacket packet(byte[] buf)
     {
-        int id = Util.getId(buf);
+        int id = Util.getId( buf );
         Class<? extends DefinedPacket> clazz = classes[id];
         DefinedPacket ret = null;
-        if (clazz != null)
+        if ( clazz != null )
         {
             try
             {
-                Constructor<? extends DefinedPacket> constructor = clazz.getDeclaredConstructor(byte[].class);
-                if (constructor != null)
+                Constructor<? extends DefinedPacket> constructor = clazz.getDeclaredConstructor( byte[].class );
+                if ( constructor != null )
                 {
-                    ret = constructor.newInstance(buf);
+                    ret = constructor.newInstance( buf );
                 }
-            } catch (IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException ex)
+            } catch ( IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException ex )
             {
             }
         }

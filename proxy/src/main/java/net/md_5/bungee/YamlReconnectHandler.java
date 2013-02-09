@@ -18,7 +18,7 @@ public class YamlReconnectHandler implements ReconnectHandler
 {
 
     private final Yaml yaml = new Yaml();
-    private final File file = new File("locations.yml");
+    private final File file = new File( "locations.yml" );
     /*========================================================================*/
     private Map<String, String> data;
 
@@ -28,21 +28,21 @@ public class YamlReconnectHandler implements ReconnectHandler
         try
         {
             file.createNewFile();
-            try (FileReader rd = new FileReader(file))
+            try ( FileReader rd = new FileReader( file ) )
             {
-                data = yaml.loadAs(rd, Map.class);
+                data = yaml.loadAs( rd, Map.class );
             }
-        } catch (IOException ex)
+        } catch ( IOException ex )
         {
-            ProxyServer.getInstance().getLogger().log(Level.WARNING, "Could not load reconnect locations", ex);
+            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load reconnect locations", ex );
         }
 
-        if (data == null)
+        if ( data == null )
         {
             data = new ConcurrentHashMap<>();
         } else
         {
-            data = new ConcurrentHashMap<>(data);
+            data = new ConcurrentHashMap<>( data );
         }
     }
 
@@ -50,19 +50,19 @@ public class YamlReconnectHandler implements ReconnectHandler
     public String getServer(ProxiedPlayer player)
     {
         ListenerInfo listener = player.getPendingConnection().getListener();
-        if (listener.isForceDefault())
+        if ( listener.isForceDefault() )
         {
             return listener.getDefaultServer();
         }
-        String forced = listener.getForcedHosts().get(player.getPendingConnection().getVirtualHost().getHostName());
-        String server = (forced == null) ? data.get(key(player)) : forced;
-        return (server != null) ? server : listener.getDefaultServer();
+        String forced = listener.getForcedHosts().get( player.getPendingConnection().getVirtualHost().getHostName() );
+        String server = ( forced == null ) ? data.get( key( player ) ) : forced;
+        return ( server != null ) ? server : listener.getDefaultServer();
     }
 
     @Override
     public void setServer(ProxiedPlayer player)
     {
-        data.put(key(player), player.getServer().getInfo().getName());
+        data.put( key( player ), player.getServer().getInfo().getName() );
     }
 
     private String key(ProxiedPlayer player)
@@ -74,12 +74,12 @@ public class YamlReconnectHandler implements ReconnectHandler
     @Override
     public void save()
     {
-        try (FileWriter wr = new FileWriter(file))
+        try ( FileWriter wr = new FileWriter( file ) )
         {
-            yaml.dump(data, wr);
-        } catch (IOException ex)
+            yaml.dump( data, wr );
+        } catch ( IOException ex )
         {
-            ProxyServer.getInstance().getLogger().log(Level.WARNING, "Could not save reconnect locations", ex);
+            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not save reconnect locations", ex );
         }
     }
 }

@@ -27,20 +27,20 @@ public class ServerUniqueTabList implements TabListHandler
     @Override
     public void onDisconnect(ProxiedPlayer player)
     {
-        sentUsernames.remove(player);
+        sentUsernames.remove( player );
     }
 
     @Override
     public void onServerChange(ProxiedPlayer player)
     {
-        Set<String> usernames = sentUsernames.get(player);
-        if (usernames != null)
+        Set<String> usernames = sentUsernames.get( player );
+        if ( usernames != null )
         {
-            synchronized (usernames)
+            synchronized ( usernames )
             {
-                for (String username : usernames)
+                for ( String username : usernames )
                 {
-                    ((UserConnection) player).packetQueue.add(new PacketC9PlayerListItem(username, false, 9999));
+                    ( (UserConnection) player ).packetQueue.add( new PacketC9PlayerListItem( username, false, 9999 ) );
                 }
                 usernames.clear();
             }
@@ -50,21 +50,21 @@ public class ServerUniqueTabList implements TabListHandler
     @Override
     public boolean onListUpdate(ProxiedPlayer player, String name, boolean online, int ping)
     {
-        Set<String> usernames = sentUsernames.get(player);
-        if (usernames == null)
+        Set<String> usernames = sentUsernames.get( player );
+        if ( usernames == null )
         {
             usernames = new HashSet<>();
-            sentUsernames.put(player, usernames);
+            sentUsernames.put( player, usernames );
         }
 
-        synchronized (usernames)
+        synchronized ( usernames )
         {
-            if (online)
+            if ( online )
             {
-                usernames.add(name);
+                usernames.add( name );
             } else
             {
-                usernames.remove(name);
+                usernames.remove( name );
             }
         }
 

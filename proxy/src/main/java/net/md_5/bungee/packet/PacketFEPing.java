@@ -10,12 +10,12 @@ public class PacketFEPing extends DefinedPacket
 
     public PacketFEPing(byte[] buffer)
     {
-        super(0xFE, buffer);
+        super( 0xFE, buffer );
     }
 
     @Override
     public void handle(PacketHandler handler) throws Exception
     {
-        handler.handle(this);
+        handler.handle( this );
     }
 }
