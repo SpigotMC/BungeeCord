@@ -5,7 +5,10 @@ import static net.md_5.mendax.PacketDefinitions.OpCode.*;
 public class PacketDefinitions
 {
 
-    public static final OpCode[][] opCodes = new OpCode[ 256 ][];
+    private static final int MAX_PACKET = 256;
+    public static final OpCode[][] opCodes = new OpCode[ MAX_PACKET ][];
+    public static final int VANILLA_PROTOCOL = 0;
+    public static final int FORGE_PROTOCOL = MAX_PACKET;
 
     public enum OpCode
     {
@@ -119,7 +122,6 @@ public class PacketDefinitions
         {
             INT, INT, INT, INT, SHORT
         };
-        opCodes[0x1B] = null; // Does not exist
         opCodes[0x1C] = new OpCode[]
         {
             INT, SHORT, SHORT, SHORT
@@ -152,8 +154,6 @@ public class PacketDefinitions
         {
             INT, BYTE
         };
-        opCodes[0x24] = null; // Does not exist
-        opCodes[0x25] = null; // Does not exist
         opCodes[0x26] = new OpCode[]
         {
             INT, BYTE
@@ -178,11 +178,6 @@ public class PacketDefinitions
         {
             FLOAT, SHORT, SHORT
         };
-        //
-        //
-        // 0x2C -> 0x32 Do not exist
-        //
-        //
         opCodes[0x33] = new OpCode[]
         {
             INT, INT, BOOLEAN, SHORT, SHORT, INT_BYTE
@@ -207,9 +202,6 @@ public class PacketDefinitions
         {
             BULK_CHUNK
         };
-        opCodes[0x39] = null; // Does not exist
-        opCodes[0x3A] = null; // Does not exist
-        opCodes[0x3B] = null; // Does not exist
         opCodes[0x3C] = new OpCode[]
         {
             DOUBLE, DOUBLE, DOUBLE, FLOAT, INT_3, FLOAT, FLOAT, FLOAT
@@ -222,11 +214,6 @@ public class PacketDefinitions
         {
             STRING, INT, INT, INT, FLOAT, BYTE
         };
-        //
-        //
-        // 0x3F -> 0x45 Do not exist
-        //
-        //
         opCodes[0x46] = new OpCode[]
         {
             BYTE, BYTE
@@ -235,11 +222,6 @@ public class PacketDefinitions
         {
             INT, BYTE, INT, INT, INT
         };
-        //
-        //
-        // 0x4A -> 0x63 Do not exist
-        //
-        //
         opCodes[0x64] = new OpCode[]
         {
             BYTE, BYTE, STRING, BYTE
@@ -276,11 +258,6 @@ public class PacketDefinitions
         {
             BYTE, BYTE
         };
-        //
-        //
-        // 0x6D -> 0x81 Do not exist
-        //
-        //
         opCodes[0x82] = new OpCode[]
         {
             INT, SHORT, INT, STRING, STRING, STRING, STRING
@@ -293,11 +270,6 @@ public class PacketDefinitions
         {
             INT, SHORT, INT, BYTE, SHORT_BYTE
         };
-        //
-        //
-        // 0x85 -> 0xC7 Do not exist
-        //
-        //
         opCodes[0xC8] = new OpCode[]
         {
             INT, BYTE
@@ -322,16 +294,10 @@ public class PacketDefinitions
         {
             BYTE
         };
-        //
-        //
-        // 0xCE -> 0xF9 Do not exist
-        //
-        //
         opCodes[0xFA] = new OpCode[]
         {
             STRING, SHORT_BYTE
         };
-        opCodes[0xFB] = null; // Does not exist
         opCodes[0xFC] = new OpCode[]
         {
             SHORT_BYTE, SHORT_BYTE
@@ -346,6 +312,11 @@ public class PacketDefinitions
         opCodes[0xFF] = new OpCode[]
         {
             STRING
+        };
+        /*========================== Minecraft Forge ===========================*/
+        opCodes[0x01 + FORGE_PROTOCOL] = new OpCode[]
+        {
+            INT, STRING, BYTE, INT, BYTE, BYTE, BYTE
         };
     }
 }

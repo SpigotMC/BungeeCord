@@ -16,7 +16,7 @@ public class DataInputPacketReader
     {
         for ( int i = 0; i < instructions.length; i++ )
         {
-            List<Instruction> output = new ArrayList<Instruction>();
+            List<Instruction> output = new ArrayList<>();
 
             OpCode[] enums = PacketDefinitions.opCodes[i];
             if ( enums != null )
@@ -26,13 +26,13 @@ public class DataInputPacketReader
                     try
                     {
                         output.add( (Instruction) Instruction.class.getDeclaredField( struct.name() ).get( null ) );
-                    } catch ( Exception ex )
+                    } catch ( NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException ex )
                     {
                         throw new UnsupportedOperationException( "No definition for " + struct.name() );
                     }
                 }
 
-                List<Instruction> crushed = new ArrayList<Instruction>();
+                List<Instruction> crushed = new ArrayList<>();
                 int nextJumpSize = 0;
                 for ( Instruction child : output )
                 {
@@ -59,19 +59,31 @@ public class DataInputPacketReader
         }
     }
 
-    public static void readPacket(DataInput in, byte[] buffer) throws IOException
+    private static void readPacket(int packetId, DataInput in, byte[] buffer, int protocol) throws IOException
     {
-        int packetId = in.readUnsignedByte();
-        Instruction[] packetDef = instructions[packetId];
+        Instruction[] packetDef = instructions[packetId + protocol];
 
         if ( packetDef == null )
         {
-            throw new IOException( "Unknown packet id " + packetId );
+            if ( protocol == PacketDefinitions.VANILLA_PROTOCOL )
+            {
+                throw new IOException( "Unknown packet id " + packetId );
+            } else
+            {
+                readPacket( packetId, in, buffer, PacketDefinitions.VANILLA_PROTOCOL );
+                return;
+            }
         }
 
         for ( Instruction instruction : packetDef )
         {
             instruction.read( in, buffer );
         }
+    }
+
+    public static void readPacket(DataInput in, byte[] buffer, int protocol) throws IOException
+    {
+        int packetId = in.readUnsignedByte();
+        readPacket( packetId, in, buffer, protocol );
     }
 }

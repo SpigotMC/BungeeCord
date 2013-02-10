@@ -26,6 +26,7 @@ import net.md_5.bungee.packet.PacketFEPing;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketHandler;
 import net.md_5.bungee.packet.PacketStream;
+import net.md_5.mendax.PacketDefinitions;
 import org.bouncycastle.crypto.io.CipherInputStream;
 import org.bouncycastle.crypto.io.CipherOutputStream;
 
@@ -39,12 +40,13 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     private Packet2Handshake handshake;
     private PacketFDEncryptionRequest request;
     private State thisState = State.HANDSHAKE;
+    private int protocol = PacketDefinitions.VANILLA_PROTOCOL;
 
     public InitialHandler(Socket socket, ListenerInfo info) throws IOException
     {
         this.socket = socket;
         this.listener = info;
-        stream = new PacketStream( socket.getInputStream(), socket.getOutputStream() );
+        stream = new PacketStream( socket.getInputStream(), socket.getOutputStream(), protocol );
     }
 
     private enum State
@@ -128,7 +130,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
 
         stream.write( new PacketFCEncryptionResponse() );
         stream = new PacketStream( new CipherInputStream( socket.getInputStream(),
-                EncryptionUtil.getCipher( false, shared ) ), new CipherOutputStream( socket.getOutputStream(), EncryptionUtil.getCipher( true, shared ) ) );
+                EncryptionUtil.getCipher( false, shared ) ), new CipherOutputStream( socket.getOutputStream(), EncryptionUtil.getCipher( true, shared ) ), protocol );
 
         thisState = State.LOGIN;
     }

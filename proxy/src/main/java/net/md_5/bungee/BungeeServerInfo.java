@@ -15,6 +15,7 @@ import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketStream;
+import net.md_5.mendax.PacketDefinitions;
 
 public class BungeeServerInfo extends ServerInfo
 {
@@ -56,7 +57,7 @@ public class BungeeServerInfo extends ServerInfo
                     out.write( 0xFE );
                     out.write( 0x01 );
 
-                    PacketStream in = new PacketStream( socket.getInputStream() );
+                    PacketStream in = new PacketStream( socket.getInputStream(), PacketDefinitions.VANILLA_PROTOCOL );
                     PacketFFKick response = new PacketFFKick( in.readPacket() );
 
                     String[] split = response.message.split( "\00" );

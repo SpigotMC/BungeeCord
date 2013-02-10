@@ -19,6 +19,7 @@ import net.md_5.bungee.packet.PacketCDClientStatus;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketStream;
+import net.md_5.mendax.PacketDefinitions;
 
 /**
  * Class representing a connection from the proxy to the server; ie upstream.
@@ -46,7 +47,7 @@ public class ServerConnection extends GenericConnection implements Server
             socket.connect( info.getAddress(), BungeeCord.getInstance().config.getTimeout() );
             BungeeCord.getInstance().setSocketOptions( socket );
 
-            PacketStream stream = new PacketStream( socket.getInputStream(), socket.getOutputStream() );
+            PacketStream stream = new PacketStream( socket.getInputStream(), socket.getOutputStream(), PacketDefinitions.VANILLA_PROTOCOL );
 
             stream.write( handshake );
             stream.write( PacketCDClientStatus.CLIENT_LOGIN );

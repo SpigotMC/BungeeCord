@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import lombok.Getter;
+import lombok.Setter;
 import net.md_5.mendax.datainput.DataInputPacketReader;
 
 /**
@@ -19,19 +20,22 @@ public class PacketStream implements AutoCloseable
     private final DataInputStream dataInput;
     @Getter
     private OutputStream out;
+    @Setter
+    private int protocol;
     private final TrackingInputStream tracker;
     private final byte[] buffer = new byte[ 1 << 18 ];
 
-    public PacketStream(InputStream in)
+    public PacketStream(InputStream in, int protocol)
     {
-        this( in, null );
+        this( in, null, protocol );
     }
 
-    public PacketStream(InputStream in, OutputStream out)
+    public PacketStream(InputStream in, OutputStream out, int protocol)
     {
         tracker = new TrackingInputStream( in );
         dataInput = new DataInputStream( tracker );
         this.out = out;
+        this.protocol = protocol;
     }
 
     public void write(byte[] b) throws IOException
@@ -53,7 +57,7 @@ public class PacketStream implements AutoCloseable
     public byte[] readPacket() throws IOException
     {
         tracker.out.reset();
-        DataInputPacketReader.readPacket( dataInput, buffer );
+        DataInputPacketReader.readPacket( dataInput, buffer, protocol );
         return tracker.out.toByteArray();
     }
 
