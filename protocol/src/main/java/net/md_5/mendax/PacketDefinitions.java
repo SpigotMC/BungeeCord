@@ -6,7 +6,7 @@ public class PacketDefinitions
 {
 
     private static final int MAX_PACKET = 256;
-    public static final OpCode[][] opCodes = new OpCode[ MAX_PACKET ][];
+    public static final OpCode[][] opCodes = new OpCode[ MAX_PACKET * 2 ][];
     public static final int VANILLA_PROTOCOL = 0;
     public static final int FORGE_PROTOCOL = MAX_PACKET;
 

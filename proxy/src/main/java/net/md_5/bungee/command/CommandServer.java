@@ -2,6 +2,7 @@ package net.md_5.bungee.command;
 
 import java.util.Map;
 import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -26,7 +27,7 @@ public class CommandServer extends Command
         {
             return;
         }
-        ProxiedPlayer player = (ProxiedPlayer) sender;
+        UserConnection player = (UserConnection) sender;
         Map<String, ServerInfo> servers = BungeeCord.getInstance().config.getServers();
         if ( args.length == 0 )
         {
@@ -49,7 +50,7 @@ public class CommandServer extends Command
                 player.sendMessage( ChatColor.RED + "You are already on this server." );
             } else
             {
-                player.connect( server );
+                player.connect( server, true );
             }
         }
     }
