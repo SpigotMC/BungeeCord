@@ -11,6 +11,12 @@ public interface ConfigurationAdapter
 {
 
     /**
+     * Reload all the possible values, and if necessary cache them for
+     * individual getting.
+     */
+    public void load();
+
+    /**
      * Gets an integer from the specified path.
      *
      * @param path the path to retrieve the integer from

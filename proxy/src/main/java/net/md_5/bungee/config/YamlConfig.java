@@ -25,11 +25,11 @@ import org.yaml.snakeyaml.Yaml;
 public class YamlConfig implements ConfigurationAdapter
 {
 
-    private boolean loaded;
     private Yaml yaml;
     private Map config;
     private final File file = new File( "config.yml" );
 
+    @Override
     public void load()
     {
         try
@@ -48,8 +48,6 @@ public class YamlConfig implements ConfigurationAdapter
             {
                 config = new HashMap();
             }
-
-            loaded = true;
         } catch ( IOException ex )
         {
             throw new RuntimeException( "Could not load configuration!", ex );
@@ -77,21 +75,12 @@ public class YamlConfig implements ConfigurationAdapter
 
     private <T> T get(String path, T def)
     {
-        if ( !loaded )
-        {
-            load();
-        }
         return get( path, def, config );
     }
 
     @SuppressWarnings("unchecked")
     private <T> T get(String path, T def, Map submap)
     {
-        if ( !loaded )
-        {
-            load();
-        }
-
         int index = path.indexOf( '.' );
         if ( index == -1 )
         {
