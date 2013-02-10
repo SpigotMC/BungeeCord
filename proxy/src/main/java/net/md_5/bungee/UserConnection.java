@@ -83,6 +83,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
 
     public void connect(ServerInfo target, boolean force)
     {
+        nextServer = null;
         if ( server == null )
         {
             // First join
