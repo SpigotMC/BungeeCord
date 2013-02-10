@@ -2,7 +2,6 @@ package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import javax.crypto.SecretKey;
@@ -17,8 +16,10 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.packet.DefinedPacket;
+import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet2Handshake;
 import net.md_5.bungee.packet.PacketCDClientStatus;
+import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketFCEncryptionResponse;
 import net.md_5.bungee.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.packet.PacketFEPing;
@@ -50,6 +51,16 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     {
 
         HANDSHAKE, ENCRYPT, LOGIN, FINISHED;
+    }
+
+    @Override
+    public void handle(Packet1Login login) throws Exception
+    {
+    }
+
+    @Override
+    public void handle(PacketFAPluginMessage pluginMessage) throws Exception
+    {
     }
 
     @Override
