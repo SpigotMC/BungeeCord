@@ -48,24 +48,21 @@ public class BungeeServerInfo extends ServerInfo
             @Override
             public void run()
             {
-                try
+                try ( Socket socket = new Socket(); )
                 {
-                    Socket socket = new Socket();
                     socket.connect( getAddress() );
-                    try ( DataOutputStream out = new DataOutputStream( socket.getOutputStream() ) )
-                    {
-                        out.write( 0xFE );
-                        out.write( 0x01 );
-                    }
-                    try ( PacketStream in = new PacketStream( socket.getInputStream() ) )
-                    {
-                        PacketFFKick response = new PacketFFKick( in.readPacket() );
 
-                        String[] split = response.message.split( "\00" );
+                    DataOutputStream out = new DataOutputStream( socket.getOutputStream() );
+                    out.write( 0xFE );
+                    out.write( 0x01 );
 
-                        ServerPing ping = new ServerPing( Byte.parseByte( split[1] ), split[2], split[3], Integer.parseInt( split[4] ), Integer.parseInt( split[5] ) );
-                        callback.done( ping, null );
-                    }
+                    PacketStream in = new PacketStream( socket.getInputStream() );
+                    PacketFFKick response = new PacketFFKick( in.readPacket() );
+
+                    String[] split = response.message.split( "\00" );
+
+                    ServerPing ping = new ServerPing( Byte.parseByte( split[1] ), split[2], split[3], Integer.parseInt( split[4] ), Integer.parseInt( split[5] ) );
+                    callback.done( ping, null );
                 } catch ( Throwable t )
                 {
                     callback.done( null, t );
