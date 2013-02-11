@@ -123,6 +123,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
 
         // fire login event
         LoginEvent event = new LoginEvent( this );
+        ProxyServer.getInstance().getPluginManager().callEvent( event );
         if ( event.isCancelled() )
         {
             disconnect( event.getCancelReason() );
