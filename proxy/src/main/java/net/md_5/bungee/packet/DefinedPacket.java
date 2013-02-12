@@ -1,10 +1,11 @@
 package net.md_5.bungee.packet;
 
-import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import java.io.DataInput;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.DataOutput;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import lombok.Delegate;
@@ -15,7 +16,7 @@ import net.md_5.bungee.Util;
  * subclasses can read and write to the backing byte array which can be
  * retrieved via the {@link #getPacket()} method.
  */
-public abstract class DefinedPacket implements DataInput, DataOutput
+public abstract class DefinedPacket implements DataOutput
 {
 
     private interface Overriden
@@ -25,8 +26,8 @@ public abstract class DefinedPacket implements DataInput, DataOutput
 
         void writeUTF(String s);
     }
-    @Delegate(excludes = Overriden.class)
-    private ByteArrayDataInput in;
+    private ByteArrayInputStream bin;
+    private DataInputStream input;
     @Delegate(excludes = Overriden.class)
     private ByteArrayDataOutput out;
     /**
@@ -40,7 +41,8 @@ public abstract class DefinedPacket implements DataInput, DataOutput
 
     public DefinedPacket(int id, byte[] buf)
     {
-        in = ByteStreams.newDataInput( buf );
+        bin = new ByteArrayInputStream( buf );
+        input = new DataInputStream( bin );
         if ( readUnsignedByte() != id )
         {
             throw new IllegalArgumentException( "Wasn't expecting packet id " + Util.hex( id ) );
@@ -74,7 +76,6 @@ public abstract class DefinedPacket implements DataInput, DataOutput
         writeChars( s );
     }
 
-    @Override
     public String readUTF()
     {
         short len = readShort();
@@ -98,6 +99,88 @@ public abstract class DefinedPacket implements DataInput, DataOutput
         byte[] ret = new byte[ len ];
         readFully( ret );
         return ret;
+    }
+
+    public final int available()
+    {
+        return bin.available();
+    }
+
+    public final void readFully(byte b[])
+    {
+        try
+        {
+            input.readFully( b );
+        } catch ( IOException e )
+        {
+            throw new IllegalStateException( e );
+        }
+    }
+
+    public final boolean readBoolean()
+    {
+        try
+        {
+            return input.readBoolean();
+        } catch ( IOException e )
+        {
+            throw new IllegalStateException( e );
+        }
+    }
+
+    public final byte readByte()
+    {
+        try
+        {
+            return input.readByte();
+        } catch ( IOException e )
+        {
+            throw new IllegalStateException( e );
+        }
+    }
+
+    public final int readUnsignedByte()
+    {
+        try
+        {
+            return input.readUnsignedByte();
+        } catch ( IOException e )
+        {
+            throw new IllegalStateException( e );
+        }
+    }
+
+    public final short readShort()
+    {
+        try
+        {
+            return input.readShort();
+        } catch ( IOException e )
+        {
+            throw new IllegalStateException( e );
+        }
+    }
+
+    public final char readChar()
+    {
+        try
+        {
+            return input.readChar();
+        } catch ( IOException e )
+        {
+            throw new IllegalStateException( e );
+        }
+    }
+
+    public final int readInt()
+    {
+        try
+        {
+            return input.readInt();
+        } catch ( IOException e )
+        {
+            throw new IllegalStateException( e );
+        }
     }
 
     @Override

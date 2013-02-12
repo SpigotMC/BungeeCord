@@ -11,7 +11,7 @@ public class Packet1Login extends DefinedPacket
     public int entityId;
     public String levelType;
     public byte gameMode;
-    public byte dimension;
+    public int dimension;
     public byte difficulty;
     public byte unused;
     public byte maxPlayers;
@@ -34,7 +34,16 @@ public class Packet1Login extends DefinedPacket
         this.entityId = readInt();
         this.levelType = readUTF();
         this.gameMode = readByte();
-        this.dimension = readByte();
+        if ( available() == 4 )
+        {
+            this.dimension = readByte();
+        } else if ( available() == 7 )
+        {
+            this.dimension = readInt();
+        } else
+        {
+            throw new IllegalStateException();
+        }
         this.difficulty = readByte();
         this.unused = readByte();
         this.maxPlayers = readByte();
