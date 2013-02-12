@@ -44,6 +44,10 @@ public class Configuration
      * Set of all servers.
      */
     private Map<String, ServerInfo> servers;
+    /**
+     * Should we check minecraft.net auth.
+     */
+    private boolean onlineMode = true;
 
     public void load()
     {
@@ -52,6 +56,7 @@ public class Configuration
 
         timeout = adapter.getInt( "timeout", timeout );
         uuid = adapter.getString( "stats", uuid );
+        onlineMode = adapter.getBoolean( "online_mode", onlineMode );
 
         DefaultTabList tab = DefaultTabList.valueOf( adapter.getString( "tab_list", "GLOBAL_PING" ) );
         if ( tab == null )

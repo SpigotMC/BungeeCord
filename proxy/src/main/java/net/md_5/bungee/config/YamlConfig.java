@@ -128,6 +128,12 @@ public class YamlConfig implements ConfigurationAdapter
     }
 
     @Override
+    public boolean getBoolean(String path, boolean def)
+    {
+        return get( path, def );
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public Map<String, ServerInfo> getServers()
     {

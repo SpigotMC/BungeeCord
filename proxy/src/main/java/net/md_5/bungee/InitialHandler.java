@@ -109,7 +109,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
         Preconditions.checkState( thisState == State.ENCRYPT, "Not expecting ENCRYPT" );
 
         SecretKey shared = EncryptionUtil.getSecret( encryptResponse, request );
-        if ( !EncryptionUtil.isAuthenticated( handshake.username, request.serverId, shared ) )
+        if ( BungeeCord.getInstance().config.isOnlineMode() && !EncryptionUtil.isAuthenticated( handshake.username, request.serverId, shared ) )
         {
             throw new KickException( "Not authenticated with minecraft.net" );
         }

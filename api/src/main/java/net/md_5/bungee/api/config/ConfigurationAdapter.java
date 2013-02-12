@@ -35,6 +35,15 @@ public interface ConfigurationAdapter
     public String getString(String path, String def);
 
     /**
+     * Gets a boolean from the specified path.
+     *
+     * @param path the path to retrieve the boolean form.
+     * @param def the default value
+     * @return the retrieved boolean
+     */
+    public boolean getBoolean(String path, boolean def);
+
+    /**
      * Get the configuration all servers which may be accessible via the proxy.
      *
      * @return all accessible servers, keyed by name

@@ -51,7 +51,7 @@ public class EncryptionUtil
             keys = KeyPairGenerator.getInstance( "RSA" ).generateKeyPair();
         }
 
-        String hash = Long.toString( random.nextLong(), 16 );
+        String hash = ( BungeeCord.getInstance().config.isOnlineMode() ) ? Long.toString( random.nextLong(), 16 ) : "-";
         byte[] pubKey = keys.getPublic().getEncoded();
         byte[] verify = new byte[ 4 ];
         random.nextBytes( verify );
