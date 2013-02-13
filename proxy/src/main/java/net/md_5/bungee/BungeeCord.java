@@ -155,7 +155,8 @@ public class BungeeCord extends ProxyServer
         plugins.mkdir();
         pluginManager.loadPlugins( plugins );
         config.load();
-        reconnectHandler = new YamlReconnectHandler();
+        if(reconnectHandler == null)
+            reconnectHandler = new YamlReconnectHandler();
         isRunning = true;
 
         pluginManager.enablePlugins();
