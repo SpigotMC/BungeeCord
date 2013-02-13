@@ -21,6 +21,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
+import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.packet.*;
@@ -51,6 +52,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     private final Object permMutex = new Object();
     // Hack for connect timings
     private ServerInfo nextServer;
+    private volatile boolean clientConnected = true;
 
     public UserConnection(Socket socket, PendingConnection pendingConnection, PacketStream stream, Packet2Handshake handshake)
     {
@@ -155,16 +157,23 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
         }
     }
 
-    private void destroySelf(String reason)
+    private synchronized void destroySelf(String reason)
     {
-        ProxyServer.getInstance().getPlayers().remove( this );
-
-        disconnect( reason );
-        if ( server != null )
+        if ( clientConnected )
         {
-            server.getInfo().removePlayer( this );
-            server.disconnect( "Quitting" );
-            ProxyServer.getInstance().getReconnectHandler().setServer( this );
+            PlayerDisconnectEvent event = new PlayerDisconnectEvent( this );
+            ProxyServer.getInstance().getPluginManager().callEvent( event );
+            ProxyServer.getInstance().getPlayers().remove( this );
+
+            disconnect( reason );
+            if ( server != null )
+            {
+                server.getInfo().removePlayer( this );
+                server.disconnect( "Quitting" );
+                ProxyServer.getInstance().getReconnectHandler().setServer( this );
+            }
+
+            clientConnected = false;
         }
     }
 

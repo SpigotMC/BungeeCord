@@ -13,8 +13,8 @@ import net.md_5.bungee.api.plugin.Event;
  */
 @Data
 @AllArgsConstructor
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = false)
+@EqualsAndHashCode(callSuper = false)
 public class ProxyPingEvent extends Event
 {
 

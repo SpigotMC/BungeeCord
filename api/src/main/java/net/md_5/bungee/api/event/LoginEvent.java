@@ -11,8 +11,8 @@ import net.md_5.bungee.api.plugin.Event;
  * Event called to represent a player logging in.
  */
 @Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = false)
+@EqualsAndHashCode(callSuper = false)
 public class LoginEvent extends Event implements Cancellable
 {
 

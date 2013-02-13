@@ -14,8 +14,8 @@ import net.md_5.bungee.api.plugin.Event;
  * information to the server before the player logs in.
  */
 @Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = false)
+@EqualsAndHashCode(callSuper = false)
 public class ServerConnectedEvent extends Event
 {
 
