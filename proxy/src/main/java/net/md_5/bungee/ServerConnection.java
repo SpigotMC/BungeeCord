@@ -59,6 +59,7 @@ public class ServerConnection extends GenericConnection implements Server
             stream.readPacket();
 
             byte[] loginResponse = null;
+            boolean forgeIHateYou = false;
             loop:
             while ( true )
             {
@@ -69,9 +70,13 @@ public class ServerConnection extends GenericConnection implements Server
                     case 0x01:
                         break loop;
                     case 0xFA:
-                        for ( PacketFAPluginMessage message : user.loginMessages )
+                        if ( !forgeIHateYou )
                         {
-                            stream.write( message );
+                            for ( PacketFAPluginMessage message : user.loginMessages )
+                            {
+                                stream.write( message );
+                            }
+                            forgeIHateYou = true;
                         }
                         break;
                     case 0xFF:
