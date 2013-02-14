@@ -61,7 +61,11 @@ public class DataInputPacketReader
 
     private static void readPacket(int packetId, DataInput in, byte[] buffer, int protocol) throws IOException
     {
-        Instruction[] packetDef = instructions[packetId + protocol];
+        Instruction[] packetDef = null;
+        if ( packetId + protocol < instructions.length )
+        {
+            packetDef = instructions[packetId + protocol];
+        }
 
         if ( packetDef == null )
         {

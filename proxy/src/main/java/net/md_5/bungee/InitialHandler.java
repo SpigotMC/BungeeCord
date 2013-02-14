@@ -61,7 +61,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     @Override
     public void handle(Packet1Login login) throws Exception
     {
-        Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting FORGE LOGIN" );
+        Preconditions.checkState( thisState == State.LOGIN, "Not expecting FORGE LOGIN" );
         Preconditions.checkState( forgeLogin == null, "Already received FORGE LOGIN" );
         forgeLogin = login;
         stream.setProtocol( PacketDefinitions.FORGE_PROTOCOL );
@@ -149,7 +149,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
-        UserConnection userCon = new UserConnection( socket, this, stream, handshake,forgeLogin,loginMessages );
+        UserConnection userCon = new UserConnection( socket, this, stream, handshake, forgeLogin, loginMessages );
         String server = ProxyServer.getInstance().getReconnectHandler().getServer( userCon );
         ServerInfo s = BungeeCord.getInstance().config.getServers().get( server );
         userCon.connect( s, true );
