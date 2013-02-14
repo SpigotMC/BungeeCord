@@ -20,6 +20,7 @@ public class PacketStream implements AutoCloseable
     private final DataInputStream dataInput;
     @Getter
     private OutputStream out;
+    @Getter
     @Setter
     private int protocol;
     private final TrackingInputStream tracker;

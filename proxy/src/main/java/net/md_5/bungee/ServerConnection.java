@@ -47,9 +47,19 @@ public class ServerConnection extends GenericConnection implements Server
             socket.connect( info.getAddress(), BungeeCord.getInstance().config.getTimeout() );
             BungeeCord.getInstance().setSocketOptions( socket );
 
-            PacketStream stream = new PacketStream( socket.getInputStream(), socket.getOutputStream(), PacketDefinitions.VANILLA_PROTOCOL );
+            PacketStream stream = new PacketStream( socket.getInputStream(), socket.getOutputStream(), user.stream.getProtocol() );
+
+            if ( user.forgeLogin != null )
+            {
+                stream.write( user.forgeLogin );
+            }
 
             stream.write( handshake );
+            for ( PacketFAPluginMessage message : user.loginMessages )
+            {
+                stream.write( message );
+            }
+
             stream.write( PacketCDClientStatus.CLIENT_LOGIN );
             stream.readPacket();
 

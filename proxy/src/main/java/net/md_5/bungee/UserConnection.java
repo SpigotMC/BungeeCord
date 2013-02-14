@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -30,6 +31,8 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
 {
 
     public final Packet2Handshake handshake;
+    final Packet1Login forgeLogin;
+    final List<PacketFAPluginMessage> loginMessages;
     public Queue<DefinedPacket> packetQueue = new ConcurrentLinkedQueue<>();
     @Getter
     private final PendingConnection pendingConnection;
@@ -54,11 +57,13 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     private ServerInfo nextServer;
     private volatile boolean clientConnected = true;
 
-    public UserConnection(Socket socket, PendingConnection pendingConnection, PacketStream stream, Packet2Handshake handshake)
+    public UserConnection(Socket socket, PendingConnection pendingConnection, PacketStream stream, Packet2Handshake handshake, Packet1Login forgeLogin, List<PacketFAPluginMessage> loginMessages)
     {
         super( socket, stream );
         this.handshake = handshake;
         this.pendingConnection = pendingConnection;
+        this.forgeLogin = forgeLogin;
+        this.loginMessages = loginMessages;
         name = handshake.username;
         displayName = handshake.username;
 

@@ -4,6 +4,8 @@ import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import javax.crypto.SecretKey;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
@@ -37,16 +39,17 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     @Getter
     private final ListenerInfo listener;
     private PacketStream stream;
+    private Packet1Login forgeLogin;
     private Packet2Handshake handshake;
     private PacketFDEncryptionRequest request;
+    private List<PacketFAPluginMessage> loginMessages = new ArrayList<>();
     private State thisState = State.HANDSHAKE;
-    private int protocol = PacketDefinitions.VANILLA_PROTOCOL;
 
     public InitialHandler(Socket socket, ListenerInfo info) throws IOException
     {
         this.socket = socket;
         this.listener = info;
-        stream = new PacketStream( socket.getInputStream(), socket.getOutputStream(), protocol );
+        stream = new PacketStream( socket.getInputStream(), socket.getOutputStream(), PacketDefinitions.VANILLA_PROTOCOL );
     }
 
     private enum State
@@ -58,11 +61,16 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     @Override
     public void handle(Packet1Login login) throws Exception
     {
+        Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting FORGE LOGIN" );
+        Preconditions.checkState( forgeLogin == null, "Already received FORGE LOGIN" );
+        forgeLogin = login;
+        stream.setProtocol( PacketDefinitions.FORGE_PROTOCOL );
     }
 
     @Override
     public void handle(PacketFAPluginMessage pluginMessage) throws Exception
     {
+        loginMessages.add( pluginMessage );
     }
 
     @Override
@@ -131,7 +139,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
 
         stream.write( new PacketFCEncryptionResponse() );
         stream = new PacketStream( new CipherInputStream( socket.getInputStream(),
-                EncryptionUtil.getCipher( false, shared ) ), new CipherOutputStream( socket.getOutputStream(), EncryptionUtil.getCipher( true, shared ) ), protocol );
+                EncryptionUtil.getCipher( false, shared ) ), new CipherOutputStream( socket.getOutputStream(), EncryptionUtil.getCipher( true, shared ) ), stream.getProtocol() );
 
         thisState = State.LOGIN;
     }
@@ -141,7 +149,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
-        UserConnection userCon = new UserConnection( socket, this, stream, handshake );
+        UserConnection userCon = new UserConnection( socket, this, stream, handshake,forgeLogin,loginMessages );
         String server = ProxyServer.getInstance().getReconnectHandler().getServer( userCon );
         ServerInfo s = BungeeCord.getInstance().config.getServers().get( server );
         userCon.connect( s, true );
