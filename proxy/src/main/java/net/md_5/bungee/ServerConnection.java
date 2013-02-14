@@ -55,18 +55,30 @@ public class ServerConnection extends GenericConnection implements Server
             }
 
             stream.write( handshake );
-            for ( PacketFAPluginMessage message : user.loginMessages )
-            {
-                stream.write( message );
-            }
-
             stream.write( PacketCDClientStatus.CLIENT_LOGIN );
             stream.readPacket();
 
-            byte[] loginResponse = stream.readPacket();
-            if ( Util.getId( loginResponse ) == 0xFF )
+            byte[] loginResponse = null;
+            loop:
+            while ( true )
             {
-                throw new KickException( "[Kicked] " + new PacketFFKick( loginResponse ).message );
+                loginResponse = stream.readPacket();
+                int id = Util.getId( loginResponse );
+                switch ( id )
+                {
+                    case 0x01:
+                        break loop;
+                    case 0xFA:
+                        for ( PacketFAPluginMessage message : user.loginMessages )
+                        {
+                            stream.write( message );
+                        }
+                        break;
+                    case 0xFF:
+                        throw new KickException( "[Kicked] " + new PacketFFKick( loginResponse ).message );
+                    default:
+                        throw new IllegalArgumentException( "Unknown login packet " + Util.hex( id ) );
+                }
             }
             Packet1Login login = new Packet1Login( loginResponse );
 

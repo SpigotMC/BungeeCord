@@ -44,6 +44,10 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     private PacketFDEncryptionRequest request;
     private List<PacketFAPluginMessage> loginMessages = new ArrayList<>();
     private State thisState = State.HANDSHAKE;
+    private static final PacketFAPluginMessage forgeMods = new PacketFAPluginMessage( "FML", new byte[]
+    {
+        0, 0, 0, 0, 0, 2
+    } );
 
     public InitialHandler(Socket socket, ListenerInfo info) throws IOException
     {
@@ -106,6 +110,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     {
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
         this.handshake = handshake;
+        stream.write( forgeMods );
         request = EncryptionUtil.encryptRequest();
         stream.write( request );
         thisState = State.ENCRYPT;
@@ -166,6 +171,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
             {
                 byte[] buf = stream.readPacket();
                 DefinedPacket packet = DefinedPacket.packet( buf );
+                System.out.println( packet );
                 packet.handle( this );
             }
         } catch ( Exception ex )
