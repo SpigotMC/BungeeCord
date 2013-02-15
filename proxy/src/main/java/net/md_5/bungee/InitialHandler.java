@@ -139,7 +139,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
         ProxyServer.getInstance().getPluginManager().callEvent( event );
         if ( event.isCancelled() )
         {
-            disconnect( event.getCancelReason() );
+            throw new KickException( event.getCancelReason() );
         }
 
         stream.write( new PacketFCEncryptionResponse() );
