@@ -1,5 +1,6 @@
 package net.md_5.bungee.packet;
 
+import com.google.common.base.Preconditions;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import java.io.ByteArrayInputStream;
@@ -213,6 +214,8 @@ public abstract class DefinedPacket implements DataOutput
             {
             }
         }
+
+        Preconditions.checkState( ret != null, "Don't know how to deal with packet ID {0}", Util.hex( id ) );
         return ret;
     }
 
@@ -227,6 +230,7 @@ public abstract class DefinedPacket implements DataOutput
         classes[0xCD] = PacketCDClientStatus.class;
         classes[0xFA] = PacketFAPluginMessage.class;
         classes[0xFC] = PacketFCEncryptionResponse.class;
+        classes[0xFD] = PacketFDEncryptionRequest.class;
         classes[0xFE] = PacketFEPing.class;
         classes[0xFF] = PacketFFKick.class;
     }

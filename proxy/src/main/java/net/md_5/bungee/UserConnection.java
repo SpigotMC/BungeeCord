@@ -113,7 +113,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                 stream.write( new Packet9Respawn( (byte) -1, (byte) 0, (byte) 0, (short) 256, "DEFAULT" ) );
             }
 
-            ServerConnection newServer = ServerConnection.connect( this, target, handshake, true );
+            ServerConnection newServer = ServerConnector.connect( this, target, true );
             if ( server == null )
             {
                 // Once again, first connection
@@ -157,8 +157,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
             destroySelf( ex.getMessage() );
         } catch ( Exception ex )
         {
-            ex.printStackTrace(); // TODO: Remove
-            destroySelf( "Could not connect to server - " + ex.getClass().getSimpleName() );
+            destroySelf( "Could not connect to server - " + Util.exception( ex ) );
         }
     }
 
