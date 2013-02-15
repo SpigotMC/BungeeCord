@@ -111,8 +111,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
         this.handshake = handshake;
         stream.write( forgeMods );
-        request = EncryptionUtil.encryptRequest();
-        stream.write( request );
+        stream.write( request = EncryptionUtil.encryptRequest() );
         thisState = State.ENCRYPT;
     }
 
@@ -143,8 +142,8 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
         }
 
         stream.write( new PacketFCEncryptionResponse() );
-        stream = new PacketStream( new CipherInputStream( socket.getInputStream(),
-                EncryptionUtil.getCipher( false, shared ) ), new CipherOutputStream( socket.getOutputStream(), EncryptionUtil.getCipher( true, shared ) ), stream.getProtocol() );
+        stream = new PacketStream( new CipherInputStream( socket.getInputStream(), EncryptionUtil.getCipher( false, shared ) ),
+                new CipherOutputStream( socket.getOutputStream(), EncryptionUtil.getCipher( true, shared ) ), stream.getProtocol() );
 
         thisState = State.LOGIN;
     }
