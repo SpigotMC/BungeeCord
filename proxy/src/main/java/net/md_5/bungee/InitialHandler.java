@@ -1,6 +1,7 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -175,6 +176,8 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
         } catch ( KickException ex )
         {
             disconnect( "[Proxy - Kicked] " + ex.getMessage() );
+        } catch ( EOFException ex )
+        {
         } catch ( Exception ex )
         {
             disconnect( "[Proxy Error] " + Util.exception( ex ) );
