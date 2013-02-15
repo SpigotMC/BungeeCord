@@ -171,9 +171,11 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
             {
                 byte[] buf = stream.readPacket();
                 DefinedPacket packet = DefinedPacket.packet( buf );
-                System.out.println( packet );
                 packet.handle( this );
             }
+        } catch ( KickException ex )
+        {
+            disconnect( "[Proxy - Kicked] " + ex.getMessage() );
         } catch ( Exception ex )
         {
             disconnect( "[Proxy Error] " + Util.exception( ex ) );
