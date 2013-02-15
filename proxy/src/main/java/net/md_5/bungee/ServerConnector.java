@@ -3,9 +3,11 @@ package net.md_5.bungee;
 import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Queue;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.PacketCDClientStatus;
@@ -46,13 +48,13 @@ public class ServerConnector extends PacketHandler
         thisState = State.LOGIN;
     }
 
-    public static ServerConnection connect(UserConnection user, ServerInfo server, boolean retry)
+    public static ServerConnection connect(UserConnection user, ServerInfo info, boolean retry)
     {
         Socket socket = null;
         try
         {
             socket = new Socket();
-            socket.connect( server.getAddress(), BungeeCord.getInstance().config.getTimeout() );
+            socket.connect( info.getAddress(), BungeeCord.getInstance().config.getTimeout() );
             BungeeCord.getInstance().setSocketOptions( socket );
             PacketStream stream = new PacketStream( socket.getInputStream(), socket.getOutputStream(), user.stream.getProtocol() );
 
@@ -67,7 +69,18 @@ public class ServerConnector extends PacketHandler
                 packet.handle( connector );
             }
 
-            return new ServerConnection( socket, server, stream, connector.loginPacket );
+            ServerConnection server = new ServerConnection( socket, info, stream, connector.loginPacket );
+            ServerConnectedEvent event = new ServerConnectedEvent( user, server );
+            ProxyServer.getInstance().getPluginManager().callEvent( event );
+
+            stream.write( BungeeCord.getInstance().registerChannels() );
+
+            Queue<DefinedPacket> packetQueue = ( (BungeeServerInfo) info ).getPacketQueue();
+            while ( !packetQueue.isEmpty() )
+            {
+                stream.write( packetQueue.poll() );
+            }
+            return server;
         } catch ( Exception ex )
         {
             if ( socket != null )
@@ -80,7 +93,7 @@ public class ServerConnector extends PacketHandler
                 }
             }
             ServerInfo def = ProxyServer.getInstance().getServers().get( user.getPendingConnection().getListener().getDefaultServer() );
-            if ( retry && !server.equals( def ) )
+            if ( retry && !info.equals( def ) )
             {
                 user.sendMessage( ChatColor.RED + "Could not connect to target server, you have been moved to the default server" );
                 return connect( user, def, false );
