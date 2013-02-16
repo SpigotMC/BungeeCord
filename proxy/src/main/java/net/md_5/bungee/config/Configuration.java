@@ -48,7 +48,7 @@ public class Configuration
      * Should we check minecraft.net auth.
      */
     private boolean onlineMode = true;
-    private int sleepTime = 2;
+    private int sleepTime = 1;
 
     public void load()
     {
