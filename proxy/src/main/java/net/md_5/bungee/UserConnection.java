@@ -331,6 +331,13 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                     {
                         server.stream.write( packet );
                     }
+
+                    try
+                    {
+                        Thread.sleep( BungeeCord.getInstance().config.getSleepTime() );
+                    } catch ( InterruptedException ex )
+                    {
+                    }
                 } catch ( IOException ex )
                 {
                     destroySelf( "Reached end of stream" );
@@ -525,6 +532,13 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                     {
                         connect( nextServer, true );
                         break outer;
+                    }
+
+                    try
+                    {
+                        Thread.sleep( BungeeCord.getInstance().config.getSleepTime() );
+                    } catch ( InterruptedException ex )
+                    {
                     }
                 }
             } catch ( Exception ex )
