@@ -12,6 +12,7 @@ import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.PacketCDClientStatus;
 import net.md_5.bungee.packet.PacketFDEncryptionRequest;
+import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketHandler;
 import net.md_5.bungee.packet.PacketStream;
 
@@ -46,6 +47,12 @@ public class ServerConnector extends PacketHandler
     {
         Preconditions.checkState( thisState == State.ENCRYPT_REQUEST, "Not expecting ENCRYPT_REQUEST" );
         thisState = State.LOGIN;
+    }
+
+    @Override
+    public void handle(PacketFFKick kick) throws Exception
+    {
+        throw new KickException( kick.message );
     }
 
     public static ServerConnection connect(UserConnection user, ServerInfo info, boolean retry)
@@ -99,6 +106,10 @@ public class ServerConnector extends PacketHandler
                 return connect( user, def, false );
             } else
             {
+                if ( ex instanceof KickException )
+                {
+                    throw (KickException) ex;
+                }
                 throw new RuntimeException( "Could not connect to target server " + Util.exception( ex ) );
             }
         }
