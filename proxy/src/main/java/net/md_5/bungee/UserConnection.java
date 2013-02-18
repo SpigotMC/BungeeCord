@@ -154,22 +154,24 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
             downBridge.start();
         } catch ( KickException ex )
         {
-            destroySelf( ex.getMessage() );
+            disconnect( ex.getMessage() );
         } catch ( Exception ex )
         {
-            destroySelf( "Could not connect to server - " + Util.exception( ex ) );
+            disconnect( "Could not connect to server - " + Util.exception( ex ) );
         }
     }
 
-    private synchronized void destroySelf(String reason)
+    @Override
+    public void disconnect(String reason)
     {
         if ( clientConnected )
         {
             PlayerDisconnectEvent event = new PlayerDisconnectEvent( this );
             ProxyServer.getInstance().getPluginManager().callEvent( event );
+            ProxyServer.getInstance().getTabListHandler().onDisconnect( this );
             ProxyServer.getInstance().getPlayers().remove( this );
 
-            disconnect( reason );
+            super.disconnect( reason );
             if ( server != null )
             {
                 server.getInfo().removePlayer( this );
@@ -179,13 +181,6 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
 
             clientConnected = false;
         }
-    }
-
-    @Override
-    public void disconnect(String reason)
-    {
-        ProxyServer.getInstance().getTabListHandler().onDisconnect( this );
-        super.disconnect( reason );
     }
 
     @Override
@@ -340,10 +335,10 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                     }
                 } catch ( IOException ex )
                 {
-                    destroySelf( "Reached end of stream" );
+                    disconnect( "Reached end of stream" );
                 } catch ( Exception ex )
                 {
-                    destroySelf( Util.exception( ex ) );
+                    disconnect( Util.exception( ex ) );
                 }
             }
         }
@@ -543,7 +538,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                 }
             } catch ( Exception ex )
             {
-                destroySelf( Util.exception( ex ) );
+                disconnect( Util.exception( ex ) );
             }
         }
     }
