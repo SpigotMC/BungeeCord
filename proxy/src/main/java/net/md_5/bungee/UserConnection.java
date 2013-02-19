@@ -162,7 +162,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     }
 
     @Override
-    public void disconnect(String reason)
+    public synchronized void disconnect(String reason)
     {
         if ( clientConnected )
         {
@@ -509,6 +509,9 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                                 }
                                 continue;
                             }
+                            break;
+                        case 0xFF:
+                            throw new KickException( new PacketFFKick( packet ).message );
                     }
 
                     while ( !packetQueue.isEmpty() )
