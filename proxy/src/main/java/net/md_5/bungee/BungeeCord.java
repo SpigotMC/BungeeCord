@@ -187,6 +187,15 @@ public class BungeeCord extends ProxyServer
     public void stop()
     {
         this.isRunning = false;
+        $().info( "Closing pending connections" );
+        threadPool.shutdown();
+
+        $().info( "Disconnecting " + connections.size() + " connections" );
+        for ( UserConnection user : connections.values() )
+        {
+            user.disconnect( "Proxy restarting, brb." );
+        }
+        
         $().info( "Disabling plugins" );
         for ( Plugin plugin : pluginManager.getPlugins() )
         {
@@ -204,15 +213,6 @@ public class BungeeCord extends ProxyServer
             {
                 $().severe( "Could not close listen thread" );
             }
-        }
-
-        $().info( "Closing pending connections" );
-        threadPool.shutdown();
-
-        $().info( "Disconnecting " + connections.size() + " connections" );
-        for ( UserConnection user : connections.values() )
-        {
-            user.disconnect( "Proxy restarting, brb." );
         }
 
         $().info( "Saving reconnect locations" );
