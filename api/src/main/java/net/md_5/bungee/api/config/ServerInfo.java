@@ -23,7 +23,7 @@ public abstract class ServerInfo
     /**
      * Name this server displays as.
      */
-	@Getter
+    @Getter
     private final String name;
     /**
      * Connectable address of this server.
