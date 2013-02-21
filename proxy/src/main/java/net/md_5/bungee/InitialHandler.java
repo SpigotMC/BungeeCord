@@ -7,6 +7,9 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.CipherOutputStream;
 import javax.crypto.SecretKey;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
@@ -30,8 +33,6 @@ import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketHandler;
 import net.md_5.bungee.packet.PacketStream;
 import net.md_5.mendax.PacketDefinitions;
-import org.bouncycastle.crypto.io.CipherInputStream;
-import org.bouncycastle.crypto.io.CipherOutputStream;
 
 public class InitialHandler extends PacketHandler implements Runnable, PendingConnection
 {
@@ -143,8 +144,8 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
         }
 
         stream.write( new PacketFCEncryptionResponse() );
-        stream = new PacketStream( new CipherInputStream( socket.getInputStream(), EncryptionUtil.getCipher( false, shared ) ),
-                new CipherOutputStream( socket.getOutputStream(), EncryptionUtil.getCipher( true, shared ) ), stream.getProtocol() );
+        stream = new PacketStream( new CipherInputStream( socket.getInputStream(), EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, shared ) ),
+                new CipherOutputStream( socket.getOutputStream(), EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, shared ) ), stream.getProtocol() );
 
         thisState = State.LOGIN;
     }
