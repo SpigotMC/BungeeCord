@@ -531,13 +531,6 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                         connect( nextServer, true );
                         break outer;
                     }
-
-                    try
-                    {
-                        Thread.sleep( BungeeCord.getInstance().config.getSleepTime() );
-                    } catch ( InterruptedException ex )
-                    {
-                    }
                 }
             } catch ( Exception ex )
             {
