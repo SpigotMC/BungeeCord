@@ -187,11 +187,6 @@ public class BungeeCord extends ProxyServer
     public void stop()
     {
         this.isRunning = false;
-        $().info( "Disabling plugins" );
-        for ( Plugin plugin : pluginManager.getPlugins() )
-        {
-            plugin.onDisable();
-        }
 
         for ( ListenThread listener : listeners )
         {
@@ -218,6 +213,12 @@ public class BungeeCord extends ProxyServer
         $().info( "Saving reconnect locations" );
         reconnectHandler.save();
         saveThread.cancel();
+
+        $().info( "Disabling plugins" );
+        for ( Plugin plugin : pluginManager.getPlugins() )
+        {
+            plugin.onDisable();
+        }
 
         $().info( "Thank you and goodbye" );
         System.exit( 0 );
