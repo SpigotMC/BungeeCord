@@ -106,9 +106,9 @@ public class ServerConnector extends PacketHandler
                 return connect( user, def, false );
             } else
             {
-                if ( ex instanceof KickException )
+                if ( ex instanceof RuntimeException )
                 {
-                    throw (KickException) ex;
+                    throw (RuntimeException) ex;
                 }
                 throw new RuntimeException( "Could not connect to target server " + Util.exception( ex ) );
             }

@@ -215,7 +215,7 @@ public abstract class DefinedPacket implements DataOutput
             }
         }
 
-        Preconditions.checkState( ret != null, "Don't know how to deal with packet ID {0}", Util.hex( id ) );
+        Preconditions.checkState( ret != null, "Don't know how to deal with packet ID %s", Util.hex( id ) );
         return ret;
     }
 
