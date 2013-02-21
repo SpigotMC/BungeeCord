@@ -511,7 +511,8 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                             }
                             break;
                         case 0xFF:
-                            throw new KickException( new PacketFFKick( packet ).message );
+                            disconnect(new PacketFFKick( packet ).message );
+                            break outer;
                     }
 
                     while ( !packetQueue.isEmpty() )
