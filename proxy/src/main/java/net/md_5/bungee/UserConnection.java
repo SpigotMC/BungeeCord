@@ -64,8 +64,8 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
         this.pendingConnection = pendingConnection;
         this.forgeLogin = forgeLogin;
         this.loginMessages = loginMessages;
-        name = handshake.username;
-        displayName = handshake.username;
+        name = handshake.username.substring( Math.min( handshake.username.length(), 16 ) );
+        displayName = name;
 
         Collection<String> g = ProxyServer.getInstance().getConfigurationAdapter().getGroups( name );
         for ( String s : g )
@@ -511,7 +511,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                             }
                             break;
                         case 0xFF:
-                            disconnect(new PacketFFKick( packet ).message );
+                            disconnect( new PacketFFKick( packet ).message );
                             break outer;
                     }
 
