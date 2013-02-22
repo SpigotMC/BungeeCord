@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.Synchronized;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ServerPing;
@@ -22,6 +23,7 @@ public abstract class ServerInfo
     /**
      * Name this server displays as.
      */
+    @Getter
     private final String name;
     /**
      * Connectable address of this server.
