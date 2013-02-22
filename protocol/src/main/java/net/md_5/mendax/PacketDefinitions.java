@@ -270,6 +270,10 @@ public class PacketDefinitions
         {
             INT, SHORT, INT, BYTE, SHORT_BYTE
         };
+        opCodes[0xC3] = new OpCode[]
+        {
+            SHORT, SHORT, INT_BYTE
+        };
         opCodes[0xC8] = new OpCode[]
         {
             INT, BYTE
