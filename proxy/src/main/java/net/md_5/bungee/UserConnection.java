@@ -64,7 +64,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
         this.pendingConnection = pendingConnection;
         this.forgeLogin = forgeLogin;
         this.loginMessages = loginMessages;
-        name = handshake.username.substring( Math.min( handshake.username.length(), 16 ) );
+        name = handshake.username.substring( 0, Math.min( handshake.username.length(), 16 ) );
         displayName = name;
 
         Collection<String> g = ProxyServer.getInstance().getConfigurationAdapter().getGroups( name );
