@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import net.md_5.bungee.Util;
@@ -97,7 +98,12 @@ public class YamlConfig implements ConfigurationAdapter
             String first = path.substring( 0, index );
             String second = path.substring( index + 1, path.length() );
             Map sub = (Map) submap.get( first );
-            return ( sub != null ) ? get( second, def, sub ) : def;
+            if ( sub == null )
+            {
+                sub = new LinkedHashMap();
+                submap.put( first, sub );
+            }
+            return get( second, def, sub );
         }
     }
 
