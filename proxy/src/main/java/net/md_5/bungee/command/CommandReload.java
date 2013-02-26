@@ -17,6 +17,8 @@ public class CommandReload extends Command
     public void execute(CommandSender sender, String[] args)
     {
         BungeeCord.getInstance().config.load();
+        BungeeCord.getInstance().stopListeners();
+        BungeeCord.getInstance().startListeners();
         sender.sendMessage( ChatColor.GREEN + "Reloaded config, please restart if you have any issues" );
     }
 }

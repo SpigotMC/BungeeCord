@@ -163,13 +163,7 @@ public class BungeeCord extends ProxyServer
 
         pluginManager.enablePlugins();
 
-        for ( ListenerInfo info : config.getListeners() )
-        {
-            $().info( "Listening on " + info.getHost() );
-            ListenThread listener = new ListenThread( info );
-            listener.start();
-            listeners.add( listener );
-        }
+        startListeners();
 
         saveThread.scheduleAtFixedRate( new TimerTask()
         {
@@ -183,11 +177,25 @@ public class BungeeCord extends ProxyServer
         new Metrics().start();
     }
 
-    @Override
-    public void stop()
+    public void startListeners()
     {
-        this.isRunning = false;
+        for ( ListenerInfo info : config.getListeners() )
+        {
+            try
+            {
+                ListenThread listener = new ListenThread( info );
+                listener.start();
+                listeners.add( listener );
+                $().info( "Listening on " + info.getHost() );
+            } catch ( IOException ex )
+            {
+                $().log( Level.SEVERE, "Could not start listener " + info, ex );
+            }
+        }
+    }
 
+    public void stopListeners()
+    {
         for ( ListenThread listener : listeners )
         {
             $().log( Level.INFO, "Closing listen thread {0}", listener.socket );
@@ -200,7 +208,15 @@ public class BungeeCord extends ProxyServer
                 $().severe( "Could not close listen thread" );
             }
         }
+        listeners.clear();
+    }
 
+    @Override
+    public void stop()
+    {
+        this.isRunning = false;
+
+        stopListeners();
         $().info( "Closing pending connections" );
         threadPool.shutdown();
 
