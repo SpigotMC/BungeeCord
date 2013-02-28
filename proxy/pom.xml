@@ -74,15 +74,7 @@
                                 <exclude>**/*.DSA</exclude>
                             </excludes>
                         </filter>
-                        <!-- Don't allow the main MySQL class to be removed -->
-                        <filter>
-                            <artifact>mysql:mysql-connector-java</artifact>
-                            <includes>
-                                <include>**</include>
-                            </includes>
-                        </filter>
                     </filters>
-                    <minimizeJar>true</minimizeJar>
                     <finalName>${project.build.finalName}-shaded</finalName>
                 </configuration>
             </plugin>
