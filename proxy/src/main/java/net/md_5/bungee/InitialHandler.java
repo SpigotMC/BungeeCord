@@ -156,9 +156,8 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
         UserConnection userCon = new UserConnection( socket, this, stream, handshake, forgeLogin, loginMessages );
-        String server = ProxyServer.getInstance().getReconnectHandler().getServer( userCon );
-        ServerInfo s = BungeeCord.getInstance().config.getServers().get( server );
-        userCon.connect( s, true );
+        ServerInfo server = ProxyServer.getInstance().getReconnectHandler().getServer( userCon );
+        userCon.connect( server, true );
 
         thisState = State.FINISHED;
     }

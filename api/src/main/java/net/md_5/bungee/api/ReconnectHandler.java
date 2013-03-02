@@ -1,5 +1,6 @@
 package net.md_5.bungee.api;
 
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public interface ReconnectHandler
@@ -9,9 +10,9 @@ public interface ReconnectHandler
      * Gets the initial server name for a connecting player.
      *
      * @param player the connecting player
-     * @return the server name
+     * @return the server to connect to
      */
-    public String getServer(ProxiedPlayer player);
+    public ServerInfo getServer(ProxiedPlayer player);
 
     /**
      * Save the server of this player before they disconnect so it can be

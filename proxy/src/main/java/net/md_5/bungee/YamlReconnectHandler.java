@@ -1,5 +1,6 @@
 package net.md_5.bungee;
 
+import com.google.common.base.Preconditions;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -11,6 +12,7 @@ import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ReconnectHandler;
 import net.md_5.bungee.api.config.ListenerInfo;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.yaml.snakeyaml.Yaml;
 
@@ -47,16 +49,26 @@ public class YamlReconnectHandler implements ReconnectHandler
     }
 
     @Override
-    public String getServer(ProxiedPlayer player)
+    public ServerInfo getServer(ProxiedPlayer player)
     {
         ListenerInfo listener = player.getPendingConnection().getListener();
+        String name;
         if ( listener.isForceDefault() )
         {
-            return listener.getDefaultServer();
+            name = listener.getDefaultServer();
+        } else
+        {
+            String forced = listener.getForcedHosts().get( player.getPendingConnection().getVirtualHost().getHostName() );
+            String server = ( forced == null ) ? data.get( key( player ) ) : forced;
+            name = ( server != null ) ? server : listener.getDefaultServer();
         }
-        String forced = listener.getForcedHosts().get( player.getPendingConnection().getVirtualHost().getHostName() );
-        String server = ( forced == null ) ? data.get( key( player ) ) : forced;
-        return ( server != null ) ? server : listener.getDefaultServer();
+        ServerInfo info = ProxyServer.getInstance().getServerInfo( name );
+        if ( info == null )
+        {
+            info = ProxyServer.getInstance().getServerInfo( listener.getDefaultServer() );
+        }
+        Preconditions.checkState( info != null, "Default server not defined" );
+        return info;
     }
 
     @Override
