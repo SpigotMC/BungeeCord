@@ -91,7 +91,7 @@ public class Logger extends java.util.logging.Logger
                 formatted.append( " [SEVERE] " );
             }
 
-            formatted.append( MessageFormat.format( logrecord.getMessage(), logrecord.getParameters() ) );
+            formatted.append( formatMessage( logrecord ) );
             formatted.append( '\n' );
             Throwable throwable = logrecord.getThrown();
 
