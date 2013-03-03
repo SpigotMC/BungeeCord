@@ -190,7 +190,7 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     }
     
     @Override
-    public void sendMessageToServer(String message)
+    public void chat(String message)
     {
         server.packetQueue.add( new Packet3Chat( message ) );
     }

@@ -75,5 +75,5 @@ public interface ProxiedPlayer extends Connection, CommandSender
      *
      * @param message the message to send
      */
-    public void sendMessageToServer(String message);
+    public void chat(String message);
 }
