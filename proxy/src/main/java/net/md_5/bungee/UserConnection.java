@@ -188,6 +188,12 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
     {
         packetQueue.add( new Packet3Chat( message ) );
     }
+    
+    @Override
+    public void sendMessageToServer(String message)
+    {
+        server.packetQueue.add( new Packet3Chat( message ) );
+    }
 
     @Override
     public void sendData(String channel, byte[] data)

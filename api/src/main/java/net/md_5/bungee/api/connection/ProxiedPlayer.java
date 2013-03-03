@@ -69,4 +69,11 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @return the pending connection that this player used
      */
     public PendingConnection getPendingConnection();
+    
+    /**
+     * Send a chat message to the server the player is connected to.
+     *
+     * @param message the message to send
+     */
+    public void sendMessageToServer(String message);
 }
