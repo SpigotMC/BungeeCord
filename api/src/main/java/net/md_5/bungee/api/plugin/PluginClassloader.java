@@ -45,6 +45,6 @@ public class PluginClassloader extends URLClassLoader
                 }
             }
         }
-        throw new ClassNotFoundException();
+        throw new ClassNotFoundException(name);
     }
 }
