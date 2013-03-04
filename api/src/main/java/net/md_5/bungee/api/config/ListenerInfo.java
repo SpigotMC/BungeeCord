@@ -25,6 +25,10 @@ public class ListenerInfo
      */
     private final int maxPlayers;
     /**
+     * Number of players to be shown on the tab list.
+     */
+    private final int tabListSize;
+    /**
      * Name of the server which users will be taken to by default.
      */
     private final String defaultServer;

@@ -181,9 +181,10 @@ public class YamlConfig implements ConfigurationAdapter
             String defaultServer = get( "default_server", "lobby", val );
             boolean forceDefault = get( "force_default_server", false, val );
             String host = get( "host", "0.0.0.0:25577", val );
+            int tabListSize = get( "tab_size", 60, val );
             InetSocketAddress address = Util.getAddr( host );
             Map<String, String> forced = get( "forced_hosts", forcedDef, val );
-            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, defaultServer, forceDefault, forced );
+            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, forceDefault, forced );
             ret.add( info );
         }
 

@@ -27,7 +27,7 @@ import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.packet.*;
 
-public class UserConnection extends GenericConnection implements ProxiedPlayer
+public final class UserConnection extends GenericConnection implements ProxiedPlayer
 {
 
     public final Packet2Handshake handshake;
@@ -119,7 +119,10 @@ public class UserConnection extends GenericConnection implements ProxiedPlayer
                 // Once again, first connection
                 clientEntityId = newServer.loginPacket.entityId;
                 serverEntityId = newServer.loginPacket.entityId;
-                stream.write( newServer.loginPacket );
+                // Set tab list size
+                Packet1Login s = newServer.loginPacket;
+                Packet1Login login = new Packet1Login( s.entityId, s.levelType, s.gameMode, (byte) s.dimension, s.difficulty, s.unused, (byte) pendingConnection.getListener().getTabListSize() );
+                stream.write( login );
                 stream.write( BungeeCord.getInstance().registerChannels() );
 
                 upBridge = new UpstreamBridge();
