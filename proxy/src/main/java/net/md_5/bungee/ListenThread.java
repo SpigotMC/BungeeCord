@@ -38,6 +38,7 @@ public class ListenThread extends Thread
                 BungeeCord.getInstance().threadPool.submit( handler );
             } catch ( SocketException ex )
             {
+                ex.printStackTrace(); // Now people can see why their operating system is failing them and stop bitching at me!
             } catch ( IOException ex )
             {
                 ex.printStackTrace(); // TODO
