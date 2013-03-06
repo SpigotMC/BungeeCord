@@ -27,7 +27,7 @@ public class ListenThread extends Thread
     @Override
     public void run()
     {
-        while ( BungeeCord.getInstance().isRunning )
+        while ( !isInterrupted() )
         {
             try
             {

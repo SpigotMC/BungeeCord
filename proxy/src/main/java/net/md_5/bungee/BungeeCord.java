@@ -201,6 +201,7 @@ public class BungeeCord extends ProxyServer
             $().log( Level.INFO, "Closing listen thread {0}", listener.socket );
             try
             {
+                listener.interrupt();
                 listener.socket.close();
                 listener.join();
             } catch ( InterruptedException | IOException ex )
