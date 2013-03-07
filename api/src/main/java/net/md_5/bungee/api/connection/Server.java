@@ -24,14 +24,4 @@ public interface Server extends Connection
      * @param data the data to send
      */
     public abstract void sendData(String channel, byte[] data);
-
-    /**
-     * Asynchronously gets the current player count on this server.
-     *
-     * @param callback the callback to call when the count has been retrieved.
-     * @deprecated use the corresponding method in {@link ServerInfo} for
-     * clarity
-     */
-    @Deprecated
-    public abstract void ping(Callback<ServerPing> callback);
 }
