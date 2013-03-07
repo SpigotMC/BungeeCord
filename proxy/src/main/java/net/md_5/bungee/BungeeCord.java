@@ -1,5 +1,15 @@
 package net.md_5.bungee;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelException;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.MultithreadEventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.handler.timeout.ReadTimeoutHandler;
 import net.md_5.bungee.config.Configuration;
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,13 +20,10 @@ import java.net.Socket;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,6 +43,9 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.command.*;
 import net.md_5.bungee.config.YamlConfig;
+import net.md_5.bungee.netty.ChannelBootstrapper;
+import net.md_5.bungee.netty.HandlerBoss;
+import net.md_5.bungee.netty.PacketDecoder;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 
@@ -64,7 +74,7 @@ public class BungeeCord extends ProxyServer
     /**
      * Thread pool.
      */
-    public final ExecutorService threadPool = Executors.newCachedThreadPool();
+    public final MultithreadEventLoopGroup eventLoops = new NioEventLoopGroup( 8, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread - %1$d" ).build() );
     /**
      * locations.yml save thread.
      */
@@ -72,7 +82,7 @@ public class BungeeCord extends ProxyServer
     /**
      * Server socket listener.
      */
-    private Collection<ListenThread> listeners = new HashSet<>();
+    private Collection<Channel> listeners = new HashSet<>();
     /**
      * Fully qualified connections.
      */
@@ -149,6 +159,7 @@ public class BungeeCord extends ProxyServer
      *
      * @throws IOException
      */
+    @Override
     public void start() throws IOException
     {
         File plugins = new File( "plugins" );
@@ -181,30 +192,26 @@ public class BungeeCord extends ProxyServer
     {
         for ( ListenerInfo info : config.getListeners() )
         {
-            try
-            {
-                ListenThread listener = new ListenThread( info );
-                listener.start();
-                listeners.add( listener );
-                $().info( "Listening on " + info.getHost() );
-            } catch ( IOException ex )
-            {
-                $().log( Level.SEVERE, "Could not start listener " + info, ex );
-            }
+            Channel server = new ServerBootstrap()
+                    .childHandler( ChannelBootstrapper.SERVER )
+                    .localAddress( info.getHost() )
+                    .group( eventLoops )
+                    .bind().channel();
+            listeners.add( server );
+
+            $().info( "Listening on " + info.getHost() );
         }
     }
 
     public void stopListeners()
     {
-        for ( ListenThread listener : listeners )
+        for ( Channel listener : listeners )
         {
-            $().log( Level.INFO, "Closing listen thread {0}", listener.socket );
+            $().log( Level.INFO, "Closing listener {0}", listener );
             try
             {
-                listener.interrupt();
-                listener.socket.close();
-                listener.join();
-            } catch ( InterruptedException | IOException ex )
+                listener.close().syncUninterruptibly();
+            } catch ( ChannelException ex )
             {
                 $().severe( "Could not close listen thread" );
             }
@@ -219,13 +226,15 @@ public class BungeeCord extends ProxyServer
 
         stopListeners();
         $().info( "Closing pending connections" );
-        threadPool.shutdown();
 
         $().info( "Disconnecting " + connections.size() + " connections" );
         for ( UserConnection user : connections.values() )
         {
             user.disconnect( "Proxy restarting, brb." );
         }
+
+        $().info( "Closing IO threads" );
+        eventLoops.shutdown();
 
         $().info( "Saving reconnect locations" );
         reconnectHandler.save();
@@ -239,20 +248,6 @@ public class BungeeCord extends ProxyServer
 
         $().info( "Thank you and goodbye" );
         System.exit( 0 );
-    }
-
-    /**
-     * Miscellaneous method to set options on a socket based on those in the
-     * configuration.
-     *
-     * @param socket to set the options on
-     * @throws IOException when the underlying set methods thrown an exception
-     */
-    public void setSocketOptions(Socket socket) throws IOException
-    {
-        socket.setSoTimeout( config.getTimeout() );
-        socket.setTrafficClass( 0x18 );
-        socket.setTcpNoDelay( true );
     }
 
     /**

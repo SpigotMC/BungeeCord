@@ -1,5 +1,7 @@
 package net.md_5.bungee;
 
+import io.netty.buffer.ByteBuf;
+
 /**
  * Class to rewrite integers within packets.
  */
@@ -113,20 +115,20 @@ public class EntityMap
         };
     }
 
-    public static void rewrite(byte[] packet, int oldId, int newId)
+    public static void rewrite(ByteBuf packet, int oldId, int newId)
     {
-        int packetId = Util.getId( packet );
+        int packetId = packet.getUnsignedShort( 0 );
         if ( packetId == 0x1D )
         { // bulk entity
-            for ( int pos = 2; pos < packet.length; pos += 4 )
+            for ( int pos = 2; pos < packet.writerIndex(); pos += 4 )
             {
-                int readId = readInt( packet, pos );
+                int readId = packet.getInt( pos );
                 if ( readId == oldId )
                 {
-                    setInt( packet, pos, newId );
+                    packet.setInt( pos, newId );
                 } else if ( readId == newId )
                 {
-                    setInt( packet, pos, oldId );
+                    packet.setInt( pos, oldId );
                 }
             }
         } else
@@ -136,29 +138,16 @@ public class EntityMap
             {
                 for ( int pos : idArray )
                 {
-                    int readId = readInt( packet, pos );
+                    int readId = packet.getInt( pos );
                     if ( readId == oldId )
                     {
-                        setInt( packet, pos, newId );
+                        packet.setInt( pos, newId );
                     } else if ( readId == newId )
                     {
-                        setInt( packet, pos, oldId );
+                        packet.setInt( pos, oldId );
                     }
                 }
             }
         }
-    }
-
-    private static void setInt(byte[] buf, int pos, int i)
-    {
-        buf[pos] = (byte) ( i >> 24 );
-        buf[pos + 1] = (byte) ( i >> 16 );
-        buf[pos + 2] = (byte) ( i >> 8 );
-        buf[pos + 3] = (byte) i;
-    }
-
-    private static int readInt(byte[] buf, int pos)
-    {
-        return ( ( ( buf[pos] & 0xFF ) << 24 ) | ( ( buf[pos + 1] & 0xFF ) << 16 ) | ( ( buf[pos + 2] & 0xFF ) << 8 ) | buf[pos + 3] & 0xFF );
     }
 }

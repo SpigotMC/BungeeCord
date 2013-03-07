@@ -1,13 +1,16 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
-import java.io.IOException;
-import java.net.Socket;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import java.util.Queue;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
+import net.md_5.bungee.netty.ChannelBootstrapper;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.PacketCDClientStatus;
@@ -39,6 +42,18 @@ public class ServerConnector extends PacketHandler
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not exepcting LOGIN" );
         loginPacket = login;
+
+        ServerConnection server = new ServerConnection( socket, info, stream, connector.loginPacket );
+        ServerConnectedEvent event = new ServerConnectedEvent( user, server );
+        ProxyServer.getInstance().getPluginManager().callEvent( event );
+
+        stream.write( BungeeCord.getInstance().registerChannels() );
+
+        Queue<DefinedPacket> packetQueue = ( (BungeeServerInfo) info ).getPacketQueue();
+        while ( !packetQueue.isEmpty() )
+        {
+            stream.write( packetQueue.poll() );
+        }
         thisState = State.FINISHED;
     }
 
@@ -55,63 +70,33 @@ public class ServerConnector extends PacketHandler
         throw new KickException( kick.message );
     }
 
-    public static ServerConnection connect(UserConnection user, ServerInfo info, boolean retry)
+    public static void connect(final UserConnection user, final ServerInfo info, final boolean retry)
     {
-        Socket socket = null;
-        try
+        new Bootstrap()
+                .channel( NioSocketChannel.class )
+                .group( BungeeCord.getInstance().eventLoops )
+                .handler( ChannelBootstrapper.CLIENT )
+                .remoteAddress( info.getAddress() )
+                .connect().addListener( new ChannelFutureListener()
         {
-            socket = new Socket();
-            socket.connect( info.getAddress(), BungeeCord.getInstance().config.getTimeout() );
-            BungeeCord.getInstance().setSocketOptions( socket );
-            PacketStream stream = new PacketStream( socket.getInputStream(), socket.getOutputStream(), user.stream.getProtocol() );
-
-            ServerConnector connector = new ServerConnector( stream );
-            stream.write( user.handshake );
-            stream.write( PacketCDClientStatus.CLIENT_LOGIN );
-
-            while ( connector.thisState != State.FINISHED )
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception
             {
-                byte[] buf = stream.readPacket();
-                DefinedPacket packet = DefinedPacket.packet( buf );
-                packet.handle( connector );
-            }
-
-            ServerConnection server = new ServerConnection( socket, info, stream, connector.loginPacket );
-            ServerConnectedEvent event = new ServerConnectedEvent( user, server );
-            ProxyServer.getInstance().getPluginManager().callEvent( event );
-
-            stream.write( BungeeCord.getInstance().registerChannels() );
-
-            Queue<DefinedPacket> packetQueue = ( (BungeeServerInfo) info ).getPacketQueue();
-            while ( !packetQueue.isEmpty() )
-            {
-                stream.write( packetQueue.poll() );
-            }
-            return server;
-        } catch ( Exception ex )
-        {
-            if ( socket != null )
-            {
-                try
+                if ( future.isSuccess() )
                 {
-                    socket.close();
-                } catch ( IOException ioe )
+                    future.channel().write( user.handshake );
+                    future.channel().write( PacketCDClientStatus.CLIENT_LOGIN );
+                } else
                 {
+                    future.channel().close();
+                    ServerInfo def = ProxyServer.getInstance().getServers().get( user.getPendingConnection().getListener().getDefaultServer() );
+                    if ( retry && !info.equals( def ) )
+                    {
+                        user.sendMessage( ChatColor.RED + "Could not connect to target server, you have been moved to the default server" );
+                        connect( user, def, false );
+                    }
                 }
             }
-            ServerInfo def = ProxyServer.getInstance().getServers().get( user.getPendingConnection().getListener().getDefaultServer() );
-            if ( retry && !info.equals( def ) )
-            {
-                user.sendMessage( ChatColor.RED + "Could not connect to target server, you have been moved to the default server" );
-                return connect( user, def, false );
-            } else
-            {
-                if ( ex instanceof RuntimeException )
-                {
-                    throw (RuntimeException) ex;
-                }
-                throw new RuntimeException( "Could not connect to target server " + Util.exception( ex ) );
-            }
-        }
+        } ).channel();
     }
 }

@@ -1,11 +1,23 @@
 package net.md_5.bungee.packet;
 
+import io.netty.buffer.ByteBuf;
+
 public abstract class PacketHandler
 {
 
-    private void nop(DefinedPacket packet)
+    private void nop(Object msg)
     {
-        throw new UnsupportedOperationException( "No handler defined for packet " + packet.getClass() );
+        throw new UnsupportedOperationException( "No handler defined for packet " + msg.getClass() );
+    }
+
+    public void handle(ByteBuf buf) throws Exception
+    {
+        nop( buf );
+    }
+
+    public void handle(DefinedPacket packet) throws Exception
+    {
+        nop( packet );
     }
 
     public void handle(Packet0KeepAlive alive) throws Exception

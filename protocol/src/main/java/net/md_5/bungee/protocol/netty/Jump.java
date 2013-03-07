@@ -1,6 +1,6 @@
-package net.md_5.mendax.datainput;
+package net.md_5.bungee.protocol.netty;
 
-import java.io.DataInput;
+import io.netty.buffer.ByteBuf;
 import java.io.IOException;
 
 class Jump extends Instruction
@@ -18,8 +18,8 @@ class Jump extends Instruction
     }
 
     @Override
-    void read(DataInput in, byte[] buffer) throws IOException
+    void read(ByteBuf in) throws IOException
     {
-        skip( in, buffer, len );
+        skip( in, len );
     }
 }

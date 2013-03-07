@@ -1,13 +1,13 @@
-package net.md_5.mendax.datainput;
+package net.md_5.bungee.protocol.netty;
 
-import java.io.DataInput;
+import io.netty.buffer.ByteBuf;
 import java.io.IOException;
 
 class MetaData extends Instruction
 {
 
     @Override
-    void read(DataInput in, byte[] buffer) throws IOException
+    void read(ByteBuf in) throws IOException
     {
         int x = in.readUnsignedByte();
         while ( x != 127 )
@@ -16,25 +16,25 @@ class MetaData extends Instruction
             switch ( type )
             {
                 case 0:
-                    BYTE.read( in, buffer );
+                    BYTE.read( in );
                     break;
                 case 1:
-                    SHORT.read( in, buffer );
+                    SHORT.read( in );
                     break;
                 case 2:
-                    INT.read( in, buffer );
+                    INT.read( in );
                     break;
                 case 3:
-                    FLOAT.read( in, buffer );
+                    FLOAT.read( in );
                     break;
                 case 4:
-                    STRING.read( in, buffer );
+                    STRING.read( in );
                     break;
                 case 5:
-                    ITEM.read( in, buffer );
+                    ITEM.read( in );
                     break;
                 case 6:
-                    skip( in, buffer, 12 ); //  int, int, int
+                    skip( in, 12 ); //  int, int, int
                     break;
                 default:
                     throw new IllegalArgumentException( "Unknown metadata type " + type );

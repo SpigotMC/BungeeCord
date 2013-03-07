@@ -3,6 +3,7 @@ package net.md_5.bungee.packet;
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import io.netty.buffer.ByteBuf;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutput;
@@ -196,9 +197,9 @@ public abstract class DefinedPacket implements DataOutput
     public abstract void handle(PacketHandler handler) throws Exception;
     private static Class<? extends DefinedPacket>[] classes = new Class[ 256 ];
 
-    public static DefinedPacket packet(byte[] buf)
+    public static DefinedPacket packet(ByteBuf buf)
     {
-        int id = Util.getId( buf );
+        int id = buf.getUnsignedShort( 0);
         Class<? extends DefinedPacket> clazz = classes[id];
         DefinedPacket ret = null;
         if ( clazz != null )
@@ -213,6 +214,8 @@ public abstract class DefinedPacket implements DataOutput
             } catch ( IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException ex )
             {
             }
+        } else {
+            return null;
         }
 
         Preconditions.checkState( ret != null, "Don't know how to deal with packet ID %s", Util.hex( id ) );

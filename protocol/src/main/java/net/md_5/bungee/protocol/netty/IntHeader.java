@@ -1,6 +1,6 @@
-package net.md_5.mendax.datainput;
+package net.md_5.bungee.protocol.netty;
 
-import java.io.DataInput;
+import io.netty.buffer.ByteBuf;
 import java.io.IOException;
 
 class IntHeader extends Instruction
@@ -14,12 +14,12 @@ class IntHeader extends Instruction
     }
 
     @Override
-    void read(DataInput in, byte[] buffer) throws IOException
+    void read(ByteBuf in) throws IOException
     {
         int size = in.readInt();
         for ( int i = 0; i < size; i++ )
         {
-            child.read( in, buffer );
+            child.read( in );
         }
     }
 }

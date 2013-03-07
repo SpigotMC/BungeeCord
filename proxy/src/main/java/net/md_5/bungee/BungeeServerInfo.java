@@ -15,7 +15,7 @@ import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketStream;
-import net.md_5.mendax.PacketDefinitions;
+import net.md_5.bungee.protocol.PacketDefinitions;
 
 public class BungeeServerInfo extends ServerInfo
 {

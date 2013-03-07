@@ -1,6 +1,6 @@
-package net.md_5.mendax.datainput;
+package net.md_5.bungee.protocol.netty;
 
-import java.io.DataInput;
+import io.netty.buffer.ByteBuf;
 import java.io.IOException;
 
 abstract class Instruction
@@ -27,10 +27,10 @@ abstract class Instruction
     // Illegal forward references below this line
     static final Instruction BYTE_INT = new ByteHeader( INT );
 
-    abstract void read(DataInput in, byte[] buffer) throws IOException;
+    abstract void read(ByteBuf in) throws IOException;
 
-    final void skip(DataInput in, byte[] buffer, int len) throws IOException
+    final void skip(ByteBuf in, int len) throws IOException
     {
-        in.readFully( buffer, 0, len );
+        in.readerIndex( in.readerIndex() + len );
     }
 }

@@ -1,14 +1,13 @@
-package net.md_5.mendax;
+package net.md_5.bungee.protocol;
 
-import static net.md_5.mendax.PacketDefinitions.OpCode.*;
+import static net.md_5.bungee.protocol.PacketDefinitions.OpCode.*;
 
 public class PacketDefinitions
 {
 
-    private static final int MAX_PACKET = 256;
-    public static final OpCode[][] opCodes = new OpCode[ MAX_PACKET * 2 ][];
+    public static final OpCode[][] opCodes = new OpCode[ 512 ][];
     public static final int VANILLA_PROTOCOL = 0;
-    public static final int FORGE_PROTOCOL = MAX_PACKET;
+    public static final int FORGE_PROTOCOL = 256;
 
     public enum OpCode
     {
@@ -312,7 +311,8 @@ public class PacketDefinitions
         };
         opCodes[0xFE] = new OpCode[]
         {
-        }; // Should be byte, screw you too bitchy server admins!
+            BYTE
+        };
         opCodes[0xFF] = new OpCode[]
         {
             STRING

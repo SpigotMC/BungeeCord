@@ -1,16 +1,16 @@
-package net.md_5.mendax.datainput;
+package net.md_5.bungee.protocol.netty;
 
-import java.io.DataInput;
+import io.netty.buffer.ByteBuf;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import net.md_5.mendax.PacketDefinitions;
-import net.md_5.mendax.PacketDefinitions.OpCode;
+import net.md_5.bungee.protocol.PacketDefinitions;
+import net.md_5.bungee.protocol.PacketDefinitions.OpCode;
 
-public class DataInputPacketReader
+public class PacketReader
 {
 
-    private static final Instruction[][] instructions = new Instruction[ 256 ][];
+    private static final Instruction[][] instructions = new Instruction[ PacketDefinitions.opCodes.length ][];
 
     static
     {
@@ -59,7 +59,7 @@ public class DataInputPacketReader
         }
     }
 
-    private static void readPacket(int packetId, DataInput in, byte[] buffer, int protocol) throws IOException
+    private static void readPacket(int packetId, ByteBuf in, int protocol) throws IOException
     {
         Instruction[] packetDef = null;
         if ( packetId + protocol < instructions.length )
@@ -74,20 +74,20 @@ public class DataInputPacketReader
                 throw new IOException( "Unknown packet id " + packetId );
             } else
             {
-                readPacket( packetId, in, buffer, PacketDefinitions.VANILLA_PROTOCOL );
+                readPacket( packetId, in, PacketDefinitions.VANILLA_PROTOCOL );
                 return;
             }
         }
 
         for ( Instruction instruction : packetDef )
         {
-            instruction.read( in, buffer );
+            instruction.read( in );
         }
     }
 
-    public static void readPacket(DataInput in, byte[] buffer, int protocol) throws IOException
+    public static void readPacket(ByteBuf in, int protocol) throws IOException
     {
         int packetId = in.readUnsignedByte();
-        readPacket( packetId, in, buffer, protocol );
+        readPacket( packetId, in, protocol );
     }
 }

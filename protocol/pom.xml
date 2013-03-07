@@ -17,4 +17,12 @@
 
     <name>BungeeCord-Protocol</name>
     <description>Minimal implementation of the Minecraft protocol for use in BungeeCord</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-buffer</artifactId>
+            <version>4.0.0.Beta2</version>
+        </dependency>
+    </dependencies>
 </project>

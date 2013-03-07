@@ -32,7 +32,7 @@ import net.md_5.bungee.packet.PacketFEPing;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketHandler;
 import net.md_5.bungee.packet.PacketStream;
-import net.md_5.mendax.PacketDefinitions;
+import net.md_5.bungee.protocol.PacketDefinitions;
 
 public class InitialHandler extends PacketHandler implements Runnable, PendingConnection
 {

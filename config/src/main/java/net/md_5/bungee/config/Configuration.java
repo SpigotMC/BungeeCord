@@ -2,6 +2,7 @@ package net.md_5.bungee.config;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.AccessLevel;
@@ -13,8 +14,8 @@ public final class Configuration
 
     private static final char SEPARATOR = '.';
     private final Map<String, Object> self;
-    private final Map<String, Object> comments;
-    private final Map<String, Object> defaults;
+    private Map<String, Object> comments = new HashMap<>();
+    private final Configuration defaults;
 
     private Map<String, Object> getHolder(String path, Map<String, Object> parent, boolean create)
     {
@@ -41,12 +42,17 @@ public final class Configuration
     public <T> T get(String path, T def)
     {
         Object val = get( path, self );
-        return ( val != null && val.getClass().isInstance( def ) ) ? (T) val : (T) get( path, defaults );
+        return ( val != null && val.getClass().isInstance( def ) ) ? (T) val : (T) defaults.get( path );
+    }
+
+    public Object get(String path)
+    {
+        return get( path, null );
     }
 
     public Object getDefault(String path)
     {
-        return get( path, defaults );
+        return defaults.get( path );
     }
 
     public void set(String path, Object value, String comment)
