@@ -16,4 +16,14 @@ public interface Connection
      * @return the remote address
      */
     public InetSocketAddress getAddress();
+
+    /**
+     * Disconnects this end of the connection for the specified reason. If this
+     * is an {@link ProxiedPlayer} the respective server connection will be
+     * closed too.
+     *
+     * @param reason the reason shown to the player / sent to the server on
+     * disconnect
+     */
+    public void disconnect(String reason);
 }

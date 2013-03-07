@@ -8,6 +8,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
+import net.md_5.bungee.packet.PacketFFKick;
 
 @RequiredArgsConstructor
 public class ServerConnection implements Server
@@ -23,6 +24,16 @@ public class ServerConnection implements Server
     public void sendData(String channel, byte[] data)
     {
         ch.write( new PacketFAPluginMessage( channel, data ) );
+    }
+
+    @Override
+    public synchronized void disconnect(String reason)
+    {
+        if ( ch.isActive() )
+        {
+            ch.write( new PacketFFKick( reason ) );
+            ch.close();
+        }
     }
 
     @Override
