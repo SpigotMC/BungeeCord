@@ -1,5 +1,6 @@
 package net.md_5.bungee;
 
+import com.google.common.base.Preconditions;
 import gnu.trove.set.hash.THashSet;
 import io.netty.channel.Channel;
 import java.net.InetSocketAddress;
@@ -18,9 +19,6 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
-import net.md_5.bungee.api.event.ServerConnectEvent;
-import net.md_5.bungee.connection.DownstreamBridge;
-import net.md_5.bungee.connection.UpstreamBridge;
 import net.md_5.bungee.packet.*;
 
 public final class UserConnection implements ProxiedPlayer
@@ -57,10 +55,9 @@ public final class UserConnection implements ProxiedPlayer
         this.pendingConnection = pendingConnection;
         this.forgeLogin = forgeLogin;
         this.loginMessages = loginMessages;
-        name = handshake.username.substring( 0, Math.min( handshake.username.length(), 16 ) );
-        displayName = name;
 
-        Collection<String> g = ProxyServer.getInstance().getConfigurationAdapter().getGroups( name );
+
+        Collection<String> g = bungee.getConfigurationAdapter().getGroups( name );
         for ( String s : g )
         {
             addGroups( s );
@@ -70,81 +67,14 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void setDisplayName(String name)
     {
-        ProxyServer.getInstance().getTabListHandler().onDisconnect( this );
-        displayName = name;
-        ProxyServer.getInstance().getTabListHandler().onConnect( this );
+        Preconditions.checkArgument( name.length() <= 16, "Display name cannot be longer than 16 characters" );
+        bungee.getTabListHandler().onDisconnect( this );
+        bungee.getTabListHandler().onConnect( this );
     }
 
     @Override
     public void connect(ServerInfo target)
     {
-        nextServer = target;
-    }
-
-    public void connect(ServerInfo target, boolean force)
-    {
-        nextServer = null;
-        if ( server == null )
-        {
-            // First join
-            BungeeCord.getInstance().connections.put( name, this );
-            ProxyServer.getInstance().getTabListHandler().onConnect( this );
-        }
-
-        ServerConnectEvent event = new ServerConnectEvent( this, target );
-        BungeeCord.getInstance().getPluginManager().callEvent( event );
-        target = event.getTarget(); // Update in case the event changed target
-
-        ProxyServer.getInstance().getTabListHandler().onServerChange( this );
-
-        reconnecting = true;
-
-        if ( server != null )
-        {
-            stream.write( new Packet9Respawn( (byte) 1, (byte) 0, (byte) 0, (short) 256, "DEFAULT" ) );
-            stream.write( new Packet9Respawn( (byte) -1, (byte) 0, (byte) 0, (short) 256, "DEFAULT" ) );
-        }
-
-        ServerConnection newServer = ServerConnector.connect( this, target, true );
-        if ( server == null )
-        {
-            // Once again, first connection
-            clientEntityId = newServer.loginPacket.entityId;
-            serverEntityId = newServer.loginPacket.entityId;
-            // Set tab list size
-            Packet1Login s = newServer.loginPacket;
-            Packet1Login login = new Packet1Login( s.entityId, s.levelType, s.gameMode, (byte) s.dimension, s.difficulty, s.unused, (byte) pendingConnection.getListener().getTabListSize() );
-            stream.write( login );
-            stream.write( BungeeCord.getInstance().registerChannels() );
-
-            upBridge = new UpstreamBridge();
-            upBridge.start();
-        } else
-        {
-            try
-            {
-                downBridge.interrupt();
-                downBridge.join();
-            } catch ( InterruptedException ie )
-            {
-            }
-
-            server.disconnect( "Quitting" );
-            server.getInfo().removePlayer( this );
-
-            Packet1Login login = newServer.loginPacket;
-            serverEntityId = login.entityId;
-            stream.write( new Packet9Respawn( login.dimension, login.difficulty, login.gameMode, (short) 256, login.levelType ) );
-        }
-
-        // Reconnect process has finished, lets get the player moving again
-        reconnecting = false;
-
-        // Add to new
-        target.addPlayer( this );
-
-        // Start the bridges and move on
-        server = newServer;
     }
 
     @Override

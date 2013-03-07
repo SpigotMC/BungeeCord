@@ -1,17 +1,15 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
+import io.netty.channel.Channel;
 import java.io.EOFException;
-import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import javax.crypto.Cipher;
-import javax.crypto.CipherInputStream;
-import javax.crypto.CipherOutputStream;
 import javax.crypto.SecretKey;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerPing;
@@ -21,6 +19,8 @@ import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
+import net.md_5.bungee.netty.CipherCodec;
+import net.md_5.bungee.netty.PacketDecoder;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet2Handshake;
@@ -31,16 +31,16 @@ import net.md_5.bungee.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.packet.PacketFEPing;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketHandler;
-import net.md_5.bungee.packet.PacketStream;
 import net.md_5.bungee.protocol.PacketDefinitions;
 
+@RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements Runnable, PendingConnection
 {
 
-    private final Socket socket;
+    private final ProxyServer bungee;
+    private final Channel ch;
     @Getter
     private final ListenerInfo listener;
-    private PacketStream stream;
     private Packet1Login forgeLogin;
     private Packet2Handshake handshake;
     private PacketFDEncryptionRequest request;
@@ -50,13 +50,6 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     {
         0, 0, 0, 0, 0, 2
     } );
-
-    public InitialHandler(Socket socket, ListenerInfo info) throws IOException
-    {
-        this.socket = socket;
-        this.listener = info;
-        stream = new PacketStream( socket.getInputStream(), socket.getOutputStream(), PacketDefinitions.VANILLA_PROTOCOL );
-    }
 
     private enum State
     {
@@ -70,7 +63,8 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting FORGE LOGIN" );
         Preconditions.checkState( forgeLogin == null, "Already received FORGE LOGIN" );
         forgeLogin = login;
-        stream.setProtocol( PacketDefinitions.FORGE_PROTOCOL );
+
+        ch.pipeline().get( PacketDecoder.class ).setProtocol( PacketDefinitions.FORGE_PROTOCOL );
     }
 
     @Override
@@ -82,28 +76,17 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     @Override
     public void handle(PacketFEPing ping) throws Exception
     {
-        socket.setSoTimeout( 100 );
-        boolean newPing = false;
-        try
-        {
-            socket.getInputStream().read();
-            newPing = true;
-        } catch ( IOException ex )
-        {
-        }
-
         ServerPing pingevent = new ServerPing( BungeeCord.PROTOCOL_VERSION, BungeeCord.GAME_VERSION,
-                listener.getMotd(), ProxyServer.getInstance().getPlayers().size(), listener.getMaxPlayers() );
+                listener.getMotd(), bungee.getPlayers().size(), listener.getMaxPlayers() );
 
-        pingevent = ProxyServer.getInstance().getPluginManager().callEvent( new ProxyPingEvent( this, pingevent ) ).getResponse();
+        pingevent = bungee.getPluginManager().callEvent( new ProxyPingEvent( this, pingevent ) ).getResponse();
 
-        String response = ( newPing ) ? ChatColor.COLOR_CHAR + "1"
+        String response = ChatColor.COLOR_CHAR + "1"
                 + "\00" + pingevent.getProtocolVersion()
                 + "\00" + pingevent.getGameVersion()
                 + "\00" + pingevent.getMotd()
                 + "\00" + pingevent.getCurrentPlayers()
-                + "\00" + pingevent.getMaxPlayers()
-                : pingevent.getMotd() + ChatColor.COLOR_CHAR + pingevent.getCurrentPlayers() + ChatColor.COLOR_CHAR + pingevent.getMaxPlayers();
+                + "\00" + pingevent.getMaxPlayers();
         disconnect( response );
     }
 
@@ -111,9 +94,10 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     public void handle(Packet2Handshake handshake) throws Exception
     {
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
+        Preconditions.checkArgument( handshake.username.length() <= 16, "Cannot have username longer than 16 characters" );
         this.handshake = handshake;
-        stream.write( forgeMods );
-        stream.write( request = EncryptionUtil.encryptRequest() );
+        ch.write( forgeMods );
+        ch.write( request = EncryptionUtil.encryptRequest() );
         thisState = State.ENCRYPT;
     }
 
@@ -129,7 +113,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
         }
 
         // Check for multiple connections
-        ProxiedPlayer old = ProxyServer.getInstance().getPlayer( handshake.username );
+        ProxiedPlayer old = bungee.getInstance().getPlayer( handshake.username );
         if ( old != null )
         {
             old.disconnect( "You are already connected to the server" );
@@ -137,15 +121,16 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
 
         // fire login event
         LoginEvent event = new LoginEvent( this );
-        ProxyServer.getInstance().getPluginManager().callEvent( event );
-        if ( event.isCancelled() )
+        if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
-            throw new KickException( event.getCancelReason() );
+            disconnect( event.getCancelReason() );
         }
 
-        stream.write( new PacketFCEncryptionResponse() );
-        stream = new PacketStream( new CipherInputStream( socket.getInputStream(), EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, shared ) ),
-                new CipherOutputStream( socket.getOutputStream(), EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, shared ) ), stream.getProtocol() );
+        ch.write( new PacketFCEncryptionResponse() );
+
+        Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, shared );
+        Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, shared );
+        ch.pipeline().addBefore( "decoder", "cipher", new CipherCodec( encrypt, decrypt ) );
 
         thisState = State.LOGIN;
     }
@@ -186,23 +171,12 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     }
 
     @Override
-    public void disconnect(String reason)
+    public synchronized void disconnect(String reason)
     {
-        thisState = State.FINISHED;
-        try
+        if ( ch.isActive() )
         {
-            stream.write( new PacketFFKick( reason ) );
-        } catch ( IOException ioe )
-        {
-        } finally
-        {
-            try
-            {
-                socket.shutdownOutput();
-                socket.close();
-            } catch ( IOException ioe2 )
-            {
-            }
+            ch.write( new PacketFFKick( reason ) );
+            ch.close();
         }
     }
 
@@ -227,6 +201,6 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
     @Override
     public InetSocketAddress getAddress()
     {
-        return (InetSocketAddress) socket.getRemoteSocketAddress();
+        return (InetSocketAddress) ch.remoteAddress();
     }
 }
