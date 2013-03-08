@@ -7,7 +7,12 @@ import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.PacketHandler;
 
-public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<ByteBuf>
+/**
+ * This class is a primitive wrapper for {@link PacketHandler} instances tied to
+ * channels to maintain simple states, and only call the required, adapted
+ * methods when the channel is connected.
+ */
+class HandlerBoss extends ChannelInboundMessageHandlerAdapter<ByteBuf>
 {
 
     private PacketHandler handler;

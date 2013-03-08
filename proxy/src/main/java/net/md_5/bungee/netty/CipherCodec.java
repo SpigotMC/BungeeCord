@@ -8,8 +8,10 @@ import javax.crypto.ShortBufferException;
 
 /**
  * This class is a complete solution for encrypting and decoding bytes in a
- * Netty stream. It takes two {@link BufferedBlockCipher} instances, used for
- * encryption and decryption respectively.
+ * Netty stream. It takes two {@link Cipher} instances, used for encryption and
+ * decryption respectively. As newer Netty versions never use a heap
+ * {@link ByteBuf} for writing to the channel, this class will always create one
+ * for temporary usage.
  */
 public class CipherCodec extends ByteToByteCodec
 {
@@ -69,6 +71,7 @@ public class CipherCodec extends ByteToByteCodec
         {
             out.capacity( outputSize );
         }
+        // TODO: Try and make this use out.nioBuffer()
         int processed = cipher.update( in.array(), in.arrayOffset() + in.readerIndex(), available, out.array(), out.arrayOffset() + out.writerIndex() );
         in.readerIndex( in.readerIndex() + processed );
         out.writerIndex( out.writerIndex() + processed );
