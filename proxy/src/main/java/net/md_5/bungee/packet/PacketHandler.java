@@ -1,6 +1,7 @@
 package net.md_5.bungee.packet;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 
 public abstract class PacketHandler
 {
@@ -10,14 +11,21 @@ public abstract class PacketHandler
         throw new UnsupportedOperationException( "No handler defined for packet " + msg.getClass() );
     }
 
+    public void connected(Channel channel) throws Exception
+    {
+    }
+
+    public void disconnected(Channel channel) throws Exception
+    {
+    }
+
+    public void exception(Throwable t) throws Exception
+    {
+    }
+
     public void handle(ByteBuf buf) throws Exception
     {
         nop( buf );
-    }
-
-    public void handle(DefinedPacket packet) throws Exception
-    {
-        nop( packet );
     }
 
     public void handle(Packet0KeepAlive alive) throws Exception

@@ -1,8 +1,7 @@
-package net.md_5.bungee;
+package net.md_5.bungee.connection;
 
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
-import java.io.EOFException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +9,10 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.EncryptionUtil;
+import net.md_5.bungee.KickException;
+import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerPing;
@@ -21,7 +24,6 @@ import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.netty.CipherCodec;
 import net.md_5.bungee.netty.PacketDecoder;
-import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet2Handshake;
 import net.md_5.bungee.packet.PacketCDClientStatus;
@@ -34,7 +36,7 @@ import net.md_5.bungee.packet.PacketHandler;
 import net.md_5.bungee.protocol.PacketDefinitions;
 
 @RequiredArgsConstructor
-public class InitialHandler extends PacketHandler implements Runnable, PendingConnection
+public class InitialHandler extends PacketHandler implements PendingConnection
 {
 
     private final ProxyServer bungee;
@@ -113,7 +115,7 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
         }
 
         // Check for multiple connections
-        ProxiedPlayer old = bungee.getInstance().getPlayer( handshake.username );
+        ProxiedPlayer old = bungee.getPlayer( handshake.username );
         if ( old != null )
         {
             old.disconnect( "You are already connected to the server" );
@@ -141,33 +143,10 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
         UserConnection userCon = new UserConnection( socket, this, stream, handshake, forgeLogin, loginMessages );
-        ServerInfo server = ProxyServer.getInstance().getReconnectHandler().getServer( userCon );
-        userCon.connect( server, true );
+        ServerInfo server = bungee.getReconnectHandler().getServer( userCon );
+        userCon.connect( server );
 
         thisState = State.FINISHED;
-    }
-
-    @Override
-    public void run()
-    {
-        try
-        {
-            while ( thisState != State.FINISHED )
-            {
-                byte[] buf = stream.readPacket();
-                DefinedPacket packet = DefinedPacket.packet( buf );
-                packet.handle( this );
-            }
-        } catch ( KickException ex )
-        {
-            disconnect( "[Proxy - Kicked] " + ex.getMessage() );
-        } catch ( EOFException ex )
-        {
-        } catch ( Exception ex )
-        {
-            disconnect( "[Proxy Error] " + Util.exception( ex ) );
-            ex.printStackTrace();
-        }
     }
 
     @Override

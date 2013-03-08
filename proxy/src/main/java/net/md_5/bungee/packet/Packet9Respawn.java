@@ -8,6 +8,8 @@ import lombok.ToString;
 public class Packet9Respawn extends DefinedPacket
 {
 
+    public static final Packet9Respawn DIM1_SWITCH = new Packet9Respawn( (byte) 1, (byte) 0, (byte) 0, (short) 256, "DEFAULT" );
+    public static final Packet9Respawn DIM2_SWITCH = new Packet9Respawn( (byte) -1, (byte) 0, (byte) 0, (short) 256, "DEFAULT" );
     public int dimension;
     public byte difficulty;
     public byte gameMode;

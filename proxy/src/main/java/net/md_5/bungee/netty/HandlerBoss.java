@@ -19,6 +19,18 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<ByteBuf>
     }
 
     @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception
+    {
+        handler.connected( ctx.channel() );
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception
+    {
+        handler.disconnected( ctx.channel() );
+    }
+
+    @Override
     protected void messageReceived(ChannelHandlerContext ctx, ByteBuf msg) throws Exception
     {
         if ( ctx.channel().isActive() )
@@ -26,7 +38,7 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<ByteBuf>
             DefinedPacket packet = DefinedPacket.packet( msg );
             if ( packet != null )
             {
-                handler.handle( packet );
+                packet.handle( handler );
             } else
             {
                 handler.handle( msg );

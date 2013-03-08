@@ -109,8 +109,7 @@ public class DownstreamBridge extends PacketHandler
                 ServerInfo server = bungee.getServerInfo( in.readUTF() );
                 if ( server != null )
                 {
-                    connect( server, true );
-                    break outer;
+                    con.connect( server );
                 }
             }
             if ( subChannel.equals( "IP" ) )

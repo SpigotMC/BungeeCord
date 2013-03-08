@@ -4,10 +4,8 @@ import com.google.common.base.Preconditions;
 import gnu.trove.set.hash.THashSet;
 import io.netty.channel.Channel;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -35,22 +33,27 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     private ServerConnection server;
     // reconnect stuff
-    private int clientEntityId;
-    private int serverEntityId;
+    public int clientEntityId;
+    public int serverEntityId;
     // ping stuff
     public int trackingPingId;
     public long pingTime;
     @Getter
+    private String name;
+    @Getter
+    private String displayName;
+    @Getter
     @Setter
     private int ping = 1000;
     // Permissions
-    private final Collection<String> playerGroups = new HashSet<>();
-    private final THashSet<String> permissions = new THashSet<>();
+    private final Collection<String> playerGroups = new THashSet<>();
+    private final Collection<String> permissions = new THashSet<>();
     private final Object permMutex = new Object();
+    @Getter
+    private final Object switchMutex = new Object();
 
-    public UserConnection(Socket socket, PendingConnection pendingConnection, PacketStream stream, Packet2Handshake handshake, Packet1Login forgeLogin, List<PacketFAPluginMessage> loginMessages)
+    public UserConnection(Channel channel, PendingConnection pendingConnection, Packet2Handshake handshake, Packet1Login forgeLogin, List<PacketFAPluginMessage> loginMessages)
     {
-        super( socket, stream );
         this.handshake = handshake;
         this.pendingConnection = pendingConnection;
         this.forgeLogin = forgeLogin;
@@ -62,6 +65,11 @@ public final class UserConnection implements ProxiedPlayer
         {
             addGroups( s );
         }
+    }
+
+    public void sendPacket(DefinedPacket p)
+    {
+        ch.write( p );
     }
 
     @Override
