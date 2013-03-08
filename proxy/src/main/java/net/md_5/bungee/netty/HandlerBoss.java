@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
+import net.md_5.bungee.Util;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.PacketHandler;
 
@@ -60,7 +61,7 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<ByteBuf>
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
     {
-        cause.printStackTrace();
+        System.out.println( handler + "  " + Util.exception( cause ) );
         if ( ctx.channel().isActive() )
         {
             ctx.close();

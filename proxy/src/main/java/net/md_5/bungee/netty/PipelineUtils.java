@@ -12,15 +12,20 @@ import io.netty.util.AttributeKey;
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.ServerConnector;
+import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.protocol.PacketDefinitions;
 
 public class PipelineUtils
 {
 
     public static final AttributeKey<ListenerInfo> LISTENER = new AttributeKey<>( "ListerInfo" );
+    public static final AttributeKey<UserConnection> USER = new AttributeKey<>( "User" );
+    public static final AttributeKey<ServerInfo> TARGET = new AttributeKey<>( "Target" );
     public static final ChannelInitializer<Channel> SERVER_CHILD = new ChannelInitializer<Channel>()
     {
         @Override
@@ -30,9 +35,18 @@ public class PipelineUtils
             ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( ProxyServer.getInstance(), ch.attr( LISTENER ).get() ) );
         }
     };
-    private static final Base BASE = new Base();
+    public static final ChannelInitializer<Channel> CLIENT = new ChannelInitializer<Channel>()
+    {
+        @Override
+        protected void initChannel(Channel ch) throws Exception
+        {
+            BASE.initChannel( ch );
+            ch.pipeline().get( HandlerBoss.class ).setHandler( new ServerConnector( ProxyServer.getInstance(), ch.attr( USER ).get(), ch.attr( TARGET ).get() ) );
+        }
+    };
+    public static final Base BASE = new Base();
 
-    private final static class Base extends ChannelInitializer<Channel>
+   public final static class Base extends ChannelInitializer<Channel>
     {
 
         @Override
@@ -50,14 +64,4 @@ public class PipelineUtils
             ch.pipeline().addLast( "handler", new HandlerBoss() );
         }
     };
-
-    public static ChannelFuture connectClient(SocketAddress remoteAddress)
-    {
-        return new Bootstrap()
-                .channel( NioSocketChannel.class )
-                .group( BungeeCord.getInstance().eventLoops )
-                .handler( BASE )
-                .remoteAddress( remoteAddress )
-                .connect();
-    }
 }

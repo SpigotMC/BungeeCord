@@ -2,7 +2,12 @@ package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
 import gnu.trove.set.hash.THashSet;
+import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
@@ -12,11 +17,15 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
+import net.md_5.bungee.api.event.ServerConnectEvent;
+import net.md_5.bungee.netty.HandlerBoss;
+import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.packet.*;
 
 public final class UserConnection implements ProxiedPlayer
@@ -85,6 +94,44 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void connect(ServerInfo target)
     {
+        connect( target, true );
+    }
+
+    private void connect(ServerInfo info, final boolean retry)
+    {
+        ServerConnectEvent event = new ServerConnectEvent( this, info );
+        ProxyServer.getInstance().getPluginManager().callEvent( event );
+        final ServerInfo target = event.getTarget(); // Update in case the event changed target
+        new Bootstrap()
+                .channel( NioSocketChannel.class )
+                .group( BungeeCord.getInstance().eventLoops )
+                .handler( new ChannelInitializer()
+        {
+            @Override
+            protected void initChannel(Channel ch) throws Exception
+            {
+                PipelineUtils.BASE.initChannel( ch );
+                ch.pipeline().get( HandlerBoss.class ).setHandler( new ServerConnector( bungee, UserConnection.this, target ) );
+            }
+        } )
+                .remoteAddress( target.getAddress() )
+                .connect().addListener( new ChannelFutureListener()
+        {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception
+            {
+                if ( !future.isSuccess() )
+                {
+                    future.channel().close();
+                    ServerInfo def = ProxyServer.getInstance().getServers().get( getPendingConnection().getListener().getDefaultServer() );
+                    if ( retry && !target.equals( def ) )
+                    {
+                        sendMessage( ChatColor.RED + "Could not connect to target server, you have been moved to the default server" );
+                        connect( def, false );
+                    }
+                }
+            }
+        } );
     }
 
     @Override

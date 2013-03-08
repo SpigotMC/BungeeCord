@@ -2,17 +2,11 @@ package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import java.util.Queue;
 import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
-import net.md_5.bungee.netty.HandlerBoss;
-import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet9Respawn;
@@ -113,30 +107,5 @@ public class ServerConnector extends PacketHandler
     public void handle(PacketFFKick kick) throws Exception
     {
         throw new KickException( kick.message );
-    }
-
-    public static void connect(final UserConnection user, ServerInfo info, final boolean retry)
-    {
-        ServerConnectEvent event = new ServerConnectEvent( user, info );
-        ProxyServer.getInstance().getPluginManager().callEvent( event );
-        final ServerInfo target = event.getTarget(); // Update in case the event changed target
-
-        PipelineUtils.connectClient( info.getAddress() ).addListener( new ChannelFutureListener()
-        {
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception
-            {
-                if ( !future.isSuccess() )
-                {
-                    future.channel().close();
-                    ServerInfo def = ProxyServer.getInstance().getServers().get( user.getPendingConnection().getListener().getDefaultServer() );
-                    if ( retry && !target.equals( def ) )
-                    {
-                        user.sendMessage( ChatColor.RED + "Could not connect to target server, you have been moved to the default server" );
-                        connect( user, def, false );
-                    }
-                }
-            }
-        } ).channel().pipeline().get( HandlerBoss.class).setHandler( new ServerConnector( ProxyServer.getInstance(), user, target));
     }
 }

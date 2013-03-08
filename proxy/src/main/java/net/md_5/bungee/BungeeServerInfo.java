@@ -1,5 +1,7 @@
 package net.md_5.bungee;
 
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetSocketAddress;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -42,6 +44,12 @@ public class BungeeServerInfo extends ServerInfo
     @Override
     public void ping(final Callback<ServerPing> callback)
     {
-        PipelineUtils.connectClient( getAddress() ).channel().pipeline().get( HandlerBoss.class ).setHandler( new PingHandler( callback ) );
+        new Bootstrap()
+                .channel( NioSocketChannel.class )
+                .group( BungeeCord.getInstance().eventLoops )
+                .handler( PipelineUtils.BASE )
+                .remoteAddress( getAddress() )
+                .connect()
+                .channel().pipeline().get( HandlerBoss.class ).setHandler( new PingHandler( callback ) );
     }
 }
