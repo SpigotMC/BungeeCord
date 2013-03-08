@@ -13,13 +13,13 @@ public class Packet3Chat extends DefinedPacket
     public Packet3Chat(String message)
     {
         super( 0x03 );
-        writeUTF( message );
+        writeString( message );
     }
 
     public Packet3Chat(byte[] buf)
     {
         super( 0x03, buf );
-        this.message = readUTF();
+        this.message = readString();
     }
 
     @Override

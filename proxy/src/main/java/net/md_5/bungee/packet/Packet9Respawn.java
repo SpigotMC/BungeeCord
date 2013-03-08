@@ -23,7 +23,7 @@ public class Packet9Respawn extends DefinedPacket
         writeByte( difficulty );
         writeByte( gameMode );
         writeShort( worldHeight );
-        writeUTF( levelType );
+        writeString( levelType );
     }
 
     public Packet9Respawn(byte[] buf)
@@ -33,7 +33,7 @@ public class Packet9Respawn extends DefinedPacket
         this.difficulty = readByte();
         this.gameMode = readByte();
         this.worldHeight = readShort();
-        this.levelType = readUTF();
+        this.levelType = readString();
     }
 
     @Override

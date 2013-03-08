@@ -20,7 +20,7 @@ public class Packet1Login extends DefinedPacket
     {
         super( 0x01 );
         writeInt( entityId );
-        writeUTF( levelType );
+        writeString( levelType );
         writeByte( gameMode );
         writeByte( dimension );
         writeByte( difficulty );
@@ -32,12 +32,12 @@ public class Packet1Login extends DefinedPacket
     {
         super( 0x01, buf );
         this.entityId = readInt();
-        this.levelType = readUTF();
+        this.levelType = readString();
         this.gameMode = readByte();
-        if ( available() == 4 )
+        if ( readableBytes() == 4 )
         {
             this.dimension = readByte();
-        } else if ( available() == 7 )
+        } else if ( readableBytes() == 7 )
         {
             this.dimension = readInt();
         } else

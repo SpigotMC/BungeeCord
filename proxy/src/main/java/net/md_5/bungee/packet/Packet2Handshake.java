@@ -17,8 +17,8 @@ public class Packet2Handshake extends DefinedPacket
     {
         super( 0x02 );
         writeByte( protocolVersion );
-        writeUTF( username );
-        writeUTF( host );
+        writeString( username );
+        writeString( host );
         writeInt( port );
     }
 
@@ -26,8 +26,8 @@ public class Packet2Handshake extends DefinedPacket
     {
         super( 0x02, buf );
         this.procolVersion = readByte();
-        this.username = readUTF();
-        this.host = readUTF();
+        this.username = readString();
+        this.host = readString();
         this.port = readInt();
     }
 

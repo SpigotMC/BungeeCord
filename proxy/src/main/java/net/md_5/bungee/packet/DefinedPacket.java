@@ -1,13 +1,9 @@
 package net.md_5.bungee.packet;
 
 import com.google.common.base.Preconditions;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import io.netty.buffer.ByteBuf;
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.IOException;
+import io.netty.buffer.ReferenceCounted;
+import io.netty.buffer.Unpooled;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import lombok.Delegate;
@@ -18,67 +14,46 @@ import net.md_5.bungee.Util;
  * subclasses can read and write to the backing byte array which can be
  * retrieved via the {@link #getPacket()} method.
  */
-public abstract class DefinedPacket implements DataOutput
+public abstract class DefinedPacket implements ByteBuf
 {
 
-    private interface Overriden
+    @Delegate(types =
     {
-
-        void readUTF();
-
-        void writeUTF(String s);
-    }
-    private ByteArrayInputStream bin;
-    private DataInputStream input;
-    @Delegate(excludes = Overriden.class)
-    private ByteArrayDataOutput out;
+        ByteBuf.class, ReferenceCounted.class
+    })
+    private ByteBuf out;
     /**
      * Packet id.
      */
     public final int id;
-    /**
-     * Already constructed packet.
-     */
-    private byte[] packet;
 
     public DefinedPacket(int id, byte[] buf)
     {
-        bin = new ByteArrayInputStream( buf );
-        input = new DataInputStream( bin );
+        out = Unpooled.wrappedBuffer( buf );
         if ( readUnsignedByte() != id )
         {
             throw new IllegalArgumentException( "Wasn't expecting packet id " + Util.hex( id ) );
         }
         this.id = id;
-        packet = buf;
     }
 
     public DefinedPacket(int id)
     {
-        out = ByteStreams.newDataOutput();
+        out = Unpooled.buffer();
         this.id = id;
         writeByte( id );
     }
 
-    /**
-     * Gets the bytes that make up this packet.
-     *
-     * @return the bytes which make up this packet, either the original byte
-     * array or the newly written one.
-     */
-    public byte[] getPacket()
-    {
-        return packet == null ? packet = out.toByteArray() : packet;
-    }
-
-    @Override
-    public void writeUTF(String s)
+    public void writeString(String s)
     {
         writeShort( s.length() );
-        writeChars( s );
+        for ( char c : s.toCharArray() )
+        {
+            writeChar( c );
+        }
     }
 
-    public String readUTF()
+    public String readString()
     {
         short len = readShort();
         char[] chars = new char[ len ];
@@ -92,97 +67,15 @@ public abstract class DefinedPacket implements DataOutput
     public void writeArray(byte[] b)
     {
         writeShort( b.length );
-        write( b );
+        writeBytes( b );
     }
 
     public byte[] readArray()
     {
         short len = readShort();
         byte[] ret = new byte[ len ];
-        readFully( ret );
+        readBytes( ret );
         return ret;
-    }
-
-    public final int available()
-    {
-        return bin.available();
-    }
-
-    public final void readFully(byte b[])
-    {
-        try
-        {
-            input.readFully( b );
-        } catch ( IOException e )
-        {
-            throw new IllegalStateException( e );
-        }
-    }
-
-    public final boolean readBoolean()
-    {
-        try
-        {
-            return input.readBoolean();
-        } catch ( IOException e )
-        {
-            throw new IllegalStateException( e );
-        }
-    }
-
-    public final byte readByte()
-    {
-        try
-        {
-            return input.readByte();
-        } catch ( IOException e )
-        {
-            throw new IllegalStateException( e );
-        }
-    }
-
-    public final int readUnsignedByte()
-    {
-        try
-        {
-            return input.readUnsignedByte();
-        } catch ( IOException e )
-        {
-            throw new IllegalStateException( e );
-        }
-    }
-
-    public final short readShort()
-    {
-        try
-        {
-            return input.readShort();
-        } catch ( IOException e )
-        {
-            throw new IllegalStateException( e );
-        }
-    }
-
-    public final char readChar()
-    {
-        try
-        {
-            return input.readChar();
-        } catch ( IOException e )
-        {
-            throw new IllegalStateException( e );
-        }
-    }
-
-    public final int readInt()
-    {
-        try
-        {
-            return input.readInt();
-        } catch ( IOException e )
-        {
-            throw new IllegalStateException( e );
-        }
     }
 
     @Override
@@ -195,11 +88,12 @@ public abstract class DefinedPacket implements DataOutput
     public abstract String toString();
 
     public abstract void handle(PacketHandler handler) throws Exception;
+    @SuppressWarnings("unchecked")
     private static Class<? extends DefinedPacket>[] classes = new Class[ 256 ];
 
     public static DefinedPacket packet(ByteBuf buf)
     {
-        int id = buf.getUnsignedShort( 0);
+        int id = buf.getUnsignedShort( 0 );
         Class<? extends DefinedPacket> clazz = classes[id];
         DefinedPacket ret = null;
         if ( clazz != null )
@@ -214,7 +108,8 @@ public abstract class DefinedPacket implements DataOutput
             } catch ( IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException ex )
             {
             }
-        } else {
+        } else
+        {
             return null;
         }
 

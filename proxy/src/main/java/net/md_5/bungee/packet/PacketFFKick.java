@@ -13,13 +13,13 @@ public class PacketFFKick extends DefinedPacket
     public PacketFFKick(String message)
     {
         super( 0xFF );
-        writeUTF( message );
+        writeString( message );
     }
 
     public PacketFFKick(byte[] buf)
     {
         super( 0xFF, buf );
-        this.message = readUTF();
+        this.message = readString();
     }
 
     @Override

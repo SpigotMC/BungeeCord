@@ -14,7 +14,7 @@ public class PacketFAPluginMessage extends DefinedPacket
     public PacketFAPluginMessage(String tag, byte[] data)
     {
         super( 0xFA );
-        writeUTF( tag );
+        writeString( tag );
         writeArray( data );
         this.tag = tag;
         this.data = data;
@@ -23,7 +23,7 @@ public class PacketFAPluginMessage extends DefinedPacket
     public PacketFAPluginMessage(byte[] buf)
     {
         super( 0xFA, buf );
-        this.tag = readUTF();
+        this.tag = readString();
         this.data = readArray();
     }
 

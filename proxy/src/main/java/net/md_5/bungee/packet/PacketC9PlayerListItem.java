@@ -15,7 +15,7 @@ public class PacketC9PlayerListItem extends DefinedPacket
     public PacketC9PlayerListItem(byte[] packet)
     {
         super( 0xC9, packet );
-        username = readUTF();
+        username = readString();
         online = readBoolean();
         ping = readShort();
     }
@@ -23,7 +23,7 @@ public class PacketC9PlayerListItem extends DefinedPacket
     public PacketC9PlayerListItem(String username, boolean online, int ping)
     {
         super( 0xC9 );
-        writeUTF( username );
+        writeString( username );
         writeBoolean( online );
         writeShort( ping );
     }
