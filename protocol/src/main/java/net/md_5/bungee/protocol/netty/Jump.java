@@ -20,6 +20,6 @@ class Jump extends Instruction
     @Override
     void read(ByteBuf in) throws IOException
     {
-        skip( in, len );
+        in.skipBytes( len );
     }
 }

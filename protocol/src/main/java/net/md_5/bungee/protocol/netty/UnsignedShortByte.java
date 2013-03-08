@@ -10,6 +10,6 @@ class UnsignedShortByte extends Instruction
     void read(ByteBuf in) throws IOException
     {
         int size = in.readUnsignedShort();
-        skip( in, size );
+        in.skipBytes( size );
     }
 }

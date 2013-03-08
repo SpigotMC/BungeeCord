@@ -60,7 +60,7 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<ByteBuf>
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
     {
-        super.exceptionCaught( ctx, cause );
+        cause.printStackTrace();
         if ( ctx.channel().isActive() )
         {
             ctx.close();

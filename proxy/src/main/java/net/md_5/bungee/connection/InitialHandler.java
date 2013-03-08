@@ -179,8 +179,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
                     ch.write( new PacketFCEncryptionResponse() );
 
-                    Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, shared );
                     Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, shared );
+                    Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, shared );
                     ch.pipeline().addBefore( "decoder", "cipher", new CipherCodec( encrypt, decrypt ) );
 
                     thisState = InitialHandler.State.LOGIN;

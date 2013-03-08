@@ -34,7 +34,7 @@ class MetaData extends Instruction
                     ITEM.read( in );
                     break;
                 case 6:
-                    skip( in, 12 ); //  int, int, int
+                    in.skipBytes( 12 ); //  int, int, int
                     break;
                 default:
                     throw new IllegalArgumentException( "Unknown metadata type " + type );

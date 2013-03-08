@@ -12,6 +12,6 @@ public class BulkChunk extends Instruction
         short count = in.readShort();
         int size = in.readInt();
         in.readBoolean();
-        skip( in, size + count * 12 );
+        in.skipBytes( size + count * 12 );
     }
 }

@@ -12,7 +12,7 @@ class OptionalMotion extends Instruction
         int data = in.readInt();
         if ( data > 0 )
         {
-            skip( in, 6 );
+            in.skipBytes( 6 );
         }
     }
 }

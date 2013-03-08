@@ -28,9 +28,4 @@ abstract class Instruction
     static final Instruction BYTE_INT = new ByteHeader( INT );
 
     abstract void read(ByteBuf in) throws IOException;
-
-    final void skip(ByteBuf in, int len) throws IOException
-    {
-        in.readerIndex( in.readerIndex() + len );
-    }
 }
