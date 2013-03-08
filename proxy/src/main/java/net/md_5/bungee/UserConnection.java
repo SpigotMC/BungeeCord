@@ -52,8 +52,10 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     private final Object switchMutex = new Object();
 
-    public UserConnection(Channel channel, PendingConnection pendingConnection, Packet2Handshake handshake, Packet1Login forgeLogin, List<PacketFAPluginMessage> loginMessages)
+    public UserConnection(BungeeCord bungee, Channel channel, PendingConnection pendingConnection, Packet2Handshake handshake, Packet1Login forgeLogin, List<PacketFAPluginMessage> loginMessages)
     {
+        this.bungee = bungee;
+        this.ch = channel;
         this.handshake = handshake;
         this.pendingConnection = pendingConnection;
         this.forgeLogin = forgeLogin;

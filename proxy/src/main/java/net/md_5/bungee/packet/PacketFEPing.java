@@ -1,5 +1,6 @@
 package net.md_5.bungee.packet;
 
+import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -8,9 +9,12 @@ import lombok.ToString;
 public class PacketFEPing extends DefinedPacket
 {
 
-    public PacketFEPing(byte[] buffer)
+    public byte version;
+
+    public PacketFEPing(ByteBuf buffer)
     {
         super( 0xFE, buffer );
+        version = readByte();
     }
 
     @Override

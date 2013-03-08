@@ -1,5 +1,6 @@
 package net.md_5.bungee.packet;
 
+import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -26,7 +27,7 @@ public class Packet9Respawn extends DefinedPacket
         writeString( levelType );
     }
 
-    public Packet9Respawn(byte[] buf)
+    public Packet9Respawn(ByteBuf buf)
     {
         super( 0x09, buf );
         this.dimension = readInt();

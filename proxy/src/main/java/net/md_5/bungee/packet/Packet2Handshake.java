@@ -1,5 +1,6 @@
 package net.md_5.bungee.packet;
 
+import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -22,7 +23,7 @@ public class Packet2Handshake extends DefinedPacket
         writeInt( port );
     }
 
-    public Packet2Handshake(byte[] buf)
+    public Packet2Handshake(ByteBuf buf)
     {
         super( 0x02, buf );
         this.procolVersion = readByte();

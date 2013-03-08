@@ -1,5 +1,6 @@
 package net.md_5.bungee.packet;
 
+import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -10,9 +11,9 @@ public class Packet0KeepAlive extends DefinedPacket
 
     public int id;
 
-    public Packet0KeepAlive(byte[] buffer)
+    public Packet0KeepAlive(ByteBuf buf)
     {
-        super( 0x00, buffer );
+        super( 0x00, buf );
         id = readInt();
     }
 

@@ -1,5 +1,6 @@
 package net.md_5.bungee.packet;
 
+import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -21,7 +22,7 @@ public class PacketCDClientStatus extends DefinedPacket
         writeByte( payload );
     }
 
-    public PacketCDClientStatus(byte[] buf)
+    public PacketCDClientStatus(ByteBuf buf)
     {
         super( 0xCD, buf );
     }

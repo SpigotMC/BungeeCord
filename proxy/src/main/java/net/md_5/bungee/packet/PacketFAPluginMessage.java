@@ -1,5 +1,6 @@
 package net.md_5.bungee.packet;
 
+import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -20,7 +21,7 @@ public class PacketFAPluginMessage extends DefinedPacket
         this.data = data;
     }
 
-    public PacketFAPluginMessage(byte[] buf)
+    public PacketFAPluginMessage(ByteBuf buf)
     {
         super( 0xFA, buf );
         this.tag = readString();

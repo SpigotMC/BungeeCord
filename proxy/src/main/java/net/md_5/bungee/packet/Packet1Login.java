@@ -1,5 +1,6 @@
 package net.md_5.bungee.packet;
 
+import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -28,7 +29,7 @@ public class Packet1Login extends DefinedPacket
         writeByte( maxPlayers );
     }
 
-    public Packet1Login(byte[] buf)
+    public Packet1Login(ByteBuf buf)
     {
         super( 0x01, buf );
         this.entityId = readInt();

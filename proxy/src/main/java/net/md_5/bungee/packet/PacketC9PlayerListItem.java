@@ -1,5 +1,6 @@
 package net.md_5.bungee.packet;
 
+import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -12,9 +13,9 @@ public class PacketC9PlayerListItem extends DefinedPacket
     public boolean online;
     public int ping;
 
-    public PacketC9PlayerListItem(byte[] packet)
+    public PacketC9PlayerListItem(ByteBuf buf)
     {
-        super( 0xC9, packet );
+        super( 0xC9, buf );
         username = readString();
         online = readBoolean();
         ping = readShort();

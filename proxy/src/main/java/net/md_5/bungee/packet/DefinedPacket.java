@@ -1,6 +1,5 @@
 package net.md_5.bungee.packet;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ReferenceCounted;
 import io.netty.buffer.Unpooled;
@@ -21,26 +20,20 @@ public abstract class DefinedPacket implements ByteBuf
     {
         ByteBuf.class, ReferenceCounted.class
     })
-    private ByteBuf out;
-    /**
-     * Packet id.
-     */
-    public final int id;
+    private ByteBuf buf;
 
-    public DefinedPacket(int id, byte[] buf)
+    public DefinedPacket(int id, ByteBuf buf)
     {
-        out = Unpooled.wrappedBuffer( buf );
+        this.buf = buf;
         if ( readUnsignedByte() != id )
         {
             throw new IllegalArgumentException( "Wasn't expecting packet id " + Util.hex( id ) );
         }
-        this.id = id;
     }
 
     public DefinedPacket(int id)
     {
-        out = Unpooled.buffer();
-        this.id = id;
+        buf = Unpooled.buffer();
         writeByte( id );
     }
 
@@ -90,6 +83,8 @@ public abstract class DefinedPacket implements ByteBuf
     public abstract void handle(PacketHandler handler) throws Exception;
     @SuppressWarnings("unchecked")
     private static Class<? extends DefinedPacket>[] classes = new Class[ 256 ];
+    @SuppressWarnings("unchecked")
+    private static Constructor<? extends DefinedPacket>[] consructors = new Constructor[ 256 ];
 
     public static DefinedPacket packet(ByteBuf buf)
     {
@@ -100,7 +95,13 @@ public abstract class DefinedPacket implements ByteBuf
         {
             try
             {
-                Constructor<? extends DefinedPacket> constructor = clazz.getDeclaredConstructor( byte[].class );
+                Constructor<? extends DefinedPacket> constructor = consructors[id];
+                if ( constructor == null )
+                {
+                    constructor = clazz.getDeclaredConstructor( ByteBuf.class );
+                    consructors[id] = constructor;
+                }
+
                 if ( constructor != null )
                 {
                     ret = constructor.newInstance( buf );
@@ -108,12 +109,8 @@ public abstract class DefinedPacket implements ByteBuf
             } catch ( IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException ex )
             {
             }
-        } else
-        {
-            return null;
         }
 
-        Preconditions.checkState( ret != null, "Don't know how to deal with packet ID %s", Util.hex( id ) );
         return ret;
     }
 

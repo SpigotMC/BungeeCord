@@ -1,5 +1,6 @@
 package net.md_5.bungee.packet;
 
+import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -16,7 +17,7 @@ public class PacketFFKick extends DefinedPacket
         writeString( message );
     }
 
-    public PacketFFKick(byte[] buf)
+    public PacketFFKick(ByteBuf buf)
     {
         super( 0xFF, buf );
         this.message = readString();

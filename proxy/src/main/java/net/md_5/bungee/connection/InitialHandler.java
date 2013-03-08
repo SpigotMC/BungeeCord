@@ -142,7 +142,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
-        UserConnection userCon = new UserConnection( socket, this, stream, handshake, forgeLogin, loginMessages );
+        UserConnection userCon = new UserConnection( (BungeeCord) bungee, ch, this, handshake, forgeLogin, loginMessages );
         ServerInfo server = bungee.getReconnectHandler().getServer( userCon );
         userCon.connect( server );
 
