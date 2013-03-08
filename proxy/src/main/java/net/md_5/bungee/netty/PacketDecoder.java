@@ -27,7 +27,10 @@ public class PacketDecoder extends ReplayingDecoder<ByteBuf>
     @Override
     protected ByteBuf decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception
     {
+        int startIndex = in.readerIndex();
         PacketReader.readPacket( in, protocol );
-        return in.copy();
+        ByteBuf readPacket = in.copy( startIndex, in.readerIndex() - startIndex );
+        System.out.println( readPacket );
+        return readPacket;
     }
 }

@@ -88,7 +88,7 @@ public abstract class DefinedPacket implements ByteBuf
 
     public static DefinedPacket packet(ByteBuf buf)
     {
-        int id = buf.getUnsignedShort( 0 );
+        short id = buf.getUnsignedByte( 0 );
         Class<? extends DefinedPacket> clazz = classes[id];
         DefinedPacket ret = null;
         if ( clazz != null )

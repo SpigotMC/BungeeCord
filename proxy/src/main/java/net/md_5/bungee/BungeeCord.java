@@ -187,11 +187,11 @@ public class BungeeCord extends ProxyServer
         for ( ListenerInfo info : config.getListeners() )
         {
             Channel server = new ServerBootstrap()
-                    .channel( NioServerSocketChannel.class)
+                    .channel( NioServerSocketChannel.class )
+                    .childAttr( PipelineUtils.LISTENER, info )
                     .childHandler( PipelineUtils.SERVER_CHILD )
                     .group( eventLoops )
                     .localAddress( info.getHost() )
-                    .attr( PipelineUtils.LISTENER, info)
                     .bind().channel();
             listeners.add( server );
 
