@@ -47,7 +47,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 {
 
     private final ProxyServer bungee;
-    private final Channel ch;
+    private Channel ch;
     @Getter
     private final ListenerInfo listener;
     private Packet1Login forgeLogin;
@@ -64,6 +64,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
 
         HANDSHAKE, ENCRYPT, LOGIN, FINISHED;
+    }
+
+    @Override
+    public void connected(Channel channel) throws Exception
+    {
+        this.ch = channel;
     }
 
     @Override

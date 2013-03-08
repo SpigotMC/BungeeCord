@@ -11,7 +11,8 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
-import net.md_5.bungee.netty.ChannelBootstrapper;
+import net.md_5.bungee.netty.HandlerBoss;
+import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet9Respawn;
@@ -25,7 +26,7 @@ public class ServerConnector extends PacketHandler
 {
 
     private final ProxyServer bungee;
-    private final Channel ch;
+    private Channel ch;
     private final UserConnection user;
     private final ServerInfo target;
     private State thisState = State.ENCRYPT_REQUEST;
@@ -34,6 +35,14 @@ public class ServerConnector extends PacketHandler
     {
 
         ENCRYPT_REQUEST, LOGIN, FINISHED;
+    }
+
+    @Override
+    public void connected(Channel channel) throws Exception
+    {
+        this.ch = channel;
+        channel.write( user.handshake );
+        channel.write( PacketCDClientStatus.CLIENT_LOGIN );
     }
 
     @Override
@@ -112,16 +121,12 @@ public class ServerConnector extends PacketHandler
         ProxyServer.getInstance().getPluginManager().callEvent( event );
         final ServerInfo target = event.getTarget(); // Update in case the event changed target
 
-        ChannelBootstrapper.CLIENT.connectClient( info.getAddress() ).addListener( new ChannelFutureListener()
+        PipelineUtils.connectClient( info.getAddress() ).addListener( new ChannelFutureListener()
         {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception
             {
-                if ( future.isSuccess() )
-                {
-                    future.channel().write( user.handshake );
-                    future.channel().write( PacketCDClientStatus.CLIENT_LOGIN );
-                } else
+                if ( !future.isSuccess() )
                 {
                     future.channel().close();
                     ServerInfo def = ProxyServer.getInstance().getServers().get( user.getPendingConnection().getListener().getDefaultServer() );
@@ -132,6 +137,6 @@ public class ServerConnector extends PacketHandler
                     }
                 }
             }
-        } ).channel();
+        } ).channel().pipeline().get( HandlerBoss.class).setHandler( new ServerConnector( ProxyServer.getInstance(), user, target));
     }
 }

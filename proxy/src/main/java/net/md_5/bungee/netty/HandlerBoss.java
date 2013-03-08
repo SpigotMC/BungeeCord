@@ -12,12 +12,12 @@ import net.md_5.bungee.packet.PacketHandler;
  * channels to maintain simple states, and only call the required, adapted
  * methods when the channel is connected.
  */
-class HandlerBoss extends ChannelInboundMessageHandlerAdapter<ByteBuf>
+public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<ByteBuf>
 {
 
     private PacketHandler handler;
 
-    HandlerBoss(PacketHandler handler)
+    public void setHandler(PacketHandler handler)
     {
         Preconditions.checkArgument( handler != null, "handler" );
         this.handler = handler;
@@ -26,19 +26,25 @@ class HandlerBoss extends ChannelInboundMessageHandlerAdapter<ByteBuf>
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception
     {
-        handler.connected( ctx.channel() );
+        if ( handler != null )
+        {
+            handler.connected( ctx.channel() );
+        }
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception
     {
-        handler.disconnected( ctx.channel() );
+        if ( handler != null )
+        {
+            handler.disconnected( ctx.channel() );
+        }
     }
 
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, ByteBuf msg) throws Exception
     {
-        if ( ctx.channel().isActive() )
+        if ( handler != null && ctx.channel().isActive() )
         {
             DefinedPacket packet = DefinedPacket.packet( msg );
             if ( packet != null )

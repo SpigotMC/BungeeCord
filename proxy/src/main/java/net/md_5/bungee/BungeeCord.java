@@ -6,6 +6,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
 import io.netty.channel.MultithreadEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import net.md_5.bungee.config.Configuration;
 import java.io.BufferedReader;
 import java.io.File;
@@ -38,7 +39,7 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.command.*;
 import net.md_5.bungee.config.YamlConfig;
-import net.md_5.bungee.netty.ChannelBootstrapper;
+import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 
@@ -186,9 +187,11 @@ public class BungeeCord extends ProxyServer
         for ( ListenerInfo info : config.getListeners() )
         {
             Channel server = new ServerBootstrap()
-                    .childHandler( ChannelBootstrapper.SERVER )
-                    .localAddress( info.getHost() )
+                    .channel( NioServerSocketChannel.class)
+                    .childHandler( PipelineUtils.SERVER_CHILD )
                     .group( eventLoops )
+                    .localAddress( info.getHost() )
+                    .attr( PipelineUtils.LISTENER, info)
                     .bind().channel();
             listeners.add( server );
 

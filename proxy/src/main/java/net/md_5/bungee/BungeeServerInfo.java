@@ -9,6 +9,9 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.Server;
+import net.md_5.bungee.connection.PingHandler;
+import net.md_5.bungee.netty.HandlerBoss;
+import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 
@@ -39,5 +42,6 @@ public class BungeeServerInfo extends ServerInfo
     @Override
     public void ping(final Callback<ServerPing> callback)
     {
+        PipelineUtils.connectClient( getAddress() ).channel().pipeline().get( HandlerBoss.class ).setHandler( new PingHandler( callback ) );
     }
 }
