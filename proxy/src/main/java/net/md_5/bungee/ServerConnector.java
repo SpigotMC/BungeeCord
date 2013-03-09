@@ -7,8 +7,11 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
+import net.md_5.bungee.connection.DownstreamBridge;
+import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.Packet1Login;
+import net.md_5.bungee.packet.Packet2Handshake;
 import net.md_5.bungee.packet.Packet9Respawn;
 import net.md_5.bungee.packet.PacketCDClientStatus;
 import net.md_5.bungee.packet.PacketFDEncryptionRequest;
@@ -35,7 +38,8 @@ public class ServerConnector extends PacketHandler
     public void connected(Channel channel) throws Exception
     {
         this.ch = channel;
-        channel.write( user.handshake );
+        // TODO: Fix this crap
+        channel.write( new Packet2Handshake( user.handshake.procolVersion, user.handshake.username, user.handshake.host, user.handshake.port ) );
         channel.write( PacketCDClientStatus.CLIENT_LOGIN );
     }
 
@@ -91,6 +95,8 @@ public class ServerConnector extends PacketHandler
                 user.getServer().disconnect( "Quitting" );
                 user.getServer().getInfo().removePlayer( user );
             }
+
+            ch.pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user ) );
         }
 
         thisState = State.FINISHED;

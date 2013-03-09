@@ -23,7 +23,7 @@ public class Packet2Handshake extends DefinedPacket
         writeInt( port );
     }
 
-    public Packet2Handshake(ByteBuf buf)
+    Packet2Handshake(ByteBuf buf)
     {
         super( 0x02, buf );
         this.procolVersion = readByte();

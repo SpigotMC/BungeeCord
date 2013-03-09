@@ -51,17 +51,15 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<ByteBuf>
             if ( packet != null )
             {
                 packet.handle( handler );
-            } else
-            {
-                handler.handle( msg );
             }
+            handler.handle( msg );
         }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
     {
-        System.out.println( handler + "  " + Util.exception( cause ) );
+        cause.printStackTrace();
         if ( ctx.channel().isActive() )
         {
             ctx.close();

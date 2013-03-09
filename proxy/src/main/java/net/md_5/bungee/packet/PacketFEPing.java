@@ -11,7 +11,7 @@ public class PacketFEPing extends DefinedPacket
 
     public byte version;
 
-    public PacketFEPing(ByteBuf buffer)
+    PacketFEPing(ByteBuf buffer)
     {
         super( 0xFE, buffer );
         version = readByte();

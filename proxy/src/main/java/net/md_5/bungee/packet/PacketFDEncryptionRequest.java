@@ -24,7 +24,7 @@ public class PacketFDEncryptionRequest extends DefinedPacket
         this.verifyToken = verifyToken;
     }
 
-    public PacketFDEncryptionRequest(ByteBuf buf)
+    PacketFDEncryptionRequest(ByteBuf buf)
     {
         super( 0xFD, buf );
         serverId = readString();

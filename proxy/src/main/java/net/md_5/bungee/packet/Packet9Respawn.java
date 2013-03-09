@@ -27,7 +27,7 @@ public class Packet9Respawn extends DefinedPacket
         writeString( levelType );
     }
 
-    public Packet9Respawn(ByteBuf buf)
+    Packet9Respawn(ByteBuf buf)
     {
         super( 0x09, buf );
         this.dimension = readInt();

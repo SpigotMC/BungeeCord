@@ -17,7 +17,7 @@ public class Packet3Chat extends DefinedPacket
         writeString( message );
     }
 
-    public Packet3Chat(ByteBuf buf)
+    Packet3Chat(ByteBuf buf)
     {
         super( 0x03, buf );
         this.message = readString();

@@ -1,6 +1,8 @@
 package net.md_5.bungee.connection;
 
+import io.netty.buffer.ByteBuf;
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.event.ChatEvent;
@@ -16,6 +18,13 @@ public class UpstreamBridge extends PacketHandler
 
     private final ProxyServer bungee;
     private final UserConnection con;
+
+    @Override
+    public void handle(ByteBuf buf) throws Exception
+    {
+        EntityMap.rewrite( buf, con.clientEntityId, con.serverEntityId );
+        con.getServer().getCh().write( buf );
+    }
 
     @Override
     public void handle(Packet0KeepAlive alive) throws Exception

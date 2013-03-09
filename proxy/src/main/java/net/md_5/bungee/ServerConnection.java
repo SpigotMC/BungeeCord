@@ -14,6 +14,7 @@ import net.md_5.bungee.packet.PacketFFKick;
 public class ServerConnection implements Server
 {
 
+    @Getter
     private final Channel ch;
     @Getter
     private final ServerInfo info;

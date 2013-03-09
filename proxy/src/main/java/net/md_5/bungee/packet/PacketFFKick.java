@@ -17,7 +17,7 @@ public class PacketFFKick extends DefinedPacket
         writeString( message );
     }
 
-    public PacketFFKick(ByteBuf buf)
+    PacketFFKick(ByteBuf buf)
     {
         super( 0xFF, buf );
         this.message = readString();

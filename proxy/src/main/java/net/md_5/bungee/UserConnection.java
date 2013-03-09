@@ -33,7 +33,7 @@ public final class UserConnection implements ProxiedPlayer
 
     public final Packet2Handshake handshake;
     private final ProxyServer bungee;
-    private final Channel ch;
+   public final Channel ch;
     final Packet1Login forgeLogin;
     final List<PacketFAPluginMessage> loginMessages;
     public Queue<DefinedPacket> packetQueue = new ConcurrentLinkedQueue<>();
@@ -69,7 +69,8 @@ public final class UserConnection implements ProxiedPlayer
         this.pendingConnection = pendingConnection;
         this.forgeLogin = forgeLogin;
         this.loginMessages = loginMessages;
-
+        this.name = handshake.username;
+        this.displayName = name;
 
         Collection<String> g = bungee.getConfigurationAdapter().getGroups( name );
         for ( String s : g )

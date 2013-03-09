@@ -33,9 +33,6 @@ public class CipherCodec extends ByteToByteCodec
         {
             heapOut = ctx.alloc().heapBuffer();
         }
-        System.out.println( "e) in: " + in );
-        System.out.println( "e) heapOut: " + heapOut );
-        System.out.println( "e) out: " + out );
         cipher( encrypt, in, heapOut );
         out.writeBytes( heapOut );
         heapOut.discardSomeReadBytes();
@@ -44,9 +41,6 @@ public class CipherCodec extends ByteToByteCodec
     @Override
     public void decode(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out) throws Exception
     {
-        System.out.println( "d) in: " + in );
-        System.out.println( "d) heapOut: " + heapOut );
-        System.out.println( "d) out: " + out );
         cipher( decrypt, in, out );
     }
 

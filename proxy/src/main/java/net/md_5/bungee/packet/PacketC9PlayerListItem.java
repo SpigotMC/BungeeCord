@@ -13,7 +13,7 @@ public class PacketC9PlayerListItem extends DefinedPacket
     public boolean online;
     public int ping;
 
-    public PacketC9PlayerListItem(ByteBuf buf)
+    PacketC9PlayerListItem(ByteBuf buf)
     {
         super( 0xC9, buf );
         username = readString();

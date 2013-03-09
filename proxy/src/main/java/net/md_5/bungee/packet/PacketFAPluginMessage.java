@@ -21,7 +21,7 @@ public class PacketFAPluginMessage extends DefinedPacket
         this.data = data;
     }
 
-    public PacketFAPluginMessage(ByteBuf buf)
+    PacketFAPluginMessage(ByteBuf buf)
     {
         super( 0xFA, buf );
         this.tag = readString();
