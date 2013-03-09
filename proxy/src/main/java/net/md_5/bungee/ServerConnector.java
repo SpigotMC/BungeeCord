@@ -79,7 +79,7 @@ public class ServerConnector extends PacketHandler
                         login.difficulty,
                         login.unused,
                         (byte) user.getPendingConnection().getListener().getTabListSize() );
-                ch.write( modLogin );
+                user.ch.write( modLogin );
                 ch.write( BungeeCord.getInstance().registerChannels() );
             } else
             {
@@ -88,14 +88,15 @@ public class ServerConnector extends PacketHandler
                 user.sendPacket( Packet9Respawn.DIM2_SWITCH );
 
                 user.serverEntityId = login.entityId;
-                ch.write( new Packet9Respawn( login.dimension, login.difficulty, login.gameMode, (short) 256, login.levelType ) );
+                user.ch.write( new Packet9Respawn( login.dimension, login.difficulty, login.gameMode, (short) 256, login.levelType ) );
 
-                // Add to new server
-                target.addPlayer( user );
                 // Remove from old servers
                 user.getServer().disconnect( "Quitting" );
                 user.getServer().getInfo().removePlayer( user );
             }
+
+            // Add to new server
+            target.addPlayer( user );
 
             ch.pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user ) );
         }

@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.UserConnection;
+import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
@@ -24,16 +25,11 @@ public class UpstreamBridge extends PacketHandler
     public void handle(ByteBuf buf) throws Exception
     {
         EntityMap.rewrite( buf, con.clientEntityId, con.serverEntityId );
+        System.out.println( "Got packet from client: " + Util.hex( buf.getUnsignedByte( 0 ) ) );
         if ( con.getServer() != null )
         {
             con.getServer().getCh().write( buf );
         }
-    }
-
-    @Override
-    public void handle(Packet1Login login) throws Exception
-    {
-        super.handle( login ); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

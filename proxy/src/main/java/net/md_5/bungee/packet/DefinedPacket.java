@@ -104,7 +104,11 @@ public abstract class DefinedPacket implements ByteBuf
 
                 if ( constructor != null )
                 {
+                    buf.markReaderIndex();
+                    buf.markWriterIndex();
                     ret = constructor.newInstance( buf );
+                    buf.resetReaderIndex();
+                    buf.resetWriterIndex();
                 }
             } catch ( IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException ex )
             {

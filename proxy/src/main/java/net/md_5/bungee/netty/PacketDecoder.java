@@ -3,11 +3,9 @@ package net.md_5.bungee.netty;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
-import java.io.IOException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import net.md_5.bungee.Util;
 import net.md_5.bungee.protocol.netty.PacketReader;
 
 /**
@@ -30,10 +28,7 @@ public class PacketDecoder extends ReplayingDecoder<ByteBuf>
     protected ByteBuf decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception
     {
         int startIndex = in.readerIndex();
-
         PacketReader.readPacket( in, protocol );
-
-        System.out.println( Util.hex( in.getUnsignedByte( 0 ) ) );
         return in.copy( startIndex, in.readerIndex() - startIndex );
     }
 }

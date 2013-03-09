@@ -43,7 +43,7 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<ByteBuf>
     }
 
     @Override
-    protected void messageReceived(ChannelHandlerContext ctx, ByteBuf msg) throws Exception
+    public void messageReceived(ChannelHandlerContext ctx, ByteBuf msg) throws Exception
     {
         if ( handler != null && ctx.channel().isActive() )
         {

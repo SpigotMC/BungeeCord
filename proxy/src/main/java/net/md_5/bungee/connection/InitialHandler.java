@@ -92,18 +92,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(PacketFEPing ping) throws Exception
     {
-        ServerPing pingevent = new ServerPing( BungeeCord.PROTOCOL_VERSION, BungeeCord.GAME_VERSION,
+        ServerPing response = new ServerPing( bungee.getProtocolVersion(), bungee.getGameVersion(),
                 listener.getMotd(), bungee.getPlayers().size(), listener.getMaxPlayers() );
 
-        pingevent = bungee.getPluginManager().callEvent( new ProxyPingEvent( this, pingevent ) ).getResponse();
+        response = bungee.getPluginManager().callEvent( new ProxyPingEvent( this, response ) ).getResponse();
 
-        String response = ChatColor.COLOR_CHAR + "1"
-                + "\00" + pingevent.getProtocolVersion()
-                + "\00" + pingevent.getGameVersion()
-                + "\00" + pingevent.getMotd()
-                + "\00" + pingevent.getCurrentPlayers()
-                + "\00" + pingevent.getMaxPlayers();
-        disconnect( response );
+        String kickMessage = ChatColor.DARK_BLUE
+                + "\00" + response.getProtocolVersion()
+                + "\00" + response.getGameVersion()
+                + "\00" + response.getMotd()
+                + "\00" + response.getCurrentPlayers()
+                + "\00" + response.getMaxPlayers();
+        disconnect( kickMessage );
     }
 
     @Override
@@ -181,7 +181,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, shared );
                     Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, shared );
                     ch.write( new PacketFCEncryptionResponse() );
-                    ch.config().setAutoRead( false );
                     ch.pipeline().addBefore( "decoder", "cipher", new CipherCodec( encrypt, decrypt ) );
 
                     thisState = InitialHandler.State.LOGIN;
@@ -205,6 +204,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         userCon.connect( server );
 
         thisState = State.FINISHED;
+        throw new CancelSendSignal();
     }
 
     @Override

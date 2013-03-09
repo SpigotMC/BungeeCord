@@ -7,6 +7,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.UserConnection;
+import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -30,6 +31,8 @@ public class DownstreamBridge extends PacketHandler
     public void handle(ByteBuf buf) throws Exception
     {
         EntityMap.rewrite( buf, con.serverEntityId, con.clientEntityId );
+        System.out.println( "Got packet from server: " + Util.hex( buf.getUnsignedByte( 0 ) ) );
+        System.out.println( buf );
         con.ch.write( buf );
     }
 
