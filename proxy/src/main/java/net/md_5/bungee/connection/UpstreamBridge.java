@@ -9,7 +9,6 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.packet.Packet0KeepAlive;
-import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet3Chat;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketHandler;

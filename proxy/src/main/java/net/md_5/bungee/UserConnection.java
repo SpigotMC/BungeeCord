@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
@@ -33,13 +34,14 @@ public final class UserConnection implements ProxiedPlayer
 
     public final Packet2Handshake handshake;
     private final ProxyServer bungee;
-   public final Channel ch;
+    public final Channel ch;
     final Packet1Login forgeLogin;
     final List<PacketFAPluginMessage> loginMessages;
     public Queue<DefinedPacket> packetQueue = new ConcurrentLinkedQueue<>();
     @Getter
     private final PendingConnection pendingConnection;
     @Getter
+    @Setter(AccessLevel.PACKAGE)
     private ServerConnection server;
     // reconnect stuff
     public int clientEntityId;

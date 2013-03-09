@@ -98,6 +98,7 @@ public class ServerConnector extends PacketHandler
             // Add to new server
             target.addPlayer( user );
 
+            user.setServer( server );
             ch.pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user ) );
         }
 
