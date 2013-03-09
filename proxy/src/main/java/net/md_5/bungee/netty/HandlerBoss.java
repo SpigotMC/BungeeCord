@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
-import net.md_5.bungee.Util;
+import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.PacketHandler;
 
@@ -48,11 +48,21 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<ByteBuf>
         if ( handler != null && ctx.channel().isActive() )
         {
             DefinedPacket packet = DefinedPacket.packet( msg );
+            boolean sendPacket = true;
             if ( packet != null )
             {
-                packet.handle( handler );
+                try
+                {
+                    packet.handle( handler );
+                } catch ( CancelSendSignal ex )
+                {
+                    sendPacket = false;
+                }
             }
-            handler.handle( msg );
+            if ( sendPacket )
+            {
+                handler.handle( msg );
+            }
         }
     }
 

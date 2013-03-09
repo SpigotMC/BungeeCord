@@ -8,6 +8,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.packet.Packet0KeepAlive;
+import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet3Chat;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketHandler;
@@ -23,7 +24,16 @@ public class UpstreamBridge extends PacketHandler
     public void handle(ByteBuf buf) throws Exception
     {
         EntityMap.rewrite( buf, con.clientEntityId, con.serverEntityId );
-        con.getServer().getCh().write( buf );
+        if ( con.getServer() != null )
+        {
+            con.getServer().getCh().write( buf );
+        }
+    }
+
+    @Override
+    public void handle(Packet1Login login) throws Exception
+    {
+        super.handle( login ); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

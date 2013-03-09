@@ -117,7 +117,7 @@ public class EntityMap
 
     public static void rewrite(ByteBuf packet, int oldId, int newId)
     {
-        int packetId = packet.getUnsignedShort( 0 );
+        int packetId = packet.getUnsignedByte( 0 );
         if ( packetId == 0x1D )
         { // bulk entity
             for ( int pos = 2; pos < packet.writerIndex(); pos += 4 )

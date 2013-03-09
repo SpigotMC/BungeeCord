@@ -1,6 +1,6 @@
 package net.md_5.bungee.connection;
 
-class CancelSendSignal extends Error
+public class CancelSendSignal extends Error
 {
 
     @Override

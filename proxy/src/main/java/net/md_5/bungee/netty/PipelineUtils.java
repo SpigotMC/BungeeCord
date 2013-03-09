@@ -1,15 +1,14 @@
 package net.md_5.bungee.netty;
 
-import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
-import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.channel.ChannelOutboundMessageHandlerAdapter;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.AttributeKey;
-import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.ServerConnector;
@@ -46,7 +45,7 @@ public class PipelineUtils
     };
     public static final Base BASE = new Base();
 
-   public final static class Base extends ChannelInitializer<Channel>
+    public final static class Base extends ChannelInitializer<Channel>
     {
 
         @Override

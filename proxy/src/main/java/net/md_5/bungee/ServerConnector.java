@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
+import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.packet.DefinedPacket;
@@ -100,6 +101,8 @@ public class ServerConnector extends PacketHandler
         }
 
         thisState = State.FINISHED;
+
+        throw new CancelSendSignal();
     }
 
     @Override
