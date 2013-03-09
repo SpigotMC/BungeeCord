@@ -22,7 +22,7 @@ public class GlobalTabList implements TabListHandler
         UserConnection con = (UserConnection) player;
         for ( ProxiedPlayer p : ProxyServer.getInstance().getPlayers() )
         {
-            con.packetQueue.add( new PacketC9PlayerListItem( p.getDisplayName(), true, p.getPing() ) );
+            con.sendPacket(new PacketC9PlayerListItem( p.getDisplayName(), true, p.getPing() ) );
         }
         BungeeCord.getInstance().broadcast( new PacketC9PlayerListItem( player.getDisplayName(), true, player.getPing() ) );
     }

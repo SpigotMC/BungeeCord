@@ -99,7 +99,7 @@ public class ServerConnector extends PacketHandler
             target.addPlayer( user );
 
             user.setServer( server );
-            ch.pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user ) );
+            ch.pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user, server ) );
         }
 
         thisState = State.FINISHED;
@@ -118,5 +118,11 @@ public class ServerConnector extends PacketHandler
     public void handle(PacketFFKick kick) throws Exception
     {
         throw new KickException( kick.message );
+    }
+
+    @Override
+    public String toString()
+    {
+        return "[" + user.getName() + "] <-> ServerConnector [" + target.getName() + "]";
     }
 }

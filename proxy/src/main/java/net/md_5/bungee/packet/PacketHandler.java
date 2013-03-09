@@ -6,6 +6,9 @@ import io.netty.channel.Channel;
 public abstract class PacketHandler
 {
 
+    @Override
+    public abstract String toString();
+
     public void connected(Channel channel) throws Exception
     {
     }

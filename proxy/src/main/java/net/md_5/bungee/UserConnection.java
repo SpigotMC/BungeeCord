@@ -7,6 +7,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetSocketAddress;
 import java.util.Collection;
@@ -114,6 +115,7 @@ public final class UserConnection implements ProxiedPlayer
                 ch.pipeline().get( HandlerBoss.class ).setHandler( new ServerConnector( bungee, UserConnection.this, target ) );
             }
         } )
+                .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000 ) // TODO: Configurable
                 .remoteAddress( target.getAddress() )
                 .connect().addListener( new ChannelFutureListener()
         {
@@ -128,6 +130,9 @@ public final class UserConnection implements ProxiedPlayer
                     {
                         sendMessage( ChatColor.RED + "Could not connect to target server, you have been moved to the default server" );
                         connect( def, false );
+                    } else
+                    {
+                        disconnect( "Server down, could not connect to default!" );
                     }
                 }
             }

@@ -240,4 +240,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         return (InetSocketAddress) ch.remoteAddress();
     }
+
+    @Override
+    public String toString()
+    {
+        return "[" + ( ( getName() != null ) ? getName() : getAddress() ) + "] <-> InitialHandler";
+    }
 }

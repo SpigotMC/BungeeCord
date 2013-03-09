@@ -11,6 +11,7 @@ import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.packet.Packet0KeepAlive;
@@ -26,6 +27,7 @@ public class DownstreamBridge extends PacketHandler
 
     private final ProxyServer bungee;
     private final UserConnection con;
+    private final Server server;
 
     @Override
     public void handle(ByteBuf buf) throws Exception
@@ -195,5 +197,11 @@ public class DownstreamBridge extends PacketHandler
     {
         con.disconnect( "[Kicked] " + kick.message );
         throw new CancelSendSignal();
+    }
+
+    @Override
+    public String toString()
+    {
+        return "[" + con.getName() + "] <-> DownstreamBridge <-> [" + server.getInfo().getName() + "]";
     }
 }

@@ -1,6 +1,9 @@
 package net.md_5.bungee;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetSocketAddress;
 import java.util.Queue;
@@ -48,8 +51,20 @@ public class BungeeServerInfo extends ServerInfo
                 .channel( NioSocketChannel.class )
                 .group( BungeeCord.getInstance().eventLoops )
                 .handler( PipelineUtils.BASE )
+                .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000 ) // TODO: Configurable
                 .remoteAddress( getAddress() )
                 .connect()
-                .channel().pipeline().get( HandlerBoss.class ).setHandler( new PingHandler( callback ) );
+                .addListener( new ChannelFutureListener()
+        {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception
+            {
+                if ( !future.isSuccess() )
+                {
+                    callback.done( null, future.cause() );
+                }
+            }
+        } )
+                .channel().pipeline().get( HandlerBoss.class ).setHandler( new PingHandler( this, callback ) );
     }
 }

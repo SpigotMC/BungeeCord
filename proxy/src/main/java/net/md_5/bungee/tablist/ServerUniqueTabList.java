@@ -40,7 +40,7 @@ public class ServerUniqueTabList implements TabListHandler
             {
                 for ( String username : usernames )
                 {
-                    ( (UserConnection) player ).packetQueue.add( new PacketC9PlayerListItem( username, false, 9999 ) );
+                    ( (UserConnection) player ).sendPacket(new PacketC9PlayerListItem( username, false, 9999 ) );
                 }
                 usernames.clear();
             }

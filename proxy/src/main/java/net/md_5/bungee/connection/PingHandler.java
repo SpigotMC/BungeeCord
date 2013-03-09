@@ -6,6 +6,7 @@ import io.netty.channel.Channel;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ServerPing;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketHandler;
 
@@ -13,6 +14,7 @@ import net.md_5.bungee.packet.PacketHandler;
 public class PingHandler extends PacketHandler
 {
 
+    private final ServerInfo target;
     private final Callback<ServerPing> callback;
     private static final ByteBuf pingBuf = Unpooled.wrappedBuffer( new byte[]
     {
@@ -37,5 +39,11 @@ public class PingHandler extends PacketHandler
         String[] split = kick.message.split( "\00" );
         ServerPing ping = new ServerPing( Byte.parseByte( split[1] ), split[2], split[3], Integer.parseInt( split[4] ), Integer.parseInt( split[5] ) );
         callback.done( ping, null );
+    }
+
+    @Override
+    public String toString()
+    {
+        return "[Ping Handler] -> " + target.getName();
     }
 }

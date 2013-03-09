@@ -75,4 +75,10 @@ public class UpstreamBridge extends PacketHandler
             throw new CancelSendSignal();
         }
     }
+
+    @Override
+    public String toString()
+    {
+        return "[" + con.getName() + "] -> UpstreamBridge";
+    }
 }

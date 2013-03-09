@@ -4,6 +4,9 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
+import io.netty.handler.timeout.ReadTimeoutException;
+import java.util.logging.Level;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.PacketHandler;
@@ -30,6 +33,7 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<ByteBuf>
         if ( handler != null )
         {
             handler.connected( ctx.channel() );
+            ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has connected", handler );
         }
     }
 
@@ -38,6 +42,7 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<ByteBuf>
     {
         if ( handler != null )
         {
+            ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has disconnected", handler );
             handler.disconnected( ctx.channel() );
         }
     }
@@ -69,9 +74,15 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<ByteBuf>
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
     {
-        cause.printStackTrace();
         if ( ctx.channel().isActive() )
         {
+            if ( cause instanceof ReadTimeoutException )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, handler + " - read timed out" );
+            } else
+            {
+                ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - encountered exception", cause );
+            }
             ctx.close();
         }
     }
