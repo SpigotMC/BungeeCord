@@ -27,6 +27,13 @@ public class Packet1Login extends DefinedPacket
         writeByte( difficulty );
         writeByte( unused );
         writeByte( maxPlayers );
+        this.entityId = entityId;
+        this.levelType = levelType;
+        this.gameMode = gameMode;
+        this.dimension = dimension;
+        this.difficulty = difficulty;
+        this.unused = unused;
+        this.maxPlayers = maxPlayers;
     }
 
     Packet1Login(ByteBuf buf)

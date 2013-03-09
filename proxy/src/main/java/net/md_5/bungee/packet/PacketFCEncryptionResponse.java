@@ -24,6 +24,8 @@ public class PacketFCEncryptionResponse extends DefinedPacket
         super( 0xFC );
         writeArray( sharedSecret );
         writeArray( verifyToken );
+        this.sharedSecret = sharedSecret;
+        this.verifyToken = verifyToken;
     }
 
     PacketFCEncryptionResponse(ByteBuf buf)

@@ -21,6 +21,10 @@ public class Packet2Handshake extends DefinedPacket
         writeString( username );
         writeString( host );
         writeInt( port );
+        this.procolVersion = protocolVersion;
+        this.username = username;
+        this.host = host;
+        this.port = port;
     }
 
     Packet2Handshake(ByteBuf buf)
