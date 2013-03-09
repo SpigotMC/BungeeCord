@@ -21,6 +21,12 @@ public class UpstreamBridge extends PacketHandler
     private final UserConnection con;
 
     @Override
+    public void exception(Throwable t) throws Exception
+    {
+        con.disconnect( Util.exception( t ) );
+    }
+
+    @Override
     public void handle(ByteBuf buf) throws Exception
     {
         EntityMap.rewrite( buf, con.clientEntityId, con.serverEntityId );

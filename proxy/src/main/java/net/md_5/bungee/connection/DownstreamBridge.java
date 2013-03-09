@@ -30,6 +30,12 @@ public class DownstreamBridge extends PacketHandler
     private final Server server;
 
     @Override
+    public void exception(Throwable t) throws Exception
+    {
+        con.disconnect( Util.exception( t ) );
+    }
+
+    @Override
     public void handle(ByteBuf buf) throws Exception
     {
         EntityMap.rewrite( buf, con.serverEntityId, con.clientEntityId );
