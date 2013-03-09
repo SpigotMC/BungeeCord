@@ -255,7 +255,7 @@ public class BungeeCord extends ProxyServer
     {
         for ( UserConnection con : connections.values() )
         {
-            con.packetQueue.add( packet );
+            con.sendPacket( packet );
         }
     }
 
