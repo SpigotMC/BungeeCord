@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import java.util.Queue;
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
@@ -125,7 +126,14 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(PacketFFKick kick) throws Exception
     {
-        throw new KickException( kick.message );
+        String message = ChatColor.RED + "Kicked whilst connecting to " + target.getName() + ": " + kick.message;
+        if ( user.getServer() == null )
+        {
+            user.disconnect( message );
+        } else
+        {
+            user.sendMessage( message );
+        }
     }
 
     @Override

@@ -35,6 +35,11 @@ public class ServerConnection implements Server
     @Override
     public synchronized void disconnect(String reason)
     {
+        disconnect( ch, reason );
+    }
+
+    static void disconnect(final Channel ch, String reason)
+    {
         if ( ch.isActive() )
         {
             ch.write( new PacketFFKick( reason ) );
