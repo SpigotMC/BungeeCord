@@ -1,7 +1,5 @@
 package net.md_5.bungee.api.connection;
 
-import net.md_5.bungee.api.Callback;
-import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.config.ServerInfo;
 
 /**

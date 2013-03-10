@@ -41,7 +41,6 @@ public class UpstreamBridge extends PacketHandler
         {
             con.getServer().disconnect( "Quitting" );
         }
-
     }
 
     @Override

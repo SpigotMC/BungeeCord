@@ -4,6 +4,7 @@ import io.netty.channel.Channel;
 import java.net.InetSocketAddress;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.packet.Packet1Login;
@@ -20,6 +21,9 @@ public class ServerConnection implements Server
     private final ServerInfo info;
     @Getter
     private final Packet1Login loginPacket;
+    @Getter
+    @Setter
+    private boolean isObsolete;
 
     @Override
     public void sendData(String channel, byte[] data)

@@ -7,6 +7,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.EntityMap;
+import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
@@ -28,7 +29,7 @@ public class DownstreamBridge extends PacketHandler
 
     private final ProxyServer bungee;
     private final UserConnection con;
-    private final Server server;
+    private final ServerConnection server;
 
     @Override
     public void exception(Throwable t) throws Exception
@@ -43,7 +44,9 @@ public class DownstreamBridge extends PacketHandler
         server.getInfo().removePlayer( con );
         bungee.getReconnectHandler().setServer( con );
 
+        if (!server.isObsolete()){
         con.disconnect( "[Proxy] Lost connection to server D:" );
+        }
     }
 
     @Override

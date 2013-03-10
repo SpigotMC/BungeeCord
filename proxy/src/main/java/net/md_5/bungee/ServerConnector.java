@@ -91,11 +91,12 @@ public class ServerConnector extends PacketHandler
                 user.ch.write( new Packet9Respawn( login.dimension, login.difficulty, login.gameMode, (short) 256, login.levelType ) );
 
                 // Remove from old servers
+                user.getServer().setObsolete( true );
                 user.getServer().disconnect( "Quitting" );
-                user.getServer().getInfo().removePlayer( user );
             }
 
             // Add to new server
+            // TODO: Move this to the connected() method of DownstreamBridge
             target.addPlayer( user );
 
             user.setServer( server );
