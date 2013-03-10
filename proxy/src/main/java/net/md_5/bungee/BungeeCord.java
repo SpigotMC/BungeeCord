@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -119,10 +120,21 @@ public class BungeeCord extends ProxyServer
      * Starts a new instance of BungeeCord.
      *
      * @param args command line arguments, currently none are used
-     * @throws IOException when the server cannot be started
+     * @throws Exception when the server cannot be started
      */
-    public static void main(String[] args) throws IOException
+    public static void main(String[] args) throws Exception
     {
+        Calendar deadline = Calendar.getInstance();
+        deadline.set( 2013, 3, 31 ); // year, month, date
+        if ( Calendar.getInstance().after( deadline ) )
+        {
+            System.err.println( "*** Warning, this build is outdated ***" );
+            System.err.println( "*** Please download a new build from http://ci.md-5.net/job/BungeeCord ***" );
+            System.err.println( "*** You will get NO support regarding this build ***" );
+            System.err.println( "*** Server will start in 15 seconds ***" );
+            Thread.sleep( TimeUnit.SECONDS.toMillis( 15 ) );
+        }
+
         BungeeCord bungee = new BungeeCord();
         ProxyServer.setInstance( bungee );
         $().info( "Enabled BungeeCord version " + bungee.getVersion() );
