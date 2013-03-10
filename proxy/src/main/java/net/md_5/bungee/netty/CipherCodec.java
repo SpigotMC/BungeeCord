@@ -9,9 +9,7 @@ import javax.crypto.ShortBufferException;
 /**
  * This class is a complete solution for encrypting and decoding bytes in a
  * Netty stream. It takes two {@link Cipher} instances, used for encryption and
- * decryption respectively. As newer Netty versions never use a heap
- * {@link ByteBuf} for writing to the channel, this class will always create one
- * for temporary usage.
+ * decryption respectively.
  */
 public class CipherCodec extends ByteToByteCodec
 {
