@@ -1,7 +1,10 @@
 package net.md_5.bungee;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -37,7 +40,14 @@ public class ServerConnection implements Server
         if ( ch.isActive() )
         {
             ch.write( new PacketFFKick( reason ) );
-            ch.close();
+            ch.eventLoop().schedule( new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    ch.close();
+                }
+            }, 100, TimeUnit.MILLISECONDS );
         }
     }
 
