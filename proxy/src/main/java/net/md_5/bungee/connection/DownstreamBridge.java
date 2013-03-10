@@ -13,7 +13,6 @@ import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.packet.Packet0KeepAlive;
@@ -44,8 +43,9 @@ public class DownstreamBridge extends PacketHandler
         server.getInfo().removePlayer( con );
         bungee.getReconnectHandler().setServer( con );
 
-        if (!server.isObsolete()){
-        con.disconnect( "[Proxy] Lost connection to server D:" );
+        if ( !server.isObsolete() )
+        {
+            con.disconnect( "[Proxy] Lost connection to server D:" );
         }
     }
 

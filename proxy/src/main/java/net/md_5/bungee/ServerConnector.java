@@ -95,6 +95,13 @@ public class ServerConnector extends PacketHandler
                 user.getServer().disconnect( "Quitting" );
             }
 
+            // TODO: Fix this?
+            if ( !user.ch.isActive() )
+            {
+                server.disconnect( "Quitting" );
+                throw new IllegalStateException( "No client connected for pending server!" );
+            }
+
             // Add to new server
             // TODO: Move this to the connected() method of DownstreamBridge
             target.addPlayer( user );
