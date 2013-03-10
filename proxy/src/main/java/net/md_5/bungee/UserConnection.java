@@ -144,20 +144,9 @@ public final class UserConnection implements ProxiedPlayer
     {
         if ( ch.isActive() )
         {
-            PlayerDisconnectEvent event = new PlayerDisconnectEvent( this );
-            bungee.getPluginManager().callEvent( event );
-            bungee.getTabListHandler().onDisconnect( this );
-            bungee.getPlayers().remove( this );
-
             ch.write( new PacketFFKick( reason ) );
             ch.close();
-
-            if ( server != null )
-            {
-                server.getInfo().removePlayer( this );
-                server.disconnect( "Quitting" );
-                bungee.getReconnectHandler().setServer( this );
-            }
+            server.disconnect( "Quitting" );
         }
     }
 

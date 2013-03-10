@@ -1,12 +1,14 @@
 package net.md_5.bungee.connection;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.event.ChatEvent;
+import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.packet.Packet0KeepAlive;
 import net.md_5.bungee.packet.Packet3Chat;
@@ -27,10 +29,25 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
+    public void disconnected(Channel channel) throws Exception
+    {
+        // We lost connection to the client
+        PlayerDisconnectEvent event = new PlayerDisconnectEvent( con );
+        bungee.getPluginManager().callEvent( event );
+        bungee.getTabListHandler().onDisconnect( con );
+        bungee.getPlayers().remove( con );
+
+        if ( con.getServer() != null )
+        {
+            con.getServer().disconnect( "Quitting" );
+        }
+
+    }
+
+    @Override
     public void handle(ByteBuf buf) throws Exception
     {
         EntityMap.rewrite( buf, con.clientEntityId, con.serverEntityId );
-        System.out.println( "Got packet from client: " + Util.hex( buf.getUnsignedByte( 0 ) ) );
         if ( con.getServer() != null )
         {
             con.getServer().getCh().write( buf );

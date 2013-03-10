@@ -4,6 +4,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.UserConnection;
@@ -36,11 +37,19 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
+    public void disconnected(Channel channel) throws Exception
+    {
+        // We lost connection to the server
+        server.getInfo().removePlayer( con );
+        bungee.getReconnectHandler().setServer( con );
+
+        con.disconnect( "[Proxy] Lost connection to server D:" );
+    }
+
+    @Override
     public void handle(ByteBuf buf) throws Exception
     {
         EntityMap.rewrite( buf, con.serverEntityId, con.clientEntityId );
-        System.out.println( "Got packet from server: " + Util.hex( buf.getUnsignedByte( 0 ) ) );
-        System.out.println( buf );
         con.ch.write( buf );
     }
 
