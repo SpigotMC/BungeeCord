@@ -13,6 +13,7 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -95,10 +96,10 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void connect(ServerInfo target)
     {
-        connect( target, true );
+        connect( target, false );
     }
 
-    private void connect(ServerInfo info, final boolean retry)
+    public void connect(ServerInfo info, final boolean retry)
     {
         ServerConnectEvent event = new ServerConnectEvent( this, info );
         ProxyServer.getInstance().getPluginManager().callEvent( event );
@@ -132,7 +133,13 @@ public final class UserConnection implements ProxiedPlayer
                         connect( def, false );
                     } else
                     {
-                        disconnect( "Server down, could not connect to default!" );
+                        if ( server == null )
+                        {
+                            disconnect( "Server down, could not connect to default! " + future.cause().getClass().getName() );
+                        } else
+                        {
+                            sendMessage( ChatColor.RED + "Could not connect to target server: " + future.cause().getClass().getName() );
+                        }
                     }
                 }
             }
@@ -144,9 +151,13 @@ public final class UserConnection implements ProxiedPlayer
     {
         if ( ch.isActive() )
         {
+            bungee.getLogger().log( Level.INFO, "[" + getName() + "] disconnected with: " + reason );
             ch.write( new PacketFFKick( reason ) );
             ch.close();
-            server.disconnect( "Quitting" );
+            if ( server != null )
+            {
+                server.disconnect( "Quitting" );
+            }
         }
     }
 

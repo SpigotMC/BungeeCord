@@ -201,7 +201,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         ch.pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
 
         ServerInfo server = bungee.getReconnectHandler().getServer( userCon );
-        userCon.connect( server );
+        userCon.connect( server, true );
 
         thisState = State.FINISHED;
         throw new CancelSendSignal();
