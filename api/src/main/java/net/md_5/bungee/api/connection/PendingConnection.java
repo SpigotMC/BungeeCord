@@ -31,14 +31,6 @@ public interface PendingConnection extends Connection
     public InetSocketAddress getVirtualHost();
 
     /**
-     * Completely kick this user from the proxy and all of its child
-     * connections.
-     *
-     * @param reason the disconnect reason displayed to the player
-     */
-    public void disconnect(String reason);
-
-    /**
      * Get the listener that accepted this connection.
      *
      * @return the accepting listener

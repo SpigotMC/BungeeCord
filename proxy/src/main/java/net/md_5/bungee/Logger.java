@@ -3,7 +3,6 @@ package net.md_5.bungee;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
@@ -21,7 +20,7 @@ public class Logger extends java.util.logging.Logger
 
     public Logger()
     {
-        super( "RubberBand", null );
+        super( "BungeeCord", null );
         try
         {
             FileHandler handler = new FileHandler( "proxy.log", 1 << 14, 1, true );

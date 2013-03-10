@@ -184,9 +184,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     ch.pipeline().addBefore( "decoder", "cipher", new CipherCodec( encrypt, decrypt ) );
 
                     thisState = InitialHandler.State.LOGIN;
-                } catch ( Exception ex )
+                } catch ( Throwable t )
                 {
-                    disconnect( "[Report to md_5 / Server Owner] " + Util.exception( ex ) );
+                    disconnect( "[Report to md_5 / Server Owner] " + Util.exception( t ) );
                 }
             }
         }.start();
