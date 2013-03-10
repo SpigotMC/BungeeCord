@@ -48,11 +48,11 @@ public class BungeeCord extends ProxyServer
     /**
      * Server protocol version.
      */
-    public static final byte PROTOCOL_VERSION = 51;
+    public static final byte PROTOCOL_VERSION = 60;
     /**
      * Server game version.
      */
-    public static final String GAME_VERSION = "1.4.6";
+    public static final String GAME_VERSION = "1.5";
     /**
      * Current operation state.
      */
