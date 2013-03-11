@@ -43,7 +43,7 @@ public class CipherCodec extends ByteToByteCodec
         {
             out.capacity( outputSize );
         }
-        int processed = cipher.update( in.nioBuffer(), out.nioBuffer( out.readerIndex(), outputSize ) );
+        int processed = cipher.update( in.nioBuffer(), out.nioBuffer( out.writerIndex(), outputSize ) );
         in.readerIndex( in.readerIndex() + processed );
         out.writerIndex( out.writerIndex() + processed );
     }
