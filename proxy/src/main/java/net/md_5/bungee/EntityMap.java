@@ -42,7 +42,7 @@ public class EntityMap
         };
         entityIds[0x17] = new int[]
         {
-            1, 20
+            1 //, 20
         };
         entityIds[0x18] = new int[]
         {
@@ -146,6 +146,17 @@ public class EntityMap
                     {
                         packet.setInt( pos, oldId );
                     }
+                }
+            }
+        }
+        if ( packetId == 0x17 )
+        {
+            int type = packet.getByte( 5 );
+            if ( type >= 60 && type <= 62 )
+            {
+                if ( packet.getInt( 20 ) == oldId )
+                {
+                    packet.setInt( 20, newId );
                 }
             }
         }
