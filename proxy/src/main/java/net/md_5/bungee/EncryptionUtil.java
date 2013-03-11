@@ -1,17 +1,10 @@
 package net.md_5.bungee;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.math.BigInteger;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Random;
@@ -32,7 +25,7 @@ public class EncryptionUtil
 {
 
     private static final Random random = new Random();
-    private static KeyPair keys;
+    public static KeyPair keys;
 
     public static PacketFDEncryptionRequest encryptRequest() throws NoSuchAlgorithmException
     {
@@ -64,30 +57,6 @@ public class EncryptionUtil
         byte[] secret = cipher.doFinal( shared );
 
         return new SecretKeySpec( secret, "AES" );
-    }
-
-    public static boolean isAuthenticated(String username, String connectionHash, SecretKey shared) throws NoSuchAlgorithmException, IOException
-    {
-        String encName = URLEncoder.encode( username, "UTF-8" );
-
-        MessageDigest sha = MessageDigest.getInstance( "SHA-1" );
-        for ( byte[] bit : new byte[][]
-        {
-            connectionHash.getBytes( "ISO_8859_1" ), shared.getEncoded(), keys.getPublic().getEncoded()
-        } )
-        {
-            sha.update( bit );
-        }
-
-        String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
-        String authURL = "http://session.minecraft.net/game/checkserver.jsp?user=" + encName + "&serverId=" + encodedHash;
-        String reply;
-        try ( BufferedReader in = new BufferedReader( new InputStreamReader( new URL( authURL ).openStream() ) ) )
-        {
-            reply = in.readLine();
-        }
-
-        return "YES".equals( reply );
     }
 
     public static Cipher getCipher(int opMode, Key shared) throws InvalidAlgorithmParameterException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException

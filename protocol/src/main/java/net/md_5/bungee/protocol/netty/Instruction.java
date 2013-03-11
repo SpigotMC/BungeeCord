@@ -1,6 +1,6 @@
-package net.md_5.mendax.datainput;
+package net.md_5.bungee.protocol.netty;
 
-import java.io.DataInput;
+import io.netty.buffer.ByteBuf;
 import java.io.IOException;
 
 abstract class Instruction
@@ -30,10 +30,5 @@ abstract class Instruction
     // Custom instructions
     static final Instruction STRING_ARRAY = new ShortHeader( STRING );
 
-    abstract void read(DataInput in, byte[] buffer) throws IOException;
-
-    final void skip(DataInput in, byte[] buffer, int len) throws IOException
-    {
-        in.readFully( buffer, 0, len );
-    }
+    abstract void read(ByteBuf in) throws IOException;
 }

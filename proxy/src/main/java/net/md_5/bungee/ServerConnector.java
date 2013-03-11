@@ -1,32 +1,34 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
-import java.io.IOException;
-import java.net.Socket;
+import io.netty.channel.Channel;
 import java.util.Queue;
+import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
+import net.md_5.bungee.connection.CancelSendSignal;
+import net.md_5.bungee.connection.DownstreamBridge;
+import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.Packet1Login;
+import net.md_5.bungee.packet.Packet2Handshake;
+import net.md_5.bungee.packet.Packet9Respawn;
 import net.md_5.bungee.packet.PacketCDClientStatus;
 import net.md_5.bungee.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketHandler;
-import net.md_5.bungee.packet.PacketStream;
 
+@RequiredArgsConstructor
 public class ServerConnector extends PacketHandler
 {
 
-    private final PacketStream stream;
-    private Packet1Login loginPacket;
+    private final ProxyServer bungee;
+    private Channel ch;
+    private final UserConnection user;
+    private final ServerInfo target;
     private State thisState = State.ENCRYPT_REQUEST;
-
-    public ServerConnector(PacketStream stream)
-    {
-        this.stream = stream;
-    }
 
     private enum State
     {
@@ -35,11 +37,83 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
+    public void connected(Channel channel) throws Exception
+    {
+        this.ch = channel;
+        // TODO: Fix this crap
+        channel.write( new Packet2Handshake( user.handshake.procolVersion, user.handshake.username, user.handshake.host, user.handshake.port ) );
+        channel.write( PacketCDClientStatus.CLIENT_LOGIN );
+    }
+
+    @Override
     public void handle(Packet1Login login) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not exepcting LOGIN" );
-        loginPacket = login;
+
+        ServerConnection server = new ServerConnection( ch, target, login );
+        ServerConnectedEvent event = new ServerConnectedEvent( user, server );
+        bungee.getPluginManager().callEvent( event );
+
+        ch.write( BungeeCord.getInstance().registerChannels() );
+
+        Queue<DefinedPacket> packetQueue = ( (BungeeServerInfo) target ).getPacketQueue();
+        while ( !packetQueue.isEmpty() )
+        {
+            ch.write( packetQueue.poll() );
+        }
+
+        synchronized ( user.getSwitchMutex() )
+        {
+            if ( user.getServer() == null )
+            {
+                BungeeCord.getInstance().connections.put( user.getName(), user );
+                bungee.getTabListHandler().onConnect( user );
+                // Once again, first connection
+                user.clientEntityId = login.entityId;
+                user.serverEntityId = login.entityId;
+                // Set tab list size
+                Packet1Login modLogin = new Packet1Login(
+                        login.entityId,
+                        login.levelType,
+                        login.gameMode,
+                        (byte) login.dimension,
+                        login.difficulty,
+                        login.unused,
+                        (byte) user.getPendingConnection().getListener().getTabListSize() );
+                user.ch.write( modLogin );
+                ch.write( BungeeCord.getInstance().registerChannels() );
+            } else
+            {
+                bungee.getTabListHandler().onServerChange( user );
+                user.sendPacket( Packet9Respawn.DIM1_SWITCH );
+                user.sendPacket( Packet9Respawn.DIM2_SWITCH );
+
+                user.serverEntityId = login.entityId;
+                user.ch.write( new Packet9Respawn( login.dimension, login.difficulty, login.gameMode, (short) 256, login.levelType ) );
+
+                // Remove from old servers
+                user.getServer().setObsolete( true );
+                user.getServer().disconnect( "Quitting" );
+            }
+
+            // TODO: Fix this?
+            if ( !user.ch.isActive() )
+            {
+                server.disconnect( "Quitting" );
+                throw new IllegalStateException( "No client connected for pending server!" );
+            }
+
+            // Add to new server
+            // TODO: Move this to the connected() method of DownstreamBridge
+            target.addPlayer( user );
+
+            user.setServer( server );
+            ch.pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user, server ) );
+        }
+
         thisState = State.FINISHED;
+
+        throw new CancelSendSignal();
     }
 
     @Override
@@ -52,66 +126,19 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(PacketFFKick kick) throws Exception
     {
-        throw new KickException( kick.message );
+        String message = ChatColor.RED + "Kicked whilst connecting to " + target.getName() + ": " + kick.message;
+        if ( user.getServer() == null )
+        {
+            user.disconnect( message );
+        } else
+        {
+            user.sendMessage( message );
+        }
     }
 
-    public static ServerConnection connect(UserConnection user, ServerInfo info, boolean retry)
+    @Override
+    public String toString()
     {
-        Socket socket = null;
-        try
-        {
-            socket = new Socket();
-            socket.connect( info.getAddress(), BungeeCord.getInstance().config.getTimeout() );
-            BungeeCord.getInstance().setSocketOptions( socket );
-            PacketStream stream = new PacketStream( socket.getInputStream(), socket.getOutputStream(), user.stream.getProtocol() );
-
-            ServerConnector connector = new ServerConnector( stream );
-            stream.write( user.handshake );
-            stream.write( PacketCDClientStatus.CLIENT_LOGIN );
-
-            while ( connector.thisState != State.FINISHED )
-            {
-                byte[] buf = stream.readPacket();
-                DefinedPacket packet = DefinedPacket.packet( buf );
-                packet.handle( connector );
-            }
-
-            ServerConnection server = new ServerConnection( socket, info, stream, connector.loginPacket );
-            ServerConnectedEvent event = new ServerConnectedEvent( user, server );
-            ProxyServer.getInstance().getPluginManager().callEvent( event );
-
-            stream.write( BungeeCord.getInstance().registerChannels() );
-
-            Queue<DefinedPacket> packetQueue = ( (BungeeServerInfo) info ).getPacketQueue();
-            while ( !packetQueue.isEmpty() )
-            {
-                stream.write( packetQueue.poll() );
-            }
-            return server;
-        } catch ( Exception ex )
-        {
-            if ( socket != null )
-            {
-                try
-                {
-                    socket.close();
-                } catch ( IOException ioe )
-                {
-                }
-            }
-            ServerInfo def = ProxyServer.getInstance().getServers().get( user.getPendingConnection().getListener().getDefaultServer() );
-            if ( retry && !info.equals( def ) )
-            {
-                user.sendMessage( ChatColor.RED + "Could not connect to target server, you have been moved to the default server" );
-                return connect( user, def, false );
-            } else
-            {
-                if ( ex instanceof RuntimeException )
-                {
-                    throw (RuntimeException) ex;
-                }
-                throw new RuntimeException( "Could not connect to target server " + Util.exception( ex ) );
-            }
-        }
+        return "[" + user.getName() + "] <-> ServerConnector [" + target.getName() + "]";
     }
 }

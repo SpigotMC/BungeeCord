@@ -1,8 +1,11 @@
 package net.md_5.bungee;
 
-import java.io.DataOutputStream;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.Getter;
@@ -11,11 +14,11 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.Server;
+import net.md_5.bungee.connection.PingHandler;
+import net.md_5.bungee.netty.HandlerBoss;
+import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
-import net.md_5.bungee.packet.PacketFFKick;
-import net.md_5.bungee.packet.PacketStream;
-import net.md_5.mendax.PacketDefinitions;
 
 public class BungeeServerInfo extends ServerInfo
 {
@@ -44,31 +47,24 @@ public class BungeeServerInfo extends ServerInfo
     @Override
     public void ping(final Callback<ServerPing> callback)
     {
-        new Thread()
+        new Bootstrap()
+                .channel( NioSocketChannel.class )
+                .group( BungeeCord.getInstance().eventLoops )
+                .handler( PipelineUtils.BASE )
+                .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000 ) // TODO: Configurable
+                .remoteAddress( getAddress() )
+                .connect()
+                .addListener( new ChannelFutureListener()
         {
             @Override
-            public void run()
+            public void operationComplete(ChannelFuture future) throws Exception
             {
-                try ( Socket socket = new Socket(); )
+                if ( !future.isSuccess() )
                 {
-                    socket.connect( getAddress() );
-
-                    DataOutputStream out = new DataOutputStream( socket.getOutputStream() );
-                    out.write( 0xFE );
-                    out.write( 0x01 );
-
-                    PacketStream in = new PacketStream( socket.getInputStream(), PacketDefinitions.VANILLA_PROTOCOL );
-                    PacketFFKick response = new PacketFFKick( in.readPacket() );
-
-                    String[] split = response.message.split( "\00" );
-
-                    ServerPing ping = new ServerPing( Byte.parseByte( split[1] ), split[2], split[3], Integer.parseInt( split[4] ), Integer.parseInt( split[5] ) );
-                    callback.done( ping, null );
-                } catch ( Throwable t )
-                {
-                    callback.done( null, t );
+                    callback.done( null, future.cause() );
                 }
             }
-        }.start();
+        } )
+                .channel().pipeline().get( HandlerBoss.class ).setHandler( new PingHandler( this, callback ) );
     }
 }

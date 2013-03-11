@@ -1,5 +1,6 @@
 package net.md_5.bungee.packet;
 
+import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -8,6 +9,8 @@ import lombok.ToString;
 public class Packet9Respawn extends DefinedPacket
 {
 
+    public static final Packet9Respawn DIM1_SWITCH = new Packet9Respawn( (byte) 1, (byte) 0, (byte) 0, (short) 256, "DEFAULT" );
+    public static final Packet9Respawn DIM2_SWITCH = new Packet9Respawn( (byte) -1, (byte) 0, (byte) 0, (short) 256, "DEFAULT" );
     public int dimension;
     public byte difficulty;
     public byte gameMode;
@@ -21,17 +24,22 @@ public class Packet9Respawn extends DefinedPacket
         writeByte( difficulty );
         writeByte( gameMode );
         writeShort( worldHeight );
-        writeUTF( levelType );
+        writeString( levelType );
+        this.dimension = dimension;
+        this.difficulty = difficulty;
+        this.gameMode = gameMode;
+        this.worldHeight = worldHeight;
+        this.levelType = levelType;
     }
 
-    public Packet9Respawn(byte[] buf)
+    Packet9Respawn(ByteBuf buf)
     {
         super( 0x09, buf );
         this.dimension = readInt();
         this.difficulty = readByte();
         this.gameMode = readByte();
         this.worldHeight = readShort();
-        this.levelType = readUTF();
+        this.levelType = readString();
     }
 
     @Override

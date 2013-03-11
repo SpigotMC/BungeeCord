@@ -28,18 +28,6 @@ public class Util
     }
 
     /**
-     * Gets the value of the first unsigned byte of the specified array. Useful
-     * for getting the id of a packet array .
-     *
-     * @param b the array to read from
-     * @return the unsigned value of the first byte
-     */
-    public static int getId(byte[] b)
-    {
-        return b[0] & 0xFF;
-    }
-
-    /**
      * Normalizes a config path by prefix upper case letters with '_' and
      * turning them to lowercase.
      *
