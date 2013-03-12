@@ -41,7 +41,7 @@ public class CommandList extends Command
             {
                 players.add( player.getDisplayName() );
             }
-            Collections.sort( players );
+            Collections.sort( players, String.CASE_INSENSITIVE_ORDER );
 
             if ( !players.isEmpty() )
             {
