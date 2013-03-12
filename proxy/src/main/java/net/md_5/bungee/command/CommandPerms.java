@@ -12,7 +12,7 @@ public class CommandPerms extends Command
 
     public CommandPerms()
     {
-        super( "perms" );
+        super( "permissions" );
     }
 
     @Override
@@ -26,7 +26,7 @@ public class CommandPerms extends Command
             groups.append( ", " );
             permissions.addAll( ProxyServer.getInstance().getConfigurationAdapter().getPermissions( group ) );
         }
-        sender.sendMessage( ChatColor.GOLD + "You have the following groups: " + groups.substring( 0, groups.length() - 2 ) );
+        sender.sendMessage( ChatColor.AQUA + "[scHub] You have the following groups: " + groups.substring( 0, groups.length() - 2 ) );
 
         for ( String permission : permissions )
         {
