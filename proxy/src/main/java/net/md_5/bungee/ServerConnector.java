@@ -102,7 +102,7 @@ public class ServerConnector extends PacketHandler
             ServerInfo def = ProxyServer.getInstance().getServers().get( user.getPendingConnection().getListener().getDefaultServer() );
             if ( retry && !info.equals( def ) )
             {
-                user.sendMessage( ChatColor.RED + "Could not connect to target server, you have been moved to the default server" );
+                user.sendMessage( ChatColor.RED + "Could not connect the requested server, you have been moved to the default server" );
                 return connect( user, def, false );
             } else
             {
@@ -110,7 +110,7 @@ public class ServerConnector extends PacketHandler
                 {
                     throw (RuntimeException) ex;
                 }
-                throw new RuntimeException( "Could not connect to target server " + Util.exception( ex ) );
+                throw new RuntimeException( "Could not connect to the requested server " + Util.exception( ex ) );
             }
         }
     }
