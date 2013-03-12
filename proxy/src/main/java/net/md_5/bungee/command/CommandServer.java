@@ -1,8 +1,6 @@
 package net.md_5.bungee.command;
 
-import java.util.Collection;
 import java.util.Map;
-import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -37,7 +35,7 @@ public class CommandServer extends Command
             {
                 if ( server.canAccess( player ) )
                 {
-                    serverList.append( server );
+                    serverList.append( server.getName() );
                     serverList.append( ", " );
                 }
             }
