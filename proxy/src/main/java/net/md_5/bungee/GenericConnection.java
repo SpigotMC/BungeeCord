@@ -39,7 +39,7 @@ public class GenericConnection
         log( "disconnected with " + reason );
         try
         {
-            stream.write( new PacketFFKick( "[Proxy] " + reason ) );
+            stream.write( new PacketFFKick( "[scHub] " + reason ) );
         } catch ( IOException ex )
         {
         } finally
