@@ -29,7 +29,7 @@ public class CommandAlert extends Command
                 args[0] = args[0].substring( 2, args[0].length() );
             } else
             {
-                builder.append( ChatColor.DARK_PURPLE );
+                builder.append( ChatColor.AQUA );
                 builder.append( "[Alert] " );
             }
 
