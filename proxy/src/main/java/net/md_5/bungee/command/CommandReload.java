@@ -10,7 +10,7 @@ public class CommandReload extends Command
 
     public CommandReload()
     {
-        super( "greload", "bungeecord.command.reload" );
+        super( "screload", "bungeecord.command.reload" );
     }
 
     @Override
