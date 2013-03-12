@@ -30,4 +30,14 @@ public class ChatEvent extends TargetedEvent implements Cancellable
         super( sender, receiver );
         this.message = message;
     }
+
+    /**
+     * Checks whether this message is valid as a command
+     *
+     * @return if this message is a command
+     */
+    public boolean isCommand()
+    {
+        return message.charAt( 0 ) == '/';
+    }
 }
