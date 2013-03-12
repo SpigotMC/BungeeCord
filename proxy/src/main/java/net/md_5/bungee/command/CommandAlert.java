@@ -11,7 +11,7 @@ public class CommandAlert extends Command
 
     public CommandAlert()
     {
-        super( "alert", "bungeecord.command.alert" );
+        super( "broadcast", "bungeecord.command.alert" );
     }
 
     @Override
@@ -19,7 +19,7 @@ public class CommandAlert extends Command
     {
         if ( args.length == 0 )
         {
-            sender.sendMessage( ChatColor.RED + "You must supply a message." );
+            sender.sendMessage( ChatColor.RED + "You must add a message." );
         } else
         {
             StringBuilder builder = new StringBuilder();
@@ -30,7 +30,7 @@ public class CommandAlert extends Command
             } else
             {
                 builder.append( ChatColor.AQUA );
-                builder.append( "[Alert] " );
+                builder.append( "[Broadcast] " );
             }
 
             for ( String s : args )
