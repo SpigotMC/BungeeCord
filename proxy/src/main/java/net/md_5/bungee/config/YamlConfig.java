@@ -151,8 +151,9 @@ public class YamlConfig implements ConfigurationAdapter
             Map<String, Object> val = entry.getValue();
             String name = entry.getKey();
             String addr = get( "address", "localhost:25565", val );
+            boolean restricted = get( "restricted", false );
             InetSocketAddress address = Util.getAddr( addr );
-            ServerInfo info = ProxyServer.getInstance().constructServerInfo( name, address );
+            ServerInfo info = ProxyServer.getInstance().constructServerInfo( name, address, restricted );
             ret.put( name, info );
         }
 

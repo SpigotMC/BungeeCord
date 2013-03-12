@@ -1,9 +1,11 @@
 package net.md_5.bungee.command;
 
+import java.util.Collection;
 import java.util.Map;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
@@ -27,16 +29,22 @@ public class CommandServer extends Command
             return;
         }
         ProxiedPlayer player = (ProxiedPlayer) sender;
-        Map<String, ServerInfo> servers = BungeeCord.getInstance().config.getServers();
+        Map<String, ServerInfo> servers = ProxyServer.getInstance().getServers();
         if ( args.length == 0 )
         {
             StringBuilder serverList = new StringBuilder();
-            for ( String server : servers.keySet() )
+            for ( ServerInfo server : servers.values() )
             {
-                serverList.append( server );
-                serverList.append( ", " );
+                if ( server.canAccess( player ) )
+                {
+                    serverList.append( server );
+                    serverList.append( ", " );
+                }
             }
-            serverList.setLength( serverList.length() - 2 );
+            if ( serverList.length() != 0 )
+            {
+                serverList.setLength( serverList.length() - 2 );
+            }
             player.sendMessage( ChatColor.GOLD + "You may connect to the following servers at this time: " + serverList.toString() );
         } else
         {
@@ -47,6 +55,9 @@ public class CommandServer extends Command
             } else if ( server.equals( player.getServer().getInfo() ) )
             {
                 player.sendMessage( ChatColor.RED + "You are already on this server." );
+            } else if ( !server.canAccess( player ) )
+            {
+                player.sendMessage( ChatColor.RED + "You don't have permission to access this server" );
             } else
             {
                 player.connect( server );

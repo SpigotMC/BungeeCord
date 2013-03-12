@@ -31,6 +31,10 @@ public abstract class ServerInfo
      * Players connected to a server defined by these properties.
      */
     private final Collection<ProxiedPlayer> players = new ArrayList<>();
+    /**
+     * If set to true, users will need special permissions to view this server.
+     */
+    private final boolean restricted;
 
     /**
      * Add a player to the internal set of this server.
@@ -79,4 +83,16 @@ public abstract class ServerInfo
      * @param callback the callback to call when the count has been retrieved.
      */
     public abstract void ping(Callback<ServerPing> callback);
+
+    /**
+     * Whether the player can access this server. It will only return false when
+     * the player has no permission and this server is restricted.
+     *
+     * @param player the player to check access for
+     * @return whether access is granted to this server
+     */
+    public boolean canAccess(ProxiedPlayer player)
+    {
+        return restricted && player.hasPermission( "bungeecord.server." + name );
+    }
 }

@@ -26,9 +26,9 @@ public class BungeeServerInfo extends ServerInfo
     @Getter
     private final Queue<DefinedPacket> packetQueue = new ConcurrentLinkedQueue<>();
 
-    public BungeeServerInfo(String name, InetSocketAddress address)
+    public BungeeServerInfo(String name, InetSocketAddress address, boolean restricted)
     {
-        super( name, address );
+        super( name, address, restricted );
     }
 
     @Override
