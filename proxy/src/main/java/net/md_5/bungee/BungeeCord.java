@@ -28,6 +28,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
 import static net.md_5.bungee.Logger.$;
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ReconnectHandler;
 import net.md_5.bungee.api.TabListHandler;
@@ -370,5 +371,11 @@ public class BungeeCord extends ProxyServer
     public ServerInfo constructServerInfo(String name, InetSocketAddress address)
     {
         return new BungeeServerInfo( name, address );
+    }
+
+    @Override
+    public CommandSender getConsole()
+    {
+        return ConsoleCommandSender.getInstance();
     }
 }

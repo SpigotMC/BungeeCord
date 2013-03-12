@@ -211,4 +211,13 @@ public abstract class ProxyServer
      * @return the constructed instance
      */
     public abstract ServerInfo constructServerInfo(String name, InetSocketAddress address);
+
+    /**
+     * Returns the console overlord for this proxy. Being the console, this
+     * command server cannot have permissions or groups, and will be able to
+     * execute anything.
+     *
+     * @return the console command sender of this proxy
+     */
+    public abstract CommandSender getConsole();
 }
