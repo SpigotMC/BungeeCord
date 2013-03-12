@@ -15,6 +15,7 @@ public class CipherCodec extends ByteToByteCodec
 
     private Cipher encrypt;
     private Cipher decrypt;
+    private ByteBuf heapOut;
 
     public CipherCodec(Cipher encrypt, Cipher decrypt)
     {
@@ -25,33 +26,58 @@ public class CipherCodec extends ByteToByteCodec
     @Override
     public void encode(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out) throws Exception
     {
-        cipher( encrypt, in, out );
+        cipher( ctx, in, out, encrypt );
     }
 
     @Override
     public void decode(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out) throws Exception
     {
-        cipher( decrypt, in, out );
+        cipher( ctx, in, out, decrypt );
     }
 
-    private void cipher(Cipher cipher, ByteBuf in, ByteBuf out) throws Exception
+    @Override
+    public void freeInboundBuffer(ChannelHandlerContext ctx) throws Exception
     {
-        try
+        super.freeInboundBuffer( ctx );
+        if ( heapOut != null )
         {
+            heapOut.release();
+            heapOut = null;
+        }
+    }
+
+    @Override
+    public void freeOutboundBuffer(ChannelHandlerContext ctx) throws Exception
+    {
+        super.freeOutboundBuffer( ctx );
+        if ( heapOut != null )
+        {
+            heapOut.release();
+            heapOut = null;
+        }
+    }
+
+    private void cipher(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out, Cipher cipher) throws Exception
+    {
+        synchronized ( this )
+        {
+            if ( heapOut == null )
+            {
+                heapOut = ctx.alloc().heapBuffer();
+            }
+
             int available = in.readableBytes();
             int outputSize = cipher.getOutputSize( available );
-            int writerIndex = out.writerIndex();
-            if ( out.capacity() + writerIndex < outputSize )
+            if ( heapOut.capacity() < outputSize )
             {
-                out.capacity( outputSize + writerIndex );
+                heapOut.capacity( outputSize );
             }
-            int processed = cipher.update( in.nioBuffer(), out.nioBuffer( out.writerIndex(), outputSize ) );
+            int processed = cipher.update( in.array(), in.arrayOffset() + in.readerIndex(), available, heapOut.array(), heapOut.arrayOffset() + heapOut.writerIndex() );
             in.readerIndex( in.readerIndex() + processed );
-            out.writerIndex( writerIndex + processed );
-        } catch ( Exception ex )
-        {
-            ex.printStackTrace();
-            throw ex;
+            heapOut.writerIndex( heapOut.writerIndex() + processed );
+
+            out.writeBytes( heapOut );
+            heapOut.discardSomeReadBytes();
         }
     }
 }

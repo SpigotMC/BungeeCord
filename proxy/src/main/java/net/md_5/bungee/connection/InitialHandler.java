@@ -74,6 +74,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
+    public void exception(Throwable t) throws Exception
+    {
+        disconnect( ChatColor.RED + Util.exception( t ) );
+    }
+
+    @Override
     public void handle(Packet1Login login) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting FORGE LOGIN" );
@@ -113,7 +119,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkArgument( handshake.username.length() <= 16, "Cannot have username longer than 16 characters" );
         this.handshake = handshake;
         ch.write( forgeMods );
-        ch.write( request = EncryptionUtil.encryptRequest() );
+        handle( (PacketCDClientStatus) null );
+        //ch.write( request = EncryptionUtil.encryptRequest() );
         thisState = State.ENCRYPT;
     }
 
@@ -195,7 +202,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(PacketCDClientStatus clientStatus) throws Exception
     {
-        Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
+        //  Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
         UserConnection userCon = new UserConnection( (BungeeCord) bungee, ch, this, handshake, forgeLogin, loginMessages );
         ch.pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );

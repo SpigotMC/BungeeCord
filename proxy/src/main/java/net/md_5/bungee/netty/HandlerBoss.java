@@ -83,6 +83,10 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<ByteBuf>
             {
                 ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - encountered exception", cause );
             }
+            if ( handler != null )
+            {
+                handler.exception( cause );
+            }
             ctx.close();
         }
     }
