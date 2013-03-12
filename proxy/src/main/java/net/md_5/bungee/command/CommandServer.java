@@ -16,7 +16,7 @@ public class CommandServer extends Command
 
     public CommandServer()
     {
-        super( "server", "bungeecord.command.server" );
+        super( "connect", "bungeecord.command.server" );
     }
 
     @Override
@@ -37,16 +37,16 @@ public class CommandServer extends Command
                 serverList.append( ", " );
             }
             serverList.setLength( serverList.length() - 2 );
-            player.sendMessage( ChatColor.GOLD + "You may connect to the following servers at this time: " + serverList.toString() );
+            player.sendMessage( ChatColor.AQUA + "[scHub] Servers currently online on the scPvP network: " + serverList.toString() );
         } else
         {
             ServerInfo server = servers.get( args[0] );
             if ( server == null )
             {
-                player.sendMessage( ChatColor.RED + "The specified server does not exist" );
+                player.sendMessage( ChatColor.RED + "[scHub] That server doesn't exist! Make sure you have typed it correctly in lower case." );
             } else if ( server.equals( player.getServer().getInfo() ) )
             {
-                player.sendMessage( ChatColor.RED + "You are already on this server." );
+                player.sendMessage( ChatColor.RED + "[scHub] You are already on that server!" );
             } else
             {
                 player.connect( server );
