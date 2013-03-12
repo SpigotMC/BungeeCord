@@ -44,6 +44,7 @@ public class CommandAlert extends Command
             {
                 player.sendMessage( message );
             }
+            ProxyServer.getInstance().getConsole().sendMessage( message );
         }
     }
 }
