@@ -197,6 +197,11 @@ public class DownstreamBridge extends PacketHandler
                     target.sendMessage( in.readUTF() );
                 }
             }
+            if ( subChannel.equals( "GetServer" ) )
+            {
+                out.writeUTF( "GetServer" );
+                out.writeUTF( server.getInfo().getName() );
+            }
 
             // Check we haven't set out to null, and we have written data, if so reply back back along the BungeeCord channel
             if ( out != null )
