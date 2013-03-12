@@ -26,7 +26,7 @@ public class CommandList extends Command
 
         if ( connections.isEmpty() )
         {
-            sender.sendMessage( ChatColor.AQUA + "Currently no players online." );
+            sender.sendMessage( ChatColor.AQUA + "[scHub] Currently no players online." );
             return;
         }
 
@@ -38,6 +38,6 @@ public class CommandList extends Command
         }
 
         users.setLength( users.length() - 2 );
-        sender.sendMessage( ChatColor.AQUA + "Currently online across the scPvP network (" + connections.size() + "): " + ChatColor.RESET + users );
+        sender.sendMessage( ChatColor.AQUA + "[scHub] Currently online across the scPvP network (" + connections.size() + "): " + ChatColor.RESET + users );
     }
 }
