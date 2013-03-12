@@ -165,6 +165,12 @@ public final class UserConnection implements ProxiedPlayer
     {
         ch.write( new Packet3Chat( message ) );
     }
+    
+    @Override
+    public void chat(String message)
+    {
+        server.packetQueue.add( new Packet3Chat( message ) );
+    }
 
     @Override
     public void sendData(String channel, byte[] data)
