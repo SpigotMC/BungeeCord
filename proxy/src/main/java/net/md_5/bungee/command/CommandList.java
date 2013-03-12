@@ -2,6 +2,7 @@ package net.md_5.bungee.command;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -40,6 +41,7 @@ public class CommandList extends Command
             {
                 players.add( player.getDisplayName() );
             }
+            Collections.sort( players );
 
             if ( !players.isEmpty() )
             {
