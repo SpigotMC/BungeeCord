@@ -175,12 +175,12 @@ public class InitialHandler extends PacketHandler implements Runnable, PendingCo
             }
         } catch ( KickException ex )
         {
-            disconnect( "[Proxy - Kicked] " + ex.getMessage() );
+            disconnect( "[scHub - Kicked] " + ex.getMessage() );
         } catch ( EOFException ex )
         {
         } catch ( Exception ex )
         {
-            disconnect( "[Proxy Error] " + Util.exception( ex ) );
+            disconnect( "[scHub Error] " + Util.exception( ex ) );
             ex.printStackTrace();
         }
     }
