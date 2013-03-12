@@ -93,6 +93,6 @@ public abstract class ServerInfo
      */
     public boolean canAccess(ProxiedPlayer player)
     {
-        return restricted && player.hasPermission( "bungeecord.server." + name );
+        return !restricted || player.hasPermission( "bungeecord.server." + name );
     }
 }
