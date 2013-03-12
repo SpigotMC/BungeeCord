@@ -129,15 +129,14 @@ public class BungeeCord extends ProxyServer
         if ( Calendar.getInstance().after( deadline ) )
         {
             System.err.println( "*** Warning, this build is outdated ***" );
-            System.err.println( "*** Please download a new build from http://ci.md-5.net/job/BungeeCord ***" );
-            System.err.println( "*** You will get NO support regarding this build ***" );
+            System.err.println( "*** Please update scHub! ***" );
             System.err.println( "*** Server will start in 15 seconds ***" );
             Thread.sleep( TimeUnit.SECONDS.toMillis( 15 ) );
         }
 
         BungeeCord bungee = new BungeeCord();
         ProxyServer.setInstance( bungee );
-        $().info( "Enabled BungeeCord version " + bungee.getVersion() );
+        $().info( "Enabled scHub version " + bungee.getVersion() );
         bungee.start();
 
         BufferedReader br = new BufferedReader( new InputStreamReader( System.in ) );
@@ -236,7 +235,7 @@ public class BungeeCord extends ProxyServer
         $().info( "Disconnecting " + connections.size() + " connections" );
         for ( UserConnection user : connections.values() )
         {
-            user.disconnect( "Proxy restarting, brb." );
+            user.disconnect( "scHub restarting - Plese reconnect! :D" );
         }
 
         $().info( "Saving reconnect locations" );
@@ -249,7 +248,7 @@ public class BungeeCord extends ProxyServer
             plugin.onDisable();
         }
 
-        $().info( "Thank you and goodbye" );
+        $().info( "Goodbye!" );
         System.exit( 0 );
     }
 
