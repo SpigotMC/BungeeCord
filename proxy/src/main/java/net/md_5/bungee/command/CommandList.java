@@ -1,9 +1,12 @@
 package net.md_5.bungee.command;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 
@@ -21,23 +24,34 @@ public class CommandList extends Command
     @Override
     public void execute(CommandSender sender, String[] args)
     {
-        StringBuilder users = new StringBuilder();
-        Collection<ProxiedPlayer> connections = ProxyServer.getInstance().getPlayers();
-
-        if ( connections.isEmpty() )
+        for ( ServerInfo server : ProxyServer.getInstance().getServers().values() )
         {
-            sender.sendMessage( ChatColor.BLUE + "Currently no players online." );
-            return;
+            Collection<ProxiedPlayer> serverPlayers = server.getPlayers();
+
+            StringBuilder message = new StringBuilder();
+            message.append( "[" );
+            message.append( server.getName() );
+            message.append( "] (" );
+            message.append( serverPlayers.size() );
+            message.append( "): " );
+
+            List<String> players = new ArrayList<>();
+            for ( ProxiedPlayer player : serverPlayers )
+            {
+                players.add( player.getDisplayName() );
+            }
+
+            if ( !players.isEmpty() )
+            {
+                for ( String player : players )
+                {
+                    message.append( player ).append( ChatColor.RESET ).append( ", " );
+                }
+            }
+
+            sender.sendMessage( message.substring( 0, message.length() - 2 ) );
         }
 
-        for ( ProxiedPlayer player : connections )
-        {
-            users.append( player.getDisplayName() );
-            users.append( ", " );
-            users.append( ChatColor.RESET );
-        }
-
-        users.setLength( users.length() - 2 );
-        sender.sendMessage( ChatColor.BLUE + "Currently online across all servers (" + connections.size() + "): " + ChatColor.RESET + users );
+        sender.sendMessage( "Total players online: " + ProxyServer.getInstance().getPlayers().size() );
     }
 }
