@@ -4,13 +4,13 @@ public class CancelSendSignal extends Error
 {
 
     @Override
-    public synchronized Throwable initCause(Throwable cause)
+    public Throwable initCause(Throwable cause)
     {
         return this;
     }
 
     @Override
-    public synchronized Throwable fillInStackTrace()
+    public Throwable fillInStackTrace()
     {
         return this;
     }
