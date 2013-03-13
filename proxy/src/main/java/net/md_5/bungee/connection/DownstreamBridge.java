@@ -15,6 +15,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.netty.Wrapper;
 import net.md_5.bungee.packet.Packet0KeepAlive;
 import net.md_5.bungee.packet.Packet3Chat;
 import net.md_5.bungee.packet.PacketC9PlayerListItem;
@@ -50,9 +51,9 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(ByteBuf buf) throws Exception
+    public void handle(Wrapper buf) throws Exception
     {
-        EntityMap.rewrite( buf, con.serverEntityId, con.clientEntityId );
+        EntityMap.rewrite( buf.buf, con.serverEntityId, con.clientEntityId );
         con.ch.write( buf );
     }
 

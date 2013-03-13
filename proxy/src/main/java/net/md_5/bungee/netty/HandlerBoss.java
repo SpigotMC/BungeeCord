@@ -16,7 +16,7 @@ import net.md_5.bungee.packet.PacketHandler;
  * channels to maintain simple states, and only call the required, adapted
  * methods when the channel is connected.
  */
-public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<ByteBuf>
+public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<Wrapper>
 {
 
     private PacketHandler handler;
@@ -48,11 +48,11 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<ByteBuf>
     }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, ByteBuf msg) throws Exception
+    public void messageReceived(ChannelHandlerContext ctx, Wrapper msg) throws Exception
     {
         if ( handler != null && ctx.channel().isActive() )
         {
-            DefinedPacket packet = DefinedPacket.packet( msg );
+            DefinedPacket packet = DefinedPacket.packet( msg.buf );
             boolean sendPacket = true;
             if ( packet != null )
             {

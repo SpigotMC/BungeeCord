@@ -17,7 +17,7 @@ import net.md_5.bungee.protocol.netty.PacketReader;
  * when all needed data is present.
  */
 @AllArgsConstructor
-public class PacketDecoder extends ReplayingDecoder<ByteBuf>
+public class PacketDecoder extends ReplayingDecoder<Void>
 {
 
     @Getter
@@ -25,10 +25,11 @@ public class PacketDecoder extends ReplayingDecoder<ByteBuf>
     private int protocol;
 
     @Override
-    protected ByteBuf decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception
+    protected Wrapper decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception
     {
         int startIndex = in.readerIndex();
         PacketReader.readPacket( in, protocol );
-        return in.copy( startIndex, in.readerIndex() - startIndex );
+        ByteBuf ret = in.copy( startIndex, in.readerIndex() - startIndex );
+        return new Wrapper( ret );
     }
 }
