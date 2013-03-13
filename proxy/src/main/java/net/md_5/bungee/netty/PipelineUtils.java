@@ -30,7 +30,6 @@ public class PipelineUtils
         {
             BASE.initChannel( ch );
             ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( ProxyServer.getInstance(), ch.attr( LISTENER ).get() ) );
-            ch.config().setDefaultHandlerByteBufType( ChannelConfig.ChannelHandlerByteBufType.HEAP );
         }
     };
     public static final ChannelInitializer<Channel> CLIENT = new ChannelInitializer<Channel>()
