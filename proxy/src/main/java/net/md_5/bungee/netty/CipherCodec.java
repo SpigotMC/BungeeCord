@@ -15,6 +15,7 @@ public class CipherCodec extends ByteToByteCodec
 
     private Cipher encrypt;
     private Cipher decrypt;
+    private ByteBuf heapIn;
     private ByteBuf heapOut;
 
     public CipherCodec(Cipher encrypt, Cipher decrypt)
@@ -39,17 +40,23 @@ public class CipherCodec extends ByteToByteCodec
     public void freeInboundBuffer(ChannelHandlerContext ctx) throws Exception
     {
         super.freeInboundBuffer( ctx );
-        if ( heapOut != null )
-        {
-            heapOut.release();
-            heapOut = null;
-        }
+        free();
     }
 
     @Override
     public void freeOutboundBuffer(ChannelHandlerContext ctx) throws Exception
     {
         super.freeOutboundBuffer( ctx );
+        free();
+    }
+
+    private void free()
+    {
+        if ( heapIn != null )
+        {
+            heapIn.release();
+            heapIn = null;
+        }
         if ( heapOut != null )
         {
             heapOut.release();
@@ -59,25 +66,47 @@ public class CipherCodec extends ByteToByteCodec
 
     private void cipher(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out, Cipher cipher) throws Exception
     {
-        synchronized ( this )
+        try
         {
+            // Allocate input buffer
+            if ( heapIn == null )
+            {
+                heapIn = ctx.alloc().heapBuffer();
+            }
+
+            // Allocate correct amount of space
+            int readableBytes = in.readableBytes();
+            heapIn.capacity( heapIn.writerIndex() + readableBytes );
+            // Read into buffer
+            in.readBytes( heapIn );
+
+            // Allocate output buffer
             if ( heapOut == null )
             {
                 heapOut = ctx.alloc().heapBuffer();
             }
 
-            int available = in.readableBytes();
-            int outputSize = cipher.getOutputSize( available );
-            if ( heapOut.capacity() < outputSize )
+            // Get output size
+            int outputSize = cipher.getOutputSize( readableBytes );
+            // Check we have enough space
+            if ( heapOut.writableBytes() < outputSize )
             {
-                heapOut.capacity( outputSize );
+                heapOut.capacity( heapOut.writerIndex() + outputSize );
             }
-            int processed = cipher.update( in.array(), in.arrayOffset() + in.readerIndex(), available, heapOut.array(), heapOut.arrayOffset() + heapOut.writerIndex() );
-            in.readerIndex( in.readerIndex() + processed );
+
+            // Do the processing
+            int processed = cipher.update( heapIn.array(), heapIn.arrayOffset() + heapIn.readerIndex(), readableBytes, heapOut.array(), heapOut.arrayOffset() + heapOut.writerIndex() );
+
+            // Tell the out buffer we read some from it
             heapOut.writerIndex( heapOut.writerIndex() + processed );
 
             out.writeBytes( heapOut );
-            heapOut.discardSomeReadBytes();
+            heapIn.clear();
+            heapOut.clear();
+        } catch ( Throwable ex )
+        {
+            // TODO: Remove this once we are stable
+            ex.printStackTrace();
         }
     }
 }
