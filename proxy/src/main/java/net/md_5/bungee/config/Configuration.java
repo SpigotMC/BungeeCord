@@ -48,7 +48,7 @@ public class Configuration
      * Should we check minecraft.net auth.
      */
     private boolean onlineMode = true;
-    private int sleepTime = 1;
+    private int playerLimit = -1;
 
     public void load()
     {
@@ -58,7 +58,7 @@ public class Configuration
         timeout = adapter.getInt( "timeout", timeout );
         uuid = adapter.getString( "stats", uuid );
         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
-        sleepTime = adapter.getInt( "sleep_time", sleepTime );
+        playerLimit = adapter.getInt( "player_limit", playerLimit );
 
         DefaultTabList tab = DefaultTabList.valueOf( adapter.getString( "tab_list", "GLOBAL_PING" ) );
         if ( tab == null )

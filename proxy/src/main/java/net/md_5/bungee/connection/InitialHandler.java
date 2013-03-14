@@ -117,6 +117,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
         Preconditions.checkArgument( handshake.username.length() <= 16, "Cannot have username longer than 16 characters" );
+
+        int limit = BungeeCord.getInstance().config.getPlayerLimit();
+        Preconditions.checkState( limit <= 0 || bungee.getPlayers().size() < limit, "Server is full!" );
+
         this.handshake = handshake;
         ch.write( forgeMods );
         ch.write( request = EncryptionUtil.encryptRequest() );
