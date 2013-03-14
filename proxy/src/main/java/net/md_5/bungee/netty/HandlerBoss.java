@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.handler.timeout.ReadTimeoutException;
+import java.io.IOException;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.connection.CancelSendSignal;
@@ -51,7 +52,7 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<byte[]>
     {
         if ( handler != null && ctx.channel().isActive() )
         {
-            DefinedPacket packet = DefinedPacket.packet( msg);
+            DefinedPacket packet = DefinedPacket.packet( msg );
             boolean sendPacket = true;
             if ( packet != null )
             {
@@ -78,13 +79,23 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<byte[]>
             if ( cause instanceof ReadTimeoutException )
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, handler + " - read timed out" );
+            }
+            if ( cause instanceof IOException )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, handler + " - IOException: " + cause.getMessage() );
             } else
             {
                 ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - encountered exception", cause );
             }
             if ( handler != null )
             {
-                handler.exception( cause );
+                try
+                {
+                    handler.exception( cause );
+                } catch ( Exception ex )
+                {
+                    ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - exception processing exception", ex );
+                }
             }
             ctx.close();
         }
