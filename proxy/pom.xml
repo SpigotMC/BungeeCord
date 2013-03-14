@@ -6,7 +6,7 @@
     <parent>
         <groupId>net.md-5</groupId>
         <artifactId>bungeecord-parent</artifactId>
-        <version>1.4.7-SNAPSHOT</version>
+        <version>1.5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -49,6 +49,14 @@
     <build>
         <finalName>BungeeCord</finalName>
         <plugins>
+            <plugin>
+                <!-- Don't deploy proxy to maven repo, only APIs -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
