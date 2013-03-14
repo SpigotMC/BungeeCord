@@ -21,8 +21,7 @@
     <dependencies>
         <dependency>
             <groupId>io.netty</groupId>
-            <!-- TODO: Fix this -->
-            <artifactId>netty-all</artifactId>
+            <artifactId>netty-buffer</artifactId>
             <version>4.0.0.Beta3-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
