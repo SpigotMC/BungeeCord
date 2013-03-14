@@ -93,7 +93,6 @@
                             </excludes>
                         </filter>
                     </filters>
-                    <finalName>${project.build.finalName}-shaded</finalName>
                 </configuration>
             </plugin>
         </plugins>
