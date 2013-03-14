@@ -8,7 +8,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import static net.md_5.bungee.Logger.$;
 import net.md_5.bungee.api.ProxyServer;
 
 public class Metrics extends Thread
@@ -55,7 +54,7 @@ public class Metrics extends Thread
                 firstPost = false;
             } catch ( IOException ex )
             {
-                $().info( "[Metrics] " + ex.getMessage() );
+                ProxyServer.getInstance().getLogger().info( "[Metrics] " + ex.getMessage() );
             }
             try
             {

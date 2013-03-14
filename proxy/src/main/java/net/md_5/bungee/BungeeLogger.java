@@ -8,17 +8,18 @@ import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 /**
  * Logger to handle formatting and storage of the proxy's logger.
  */
-public class Logger extends java.util.logging.Logger
+public class BungeeLogger extends Logger
 {
 
     private static final Formatter formatter = new ConsoleLogFormatter();
-    private static final Logger instance = new Logger();
+    static final BungeeLogger instance = new BungeeLogger();
 
-    public Logger()
+    public BungeeLogger()
     {
         super( "BungeeCord", null );
         try
@@ -45,16 +46,6 @@ public class Logger extends java.util.logging.Logger
         {
             System.out.print( message );
         }
-    }
-
-    /**
-     * Gets the current logger instance.
-     *
-     * @return the current logger instance
-     */
-    public static Logger $()
-    {
-        return instance;
     }
 
     public static class ConsoleLogFormatter extends Formatter

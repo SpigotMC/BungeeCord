@@ -27,7 +27,6 @@ import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
-import static net.md_5.bungee.Logger.$;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ReconnectHandler;
@@ -142,7 +141,7 @@ public class BungeeCord extends ProxyServer
 
         BungeeCord bungee = new BungeeCord();
         ProxyServer.setInstance( bungee );
-        $().info( "Enabled BungeeCord version " + bungee.getVersion() );
+        bungee.getLogger().info( "Enabled BungeeCord version " + bungee.getVersion() );
         bungee.start();
 
         BufferedReader br = new BufferedReader( new InputStreamReader( System.in ) );
@@ -208,7 +207,7 @@ public class BungeeCord extends ProxyServer
                     .bind().channel();
             listeners.add( server );
 
-            $().info( "Listening on " + info.getHost() );
+            getLogger().info( "Listening on " + info.getHost() );
         }
     }
 
@@ -216,13 +215,13 @@ public class BungeeCord extends ProxyServer
     {
         for ( Channel listener : listeners )
         {
-            $().log( Level.INFO, "Closing listener {0}", listener );
+            getLogger().log( Level.INFO, "Closing listener {0}", listener );
             try
             {
                 listener.close().syncUninterruptibly();
             } catch ( ChannelException ex )
             {
-                $().severe( "Could not close listen thread" );
+                getLogger().severe( "Could not close listen thread" );
             }
         }
         listeners.clear();
@@ -234,28 +233,28 @@ public class BungeeCord extends ProxyServer
         this.isRunning = false;
 
         stopListeners();
-        $().info( "Closing pending connections" );
+        getLogger().info( "Closing pending connections" );
 
-        $().info( "Disconnecting " + connections.size() + " connections" );
+        getLogger().info( "Disconnecting " + connections.size() + " connections" );
         for ( UserConnection user : connections.values() )
         {
             user.disconnect( "Proxy restarting, brb." );
         }
 
-        $().info( "Closing IO threads" );
+        getLogger().info( "Closing IO threads" );
         eventLoops.shutdown();
 
-        $().info( "Saving reconnect locations" );
+        getLogger().info( "Saving reconnect locations" );
         reconnectHandler.save();
         saveThread.cancel();
 
-        $().info( "Disabling plugins" );
+        getLogger().info( "Disabling plugins" );
         for ( Plugin plugin : pluginManager.getPlugins() )
         {
             plugin.onDisable();
         }
 
-        $().info( "Thank you and goodbye" );
+        getLogger().info( "Thank you and goodbye" );
         System.exit( 0 );
     }
 
@@ -287,7 +286,7 @@ public class BungeeCord extends ProxyServer
     @Override
     public Logger getLogger()
     {
-        return $();
+        return BungeeLogger.instance;
     }
 
     @Override
