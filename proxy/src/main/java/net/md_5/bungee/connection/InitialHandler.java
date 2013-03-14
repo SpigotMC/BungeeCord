@@ -28,6 +28,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
+import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.netty.CipherCodec;
 import net.md_5.bungee.netty.HandlerBoss;
@@ -208,6 +209,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
         UserConnection userCon = new UserConnection( (BungeeCord) bungee, ch, this, handshake, forgeLogin, loginMessages );
+        bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
+
         ch.pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
 
         ServerInfo server = bungee.getReconnectHandler().getServer( userCon );
