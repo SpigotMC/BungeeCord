@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToByteCodec;
 import javax.crypto.Cipher;
+import javax.crypto.ShortBufferException;
 
 /**
  * This class is a complete solution for encrypting and decoding bytes in a
@@ -15,8 +16,8 @@ public class CipherCodec extends ByteToByteCodec
 
     private Cipher encrypt;
     private Cipher decrypt;
-    private ByteBuf heapIn;
-    private ByteBuf heapOut;
+    private byte[] heapIn = new byte[ 0 ];
+    private byte[] heapOut = new byte[ 0 ];
 
     public CipherCodec(Cipher encrypt, Cipher decrypt)
     {
@@ -27,86 +28,29 @@ public class CipherCodec extends ByteToByteCodec
     @Override
     public void encode(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out) throws Exception
     {
-        cipher( ctx, in, out, encrypt );
+        cipher( in, out, encrypt );
     }
 
     @Override
     public void decode(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out) throws Exception
     {
-        cipher( ctx, in, out, decrypt );
+        cipher( in, out, decrypt );
     }
 
-    @Override
-    public void freeInboundBuffer(ChannelHandlerContext ctx) throws Exception
+    private void cipher(ByteBuf in, ByteBuf out, Cipher cipher) throws ShortBufferException
     {
-        super.freeInboundBuffer( ctx );
-        free();
-    }
-
-    @Override
-    public void freeOutboundBuffer(ChannelHandlerContext ctx) throws Exception
-    {
-        super.freeOutboundBuffer( ctx );
-        free();
-    }
-
-    private void free()
-    {
-        if ( heapIn != null )
+        int readableBytes = in.readableBytes();
+        if ( heapIn.length < readableBytes )
         {
-            heapIn.release();
-            heapIn = null;
+            heapIn = new byte[ readableBytes ];
         }
-        if ( heapOut != null )
+        in.readBytes( heapIn, 0, readableBytes );
+
+        int outputSize = cipher.getOutputSize( readableBytes );
+        if ( heapOut.length < outputSize )
         {
-            heapOut.release();
-            heapOut = null;
+            heapOut = new byte[ outputSize ];
         }
-    }
-
-    private void cipher(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out, Cipher cipher) throws Exception
-    {
-        try
-        {
-            // Allocate input buffer
-            if ( heapIn == null )
-            {
-                heapIn = ctx.alloc().heapBuffer();
-            }
-
-            // Allocate correct amount of space
-            int readableBytes = in.readableBytes();
-            heapIn.capacity( heapIn.writerIndex() + readableBytes );
-            // Read into buffer
-            in.readBytes( heapIn );
-
-            // Allocate output buffer
-            if ( heapOut == null )
-            {
-                heapOut = ctx.alloc().heapBuffer();
-            }
-
-            // Get output size
-            int outputSize = cipher.getOutputSize( readableBytes );
-            // Check we have enough space
-            if ( heapOut.writableBytes() < outputSize )
-            {
-                heapOut.capacity( heapOut.writerIndex() + outputSize );
-            }
-
-            // Do the processing
-            int processed = cipher.update( heapIn.array(), heapIn.arrayOffset() + heapIn.readerIndex(), readableBytes, heapOut.array(), heapOut.arrayOffset() + heapOut.writerIndex() );
-
-            // Tell the out buffer we read some from it
-            heapOut.writerIndex( heapOut.writerIndex() + processed );
-
-            out.writeBytes( heapOut );
-            heapIn.clear();
-            heapOut.clear();
-        } catch ( Throwable ex )
-        {
-            // TODO: Remove this once we are stable
-            ex.printStackTrace();
-        }
+        out.writeBytes( heapOut, 0, cipher.update( heapIn, 0, readableBytes, heapOut ) );
     }
 }
