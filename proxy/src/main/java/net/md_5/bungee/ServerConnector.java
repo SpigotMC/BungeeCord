@@ -56,11 +56,17 @@ public class ServerConnector extends PacketHandler
 
         ch.write( BungeeCord.getInstance().registerChannels() );
 
+        // TODO: Race conditions with many connects
         Queue<DefinedPacket> packetQueue = ( (BungeeServerInfo) target ).getPacketQueue();
         while ( !packetQueue.isEmpty() )
         {
             ch.write( packetQueue.poll() );
         }
+        if ( user.settings != null )
+        {
+            ch.write( user.settings );
+        }
+
 
         synchronized ( user.getSwitchMutex() )
         {

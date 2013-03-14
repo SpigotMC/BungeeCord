@@ -48,6 +48,10 @@ public abstract class PacketHandler
     {
     }
 
+    public void handle(PacketCCSettings settings) throws Exception
+    {
+    }
+
     public void handle(PacketCDClientStatus clientStatus) throws Exception
     {
     }

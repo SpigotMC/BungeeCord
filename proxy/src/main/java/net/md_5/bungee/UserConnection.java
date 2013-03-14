@@ -60,6 +60,7 @@ public final class UserConnection implements ProxiedPlayer
     private final Object permMutex = new Object();
     @Getter
     private final Object switchMutex = new Object();
+    public PacketCCSettings settings;
 
     public UserConnection(BungeeCord bungee, Channel channel, PendingConnection pendingConnection, Packet2Handshake handshake, Packet1Login forgeLogin, List<PacketFAPluginMessage> loginMessages)
     {
