@@ -16,7 +16,7 @@ public class PacketFDEncryptionRequest extends DefinedPacket
     public PacketFDEncryptionRequest(String serverId, byte[] publicKey, byte[] verifyToken)
     {
         super( 0xFD );
-        writeString( serverId );
+        writeUTF( serverId );
         writeArray( publicKey );
         writeArray( verifyToken );
         this.serverId = serverId;
@@ -24,10 +24,10 @@ public class PacketFDEncryptionRequest extends DefinedPacket
         this.verifyToken = verifyToken;
     }
 
-    PacketFDEncryptionRequest(ByteBuf buf)
+    PacketFDEncryptionRequest(byte[] buf)
     {
         super( 0xFD, buf );
-        serverId = readString();
+        serverId = readUTF();
         publicKey = readArray();
         verifyToken = readArray();
     }

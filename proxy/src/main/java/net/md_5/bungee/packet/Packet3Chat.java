@@ -1,6 +1,5 @@
 package net.md_5.bungee.packet;
 
-import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -14,14 +13,14 @@ public class Packet3Chat extends DefinedPacket
     public Packet3Chat(String message)
     {
         super( 0x03 );
-        writeString( message );
+        writeUTF( message );
         this.message = message;
     }
 
-    Packet3Chat(ByteBuf buf)
+    Packet3Chat(byte[] buf)
     {
         super( 0x03, buf );
-        this.message = readString();
+        this.message = readUTF();
     }
 
     @Override

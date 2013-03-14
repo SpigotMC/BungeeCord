@@ -1,7 +1,6 @@
 package net.md_5.bungee.netty;
 
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelConfig;
 import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -42,6 +41,8 @@ public class PipelineUtils
         }
     };
     public static final Base BASE = new Base();
+    private static final DefinedPacketEncoder packetEncoder = new DefinedPacketEncoder();
+    private static final ByteArrayEncoder arrayEncoder = new ByteArrayEncoder();
 
     public final static class Base extends ChannelInitializer<Channel>
     {
@@ -58,7 +59,8 @@ public class PipelineUtils
             }
             ch.pipeline().addLast( "timer", new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
             ch.pipeline().addLast( "decoder", new PacketDecoder( PacketDefinitions.VANILLA_PROTOCOL ) );
-            ch.pipeline().addLast( "encoder", new HackEncoder() );
+            ch.pipeline().addLast( "packet-encoder", packetEncoder );
+            ch.pipeline().addLast( "array-encoder", arrayEncoder );
             ch.pipeline().addLast( "handler", new HandlerBoss() );
         }
     };

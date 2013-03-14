@@ -1,7 +1,6 @@
 package net.md_5.bungee.netty;
 
 import com.google.common.base.Preconditions;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.handler.timeout.ReadTimeoutException;
@@ -16,7 +15,7 @@ import net.md_5.bungee.packet.PacketHandler;
  * channels to maintain simple states, and only call the required, adapted
  * methods when the channel is connected.
  */
-public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<Wrapper>
+public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<byte[]>
 {
 
     private PacketHandler handler;
@@ -48,11 +47,11 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<Wrapper>
     }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, Wrapper msg) throws Exception
+    public void messageReceived(ChannelHandlerContext ctx, byte[] msg) throws Exception
     {
         if ( handler != null && ctx.channel().isActive() )
         {
-            DefinedPacket packet = DefinedPacket.packet( msg.buf );
+            DefinedPacket packet = DefinedPacket.packet( msg);
             boolean sendPacket = true;
             if ( packet != null )
             {

@@ -25,11 +25,13 @@ public class PacketDecoder extends ReplayingDecoder<Void>
     private int protocol;
 
     @Override
-    protected Wrapper decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception
+    protected byte[] decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception
     {
         int startIndex = in.readerIndex();
         PacketReader.readPacket( in, protocol );
-        ByteBuf ret = in.copy( startIndex, in.readerIndex() - startIndex );
-        return new Wrapper( ret );
+        byte[] buf = new byte[ in.readerIndex() - startIndex ];
+        in.readerIndex( startIndex );
+        in.readBytes( buf, 0, buf.length );
+        return buf;
     }
 }

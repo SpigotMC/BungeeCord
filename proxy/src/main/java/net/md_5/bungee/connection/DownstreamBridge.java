@@ -51,9 +51,9 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(Wrapper buf) throws Exception
+    public void handle(byte[] buf) throws Exception
     {
-        EntityMap.rewrite( buf.buf, con.serverEntityId, con.clientEntityId );
+        EntityMap.rewrite( buf, con.serverEntityId, con.clientEntityId );
         con.ch.write( buf );
     }
 

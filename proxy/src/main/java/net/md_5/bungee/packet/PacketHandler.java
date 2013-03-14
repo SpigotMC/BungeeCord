@@ -1,8 +1,6 @@
 package net.md_5.bungee.packet;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
-import net.md_5.bungee.netty.Wrapper;
 
 public abstract class PacketHandler
 {
@@ -22,7 +20,7 @@ public abstract class PacketHandler
     {
     }
 
-    public void handle(Wrapper buf) throws Exception
+    public void handle(byte[] buf) throws Exception
     {
     }
 

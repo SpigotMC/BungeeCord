@@ -26,7 +26,7 @@ public class PacketCDClientStatus extends DefinedPacket
         writeByte( payload );
     }
 
-    PacketCDClientStatus(ByteBuf buf)
+    PacketCDClientStatus(byte[] buf)
     {
         super( 0xCD, buf );
     }

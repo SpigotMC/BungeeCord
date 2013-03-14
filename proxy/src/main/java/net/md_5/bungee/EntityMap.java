@@ -1,7 +1,5 @@
 package net.md_5.bungee;
 
-import io.netty.buffer.ByteBuf;
-
 /**
  * Class to rewrite integers within packets.
  */
@@ -115,20 +113,20 @@ public class EntityMap
         };
     }
 
-    public static void rewrite(ByteBuf packet, int oldId, int newId)
+    public static void rewrite(byte[] packet, int oldId, int newId)
     {
-        int packetId = packet.getUnsignedByte( 0 );
+        int packetId = packet[0] & 0xFF;
         if ( packetId == 0x1D )
         { // bulk entity
-            for ( int pos = 2; pos < packet.writerIndex(); pos += 4 )
+            for ( int pos = 2; pos < packet.length; pos += 4 )
             {
-                int readId = packet.getInt( pos );
+                int readId = readInt( packet, pos );
                 if ( readId == oldId )
                 {
-                    packet.setInt( pos, newId );
+                    setInt( packet, pos, newId );
                 } else if ( readId == newId )
                 {
-                    packet.setInt( pos, oldId );
+                    setInt( packet, pos, oldId );
                 }
             }
         } else
@@ -138,27 +136,29 @@ public class EntityMap
             {
                 for ( int pos : idArray )
                 {
-                    int readId = packet.getInt( pos );
+                    int readId = readInt( packet, pos );
                     if ( readId == oldId )
                     {
-                        packet.setInt( pos, newId );
+                        setInt( packet, pos, newId );
                     } else if ( readId == newId )
                     {
-                        packet.setInt( pos, oldId );
+                        setInt( packet, pos, oldId );
                     }
                 }
             }
         }
-        if ( packetId == 0x17 )
-        {
-            int type = packet.getByte( 5 );
-            if ( type >= 60 && type <= 62 )
-            {
-                if ( packet.getInt( 20 ) == oldId )
-                {
-                    packet.setInt( 20, newId );
-                }
-            }
-        }
+    }
+
+    private static void setInt(byte[] buf, int pos, int i)
+    {
+        buf[pos] = (byte) ( i >> 24 );
+        buf[pos + 1] = (byte) ( i >> 16 );
+        buf[pos + 2] = (byte) ( i >> 8 );
+        buf[pos + 3] = (byte) i;
+    }
+
+    private static int readInt(byte[] buf, int pos)
+    {
+        return ( ( ( buf[pos] & 0xFF ) << 24 ) | ( ( buf[pos + 1] & 0xFF ) << 16 ) | ( ( buf[pos + 2] & 0xFF ) << 8 ) | buf[pos + 3] & 0xFF );
     }
 }
