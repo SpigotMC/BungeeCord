@@ -40,8 +40,7 @@ public class ServerConnector extends PacketHandler
     public void connected(Channel channel) throws Exception
     {
         this.ch = channel;
-        // TODO: Fix this crap
-        channel.write( new Packet2Handshake( user.handshake.procolVersion, user.handshake.username, user.handshake.host, user.handshake.port ) );
+        channel.write( user.handshake );
         channel.write( PacketCDClientStatus.CLIENT_LOGIN );
     }
 
