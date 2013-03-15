@@ -135,10 +135,10 @@ public final class UserConnection implements ProxiedPlayer
                     {
                         if ( server == null )
                         {
-                            disconnect( "Server down, could not connect to default! " + future.cause().getClass().getName() );
+                            disconnect( "Could not connect to default server, please try again later: " + future.cause().getClass().getName() );
                         } else
                         {
-                            sendMessage( ChatColor.RED + "Could not connect to target server: " + future.cause().getClass().getName() );
+                            sendMessage( ChatColor.RED + "Could not connect to selected server, please try again later: " + future.cause().getClass().getName() );
                         }
                     }
                 }
