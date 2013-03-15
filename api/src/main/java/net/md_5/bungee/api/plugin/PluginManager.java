@@ -35,11 +35,22 @@ public class PluginManager
     private final Map<String, Command> commandMap = new HashMap<>();
 
     /**
+     * @deprecated use
+     * {@link #registerCommand(net.md_5.bungee.api.plugin.Plugin, net.md_5.bungee.api.plugin.Command)}
+     */
+    @Deprecated
+    public void registerCommand(Command command)
+    {
+        registerCommand( null, command );
+    }
+
+    /**
      * Register a command so that it may be executed.
      *
+     * @param plugin the plugin owning this command
      * @param command the command to register
      */
-    public void registerCommand(Command command)
+    public void registerCommand(Plugin plugin, Command command)
     {
         commandMap.put( command.getName().toLowerCase(), command );
         for ( String alias : command.getAliases() )
@@ -216,13 +227,24 @@ public class PluginManager
     }
 
     /**
+     * @deprecated see
+     * {@link #registerListener(net.md_5.bungee.api.plugin.Plugin, net.md_5.bungee.api.plugin.Listener)}
+     */
+    @Deprecated
+    public void registerListener(Listener listener)
+    {
+        registerListener( null, listener );
+    }
+
+    /**
      * Register a {@link Listener} for receiving called events. Methods in this
      * Object which wish to receive events must be annotated with the
      * {@link Subscribe} annotation.
      *
+     * @param plugin the owning plugin
      * @param listener the listener to register events for
      */
-    public void registerListener(Listener listener)
+    public void registerListener(Plugin plugin, Listener listener)
     {
         eventBus.register( listener );
     }
