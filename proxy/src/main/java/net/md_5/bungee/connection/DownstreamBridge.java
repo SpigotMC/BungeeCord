@@ -1,18 +1,15 @@
 package net.md_5.bungee.connection;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import io.netty.channel.Channel;
-import java.util.HashMap;
-import java.util.HashSet;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -24,6 +21,7 @@ import net.md_5.bungee.api.scoreboard.Score;
 import net.md_5.bungee.api.scoreboard.Scoreboard;
 import net.md_5.bungee.packet.Packet0KeepAlive;
 import net.md_5.bungee.packet.Packet3Chat;
+import net.md_5.bungee.packet.Packet9Respawn;
 import net.md_5.bungee.packet.PacketC9PlayerListItem;
 import net.md_5.bungee.packet.PacketCEScoreboardObjective;
 import net.md_5.bungee.packet.PacketCFScoreboardScore;
@@ -43,7 +41,17 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void exception(Throwable t) throws Exception
     {
-        con.disconnect( Util.exception( t ) );
+        ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getDefaultServer() );
+        if ( server.getInfo() != def )
+        {
+            con.ch.write( Packet9Respawn.DIM1_SWITCH );
+            con.ch.write( Packet9Respawn.DIM2_SWITCH );
+            con.connect( def );
+            con.sendMessage( ChatColor.RED + "The server you were previously on went down, you have been connected to the lobby" );
+        } else
+        {
+            con.disconnect( Util.exception( t ) );
+        }
     }
 
     @Override
