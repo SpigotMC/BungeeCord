@@ -2,6 +2,7 @@ package net.md_5.bungee.api;
 
 import net.md_5.bungee.api.plugin.PluginManager;
 import com.google.common.base.Preconditions;
+import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Map;
@@ -221,4 +222,11 @@ public abstract class ProxyServer
      * @return the console command sender of this proxy
      */
     public abstract CommandSender getConsole();
+
+    /**
+     * Return the folder used to load plugins from.
+     *
+     * @return the folder used to load plugin
+     */
+    public abstract File getPluginsFolder();
 }

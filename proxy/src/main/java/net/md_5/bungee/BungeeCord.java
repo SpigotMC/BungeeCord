@@ -92,7 +92,7 @@ public class BungeeCord extends ProxyServer
      * Plugin manager.
      */
     @Getter
-    public final PluginManager pluginManager = new PluginManager();
+    public final PluginManager pluginManager = new PluginManager(this);
     @Getter
     @Setter
     private ReconnectHandler reconnectHandler;
@@ -100,6 +100,8 @@ public class BungeeCord extends ProxyServer
     @Setter
     private ConfigurationAdapter configurationAdapter = new YamlConfig();
     private final Collection<String> pluginChannels = new HashSet<>();
+    @Getter
+    private final File pluginsFolder = new File( "plugins" );
 
     
     {
@@ -168,9 +170,8 @@ public class BungeeCord extends ProxyServer
     @Override
     public void start() throws IOException
     {
-        File plugins = new File( "plugins" );
-        plugins.mkdir();
-        pluginManager.loadPlugins( plugins );
+        pluginsFolder.mkdir();
+        pluginManager.loadPlugins( pluginsFolder );
         config.load();
         if ( reconnectHandler == null )
         {

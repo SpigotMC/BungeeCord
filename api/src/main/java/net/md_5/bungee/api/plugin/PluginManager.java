@@ -15,6 +15,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
+import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -24,10 +25,13 @@ import org.yaml.snakeyaml.Yaml;
  * Class to manage bridging between plugin duties and implementation duties, for
  * example event handling and plugin management.
  */
+@RequiredArgsConstructor
 public class PluginManager
 {
 
     private static final Pattern argsSplit = Pattern.compile( " " );
+    /*========================================================================*/
+    private final ProxyServer proxy;
     /*========================================================================*/
     private final Yaml yaml = new Yaml();
     private final EventBus eventBus = new EventBus();
@@ -176,7 +180,7 @@ public class PluginManager
                 Class<?> main = loader.loadClass( desc.getMain() );
                 Plugin plugin = (Plugin) main.getDeclaredConstructor().newInstance();
 
-                plugin.init( desc );
+                plugin.init( proxy, desc );
                 plugins.put( desc.getName(), plugin );
                 plugin.onLoad();
                 ProxyServer.getInstance().getLogger().log( Level.INFO, "Loaded plugin {0} version {1} by {2}", new Object[]
