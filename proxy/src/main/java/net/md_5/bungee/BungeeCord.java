@@ -92,7 +92,7 @@ public class BungeeCord extends ProxyServer
      * Plugin manager.
      */
     @Getter
-    public final PluginManager pluginManager = new PluginManager(this);
+    public final PluginManager pluginManager = new PluginManager( this );
     @Getter
     @Setter
     private ReconnectHandler reconnectHandler;
@@ -113,6 +113,7 @@ public class BungeeCord extends ProxyServer
         getPluginManager().registerCommand( new CommandAlert() );
         getPluginManager().registerCommand( new CommandBungee() );
         getPluginManager().registerCommand( new CommandPerms() );
+        getPluginManager().registerCommand( new CommandSend() );
 
         registerChannel( "BungeeCord" );
     }
