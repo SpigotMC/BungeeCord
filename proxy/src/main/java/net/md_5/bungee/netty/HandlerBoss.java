@@ -19,12 +19,25 @@ import net.md_5.bungee.packet.PacketHandler;
 public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<byte[]>
 {
 
+    public static volatile int registeredChannels;
     private PacketHandler handler;
 
     public void setHandler(PacketHandler handler)
     {
         Preconditions.checkArgument( handler != null, "handler" );
         this.handler = handler;
+    }
+
+    @Override
+    public void channelRegistered(ChannelHandlerContext ctx) throws Exception
+    {
+        registeredChannels++;
+    }
+
+    @Override
+    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception
+    {
+        registeredChannels--;
     }
 
     @Override
