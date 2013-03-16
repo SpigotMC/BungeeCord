@@ -19,6 +19,7 @@ abstract class Instruction
     static final Instruction LONG = new Jump( 8 );
     static final Instruction METADATA = new MetaData();
     static final Instruction OPTIONAL_MOTION = new OptionalMotion();
+    static final Instruction SCORE = new Score();
     static final Instruction SHORT = new Jump( 2 );
     static final Instruction SHORT_BYTE = new ShortHeader( BYTE );
     static final Instruction SHORT_ITEM = new ShortHeader( ITEM );
