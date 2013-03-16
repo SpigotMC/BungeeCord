@@ -147,6 +147,17 @@ public class EntityMap
                 }
             }
         }
+        if ( packetId == 0x17 )
+        {
+            int type = packet[5] & 0xFF;
+            if ( ( type >= 60 && type <= 62 ) || type == 90 )
+            {
+                if ( readInt( packet, 20 ) == oldId )
+                {
+                    setInt( packet, 20, newId );
+                }
+            }
+        }
     }
 
     private static void setInt(byte[] buf, int pos, int i)
