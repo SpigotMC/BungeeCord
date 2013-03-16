@@ -104,6 +104,7 @@ public class ServerConnector extends PacketHandler
                     {
                         user.ch.write( new PacketCFScoreboardScore( score.getItemName(), (byte) 1, null, 0 ) );
                     }
+                    user.serverSentScoreboard = null;
                 }
 
                 user.sendPacket( Packet9Respawn.DIM1_SWITCH );
