@@ -58,7 +58,7 @@
 
     <properties>
         <build.number>unknown</build.number>
-        <netty.version>4.0.0.Beta3-SNAPSHOT</netty.version>
+        <netty.version>4.0.0.Beta3</netty.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
