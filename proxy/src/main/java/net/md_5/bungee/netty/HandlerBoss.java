@@ -79,8 +79,7 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<byte[]>
             if ( cause instanceof ReadTimeoutException )
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, handler + " - read timed out" );
-            }
-            if ( cause instanceof IOException )
+            } else if ( cause instanceof IOException )
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, handler + " - IOException: " + cause.getMessage() );
             } else
