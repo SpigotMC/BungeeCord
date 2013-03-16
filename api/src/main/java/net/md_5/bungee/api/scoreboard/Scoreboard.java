@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.scoreboard;
 
+import java.util.Collection;
 import lombok.Data;
 
 @Data
@@ -11,7 +12,15 @@ public class Scoreboard
      */
     private final String name;
     /**
-     * Text to be displayed with this scoreboard.
+     * Position of this scoreboard.
      */
-    private final String text;
+    private final Position position;
+    /**
+     * Objectives for this scoreboard.
+     */
+    private final Collection<Objective> objectives;
+    /**
+     * Scores for this scoreboard.
+     */
+    private final Collection<Score> scores;
 }

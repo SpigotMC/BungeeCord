@@ -12,7 +12,7 @@ public class PacketDefinitions
     public enum OpCode
     {
 
-        BOOLEAN, BULK_CHUNK, BYTE, BYTE_INT, DOUBLE, FLOAT, INT, INT_3, INT_BYTE, ITEM, LONG, METADATA, OPTIONAL_MOTION, SHORT, SHORT_BYTE, SHORT_ITEM, STRING, TEAM, USHORT_BYTE
+        BOOLEAN, BULK_CHUNK, BYTE, BYTE_INT, DOUBLE, FLOAT, INT, INT_3, INT_BYTE, ITEM, LONG, METADATA, OPTIONAL_MOTION, SCORE, SHORT, SHORT_BYTE, SHORT_ITEM, STRING, TEAM, USHORT_BYTE
     }
 
     static
@@ -307,7 +307,7 @@ public class PacketDefinitions
         };
         opCodes[0xCF] = new OpCode[]
         {
-            STRING, BYTE, STRING, INT
+            SCORE
         };
         opCodes[0xD0] = new OpCode[]
         {

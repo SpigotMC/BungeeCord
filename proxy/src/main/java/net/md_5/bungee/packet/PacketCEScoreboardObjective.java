@@ -5,7 +5,7 @@ import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class PacketCESetScoreboard extends DefinedPacket
+public class PacketCEScoreboardObjective extends DefinedPacket
 {
 
     public String name;
@@ -15,7 +15,7 @@ public class PacketCESetScoreboard extends DefinedPacket
      */
     public byte status;
 
-    public PacketCESetScoreboard(String name, String text, byte status)
+    public PacketCEScoreboardObjective(String name, String text, byte status)
     {
         super( 0xCE );
         writeUTF( name );
@@ -26,7 +26,7 @@ public class PacketCESetScoreboard extends DefinedPacket
         this.status = status;
     }
 
-    PacketCESetScoreboard(byte[] buf)
+    PacketCEScoreboardObjective(byte[] buf)
     {
         super( 0xCE, buf );
         this.name = readUTF();

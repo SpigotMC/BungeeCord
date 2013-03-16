@@ -56,7 +56,15 @@ public abstract class PacketHandler
     {
     }
 
-    public void handle(PacketCESetScoreboard scoreboard) throws Exception
+    public void handle(PacketCEScoreboardObjective objective) throws Exception
+    {
+    }
+
+    public void handle(PacketCFScoreboardScore score) throws Exception
+    {
+    }
+
+    public void handle(PacketD0DisplayScoreboard displayScoreboard) throws Exception
     {
     }
 

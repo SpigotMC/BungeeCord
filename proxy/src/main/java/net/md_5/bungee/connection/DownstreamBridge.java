@@ -18,7 +18,7 @@ import net.md_5.bungee.api.scoreboard.Scoreboard;
 import net.md_5.bungee.packet.Packet0KeepAlive;
 import net.md_5.bungee.packet.Packet3Chat;
 import net.md_5.bungee.packet.PacketC9PlayerListItem;
-import net.md_5.bungee.packet.PacketCESetScoreboard;
+import net.md_5.bungee.packet.PacketCEScoreboardObjective;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketHandler;
@@ -73,12 +73,6 @@ public class DownstreamBridge extends PacketHandler
         {
             throw new CancelSendSignal();
         }
-    }
-
-    @Override
-    public void handle(PacketCESetScoreboard scoreboard) throws Exception
-    {
-        con.serverSentScoreboard = new Scoreboard( scoreboard.name, scoreboard.text );
     }
 
     @Override
