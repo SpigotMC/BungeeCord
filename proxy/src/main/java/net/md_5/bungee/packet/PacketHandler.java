@@ -56,6 +56,10 @@ public abstract class PacketHandler
     {
     }
 
+    public void handle(PacketCESetScoreboard scoreboard) throws Exception
+    {
+    }
+
     public void handle(PacketFAPluginMessage pluginMessage) throws Exception
     {
     }

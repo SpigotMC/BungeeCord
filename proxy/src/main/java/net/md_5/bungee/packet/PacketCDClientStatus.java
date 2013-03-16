@@ -1,6 +1,5 @@
 package net.md_5.bungee.packet;
 
-import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 

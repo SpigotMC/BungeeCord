@@ -13,9 +13,9 @@ import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.Packet1Login;
-import net.md_5.bungee.packet.Packet2Handshake;
 import net.md_5.bungee.packet.Packet9Respawn;
 import net.md_5.bungee.packet.PacketCDClientStatus;
+import net.md_5.bungee.packet.PacketCESetScoreboard;
 import net.md_5.bungee.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketHandler;
@@ -90,6 +90,11 @@ public class ServerConnector extends PacketHandler
             } else
             {
                 bungee.getTabListHandler().onServerChange( user );
+
+                if ( user.serverSentScoreboard != null )
+                {
+                    user.sendPacket( new PacketCESetScoreboard( user.serverSentScoreboard.getName(), user.serverSentScoreboard.getText(), (byte) 1 ) );
+                }
                 user.sendPacket( Packet9Respawn.DIM1_SWITCH );
                 user.sendPacket( Packet9Respawn.DIM2_SWITCH );
 

@@ -24,6 +24,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent;
+import net.md_5.bungee.api.scoreboard.Scoreboard;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.packet.*;
@@ -61,6 +62,7 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     private final Object switchMutex = new Object();
     public PacketCCSettings settings;
+    public Scoreboard serverSentScoreboard;
 
     public UserConnection(BungeeCord bungee, Channel channel, PendingConnection pendingConnection, Packet2Handshake handshake, Packet1Login forgeLogin, List<PacketFAPluginMessage> loginMessages)
     {
