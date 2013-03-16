@@ -101,6 +101,13 @@ public final class UserConnection implements ProxiedPlayer
         connect( target, false );
     }
 
+    public void connectNow(ServerInfo target)
+    {
+        ch.write( Packet9Respawn.DIM1_SWITCH );
+        ch.write( Packet9Respawn.DIM2_SWITCH );
+        connect( target );
+    }
+
     public void connect(ServerInfo info, final boolean retry)
     {
         ServerConnectEvent event = new ServerConnectEvent( this, info );

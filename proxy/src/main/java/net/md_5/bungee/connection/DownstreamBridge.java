@@ -15,6 +15,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.scoreboard.Objective;
 import net.md_5.bungee.api.scoreboard.Position;
 import net.md_5.bungee.api.scoreboard.Score;
@@ -44,9 +45,7 @@ public class DownstreamBridge extends PacketHandler
         ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getDefaultServer() );
         if ( server.getInfo() != def )
         {
-            con.ch.write( Packet9Respawn.DIM1_SWITCH );
-            con.ch.write( Packet9Respawn.DIM2_SWITCH );
-            con.connect( def );
+            con.connectNow( def );
             con.sendMessage( ChatColor.RED + "The server you were previously on went down, you have been connected to the lobby" );
         } else
         {
@@ -276,7 +275,19 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(PacketFFKick kick) throws Exception
     {
-        con.disconnect( "[Kicked] " + kick.message );
+        ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getDefaultServer() );
+        if ( server.getInfo() == def )
+        {
+            def = null;
+        }
+        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, kick.message, def ) );
+        if ( event.isCancelled() && event.getCancelServer() != null )
+        {
+            con.connectNow( event.getCancelServer() );
+        } else
+        {
+            con.disconnect( "[Kicked] " + event.getKickReason() );
+        }
         throw new CancelSendSignal();
     }
 
