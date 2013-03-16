@@ -13,7 +13,7 @@ public class PacketCEScoreboardObjective extends DefinedPacket
     /**
      * 0 to create, 1 to remove.
      */
-    public byte status;
+    public byte action;
 
     public PacketCEScoreboardObjective(String name, String text, byte status)
     {
@@ -23,7 +23,7 @@ public class PacketCEScoreboardObjective extends DefinedPacket
         writeByte( status );
         this.name = name;
         this.text = text;
-        this.status = status;
+        this.action = status;
     }
 
     PacketCEScoreboardObjective(byte[] buf)
@@ -31,7 +31,7 @@ public class PacketCEScoreboardObjective extends DefinedPacket
         super( 0xCE, buf );
         this.name = readUTF();
         this.text = readUTF();
-        this.status = readByte();
+        this.action = readByte();
     }
 
     @Override

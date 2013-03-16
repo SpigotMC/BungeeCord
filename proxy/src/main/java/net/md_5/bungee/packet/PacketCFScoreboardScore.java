@@ -28,6 +28,22 @@ public class PacketCFScoreboardScore extends DefinedPacket
         }
     }
 
+    public PacketCFScoreboardScore(String itemName, byte action, String scoreName, int value)
+    {
+        super( 0xCF );
+        writeUTF( itemName );
+        writeByte( action );
+        if ( action == 0 )
+        {
+            writeUTF( scoreName );
+            writeInt( value );
+        }
+        this.itemName = itemName;
+        this.action = action;
+        this.scoreName = scoreName;
+        this.value = value;
+    }
+
     @Override
     public void handle(PacketHandler handler) throws Exception
     {

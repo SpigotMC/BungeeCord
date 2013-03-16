@@ -1,9 +1,13 @@
 package net.md_5.bungee.connection;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import io.netty.channel.Channel;
+import java.util.HashMap;
+import java.util.HashSet;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.ServerConnection;
@@ -14,11 +18,16 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.api.scoreboard.Objective;
+import net.md_5.bungee.api.scoreboard.Position;
+import net.md_5.bungee.api.scoreboard.Score;
 import net.md_5.bungee.api.scoreboard.Scoreboard;
 import net.md_5.bungee.packet.Packet0KeepAlive;
 import net.md_5.bungee.packet.Packet3Chat;
 import net.md_5.bungee.packet.PacketC9PlayerListItem;
 import net.md_5.bungee.packet.PacketCEScoreboardObjective;
+import net.md_5.bungee.packet.PacketCFScoreboardScore;
+import net.md_5.bungee.packet.PacketD0DisplayScoreboard;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketHandler;
@@ -83,6 +92,46 @@ public class DownstreamBridge extends PacketHandler
         {
             throw new CancelSendSignal();
         }
+    }
+
+    @Override
+    public void handle(PacketCEScoreboardObjective objective) throws Exception
+    {
+        if ( con.serverSentScoreboard != null )
+        {
+            switch ( objective.action )
+            {
+                case 0:
+                    con.serverSentScoreboard.addObjective( new Objective( objective.name, objective.text ) );
+                    break;
+                case 1:
+                    con.serverSentScoreboard.removeObjective( objective.name );
+                    break;
+            }
+        }
+    }
+
+    @Override
+    public void handle(PacketCFScoreboardScore score) throws Exception
+    {
+        if ( con.serverSentScoreboard != null )
+        {
+            switch ( score.action )
+            {
+                case 0:
+                    con.serverSentScoreboard.addScore( new Score( score.itemName, score.scoreName, score.value ) );
+                    break;
+                case 1:
+                    con.serverSentScoreboard.removeScore( score.itemName );
+                    break;
+            }
+        }
+    }
+
+    @Override
+    public void handle(PacketD0DisplayScoreboard displayScoreboard) throws Exception
+    {
+        con.serverSentScoreboard = new Scoreboard( displayScoreboard.name, Position.values()[displayScoreboard.position] );
     }
 
     @Override

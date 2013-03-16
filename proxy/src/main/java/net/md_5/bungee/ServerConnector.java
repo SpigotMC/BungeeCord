@@ -8,6 +8,8 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
+import net.md_5.bungee.api.scoreboard.Objective;
+import net.md_5.bungee.api.scoreboard.Score;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.netty.HandlerBoss;
@@ -16,6 +18,7 @@ import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet9Respawn;
 import net.md_5.bungee.packet.PacketCDClientStatus;
 import net.md_5.bungee.packet.PacketCEScoreboardObjective;
+import net.md_5.bungee.packet.PacketCFScoreboardScore;
 import net.md_5.bungee.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketHandler;
@@ -90,6 +93,18 @@ public class ServerConnector extends PacketHandler
             } else
             {
                 bungee.getTabListHandler().onServerChange( user );
+
+                if ( user.serverSentScoreboard != null )
+                {
+                    for ( Objective objective : user.serverSentScoreboard.getObjectives() )
+                    {
+                        user.ch.write( new PacketCEScoreboardObjective( objective.getName(), objective.getValue(), (byte) 1 ) );
+                    }
+                    for ( Score score : user.serverSentScoreboard.getScores() )
+                    {
+                        user.ch.write( new PacketCFScoreboardScore( score.getItemName(), (byte) 1, null, 0 ) );
+                    }
+                }
 
                 user.sendPacket( Packet9Respawn.DIM1_SWITCH );
                 user.sendPacket( Packet9Respawn.DIM2_SWITCH );
