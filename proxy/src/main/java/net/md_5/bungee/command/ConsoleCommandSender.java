@@ -29,7 +29,7 @@ public class ConsoleCommandSender implements CommandSender
     public void sendMessage(String... messages)
     {
         for(int i=0;i<messages.length;i++) {
-            System.out.println( ChatColor.stripColor( messages[i] ) );
+            sendMessage(messages[i]);
         }
     }
 
