@@ -52,15 +52,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private Channel ch;
     @Getter
     private final ListenerInfo listener;
-    private Packet1Login forgeLogin;
+    private Packet1Login forgeLogin; // TODO: Remove for now?
     private Packet2Handshake handshake;
     private PacketFDEncryptionRequest request;
     private List<PacketFAPluginMessage> loginMessages = new ArrayList<>();
     private State thisState = State.HANDSHAKE;
-    private static final PacketFAPluginMessage forgeMods = new PacketFAPluginMessage( "FML", new byte[]
-    {
-        0, 0, 0, 0, 0, 2
-    } );
 
     private enum State
     {
@@ -123,7 +119,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( limit <= 0 || bungee.getPlayers().size() < limit, "Server is full!" );
 
         this.handshake = handshake;
-        ch.write( forgeMods );
         ch.write( request = EncryptionUtil.encryptRequest() );
         thisState = State.ENCRYPT;
     }
