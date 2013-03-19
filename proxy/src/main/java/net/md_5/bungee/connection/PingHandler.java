@@ -1,7 +1,5 @@
 package net.md_5.bungee.connection;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.Callback;
@@ -16,10 +14,10 @@ public class PingHandler extends PacketHandler
 
     private final ServerInfo target;
     private final Callback<ServerPing> callback;
-    private static final ByteBuf pingBuf = Unpooled.wrappedBuffer( new byte[]
+    private static final byte[] pingBuf = new byte[]
     {
         (byte) 0xFE, (byte) 0x01
-    } );
+    };
 
     @Override
     public void connected(Channel channel) throws Exception
