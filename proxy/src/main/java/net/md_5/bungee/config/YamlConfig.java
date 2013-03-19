@@ -187,7 +187,7 @@ public class YamlConfig implements ConfigurationAdapter
             InetSocketAddress address = Util.getAddr( host );
             Map<String, String> forced = get( "forced_hosts", forcedDef, val );
             String textureURL = get( "texture_url", null, val );
-            int textureSize = get( "texture_size", null, val );
+            int textureSize = get( "texture_size", 16, val );
             TexturePackInfo texture = ( textureURL == null ) ? null : new TexturePackInfo( textureURL, textureSize );
             ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, forceDefault, forced, texture );
             ret.add( info );
