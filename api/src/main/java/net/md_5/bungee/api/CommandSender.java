@@ -20,6 +20,14 @@ public interface CommandSender
     public void sendMessage(String message);
 
     /**
+     * Send messages to this sender.
+     *
+     * @param messages the messages to send
+     */
+    public void sendMessage(String... messages);
+
+
+    /**
      * Get all groups this user is part of. This returns an unmodifiable
      * collection.
      *

@@ -24,6 +24,14 @@ public class ConsoleCommandSender implements CommandSender
     {
         System.out.println( ChatColor.stripColor( message ) );
     }
+    
+    @Override
+    public void sendMessage(String... messages)
+    {
+        for(int i=0;i<messages.length;i++) {
+            sendMessage(messages[i]);
+        }
+    }
 
     @Override
     public String getName()
