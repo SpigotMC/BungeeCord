@@ -42,4 +42,9 @@ public class ListenerInfo
      * transferred depending on the host they connect to.
      */
     private final Map<String, String> forcedHosts;
+    /**
+     * Get the texture pack used for servers connected to this proxy. May be
+     * null.
+     */
+    private final TexturePackInfo texturePack;
 }

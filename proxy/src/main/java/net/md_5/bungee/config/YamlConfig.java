@@ -20,6 +20,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.config.TexturePackInfo;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -185,7 +186,10 @@ public class YamlConfig implements ConfigurationAdapter
             int tabListSize = get( "tab_size", 60, val );
             InetSocketAddress address = Util.getAddr( host );
             Map<String, String> forced = get( "forced_hosts", forcedDef, val );
-            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, forceDefault, forced );
+            String textureURL = get( "texture_url", null, val );
+            int textureSize = get( "texture_size", null, val );
+            TexturePackInfo texture = ( textureURL == null ) ? null : new TexturePackInfo( textureURL, textureSize );
+            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, forceDefault, forced, texture );
             ret.add( info );
         }
 

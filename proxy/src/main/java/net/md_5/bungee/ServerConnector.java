@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.config.TexturePackInfo;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.scoreboard.Objective;
 import net.md_5.bungee.api.scoreboard.Score;
@@ -19,6 +20,7 @@ import net.md_5.bungee.packet.Packet9Respawn;
 import net.md_5.bungee.packet.PacketCDClientStatus;
 import net.md_5.bungee.packet.PacketCEScoreboardObjective;
 import net.md_5.bungee.packet.PacketCFScoreboardScore;
+import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketHandler;
@@ -90,6 +92,12 @@ public class ServerConnector extends PacketHandler
                         (byte) user.getPendingConnection().getListener().getTabListSize() );
                 user.ch.write( modLogin );
                 ch.write( BungeeCord.getInstance().registerChannels() );
+
+                TexturePackInfo texture = user.getPendingConnection().getListener().getTexturePack();
+                if ( texture != null )
+                {
+                    ch.write( new PacketFAPluginMessage( "MC|TPack", ( texture.getUrl() + "\00" + texture.getSize() ).getBytes() ) );
+                }
             } else
             {
                 bungee.getTabListHandler().onServerChange( user );

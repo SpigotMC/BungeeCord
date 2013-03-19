@@ -152,6 +152,11 @@ public class DownstreamBridge extends PacketHandler
             throw new CancelSendSignal();
         }
 
+        if ( pluginMessage.tag.equals( "MC|TPack" ) && con.getPendingConnection().getListener().getTexturePack() != null )
+        {
+            throw new CancelSendSignal();
+        }
+
         if ( pluginMessage.tag.equals( "BungeeCord" ) )
         {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
