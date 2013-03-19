@@ -13,6 +13,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.scheduler.TaskScheduler;
 
 public abstract class ProxyServer
 {
@@ -229,4 +230,6 @@ public abstract class ProxyServer
      * @return the folder used to load plugin
      */
     public abstract File getPluginsFolder();
+
+    public abstract TaskScheduler getScheduler();
 }

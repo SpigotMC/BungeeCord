@@ -1,5 +1,6 @@
 package net.md_5.bungee;
 
+import net.md_5.bungee.scheduler.BungeeScheduler;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -38,6 +39,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
+import net.md_5.bungee.api.scheduler.TaskScheduler;
 import net.md_5.bungee.command.*;
 import net.md_5.bungee.config.YamlConfig;
 import net.md_5.bungee.netty.PipelineUtils;
@@ -69,9 +71,7 @@ public class BungeeCord extends ProxyServer
     /**
      * Thread pool.
      */
-    public final MultithreadEventLoopGroup eventLoops = new NioEventLoopGroup(
-            Runtime.getRuntime().availableProcessors() * 2,
-            new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread - %1$d" ).build() );
+    public final MultithreadEventLoopGroup eventLoops = new NioEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread - %1$d" ).build() );
     /**
      * locations.yml save thread.
      */
@@ -104,6 +104,8 @@ public class BungeeCord extends ProxyServer
     private final Collection<String> pluginChannels = new HashSet<>();
     @Getter
     private final File pluginsFolder = new File( "plugins" );
+    @Getter
+    private final TaskScheduler scheduler = new BungeeScheduler();
 
     
     {
@@ -252,10 +254,12 @@ public class BungeeCord extends ProxyServer
         reconnectHandler.save();
         saveThread.cancel();
 
+        // TODO: Fix this shit
         getLogger().info( "Disabling plugins" );
         for ( Plugin plugin : pluginManager.getPlugins() )
         {
             plugin.onDisable();
+            getScheduler().cancel( plugin );
         }
 
         getLogger().info( "Thank you and goodbye" );
