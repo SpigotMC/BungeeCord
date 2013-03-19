@@ -184,6 +184,15 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
+    public void sendMessages(String... messages)
+    {
+        for ( String message : messages )
+        {
+            sendMessage( message );
+        }
+    }
+
+    @Override
     public void sendData(String channel, byte[] data)
     {
         ch.write( new PacketFAPluginMessage( channel, data ) );

@@ -26,6 +26,15 @@ public class ConsoleCommandSender implements CommandSender
     }
 
     @Override
+    public void sendMessages(String... messages)
+    {
+        for ( String message : messages )
+        {
+            sendMessage( message );
+        }
+    }
+
+    @Override
     public String getName()
     {
         return "CONSOLE";
