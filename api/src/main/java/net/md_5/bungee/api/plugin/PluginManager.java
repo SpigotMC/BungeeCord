@@ -227,8 +227,11 @@ public class PluginManager
      */
     public <T extends Event> T callEvent(T event)
     {
+        Preconditions.checkNotNull( event, "event" );
+
         long start = System.nanoTime();
         eventBus.post( event );
+        event.postCall();
         // TODO: No exceptions!
         if ( !( event instanceof LoginEvent ) )
         {

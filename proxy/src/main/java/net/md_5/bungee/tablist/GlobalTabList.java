@@ -1,6 +1,7 @@
 package net.md_5.bungee.tablist;
 
-import java.util.Map;
+import java.util.Collections;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
@@ -12,9 +13,7 @@ import net.md_5.bungee.packet.PacketC9PlayerListItem;
 public class GlobalTabList implements TabListHandler
 {
 
-    // Sweet trick to avoid locking, basically reimplement HashSet based on a ConcurrentHashMap
-    private static final Object PRESENT = new Object();
-    private final Map<ProxiedPlayer, Object> sentPings = new ConcurrentHashMap<>();
+    private final Set<ProxiedPlayer> sentPings = Collections.newSetFromMap( new ConcurrentHashMap<ProxiedPlayer, Boolean>() );
 
     @Override
     public void onConnect(ProxiedPlayer player)
@@ -22,7 +21,7 @@ public class GlobalTabList implements TabListHandler
         UserConnection con = (UserConnection) player;
         for ( ProxiedPlayer p : ProxyServer.getInstance().getPlayers() )
         {
-            con.sendPacket(new PacketC9PlayerListItem( p.getDisplayName(), true, p.getPing() ) );
+            con.sendPacket( new PacketC9PlayerListItem( p.getDisplayName(), true, p.getPing() ) );
         }
         BungeeCord.getInstance().broadcast( new PacketC9PlayerListItem( player.getDisplayName(), true, player.getPing() ) );
     }
@@ -30,10 +29,10 @@ public class GlobalTabList implements TabListHandler
     @Override
     public void onPingChange(ProxiedPlayer player, int ping)
     {
-        if ( !sentPings.containsKey( player ) )
+        if ( !sentPings.contains( player ) )
         {
             BungeeCord.getInstance().broadcast( new PacketC9PlayerListItem( player.getDisplayName(), true, player.getPing() ) );
-            sentPings.put( player, PRESENT );
+            sentPings.add( player );
         }
     }
 
