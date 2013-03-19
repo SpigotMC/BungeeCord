@@ -69,7 +69,9 @@ public class BungeeCord extends ProxyServer
     /**
      * Thread pool.
      */
-    public final MultithreadEventLoopGroup eventLoops = new NioEventLoopGroup( 8, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread - %1$d" ).build() );
+    public final MultithreadEventLoopGroup eventLoops = new NioEventLoopGroup(
+            Runtime.getRuntime().availableProcessors() * 2,
+            new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread - %1$d" ).build() );
     /**
      * locations.yml save thread.
      */
