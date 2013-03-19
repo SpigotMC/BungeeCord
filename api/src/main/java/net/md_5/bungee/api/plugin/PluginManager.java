@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.event.LoginEvent;
 import org.yaml.snakeyaml.Yaml;
 
 /**
@@ -226,7 +227,17 @@ public class PluginManager
      */
     public <T extends Event> T callEvent(T event)
     {
+        long start = System.nanoTime();
         eventBus.post( event );
+        // TODO: No exceptions!
+        if ( !( event instanceof LoginEvent ) )
+        {
+            long elapsed = start - System.nanoTime();
+            if ( elapsed > 250000 )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Event {0} took more than 0.25ms to process!", event );
+            }
+        }
         return event;
     }
 
