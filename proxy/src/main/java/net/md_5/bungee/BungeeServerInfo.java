@@ -59,12 +59,14 @@ public class BungeeServerInfo extends ServerInfo
             @Override
             public void operationComplete(ChannelFuture future) throws Exception
             {
-                if ( !future.isSuccess() )
+                if ( future.isSuccess() )
+                {
+                   future.channel().pipeline().get( HandlerBoss.class ).setHandler( new PingHandler( BungeeServerInfo.this, callback ) );
+                } else
                 {
                     callback.done( null, future.cause() );
                 }
             }
-        } )
-                .channel().pipeline().get( HandlerBoss.class ).setHandler( new PingHandler( this, callback ) );
+        } );
     }
 }
