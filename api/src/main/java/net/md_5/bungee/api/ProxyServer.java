@@ -14,6 +14,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.scheduler.TaskScheduler;
+import org.eclipse.jetty.client.HttpClient;
 
 public abstract class ProxyServer
 {
@@ -231,5 +232,19 @@ public abstract class ProxyServer
      */
     public abstract File getPluginsFolder();
 
+    /**
+     * Get the scheduler instance for this proxy.
+     *
+     * @return the in use scheduler
+     */
     public abstract TaskScheduler getScheduler();
+
+    /**
+     * Gets the the web client used by this proxy to facilitate making web
+     * requests. Care should be taken to ensure that all operations are non
+     * blocking where applicable.
+     *
+     * @return
+     */
+    public abstract HttpClient getHttpClient();
 }

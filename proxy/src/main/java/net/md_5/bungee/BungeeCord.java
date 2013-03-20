@@ -11,7 +11,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import net.md_5.bungee.config.Configuration;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.util.Calendar;
@@ -22,6 +21,10 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,6 +48,8 @@ import net.md_5.bungee.config.YamlConfig;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 /**
  * Main BungeeCord proxy class.
@@ -69,9 +74,10 @@ public class BungeeCord extends ProxyServer
      */
     public final Configuration config = new Configuration();
     /**
-     * Thread pool.
+     * Thread pools.
      */
-    public final MultithreadEventLoopGroup eventLoops = new NioEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread - %1$d" ).build() );
+    public final ScheduledExecutorService executors = new ScheduledThreadPoolExecutor( 8, new ThreadFactoryBuilder().setNameFormat( "Bungee Pool Thread #%1$d" ).build() );
+    public final MultithreadEventLoopGroup eventLoops = new NioEventLoopGroup( 8, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
     /**
      * locations.yml save thread.
      */
@@ -106,6 +112,8 @@ public class BungeeCord extends ProxyServer
     private final File pluginsFolder = new File( "plugins" );
     @Getter
     private final TaskScheduler scheduler = new BungeeScheduler();
+    @Getter
+    private final HttpClient httpClient = new HttpClient();
 
     
     {
@@ -170,11 +178,14 @@ public class BungeeCord extends ProxyServer
      * Start this proxy instance by loading the configuration, plugins and
      * starting the connect thread.
      *
-     * @throws IOException
+     * @throws Exception
      */
     @Override
-    public void start() throws IOException
+    public void start() throws Exception
     {
+        httpClient.setExecutor( executors );
+        httpClient.start();
+        httpClient.GET( "http://isup.me/" );
         pluginsFolder.mkdir();
         pluginManager.loadPlugins( pluginsFolder );
         config.load();
@@ -237,6 +248,16 @@ public class BungeeCord extends ProxyServer
     public void stop()
     {
         this.isRunning = false;
+
+        try
+        {
+            getLogger().info( "Stopping HTTP client" );
+            httpClient.stop();
+        } catch ( Exception ex )
+        {
+            getLogger().severe( "Could not stop HTTP client" );
+        }
+        executors.shutdown();
 
         stopListeners();
         getLogger().info( "Closing pending connections" );
