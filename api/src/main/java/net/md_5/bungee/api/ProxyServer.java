@@ -244,7 +244,7 @@ public abstract class ProxyServer
      * requests. Care should be taken to ensure that all operations are non
      * blocking where applicable.
      *
-     * @return
+     * @return the server's {@link AsyncHttpClient} instance
      */
     public abstract AsyncHttpClient getHttpClient();
 }
