@@ -50,9 +50,6 @@ public class CommandServer extends Command
             if ( server == null )
             {
                 player.sendMessage( ChatColor.RED + "The specified server does not exist" );
-            } else if ( server.equals( player.getServer().getInfo() ) )
-            {
-                player.sendMessage( ChatColor.RED + "You are already on this server." );
             } else if ( !server.canAccess( player ) )
             {
                 player.sendMessage( ChatColor.RED + "You don't have permission to access this server" );
