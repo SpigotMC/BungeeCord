@@ -2,6 +2,7 @@ package net.md_5.bungee.api;
 
 import net.md_5.bungee.api.plugin.PluginManager;
 import com.google.common.base.Preconditions;
+import com.ning.http.client.AsyncHttpClient;
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.Collection;
@@ -14,7 +15,6 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.scheduler.TaskScheduler;
-import org.eclipse.jetty.client.HttpClient;
 
 public abstract class ProxyServer
 {
@@ -246,5 +246,5 @@ public abstract class ProxyServer
      *
      * @return
      */
-    public abstract HttpClient getHttpClient();
+    public abstract AsyncHttpClient getHttpClient();
 }

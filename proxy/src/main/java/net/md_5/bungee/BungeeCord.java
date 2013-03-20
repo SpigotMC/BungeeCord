@@ -2,6 +2,10 @@ package net.md_5.bungee;
 
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.AsyncHttpClientConfig;
+import com.ning.http.client.providers.netty.NettyAsyncHttpProvider;
+import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
@@ -21,10 +25,8 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,8 +50,6 @@ import net.md_5.bungee.config.YamlConfig;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
-import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 /**
  * Main BungeeCord proxy class.
@@ -77,7 +77,7 @@ public class BungeeCord extends ProxyServer
      * Thread pools.
      */
     public final ScheduledExecutorService executors = new ScheduledThreadPoolExecutor( 8, new ThreadFactoryBuilder().setNameFormat( "Bungee Pool Thread #%1$d" ).build() );
-    public final MultithreadEventLoopGroup eventLoops = new NioEventLoopGroup( 8, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
+    public final MultithreadEventLoopGroup eventLoops = new NioEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
     /**
      * locations.yml save thread.
      */
@@ -113,7 +113,10 @@ public class BungeeCord extends ProxyServer
     @Getter
     private final TaskScheduler scheduler = new BungeeScheduler();
     @Getter
-    private final HttpClient httpClient = new HttpClient();
+    private final AsyncHttpClient httpClient = new AsyncHttpClient(
+            new NettyAsyncHttpProvider(
+            new AsyncHttpClientConfig.Builder().setAsyncHttpClientProviderConfig(
+            new NettyAsyncHttpProviderConfig().addProperty( NettyAsyncHttpProviderConfig.BOSS_EXECUTOR_SERVICE, executors ) ).setExecutorService( executors ).build() ) );
 
     
     {
@@ -183,9 +186,9 @@ public class BungeeCord extends ProxyServer
     @Override
     public void start() throws Exception
     {
-        httpClient.setExecutor( executors );
-        httpClient.start();
-        httpClient.GET( "http://isup.me/" );
+        httpClient.prepareGet( "http://www.ning.com/" ).execute().get();
+        httpClient.prepareGet( "http://www.ning.com/" ).execute().get();
+
         pluginsFolder.mkdir();
         pluginManager.loadPlugins( pluginsFolder );
         config.load();
@@ -249,14 +252,7 @@ public class BungeeCord extends ProxyServer
     {
         this.isRunning = false;
 
-        try
-        {
-            getLogger().info( "Stopping HTTP client" );
-            httpClient.stop();
-        } catch ( Exception ex )
-        {
-            getLogger().severe( "Could not stop HTTP client" );
-        }
+        httpClient.close();
         executors.shutdown();
 
         stopListeners();
