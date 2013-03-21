@@ -76,7 +76,8 @@ public class BungeeCord extends ProxyServer
     /**
      * Thread pools.
      */
-    public final ScheduledExecutorService executors = new ScheduledThreadPoolExecutor( 8, new ThreadFactoryBuilder().setNameFormat( "Bungee Pool Thread #%1$d" ).build() );
+    public final ScheduledThreadPoolExecutor executors = new ScheduledThreadPoolExecutor( Integer.MAX_VALUE,
+            new ThreadFactoryBuilder().setNameFormat( "Bungee Pool Thread #%1$d" ).build() );
     public final MultithreadEventLoopGroup eventLoops = new NioEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
     /**
      * locations.yml save thread.
@@ -186,6 +187,9 @@ public class BungeeCord extends ProxyServer
     @Override
     public void start() throws Exception
     {
+        executors.setKeepAliveTime( 60, TimeUnit.SECONDS );
+        executors.allowCoreThreadTimeOut( true );
+
         pluginsFolder.mkdir();
         pluginManager.loadPlugins( pluginsFolder );
         config.load();
@@ -249,7 +253,7 @@ public class BungeeCord extends ProxyServer
     {
         this.isRunning = false;
 
-        httpClient.closeAsynchronously(); // TODO: Fix
+        httpClient.close();
         executors.shutdown();
 
         stopListeners();
