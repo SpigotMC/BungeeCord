@@ -68,7 +68,10 @@ public class BungeeScheduler implements TaskScheduler
 
     private BungeeTask prepare(Plugin owner, Runnable task)
     {
-        int id = taskCounter.getAndIncrement();
-        return tasks.put( id, new BungeeTask( taskCounter.getAndIncrement(), owner, task ) );
+        Preconditions.checkNotNull( owner, "owner" );
+        Preconditions.checkNotNull( task, "task" );
+        BungeeTask prepared = new BungeeTask( taskCounter.getAndIncrement(), owner, task );
+        tasks.put( prepared.getId(), prepared );
+        return prepared;
     }
 }
