@@ -186,9 +186,6 @@ public class BungeeCord extends ProxyServer
     @Override
     public void start() throws Exception
     {
-        httpClient.prepareGet( "http://www.ning.com/" ).execute().get();
-        httpClient.prepareGet( "http://www.ning.com/" ).execute().get();
-
         pluginsFolder.mkdir();
         pluginManager.loadPlugins( pluginsFolder );
         config.load();
