@@ -98,7 +98,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void connect(ServerInfo target)
     {
-        if ( getServer() != null && getServer().getInfo() == target )
+        if ( getServer() == null || getServer().getInfo() == target )
         {
             sendMessage( ChatColor.RED + "Cannot connect to server you are already on!" );
         } else
