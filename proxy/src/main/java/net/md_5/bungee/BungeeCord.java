@@ -249,7 +249,7 @@ public class BungeeCord extends ProxyServer
     {
         this.isRunning = false;
 
-        httpClient.close();
+        httpClient.closeAsynchronously(); // TODO: Fix
         executors.shutdown();
 
         stopListeners();
