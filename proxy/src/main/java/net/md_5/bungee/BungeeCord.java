@@ -50,6 +50,7 @@ import net.md_5.bungee.config.YamlConfig;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
+import net.md_5.bungee.scheduler.BungeeThreadPool;
 
 /**
  * Main BungeeCord proxy class.
@@ -76,7 +77,7 @@ public class BungeeCord extends ProxyServer
     /**
      * Thread pools.
      */
-    public final ScheduledThreadPoolExecutor executors = new ScheduledThreadPoolExecutor( Integer.MAX_VALUE,
+    public final ScheduledThreadPoolExecutor executors = new BungeeThreadPool( Integer.MAX_VALUE,
             new ThreadFactoryBuilder().setNameFormat( "Bungee Pool Thread #%1$d" ).build() );
     public final MultithreadEventLoopGroup eventLoops = new NioEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
     /**
