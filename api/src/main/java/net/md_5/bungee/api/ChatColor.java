@@ -1,5 +1,7 @@
 package net.md_5.bungee.api;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -106,12 +108,29 @@ public enum ChatColor
      */
     private static final Pattern STRIP_COLOR_PATTERN = Pattern.compile( "(?i)" + String.valueOf( COLOR_CHAR ) + "[0-9A-FK-OR]" );
     /**
+     * Colour instances keyed by their active character.
+     */
+    private static final Map<Character, ChatColor> BY_CHAR = new HashMap<>();
+    /**
+     * The code appended to {@link #COLOR_CHAR} to make usable colour.
+     */
+    private final char code;
+    /**
      * This colour's colour char prefixed by the {@link #COLOR_CHAR}.
      */
     private final String toString;
 
+    static
+    {
+        for ( ChatColor colour : values() )
+        {
+            BY_CHAR.put( colour.code, colour );
+        }
+    }
+
     private ChatColor(char code)
     {
+        this.code = code;
         this.toString = new String( new char[]
         {
             COLOR_CHAR, code
@@ -152,5 +171,16 @@ public enum ChatColor
             }
         }
         return new String( b );
+    }
+
+    /**
+     * Get the colour represented by the specified code.
+     *
+     * @param code the code to search for
+     * @return the mapped colour, or null if non exists
+     */
+    public static ChatColor getByChar(char code)
+    {
+        return BY_CHAR.get( code );
     }
 }
