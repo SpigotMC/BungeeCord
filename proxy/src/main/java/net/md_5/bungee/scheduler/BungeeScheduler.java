@@ -2,9 +2,10 @@ package net.md_5.bungee.scheduler;
 
 import com.google.common.base.Preconditions;
 import gnu.trove.TCollections;
-import gnu.trove.iterator.TIntObjectIterator;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.md_5.bungee.BungeeCord;
@@ -21,31 +22,32 @@ public class BungeeScheduler implements TaskScheduler
     @Override
     public void cancel(int id)
     {
-        cancel( tasks.remove( id ) );
+        BungeeTask task = tasks.remove( id );
+        task.getFuture().cancel( false );
     }
 
     @Override
     public void cancel(ScheduledTask task)
     {
-        Preconditions.checkArgument( task instanceof BungeeTask, "Don't know how to handle task %s", task );
-        tasks.remove( task.getId() ).getFuture().cancel( false );
+        cancel( task.getId() );
     }
 
     @Override
     public int cancel(Plugin plugin)
     {
-        int cancelled = 0;
-        for ( TIntObjectIterator<BungeeTask> iter = tasks.iterator(); iter.hasNext(); )
+        Set<ScheduledTask> toRemove = new HashSet<>();
+        for ( ScheduledTask task : tasks.valueCollection() )
         {
-            BungeeTask task = iter.value();
             if ( task.getOwner() == plugin )
             {
-                task.getFuture().cancel( false );
-                iter.remove();
-                cancelled++;
+                toRemove.add( task );
             }
         }
-        return cancelled;
+        for ( ScheduledTask task : toRemove )
+        {
+            cancel( task );
+        }
+        return toRemove.size();
     }
 
     @Override
