@@ -2,6 +2,9 @@ package net.md_5.bungee.api;
 
 import java.util.regex.Pattern;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+
 /**
  * Simplistic enumeration of all supported color values for chat.
  */
@@ -109,6 +112,37 @@ public enum ChatColor
      * This colour's colour char prefixed by the {@link #COLOR_CHAR}.
      */
     private final String toString;
+    private final static Map<Character, ChatColor> BY_CHAR = Maps.newHashMap();
+
+    static {
+        for (ChatColor color : values()) {
+            BY_CHAR.put(color.toString().charAt(1), color);
+        }
+    }
+    
+
+    /**
+     * Gets the color represented by the specified color code
+     *
+     * @param code Code to check
+     * @return Associative {@link net.md_5.bungee.api.ChatColor} with the given code, or null if it doesn't exist
+     */  
+    public static ChatColor getColorByChar(char code) {
+        return BY_CHAR.get(code);
+    }
+
+    /**
+     * Gets the color represented by the specified color code
+     *
+     * @param code Code to check
+     * @return Associative {@link net.md_5.bungee.api.ChatColor} with the given code, or null if it doesn't exist
+     */
+    public static ChatColor getByChar(String code) {
+        Preconditions.checkNotNull(code, "Code cannot be null");
+        Preconditions.checkArgument(code.length() > 0, "Code must have at least one char");
+
+        return BY_CHAR.get(code.charAt(0));
+    }
 
     private ChatColor(char code)
     {
