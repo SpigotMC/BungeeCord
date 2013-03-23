@@ -229,6 +229,7 @@ public abstract class DefinedPacket implements DataOutput
         classes[0xCE] = PacketCEScoreboardObjective.class;
         classes[0xCF] = PacketCFScoreboardScore.class;
         classes[0xD0] = PacketD0DisplayScoreboard.class;
+        classes[0xD1] = PacketD1Team.class;
         classes[0xFA] = PacketFAPluginMessage.class;
         classes[0xFC] = PacketFCEncryptionResponse.class;
         classes[0xFD] = PacketFDEncryptionRequest.class;

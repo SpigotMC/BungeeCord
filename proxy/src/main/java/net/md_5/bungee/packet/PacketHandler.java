@@ -68,6 +68,10 @@ public abstract class PacketHandler
     {
     }
 
+    public void handle(PacketD1Team team) throws Exception
+    {
+    }
+
     public void handle(PacketFAPluginMessage pluginMessage) throws Exception
     {
     }
