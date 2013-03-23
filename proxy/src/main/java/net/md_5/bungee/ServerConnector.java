@@ -142,7 +142,9 @@ public class ServerConnector extends PacketHandler
             if ( !user.ch.isActive() )
             {
                 server.disconnect( "Quitting" );
-                throw new IllegalStateException( "No client connected for pending server!" );
+                // Silly server admins see stack trace and die
+                bungee.getLogger().warning( "No client connected for pending server!" );
+                return;
             }
 
             // Add to new server
