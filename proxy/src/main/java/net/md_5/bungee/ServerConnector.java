@@ -120,10 +120,6 @@ public class ServerConnector extends PacketHandler
                     {
                         user.ch.write( new PacketCEScoreboardObjective( objective.getName(), objective.getValue(), (byte) 1 ) );
                     }
-                    for ( Score score : user.serverSentScoreboard.getScores() )
-                    {
-                        user.ch.write( new PacketCFScoreboardScore( score.getItemName(), (byte) 1, null, 0 ) );
-                    }
                     for ( Team team : user.serverSentScoreboard.getTeams() )
                     {
                         user.ch.write( PacketD1Team.destroy( team.getName() ) );
