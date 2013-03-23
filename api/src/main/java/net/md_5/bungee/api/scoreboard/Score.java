@@ -12,11 +12,11 @@ public class Score
     /**
      * Name to be displayed in the list.
      */
-    private final String itemName;
+    private final String itemName; // Player
     /**
      * Unique name of the score.
      */
-    private final String scoreName;
+    private final String scoreName; // Score
     /**
      * Value of the score.
      */

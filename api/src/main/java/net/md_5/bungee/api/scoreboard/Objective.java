@@ -16,5 +16,5 @@ public class Objective
     /**
      * Value of the objective.
      */
-    private final String value;
+    private final String value; // displayName
 }

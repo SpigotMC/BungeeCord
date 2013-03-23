@@ -24,13 +24,15 @@ public class Scoreboard
     /**
      * Objectives for this scoreboard.
      */
-    @Getter(AccessLevel.NONE)
     private final Map<String, Objective> objectives = new HashMap<>();
     /**
      * Scores for this scoreboard.
      */
-    @Getter(AccessLevel.NONE)
     private final Map<String, Score> scores = new HashMap<>();
+    /**
+     * Teams on this board.
+     */
+    private final Map<String, Team> teams = new HashMap<>();
 
     public Collection<Objective> getObjectives()
     {
@@ -42,16 +44,34 @@ public class Scoreboard
         return Collections.unmodifiableCollection( scores.values() );
     }
 
+    public Collection<Team> getTeams()
+    {
+        return Collections.unmodifiableCollection( teams.values() );
+    }
+
     public void addObjective(Objective objective)
     {
-        Preconditions.checkArgument( !objectives.containsKey( objective.getName() ), "Objective %s already exists in this scoreboard", objective );
+        Preconditions.checkNotNull( objective, "objective" );
+        Preconditions.checkArgument( !objectives.containsKey( objective.getName() ), "Objective %s already exists in this scoreboard", objective.getName() );
         objectives.put( objective.getName(), objective );
     }
 
     public void addScore(Score score)
     {
-        Preconditions.checkArgument( !scores.containsKey( score.getItemName() ), "Score %s already exists in this scoreboard", score );
+        Preconditions.checkNotNull( score, "score" );
+        Preconditions.checkArgument( !scores.containsKey( score.getItemName() ), "Score %s already exists in this scoreboard", score.getItemName() );
         scores.put( score.getItemName(), score );
+    }
+
+    public void addTeam(Team team)
+    {
+        Preconditions.checkNotNull( team, "team" );
+        Preconditions.checkArgument( !teams.containsKey( team.getName() ), "Team %s already exists in this scoreboard", team.getName() );
+    }
+
+    public Team getTeam(String name)
+    {
+        return teams.get( name );
     }
 
     public void removeObjective(String objectiveName)
@@ -62,5 +82,10 @@ public class Scoreboard
     public void removeScore(String scoreName)
     {
         scores.remove( scoreName );
+    }
+
+    public void removeTeam(String teamName)
+    {
+        teams.remove( teamName );
     }
 }
