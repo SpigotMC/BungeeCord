@@ -11,6 +11,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.config.TexturePackInfo;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
+import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.scoreboard.Objective;
 import net.md_5.bungee.api.scoreboard.Score;
 import net.md_5.bungee.connection.CancelSendSignal;
@@ -165,6 +166,18 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(PacketFFKick kick) throws Exception
     {
+        ServerInfo def = bungee.getServerInfo( user.getPendingConnection().getListener().getDefaultServer() );
+        if ( target == def )
+        {
+            def = null;
+        }
+        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( user, kick.message, def ) );
+        if ( event.isCancelled() && event.getCancelServer() != null )
+        {
+            user.connect( event.getCancelServer() );
+            return;
+        }
+
         String message = ChatColor.RED + "Kicked whilst connecting to " + target.getName() + ": " + kick.message;
         if ( user.getServer() == null )
         {
