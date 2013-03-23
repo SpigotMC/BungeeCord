@@ -20,6 +20,7 @@ import net.md_5.bungee.api.scoreboard.Objective;
 import net.md_5.bungee.api.scoreboard.Position;
 import net.md_5.bungee.api.scoreboard.Score;
 import net.md_5.bungee.api.scoreboard.Scoreboard;
+import net.md_5.bungee.api.scoreboard.Team;
 import net.md_5.bungee.packet.Packet0KeepAlive;
 import net.md_5.bungee.packet.Packet3Chat;
 import net.md_5.bungee.packet.Packet9Respawn;
@@ -27,6 +28,7 @@ import net.md_5.bungee.packet.PacketC9PlayerListItem;
 import net.md_5.bungee.packet.PacketCEScoreboardObjective;
 import net.md_5.bungee.packet.PacketCFScoreboardScore;
 import net.md_5.bungee.packet.PacketD0DisplayScoreboard;
+import net.md_5.bungee.packet.PacketD1Team;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketHandler;
@@ -139,6 +141,43 @@ public class DownstreamBridge extends PacketHandler
     public void handle(PacketD0DisplayScoreboard displayScoreboard) throws Exception
     {
         con.serverSentScoreboard = new Scoreboard( displayScoreboard.name, Position.values()[displayScoreboard.position] );
+    }
+
+    @Override
+    public void handle(PacketD1Team team) throws Exception
+    {
+        if ( con.serverSentScoreboard != null )
+        {
+            // Remove team and move on
+            if ( team.mode == 1 )
+            {
+                con.serverSentScoreboard.removeTeam( team.name );
+                return;
+            }
+
+            // Create or get old team
+            Team t = ( team.mode == 0 ) ? new Team( team.name ) : con.serverSentScoreboard.getTeam( team.name );
+            if ( t != null )
+            {
+                if ( team.mode == 0 || team.mode == 2 )
+                {
+                    t.setDisplayName( team.displayName );
+                    t.setPrefix( team.prefix );
+                    t.setSuffix( team.suffix );
+                    t.setFriendlyMode( team.friendlyFire );
+                }
+                for ( String s : team.players )
+                {
+                    if ( team.mode == 0 || team.mode == 3 )
+                    {
+                        t.addPlayer( s );
+                    } else
+                    {
+                        t.removePlayer( s );
+                    }
+                }
+            }
+        }
     }
 
     @Override

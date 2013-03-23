@@ -21,4 +21,14 @@ public class Team
     {
         return Collections.unmodifiableSet( players );
     }
+
+    public void addPlayer(String name)
+    {
+        players.add( name );
+    }
+
+    public void removePlayer(String name)
+    {
+        players.remove( name );
+    }
 }

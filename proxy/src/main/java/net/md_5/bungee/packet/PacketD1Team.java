@@ -42,6 +42,19 @@ public class PacketD1Team extends DefinedPacket
         }
     }
 
+    public PacketD1Team()
+    {
+        super( 0xD1 );
+    }
+
+    public static PacketD1Team destroy(String name)
+    {
+        PacketD1Team packet = new PacketD1Team();
+        packet.writeUTF( name );
+        packet.writeByte( 1 );
+        return packet;
+    }
+
     @Override
     public void handle(PacketHandler handler) throws Exception
     {

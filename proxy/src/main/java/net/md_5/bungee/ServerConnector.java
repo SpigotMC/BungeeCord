@@ -14,6 +14,7 @@ import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.scoreboard.Objective;
 import net.md_5.bungee.api.scoreboard.Score;
+import net.md_5.bungee.api.scoreboard.Team;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.netty.HandlerBoss;
@@ -23,6 +24,7 @@ import net.md_5.bungee.packet.Packet9Respawn;
 import net.md_5.bungee.packet.PacketCDClientStatus;
 import net.md_5.bungee.packet.PacketCEScoreboardObjective;
 import net.md_5.bungee.packet.PacketCFScoreboardScore;
+import net.md_5.bungee.packet.PacketD1Team;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.packet.PacketFFKick;
@@ -121,6 +123,10 @@ public class ServerConnector extends PacketHandler
                     for ( Score score : user.serverSentScoreboard.getScores() )
                     {
                         user.ch.write( new PacketCFScoreboardScore( score.getItemName(), (byte) 1, null, 0 ) );
+                    }
+                    for ( Team team : user.serverSentScoreboard.getTeams() )
+                    {
+                        user.ch.write( PacketD1Team.destroy( team.getName() ) );
                     }
                     user.serverSentScoreboard = null;
                 }
