@@ -1,6 +1,8 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import io.netty.channel.Channel;
 import java.util.Queue;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +47,13 @@ public class ServerConnector extends PacketHandler
     public void connected(Channel channel) throws Exception
     {
         this.ch = channel;
+
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF( "Login" );
+        out.writeUTF( user.getAddress().getAddress().getHostAddress() );
+        out.writeInt( user.getAddress().getPort() );
+        channel.write( new PacketFAPluginMessage( "BungeeCord", out.toByteArray() ) );
+
         channel.write( user.handshake );
         channel.write( PacketCDClientStatus.CLIENT_LOGIN );
     }
