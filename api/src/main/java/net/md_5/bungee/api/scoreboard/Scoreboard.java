@@ -5,22 +5,22 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class Scoreboard
 {
 
     /**
      * Unique name for this scoreboard.
      */
-    private final String name;
+    private String name;
     /**
      * Position of this scoreboard.
      */
-    private final Position position;
+    private Position position;
     /**
      * Objectives for this scoreboard.
      */
@@ -87,5 +87,14 @@ public class Scoreboard
     public void removeTeam(String teamName)
     {
         teams.remove( teamName );
+    }
+
+    public void clear()
+    {
+        name = null;
+        position = null;
+        objectives.clear();
+        scores.clear();
+        teams.clear();
     }
 }

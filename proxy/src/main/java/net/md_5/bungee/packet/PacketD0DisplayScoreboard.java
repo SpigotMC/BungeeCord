@@ -16,7 +16,7 @@ public class PacketD0DisplayScoreboard extends DefinedPacket
 
     public PacketD0DisplayScoreboard(byte[] buf)
     {
-        super( 0xCF, buf );
+        super( 0xD0, buf );
         position = readByte();
         name = readUTF();
     }

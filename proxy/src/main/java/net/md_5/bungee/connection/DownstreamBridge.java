@@ -23,7 +23,6 @@ import net.md_5.bungee.api.scoreboard.Scoreboard;
 import net.md_5.bungee.api.scoreboard.Team;
 import net.md_5.bungee.packet.Packet0KeepAlive;
 import net.md_5.bungee.packet.Packet3Chat;
-import net.md_5.bungee.packet.Packet9Respawn;
 import net.md_5.bungee.packet.PacketC9PlayerListItem;
 import net.md_5.bungee.packet.PacketCEScoreboardObjective;
 import net.md_5.bungee.packet.PacketCFScoreboardScore;
@@ -106,75 +105,67 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(PacketCEScoreboardObjective objective) throws Exception
     {
-        if ( con.serverSentScoreboard != null )
+        switch ( objective.action )
         {
-            switch ( objective.action )
-            {
-                case 0:
-                    con.serverSentScoreboard.addObjective( new Objective( objective.name, objective.text ) );
-                    break;
-                case 1:
-                    con.serverSentScoreboard.removeObjective( objective.name );
-                    break;
-            }
+            case 0:
+                con.serverSentScoreboard.addObjective( new Objective( objective.name, objective.text ) );
+                break;
+            case 1:
+                con.serverSentScoreboard.removeObjective( objective.name );
+                break;
         }
     }
 
     @Override
     public void handle(PacketCFScoreboardScore score) throws Exception
     {
-        if ( con.serverSentScoreboard != null )
+        switch ( score.action )
         {
-            switch ( score.action )
-            {
-                case 0:
-                    con.serverSentScoreboard.addScore( new Score( score.itemName, score.scoreName, score.value ) );
-                    break;
-                case 1:
-                    con.serverSentScoreboard.removeScore( score.itemName );
-                    break;
-            }
+            case 0:
+                con.serverSentScoreboard.addScore( new Score( score.itemName, score.scoreName, score.value ) );
+                break;
+            case 1:
+                con.serverSentScoreboard.removeScore( score.itemName );
+                break;
         }
     }
 
     @Override
     public void handle(PacketD0DisplayScoreboard displayScoreboard) throws Exception
     {
-        con.serverSentScoreboard = new Scoreboard( displayScoreboard.name, Position.values()[displayScoreboard.position] );
+        con.serverSentScoreboard.setName( displayScoreboard.name );
+        con.serverSentScoreboard.setPosition( Position.values()[displayScoreboard.position] );
     }
 
     @Override
     public void handle(PacketD1Team team) throws Exception
     {
-        if ( con.serverSentScoreboard != null )
+        // Remove team and move on
+        if ( team.mode == 1 )
         {
-            // Remove team and move on
-            if ( team.mode == 1 )
-            {
-                con.serverSentScoreboard.removeTeam( team.name );
-                return;
-            }
+            con.serverSentScoreboard.removeTeam( team.name );
+            return;
+        }
 
-            // Create or get old team
-            Team t = ( team.mode == 0 ) ? new Team( team.name ) : con.serverSentScoreboard.getTeam( team.name );
-            if ( t != null )
+        // Create or get old team
+        Team t = ( team.mode == 0 ) ? new Team( team.name ) : con.serverSentScoreboard.getTeam( team.name );
+        if ( t != null )
+        {
+            if ( team.mode == 0 || team.mode == 2 )
             {
-                if ( team.mode == 0 || team.mode == 2 )
+                t.setDisplayName( team.displayName );
+                t.setPrefix( team.prefix );
+                t.setSuffix( team.suffix );
+                t.setFriendlyMode( team.friendlyFire );
+            }
+            for ( String s : team.players )
+            {
+                if ( team.mode == 0 || team.mode == 3 )
                 {
-                    t.setDisplayName( team.displayName );
-                    t.setPrefix( team.prefix );
-                    t.setSuffix( team.suffix );
-                    t.setFriendlyMode( team.friendlyFire );
-                }
-                for ( String s : team.players )
+                    t.addPlayer( s );
+                } else
                 {
-                    if ( team.mode == 0 || team.mode == 3 )
-                    {
-                        t.addPlayer( s );
-                    } else
-                    {
-                        t.removePlayer( s );
-                    }
+                    t.removePlayer( s );
                 }
             }
         }

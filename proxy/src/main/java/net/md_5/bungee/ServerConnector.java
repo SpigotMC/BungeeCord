@@ -13,7 +13,6 @@ import net.md_5.bungee.api.config.TexturePackInfo;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.scoreboard.Objective;
-import net.md_5.bungee.api.scoreboard.Score;
 import net.md_5.bungee.api.scoreboard.Team;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
@@ -23,7 +22,6 @@ import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet9Respawn;
 import net.md_5.bungee.packet.PacketCDClientStatus;
 import net.md_5.bungee.packet.PacketCEScoreboardObjective;
-import net.md_5.bungee.packet.PacketCFScoreboardScore;
 import net.md_5.bungee.packet.PacketD1Team;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketFDEncryptionRequest;
@@ -114,18 +112,15 @@ public class ServerConnector extends PacketHandler
             {
                 bungee.getTabListHandler().onServerChange( user );
 
-                if ( user.serverSentScoreboard != null )
+                for ( Objective objective : user.serverSentScoreboard.getObjectives() )
                 {
-                    for ( Objective objective : user.serverSentScoreboard.getObjectives() )
-                    {
-                        user.ch.write( new PacketCEScoreboardObjective( objective.getName(), objective.getValue(), (byte) 1 ) );
-                    }
-                    for ( Team team : user.serverSentScoreboard.getTeams() )
-                    {
-                        user.ch.write( PacketD1Team.destroy( team.getName() ) );
-                    }
-                    user.serverSentScoreboard = null;
+                    user.ch.write( new PacketCEScoreboardObjective( objective.getName(), objective.getValue(), (byte) 1 ) );
                 }
+                for ( Team team : user.serverSentScoreboard.getTeams() )
+                {
+                    user.ch.write( PacketD1Team.destroy( team.getName() ) );
+                }
+                user.serverSentScoreboard.clear();
 
                 user.sendPacket( Packet9Respawn.DIM1_SWITCH );
                 user.sendPacket( Packet9Respawn.DIM2_SWITCH );
