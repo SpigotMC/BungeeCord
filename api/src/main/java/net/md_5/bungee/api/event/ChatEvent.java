@@ -38,6 +38,6 @@ public class ChatEvent extends TargetedEvent implements Cancellable
      */
     public boolean isCommand()
     {
-        return message.charAt( 0 ) == '/';
+        return message.length() > 0 && message.charAt( 0 ) == '/';
     }
 }
