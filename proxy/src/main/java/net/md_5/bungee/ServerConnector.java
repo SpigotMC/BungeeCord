@@ -81,7 +81,6 @@ public class ServerConnector extends PacketHandler
             ch.write( user.settings );
         }
 
-
         synchronized ( user.getSwitchMutex() )
         {
             if ( user.getServer() == null )

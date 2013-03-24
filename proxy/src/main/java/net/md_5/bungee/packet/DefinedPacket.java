@@ -225,6 +225,7 @@ public abstract class DefinedPacket implements DataOutput
         classes[0x03] = Packet3Chat.class;
         classes[0x09] = Packet9Respawn.class;
         classes[0xC9] = PacketC9PlayerListItem.class;
+        classes[0xCC] = PacketCCSettings.class;
         classes[0xCD] = PacketCDClientStatus.class;
         classes[0xCE] = PacketCEScoreboardObjective.class;
         classes[0xCF] = PacketCFScoreboardScore.class;
