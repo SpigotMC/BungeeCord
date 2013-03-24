@@ -23,6 +23,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.scoreboard.Scoreboard;
 import net.md_5.bungee.netty.HandlerBoss;
@@ -249,7 +250,7 @@ public final class UserConnection implements ProxiedPlayer
     @Synchronized("permMutex")
     public boolean hasPermission(String permission)
     {
-        return permissions.contains( permission );
+        return bungee.getPluginManager().callEvent( new PermissionCheckEvent( this, permissions.contains( permission ) ) ).hasPermission();
     }
 
     @Override
