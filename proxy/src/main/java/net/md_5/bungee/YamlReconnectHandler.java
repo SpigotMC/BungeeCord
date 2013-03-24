@@ -53,7 +53,7 @@ public class YamlReconnectHandler implements ReconnectHandler
     {
         ListenerInfo listener = player.getPendingConnection().getListener();
         String name;
-        String forced = listener.getForcedHosts().get( player.getPendingConnection().getVirtualHost().getHostName() );
+        String forced = listener.getForcedHosts().get( player.getPendingConnection().getVirtualHost().getHostName().toLowerCase() );
         if ( forced == null && listener.isForceDefault() )
         {
             forced = listener.getDefaultServer();
