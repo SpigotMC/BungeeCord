@@ -30,9 +30,12 @@ public class CommandList extends Command
             Collection<ProxiedPlayer> serverPlayers = server.getPlayers();
 
             StringBuilder message = new StringBuilder();
+            message.append( ChatColor.GREEN );
             message.append( "[" );
             message.append( server.getName() );
-            message.append( "] (" );
+            message.append( "] " );
+            message.append( ChatColor.YELLOW );
+            message.append( "(" );
             message.append( serverPlayers.size() );
             message.append( "): " );
 
