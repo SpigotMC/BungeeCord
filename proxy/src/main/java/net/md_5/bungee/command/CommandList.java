@@ -38,6 +38,7 @@ public class CommandList extends Command
             message.append( "(" );
             message.append( serverPlayers.size() );
             message.append( "): " );
+            message.append( ChatColor.RESET );
 
             List<String> players = new ArrayList<>();
             for ( ProxiedPlayer player : serverPlayers )
