@@ -254,32 +254,25 @@ public class DownstreamBridge extends PacketHandler
             }
             if ( subChannel.equals( "PlayerList" ) )
             {
-                ServerInfo server = bungee.getServerInfo( in.readUTF() );
-                if ( server != null )
+                String target = in.readUTF();
+                out.writeUTF( "PlayerList" );
+                if ( target.equals( "ALL" ) )
                 {
-                    out.writeUTF( "PlayerList" );
-                    out.writeUTF( server.getName() );
-
-                    StringBuilder sb = new StringBuilder();
-                    for ( ProxiedPlayer p : server.getPlayers() )
+                    out.writeUTF( Util.csv( bungee.getPlayers() ) );
+                } else
+                {
+                    ServerInfo server = bungee.getServerInfo( target );
+                    if ( server != null )
                     {
-                        sb.append( p.getName() );
-                        sb.append( "," );
+                        out.writeUTF( server.getName() );
+                        out.writeUTF( Util.csv( server.getPlayers() ) );
                     }
-                    out.writeUTF( sb.substring( 0, sb.length() - 1 ) );
                 }
             }
             if ( subChannel.equals( "GetServers" ) )
             {
                 out.writeUTF( "GetServers" );
-
-                StringBuilder sb = new StringBuilder();
-                for ( String server : bungee.getServers().keySet() )
-                {
-                    sb.append( server );
-                    sb.append( "," );
-                }
-                out.writeUTF( sb.substring( 0, sb.length() - 1 ) );
+                out.writeUTF( Util.csv( bungee.getServers().keySet() ) );
             }
             if ( subChannel.equals( "Message" ) )
             {

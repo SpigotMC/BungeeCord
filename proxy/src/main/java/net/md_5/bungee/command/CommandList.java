@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -47,15 +48,9 @@ public class CommandList extends Command
             }
             Collections.sort( players, String.CASE_INSENSITIVE_ORDER );
 
-            if ( !players.isEmpty() )
-            {
-                for ( String player : players )
-                {
-                    message.append( player ).append( ChatColor.RESET ).append( ", " );
-                }
-            }
+            message.append( Util.format( players, ChatColor.RESET + ", " ) );
 
-            sender.sendMessage( message.substring( 0, message.length() - 2 ) );
+            sender.sendMessage( message.toString() );
         }
 
         sender.sendMessage( "Total players online: " + ProxyServer.getInstance().getPlayers().size() );

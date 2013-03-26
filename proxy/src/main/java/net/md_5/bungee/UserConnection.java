@@ -265,4 +265,10 @@ public final class UserConnection implements ProxiedPlayer
             permissions.remove( permission );
         }
     }
+
+    @Override
+    public String toString()
+    {
+        return name;
+    }
 }
