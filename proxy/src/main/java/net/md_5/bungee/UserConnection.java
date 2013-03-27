@@ -143,7 +143,7 @@ public final class UserConnection implements ProxiedPlayer
                 {
                     future.channel().close();
                     ServerInfo def = ProxyServer.getInstance().getServers().get( getPendingConnection().getListener().getDefaultServer() );
-                    if ( retry & target != def && def != getServer().getInfo() )
+                    if ( retry & target != def && (getServer() == null || def != getServer().getInfo()) )
                     {
                         sendMessage( ChatColor.RED + "Could not connect to target server, you have been moved to the default server" );
                         connect( def, false );
