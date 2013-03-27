@@ -164,7 +164,7 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(PacketFFKick kick) throws Exception
     {
-        ServerInfo def = bungee.getServerInfo( user.getPendingConnection().getListener().getDefaultServer() );
+        ServerInfo def = bungee.getServerInfo( user.getPendingConnection().getListener().getFallbackServer() );
         if ( target == def )
         {
             def = null;
