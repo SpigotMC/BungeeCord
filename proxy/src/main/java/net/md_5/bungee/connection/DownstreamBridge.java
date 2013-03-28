@@ -316,6 +316,7 @@ public class DownstreamBridge extends PacketHandler
         {
             con.disconnect( "[Kicked] " + event.getKickReason() );
         }
+        server.setObsolete( true );
         throw new CancelSendSignal();
     }
 
