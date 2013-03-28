@@ -19,7 +19,6 @@ import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.scoreboard.Objective;
 import net.md_5.bungee.api.scoreboard.Position;
 import net.md_5.bungee.api.scoreboard.Score;
-import net.md_5.bungee.api.scoreboard.Scoreboard;
 import net.md_5.bungee.api.scoreboard.Team;
 import net.md_5.bungee.packet.Packet0KeepAlive;
 import net.md_5.bungee.packet.Packet3Chat;
@@ -122,7 +121,9 @@ public class DownstreamBridge extends PacketHandler
         switch ( score.action )
         {
             case 0:
-                con.serverSentScoreboard.addScore( new Score( score.itemName, score.scoreName, score.value ) );
+                Score s = new Score( score.itemName, score.scoreName, score.value );
+                con.serverSentScoreboard.removeScore( score.itemName );
+                con.serverSentScoreboard.addScore( s );
                 break;
             case 1:
                 con.serverSentScoreboard.removeScore( score.itemName );
