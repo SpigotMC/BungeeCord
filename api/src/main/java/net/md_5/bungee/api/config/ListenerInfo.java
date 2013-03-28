@@ -33,6 +33,10 @@ public class ListenerInfo
      */
     private final String defaultServer;
     /**
+     * Name of the server which users will be taken when current server goes down.
+     */
+    private final String fallbackServer;
+    /**
      * Whether reconnect locations will be used, or else the user is simply
      * transferred to the default server on connect.
      */

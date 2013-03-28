@@ -181,6 +181,7 @@ public class YamlConfig implements ConfigurationAdapter
 
             int maxPlayers = get( "max_players", 1, val );
             String defaultServer = get( "default_server", "lobby", val );
+            String fallbackServer = get( "fallback_server", defaultServer, val );
             boolean forceDefault = get( "force_default_server", false, val );
             String host = get( "host", "0.0.0.0:25577", val );
             int tabListSize = get( "tab_size", 60, val );
@@ -189,7 +190,7 @@ public class YamlConfig implements ConfigurationAdapter
             String textureURL = get( "texture_url", null, val );
             int textureSize = get( "texture_size", 16, val );
             TexturePackInfo texture = ( textureURL == null ) ? null : new TexturePackInfo( textureURL, textureSize );
-            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, forceDefault, forced, texture );
+            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, fallbackServer, forceDefault, forced, texture );
             ret.add( info );
         }
 

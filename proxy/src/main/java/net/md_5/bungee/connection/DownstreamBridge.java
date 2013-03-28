@@ -43,7 +43,7 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void exception(Throwable t) throws Exception
     {
-        ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getDefaultServer() );
+        ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getFallbackServer() );
         if ( server.getInfo() != def )
         {
             con.connectNow( def );
@@ -303,7 +303,7 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(PacketFFKick kick) throws Exception
     {
-        ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getDefaultServer() );
+        ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getFallbackServer() );
         if ( server.getInfo() == def )
         {
             def = null;
