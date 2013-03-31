@@ -24,6 +24,10 @@ public class PermissionCheckEvent extends Event
      */
     private final CommandSender sender;
     /**
+     * The permission to check.
+     */
+    private final String permission;
+    /**
      * The outcome of this permission check.
      */
     @Getter(AccessLevel.NONE)
