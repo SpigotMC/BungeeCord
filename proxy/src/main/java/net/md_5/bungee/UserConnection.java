@@ -250,7 +250,7 @@ public final class UserConnection implements ProxiedPlayer
     @Synchronized("permMutex")
     public boolean hasPermission(String permission)
     {
-        return bungee.getPluginManager().callEvent( new PermissionCheckEvent( this, permissions.contains( permission ) ) ).hasPermission();
+        return bungee.getPluginManager().callEvent( new PermissionCheckEvent( this, permission, permissions.contains( permission ) ) ).hasPermission();
     }
 
     @Override
