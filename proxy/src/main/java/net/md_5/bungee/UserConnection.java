@@ -121,6 +121,10 @@ public final class UserConnection implements ProxiedPlayer
         ServerConnectEvent event = new ServerConnectEvent( this, info );
         ProxyServer.getInstance().getPluginManager().callEvent( event );
         final ServerInfo target = event.getTarget(); // Update in case the event changed target
+        if ( getServer() != null && getServer().getInfo() == target )
+        {
+            return;
+        }
         new Bootstrap()
                 .channel( NioSocketChannel.class )
                 .group( BungeeCord.getInstance().eventLoops )
