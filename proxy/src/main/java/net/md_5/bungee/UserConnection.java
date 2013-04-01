@@ -92,6 +92,7 @@ public final class UserConnection implements ProxiedPlayer
     public void setDisplayName(String name)
     {
         Preconditions.checkArgument( name.length() <= 16, "Display name cannot be longer than 16 characters" );
+        displayName=name;
         bungee.getTabListHandler().onDisconnect( this );
         bungee.getTabListHandler().onConnect( this );
     }
@@ -250,7 +251,7 @@ public final class UserConnection implements ProxiedPlayer
     @Synchronized("permMutex")
     public boolean hasPermission(String permission)
     {
-        return bungee.getPluginManager().callEvent( new PermissionCheckEvent( this, permissions.contains( permission ) ) ).hasPermission();
+        return bungee.getPluginManager().callEvent( new PermissionCheckEvent( this, permission, permissions.contains( permission ) ) ).hasPermission();
     }
 
     @Override
