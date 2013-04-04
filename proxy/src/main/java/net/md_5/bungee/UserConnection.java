@@ -123,6 +123,7 @@ public final class UserConnection implements ProxiedPlayer
         final ServerInfo target = event.getTarget(); // Update in case the event changed target
         if ( getServer() != null && getServer().getInfo() == target )
         {
+            sendMessage( ChatColor.RED + "Cannot connect to server you are already on!" );
             return;
         }
         new Bootstrap()
