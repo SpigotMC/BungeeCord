@@ -107,7 +107,9 @@ public class DownstreamBridge extends PacketHandler
         switch ( objective.action )
         {
             case 0:
-                con.serverSentScoreboard.addObjective( new Objective( objective.name, objective.text ) );
+                Objective o = new Objective( objective.name, objective.text );
+                con.serverSentScoreboard.removeObjective ( objective.name );
+                con.serverSentScoreboard.addObjective( o );
                 break;
             case 1:
                 con.serverSentScoreboard.removeObjective( objective.name );
