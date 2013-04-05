@@ -108,6 +108,13 @@ public class DownstreamBridge extends PacketHandler
         {
             case 0:
                 Objective o = new Objective( objective.name, objective.text );
+                for ( Objective obj : con.serverSentScoreboard.getObjectives() )
+                {
+                	if ( obj.getName().equals( o.getName() ) )
+                	{
+                		throw new CancelSendSignal();
+                	}
+                }
                 con.serverSentScoreboard.removeObjective ( objective.name );
                 con.serverSentScoreboard.addObjective( o );
                 break;
