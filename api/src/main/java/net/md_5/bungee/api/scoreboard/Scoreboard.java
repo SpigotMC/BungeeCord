@@ -67,6 +67,7 @@ public class Scoreboard
     {
         Preconditions.checkNotNull( team, "team" );
         Preconditions.checkArgument( !teams.containsKey( team.getName() ), "Team %s already exists in this scoreboard", team.getName() );
+        teams.put( team.getName(), team );
     }
 
     public Team getTeam(String name)
