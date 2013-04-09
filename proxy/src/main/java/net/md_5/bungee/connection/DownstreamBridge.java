@@ -149,7 +149,16 @@ public class DownstreamBridge extends PacketHandler
         }
 
         // Create or get old team
-        Team t = ( team.mode == 0 ) ? new Team( team.name ) : con.serverSentScoreboard.getTeam( team.name );
+        Team t;
+        if ( team.mode == 0 )
+        {
+            t = new Team( team.name );
+            con.serverSentScoreboard.addTeam( t );
+        } else
+        {
+            t = con.serverSentScoreboard.getTeam( team.name );
+        }
+        
         if ( t != null )
         {
             if ( team.mode == 0 || team.mode == 2 )
