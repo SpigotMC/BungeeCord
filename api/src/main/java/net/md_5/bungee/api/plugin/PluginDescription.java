@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.plugin;
 
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -27,6 +28,10 @@ public class PluginDescription
      * Plugin author.
      */
     private String author;
+    /**
+     * Plugin hard dependencies.
+     */
+    private Set<String> depends;
 
     public PluginDescription()
     {
