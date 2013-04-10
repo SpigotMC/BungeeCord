@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
@@ -136,21 +137,86 @@ public class PluginManager
      */
     public void enablePlugins()
     {
+        Map<Plugin, Boolean> pluginStatuses = new HashMap<>();
         for ( Map.Entry<String, Plugin> entry : plugins.entrySet() )
         {
             Plugin plugin = entry.getValue();
+            if ( !this.enablePlugin( pluginStatuses, new Stack<Plugin>(), plugin ) )
+            {
+                ProxyServer.getInstance().getLogger().warning( "Failed to enable " + entry.getKey() );
+            }
+        }
+    }
+
+    private boolean enablePlugin(Map<Plugin, Boolean> pluginStatuses, Stack<Plugin> dependStack, Plugin plugin)
+    {
+        if ( pluginStatuses.containsKey(plugin) )
+        {
+            return pluginStatuses.get(plugin);
+        }
+
+        // success status
+        boolean status = true;
+
+        // try to load dependencies first
+        for ( String dependName : plugin.getDescription().getDepends() )
+        {
+            Plugin depend = this.plugins.get(dependName);
+            Boolean dependStatus = depend != null ? pluginStatuses.get(depend) : Boolean.FALSE;
+
+            if ( dependStatus == null ) {
+                if ( dependStack.contains(depend) )
+                {
+                    StringBuilder dependencyGraph = new StringBuilder();
+                    for ( Plugin element : dependStack )
+                    {
+                        dependencyGraph.append(element.getDescription().getName()).append(" -> ");
+                    }
+                    dependencyGraph.append(plugin.getDescription().getName()).append(" -> ").append(dependName);
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "Circular dependency detected: " + dependencyGraph );
+                    status = false;
+                } else
+                {
+                    dependStack.push( plugin );
+                    dependStatus = this.enablePlugin( pluginStatuses, dependStack, depend );
+                    dependStack.pop();
+                }
+            }
+
+            if ( dependStatus == Boolean.FALSE )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} (required by {1}) is unavailable", new Object[]
+                {
+                        depend.getDescription().getName(), plugin.getDescription().getName()
+                } );
+                status = false;
+            }
+
+            if ( !status )
+            {
+                break;
+            }
+        }
+
+        // do actual loading
+        if ( status )
+        {
             try
             {
                 plugin.onEnable();
                 ProxyServer.getInstance().getLogger().log( Level.INFO, "Enabled plugin {0} version {1} by {2}", new Object[]
                 {
-                    entry.getKey(), plugin.getDescription().getVersion(), plugin.getDescription().getAuthor()
+                    plugin.getDescription().getName(), plugin.getDescription().getVersion(), plugin.getDescription().getAuthor()
                 } );
             } catch ( Exception ex )
             {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Exception encountered when loading plugin: " + entry.getKey(), ex );
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Exception encountered when loading plugin: " + plugin.getDescription().getName(), ex );
+                status = false;
             }
         }
+
+        pluginStatuses.put( plugin, status );
+        return status;
     }
 
     /**
