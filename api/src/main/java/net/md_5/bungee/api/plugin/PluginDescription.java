@@ -1,13 +1,16 @@
 package net.md_5.bungee.api.plugin;
 
+import java.util.HashSet;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * POJO representing the plugin.yml file.
  */
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class PluginDescription
 {
@@ -31,9 +34,5 @@ public class PluginDescription
     /**
      * Plugin hard dependencies.
      */
-    private Set<String> depends;
-
-    public PluginDescription()
-    {
-    }
+    private Set<String> depends = new HashSet<>();
 }
