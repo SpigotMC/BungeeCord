@@ -38,6 +38,7 @@ public class BungeeScheduler implements TaskScheduler
         Set<ScheduledTask> toRemove = new HashSet<>();
         for ( ScheduledTask task : tasks.valueCollection() )
         {
+            // TODO: proper checking?
             if ( task.getOwner() == plugin )
             {
                 toRemove.add( task );

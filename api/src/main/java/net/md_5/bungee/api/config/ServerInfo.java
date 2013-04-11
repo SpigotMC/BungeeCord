@@ -4,6 +4,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Synchronized;
@@ -94,5 +95,20 @@ public abstract class ServerInfo
     public boolean canAccess(ProxiedPlayer player)
     {
         return !restricted || player.hasPermission( "bungeecord.server." + name );
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        return ( obj instanceof ServerInfo ) && Objects.equals( getAddress(), ( (ServerInfo) obj ).getAddress() );
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int hash = 7;
+        hash = 73 * hash + Objects.hashCode( getClass() );
+        hash = 73 * hash + Objects.hashCode( getAddress() );
+        return hash;
     }
 }
