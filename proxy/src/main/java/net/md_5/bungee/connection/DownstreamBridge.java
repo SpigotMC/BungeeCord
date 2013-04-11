@@ -4,6 +4,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import io.netty.channel.Channel;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.ServerConnection;
@@ -314,7 +315,7 @@ public class DownstreamBridge extends PacketHandler
     public void handle(PacketFFKick kick) throws Exception
     {
         ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getFallbackServer() );
-        if ( server.getInfo() == def )
+        if ( Objects.equals( server.getInfo(), def ) )
         {
             def = null;
         }

@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import io.netty.channel.Channel;
+import java.util.Objects;
 import java.util.Queue;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
@@ -165,7 +166,7 @@ public class ServerConnector extends PacketHandler
     public void handle(PacketFFKick kick) throws Exception
     {
         ServerInfo def = bungee.getServerInfo( user.getPendingConnection().getListener().getFallbackServer() );
-        if ( target == def )
+        if ( Objects.equals( target, def) )
         {
             def = null;
         }

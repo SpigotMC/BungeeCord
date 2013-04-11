@@ -13,6 +13,7 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -100,13 +101,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void connect(ServerInfo target)
     {
-        if ( getServer() != null && getServer().getInfo() == target )
-        {
-            sendMessage( ChatColor.RED + "Cannot connect to server you are already on!" );
-        } else
-        {
-            connect( target, false );
-        }
+        connect( target, false );
     }
 
     public void connectNow(ServerInfo target)
@@ -121,10 +116,9 @@ public final class UserConnection implements ProxiedPlayer
         ServerConnectEvent event = new ServerConnectEvent( this, info );
         ProxyServer.getInstance().getPluginManager().callEvent( event );
         final ServerInfo target = event.getTarget(); // Update in case the event changed target
-        if ( getServer() != null && getServer().getInfo() == target )
+        if ( getServer() != null && Objects.equals( getServer().getInfo(), target ) )
         {
             sendMessage( ChatColor.RED + "Cannot connect to server you are already on!" );
-            return;
         }
         new Bootstrap()
                 .channel( NioSocketChannel.class )
