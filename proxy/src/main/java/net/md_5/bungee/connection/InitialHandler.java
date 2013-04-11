@@ -175,16 +175,16 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                         {
                             old.disconnect( "You are already connected to the server" );
                         }
-                        
+
                     }
-                    
+
                     // fire login event
                     LoginEvent event = new LoginEvent( InitialHandler.this );
                     if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
                     {
                         disconnect( event.getCancelReason() );
                     }
-                    
+
                     Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, shared );
                     Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, shared );
                     ch.write( new PacketFCEncryptionResponse() );

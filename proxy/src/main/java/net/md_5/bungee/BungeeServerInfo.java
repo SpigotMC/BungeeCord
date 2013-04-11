@@ -61,7 +61,7 @@ public class BungeeServerInfo extends ServerInfo
             {
                 if ( future.isSuccess() )
                 {
-                   future.channel().pipeline().get( HandlerBoss.class ).setHandler( new PingHandler( BungeeServerInfo.this, callback ) );
+                    future.channel().pipeline().get( HandlerBoss.class ).setHandler( new PingHandler( BungeeServerInfo.this, callback ) );
                 } else
                 {
                     callback.done( null, future.cause() );
