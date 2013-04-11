@@ -150,9 +150,9 @@ public class PluginManager
 
     private boolean enablePlugin(Map<Plugin, Boolean> pluginStatuses, Stack<Plugin> dependStack, Plugin plugin)
     {
-        if ( pluginStatuses.containsKey(plugin) )
+        if ( pluginStatuses.containsKey( plugin ) )
         {
-            return pluginStatuses.get(plugin);
+            return pluginStatuses.get( plugin );
         }
 
         // success status
@@ -161,18 +161,19 @@ public class PluginManager
         // try to load dependencies first
         for ( String dependName : plugin.getDescription().getDepends() )
         {
-            Plugin depend = this.plugins.get(dependName);
-            Boolean dependStatus = depend != null ? pluginStatuses.get(depend) : Boolean.FALSE;
+            Plugin depend = this.plugins.get( dependName );
+            Boolean dependStatus = depend != null ? pluginStatuses.get( depend ) : Boolean.FALSE;
 
-            if ( dependStatus == null ) {
-                if ( dependStack.contains(depend) )
+            if ( dependStatus == null )
+            {
+                if ( dependStack.contains( depend ) )
                 {
                     StringBuilder dependencyGraph = new StringBuilder();
                     for ( Plugin element : dependStack )
                     {
-                        dependencyGraph.append(element.getDescription().getName()).append(" -> ");
+                        dependencyGraph.append( element.getDescription().getName() ).append( " -> " );
                     }
-                    dependencyGraph.append(plugin.getDescription().getName()).append(" -> ").append(dependName);
+                    dependencyGraph.append( plugin.getDescription().getName() ).append( " -> " ).append( dependName );
                     ProxyServer.getInstance().getLogger().log( Level.WARNING, "Circular dependency detected: " + dependencyGraph );
                     status = false;
                 } else
@@ -187,7 +188,7 @@ public class PluginManager
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} (required by {1}) is unavailable", new Object[]
                 {
-                        depend.getDescription().getName(), plugin.getDescription().getName()
+                    depend.getDescription().getName(), plugin.getDescription().getName()
                 } );
                 status = false;
             }

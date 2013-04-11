@@ -158,7 +158,7 @@ public class DownstreamBridge extends PacketHandler
         {
             t = con.serverSentScoreboard.getTeam( team.name );
         }
-        
+
         if ( t != null )
         {
             if ( team.mode == 0 || team.mode == 2 )

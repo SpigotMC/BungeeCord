@@ -33,7 +33,8 @@ public class ListenerInfo
      */
     private final String defaultServer;
     /**
-     * Name of the server which users will be taken when current server goes down.
+     * Name of the server which users will be taken when current server goes
+     * down.
      */
     private final String fallbackServer;
     /**

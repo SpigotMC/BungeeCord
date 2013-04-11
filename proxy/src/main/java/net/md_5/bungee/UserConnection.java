@@ -93,7 +93,7 @@ public final class UserConnection implements ProxiedPlayer
     {
         Preconditions.checkArgument( name.length() <= 16, "Display name cannot be longer than 16 characters" );
         bungee.getTabListHandler().onDisconnect( this );
-        displayName=name;
+        displayName = name;
         bungee.getTabListHandler().onConnect( this );
     }
 
