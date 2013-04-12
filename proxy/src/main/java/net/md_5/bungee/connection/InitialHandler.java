@@ -57,6 +57,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private PacketFDEncryptionRequest request;
     private List<PacketFAPluginMessage> loginMessages = new ArrayList<>();
     private State thisState = State.HANDSHAKE;
+    private boolean disconnected;
 
     private enum State
     {
@@ -184,6 +185,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     {
                         disconnect( event.getCancelReason() );
                     }
+                    if ( disconnected )
+                    {
+                        return;
+                    }
 
                     Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, shared );
                     Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, shared );
@@ -223,6 +228,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             ch.write( new PacketFFKick( reason ) );
             ch.close();
+            disconnected = true;
         }
     }
 
