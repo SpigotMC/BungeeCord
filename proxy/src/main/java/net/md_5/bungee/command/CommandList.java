@@ -28,6 +28,11 @@ public class CommandList extends Command
     {
         for ( ServerInfo server : ProxyServer.getInstance().getServers().values() )
         {
+            if ( !server.canAccess( sender ) )
+            {
+                continue;
+            }
+
             Collection<ProxiedPlayer> serverPlayers = server.getPlayers();
 
             StringBuilder message = new StringBuilder();
