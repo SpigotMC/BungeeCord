@@ -131,6 +131,7 @@ public class ServerConnector extends PacketHandler
                 // Remove from old servers
                 user.getServer().setObsolete( true );
                 user.getServer().disconnect( "Quitting" );
+                user.pendingConnects.remove( target );
             }
 
             // TODO: Fix this?
@@ -166,7 +167,7 @@ public class ServerConnector extends PacketHandler
     public void handle(PacketFFKick kick) throws Exception
     {
         ServerInfo def = bungee.getServerInfo( user.getPendingConnection().getListener().getFallbackServer() );
-        if ( Objects.equals( target, def) )
+        if ( Objects.equals( target, def ) )
         {
             def = null;
         }
