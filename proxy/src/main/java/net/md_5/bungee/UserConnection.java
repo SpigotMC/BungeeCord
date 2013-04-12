@@ -12,8 +12,10 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.logging.Level;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -65,6 +67,7 @@ public final class UserConnection implements ProxiedPlayer
     private final Object switchMutex = new Object();
     public PacketCCSettings settings;
     public final Scoreboard serverSentScoreboard = new Scoreboard();
+    public final Set<ServerInfo> pendingConnects = new HashSet<>();
 
     public UserConnection(BungeeCord bungee, Channel channel, PendingConnection pendingConnection, Packet2Handshake handshake, Packet1Login forgeLogin, List<PacketFAPluginMessage> loginMessages)
     {
@@ -121,6 +124,13 @@ public final class UserConnection implements ProxiedPlayer
             sendMessage( ChatColor.RED + "Cannot connect to server you are already on!" );
             return;
         }
+        if ( pendingConnects.contains( target ) )
+        {
+            sendMessage( ChatColor.RED + "Already connecting to this server!" );
+            return;
+        }
+
+        pendingConnects.add( target );
 
         new Bootstrap()
                 .channel( NioSocketChannel.class )
@@ -144,6 +154,8 @@ public final class UserConnection implements ProxiedPlayer
                 if ( !future.isSuccess() )
                 {
                     future.channel().close();
+                    pendingConnects.remove( target );
+
                     ServerInfo def = ProxyServer.getInstance().getServers().get( getPendingConnection().getListener().getFallbackServer() );
                     if ( retry & target != def && ( getServer() == null || def != getServer().getInfo() ) )
                     {
