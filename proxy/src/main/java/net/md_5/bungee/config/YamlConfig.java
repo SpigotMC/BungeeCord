@@ -201,7 +201,7 @@ public class YamlConfig implements ConfigurationAdapter
     @SuppressWarnings("unchecked")
     public Collection<String> getGroups(String player)
     {
-        Collection<String> groups = get( "groups." + player, null );
+        Collection<String> groups = get( "groups." + player.toLowerCase(), null );
         Collection<String> ret = ( groups == null ) ? new HashSet<String>() : new HashSet<>( groups );
         ret.add( "default" );
         return ret;
@@ -211,6 +211,6 @@ public class YamlConfig implements ConfigurationAdapter
     @SuppressWarnings("unchecked")
     public Collection<String> getPermissions(String group)
     {
-        return get( "permissions." + group, Collections.EMPTY_LIST );
+        return get( "permissions." + group.toLowerCase(), Collections.EMPTY_LIST );
     }
 }
