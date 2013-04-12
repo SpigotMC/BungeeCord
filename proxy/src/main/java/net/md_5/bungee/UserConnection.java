@@ -119,7 +119,9 @@ public final class UserConnection implements ProxiedPlayer
         if ( getServer() != null && Objects.equals( getServer().getInfo(), target ) )
         {
             sendMessage( ChatColor.RED + "Cannot connect to server you are already on!" );
+            return;
         }
+
         new Bootstrap()
                 .channel( NioSocketChannel.class )
                 .group( BungeeCord.getInstance().eventLoops )
