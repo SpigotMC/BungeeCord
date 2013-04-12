@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Synchronized;
 import net.md_5.bungee.api.Callback;
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
@@ -92,7 +93,7 @@ public abstract class ServerInfo
      * @param player the player to check access for
      * @return whether access is granted to this server
      */
-    public boolean canAccess(ProxiedPlayer player)
+    public boolean canAccess(CommandSender player)
     {
         return !restricted || player.hasPermission( "bungeecord.server." + name );
     }
