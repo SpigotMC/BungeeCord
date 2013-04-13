@@ -170,14 +170,17 @@ public class DownstreamBridge extends PacketHandler
                 t.setSuffix( team.suffix );
                 t.setFriendlyMode( team.friendlyFire );
             }
-            for ( String s : team.players )
+            if ( team.players != null )
             {
-                if ( team.mode == 0 || team.mode == 3 )
+                for ( String s : team.players )
                 {
-                    t.addPlayer( s );
-                } else
-                {
-                    t.removePlayer( s );
+                    if ( team.mode == 0 || team.mode == 3 )
+                    {
+                        t.addPlayer( s );
+                    } else
+                    {
+                        t.removePlayer( s );
+                    }
                 }
             }
         }
