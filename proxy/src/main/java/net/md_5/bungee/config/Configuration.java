@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import lombok.Getter;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
@@ -49,6 +50,8 @@ public class Configuration
      */
     private boolean onlineMode = true;
     private int playerLimit = -1;
+    private String joinMessage = "&b{0} has joined the network";
+    private String partMessage = "&b{0} has left the network";
 
     public void load()
     {
@@ -60,7 +63,10 @@ public class Configuration
         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
         playerLimit = adapter.getInt( "player_limit", playerLimit );
 
-        DefaultTabList tab = DefaultTabList.valueOf( adapter.getString( "tab_list", "GLOBAL_PING" ) );
+        joinMessage = ChatColor.translateAlternateColorCodes( '&', adapter.getString( "messages.join", joinMessage ) );
+        partMessage = ChatColor.translateAlternateColorCodes( '&', adapter.getString( "messages.part", partMessage ) );
+
+        DefaultTabList tab = DefaultTabList.valueOf( adapter.getString( "tab_list", "GLOBAL_PING" ).toUpperCase() );
         if ( tab == null )
         {
             tab = DefaultTabList.GLOBAL_PING;
