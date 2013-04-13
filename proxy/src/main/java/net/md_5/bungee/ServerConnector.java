@@ -131,7 +131,6 @@ public class ServerConnector extends PacketHandler
                 // Remove from old servers
                 user.getServer().setObsolete( true );
                 user.getServer().disconnect( "Quitting" );
-                user.pendingConnects.remove( target );
             }
 
             // TODO: Fix this?
@@ -146,6 +145,7 @@ public class ServerConnector extends PacketHandler
             // Add to new server
             // TODO: Move this to the connected() method of DownstreamBridge
             target.addPlayer( user );
+            user.pendingConnects.remove( target );
 
             user.setServer( server );
             ch.pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user, server ) );
