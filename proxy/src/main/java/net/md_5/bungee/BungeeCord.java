@@ -403,13 +403,4 @@ public class BungeeCord extends ProxyServer
     {
         return ConsoleCommandSender.getInstance();
     }
-
-    @Override
-    public void broadcast(String message)
-    {
-        for ( ProxiedPlayer player : getPlayers() )
-        {
-            player.sendMessage( message );
-        }
-    }
 }
