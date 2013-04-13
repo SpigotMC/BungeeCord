@@ -10,6 +10,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetSocketAddress;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -85,6 +86,9 @@ public final class UserConnection implements ProxiedPlayer
         {
             addGroups( s );
         }
+
+        //TODO: Here?
+        bungee.broadcast( MessageFormat.format( BungeeCord.getInstance().config.getJoinMessage(), getDisplayName() ) );
     }
 
     public void sendPacket(DefinedPacket p)
@@ -188,6 +192,8 @@ public final class UserConnection implements ProxiedPlayer
             {
                 server.disconnect( "Quitting" );
             }
+
+            bungee.broadcast( MessageFormat.format( BungeeCord.getInstance().config.getPartMessage(), getDisplayName() ) );
         }
     }
 
@@ -195,13 +201,19 @@ public final class UserConnection implements ProxiedPlayer
     public void chat(String message)
     {
         Preconditions.checkState( server != null, "Not connected to server" );
-        server.getCh().write( new Packet3Chat( message ) );
+        if ( message != null && !message.isEmpty() )
+        {
+            server.getCh().write( new Packet3Chat( message ) );
+        }
     }
 
     @Override
     public void sendMessage(String message)
     {
-        ch.write( new Packet3Chat( message ) );
+        if ( message != null && !message.isEmpty() )
+        {
+            ch.write( new Packet3Chat( message ) );
+        }
     }
 
     @Override

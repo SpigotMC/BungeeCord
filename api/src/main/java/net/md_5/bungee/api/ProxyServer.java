@@ -247,4 +247,11 @@ public abstract class ProxyServer
      * @return the server's {@link AsyncHttpClient} instance
      */
     public abstract AsyncHttpClient getHttpClient();
+
+    /**
+     * Send a message to all connected players.
+     *
+     * @param message the message to send
+     */
+    public abstract void broadcast(String message);
 }
