@@ -2,6 +2,7 @@ package net.md_5.bungee.connection;
 
 import io.netty.channel.Channel;
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
@@ -35,7 +36,7 @@ public class UpstreamBridge extends PacketHandler
         PlayerDisconnectEvent event = new PlayerDisconnectEvent( con );
         bungee.getPluginManager().callEvent( event );
         bungee.getTabListHandler().onDisconnect( con );
-        bungee.getPlayers().remove( con );
+        BungeeCord.getInstance().connections.remove( con.getName() ); //TODO: Better way, why do we need to raw access?
 
         if ( con.getServer() != null )
         {
