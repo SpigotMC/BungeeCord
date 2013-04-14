@@ -238,7 +238,7 @@ public final class UserConnection implements ProxiedPlayer
     {
         for ( String group : groups )
         {
-            playerGroups.add( group.toLowerCase() );
+            playerGroups.add( group );
             for ( String permission : bungee.getConfigurationAdapter().getPermissions( group ) )
             {
                 setPermission( permission, true );
@@ -252,7 +252,7 @@ public final class UserConnection implements ProxiedPlayer
     {
         for ( String group : groups )
         {
-            playerGroups.remove( group.toLowerCase() );
+            playerGroups.remove( group );
             for ( String permission : bungee.getConfigurationAdapter().getPermissions( group ) )
             {
                 setPermission( permission, false );
@@ -264,7 +264,7 @@ public final class UserConnection implements ProxiedPlayer
     @Synchronized("permMutex")
     public boolean hasPermission(String permission)
     {
-        return bungee.getPluginManager().callEvent( new PermissionCheckEvent( this, permission, permissions.contains( permission.toLowerCase() ) ) ).hasPermission();
+        return bungee.getPluginManager().callEvent( new PermissionCheckEvent( this, permission, permissions.contains( permission ) ) ).hasPermission();
     }
 
     @Override
@@ -273,10 +273,10 @@ public final class UserConnection implements ProxiedPlayer
     {
         if ( value )
         {
-            permissions.add( permission.toLowerCase() );
+            permissions.add( permission );
         } else
         {
-            permissions.remove( permission.toLowerCase() );
+            permissions.remove( permission );
         }
     }
 
