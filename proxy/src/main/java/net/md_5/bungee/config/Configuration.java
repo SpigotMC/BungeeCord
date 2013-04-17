@@ -49,6 +49,7 @@ public class Configuration
      */
     private boolean onlineMode = true;
     private int playerLimit = -1;
+    private boolean verbose = false;
 
     public void load()
     {
@@ -59,6 +60,7 @@ public class Configuration
         uuid = adapter.getString( "stats", uuid );
         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
         playerLimit = adapter.getInt( "player_limit", playerLimit );
+        verbose = adapter.getBoolean( "verbose", verbose );
 
         DefaultTabList tab = DefaultTabList.valueOf( adapter.getString( "tab_list", "GLOBAL_PING" ) );
         if ( tab == null )

@@ -6,6 +6,8 @@ import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.handler.timeout.ReadTimeoutException;
 import java.io.IOException;
 import java.util.logging.Level;
+
+import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.packet.DefinedPacket;
@@ -33,7 +35,8 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<byte[]>
         if ( handler != null )
         {
             handler.connected( ctx.channel() );
-            ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has connected", handler );
+            if (BungeeCord.getInstance().config.isVerbose())
+            	ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has connected", handler );
         }
     }
 
@@ -42,7 +45,8 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<byte[]>
     {
         if ( handler != null )
         {
-            ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has disconnected", handler );
+            if (BungeeCord.getInstance().config.isVerbose())
+            	ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has disconnected", handler );
             handler.disconnected( ctx.channel() );
         }
     }
