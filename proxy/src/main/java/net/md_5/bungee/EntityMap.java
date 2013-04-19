@@ -150,7 +150,7 @@ public class EntityMap
         if ( packetId == 0x17 )
         {
             int type = packet[5] & 0xFF;
-            if ( ( type >= 60 && type <= 62 ) || type == 90 )
+            if ( type == 60 || type == 90 )
             {
                 if ( readInt( packet, 20 ) == oldId )
                 {
