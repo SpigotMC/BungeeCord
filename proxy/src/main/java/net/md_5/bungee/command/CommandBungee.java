@@ -16,6 +16,7 @@ public class CommandBungee extends Command
     @Override
     public void execute(CommandSender sender, String[] args)
     {
-        sender.sendMessage( ChatColor.BLUE + "This server is running BungeeCord version " + ProxyServer.getInstance().getVersion() + " by md_5" );
+        //sender.sendMessage( ChatColor.BLUE + "This server is running BungeeCord version " + ProxyServer.getInstance().getVersion() + " by md_5" ); Comment out original
+        sender.sendMessage( ChatColor.BLUE + "このサーバーはBungeeCordバージョン" + ProxyServer.getInstance().getVersion() + "by md_5　が実行されています。" );
     }
 }

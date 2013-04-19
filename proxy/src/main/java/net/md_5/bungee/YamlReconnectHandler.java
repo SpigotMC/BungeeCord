@@ -36,7 +36,8 @@ public class YamlReconnectHandler implements ReconnectHandler
             }
         } catch ( IOException ex )
         {
-            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load reconnect locations", ex );
+            //ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load reconnect locations", ex ); - Comment out original
+            ProxyServer.getInstance().getLogger().log( Level.WARNING, "再接続座標の読み込みに失敗しました。", ex );
         }
 
         if ( data == null )
@@ -63,7 +64,8 @@ public class YamlReconnectHandler implements ReconnectHandler
         {
             info = ProxyServer.getInstance().getServerInfo( listener.getDefaultServer() );
         }
-        Preconditions.checkState( info != null, "Default server not defined" );
+        //Preconditions.checkState( info != null, "Default server not defined" ); - Comment out original
+        Preconditions.checkState( info != null, "デフォルトサーバーが未定義です。" );
         return info;
     }
 

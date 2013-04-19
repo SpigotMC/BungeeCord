@@ -36,3 +36,5 @@ manifest.mf
 # other files
 *.log*
 *.yml
+*.classpath
+*.project

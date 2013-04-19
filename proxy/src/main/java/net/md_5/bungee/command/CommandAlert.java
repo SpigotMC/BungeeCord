@@ -19,7 +19,8 @@ public class CommandAlert extends Command
     {
         if ( args.length == 0 )
         {
-            sender.sendMessage( ChatColor.RED + "You must supply a message." );
+            //sender.sendMessage( ChatColor.RED + "You must supply a message." ); - Comment out original
+            sender.sendMessage( ChatColor.RED + "メッセージが空です" );
         } else
         {
             StringBuilder builder = new StringBuilder();

@@ -82,8 +82,8 @@ public class Configuration
         Preconditions.checkArgument( listeners != null && !listeners.isEmpty(), "No listeners defined." );
 
         servers = adapter.getServers();
-        Preconditions.checkArgument( servers != null && !servers.isEmpty(), "No servers defined" );
-
+        //Preconditions.checkArgument( servers != null && !servers.isEmpty(), "No servers defined" ); - comment out original
+        Preconditions.checkArgument( servers != null && !servers.isEmpty(), "サーバーが未定義です。" );
         for ( ListenerInfo listener : listeners )
         {
             Preconditions.checkArgument( servers.containsKey( listener.getDefaultServer() ) );

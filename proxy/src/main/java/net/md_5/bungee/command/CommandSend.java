@@ -20,13 +20,15 @@ public class CommandSend extends Command
     {
         if ( args.length != 2 )
         {
-            sender.sendMessage( ChatColor.RED + "Not enough arguments, usage: /send <player|all|current> <target>" );
+            //sender.sendMessage( ChatColor.RED + "Not enough arguments, usage: /send <player|all|current> <target>" ); - Comment out original
+            sender.sendMessage( ChatColor.RED + "引数が足りません, usage: /send <player|all|current> <target>" );
             return;
         }
         ServerInfo target = ProxyServer.getInstance().getServerInfo( args[1] );
         if ( target == null )
         {
-            sender.sendMessage( ChatColor.RED + "Target server does not exist" );
+        	//sender.sendMessage( ChatColor.RED + "Target server does not exist" );　- Comment out original
+        	sender.sendMessage( ChatColor.RED + "選択されたサーバーは存在しません。" );
         }
 
         if ( args[0].equalsIgnoreCase( "all" ) )
@@ -39,7 +41,8 @@ public class CommandSend extends Command
         {
             if ( !( sender instanceof ProxiedPlayer ) )
             {
-                sender.sendMessage( ChatColor.RED + "Only in game players can use this command" );
+                //sender.sendMessage( ChatColor.RED + "Only in game players can use this command" ); - Comment out original
+                sender.sendMessage( ChatColor.RED + "ゲーム内のプレイヤーのみこのコマンドを実行できます。" );
             }
             ProxiedPlayer player = (ProxiedPlayer) sender;
             for ( ProxiedPlayer p : player.getServer().getInfo().getPlayers() )
@@ -51,11 +54,13 @@ public class CommandSend extends Command
             ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
             if ( player == null )
             {
-                sender.sendMessage( ChatColor.RED + "That player is not online" );
+                //sender.sendMessage( ChatColor.RED + "That player is not online" ); - Comment out original
+                sender.sendMessage( ChatColor.RED + "そのプレイヤーはオンラインではないです。" );
             }
             summon( player, target, sender );
         }
-        sender.sendMessage( ChatColor.GREEN + "Successfully summoned player(s)" );
+        //sender.sendMessage( ChatColor.GREEN + "Successfully summoned player(s)" ); - Comment out original
+        sender.sendMessage( ChatColor.GREEN + "player(s)　の転送に成功しました" );
     }
 
     private void summon(ProxiedPlayer player, ServerInfo target, CommandSender sender)
@@ -63,7 +68,7 @@ public class CommandSend extends Command
         if ( player.getServer() != null && player.getServer().getInfo() != target )
         {
             player.connect( target );
-            player.sendMessage( ChatColor.GOLD + "Summoned to " + target.getName() + " by " + sender.getName() );
+            player.sendMessage( ChatColor.GOLD +  target.getName() + "に" + sender.getName() + "より転送されました" );
         }
     }
 }

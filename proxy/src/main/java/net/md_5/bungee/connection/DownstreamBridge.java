@@ -47,7 +47,8 @@ public class DownstreamBridge extends PacketHandler
         if ( server.getInfo() != def )
         {
             con.connectNow( def );
-            con.sendMessage( ChatColor.RED + "The server you were previously on went down, you have been connected to the lobby" );
+            //con.sendMessage( ChatColor.RED + "The server you were previously on went down, you have been connected to the lobby" ); - comment out original
+            con.sendMessage( ChatColor.RED + "貴方が前にいたサーバーが落ちたため、ロビーに転送されます。" );
         } else
         {
             con.disconnect( Util.exception( t ) );
@@ -63,7 +64,8 @@ public class DownstreamBridge extends PacketHandler
 
         if ( !server.isObsolete() )
         {
-            con.disconnect( "[Proxy] Lost connection to server D:" );
+            //con.disconnect( "[Proxy] Lost connection to server D:" ); - comment out original
+            con.disconnect( "サーバーとの接続維持に失敗しました。 D:" );
         }
     }
 
@@ -338,6 +340,7 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public String toString()
     {
-        return "[" + con.getName() + "] <-> DownstreamBridge <-> [" + server.getInfo().getName() + "]";
+        //return "[" + con.getName() + "] <-> DownstreamBridge <-> [" + server.getInfo().getName() + "]"; - Comment out original
+        return "[" + con.getName() + "] <-> ダウンストリームブリッジ <-> [" + server.getInfo().getName() + "]";
     }
 }

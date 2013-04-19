@@ -259,6 +259,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public String toString()
     {
-        return "[" + ( ( getName() != null ) ? getName() : getAddress() ) + "] <-> InitialHandler";
+        //return "[" + ( ( getName() != null ) ? getName() : getAddress() ) + "] <-> InitialHandler"; - Comment out original
+        return "[" + ( ( getName() != null ) ? getName() : getAddress() ) + "] <-> 一時ハンドラー";
     }
 }

@@ -43,16 +43,19 @@ public class CommandServer extends Command
             {
                 serverList.setLength( serverList.length() - 2 );
             }
-            player.sendMessage( ChatColor.GOLD + "You may connect to the following servers at this time: " + serverList.toString() );
+            //player.sendMessage( ChatColor.GOLD + "You may connect to the following servers at this time: " + serverList.toString() );　-Comment out original
+            player.sendMessage( ChatColor.GOLD + "貴方はこれらのサーバーへ接続できます。: " + serverList.toString() );
         } else
         {
             ServerInfo server = servers.get( args[0] );
             if ( server == null )
             {
-                player.sendMessage( ChatColor.RED + "The specified server does not exist" );
+                //player.sendMessage( ChatColor.RED + "The specified server does not exist" ); - Comment out original
+            	player.sendMessage( ChatColor.RED + "そのようなプレイヤーは存在しません。" );
             } else if ( !server.canAccess( player ) )
             {
-                player.sendMessage( ChatColor.RED + "You don't have permission to access this server" );
+                //player.sendMessage( ChatColor.RED + "You don't have permission to access this server" ); - Comment out original
+                player.sendMessage( ChatColor.RED + "貴方はこのサーバーへ接続する権限がありません。" );
             } else
             {
                 player.connect( server );

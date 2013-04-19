@@ -42,6 +42,7 @@ public class PingHandler extends PacketHandler
     @Override
     public String toString()
     {
-        return "[Ping Handler] -> " + target.getName();
+        //return "[Ping Handler] -> " + target.getName(); - Comment out original
+    	return "[Ping ハンドラー] -> " + target.getName();
     }
 }

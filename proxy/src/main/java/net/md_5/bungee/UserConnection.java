@@ -121,12 +121,12 @@ public final class UserConnection implements ProxiedPlayer
         final ServerInfo target = event.getTarget(); // Update in case the event changed target
         if ( getServer() != null && Objects.equals( getServer().getInfo(), target ) )
         {
-            sendMessage( ChatColor.RED + "Cannot connect to server you are already on!" );
+            //sendMessage( ChatColor.RED + "Cannot connect to server you are already on!" ); - Comment out, you really don't need to notify this.
             return;
         }
         if ( pendingConnects.contains( target ) )
         {
-            sendMessage( ChatColor.RED + "Already connecting to this server!" );
+            //sendMessage( ChatColor.RED + "Already connecting to this server!" ); - Comment out, you really don't need to notify this.
             return;
         }
 
@@ -159,16 +159,19 @@ public final class UserConnection implements ProxiedPlayer
                     ServerInfo def = ProxyServer.getInstance().getServers().get( getPendingConnection().getListener().getFallbackServer() );
                     if ( retry & target != def && ( getServer() == null || def != getServer().getInfo() ) )
                     {
-                        sendMessage( ChatColor.RED + "Could not connect to target server, you have been moved to the lobby server" );
+                        //sendMessage( ChatColor.RED + "Could not connect to target server, you have been moved to the lobby server" ); - Comment out original
+                        sendMessage( ChatColor.RED + "接続しようとしたサーバーへの接続に失敗したため、ロビーに転送されます。" );
                         connect( def, false );
                     } else
                     {
                         if ( server == null )
                         {
-                            disconnect( "Could not connect to default server, please try again later: " + future.cause().getClass().getName() );
+                            //disconnect( "Could not connect to default server, please try again later: " + future.cause().getClass().getName() ); - Comment out original
+                            disconnect( "ロビーサーバーへの接続へ失敗しました。時間がたったら再接続してください。: " + future.cause().getClass().getName() );
                         } else
                         {
-                            sendMessage( ChatColor.RED + "Could not connect to selected server, please try again later: " + future.cause().getClass().getName() );
+                            //sendMessage( ChatColor.RED + "Could not connect to selected server, please try again later: " + future.cause().getClass().getName() ); - Comment out original
+                            sendMessage( ChatColor.RED + "選択したサーバーへの接続に失敗しました。時間がたったら再接続してください。 " + future.cause().getClass().getName() );
                         }
                     }
                 }
@@ -181,7 +184,8 @@ public final class UserConnection implements ProxiedPlayer
     {
         if ( ch.isActive() )
         {
-            bungee.getLogger().log( Level.INFO, "[" + getName() + "] disconnected with: " + reason );
+        	//bungee.getLogger().log( Level.INFO, "[" + getName() + "] disconnected with: " + reason ); - Comment out original
+            bungee.getLogger().log( Level.INFO, "[" + getName() + "] を切断します。: " + reason );
             ch.write( new PacketFFKick( reason ) );
             ch.close();
             if ( server != null )

@@ -151,16 +151,26 @@ public class BungeeCord extends ProxyServer
         deadline.set( 2013, 4, 26 ); // year, month, date
         if ( Calendar.getInstance().after( deadline ) )
         {
-            System.err.println( "*** Warning, this build is outdated ***" );
+            /* Localization Start - Comment out original
+        	System.err.println( "*** Warning, this build is outdated ***" );
             System.err.println( "*** Please download a new build from http://ci.md-5.net/job/BungeeCord ***" );
             System.err.println( "*** You will get NO support regarding this build ***" );
             System.err.println( "*** Server will start in 15 seconds ***" );
+            Localization end - Comment out end*/
+        	// Localization Start - Change Language
+        	System.err.println( "*** 警告：貴方が使っているバージョンは最新版ではありません ***" );
+            System.err.println( "*** 可能なら  http://ci.md-5.net/job/BungeeCord から最新版をダウンロードしてください ***" );
+            System.err.println( "*** このバージョンを使用することによるサポートは全くありません。 ***" );
+            System.err.println( "*** サーバーは15秒後起動します。 ***" );
+        	// Localization End - Change Language
             Thread.sleep( TimeUnit.SECONDS.toMillis( 15 ) );
         }
 
         BungeeCord bungee = new BungeeCord();
         ProxyServer.setInstance( bungee );
-        bungee.getLogger().info( "Enabled BungeeCord version " + bungee.getVersion() );
+        
+        //bungee.getLogger().info( "Enabled BungeeCord version " + bungee.getVersion() ); Localization - Comment out original
+        bungee.getLogger().info( "BungeeCord バージョン " + bungee.getVersion() +"が起動しました。" );
         bungee.start();
 
         BufferedReader br = new BufferedReader( new InputStreamReader( System.in ) );
@@ -172,7 +182,7 @@ public class BungeeCord extends ProxyServer
                 boolean handled = getInstance().getPluginManager().dispatchCommand( ConsoleCommandSender.getInstance(), line );
                 if ( !handled )
                 {
-                    System.err.println( "Command not found" );
+                    System.err.println( "コマンドのハンドルに失敗しました。" );
                 }
             }
         }
@@ -228,7 +238,9 @@ public class BungeeCord extends ProxyServer
                     .bind().channel();
             listeners.add( server );
 
-            getLogger().info( "Listening on " + info.getHost() );
+            //getLogger().info( "Listening on " + info.getHost() ); Localization - Comment out original
+            getLogger().info( "ポート" + info.getHost() +"にて待ち受け中。");
+
         }
     }
 
@@ -236,7 +248,8 @@ public class BungeeCord extends ProxyServer
     {
         for ( Channel listener : listeners )
         {
-            getLogger().log( Level.INFO, "Closing listener {0}", listener );
+            //getLogger().log( Level.INFO, "Closing listener {0}", listener ); - Comment out original
+            getLogger().log( Level.INFO, "ポート待ちうけ停止中 {0}", listener );
             try
             {
                 listener.close().syncUninterruptibly();
@@ -257,23 +270,31 @@ public class BungeeCord extends ProxyServer
         executors.shutdown();
 
         stopListeners();
-        getLogger().info( "Closing pending connections" );
+        //getLogger().info( "Closing pending connections" );　- Comment out original
+        getLogger().info( "待機中の接続遮断中。" );
 
-        getLogger().info( "Disconnecting " + connections.size() + " connections" );
+        //getLogger().info( "Disconnecting " + connections.size() + " connections" ); - Comment out original
+        getLogger().info( connections.size() + "人の接続遮断中。" );
+
         for ( UserConnection user : connections.values() )
         {
-            user.disconnect( "Proxy restarting, brb." );
+            //user.disconnect( "Proxy restarting, brb." ); - Comment out original
+            user.disconnect( "サーバーが再起されます。" );
+
         }
 
-        getLogger().info( "Closing IO threads" );
+        //getLogger().info( "Closing IO threads" ); - Comment out original
+        getLogger().info( "IOスレッド停止中" );
         eventLoops.shutdown();
 
-        getLogger().info( "Saving reconnect locations" );
+        //getLogger().info( "Saving reconnect locations" ); - Comment out original
+        getLogger().info( "再接続時の座標保存中。" );
         reconnectHandler.save();
         saveThread.cancel();
 
         // TODO: Fix this shit
-        getLogger().info( "Disabling plugins" );
+        //getLogger().info( "Disabling plugins" ); - Comment out original
+        getLogger().info( "プラグイン停止中" );
         for ( Plugin plugin : pluginManager.getPlugins() )
         {
             plugin.onDisable();

@@ -19,6 +19,7 @@ public class CommandReload extends Command
         BungeeCord.getInstance().config.load();
         BungeeCord.getInstance().stopListeners();
         BungeeCord.getInstance().startListeners();
-        sender.sendMessage( ChatColor.GREEN + "Reloaded config, please restart if you have any issues" );
+        //sender.sendMessage( ChatColor.GREEN + "Reloaded config, please restart if you have any issues" ); - Comment out
+        sender.sendMessage( ChatColor.GREEN + "コンフィグがリロードされました。問題があったら再起動してください。" );
     }
 }
