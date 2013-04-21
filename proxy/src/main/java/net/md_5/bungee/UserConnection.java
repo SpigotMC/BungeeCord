@@ -127,7 +127,8 @@ public final class UserConnection implements ProxiedPlayer
         if ( pendingConnects.contains( target ) )
         {
             //sendMessage( ChatColor.RED + "Already connecting to this server!" ); - Comment out, you really don't need to notify this.
-            return;
+        	sendMessage( ChatColor.RED + "貴方はすでに別サーバーへのアクセス申請を行っています。" );
+        	return;
         }
 
         pendingConnects.add( target );

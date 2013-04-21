@@ -177,8 +177,8 @@ public class ServerConnector extends PacketHandler
             user.connect( event.getCancelServer() );
             return;
         }
-
-        String message = ChatColor.RED + "Kicked whilst connecting to " + target.getName() + ": " + kick.message;
+        //String message = ChatColor.RED + "Kicked whilst connecting to " + target.getName() + ": " + kick.message;
+        String message = ChatColor.RED + "エラーが" + target.getName() + "に接続しようとした間に起きたため、自動キックされました。: " + kick.message;
         if ( user.getServer() == null )
         {
             user.disconnect( message );
@@ -191,6 +191,7 @@ public class ServerConnector extends PacketHandler
     @Override
     public String toString()
     {
-        return "[" + user.getName() + "] <-> ServerConnector [" + target.getName() + "]";
+        //return "[" + user.getName() + "] <-> ServerConnector [" + target.getName() + "]"; - comment out old
+    	return "[" + user.getName() + "] <-> サーバー間コネクター [" + target.getName() + "]";
     }
 }

@@ -182,7 +182,8 @@ public class BungeeCord extends ProxyServer
                 boolean handled = getInstance().getPluginManager().dispatchCommand( ConsoleCommandSender.getInstance(), line );
                 if ( !handled )
                 {
-                    System.err.println( "コマンドのハンドルに失敗しました。" );
+                   //System.err.println( "Command not found" ); Localization - Comment out
+                    System.err.println( "そのようなコマンドは存在しません" );
                 }
             }
         }
