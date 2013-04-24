@@ -18,7 +18,7 @@ public class Plugin
     @Getter
     private ProxyServer proxy;
     @Getter
-    private File jarfile;
+    private File file;
     
     /**
      * Called when the plugin has just been loaded. Most of the proxy will not
