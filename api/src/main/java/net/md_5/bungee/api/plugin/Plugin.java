@@ -18,8 +18,8 @@ public class Plugin
     @Getter
     private ProxyServer proxy;
     @Getter
-    private File jarfile;
-    
+    private File file;
+
     /**
      * Called when the plugin has just been loaded. Most of the proxy will not
      * be initialized, so only use it for registering
@@ -73,10 +73,10 @@ public class Plugin
      * @param description the description that describes this plugin
      * @param jarfile this plugins jar or container
      */
-    final void init(ProxyServer proxy, PluginDescription description, File jarfile)
+    final void init(ProxyServer proxy, PluginDescription description, File file)
     {
         this.proxy = proxy;
         this.description = description;
-        this.jarfile = jarfile;
+        this.file = file;
     }
 }
