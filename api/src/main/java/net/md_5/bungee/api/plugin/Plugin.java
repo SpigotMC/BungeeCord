@@ -17,6 +17,8 @@ public class Plugin
     private PluginDescription description;
     @Getter
     private ProxyServer proxy;
+    @Getter
+    private File file;
 
     /**
      * Called when the plugin has just been loaded. Most of the proxy will not
@@ -69,10 +71,12 @@ public class Plugin
      * Called by the loader to initialize the fields in this plugin.
      *
      * @param description the description that describes this plugin
+     * @param jarfile this plugins jar or container
      */
-    final void init(ProxyServer proxy, PluginDescription description)
+    final void init(ProxyServer proxy, PluginDescription description, File file)
     {
         this.proxy = proxy;
         this.description = description;
+        this.file = file;
     }
 }
