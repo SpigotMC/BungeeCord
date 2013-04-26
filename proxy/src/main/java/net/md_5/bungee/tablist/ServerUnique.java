@@ -9,7 +9,7 @@ import net.md_5.bungee.api.TabListHandler;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.packet.PacketC9PlayerListItem;
 
-public class ServerUniqueTabList implements TabListHandler
+public class ServerUnique implements TabListHandler
 {
 
     private final Map<ProxiedPlayer, Set<String>> sentUsernames = new ConcurrentHashMap<>();

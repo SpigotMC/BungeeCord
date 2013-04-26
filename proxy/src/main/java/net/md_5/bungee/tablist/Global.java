@@ -10,7 +10,7 @@ import net.md_5.bungee.api.TabListHandler;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.packet.PacketC9PlayerListItem;
 
-public class GlobalTabList implements TabListHandler
+public class Global implements TabListHandler
 {
 
     private final Set<ProxiedPlayer> sentPings = Collections.newSetFromMap( new ConcurrentHashMap<ProxiedPlayer, Boolean>() );

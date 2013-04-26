@@ -6,7 +6,7 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.packet.PacketC9PlayerListItem;
 
-public class GlobalPingTabList extends GlobalTabList
+public class GlobalPing extends Global
 {
 
     private static final int PING_THRESHOLD = 20;
