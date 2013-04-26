@@ -289,17 +289,14 @@ public class PluginManager
         long start = System.nanoTime();
         eventBus.post( event );
         event.postCall();
-        // TODO: No exceptions!
-        if ( !( event instanceof LoginEvent ) )
+
+        long elapsed = start - System.nanoTime();
+        if ( elapsed > 250000 )
         {
-            long elapsed = start - System.nanoTime();
-            if ( elapsed > 250000 )
+            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Event {0} took more {1}ns to process!", new Object[]
             {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Event {0} took more {1}ns to process!", new Object[]
-                {
-                    event, elapsed
-                } );
-            }
+                event, elapsed
+            } );
         }
         return event;
     }

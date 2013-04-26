@@ -1,6 +1,8 @@
 package net.md_5.bungee.connection;
 
 import com.google.common.base.Preconditions;
+import com.ning.http.client.AsyncCompletionHandler;
+import com.ning.http.client.Response;
 import io.netty.channel.Channel;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,6 +11,7 @@ import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +60,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private PacketFDEncryptionRequest request;
     private List<PacketFAPluginMessage> loginMessages = new ArrayList<>();
     private State thisState = State.HANDSHAKE;
+    private SecretKey sharedKey;
     private boolean disconnected;
 
     private enum State
@@ -129,79 +133,75 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.ENCRYPT, "Not expecting ENCRYPT" );
 
-        // TODO: This is shit
-        new Thread( "Login Verifier - " + getName() )
+        sharedKey = EncryptionUtil.getSecret( encryptResponse, request );
+        if ( BungeeCord.getInstance().config.isOnlineMode() )
         {
-            @Override
-            public void run()
+            String encName = URLEncoder.encode( InitialHandler.this.getName(), "UTF-8" );
+
+            MessageDigest sha = MessageDigest.getInstance( "SHA-1" );
+            for ( byte[] bit : new byte[][]
             {
-                try
-                {
-                    SecretKey shared = EncryptionUtil.getSecret( encryptResponse, request );
-                    if ( BungeeCord.getInstance().config.isOnlineMode() )
-                    {
-                        String reply = null;
-                        try
-                        {
-                            String encName = URLEncoder.encode( InitialHandler.this.getName(), "UTF-8" );
-
-                            MessageDigest sha = MessageDigest.getInstance( "SHA-1" );
-                            for ( byte[] bit : new byte[][]
-                            {
-                                request.serverId.getBytes( "ISO_8859_1" ), shared.getEncoded(), EncryptionUtil.keys.getPublic().getEncoded()
-                            } )
-                            {
-                                sha.update( bit );
-                            }
-
-                            String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
-                            String authURL = "http://session.minecraft.net/game/checkserver.jsp?user=" + encName + "&serverId=" + encodedHash;
-
-                            try ( BufferedReader in = new BufferedReader( new InputStreamReader( new URL( authURL ).openStream() ) ) )
-                            {
-                                reply = in.readLine();
-                            }
-                        } catch ( IOException ex )
-                        {
-                        }
-
-                        if ( !"YES".equals( reply ) )
-                        {
-                            disconnect( "Not authenticated with Minecraft.net" );
-                        }
-
-                        // Check for multiple connections
-                        ProxiedPlayer old = bungee.getPlayer( handshake.username );
-                        if ( old != null )
-                        {
-                            old.disconnect( "You are already connected to the server" );
-                        }
-
-                    }
-
-                    // fire login event
-                    LoginEvent event = new LoginEvent( InitialHandler.this );
-                    if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
-                    {
-                        disconnect( event.getCancelReason() );
-                    }
-                    if ( disconnected )
-                    {
-                        return;
-                    }
-
-                    Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, shared );
-                    Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, shared );
-                    ch.write( new PacketFCEncryptionResponse() );
-                    ch.pipeline().addBefore( "decoder", "cipher", new CipherCodec( encrypt, decrypt ) );
-
-                    thisState = InitialHandler.State.LOGIN;
-                } catch ( Throwable t )
-                {
-                    disconnect( "[Report to md_5 / Server Owner] " + Util.exception( t ) );
-                }
+                request.serverId.getBytes( "ISO_8859_1" ), sharedKey.getEncoded(), EncryptionUtil.keys.getPublic().getEncoded()
+            } )
+            {
+                sha.update( bit );
             }
-        }.start();
+
+            String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
+            String authURL = "http://session.minecraft.net/game/checkserver.jsp?user=" + encName + "&serverId=" + encodedHash;
+            bungee.getHttpClient().prepareGet( authURL ).execute( new AsyncCompletionHandler<Response>()
+            {
+                @Override
+                public Response onCompleted(Response response) throws Exception
+                {
+                    if ( "YES".equals( response.getResponseBody() ) )
+                    {
+                        finish();
+                    } else
+                    {
+                        disconnect( "Not authenticated with Minecraft.net" );
+                    }
+                    return response;
+                }
+
+                @Override
+                public void onThrowable(Throwable t)
+                {
+                    disconnect( "Error occured while contacting login servers, are they down?" + Util.exception( t ) );
+                }
+            } );
+        } else
+        {
+            finish();
+        }
+    }
+
+    private void finish() throws GeneralSecurityException
+    {
+        // Check for multiple connections
+        ProxiedPlayer old = bungee.getPlayer( handshake.username );
+        if ( old != null )
+        {
+            old.disconnect( "You are already connected to the server" );
+        }
+
+        // fire login event
+        LoginEvent event = new LoginEvent( InitialHandler.this );
+        if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
+        {
+            disconnect( event.getCancelReason() );
+        }
+        if ( disconnected )
+        {
+            return;
+        }
+
+        Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
+        Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, sharedKey );
+        ch.write( new PacketFCEncryptionResponse() );
+        ch.pipeline().addBefore( "decoder", "cipher", new CipherCodec( encrypt, decrypt ) );
+
+        thisState = InitialHandler.State.LOGIN;
     }
 
     @Override
