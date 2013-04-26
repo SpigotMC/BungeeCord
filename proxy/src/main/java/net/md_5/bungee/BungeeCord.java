@@ -148,7 +148,7 @@ public class BungeeCord extends ProxyServer
     public static void main(String[] args) throws Exception
     {
         Calendar deadline = Calendar.getInstance();
-        deadline.set( 2013, 4, 26 ); // year, month, date
+        deadline.set( 2013, 5, 26 ); // year, month, date
         if ( Calendar.getInstance().after( deadline ) )
         {
             /* Localization Start - Comment out original
