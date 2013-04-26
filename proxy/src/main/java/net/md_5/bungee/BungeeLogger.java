@@ -24,7 +24,7 @@ public class BungeeLogger extends Logger
         super( "BungeeCord", null );
         try
         {
-            FileHandler handler = new FileHandler( "proxy.log", 1 << 14, 1, true );
+            FileHandler handler = new FileHandler( "proxy.log", 1 << 24, 8, true );
             handler.setFormatter( formatter );
             addHandler( handler );
         } catch ( IOException ex )
