@@ -81,8 +81,29 @@ public class Configuration
         listeners = adapter.getListeners();
         Preconditions.checkArgument( listeners != null && !listeners.isEmpty(), "No listeners defined." );
 
-        servers = adapter.getServers();
+        Map<String, ServerInfo> newServers = adapter.getServers();
         Preconditions.checkArgument( servers != null && !servers.isEmpty(), "No servers defined" );
+
+        if ( servers == null )
+        {
+            servers = newServers;
+        } else
+        {
+            for ( ServerInfo oldServer : servers.values() )
+            {
+                // Don't allow servers to be removed
+                Preconditions.checkArgument( newServers.containsValue( oldServer ), "Server %s removed on reload!", oldServer.getName() );
+            }
+
+            // Add new servers
+            for ( Map.Entry<String, ServerInfo> newServer : newServers.entrySet() )
+            {
+                if ( !servers.containsValue( newServer.getValue() ) )
+                {
+                    servers.put( newServer.getKey(), newServer.getValue() );
+                }
+            }
+        }
 
         for ( ListenerInfo listener : listeners )
         {
