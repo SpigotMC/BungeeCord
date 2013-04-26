@@ -9,9 +9,9 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.tablist.GlobalPingTabList;
-import net.md_5.bungee.tablist.GlobalTabList;
-import net.md_5.bungee.tablist.ServerUniqueTabList;
+import net.md_5.bungee.tablist.GlobalPing;
+import net.md_5.bungee.tablist.Global;
+import net.md_5.bungee.tablist.ServerUnique;
 
 /**
  * Core configuration for the proxy.
@@ -68,13 +68,13 @@ public class Configuration
         switch ( tab )
         {
             case GLOBAL:
-                ProxyServer.getInstance().setTabListHandler( new GlobalTabList() );
+                ProxyServer.getInstance().setTabListHandler( new Global() );
                 break;
             case GLOBAL_PING:
-                ProxyServer.getInstance().setTabListHandler( new GlobalPingTabList() );
+                ProxyServer.getInstance().setTabListHandler( new GlobalPing() );
                 break;
             case SERVER:
-                ProxyServer.getInstance().setTabListHandler( new ServerUniqueTabList() );
+                ProxyServer.getInstance().setTabListHandler( new ServerUnique() );
                 break;
         }
 
