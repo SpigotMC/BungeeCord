@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
@@ -19,7 +18,7 @@ public class ServerConnection implements Server
     @Getter
     private final Channel ch;
     @Getter
-    private final ServerInfo info;
+    private final BungeeServerInfo info;
     @Getter
     private final Packet1Login loginPacket;
     @Getter
