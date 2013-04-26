@@ -9,12 +9,12 @@ import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.AttributeKey;
 import java.util.concurrent.TimeUnit;
 import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.BungeeServerInfo;
 import net.md_5.bungee.ServerConnector;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
-import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.protocol.PacketDefinitions;
 
 public class PipelineUtils
@@ -22,7 +22,7 @@ public class PipelineUtils
 
     public static final AttributeKey<ListenerInfo> LISTENER = new AttributeKey<>( "ListerInfo" );
     public static final AttributeKey<UserConnection> USER = new AttributeKey<>( "User" );
-    public static final AttributeKey<ServerInfo> TARGET = new AttributeKey<>( "Target" );
+    public static final AttributeKey<BungeeServerInfo> TARGET = new AttributeKey<>( "Target" );
     public static final ChannelInitializer<Channel> SERVER_CHILD = new ChannelInitializer<Channel>()
     {
         @Override

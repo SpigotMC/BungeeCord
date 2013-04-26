@@ -36,7 +36,7 @@ public class ServerConnector extends PacketHandler
     private final ProxyServer bungee;
     private Channel ch;
     private final UserConnection user;
-    private final ServerInfo target;
+    private final BungeeServerInfo target;
     private State thisState = State.ENCRYPT_REQUEST;
 
     private enum State

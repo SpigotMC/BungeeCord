@@ -118,7 +118,10 @@ public final class UserConnection implements ProxiedPlayer
     {
         ServerConnectEvent event = new ServerConnectEvent( this, info );
         ProxyServer.getInstance().getPluginManager().callEvent( event );
-        final ServerInfo target = event.getTarget(); // Update in case the event changed target
+
+        Preconditions.checkArgument( event.getTarget() instanceof BungeeServerInfo, "BungeeCord can only connect to BungeeServerInfo instances" );
+        final BungeeServerInfo target = (BungeeServerInfo) event.getTarget(); // Update in case the event changed target
+
         if ( getServer() != null && Objects.equals( getServer().getInfo(), target ) )
         {
             sendMessage( ChatColor.RED + "Cannot connect to server you are already on!" );
