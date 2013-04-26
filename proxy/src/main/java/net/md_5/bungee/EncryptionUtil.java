@@ -1,5 +1,6 @@
 package net.md_5.bungee;
 
+import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -59,7 +60,7 @@ public class EncryptionUtil
         return new SecretKeySpec( secret, "AES" );
     }
 
-    public static Cipher getCipher(int opMode, Key shared) throws InvalidAlgorithmParameterException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException
+    public static Cipher getCipher(int opMode, Key shared) throws GeneralSecurityException
     {
         Cipher cip = Cipher.getInstance( "AES/CFB8/NoPadding" );
         cip.init( opMode, shared, new IvParameterSpec( shared.getEncoded() ) );
