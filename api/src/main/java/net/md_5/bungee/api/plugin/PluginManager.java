@@ -41,16 +41,6 @@ public class PluginManager
     private final Map<String, Command> commandMap = new HashMap<>();
 
     /**
-     * @deprecated use
-     * {@link #registerCommand(net.md_5.bungee.api.plugin.Plugin, net.md_5.bungee.api.plugin.Command)}
-     */
-    @Deprecated
-    public void registerCommand(Command command)
-    {
-        registerCommand( null, command );
-    }
-
-    /**
      * Register a command so that it may be executed.
      *
      * @param plugin the plugin owning this command
@@ -312,16 +302,6 @@ public class PluginManager
             }
         }
         return event;
-    }
-
-    /**
-     * @deprecated see
-     * {@link #registerListener(net.md_5.bungee.api.plugin.Plugin, net.md_5.bungee.api.plugin.Listener)}
-     */
-    @Deprecated
-    public void registerListener(Listener listener)
-    {
-        registerListener( null, listener );
     }
 
     /**

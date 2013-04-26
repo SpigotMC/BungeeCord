@@ -121,15 +121,16 @@ public class BungeeCord extends ProxyServer
 
     
     {
-        getPluginManager().registerCommand( new CommandReload() );
-        getPluginManager().registerCommand( new CommandEnd() );
-        getPluginManager().registerCommand( new CommandList() );
-        getPluginManager().registerCommand( new CommandServer() );
-        getPluginManager().registerCommand( new CommandIP() );
-        getPluginManager().registerCommand( new CommandAlert() );
-        getPluginManager().registerCommand( new CommandBungee() );
-        getPluginManager().registerCommand( new CommandPerms() );
-        getPluginManager().registerCommand( new CommandSend() );
+        // TODO: Proper fallback when we interface the manager
+        getPluginManager().registerCommand( null, new CommandReload() );
+        getPluginManager().registerCommand( null, new CommandEnd() );
+        getPluginManager().registerCommand( null, new CommandList() );
+        getPluginManager().registerCommand( null, new CommandServer() );
+        getPluginManager().registerCommand( null, new CommandIP() );
+        getPluginManager().registerCommand( null, new CommandAlert() );
+        getPluginManager().registerCommand( null, new CommandBungee() );
+        getPluginManager().registerCommand( null, new CommandPerms() );
+        getPluginManager().registerCommand( null, new CommandSend() );
 
         registerChannel( "BungeeCord" );
     }
