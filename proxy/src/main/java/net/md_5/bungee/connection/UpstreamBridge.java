@@ -7,6 +7,7 @@ import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.TexturePackInfo;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
@@ -27,6 +28,20 @@ public class UpstreamBridge extends PacketHandler
     public void exception(Throwable t) throws Exception
     {
         con.disconnect( Util.exception( t ) );
+    }
+
+    @Override
+    public void connected(Channel channel) throws Exception
+    {
+        BungeeCord.getInstance().connections.put( con.getName(), con );
+        bungee.getTabListHandler().onConnect( con );
+        con.ch.write( BungeeCord.getInstance().registerChannels() );
+
+        TexturePackInfo texture = con.getPendingConnection().getListener().getTexturePack();
+        if ( texture != null )
+        {
+            con.ch.write( new PacketFAPluginMessage( "MC|TPack", ( texture.getUrl() + "\00" + texture.getSize() ).getBytes() ) );
+        }
     }
 
     @Override

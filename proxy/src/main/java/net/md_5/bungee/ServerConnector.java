@@ -86,8 +86,6 @@ public class ServerConnector extends PacketHandler
         {
             if ( user.getServer() == null )
             {
-                BungeeCord.getInstance().connections.put( user.getName(), user );
-                bungee.getTabListHandler().onConnect( user );
                 // Once again, first connection
                 user.clientEntityId = login.entityId;
                 user.serverEntityId = login.entityId;
@@ -101,13 +99,6 @@ public class ServerConnector extends PacketHandler
                         login.unused,
                         (byte) user.getPendingConnection().getListener().getTabListSize() );
                 user.ch.write( modLogin );
-                ch.write( BungeeCord.getInstance().registerChannels() );
-
-                TexturePackInfo texture = user.getPendingConnection().getListener().getTexturePack();
-                if ( texture != null )
-                {
-                    ch.write( new PacketFAPluginMessage( "MC|TPack", ( texture.getUrl() + "\00" + texture.getSize() ).getBytes() ) );
-                }
             } else
             {
                 bungee.getTabListHandler().onServerChange( user );
