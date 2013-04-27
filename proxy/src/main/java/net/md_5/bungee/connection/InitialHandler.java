@@ -23,6 +23,7 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.EncryptionUtil;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
+import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerPing;
@@ -185,23 +186,36 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             old.disconnect( "You are already connected to the server" );
         }
 
+        Callback<LoginEvent> complete = new Callback<LoginEvent>()
+        {
+            @Override
+            public void done(LoginEvent result, Throwable error)
+            {
+                if ( result.isCancelled() )
+                {
+                    disconnect( result.getCancelReason() );
+                }
+                if ( disconnected )
+                {
+                    return;
+                }
+
+                try
+                {
+                    Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
+                    Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, sharedKey );
+                    ch.write( new PacketFCEncryptionResponse() );
+                    ch.pipeline().addBefore( "decoder", "cipher", new CipherCodec( encrypt, decrypt ) );
+                    thisState = InitialHandler.State.LOGIN;
+                } catch ( GeneralSecurityException ex )
+                {
+                    disconnect( "Cipher error: " + Util.exception( ex ) );
+                }
+            }
+        };
+
         // fire login event
-        LoginEvent event = new LoginEvent( InitialHandler.this );
-        if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
-        {
-            disconnect( event.getCancelReason() );
-        }
-        if ( disconnected )
-        {
-            return;
-        }
-
-        Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
-        Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, sharedKey );
-        ch.write( new PacketFCEncryptionResponse() );
-        ch.pipeline().addBefore( "decoder", "cipher", new CipherCodec( encrypt, decrypt ) );
-
-        thisState = InitialHandler.State.LOGIN;
+        bungee.getPluginManager().callEvent( new LoginEvent( InitialHandler.this, complete ) );
     }
 
     @Override
