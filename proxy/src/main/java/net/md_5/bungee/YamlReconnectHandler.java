@@ -80,7 +80,7 @@ public class YamlReconnectHandler implements ReconnectHandler
     }
 
     @Override
-    public void save()
+    public synchronized void save()
     {
         try ( FileWriter wr = new FileWriter( file ) )
         {
