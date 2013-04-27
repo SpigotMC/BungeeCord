@@ -21,6 +21,7 @@ import net.md_5.bungee.api.scoreboard.Objective;
 import net.md_5.bungee.api.scoreboard.Position;
 import net.md_5.bungee.api.scoreboard.Score;
 import net.md_5.bungee.api.scoreboard.Team;
+import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.packet.Packet0KeepAlive;
 import net.md_5.bungee.packet.Packet3Chat;
 import net.md_5.bungee.packet.PacketC9PlayerListItem;
@@ -55,7 +56,7 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void disconnected(Channel channel) throws Exception
+    public void disconnected(ChannelWrapper channel) throws Exception
     {
         // We lost connection to the server
         server.getInfo().removePlayer( con );

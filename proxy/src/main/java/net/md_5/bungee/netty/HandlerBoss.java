@@ -19,6 +19,7 @@ import net.md_5.bungee.packet.PacketHandler;
 public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<byte[]>
 {
 
+    private ChannelWrapper channel;
     private PacketHandler handler;
 
     public void setHandler(PacketHandler handler)
@@ -32,7 +33,8 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<byte[]>
     {
         if ( handler != null )
         {
-            handler.connected( ctx.channel() );
+            channel = new ChannelWrapper( ctx.channel() );
+            handler.connected( channel );
             ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has connected", handler );
         }
     }
@@ -43,7 +45,7 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<byte[]>
         if ( handler != null )
         {
             ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has disconnected", handler );
-            handler.disconnected( ctx.channel() );
+            handler.disconnected( channel );
         }
     }
 

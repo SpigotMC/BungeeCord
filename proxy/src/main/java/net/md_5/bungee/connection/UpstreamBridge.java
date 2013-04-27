@@ -11,6 +11,7 @@ import net.md_5.bungee.api.config.TexturePackInfo;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.packet.Packet0KeepAlive;
 import net.md_5.bungee.packet.Packet3Chat;
 import net.md_5.bungee.packet.PacketCCSettings;
@@ -31,7 +32,7 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
-    public void connected(Channel channel) throws Exception
+    public void connected(ChannelWrapper channel) throws Exception
     {
         BungeeCord.getInstance().connections.put( con.getName(), con );
         bungee.getTabListHandler().onConnect( con );
@@ -45,7 +46,7 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
-    public void disconnected(Channel channel) throws Exception
+    public void disconnected(ChannelWrapper channel) throws Exception
     {
         // We lost connection to the client
         PlayerDisconnectEvent event = new PlayerDisconnectEvent( con );

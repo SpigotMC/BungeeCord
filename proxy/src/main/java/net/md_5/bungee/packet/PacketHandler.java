@@ -1,6 +1,6 @@
 package net.md_5.bungee.packet;
 
-import io.netty.channel.Channel;
+import net.md_5.bungee.netty.ChannelWrapper;
 
 public abstract class PacketHandler
 {
@@ -8,11 +8,11 @@ public abstract class PacketHandler
     @Override
     public abstract String toString();
 
-    public void connected(Channel channel) throws Exception
+    public void connected(ChannelWrapper channel) throws Exception
     {
     }
 
-    public void disconnected(Channel channel) throws Exception
+    public void disconnected(ChannelWrapper channel) throws Exception
     {
     }
 

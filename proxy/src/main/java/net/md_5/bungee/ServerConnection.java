@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.md_5.bungee.api.connection.Server;
+import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketFFKick;
@@ -16,7 +17,7 @@ public class ServerConnection implements Server
 {
 
     @Getter
-    private final Channel ch;
+    private final ChannelWrapper ch;
     @Getter
     private final BungeeServerInfo info;
     @Getter
@@ -34,20 +35,15 @@ public class ServerConnection implements Server
     @Override
     public synchronized void disconnect(String reason)
     {
-        disconnect( ch, reason );
-    }
-
-    static void disconnect(final Channel ch, String reason)
-    {
-        if ( ch.isActive() )
+        if ( ch.getHandle().isActive() )
         {
             ch.write( new PacketFFKick( reason ) );
-            ch.eventLoop().schedule( new Runnable()
+            ch.getHandle().eventLoop().schedule( new Runnable()
             {
                 @Override
                 public void run()
                 {
-                    ch.close();
+                    ch.getHandle().close();
                 }
             }, 100, TimeUnit.MILLISECONDS );
         }
