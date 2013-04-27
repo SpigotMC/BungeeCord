@@ -18,22 +18,17 @@ import net.md_5.bungee.packet.PacketCCSettings;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketHandler;
 
-@RequiredArgsConstructor
 public class UpstreamBridge extends PacketHandler
 {
 
     private final ProxyServer bungee;
     private final UserConnection con;
 
-    @Override
-    public void exception(Throwable t) throws Exception
+    public UpstreamBridge(ProxyServer bungee, UserConnection con)
     {
-        con.disconnect( Util.exception( t ) );
-    }
+        this.bungee = bungee;
+        this.con = con;
 
-    @Override
-    public void connected(ChannelWrapper channel) throws Exception
-    {
         BungeeCord.getInstance().connections.put( con.getName(), con );
         bungee.getTabListHandler().onConnect( con );
         con.ch.write( BungeeCord.getInstance().registerChannels() );
@@ -43,6 +38,12 @@ public class UpstreamBridge extends PacketHandler
         {
             con.ch.write( new PacketFAPluginMessage( "MC|TPack", ( texture.getUrl() + "\00" + texture.getSize() ).getBytes() ) );
         }
+    }
+
+    @Override
+    public void exception(Throwable t) throws Exception
+    {
+        con.disconnect( Util.exception( t ) );
     }
 
     @Override
