@@ -3,14 +3,12 @@ package net.md_5.bungee;
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import io.netty.channel.Channel;
 import java.util.Objects;
 import java.util.Queue;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.config.TexturePackInfo;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.scoreboard.Objective;
@@ -18,6 +16,7 @@ import net.md_5.bungee.api.scoreboard.Team;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.netty.HandlerBoss;
+import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet9Respawn;
@@ -34,7 +33,7 @@ public class ServerConnector extends PacketHandler
 {
 
     private final ProxyServer bungee;
-    private Channel ch;
+    private ChannelWrapper ch;
     private final UserConnection user;
     private final BungeeServerInfo target;
     private State thisState = State.ENCRYPT_REQUEST;
@@ -46,7 +45,7 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
-    public void connected(Channel channel) throws Exception
+    public void connected(ChannelWrapper channel) throws Exception
     {
         this.ch = channel;
 
@@ -125,7 +124,7 @@ public class ServerConnector extends PacketHandler
             }
 
             // TODO: Fix this?
-            if ( !user.ch.isActive() )
+            if ( !user.ch.getHandle().isActive() )
             {
                 server.disconnect( "Quitting" );
                 // Silly server admins see stack trace and die
@@ -139,7 +138,7 @@ public class ServerConnector extends PacketHandler
             user.pendingConnects.remove( target );
 
             user.setServer( server );
-            ch.pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user, server ) );
+            ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user, server ) );
         }
 
         thisState = State.FINISHED;

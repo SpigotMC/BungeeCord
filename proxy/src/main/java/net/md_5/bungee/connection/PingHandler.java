@@ -1,10 +1,10 @@
 package net.md_5.bungee.connection;
 
-import io.netty.channel.Channel;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketHandler;
 
@@ -20,7 +20,7 @@ public class PingHandler extends PacketHandler
     };
 
     @Override
-    public void connected(Channel channel) throws Exception
+    public void connected(ChannelWrapper channel) throws Exception
     {
         channel.write( pingBuf );
     }

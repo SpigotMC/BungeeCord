@@ -3,13 +3,8 @@ package net.md_5.bungee.connection;
 import com.google.common.base.Preconditions;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
-import io.netty.channel.Channel;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
@@ -36,6 +31,7 @@ import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.netty.CipherCodec;
 import net.md_5.bungee.netty.HandlerBoss;
+import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketDecoder;
 import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet2Handshake;
@@ -53,7 +49,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 {
 
     private final ProxyServer bungee;
-    private Channel ch;
+    private ChannelWrapper ch;
     @Getter
     private final ListenerInfo listener;
     private Packet1Login forgeLogin; // TODO: Remove for now?
@@ -71,7 +67,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void connected(Channel channel) throws Exception
+    public void connected(ChannelWrapper channel) throws Exception
     {
         this.ch = channel;
     }
@@ -89,7 +85,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( forgeLogin == null, "Already received FORGE LOGIN" );
         forgeLogin = login;
 
-        ch.pipeline().get( PacketDecoder.class ).setProtocol( PacketDefinitions.FORGE_PROTOCOL );
+        ch.getHandle().pipeline().get( PacketDecoder.class ).setProtocol( PacketDefinitions.FORGE_PROTOCOL );
     }
 
     @Override
@@ -205,7 +201,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
                     Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, sharedKey );
                     ch.write( new PacketFCEncryptionResponse() );
-                    ch.pipeline().addBefore( "decoder", "cipher", new CipherCodec( encrypt, decrypt ) );
+                    ch.getHandle().pipeline().addBefore( "decoder", "cipher", new CipherCodec( encrypt, decrypt ) );
                     thisState = InitialHandler.State.LOGIN;
                 } catch ( GeneralSecurityException ex )
                 {
@@ -226,7 +222,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         UserConnection userCon = new UserConnection( (BungeeCord) bungee, ch, this, handshake, forgeLogin, loginMessages );
         bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
 
-        ch.pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
+        ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
 
         ServerInfo server = bungee.getReconnectHandler().getServer( userCon );
         userCon.connect( server, true );
@@ -238,10 +234,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public synchronized void disconnect(String reason)
     {
-        if ( ch.isActive() )
+        if ( ch.getHandle().isActive() )
         {
             ch.write( new PacketFFKick( reason ) );
-            ch.close();
+            ch.getHandle().close();
             disconnected = true;
         }
     }
@@ -267,7 +263,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public InetSocketAddress getAddress()
     {
-        return (InetSocketAddress) ch.remoteAddress();
+        return (InetSocketAddress) ch.getHandle().remoteAddress();
     }
 
     @Override

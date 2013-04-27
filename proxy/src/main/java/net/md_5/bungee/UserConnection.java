@@ -30,6 +30,7 @@ import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.scoreboard.Scoreboard;
 import net.md_5.bungee.netty.HandlerBoss;
+import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.packet.*;
 
@@ -38,7 +39,7 @@ public final class UserConnection implements ProxiedPlayer
 
     public final Packet2Handshake handshake;
     private final ProxyServer bungee;
-    public final Channel ch;
+    public final ChannelWrapper ch;
     final Packet1Login forgeLogin;
     final List<PacketFAPluginMessage> loginMessages;
     @Getter
@@ -69,7 +70,7 @@ public final class UserConnection implements ProxiedPlayer
     public final Scoreboard serverSentScoreboard = new Scoreboard();
     public final Set<ServerInfo> pendingConnects = new HashSet<>();
 
-    public UserConnection(BungeeCord bungee, Channel channel, PendingConnection pendingConnection, Packet2Handshake handshake, Packet1Login forgeLogin, List<PacketFAPluginMessage> loginMessages)
+    public UserConnection(BungeeCord bungee, ChannelWrapper channel, PendingConnection pendingConnection, Packet2Handshake handshake, Packet1Login forgeLogin, List<PacketFAPluginMessage> loginMessages)
     {
         this.bungee = bungee;
         this.ch = channel;
@@ -182,11 +183,11 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public synchronized void disconnect(String reason)
     {
-        if ( ch.isActive() )
+        if ( ch.getHandle().isActive() )
         {
             bungee.getLogger().log( Level.INFO, "[" + getName() + "] disconnected with: " + reason );
             ch.write( new PacketFFKick( reason ) );
-            ch.close();
+            ch.getHandle().close();
             if ( server != null )
             {
                 server.disconnect( "Quitting" );
@@ -225,7 +226,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public InetSocketAddress getAddress()
     {
-        return (InetSocketAddress) ch.remoteAddress();
+        return (InetSocketAddress) ch.getHandle().remoteAddress();
     }
 
     @Override
