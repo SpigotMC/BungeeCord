@@ -9,6 +9,8 @@ import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.MultithreadEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -218,18 +220,29 @@ public class BungeeCord extends ProxyServer
 
     public void startListeners()
     {
-        for ( ListenerInfo info : config.getListeners() )
+        for ( final ListenerInfo info : config.getListeners() )
         {
-            Channel server = new ServerBootstrap()
+            new ServerBootstrap()
                     .channel( NioServerSocketChannel.class )
                     .childAttr( PipelineUtils.LISTENER, info )
                     .childHandler( PipelineUtils.SERVER_CHILD )
                     .group( eventLoops )
                     .localAddress( info.getHost() )
-                    .bind().channel();
-            listeners.add( server );
-
-            getLogger().info( "Listening on " + info.getHost() );
+                    .bind().addListener( new ChannelFutureListener()
+            {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception
+                {
+                    if ( future.isSuccess() )
+                    {
+                        listeners.add( future.channel() );
+                        getLogger().info( "Listening on " + info.getHost() );
+                    } else
+                    {
+                        getLogger().log( Level.WARNING, "Could not bind to host " + info.getHost(), future.cause() );
+                    }
+                }
+            } );
         }
     }
 
