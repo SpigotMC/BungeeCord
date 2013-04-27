@@ -15,14 +15,16 @@ import net.md_5.bungee.api.plugin.Plugin;
 
 /**
  * Represents an event which depends on the result of asynchronous operations.
+ *
+ * @param <T> Type of this event
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class AsyncEvent extends Event
+public class AsyncEvent<T> extends Event
 {
 
-    private final Callback done;
+    private final Callback<T> done;
     private final Set<Plugin> intents = Collections.newSetFromMap( new ConcurrentHashMap<Plugin, Boolean>() );
     private final AtomicBoolean fired = new AtomicBoolean();
     private final AtomicInteger latch = new AtomicInteger();
@@ -34,7 +36,7 @@ public class AsyncEvent extends Event
         fired.set( true );
         if ( latch.get() == 0 )
         {
-            done.done( this, null );
+            done.done( (T) this, null );
         }
     }
 
@@ -66,7 +68,7 @@ public class AsyncEvent extends Event
         intents.remove( plugin );
         if ( latch.decrementAndGet() == 0 )
         {
-            done.done( this, null );
+            done.done( (T) this, null );
         }
     }
 }
