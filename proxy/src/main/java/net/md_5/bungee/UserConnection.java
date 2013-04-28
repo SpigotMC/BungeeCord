@@ -227,7 +227,6 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    @Synchronized("permMutex")
     public Collection<String> getGroups()
     {
         return Collections.unmodifiableCollection( groups );
