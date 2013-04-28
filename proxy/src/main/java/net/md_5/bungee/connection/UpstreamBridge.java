@@ -64,7 +64,7 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(byte[] buf) throws Exception
     {
-        EntityMap.rewrite( buf, con.clientEntityId, con.serverEntityId );
+        EntityMap.rewrite( buf, con.getClientEntityId(), con.getServerEntityId() );
         if ( con.getServer() != null )
         {
             con.getServer().getCh().write( buf );
@@ -102,7 +102,7 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(PacketCCSettings settings) throws Exception
     {
-        con.settings = settings;
+        con.setSettings( settings );
     }
 
     @Override

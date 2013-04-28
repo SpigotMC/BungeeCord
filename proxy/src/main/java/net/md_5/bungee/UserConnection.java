@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;
@@ -41,21 +42,24 @@ public final class UserConnection implements ProxiedPlayer
 {
 
     /*========================================================================*/
+    @NonNull
     private final ProxyServer bungee;
+    @NonNull
     private final ChannelWrapper ch;
     @Getter
+    @NonNull
     private final String name;
     @Getter
+    @NonNull
     private final InitialHandler pendingConnection;
     /*========================================================================*/
     @Getter
-    @Setter(AccessLevel.PACKAGE)
+    @Setter
     private ServerConnection server;
-    // reconnect stuff
-    public int clientEntityId;
-    public int serverEntityId;
     @Getter
-    private String displayName;
+    private final Object switchMutex = new Object();
+    @Getter
+    private final Collection<ServerInfo> pendingConnects = new HashSet<>();
     /*========================================================================*/
     @Getter
     @Setter
@@ -71,10 +75,19 @@ public final class UserConnection implements ProxiedPlayer
     private final Collection<String> permissions = new HashSet<>();
     /*========================================================================*/
     @Getter
-    private final Object switchMutex = new Object();
-    public PacketCCSettings settings;
-    public final Scoreboard serverSentScoreboard = new Scoreboard();
-    public final Collection<ServerInfo> pendingConnects = new HashSet<>();
+    private int clientEntityId;
+    @Getter
+    @Setter
+    private int serverEntityId;
+    @Getter
+    @Setter
+    private PacketCCSettings settings;
+    @Getter
+    private final Scoreboard serverSentScoreboard = new Scoreboard();
+    /*========================================================================*/
+    @Getter
+    private String displayName;
+    /*========================================================================*/
 
     public void init()
     {
@@ -294,5 +307,11 @@ public final class UserConnection implements ProxiedPlayer
     public String toString()
     {
         return name;
+    }
+
+    public void setClientEntityId(int clientEntityId)
+    {
+        Preconditions.checkState( this.clientEntityId == 0, "Client entityId already set!" );
+        this.clientEntityId = clientEntityId;
     }
 }
