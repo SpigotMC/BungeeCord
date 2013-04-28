@@ -15,12 +15,12 @@ public class CommandIP extends Command
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args)
+    public boolean execute(CommandSender sender, String[] args)
     {
         if ( args.length < 1 )
         {
             sender.sendMessage( ChatColor.RED + "Please follow this command by a user name" );
-            return;
+            return true;
         }
         ProxiedPlayer user = ProxyServer.getInstance().getPlayer( args[0] );
         if ( user == null )
@@ -30,5 +30,6 @@ public class CommandIP extends Command
         {
             sender.sendMessage( ChatColor.BLUE + "IP of " + args[0] + " is " + user.getAddress() );
         }
+        return true;
     }
 }
