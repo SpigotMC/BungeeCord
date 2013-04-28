@@ -20,6 +20,7 @@ import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.scoreboard.Objective;
 import net.md_5.bungee.api.scoreboard.Position;
 import net.md_5.bungee.api.scoreboard.Score;
+import net.md_5.bungee.api.scoreboard.Scoreboard;
 import net.md_5.bungee.api.scoreboard.Team;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.packet.Packet0KeepAlive;
@@ -71,7 +72,7 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(byte[] buf) throws Exception
     {
-        EntityMap.rewrite( buf, con.serverEntityId, con.clientEntityId );
+        EntityMap.rewrite( buf, con.getServerEntityId(), con.getClientEntityId() );
         con.sendPacket( buf );
     }
 
@@ -107,13 +108,14 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(PacketCEScoreboardObjective objective) throws Exception
     {
+        Scoreboard serverScoreboard = con.getServerSentScoreboard();
         switch ( objective.action )
         {
             case 0:
-                con.serverSentScoreboard.addObjective( new Objective( objective.name, objective.text ) );
+                serverScoreboard.addObjective( new Objective( objective.name, objective.text ) );
                 break;
             case 1:
-                con.serverSentScoreboard.removeObjective( objective.name );
+                serverScoreboard.removeObjective( objective.name );
                 break;
         }
     }
@@ -121,15 +123,16 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(PacketCFScoreboardScore score) throws Exception
     {
+        Scoreboard serverScoreboard = con.getServerSentScoreboard();
         switch ( score.action )
         {
             case 0:
                 Score s = new Score( score.itemName, score.scoreName, score.value );
-                con.serverSentScoreboard.removeScore( score.itemName );
-                con.serverSentScoreboard.addScore( s );
+                serverScoreboard.removeScore( score.itemName );
+                serverScoreboard.addScore( s );
                 break;
             case 1:
-                con.serverSentScoreboard.removeScore( score.itemName );
+                serverScoreboard.removeScore( score.itemName );
                 break;
         }
     }
@@ -137,17 +140,19 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(PacketD0DisplayScoreboard displayScoreboard) throws Exception
     {
-        con.serverSentScoreboard.setName( displayScoreboard.name );
-        con.serverSentScoreboard.setPosition( Position.values()[displayScoreboard.position] );
+        Scoreboard serverScoreboard = con.getServerSentScoreboard();
+        serverScoreboard.setName( displayScoreboard.name );
+        serverScoreboard.setPosition( Position.values()[displayScoreboard.position] );
     }
 
     @Override
     public void handle(PacketD1Team team) throws Exception
     {
+        Scoreboard serverScoreboard = con.getServerSentScoreboard();
         // Remove team and move on
         if ( team.mode == 1 )
         {
-            con.serverSentScoreboard.removeTeam( team.name );
+            serverScoreboard.removeTeam( team.name );
             return;
         }
 
@@ -156,10 +161,10 @@ public class DownstreamBridge extends PacketHandler
         if ( team.mode == 0 )
         {
             t = new Team( team.name );
-            con.serverSentScoreboard.addTeam( t );
+            serverScoreboard.addTeam( t );
         } else
         {
-            t = con.serverSentScoreboard.getTeam( team.name );
+            t = serverScoreboard.getTeam( team.name );
         }
 
         if ( t != null )

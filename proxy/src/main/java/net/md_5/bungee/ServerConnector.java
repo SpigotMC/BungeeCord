@@ -12,6 +12,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.scoreboard.Objective;
+import net.md_5.bungee.api.scoreboard.Scoreboard;
 import net.md_5.bungee.api.scoreboard.Team;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
@@ -60,6 +61,12 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
+    public void disconnected(ChannelWrapper channel) throws Exception
+    {
+        user.getPendingConnects().remove( target );
+    }
+
+    @Override
     public void handle(Packet1Login login) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not exepcting LOGIN" );
@@ -76,9 +83,9 @@ public class ServerConnector extends PacketHandler
         {
             ch.write( packetQueue.poll() );
         }
-        if ( user.settings != null )
+        if ( user.getSettings() != null )
         {
-            ch.write( user.settings );
+            ch.write( user.getSettings() );
         }
 
         synchronized ( user.getSwitchMutex() )
@@ -86,8 +93,8 @@ public class ServerConnector extends PacketHandler
             if ( user.getServer() == null )
             {
                 // Once again, first connection
-                user.clientEntityId = login.entityId;
-                user.serverEntityId = login.entityId;
+                user.setClientEntityId( login.entityId );
+                user.setServerEntityId( login.entityId );
                 // Set tab list size
                 Packet1Login modLogin = new Packet1Login(
                         login.entityId,
@@ -102,20 +109,21 @@ public class ServerConnector extends PacketHandler
             {
                 bungee.getTabListHandler().onServerChange( user );
 
-                for ( Objective objective : user.serverSentScoreboard.getObjectives() )
+                Scoreboard serverScoreboard = user.getServerSentScoreboard();
+                for ( Objective objective : serverScoreboard.getObjectives() )
                 {
                     user.sendPacket( new PacketCEScoreboardObjective( objective.getName(), objective.getValue(), (byte) 1 ) );
                 }
-                for ( Team team : user.serverSentScoreboard.getTeams() )
+                for ( Team team : serverScoreboard.getTeams() )
                 {
                     user.sendPacket( PacketD1Team.destroy( team.getName() ) );
                 }
-                user.serverSentScoreboard.clear();
+                serverScoreboard.clear();
 
                 user.sendPacket( Packet9Respawn.DIM1_SWITCH );
                 user.sendPacket( Packet9Respawn.DIM2_SWITCH );
 
-                user.serverEntityId = login.entityId;
+                user.setServerEntityId( login.entityId );
                 user.sendPacket( new Packet9Respawn( login.dimension, login.difficulty, login.gameMode, (short) 256, login.levelType ) );
 
                 // Remove from old servers
@@ -135,7 +143,7 @@ public class ServerConnector extends PacketHandler
             // Add to new server
             // TODO: Move this to the connected() method of DownstreamBridge
             target.addPlayer( user );
-            user.pendingConnects.remove( target );
+            user.getPendingConnects().remove( target );
 
             user.setServer( server );
             ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user, server ) );
