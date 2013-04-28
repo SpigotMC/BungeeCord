@@ -31,12 +31,12 @@ public class UpstreamBridge extends PacketHandler
 
         BungeeCord.getInstance().connections.put( con.getName(), con );
         bungee.getTabListHandler().onConnect( con );
-        con.sendPacket(BungeeCord.getInstance().registerChannels() );
+        con.sendPacket( BungeeCord.getInstance().registerChannels() );
 
         TexturePackInfo texture = con.getPendingConnection().getListener().getTexturePack();
         if ( texture != null )
         {
-            con.sendPacket(new PacketFAPluginMessage( "MC|TPack", ( texture.getUrl() + "\00" + texture.getSize() ).getBytes() ) );
+            con.sendPacket( new PacketFAPluginMessage( "MC|TPack", ( texture.getUrl() + "\00" + texture.getSize() ).getBytes() ) );
         }
     }
 
@@ -74,9 +74,9 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(Packet0KeepAlive alive) throws Exception
     {
-        if ( alive.id == con.trackingPingId )
+        if ( alive.id == con.getSentPingId() )
         {
-            int newPing = (int) ( System.currentTimeMillis() - con.pingTime );
+            int newPing = (int) ( System.currentTimeMillis() - con.getSentPingTime() );
             bungee.getTabListHandler().onPingChange( con, newPing );
             con.setPing( newPing );
         }
