@@ -15,7 +15,7 @@ public class CommandAlert extends Command
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args)
+    public boolean execute(CommandSender sender, String[] args)
     {
         if ( args.length == 0 )
         {
@@ -46,5 +46,6 @@ public class CommandAlert extends Command
             }
             ProxyServer.getInstance().getConsole().sendMessage( message );
         }
+        return true;
     }
 }
