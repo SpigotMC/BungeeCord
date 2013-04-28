@@ -16,7 +16,7 @@ public class CommandSend extends Command
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args)
+    public boolean execute(CommandSender sender, String[] args)
     {
         if ( args.length != 2 )
         {
