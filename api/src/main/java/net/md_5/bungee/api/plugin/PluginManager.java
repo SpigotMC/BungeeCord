@@ -199,9 +199,9 @@ public class PluginManager
                 {
                     plugin.getDescription().getName(), plugin.getDescription().getVersion(), plugin.getDescription().getAuthor()
                 } );
-            } catch ( Exception ex )
+            } catch ( Throwable t )
             {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Exception encountered when loading plugin: " + plugin.getDescription().getName(), ex );
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Exception encountered when loading plugin: " + plugin.getDescription().getName(), t );
                 status = false;
             }
         }
