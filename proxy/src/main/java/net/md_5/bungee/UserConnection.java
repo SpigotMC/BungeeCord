@@ -18,7 +18,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.Synchronized;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -43,7 +42,7 @@ public final class UserConnection implements ProxiedPlayer
 
     /*========================================================================*/
     private final ProxyServer bungee;
-    public final ChannelWrapper ch;
+    private final ChannelWrapper ch;
     @Getter
     private final String name;
     @Getter
@@ -89,6 +88,17 @@ public final class UserConnection implements ProxiedPlayer
         ch.write( p );
     }
 
+    public void sendPacket(byte[] b)
+    {
+        ch.write( b );
+    }
+
+    @Deprecated
+    public boolean isActive()
+    {
+        return ch.getHandle().isActive();
+    }
+
     @Override
     public void setDisplayName(String name)
     {
@@ -107,8 +117,8 @@ public final class UserConnection implements ProxiedPlayer
 
     public void connectNow(ServerInfo target)
     {
-        ch.write( Packet9Respawn.DIM1_SWITCH );
-        ch.write( Packet9Respawn.DIM2_SWITCH );
+        sendPacket( Packet9Respawn.DIM1_SWITCH );
+        sendPacket( Packet9Respawn.DIM2_SWITCH );
         connect( target );
     }
 
@@ -183,7 +193,7 @@ public final class UserConnection implements ProxiedPlayer
         if ( ch.getHandle().isActive() )
         {
             bungee.getLogger().log( Level.INFO, "[" + getName() + "] disconnected with: " + reason );
-            ch.write( new PacketFFKick( reason ) );
+            sendPacket( new PacketFFKick( reason ) );
             ch.getHandle().close();
             if ( server != null )
             {
@@ -202,7 +212,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendMessage(String message)
     {
-        ch.write( new Packet3Chat( message ) );
+        sendPacket( new Packet3Chat( message ) );
     }
 
     @Override
@@ -217,7 +227,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendData(String channel, byte[] data)
     {
-        ch.write( new PacketFAPluginMessage( channel, data ) );
+        sendPacket( new PacketFAPluginMessage( channel, data ) );
     }
 
     @Override

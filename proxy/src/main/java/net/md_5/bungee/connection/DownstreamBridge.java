@@ -72,7 +72,7 @@ public class DownstreamBridge extends PacketHandler
     public void handle(byte[] buf) throws Exception
     {
         EntityMap.rewrite( buf, con.serverEntityId, con.clientEntityId );
-        con.ch.write( buf );
+        con.sendPacket( buf );
     }
 
     @Override
