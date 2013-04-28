@@ -45,6 +45,8 @@ public final class UserConnection implements ProxiedPlayer
     private final ProxyServer bungee;
     public final ChannelWrapper ch;
     @Getter
+    private final String name;
+    @Getter
     private final InitialHandler pendingConnection;
     /*========================================================================*/
     @Getter
@@ -56,8 +58,6 @@ public final class UserConnection implements ProxiedPlayer
     // ping stuff
     public int trackingPingId;
     public long pingTime;
-    @Getter
-    private String name;
     @Getter
     private String displayName;
     @Getter
