@@ -20,11 +20,11 @@ public class CommandServer extends Command
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args)
+    public boolean execute(CommandSender sender, String[] args)
     {
         if ( !( sender instanceof ProxiedPlayer ) )
         {
-            return;
+            return true;
         }
         ProxiedPlayer player = (ProxiedPlayer) sender;
         Map<String, ServerInfo> servers = ProxyServer.getInstance().getServers();
@@ -58,5 +58,7 @@ public class CommandServer extends Command
                 player.connect( server );
             }
         }
+        
+        return true;
     }
 }
