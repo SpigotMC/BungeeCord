@@ -24,7 +24,7 @@ public class CommandList extends Command
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args)
+    public boolean execute(CommandSender sender, String[] args)
     {
         for ( ServerInfo server : ProxyServer.getInstance().getServers().values() )
         {
@@ -59,5 +59,6 @@ public class CommandList extends Command
         }
 
         sender.sendMessage( "Total players online: " + ProxyServer.getInstance().getPlayers().size() );
+        return true;
     }
 }
