@@ -78,8 +78,8 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(Packet0KeepAlive alive) throws Exception
     {
-        con.trackingPingId = alive.id;
-        con.pingTime = System.currentTimeMillis();
+        con.setSentPingId( alive.id );
+        con.setSentPingTime( System.currentTimeMillis() );
     }
 
     @Override
