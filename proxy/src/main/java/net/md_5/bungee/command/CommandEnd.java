@@ -16,8 +16,9 @@ public class CommandEnd extends Command
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args)
+    public boolean execute(CommandSender sender, String[] args)
     {
         BungeeCord.getInstance().stop();
+        return true;
     }
 }

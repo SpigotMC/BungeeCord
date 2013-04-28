@@ -49,6 +49,7 @@ public abstract class Command
      *
      * @param sender the executor of this command
      * @param args arguments used to invoke this command
+     * @return whether the command was handled
      */
-    public abstract void execute(CommandSender sender, String[] args);
+    public abstract boolean execute(CommandSender sender, String[] args);
 }

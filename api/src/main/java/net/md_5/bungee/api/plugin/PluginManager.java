@@ -92,7 +92,7 @@ public class PluginManager
         String[] args = Arrays.copyOfRange( split, 1, split.length );
         try
         {
-            command.execute( sender, args );
+            return command.execute( sender, args );
         } catch ( Exception ex )
         {
             sender.sendMessage( ChatColor.RED + "An internal error occurred whilst executing this command, please check the console log for details." );

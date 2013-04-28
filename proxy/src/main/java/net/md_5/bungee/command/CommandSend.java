@@ -16,12 +16,12 @@ public class CommandSend extends Command
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args)
+    public boolean execute(CommandSender sender, String[] args)
     {
         if ( args.length != 2 )
         {
             sender.sendMessage( ChatColor.RED + "Not enough arguments, usage: /send <player|all|current> <target>" );
-            return;
+            return true;
         }
         ServerInfo target = ProxyServer.getInstance().getServerInfo( args[1] );
         if ( target == null )
@@ -56,6 +56,7 @@ public class CommandSend extends Command
             summon( player, target, sender );
         }
         sender.sendMessage( ChatColor.GREEN + "Successfully summoned player(s)" );
+        return true;
     }
 
     private void summon(ProxiedPlayer player, ServerInfo target, CommandSender sender)
