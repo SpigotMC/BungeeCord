@@ -1,7 +1,6 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
-import gnu.trove.set.hash.THashSet;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -15,7 +14,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.logging.Level;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -61,14 +59,14 @@ public final class UserConnection implements ProxiedPlayer
     @Setter
     private int ping = 1000;
     // Permissions
-    private final Collection<String> playerGroups = new THashSet<>();
-    private final Collection<String> permissions = new THashSet<>();
+    private final Collection<String> playerGroups = new HashSet<>();
+    private final Collection<String> permissions = new HashSet<>();
     private final Object permMutex = new Object();
     @Getter
     private final Object switchMutex = new Object();
     public PacketCCSettings settings;
     public final Scoreboard serverSentScoreboard = new Scoreboard();
-    public final Set<ServerInfo> pendingConnects = new HashSet<>();
+    public final Collection<ServerInfo> pendingConnects = new HashSet<>();
 
     public UserConnection(BungeeCord bungee, ChannelWrapper channel, PendingConnection pendingConnection, Packet2Handshake handshake, Packet1Login forgeLogin, List<PacketFAPluginMessage> loginMessages)
     {
