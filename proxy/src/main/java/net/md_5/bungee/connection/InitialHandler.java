@@ -210,7 +210,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
-        UserConnection userCon = new UserConnection( (BungeeCord) bungee, ch, this );
+        UserConnection userCon = new UserConnection( (BungeeCord) bungee, ch,getName(), this );
         userCon.init();
 
         bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
