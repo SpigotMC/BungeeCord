@@ -259,10 +259,7 @@ public class PluginManager
         Preconditions.checkNotNull( folder, "folder" );
         Preconditions.checkArgument( folder.isDirectory(), "Must load from a directory" );
 
-        File[] files = folder.listFiles();
-        Arrays.sort( files );
-
-        for ( File file : files )
+        for ( File file : folder.listFiles() )
         {
             if ( file.isFile() && file.getName().endsWith( ".jar" ) )
             {
