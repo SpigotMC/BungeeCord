@@ -17,6 +17,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.Synchronized;
 import net.md_5.bungee.api.ChatColor;
@@ -32,16 +33,19 @@ import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.packet.*;
 
+@RequiredArgsConstructor
 public final class UserConnection implements ProxiedPlayer
 {
 
-    public final Packet2Handshake handshake;
+    /*========================================================================*/
     private final ProxyServer bungee;
     public final ChannelWrapper ch;
-    final Packet1Login forgeLogin;
-    final List<PacketFAPluginMessage> loginMessages;
     @Getter
     private final PendingConnection pendingConnection;
+    public final Packet2Handshake handshake;
+    final Packet1Login forgeLogin;
+    final List<PacketFAPluginMessage> loginMessages;
+    /*========================================================================*/
     @Getter
     @Setter(AccessLevel.PACKAGE)
     private ServerConnection server;
@@ -68,15 +72,8 @@ public final class UserConnection implements ProxiedPlayer
     public final Scoreboard serverSentScoreboard = new Scoreboard();
     public final Collection<ServerInfo> pendingConnects = new HashSet<>();
 
-    public UserConnection(BungeeCord bungee, ChannelWrapper channel, PendingConnection pendingConnection, Packet2Handshake handshake, Packet1Login forgeLogin, List<PacketFAPluginMessage> loginMessages)
+    public void init()
     {
-        this.bungee = bungee;
-        this.ch = channel;
-        this.handshake = handshake;
-        this.pendingConnection = pendingConnection;
-        this.forgeLogin = forgeLogin;
-        this.loginMessages = loginMessages;
-        this.name = handshake.username;
         this.displayName = name;
 
         Collection<String> g = bungee.getConfigurationAdapter().getGroups( name );
@@ -94,6 +91,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void setDisplayName(String name)
     {
+        Preconditions.checkNotNull( name, "displayName" );
         Preconditions.checkArgument( name.length() <= 16, "Display name cannot be longer than 16 characters" );
         bungee.getTabListHandler().onDisconnect( this );
         displayName = name;

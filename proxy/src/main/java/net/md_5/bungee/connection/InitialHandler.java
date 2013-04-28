@@ -224,6 +224,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
         UserConnection userCon = new UserConnection( (BungeeCord) bungee, ch, this, handshake, forgeLogin, loginMessages );
+        userCon.init();
+
         bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
 
         ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
