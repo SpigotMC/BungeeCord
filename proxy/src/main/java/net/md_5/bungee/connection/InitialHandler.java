@@ -115,7 +115,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(Packet2Handshake handshake) throws Exception
     {
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
-        Preconditions.checkArgument( handshake.username.length() <= 16, "Cannot have username longer than 16 characters" );
+        if ( handshake.username.length() > 16 )
+        {
+            disconnect( "Cannot have username longer than 16 characters" );
+            return;
+        }
 
         int limit = BungeeCord.getInstance().config.getPlayerLimit();
         Preconditions.checkState( limit <= 0 || bungee.getPlayers().size() < limit, "Server is full!" );
