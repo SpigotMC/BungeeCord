@@ -55,7 +55,7 @@ public class ServerConnector extends PacketHandler
         out.writeInt( user.getAddress().getPort() );
         channel.write( new PacketFAPluginMessage( "BungeeCord", out.toByteArray() ) );
 
-        channel.write( user.handshake );
+        channel.write( user.getPendingConnection().getHandshake() );
         channel.write( PacketCDClientStatus.CLIENT_LOGIN );
     }
 

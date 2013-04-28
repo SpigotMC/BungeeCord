@@ -12,7 +12,6 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import lombok.AccessLevel;
@@ -23,15 +22,20 @@ import lombok.Synchronized;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.scoreboard.Scoreboard;
-import net.md_5.bungee.netty.HandlerBoss;
+import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.netty.ChannelWrapper;
+import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PipelineUtils;
-import net.md_5.bungee.packet.*;
+import net.md_5.bungee.packet.DefinedPacket;
+import net.md_5.bungee.packet.Packet3Chat;
+import net.md_5.bungee.packet.Packet9Respawn;
+import net.md_5.bungee.packet.PacketCCSettings;
+import net.md_5.bungee.packet.PacketFAPluginMessage;
+import net.md_5.bungee.packet.PacketFFKick;
 
 @RequiredArgsConstructor
 public final class UserConnection implements ProxiedPlayer
@@ -41,9 +45,7 @@ public final class UserConnection implements ProxiedPlayer
     private final ProxyServer bungee;
     public final ChannelWrapper ch;
     @Getter
-    private final PendingConnection pendingConnection;
-    public final Packet2Handshake handshake;
-    final List<PacketFAPluginMessage> loginMessages;
+    private final InitialHandler pendingConnection;
     /*========================================================================*/
     @Getter
     @Setter(AccessLevel.PACKAGE)
@@ -61,10 +63,10 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     @Setter
     private int ping = 1000;
-    // Permissions
-    private final Collection<String> playerGroups = new HashSet<>();
+    /*========================================================================*/
+    private final Collection<String> groups = new HashSet<>();
     private final Collection<String> permissions = new HashSet<>();
-    private final Object permMutex = new Object();
+    /*========================================================================*/
     @Getter
     private final Object switchMutex = new Object();
     public PacketCCSettings settings;
@@ -228,16 +230,15 @@ public final class UserConnection implements ProxiedPlayer
     @Synchronized("permMutex")
     public Collection<String> getGroups()
     {
-        return Collections.unmodifiableCollection( playerGroups );
+        return Collections.unmodifiableCollection( groups );
     }
 
     @Override
-    @Synchronized("permMutex")
     public void addGroups(String... groups)
     {
         for ( String group : groups )
         {
-            playerGroups.add( group );
+            this.groups.add( group );
             for ( String permission : bungee.getConfigurationAdapter().getPermissions( group ) )
             {
                 setPermission( permission, true );
@@ -246,12 +247,11 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    @Synchronized("permMutex")
     public void removeGroups(String... groups)
     {
         for ( String group : groups )
         {
-            playerGroups.remove( group );
+            this.groups.remove( group );
             for ( String permission : bungee.getConfigurationAdapter().getPermissions( group ) )
             {
                 setPermission( permission, false );
@@ -260,14 +260,12 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    @Synchronized("permMutex")
     public boolean hasPermission(String permission)
     {
         return bungee.getPluginManager().callEvent( new PermissionCheckEvent( this, permission, permissions.contains( permission ) ) ).hasPermission();
     }
 
     @Override
-    @Synchronized("permMutex")
     public void setPermission(String permission, boolean value)
     {
         if ( value )

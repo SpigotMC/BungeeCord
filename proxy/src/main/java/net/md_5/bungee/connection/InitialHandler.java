@@ -32,8 +32,6 @@ import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.netty.CipherCodec;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.ChannelWrapper;
-import net.md_5.bungee.netty.PacketDecoder;
-import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet2Handshake;
 import net.md_5.bungee.packet.PacketCDClientStatus;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
@@ -42,7 +40,6 @@ import net.md_5.bungee.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.packet.PacketFEPing;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketHandler;
-import net.md_5.bungee.protocol.PacketDefinitions;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -52,6 +49,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private ChannelWrapper ch;
     @Getter
     private final ListenerInfo listener;
+    @Getter
     private Packet2Handshake handshake;
     private PacketFDEncryptionRequest request;
     private List<PacketFAPluginMessage> loginMessages = new ArrayList<>();
@@ -212,7 +210,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
-        UserConnection userCon = new UserConnection( (BungeeCord) bungee, ch, this, handshake, loginMessages );
+        UserConnection userCon = new UserConnection( (BungeeCord) bungee, ch, this );
         userCon.init();
 
         bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
