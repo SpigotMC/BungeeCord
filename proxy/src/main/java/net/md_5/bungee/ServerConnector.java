@@ -97,18 +97,18 @@ public class ServerConnector extends PacketHandler
                         login.difficulty,
                         login.unused,
                         (byte) user.getPendingConnection().getListener().getTabListSize() );
-                user.ch.write( modLogin );
+                user.sendPacket( modLogin );
             } else
             {
                 bungee.getTabListHandler().onServerChange( user );
 
                 for ( Objective objective : user.serverSentScoreboard.getObjectives() )
                 {
-                    user.ch.write( new PacketCEScoreboardObjective( objective.getName(), objective.getValue(), (byte) 1 ) );
+                    user.sendPacket( new PacketCEScoreboardObjective( objective.getName(), objective.getValue(), (byte) 1 ) );
                 }
                 for ( Team team : user.serverSentScoreboard.getTeams() )
                 {
-                    user.ch.write( PacketD1Team.destroy( team.getName() ) );
+                    user.sendPacket( PacketD1Team.destroy( team.getName() ) );
                 }
                 user.serverSentScoreboard.clear();
 
@@ -116,7 +116,7 @@ public class ServerConnector extends PacketHandler
                 user.sendPacket( Packet9Respawn.DIM2_SWITCH );
 
                 user.serverEntityId = login.entityId;
-                user.ch.write( new Packet9Respawn( login.dimension, login.difficulty, login.gameMode, (short) 256, login.levelType ) );
+                user.sendPacket( new Packet9Respawn( login.dimension, login.difficulty, login.gameMode, (short) 256, login.levelType ) );
 
                 // Remove from old servers
                 user.getServer().setObsolete( true );
@@ -124,7 +124,7 @@ public class ServerConnector extends PacketHandler
             }
 
             // TODO: Fix this?
-            if ( !user.ch.getHandle().isActive() )
+            if ( !user.isActive() )
             {
                 server.disconnect( "Quitting" );
                 // Silly server admins see stack trace and die

@@ -31,12 +31,12 @@ public class UpstreamBridge extends PacketHandler
 
         BungeeCord.getInstance().connections.put( con.getName(), con );
         bungee.getTabListHandler().onConnect( con );
-        con.ch.write( BungeeCord.getInstance().registerChannels() );
+        con.sendPacket(BungeeCord.getInstance().registerChannels() );
 
         TexturePackInfo texture = con.getPendingConnection().getListener().getTexturePack();
         if ( texture != null )
         {
-            con.ch.write( new PacketFAPluginMessage( "MC|TPack", ( texture.getUrl() + "\00" + texture.getSize() ).getBytes() ) );
+            con.sendPacket(new PacketFAPluginMessage( "MC|TPack", ( texture.getUrl() + "\00" + texture.getSize() ).getBytes() ) );
         }
     }
 
