@@ -43,7 +43,6 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     private final PendingConnection pendingConnection;
     public final Packet2Handshake handshake;
-    final Packet1Login forgeLogin;
     final List<PacketFAPluginMessage> loginMessages;
     /*========================================================================*/
     @Getter

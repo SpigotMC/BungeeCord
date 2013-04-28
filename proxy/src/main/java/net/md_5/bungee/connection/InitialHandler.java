@@ -52,7 +52,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private ChannelWrapper ch;
     @Getter
     private final ListenerInfo listener;
-    private Packet1Login forgeLogin; // TODO: Remove for now?
     private Packet2Handshake handshake;
     private PacketFDEncryptionRequest request;
     private List<PacketFAPluginMessage> loginMessages = new ArrayList<>();
@@ -76,16 +75,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void exception(Throwable t) throws Exception
     {
         disconnect( ChatColor.RED + Util.exception( t ) );
-    }
-
-    @Override
-    public void handle(Packet1Login login) throws Exception
-    {
-        Preconditions.checkState( thisState == State.LOGIN, "Not expecting FORGE LOGIN" );
-        Preconditions.checkState( forgeLogin == null, "Already received FORGE LOGIN" );
-        forgeLogin = login;
-
-        ch.getHandle().pipeline().get( PacketDecoder.class ).setProtocol( PacketDefinitions.FORGE_PROTOCOL );
     }
 
     @Override
@@ -223,7 +212,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
-        UserConnection userCon = new UserConnection( (BungeeCord) bungee, ch, this, handshake, forgeLogin, loginMessages );
+        UserConnection userCon = new UserConnection( (BungeeCord) bungee, ch, this, handshake, loginMessages );
         userCon.init();
 
         bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
