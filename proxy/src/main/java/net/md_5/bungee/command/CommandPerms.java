@@ -16,7 +16,7 @@ public class CommandPerms extends Command
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args)
+    public boolean execute(CommandSender sender, String[] args)
     {
         StringBuilder groups = new StringBuilder();
         Set<String> permissions = new HashSet<>();
@@ -32,5 +32,6 @@ public class CommandPerms extends Command
         {
             sender.sendMessage( ChatColor.BLUE + "- " + permission );
         }
+        return true;
     }
 }
