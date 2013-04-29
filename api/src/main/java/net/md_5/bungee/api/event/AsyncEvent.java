@@ -53,13 +53,14 @@ public class AsyncEvent<T> extends Event
         Preconditions.checkState( !intents.contains( plugin ), "Plugin %s already registered intent for event %s", plugin, this );
 
         intents.add( plugin );
+        latch.incrementAndGet();
     }
 
     /**
      * Notifies this event that this plugin has done all its required processing
      * and wishes to let the event proceed.
      *
-     * @param plugin a plugin which has an intent registered for this evemt
+     * @param plugin a plugin which has an intent registered for this event
      */
     @SuppressWarnings("unchecked")
     public void completeIntent(Plugin plugin)
