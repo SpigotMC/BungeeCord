@@ -2,15 +2,18 @@ package net.md_5.bungee.scheduler;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
 
 public class BungeeThreadPool extends ScheduledThreadPoolExecutor
 {
 
-    public BungeeThreadPool(int corePoolSize, ThreadFactory threadFactory)
+    public BungeeThreadPool(ThreadFactory threadFactory)
     {
-        super( corePoolSize, threadFactory );
+        super( Integer.MAX_VALUE, threadFactory );
+        setKeepAliveTime( 5, TimeUnit.MINUTES );
+        allowCoreThreadTimeOut( true );
     }
 
     @Override
