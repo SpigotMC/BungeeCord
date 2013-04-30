@@ -19,13 +19,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -75,6 +69,10 @@ public class BungeeCord extends ProxyServer
      * Configuration.
      */
     public final Configuration config = new Configuration();
+    /**
+     * Localization bundle.
+     */
+    public final ResourceBundle bundle = ResourceBundle.getBundle("bungee_proxy");
     /**
      * Thread pools.
      */
@@ -276,7 +274,7 @@ public class BungeeCord extends ProxyServer
         getLogger().info( "Disconnecting " + connections.size() + " connections" );
         for ( UserConnection user : connections.values() )
         {
-            user.disconnect( "Proxy restarting, brb." );
+            user.disconnect( getTranslation( "restart" ) );
         }
 
         getLogger().info( "Closing IO threads" );
@@ -294,7 +292,7 @@ public class BungeeCord extends ProxyServer
             getScheduler().cancel( plugin );
         }
 
-        getLogger().info( "Thank you and goodbye" );
+        getLogger().info( getTranslation( "end" ) );
         System.exit( 0 );
     }
 
@@ -321,6 +319,12 @@ public class BungeeCord extends ProxyServer
     public String getVersion()
     {
         return ( BungeeCord.class.getPackage().getImplementationVersion() == null ) ? "unknown" : BungeeCord.class.getPackage().getImplementationVersion();
+    }
+
+    @Override
+    public String getTranslation(String name)
+    {
+        return bundle.getString(name);
     }
 
     @Override
