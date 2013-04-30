@@ -65,7 +65,7 @@ public class DownstreamBridge extends PacketHandler
 
         if ( !server.isObsolete() )
         {
-            con.disconnect( "[Proxy] Lost connection to server D:" );
+            con.disconnect( bungee.getTranslation( "lost_connection ") );
         }
     }
 
