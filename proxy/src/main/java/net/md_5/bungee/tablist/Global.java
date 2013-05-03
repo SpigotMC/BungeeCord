@@ -1,8 +1,7 @@
 package net.md_5.bungee.tablist;
 
-import java.util.Collections;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Collection;
+import java.util.HashSet;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.ProxyServer;
@@ -13,7 +12,7 @@ import net.md_5.bungee.packet.PacketC9PlayerListItem;
 public class Global implements TabListHandler
 {
 
-    private final Set<ProxiedPlayer> sentPings = Collections.newSetFromMap( new ConcurrentHashMap<ProxiedPlayer, Boolean>() );
+    private final Collection<ProxiedPlayer> sentPings = new HashSet<>();
 
     @Override
     public void onConnect(ProxiedPlayer player)
