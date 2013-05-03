@@ -9,9 +9,9 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Synchronized;
@@ -40,7 +40,7 @@ public class BungeeServerInfo implements ServerInfo
     @Getter
     private final boolean restricted;
     @Getter
-    private final Queue<DefinedPacket> packetQueue = new ConcurrentLinkedQueue<>();
+    private final Queue<DefinedPacket> packetQueue = new LinkedList<>();
 
     @Synchronized("players")
     public void addPlayer(ProxiedPlayer player)
@@ -88,7 +88,10 @@ public class BungeeServerInfo implements ServerInfo
             server.sendData( channel, data );
         } else
         {
-            packetQueue.add( new PacketFAPluginMessage( channel, data ) );
+            synchronized ( packetQueue )
+            {
+                packetQueue.add( new PacketFAPluginMessage( channel, data ) );
+            }
         }
     }
 

@@ -16,13 +16,19 @@ public class Packet1Login extends DefinedPacket
     public byte unused;
     public byte maxPlayers;
 
-    public Packet1Login(int entityId, String levelType, byte gameMode, byte dimension, byte difficulty, byte unused, byte maxPlayers)
+    public Packet1Login(int entityId, String levelType, byte gameMode, byte dimension, byte difficulty, byte unused, byte maxPlayers, boolean forge)
     {
         super( 0x01 );
         writeInt( entityId );
         writeUTF( levelType );
         writeByte( gameMode );
-        writeByte( dimension );
+        if ( forge )
+        {
+            writeInt( dimension );
+        } else
+        {
+            writeByte( dimension );
+        }
         writeByte( difficulty );
         writeByte( unused );
         writeByte( maxPlayers );
