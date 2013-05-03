@@ -1,9 +1,9 @@
 package net.md_5.bungee.tablist;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+import java.util.Collection;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.TabListHandler;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -12,7 +12,7 @@ import net.md_5.bungee.packet.PacketC9PlayerListItem;
 public class ServerUnique implements TabListHandler
 {
 
-    private final Map<ProxiedPlayer, Set<String>> sentUsernames = new ConcurrentHashMap<>();
+    private final Multimap<ProxiedPlayer, String> sentUsernames = Multimaps.synchronizedMultimap( HashMultimap.<ProxiedPlayer, String>create() );
 
     @Override
     public void onConnect(ProxiedPlayer player)
@@ -27,45 +27,32 @@ public class ServerUnique implements TabListHandler
     @Override
     public void onDisconnect(ProxiedPlayer player)
     {
-        sentUsernames.remove( player );
+        sentUsernames.removeAll( player );
     }
 
     @Override
     public void onServerChange(ProxiedPlayer player)
     {
-        Set<String> usernames = sentUsernames.get( player );
-        if ( usernames != null )
+        Collection<String> usernames = sentUsernames.get( player );
+        synchronized ( sentUsernames )
         {
-            synchronized ( usernames )
+            for ( String username : usernames )
             {
-                for ( String username : usernames )
-                {
-                    ( (UserConnection) player ).sendPacket( new PacketC9PlayerListItem( username, false, 9999 ) );
-                }
-                usernames.clear();
+                ( (UserConnection) player ).sendPacket( new PacketC9PlayerListItem( username, false, 9999 ) );
             }
+            usernames.clear();
         }
     }
 
     @Override
     public boolean onListUpdate(ProxiedPlayer player, String name, boolean online, int ping)
     {
-        Set<String> usernames = sentUsernames.get( player );
-        if ( usernames == null )
+        if ( online )
         {
-            usernames = new HashSet<>();
-            sentUsernames.put( player, usernames );
-        }
-
-        synchronized ( usernames )
+            sentUsernames.put( player, name );
+        } else
         {
-            if ( online )
-            {
-                usernames.add( name );
-            } else
-            {
-                usernames.remove( name );
-            }
+            sentUsernames.remove( player, name );
         }
 
         return true;
