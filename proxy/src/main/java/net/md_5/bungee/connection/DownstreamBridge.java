@@ -3,7 +3,6 @@ package net.md_5.bungee.connection;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import io.netty.channel.Channel;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.EntityMap;

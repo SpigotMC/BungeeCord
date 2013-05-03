@@ -1,6 +1,5 @@
 package net.md_5.bungee;
 
-import io.netty.channel.Channel;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
