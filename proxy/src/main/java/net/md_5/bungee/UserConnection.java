@@ -53,8 +53,9 @@ public final class UserConnection implements ProxiedPlayer
     private final InitialHandler pendingConnection;
     /*========================================================================*/
     @Getter
+    @NonNull
     @Setter
-    private ServerConnection server;
+    private ServerConnection server = null;
     @Getter
     private final Object switchMutex = new Object();
     @Getter

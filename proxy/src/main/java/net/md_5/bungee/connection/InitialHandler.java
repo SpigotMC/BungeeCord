@@ -33,6 +33,8 @@ import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.CipherDecoder;
 import net.md_5.bungee.netty.CipherEncoder;
+import net.md_5.bungee.netty.PacketDecoder;
+import net.md_5.bungee.packet.Packet1Login;
 import net.md_5.bungee.packet.Packet2Handshake;
 import net.md_5.bungee.packet.PacketCDClientStatus;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
@@ -41,6 +43,7 @@ import net.md_5.bungee.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.packet.PacketFEPing;
 import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketHandler;
+import net.md_5.bungee.protocol.PacketDefinitions;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -50,6 +53,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private ChannelWrapper ch;
     @Getter
     private final ListenerInfo listener;
+    @Getter
+    private Packet1Login forgeLogin;
     @Getter
     private Packet2Handshake handshake;
     private PacketFDEncryptionRequest request;
@@ -98,6 +103,16 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 + "\00" + response.getCurrentPlayers()
                 + "\00" + response.getMaxPlayers();
         disconnect( kickMessage );
+    }
+
+    @Override
+    public void handle(Packet1Login login) throws Exception
+    {
+        Preconditions.checkState( thisState == State.LOGIN, "Not expecting FORGE LOGIN" );
+        Preconditions.checkState( forgeLogin == null, "Already received FORGE LOGIN" );
+        forgeLogin = login;
+
+        ch.getHandle().pipeline().get( PacketDecoder.class ).setProtocol( PacketDefinitions.FORGE_PROTOCOL );
     }
 
     @Override
@@ -196,12 +211,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     return;
                 }
 
+                thisState = InitialHandler.State.LOGIN;
                 ch.write( new PacketFCEncryptionResponse() );
                 try
                 {
                     Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
                     ch.getHandle().pipeline().addBefore( "decoder", "encrypt", new CipherEncoder( encrypt ) );
-                    thisState = InitialHandler.State.LOGIN;
                 } catch ( GeneralSecurityException ex )
                 {
                     disconnect( "Cipher error: " + Util.exception( ex ) );
