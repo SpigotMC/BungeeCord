@@ -53,6 +53,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Getter
     private Packet2Handshake handshake;
     private PacketFDEncryptionRequest request;
+    @Getter
     private List<PacketFAPluginMessage> loginMessages = new ArrayList<>();
     private State thisState = State.HANDSHAKE;
     private SecretKey sharedKey;

@@ -84,6 +84,11 @@ public class ServerConnector extends PacketHandler
             }
         }
 
+        for ( PacketFAPluginMessage message : user.getPendingConnection().getLoginMessages() )
+        {
+            ch.write( message );
+        }
+
         if ( user.getSettings() != null )
         {
             ch.write( user.getSettings() );
