@@ -56,6 +56,19 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
+    public void exception(Throwable t) throws Exception
+    {
+        String message = "Exception Connectiong:" + Util.exception( t );
+        if ( user.getServer() == null || user.getServer().isForgeWrapper() )
+        {
+            user.disconnect( message );
+        } else
+        {
+            user.sendMessage( ChatColor.RED + message );
+        }
+    }
+
+    @Override
     public void connected(ChannelWrapper channel) throws Exception
     {
         this.ch = channel;
