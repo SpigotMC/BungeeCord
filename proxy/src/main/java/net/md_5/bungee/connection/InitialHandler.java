@@ -109,7 +109,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         int limit = BungeeCord.getInstance().config.getPlayerLimit();
-        Preconditions.checkState( limit <= 0 || bungee.getPlayers().size() < limit, "Server is full!" );
+        if ( limit > 0 && bungee.getPlayers().size() > limit )
+        {
+            disconnect( "Server is full!" );
+            return;
+        }
 
         this.handshake = handshake;
         ch.write( request = EncryptionUtil.encryptRequest() );
@@ -210,7 +214,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
-        UserConnection userCon = new UserConnection( (BungeeCord) bungee, ch,getName(), this );
+        UserConnection userCon = new UserConnection( (BungeeCord) bungee, ch, getName(), this );
         userCon.init();
 
         bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
