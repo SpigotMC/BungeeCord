@@ -75,14 +75,15 @@ public class ServerConnector extends PacketHandler
         ServerConnectedEvent event = new ServerConnectedEvent( user, server );
         bungee.getPluginManager().callEvent( event );
 
-        ch.write( BungeeCord.getInstance().registerChannels() );
-
-        // TODO: Race conditions with many connects
-        Queue<DefinedPacket> packetQueue = ( (BungeeServerInfo) target ).getPacketQueue();
-        while ( !packetQueue.isEmpty() )
+        Queue<DefinedPacket> packetQueue = target.getPacketQueue();
+        synchronized ( packetQueue )
         {
-            ch.write( packetQueue.poll() );
+            while ( !packetQueue.isEmpty() )
+            {
+                ch.write( packetQueue.poll() );
+            }
         }
+
         if ( user.getSettings() != null )
         {
             ch.write( user.getSettings() );
@@ -103,7 +104,8 @@ public class ServerConnector extends PacketHandler
                         (byte) login.dimension,
                         login.difficulty,
                         login.unused,
-                        (byte) user.getPendingConnection().getListener().getTabListSize() );
+                        (byte) user.getPendingConnection().getListener().getTabListSize(),
+                        false );
                 user.sendPacket( modLogin );
             } else
             {
