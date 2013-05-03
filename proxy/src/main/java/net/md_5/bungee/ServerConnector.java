@@ -139,7 +139,7 @@ public class ServerConnector extends PacketHandler
                         login.difficulty,
                         login.unused,
                         (byte) user.getPendingConnection().getListener().getTabListSize(),
-                        secretkey != null ); // If we are encrypting, we must be Forge
+                        ch.getHandle().pipeline().get( PacketDecoder.class ).getProtocol() == PacketDefinitions.FORGE_PROTOCOL );
                 user.sendPacket( modLogin );
             } else
             {
