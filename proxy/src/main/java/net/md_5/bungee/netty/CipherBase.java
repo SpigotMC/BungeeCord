@@ -1,21 +1,22 @@
 package net.md_5.bungee.netty;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToByteCodec;
 import javax.crypto.Cipher;
 import javax.crypto.ShortBufferException;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 /**
- * This class is a complete solution for encrypting and decoding bytes in a
- * Netty stream. It takes two {@link Cipher} instances, used for encryption and
- * decryption respectively.
+ * Class to expose an
+ * {@link #cipher(io.netty.buffer.ByteBuf, io.netty.buffer.ByteBuf)} method to
+ * aid in the efficient passing of ByteBuffers through a cipher.
  */
-public class CipherCodec extends ByteToByteCodec
+@RequiredArgsConstructor
+public class CipherBase
 {
 
-    private Cipher encrypt;
-    private Cipher decrypt;
+    @NonNull
+    private final Cipher cipher;
     private ThreadLocal<byte[]> heapInLocal = new EmptyByteThreadLocal();
     private ThreadLocal<byte[]> heapOutLocal = new EmptyByteThreadLocal();
 
@@ -29,25 +30,7 @@ public class CipherCodec extends ByteToByteCodec
         }
     }
 
-    public CipherCodec(Cipher encrypt, Cipher decrypt)
-    {
-        this.encrypt = encrypt;
-        this.decrypt = decrypt;
-    }
-
-    @Override
-    public void encode(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out) throws Exception
-    {
-        cipher( in, out, encrypt );
-    }
-
-    @Override
-    public void decode(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out) throws Exception
-    {
-        cipher( in, out, decrypt );
-    }
-
-    private void cipher(ByteBuf in, ByteBuf out, Cipher cipher) throws ShortBufferException
+    protected void cipher(ByteBuf in, ByteBuf out) throws ShortBufferException
     {
         byte[] heapIn = heapInLocal.get();
         int readableBytes = in.readableBytes();

@@ -29,9 +29,10 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
-import net.md_5.bungee.netty.CipherCodec;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.ChannelWrapper;
+import net.md_5.bungee.netty.CipherDecoder;
+import net.md_5.bungee.netty.CipherEncoder;
 import net.md_5.bungee.packet.Packet2Handshake;
 import net.md_5.bungee.packet.PacketCDClientStatus;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
@@ -126,6 +127,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( thisState == State.ENCRYPT, "Not expecting ENCRYPT" );
 
         sharedKey = EncryptionUtil.getSecret( encryptResponse, request );
+        Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, sharedKey );
+        ch.getHandle().pipeline().addBefore( "decoder", "decrypt", new CipherDecoder( decrypt ) );
+
         if ( BungeeCord.getInstance().config.isOnlineMode() )
         {
             String encName = URLEncoder.encode( InitialHandler.this.getName(), "UTF-8" );
@@ -191,12 +195,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     return;
                 }
 
+                ch.write( new PacketFCEncryptionResponse() );
                 try
                 {
                     Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
-                    Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, sharedKey );
-                    ch.write( new PacketFCEncryptionResponse() );
-                    ch.getHandle().pipeline().addBefore( "decoder", "cipher", new CipherCodec( encrypt, decrypt ) );
+                    ch.getHandle().pipeline().addBefore( "decoder", "encrypt", new CipherEncoder( encrypt ) );
                     thisState = InitialHandler.State.LOGIN;
                 } catch ( GeneralSecurityException ex )
                 {
