@@ -6,8 +6,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ReconnectHandler;
@@ -41,7 +41,10 @@ public class YamlReconnectHandler implements ReconnectHandler
 
         if ( data == null )
         {
-            data = new HashMap<>();
+            data = new ConcurrentHashMap<>();
+        } else
+        {
+            data = new ConcurrentHashMap<>( data );
         }
     }
 
