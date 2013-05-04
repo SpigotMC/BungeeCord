@@ -48,6 +48,7 @@ public class ServerConnector extends PacketHandler
     private final BungeeServerInfo target;
     private State thisState = State.ENCRYPT_REQUEST;
     private SecretKey secretkey;
+    private boolean sentMessages;
 
     private enum State
     {
@@ -59,7 +60,7 @@ public class ServerConnector extends PacketHandler
     public void exception(Throwable t) throws Exception
     {
         String message = "Exception Connectiong:" + Util.exception( t );
-        if ( user.getServer() == null || user.getServer().isForgeWrapper() )
+        if ( user.getServer() == null )
         {
             user.disconnect( message );
         } else
@@ -99,7 +100,7 @@ public class ServerConnector extends PacketHandler
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not exepcting LOGIN" );
 
-        ServerConnection server = new ServerConnection( ch, target, false );
+        ServerConnection server = new ServerConnection( ch, target );
         ServerConnectedEvent event = new ServerConnectedEvent( user, server );
         bungee.getPluginManager().callEvent( event );
 
@@ -113,9 +114,12 @@ public class ServerConnector extends PacketHandler
             }
         }
 
-        for ( PacketFAPluginMessage message : user.getPendingConnection().getLoginMessages() )
+        if ( !sentMessages )
         {
-            ch.write( message );
+            for ( PacketFAPluginMessage message : user.getPendingConnection().getLoginMessages() )
+            {
+                ch.write( message );
+            }
         }
 
         if ( user.getSettings() != null )
@@ -125,8 +129,7 @@ public class ServerConnector extends PacketHandler
 
         synchronized ( user.getSwitchMutex() )
         {
-            // TODO: This whole wrapper business is a hack
-            if ( user.getServer() == null || user.getServer().isForgeWrapper() )
+            if ( user.getServer() == null )
             {
                 // Once again, first connection
                 user.setClientEntityId( login.entityId );
@@ -226,7 +229,6 @@ public class ServerConnector extends PacketHandler
         ch.getHandle().pipeline().addBefore( "decoder", "decrypt", new CipherDecoder( decrypt ) );
 
         ch.write( user.getPendingConnection().getForgeLogin() );
-        user.setServer( new ServerConnection( ch, target, true ) );
 
         ch.write( PacketCDClientStatus.CLIENT_LOGIN );
         thisState = State.LOGIN;
@@ -270,11 +272,20 @@ public class ServerConnector extends PacketHandler
             }
             if ( in.readByte() != 0 )
             {
+                // TODO: Using forge flag
                 ch.getHandle().pipeline().get( PacketDecoder.class ).setProtocol( PacketDefinitions.FORGE_PROTOCOL );
             }
         }
 
         user.sendPacket( pluginMessage ); // We have to forward these to the user, especially with Forge as stuff might break
+        if ( !sentMessages && user.getPendingConnection().getForgeLogin() != null )
+        {
+            for ( PacketFAPluginMessage message : user.getPendingConnection().getLoginMessages() )
+            {
+                ch.write( message );
+            }
+            sentMessages = true;
+        }
     }
 
     @Override

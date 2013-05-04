@@ -63,6 +63,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private State thisState = State.HANDSHAKE;
     private SecretKey sharedKey;
     private boolean disconnected;
+    private static final PacketFAPluginMessage forgeMods = new PacketFAPluginMessage( "FML", new byte[]
+    {
+        0, 0, 0, 0, 0, 2
+    } );
 
     private enum State
     {
@@ -133,6 +137,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         this.handshake = handshake;
+        ch.write( forgeMods );
         ch.write( request = EncryptionUtil.encryptRequest() );
         thisState = State.ENCRYPT;
     }
