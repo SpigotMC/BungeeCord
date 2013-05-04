@@ -51,7 +51,7 @@ public class UpstreamBridge extends PacketHandler
         PlayerDisconnectEvent event = new PlayerDisconnectEvent( con );
         bungee.getPluginManager().callEvent( event );
         bungee.getTabListHandler().onDisconnect( con );
-        BungeeCord.getInstance().connections.remove( con.getName() ); //TODO: Better way, why do we need to raw access?
+        bungee.getPlayers().remove( con );
 
         if ( con.getServer() != null )
         {
