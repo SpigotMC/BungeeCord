@@ -19,8 +19,6 @@ public class ServerConnection implements Server
     @Getter
     private final BungeeServerInfo info;
     @Getter
-    private final boolean isForgeWrapper;
-    @Getter
     @Setter
     private boolean isObsolete;
 
