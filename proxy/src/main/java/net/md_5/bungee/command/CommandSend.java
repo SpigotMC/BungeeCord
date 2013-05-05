@@ -52,6 +52,7 @@ public class CommandSend extends Command
             if ( player == null )
             {
                 sender.sendMessage( ChatColor.RED + "That player is not online" );
+                return;
             }
             summon( player, target, sender );
         }
