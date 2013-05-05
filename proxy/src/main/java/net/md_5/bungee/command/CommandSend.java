@@ -27,6 +27,7 @@ public class CommandSend extends Command
         if ( target == null )
         {
             sender.sendMessage( ChatColor.RED + "Target server does not exist" );
+            return;
         }
 
         if ( args[0].equalsIgnoreCase( "all" ) )
@@ -40,6 +41,7 @@ public class CommandSend extends Command
             if ( !( sender instanceof ProxiedPlayer ) )
             {
                 sender.sendMessage( ChatColor.RED + "Only in game players can use this command" );
+                return;
             }
             ProxiedPlayer player = (ProxiedPlayer) sender;
             for ( ProxiedPlayer p : player.getServer().getInfo().getPlayers() )
@@ -52,6 +54,7 @@ public class CommandSend extends Command
             if ( player == null )
             {
                 sender.sendMessage( ChatColor.RED + "That player is not online" );
+                return;
             }
             summon( player, target, sender );
         }
