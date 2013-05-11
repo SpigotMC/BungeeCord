@@ -2,6 +2,7 @@ package net.md_5.bungee.api.connection;
 
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.config.TexturePackInfo;
 
 /**
  * Represents a player who's connection is being connected to somewhere else,
@@ -69,4 +70,11 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param message the message to say
      */
     public void chat(String message);
+
+    /**
+     * Send a request to change the players texture pack.
+     *
+     * @param pack the pack to request
+     */
+    public void setTexturePack(TexturePackInfo pack);
 }

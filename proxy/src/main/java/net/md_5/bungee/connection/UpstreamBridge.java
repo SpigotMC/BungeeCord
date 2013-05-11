@@ -35,7 +35,7 @@ public class UpstreamBridge extends PacketHandler
         TexturePackInfo texture = con.getPendingConnection().getListener().getTexturePack();
         if ( texture != null )
         {
-            con.sendPacket( new PacketFAPluginMessage( "MC|TPack", ( texture.getUrl() + "\00" + texture.getSize() ).getBytes() ) );
+            con.setTexturePack( texture );
         }
     }
 
