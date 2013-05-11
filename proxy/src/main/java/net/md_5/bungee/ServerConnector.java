@@ -15,6 +15,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
+import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.scoreboard.Objective;
 import net.md_5.bungee.api.scoreboard.Scoreboard;
 import net.md_5.bungee.api.scoreboard.Team;
@@ -188,6 +189,8 @@ public class ServerConnector extends PacketHandler
             user.setServer( server );
             ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user, server ) );
         }
+
+        bungee.getPluginManager().callEvent( new ServerSwitchEvent( user ) );
 
         thisState = State.FINISHED;
 
