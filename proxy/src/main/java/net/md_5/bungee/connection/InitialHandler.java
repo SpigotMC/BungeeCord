@@ -136,6 +136,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             return;
         }
 
+        // If offline mode and they are already on, don't allow connect
+        if ( !BungeeCord.getInstance().config.isOnlineMode() && bungee.getPlayer( handshake.username ) != null )
+        {
+            disconnect( bungee.getTranslation( "already_connected" ) );
+            return;
+        }
+
         this.handshake = handshake;
         ch.write( forgeMods );
         ch.write( request = EncryptionUtil.encryptRequest() );
@@ -199,7 +206,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         ProxiedPlayer old = bungee.getPlayer( handshake.username );
         if ( old != null )
         {
-            old.disconnect( bungee.getTranslation( "already_connected") );
+            old.disconnect( bungee.getTranslation( "already_connected" ) );
         }
 
         Callback<LoginEvent> complete = new Callback<LoginEvent>()
