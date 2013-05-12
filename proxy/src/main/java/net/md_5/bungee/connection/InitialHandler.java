@@ -199,7 +199,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         ProxiedPlayer old = bungee.getPlayer( handshake.username );
         if ( old != null )
         {
-            old.disconnect( "already_connected" );
+            old.disconnect( bungee.getTranslation( "already_connected") );
         }
 
         Callback<LoginEvent> complete = new Callback<LoginEvent>()
