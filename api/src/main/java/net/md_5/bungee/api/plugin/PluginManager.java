@@ -85,7 +85,7 @@ public class PluginManager
         String permission = command.getPermission();
         if ( permission != null && !permission.isEmpty() && !sender.hasPermission( permission ) )
         {
-            sender.sendMessage( ChatColor.RED + "You do not have permission to execute this command!" );
+            sender.sendMessage( proxy.getTranslation( "no_permission" ) );
             return true;
         }
 

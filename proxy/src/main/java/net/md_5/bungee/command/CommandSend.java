@@ -26,7 +26,7 @@ public class CommandSend extends Command
         ServerInfo target = ProxyServer.getInstance().getServerInfo( args[1] );
         if ( target == null )
         {
-            sender.sendMessage( ChatColor.RED + "Target server does not exist" );
+            sender.sendMessage( ProxyServer.getInstance().getTranslation( "no_server") );
             return;
         }
 

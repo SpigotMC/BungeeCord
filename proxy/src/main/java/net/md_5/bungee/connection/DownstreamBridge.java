@@ -64,7 +64,7 @@ public class DownstreamBridge extends PacketHandler
 
         if ( !server.isObsolete() )
         {
-            con.disconnect( bungee.getTranslation( "lost_connection ") );
+            con.disconnect( bungee.getTranslation( "lost_connection " ) );
         }
     }
 
@@ -334,7 +334,7 @@ public class DownstreamBridge extends PacketHandler
             con.connectNow( event.getCancelServer() );
         } else
         {
-            con.disconnect( "[Kicked] " + event.getKickReason() );
+            con.disconnect( bungee.getTranslation( "server_kick" ) + event.getKickReason() );
         }
         server.setObsolete( true );
         throw new CancelSendSignal();
