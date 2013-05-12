@@ -132,7 +132,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         int limit = BungeeCord.getInstance().config.getPlayerLimit();
         if ( limit > 0 && bungee.getPlayers().size() > limit )
         {
-            disconnect( "Server is full!" );
+            disconnect( bungee.getTranslation( "proxy_full" ) );
             return;
         }
 
@@ -199,7 +199,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         ProxiedPlayer old = bungee.getPlayer( handshake.username );
         if ( old != null )
         {
-            old.disconnect( "You are already connected to the server" );
+            old.disconnect( "already_connected" );
         }
 
         Callback<LoginEvent> complete = new Callback<LoginEvent>()

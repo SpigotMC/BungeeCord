@@ -188,16 +188,16 @@ public final class UserConnection implements ProxiedPlayer
                     ServerInfo def = ProxyServer.getInstance().getServers().get( getPendingConnection().getListener().getFallbackServer() );
                     if ( retry & target != def && ( getServer() == null || def != getServer().getInfo() ) )
                     {
-                        sendMessage( ChatColor.RED + "Could not connect to target server, you have been moved to the lobby server" );
+                        sendMessage( bungee.getTranslation( "fallback_lobby" ) );
                         connect( def, false );
                     } else
                     {
                         if ( server == null )
                         {
-                            disconnect( "Could not connect to default server, please try again later: " + future.cause().getClass().getName() );
+                            disconnect( bungee.getTranslation( "fallback_kick" ) + future.cause().getClass().getName() );
                         } else
                         {
-                            sendMessage( ChatColor.RED + "Could not connect to selected server, please try again later: " + future.cause().getClass().getName() );
+                            sendMessage( bungee.getTranslation( "fallback_kick" ) + future.cause().getClass().getName() );
                         }
                     }
                 }

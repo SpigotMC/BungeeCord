@@ -43,16 +43,16 @@ public class CommandServer extends Command
             {
                 serverList.setLength( serverList.length() - 2 );
             }
-            player.sendMessage( ChatColor.GOLD + "You may connect to the following servers at this time: " + serverList.toString() );
+            player.sendMessage( ProxyServer.getInstance().getTranslation( "server_list") + serverList.toString() );
         } else
         {
             ServerInfo server = servers.get( args[0] );
             if ( server == null )
             {
-                player.sendMessage( ChatColor.RED + "The specified server does not exist" );
+                player.sendMessage( ProxyServer.getInstance().getTranslation( "no_server") );
             } else if ( !server.canAccess( player ) )
             {
-                player.sendMessage( ChatColor.RED + "You don't have permission to access this server" );
+                player.sendMessage( ProxyServer.getInstance().getTranslation( "no_server_permission") );
             } else
             {
                 player.connect( server );

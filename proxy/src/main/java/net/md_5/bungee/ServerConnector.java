@@ -252,7 +252,7 @@ public class ServerConnector extends PacketHandler
             return;
         }
 
-        String message = ChatColor.RED + "Kicked whilst connecting to " + target.getName() + ": " + kick.message;
+        String message = bungee.getTranslation( "connect_kick") + target.getName() + ": " + kick.message;
         if ( user.getServer() == null )
         {
             user.disconnect( message );
