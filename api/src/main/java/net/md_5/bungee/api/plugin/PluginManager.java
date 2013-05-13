@@ -238,7 +238,7 @@ public class PluginManager
                 Class<?> main = loader.loadClass( desc.getMain() );
                 Plugin plugin = (Plugin) main.getDeclaredConstructor().newInstance();
 
-                plugin.init( proxy, desc, file );
+                plugin.init( proxy, desc, file);
                 plugins.put( desc.getName(), plugin );
                 plugin.onLoad();
                 ProxyServer.getInstance().getLogger().log( Level.INFO, "Loaded plugin {0} version {1} by {2}", new Object[]
