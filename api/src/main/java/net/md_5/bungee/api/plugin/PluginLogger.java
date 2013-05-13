@@ -11,9 +11,9 @@ public class PluginLogger extends Logger {
 
 	private String pluginName;
 
-	protected PluginLogger(PluginDescription context) {
+	protected PluginLogger(Plugin context) {
 		super(context.getClass().getCanonicalName(), null);
-		pluginName = "[" + context.getName() + "] ";
+		pluginName = "[" + context.getDescription.getName() + "] ";
 		setParent(BungeeCord.getInstance().getLogger());
 		setLevel(Level.ALL);
 	}
