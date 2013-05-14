@@ -6,6 +6,7 @@ import com.google.common.io.ByteStreams;
 import io.netty.channel.Channel;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.UserConnection;
@@ -49,7 +50,7 @@ public class DownstreamBridge extends PacketHandler
     
     public void tryRescue( String kickMessage ) {
         ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getFallbackServer() );
-        if ( /* server.getInfo() != def */ true )
+        if ( ! server.getInfo().getName().equalsIgnoreCase( BungeeCord.jailServerName ) )
         {
             con.getServer().setObsolete( true );
             con.connectNow( def );
@@ -342,7 +343,7 @@ public class DownstreamBridge extends PacketHandler
         }*/
         ServerKickEvent origEvt = new ServerKickEvent( con, kick.message, def );
         
-        if( kick.message.contains( "Server" ) || kick.message.contains( "closed" ) || kick.message.contains( "white-listed" ) )
+        if( ! server.getInfo().getName().equalsIgnoreCase( BungeeCord.jailServerName ) && ( kick.message.contains( "Server" ) || kick.message.contains( "closed" ) || kick.message.contains( "white-listed" ) ) )
             origEvt.setCancelled( true );
         ServerKickEvent event = bungee.getPluginManager().callEvent( origEvt );
         if ( event.isCancelled() && event.getCancelServer() != null )

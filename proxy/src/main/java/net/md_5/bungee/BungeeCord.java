@@ -67,6 +67,7 @@ public class BungeeCord extends ProxyServer
      * Server game version.
      */
     public static final String GAME_VERSION = "1.5.2";
+    public static final String jailServerName = "Jail";
 
     @Getter
     @Setter

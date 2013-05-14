@@ -3,6 +3,7 @@ package net.md_5.bungee.command;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -29,6 +30,10 @@ public class CommandServer extends Command
             return;
         }
         ProxiedPlayer player = (ProxiedPlayer) sender;
+        if( BungeeCord.jailServerName.equalsIgnoreCase( player.getServer().getInfo().getName() ) ) {
+            player.sendMessage( ChatColor.RED + "You are on the jail server.  If you are not jailed, type /jret to return." );
+            return;
+        }
         Map<String, ServerInfo> servers = ProxyServer.getInstance().getServers();
         if ( args.length == 0 )
         {

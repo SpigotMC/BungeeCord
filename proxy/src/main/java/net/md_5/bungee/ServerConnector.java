@@ -183,7 +183,7 @@ public class ServerConnector extends PacketHandler
         }
         ServerKickEvent origEvt = new ServerKickEvent( user, kick.message, def );
         
-        if( ( kick.message.contains( "Server" ) || kick.message.contains( "closed" ) || kick.message.contains( "white-listed" ) ) && user.getServer() == null )
+        if( ! target.getName().equalsIgnoreCase( BungeeCord.jailServerName ) && ( kick.message.contains( "Server" ) || kick.message.contains( "closed" ) || kick.message.contains( "white-listed" ) ) && user.getServer() == null )
             origEvt.setCancelled( true );
         
         ServerKickEvent event = bungee.getPluginManager().callEvent( origEvt );
