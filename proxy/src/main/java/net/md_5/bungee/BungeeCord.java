@@ -67,6 +67,11 @@ public class BungeeCord extends ProxyServer
      * Server game version.
      */
     public static final String GAME_VERSION = "1.5.2";
+
+    @Getter
+    @Setter
+    private static boolean exitWhenEmpty = false;
+    
     /**
      * Current operation state.
      */
@@ -134,6 +139,7 @@ public class BungeeCord extends ProxyServer
         getPluginManager().registerCommand( null, new CommandSend() );
         
         getPluginManager().registerCommand( null, new CommandDefault() );
+        getPluginManager().registerCommand( null, new CommandGraceful() );
 
         registerChannel( "BungeeCord" );
     }

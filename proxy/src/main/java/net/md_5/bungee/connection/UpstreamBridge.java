@@ -60,6 +60,9 @@ public class UpstreamBridge extends PacketHandler
         {
             con.getServer().disconnect( "Quitting" );
         }
+        
+        if ( BungeeCord.isExitWhenEmpty() && BungeeCord.getInstance().connections.size() == 0 )
+            BungeeCord.getInstance().stop();
     }
 
     @Override
