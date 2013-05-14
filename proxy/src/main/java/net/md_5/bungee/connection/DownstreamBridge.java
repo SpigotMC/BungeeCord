@@ -43,17 +43,27 @@ public class DownstreamBridge extends PacketHandler
     private final ServerConnection server;
 
     @Override
-    public void exception(Throwable t) throws Exception
-    {
+    public void connected( ChannelWrapper channel ) throws Exception {
+        con.sendMessage( ChatColor.GREEN + "Welcome to " + ChatColor.RED + server.getInfo().getName() );
+    }
+    
+    public void tryRescue( String kickMessage ) {
         ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getFallbackServer() );
-        if ( server.getInfo() != def )
+        if ( /* server.getInfo() != def */ true )
         {
+            con.getServer().setObsolete( true );
             con.connectNow( def );
-            con.sendMessage( ChatColor.RED + "The server you were previously on went down, you have been connected to the lobby" );
+            //con.sendMessage( ChatColor.RED + "The server you were previously on went down, you have been connected to the lobby" );
         } else
         {
-            con.disconnect( Util.exception( t ) );
+            con.disconnect( kickMessage );
         }
+    }
+    
+    @Override
+    public void exception(Throwable t) throws Exception
+    {
+        tryRescue( Util.exception( t ) );
     }
 
     @Override
@@ -65,7 +75,7 @@ public class DownstreamBridge extends PacketHandler
 
         if ( !server.isObsolete() )
         {
-            con.disconnect( "[Proxy] Lost connection to server D:" );
+            tryRescue( "[Proxy] Lost connection to server D:" );
         }
     }
 
@@ -325,19 +335,25 @@ public class DownstreamBridge extends PacketHandler
     public void handle(PacketFFKick kick) throws Exception
     {
         ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getFallbackServer() );
+        /*
         if ( Objects.equals( server.getInfo(), def ) )
         {
-            def = null;
-        }
-        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, kick.message, def ) );
+          def = null;
+        }*/
+        ServerKickEvent origEvt = new ServerKickEvent( con, kick.message, def );
+        
+        if( kick.message.contains( "Server" ) || kick.message.contains( "closed" ) || kick.message.contains( "white-listed" ) )
+            origEvt.setCancelled( true );
+        ServerKickEvent event = bungee.getPluginManager().callEvent( origEvt );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
+            server.setObsolete( true );
             con.connectNow( event.getCancelServer() );
         } else
         {
             con.disconnect( "[Kicked] " + event.getKickReason() );
+            server.setObsolete( true );
         }
-        server.setObsolete( true );
         throw new CancelSendSignal();
     }
 

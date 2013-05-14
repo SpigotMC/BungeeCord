@@ -12,6 +12,8 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.Objects;
 import java.util.logging.Level;
 import lombok.Getter;
@@ -135,10 +137,15 @@ public final class UserConnection implements ProxiedPlayer
     {
         sendPacket( Packet9Respawn.DIM1_SWITCH );
         sendPacket( Packet9Respawn.DIM2_SWITCH );
-        connect( target );
+        connect( target, true );
     }
 
     public void connect(ServerInfo info, final boolean retry)
+    {
+        connect(info, retry, 0);
+    }
+    
+    public void connect(ServerInfo info, final boolean retry, final int retryCount)
     {
         ServerConnectEvent event = new ServerConnectEvent( this, info );
         ProxyServer.getInstance().getPluginManager().callEvent( event );
@@ -146,7 +153,7 @@ public final class UserConnection implements ProxiedPlayer
         Preconditions.checkArgument( event.getTarget() instanceof BungeeServerInfo, "BungeeCord can only connect to BungeeServerInfo instances" );
         final BungeeServerInfo target = (BungeeServerInfo) event.getTarget(); // Update in case the event changed target
 
-        if ( getServer() != null && Objects.equals( getServer().getInfo(), target ) )
+        if ( getServer() != null && Objects.equals( getServer().getInfo(), target ) && ! getServer().isObsolete() )
         {
             sendMessage( ChatColor.RED + "Cannot connect to server you are already on!" );
             return;
@@ -156,7 +163,7 @@ public final class UserConnection implements ProxiedPlayer
             sendMessage( ChatColor.RED + "Already connecting to this server!" );
             return;
         }
-
+        
         pendingConnects.add( target );
 
         new Bootstrap()
@@ -183,11 +190,19 @@ public final class UserConnection implements ProxiedPlayer
                     future.channel().close();
                     pendingConnects.remove( target );
 
-                    ServerInfo def = ProxyServer.getInstance().getServers().get( getPendingConnection().getListener().getFallbackServer() );
-                    if ( retry & target != def && ( getServer() == null || def != getServer().getInfo() ) )
+                    final ServerInfo def = ProxyServer.getInstance().getServers().get( getPendingConnection().getListener().getFallbackServer() );
+                    if ( retry && target != def && ( getServer() == null || def != getServer().getInfo() ) )
                     {
                         sendMessage( ChatColor.RED + "Could not connect to target server, you have been moved to the lobby server" );
                         connect( def, false );
+                    } else if ( target == def && retry && retryCount <= 12 )
+                    {
+                        BungeeCord.getInstance().executors.schedule( new Runnable() {
+                            @Override
+                            public void run() {
+                                connect( def, true, retryCount + 1 );
+                            }
+                        }, 5, TimeUnit.SECONDS );
                     } else
                     {
                         if ( server == null )
@@ -210,11 +225,12 @@ public final class UserConnection implements ProxiedPlayer
         {
             bungee.getLogger().log( Level.INFO, "[" + getName() + "] disconnected with: " + reason );
             sendPacket( new PacketFFKick( reason ) );
-            ch.getHandle().close();
             if ( server != null )
             {
+                server.setObsolete( true );
                 server.disconnect( "Quitting" );
             }
+            ch.getHandle().close();
         }
     }
 

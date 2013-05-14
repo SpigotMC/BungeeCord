@@ -16,6 +16,7 @@ import net.md_5.bungee.packet.Packet0KeepAlive;
 import net.md_5.bungee.packet.Packet3Chat;
 import net.md_5.bungee.packet.PacketCCSettings;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
+import net.md_5.bungee.packet.PacketFFKick;
 import net.md_5.bungee.packet.PacketHandler;
 
 public class UpstreamBridge extends PacketHandler
@@ -118,6 +119,11 @@ public class UpstreamBridge extends PacketHandler
         {
             throw new CancelSendSignal();
         }
+    }
+    
+    @Override
+    public void handle( PacketFFKick kick ) throws Exception {
+        con.disconnect( "End of stream" );
     }
 
     @Override

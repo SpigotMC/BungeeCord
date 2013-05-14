@@ -5,6 +5,8 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import java.util.Objects;
 import java.util.Queue;
+import java.util.concurrent.TimeUnit;
+
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
@@ -64,6 +66,14 @@ public class ServerConnector extends PacketHandler
     public void disconnected(ChannelWrapper channel) throws Exception
     {
         user.getPendingConnects().remove( target );
+        if( user.getServer() != null && user.getServer().isObsolete() && user.isActive() )
+            BungeeCord.getInstance().executors.schedule( new Runnable() {
+                @Override
+                public void run() {
+                    if( user.isActive() )
+                        user.connect( bungee.getServerInfo( user.getPendingConnection().getListener().getFallbackServer() ), true );
+                }
+            }, 5, TimeUnit.SECONDS );
     }
 
     @Override
@@ -164,12 +174,19 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(PacketFFKick kick) throws Exception
     {
+        user.getPendingConnects().remove( target );
+        
         ServerInfo def = bungee.getServerInfo( user.getPendingConnection().getListener().getFallbackServer() );
         if ( Objects.equals( target, def ) )
         {
             def = null;
         }
-        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( user, kick.message, def ) );
+        ServerKickEvent origEvt = new ServerKickEvent( user, kick.message, def );
+        
+        if( ( kick.message.contains( "Server" ) || kick.message.contains( "closed" ) || kick.message.contains( "white-listed" ) ) && user.getServer() == null )
+            origEvt.setCancelled( true );
+        
+        ServerKickEvent event = bungee.getPluginManager().callEvent( origEvt );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
             user.connect( event.getCancelServer() );
