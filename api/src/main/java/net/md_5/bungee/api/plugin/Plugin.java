@@ -2,6 +2,7 @@ package net.md_5.bungee.api.plugin;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.logging.Logger;
 import lombok.Getter;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
@@ -19,6 +20,8 @@ public class Plugin
     private ProxyServer proxy;
     @Getter
     private File file;
+    @Getter
+    private Logger logger;
 
     /**
      * Called when the plugin has just been loaded. Most of the proxy will not
@@ -78,5 +81,6 @@ public class Plugin
         this.proxy = proxy;
         this.description = description;
         this.file = file;
+        this.logger = new PluginLogger(this);
     }
 }
