@@ -1,10 +1,10 @@
 package net.md_5.bungee.api.plugin;
 
 import com.google.common.base.Preconditions;
-import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
@@ -20,7 +20,8 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.event.LoginEvent;
+import net.md_5.bungee.event.EventBus;
+import net.md_5.bungee.event.EventHandler;
 import org.yaml.snakeyaml.Yaml;
 
 /**
@@ -36,7 +37,8 @@ public class PluginManager
     private final ProxyServer proxy;
     /*========================================================================*/
     private final Yaml yaml = new Yaml();
-    private final EventBus eventBus = new EventBus();
+    @SuppressWarnings("unchecked")
+    private final EventBus eventBus = new EventBus( ProxyServer.getInstance().getLogger(), Subscribe.class, EventHandler.class );
     private final Map<String, Plugin> plugins = new HashMap<>();
     private final Map<String, Command> commandMap = new HashMap<>();
 
@@ -311,6 +313,14 @@ public class PluginManager
      */
     public void registerListener(Plugin plugin, Listener listener)
     {
+        for ( Method method : listener.getClass().getDeclaredMethods() )
+        {
+            if ( method.isAnnotationPresent( Subscribe.class ) )
+            {
+                proxy.getLogger().log( Level.SEVERE, "Listener {0} has registered using depreceated subscribe annotation! Please advice author to update to @EventHadler", listener );
+            }
+        }
+
         eventBus.register( listener );
     }
 }
