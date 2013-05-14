@@ -37,10 +37,16 @@ public class PluginManager
     private final ProxyServer proxy;
     /*========================================================================*/
     private final Yaml yaml = new Yaml();
-    @SuppressWarnings("unchecked")
-    private final EventBus eventBus = new EventBus( ProxyServer.getInstance().getLogger(), Subscribe.class, EventHandler.class );
+    private final EventBus eventBus;
     private final Map<String, Plugin> plugins = new HashMap<>();
     private final Map<String, Command> commandMap = new HashMap<>();
+
+    @SuppressWarnings("unchecked")
+    public PluginManager(ProxyServer proxy)
+    {
+        this.proxy = proxy;
+        eventBus = new EventBus( proxy.getLogger(), Subscribe.class, EventHandler.class );
+    }
 
     /**
      * Register a command so that it may be executed.
