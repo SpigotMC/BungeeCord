@@ -1,6 +1,8 @@
 package net.md_5.bungee.command;
 
 import java.util.Map;
+import java.util.Map.Entry;
+
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -46,7 +48,12 @@ public class CommandServer extends Command
             player.sendMessage( ChatColor.GOLD + "You may connect to the following servers at this time: " + serverList.toString() );
         } else
         {
-            ServerInfo server = servers.get( args[0] );
+            //ServerInfo server = servers.get( args[0] );
+            ServerInfo server = null;
+            for( Entry<String,ServerInfo> entry : servers.entrySet() ) {
+                if( entry.getKey().equalsIgnoreCase( args[0] ) )
+                    server = entry.getValue();
+            }
             if ( server == null )
             {
                 player.sendMessage( ChatColor.RED + "The specified server does not exist" );
