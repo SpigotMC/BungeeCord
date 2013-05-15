@@ -98,14 +98,7 @@ public class BungeeServerInfo implements ServerInfo
     @Override
     public void ping(final Callback<ServerPing> callback)
     {
-        new Bootstrap()
-                .channel( NioSocketChannel.class )
-                .group( BungeeCord.getInstance().eventLoops )
-                .handler( PipelineUtils.BASE )
-                .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000 ) // TODO: Configurable
-                .remoteAddress( getAddress() )
-                .connect()
-                .addListener( new ChannelFutureListener()
+        ChannelFutureListener listener = new ChannelFutureListener()
         {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception
@@ -118,6 +111,14 @@ public class BungeeServerInfo implements ServerInfo
                     callback.done( null, future.cause() );
                 }
             }
-        } );
+        };
+        new Bootstrap()
+                .channel( NioSocketChannel.class )
+                .group( BungeeCord.getInstance().eventLoops )
+                .handler( PipelineUtils.BASE )
+                .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000 ) // TODO: Configurable
+                .remoteAddress( getAddress() )
+                .connect()
+                .addListener( listener );
     }
 }
