@@ -205,7 +205,6 @@ public final class UserConnection implements ProxiedPlayer
                 .channel( NioSocketChannel.class )
                 .group( BungeeCord.getInstance().eventLoops )
                 .handler( initializer )
-                .localAddress( getPendingConnection().getListener().getHost() )
                 .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000 ) // TODO: Configurable
                 .remoteAddress( target.getAddress() )
                 .connect().addListener( listener );
