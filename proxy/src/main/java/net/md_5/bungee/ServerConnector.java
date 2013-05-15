@@ -252,7 +252,7 @@ public class ServerConnector extends PacketHandler
             return;
         }
 
-        String message = bungee.getTranslation( "connect_kick") + target.getName() + ": " + kick.message;
+        String message = bungee.getTranslation( "connect_kick" ) + target.getName() + ": " + kick.message;
         if ( user.getServer() == null )
         {
             user.disconnect( message );
@@ -269,7 +269,8 @@ public class ServerConnector extends PacketHandler
         {
             ByteArrayDataInput in = ByteStreams.newDataInput( pluginMessage.data );
             in.readUnsignedByte();
-            for ( int i = 0; i < in.readInt(); i++ )
+            int count = in.readInt();
+            for ( int i = 0; i < count; i++ )
             {
                 in.readUTF();
             }
