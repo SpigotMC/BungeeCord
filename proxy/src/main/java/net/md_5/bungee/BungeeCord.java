@@ -281,7 +281,7 @@ public class BungeeCord extends ProxyServer
         }
 
         getLogger().info( "Closing IO threads" );
-        eventLoops.shutdown();
+        eventLoops.shutdownGracefully();
 
         getLogger().info( "Saving reconnect locations" );
         reconnectHandler.save();
