@@ -89,34 +89,34 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     private String displayName;
     /*========================================================================*/
-
+    
     public void init()
     {
         this.displayName = name;
-
+        
         Collection<String> g = bungee.getConfigurationAdapter().getGroups( name );
         for ( String s : g )
         {
             addGroups( s );
         }
     }
-
+    
     public void sendPacket(DefinedPacket p)
     {
         ch.write( p );
     }
-
+    
     public void sendPacket(byte[] b)
     {
         ch.write( b );
     }
-
+    
     @Deprecated
     public boolean isActive()
     {
         return ch.getHandle().isActive();
     }
-
+    
     @Override
     public void setDisplayName(String name)
     {
@@ -126,20 +126,20 @@ public final class UserConnection implements ProxiedPlayer
         displayName = name;
         bungee.getTabListHandler().onConnect( this );
     }
-
+    
     @Override
     public void connect(ServerInfo target)
     {
         connect( target, false );
     }
-
+    
     public void connectNow(ServerInfo target)
     {
         sendPacket( Packet9Respawn.DIM1_SWITCH );
         sendPacket( Packet9Respawn.DIM2_SWITCH );
         connect( target );
     }
-
+    
     public void connect(ServerInfo info, final boolean retry)
     {
         ServerConnectEvent event = new ServerConnectEvent( this, info );
@@ -147,7 +147,7 @@ public final class UserConnection implements ProxiedPlayer
         {
             return;
         }
-
+        
         Preconditions.checkArgument( event.getTarget() instanceof BungeeServerInfo, "BungeeCord can only connect to BungeeServerInfo instances" );
         final BungeeServerInfo target = (BungeeServerInfo) event.getTarget(); // Update in case the event changed target
 
@@ -161,9 +161,9 @@ public final class UserConnection implements ProxiedPlayer
             sendMessage( ChatColor.RED + "Already connecting to this server!" );
             return;
         }
-
+        
         pendingConnects.add( target );
-
+        
         new Bootstrap()
                 .channel( NioSocketChannel.class )
                 .group( BungeeCord.getInstance().eventLoops )
@@ -176,6 +176,7 @@ public final class UserConnection implements ProxiedPlayer
                 ch.pipeline().get( HandlerBoss.class ).setHandler( new ServerConnector( bungee, UserConnection.this, target ) );
             }
         } )
+                .localAddress( getPendingConnection().getListener().getHost() )
                 .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000 ) // TODO: Configurable
                 .remoteAddress( target.getAddress() )
                 .connect().addListener( new ChannelFutureListener()
@@ -187,7 +188,7 @@ public final class UserConnection implements ProxiedPlayer
                 {
                     future.channel().close();
                     pendingConnects.remove( target );
-
+                    
                     ServerInfo def = ProxyServer.getInstance().getServers().get( getPendingConnection().getListener().getFallbackServer() );
                     if ( retry & target != def && ( getServer() == null || def != getServer().getInfo() ) )
                     {
@@ -207,7 +208,7 @@ public final class UserConnection implements ProxiedPlayer
             }
         } );
     }
-
+    
     @Override
     public synchronized void disconnect(String reason)
     {
@@ -222,20 +223,20 @@ public final class UserConnection implements ProxiedPlayer
             }
         }
     }
-
+    
     @Override
     public void chat(String message)
     {
         Preconditions.checkState( server != null, "Not connected to server" );
         server.getCh().write( new Packet3Chat( message ) );
     }
-
+    
     @Override
     public void sendMessage(String message)
     {
         sendPacket( new Packet3Chat( message ) );
     }
-
+    
     @Override
     public void sendMessages(String... messages)
     {
@@ -244,25 +245,25 @@ public final class UserConnection implements ProxiedPlayer
             sendMessage( message );
         }
     }
-
+    
     @Override
     public void sendData(String channel, byte[] data)
     {
         sendPacket( new PacketFAPluginMessage( channel, data ) );
     }
-
+    
     @Override
     public InetSocketAddress getAddress()
     {
         return (InetSocketAddress) ch.getHandle().remoteAddress();
     }
-
+    
     @Override
     public Collection<String> getGroups()
     {
         return Collections.unmodifiableCollection( groups );
     }
-
+    
     @Override
     public void addGroups(String... groups)
     {
@@ -275,7 +276,7 @@ public final class UserConnection implements ProxiedPlayer
             }
         }
     }
-
+    
     @Override
     public void removeGroups(String... groups)
     {
@@ -288,13 +289,13 @@ public final class UserConnection implements ProxiedPlayer
             }
         }
     }
-
+    
     @Override
     public boolean hasPermission(String permission)
     {
         return bungee.getPluginManager().callEvent( new PermissionCheckEvent( this, permission, permissions.contains( permission ) ) ).hasPermission();
     }
-
+    
     @Override
     public void setPermission(String permission, boolean value)
     {
@@ -306,19 +307,19 @@ public final class UserConnection implements ProxiedPlayer
             permissions.remove( permission );
         }
     }
-
+    
     @Override
     public String toString()
     {
         return name;
     }
-
+    
     public void setClientEntityId(int clientEntityId)
     {
         Preconditions.checkState( this.clientEntityId == 0, "Client entityId already set!" );
         this.clientEntityId = clientEntityId;
     }
-
+    
     @Override
     public void setTexturePack(TexturePackInfo pack)
     {
