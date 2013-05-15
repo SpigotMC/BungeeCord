@@ -143,7 +143,10 @@ public final class UserConnection implements ProxiedPlayer
     public void connect(ServerInfo info, final boolean retry)
     {
         ServerConnectEvent event = new ServerConnectEvent( this, info );
-        ProxyServer.getInstance().getPluginManager().callEvent( event );
+        if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
+        {
+            return;
+        }
 
         Preconditions.checkArgument( event.getTarget() instanceof BungeeServerInfo, "BungeeCord can only connect to BungeeServerInfo instances" );
         final BungeeServerInfo target = (BungeeServerInfo) event.getTarget(); // Update in case the event changed target
