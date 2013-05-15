@@ -223,13 +223,7 @@ public class BungeeCord extends ProxyServer
     {
         for ( final ListenerInfo info : config.getListeners() )
         {
-            new ServerBootstrap()
-                    .channel( NioServerSocketChannel.class )
-                    .childAttr( PipelineUtils.LISTENER, info )
-                    .childHandler( PipelineUtils.SERVER_CHILD )
-                    .group( eventLoops )
-                    .localAddress( info.getHost() )
-                    .bind().addListener( new ChannelFutureListener()
+            ChannelFutureListener listener = new ChannelFutureListener()
             {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception
@@ -243,7 +237,14 @@ public class BungeeCord extends ProxyServer
                         getLogger().log( Level.WARNING, "Could not bind to host " + info.getHost(), future.cause() );
                     }
                 }
-            } );
+            };
+            new ServerBootstrap()
+                    .channel( NioServerSocketChannel.class )
+                    .childAttr( PipelineUtils.LISTENER, info )
+                    .childHandler( PipelineUtils.SERVER_CHILD )
+                    .group( eventLoops )
+                    .localAddress( info.getHost() )
+                    .bind().addListener( listener );
         }
     }
 
