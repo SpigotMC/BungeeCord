@@ -3,6 +3,7 @@ package net.md_5.bungee.netty;
 import io.netty.buffer.ByteBuf;
 import javax.crypto.Cipher;
 import javax.crypto.ShortBufferException;
+import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -11,7 +12,7 @@ import lombok.RequiredArgsConstructor;
  * {@link #cipher(io.netty.buffer.ByteBuf, io.netty.buffer.ByteBuf)} method to
  * aid in the efficient passing of ByteBuffers through a cipher.
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class CipherBase
 {
 
