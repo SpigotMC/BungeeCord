@@ -43,16 +43,16 @@ public class CommandServer extends Command
             {
                 serverList.setLength( serverList.length() - 2 );
             }
-            player.sendMessage( ProxyServer.getInstance().getTranslation( "server_list") + serverList.toString() );
+            player.sendMessage( ProxyServer.getInstance().getTranslation( "server_list" ) + serverList.toString() );
         } else
         {
             ServerInfo server = servers.get( args[0] );
             if ( server == null )
             {
-                player.sendMessage( ProxyServer.getInstance().getTranslation( "no_server") );
+                player.sendMessage( ProxyServer.getInstance().getTranslation( "no_server" ) );
             } else if ( !server.canAccess( player ) )
             {
-                player.sendMessage( ProxyServer.getInstance().getTranslation( "no_server_permission") );
+                player.sendMessage( ProxyServer.getInstance().getTranslation( "no_server_permission" ) );
             } else
             {
                 player.connect( server );
