@@ -54,7 +54,7 @@ public abstract class ProxyServer
      *
      * @return the localized string
      */
-    public abstract String getTranslation( String name );
+    public abstract String getTranslation(String name);
 
     /**
      * Gets the main logger which can be used as a suitable replacement for
