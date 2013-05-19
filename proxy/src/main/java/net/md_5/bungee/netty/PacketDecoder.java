@@ -1,7 +1,6 @@
 package net.md_5.bungee.netty;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.MessageBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
 import lombok.AllArgsConstructor;
@@ -26,7 +25,7 @@ public class PacketDecoder extends ReplayingDecoder<Void>
     private int protocol;
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, MessageBuf<Object> out) throws Exception
+    protected byte[] decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception
     {
         // While we have enough data
         while ( true )
@@ -48,7 +47,7 @@ public class PacketDecoder extends ReplayingDecoder<Void>
             // Checkpoint our state incase we don't have enough data for another packet
             checkpoint();
             // Store our decoded message
-            out.add( buf );
+            return buf;
         }
     }
 }
