@@ -31,7 +31,7 @@ public class ServerConnection implements Server
     @Override
     public synchronized void disconnect(String reason)
     {
-        if ( ch.getHandle().isActive() )
+        if ( !ch.isClosed() )
         {
             ch.write( new PacketFFKick( reason ) );
             ch.getHandle().eventLoop().schedule( new Runnable()

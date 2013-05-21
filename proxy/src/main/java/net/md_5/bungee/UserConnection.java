@@ -114,7 +114,7 @@ public final class UserConnection implements ProxiedPlayer
     @Deprecated
     public boolean isActive()
     {
-        return ch.getHandle().isActive();
+        return !ch.isClosed();
     }
 
     @Override

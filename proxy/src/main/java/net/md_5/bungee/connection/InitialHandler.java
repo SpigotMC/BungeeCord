@@ -262,10 +262,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public synchronized void disconnect(String reason)
     {
-        if ( ch.getHandle().isActive() )
+        if ( !ch.isClosed() )
         {
             ch.write( new PacketFFKick( reason ) );
-            ch.getHandle().close();
+            ch.close();
             disconnected = true;
         }
     }
