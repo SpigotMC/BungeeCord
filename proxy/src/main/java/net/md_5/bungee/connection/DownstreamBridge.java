@@ -264,12 +264,19 @@ public class DownstreamBridge extends PacketHandler
             }
             if ( subChannel.equals( "PlayerCount" ) )
             {
-                ServerInfo server = bungee.getServerInfo( in.readUTF() );
-                if ( server != null )
+                String target = in.readUTF();
+                out.writeUTF( "PlayerCount" );
+                if ( target.equals( "ALL" ) )
                 {
-                    out.writeUTF( "PlayerCount" );
-                    out.writeUTF( server.getName() );
-                    out.writeInt( server.getPlayers().size() );
+                    out.writeInt( bungee.getPlayers().size() );
+                } else
+                {
+                    ServerInfo server = bungee.getServerInfo( target );
+                    if ( server != null )
+                    {
+                        out.writeUTF( server.getName() );
+                        out.writeInt( server.getPlayers().size() );
+                    }
                 }
             }
             if ( subChannel.equals( "PlayerList" ) )
