@@ -323,7 +323,9 @@ public class PluginManager
         {
             if ( method.isAnnotationPresent( Subscribe.class ) )
             {
-                proxy.getLogger().log( Level.SEVERE, "Listener {0} has registered using depreceated subscribe annotation! Please advice author to update to @EventHadler", listener );
+                proxy.getLogger().log( Level.WARNING, "Listener {0} has registered using depreceated subscribe annotation!"
+                        + " Please advice author to update to @EventHandler."
+                        + " As a server owner you may safely ignore this.", listener );
             }
         }
 
