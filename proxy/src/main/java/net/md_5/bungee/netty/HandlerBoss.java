@@ -5,6 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.handler.timeout.ReadTimeoutException;
 import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.connection.CancelSendSignal;
@@ -84,7 +85,7 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<byte[]>
             } else if ( cause instanceof IOException )
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, handler + " - IOException: " + cause.getMessage() );
-            } else
+            } else if ( !( cause instanceof ClosedChannelException ) )
             {
                 ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - encountered exception", cause );
             }
