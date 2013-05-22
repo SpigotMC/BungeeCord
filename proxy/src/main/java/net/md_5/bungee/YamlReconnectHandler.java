@@ -20,7 +20,8 @@ public class YamlReconnectHandler implements ReconnectHandler
 {
 
     private final Yaml yaml = new Yaml();
-    private final File file = new File( "locations.yml" );
+    private final File readFile = new File( "locations.yml" );
+    private final File writeFile = new File( "locations.yml~" );
     /*========================================================================*/
     private Map<String, String> data;
 
@@ -29,8 +30,8 @@ public class YamlReconnectHandler implements ReconnectHandler
     {
         try
         {
-            file.createNewFile();
-            try ( FileReader rd = new FileReader( file ) )
+            readFile.createNewFile();
+            try ( FileReader rd = new FileReader( readFile ) )
             {
                 data = yaml.loadAs( rd, Map.class );
             }
@@ -85,9 +86,11 @@ public class YamlReconnectHandler implements ReconnectHandler
     @Override
     public synchronized void save()
     {
-        try ( FileWriter wr = new FileWriter( file ) )
+        try ( FileWriter wr = new FileWriter( writeFile ) )
         {
             yaml.dump( data, wr );
+            readFile.delete();
+            writeFile.renameTo( readFile );
         } catch ( IOException ex )
         {
             ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not save reconnect locations", ex );
