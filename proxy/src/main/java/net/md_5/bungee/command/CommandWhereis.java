@@ -1,7 +1,5 @@
 package net.md_5.bungee.command;
 
-import java.util.Collection;
-
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -16,15 +14,16 @@ public class CommandWhereis extends Command {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        if (args.length != 1) sender.sendMessage( "Please follow this command by a user name");
+        if (args.length != 1) sender.sendMessage( ChatColor.RED + "Please follow this command by a user name");
         else {
-        	Collection<ProxiedPlayer> players = ProxyServer.getInstance().getPlayers();
-        	ProxiedPlayer user = null;
-        	for (ProxiedPlayer player : players) {
-        		if (player.getName().equalsIgnoreCase(args[0])) user = player;
-        	}
-        	if (user == null) sender.sendMessage( ChatColor.RED + "That user is not online");
-        	else sender.sendMessage( ChatColor.BLUE + args[0] + " is in the " + user.getServer().getInfo().getName() + ".");
+        	ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
+        	if (player == null) 
+                {
+                    sender.sendMessage( ChatColor.RED + "That user is not online");
+                }
+        	else {
+                    sender.sendMessage( ChatColor.BLUE + args[0] + " is in the " + player.getServer().getInfo().getName() + ".");
+                }
         }
     }
 }
