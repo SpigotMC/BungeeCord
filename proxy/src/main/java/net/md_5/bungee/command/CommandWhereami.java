@@ -18,10 +18,15 @@ public class CommandWhereami extends Command {
     if (args.length != 0) 
     {
         sender.sendMessage( ChatColor.RED + "You do not need to specify a name. If you wish to know where another player is, use /whereis <player>");
-    }
-    else {
+    } else {
         ProxiedPlayer player = ProxyServer.getInstance().getPlayer( sender.getName() );
-        sender.sendMessage( ChatColor.BLUE + "You are in the " + player.getServer().getInfo().getName() + ".");
+        if (sender instanceof ProxiedPlayer)
+        {
+            sender.sendMessage( ChatColor.BLUE + "You are in the " + player.getServer().getInfo().getName() + "." );
+        } else {
+            sender.sendMessage( "You are in the console." );
+        }
+        
         }
     }
 }
