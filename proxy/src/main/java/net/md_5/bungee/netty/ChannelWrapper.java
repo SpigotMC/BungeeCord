@@ -15,7 +15,7 @@ public class ChannelWrapper
         this.ch = ch;
     }
 
-    public void write(Object packet)
+    public synchronized void write(Object packet)
     {
         if ( !closed )
         {
@@ -23,7 +23,7 @@ public class ChannelWrapper
         }
     }
 
-    public void close()
+    public synchronized void close()
     {
         if ( !closed )
         {
