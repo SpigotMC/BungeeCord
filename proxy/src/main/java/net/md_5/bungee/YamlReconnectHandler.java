@@ -35,9 +35,11 @@ public class YamlReconnectHandler implements ReconnectHandler
             {
                 data = yaml.loadAs( rd, Map.class );
             }
-        } catch ( IOException ex )
+        } catch ( Exception ex )
         {
             ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load reconnect locations", ex );
+            readFile.delete();
+            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Reconnect locations have been reset, do NOT worry about this error" );
         }
 
         if ( data == null )
