@@ -58,6 +58,8 @@ public class PipelineUtils
             {
                 // IP_TOS is not supported (Windows XP / Windows Server 2003)
             }
+
+            ch.pipeline().addLast( "outbound", new OutboundHandler() );
             ch.pipeline().addLast( "timer", new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
             ch.pipeline().addLast( "decoder", new PacketDecoder( PacketDefinitions.VANILLA_PROTOCOL ) );
             ch.pipeline().addLast( "packet-encoder", packetEncoder );
