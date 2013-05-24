@@ -16,4 +16,10 @@ public class CaseInsensitiveTest
         Assert.assertTrue( map.contains( "foo" ) ); // Assert that it is case insensitive
         Assert.assertTrue( map.entrySet().iterator().next().getKey().equals( "FOO" ) ); // Asert that case is preserved
     }
+
+    @Test
+    public void testSets()
+    {
+        throw new UnsupportedOperationException( "Need a unit test!!!" );
+    }
 }
