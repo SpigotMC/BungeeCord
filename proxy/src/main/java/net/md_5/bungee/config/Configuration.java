@@ -1,6 +1,7 @@
 package net.md_5.bungee.config;
 
 import com.google.common.base.Preconditions;
+import gnu.trove.map.TMap;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
@@ -12,6 +13,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.tablist.GlobalPing;
 import net.md_5.bungee.tablist.Global;
 import net.md_5.bungee.tablist.ServerUnique;
+import net.md_5.bungee.util.CaseInsensitiveMap;
 
 /**
  * Core configuration for the proxy.
@@ -43,7 +45,7 @@ public class Configuration
     /**
      * Set of all servers.
      */
-    private Map<String, ServerInfo> servers;
+    private TMap<String, ServerInfo> servers;
     /**
      * Should we check minecraft.net auth.
      */
@@ -86,7 +88,7 @@ public class Configuration
 
         if ( servers == null )
         {
-            servers = newServers;
+            servers = new CaseInsensitiveMap<>( newServers );
         } else
         {
             for ( ServerInfo oldServer : servers.values() )
