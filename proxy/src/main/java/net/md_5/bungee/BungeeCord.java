@@ -6,6 +6,7 @@ import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.providers.netty.NettyAsyncHttpProvider;
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig;
+import gnu.trove.map.TMap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
@@ -27,7 +28,6 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -53,6 +53,7 @@ import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.scheduler.BungeeThreadPool;
+import net.md_5.bungee.util.CaseInsensitiveMap;
 
 /**
  * Main BungeeCord proxy class.
@@ -96,7 +97,7 @@ public class BungeeCord extends ProxyServer
     /**
      * Fully qualified connections.
      */
-    public Map<String, UserConnection> connections = new ConcurrentHashMap<>();
+    public TMap<String, UserConnection> connections = new CaseInsensitiveMap<>();
     /**
      * Tab list handler
      */
