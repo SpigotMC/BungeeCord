@@ -20,6 +20,9 @@ public class CaseInsensitiveTest
     @Test
     public void testSets()
     {
-        throw new UnsupportedOperationException( "Need a unit test!!!" );
+        CaseInsensitiveSet set = new CaseInsensitiveSet();
+
+        set.add( "FOO" );
+        Assert.assertTrue( set.contains( "foo" ) );
     }
 }
