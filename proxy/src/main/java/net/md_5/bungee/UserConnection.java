@@ -36,6 +36,7 @@ import net.md_5.bungee.packet.Packet9Respawn;
 import net.md_5.bungee.packet.PacketCCSettings;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.packet.PacketFFKick;
+import net.md_5.bungee.util.CaseInsensitiveSet;
 
 @RequiredArgsConstructor
 public final class UserConnection implements ProxiedPlayer
@@ -72,8 +73,8 @@ public final class UserConnection implements ProxiedPlayer
     @Setter
     private int ping = 100;
     /*========================================================================*/
-    private final Collection<String> groups = new HashSet<>();
-    private final Collection<String> permissions = new HashSet<>();
+    private final Collection<String> groups = new CaseInsensitiveSet();
+    private final Collection<String> permissions = new CaseInsensitiveSet();
     /*========================================================================*/
     @Getter
     private int clientEntityId;
