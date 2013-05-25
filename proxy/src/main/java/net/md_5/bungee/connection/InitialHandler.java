@@ -62,7 +62,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private List<PacketFAPluginMessage> loginMessages = new ArrayList<>();
     private State thisState = State.HANDSHAKE;
     private SecretKey sharedKey;
-    private boolean disconnected;
     private static final PacketFAPluginMessage forgeMods = new PacketFAPluginMessage( "FML", new byte[]
     {
         0, 0, 0, 0, 0, 2
@@ -218,7 +217,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 {
                     disconnect( result.getCancelReason() );
                 }
-                if ( disconnected )
+                if ( ch.isClosed() )
                 {
                     return;
                 }
@@ -266,7 +265,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             ch.write( new PacketFFKick( reason ) );
             ch.close();
-            disconnected = true;
         }
     }
 
