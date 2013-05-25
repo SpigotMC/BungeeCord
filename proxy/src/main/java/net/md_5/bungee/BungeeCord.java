@@ -31,6 +31,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
@@ -98,7 +100,8 @@ public class BungeeCord extends ProxyServer
     /**
      * Fully qualified connections.
      */
-    public TMap<String, UserConnection> connections = new CaseInsensitiveMap<>();
+    private final TMap<String, UserConnection> connections = new CaseInsensitiveMap<>();
+    private final ReadWriteLock connectionLock = new ReentrantReadWriteLock();
     /**
      * Tab list handler
      */
@@ -278,10 +281,17 @@ public class BungeeCord extends ProxyServer
         stopListeners();
         getLogger().info( "Closing pending connections" );
 
-        getLogger().info( "Disconnecting " + connections.size() + " connections" );
-        for ( UserConnection user : connections.values() )
+        connectionLock.readLock().lock();
+        try
         {
-            user.disconnect( getTranslation( "restart" ) );
+            getLogger().info( "Disconnecting " + connections.size() + " connections" );
+            for ( UserConnection user : connections.values() )
+            {
+                user.disconnect( getTranslation( "restart" ) );
+            }
+        } finally
+        {
+            connectionLock.readLock().unlock();
         }
 
         getLogger().info( "Closing IO threads" );
@@ -310,9 +320,16 @@ public class BungeeCord extends ProxyServer
      */
     public void broadcast(DefinedPacket packet)
     {
-        for ( UserConnection con : connections.values() )
+        connectionLock.readLock().lock();
+        try
         {
-            con.sendPacket( packet );
+            for ( UserConnection con : connections.values() )
+            {
+                con.sendPacket( packet );
+            }
+        } finally
+        {
+            connectionLock.readLock().unlock();
         }
     }
 
@@ -357,7 +374,14 @@ public class BungeeCord extends ProxyServer
     @Override
     public ProxiedPlayer getPlayer(String name)
     {
-        return connections.get( name );
+        connectionLock.readLock().lock();
+        try
+        {
+            return connections.get( name );
+        } finally
+        {
+            connectionLock.readLock().unlock();
+        }
     }
 
     @Override
@@ -434,5 +458,29 @@ public class BungeeCord extends ProxyServer
     public CommandSender getConsole()
     {
         return ConsoleCommandSender.getInstance();
+    }
+
+    public void addConnection(UserConnection con)
+    {
+        connectionLock.writeLock().lock();
+        try
+        {
+            connections.put( con.getName(), con );
+        } finally
+        {
+            connectionLock.writeLock().unlock();
+        }
+    }
+
+    public void removeConnection(UserConnection con)
+    {
+        connectionLock.writeLock().lock();
+        try
+        {
+            connections.remove( con.getName() );
+        } finally
+        {
+            connectionLock.writeLock().unlock();
+        }
     }
 }
