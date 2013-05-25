@@ -56,6 +56,7 @@ import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.packet.DefinedPacket;
 import net.md_5.bungee.packet.Packet3Chat;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
+import net.md_5.bungee.protocol.PacketDefinitions;
 import net.md_5.bungee.scheduler.BungeeThreadPool;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 
@@ -65,14 +66,6 @@ import net.md_5.bungee.util.CaseInsensitiveMap;
 public class BungeeCord extends ProxyServer
 {
 
-    /**
-     * Server protocol version.
-     */
-    public static final byte PROTOCOL_VERSION = 61;
-    /**
-     * Server game version.
-     */
-    public static final String GAME_VERSION = "1.5.2";
     /**
      * Current operation state.
      */
@@ -446,13 +439,13 @@ public class BungeeCord extends ProxyServer
     @Override
     public byte getProtocolVersion()
     {
-        return PROTOCOL_VERSION;
+        return PacketDefinitions.PROTOCOL_VERSION;
     }
 
     @Override
     public String getGameVersion()
     {
-        return GAME_VERSION;
+        return PacketDefinitions.GAME_VERSION;
     }
 
     @Override
