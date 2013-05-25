@@ -254,4 +254,20 @@ public abstract class ProxyServer
      * @return the server's {@link AsyncHttpClient} instance
      */
     public abstract AsyncHttpClient getHttpClient();
+
+    /**
+     * Get the current number of connected users. The default implementation is
+     * more efficient than {@link #getPlayers()} as it does not take a lock or
+     * make a copy.
+     *
+     * @return the current number of connected players
+     */
+    public abstract int getOnlineCount();
+
+    /**
+     * Send the specified message to the console and all connected players.
+     *
+     * @param message the message to broadcast
+     */
+    public abstract void broadcast(String message);
 }

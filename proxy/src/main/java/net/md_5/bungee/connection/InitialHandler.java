@@ -96,7 +96,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(PacketFEPing ping) throws Exception
     {
         ServerPing response = new ServerPing( bungee.getProtocolVersion(), bungee.getGameVersion(),
-                listener.getMotd(), bungee.getPlayers().size(), listener.getMaxPlayers() );
+                listener.getMotd(), bungee.getOnlineCount(), listener.getMaxPlayers() );
 
         response = bungee.getPluginManager().callEvent( new ProxyPingEvent( this, response ) ).getResponse();
 
@@ -130,7 +130,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         int limit = BungeeCord.getInstance().config.getPlayerLimit();
-        if ( limit > 0 && bungee.getPlayers().size() > limit )
+        if ( limit > 0 && bungee.getOnlineCount() > limit )
         {
             disconnect( bungee.getTranslation( "proxy_full" ) );
             return;
