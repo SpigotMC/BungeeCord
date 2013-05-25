@@ -5,6 +5,8 @@ import static net.md_5.bungee.protocol.PacketDefinitions.OpCode.*;
 public class PacketDefinitions
 {
 
+    public static final byte PROTOCOL_VERSION = 61;
+    public static final String GAME_VERSION = "1.5.2";
     public static final OpCode[][] opCodes = new OpCode[ 512 ][];
     public static final int VANILLA_PROTOCOL = 0;
     public static final int FORGE_PROTOCOL = 256;
