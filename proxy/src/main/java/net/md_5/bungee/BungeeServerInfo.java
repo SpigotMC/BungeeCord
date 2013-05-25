@@ -79,10 +79,11 @@ public class BungeeServerInfo implements ServerInfo
         return address.hashCode();
     }
 
+    // TODO: Don't like this method
     @Override
     public void sendData(String channel, byte[] data)
     {
-        Server server = ProxyServer.getInstance().getServer( getName() );
+        Server server = ( players.isEmpty() ) ? null : players.iterator().next().getServer();
         if ( server != null )
         {
             server.sendData( channel, data );
