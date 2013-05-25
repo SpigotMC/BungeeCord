@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -330,7 +331,14 @@ public class BungeeCord extends ProxyServer
     @Override
     public String getTranslation(String name)
     {
-        return bundle.getString( name );
+        String translation = "<translation '" + name + "' missing>";
+        try
+        {
+            translation = bundle.getString( name );
+        } catch ( MissingResourceException ex )
+        {
+        }
+        return translation;
     }
 
     @Override
