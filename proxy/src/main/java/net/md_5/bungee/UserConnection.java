@@ -77,6 +77,7 @@ public final class UserConnection implements ProxiedPlayer
     private final Collection<String> permissions = new CaseInsensitiveSet();
     /*========================================================================*/
     @Getter
+    @Setter
     private int clientEntityId;
     @Getter
     @Setter
@@ -315,12 +316,6 @@ public final class UserConnection implements ProxiedPlayer
     public String toString()
     {
         return name;
-    }
-
-    public void setClientEntityId(int clientEntityId)
-    {
-        Preconditions.checkState( this.clientEntityId == 0, "Client entityId already set!" );
-        this.clientEntityId = clientEntityId;
     }
 
     @Override
