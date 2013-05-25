@@ -58,6 +58,6 @@ public class CommandList extends Command
             sender.sendMessage( message.toString() );
         }
 
-        sender.sendMessage( ProxyServer.getInstance().getTranslation( "total_players" ) + ProxyServer.getInstance().getPlayers().size() );
+        sender.sendMessage( ProxyServer.getInstance().getTranslation( "total_players" ) + ProxyServer.getInstance().getOnlineCount() );
     }
 }

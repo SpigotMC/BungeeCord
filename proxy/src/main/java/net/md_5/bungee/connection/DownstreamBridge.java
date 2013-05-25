@@ -268,7 +268,7 @@ public class DownstreamBridge extends PacketHandler
                 out.writeUTF( "PlayerCount" );
                 if ( target.equals( "ALL" ) )
                 {
-                    out.writeInt( bungee.getPlayers().size() );
+                    out.writeInt( bungee.getOnlineCount() );
                 } else
                 {
                     ServerInfo server = bungee.getServerInfo( target );

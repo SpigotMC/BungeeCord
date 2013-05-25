@@ -54,6 +54,7 @@ import net.md_5.bungee.command.*;
 import net.md_5.bungee.config.YamlConfig;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.packet.DefinedPacket;
+import net.md_5.bungee.packet.Packet3Chat;
 import net.md_5.bungee.packet.PacketFAPluginMessage;
 import net.md_5.bungee.scheduler.BungeeThreadPool;
 import net.md_5.bungee.util.CaseInsensitiveMap;
@@ -365,10 +366,23 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    @SuppressWarnings("unchecked") // TODO: Abstract more
+    @SuppressWarnings("unchecked")
     public Collection<ProxiedPlayer> getPlayers()
     {
-        return (Collection) connections.values();
+        connectionLock.readLock().lock();
+        try
+        {
+            return (Collection) new HashSet<>( connections.values() );
+        } finally
+        {
+            connectionLock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public int getOnlineCount()
+    {
+        return connections.size();
     }
 
     @Override
@@ -451,6 +465,13 @@ public class BungeeCord extends ProxyServer
     public CommandSender getConsole()
     {
         return ConsoleCommandSender.getInstance();
+    }
+
+    @Override
+    public void broadcast(String message)
+    {
+        getConsole().sendMessage( message );
+        broadcast( new Packet3Chat( message ) );
     }
 
     public void addConnection(UserConnection con)
