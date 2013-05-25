@@ -1,5 +1,6 @@
 package net.md_5.bungee;
 
+import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -17,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.Synchronized;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -64,6 +64,7 @@ public class BungeeServerInfo implements ServerInfo
     @Override
     public boolean canAccess(CommandSender player)
     {
+        Preconditions.checkNotNull( player, "player" );
         return !restricted || player.hasPermission( "bungeecord.server." + name );
     }
 
@@ -83,6 +84,9 @@ public class BungeeServerInfo implements ServerInfo
     @Override
     public void sendData(String channel, byte[] data)
     {
+        Preconditions.checkNotNull( channel, "channel" );
+        Preconditions.checkNotNull( data, "data" );
+
         Server server = ( players.isEmpty() ) ? null : players.iterator().next().getServer();
         if ( server != null )
         {
@@ -99,6 +103,8 @@ public class BungeeServerInfo implements ServerInfo
     @Override
     public void ping(final Callback<ServerPing> callback)
     {
+        Preconditions.checkNotNull( callback, "callback" );
+
         ChannelFutureListener listener = new ChannelFutureListener()
         {
             @Override
