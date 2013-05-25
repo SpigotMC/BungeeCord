@@ -426,14 +426,7 @@ public class BungeeCord extends ProxyServer
 
     public PacketFAPluginMessage registerChannels()
     {
-        StringBuilder sb = new StringBuilder();
-        for ( String s : getChannels() )
-        {
-            sb.append( s );
-            sb.append( '\00' );
-        }
-        byte[] payload = sb.substring( 0, sb.length() - 1 ).getBytes();
-        return new PacketFAPluginMessage( "REGISTER", payload );
+        return new PacketFAPluginMessage( "REGISTER", Util.format( pluginChannels, "\00" ).getBytes() );
     }
 
     @Override
