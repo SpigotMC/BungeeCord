@@ -1,6 +1,5 @@
 package net.md_5.bungee.connection;
 
-import java.util.Arrays;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.UserConnection;
