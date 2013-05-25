@@ -392,13 +392,6 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public Server getServer(String name)
-    {
-        Collection<ProxiedPlayer> users = getServers().get( name ).getPlayers();
-        return ( users != null && !users.isEmpty() ) ? users.iterator().next().getServer() : null;
-    }
-
-    @Override
     public Map<String, ServerInfo> getServers()
     {
         return config.getServers();

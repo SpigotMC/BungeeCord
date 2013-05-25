@@ -80,20 +80,6 @@ public abstract class ProxyServer
     public abstract ProxiedPlayer getPlayer(String name);
 
     /**
-     * Get a server by its name. The instance returned will be taken from a
-     * player currently on that server to facilitate abstract proxy -> server
-     * actions.
-     *
-     * @param name the name to lookup
-     * @return the associated server
-     * @deprecated in most cases the {@link #getServerInfo(java.lang.String)}
-     * method should be used, as it will return a server even when no players
-     * are online.
-     */
-    @Deprecated
-    public abstract Server getServer(String name);
-
-    /**
      * Return all servers registered to this proxy, keyed by name. Unlike the
      * methods in {@link ConfigurationAdapter#getServers()}, this will not
      * return a fresh map each time.
