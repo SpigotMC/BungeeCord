@@ -64,7 +64,7 @@ public class DownstreamBridge extends PacketHandler
 
         if ( !server.isObsolete() )
         {
-            con.disconnect( bungee.getTranslation( "lost_connection " ) );
+            con.disconnect( bungee.getTranslation( "lost_connection" ) );
         }
     }
 
