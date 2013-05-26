@@ -21,6 +21,7 @@ import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.config.TexturePackInfo;
+import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -48,7 +49,10 @@ public class YamlConfig implements ConfigurationAdapter
 
             if ( config == null )
             {
-                config = new HashMap();
+                config = new CaseInsensitiveMap();
+            } else
+            {
+                config = new CaseInsensitiveMap( config );
             }
         } catch ( IOException ex )
         {
