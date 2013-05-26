@@ -83,18 +83,6 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(Packet3Chat chat) throws Exception
-    {
-        ChatEvent chatEvent = new ChatEvent( con.getServer(), con, chat.message );
-        bungee.getPluginManager().callEvent( chatEvent );
-
-        if ( chatEvent.isCancelled() )
-        {
-            throw new CancelSendSignal();
-        }
-    }
-
-    @Override
     public void handle(PacketC9PlayerListItem playerList) throws Exception
     {
 
