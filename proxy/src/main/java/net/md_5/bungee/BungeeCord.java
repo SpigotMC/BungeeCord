@@ -6,7 +6,6 @@ import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.providers.netty.NettyAsyncHttpProvider;
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig;
-import gnu.trove.map.TMap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
@@ -46,7 +45,6 @@ import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.api.scheduler.TaskScheduler;
@@ -94,7 +92,7 @@ public class BungeeCord extends ProxyServer
     /**
      * Fully qualified connections.
      */
-    private final TMap<String, UserConnection> connections = new CaseInsensitiveMap<>();
+    private final Map<String, UserConnection> connections = new CaseInsensitiveMap<>();
     private final ReadWriteLock connectionLock = new ReentrantReadWriteLock();
     /**
      * Tab list handler
