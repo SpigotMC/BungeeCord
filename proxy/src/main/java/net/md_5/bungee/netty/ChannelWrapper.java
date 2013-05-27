@@ -9,19 +9,17 @@ public class ChannelWrapper
     private final Channel ch;
     @Getter
     private volatile boolean closed;
-    private final ReusableChannelPromise promise;
 
     public ChannelWrapper(Channel ch)
     {
         this.ch = ch;
-        this.promise = new ReusableChannelPromise( ch );
     }
 
     public synchronized void write(Object packet)
     {
         if ( !closed )
         {
-            ch.write( packet, promise );
+            ch.write( packet, ch.voidPromise() );
         }
     }
 
