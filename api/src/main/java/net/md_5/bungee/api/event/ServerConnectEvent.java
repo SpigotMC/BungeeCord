@@ -1,6 +1,5 @@
 package net.md_5.bungee.api.event;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
