@@ -148,7 +148,6 @@ public final class UserConnection implements ProxiedPlayer
             return;
         }
 
-        Preconditions.checkArgument( event.getTarget() instanceof BungeeServerInfo, "BungeeCord can only connect to BungeeServerInfo instances" );
         final BungeeServerInfo target = (BungeeServerInfo) event.getTarget(); // Update in case the event changed target
 
         if ( getServer() != null && Objects.equals( getServer().getInfo(), target ) )
