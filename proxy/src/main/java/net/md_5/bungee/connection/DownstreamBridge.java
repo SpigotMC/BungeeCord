@@ -256,6 +256,7 @@ public class DownstreamBridge extends PacketHandler
                 out.writeUTF( "PlayerCount" );
                 if ( target.equals( "ALL" ) )
                 {
+                    out.writeUTF( "ALL" );
                     out.writeInt( bungee.getOnlineCount() );
                 } else
                 {
@@ -273,6 +274,7 @@ public class DownstreamBridge extends PacketHandler
                 out.writeUTF( "PlayerList" );
                 if ( target.equals( "ALL" ) )
                 {
+                    out.writeUTF( "ALL" );
                     out.writeUTF( Util.csv( bungee.getPlayers() ) );
                 } else
                 {
