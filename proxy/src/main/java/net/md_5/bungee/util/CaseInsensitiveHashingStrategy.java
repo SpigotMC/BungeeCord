@@ -2,20 +2,20 @@ package net.md_5.bungee.util;
 
 import gnu.trove.strategy.HashingStrategy;
 
-class CaseInsensitiveHashingStrategy implements HashingStrategy<String>
+class CaseInsensitiveHashingStrategy implements HashingStrategy
 {
 
     static final CaseInsensitiveHashingStrategy INSTANCE = new CaseInsensitiveHashingStrategy();
 
     @Override
-    public int computeHashCode(String object)
+    public int computeHashCode(Object object)
     {
-        return object.toLowerCase().hashCode();
+        return ( (String) object ).toLowerCase().hashCode();
     }
 
     @Override
-    public boolean equals(String o1, String o2)
+    public boolean equals(Object o1, Object o2)
     {
-        return o1.toLowerCase().equals( o2.toLowerCase() );
+        return o1 instanceof String && o2 instanceof String && ( (String) o1 ).toLowerCase().equals( ( (String) o2 ).toLowerCase() );
     }
 }
