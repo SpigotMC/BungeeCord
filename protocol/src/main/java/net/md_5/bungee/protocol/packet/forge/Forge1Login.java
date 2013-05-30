@@ -10,6 +10,11 @@ import lombok.ToString;
 public class Forge1Login extends Packet1Login
 {
 
+    public Forge1Login(int entityId, String levelType, byte gameMode, int dimension, byte difficulty, byte unused, byte maxPlayers)
+    {
+        super( entityId, levelType, gameMode, dimension, difficulty, unused, maxPlayers );
+    }
+
     @Override
     public void read(ByteBuf buf)
     {
@@ -28,7 +33,7 @@ public class Forge1Login extends Packet1Login
         buf.writeInt( entityId );
         writeString( levelType, buf );
         buf.writeByte( gameMode );
-        buf.writeInt(dimension );
+        buf.writeInt( dimension );
         buf.writeByte( difficulty );
         buf.writeByte( unused );
         buf.writeByte( maxPlayers );

@@ -2,8 +2,10 @@ package net.md_5.bungee.protocol.packet;
 
 import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 
+@Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class Packet1Login extends DefinedPacket
@@ -20,6 +22,23 @@ public class Packet1Login extends DefinedPacket
     protected Packet1Login()
     {
         super( 0x01 );
+    }
+
+    public Packet1Login(int entityId, String levelType, byte gameMode, byte dimension, byte difficulty, byte unused, byte maxPlayers)
+    {
+        this( entityId, levelType, gameMode, entityId, difficulty, unused, maxPlayers );
+    }
+
+    public Packet1Login(int entityId, String levelType, byte gameMode, int dimension, byte difficulty, byte unused, byte maxPlayers)
+    {
+        this();
+        this.entityId = entityId;
+        this.levelType = levelType;
+        this.gameMode = gameMode;
+        this.dimension = dimension;
+        this.difficulty = difficulty;
+        this.unused = unused;
+        this.maxPlayers = maxPlayers;
     }
 
     @Override

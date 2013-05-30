@@ -20,6 +20,16 @@ public class Packet9Respawn extends DefinedPacket
         super( 0x09 );
     }
 
+    public Packet9Respawn(int dimension, byte difficulty, byte gameMode, short worldHeight, String levelType)
+    {
+        this();
+        this.dimension = dimension;
+        this.difficulty = difficulty;
+        this.gameMode = gameMode;
+        this.worldHeight = worldHeight;
+        this.levelType = levelType;
+    }
+
     @Override
     public void read(ByteBuf buf)
     {

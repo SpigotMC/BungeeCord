@@ -2,8 +2,10 @@ package net.md_5.bungee.protocol.packet;
 
 import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 
+@Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class PacketFDEncryptionRequest extends DefinedPacket
@@ -16,6 +18,14 @@ public class PacketFDEncryptionRequest extends DefinedPacket
     private PacketFDEncryptionRequest()
     {
         super( 0xFD );
+    }
+
+    public PacketFDEncryptionRequest(String serverId, byte[] publicKey, byte[] verifyToken)
+    {
+        this();
+        this.serverId = serverId;
+        this.publicKey = publicKey;
+        this.verifyToken = verifyToken;
     }
 
     @Override

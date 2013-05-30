@@ -16,6 +16,12 @@ public class PacketCDClientStatus extends DefinedPacket
         super( 0xCD );
     }
 
+    public PacketCDClientStatus(byte payload)
+    {
+        this();
+        this.payload = payload;
+    }
+
     @Override
     public void read(ByteBuf buf)
     {

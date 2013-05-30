@@ -2,8 +2,10 @@ package net.md_5.bungee.protocol.packet;
 
 import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 
+@Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class PacketFFKick extends DefinedPacket
@@ -14,6 +16,12 @@ public class PacketFFKick extends DefinedPacket
     private PacketFFKick()
     {
         super( 0xFF );
+    }
+
+    public PacketFFKick(String message)
+    {
+        this();
+        this.message = message;
     }
 
     @Override

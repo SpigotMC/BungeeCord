@@ -2,14 +2,16 @@ package net.md_5.bungee.protocol.packet;
 
 import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 
+@Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class Packet0KeepAlive extends DefinedPacket
 {
 
-    private int id;
+    private int randomId;
 
     private Packet0KeepAlive()
     {
@@ -19,13 +21,13 @@ public class Packet0KeepAlive extends DefinedPacket
     @Override
     public void read(ByteBuf buf)
     {
-        id = buf.readInt();
+        randomId = buf.readInt();
     }
 
     @Override
     public void write(ByteBuf buf)
     {
-        buf.writeInt( id );
+        buf.writeInt( randomId );
     }
 
     @Override

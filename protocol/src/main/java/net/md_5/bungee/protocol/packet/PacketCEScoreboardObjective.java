@@ -2,8 +2,10 @@ package net.md_5.bungee.protocol.packet;
 
 import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 
+@Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class PacketCEScoreboardObjective extends DefinedPacket
@@ -19,6 +21,14 @@ public class PacketCEScoreboardObjective extends DefinedPacket
     private PacketCEScoreboardObjective()
     {
         super( 0xCE );
+    }
+
+    public PacketCEScoreboardObjective(String name, String text, byte action)
+    {
+        this();
+        this.name = name;
+        this.text = text;
+        this.action = action;
     }
 
     @Override
