@@ -31,13 +31,14 @@ public class Vanilla implements Protocol
 
     public static final byte PROTOCOL_VERSION = 61;
     public static final String GAME_VERSION = "1.5.2";
-    public static final Vanilla INSTANCE = new Vanilla();
+    @Getter
+    private static final Vanilla instance = new Vanilla();
     /*========================================================================*/
     @Getter
     private final OpCode[][] opCodes = new OpCode[ 256 ][];
     @SuppressWarnings("unchecked")
     @Getter
-    private Class<? extends DefinedPacket>[] classes = new Class[ 256 ];
+    protected Class<? extends DefinedPacket>[] classes = new Class[ 256 ];
     @SuppressWarnings("unchecked")
     @Getter
     private Constructor<? extends DefinedPacket>[] constructors = new Constructor[ 256 ];
