@@ -35,7 +35,7 @@ public class Forge1Login extends Packet1Login
     }
 
     @Override
-    public void handle(PacketHandler handler) throws Exception
+    public void handle(AbstractPacketHandler handler) throws Exception
     {
         handler.handle( this );
     }

@@ -1,18 +1,7 @@
 package net.md_5.bungee.protocol.packet;
 
-public abstract class PacketHandler
+public abstract class AbstractPacketHandler
 {
-
-    @Override
-    public abstract String toString();
-
-    public void exception(Throwable t) throws Exception
-    {
-    }
-
-    public void handle(byte[] buf) throws Exception
-    {
-    }
 
     public void handle(Packet0KeepAlive alive) throws Exception
     {

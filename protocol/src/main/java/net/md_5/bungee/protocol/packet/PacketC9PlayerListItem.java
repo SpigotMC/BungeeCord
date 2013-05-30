@@ -18,6 +18,14 @@ public class PacketC9PlayerListItem extends DefinedPacket
         super( 0xC9 );
     }
 
+    public PacketC9PlayerListItem(String username, boolean online, int ping)
+    {
+        super( 0xC9 );
+        this.username = username;
+        this.online = online;
+        this.ping = ping;
+    }
+
     @Override
     public void read(ByteBuf buf)
     {
@@ -35,7 +43,7 @@ public class PacketC9PlayerListItem extends DefinedPacket
     }
 
     @Override
-    public void handle(PacketHandler handler) throws Exception
+    public void handle(AbstractPacketHandler handler) throws Exception
     {
         handler.handle( this );
     }
