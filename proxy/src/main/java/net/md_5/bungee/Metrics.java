@@ -8,9 +8,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.util.TimerTask;
 import net.md_5.bungee.api.ProxyServer;
 
-public class Metrics extends Thread
+public class Metrics extends TimerTask
 {
 
     /**
@@ -28,41 +29,25 @@ public class Metrics extends Thread
     /**
      * Interval of time to ping (in minutes)
      */
-    private final static int PING_INTERVAL = 10;
-
-    public Metrics()
-    {
-        super( "Metrics Gathering Thread" );
-        setDaemon( true );
-    }
+    final static int PING_INTERVAL = 10;
+    boolean firstPost = true;
 
     @Override
     public void run()
     {
-        boolean firstPost = true;
-        while ( true )
+        try
         {
-            try
-            {
-                // We use the inverse of firstPost because if it is the first time we are posting,
-                // it is not a interval ping, so it evaluates to FALSE
-                // Each time thereafter it will evaluate to TRUE, i.e PING!
-                postPlugin( !firstPost );
+            // We use the inverse of firstPost because if it is the first time we are posting,
+            // it is not a interval ping, so it evaluates to FALSE
+            // Each time thereafter it will evaluate to TRUE, i.e PING!
+            postPlugin( !firstPost );
 
-                // After the first post we set firstPost to false
-                // Each post thereafter will be a ping
-                firstPost = false;
-            } catch ( IOException ex )
-            {
-                ProxyServer.getInstance().getLogger().info( "[Metrics] " + ex.getMessage() );
-            }
-            try
-            {
-                sleep( PING_INTERVAL * 1000 * 60 );
-            } catch ( InterruptedException ex )
-            {
-                break;
-            }
+            // After the first post we set firstPost to false
+            // Each post thereafter will be a ping
+            firstPost = false;
+        } catch ( IOException ex )
+        {
+            ProxyServer.getInstance().getLogger().info( "[Metrics] " + ex.getMessage() );
         }
     }
 
