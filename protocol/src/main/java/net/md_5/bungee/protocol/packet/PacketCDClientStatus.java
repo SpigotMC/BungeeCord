@@ -11,7 +11,7 @@ public class PacketCDClientStatus extends DefinedPacket
 
     private byte payload;
 
-    PacketCDClientStatus()
+    private PacketCDClientStatus()
     {
         super( 0xCD );
     }

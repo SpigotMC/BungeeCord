@@ -1,23 +1,125 @@
 package net.md_5.bungee.protocol;
 
-import static net.md_5.bungee.protocol.PacketDefinitions.OpCode.*;
+import io.netty.buffer.ByteBuf;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import lombok.Getter;
+import static net.md_5.bungee.protocol.OpCode.*;
+import net.md_5.bungee.protocol.packet.DefinedPacket;
+import net.md_5.bungee.protocol.packet.Packet0KeepAlive;
+import net.md_5.bungee.protocol.packet.Packet1Login;
+import net.md_5.bungee.protocol.packet.Packet2Handshake;
+import net.md_5.bungee.protocol.packet.Packet3Chat;
+import net.md_5.bungee.protocol.packet.Packet9Respawn;
+import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
+import net.md_5.bungee.protocol.packet.PacketCCSettings;
+import net.md_5.bungee.protocol.packet.PacketCDClientStatus;
+import net.md_5.bungee.protocol.packet.PacketCEScoreboardObjective;
+import net.md_5.bungee.protocol.packet.PacketCFScoreboardScore;
+import net.md_5.bungee.protocol.packet.PacketD0DisplayScoreboard;
+import net.md_5.bungee.protocol.packet.PacketD1Team;
+import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
+import net.md_5.bungee.protocol.packet.PacketFCEncryptionResponse;
+import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
+import net.md_5.bungee.protocol.packet.PacketFEPing;
+import net.md_5.bungee.protocol.packet.PacketFFKick;
+import net.md_5.bungee.protocol.skip.PacketReader;
 
-public class PacketDefinitions
+public class Vanilla implements Protocol
 {
 
     public static final byte PROTOCOL_VERSION = 61;
     public static final String GAME_VERSION = "1.5.2";
-    public static final OpCode[][] opCodes = new OpCode[ 512 ][];
-    public static final int VANILLA_PROTOCOL = 0;
-    public static final int FORGE_PROTOCOL = 256;
+    public static final Vanilla INSTANCE = new Vanilla();
+    /*========================================================================*/
+    @Getter
+    private final OpCode[][] opCodes = new OpCode[ 256 ][];
+    @SuppressWarnings("unchecked")
+    @Getter
+    private Class<? extends DefinedPacket>[] classes = new Class[ 256 ];
+    @SuppressWarnings("unchecked")
+    @Getter
+    private Constructor<? extends DefinedPacket>[] constructors = new Constructor[ 256 ];
+    @Getter
+    private final PacketReader skipper = new PacketReader( this );
+    /*========================================================================*/
 
-    public enum OpCode
+    
     {
-
-        BOOLEAN, BULK_CHUNK, BYTE, BYTE_INT, DOUBLE, FLOAT, INT, INT_3, INT_BYTE, ITEM, LONG, METADATA, OPTIONAL_MOTION,  SHORT, SHORT_BYTE, SHORT_ITEM, STRING, USHORT_BYTE
+        classes[0x00] = Packet0KeepAlive.class;
+        classes[0x01] = Packet1Login.class;
+        classes[0x02] = Packet2Handshake.class;
+        classes[0x03] = Packet3Chat.class;
+        classes[0x09] = Packet9Respawn.class;
+        classes[0xC9] = PacketC9PlayerListItem.class;
+        classes[0xCC] = PacketCCSettings.class;
+        classes[0xCD] = PacketCDClientStatus.class;
+        classes[0xCE] = PacketCEScoreboardObjective.class;
+        classes[0xCF] = PacketCFScoreboardScore.class;
+        classes[0xD0] = PacketD0DisplayScoreboard.class;
+        classes[0xD1] = PacketD1Team.class;
+        classes[0xFA] = PacketFAPluginMessage.class;
+        classes[0xFC] = PacketFCEncryptionResponse.class;
+        classes[0xFD] = PacketFDEncryptionRequest.class;
+        classes[0xFE] = PacketFEPing.class;
+        classes[0xFF] = PacketFFKick.class;
     }
 
-    static
+    @Override
+    public DefinedPacket read(short packetId, ByteBuf buf)
+    {
+        int start = buf.readerIndex();
+        DefinedPacket packet = read( packetId, buf, this );
+        if ( buf.readerIndex() == start )
+        {
+            throw new RuntimeException( "Unknown packet id " + packetId );
+        }
+        return packet;
+    }
+
+    public static DefinedPacket read(short id, ByteBuf buf, Protocol protocol)
+    {
+        DefinedPacket packet = packet( id, protocol );
+        if ( packet != null )
+        {
+            packet.read( buf );
+            return packet;
+        }
+        protocol.getSkipper().tryRead( id, buf );
+        return null;
+    }
+
+    public static DefinedPacket packet(short id, Protocol protocol)
+    {
+        DefinedPacket ret = null;
+        Class<? extends DefinedPacket> clazz = protocol.getClasses()[id];
+
+        if ( clazz != null )
+        {
+            try
+            {
+                Constructor<? extends DefinedPacket> constructor = protocol.getConstructors()[id];
+                if ( constructor == null )
+                {
+                    constructor = clazz.getDeclaredConstructor();
+                    constructor.setAccessible( true );
+                    protocol.getConstructors()[id] = constructor;
+                }
+
+                if ( constructor != null )
+                {
+                    ret = constructor.newInstance();
+                }
+            } catch ( NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex )
+            {
+            }
+        }
+
+        return ret;
+    }
+
+    
     {
         opCodes[0x04] = new OpCode[]
         {

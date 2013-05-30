@@ -1,24 +1,24 @@
-package net.md_5.bungee.protocol.netty;
+package net.md_5.bungee.protocol.skip;
 
 import io.netty.buffer.ByteBuf;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import net.md_5.bungee.protocol.PacketDefinitions;
-import net.md_5.bungee.protocol.PacketDefinitions.OpCode;
+import net.md_5.bungee.protocol.OpCode;
+import net.md_5.bungee.protocol.Protocol;
 
 public class PacketReader
 {
 
-    private static final Instruction[][] instructions = new Instruction[ PacketDefinitions.opCodes.length ][];
+    private final Instruction[][] instructions;
 
-    static
+    public PacketReader(Protocol protocol)
     {
+        instructions = new Instruction[ protocol.getOpCodes().length ][];
         for ( int i = 0; i < instructions.length; i++ )
         {
             List<Instruction> output = new ArrayList<>();
 
-            OpCode[] enums = PacketDefinitions.opCodes[i];
+            OpCode[] enums = protocol.getOpCodes()[i];
             if ( enums != null )
             {
                 for ( OpCode struct : enums )
@@ -59,35 +59,16 @@ public class PacketReader
         }
     }
 
-    private static void readPacket(int packetId, ByteBuf in, int protocol) throws IOException
+    public void tryRead(short packetId, ByteBuf in)
     {
-        Instruction[] packetDef = null;
-        if ( packetId + protocol < instructions.length )
-        {
-            packetDef = instructions[packetId + protocol];
-        }
+        Instruction[] packetDef = instructions[packetId];
 
-        if ( packetDef == null )
+        if ( packetDef != null )
         {
-            if ( protocol == PacketDefinitions.VANILLA_PROTOCOL )
+            for ( Instruction instruction : packetDef )
             {
-                throw new IOException( "Unknown packet id " + packetId );
-            } else
-            {
-                readPacket( packetId, in, PacketDefinitions.VANILLA_PROTOCOL );
-                return;
+                instruction.read( in );
             }
         }
-
-        for ( Instruction instruction : packetDef )
-        {
-            instruction.read( in );
-        }
-    }
-
-    public static void readPacket(ByteBuf in, int protocol) throws IOException
-    {
-        int packetId = in.readUnsignedByte();
-        readPacket( packetId, in, protocol );
     }
 }

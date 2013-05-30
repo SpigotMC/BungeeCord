@@ -15,7 +15,7 @@ public class PacketCCSettings extends DefinedPacket
     private byte difficulty;
     private boolean showCape;
 
-    PacketCCSettings()
+    private PacketCCSettings()
     {
         super( 0xCC );
     }

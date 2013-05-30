@@ -21,7 +21,7 @@ public class PacketD1Team extends DefinedPacket
     private short playerCount;
     private String[] players;
 
-    PacketD1Team()
+    private PacketD1Team()
     {
         super( 0xD1 );
     }

@@ -11,7 +11,7 @@ public class Packet0KeepAlive extends DefinedPacket
 
     private int id;
 
-    Packet0KeepAlive()
+    private Packet0KeepAlive()
     {
         super( 0x00 );
     }

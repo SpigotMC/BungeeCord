@@ -11,7 +11,7 @@ public class PacketFFKick extends DefinedPacket
 
     private String message;
 
-    PacketFFKick()
+    private PacketFFKick()
     {
         super( 0xFF );
     }

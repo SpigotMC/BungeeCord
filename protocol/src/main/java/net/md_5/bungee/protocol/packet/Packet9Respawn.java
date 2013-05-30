@@ -15,7 +15,7 @@ public class Packet9Respawn extends DefinedPacket
     private short worldHeight;
     private String levelType;
 
-    Packet9Respawn()
+    private Packet9Respawn()
     {
         super( 0x09 );
     }

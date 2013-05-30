@@ -15,7 +15,7 @@ public class PacketD0DisplayScoreboard extends DefinedPacket
     private byte position;
     private String name;
 
-    PacketD0DisplayScoreboard()
+    private PacketD0DisplayScoreboard()
     {
         super( 0xD0 );
     }

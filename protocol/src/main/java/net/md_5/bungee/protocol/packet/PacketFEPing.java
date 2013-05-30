@@ -11,7 +11,7 @@ public class PacketFEPing extends DefinedPacket
 
     private byte version;
 
-    PacketFEPing()
+    private PacketFEPing()
     {
         super( 0xFE );
     }

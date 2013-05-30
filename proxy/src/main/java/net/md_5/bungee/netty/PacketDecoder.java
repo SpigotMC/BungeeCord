@@ -7,7 +7,7 @@ import io.netty.handler.codec.ReplayingDecoder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import net.md_5.bungee.protocol.netty.PacketReader;
+import net.md_5.bungee.protocol.skip.PacketReader;
 
 /**
  * This class will attempt to read a packet from {@link PacketReader}, with the

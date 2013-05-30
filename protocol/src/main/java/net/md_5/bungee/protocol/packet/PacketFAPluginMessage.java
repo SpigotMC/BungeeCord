@@ -12,7 +12,7 @@ public class PacketFAPluginMessage extends DefinedPacket
     private String tag;
     private byte[] data;
 
-    PacketFAPluginMessage()
+    private PacketFAPluginMessage()
     {
         super( 0xFA );
     }

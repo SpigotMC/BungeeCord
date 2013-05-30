@@ -1,13 +1,12 @@
-package net.md_5.bungee.protocol.netty;
+package net.md_5.bungee.protocol.skip;
 
 import io.netty.buffer.ByteBuf;
-import java.io.IOException;
 
 public class BulkChunk extends Instruction
 {
 
     @Override
-    void read(ByteBuf in) throws IOException
+    void read(ByteBuf in)
     {
         short count = in.readShort();
         int size = in.readInt();
