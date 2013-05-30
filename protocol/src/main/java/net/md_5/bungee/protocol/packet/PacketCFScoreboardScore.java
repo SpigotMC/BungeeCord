@@ -1,48 +1,49 @@
 package net.md_5.bungee.protocol.packet;
 
+import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import net.md_5.bungee.packet.PacketHandler;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class PacketCFScoreboardScore extends DefinedPacket
 {
 
-    public String itemName;
+    private String itemName;
     /**
      * 0 = create / update, 1 = remove.
      */
-    public byte action;
-    public String scoreName;
-    public int value;
+    private byte action;
+    private String scoreName;
+    private int value;
 
-    public PacketCFScoreboardScore(byte[] buf)
+    PacketCFScoreboardScore()
     {
-        super( 0xCF, buf );
-        itemName = readUTF();
-        action = readByte();
+        super( 0xCF );
+    }
+
+    @Override
+    public void read(ByteBuf buf)
+    {
+        itemName = readString( buf );
+        action = buf.readByte();
         if ( action == 0 )
         {
-            scoreName = readUTF();
-            value = readInt();
+            scoreName = readString( buf );
+            value = buf.readInt();
         }
     }
 
-    public PacketCFScoreboardScore(String itemName, byte action, String scoreName, int value)
+    @Override
+    public void write(ByteBuf buf)
     {
-        super( 0xCF );
-        writeString( itemName );
-        writeByte( action );
+        writeString( itemName, buf );
+        buf.writeByte( action );
         if ( action == 0 )
         {
-            writeString( scoreName );
-            writeInt( value );
+            writeString( scoreName, buf );
+            buf.writeInt( value );
         }
-        this.itemName = itemName;
-        this.action = action;
-        this.scoreName = scoreName;
-        this.value = value;
     }
 
     @Override

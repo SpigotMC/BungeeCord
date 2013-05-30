@@ -1,28 +1,43 @@
 package net.md_5.bungee.protocol.packet;
 
+import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import net.md_5.bungee.packet.PacketHandler;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class PacketCCSettings extends DefinedPacket
 {
 
-    public String locale;
-    public byte viewDistance;
-    public byte chatFlags;
-    public byte difficulty;
-    public boolean showCape;
+    private String locale;
+    private byte viewDistance;
+    private byte chatFlags;
+    private byte difficulty;
+    private boolean showCape;
 
-    public PacketCCSettings(byte[] buf)
+    PacketCCSettings()
     {
-        super( 0xCC, buf );
-        locale = readUTF();
-        viewDistance = readByte();
-        chatFlags = readByte();
-        difficulty = readByte();
-        showCape = readBoolean();
+        super( 0xCC );
+    }
+
+    @Override
+    public void read(ByteBuf buf)
+    {
+        locale = readString( buf );
+        viewDistance = buf.readByte();
+        chatFlags = buf.readByte();
+        difficulty = buf.readByte();
+        showCape = buf.readBoolean();
+    }
+
+    @Override
+    public void write(ByteBuf buf)
+    {
+        locale = readString( buf );
+        buf.writeByte( viewDistance );
+        buf.writeByte( chatFlags );
+        buf.writeByte( difficulty );
+        buf.writeBoolean( showCape );
     }
 
     @Override

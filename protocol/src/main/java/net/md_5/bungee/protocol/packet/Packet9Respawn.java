@@ -1,45 +1,43 @@
 package net.md_5.bungee.protocol.packet;
 
+import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import net.md_5.bungee.packet.PacketHandler;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class Packet9Respawn extends DefinedPacket
 {
 
-    public static final Packet9Respawn DIM1_SWITCH = new Packet9Respawn( (byte) 1, (byte) 0, (byte) 0, (short) 256, "DEFAULT" );
-    public static final Packet9Respawn DIM2_SWITCH = new Packet9Respawn( (byte) -1, (byte) 0, (byte) 0, (short) 256, "DEFAULT" );
-    public int dimension;
-    public byte difficulty;
-    public byte gameMode;
-    public short worldHeight;
-    public String levelType;
+    private int dimension;
+    private byte difficulty;
+    private byte gameMode;
+    private short worldHeight;
+    private String levelType;
 
-    public Packet9Respawn(int dimension, byte difficulty, byte gameMode, short worldHeight, String levelType)
+    Packet9Respawn()
     {
         super( 0x09 );
-        writeInt( dimension );
-        writeByte( difficulty );
-        writeByte( gameMode );
-        writeShort( worldHeight );
-        writeString( levelType );
-        this.dimension = dimension;
-        this.difficulty = difficulty;
-        this.gameMode = gameMode;
-        this.worldHeight = worldHeight;
-        this.levelType = levelType;
     }
 
-    Packet9Respawn(byte[] buf)
+    @Override
+    public void read(ByteBuf buf)
     {
-        super( 0x09, buf );
-        this.dimension = readInt();
-        this.difficulty = readByte();
-        this.gameMode = readByte();
-        this.worldHeight = readShort();
-        this.levelType = readUTF();
+        dimension = buf.readInt();
+        difficulty = buf.readByte();
+        gameMode = buf.readByte();
+        worldHeight = buf.readShort();
+        levelType = readString( buf );
+    }
+
+    @Override
+    public void write(ByteBuf buf)
+    {
+        buf.writeInt( dimension );
+        buf.writeByte( difficulty );
+        buf.writeByte( gameMode );
+        buf.writeShort( worldHeight );
+        writeString( levelType, buf );
     }
 
     @Override

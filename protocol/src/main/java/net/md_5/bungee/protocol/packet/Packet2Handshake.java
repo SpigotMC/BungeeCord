@@ -1,39 +1,40 @@
 package net.md_5.bungee.protocol.packet;
 
+import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import net.md_5.bungee.packet.PacketHandler;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class Packet2Handshake extends DefinedPacket
 {
 
-    public byte procolVersion;
-    public String username;
-    public String host;
-    public int port;
+    private byte procolVersion;
+    private String username;
+    private String host;
+    private int port;
 
-    public Packet2Handshake(byte protocolVersion, String username, String host, int port)
+    Packet2Handshake()
     {
         super( 0x02 );
-        writeByte( protocolVersion );
-        writeString( username );
-        writeString( host );
-        writeInt( port );
-        this.procolVersion = protocolVersion;
-        this.username = username;
-        this.host = host;
-        this.port = port;
     }
 
-    Packet2Handshake(byte[] buf)
+    @Override
+    public void read(ByteBuf buf)
     {
-        super( 0x02, buf );
-        this.procolVersion = readByte();
-        this.username = readUTF();
-        this.host = readUTF();
-        this.port = readInt();
+        procolVersion = buf.readByte();
+        username = readString( buf );
+        host = readString( buf );
+        port = buf.readInt();
+    }
+
+    @Override
+    public void write(ByteBuf buf)
+    {
+        buf.writeByte( procolVersion );
+        writeString( username, buf );
+        writeString( host, buf );
+        buf.writeInt( port );
     }
 
     @Override

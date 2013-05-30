@@ -1,14 +1,10 @@
 package net.md_5.bungee.protocol.packet;
 
 import io.netty.buffer.ByteBuf;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @ToString
-@NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class Packet1Login extends DefinedPacket
 {
@@ -20,6 +16,11 @@ public class Packet1Login extends DefinedPacket
     private byte difficulty;
     private byte unused;
     private byte maxPlayers;
+
+    Packet1Login()
+    {
+        super( 0x01 );
+    }
 
     @Override
     public void read(ByteBuf buf)

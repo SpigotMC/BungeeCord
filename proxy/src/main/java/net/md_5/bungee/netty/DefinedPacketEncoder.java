@@ -13,6 +13,7 @@ public class DefinedPacketEncoder extends MessageToByteEncoder<DefinedPacket>
     @Override
     protected void encode(ChannelHandlerContext ctx, DefinedPacket msg, ByteBuf out) throws Exception
     {
-        out.writeBytes( msg.getPacket() );
+        out.writeByte( msg.getId() );
+        msg.write( out );
     }
 }
