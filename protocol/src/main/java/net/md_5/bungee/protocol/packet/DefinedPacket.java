@@ -39,7 +39,7 @@ public abstract class DefinedPacket
     public void writeArray(byte[] b, ByteBuf buf)
     {
         // TODO: Check len - use Guava?
-        buf.writeByte( b.length );
+        buf.writeShort( b.length );
         buf.writeBytes( b );
     }
 

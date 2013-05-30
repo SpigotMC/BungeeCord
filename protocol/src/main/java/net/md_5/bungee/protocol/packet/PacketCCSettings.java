@@ -33,7 +33,7 @@ public class PacketCCSettings extends DefinedPacket
     @Override
     public void write(ByteBuf buf)
     {
-        locale = readString( buf );
+        writeString( locale, buf );
         buf.writeByte( viewDistance );
         buf.writeByte( chatFlags );
         buf.writeByte( difficulty );

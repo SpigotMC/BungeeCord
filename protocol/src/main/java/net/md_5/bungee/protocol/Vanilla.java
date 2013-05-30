@@ -43,10 +43,10 @@ public class Vanilla implements Protocol
     @Getter
     private Constructor<? extends DefinedPacket>[] constructors = new Constructor[ 256 ];
     @Getter
-    private final PacketReader skipper = new PacketReader( this );
+    protected PacketReader skipper;
     /*========================================================================*/
 
-    
+    public Vanilla()
     {
         classes[0x00] = Packet0KeepAlive.class;
         classes[0x01] = Packet1Login.class;
@@ -65,6 +65,7 @@ public class Vanilla implements Protocol
         classes[0xFD] = PacketFDEncryptionRequest.class;
         classes[0xFE] = PacketFEPing.class;
         classes[0xFF] = PacketFFKick.class;
+        skipper = new PacketReader( this );
     }
 
     @Override

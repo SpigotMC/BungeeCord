@@ -26,7 +26,7 @@ public class Packet1Login extends DefinedPacket
 
     public Packet1Login(int entityId, String levelType, byte gameMode, byte dimension, byte difficulty, byte unused, byte maxPlayers)
     {
-        this( entityId, levelType, gameMode, entityId, difficulty, unused, maxPlayers );
+        this( entityId, levelType, gameMode, (int) dimension, difficulty, unused, maxPlayers );
     }
 
     public Packet1Login(int entityId, String levelType, byte gameMode, int dimension, byte difficulty, byte unused, byte maxPlayers)
