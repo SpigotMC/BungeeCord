@@ -34,15 +34,15 @@ import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.CipherDecoder;
 import net.md_5.bungee.netty.CipherEncoder;
 import net.md_5.bungee.netty.PacketDecoder;
-import net.md_5.bungee.packet.Packet1Login;
-import net.md_5.bungee.packet.Packet2Handshake;
-import net.md_5.bungee.packet.PacketCDClientStatus;
-import net.md_5.bungee.packet.PacketFAPluginMessage;
-import net.md_5.bungee.packet.PacketFCEncryptionResponse;
-import net.md_5.bungee.packet.PacketFDEncryptionRequest;
-import net.md_5.bungee.packet.PacketFEPing;
-import net.md_5.bungee.packet.PacketFFKick;
-import net.md_5.bungee.packet.PacketHandler;
+import net.md_5.bungee.protocol.packet.Packet1Login;
+import net.md_5.bungee.protocol.packet.Packet2Handshake;
+import net.md_5.bungee.protocol.packet.PacketCDClientStatus;
+import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
+import net.md_5.bungee.protocol.packet.PacketFCEncryptionResponse;
+import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
+import net.md_5.bungee.protocol.packet.PacketFEPing;
+import net.md_5.bungee.protocol.packet.PacketFFKick;
+import net.md_5.bungee.protocol.packet.PacketHandler;
 import net.md_5.bungee.protocol.PacketDefinitions;
 
 @RequiredArgsConstructor

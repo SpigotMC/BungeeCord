@@ -1,7 +1,8 @@
-package net.md_5.bungee.packet;
+package net.md_5.bungee.protocol.packet;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import net.md_5.bungee.packet.PacketHandler;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -14,7 +15,7 @@ public class PacketFAPluginMessage extends DefinedPacket
     public PacketFAPluginMessage(String tag, byte[] data)
     {
         super( 0xFA );
-        writeUTF( tag );
+        writeString( tag );
         writeArray( data );
         this.tag = tag;
         this.data = data;

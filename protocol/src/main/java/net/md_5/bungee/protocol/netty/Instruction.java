@@ -19,12 +19,10 @@ abstract class Instruction
     static final Instruction LONG = new Jump( 8 );
     static final Instruction METADATA = new MetaData();
     static final Instruction OPTIONAL_MOTION = new OptionalMotion();
-    static final Instruction SCORE = new Score();
     static final Instruction SHORT = new Jump( 2 );
     static final Instruction SHORT_BYTE = new ShortHeader( BYTE );
     static final Instruction SHORT_ITEM = new ShortHeader( ITEM );
     static final Instruction STRING = new ShortHeader( new Jump( 2 ) );
-    static final Instruction TEAM = new Team();
     static final Instruction USHORT_BYTE = new UnsignedShortByte();
     // Illegal forward references below this line
     static final Instruction BYTE_INT = new ByteHeader( INT );

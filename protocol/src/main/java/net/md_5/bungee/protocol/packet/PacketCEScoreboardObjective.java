@@ -1,7 +1,8 @@
-package net.md_5.bungee.packet;
+package net.md_5.bungee.protocol.packet;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import net.md_5.bungee.packet.PacketHandler;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -18,8 +19,8 @@ public class PacketCEScoreboardObjective extends DefinedPacket
     public PacketCEScoreboardObjective(String name, String text, byte status)
     {
         super( 0xCE );
-        writeUTF( name );
-        writeUTF( text );
+        writeString( name );
+        writeString( text );
         writeByte( status );
         this.name = name;
         this.text = text;
