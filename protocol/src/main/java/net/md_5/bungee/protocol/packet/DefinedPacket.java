@@ -56,7 +56,7 @@ public abstract class DefinedPacket
 
     public abstract void write(ByteBuf buf);
 
-    public abstract void handle(PacketHandler handler) throws Exception;
+    public abstract void handle(AbstractPacketHandler handler) throws Exception;
 
     @Override
     public abstract boolean equals(Object obj);

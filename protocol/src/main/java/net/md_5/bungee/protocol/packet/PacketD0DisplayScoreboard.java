@@ -35,7 +35,7 @@ public class PacketD0DisplayScoreboard extends DefinedPacket
     }
 
     @Override
-    public void handle(PacketHandler handler) throws Exception
+    public void handle(AbstractPacketHandler handler) throws Exception
     {
         handler.handle( this );
     }

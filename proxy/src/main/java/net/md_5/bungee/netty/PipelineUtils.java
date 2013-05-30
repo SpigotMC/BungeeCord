@@ -61,7 +61,7 @@ public class PipelineUtils
 
             ch.pipeline().addLast( "outbound", new OutboundHandler() );
             ch.pipeline().addLast( "timer", new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
-            ch.pipeline().addLast( "decoder", new PacketDecoder( Vanilla.VANILLA_PROTOCOL ) );
+            ch.pipeline().addLast( "decoder", new PacketDecoder( Vanilla.getInstance() ) );
             ch.pipeline().addLast( "packet-encoder", packetEncoder );
             ch.pipeline().addLast( "array-encoder", arrayEncoder );
             ch.pipeline().addLast( "handler", new HandlerBoss() );

@@ -13,7 +13,6 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.scoreboard.Objective;
@@ -22,8 +21,8 @@ import net.md_5.bungee.api.scoreboard.Score;
 import net.md_5.bungee.api.scoreboard.Scoreboard;
 import net.md_5.bungee.api.scoreboard.Team;
 import net.md_5.bungee.netty.ChannelWrapper;
+import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.packet.Packet0KeepAlive;
-import net.md_5.bungee.protocol.packet.Packet3Chat;
 import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
 import net.md_5.bungee.protocol.packet.PacketCEScoreboardObjective;
 import net.md_5.bungee.protocol.packet.PacketCFScoreboardScore;
@@ -31,7 +30,8 @@ import net.md_5.bungee.protocol.packet.PacketD0DisplayScoreboard;
 import net.md_5.bungee.protocol.packet.PacketD1Team;
 import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
 import net.md_5.bungee.protocol.packet.PacketFFKick;
-import net.md_5.bungee.protocol.packet.PacketHandler;
+
+;
 
 @RequiredArgsConstructor
 public class DownstreamBridge extends PacketHandler
