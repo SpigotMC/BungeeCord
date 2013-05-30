@@ -32,7 +32,6 @@ import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.packet.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Packet3Chat;
-import net.md_5.bungee.protocol.packet.Packet9Respawn;
 import net.md_5.bungee.protocol.packet.PacketCCSettings;
 import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
 import net.md_5.bungee.protocol.packet.PacketFFKick;
@@ -133,10 +132,15 @@ public final class UserConnection implements ProxiedPlayer
         connect( target, false );
     }
 
+    void sendDimensionSwitch()
+    {
+        sendPacket( PacketConstants.DIM1_SWITCH );
+        sendPacket( PacketConstants.DIM2_SWITCH );
+    }
+
     public void connectNow(ServerInfo target)
     {
-        sendPacket( Packet9Respawn.DIM1_SWITCH );
-        sendPacket( Packet9Respawn.DIM2_SWITCH );
+        sendDimensionSwitch();
         connect( target );
     }
 

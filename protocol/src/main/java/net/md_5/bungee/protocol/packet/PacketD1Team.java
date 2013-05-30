@@ -2,8 +2,10 @@ package net.md_5.bungee.protocol.packet;
 
 import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 
+@Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class PacketD1Team extends DefinedPacket
@@ -26,22 +28,33 @@ public class PacketD1Team extends DefinedPacket
         super( 0xD1 );
     }
 
+    /**
+     * Packet to destroy a team.
+     *
+     * @param name
+     */
+    public PacketD1Team(String name)
+    {
+        this();
+        mode = 1;
+    }
+
     @Override
     public void read(ByteBuf buf)
     {
         name = readString( buf );
         mode = buf.readByte();
-        if ( mode == 0 || mode == 2 )
+        if ( getMode() == 0 || getMode() == 2 )
         {
             displayName = readString( buf );
             prefix = readString( buf );
             suffix = readString( buf );
             friendlyFire = buf.readBoolean();
         }
-        if ( mode == 0 || mode == 3 || mode == 4 )
+        if ( getMode() == 0 || getMode() == 3 || getMode() == 4 )
         {
             players = new String[ buf.readShort() ];
-            for ( int i = 0; i < players.length; i++ )
+            for ( int i = 0; i < getPlayers().length; i++ )
             {
                 players[i] = readString( buf );
             }
@@ -51,21 +64,21 @@ public class PacketD1Team extends DefinedPacket
     @Override
     public void write(ByteBuf buf)
     {
-        writeString( name, buf );
-        buf.writeByte( mode );
-        if ( mode == 0 || mode == 2 )
+        writeString( getName(), buf );
+        buf.writeByte( getMode() );
+        if ( getMode() == 0 || getMode() == 2 )
         {
-            writeString( displayName, buf );
-            writeString( prefix, buf );
-            writeString( suffix, buf );
-            buf.writeBoolean( friendlyFire );
+            writeString( getDisplayName(), buf );
+            writeString( getPrefix(), buf );
+            writeString( getSuffix(), buf );
+            buf.writeBoolean( isFriendlyFire() );
         }
-        if ( mode == 0 || mode == 3 || mode == 4 )
+        if ( getMode() == 0 || getMode() == 3 || getMode() == 4 )
         {
-            buf.writeShort( players.length );
-            for ( int i = 0; i < players.length; i++ )
+            buf.writeShort( getPlayers().length );
+            for ( int i = 0; i < getPlayers().length; i++ )
             {
-                writeString( players[i], buf );
+                writeString( getPlayers()[i], buf );
             }
         }
     }

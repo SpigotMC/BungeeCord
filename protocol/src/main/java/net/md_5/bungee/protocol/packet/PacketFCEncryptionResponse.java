@@ -2,8 +2,10 @@ package net.md_5.bungee.protocol.packet;
 
 import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 
+@Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class PacketFCEncryptionResponse extends DefinedPacket
@@ -15,6 +17,13 @@ public class PacketFCEncryptionResponse extends DefinedPacket
     private PacketFCEncryptionResponse()
     {
         super( 0xFC );
+    }
+
+    public PacketFCEncryptionResponse(byte[] sharedSecret, byte[] verifyToken)
+    {
+        this();
+        this.sharedSecret = sharedSecret;
+        this.verifyToken = verifyToken;
     }
 
     @Override

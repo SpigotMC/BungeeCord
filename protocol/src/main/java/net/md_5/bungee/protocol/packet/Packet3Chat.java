@@ -2,8 +2,10 @@ package net.md_5.bungee.protocol.packet;
 
 import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 
+@Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class Packet3Chat extends DefinedPacket
@@ -14,6 +16,12 @@ public class Packet3Chat extends DefinedPacket
     private Packet3Chat()
     {
         super( 0x03 );
+    }
+
+    public Packet3Chat(String message)
+    {
+        this();
+        this.message = message;
     }
 
     @Override
