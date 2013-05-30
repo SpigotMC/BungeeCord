@@ -1,19 +1,20 @@
 package net.md_5.bungee.protocol.packet;
 
 import io.netty.buffer.ByteBuf;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @ToString
-@NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class Packet0KeepAlive extends DefinedPacket
 {
 
     private int id;
+
+    Packet0KeepAlive()
+    {
+        super( 0x00 );
+    }
 
     @Override
     public void read(ByteBuf buf)

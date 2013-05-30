@@ -3,34 +3,35 @@ package net.md_5.bungee.protocol.packet;
 import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import net.md_5.bungee.packet.PacketHandler;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class PacketFDEncryptionRequest extends DefinedPacket
 {
 
-    public String serverId;
-    public byte[] publicKey;
-    public byte[] verifyToken;
+    private String serverId;
+    private byte[] publicKey;
+    private byte[] verifyToken;
 
-    public PacketFDEncryptionRequest(String serverId, byte[] publicKey, byte[] verifyToken)
+    PacketFDEncryptionRequest()
     {
         super( 0xFD );
-        writeString( serverId );
-        writeArray( publicKey );
-        writeArray( verifyToken );
-        this.serverId = serverId;
-        this.publicKey = publicKey;
-        this.verifyToken = verifyToken;
     }
 
-    PacketFDEncryptionRequest(byte[] buf)
+    @Override
+    public void read(ByteBuf buf)
     {
-        super( 0xFD, buf );
-        serverId = readUTF();
-        publicKey = readArray();
-        verifyToken = readArray();
+        serverId = readString( buf );
+        publicKey = readArray( buf );
+        verifyToken = readArray( buf );
+    }
+
+    @Override
+    public void write(ByteBuf buf)
+    {
+        writeString( serverId, buf );
+        writeArray( publicKey, buf );
+        writeArray( verifyToken, buf );
     }
 
     @Override

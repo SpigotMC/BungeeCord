@@ -3,14 +3,19 @@ package net.md_5.bungee.protocol.packet;
 import io.netty.buffer.ByteBuf;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public abstract class DefinedPacket
 {
 
     @SuppressWarnings("unchecked")
-    private static Class<? extends DefinedPacket>[] classes = new Class[ 256 ];
+    public static Class<? extends DefinedPacket>[] classes = new Class[ 256 ];
     @SuppressWarnings("unchecked")
     private static Constructor<? extends DefinedPacket>[] consructors = new Constructor[ 256 ];
+    private final int id;
+
 
     public static DefinedPacket packet(ByteBuf buf)
     {
@@ -31,14 +36,19 @@ public abstract class DefinedPacket
 
                 if ( constructor != null )
                 {
-                    ret = constructor.newInstance( buf );
+                    ret = constructor.newInstance();
                 }
-            } catch ( IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException ex )
+            } catch ( NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex )
             {
             }
         }
 
         return ret;
+    }
+
+    public final int getId()
+    {
+        return id;
     }
 
     public void writeString(String s, ByteBuf buf)

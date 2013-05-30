@@ -1,31 +1,34 @@
 package net.md_5.bungee.protocol.packet;
 
+import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import net.md_5.bungee.packet.PacketHandler;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class PacketFAPluginMessage extends DefinedPacket
 {
 
-    public String tag;
-    public byte[] data;
+    private String tag;
+    private byte[] data;
 
-    public PacketFAPluginMessage(String tag, byte[] data)
+    PacketFAPluginMessage()
     {
         super( 0xFA );
-        writeString( tag );
-        writeArray( data );
-        this.tag = tag;
-        this.data = data;
     }
 
-    PacketFAPluginMessage(byte[] buf)
+    @Override
+    public void read(ByteBuf buf)
     {
-        super( 0xFA, buf );
-        this.tag = readUTF();
-        this.data = readArray();
+        tag = readString( buf );
+        data = readArray( buf );
+    }
+
+    @Override
+    public void write(ByteBuf buf)
+    {
+        writeString( tag, buf );
+        writeArray( data, buf );
     }
 
     @Override

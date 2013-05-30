@@ -1,38 +1,34 @@
 package net.md_5.bungee.protocol.packet;
 
+import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import net.md_5.bungee.packet.PacketHandler;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class PacketFCEncryptionResponse extends DefinedPacket
 {
 
-    public byte[] sharedSecret;
-    public byte[] verifyToken;
+    private byte[] sharedSecret;
+    private byte[] verifyToken;
 
-    public PacketFCEncryptionResponse()
+    PacketFCEncryptionResponse()
     {
         super( 0xFC );
-        writeArray( new byte[ 0 ] );
-        writeArray( new byte[ 0 ] );
     }
 
-    public PacketFCEncryptionResponse(byte[] sharedSecret, byte[] verifyToken)
+    @Override
+    public void read(ByteBuf buf)
     {
-        super( 0xFC );
-        writeArray( sharedSecret );
-        writeArray( verifyToken );
-        this.sharedSecret = sharedSecret;
-        this.verifyToken = verifyToken;
+        sharedSecret = readArray( buf );
+        verifyToken = readArray( buf );
     }
 
-    PacketFCEncryptionResponse(byte[] buf)
+    @Override
+    public void write(ByteBuf buf)
     {
-        super( 0xFC, buf );
-        this.sharedSecret = readArray();
-        this.verifyToken = readArray();
+        writeArray( sharedSecret, buf );
+        writeArray( verifyToken, buf );
     }
 
     @Override

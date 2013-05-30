@@ -1,59 +1,73 @@
 package net.md_5.bungee.protocol.packet;
 
+import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import net.md_5.bungee.packet.PacketHandler;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class PacketD1Team extends DefinedPacket
 {
 
-    public String name;
+    private String name;
     /**
      * 0 - create, 1 remove, 2 info update, 3 player add, 4 player remove.
      */
-    public byte mode;
-    public String displayName;
-    public String prefix;
-    public String suffix;
-    public byte friendlyFire;
-    public short playerCount;
-    public String[] players;
+    private byte mode;
+    private String displayName;
+    private String prefix;
+    private String suffix;
+    private boolean friendlyFire;
+    private short playerCount;
+    private String[] players;
 
-    public PacketD1Team(byte[] buf)
-    {
-        super( 0xD1, buf );
-        name = readUTF();
-        mode = readByte();
-        if ( mode == 0 || mode == 2 )
-        {
-            displayName = readUTF();
-            prefix = readUTF();
-            suffix = readUTF();
-            friendlyFire = readByte();
-        }
-        if ( mode == 0 || mode == 3 || mode == 4 )
-        {
-            players = new String[ readShort() ];
-            for ( int i = 0; i < players.length; i++ )
-            {
-                players[i] = readUTF();
-            }
-        }
-    }
-
-    public PacketD1Team()
+    PacketD1Team()
     {
         super( 0xD1 );
     }
 
-    public static PacketD1Team destroy(String name)
+    @Override
+    public void read(ByteBuf buf)
     {
-        PacketD1Team packet = new PacketD1Team();
-        packet.writeString( name );
-        packet.writeByte( 1 );
-        return packet;
+        name = readString( buf );
+        mode = buf.readByte();
+        if ( mode == 0 || mode == 2 )
+        {
+            displayName = readString( buf );
+            prefix = readString( buf );
+            suffix = readString( buf );
+            friendlyFire = buf.readBoolean();
+        }
+        if ( mode == 0 || mode == 3 || mode == 4 )
+        {
+            players = new String[ buf.readShort() ];
+            for ( int i = 0; i < players.length; i++ )
+            {
+                players[i] = readString( buf );
+            }
+        }
+    }
+
+    @Override
+    public void write(ByteBuf buf)
+    {
+        writeString( name, buf );
+        buf.writeByte( mode );
+        if ( mode == 0 || mode == 2 )
+        {
+            writeString( displayName, buf );
+            writeString( prefix, buf );
+            writeString( suffix, buf );
+            buf.writeBoolean( friendlyFire );
+        }
+        if ( mode == 0 || mode == 3 || mode == 4 )
+        {
+            buf.writeShort( players.length );
+            for ( int i = 0; i < players.length; i++ )
+            {
+                writeString( players[i], buf );
+            }
+        }
     }
 
     @Override

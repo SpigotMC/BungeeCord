@@ -1,26 +1,31 @@
 package net.md_5.bungee.protocol.packet;
 
+import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import net.md_5.bungee.packet.PacketHandler;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class PacketFFKick extends DefinedPacket
 {
 
-    public String message;
+    private String message;
 
-    public PacketFFKick(String message)
+    PacketFFKick()
     {
         super( 0xFF );
-        writeString( message );
     }
 
-    PacketFFKick(byte[] buf)
+    @Override
+    public void read(ByteBuf buf)
     {
-        super( 0xFF, buf );
-        this.message = readUTF();
+        message = readString( buf );
+    }
+
+    @Override
+    public void write(ByteBuf buf)
+    {
+        writeString( message, buf );
     }
 
     @Override

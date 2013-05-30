@@ -1,20 +1,31 @@
 package net.md_5.bungee.protocol.packet;
 
+import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import net.md_5.bungee.packet.PacketHandler;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class PacketFEPing extends DefinedPacket
 {
 
-    public byte version;
+    private byte version;
 
-    PacketFEPing(byte[] buffer)
+    PacketFEPing()
     {
-        super( 0xFE, buffer );
-        version = readByte();
+        super( 0xFE );
+    }
+
+    @Override
+    public void read(ByteBuf buf)
+    {
+        version = buf.readByte();
+    }
+
+    @Override
+    public void write(ByteBuf buf)
+    {
+        buf.writeByte( version );
     }
 
     @Override
