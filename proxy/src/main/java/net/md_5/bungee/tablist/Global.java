@@ -20,9 +20,9 @@ public class Global implements TabListHandler
         UserConnection con = (UserConnection) player;
         for ( ProxiedPlayer p : ProxyServer.getInstance().getPlayers() )
         {
-            con.sendPacket( new PacketC9PlayerListItem( p.getDisplayName(), true, p.getPing() ) );
+            con.sendPacket( new PacketC9PlayerListItem( p.getDisplayName(), true, (short) p.getPing() ) );
         }
-        BungeeCord.getInstance().broadcast( new PacketC9PlayerListItem( player.getDisplayName(), true, player.getPing() ) );
+        BungeeCord.getInstance().broadcast( new PacketC9PlayerListItem( player.getDisplayName(), true, (short) player.getPing() ) );
     }
 
     @Override
@@ -30,7 +30,7 @@ public class Global implements TabListHandler
     {
         if ( !sentPings.contains( player ) )
         {
-            BungeeCord.getInstance().broadcast( new PacketC9PlayerListItem( player.getDisplayName(), true, player.getPing() ) );
+            BungeeCord.getInstance().broadcast( new PacketC9PlayerListItem( player.getDisplayName(), true, (short) player.getPing() ) );
             sentPings.add( player );
         }
     }
@@ -38,7 +38,7 @@ public class Global implements TabListHandler
     @Override
     public void onDisconnect(ProxiedPlayer player)
     {
-        BungeeCord.getInstance().broadcast( new PacketC9PlayerListItem( player.getDisplayName(), false, 9999 ) );
+        BungeeCord.getInstance().broadcast( new PacketC9PlayerListItem( player.getDisplayName(), false, (short) 9999 ) );
         sentPings.remove( player );
     }
 

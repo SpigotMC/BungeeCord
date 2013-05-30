@@ -13,14 +13,14 @@ public class PacketC9PlayerListItem extends DefinedPacket
 
     private String username;
     private boolean online;
-    private int ping;
+    private short ping;
 
     private PacketC9PlayerListItem()
     {
         super( 0xC9 );
     }
 
-    public PacketC9PlayerListItem(String username, boolean online, int ping)
+    public PacketC9PlayerListItem(String username, boolean online, short ping)
     {
         super( 0xC9 );
         this.username = username;
@@ -33,7 +33,7 @@ public class PacketC9PlayerListItem extends DefinedPacket
     {
         username = readString( buf );
         online = buf.readBoolean();
-        ping = buf.readInt();
+        ping = buf.readShort();
     }
 
     @Override
@@ -41,7 +41,7 @@ public class PacketC9PlayerListItem extends DefinedPacket
     {
         writeString( username, buf );
         buf.writeBoolean( online );
-        buf.writeInt( ping );
+        buf.writeShort(ping );
     }
 
     @Override

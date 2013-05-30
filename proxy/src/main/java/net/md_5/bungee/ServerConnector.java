@@ -31,14 +31,12 @@ import net.md_5.bungee.protocol.Forge;
 import net.md_5.bungee.protocol.packet.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Packet1Login;
 import net.md_5.bungee.protocol.packet.Packet9Respawn;
-import net.md_5.bungee.protocol.packet.PacketCDClientStatus;
 import net.md_5.bungee.protocol.packet.PacketCEScoreboardObjective;
 import net.md_5.bungee.protocol.packet.PacketD1Team;
 import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
 import net.md_5.bungee.protocol.packet.PacketFCEncryptionResponse;
 import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.protocol.packet.PacketFFKick;
-import net.md_5.bungee.protocol.Vanilla;
 import net.md_5.bungee.protocol.packet.forge.Forge1Login;
 
 @RequiredArgsConstructor
@@ -62,7 +60,7 @@ public class ServerConnector extends PacketHandler
     @Override
     public void exception(Throwable t) throws Exception
     {
-        String message = "Exception Connectiong:" + Util.exception( t );
+        String message = "Exception Connecting:" + Util.exception( t );
         if ( user.getServer() == null )
         {
             user.disconnect( message );

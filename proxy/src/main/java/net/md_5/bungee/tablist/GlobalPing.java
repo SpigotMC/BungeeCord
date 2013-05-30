@@ -25,7 +25,7 @@ public class GlobalPing extends Global
         int lastPing = lastPings.get( player );
         if ( ping - PING_THRESHOLD > lastPing && ping + PING_THRESHOLD < lastPing )
         {
-            BungeeCord.getInstance().broadcast( new PacketC9PlayerListItem( player.getDisplayName(), true, ping ) );
+            BungeeCord.getInstance().broadcast( new PacketC9PlayerListItem( player.getDisplayName(), true, (short) ping ) );
             lastPings.put( player, ping );
         }
     }
