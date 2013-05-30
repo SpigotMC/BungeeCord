@@ -85,6 +85,7 @@ public class BungeeCord extends ProxyServer
      * locations.yml save thread.
      */
     private final Timer saveThread = new Timer( "Reconnect Saver" );
+    private final Timer metricsThread = new Timer( "Metrics Thread" );
     /**
      * Server socket listener.
      */
@@ -213,8 +214,7 @@ public class BungeeCord extends ProxyServer
                 getReconnectHandler().save();
             }
         }, 0, TimeUnit.MINUTES.toMillis( 5 ) );
-
-        new Metrics().start();
+        metricsThread.scheduleAtFixedRate( new Metrics(), 0, TimeUnit.MINUTES.toMillis( Metrics.PING_INTERVAL ) );
     }
 
     public void startListeners()
@@ -265,44 +265,58 @@ public class BungeeCord extends ProxyServer
     @Override
     public void stop()
     {
-        this.isRunning = false;
-
-        httpClient.close();
-        executors.shutdown();
-
-        stopListeners();
-        getLogger().info( "Closing pending connections" );
-
-        connectionLock.readLock().lock();
-        try
+        new Thread( "Shutdown Thread" )
         {
-            getLogger().info( "Disconnecting " + connections.size() + " connections" );
-            for ( UserConnection user : connections.values() )
+            @Override
+            public void run()
             {
-                user.disconnect( getTranslation( "restart" ) );
+                BungeeCord.this.isRunning = false;
+
+                httpClient.close();
+                executors.shutdown();
+
+                stopListeners();
+                getLogger().info( "Closing pending connections" );
+
+                connectionLock.readLock().lock();
+                try
+                {
+                    getLogger().info( "Disconnecting " + connections.size() + " connections" );
+                    for ( UserConnection user : connections.values() )
+                    {
+                        user.disconnect( getTranslation( "restart" ) );
+                    }
+                } finally
+                {
+                    connectionLock.readLock().unlock();
+                }
+
+                getLogger().info( "Closing IO threads" );
+                eventLoops.shutdownGracefully();
+                try
+                {
+                    eventLoops.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS );
+                } catch ( InterruptedException ex )
+                {
+                }
+
+                getLogger().info( "Saving reconnect locations" );
+                reconnectHandler.save();
+                saveThread.cancel();
+                metricsThread.cancel();
+
+                // TODO: Fix this shit
+                getLogger().info( "Disabling plugins" );
+                for ( Plugin plugin : pluginManager.getPlugins() )
+                {
+                    plugin.onDisable();
+                    getScheduler().cancel( plugin );
+                }
+
+                getLogger().info( "Thankyou and goodbye" );
+                System.exit( 0 );
             }
-        } finally
-        {
-            connectionLock.readLock().unlock();
-        }
-
-        getLogger().info( "Closing IO threads" );
-        eventLoops.shutdownGracefully();
-
-        getLogger().info( "Saving reconnect locations" );
-        reconnectHandler.save();
-        saveThread.cancel();
-
-        // TODO: Fix this shit
-        getLogger().info( "Disabling plugins" );
-        for ( Plugin plugin : pluginManager.getPlugins() )
-        {
-            plugin.onDisable();
-            getScheduler().cancel( plugin );
-        }
-
-        getLogger().info( "Thankyou and goodbye" );
-        System.exit( 0 );
+        }.start();
     }
 
     /**
