@@ -1,7 +1,8 @@
-package net.md_5.bungee.packet;
+package net.md_5.bungee.protocol.packet;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import net.md_5.bungee.packet.PacketHandler;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -50,7 +51,7 @@ public class PacketD1Team extends DefinedPacket
     public static PacketD1Team destroy(String name)
     {
         PacketD1Team packet = new PacketD1Team();
-        packet.writeUTF( name );
+        packet.writeString( name );
         packet.writeByte( 1 );
         return packet;
     }

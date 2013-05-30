@@ -1,7 +1,8 @@
-package net.md_5.bungee.packet;
+package net.md_5.bungee.protocol.packet;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import net.md_5.bungee.packet.PacketHandler;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -31,11 +32,11 @@ public class PacketCFScoreboardScore extends DefinedPacket
     public PacketCFScoreboardScore(String itemName, byte action, String scoreName, int value)
     {
         super( 0xCF );
-        writeUTF( itemName );
+        writeString( itemName );
         writeByte( action );
         if ( action == 0 )
         {
-            writeUTF( scoreName );
+            writeString( scoreName );
             writeInt( value );
         }
         this.itemName = itemName;

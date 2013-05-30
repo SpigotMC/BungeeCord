@@ -1,7 +1,8 @@
-package net.md_5.bungee.packet;
+package net.md_5.bungee.protocol.packet;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import net.md_5.bungee.packet.PacketHandler;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -17,8 +18,8 @@ public class Packet2Handshake extends DefinedPacket
     {
         super( 0x02 );
         writeByte( protocolVersion );
-        writeUTF( username );
-        writeUTF( host );
+        writeString( username );
+        writeString( host );
         writeInt( port );
         this.procolVersion = protocolVersion;
         this.username = username;

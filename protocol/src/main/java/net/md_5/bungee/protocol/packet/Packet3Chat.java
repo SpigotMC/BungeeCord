@@ -1,24 +1,26 @@
-package net.md_5.bungee.packet;
+package net.md_5.bungee.protocol.packet;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import net.md_5.bungee.packet.PacketHandler;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class PacketFFKick extends DefinedPacket
+public class Packet3Chat extends DefinedPacket
 {
 
     public String message;
 
-    public PacketFFKick(String message)
+    public Packet3Chat(String message)
     {
-        super( 0xFF );
-        writeUTF( message );
+        super( 0x03 );
+        writeString( message );
+        this.message = message;
     }
 
-    PacketFFKick(byte[] buf)
+    Packet3Chat(byte[] buf)
     {
-        super( 0xFF, buf );
+        super( 0x03, buf );
         this.message = readUTF();
     }
 

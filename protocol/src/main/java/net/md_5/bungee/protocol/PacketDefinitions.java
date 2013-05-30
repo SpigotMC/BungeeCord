@@ -14,27 +14,11 @@ public class PacketDefinitions
     public enum OpCode
     {
 
-        BOOLEAN, BULK_CHUNK, BYTE, BYTE_INT, DOUBLE, FLOAT, INT, INT_3, INT_BYTE, ITEM, LONG, METADATA, OPTIONAL_MOTION, SCORE, SHORT, SHORT_BYTE, SHORT_ITEM, STRING, TEAM, USHORT_BYTE
+        BOOLEAN, BULK_CHUNK, BYTE, BYTE_INT, DOUBLE, FLOAT, INT, INT_3, INT_BYTE, ITEM, LONG, METADATA, OPTIONAL_MOTION,  SHORT, SHORT_BYTE, SHORT_ITEM, STRING, USHORT_BYTE
     }
 
     static
     {
-        opCodes[0x00] = new OpCode[]
-        {
-            INT
-        };
-        opCodes[0x01] = new OpCode[]
-        {
-            INT, STRING, BYTE, BYTE, BYTE, BYTE, BYTE
-        };
-        opCodes[0x02] = new OpCode[]
-        {
-            BYTE, STRING, STRING, INT
-        };
-        opCodes[0x03] = new OpCode[]
-        {
-            STRING
-        };
         opCodes[0x04] = new OpCode[]
         {
             LONG, LONG
@@ -54,10 +38,6 @@ public class PacketDefinitions
         opCodes[0x08] = new OpCode[]
         {
             SHORT, SHORT, FLOAT
-        };
-        opCodes[0x09] = new OpCode[]
-        {
-            INT, BYTE, BYTE, SHORT, STRING
         };
         opCodes[0x0A] = new OpCode[]
         {
@@ -283,10 +263,6 @@ public class PacketDefinitions
         {
             INT, BYTE
         };
-        opCodes[0xC9] = new OpCode[]
-        {
-            STRING, BOOLEAN, SHORT
-        };
         opCodes[0xCA] = new OpCode[]
         {
             BYTE, BYTE, BYTE
@@ -294,55 +270,6 @@ public class PacketDefinitions
         opCodes[0xCB] = new OpCode[]
         {
             STRING
-        };
-        opCodes[0xCC] = new OpCode[]
-        {
-            STRING, BYTE, BYTE, BYTE, BOOLEAN
-        };
-        opCodes[0xCD] = new OpCode[]
-        {
-            BYTE
-        };
-        opCodes[0xCE] = new OpCode[]
-        {
-            STRING, STRING, BYTE
-        };
-        opCodes[0xCF] = new OpCode[]
-        {
-            SCORE
-        };
-        opCodes[0xD0] = new OpCode[]
-        {
-            BYTE, STRING
-        };
-        opCodes[0xD1] = new OpCode[]
-        {
-            TEAM
-        };
-        opCodes[0xFA] = new OpCode[]
-        {
-            STRING, SHORT_BYTE
-        };
-        opCodes[0xFC] = new OpCode[]
-        {
-            SHORT_BYTE, SHORT_BYTE
-        };
-        opCodes[0xFD] = new OpCode[]
-        {
-            STRING, SHORT_BYTE, SHORT_BYTE
-        };
-        opCodes[0xFE] = new OpCode[]
-        {
-            BYTE
-        };
-        opCodes[0xFF] = new OpCode[]
-        {
-            STRING
-        };
-        /*========================== Minecraft Forge ===========================*/
-        opCodes[0x01 + FORGE_PROTOCOL] = new OpCode[]
-        {
-            INT, STRING, BYTE, INT, BYTE, BYTE, BYTE
         };
     }
 }

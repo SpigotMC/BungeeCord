@@ -25,8 +25,8 @@ import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.connection.PingHandler;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PipelineUtils;
-import net.md_5.bungee.packet.DefinedPacket;
-import net.md_5.bungee.packet.PacketFAPluginMessage;
+import net.md_5.bungee.protocol.packet.DefinedPacket;
+import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
 
 @RequiredArgsConstructor
 public class BungeeServerInfo implements ServerInfo

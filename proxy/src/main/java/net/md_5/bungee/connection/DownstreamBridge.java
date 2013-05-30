@@ -22,16 +22,16 @@ import net.md_5.bungee.api.scoreboard.Score;
 import net.md_5.bungee.api.scoreboard.Scoreboard;
 import net.md_5.bungee.api.scoreboard.Team;
 import net.md_5.bungee.netty.ChannelWrapper;
-import net.md_5.bungee.packet.Packet0KeepAlive;
-import net.md_5.bungee.packet.Packet3Chat;
-import net.md_5.bungee.packet.PacketC9PlayerListItem;
-import net.md_5.bungee.packet.PacketCEScoreboardObjective;
-import net.md_5.bungee.packet.PacketCFScoreboardScore;
-import net.md_5.bungee.packet.PacketD0DisplayScoreboard;
-import net.md_5.bungee.packet.PacketD1Team;
-import net.md_5.bungee.packet.PacketFAPluginMessage;
-import net.md_5.bungee.packet.PacketFFKick;
-import net.md_5.bungee.packet.PacketHandler;
+import net.md_5.bungee.protocol.packet.Packet0KeepAlive;
+import net.md_5.bungee.protocol.packet.Packet3Chat;
+import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
+import net.md_5.bungee.protocol.packet.PacketCEScoreboardObjective;
+import net.md_5.bungee.protocol.packet.PacketCFScoreboardScore;
+import net.md_5.bungee.protocol.packet.PacketD0DisplayScoreboard;
+import net.md_5.bungee.protocol.packet.PacketD1Team;
+import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
+import net.md_5.bungee.protocol.packet.PacketFFKick;
+import net.md_5.bungee.protocol.packet.PacketHandler;
 
 @RequiredArgsConstructor
 public class DownstreamBridge extends PacketHandler

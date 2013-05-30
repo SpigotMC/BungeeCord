@@ -1,19 +1,20 @@
-package net.md_5.bungee.packet;
+package net.md_5.bungee.protocol.packet;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import net.md_5.bungee.packet.PacketHandler;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class Packet0KeepAlive extends DefinedPacket
+public class PacketFEPing extends DefinedPacket
 {
 
-    public int id;
+    public byte version;
 
-    Packet0KeepAlive(byte[] buf)
+    PacketFEPing(byte[] buffer)
     {
-        super( 0x00, buf );
-        id = readInt();
+        super( 0xFE, buffer );
+        version = readByte();
     }
 
     @Override

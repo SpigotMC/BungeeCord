@@ -1,7 +1,8 @@
-package net.md_5.bungee.packet;
+package net.md_5.bungee.protocol.packet;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import net.md_5.bungee.packet.PacketHandler;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -23,7 +24,7 @@ public class PacketC9PlayerListItem extends DefinedPacket
     public PacketC9PlayerListItem(String username, boolean online, int ping)
     {
         super( 0xC9 );
-        writeUTF( username );
+        writeString( username );
         writeBoolean( online );
         writeShort( ping );
     }

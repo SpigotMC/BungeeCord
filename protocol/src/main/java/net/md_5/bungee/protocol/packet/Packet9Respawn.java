@@ -1,7 +1,8 @@
-package net.md_5.bungee.packet;
+package net.md_5.bungee.protocol.packet;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import net.md_5.bungee.packet.PacketHandler;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -23,7 +24,7 @@ public class Packet9Respawn extends DefinedPacket
         writeByte( difficulty );
         writeByte( gameMode );
         writeShort( worldHeight );
-        writeUTF( levelType );
+        writeString( levelType );
         this.dimension = dimension;
         this.difficulty = difficulty;
         this.gameMode = gameMode;
