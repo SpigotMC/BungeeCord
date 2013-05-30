@@ -1,7 +1,6 @@
-package net.md_5.bungee.protocol.netty;
+package net.md_5.bungee.protocol.skip;
 
 import io.netty.buffer.ByteBuf;
-import java.io.IOException;
 
 class IntHeader extends Instruction
 {
@@ -14,7 +13,7 @@ class IntHeader extends Instruction
     }
 
     @Override
-    void read(ByteBuf in) throws IOException
+    void read(ByteBuf in)
     {
         int size = in.readInt();
         for ( int i = 0; i < size; i++ )

@@ -1,26 +1,14 @@
-package net.md_5.bungee.protocol.packet;
+package net.md_5.bungee.protocol.packet.forge;
 
+import net.md_5.bungee.protocol.packet.*;
 import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class Packet1Login extends DefinedPacket
+public class Forge1Login extends Packet1Login
 {
-
-    protected int entityId;
-    protected String levelType;
-    protected byte gameMode;
-    protected int dimension;
-    protected byte difficulty;
-    protected byte unused;
-    protected byte maxPlayers;
-
-    protected Packet1Login()
-    {
-        super( 0x01 );
-    }
 
     @Override
     public void read(ByteBuf buf)
@@ -28,7 +16,7 @@ public class Packet1Login extends DefinedPacket
         entityId = buf.readInt();
         levelType = readString( buf );
         gameMode = buf.readByte();
-        dimension = buf.readByte();
+        dimension = buf.readInt();
         difficulty = buf.readByte();
         unused = buf.readByte();
         maxPlayers = buf.readByte();
@@ -40,7 +28,7 @@ public class Packet1Login extends DefinedPacket
         buf.writeInt( entityId );
         writeString( levelType, buf );
         buf.writeByte( gameMode );
-        buf.writeByte( dimension );
+        buf.writeInt(dimension );
         buf.writeByte( difficulty );
         buf.writeByte( unused );
         buf.writeByte( maxPlayers );

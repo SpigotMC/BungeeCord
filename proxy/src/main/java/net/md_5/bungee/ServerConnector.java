@@ -37,7 +37,7 @@ import net.md_5.bungee.protocol.packet.PacketFCEncryptionResponse;
 import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.protocol.packet.PacketFFKick;
 import net.md_5.bungee.protocol.packet.PacketHandler;
-import net.md_5.bungee.protocol.PacketDefinitions;
+import net.md_5.bungee.protocol.Vanilla;
 
 @RequiredArgsConstructor
 public class ServerConnector extends PacketHandler
@@ -144,7 +144,7 @@ public class ServerConnector extends PacketHandler
                         login.difficulty,
                         login.unused,
                         (byte) user.getPendingConnection().getListener().getTabListSize(),
-                        ch.getHandle().pipeline().get( PacketDecoder.class ).getProtocol() == PacketDefinitions.FORGE_PROTOCOL );
+                        ch.getHandle().pipeline().get( PacketDecoder.class ).getProtocol() == Vanilla.FORGE_PROTOCOL );
                 user.sendPacket( modLogin );
             } else
             {
@@ -277,7 +277,7 @@ public class ServerConnector extends PacketHandler
             if ( in.readByte() != 0 )
             {
                 // TODO: Using forge flag
-                ch.getHandle().pipeline().get( PacketDecoder.class ).setProtocol( PacketDefinitions.FORGE_PROTOCOL );
+                ch.getHandle().pipeline().get( PacketDecoder.class ).setProtocol( Vanilla.FORGE_PROTOCOL );
             }
         }
 

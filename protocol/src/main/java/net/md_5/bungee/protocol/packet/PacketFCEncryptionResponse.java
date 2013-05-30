@@ -12,7 +12,7 @@ public class PacketFCEncryptionResponse extends DefinedPacket
     private byte[] sharedSecret;
     private byte[] verifyToken;
 
-    PacketFCEncryptionResponse()
+    private PacketFCEncryptionResponse()
     {
         super( 0xFC );
     }

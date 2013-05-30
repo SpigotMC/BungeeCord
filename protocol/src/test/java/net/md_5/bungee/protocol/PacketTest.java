@@ -30,7 +30,7 @@ public class PacketTest
                 Assert.assertTrue( "Packet " + clazz + " does not report correct id", packet.getId() == i );
                 Assert.assertTrue( "Packet " + clazz + " does not have custom hash code", packet.hashCode() != System.identityHashCode( packet ) );
                 Assert.assertTrue( "Packet " + clazz + " does not have custom toString", packet.toString().indexOf( '@' ) == -1 );
-                Assert.assertTrue( "Packet " + clazz + " does not have package private no args constructor", clazz.getDeclaredConstructor().getModifiers() == 0 );
+                Assert.assertTrue( "Packet " + clazz + " does not have private no args constructor", Modifier.isPrivate( clazz.getDeclaredConstructor().getModifiers() ) );
 
                 for ( Field field : clazz.getDeclaredFields() )
                 {

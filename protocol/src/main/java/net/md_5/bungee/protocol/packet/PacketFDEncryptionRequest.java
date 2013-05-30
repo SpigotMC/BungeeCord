@@ -13,7 +13,7 @@ public class PacketFDEncryptionRequest extends DefinedPacket
     private byte[] publicKey;
     private byte[] verifyToken;
 
-    PacketFDEncryptionRequest()
+    private PacketFDEncryptionRequest()
     {
         super( 0xFD );
     }

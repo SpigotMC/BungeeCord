@@ -14,7 +14,7 @@ public class Packet2Handshake extends DefinedPacket
     private String host;
     private int port;
 
-    Packet2Handshake()
+    private Packet2Handshake()
     {
         super( 0x02 );
     }

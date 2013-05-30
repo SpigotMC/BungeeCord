@@ -43,7 +43,7 @@ import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.protocol.packet.PacketFEPing;
 import net.md_5.bungee.protocol.packet.PacketFFKick;
 import net.md_5.bungee.protocol.packet.PacketHandler;
-import net.md_5.bungee.protocol.PacketDefinitions;
+import net.md_5.bungee.protocol.Vanilla;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -115,7 +115,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( forgeLogin == null, "Already received FORGE LOGIN" );
         forgeLogin = login;
 
-        ch.getHandle().pipeline().get( PacketDecoder.class ).setProtocol( PacketDefinitions.FORGE_PROTOCOL );
+        ch.getHandle().pipeline().get( PacketDecoder.class ).setProtocol( Vanilla.FORGE_PROTOCOL );
     }
 
     @Override

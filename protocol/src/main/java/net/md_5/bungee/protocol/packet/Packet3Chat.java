@@ -11,7 +11,7 @@ public class Packet3Chat extends DefinedPacket
 
     private String message;
 
-    Packet3Chat()
+    private Packet3Chat()
     {
         super( 0x03 );
     }

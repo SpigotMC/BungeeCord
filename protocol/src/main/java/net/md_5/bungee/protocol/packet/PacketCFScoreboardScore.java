@@ -17,7 +17,7 @@ public class PacketCFScoreboardScore extends DefinedPacket
     private String scoreName;
     private int value;
 
-    PacketCFScoreboardScore()
+    private PacketCFScoreboardScore()
     {
         super( 0xCF );
     }

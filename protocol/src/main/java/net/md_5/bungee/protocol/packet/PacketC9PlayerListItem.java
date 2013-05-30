@@ -13,7 +13,7 @@ public class PacketC9PlayerListItem extends DefinedPacket
     private boolean online;
     private int ping;
 
-    PacketC9PlayerListItem()
+    private PacketC9PlayerListItem()
     {
         super( 0xC9 );
     }

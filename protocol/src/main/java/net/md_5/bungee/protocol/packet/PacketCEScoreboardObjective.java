@@ -16,7 +16,7 @@ public class PacketCEScoreboardObjective extends DefinedPacket
      */
     private byte action;
 
-    PacketCEScoreboardObjective()
+    private PacketCEScoreboardObjective()
     {
         super( 0xCE );
     }
