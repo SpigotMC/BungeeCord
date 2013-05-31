@@ -27,7 +27,7 @@ public class ServerConnection implements Server
         @Override
         public void sendPacket(DefinedPacket packet)
         {
-            unsafe().sendPacket( packet );
+            ch.write( packet );
         }
     };
 
