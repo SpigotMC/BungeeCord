@@ -38,7 +38,7 @@ public class ServerUnique implements TabListHandler
         {
             for ( String username : usernames )
             {
-                ( (UserConnection) player ).sendPacket( new PacketC9PlayerListItem( username, false, (short) 9999 ) );
+                player.unsafe().sendPacket( new PacketC9PlayerListItem( username, false, (short) 9999 ) );
             }
             usernames.clear();
         }
