@@ -7,7 +7,9 @@ import io.netty.handler.codec.ReplayingDecoder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import net.md_5.bungee.protocol.netty.PacketReader;
+import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.packet.DefinedPacket;
+import net.md_5.bungee.protocol.skip.PacketReader;
 
 /**
  * This class will attempt to read a packet from {@link PacketReader}, with the
@@ -23,7 +25,7 @@ public class PacketDecoder extends ReplayingDecoder<Void>
 
     @Getter
     @Setter
-    private int protocol;
+    private Protocol protocol;
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, MessageBuf<Object> out) throws Exception
@@ -34,7 +36,7 @@ public class PacketDecoder extends ReplayingDecoder<Void>
             // Store our start index
             int startIndex = in.readerIndex();
             // Run packet through framer
-            PacketReader.readPacket( in, protocol );
+            DefinedPacket packet = protocol.read( in.readUnsignedByte(), in );
             // If we got this far, it means we have formed a packet, so lets grab the end index
             int endIndex = in.readerIndex();
             // Allocate a buffer big enough for all bytes we have read
@@ -47,8 +49,15 @@ public class PacketDecoder extends ReplayingDecoder<Void>
             in.readerIndex( endIndex );
             // Checkpoint our state incase we don't have enough data for another packet
             checkpoint();
+
             // Store our decoded message
-            out.add( buf );
+            if ( packet != null )
+            {
+                out.add( new PacketWrapper( packet, buf ) );
+            } else
+            {
+                out.add( buf );
+            }
         }
     }
 }

@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-import net.md_5.bungee.packet.DefinedPacket;
+import net.md_5.bungee.protocol.packet.DefinedPacket;
 
 @ChannelHandler.Sharable
 public class DefinedPacketEncoder extends MessageToByteEncoder<DefinedPacket>
@@ -13,6 +13,7 @@ public class DefinedPacketEncoder extends MessageToByteEncoder<DefinedPacket>
     @Override
     protected void encode(ChannelHandlerContext ctx, DefinedPacket msg, ByteBuf out) throws Exception
     {
-        out.writeBytes( msg.getPacket() );
+        out.writeByte( msg.getId() );
+        msg.write( out );
     }
 }

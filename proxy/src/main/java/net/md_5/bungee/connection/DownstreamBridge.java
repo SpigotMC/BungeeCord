@@ -13,7 +13,6 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.scoreboard.Objective;
@@ -22,16 +21,17 @@ import net.md_5.bungee.api.scoreboard.Score;
 import net.md_5.bungee.api.scoreboard.Scoreboard;
 import net.md_5.bungee.api.scoreboard.Team;
 import net.md_5.bungee.netty.ChannelWrapper;
-import net.md_5.bungee.packet.Packet0KeepAlive;
-import net.md_5.bungee.packet.Packet3Chat;
-import net.md_5.bungee.packet.PacketC9PlayerListItem;
-import net.md_5.bungee.packet.PacketCEScoreboardObjective;
-import net.md_5.bungee.packet.PacketCFScoreboardScore;
-import net.md_5.bungee.packet.PacketD0DisplayScoreboard;
-import net.md_5.bungee.packet.PacketD1Team;
-import net.md_5.bungee.packet.PacketFAPluginMessage;
-import net.md_5.bungee.packet.PacketFFKick;
-import net.md_5.bungee.packet.PacketHandler;
+import net.md_5.bungee.netty.PacketHandler;
+import net.md_5.bungee.protocol.packet.Packet0KeepAlive;
+import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
+import net.md_5.bungee.protocol.packet.PacketCEScoreboardObjective;
+import net.md_5.bungee.protocol.packet.PacketCFScoreboardScore;
+import net.md_5.bungee.protocol.packet.PacketD0DisplayScoreboard;
+import net.md_5.bungee.protocol.packet.PacketD1Team;
+import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
+import net.md_5.bungee.protocol.packet.PacketFFKick;
+
+;
 
 @RequiredArgsConstructor
 public class DownstreamBridge extends PacketHandler
@@ -78,7 +78,7 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(Packet0KeepAlive alive) throws Exception
     {
-        con.setSentPingId( alive.id );
+        con.setSentPingId( alive.getRandomId() );
         con.setSentPingTime( System.currentTimeMillis() );
     }
 
@@ -86,7 +86,7 @@ public class DownstreamBridge extends PacketHandler
     public void handle(PacketC9PlayerListItem playerList) throws Exception
     {
 
-        if ( !bungee.getTabListHandler().onListUpdate( con, playerList.username, playerList.online, playerList.ping ) )
+        if ( !bungee.getTabListHandler().onListUpdate( con, playerList.getUsername(), playerList.isOnline(), playerList.getPing() ) )
         {
             throw new CancelSendSignal();
         }
@@ -96,13 +96,13 @@ public class DownstreamBridge extends PacketHandler
     public void handle(PacketCEScoreboardObjective objective) throws Exception
     {
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
-        switch ( objective.action )
+        switch ( objective.getAction() )
         {
             case 0:
-                serverScoreboard.addObjective( new Objective( objective.name, objective.text ) );
+                serverScoreboard.addObjective( new Objective( objective.getName(), objective.getText() ) );
                 break;
             case 1:
-                serverScoreboard.removeObjective( objective.name );
+                serverScoreboard.removeObjective( objective.getName() );
                 break;
         }
     }
@@ -111,15 +111,15 @@ public class DownstreamBridge extends PacketHandler
     public void handle(PacketCFScoreboardScore score) throws Exception
     {
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
-        switch ( score.action )
+        switch ( score.getAction() )
         {
             case 0:
-                Score s = new Score( score.itemName, score.scoreName, score.value );
-                serverScoreboard.removeScore( score.itemName );
+                Score s = new Score( score.getItemName(), score.getScoreName(), score.getValue() );
+                serverScoreboard.removeScore( score.getItemName() );
                 serverScoreboard.addScore( s );
                 break;
             case 1:
-                serverScoreboard.removeScore( score.itemName );
+                serverScoreboard.removeScore( score.getItemName() );
                 break;
         }
     }
@@ -128,8 +128,8 @@ public class DownstreamBridge extends PacketHandler
     public void handle(PacketD0DisplayScoreboard displayScoreboard) throws Exception
     {
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
-        serverScoreboard.setName( displayScoreboard.name );
-        serverScoreboard.setPosition( Position.values()[displayScoreboard.position] );
+        serverScoreboard.setName( displayScoreboard.getName() );
+        serverScoreboard.setPosition( Position.values()[displayScoreboard.getPosition()] );
     }
 
     @Override
@@ -137,37 +137,37 @@ public class DownstreamBridge extends PacketHandler
     {
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
         // Remove team and move on
-        if ( team.mode == 1 )
+        if ( team.getMode() == 1 )
         {
-            serverScoreboard.removeTeam( team.name );
+            serverScoreboard.removeTeam( team.getName() );
             return;
         }
 
         // Create or get old team
         Team t;
-        if ( team.mode == 0 )
+        if ( team.getMode() == 0 )
         {
-            t = new Team( team.name );
+            t = new Team( team.getName() );
             serverScoreboard.addTeam( t );
         } else
         {
-            t = serverScoreboard.getTeam( team.name );
+            t = serverScoreboard.getTeam( team.getName() );
         }
 
         if ( t != null )
         {
-            if ( team.mode == 0 || team.mode == 2 )
+            if ( team.getMode() == 0 || team.getMode() == 2 )
             {
-                t.setDisplayName( team.displayName );
-                t.setPrefix( team.prefix );
-                t.setSuffix( team.suffix );
-                t.setFriendlyMode( team.friendlyFire );
+                t.setDisplayName( team.getDisplayName() );
+                t.setPrefix( team.getPrefix() );
+                t.setSuffix( team.getSuffix() );
+                t.setFriendlyFire(team.isFriendlyFire() );
             }
-            if ( team.players != null )
+            if ( team.getPlayers()!= null )
             {
-                for ( String s : team.players )
+                for ( String s : team.getPlayers() )
                 {
-                    if ( team.mode == 0 || team.mode == 3 )
+                    if ( team.getMode() == 0 || team.getMode() == 3 )
                     {
                         t.addPlayer( s );
                     } else
@@ -182,20 +182,20 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(PacketFAPluginMessage pluginMessage) throws Exception
     {
-        ByteArrayDataInput in = ByteStreams.newDataInput( pluginMessage.data );
-        PluginMessageEvent event = new PluginMessageEvent( con.getServer(), con, pluginMessage.tag, pluginMessage.data.clone() );
+        ByteArrayDataInput in = ByteStreams.newDataInput( pluginMessage.getData() );
+        PluginMessageEvent event = new PluginMessageEvent( con.getServer(), con, pluginMessage.getTag(), pluginMessage.getData().clone() );
 
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
             throw new CancelSendSignal();
         }
 
-        if ( pluginMessage.tag.equals( "MC|TPack" ) && con.getPendingConnection().getListener().getTexturePack() != null )
+        if ( pluginMessage.getTag().equals( "MC|TPack" ) && con.getPendingConnection().getListener().getTexturePack() != null )
         {
             throw new CancelSendSignal();
         }
 
-        if ( pluginMessage.tag.equals( "BungeeCord" ) )
+        if ( pluginMessage.getTag().equals( "BungeeCord" ) )
         {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             String subChannel = in.readUTF();
@@ -325,7 +325,7 @@ public class DownstreamBridge extends PacketHandler
         {
             def = null;
         }
-        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, kick.message, def ) );
+        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, kick.getMessage(), def ) );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
             con.connectNow( event.getCancelServer() );

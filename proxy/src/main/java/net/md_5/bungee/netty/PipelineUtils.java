@@ -15,7 +15,7 @@ import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
-import net.md_5.bungee.protocol.PacketDefinitions;
+import net.md_5.bungee.protocol.Vanilla;
 
 public class PipelineUtils
 {
@@ -61,7 +61,7 @@ public class PipelineUtils
 
             ch.pipeline().addLast( "outbound", new OutboundHandler() );
             ch.pipeline().addLast( "timer", new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
-            ch.pipeline().addLast( "decoder", new PacketDecoder( PacketDefinitions.VANILLA_PROTOCOL ) );
+            ch.pipeline().addLast( "decoder", new PacketDecoder( Vanilla.getInstance() ) );
             ch.pipeline().addLast( "packet-encoder", packetEncoder );
             ch.pipeline().addLast( "array-encoder", arrayEncoder );
             ch.pipeline().addLast( "handler", new HandlerBoss() );

@@ -10,11 +10,11 @@ import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.netty.ChannelWrapper;
-import net.md_5.bungee.packet.Packet0KeepAlive;
-import net.md_5.bungee.packet.Packet3Chat;
-import net.md_5.bungee.packet.PacketCCSettings;
-import net.md_5.bungee.packet.PacketFAPluginMessage;
-import net.md_5.bungee.packet.PacketHandler;
+import net.md_5.bungee.netty.PacketHandler;
+import net.md_5.bungee.protocol.packet.Packet0KeepAlive;
+import net.md_5.bungee.protocol.packet.Packet3Chat;
+import net.md_5.bungee.protocol.packet.PacketCCSettings;
+import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
 
 public class UpstreamBridge extends PacketHandler
 {
@@ -72,7 +72,7 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(Packet0KeepAlive alive) throws Exception
     {
-        if ( alive.id == con.getSentPingId() )
+        if ( alive.getRandomId() == con.getSentPingId() )
         {
             int newPing = (int) ( System.currentTimeMillis() - con.getSentPingTime() );
             bungee.getTabListHandler().onPingChange( con, newPing );
@@ -83,14 +83,14 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(Packet3Chat chat) throws Exception
     {
-        ChatEvent chatEvent = new ChatEvent( con, con.getServer(), chat.message );
+        ChatEvent chatEvent = new ChatEvent( con, con.getServer(), chat.getMessage() );
         if ( bungee.getPluginManager().callEvent( chatEvent ).isCancelled() )
         {
             throw new CancelSendSignal();
         }
         if ( chatEvent.isCommand() )
         {
-            if ( bungee.getPluginManager().dispatchCommand( con, chat.message.substring( 1 ) ) )
+            if ( bungee.getPluginManager().dispatchCommand( con, chat.getMessage().substring( 1 ) ) )
             {
                 throw new CancelSendSignal();
             }
@@ -106,12 +106,12 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(PacketFAPluginMessage pluginMessage) throws Exception
     {
-        if ( pluginMessage.tag.equals( "BungeeCord" ) )
+        if ( pluginMessage.getTag().equals( "BungeeCord" ) )
         {
             throw new CancelSendSignal();
         }
 
-        PluginMessageEvent event = new PluginMessageEvent( con, con.getServer(), pluginMessage.tag, pluginMessage.data.clone() );
+        PluginMessageEvent event = new PluginMessageEvent( con, con.getServer(), pluginMessage.getTag(), pluginMessage.getData().clone() );
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
             throw new CancelSendSignal();

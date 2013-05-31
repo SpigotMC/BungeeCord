@@ -26,18 +26,18 @@ import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.CipherDecoder;
 import net.md_5.bungee.netty.CipherEncoder;
 import net.md_5.bungee.netty.PacketDecoder;
-import net.md_5.bungee.packet.DefinedPacket;
-import net.md_5.bungee.packet.Packet1Login;
-import net.md_5.bungee.packet.Packet9Respawn;
-import net.md_5.bungee.packet.PacketCDClientStatus;
-import net.md_5.bungee.packet.PacketCEScoreboardObjective;
-import net.md_5.bungee.packet.PacketD1Team;
-import net.md_5.bungee.packet.PacketFAPluginMessage;
-import net.md_5.bungee.packet.PacketFCEncryptionResponse;
-import net.md_5.bungee.packet.PacketFDEncryptionRequest;
-import net.md_5.bungee.packet.PacketFFKick;
-import net.md_5.bungee.packet.PacketHandler;
-import net.md_5.bungee.protocol.PacketDefinitions;
+import net.md_5.bungee.netty.PacketHandler;
+import net.md_5.bungee.protocol.Forge;
+import net.md_5.bungee.protocol.packet.DefinedPacket;
+import net.md_5.bungee.protocol.packet.Packet1Login;
+import net.md_5.bungee.protocol.packet.Packet9Respawn;
+import net.md_5.bungee.protocol.packet.PacketCEScoreboardObjective;
+import net.md_5.bungee.protocol.packet.PacketD1Team;
+import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
+import net.md_5.bungee.protocol.packet.PacketFCEncryptionResponse;
+import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
+import net.md_5.bungee.protocol.packet.PacketFFKick;
+import net.md_5.bungee.protocol.packet.forge.Forge1Login;
 
 @RequiredArgsConstructor
 public class ServerConnector extends PacketHandler
@@ -60,7 +60,7 @@ public class ServerConnector extends PacketHandler
     @Override
     public void exception(Throwable t) throws Exception
     {
-        String message = "Exception Connectiong:" + Util.exception( t );
+        String message = "Exception Connecting:" + Util.exception( t );
         if ( user.getServer() == null )
         {
             user.disconnect( message );
@@ -86,7 +86,7 @@ public class ServerConnector extends PacketHandler
         // Skip encryption if we are not using Forge
         if ( user.getPendingConnection().getForgeLogin() == null )
         {
-            channel.write( PacketCDClientStatus.CLIENT_LOGIN );
+            channel.write( PacketConstants.CLIENT_LOGIN );
         }
     }
 
@@ -133,18 +133,20 @@ public class ServerConnector extends PacketHandler
             if ( user.getServer() == null )
             {
                 // Once again, first connection
-                user.setClientEntityId( login.entityId );
-                user.setServerEntityId( login.entityId );
-                // Set tab list size
-                Packet1Login modLogin = new Packet1Login(
-                        login.entityId,
-                        login.levelType,
-                        login.gameMode,
-                        (byte) login.dimension,
-                        login.difficulty,
-                        login.unused,
-                        (byte) user.getPendingConnection().getListener().getTabListSize(),
-                        ch.getHandle().pipeline().get( PacketDecoder.class ).getProtocol() == PacketDefinitions.FORGE_PROTOCOL );
+                user.setClientEntityId( login.getEntityId() );
+                user.setServerEntityId( login.getEntityId() );
+
+                // Set tab list size, this sucks balls, TODO: what shall we do about packet mutability
+                Packet1Login modLogin;
+                if ( ch.getHandle().pipeline().get( PacketDecoder.class ).getProtocol() == Forge.getInstance() )
+                {
+                    modLogin = new Forge1Login( login.getEntityId(), login.getLevelType(), login.getGameMode(), login.getDimension(), login.getDifficulty(), login.getUnused(),
+                            (byte) user.getPendingConnection().getListener().getTabListSize() );
+                } else
+                {
+                    modLogin = new Packet1Login( login.getEntityId(), login.getLevelType(), login.getGameMode(), (byte) login.getDimension(), login.getDifficulty(), login.getUnused(),
+                            (byte) user.getPendingConnection().getListener().getTabListSize() );
+                }
                 user.sendPacket( modLogin );
             } else
             {
@@ -157,15 +159,14 @@ public class ServerConnector extends PacketHandler
                 }
                 for ( Team team : serverScoreboard.getTeams() )
                 {
-                    user.sendPacket( PacketD1Team.destroy( team.getName() ) );
+                    user.sendPacket( new PacketD1Team( team.getName() ) );
                 }
                 serverScoreboard.clear();
 
-                user.sendPacket( Packet9Respawn.DIM1_SWITCH );
-                user.sendPacket( Packet9Respawn.DIM2_SWITCH );
+                user.sendDimensionSwitch();
 
-                user.setServerEntityId( login.entityId );
-                user.sendPacket( new Packet9Respawn( login.dimension, login.difficulty, login.gameMode, (short) 256, login.levelType ) );
+                user.setServerEntityId( login.getEntityId() );
+                user.sendPacket( new Packet9Respawn( login.getDimension(), login.getDifficulty(), login.getGameMode(), (short) 256, login.getLevelType() ) );
 
                 // Remove from old servers
                 user.getServer().setObsolete( true );
@@ -209,7 +210,7 @@ public class ServerConnector extends PacketHandler
             this.secretkey = EncryptionUtil.getSecret();
 
             byte[] shared = EncryptionUtil.encrypt( publickey, secretkey.getEncoded() );
-            byte[] token = EncryptionUtil.encrypt( publickey, encryptRequest.verifyToken );
+            byte[] token = EncryptionUtil.encrypt( publickey, encryptRequest.getVerifyToken() );
 
             ch.write( new PacketFCEncryptionResponse( shared, token ) );
 
@@ -233,7 +234,7 @@ public class ServerConnector extends PacketHandler
 
         ch.write( user.getPendingConnection().getForgeLogin() );
 
-        ch.write( PacketCDClientStatus.CLIENT_LOGIN );
+        ch.write( PacketConstants.CLIENT_LOGIN );
         thisState = State.LOGIN;
     }
 
@@ -245,14 +246,14 @@ public class ServerConnector extends PacketHandler
         {
             def = null;
         }
-        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( user, kick.message, def ) );
+        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( user, kick.getMessage(), def ) );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
             user.connect( event.getCancelServer() );
             return;
         }
 
-        String message = bungee.getTranslation( "connect_kick" ) + target.getName() + ": " + kick.message;
+        String message = bungee.getTranslation( "connect_kick" ) + target.getName() + ": " + kick.getMessage();
         if ( user.getServer() == null )
         {
             user.disconnect( message );
@@ -265,9 +266,9 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(PacketFAPluginMessage pluginMessage) throws Exception
     {
-        if ( ( pluginMessage.data[0] & 0xFF ) == 0 && pluginMessage.tag.equals( "FML" ) )
+        if ( ( pluginMessage.getData()[0] & 0xFF ) == 0 && pluginMessage.getTag().equals( "FML" ) )
         {
-            ByteArrayDataInput in = ByteStreams.newDataInput( pluginMessage.data );
+            ByteArrayDataInput in = ByteStreams.newDataInput( pluginMessage.getData() );
             in.readUnsignedByte();
             int count = in.readInt();
             for ( int i = 0; i < count; i++ )
@@ -277,7 +278,7 @@ public class ServerConnector extends PacketHandler
             if ( in.readByte() != 0 )
             {
                 // TODO: Using forge flag
-                ch.getHandle().pipeline().get( PacketDecoder.class ).setProtocol( PacketDefinitions.FORGE_PROTOCOL );
+                ch.getHandle().pipeline().get( PacketDecoder.class ).setProtocol( Forge.getInstance() );
             }
         }
 
