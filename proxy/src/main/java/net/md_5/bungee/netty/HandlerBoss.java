@@ -8,15 +8,13 @@ import java.io.IOException;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.connection.CancelSendSignal;
-import net.md_5.bungee.packet.DefinedPacket;
-import net.md_5.bungee.packet.PacketHandler;
 
 /**
  * This class is a primitive wrapper for {@link PacketHandler} instances tied to
  * channels to maintain simple states, and only call the required, adapted
  * methods when the channel is connected.
  */
-public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<byte[]>
+public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<Object>
 {
 
     private ChannelWrapper channel;
@@ -50,25 +48,27 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<byte[]>
     }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, byte[] msg) throws Exception
+    public void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception
     {
         if ( handler != null && ctx.channel().isActive() )
         {
-            DefinedPacket packet = DefinedPacket.packet( msg );
-            boolean sendPacket = true;
-            if ( packet != null )
+            if ( msg instanceof PacketWrapper )
             {
+                boolean sendPacket = true;
                 try
                 {
-                    packet.handle( handler );
+                    ( (PacketWrapper) msg ).packet.handle( handler );
                 } catch ( CancelSendSignal ex )
                 {
                     sendPacket = false;
                 }
-            }
-            if ( sendPacket )
+                if ( sendPacket )
+                {
+                    handler.handle( ( (PacketWrapper) msg ).buf );
+                }
+            } else
             {
-                handler.handle( msg );
+                handler.handle( (byte[]) msg );
             }
         }
     }

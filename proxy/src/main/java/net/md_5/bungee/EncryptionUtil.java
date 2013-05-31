@@ -15,8 +15,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.Getter;
-import net.md_5.bungee.packet.PacketFCEncryptionResponse;
-import net.md_5.bungee.packet.PacketFDEncryptionRequest;
+import net.md_5.bungee.protocol.packet.PacketFCEncryptionResponse;
+import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
 
 /**
  * Class containing all encryption related methods for the proxy.
@@ -53,18 +53,15 @@ public class EncryptionUtil
     {
         Cipher cipher = Cipher.getInstance( "RSA" );
         cipher.init( Cipher.DECRYPT_MODE, keys.getPrivate() );
-        byte[] decrypted = cipher.doFinal( resp.verifyToken );
+        byte[] decrypted = cipher.doFinal( resp.getVerifyToken() );
 
-        if ( !Arrays.equals( request.verifyToken, decrypted ) )
+        if ( !Arrays.equals( request.getVerifyToken(), decrypted ) )
         {
             throw new IllegalStateException( "Key pairs do not match!" );
         }
 
         cipher.init( Cipher.DECRYPT_MODE, keys.getPrivate() );
-        byte[] shared = resp.sharedSecret;
-        byte[] secret = cipher.doFinal( shared );
-
-        return new SecretKeySpec( secret, "AES" );
+        return new SecretKeySpec( cipher.doFinal( resp.getSharedSecret() ), "AES" );
     }
 
     public static Cipher getCipher(int opMode, Key shared) throws GeneralSecurityException
@@ -76,7 +73,7 @@ public class EncryptionUtil
 
     public static PublicKey getPubkey(PacketFDEncryptionRequest request) throws GeneralSecurityException
     {
-        return KeyFactory.getInstance( "RSA" ).generatePublic( new X509EncodedKeySpec( request.publicKey ) );
+        return KeyFactory.getInstance( "RSA" ).generatePublic( new X509EncodedKeySpec( request.getPublicKey() ) );
     }
 
     public static byte[] encrypt(Key key, byte[] b) throws GeneralSecurityException

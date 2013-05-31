@@ -51,10 +51,10 @@ import net.md_5.bungee.api.scheduler.TaskScheduler;
 import net.md_5.bungee.command.*;
 import net.md_5.bungee.config.YamlConfig;
 import net.md_5.bungee.netty.PipelineUtils;
-import net.md_5.bungee.packet.DefinedPacket;
-import net.md_5.bungee.packet.Packet3Chat;
-import net.md_5.bungee.packet.PacketFAPluginMessage;
-import net.md_5.bungee.protocol.PacketDefinitions;
+import net.md_5.bungee.protocol.packet.DefinedPacket;
+import net.md_5.bungee.protocol.packet.Packet3Chat;
+import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
+import net.md_5.bungee.protocol.Vanilla;
 import net.md_5.bungee.scheduler.BungeeThreadPool;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 
@@ -444,13 +444,13 @@ public class BungeeCord extends ProxyServer
     @Override
     public byte getProtocolVersion()
     {
-        return PacketDefinitions.PROTOCOL_VERSION;
+        return Vanilla.PROTOCOL_VERSION;
     }
 
     @Override
     public String getGameVersion()
     {
-        return PacketDefinitions.GAME_VERSION;
+        return Vanilla.GAME_VERSION;
     }
 
     @Override

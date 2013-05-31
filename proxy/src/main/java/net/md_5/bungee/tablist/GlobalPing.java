@@ -4,7 +4,7 @@ import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.packet.PacketC9PlayerListItem;
+import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
 
 public class GlobalPing extends Global
 {
@@ -25,7 +25,7 @@ public class GlobalPing extends Global
         int lastPing = lastPings.get( player );
         if ( ping - PING_THRESHOLD > lastPing && ping + PING_THRESHOLD < lastPing )
         {
-            BungeeCord.getInstance().broadcast( new PacketC9PlayerListItem( player.getDisplayName(), true, ping ) );
+            BungeeCord.getInstance().broadcast( new PacketC9PlayerListItem( player.getDisplayName(), true, (short) ping ) );
             lastPings.put( player, ping );
         }
     }

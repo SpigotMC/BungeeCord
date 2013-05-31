@@ -7,7 +7,7 @@ import java.util.Collection;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.TabListHandler;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.packet.PacketC9PlayerListItem;
+import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
 
 public class ServerUnique implements TabListHandler
 {
@@ -38,7 +38,7 @@ public class ServerUnique implements TabListHandler
         {
             for ( String username : usernames )
             {
-                ( (UserConnection) player ).sendPacket( new PacketC9PlayerListItem( username, false, 9999 ) );
+                ( (UserConnection) player ).sendPacket( new PacketC9PlayerListItem( username, false, (short) 9999 ) );
             }
             usernames.clear();
         }

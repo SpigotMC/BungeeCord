@@ -34,16 +34,17 @@ import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.CipherDecoder;
 import net.md_5.bungee.netty.CipherEncoder;
 import net.md_5.bungee.netty.PacketDecoder;
-import net.md_5.bungee.packet.Packet1Login;
-import net.md_5.bungee.packet.Packet2Handshake;
-import net.md_5.bungee.packet.PacketCDClientStatus;
-import net.md_5.bungee.packet.PacketFAPluginMessage;
-import net.md_5.bungee.packet.PacketFCEncryptionResponse;
-import net.md_5.bungee.packet.PacketFDEncryptionRequest;
-import net.md_5.bungee.packet.PacketFEPing;
-import net.md_5.bungee.packet.PacketFFKick;
-import net.md_5.bungee.packet.PacketHandler;
-import net.md_5.bungee.protocol.PacketDefinitions;
+import net.md_5.bungee.netty.PacketHandler;
+import net.md_5.bungee.protocol.Forge;
+import net.md_5.bungee.protocol.packet.Packet1Login;
+import net.md_5.bungee.protocol.packet.Packet2Handshake;
+import net.md_5.bungee.protocol.packet.PacketCDClientStatus;
+import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
+import net.md_5.bungee.protocol.packet.PacketFCEncryptionResponse;
+import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
+import net.md_5.bungee.protocol.packet.PacketFEPing;
+import net.md_5.bungee.protocol.packet.PacketFFKick;
+import net.md_5.bungee.protocol.Vanilla;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -115,14 +116,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( forgeLogin == null, "Already received FORGE LOGIN" );
         forgeLogin = login;
 
-        ch.getHandle().pipeline().get( PacketDecoder.class ).setProtocol( PacketDefinitions.FORGE_PROTOCOL );
+        ch.getHandle().pipeline().get( PacketDecoder.class ).setProtocol( Forge.getInstance() );
     }
 
     @Override
     public void handle(Packet2Handshake handshake) throws Exception
     {
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
-        if ( handshake.username.length() > 16 )
+        if ( handshake.getUsername().length() > 16 )
         {
             disconnect( "Cannot have username longer than 16 characters" );
             return;
@@ -136,7 +137,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         // If offline mode and they are already on, don't allow connect
-        if ( !BungeeCord.getInstance().config.isOnlineMode() && bungee.getPlayer( handshake.username ) != null )
+        if ( !BungeeCord.getInstance().config.isOnlineMode() && bungee.getPlayer( handshake.getUsername() ) != null )
         {
             disconnect( bungee.getTranslation( "already_connected" ) );
             return;
@@ -164,7 +165,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             MessageDigest sha = MessageDigest.getInstance( "SHA-1" );
             for ( byte[] bit : new byte[][]
             {
-                request.serverId.getBytes( "ISO_8859_1" ), sharedKey.getEncoded(), EncryptionUtil.keys.getPublic().getEncoded()
+                request.getServerId().getBytes( "ISO_8859_1" ), sharedKey.getEncoded(), EncryptionUtil.keys.getPublic().getEncoded()
             } )
             {
                 sha.update( bit );
@@ -202,7 +203,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private void finish() throws GeneralSecurityException
     {
         // Check for multiple connections
-        ProxiedPlayer old = bungee.getPlayer( handshake.username );
+        ProxiedPlayer old = bungee.getPlayer( handshake.getUsername() );
         if ( old != null )
         {
             old.disconnect( bungee.getTranslation( "already_connected" ) );
@@ -223,7 +224,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 }
 
                 thisState = InitialHandler.State.LOGIN;
-                ch.write( new PacketFCEncryptionResponse() );
+                ch.write( new PacketFCEncryptionResponse( new byte[ 0 ], new byte[ 0 ] ) );
                 try
                 {
                     Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
@@ -271,19 +272,19 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public String getName()
     {
-        return ( handshake == null ) ? null : handshake.username;
+        return ( handshake == null ) ? null : handshake.getUsername();
     }
 
     @Override
     public byte getVersion()
     {
-        return ( handshake == null ) ? -1 : handshake.procolVersion;
+        return ( handshake == null ) ? -1 : handshake.getProcolVersion();
     }
 
     @Override
     public InetSocketAddress getVirtualHost()
     {
-        return ( handshake == null ) ? null : new InetSocketAddress( handshake.host, handshake.port );
+        return ( handshake == null ) ? null : new InetSocketAddress( handshake.getHost(), handshake.getPort() );
     }
 
     @Override
