@@ -36,6 +36,7 @@ import net.md_5.bungee.netty.CipherEncoder;
 import net.md_5.bungee.netty.PacketDecoder;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.Forge;
+import net.md_5.bungee.protocol.packet.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Packet1Login;
 import net.md_5.bungee.protocol.packet.Packet2Handshake;
 import net.md_5.bungee.protocol.packet.PacketCDClientStatus;
@@ -44,7 +45,6 @@ import net.md_5.bungee.protocol.packet.PacketFCEncryptionResponse;
 import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.protocol.packet.PacketFEPing;
 import net.md_5.bungee.protocol.packet.PacketFFKick;
-import net.md_5.bungee.protocol.Vanilla;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -63,6 +63,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private List<PacketFAPluginMessage> loginMessages = new ArrayList<>();
     private State thisState = State.HANDSHAKE;
     private SecretKey sharedKey;
+    private final Unsafe unsafe = new Unsafe()
+    {
+        @Override
+        public void sendPacket(DefinedPacket packet)
+        {
+            unsafe().sendPacket( packet );
+        }
+    };
     private static final PacketFAPluginMessage forgeMods = new PacketFAPluginMessage( "FML", new byte[]
     {
         0, 0, 0, 0, 0, 2
@@ -144,8 +152,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         this.handshake = handshake;
-        ch.write( forgeMods );
-        ch.write( request = EncryptionUtil.encryptRequest() );
+        unsafe().sendPacket( forgeMods );
+        unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
         thisState = State.ENCRYPT;
     }
 
@@ -224,7 +232,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 }
 
                 thisState = InitialHandler.State.LOGIN;
-                ch.write( new PacketFCEncryptionResponse( new byte[ 0 ], new byte[ 0 ] ) );
+                unsafe().sendPacket( new PacketFCEncryptionResponse( new byte[ 0 ], new byte[ 0 ] ) );
                 try
                 {
                     Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
@@ -264,7 +272,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( !ch.isClosed() )
         {
-            ch.write( new PacketFFKick( reason ) );
+            unsafe().sendPacket( new PacketFFKick( reason ) );
             ch.close();
         }
     }
@@ -291,6 +299,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public InetSocketAddress getAddress()
     {
         return (InetSocketAddress) ch.getHandle().remoteAddress();
+    }
+
+    @Override
+    public Unsafe unsafe()
+    {
+        return unsafe;
     }
 
     @Override

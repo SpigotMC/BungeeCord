@@ -147,7 +147,7 @@ public class ServerConnector extends PacketHandler
                     modLogin = new Packet1Login( login.getEntityId(), login.getLevelType(), login.getGameMode(), (byte) login.getDimension(), login.getDifficulty(), login.getUnused(),
                             (byte) user.getPendingConnection().getListener().getTabListSize() );
                 }
-                user.sendPacket( modLogin );
+                user.unsafe().sendPacket( modLogin );
             } else
             {
                 bungee.getTabListHandler().onServerChange( user );
@@ -155,18 +155,18 @@ public class ServerConnector extends PacketHandler
                 Scoreboard serverScoreboard = user.getServerSentScoreboard();
                 for ( Objective objective : serverScoreboard.getObjectives() )
                 {
-                    user.sendPacket( new PacketCEScoreboardObjective( objective.getName(), objective.getValue(), (byte) 1 ) );
+                    user.unsafe().sendPacket( new PacketCEScoreboardObjective( objective.getName(), objective.getValue(), (byte) 1 ) );
                 }
                 for ( Team team : serverScoreboard.getTeams() )
                 {
-                    user.sendPacket( new PacketD1Team( team.getName() ) );
+                    user.unsafe().sendPacket( new PacketD1Team( team.getName() ) );
                 }
                 serverScoreboard.clear();
 
                 user.sendDimensionSwitch();
 
                 user.setServerEntityId( login.getEntityId() );
-                user.sendPacket( new Packet9Respawn( login.getDimension(), login.getDifficulty(), login.getGameMode(), (short) 256, login.getLevelType() ) );
+                user.unsafe().sendPacket( new Packet9Respawn( login.getDimension(), login.getDifficulty(), login.getGameMode(), (short) 256, login.getLevelType() ) );
 
                 // Remove from old servers
                 user.getServer().setObsolete( true );
@@ -282,7 +282,7 @@ public class ServerConnector extends PacketHandler
             }
         }
 
-        user.sendPacket( pluginMessage ); // We have to forward these to the user, especially with Forge as stuff might break
+        user.unsafe().sendPacket( pluginMessage ); // We have to forward these to the user, especially with Forge as stuff might break
         if ( !sentMessages && user.getPendingConnection().getForgeLogin() != null )
         {
             for ( PacketFAPluginMessage message : user.getPendingConnection().getLoginMessages() )

@@ -88,6 +88,14 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     private String displayName;
     /*========================================================================*/
+    private final Unsafe unsafe = new Unsafe()
+    {
+        @Override
+        public void sendPacket(DefinedPacket packet)
+        {
+            ch.write( packet );
+        }
+    };
 
     public void init()
     {
@@ -98,11 +106,6 @@ public final class UserConnection implements ProxiedPlayer
         {
             addGroups( s );
         }
-    }
-
-    public void sendPacket(DefinedPacket p)
-    {
-        ch.write( p );
     }
 
     public void sendPacket(byte[] b)
@@ -134,8 +137,8 @@ public final class UserConnection implements ProxiedPlayer
 
     void sendDimensionSwitch()
     {
-        sendPacket( PacketConstants.DIM1_SWITCH );
-        sendPacket( PacketConstants.DIM2_SWITCH );
+        unsafe().sendPacket( PacketConstants.DIM1_SWITCH );
+        unsafe().sendPacket( PacketConstants.DIM2_SWITCH );
     }
 
     public void connectNow(ServerInfo target)
@@ -220,7 +223,7 @@ public final class UserConnection implements ProxiedPlayer
         if ( ch.getHandle().isActive() )
         {
             bungee.getLogger().log( Level.INFO, "[" + getName() + "] disconnected with: " + reason );
-            sendPacket( new PacketFFKick( reason ) );
+            unsafe().sendPacket( new PacketFFKick( reason ) );
             ch.getHandle().close();
             if ( server != null )
             {
@@ -239,7 +242,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendMessage(String message)
     {
-        sendPacket( new Packet3Chat( message ) );
+        unsafe().sendPacket( new Packet3Chat( message ) );
     }
 
     @Override
@@ -254,7 +257,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendData(String channel, byte[] data)
     {
-        sendPacket( new PacketFAPluginMessage( channel, data ) );
+        unsafe().sendPacket( new PacketFAPluginMessage( channel, data ) );
     }
 
     @Override
@@ -322,6 +325,12 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void setTexturePack(TexturePackInfo pack)
     {
-        sendPacket( new PacketFAPluginMessage( "MC|TPack", ( pack.getUrl() + "\00" + pack.getSize() ).getBytes() ) );
+        unsafe().sendPacket( new PacketFAPluginMessage( "MC|TPack", ( pack.getUrl() + "\00" + pack.getSize() ).getBytes() ) );
+    }
+
+    @Override
+    public Unsafe unsafe()
+    {
+        return unsafe;
     }
 }

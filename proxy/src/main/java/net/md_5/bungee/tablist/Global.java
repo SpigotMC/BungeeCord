@@ -3,7 +3,6 @@ package net.md_5.bungee.tablist;
 import java.util.Collection;
 import java.util.HashSet;
 import net.md_5.bungee.BungeeCord;
-import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.TabListHandler;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -17,10 +16,9 @@ public class Global implements TabListHandler
     @Override
     public void onConnect(ProxiedPlayer player)
     {
-        UserConnection con = (UserConnection) player;
         for ( ProxiedPlayer p : ProxyServer.getInstance().getPlayers() )
         {
-            con.sendPacket( new PacketC9PlayerListItem( p.getDisplayName(), true, (short) p.getPing() ) );
+            player.unsafe().sendPacket( new PacketC9PlayerListItem( p.getDisplayName(), true, (short) p.getPing() ) );
         }
         BungeeCord.getInstance().broadcast( new PacketC9PlayerListItem( player.getDisplayName(), true, (short) player.getPing() ) );
     }
