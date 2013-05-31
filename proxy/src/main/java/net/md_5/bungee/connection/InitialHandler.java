@@ -68,7 +68,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         @Override
         public void sendPacket(DefinedPacket packet)
         {
-            unsafe().sendPacket( packet );
+            ch.sendPacket( packet );
         }
     };
     private static final PacketFAPluginMessage forgeMods = new PacketFAPluginMessage( "FML", new byte[]
