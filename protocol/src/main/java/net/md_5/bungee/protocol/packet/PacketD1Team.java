@@ -44,14 +44,14 @@ public class PacketD1Team extends DefinedPacket
     {
         name = readString( buf );
         mode = buf.readByte();
-        if ( getMode() == 0 || getMode() == 2 )
+        if ( mode == 0 || mode == 2 )
         {
             displayName = readString( buf );
             prefix = readString( buf );
             suffix = readString( buf );
             friendlyFire = buf.readBoolean();
         }
-        if ( getMode() == 0 || getMode() == 3 || getMode() == 4 )
+        if ( mode == 0 || mode == 3 || mode == 4 )
         {
             players = new String[ buf.readShort() ];
             for ( int i = 0; i < getPlayers().length; i++ )
