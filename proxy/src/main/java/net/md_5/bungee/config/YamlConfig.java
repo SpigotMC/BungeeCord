@@ -190,7 +190,7 @@ public class YamlConfig implements ConfigurationAdapter
             String host = get( "host", "0.0.0.0:25577", val );
             int tabListSize = get( "tab_size", 60, val );
             InetSocketAddress address = Util.getAddr( host );
-            Map<String, String> forced = get( "forced_hosts", forcedDef, val );
+            Map<String, String> forced = new CaseInsensitiveMap<>( get( "forced_hosts", forcedDef, val ) );
             String textureURL = get( "texture_url", null, val );
             int textureSize = get( "texture_size", 16, val );
             TexturePackInfo texture = ( textureURL == null ) ? null : new TexturePackInfo( textureURL, textureSize );
