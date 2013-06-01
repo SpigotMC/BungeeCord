@@ -15,7 +15,7 @@ public abstract class AbstractReconnectManager implements ReconnectHandler
     {
         ListenerInfo listener = player.getPendingConnection().getListener();
         String name;
-        String forced = listener.getForcedHosts().get( player.getPendingConnection().getVirtualHost().getHostName().toLowerCase() );
+        String forced = listener.getForcedHosts().get( player.getPendingConnection().getVirtualHost().getHostString() );
         if ( forced == null && listener.isForceDefault() )
         {
             forced = listener.getDefaultServer();
