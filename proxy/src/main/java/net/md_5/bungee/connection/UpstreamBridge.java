@@ -27,8 +27,8 @@ public class UpstreamBridge extends PacketHandler
         this.bungee = bungee;
         this.con = con;
 
-        bungee.getTabListHandler().onConnect( con );
         BungeeCord.getInstance().addConnection( con );
+        bungee.getTabListHandler().onConnect( con );
         con.unsafe().sendPacket( BungeeCord.getInstance().registerChannels() );
 
         TexturePackInfo texture = con.getPendingConnection().getListener().getTexturePack();
