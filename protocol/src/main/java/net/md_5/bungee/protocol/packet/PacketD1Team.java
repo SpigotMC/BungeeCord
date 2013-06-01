@@ -64,21 +64,21 @@ public class PacketD1Team extends DefinedPacket
     @Override
     public void write(ByteBuf buf)
     {
-        writeString( getName(), buf );
-        buf.writeByte( getMode() );
-        if ( getMode() == 0 || getMode() == 2 )
+        writeString( name, buf );
+        buf.writeByte( mode );
+        if ( mode == 0 || mode == 2 )
         {
-            writeString( getDisplayName(), buf );
-            writeString( getPrefix(), buf );
-            writeString( getSuffix(), buf );
-            buf.writeBoolean( isFriendlyFire() );
+            writeString( displayName, buf );
+            writeString( prefix, buf );
+            writeString( suffix, buf );
+            buf.writeBoolean( friendlyFire );
         }
-        if ( getMode() == 0 || getMode() == 3 || getMode() == 4 )
+        if ( mode == 0 || mode == 3 || mode == 4 )
         {
-            buf.writeShort( getPlayers().length );
-            for ( int i = 0; i < getPlayers().length; i++ )
+            buf.writeShort( players.length );
+            for ( int i = 0; i < players.length; i++ )
             {
-                writeString( getPlayers()[i], buf );
+                writeString( players[i], buf );
             }
         }
     }
