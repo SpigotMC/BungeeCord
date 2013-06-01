@@ -10,6 +10,11 @@ import lombok.ToString;
 public class Forge1Login extends Packet1Login
 {
 
+    private Forge1Login()
+    {
+        super();
+    }
+
     public Forge1Login(int entityId, String levelType, byte gameMode, int dimension, byte difficulty, byte unused, byte maxPlayers)
     {
         super( entityId, levelType, gameMode, dimension, difficulty, unused, maxPlayers );
