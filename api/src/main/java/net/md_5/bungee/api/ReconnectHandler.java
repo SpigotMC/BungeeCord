@@ -12,7 +12,7 @@ public interface ReconnectHandler
      * @param player the connecting player
      * @return the server to connect to
      */
-    public ServerInfo getServer(ProxiedPlayer player);
+    ServerInfo getServer(ProxiedPlayer player);
 
     /**
      * Save the server of this player before they disconnect so it can be
@@ -20,12 +20,20 @@ public interface ReconnectHandler
      *
      * @param player the player to save
      */
-    public void setServer(ProxiedPlayer player);
+    void setServer(ProxiedPlayer player); // TOOD: String + String arguments?
 
     /**
      * Save all pending reconnect locations. Whilst not used for database
      * connections, this method will be called at a predefined interval to allow
      * the saving of reconnect files.
      */
-    public void save();
+    void save();
+
+    /**
+     * Close all connections indicating that the proxy is about to shutdown and
+     * all data should be saved. No new requests will be made after this method
+     * has been called.
+     *
+     */
+    void close();
 }

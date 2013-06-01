@@ -1,5 +1,6 @@
 package net.md_5.bungee;
 
+import net.md_5.bungee.reconnect.SQLReconnectHandler;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.ning.http.client.AsyncHttpClient;
@@ -198,7 +199,7 @@ public class BungeeCord extends ProxyServer
         config.load();
         if ( reconnectHandler == null )
         {
-            reconnectHandler = new YamlReconnectHandler();
+            reconnectHandler = new SQLReconnectHandler();
         }
         isRunning = true;
 
@@ -302,6 +303,7 @@ public class BungeeCord extends ProxyServer
 
                 getLogger().info( "Saving reconnect locations" );
                 reconnectHandler.save();
+                reconnectHandler.close();
                 saveThread.cancel();
                 metricsThread.cancel();
 
