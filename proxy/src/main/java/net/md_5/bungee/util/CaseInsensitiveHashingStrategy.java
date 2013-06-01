@@ -16,6 +16,6 @@ class CaseInsensitiveHashingStrategy implements HashingStrategy
     @Override
     public boolean equals(Object o1, Object o2)
     {
-        return o1 instanceof String && o2 instanceof String && ( (String) o1 ).toLowerCase().equals( ( (String) o2 ).toLowerCase() );
+        return o1.equals( o2 ) || ( o1 instanceof String && o2 instanceof String && ( (String) o1 ).toLowerCase().equals( ( (String) o2 ).toLowerCase() ) );
     }
 }
