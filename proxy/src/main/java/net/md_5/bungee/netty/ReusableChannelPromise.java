@@ -7,7 +7,9 @@ import io.netty.util.concurrent.GenericFutureListener;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.api.ProxyServer;
 
 @RequiredArgsConstructor
 public class ReusableChannelPromise implements ChannelPromise
@@ -174,6 +176,7 @@ public class ReusableChannelPromise implements ChannelPromise
     @Override
     public boolean tryFailure(Throwable cause)
     {
-        throw new UnsupportedOperationException( "Not supported yet." );
+        ProxyServer.getInstance().getLogger().log( Level.WARNING, "Exception in tryFailure(..)", cause );
+        return true;
     }
 }
