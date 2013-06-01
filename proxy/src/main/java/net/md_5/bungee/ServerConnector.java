@@ -266,6 +266,11 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(PacketFAPluginMessage pluginMessage) throws Exception
     {
+        if ( pluginMessage.getData().length == 0 && pluginMessage.getTag().equals( "BungeeCord" ) )
+        {
+            throw new IllegalStateException( "May not connect to another BungeCord!" );
+        }
+
         if ( ( pluginMessage.getData()[0] & 0xFF ) == 0 && pluginMessage.getTag().equals( "FML" ) )
         {
             ByteArrayDataInput in = ByteStreams.newDataInput( pluginMessage.getData() );

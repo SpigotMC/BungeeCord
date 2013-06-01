@@ -16,6 +16,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.EncryptionUtil;
+import net.md_5.bungee.PacketConstants;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.Callback;
@@ -71,10 +72,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             ch.write( packet );
         }
     };
-    private static final PacketFAPluginMessage forgeMods = new PacketFAPluginMessage( "FML", new byte[]
-    {
-        0, 0, 0, 0, 0, 2
-    } );
 
     private enum State
     {
@@ -152,7 +149,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         this.handshake = handshake;
-        unsafe().sendPacket( forgeMods );
+        unsafe().sendPacket( PacketConstants.I_AM_BUNGEE );
+        unsafe().sendPacket( PacketConstants.FORGE_MOD_REQUEST );
         unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
         thisState = State.ENCRYPT;
     }
