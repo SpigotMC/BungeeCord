@@ -38,6 +38,7 @@ public class CipherBase
         if ( heapIn.length < readableBytes )
         {
             heapIn = new byte[ readableBytes ];
+            heapInLocal.set( heapIn );
         }
         in.readBytes( heapIn, 0, readableBytes );
 
@@ -46,6 +47,7 @@ public class CipherBase
         if ( heapOut.length < outputSize )
         {
             heapOut = new byte[ outputSize ];
+            heapOutLocal.set( heapOut );
         }
         out.writeBytes( heapOut, 0, cipher.update( heapIn, 0, readableBytes, heapOut ) );
     }
