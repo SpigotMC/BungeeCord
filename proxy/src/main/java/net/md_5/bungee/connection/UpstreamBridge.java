@@ -110,6 +110,11 @@ public class UpstreamBridge extends PacketHandler
         {
             throw new CancelSendSignal();
         }
+        // Hack around Forge race conditions
+        if ( ( pluginMessage.getData()[0] & 0xFF ) == 1 && pluginMessage.getTag().equals( "FML" ) )
+        {
+            throw new CancelSendSignal();
+        }
 
         PluginMessageEvent event = new PluginMessageEvent( con, con.getServer(), pluginMessage.getTag(), pluginMessage.getData().clone() );
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
