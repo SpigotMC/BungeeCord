@@ -63,10 +63,11 @@ public class SQLReconnectHandler extends AbstractReconnectManager
     public void setServer(ProxiedPlayer player)
     {
 
-        try ( PreparedStatement ps = connection.prepareStatement( "UPDATE players SET server = ? WHERE username = ?" ) )
+        try ( PreparedStatement ps = connection.prepareStatement( "UPDATE players SET server = ?, seen = ? WHERE username = ?" ) )
         {
             ps.setString( 1, player.getServer().getInfo().getName() );
-            ps.setString( 2, player.getName() );
+            ps.setInt( 2, (int) ( System.currentTimeMillis() / 1000L ) );
+            ps.setString( 3, player.getName() );
             ps.executeUpdate();
         } catch ( SQLException ex )
         {
