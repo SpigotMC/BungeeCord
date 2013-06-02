@@ -111,7 +111,7 @@ public class UpstreamBridge extends PacketHandler
             throw new CancelSendSignal();
         }
         // Hack around Forge race conditions
-        if ( ( pluginMessage.getData()[0] & 0xFF ) == 1 && pluginMessage.getTag().equals( "FML" ) )
+        if ( pluginMessage.getTag().equals( "FML" ) && ( pluginMessage.getData()[0] & 0xFF ) == 1 )
         {
             throw new CancelSendSignal();
         }
