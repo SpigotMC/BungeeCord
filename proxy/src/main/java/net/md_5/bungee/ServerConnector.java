@@ -266,7 +266,7 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(PacketFAPluginMessage pluginMessage) throws Exception
     {
-        if ( pluginMessage.getData().length == 0 && pluginMessage.getTag().equals( "BungeeCord" ) )
+        if ( pluginMessage.equals( PacketConstants.I_AM_BUNGEE) )
         {
             throw new IllegalStateException( "May not connect to another BungeCord!" );
         }

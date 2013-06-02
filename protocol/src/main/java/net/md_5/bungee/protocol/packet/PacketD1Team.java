@@ -36,7 +36,8 @@ public class PacketD1Team extends DefinedPacket
     public PacketD1Team(String name)
     {
         this();
-        mode = 1;
+        this.name = name;
+        this.mode = 1;
     }
 
     @Override
