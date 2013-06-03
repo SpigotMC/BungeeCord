@@ -29,7 +29,7 @@ public class PacketCFScoreboardScore extends DefinedPacket
     {
         itemName = readString( buf );
         action = buf.readByte();
-        if ( action == 0 )
+        if ( action != 1 )
         {
             scoreName = readString( buf );
             value = buf.readInt();
@@ -41,7 +41,7 @@ public class PacketCFScoreboardScore extends DefinedPacket
     {
         writeString( itemName, buf );
         buf.writeByte( action );
-        if ( action == 0 )
+        if ( action != 1 )
         {
             writeString( scoreName, buf );
             buf.writeInt( value );
