@@ -11,6 +11,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.connection.InitialHandler;
+import net.md_5.bungee.connection.PingHandler;
 import net.md_5.bungee.connection.UpstreamBridge;
 
 /**
@@ -38,7 +39,7 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<Object>
             channel = new ChannelWrapper( ctx.channel() );
             handler.connected( channel );
 
-            if ( !( handler instanceof InitialHandler ) )
+            if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
             {
                 ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has connected", handler );
             }
@@ -52,7 +53,7 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<Object>
         {
             handler.disconnected( channel );
 
-            if ( !( handler instanceof InitialHandler ) )
+            if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
             {
                 ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has disconnected", handler );
             }
