@@ -136,7 +136,7 @@ public class BungeeCord extends ProxyServer
         getPluginManager().registerCommand( null, new CommandBungee() );
         getPluginManager().registerCommand( null, new CommandPerms() );
         getPluginManager().registerCommand( null, new CommandSend() );
-        getPluginManager().registerCommand( null, new CommandWhois() );
+        getPluginManager().registerCommand( null, new CommandFind() );
 
         registerChannel( "BungeeCord" );
     }
