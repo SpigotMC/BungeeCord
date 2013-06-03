@@ -10,6 +10,7 @@ import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import lombok.Getter;
@@ -128,6 +129,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(Packet2Handshake handshake) throws Exception
     {
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
+        this.handshake = handshake;
+        bungee.getLogger().log( Level.INFO, "{0} has connected", this );
+
         if ( handshake.getUsername().length() > 16 )
         {
             disconnect( "Cannot have username longer than 16 characters" );
@@ -148,7 +152,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             return;
         }
 
-        this.handshake = handshake;
         unsafe().sendPacket( PacketConstants.I_AM_BUNGEE );
         unsafe().sendPacket( PacketConstants.FORGE_MOD_REQUEST );
         unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );

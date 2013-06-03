@@ -6,8 +6,12 @@ import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.handler.timeout.ReadTimeoutException;
 import java.io.IOException;
 import java.util.logging.Level;
+import net.md_5.bungee.ServerConnector;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.connection.CancelSendSignal;
+import net.md_5.bungee.connection.DownstreamBridge;
+import net.md_5.bungee.connection.InitialHandler;
+import net.md_5.bungee.connection.UpstreamBridge;
 
 /**
  * This class is a primitive wrapper for {@link PacketHandler} instances tied to
@@ -33,7 +37,11 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<Object>
         {
             channel = new ChannelWrapper( ctx.channel() );
             handler.connected( channel );
-            ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has connected", handler );
+
+            if ( !( handler instanceof InitialHandler ) )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has connected", handler );
+            }
         }
     }
 
@@ -42,8 +50,12 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<Object>
     {
         if ( handler != null )
         {
-            ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has disconnected", handler );
             handler.disconnected( channel );
+
+            if ( !( handler instanceof InitialHandler ) )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has disconnected", handler );
+            }
         }
     }
 
