@@ -200,7 +200,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 @Override
                 public void onThrowable(Throwable t)
                 {
-                    disconnect( "Error occured while contacting login servers, are they down?" + Util.exception( t ) );
+                    disconnect( "Error occured while contacting login servers, are they down?" );
+                    bungee.getLogger().log( Level.SEVERE, "Error authenticating " + getName() + " with minecraft.net", t );
                 }
             } );
         } else
