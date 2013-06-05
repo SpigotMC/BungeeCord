@@ -28,7 +28,7 @@ public class PacketDecoder extends ReplayingDecoder<Void>
     private Protocol protocol;
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, MessageBuf<Object> out) throws Exception
+    protected Object decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception
     {
         // While we have enough data
         while ( true )
@@ -53,10 +53,10 @@ public class PacketDecoder extends ReplayingDecoder<Void>
             // Store our decoded message
             if ( packet != null )
             {
-                out.add( new PacketWrapper( packet, buf ) );
+                return( new PacketWrapper( packet, buf ) );
             } else
             {
-                out.add( buf );
+                return( buf );
             }
         }
     }
