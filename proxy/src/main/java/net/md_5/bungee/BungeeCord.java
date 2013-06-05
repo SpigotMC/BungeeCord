@@ -195,7 +195,7 @@ public class BungeeCord extends ProxyServer
     public void start() throws Exception
     {
         pluginsFolder.mkdir();
-        pluginManager.loadPlugins( pluginsFolder );
+        pluginManager.detectPlugins( pluginsFolder );
         config.load();
         if ( reconnectHandler == null )
         {
@@ -203,7 +203,7 @@ public class BungeeCord extends ProxyServer
         }
         isRunning = true;
 
-        pluginManager.enablePlugins();
+        pluginManager.loadAndEnablePlugins();
 
         startListeners();
 
