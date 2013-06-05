@@ -1,6 +1,7 @@
 package net.md_5.bungee.api.plugin;
 
 import com.google.common.base.Preconditions;
+import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import java.io.File;
 import java.io.InputStream;
@@ -17,6 +18,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
+
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -41,7 +44,11 @@ public class PluginManager
     private final EventBus eventBus;
     private final Map<String, Plugin> plugins = new LinkedHashMap<>();
     private final Map<String, Command> commandMap = new HashMap<>();
+
     private Map<String, PluginDescription> toLoad = new HashMap<>();
+
+    private final Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
+    private final Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
 
     @SuppressWarnings("unchecked")
     public PluginManager(ProxyServer proxy)
@@ -323,5 +330,35 @@ public class PluginManager
         }
 
         eventBus.register( listener );
+        listenersByPlugin.put( plugin, listener );
+    }
+
+    /**
+     * Unregister a {@link Listener} so that the events do not reach it anymore.
+     * 
+     * @param listener the listener to unregister
+     * @throws IllegalArgumentException if the listener was not previously registered
+     */
+    public void unregisterListener(Listener listener) throws IllegalArgumentException
+    {
+        eventBus.unregister( listener );
+        listenersByPlugin.values().remove( listener );
+    }
+
+    /**
+     * Unregister all of a Plugin's listener.
+     *  
+     * @param plugin
+     */
+    public void unregisterListeners(Plugin plugin)
+    {
+        if ( !listenersByPlugin.containsKey( plugin ) )
+            return;
+
+        for ( Iterator<Listener> it = listenersByPlugin.get( plugin ).iterator(); it.hasNext(); )
+        {
+            eventBus.unregister( it.next() );
+            it.remove();
+        }
     }
 }
