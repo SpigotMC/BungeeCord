@@ -1,7 +1,8 @@
 package net.md_5.bungee.api.plugin;
 
 import com.google.common.base.Preconditions;
-import com.google.common.eventbus.EventBus;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.eventbus.Subscribe;
 import java.io.File;
 import java.io.InputStream;
@@ -11,6 +12,7 @@ import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -18,8 +20,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
-
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -44,11 +44,9 @@ public class PluginManager
     private final EventBus eventBus;
     private final Map<String, Plugin> plugins = new LinkedHashMap<>();
     private final Map<String, Command> commandMap = new HashMap<>();
-
     private Map<String, PluginDescription> toLoad = new HashMap<>();
-
-    private final Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
-    private final Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
+    private Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
+    private Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
 
     @SuppressWarnings("unchecked")
     public PluginManager(ProxyServer proxy)
@@ -70,6 +68,7 @@ public class PluginManager
         {
             commandMap.put( alias.toLowerCase(), command );
         }
+        commandsByPlugin.put( plugin, command );
     }
 
     /**
@@ -80,6 +79,24 @@ public class PluginManager
     public void unregisterCommand(Command command)
     {
         commandMap.values().remove( command );
+        commandsByPlugin.values().remove( command );
+    }
+    
+    /**
+     * Unregister all commands owned by a {@link Plugin}
+     * 
+     * @param plugin the plugin to register the commands of
+     */
+    public void unregisterCommands(Plugin plugin)
+    {
+        if ( !commandsByPlugin.containsKey( plugin ) )
+            return;
+
+        for ( Iterator<Command> it = commandsByPlugin.get( plugin ).iterator(); it.hasNext(); )
+        {
+            commandMap.values().remove( it.next() );
+            it.remove();
+        }
     }
 
     /**
@@ -344,7 +361,7 @@ public class PluginManager
         eventBus.unregister( listener );
         listenersByPlugin.values().remove( listener );
     }
-
+ 
     /**
      * Unregister all of a Plugin's listener.
      *  
@@ -355,7 +372,7 @@ public class PluginManager
         if ( !listenersByPlugin.containsKey( plugin ) )
             return;
 
-        for ( Iterator<Listener> it = listenersByPlugin.get( plugin ).iterator(); it.hasNext(); )
+        for( Iterator<Listener> it = listenersByPlugin.get( plugin ).iterator(); it.hasNext(); )
         {
             eventBus.unregister( it.next() );
             it.remove();
