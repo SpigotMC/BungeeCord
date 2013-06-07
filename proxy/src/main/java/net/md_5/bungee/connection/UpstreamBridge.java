@@ -121,6 +121,12 @@ public class UpstreamBridge extends PacketHandler
         {
             throw new CancelSendSignal();
         }
+
+        // TODO: Unregister as well?
+        if ( pluginMessage.getTag().equals( "REGISTER" ) )
+        {
+            con.getPendingConnection().getLoginMessages().add( pluginMessage );
+        }
     }
 
     @Override
