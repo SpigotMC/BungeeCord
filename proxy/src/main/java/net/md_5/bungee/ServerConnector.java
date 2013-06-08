@@ -77,7 +77,7 @@ public class ServerConnector extends PacketHandler
 
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF( "Login" );
-        out.writeUTF( user.getAddress().getAddress().getHostAddress() );
+        out.writeUTF( user.getAddress().getHostString() );
         out.writeInt( user.getAddress().getPort() );
         channel.write( new PacketFAPluginMessage( "BungeeCord", out.toByteArray() ) );
 
@@ -115,6 +115,10 @@ public class ServerConnector extends PacketHandler
             }
         }
 
+        for ( PacketFAPluginMessage message : user.getPendingConnection().getRegisterMessages() )
+        {
+            ch.write( message );
+        }
         if ( !sentMessages )
         {
             for ( PacketFAPluginMessage message : user.getPendingConnection().getLoginMessages() )
