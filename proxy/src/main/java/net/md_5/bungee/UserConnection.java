@@ -106,7 +106,7 @@ public final class UserConnection implements ProxiedPlayer
         this.displayName = name;
         try
         {
-            this.tabList = getPendingConnection().getListener().getTabList().getDeclaredConstructor( ProxiedPlayer.class ).newInstance( this );
+            this.tabList = getPendingConnection().getListener().getTabList().getDeclaredConstructor().newInstance();
         } catch ( ReflectiveOperationException ex )
         {
             throw new RuntimeException( ex );
@@ -240,7 +240,7 @@ public final class UserConnection implements ProxiedPlayer
         {
             bungee.getLogger().log( Level.INFO, "[" + getName() + "] disconnected with: " + reason );
             unsafe().sendPacket( new PacketFFKick( reason ) );
-            ch.getHandle().close();
+            ch.close();
             if ( server != null )
             {
                 server.disconnect( "Quitting" );

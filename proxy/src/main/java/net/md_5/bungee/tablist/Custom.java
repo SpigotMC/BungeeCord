@@ -18,6 +18,7 @@ public class Custom extends TabListAdapter implements TabAPI
     /*========================================================================*/
     private String[][] sent = new String[ ROWS ][ COLUMNS ];
     private String[][] pending = new String[ ROWS ][ COLUMNS ];
+    private int last;
 
     @Override
     public synchronized void setSlot(int row, int column, String text)
@@ -33,9 +34,10 @@ public class Custom extends TabListAdapter implements TabAPI
         Preconditions.checkNotNull( text, "text" );
         Preconditions.checkArgument( text.length() <= 16, "text must be <= 16 chars" );
         Preconditions.checkArgument( !sentStuff.contains( text ), "list already contains %s", text );
-        Preconditions.checkArgument( !ChatColor.stripColor( text ).equals( text ), "Text cannot consist entirely of colour codes" );
+        Preconditions.checkArgument( !ChatColor.stripColor( text ).isEmpty(), "Text cannot consist entirely of colour codes" );
 
-        pending[ROWS + 1][COLUMNS + 1] = text;
+        pending[--row][--column] = text;
+        last = ( row * ROWS + column > last ) ? ( row * ROWS + column ) : last;
         if ( update )
         {
             update();
@@ -51,6 +53,10 @@ public class Custom extends TabListAdapter implements TabAPI
         {
             for ( int j = 0; j < COLUMNS; j++ )
             {
+                if ( i * ROWS + j > last )
+                {
+                    return;
+                }
                 String text;
                 if ( pending[i][j] != null )
                 {
@@ -58,7 +64,7 @@ public class Custom extends TabListAdapter implements TabAPI
                     sentStuff.add( text );
                 } else
                 {
-                    text = new StringBuilder().append( ChatColor.COLOR_CHAR ).append( base( i ) ).append( ChatColor.COLOR_CHAR ).append( base( j ) ).toString();
+                    text = new StringBuilder().append( base( i ) ).append( base( j ) ).toString();
                 }
                 getPlayer().unsafe().sendPacket( new PacketC9PlayerListItem( text, true, (short) 0 ) );
                 sent[i][j] = text;
@@ -74,7 +80,10 @@ public class Custom extends TabListAdapter implements TabAPI
         {
             for ( int j = 0; j < COLUMNS; j++ )
             {
-                getPlayer().unsafe().sendPacket( new PacketC9PlayerListItem( sent[i][j], false, (short) 9999 ) );
+                if ( sent[i][j] != null )
+                {
+                    getPlayer().unsafe().sendPacket( new PacketC9PlayerListItem( sent[i][j], false, (short) 9999 ) );
+                }
             }
         }
         sent = new String[ ROWS ][ COLUMNS ];
@@ -107,7 +116,7 @@ public class Custom extends TabListAdapter implements TabAPI
 
     private static char[] base(int n)
     {
-        String hex = Integer.toHexString( n );
+        String hex = Integer.toHexString( n + 1 );
         char[] alloc = new char[ hex.length() * 2 ];
         for ( int i = 0; i < alloc.length; i++ )
         {
