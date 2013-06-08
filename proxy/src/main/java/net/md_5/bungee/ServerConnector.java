@@ -154,7 +154,7 @@ public class ServerConnector extends PacketHandler
                 user.unsafe().sendPacket( modLogin );
             } else
             {
-                bungee.getTabListHandler().onServerChange( user );
+                user.getTabList().onServerChange();
 
                 Scoreboard serverScoreboard = user.getServerSentScoreboard();
                 for ( Objective objective : serverScoreboard.getObjectives() )

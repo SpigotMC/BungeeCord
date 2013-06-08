@@ -121,21 +121,6 @@ public abstract class ProxyServer
     public abstract void setConfigurationAdapter(ConfigurationAdapter adapter);
 
     /**
-     * Get the currently in use tab list handle.
-     *
-     * @return the tab list handler
-     */
-    public abstract TabListHandler getTabListHandler();
-
-    /**
-     * Set the used tab list handler, should not be changed once players have
-     * connected
-     *
-     * @param handler the tab list handler to set
-     */
-    public abstract void setTabListHandler(TabListHandler handler);
-
-    /**
      * Get the currently in use reconnect handler.
      *
      * @return the in use reconnect handler

@@ -86,7 +86,7 @@ public class DownstreamBridge extends PacketHandler
     public void handle(PacketC9PlayerListItem playerList) throws Exception
     {
 
-        if ( !bungee.getTabListHandler().onListUpdate( con, playerList.getUsername(), playerList.isOnline(), playerList.getPing() ) )
+        if ( !con.getTabList().onListUpdate( playerList.getUsername(), playerList.isOnline(), playerList.getPing() ) )
         {
             throw new CancelSendSignal();
         }
@@ -161,9 +161,9 @@ public class DownstreamBridge extends PacketHandler
                 t.setDisplayName( team.getDisplayName() );
                 t.setPrefix( team.getPrefix() );
                 t.setSuffix( team.getSuffix() );
-                t.setFriendlyFire(team.isFriendlyFire() );
+                t.setFriendlyFire( team.isFriendlyFire() );
             }
-            if ( team.getPlayers()!= null )
+            if ( team.getPlayers() != null )
             {
                 for ( String s : team.getPlayers() )
                 {

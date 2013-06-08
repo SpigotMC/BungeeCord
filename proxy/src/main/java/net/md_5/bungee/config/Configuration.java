@@ -22,14 +22,7 @@ import net.md_5.bungee.util.CaseInsensitiveMap;
 public class Configuration
 {
 
-    /**
-     * The default tab list options available for picking.
-     */
-    private enum DefaultTabList
-    {
 
-        GLOBAL, GLOBAL_PING, SERVER;
-    }
     /**
      * Time before users are disconnected due to no network activity.
      */
@@ -61,24 +54,6 @@ public class Configuration
         uuid = adapter.getString( "stats", uuid );
         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
         playerLimit = adapter.getInt( "player_limit", playerLimit );
-
-        DefaultTabList tab = DefaultTabList.valueOf( adapter.getString( "tab_list", "GLOBAL_PING" ) );
-        if ( tab == null )
-        {
-            tab = DefaultTabList.GLOBAL_PING;
-        }
-        switch ( tab )
-        {
-            case GLOBAL:
-                ProxyServer.getInstance().setTabListHandler( new Global() );
-                break;
-            case GLOBAL_PING:
-                ProxyServer.getInstance().setTabListHandler( new GlobalPing() );
-                break;
-            case SERVER:
-                ProxyServer.getInstance().setTabListHandler( new ServerUnique() );
-                break;
-        }
 
         listeners = adapter.getListeners();
         Preconditions.checkArgument( listeners != null && !listeners.isEmpty(), "No listeners defined." );

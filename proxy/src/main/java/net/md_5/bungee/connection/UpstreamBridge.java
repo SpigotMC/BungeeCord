@@ -28,7 +28,7 @@ public class UpstreamBridge extends PacketHandler
         this.con = con;
 
         BungeeCord.getInstance().addConnection( con );
-        bungee.getTabListHandler().onConnect( con );
+        con.getTabList().onConnect();
         con.unsafe().sendPacket( BungeeCord.getInstance().registerChannels() );
 
         TexturePackInfo texture = con.getPendingConnection().getListener().getTexturePack();
@@ -50,7 +50,7 @@ public class UpstreamBridge extends PacketHandler
         // We lost connection to the client
         PlayerDisconnectEvent event = new PlayerDisconnectEvent( con );
         bungee.getPluginManager().callEvent( event );
-        bungee.getTabListHandler().onDisconnect( con );
+        con.getTabList().onDisconnect();
         BungeeCord.getInstance().removeConnection( con );
 
         if ( con.getServer() != null )
@@ -75,7 +75,7 @@ public class UpstreamBridge extends PacketHandler
         if ( alive.getRandomId() == con.getSentPingId() )
         {
             int newPing = (int) ( System.currentTimeMillis() - con.getSentPingTime() );
-            bungee.getTabListHandler().onPingChange( con, newPing );
+            con.getTabList().onPingChange( newPing );
             con.setPing( newPing );
         }
     }

@@ -97,12 +97,6 @@ public class BungeeCord extends ProxyServer
     private final Map<String, UserConnection> connections = new CaseInsensitiveMap<>();
     private final ReadWriteLock connectionLock = new ReentrantReadWriteLock();
     /**
-     * Tab list handler
-     */
-    @Getter
-    @Setter
-    public TabListHandler tabListHandler;
-    /**
      * Plugin manager.
      */
     @Getter
