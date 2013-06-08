@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.TabListHandler;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.config.TexturePackInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -62,6 +63,8 @@ public final class UserConnection implements ProxiedPlayer
     private final Collection<ServerInfo> pendingConnects = new HashSet<>();
     /*========================================================================*/
     @Getter
+    private TabListHandler tabList;
+    @Getter
     @Setter
     private int sentPingId;
     @Getter
@@ -101,6 +104,13 @@ public final class UserConnection implements ProxiedPlayer
     public void init()
     {
         this.displayName = name;
+        try
+        {
+            this.tabList = getPendingConnection().getListener().getTabList().getDeclaredConstructor( ProxiedPlayer.class ).newInstance( this );
+        } catch ( ReflectiveOperationException ex )
+        {
+            throw new RuntimeException( ex );
+        }
 
         Collection<String> g = bungee.getConfigurationAdapter().getGroups( name );
         for ( String s : g )
@@ -125,9 +135,9 @@ public final class UserConnection implements ProxiedPlayer
     {
         Preconditions.checkNotNull( name, "displayName" );
         Preconditions.checkArgument( name.length() <= 16, "Display name cannot be longer than 16 characters" );
-        bungee.getTabListHandler().onDisconnect( this );
+        getTabList().onDisconnect();
         displayName = name;
-        bungee.getTabListHandler().onConnect( this );
+        getTabList().onConnect();
     }
 
     @Override
