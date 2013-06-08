@@ -125,7 +125,7 @@ public class UpstreamBridge extends PacketHandler
         // TODO: Unregister as well?
         if ( pluginMessage.getTag().equals( "REGISTER" ) )
         {
-            con.getPendingConnection().getLoginMessages().add( pluginMessage );
+            con.getPendingConnection().getRegisterMessages().add( pluginMessage );
         }
     }
 

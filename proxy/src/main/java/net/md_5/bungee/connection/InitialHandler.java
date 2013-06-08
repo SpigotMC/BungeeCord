@@ -63,6 +63,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private PacketFDEncryptionRequest request;
     @Getter
     private List<PacketFAPluginMessage> loginMessages = new ArrayList<>();
+    @Getter
+    private List<PacketFAPluginMessage> registerMessages = new ArrayList<>();
     private State thisState = State.HANDSHAKE;
     private SecretKey sharedKey;
     private final Unsafe unsafe = new Unsafe()
@@ -95,7 +97,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(PacketFAPluginMessage pluginMessage) throws Exception
     {
-        loginMessages.add( pluginMessage );
+        // TODO: Unregister?
+        if ( pluginMessage.getTag().equals( "REGISTER" ) )
+        {
+            registerMessages.add( pluginMessage );
+        } else
+        {
+            loginMessages.add( pluginMessage );
+        }
     }
 
     @Override
