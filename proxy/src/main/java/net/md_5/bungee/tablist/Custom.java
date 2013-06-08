@@ -1,15 +1,15 @@
 package net.md_5.bungee.tablist;
 
-import net.md_5.bungee.api.TabAPI;
 import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.HashSet;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.TabListHandler;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.tab.TabAPI;
+import net.md_5.bungee.api.tab.TabListAdapter;
 import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
 
-public class Custom extends TabListHandler implements TabAPI
+public class Custom extends TabListAdapter implements TabAPI
 {
 
     private static final int ROWS = 20;
@@ -19,11 +19,6 @@ public class Custom extends TabListHandler implements TabAPI
     /*========================================================================*/
     private String[][] sent = new String[ ROWS ][ COLUMNS ];
     private String[][] pending = new String[ ROWS ][ COLUMNS ];
-
-    public Custom(ProxiedPlayer player)
-    {
-        super( player );
-    }
 
     @Override
     public synchronized void setSlot(int row, int column, String text)

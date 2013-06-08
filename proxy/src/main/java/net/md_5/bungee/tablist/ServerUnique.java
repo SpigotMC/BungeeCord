@@ -2,19 +2,13 @@ package net.md_5.bungee.tablist;
 
 import java.util.Collection;
 import java.util.HashSet;
-import net.md_5.bungee.api.TabListHandler;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.tab.TabListAdapter;
 import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
 
-public class ServerUnique extends TabListHandler
+public class ServerUnique extends TabListAdapter
 {
 
     private final Collection<String> usernames = new HashSet<>();
-
-    public ServerUnique(ProxiedPlayer player)
-    {
-        super( player );
-    }
 
     @Override
     public void onServerChange()

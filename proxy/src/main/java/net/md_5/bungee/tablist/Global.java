@@ -2,19 +2,14 @@ package net.md_5.bungee.tablist;
 
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.TabListHandler;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.tab.TabListAdapter;
 import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
 
-public class Global extends TabListHandler
+public class Global extends TabListAdapter
 {
 
     private boolean sentPing;
-
-    public Global(ProxiedPlayer player)
-    {
-        super( player );
-    }
 
     @Override
     public void onConnect()
