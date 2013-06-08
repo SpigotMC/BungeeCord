@@ -15,7 +15,7 @@ public class Custom extends TabListAdapter implements TabAPI
     private static final int COLUMNS = 3;
     private static final char[] FILLER = new char[]
     {
-        '1', '2', '2', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+        '0', '1', '2', '2', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };
     private static final int MAX_LEN = 16;
     /*========================================================================*/
@@ -23,6 +23,8 @@ public class Custom extends TabListAdapter implements TabAPI
     /*========================================================================*/
     private String[][] sent = new String[ ROWS ][ COLUMNS ];
     private String[][] slots = new String[ ROWS ][ COLUMNS ];
+    private int rowLim;
+    private int colLim;
 
     @Override
     public synchronized String setSlot(int row, int column, String text)
@@ -40,9 +42,14 @@ public class Custom extends TabListAdapter implements TabAPI
         {
             Preconditions.checkArgument( text.length() <= MAX_LEN, "text must be <= %s chars", MAX_LEN );
             Preconditions.checkArgument( !ChatColor.stripColor( text ).isEmpty(), "Text cannot consist entirely of colour codes" );
-
             text = attempt( text );
             sentStuff.add( text );
+
+            if ( rowLim < row || colLim < column )
+            {
+                rowLim = row;
+                colLim = column;
+            }
         } else
         {
             sentStuff.remove( text );
@@ -77,9 +84,9 @@ public class Custom extends TabListAdapter implements TabAPI
     public synchronized void update()
     {
         clear();
-        for ( int i = 0; i < ROWS; i++ )
+        for ( int i = 0; i < rowLim; i++ )
         {
-            for ( int j = 0; j < COLUMNS; j++ )
+            for ( int j = 0; j < colLim; j++ )
             {
                 String text = ( slots[i][j] != null ) ? slots[i][j] : new StringBuilder().append( base( i ) ).append( base( j ) ).toString();
                 sent[i][j] = text;
@@ -91,9 +98,9 @@ public class Custom extends TabListAdapter implements TabAPI
     @Override
     public synchronized void clear()
     {
-        for ( int i = 0; i < ROWS; i++ )
+        for ( int i = 0; i < rowLim; i++ )
         {
-            for ( int j = 0; j < COLUMNS; j++ )
+            for ( int j = 0; j < colLim; j++ )
             {
                 if ( sent[i][j] != null )
                 {
