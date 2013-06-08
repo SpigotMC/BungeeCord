@@ -13,62 +13,77 @@ public class Custom extends TabListAdapter implements TabAPI
 
     private static final int ROWS = 20;
     private static final int COLUMNS = 3;
+    private static final char[] FILLER = new char[]
+    {
+        '1', '2', '2', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+    };
+    private static final int MAX_LEN = 16;
     /*========================================================================*/
     private final Collection<String> sentStuff = new HashSet<>();
     /*========================================================================*/
     private String[][] sent = new String[ ROWS ][ COLUMNS ];
-    private String[][] pending = new String[ ROWS ][ COLUMNS ];
-    private int last;
+    private String[][] slots = new String[ ROWS ][ COLUMNS ];
 
     @Override
-    public synchronized void setSlot(int row, int column, String text)
+    public synchronized String setSlot(int row, int column, String text)
     {
-        setSlot( row, column, text, true );
+        return setSlot( row, column, text, true );
     }
 
     @Override
-    public synchronized void setSlot(int row, int column, String text, boolean update)
+    public synchronized String setSlot(int row, int column, String text, boolean update)
     {
         Preconditions.checkArgument( row > 0 && row <= ROWS, "row out of range" );
         Preconditions.checkArgument( column > 0 && column <= COLUMNS, "column out of range" );
-        Preconditions.checkNotNull( text, "text" );
-        Preconditions.checkArgument( text.length() <= 16, "text must be <= 16 chars" );
-        Preconditions.checkArgument( !sentStuff.contains( text ), "list already contains %s", text );
-        Preconditions.checkArgument( !ChatColor.stripColor( text ).isEmpty(), "Text cannot consist entirely of colour codes" );
 
-        pending[--row][--column] = text;
-        last = ( row * ROWS + column > last ) ? ( row * ROWS + column ) : last;
+        if ( text != null )
+        {
+            Preconditions.checkArgument( text.length() <= MAX_LEN, "text must be <= %s chars", MAX_LEN );
+            Preconditions.checkArgument( !ChatColor.stripColor( text ).isEmpty(), "Text cannot consist entirely of colour codes" );
+
+            text = attempt( text );
+            sentStuff.add( text );
+        } else
+        {
+            sentStuff.remove( text );
+        }
+
+        slots[--row][--column] = text;
         if ( update )
         {
             update();
         }
+        return text;
+    }
+
+    private String attempt(String s)
+    {
+        for ( char c : FILLER )
+        {
+            String attempt = s + Character.toString( ChatColor.COLOR_CHAR ) + c;
+            if ( !sentStuff.contains( attempt ) )
+            {
+                return attempt;
+            }
+        }
+        if ( s.length() <= MAX_LEN - 4 )
+        {
+            return attempt( s + Character.toString( ChatColor.COLOR_CHAR ) + FILLER[0] );
+        }
+        throw new IllegalArgumentException( "List already contains all variants of string" );
     }
 
     @Override
     public synchronized void update()
     {
         clear();
-
         for ( int i = 0; i < ROWS; i++ )
         {
             for ( int j = 0; j < COLUMNS; j++ )
             {
-                if ( i * ROWS + j > last )
-                {
-                    return;
-                }
-                String text;
-                if ( pending[i][j] != null )
-                {
-                    text = pending[i][j];
-                    sentStuff.add( text );
-                } else
-                {
-                    text = new StringBuilder().append( base( i ) ).append( base( j ) ).toString();
-                }
-                getPlayer().unsafe().sendPacket( new PacketC9PlayerListItem( text, true, (short) 0 ) );
+                String text = ( slots[i][j] != null ) ? slots[i][j] : new StringBuilder().append( base( i ) ).append( base( j ) ).toString();
                 sent[i][j] = text;
-                pending[i][j] = null;
+                getPlayer().unsafe().sendPacket( new PacketC9PlayerListItem( text, true, (short) 0 ) );
             }
         }
     }
@@ -82,12 +97,12 @@ public class Custom extends TabListAdapter implements TabAPI
             {
                 if ( sent[i][j] != null )
                 {
-                    getPlayer().unsafe().sendPacket( new PacketC9PlayerListItem( sent[i][j], false, (short) 9999 ) );
+                    String text = sent[i][j];
+                    sent[i][j] = null;
+                    getPlayer().unsafe().sendPacket( new PacketC9PlayerListItem( text, false, (short) 9999 ) );
                 }
             }
         }
-        sent = new String[ ROWS ][ COLUMNS ];
-        sentStuff.clear();
     }
 
     @Override
