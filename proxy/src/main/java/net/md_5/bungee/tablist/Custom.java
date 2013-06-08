@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.HashSet;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.tab.TabAPI;
 import net.md_5.bungee.api.tab.TabListAdapter;
 import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
@@ -29,14 +28,14 @@ public class Custom extends TabListAdapter implements TabAPI
     @Override
     public synchronized void setSlot(int row, int column, String text, boolean update)
     {
-        Preconditions.checkArgument( row >= 0 && row < ROWS, "row out of range" );
-        Preconditions.checkArgument( column >= 0 && column < COLUMNS, "column out of range" );
+        Preconditions.checkArgument( row > 0 && row <= ROWS, "row out of range" );
+        Preconditions.checkArgument( column > 0 && column <= COLUMNS, "column out of range" );
         Preconditions.checkNotNull( text, "text" );
         Preconditions.checkArgument( text.length() <= 16, "text must be <= 16 chars" );
         Preconditions.checkArgument( !sentStuff.contains( text ), "list already contains %s", text );
         Preconditions.checkArgument( !ChatColor.stripColor( text ).equals( text ), "Text cannot consist entirely of colour codes" );
 
-        pending[ROWS][COLUMNS] = text;
+        pending[ROWS + 1][COLUMNS + 1] = text;
         if ( update )
         {
             update();
