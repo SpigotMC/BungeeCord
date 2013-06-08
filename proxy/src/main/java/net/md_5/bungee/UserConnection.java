@@ -111,6 +111,7 @@ public final class UserConnection implements ProxiedPlayer
         {
             throw new RuntimeException( ex );
         }
+        this.tabList.init( this );
 
         Collection<String> g = bungee.getConfigurationAdapter().getGroups( name );
         for ( String s : g )
