@@ -38,8 +38,9 @@ public interface TabAPI extends TabListHandler
      * @param row the row to set
      * @param column the column to set
      * @param text the text to set
+     * @return the padded text
      */
-    void setSlot(int row, int column, String text);
+    String setSlot(int row, int column, String text);
 
     /**
      * Set the text in the specified slot.
@@ -48,8 +49,9 @@ public interface TabAPI extends TabListHandler
      * @param column the column to set
      * @param text the text to set
      * @param update whether or not to invoke {@link #update()} upon completion
+     * @return the padded text
      */
-    void setSlot(int row, int column, String text, boolean update);
+    String setSlot(int row, int column, String text, boolean update);
 
     /**
      * Flush all queued changes to the user.
