@@ -1,9 +1,9 @@
-package net.md_5.bungee.api;
+package net.md_5.bungee.api.tab;
 
 /**
  * Represents a custom tab list, which may have slots manipulated.
  */
-public interface TabAPI
+public interface TabAPI extends TabListHandler
 {
 
     /**

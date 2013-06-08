@@ -11,11 +11,6 @@ public class GlobalPing extends Global
     /*========================================================================*/
     private int lastPing;
 
-    public GlobalPing(ProxiedPlayer player)
-    {
-        super( player );
-    }
-
     @Override
     public void onPingChange(int ping)
     {

@@ -1,29 +1,30 @@
-package net.md_5.bungee.api;
+package net.md_5.bungee.api.tab;
 
-import lombok.Data;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-@Data
-public abstract class TabListHandler
+public interface TabListHandler
 {
 
-    private final ProxiedPlayer player;
+    /**
+     * Called so that this class may set member fields to keep track of its
+     * internal state. You should not do any packet sending or manipulation of
+     * the passed player, other than storing it.
+     *
+     * @param player the player to be associated with this list
+     */
+    void init(ProxiedPlayer player);
 
     /**
      * Called when this player first connects to the proxy.
      */
-    public void onConnect()
-    {
-    }
+    void onConnect();
 
     /**
      * Called when a player first connects to the proxy.
      *
      * @param player the connecting player
      */
-    public void onServerChange()
-    {
-    }
+    void onServerChange();
 
     /**
      * Called when a players ping changes. The new ping will have not updated in
@@ -32,18 +33,14 @@ public abstract class TabListHandler
      * @param player the player who's ping changed
      * @param ping the player's new ping.
      */
-    public void onPingChange(int ping)
-    {
-    }
+    void onPingChange(int ping);
 
     /**
      * Called when a player disconnects.
      *
      * @param player the disconnected player
      */
-    public void onDisconnect()
-    {
-    }
+    void onDisconnect();
 
     /**
      * Called when a list update packet is sent from server to client.
@@ -54,5 +51,5 @@ public abstract class TabListHandler
      * @param ping ping of the subject player
      * @return whether to send the packet to the client
      */
-    public abstract boolean onListUpdate(String name, boolean online, int ping);
+    boolean onListUpdate(String name, boolean online, int ping);
 }
