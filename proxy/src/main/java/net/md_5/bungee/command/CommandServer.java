@@ -19,7 +19,7 @@ public class CommandServer extends Command
 
     public CommandServer()
     {
-        super( "server", "bungeecord.command.server" );
+        super( "gserver", "bungeecord.command.server" );
     }
 
     @Override
