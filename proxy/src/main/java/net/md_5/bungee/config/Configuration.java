@@ -22,7 +22,6 @@ import net.md_5.bungee.util.CaseInsensitiveMap;
 public class Configuration
 {
 
-
     /**
      * Time before users are disconnected due to no network activity.
      */
@@ -50,12 +49,12 @@ public class Configuration
         ConfigurationAdapter adapter = ProxyServer.getInstance().getConfigurationAdapter();
         adapter.load();
 
+        listeners = adapter.getListeners();
         timeout = adapter.getInt( "timeout", timeout );
         uuid = adapter.getString( "stats", uuid );
         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
         playerLimit = adapter.getInt( "player_limit", playerLimit );
 
-        listeners = adapter.getListeners();
         Preconditions.checkArgument( listeners != null && !listeners.isEmpty(), "No listeners defined." );
 
         Map<String, ServerInfo> newServers = adapter.getServers();
