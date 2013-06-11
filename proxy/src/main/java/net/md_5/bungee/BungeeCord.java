@@ -1,5 +1,6 @@
 package net.md_5.bungee;
 
+import net.md_5.bungee.log.BungeeLogger;
 import net.md_5.bungee.reconnect.SQLReconnectHandler;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -16,9 +17,9 @@ import io.netty.channel.MultithreadEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import net.md_5.bungee.config.Configuration;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.util.Calendar;
 import java.util.Collection;
@@ -35,9 +36,11 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import jline.console.ConsoleReader;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ReconnectHandler;
@@ -50,6 +53,7 @@ import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.api.scheduler.TaskScheduler;
 import net.md_5.bungee.command.*;
 import net.md_5.bungee.config.YamlConfig;
+import net.md_5.bungee.log.LoggingOutputStream;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.packet.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Packet3Chat;
@@ -116,6 +120,10 @@ public class BungeeCord extends ProxyServer
             new NettyAsyncHttpProvider(
             new AsyncHttpClientConfig.Builder().setAsyncHttpClientProviderConfig(
             new NettyAsyncHttpProviderConfig().addProperty( NettyAsyncHttpProviderConfig.BOSS_EXECUTOR_SERVICE, executors ) ).setExecutorService( executors ).build() ) );
+    @Getter
+    private final ConsoleReader consoleReader;
+    @Getter
+    private final Logger logger;
 
     
     {
@@ -137,6 +145,28 @@ public class BungeeCord extends ProxyServer
     public static BungeeCord getInstance()
     {
         return (BungeeCord) ProxyServer.getInstance();
+    }
+
+    public BungeeCord() throws IOException
+    {
+        consoleReader = new ConsoleReader();
+        Runtime.getRuntime().addShutdownHook( new Thread( "JLine Cleanup Thread" )
+        {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    consoleReader.getTerminal().restore();
+                } catch ( Exception ex )
+                {
+                }
+            }
+        } );
+
+        logger = new BungeeLogger( this );
+        System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
+        System.setOut( new PrintStream( new LoggingOutputStream( logger, Level.INFO ), true ) );
     }
 
     /**
@@ -163,16 +193,14 @@ public class BungeeCord extends ProxyServer
         bungee.getLogger().info( "Enabled BungeeCord version " + bungee.getVersion() );
         bungee.start();
 
-        BufferedReader br = new BufferedReader( new InputStreamReader( System.in ) );
         while ( bungee.isRunning )
         {
-            String line = br.readLine();
+            String line = bungee.getConsoleReader().readLine( ">" );
             if ( line != null )
             {
-                boolean handled = getInstance().getPluginManager().dispatchCommand( ConsoleCommandSender.getInstance(), line );
-                if ( !handled )
+                if ( !bungee.getPluginManager().dispatchCommand( ConsoleCommandSender.getInstance(), line ) )
                 {
-                    System.err.println( "Command not found" );
+                    bungee.getConsole().sendMessage( ChatColor.RED + "Command not found" );
                 }
             }
         }
@@ -357,12 +385,6 @@ public class BungeeCord extends ProxyServer
         {
         }
         return translation;
-    }
-
-    @Override
-    public Logger getLogger()
-    {
-        return BungeeLogger.instance;
     }
 
     @Override
