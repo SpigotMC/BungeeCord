@@ -1,9 +1,11 @@
 package net.md_5.bungee.netty;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -15,12 +17,12 @@ import net.md_5.bungee.api.ProxyServer;
 public class ReusableChannelPromise implements ChannelPromise
 {
 
-    private final Channel ch;
+    private final ChannelHandlerContext ctx;
 
     @Override
     public Channel channel()
     {
-        return ch;
+        return ctx.channel();
     }
 
     @Override
@@ -44,6 +46,10 @@ public class ReusableChannelPromise implements ChannelPromise
     @Override
     public ChannelPromise setFailure(Throwable cause)
     {
+        if ( !( cause instanceof ClosedChannelException ) )
+        {
+            ctx.fireExceptionCaught( cause );
+        }
         return this;
     }
 
