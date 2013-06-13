@@ -1,6 +1,7 @@
 package net.md_5.bungee.netty;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 import lombok.Getter;
 
 public class ChannelWrapper
@@ -11,10 +12,10 @@ public class ChannelWrapper
     private volatile boolean closed;
     private final ReusableChannelPromise promise;
 
-    public ChannelWrapper(Channel ch)
+    public ChannelWrapper(ChannelHandlerContext ctx)
     {
-        this.ch = ch;
-        this.promise = new ReusableChannelPromise( ch );
+        this.ch = ctx.channel();
+        this.promise = new ReusableChannelPromise( ctx );
     }
 
     public synchronized void write(Object packet)

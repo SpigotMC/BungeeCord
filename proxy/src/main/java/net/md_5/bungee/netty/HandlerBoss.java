@@ -6,13 +6,10 @@ import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.handler.timeout.ReadTimeoutException;
 import java.io.IOException;
 import java.util.logging.Level;
-import net.md_5.bungee.ServerConnector;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.connection.CancelSendSignal;
-import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.connection.PingHandler;
-import net.md_5.bungee.connection.UpstreamBridge;
 
 /**
  * This class is a primitive wrapper for {@link PacketHandler} instances tied to
@@ -36,7 +33,7 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<Object>
     {
         if ( handler != null )
         {
-            channel = new ChannelWrapper( ctx.channel() );
+            channel = new ChannelWrapper( ctx );
             handler.connected( channel );
 
             if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
