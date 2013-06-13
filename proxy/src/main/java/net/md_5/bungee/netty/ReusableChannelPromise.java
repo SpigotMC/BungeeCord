@@ -5,7 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import java.nio.channels.ClosedChannelException;
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -46,7 +46,7 @@ public class ReusableChannelPromise implements ChannelPromise
     @Override
     public ChannelPromise setFailure(Throwable cause)
     {
-        if ( !( cause instanceof ClosedChannelException ) )
+        if ( !( cause instanceof IOException ) )
         {
             ctx.fireExceptionCaught( cause );
         }
