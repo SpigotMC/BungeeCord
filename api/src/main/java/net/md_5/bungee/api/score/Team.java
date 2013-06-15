@@ -1,4 +1,4 @@
-package net.md_5.bungee.api.scoreboard;
+package net.md_5.bungee.api.score;
 
 import java.util.Collection;
 import java.util.Collections;

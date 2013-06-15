@@ -26,7 +26,7 @@ import net.md_5.bungee.api.config.TexturePackInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
-import net.md_5.bungee.api.scoreboard.Scoreboard;
+import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.api.tab.TabListHandler;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.netty.ChannelWrapper;
