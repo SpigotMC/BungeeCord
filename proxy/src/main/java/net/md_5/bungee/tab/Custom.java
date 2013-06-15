@@ -1,4 +1,4 @@
-package net.md_5.bungee.tablist;
+package net.md_5.bungee.tab;
 
 import com.google.common.base.Preconditions;
 import java.util.Collection;

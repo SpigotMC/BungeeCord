@@ -1,4 +1,4 @@
-package net.md_5.bungee.tablist;
+package net.md_5.bungee.tab;
 
 import java.util.Collection;
 import java.util.HashSet;
