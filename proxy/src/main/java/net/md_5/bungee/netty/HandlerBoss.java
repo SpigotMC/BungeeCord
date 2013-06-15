@@ -26,41 +26,36 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<Object>
     {
         Preconditions.checkArgument( handler != null, "handler" );
         this.handler = handler;
+        this.handler.added();
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception
     {
-        if ( handler != null )
-        {
-            channel = new ChannelWrapper( ctx );
-            handler.connected( channel );
+        channel = new ChannelWrapper( ctx );
+        handler.connected( channel );
 
-            if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
-            {
-                ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has connected", handler );
-            }
+        if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
+        {
+            ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has connected", handler );
         }
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception
     {
-        if ( handler != null )
-        {
-            handler.disconnected( channel );
+        handler.disconnected( channel );
 
-            if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
-            {
-                ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has disconnected", handler );
-            }
+        if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
+        {
+            ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has disconnected", handler );
         }
     }
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception
     {
-        if ( handler != null && ctx.channel().isActive() )
+        if ( !channel.isClosed() )
         {
             if ( msg instanceof PacketWrapper )
             {
@@ -86,7 +81,7 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<Object>
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
     {
-        if ( ctx.channel().isActive() )
+        if ( !channel.isClosed() )
         {
             if ( cause instanceof ReadTimeoutException )
             {
@@ -98,17 +93,16 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<Object>
             {
                 ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - encountered exception", cause );
             }
-            if ( handler != null )
+
+            try
             {
-                try
-                {
-                    handler.exception( cause );
-                } catch ( Exception ex )
-                {
-                    ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - exception processing exception", ex );
-                }
+                handler.exception( cause );
+            } catch ( Exception ex )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - exception processing exception", ex );
             }
-            ctx.close();
+
+            channel.close();
         }
     }
 }

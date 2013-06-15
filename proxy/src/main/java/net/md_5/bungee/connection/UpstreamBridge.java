@@ -1,5 +1,6 @@
 package net.md_5.bungee.connection;
 
+import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.UserConnection;
@@ -16,17 +17,16 @@ import net.md_5.bungee.protocol.packet.Packet3Chat;
 import net.md_5.bungee.protocol.packet.PacketCCSettings;
 import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
 
+@RequiredArgsConstructor
 public class UpstreamBridge extends PacketHandler
 {
 
     private final ProxyServer bungee;
     private final UserConnection con;
 
-    public UpstreamBridge(ProxyServer bungee, UserConnection con)
+    @Override
+    public void added()
     {
-        this.bungee = bungee;
-        this.con = con;
-
         BungeeCord.getInstance().addConnection( con );
         con.getTabList().onConnect();
         con.unsafe().sendPacket( BungeeCord.getInstance().registerChannels() );
