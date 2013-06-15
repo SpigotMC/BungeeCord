@@ -1,4 +1,4 @@
-package net.md_5.bungee.tablist;
+package net.md_5.bungee.tab;
 
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.connection.ProxiedPlayer;

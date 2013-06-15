@@ -10,9 +10,9 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.tablist.GlobalPing;
-import net.md_5.bungee.tablist.Global;
-import net.md_5.bungee.tablist.ServerUnique;
+import net.md_5.bungee.tab.GlobalPing;
+import net.md_5.bungee.tab.Global;
+import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 
 /**

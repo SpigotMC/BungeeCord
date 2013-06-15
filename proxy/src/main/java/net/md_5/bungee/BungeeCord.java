@@ -61,7 +61,7 @@ import net.md_5.bungee.protocol.packet.Packet3Chat;
 import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
 import net.md_5.bungee.protocol.Vanilla;
 import net.md_5.bungee.scheduler.BungeeThreadPool;
-import net.md_5.bungee.tablist.Custom;
+import net.md_5.bungee.tab.Custom;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 
 /**
