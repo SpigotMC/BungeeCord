@@ -120,6 +120,7 @@ public final class UserConnection implements ProxiedPlayer
         }
     }
 
+    @Override
     public void setTabList(TabListHandler tabList)
     {
         tabList.init( this );
