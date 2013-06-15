@@ -27,6 +27,7 @@ import net.md_5.bungee.netty.CipherDecoder;
 import net.md_5.bungee.netty.CipherEncoder;
 import net.md_5.bungee.netty.PacketDecoder;
 import net.md_5.bungee.netty.PacketHandler;
+import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.Forge;
 import net.md_5.bungee.protocol.packet.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Packet1Login;
@@ -219,7 +220,7 @@ public class ServerConnector extends PacketHandler
             ch.write( new PacketFCEncryptionResponse( shared, token ) );
 
             Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, secretkey );
-            ch.getHandle().pipeline().addBefore( "decoder", "encrypt", new CipherEncoder( encrypt ) );
+            ch.getHandle().pipeline().addBefore( PipelineUtils.DECRYPT_HANDLER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
 
             thisState = State.ENCRYPT_RESPONSE;
         } else
@@ -234,7 +235,7 @@ public class ServerConnector extends PacketHandler
         Preconditions.checkState( thisState == State.ENCRYPT_RESPONSE, "Not expecting ENCRYPT_RESPONSE" );
 
         Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, secretkey );
-        ch.getHandle().pipeline().addBefore( "decoder", "decrypt", new CipherDecoder( decrypt ) );
+        ch.getHandle().pipeline().addBefore( PipelineUtils.PACKET_DECODE_HANDLER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
 
         ch.write( user.getPendingConnection().getForgeLogin() );
 
