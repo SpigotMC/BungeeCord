@@ -3,6 +3,7 @@ package net.md_5.bungee.api.connection;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.config.TexturePackInfo;
+import net.md_5.bungee.api.tab.TabListHandler;
 
 /**
  * Represents a player who's connection is being connected to somewhere else,
@@ -77,4 +78,12 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param pack the pack to request
      */
     public void setTexturePack(TexturePackInfo pack);
+
+    /**
+     * Sets the new tab list for the user. At this stage it is not advisable to
+     * change after the user has logged in!
+     *
+     * @param list the new list
+     */
+    public void setTabList(TabListHandler list);
 }

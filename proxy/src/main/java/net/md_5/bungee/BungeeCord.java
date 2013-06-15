@@ -51,6 +51,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.api.scheduler.TaskScheduler;
+import net.md_5.bungee.api.tab.CustomTabList;
 import net.md_5.bungee.command.*;
 import net.md_5.bungee.config.YamlConfig;
 import net.md_5.bungee.log.LoggingOutputStream;
@@ -60,6 +61,7 @@ import net.md_5.bungee.protocol.packet.Packet3Chat;
 import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
 import net.md_5.bungee.protocol.Vanilla;
 import net.md_5.bungee.scheduler.BungeeThreadPool;
+import net.md_5.bungee.tablist.Custom;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 
 /**
@@ -511,5 +513,11 @@ public class BungeeCord extends ProxyServer
         {
             connectionLock.writeLock().unlock();
         }
+    }
+
+    @Override
+    public CustomTabList customTabList()
+    {
+        return new Custom();
     }
 }

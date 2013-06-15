@@ -12,9 +12,9 @@ import lombok.Getter;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.scheduler.TaskScheduler;
+import net.md_5.bungee.api.tab.CustomTabList;
 
 public abstract class ProxyServer
 {
@@ -241,4 +241,11 @@ public abstract class ProxyServer
      * @param message the message to broadcast
      */
     public abstract void broadcast(String message);
+
+    /**
+     * Gets a new instance of this proxies custom tab list.
+     *
+     * @return a new {@link CustomTabList} instance
+     */
+    public abstract CustomTabList customTabList();
 }

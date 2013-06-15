@@ -4,11 +4,11 @@ import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.HashSet;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.tab.TabAPI;
+import net.md_5.bungee.api.tab.CustomTabList;
 import net.md_5.bungee.api.tab.TabListAdapter;
 import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
 
-public class Custom extends TabListAdapter implements TabAPI
+public class Custom extends TabListAdapter implements CustomTabList
 {
 
     private static final int ROWS = 20;

@@ -120,6 +120,12 @@ public final class UserConnection implements ProxiedPlayer
         }
     }
 
+    public void setTabList(TabListHandler tabList)
+    {
+        tabList.init( this );
+        this.tabList = tabList;
+    }
+
     public void sendPacket(byte[] b)
     {
         ch.write( b );
