@@ -123,7 +123,7 @@ public class BungeeCord extends ProxyServer
             new AsyncHttpClientConfig.Builder().setAsyncHttpClientProviderConfig(
             new NettyAsyncHttpProviderConfig().addProperty( NettyAsyncHttpProviderConfig.BOSS_EXECUTOR_SERVICE, executors ) ).setExecutorService( executors ).build() ) );
     @Getter
-    private final ConsoleReader consoleReader;
+    private ConsoleReader consoleReader;
     @Getter
     private final Logger logger;
 
@@ -151,7 +151,14 @@ public class BungeeCord extends ProxyServer
 
     public BungeeCord() throws IOException
     {
-        consoleReader = new ConsoleReader();
+        try
+        {
+            consoleReader = new ConsoleReader();
+        } catch ( Exception ex )
+        {
+            System.setProperty( "jline.terminal", "jline.UnsupportedTerminal" );
+            consoleReader = new ConsoleReader();
+        }
         Runtime.getRuntime().addShutdownHook( new Thread( "JLine Cleanup Thread" )
         {
             @Override
