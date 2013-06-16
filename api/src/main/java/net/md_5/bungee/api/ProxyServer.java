@@ -245,7 +245,8 @@ public abstract class ProxyServer
     /**
      * Gets a new instance of this proxies custom tab list.
      *
+     * @param player the player to generate this list in the context of
      * @return a new {@link CustomTabList} instance
      */
-    public abstract CustomTabList customTabList();
+    public abstract CustomTabList customTabList(ProxiedPlayer player);
 }

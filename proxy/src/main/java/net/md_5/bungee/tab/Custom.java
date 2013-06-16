@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.HashSet;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.tab.CustomTabList;
 import net.md_5.bungee.api.tab.TabListAdapter;
 import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
@@ -25,6 +26,11 @@ public class Custom extends TabListAdapter implements CustomTabList
     private String[][] slots = new String[ ROWS ][ COLUMNS ];
     private int rowLim;
     private int colLim;
+
+    public Custom(ProxiedPlayer player)
+    {
+        this.init( player );
+    }
 
     @Override
     public synchronized String setSlot(int row, int column, String text)
