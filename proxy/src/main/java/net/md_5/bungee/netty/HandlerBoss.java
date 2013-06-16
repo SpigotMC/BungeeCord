@@ -81,7 +81,7 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<Object>
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
     {
-        if ( !channel.isClosed() )
+        if ( ctx.channel().isActive() )
         {
             if ( cause instanceof ReadTimeoutException )
             {
