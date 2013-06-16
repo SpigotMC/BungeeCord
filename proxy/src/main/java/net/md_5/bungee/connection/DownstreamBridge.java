@@ -16,7 +16,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.score.Objective;
-import net.md_5.bungee.api.score.Position;
+import net.md_5.bungee.api.score.DisplaySlot;
 import net.md_5.bungee.api.score.Score;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.api.score.Team;
@@ -132,7 +132,7 @@ public class DownstreamBridge extends PacketHandler
     {
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
         serverScoreboard.setName( displayScoreboard.getName() );
-        serverScoreboard.setPosition( Position.values()[displayScoreboard.getPosition()] );
+        serverScoreboard.setPosition( DisplaySlot.values()[displayScoreboard.getPosition()] );
     }
 
     @Override

@@ -1,100 +1,26 @@
 package net.md_5.bungee.api.score;
 
-import com.google.common.base.Preconditions;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-@Data
-@NoArgsConstructor
-public class Scoreboard
+public interface Scoreboard
 {
 
-    /**
-     * Unique name for this scoreboard.
-     */
-    private String name;
-    /**
-     * Position of this scoreboard.
-     */
-    private Position position;
-    /**
-     * Objectives for this scoreboard.
-     */
-    private final Map<String, Objective> objectives = new HashMap<>();
-    /**
-     * Scores for this scoreboard.
-     */
-    private final Map<String, Score> scores = new HashMap<>();
-    /**
-     * Teams on this board.
-     */
-    private final Map<String, Team> teams = new HashMap<>();
+    String getName();
 
-    public Collection<Objective> getObjectives()
-    {
-        return Collections.unmodifiableCollection( objectives.values() );
-    }
+    DisplaySlot getSlot();
 
-    public Collection<Score> getScores()
-    {
-        return Collections.unmodifiableCollection( scores.values() );
-    }
+    Objective getObjective(String name);
 
-    public Collection<Team> getTeams()
-    {
-        return Collections.unmodifiableCollection( teams.values() );
-    }
+    Collection<Objective> getObjectives();
 
-    public void addObjective(Objective objective)
-    {
-        Preconditions.checkNotNull( objective, "objective" );
-        Preconditions.checkArgument( !objectives.containsKey( objective.getName() ), "Objective %s already exists in this scoreboard", objective.getName() );
-        objectives.put( objective.getName(), objective );
-    }
+    Team getTeam(String name);
 
-    public void addScore(Score score)
-    {
-        Preconditions.checkNotNull( score, "score" );
-        scores.put( score.getItemName(), score );
-    }
+    Team getTeam(ProxiedPlayer player);
 
-    public void addTeam(Team team)
-    {
-        Preconditions.checkNotNull( team, "team" );
-        Preconditions.checkArgument( !teams.containsKey( team.getName() ), "Team %s already exists in this scoreboard", team.getName() );
-        teams.put( team.getName(), team );
-    }
+    Collection<Team> getTeams();
 
-    public Team getTeam(String name)
-    {
-        return teams.get( name );
-    }
+    Collection<Score> getScores(ProxiedPlayer player);
 
-    public void removeObjective(String objectiveName)
-    {
-        objectives.remove( objectiveName );
-    }
-
-    public void removeScore(String scoreName)
-    {
-        scores.remove( scoreName );
-    }
-
-    public void removeTeam(String teamName)
-    {
-        teams.remove( teamName );
-    }
-
-    public void clear()
-    {
-        name = null;
-        position = null;
-        objectives.clear();
-        scores.clear();
-        teams.clear();
-    }
+    void remove(ProxiedPlayer player);
 }

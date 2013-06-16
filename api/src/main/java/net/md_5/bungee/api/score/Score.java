@@ -1,24 +1,43 @@
 package net.md_5.bungee.api.score;
 
-import lombok.Data;
-
 /**
- * Represents a scoreboard score entry.
+ * A score entry for an item and its corresponding {@link Objective}.
  */
-@Data
-public class Score
+public interface Score
 {
 
     /**
-     * Name to be displayed in the list.
+     * Gets the name of item being being tracked by this Score
+     *
+     * @return this tracked item
      */
-    private final String itemName; // Player
+    String getItem();
+
     /**
-     * Unique name of the score.
+     * Gets the {@link Objective} being tracked by this Score
+     *
+     * @return the tracked {@link Objective}
      */
-    private final String scoreName; // Score
+    Objective getObjective();
+
     /**
-     * Value of the score.
+     * Gets the current score
+     *
+     * @return the current score
      */
-    private final int value;
+    int getScore();
+
+    /**
+     * Sets the current score.
+     *
+     * @param score the new score
+     */
+    void setScore(int score);
+
+    /**
+     * Gets the scoreboard which displays this score.
+     *
+     * @return the {@link Scoreboard} which owns this score
+     */
+    Scoreboard getScoreboard();
 }
