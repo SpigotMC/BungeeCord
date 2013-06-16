@@ -67,7 +67,7 @@ public class AsyncEvent<T> extends Event
     {
         Preconditions.checkState( intents.contains( plugin ), "Plugin %s has not registered intent for event %s", plugin, this );
         intents.remove( plugin );
-        if ( fired.get() && latch.decrementAndGet() == 0 )
+        if ( latch.decrementAndGet() == 0 && fired.get() )
         {
             done.done( (T) this, null );
         }
