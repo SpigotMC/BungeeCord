@@ -2,7 +2,6 @@ package net.md_5.bungee.api.tab;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.md_5.bungee.api.tab.TabListHandler;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 @NoArgsConstructor

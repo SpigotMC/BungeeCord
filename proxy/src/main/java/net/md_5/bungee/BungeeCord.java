@@ -516,8 +516,8 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public CustomTabList customTabList()
+    public CustomTabList customTabList(ProxiedPlayer player)
     {
-        return new Custom();
+        return new Custom( player );
     }
 }
