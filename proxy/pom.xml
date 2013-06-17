@@ -62,12 +62,6 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.jansi</groupId>
-            <artifactId>jansi</artifactId>
-            <version>1.11</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
             <version>3.17.1-GA</version>
