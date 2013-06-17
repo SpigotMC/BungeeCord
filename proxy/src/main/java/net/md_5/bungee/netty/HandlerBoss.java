@@ -102,7 +102,7 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<Object>
                 ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - exception processing exception", ex );
             }
 
-            ctx.channel().close();
+            ctx.close();
         }
     }
 }
