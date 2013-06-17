@@ -36,6 +36,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import jline.UnsupportedTerminal;
 import jline.console.ConsoleReader;
 import lombok.Getter;
 import lombok.Setter;
@@ -63,6 +64,7 @@ import net.md_5.bungee.protocol.Vanilla;
 import net.md_5.bungee.scheduler.BungeeThreadPool;
 import net.md_5.bungee.tab.Custom;
 import net.md_5.bungee.util.CaseInsensitiveMap;
+import org.fusesource.jansi.AnsiConsole;
 
 /**
  * Main BungeeCord proxy class.
@@ -151,31 +153,18 @@ public class BungeeCord extends ProxyServer
 
     public BungeeCord() throws IOException
     {
-        try
-        {
-            consoleReader = new ConsoleReader();
-        } catch ( Throwable t )
-        {
-            System.setProperty( "jline.terminal", "jline.UnsupportedTerminal" );
-            consoleReader = new ConsoleReader();
-        }
-        Runtime.getRuntime().addShutdownHook( new Thread( "JLine Cleanup Thread" )
-        {
-            @Override
-            public void run()
-            {
-                try
-                {
-                    consoleReader.getTerminal().restore();
-                } catch ( Exception ex )
-                {
-                }
-            }
-        } );
+        AnsiConsole.systemInstall();
+        consoleReader = new ConsoleReader();
 
         logger = new BungeeLogger( this );
         System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
         System.setOut( new PrintStream( new LoggingOutputStream( logger, Level.INFO ), true ) );
+
+        if ( consoleReader.getTerminal() instanceof UnsupportedTerminal)
+        {
+            logger.info( "Unable to initialize fancy terminal. To fix this on Windows, install the correct Microsoft Visual C++ 2008 Runtime" );
+            logger.info( "NOTE: This error is non crucial, and BungeeCord will still function correctly! Do not bug the author about it unless you are still unable to get it working" );
+        }
     }
 
     /**
