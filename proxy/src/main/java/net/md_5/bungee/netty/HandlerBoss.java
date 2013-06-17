@@ -55,7 +55,7 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<Object>
     @Override
     public void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception
     {
-        if ( !channel.isClosed() )
+        if ( ctx.channel().isActive() )
         {
             if ( msg instanceof PacketWrapper )
             {
