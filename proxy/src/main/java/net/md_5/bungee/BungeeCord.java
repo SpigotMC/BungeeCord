@@ -63,6 +63,7 @@ import net.md_5.bungee.protocol.Vanilla;
 import net.md_5.bungee.scheduler.BungeeThreadPool;
 import net.md_5.bungee.tab.Custom;
 import net.md_5.bungee.util.CaseInsensitiveMap;
+import org.fusesource.jansi.AnsiConsole;
 
 /**
  * Main BungeeCord proxy class.
@@ -151,6 +152,7 @@ public class BungeeCord extends ProxyServer
 
     public BungeeCord() throws IOException
     {
+        AnsiConsole.systemInstall();
         try
         {
             consoleReader = new ConsoleReader();
