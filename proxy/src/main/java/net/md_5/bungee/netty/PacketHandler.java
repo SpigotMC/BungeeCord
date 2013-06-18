@@ -14,10 +14,6 @@ public abstract class PacketHandler extends net.md_5.bungee.protocol.packet.Abst
     {
     }
 
-    public void added()
-    {
-    }
-
     public void connected(ChannelWrapper channel) throws Exception
     {
     }

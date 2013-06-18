@@ -27,29 +27,34 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     {
         Preconditions.checkArgument( handler != null, "handler" );
         this.handler = handler;
-        this.handler.added();
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception
     {
-        channel = new ChannelWrapper( ctx );
-        handler.connected( channel );
-
-        if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
+        if ( handler != null )
         {
-            ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has connected", handler );
+            channel = new ChannelWrapper( ctx );
+            handler.connected( channel );
+
+            if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has connected", handler );
+            }
         }
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception
     {
-        handler.disconnected( channel );
-
-        if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
+        if ( handler != null )
         {
-            ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has disconnected", handler );
+            handler.disconnected( channel );
+
+            if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has disconnected", handler );
+            }
         }
     }
 
@@ -58,7 +63,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     {
         for ( Object msg : msgs )
         {
-            if ( ctx.channel().isActive() )
+            if ( handler != null && ctx.channel().isActive() )
             {
                 if ( msg instanceof PacketWrapper )
                 {
@@ -98,12 +103,15 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                 ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - encountered exception", cause );
             }
 
-            try
+            if ( handler != null )
             {
-                handler.exception( cause );
-            } catch ( Exception ex )
-            {
-                ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - exception processing exception", ex );
+                try
+                {
+                    handler.exception( cause );
+                } catch ( Exception ex )
+                {
+                    ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - exception processing exception", ex );
+                }
             }
 
             ctx.close();
