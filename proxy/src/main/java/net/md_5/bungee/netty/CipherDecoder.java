@@ -2,11 +2,10 @@ package net.md_5.bungee.netty;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.MessageList;
-import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.codec.ByteToByteDecoder;
 import javax.crypto.Cipher;
 
-public class CipherDecoder extends ByteToMessageDecoder
+public class CipherDecoder extends ByteToByteDecoder
 {
 
     private final CipherBase cipher;
@@ -17,8 +16,8 @@ public class CipherDecoder extends ByteToMessageDecoder
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, MessageList<Object> out) throws Exception
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out) throws Exception
     {
-        out.add( cipher.cipher( ctx, in ) );
+        cipher.cipher( in, out );
     }
 }

@@ -2,8 +2,7 @@ package net.md_5.bungee.netty;
 
 import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.MessageList;
+import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.handler.timeout.ReadTimeoutException;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -17,7 +16,7 @@ import net.md_5.bungee.connection.PingHandler;
  * channels to maintain simple states, and only call the required, adapted
  * methods when the channel is connected.
  */
-public class HandlerBoss extends ChannelInboundHandlerAdapter
+public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<Object>
 {
 
     private ChannelWrapper channel;
@@ -59,30 +58,27 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception
+    public void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception
     {
-        for ( Object msg : msgs )
+        if ( handler != null && ctx.channel().isActive() )
         {
-            if ( handler != null && ctx.channel().isActive() )
+            if ( msg instanceof PacketWrapper )
             {
-                if ( msg instanceof PacketWrapper )
+                boolean sendPacket = true;
+                try
                 {
-                    boolean sendPacket = true;
-                    try
-                    {
-                        ( (PacketWrapper) msg ).packet.handle( handler );
-                    } catch ( CancelSendSignal ex )
-                    {
-                        sendPacket = false;
-                    }
-                    if ( sendPacket )
-                    {
-                        handler.handle( ( (PacketWrapper) msg ).buf );
-                    }
-                } else
+                    ( (PacketWrapper) msg ).packet.handle( handler );
+                } catch ( CancelSendSignal ex )
                 {
-                    handler.handle( (byte[]) msg );
+                    sendPacket = false;
                 }
+                if ( sendPacket )
+                {
+                    handler.handle( ( (PacketWrapper) msg ).buf );
+                }
+            } else
+            {
+                handler.handle( (byte[]) msg );
             }
         }
     }
