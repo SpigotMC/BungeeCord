@@ -40,9 +40,9 @@ public class EncryptionUtil
         }
     }
 
-    public static PacketFDEncryptionRequest encryptRequest()
+    public static PacketFDEncryptionRequest encryptRequest(boolean onlineMode)
     {
-        String hash = ( BungeeCord.getInstance().config.isOnlineMode() ) ? Long.toString( random.nextLong(), 16 ) : "-";
+        String hash = ( onlineMode ) ? Long.toString( random.nextLong(), 16 ) : "-";
         byte[] pubKey = keys.getPublic().getEncoded();
         byte[] verify = new byte[ 4 ];
         random.nextBytes( verify );

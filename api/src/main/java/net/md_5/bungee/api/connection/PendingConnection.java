@@ -36,4 +36,16 @@ public interface PendingConnection extends Connection
      * @return the accepting listener
      */
     public ListenerInfo getListener();
+
+    /**
+     * Get the currently set authorization level for the connection.
+     *
+     * @return the mode
+     */
+    public boolean isOnlineMode();
+
+    /**
+     * Set the authorization level for the connection.
+     */
+    public void setOnlineMode(boolean mode);
 }
