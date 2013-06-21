@@ -39,6 +39,7 @@ import net.md_5.bungee.netty.PacketDecoder;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.Forge;
+import net.md_5.bungee.protocol.Vanilla;
 import net.md_5.bungee.protocol.packet.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Packet1Login;
 import net.md_5.bungee.protocol.packet.Packet2Handshake;
@@ -141,6 +142,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
         this.handshake = handshake;
         bungee.getLogger().log( Level.INFO, "{0} has connected", this );
+        
+        if ( handshake.getProcolVersion() > Vanilla.PROTOCOL_VERSION){
+            disconnect( "Outdated server!" );
+        }else if (handshake.getProcolVersion() < Vanilla.PROTOCOL_VERSION){
+            disconnect( "Outdated client!" );
+        }
 
         if ( handshake.getUsername().length() > 16 )
         {
