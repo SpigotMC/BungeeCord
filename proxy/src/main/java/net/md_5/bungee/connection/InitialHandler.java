@@ -141,6 +141,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
         this.handshake = handshake;
         bungee.getLogger().log( Level.INFO, "{0} has connected", this );
+        
+        if ( handshake.getProcolVersion() > Vanilla.PROTOCOL_VERSION){
+            disconnect( "Outdated server!" );
+        }else if (handshake.getProcolVersion() < Vanilla.PROTOCOL_VERSION){
+            disconnect( "Outdated client!" );
+        }
 
         if ( handshake.getUsername().length() > 16 )
         {
