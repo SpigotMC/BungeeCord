@@ -28,6 +28,7 @@ import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.PreLoginEvent;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
@@ -56,6 +57,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
     private final ProxyServer bungee;
     private ChannelWrapper ch;
+    private boolean onlineMode;
     @Getter
     private final ListenerInfo listener;
     @Getter
@@ -137,10 +139,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void handle(Packet2Handshake handshake) throws Exception
+    public void handle(final Packet2Handshake handshake) throws Exception
     {
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
         this.handshake = handshake;
+        setOnlineMode(BungeeCord.getInstance().config.isOnlineMode());
         bungee.getLogger().log( Level.INFO, "{0} has connected", this );
 
         if ( handshake.getProcolVersion() > Vanilla.PROTOCOL_VERSION )
@@ -164,18 +167,39 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             return;
         }
 
-        // If offline mode and they are already on, don't allow connect
-        if ( !BungeeCord.getInstance().config.isOnlineMode() && bungee.getPlayer( handshake.getUsername() ) != null )
+        Callback<PreLoginEvent> complete = new Callback<PreLoginEvent>()
         {
-            disconnect( bungee.getTranslation( "already_connected" ) );
-            return;
-        }
+            @Override
+            public void done(PreLoginEvent result, Throwable error)
+            {
+                if ( result.isCancelled() )
+                {
+                    disconnect( result.getCancelReason() );
+                }
+                if ( ch.isClosed() )
+                {
+                    return;
+                }
 
-        unsafe().sendPacket( PacketConstants.I_AM_BUNGEE );
-        unsafe().sendPacket( PacketConstants.FORGE_MOD_REQUEST );
-        unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
-        thisState = State.ENCRYPT;
+                // If offline mode and they are already on, don't allow connect
+                if ( !isOnlineMode() && bungee.getPlayer( handshake.getUsername() ) != null )
+                {
+                    disconnect( bungee.getTranslation( "already_connected" ) );
+                    return;
+                }
+
+                unsafe().sendPacket( PacketConstants.I_AM_BUNGEE );
+                unsafe().sendPacket( PacketConstants.FORGE_MOD_REQUEST );
+                unsafe().sendPacket( request = EncryptionUtil.encryptRequest(isOnlineMode()) );
+                thisState = State.ENCRYPT;
+
+            }
+        };
+
+        // fire pre-login event
+        bungee.getPluginManager().callEvent( new PreLoginEvent( InitialHandler.this, complete) );
     }
+
 
     @Override
     public void handle(final PacketFCEncryptionResponse encryptResponse) throws Exception
@@ -186,7 +210,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, sharedKey );
         ch.getHandle().pipeline().addBefore( PipelineUtils.PACKET_DECODE_HANDLER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
 
-        if ( BungeeCord.getInstance().config.isOnlineMode() )
+        if ( isOnlineMode() )
         {
             String encName = URLEncoder.encode( InitialHandler.this.getName(), "UTF-8" );
 
@@ -340,4 +364,17 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         return "[" + ( ( getName() != null ) ? getName() : getAddress() ) + "] <-> InitialHandler";
     }
+
+    @Override
+    public boolean isOnlineMode()
+    {
+        return onlineMode;
+    }
+
+    @Override
+    public void setOnlineMode(boolean onlineMode)
+    {
+        this.onlineMode = onlineMode;
+    }
+
 }
