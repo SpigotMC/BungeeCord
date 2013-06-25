@@ -1,5 +1,6 @@
 package net.md_5.bungee;
 
+import com.google.common.io.ByteStreams;
 import net.md_5.bungee.log.BungeeLogger;
 import net.md_5.bungee.reconnect.SQLReconnectHandler;
 import net.md_5.bungee.scheduler.BungeeScheduler;
@@ -38,6 +39,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import jline.UnsupportedTerminal;
 import jline.console.ConsoleReader;
+import jline.internal.Log;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
@@ -153,6 +155,7 @@ public class BungeeCord extends ProxyServer
 
     public BungeeCord() throws IOException
     {
+        Log.setOutput( new PrintStream( ByteStreams.nullOutputStream() ) ); // TODO: Bug JLine
         AnsiConsole.systemInstall();
         consoleReader = new ConsoleReader();
 
