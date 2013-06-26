@@ -315,7 +315,7 @@ public class BungeeCord extends ProxyServer
                 }
 
                 getLogger().info( "Closing IO threads" );
-                eventLoops.shutdown();
+                eventLoops.shutdownGracefully();
                 try
                 {
                     eventLoops.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS );
