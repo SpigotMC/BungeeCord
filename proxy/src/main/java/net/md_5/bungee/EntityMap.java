@@ -157,12 +157,11 @@ public class EntityMap
             if ( type == 60 || type == 90 )
             {
 	        int index20 = readInt( packet, 20 );
+	        //Filter out packets with invalid entity IDs
 	        if ( packet.length>24 && index20 == oldId && newId!=0)
                 {
-	            BungeeCord.getInstance().getLogger().log(Level.INFO, "Rewriting packet ID "+packetId+" type: "+type+" length: "+packet.length+" data: "+ Arrays.toString(packet));
 	            setInt( packet, 20, newId );
-	            BungeeCord.getInstance().getLogger().log(Level.INFO, "Out: ID "+packetId+" type: "+type+" length: "+packet.length+" data: "+ Arrays.toString(packet));
-                }
+	        }
             }
         }
     }
