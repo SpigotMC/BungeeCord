@@ -1,5 +1,8 @@
 package net.md_5.bungee;
 
+import java.util.Arrays;
+import java.util.logging.Level;
+
 /**
  * Class to rewrite integers within packets.
  */
@@ -147,15 +150,18 @@ public class EntityMap
                 }
             }
         }
+
         if ( packetId == 0x17 )
         {
             int type = packet[5] & 0xFF;
             if ( type == 60 || type == 90 )
             {
-                if ( readInt( packet, 20 ) == oldId )
+	        int index20 = readInt( packet, 20 );
+	        //Filter out packets with invalid entity IDs
+	        if ( packet.length>24 && index20 == oldId && newId!=0)
                 {
-                    setInt( packet, 20, newId );
-                }
+	            setInt( packet, 20, newId );
+	        }
             }
         }
     }
