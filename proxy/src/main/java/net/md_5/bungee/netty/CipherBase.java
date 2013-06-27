@@ -1,6 +1,7 @@
 package net.md_5.bungee.netty;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
 import javax.crypto.Cipher;
 import javax.crypto.ShortBufferException;
 import lombok.AccessLevel;
@@ -31,7 +32,7 @@ public class CipherBase
         }
     }
 
-    protected void cipher(ByteBuf in, ByteBuf out) throws ShortBufferException
+    private byte[] bufToByte(ByteBuf in)
     {
         byte[] heapIn = heapInLocal.get();
         int readableBytes = in.readableBytes();
@@ -41,6 +42,24 @@ public class CipherBase
             heapInLocal.set( heapIn );
         }
         in.readBytes( heapIn, 0, readableBytes );
+        return heapIn;
+    }
+
+    protected ByteBuf cipher(ChannelHandlerContext ctx, ByteBuf in) throws ShortBufferException
+    {
+        int readableBytes = in.readableBytes();
+        byte[] heapIn = bufToByte( in );
+
+        ByteBuf heapOut = ctx.alloc().heapBuffer( cipher.getOutputSize( readableBytes ) );
+        heapOut.writerIndex( cipher.update( heapIn, 0, readableBytes, heapOut.array(), heapOut.arrayOffset() ));
+
+        return heapOut;
+    }
+
+    protected void cipher(ByteBuf in, ByteBuf out) throws ShortBufferException
+    {
+        int readableBytes = in.readableBytes();
+        byte[] heapIn = bufToByte( in );
 
         byte[] heapOut = heapOutLocal.get();
         int outputSize = cipher.getOutputSize( readableBytes );

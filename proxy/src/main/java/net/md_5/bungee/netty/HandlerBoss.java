@@ -2,7 +2,8 @@ package net.md_5.bungee.netty;
 
 import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundMessageHandlerAdapter;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.MessageList;
 import io.netty.handler.timeout.ReadTimeoutException;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -16,7 +17,7 @@ import net.md_5.bungee.connection.PingHandler;
  * channels to maintain simple states, and only call the required, adapted
  * methods when the channel is connected.
  */
-public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<Object>
+public class HandlerBoss extends ChannelInboundHandlerAdapter
 {
 
     private ChannelWrapper channel;
@@ -58,27 +59,30 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<Object>
     }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception
+    public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception
     {
-        if ( handler != null && ctx.channel().isActive() )
+        for ( Object msg : msgs )
         {
-            if ( msg instanceof PacketWrapper )
+            if ( handler != null && ctx.channel().isActive() )
             {
-                boolean sendPacket = true;
-                try
+                if ( msg instanceof PacketWrapper )
                 {
-                    ( (PacketWrapper) msg ).packet.handle( handler );
-                } catch ( CancelSendSignal ex )
+                    boolean sendPacket = true;
+                    try
+                    {
+                        ( (PacketWrapper) msg ).packet.handle( handler );
+                    } catch ( CancelSendSignal ex )
+                    {
+                        sendPacket = false;
+                    }
+                    if ( sendPacket )
+                    {
+                        handler.handle( ( (PacketWrapper) msg ).buf );
+                    }
+                } else
                 {
-                    sendPacket = false;
+                    handler.handle( (byte[]) msg );
                 }
-                if ( sendPacket )
-                {
-                    handler.handle( ( (PacketWrapper) msg ).buf );
-                }
-            } else
-            {
-                handler.handle( (byte[]) msg );
             }
         }
     }
