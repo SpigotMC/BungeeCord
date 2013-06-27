@@ -152,7 +152,8 @@ public class EntityMap
             int type = packet[5] & 0xFF;
             if ( type == 60 || type == 90 )
             {
-                if ( readInt( packet, 20 ) == oldId )
+                int index20 = readInt( packet, 20 );
+                if ( packet.length > 24 && index20 == oldId )
                 {
                     setInt( packet, 20, newId );
                 }
