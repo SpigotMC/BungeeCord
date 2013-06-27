@@ -44,7 +44,6 @@ public class PipelineUtils
     public static final Base BASE = new Base();
     private static final DefinedPacketEncoder packetEncoder = new DefinedPacketEncoder();
     private static final ByteArrayEncoder arrayEncoder = new ByteArrayEncoder();
-    public static String OUTBOUND_BOSS_HANDLER = "outbound-boss";
     public static String TIMEOUT_HANDLER = "timeout";
     public static String PACKET_DECODE_HANDLER = "packet-decoder";
     public static String PACKET_ENCODE_HANDLER = "packet-encoder";
@@ -67,7 +66,6 @@ public class PipelineUtils
                 // IP_TOS is not supported (Windows XP / Windows Server 2003)
             }
 
-            ch.pipeline().addLast( OUTBOUND_BOSS_HANDLER, new OutboundBoss() );
             ch.pipeline().addLast( TIMEOUT_HANDLER, new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
             ch.pipeline().addLast( PACKET_DECODE_HANDLER, new PacketDecoder( Vanilla.getInstance() ) );
             ch.pipeline().addLast( PACKET_ENCODE_HANDLER, packetEncoder );
