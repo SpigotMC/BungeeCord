@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
+import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
@@ -21,12 +22,27 @@ import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.config.TexturePackInfo;
+import net.md_5.bungee.api.tab.TabListHandler;
+import net.md_5.bungee.tab.Global;
+import net.md_5.bungee.tab.GlobalPing;
+import net.md_5.bungee.tab.ServerUnique;
+import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 public class YamlConfig implements ConfigurationAdapter
 {
 
+    /**
+     * The default tab list options available for picking.
+     */
+    @RequiredArgsConstructor
+    private enum DefaultTabList
+    {
+
+        GLOBAL( Global.class ), GLOBAL_PING( GlobalPing.class ), SERVER( ServerUnique.class );
+        private final Class<? extends TabListHandler> clazz;
+    }
     private Yaml yaml;
     private Map config;
     private final File file = new File( "config.yml" );
@@ -48,7 +64,10 @@ public class YamlConfig implements ConfigurationAdapter
 
             if ( config == null )
             {
-                config = new HashMap();
+                config = new CaseInsensitiveMap();
+            } else
+            {
+                config = new CaseInsensitiveMap( config );
             }
         } catch ( IOException ex )
         {
@@ -186,11 +205,18 @@ public class YamlConfig implements ConfigurationAdapter
             String host = get( "host", "0.0.0.0:25577", val );
             int tabListSize = get( "tab_size", 60, val );
             InetSocketAddress address = Util.getAddr( host );
-            Map<String, String> forced = get( "forced_hosts", forcedDef, val );
+            Map<String, String> forced = new CaseInsensitiveMap<>( get( "forced_hosts", forcedDef, val ) );
             String textureURL = get( "texture_url", null, val );
             int textureSize = get( "texture_size", 16, val );
             TexturePackInfo texture = ( textureURL == null ) ? null : new TexturePackInfo( textureURL, textureSize );
-            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, fallbackServer, forceDefault, forced, texture );
+            String tabListName = get( "tab_list", "GLOBAL_PING", val );
+            DefaultTabList value = DefaultTabList.valueOf( tabListName.toUpperCase() );
+            if ( value == null )
+            {
+                value = DefaultTabList.GLOBAL_PING;
+            }
+
+            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, fallbackServer, forceDefault, forced, texture, value.clazz );
             ret.add( info );
         }
 

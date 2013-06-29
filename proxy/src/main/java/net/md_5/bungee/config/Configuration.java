@@ -1,6 +1,7 @@
 package net.md_5.bungee.config;
 
 import com.google.common.base.Preconditions;
+import gnu.trove.map.TMap;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
@@ -9,9 +10,10 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.tablist.GlobalPing;
-import net.md_5.bungee.tablist.Global;
-import net.md_5.bungee.tablist.ServerUnique;
+import net.md_5.bungee.tab.GlobalPing;
+import net.md_5.bungee.tab.Global;
+import net.md_5.bungee.tab.ServerUnique;
+import net.md_5.bungee.util.CaseInsensitiveMap;
 
 /**
  * Core configuration for the proxy.
@@ -20,14 +22,6 @@ import net.md_5.bungee.tablist.ServerUnique;
 public class Configuration
 {
 
-    /**
-     * The default tab list options available for picking.
-     */
-    private enum DefaultTabList
-    {
-
-        GLOBAL, GLOBAL_PING, SERVER;
-    }
     /**
      * Time before users are disconnected due to no network activity.
      */
@@ -43,7 +37,7 @@ public class Configuration
     /**
      * Set of all servers.
      */
-    private Map<String, ServerInfo> servers;
+    private TMap<String, ServerInfo> servers;
     /**
      * Should we check minecraft.net auth.
      */
@@ -55,30 +49,12 @@ public class Configuration
         ConfigurationAdapter adapter = ProxyServer.getInstance().getConfigurationAdapter();
         adapter.load();
 
+        listeners = adapter.getListeners();
         timeout = adapter.getInt( "timeout", timeout );
         uuid = adapter.getString( "stats", uuid );
         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
         playerLimit = adapter.getInt( "player_limit", playerLimit );
 
-        DefaultTabList tab = DefaultTabList.valueOf( adapter.getString( "tab_list", "GLOBAL_PING" ) );
-        if ( tab == null )
-        {
-            tab = DefaultTabList.GLOBAL_PING;
-        }
-        switch ( tab )
-        {
-            case GLOBAL:
-                ProxyServer.getInstance().setTabListHandler( new Global() );
-                break;
-            case GLOBAL_PING:
-                ProxyServer.getInstance().setTabListHandler( new GlobalPing() );
-                break;
-            case SERVER:
-                ProxyServer.getInstance().setTabListHandler( new ServerUnique() );
-                break;
-        }
-
-        listeners = adapter.getListeners();
         Preconditions.checkArgument( listeners != null && !listeners.isEmpty(), "No listeners defined." );
 
         Map<String, ServerInfo> newServers = adapter.getServers();
@@ -86,7 +62,7 @@ public class Configuration
 
         if ( servers == null )
         {
-            servers = newServers;
+            servers = new CaseInsensitiveMap<>( newServers );
         } else
         {
             for ( ServerInfo oldServer : servers.values() )

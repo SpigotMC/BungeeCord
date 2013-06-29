@@ -1,6 +1,9 @@
 package net.md_5.bungee.scheduler;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import gnu.trove.TCollections;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -18,11 +21,13 @@ public class BungeeScheduler implements TaskScheduler
 
     private final AtomicInteger taskCounter = new AtomicInteger();
     private final TIntObjectMap<BungeeTask> tasks = TCollections.synchronizedMap( new TIntObjectHashMap<BungeeTask>() );
+    private final Multimap<Plugin, BungeeTask> tasksByPlugin = Multimaps.synchronizedMultimap( HashMultimap.<Plugin, BungeeTask>create() );
 
     @Override
     public void cancel(int id)
     {
         BungeeTask task = tasks.remove( id );
+        tasksByPlugin.values().remove( task );
         task.getFuture().cancel( false );
     }
 
@@ -36,13 +41,9 @@ public class BungeeScheduler implements TaskScheduler
     public int cancel(Plugin plugin)
     {
         Set<ScheduledTask> toRemove = new HashSet<>();
-        for ( ScheduledTask task : tasks.valueCollection() )
+        for ( ScheduledTask task : tasksByPlugin.get( plugin ) )
         {
-            // TODO: proper checking?
-            if ( task.getOwner() == plugin )
-            {
-                toRemove.add( task );
-            }
+            toRemove.add( task );
         }
         for ( ScheduledTask task : toRemove )
         {

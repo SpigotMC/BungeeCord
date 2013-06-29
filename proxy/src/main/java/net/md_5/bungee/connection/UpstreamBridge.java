@@ -1,7 +1,5 @@
 package net.md_5.bungee.connection;
 
-import io.netty.channel.Channel;
-import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.UserConnection;
@@ -12,12 +10,12 @@ import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.netty.ChannelWrapper;
-import net.md_5.bungee.packet.Packet0KeepAlive;
-import net.md_5.bungee.packet.Packet3Chat;
-import net.md_5.bungee.packet.PacketCCSettings;
-import net.md_5.bungee.packet.PacketFAPluginMessage;
-import net.md_5.bungee.packet.PacketFFKick;
-import net.md_5.bungee.packet.PacketHandler;
+import net.md_5.bungee.netty.PacketHandler;
+import net.md_5.bungee.protocol.packet.Packet0KeepAlive;
+import net.md_5.bungee.protocol.packet.Packet3Chat;
+import net.md_5.bungee.protocol.packet.PacketCCSettings;
+import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
+import net.md_5.bungee.protocol.packet.PacketFFKick;
 
 public class UpstreamBridge extends PacketHandler
 {
@@ -30,14 +28,14 @@ public class UpstreamBridge extends PacketHandler
         this.bungee = bungee;
         this.con = con;
 
-        BungeeCord.getInstance().connections.put( con.getName(), con );
-        bungee.getTabListHandler().onConnect( con );
-        con.sendPacket( BungeeCord.getInstance().registerChannels() );
+        BungeeCord.getInstance().addConnection( con );
+        con.getTabList().onConnect();
+        con.unsafe().sendPacket( BungeeCord.getInstance().registerChannels() );
 
         TexturePackInfo texture = con.getPendingConnection().getListener().getTexturePack();
         if ( texture != null )
         {
-            con.sendPacket( new PacketFAPluginMessage( "MC|TPack", ( texture.getUrl() + "\00" + texture.getSize() ).getBytes() ) );
+            con.setTexturePack( texture );
         }
     }
 
@@ -53,15 +51,15 @@ public class UpstreamBridge extends PacketHandler
         // We lost connection to the client
         PlayerDisconnectEvent event = new PlayerDisconnectEvent( con );
         bungee.getPluginManager().callEvent( event );
-        bungee.getTabListHandler().onDisconnect( con );
-        BungeeCord.getInstance().connections.remove( con.getName() ); //TODO: Better way, why do we need to raw access?
+        con.getTabList().onDisconnect();
+        BungeeCord.getInstance().removeConnection( con );
 
         if ( con.getServer() != null )
         {
             con.getServer().disconnect( "Quitting" );
         }
         
-        if ( BungeeCord.isExitWhenEmpty() && BungeeCord.getInstance().connections.size() == 0 )
+        if ( BungeeCord.isExitWhenEmpty() && BungeeCord.getInstance().getOnlineCount() == 0 )
             BungeeCord.getInstance().stop();
     }
 
@@ -78,10 +76,10 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(Packet0KeepAlive alive) throws Exception
     {
-        if ( alive.id == con.getSentPingId() )
+        if ( alive.getRandomId() == con.getSentPingId() )
         {
             int newPing = (int) ( System.currentTimeMillis() - con.getSentPingTime() );
-            bungee.getTabListHandler().onPingChange( con, newPing );
+            con.getTabList().onPingChange( newPing );
             con.setPing( newPing );
         }
     }
@@ -89,14 +87,14 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(Packet3Chat chat) throws Exception
     {
-        ChatEvent chatEvent = new ChatEvent( con, con.getServer(), chat.message );
+        ChatEvent chatEvent = new ChatEvent( con, con.getServer(), chat.getMessage() );
         if ( bungee.getPluginManager().callEvent( chatEvent ).isCancelled() )
         {
             throw new CancelSendSignal();
         }
         if ( chatEvent.isCommand() )
         {
-            if ( bungee.getPluginManager().dispatchCommand( con, chat.message.substring( 1 ) ) )
+            if ( bungee.getPluginManager().dispatchCommand( con, chat.getMessage().substring( 1 ) ) )
             {
                 throw new CancelSendSignal();
             }
@@ -112,15 +110,26 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(PacketFAPluginMessage pluginMessage) throws Exception
     {
-        if ( pluginMessage.tag.equals( "BungeeCord" ) )
+        if ( pluginMessage.getTag().equals( "BungeeCord" ) )
+        {
+            throw new CancelSendSignal();
+        }
+        // Hack around Forge race conditions
+        if ( pluginMessage.getTag().equals( "FML" ) && ( pluginMessage.getData()[0] & 0xFF ) == 1 )
         {
             throw new CancelSendSignal();
         }
 
-        PluginMessageEvent event = new PluginMessageEvent( con, con.getServer(), pluginMessage.tag, pluginMessage.data.clone() );
+        PluginMessageEvent event = new PluginMessageEvent( con, con.getServer(), pluginMessage.getTag(), pluginMessage.getData().clone() );
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
             throw new CancelSendSignal();
+        }
+
+        // TODO: Unregister as well?
+        if ( pluginMessage.getTag().equals( "REGISTER" ) )
+        {
+            con.getPendingConnection().getRegisterMessages().add( pluginMessage );
         }
     }
     

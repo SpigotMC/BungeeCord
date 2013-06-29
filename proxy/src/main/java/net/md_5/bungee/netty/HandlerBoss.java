@@ -2,21 +2,22 @@ package net.md_5.bungee.netty;
 
 import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundMessageHandlerAdapter;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.MessageList;
 import io.netty.handler.timeout.ReadTimeoutException;
 import java.io.IOException;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.connection.CancelSendSignal;
-import net.md_5.bungee.packet.DefinedPacket;
-import net.md_5.bungee.packet.PacketHandler;
+import net.md_5.bungee.connection.InitialHandler;
+import net.md_5.bungee.connection.PingHandler;
 
 /**
  * This class is a primitive wrapper for {@link PacketHandler} instances tied to
  * channels to maintain simple states, and only call the required, adapted
  * methods when the channel is connected.
  */
-public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<byte[]>
+public class HandlerBoss extends ChannelInboundHandlerAdapter
 {
 
     private ChannelWrapper channel;
@@ -33,9 +34,13 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<byte[]>
     {
         if ( handler != null )
         {
-            channel = new ChannelWrapper( ctx.channel() );
+            channel = new ChannelWrapper( ctx );
             handler.connected( channel );
-            ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has connected", handler );
+
+            if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has connected", handler );
+            }
         }
     }
 
@@ -44,31 +49,40 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<byte[]>
     {
         if ( handler != null )
         {
-            ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has disconnected", handler );
             handler.disconnected( channel );
+
+            if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has disconnected", handler );
+            }
         }
     }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, byte[] msg) throws Exception
+    public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception
     {
-        if ( handler != null && ctx.channel().isActive() )
+        for ( Object msg : msgs )
         {
-            DefinedPacket packet = DefinedPacket.packet( msg );
-            boolean sendPacket = true;
-            if ( packet != null )
+            if ( handler != null && ctx.channel().isActive() )
             {
-                try
+                if ( msg instanceof PacketWrapper )
                 {
-                    packet.handle( handler );
-                } catch ( CancelSendSignal ex )
+                    boolean sendPacket = true;
+                    try
+                    {
+                        ( (PacketWrapper) msg ).packet.handle( handler );
+                    } catch ( CancelSendSignal ex )
+                    {
+                        sendPacket = false;
+                    }
+                    if ( sendPacket )
+                    {
+                        handler.handle( ( (PacketWrapper) msg ).buf );
+                    }
+                } else
                 {
-                    sendPacket = false;
+                    handler.handle( (byte[]) msg );
                 }
-            }
-            if ( sendPacket )
-            {
-                handler.handle( msg );
             }
         }
     }
@@ -88,6 +102,7 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<byte[]>
             {
                 ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - encountered exception", cause );
             }
+
             if ( handler != null )
             {
                 try
@@ -98,6 +113,7 @@ public class HandlerBoss extends ChannelInboundMessageHandlerAdapter<byte[]>
                     ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - exception processing exception", ex );
                 }
             }
+
             ctx.close();
         }
     }

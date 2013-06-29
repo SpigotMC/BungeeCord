@@ -1,6 +1,5 @@
 package net.md_5.bungee;
 
-import io.netty.channel.Channel;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
@@ -8,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.netty.ChannelWrapper;
-import net.md_5.bungee.packet.Packet1Login;
-import net.md_5.bungee.packet.PacketFAPluginMessage;
-import net.md_5.bungee.packet.PacketFFKick;
+import net.md_5.bungee.protocol.packet.DefinedPacket;
+import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
+import net.md_5.bungee.protocol.packet.PacketFFKick;
 
 @RequiredArgsConstructor
 public class ServerConnection implements Server
@@ -21,23 +20,29 @@ public class ServerConnection implements Server
     @Getter
     private final BungeeServerInfo info;
     @Getter
-    private final Packet1Login loginPacket;
-    @Getter
     @Setter
     private boolean isObsolete;
+    private final Unsafe unsafe = new Unsafe()
+    {
+        @Override
+        public void sendPacket(DefinedPacket packet)
+        {
+            ch.write( packet );
+        }
+    };
 
     @Override
     public void sendData(String channel, byte[] data)
     {
-        ch.write( new PacketFAPluginMessage( channel, data ) );
+        unsafe().sendPacket( new PacketFAPluginMessage( channel, data ) );
     }
 
     @Override
     public synchronized void disconnect(String reason)
     {
-        if ( ch.getHandle().isActive() )
+        if ( !ch.isClosed() )
         {
-            ch.write( new PacketFFKick( reason ) );
+            unsafe().sendPacket( new PacketFFKick( reason ) );
             ch.getHandle().eventLoop().schedule( new Runnable()
             {
                 @Override
@@ -53,5 +58,11 @@ public class ServerConnection implements Server
     public InetSocketAddress getAddress()
     {
         return getInfo().getAddress();
+    }
+
+    @Override
+    public Unsafe unsafe()
+    {
+        return unsafe;
     }
 }

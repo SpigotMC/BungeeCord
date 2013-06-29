@@ -28,7 +28,19 @@
         <dependency>
             <groupId>com.ning</groupId>
             <artifactId>async-http-client</artifactId>
-            <version>1.7.14</version>
+            <version>1.7.17</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-event</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-protocol</artifactId>
+            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

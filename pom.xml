@@ -38,6 +38,7 @@
 
     <modules>
         <module>api</module>
+        <module>event</module>
         <module>protocol</module>
         <module>proxy</module>
     </modules>
@@ -58,11 +59,17 @@
 
     <properties>
         <build.number>unknown</build.number>
-        <netty.version>4.0.0.CR1</netty.version>
+        <netty.version>4.0.0.CR6</netty.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

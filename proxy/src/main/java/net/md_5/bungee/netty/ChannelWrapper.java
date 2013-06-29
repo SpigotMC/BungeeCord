@@ -1,22 +1,36 @@
 package net.md_5.bungee.netty;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import lombok.Getter;
 
 public class ChannelWrapper
 {
 
     private final Channel ch;
-    private final ReusableChannelPromise promise;
+    @Getter
+    private volatile boolean closed;
 
-    public ChannelWrapper(Channel ch)
+    public ChannelWrapper(ChannelHandlerContext ctx)
     {
-        this.ch = ch;
-        this.promise = new ReusableChannelPromise( ch );
+        this.ch = ctx.channel();
     }
 
-    public void write(Object packet)
+    public synchronized void write(Object packet)
     {
-        ch.write( packet, promise );
+        if ( !closed )
+        {
+            ch.write( packet );
+        }
+    }
+
+    public synchronized void close()
+    {
+        if ( !closed )
+        {
+            closed = true;
+            ch.close();
+        }
     }
 
     public Channel getHandle()

@@ -12,9 +12,9 @@ import lombok.Getter;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.scheduler.TaskScheduler;
+import net.md_5.bungee.api.tab.CustomTabList;
 
 public abstract class ProxyServer
 {
@@ -50,6 +50,13 @@ public abstract class ProxyServer
     public abstract String getVersion();
 
     /**
+     * Gets a localized string from the .properties file.
+     *
+     * @return the localized string
+     */
+    public abstract String getTranslation(String name);
+
+    /**
      * Gets the main logger which can be used as a suitable replacement for
      * {@link System#out} and {@link System#err}.
      *
@@ -71,20 +78,6 @@ public abstract class ProxyServer
      * @return their player instance
      */
     public abstract ProxiedPlayer getPlayer(String name);
-
-    /**
-     * Get a server by its name. The instance returned will be taken from a
-     * player currently on that server to facilitate abstract proxy -> server
-     * actions.
-     *
-     * @param name the name to lookup
-     * @return the associated server
-     * @deprecated in most cases the {@link #getServerInfo(java.lang.String)}
-     * method should be used, as it will return a server even when no players
-     * are online.
-     */
-    @Deprecated
-    public abstract Server getServer(String name);
 
     /**
      * Return all servers registered to this proxy, keyed by name. Unlike the
@@ -126,21 +119,6 @@ public abstract class ProxyServer
      * @param adapter the adapter to use
      */
     public abstract void setConfigurationAdapter(ConfigurationAdapter adapter);
-
-    /**
-     * Get the currently in use tab list handle.
-     *
-     * @return the tab list handler
-     */
-    public abstract TabListHandler getTabListHandler();
-
-    /**
-     * Set the used tab list handler, should not be changed once players have
-     * connected
-     *
-     * @param handler the tab list handler to set
-     */
-    public abstract void setTabListHandler(TabListHandler handler);
 
     /**
      * Get the currently in use reconnect handler.
@@ -247,4 +225,28 @@ public abstract class ProxyServer
      * @return the server's {@link AsyncHttpClient} instance
      */
     public abstract AsyncHttpClient getHttpClient();
+
+    /**
+     * Get the current number of connected users. The default implementation is
+     * more efficient than {@link #getPlayers()} as it does not take a lock or
+     * make a copy.
+     *
+     * @return the current number of connected players
+     */
+    public abstract int getOnlineCount();
+
+    /**
+     * Send the specified message to the console and all connected players.
+     *
+     * @param message the message to broadcast
+     */
+    public abstract void broadcast(String message);
+
+    /**
+     * Gets a new instance of this proxies custom tab list.
+     *
+     * @param player the player to generate this list in the context of
+     * @return a new {@link CustomTabList} instance
+     */
+    public abstract CustomTabList customTabList(ProxiedPlayer player);
 }
