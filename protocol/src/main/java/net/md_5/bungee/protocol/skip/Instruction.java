@@ -23,6 +23,7 @@ abstract class Instruction
     static final Instruction SHORT_ITEM = new ShortHeader( ITEM );
     static final Instruction STRING = new ShortHeader( new Jump( 2 ) );
     static final Instruction USHORT_BYTE = new UnsignedShortByte();
+    static final Instruction OPTIONAL_WINDOW = new OptionalWindow();
     // Illegal forward references below this line
     static final Instruction BYTE_INT = new ByteHeader( INT );
     // Custom instructions

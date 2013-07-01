@@ -1,7 +1,6 @@
 package net.md_5.bungee.protocol;
 
 import io.netty.buffer.ByteBuf;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import lombok.Getter;
@@ -9,6 +8,7 @@ import static net.md_5.bungee.protocol.OpCode.*;
 import net.md_5.bungee.protocol.packet.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Packet0KeepAlive;
 import net.md_5.bungee.protocol.packet.Packet1Login;
+import net.md_5.bungee.protocol.packet.Packet2CEntityProperties;
 import net.md_5.bungee.protocol.packet.Packet2Handshake;
 import net.md_5.bungee.protocol.packet.Packet3Chat;
 import net.md_5.bungee.protocol.packet.Packet9Respawn;
@@ -29,8 +29,8 @@ import net.md_5.bungee.protocol.skip.PacketReader;
 public class Vanilla implements Protocol
 {
 
-    public static final byte PROTOCOL_VERSION = 61;
-    public static final String GAME_VERSION = "1.5.2";
+    public static final byte PROTOCOL_VERSION = 73;
+    public static final String GAME_VERSION = "1.6.1";
     @Getter
     private static final Vanilla instance = new Vanilla();
     /*========================================================================*/
@@ -54,6 +54,7 @@ public class Vanilla implements Protocol
         classes[0x03] = Packet3Chat.class;
         classes[0x09] = Packet9Respawn.class;
         classes[0xC9] = PacketC9PlayerListItem.class;
+        classes[0x2C] = Packet2CEntityProperties.class;
         classes[0xCC] = PacketCCSettings.class;
         classes[0xCD] = PacketCDClientStatus.class;
         classes[0xCE] = PacketCEScoreboardObjective.class;
@@ -141,7 +142,7 @@ public class Vanilla implements Protocol
         };
         opCodes[0x08] = new OpCode[]
         {
-            SHORT, SHORT, FLOAT
+            FLOAT, SHORT, FLOAT
         };
         opCodes[0x0A] = new OpCode[]
         {
@@ -181,7 +182,7 @@ public class Vanilla implements Protocol
         };
         opCodes[0x13] = new OpCode[]
         {
-            INT, BYTE
+            INT, BYTE, INT
         };
         opCodes[0x14] = new OpCode[]
         {
@@ -206,6 +207,10 @@ public class Vanilla implements Protocol
         opCodes[0x1A] = new OpCode[]
         {
             INT, INT, INT, INT, SHORT
+        };
+        opCodes[0x1B] = new OpCode[]
+        {
+            FLOAT, FLOAT, BOOLEAN, BOOLEAN
         };
         opCodes[0x1C] = new OpCode[]
         {
@@ -245,7 +250,7 @@ public class Vanilla implements Protocol
         };
         opCodes[0x27] = new OpCode[]
         {
-            INT, INT
+            INT, INT, BOOLEAN
         };
         opCodes[0x28] = new OpCode[]
         {
@@ -313,7 +318,7 @@ public class Vanilla implements Protocol
         };
         opCodes[0x64] = new OpCode[]
         {
-            BYTE, BYTE, STRING, BYTE, BOOLEAN
+            OPTIONAL_WINDOW
         };
         opCodes[0x65] = new OpCode[]
         {
@@ -365,11 +370,11 @@ public class Vanilla implements Protocol
         };
         opCodes[0xC8] = new OpCode[]
         {
-            INT, BYTE
+            INT, INT
         };
         opCodes[0xCA] = new OpCode[]
         {
-            BYTE, BYTE, BYTE
+            BYTE, FLOAT, FLOAT
         };
         opCodes[0xCB] = new OpCode[]
         {

@@ -23,6 +23,10 @@ public abstract class AbstractPacketHandler
     {
     }
 
+    public void handle(Packet2CEntityProperties properties) throws Exception
+    {
+    }
+
     public void handle(PacketC9PlayerListItem playerList) throws Exception
     {
     }

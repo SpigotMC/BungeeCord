@@ -487,7 +487,8 @@ public class BungeeCord extends ProxyServer
     public void broadcast(String message)
     {
         getConsole().sendMessage( message );
-        broadcast( new Packet3Chat( message ) );
+        // TODO: Here too
+        broadcast( new Packet3Chat( "{\"text\":\"" + message + "\"}" ));
     }
 
     public void addConnection(UserConnection con)
