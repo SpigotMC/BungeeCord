@@ -171,9 +171,10 @@ public class YamlConfig implements ConfigurationAdapter
             Map<String, Object> val = entry.getValue();
             String name = entry.getKey();
             String addr = get( "address", "localhost:25565", val );
+            String motd = ChatColor.translateAlternateColorCodes( '&', get( "motd", "Just another BungeeCord - Forced Host", val ) );
             boolean restricted = get( "restricted", false, val );
             InetSocketAddress address = Util.getAddr( addr );
-            ServerInfo info = ProxyServer.getInstance().constructServerInfo( name, address, restricted );
+            ServerInfo info = ProxyServer.getInstance().constructServerInfo( name, address, motd, restricted );
             ret.put( name, info );
         }
 

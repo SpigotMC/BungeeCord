@@ -37,6 +37,13 @@ public interface ServerInfo
     Collection<ProxiedPlayer> getPlayers();
 
     /**
+     * Returns the MOTD which should be used when this server is a forced host.
+     *
+     * @return the motd
+     */
+    String getMotd();
+
+    /**
      * Whether the player can access this server. It will only return false when
      * the player has no permission and this server is restricted.
      *

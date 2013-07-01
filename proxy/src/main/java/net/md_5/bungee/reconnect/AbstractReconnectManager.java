@@ -3,7 +3,6 @@ package net.md_5.bungee.reconnect;
 import com.google.common.base.Preconditions;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ReconnectHandler;
-import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -14,22 +13,22 @@ public abstract class AbstractReconnectManager implements ReconnectHandler
     @Override
     public ServerInfo getServer(ProxiedPlayer player)
     {
-        ListenerInfo listener = player.getPendingConnection().getListener();
-        String name;
-        ServerInfo forced = getHost( player.getPendingConnection() );
-
-        String server = ( forced == null ) ? getStoredServer( player ) : forced.getName();
-        name = ( server != null ) ? server : listener.getDefaultServer();
-        ServerInfo info = ProxyServer.getInstance().getServerInfo( name );
-        if ( info == null )
+        ServerInfo server = getForcedHost( player.getPendingConnection() );
+        if ( server == null )
         {
-            info = ProxyServer.getInstance().getServerInfo( listener.getDefaultServer() );
+            server = getStoredServer( player );
+            if ( server == null )
+            {
+                server = ProxyServer.getInstance().getServerInfo( player.getPendingConnection().getListener().getDefaultServer() );
+            }
+
+            Preconditions.checkState( server != null, "Default server not defined" );
         }
-        Preconditions.checkState( info != null, "Default server not defined" );
-        return info;
+
+        return server;
     }
 
-    public static ServerInfo getHost(PendingConnection con)
+    public static ServerInfo getForcedHost(PendingConnection con)
     {
         String forced = con.getListener().getForcedHosts().get( con.getVirtualHost().getHostString() );
 
@@ -37,8 +36,8 @@ public abstract class AbstractReconnectManager implements ReconnectHandler
         {
             forced = con.getListener().getDefaultServer();
         }
-        return ( forced != null ) ? ProxyServer.getInstance().getServerInfo( forced ) : null;
+        return ProxyServer.getInstance().getServerInfo( forced );
     }
 
-    protected abstract String getStoredServer(ProxiedPlayer player);
+    protected abstract ServerInfo getStoredServer(ProxiedPlayer player);
 }

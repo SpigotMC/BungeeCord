@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class SQLReconnectHandler extends AbstractReconnectManager
@@ -32,7 +33,7 @@ public class SQLReconnectHandler extends AbstractReconnectManager
     }
 
     @Override
-    protected String getStoredServer(ProxiedPlayer player)
+    protected ServerInfo getStoredServer(ProxiedPlayer player)
     {
         String server = null;
         try ( PreparedStatement ps = connection.prepareStatement( "SELECT server FROM players WHERE username = ?" ) )
@@ -56,7 +57,8 @@ public class SQLReconnectHandler extends AbstractReconnectManager
         {
             ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load location for player " + player.getName(), ex );
         }
-        return server;
+
+        return ProxyServer.getInstance().getServerInfo( server );
     }
 
     @Override
