@@ -266,7 +266,8 @@ public final class UserConnection implements ProxiedPlayer
     public void sendMessage(String message)
     {
         // TODO: Fix this
-        unsafe().sendPacket( new Packet3Chat( "{\"text\":\"" + message + "\"}" ) );
+        String encoded = BungeeCord.getInstance().gson.toJson( message );
+        unsafe().sendPacket( new Packet3Chat( "{\"text\":" + encoded + "}" ) );
     }
 
     @Override
