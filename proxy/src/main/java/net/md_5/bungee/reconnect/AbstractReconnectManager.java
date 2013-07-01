@@ -30,6 +30,11 @@ public abstract class AbstractReconnectManager implements ReconnectHandler
 
     public static ServerInfo getForcedHost(PendingConnection con)
     {
+        if ( con.getVirtualHost() == null )
+        {
+            return null;
+        }
+
         String forced = con.getListener().getForcedHosts().get( con.getVirtualHost().getHostString() );
 
         if ( forced == null && con.getListener().isForceDefault() )

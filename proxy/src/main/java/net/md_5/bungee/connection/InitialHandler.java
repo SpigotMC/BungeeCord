@@ -142,25 +142,31 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
     private void respondToPing()
     {
-        ServerInfo forced = AbstractReconnectManager.getForcedHost( this );
-        String motd = listener.getMotd();
-        if ( forced != null )
+        try
         {
-            motd = forced.getMotd();
+            ServerInfo forced = AbstractReconnectManager.getForcedHost( this );
+            String motd = listener.getMotd();
+            if ( forced != null )
+            {
+                motd = forced.getMotd();
+            }
+
+            ServerPing response = new ServerPing( bungee.getProtocolVersion(), bungee.getGameVersion(),
+                    listener.getMotd(), bungee.getOnlineCount(), listener.getMaxPlayers() );
+
+            response = bungee.getPluginManager().callEvent( new ProxyPingEvent( InitialHandler.this, response ) ).getResponse();
+
+            String kickMessage = ChatColor.DARK_BLUE
+                    + "\00" + response.getProtocolVersion()
+                    + "\00" + response.getGameVersion()
+                    + "\00" + response.getMotd()
+                    + "\00" + response.getCurrentPlayers()
+                    + "\00" + response.getMaxPlayers();
+            disconnect( kickMessage );
+        } catch ( Throwable t )
+        {
+            t.printStackTrace();
         }
-
-        ServerPing response = new ServerPing( bungee.getProtocolVersion(), bungee.getGameVersion(),
-                listener.getMotd(), bungee.getOnlineCount(), listener.getMaxPlayers() );
-
-        response = bungee.getPluginManager().callEvent( new ProxyPingEvent( InitialHandler.this, response ) ).getResponse();
-
-        String kickMessage = ChatColor.DARK_BLUE
-                + "\00" + response.getProtocolVersion()
-                + "\00" + response.getGameVersion()
-                + "\00" + response.getMotd()
-                + "\00" + response.getCurrentPlayers()
-                + "\00" + response.getMaxPlayers();
-        disconnect( kickMessage );
     }
 
     @Override
@@ -173,7 +179,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             {
                 respondToPing();
             }
-        }, 1000, TimeUnit.MILLISECONDS );
+        }, 500, TimeUnit.MILLISECONDS );
     }
 
     @Override
