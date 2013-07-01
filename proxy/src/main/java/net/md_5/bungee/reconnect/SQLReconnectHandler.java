@@ -33,7 +33,7 @@ public class SQLReconnectHandler extends AbstractReconnectManager
     }
 
     @Override
-    protected ServerInfo getStoredServer(ProxiedPlayer player)
+    protected synchronized ServerInfo getStoredServer(ProxiedPlayer player)
     {
         String server = null;
         try ( PreparedStatement ps = connection.prepareStatement( "SELECT server FROM players WHERE username = ?" ) )
@@ -62,7 +62,7 @@ public class SQLReconnectHandler extends AbstractReconnectManager
     }
 
     @Override
-    public void setServer(ProxiedPlayer player)
+    public synchronized void setServer(ProxiedPlayer player)
     {
 
         try ( PreparedStatement ps = connection.prepareStatement( "UPDATE players SET server = ?, seen = ? WHERE username = ?" ) )
@@ -83,7 +83,7 @@ public class SQLReconnectHandler extends AbstractReconnectManager
     }
 
     @Override
-    public void close()
+    public synchronized void close()
     {
         try
         {
