@@ -102,6 +102,10 @@ public class EntityMap
         {
             1
         };
+        entityIds[0x2C] = new int[]
+        {
+            1
+        };
         entityIds[0x37] = new int[]
         {
             1
