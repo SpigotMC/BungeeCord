@@ -5,6 +5,7 @@ import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.config.TexturePackInfo;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
@@ -56,8 +57,12 @@ public class UpstreamBridge extends PacketHandler
 
         if ( con.getServer() != null )
         {
+            con.getServer().setObsolete( true );
             con.getServer().disconnect( "Quitting" );
+            con.setServer( null );
         }
+        
+        con.disconnect( "End of Stream" );
         
         if ( BungeeCord.isExitWhenEmpty() && BungeeCord.getInstance().getOnlineCount() == 0 )
             BungeeCord.getInstance().stop();
@@ -135,6 +140,9 @@ public class UpstreamBridge extends PacketHandler
     
     @Override
     public void handle( PacketFFKick kick ) throws Exception {
+        con.getServer().setObsolete( true );
+        con.getServer().disconnect( "End of Stream" );
+        con.setServer( null );
         con.disconnect( "End of stream" );
     }
 

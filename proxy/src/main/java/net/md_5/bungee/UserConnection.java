@@ -216,11 +216,11 @@ public final class UserConnection implements ProxiedPlayer
                     pendingConnects.remove( target );
 
                     final ServerInfo def = ProxyServer.getInstance().getServers().get( getPendingConnection().getListener().getFallbackServer() );
-                    if ( retry && target != def && ( getServer() == null || def != getServer().getInfo() ) )
+                    if ( retry && target != def && ( getServer() == null || def != getServer().getInfo() ) && isActive() )
                     {
                         sendMessage( bungee.getTranslation( "fallback_lobby" ) );
                         connect( def, false );
-                    } else if ( target == def && retry && retryCount <= 12 )
+                    } else if ( target == def && retry && retryCount <= 12 && isActive() )
                     {
                         BungeeCord.getInstance().executors.schedule( new Runnable() {
                             @Override
@@ -258,7 +258,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public synchronized void disconnect(String reason)
     {
-        if ( ch.getHandle().isActive() )
+        if ( !ch.isClosed() )
         {
             bungee.getLogger().log( Level.INFO, "[" + getName() + "] disconnected with: " + reason );
             unsafe().sendPacket( new PacketFFKick( reason ) );

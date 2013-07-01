@@ -77,6 +77,11 @@ public class ServerConnector extends PacketHandler
     public void connected(ChannelWrapper channel) throws Exception
     {
         this.ch = channel;
+        if ( !user.isActive() )
+        {
+            ch.close();
+            return;
+        }
 
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF( "Login" );
@@ -110,7 +115,7 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(Packet1Login login) throws Exception
     {
-        Preconditions.checkState( thisState == State.LOGIN, "Not exepcting LOGIN" );
+        Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
         ServerConnection server = new ServerConnection( ch, target );
         ServerConnectedEvent event = new ServerConnectedEvent( user, server );

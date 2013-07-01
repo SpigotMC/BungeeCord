@@ -48,7 +48,7 @@ public class ServerConnection implements Server
                 @Override
                 public void run()
                 {
-                    ch.getHandle().close();
+                    ch.close();
                 }
             }, 100, TimeUnit.MILLISECONDS );
         }

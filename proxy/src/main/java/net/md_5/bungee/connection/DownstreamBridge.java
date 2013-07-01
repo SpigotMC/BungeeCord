@@ -44,6 +44,8 @@ public class DownstreamBridge extends PacketHandler
 
     @Override
     public void connected( ChannelWrapper channel ) throws Exception {
+        if( ! con.isActive() )
+            server.disconnect( "End of Stream" );
         con.sendMessage( ChatColor.GREEN + "Welcome to " + ChatColor.RED + server.getInfo().getName() );
     }
     
@@ -73,7 +75,7 @@ public class DownstreamBridge extends PacketHandler
         server.getInfo().removePlayer( con );
         bungee.getReconnectHandler().setServer( con );
 
-        if ( !server.isObsolete() )
+        if ( !server.isObsolete() && con.isActive() )
         {
             tryRescue( bungee.getTranslation( "lost_connection" ) );
         }

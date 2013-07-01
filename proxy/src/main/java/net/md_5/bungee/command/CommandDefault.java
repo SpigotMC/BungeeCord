@@ -20,6 +20,6 @@ public class CommandDefault extends CommandServer {
     }
 
     public String[] getAliases() {
-        return new String[] { "nexus", "hub" };
+        return new String[] { "nexus", "hub", "lobby" };
     }
 }
