@@ -38,6 +38,8 @@ public class BungeeServerInfo implements ServerInfo
     private final InetSocketAddress address;
     private final Collection<ProxiedPlayer> players = new ArrayList<>();
     @Getter
+    private final String motd;
+    @Getter
     private final boolean restricted;
     @Getter
     private final Queue<DefinedPacket> packetQueue = new LinkedList<>();

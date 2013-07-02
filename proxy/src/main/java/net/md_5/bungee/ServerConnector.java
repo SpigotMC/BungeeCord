@@ -4,6 +4,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import io.netty.buffer.ByteBuf;
+import java.io.DataInput;
 import java.security.PublicKey;
 import java.util.Objects;
 import java.util.Queue;
@@ -298,10 +300,9 @@ public class ServerConnector extends PacketHandler
             throw new IllegalStateException( "May not connect to another BungeCord!" );
         }
 
-        if ( pluginMessage.getTag().equals( "FML" ) && ( pluginMessage.getData()[0] & 0xFF ) == 0 )
+        DataInput in = pluginMessage.getStream();
+        if ( pluginMessage.getTag().equals( "FML" ) && in.readUnsignedByte() == 0 )
         {
-            ByteArrayDataInput in = ByteStreams.newDataInput( pluginMessage.getData() );
-            in.readUnsignedByte();
             int count = in.readInt();
             for ( int i = 0; i < count; i++ )
             {

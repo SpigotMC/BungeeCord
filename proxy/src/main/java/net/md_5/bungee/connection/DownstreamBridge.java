@@ -3,6 +3,7 @@ package net.md_5.bungee.connection;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import java.io.DataInput;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.BungeeCord;
@@ -198,7 +199,7 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(PacketFAPluginMessage pluginMessage) throws Exception
     {
-        ByteArrayDataInput in = ByteStreams.newDataInput( pluginMessage.getData() );
+        DataInput in = pluginMessage.getStream();
         PluginMessageEvent event = new PluginMessageEvent( con.getServer(), con, pluginMessage.getTag(), pluginMessage.getData().clone() );
 
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )

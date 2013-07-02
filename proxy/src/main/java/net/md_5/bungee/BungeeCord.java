@@ -5,6 +5,7 @@ import net.md_5.bungee.log.BungeeLogger;
 import net.md_5.bungee.reconnect.SQLReconnectHandler;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.gson.Gson;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.providers.netty.NettyAsyncHttpProvider;
@@ -136,6 +137,7 @@ public class BungeeCord extends ProxyServer
     private ConsoleReader consoleReader;
     @Getter
     private final Logger logger;
+    public final Gson gson = new Gson();
 
     
     {
@@ -187,7 +189,7 @@ public class BungeeCord extends ProxyServer
     public static void main(String[] args) throws Exception
     {
         Calendar deadline = Calendar.getInstance();
-        deadline.set( 2013, 7, 1 ); // year, month, date
+        deadline.set( 2013, 7, 16 ); // year, month, date
         if ( Calendar.getInstance().after( deadline ) )
         {
             System.err.println( "*** Warning, this build is outdated ***" );
@@ -480,9 +482,9 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public ServerInfo constructServerInfo(String name, InetSocketAddress address, boolean restricted)
+    public ServerInfo constructServerInfo(String name, InetSocketAddress address, String motd, boolean restricted)
     {
-        return new BungeeServerInfo( name, address, restricted );
+        return new BungeeServerInfo( name, address, motd, restricted );
     }
 
     @Override
@@ -495,7 +497,9 @@ public class BungeeCord extends ProxyServer
     public void broadcast(String message)
     {
         getConsole().sendMessage( message );
-        broadcast( new Packet3Chat( message ) );
+        // TODO: Here too
+        String encoded = BungeeCord.getInstance().gson.toJson( message );
+        broadcast( new Packet3Chat( "{\"text\":" + encoded + "}" ) );
     }
 
     public void addConnection(UserConnection con)

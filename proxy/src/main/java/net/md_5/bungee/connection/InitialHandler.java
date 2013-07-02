@@ -3,6 +3,8 @@ package net.md_5.bungee.connection;
 import com.google.common.base.Preconditions;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
+import io.netty.util.concurrent.ScheduledFuture;
+import java.io.DataInput;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
@@ -10,6 +12,7 @@ import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -49,6 +52,7 @@ import net.md_5.bungee.protocol.packet.PacketFCEncryptionResponse;
 import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.protocol.packet.PacketFEPing;
 import net.md_5.bungee.protocol.packet.PacketFFKick;
+import net.md_5.bungee.reconnect.AbstractReconnectManager;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -77,6 +81,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             ch.write( packet );
         }
     };
+    private ScheduledFuture<?> pingFuture;
+    private InetSocketAddress vHost;
+    private byte version = -1;
 
     private enum State
     {
@@ -99,6 +106,30 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(PacketFAPluginMessage pluginMessage) throws Exception
     {
+        if ( pluginMessage.getTag().equals( "MC|PingHost" ) )
+        {
+            if ( pingFuture.cancel( false ) )
+            {
+                DataInput in = pluginMessage.getStream();
+                version = in.readByte();
+                //
+                short len = in.readShort();
+                char[] chars = new char[ len ];
+                for ( int i = 0; i < len; i++ )
+                {
+                    chars[i] = in.readChar();
+                }
+                //
+                String connectHost = new String( chars );
+                int connectPort = in.readInt();
+                this.vHost = new InetSocketAddress( connectHost, connectPort );
+
+                respondToPing();
+            }
+
+            return;
+        }
+
         // TODO: Unregister?
         if ( pluginMessage.getTag().equals( "REGISTER" ) )
         {
@@ -109,21 +140,46 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
     }
 
+    private void respondToPing()
+    {
+        try
+        {
+            ServerInfo forced = AbstractReconnectManager.getForcedHost( this );
+            String motd = listener.getMotd();
+            if ( forced != null )
+            {
+                motd = forced.getMotd();
+            }
+
+            ServerPing response = new ServerPing( bungee.getProtocolVersion(), bungee.getGameVersion(),
+                    listener.getMotd(), bungee.getOnlineCount(), listener.getMaxPlayers() );
+
+            response = bungee.getPluginManager().callEvent( new ProxyPingEvent( InitialHandler.this, response ) ).getResponse();
+
+            String kickMessage = ChatColor.DARK_BLUE
+                    + "\00" + response.getProtocolVersion()
+                    + "\00" + response.getGameVersion()
+                    + "\00" + response.getMotd()
+                    + "\00" + response.getCurrentPlayers()
+                    + "\00" + response.getMaxPlayers();
+            disconnect( kickMessage );
+        } catch ( Throwable t )
+        {
+            t.printStackTrace();
+        }
+    }
+
     @Override
     public void handle(PacketFEPing ping) throws Exception
     {
-        ServerPing response = new ServerPing( bungee.getProtocolVersion(), bungee.getGameVersion(),
-                listener.getMotd(), bungee.getOnlineCount(), listener.getMaxPlayers() );
-
-        response = bungee.getPluginManager().callEvent( new ProxyPingEvent( this, response ) ).getResponse();
-
-        String kickMessage = ChatColor.DARK_BLUE
-                + "\00" + response.getProtocolVersion()
-                + "\00" + response.getGameVersion()
-                + "\00" + response.getMotd()
-                + "\00" + response.getCurrentPlayers()
-                + "\00" + response.getMaxPlayers();
-        disconnect( kickMessage );
+        pingFuture = ch.getHandle().eventLoop().schedule( new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                respondToPing();
+            }
+        }, 500, TimeUnit.MILLISECONDS );
     }
 
     @Override
@@ -141,6 +197,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
         this.handshake = handshake;
+        this.vHost = new InetSocketAddress( handshake.getHost(), handshake.getPort() );
         bungee.getLogger().log( Level.INFO, "{0} has connected", this );
 
         if ( handshake.getProcolVersion() > Vanilla.PROTOCOL_VERSION )
@@ -314,13 +371,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public byte getVersion()
     {
-        return ( handshake == null ) ? -1 : handshake.getProcolVersion();
+        return ( handshake == null ) ? version : handshake.getProcolVersion();
     }
 
     @Override
     public InetSocketAddress getVirtualHost()
     {
-        return ( handshake == null ) ? null : new InetSocketAddress( handshake.getHost(), handshake.getPort() );
+        return vHost;
     }
 
     @Override
