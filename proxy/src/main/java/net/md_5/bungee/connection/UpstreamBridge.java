@@ -84,17 +84,15 @@ public class UpstreamBridge extends PacketHandler
     public void handle(Packet3Chat chat) throws Exception
     {
         ChatEvent chatEvent = new ChatEvent( con, con.getServer(), chat.getMessage() );
-        if ( bungee.getPluginManager().callEvent( chatEvent ).isCancelled() )
+        if ( !bungee.getPluginManager().callEvent( chatEvent ).isCancelled() )
         {
-            throw new CancelSendSignal();
-        }
-        if ( chatEvent.isCommand() )
-        {
-            if ( bungee.getPluginManager().dispatchCommand( con, chat.getMessage().substring( 1 ) ) )
+            chat.setMessage( chatEvent.getMessage() );
+            if ( !chatEvent.isCommand() || !bungee.getPluginManager().dispatchCommand( con, chat.getMessage().substring( 1 ) ) )
             {
-                throw new CancelSendSignal();
+                con.getServer().unsafe().sendPacket( chat );
             }
         }
+        throw new CancelSendSignal();
     }
 
     @Override
