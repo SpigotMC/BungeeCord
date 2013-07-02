@@ -84,6 +84,7 @@ public class Configuration
         for ( ListenerInfo listener : listeners )
         {
             Preconditions.checkArgument( servers.containsKey( listener.getDefaultServer() ), "Default server %s is not defined", listener.getDefaultServer() );
+            Preconditions.checkArgument( servers.containsKey( listener.getFallbackServer() ), "Fallback server %s is not defined", listener.getFallbackServer() );
         }
     }
 }
