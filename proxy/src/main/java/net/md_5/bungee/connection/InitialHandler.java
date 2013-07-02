@@ -202,10 +202,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         if ( handshake.getProcolVersion() > Vanilla.PROTOCOL_VERSION )
         {
-            disconnect( "Outdated server!" );
+            disconnect( bungee.getTranslation( "outdated_server" ) );
         } else if ( handshake.getProcolVersion() < Vanilla.PROTOCOL_VERSION )
         {
-            disconnect( "Outdated client!" );
+            disconnect( bungee.getTranslation( "outdated_client" ) );
         }
 
         if ( handshake.getUsername().length() > 16 )
