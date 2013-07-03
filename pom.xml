@@ -11,7 +11,7 @@
 
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-parent</artifactId>
-    <version>1.5-SNAPSHOT</version>
+    <version>1.6.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>BungeeCord</name>
@@ -59,7 +59,7 @@
 
     <properties>
         <build.number>unknown</build.number>
-        <netty.version>4.0.0.CR7</netty.version>
+        <netty.version>4.0.0.CR8</netty.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -100,7 +100,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
+                <version>3.1</version>
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
