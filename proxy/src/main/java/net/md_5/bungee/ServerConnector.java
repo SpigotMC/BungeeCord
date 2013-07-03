@@ -7,7 +7,6 @@ import java.io.DataInput;
 import java.security.PublicKey;
 import java.util.Objects;
 import java.util.Queue;
-import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
@@ -39,6 +38,7 @@ import net.md_5.bungee.protocol.packet.PacketFCEncryptionResponse;
 import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.protocol.packet.PacketFFKick;
 import net.md_5.bungee.protocol.packet.forge.Forge1Login;
+import org.bouncycastle.crypto.BufferedBlockCipher;
 
 @RequiredArgsConstructor
 public class ServerConnector extends PacketHandler
@@ -219,7 +219,7 @@ public class ServerConnector extends PacketHandler
 
             ch.write( new PacketFCEncryptionResponse( shared, token ) );
 
-            Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, secretkey );
+            BufferedBlockCipher encrypt = EncryptionUtil.getCipher( true, secretkey );
             ch.addBefore( PipelineUtils.PACKET_DECODE_HANDLER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
 
             thisState = State.ENCRYPT_RESPONSE;
@@ -234,7 +234,7 @@ public class ServerConnector extends PacketHandler
     {
         Preconditions.checkState( thisState == State.ENCRYPT_RESPONSE, "Not expecting ENCRYPT_RESPONSE" );
 
-        Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, secretkey );
+        BufferedBlockCipher decrypt = EncryptionUtil.getCipher( false, secretkey );
         ch.addBefore( PipelineUtils.PACKET_DECODE_HANDLER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
 
         ch.write( user.getPendingConnection().getForgeLogin() );
