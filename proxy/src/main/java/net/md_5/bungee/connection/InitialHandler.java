@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +52,7 @@ import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.protocol.packet.PacketFEPing;
 import net.md_5.bungee.protocol.packet.PacketFFKick;
 import net.md_5.bungee.reconnect.AbstractReconnectManager;
+import org.bouncycastle.crypto.BufferedBlockCipher;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -240,7 +240,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( thisState == State.ENCRYPT, "Not expecting ENCRYPT" );
 
         sharedKey = EncryptionUtil.getSecret( encryptResponse, request );
-        Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, sharedKey );
+        BufferedBlockCipher decrypt = EncryptionUtil.getCipher( false, sharedKey );
         ch.addBefore( PipelineUtils.PACKET_DECODE_HANDLER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
 
         if ( BungeeCord.getInstance().config.isOnlineMode() )
@@ -316,14 +316,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     public void run()
                     {
                         unsafe().sendPacket( new PacketFCEncryptionResponse( new byte[ 0 ], new byte[ 0 ] ) );
-                        try
-                        {
-                            Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
-                            ch.addBefore( PipelineUtils.DECRYPT_HANDLER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
-                        } catch ( GeneralSecurityException ex )
-                        {
-                            disconnect( "Cipher error: " + Util.exception( ex ) );
-                        }
+                        BufferedBlockCipher encrypt = EncryptionUtil.getCipher( true, sharedKey );
+                        ch.addBefore( PipelineUtils.DECRYPT_HANDLER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
                     }
                 } );
             }
