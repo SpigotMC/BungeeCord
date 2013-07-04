@@ -152,7 +152,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             }
 
             ServerPing response = new ServerPing( bungee.getProtocolVersion(), bungee.getGameVersion(),
-                    listener.getMotd(), bungee.getOnlineCount(), listener.getMaxPlayers() );
+                    motd, bungee.getOnlineCount(), listener.getMaxPlayers() );
 
             response = bungee.getPluginManager().callEvent( new ProxyPingEvent( InitialHandler.this, response ) ).getResponse();
 
