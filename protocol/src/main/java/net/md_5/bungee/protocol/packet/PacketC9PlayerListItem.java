@@ -41,7 +41,7 @@ public class PacketC9PlayerListItem extends DefinedPacket
     {
         writeString( username, buf );
         buf.writeBoolean( online );
-        buf.writeShort(ping );
+        buf.writeShort( ping );
     }
 
     @Override

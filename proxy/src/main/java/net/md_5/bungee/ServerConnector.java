@@ -1,10 +1,8 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
-import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import io.netty.buffer.ByteBuf;
 import java.io.DataInput;
 import java.security.PublicKey;
 import java.util.Objects;
