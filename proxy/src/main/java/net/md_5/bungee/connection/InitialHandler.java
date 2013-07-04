@@ -310,16 +310,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 }
                 thisState = InitialHandler.State.LOGIN;
 
-                ch.getHandle().eventLoop().execute( new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        unsafe().sendPacket( new PacketFCEncryptionResponse( new byte[ 0 ], new byte[ 0 ] ) );
-                        BufferedBlockCipher encrypt = EncryptionUtil.getCipher( true, sharedKey );
-                        ch.addBefore( PipelineUtils.DECRYPT_HANDLER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
-                    }
-                } );
+                unsafe().sendPacket( new PacketFCEncryptionResponse( new byte[ 0 ], new byte[ 0 ] ) );
+                BufferedBlockCipher encrypt = EncryptionUtil.getCipher( true, sharedKey );
+                ch.addBefore( PipelineUtils.DECRYPT_HANDLER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
             }
         };
 
