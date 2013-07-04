@@ -39,6 +39,7 @@
     <modules>
         <module>api</module>
         <module>event</module>
+        <module>http</module>
         <module>protocol</module>
         <module>proxy</module>
     </modules>
