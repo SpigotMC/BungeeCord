@@ -241,7 +241,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         sharedKey = EncryptionUtil.getSecret( encryptResponse, request );
         Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, sharedKey );
-        ch.getHandle().pipeline().addBefore( PipelineUtils.PACKET_DECODE_HANDLER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
+        ch.addBefore( PipelineUtils.PACKET_DECODE_HANDLER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
 
         if ( BungeeCord.getInstance().config.isOnlineMode() )
         {
@@ -319,7 +319,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                         try
                         {
                             Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
-                            ch.getHandle().pipeline().addBefore( PipelineUtils.DECRYPT_HANDLER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
+                            ch.addBefore( PipelineUtils.DECRYPT_HANDLER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
                         } catch ( GeneralSecurityException ex )
                         {
                             disconnect( "Cipher error: " + Util.exception( ex ) );
