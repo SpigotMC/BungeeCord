@@ -2,7 +2,6 @@ package net.md_5.bungee.api;
 
 import net.md_5.bungee.api.plugin.PluginManager;
 import com.google.common.base.Preconditions;
-import com.ning.http.client.AsyncHttpClient;
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.Collection;
@@ -217,15 +216,6 @@ public abstract class ProxyServer
      * @return the in use scheduler
      */
     public abstract TaskScheduler getScheduler();
-
-    /**
-     * Gets the the web client used by this proxy to facilitate making web
-     * requests. Care should be taken to ensure that all operations are non
-     * blocking where applicable.
-     *
-     * @return the server's {@link AsyncHttpClient} instance
-     */
-    public abstract AsyncHttpClient getHttpClient();
 
     /**
      * Get the current number of connected users. The default implementation is
