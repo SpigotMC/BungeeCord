@@ -26,5 +26,6 @@ public class HttpInitializer extends ChannelInitializer<Channel>
             ch.pipeline().addLast( "ssl", new SslHandler( engine ) );
         }
         ch.pipeline().addLast( "http", new HttpClientCodec() );
+        ch.pipeline().addLast( "handler", new HttpHandler() );
     }
 }
