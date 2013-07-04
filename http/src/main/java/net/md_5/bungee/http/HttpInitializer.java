@@ -6,14 +6,13 @@ import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.ssl.SslHandler;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.TrustManager;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class HttpInitializer extends ChannelInitializer<Channel>
 {
 
-    private final String host;
-    private final int port;
     private final boolean ssl;
 
     @Override
@@ -21,8 +20,15 @@ public class HttpInitializer extends ChannelInitializer<Channel>
     {
         if ( ssl )
         {
-            SSLContext context = SSLContext.getDefault();
-            SSLEngine engine = context.createSSLEngine( host, port );
+            SSLContext context = SSLContext.getInstance( "TLS" );
+            context.init( null, new TrustManager[]
+            {
+                TrustingX509Manager.getInstance()
+            }, null );
+
+            SSLEngine engine = context.createSSLEngine();
+            engine.setUseClientMode( true );
+
             ch.pipeline().addLast( "ssl", new SslHandler( engine ) );
         }
         ch.pipeline().addLast( "http", new HttpClientCodec() );

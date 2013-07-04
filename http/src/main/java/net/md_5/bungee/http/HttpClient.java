@@ -66,6 +66,6 @@ public class HttpClient
             }
         };
 
-        new Bootstrap().channel( NioSocketChannel.class ).group( eventLoop ).handler( new HttpInitializer( url, port, ssl ) ).remoteAddress( uri.getHost(), port ).connect().addListener( future );
+        new Bootstrap().channel( NioSocketChannel.class ).group( eventLoop ).handler( new HttpInitializer( ssl ) ).remoteAddress( uri.getHost(), port ).connect().addListener( future );
     }
 }
