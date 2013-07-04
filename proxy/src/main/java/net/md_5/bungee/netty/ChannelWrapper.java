@@ -1,6 +1,8 @@
 package net.md_5.bungee.netty;
 
+import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.MessageList;
 import lombok.Getter;
@@ -51,6 +53,15 @@ public class ChannelWrapper
             ch.write( queue );
             ch.close();
         }
+    }
+
+    public void addBefore(String baseName, String name, ChannelHandler handler)
+    {
+        Preconditions.checkState( ch.eventLoop().inEventLoop(), "cannot add handler outside of event loop" );
+        boolean oldFlush = flushNow;
+        flushNow( true );
+        ch.pipeline().addBefore( baseName, name, handler );
+        flushNow( oldFlush );
     }
 
     public Channel getHandle()
