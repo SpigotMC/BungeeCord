@@ -8,9 +8,27 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
 import java.nio.charset.Charset;
+import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.api.Callback;
 
+@RequiredArgsConstructor
 public class HttpHandler extends SimpleChannelInboundHandler<HttpObject>
 {
+
+    private final Callback<String> callback;
+    private final StringBuilder buffer = new StringBuilder();
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
+    {
+        try
+        {
+            callback.done( null, cause );
+        } finally
+        {
+            ctx.channel().close();
+        }
+    }
 
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, HttpObject msg) throws Exception
@@ -18,18 +36,25 @@ public class HttpHandler extends SimpleChannelInboundHandler<HttpObject>
         if ( msg instanceof HttpResponse )
         {
             HttpResponse response = (HttpResponse) msg;
-            if ( response.getStatus() != HttpResponseStatus.OK )
+            if ( response.getStatus().code() != 200 )
             {
+                throw new IllegalStateException( "Expected HTTP response 200 OK, got " + response.getStatus() );
             }
         }
         if ( msg instanceof HttpContent )
         {
             HttpContent content = (HttpContent) msg;
-            String s = content.content().toString( Charset.forName( "UTF-8" ) );
+            buffer.append( content.content().toString( Charset.forName( "UTF-8" ) ) );
 
             if ( msg instanceof LastHttpContent )
             {
-                ctx.channel().close();
+                try
+                {
+                    callback.done( buffer.toString(), null );
+                } finally
+                {
+                    ctx.channel().close();
+                }
             }
         }
     }

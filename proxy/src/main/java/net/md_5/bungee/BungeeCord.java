@@ -6,10 +6,6 @@ import net.md_5.bungee.reconnect.SQLReconnectHandler;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfig;
-import com.ning.http.client.providers.netty.NettyAsyncHttpProvider;
-import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
@@ -122,11 +118,6 @@ public class BungeeCord extends ProxyServer
     private final File pluginsFolder = new File( "plugins" );
     @Getter
     private final TaskScheduler scheduler = new BungeeScheduler();
-    @Getter
-    private final AsyncHttpClient httpClient = new AsyncHttpClient(
-            new NettyAsyncHttpProvider(
-            new AsyncHttpClientConfig.Builder().setAsyncHttpClientProviderConfig(
-            new NettyAsyncHttpProviderConfig().addProperty( NettyAsyncHttpProviderConfig.BOSS_EXECUTOR_SERVICE, executors ) ).setExecutorService( executors ).build() ) );
     @Getter
     private ConsoleReader consoleReader;
     @Getter
@@ -302,7 +293,6 @@ public class BungeeCord extends ProxyServer
             {
                 BungeeCord.this.isRunning = false;
 
-                httpClient.close();
                 executors.shutdown();
 
                 stopListeners();
