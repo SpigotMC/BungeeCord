@@ -11,19 +11,25 @@
     </parent>
 
     <groupId>net.md-5</groupId>
-    <artifactId>bungeecord-protocol</artifactId>
+    <artifactId>bungeecord-http</artifactId>
     <version>1.6.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>BungeeCord-Protocol</name>
-    <description>Minimal implementation of the Minecraft protocol for use in BungeeCord</description>
+    <name>BungeeCord-HTTP</name>
+    <description>Minimal HTTP API for sending basic GET requests</description>
 
     <dependencies>
         <dependency>
             <groupId>io.netty</groupId>
-            <artifactId>netty-buffer</artifactId>
+            <artifactId>codec-http</artifactId>
             <version>${netty.version}</version>
-            <scope>compile</scope>
+            <scope>compile</scope>        
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
