@@ -1,7 +1,6 @@
 package net.md_5.bungee.protocol.packet;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
 import java.io.ByteArrayInputStream;
 import java.io.DataInput;
@@ -9,6 +8,7 @@ import java.io.DataInputStream;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import net.md_5.bungee.protocol.MinecraftStream;
 
 @Getter
 @ToString
@@ -54,5 +54,10 @@ public class PacketFAPluginMessage extends DefinedPacket
     public DataInput getStream()
     {
         return new DataInputStream( new ByteArrayInputStream( data ) );
+    }
+
+    public MinecraftStream getMCStream()
+    {
+        return new MinecraftStream( Unpooled.wrappedBuffer( data ) );
     }
 }
