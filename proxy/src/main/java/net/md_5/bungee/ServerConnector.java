@@ -29,6 +29,7 @@ import net.md_5.bungee.netty.PacketDecoder;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.Forge;
+import net.md_5.bungee.protocol.MinecraftOutput;
 import net.md_5.bungee.protocol.packet.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Packet1Login;
 import net.md_5.bungee.protocol.packet.Packet9Respawn;
@@ -153,6 +154,10 @@ public class ServerConnector extends PacketHandler
                             (byte) user.getPendingConnection().getListener().getTabListSize() );
                 }
                 user.unsafe().sendPacket( modLogin );
+
+                MinecraftOutput out = new MinecraftOutput();
+                out.writeString( ProxyServer.getInstance().getName() + " (" + ProxyServer.getInstance().getVersion() + ")" );
+                user.unsafe().sendPacket( new PacketFAPluginMessage( "MC|Brand", out.toArray() ) );
             } else
             {
                 user.getTabList().onServerChange();
