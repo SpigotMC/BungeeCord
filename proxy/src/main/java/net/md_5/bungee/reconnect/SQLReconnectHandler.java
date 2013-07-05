@@ -1,13 +1,10 @@
 package net.md_5.bungee.reconnect;
 
-import com.google.common.base.Throwables;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -16,31 +13,14 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 public class SQLReconnectHandler extends AbstractReconnectManager
 {
 
-    private final Set<Connection> allConnections = new HashSet<>();
-    private final ThreadLocal<Connection> connectionPool = new ThreadLocal<Connection>()
-    {
-        @Override
-        protected Connection initialValue()
-        {
-            Connection con = null;
-            try
-            {
-                con = DriverManager.getConnection( "jdbc:sqlite:bungee.sqlite" );
-            } catch ( SQLException ex )
-            {
-                Throwables.propagate( ex );
-            }
-
-            allConnections.add( con );
-            return con;
-        }
-    };
+    private final Connection connection;
 
     public SQLReconnectHandler() throws ClassNotFoundException, SQLException
     {
         Class.forName( "org.sqlite.JDBC" );
+        connection = DriverManager.getConnection( "jdbc:sqlite:bungee.sqlite" );
 
-        try ( PreparedStatement ps = connectionPool.get().prepareStatement(
+        try ( PreparedStatement ps = connection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS players ("
                 + "playerId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
                 + "username TEXT NOT NULL UNIQUE COLLATE NOCASE,"
@@ -56,7 +36,7 @@ public class SQLReconnectHandler extends AbstractReconnectManager
     protected ServerInfo getStoredServer(ProxiedPlayer player)
     {
         String server = null;
-        try ( PreparedStatement ps = connectionPool.get().prepareStatement( "SELECT server FROM players WHERE username = ?" ) )
+        try ( PreparedStatement ps = connection.prepareStatement( "SELECT server FROM players WHERE username = ?" ) )
         {
             ps.setString( 1, player.getName() );
             try ( ResultSet rs = ps.executeQuery() )
@@ -66,7 +46,7 @@ public class SQLReconnectHandler extends AbstractReconnectManager
                     server = rs.getString( 1 );
                 } else
                 {
-                    try ( PreparedStatement playerUpdate = connectionPool.get().prepareStatement( "INSERT INTO players( username ) VALUES( ? )" ) )
+                    try ( PreparedStatement playerUpdate = connection.prepareStatement( "INSERT INTO players( username ) VALUES( ? )" ) )
                     {
                         playerUpdate.setString( 1, player.getName() );
                         playerUpdate.executeUpdate();
@@ -85,7 +65,7 @@ public class SQLReconnectHandler extends AbstractReconnectManager
     public void setServer(ProxiedPlayer player)
     {
 
-        try ( PreparedStatement ps = connectionPool.get().prepareStatement( "UPDATE players SET server = ?, seen = ? WHERE username = ?" ) )
+        try ( PreparedStatement ps = connection.prepareStatement( "UPDATE players SET server = ?, seen = ? WHERE username = ?" ) )
         {
             ps.setString( 1, player.getServer().getInfo().getName() );
             ps.setInt( 2, (int) ( System.currentTimeMillis() / 1000L ) );
@@ -105,16 +85,12 @@ public class SQLReconnectHandler extends AbstractReconnectManager
     @Override
     public void close()
     {
-        for ( Connection con : allConnections )
+        try
         {
-            try
-            {
-                con.close();
-            } catch ( SQLException ex )
-            {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Error closing SQLite connection", ex );
-            }
+            connection.close();
+        } catch ( SQLException ex )
+        {
+            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Error closing SQLite connection", ex );
         }
-        allConnections.clear();
     }
 }
