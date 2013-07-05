@@ -2,7 +2,6 @@ package net.md_5.bungee.connection;
 
 import com.google.common.base.Preconditions;
 import io.netty.util.concurrent.ScheduledFuture;
-import java.io.DataInput;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
@@ -39,7 +38,7 @@ import net.md_5.bungee.netty.PacketDecoder;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.Forge;
-import net.md_5.bungee.protocol.MinecraftStream;
+import net.md_5.bungee.protocol.MinecraftInput;
 import net.md_5.bungee.protocol.Vanilla;
 import net.md_5.bungee.protocol.packet.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Packet1Login;
@@ -109,7 +108,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             if ( pingFuture.cancel( false ) )
             {
-                MinecraftStream in = pluginMessage.getMCStream();
+                MinecraftInput in = pluginMessage.getMCStream();
                 version = in.readByte();
                 String connectHost = in.readString();
                 int connectPort = in.readInt();
