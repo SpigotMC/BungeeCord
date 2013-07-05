@@ -39,6 +39,7 @@ import net.md_5.bungee.netty.PacketDecoder;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.Forge;
+import net.md_5.bungee.protocol.MinecraftStream;
 import net.md_5.bungee.protocol.Vanilla;
 import net.md_5.bungee.protocol.packet.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Packet1Login;
@@ -108,17 +109,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             if ( pingFuture.cancel( false ) )
             {
-                DataInput in = pluginMessage.getStream();
+                MinecraftStream in = pluginMessage.getMCStream();
                 version = in.readByte();
-                //
-                short len = in.readShort();
-                char[] chars = new char[ len ];
-                for ( int i = 0; i < len; i++ )
-                {
-                    chars[i] = in.readChar();
-                }
-                //
-                String connectHost = new String( chars );
+                String connectHost = in.readString();
                 int connectPort = in.readInt();
                 this.vHost = new InetSocketAddress( connectHost, connectPort );
 
