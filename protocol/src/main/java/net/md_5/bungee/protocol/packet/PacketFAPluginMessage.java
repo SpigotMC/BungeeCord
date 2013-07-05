@@ -8,7 +8,8 @@ import java.io.DataInputStream;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import net.md_5.bungee.protocol.MinecraftStream;
+import net.md_5.bungee.protocol.MinecraftInput;
+import net.md_5.bungee.protocol.MinecraftOutput;
 
 @Getter
 @ToString
@@ -56,8 +57,8 @@ public class PacketFAPluginMessage extends DefinedPacket
         return new DataInputStream( new ByteArrayInputStream( data ) );
     }
 
-    public MinecraftStream getMCStream()
+    public MinecraftInput getMCStream()
     {
-        return new MinecraftStream( Unpooled.wrappedBuffer( data ) );
+        return new MinecraftInput( Unpooled.wrappedBuffer( data ) );
     }
 }
