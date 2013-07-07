@@ -2,11 +2,11 @@ package net.md_5.bungee.netty;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import javax.crypto.Cipher;
 import javax.crypto.ShortBufferException;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.bouncycastle.crypto.BufferedBlockCipher;
 
 /**
  * Class to expose an
@@ -18,7 +18,7 @@ public class CipherBase
 {
 
     @NonNull
-    private final BufferedBlockCipher cipher;
+    private final Cipher cipher;
     private ThreadLocal<byte[]> heapInLocal = new EmptyByteThreadLocal();
     private ThreadLocal<byte[]> heapOutLocal = new EmptyByteThreadLocal();
 
@@ -51,7 +51,7 @@ public class CipherBase
         byte[] heapIn = bufToByte( in );
 
         ByteBuf heapOut = ctx.alloc().heapBuffer( cipher.getOutputSize( readableBytes ) );
-        heapOut.writerIndex( cipher.processBytes( heapIn, 0, readableBytes, heapOut.array(), heapOut.arrayOffset() ) );
+        heapOut.writerIndex( cipher.update( heapIn, 0, readableBytes, heapOut.array(), heapOut.arrayOffset() ) );
 
         return heapOut;
     }
@@ -68,6 +68,6 @@ public class CipherBase
             heapOut = new byte[ outputSize ];
             heapOutLocal.set( heapOut );
         }
-        out.writeBytes( heapOut, 0, cipher.processBytes( heapIn, 0, readableBytes, heapOut, 0 ) );
+        out.writeBytes( heapOut, 0, cipher.update( heapIn, 0, readableBytes, heapOut ) );
     }
 }
