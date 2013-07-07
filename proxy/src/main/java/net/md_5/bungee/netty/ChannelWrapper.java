@@ -2,6 +2,8 @@ package net.md_5.bungee.netty;
 
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.MessageList;
@@ -50,8 +52,14 @@ public class ChannelWrapper
         if ( !closed )
         {
             closed = true;
-            ch.write( queue );
-            ch.close();
+            ch.write( queue, ch.newPromise() ).addListener( new ChannelFutureListener()
+            {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception
+                {
+                    ch.close();
+                }
+            } );
         }
     }
 
