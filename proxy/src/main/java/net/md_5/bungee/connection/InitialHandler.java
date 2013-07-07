@@ -5,6 +5,7 @@ import io.netty.util.concurrent.ScheduledFuture;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
+import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
@@ -303,8 +304,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 thisState = InitialHandler.State.LOGIN;
 
                 unsafe().sendPacket( new PacketFCEncryptionResponse( new byte[ 0 ], new byte[ 0 ] ) );
-                Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
-                ch.addBefore( PipelineUtils.DECRYPT_HANDLER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
+                try
+                {
+                    Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
+                    ch.addBefore( PipelineUtils.DECRYPT_HANDLER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
+                } catch ( GeneralSecurityException ex )
+                {
+                    disconnect( "Cipher error: " + Util.exception( ex ) );
+                }
             }
         };
 
