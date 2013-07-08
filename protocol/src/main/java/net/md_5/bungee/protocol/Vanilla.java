@@ -364,7 +364,7 @@ public class Vanilla implements Protocol
         {
             INT, SHORT, INT, BYTE, SHORT_BYTE
         };
-        opCodes[0x84] = new OpCode[]
+        opCodes[0x85] = new OpCode[]
         {
             BYTE, INT, INT, INT
         };
