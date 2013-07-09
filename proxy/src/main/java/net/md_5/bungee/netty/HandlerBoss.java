@@ -56,6 +56,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                 ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has disconnected", handler );
             }
         }
+        channel.queue.recycle();
     }
 
     @Override
