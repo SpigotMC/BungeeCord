@@ -86,7 +86,12 @@ public class PluginManager
     public boolean dispatchCommand(CommandSender sender, String commandLine)
     {
         String[] split = argsSplit.split( commandLine );
-        Command command = commandMap.get( split[0].toLowerCase() );
+        String commandName = split[0].toLowerCase();
+        if ( proxy.getDisabledCommands().contains( commandName ) )
+        {
+            return false;
+        }
+        Command command = commandMap.get( commandName );
         if ( command == null )
         {
             return false;

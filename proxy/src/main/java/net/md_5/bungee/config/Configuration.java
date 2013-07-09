@@ -2,6 +2,7 @@ package net.md_5.bungee.config;
 
 import com.google.common.base.Preconditions;
 import gnu.trove.map.TMap;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
@@ -14,6 +15,7 @@ import net.md_5.bungee.tab.GlobalPing;
 import net.md_5.bungee.tab.Global;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.util.CaseInsensitiveMap;
+import net.md_5.bungee.util.CaseInsensitiveSet;
 
 /**
  * Core configuration for the proxy.
@@ -43,6 +45,7 @@ public class Configuration
      */
     private boolean onlineMode = true;
     private int playerLimit = -1;
+    private Collection<String> disabledCommands;
 
     public void load()
     {
@@ -54,6 +57,8 @@ public class Configuration
         uuid = adapter.getString( "stats", uuid );
         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
         playerLimit = adapter.getInt( "player_limit", playerLimit );
+
+        disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "find" ) ) );
 
         Preconditions.checkArgument( listeners != null && !listeners.isEmpty(), "No listeners defined." );
 

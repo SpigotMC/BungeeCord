@@ -44,6 +44,15 @@ public interface ConfigurationAdapter
     public boolean getBoolean(String path, boolean def);
 
     /**
+     * Get a list from the specified path.
+     *
+     * @param path the path to retrieve the list form.
+     * @param def the default value
+     * @return the retrieved list
+     */
+    public Collection<?> getList(String path, Collection<?> def);
+
+    /**
      * Get the configuration all servers which may be accessible via the proxy.
      *
      * @return all accessible servers, keyed by name
