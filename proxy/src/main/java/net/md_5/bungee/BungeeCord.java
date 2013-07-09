@@ -6,10 +6,6 @@ import net.md_5.bungee.reconnect.SQLReconnectHandler;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfig;
-import com.ning.http.client.providers.netty.NettyAsyncHttpProvider;
-import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
@@ -97,7 +93,7 @@ public class BungeeCord extends ProxyServer
      * Thread pools.
      */
     public final ScheduledThreadPoolExecutor executors = new BungeeThreadPool( new ThreadFactoryBuilder().setNameFormat( "Bungee Pool Thread #%1$d" ).build() );
-    public final MultithreadEventLoopGroup eventLoops = new NioEventLoopGroup( Runtime.getRuntime().availableProcessors(), new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
+    public final MultithreadEventLoopGroup eventLoops = new NioEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
     /**
      * locations.yml save thread.
      */
@@ -128,11 +124,6 @@ public class BungeeCord extends ProxyServer
     private final File pluginsFolder = new File( "plugins" );
     @Getter
     private final TaskScheduler scheduler = new BungeeScheduler();
-    @Getter
-    private final AsyncHttpClient httpClient = new AsyncHttpClient(
-            new NettyAsyncHttpProvider(
-            new AsyncHttpClientConfig.Builder().setAsyncHttpClientProviderConfig(
-            new NettyAsyncHttpProviderConfig().addProperty( NettyAsyncHttpProviderConfig.BOSS_EXECUTOR_SERVICE, executors ) ).setExecutorService( executors ).build() ) );
     @Getter
     private ConsoleReader consoleReader;
     @Getter
@@ -189,7 +180,7 @@ public class BungeeCord extends ProxyServer
     public static void main(String[] args) throws Exception
     {
         Calendar deadline = Calendar.getInstance();
-        deadline.set( 2013, 7, 16 ); // year, month, date
+        deadline.set( 2013, 7, 24 ); // year, month, date
         if ( Calendar.getInstance().after( deadline ) )
         {
             System.err.println( "*** Warning, this build is outdated ***" );
@@ -226,6 +217,11 @@ public class BungeeCord extends ProxyServer
     @Override
     public void start() throws Exception
     {
+        if ( System.getProperty( "io.netty.noResourceLeakDetection" ) != null )
+        {
+            System.setProperty( "io.netty.noResourceLeakDetection", "true" );
+        }
+
         pluginsFolder.mkdir();
         pluginManager.detectPlugins( pluginsFolder );
         config.load();
@@ -305,7 +301,6 @@ public class BungeeCord extends ProxyServer
             {
                 BungeeCord.this.isRunning = false;
 
-                httpClient.close();
                 executors.shutdown();
 
                 stopListeners();

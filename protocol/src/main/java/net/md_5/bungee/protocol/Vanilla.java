@@ -29,8 +29,8 @@ import net.md_5.bungee.protocol.skip.PacketReader;
 public class Vanilla implements Protocol
 {
 
-    public static final byte PROTOCOL_VERSION = 73;
-    public static final String GAME_VERSION = "1.6.1";
+    public static final byte PROTOCOL_VERSION = 74;
+    public static final String GAME_VERSION = "1.6.2";
     @Getter
     private static final Vanilla instance = new Vanilla();
     /*========================================================================*/
@@ -363,6 +363,10 @@ public class Vanilla implements Protocol
         opCodes[0x84] = new OpCode[]
         {
             INT, SHORT, INT, BYTE, SHORT_BYTE
+        };
+        opCodes[0x85] = new OpCode[]
+        {
+            BYTE, INT, INT, INT
         };
         opCodes[0xC3] = new OpCode[]
         {

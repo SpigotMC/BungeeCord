@@ -13,9 +13,6 @@ import lombok.ToString;
 public class Packet2CEntityProperties extends DefinedPacket
 {
 
-    private int entityId;
-    private Map<String, Double> data = new HashMap<>();
-
     public Packet2CEntityProperties()
     {
         super( 0x2C );
@@ -24,24 +21,24 @@ public class Packet2CEntityProperties extends DefinedPacket
     @Override
     public void read(ByteBuf buf)
     {
-        entityId = buf.readInt();
+        buf.readInt();
         int recordCount = buf.readInt();
         for ( int i = 0; i < recordCount; i++ )
         {
-            data.put( readString( buf ), buf.readDouble() );
+            readString( buf );
+            buf.readDouble();
+            short size = buf.readShort();
+            for ( short s = 0; s < size; s++ )
+            {
+                buf.skipBytes( 25 ); // long, long, double, byte
+            }
         }
     }
 
     @Override
     public void write(ByteBuf buf)
     {
-        buf.writeInt( entityId );
-        buf.writeInt( data.size() );
-        for ( Map.Entry<String, Double> entry : data.entrySet() )
-        {
-            writeString( entry.getKey(), buf );
-            buf.writeDouble( entry.getValue() );
-        }
+        throw new UnsupportedOperationException();
     }
 
     @Override

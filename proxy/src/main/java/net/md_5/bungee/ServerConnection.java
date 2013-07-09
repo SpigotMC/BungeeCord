@@ -42,6 +42,7 @@ public class ServerConnection implements Server
     {
         if ( !ch.isClosed() )
         {
+            // TODO: Can we just use a future here?
             unsafe().sendPacket( new PacketFFKick( reason ) );
             ch.getHandle().eventLoop().schedule( new Runnable()
             {

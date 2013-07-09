@@ -1,10 +1,8 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
-import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import io.netty.buffer.ByteBuf;
 import java.io.DataInput;
 import java.security.PublicKey;
 import java.util.Objects;
@@ -33,6 +31,7 @@ import net.md_5.bungee.netty.PacketDecoder;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.Forge;
+import net.md_5.bungee.protocol.MinecraftOutput;
 import net.md_5.bungee.protocol.packet.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Packet1Login;
 import net.md_5.bungee.protocol.packet.Packet9Respawn;
@@ -170,6 +169,10 @@ public class ServerConnector extends PacketHandler
                             (byte) user.getPendingConnection().getListener().getTabListSize() );
                 }
                 user.unsafe().sendPacket( modLogin );
+
+                MinecraftOutput out = new MinecraftOutput();
+                out.writeString( ProxyServer.getInstance().getName() + " (" + ProxyServer.getInstance().getVersion() + ")" );
+                user.unsafe().sendPacket( new PacketFAPluginMessage( "MC|Brand", out.toArray() ) );
             } else
             {
                 user.getTabList().onServerChange();
@@ -237,7 +240,7 @@ public class ServerConnector extends PacketHandler
             ch.write( new PacketFCEncryptionResponse( shared, token ) );
 
             Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, secretkey );
-            ch.getHandle().pipeline().addBefore( PipelineUtils.PACKET_DECODE_HANDLER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
+            ch.addBefore( PipelineUtils.PACKET_DECODE_HANDLER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
 
             thisState = State.ENCRYPT_RESPONSE;
         } else
@@ -252,7 +255,7 @@ public class ServerConnector extends PacketHandler
         Preconditions.checkState( thisState == State.ENCRYPT_RESPONSE, "Not expecting ENCRYPT_RESPONSE" );
 
         Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, secretkey );
-        ch.getHandle().pipeline().addBefore( PipelineUtils.PACKET_DECODE_HANDLER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
+        ch.addBefore( PipelineUtils.PACKET_DECODE_HANDLER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
 
         ch.write( user.getPendingConnection().getForgeLogin() );
 

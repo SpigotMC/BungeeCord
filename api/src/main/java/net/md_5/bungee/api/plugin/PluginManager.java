@@ -47,7 +47,7 @@ public class PluginManager
     public PluginManager(ProxyServer proxy)
     {
         this.proxy = proxy;
-        eventBus = new EventBus( proxy.getLogger(), Subscribe.class, EventHandler.class );
+        eventBus = new EventBus( proxy.getLogger() );
     }
 
     /**
@@ -314,14 +314,9 @@ public class PluginManager
     {
         for ( Method method : listener.getClass().getDeclaredMethods() )
         {
-            if ( method.isAnnotationPresent( Subscribe.class ) )
-            {
-                proxy.getLogger().log( Level.WARNING, "Listener " + listener + " has registered using depreceated subscribe annotation!"
-                        + " Please advice author to update to @EventHandler."
-                        + " As a server owner you may safely ignore this.", new Exception() );
-            }
+            Preconditions.checkArgument( !method.isAnnotationPresent( Subscribe.class ),
+                    "Listener %s has registered using deprecated subscribe annotation! Please update to @EventHandler.", listener );
+            eventBus.register( listener );
         }
-
-        eventBus.register( listener );
     }
 }

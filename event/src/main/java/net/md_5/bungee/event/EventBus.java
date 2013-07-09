@@ -1,6 +1,5 @@
 package net.md_5.bungee.event;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
@@ -19,32 +18,15 @@ public class EventBus
     private final Map<Class<?>, Map<Object, Method[]>> eventToHandler = new HashMap<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final Logger logger;
-    private final Class<? extends Annotation>[] annotations;
 
     public EventBus()
     {
-        this( null, (Class<? extends Annotation>[]) null );
+        this( null );
     }
 
     public EventBus(Logger logger)
     {
-        this( logger, (Class<? extends Annotation>[]) null );
-    }
-
-    @SuppressWarnings("unchecked")
-    public EventBus(Class<? extends Annotation>... annotations)
-    {
-        this( null, annotations );
-    }
-
-    @SuppressWarnings("unchecked")
-    public EventBus(Logger logger, Class<? extends Annotation>... annotations)
-    {
         this.logger = ( logger == null ) ? Logger.getGlobal() : logger;
-        this.annotations = ( annotations == null || annotations.length == 0 ) ? new Class[]
-        {
-            EventHandler.class
-        } : annotations;
     }
 
     public void post(Object event)
@@ -86,29 +68,26 @@ public class EventBus
         Map<Class<?>, Set<Method>> handler = new HashMap<>();
         for ( Method m : listener.getClass().getDeclaredMethods() )
         {
-            for ( Class<? extends Annotation> annotation : annotations )
+            EventHandler annotation = m.getAnnotation( EventHandler.class );
+            if ( annotation != null )
             {
-                if ( m.isAnnotationPresent( annotation ) )
+                Class<?>[] params = m.getParameterTypes();
+                if ( params.length != 1 )
                 {
-                    Class<?>[] params = m.getParameterTypes();
-                    if ( params.length != 1 )
+                    logger.log( Level.INFO, "Method {0} in class {1} annotated with {2} does not have single argument", new Object[]
                     {
-                        logger.log( Level.INFO, "Method {0} in class {1} annotated with {2} does not have single argument", new Object[]
-                        {
-                            m, listener.getClass(), annotation
-                        } );
-                        continue;
-                    }
-
-                    Set<Method> existing = handler.get( params[0] );
-                    if ( existing == null )
-                    {
-                        existing = new HashSet<>();
-                        handler.put( params[0], existing );
-                    }
-                    existing.add( m );
-                    break;
+                        m, listener.getClass(), annotation
+                    } );
+                    continue;
                 }
+
+                Set<Method> existing = handler.get( params[0] );
+                if ( existing == null )
+                {
+                    existing = new HashSet<>();
+                    handler.put( params[0], existing );
+                }
+                existing.add( m );
             }
         }
         return handler;

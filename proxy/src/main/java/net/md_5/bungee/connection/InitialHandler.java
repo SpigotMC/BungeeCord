@@ -1,10 +1,7 @@
 package net.md_5.bungee.connection;
 
 import com.google.common.base.Preconditions;
-import com.ning.http.client.AsyncCompletionHandler;
-import com.ning.http.client.Response;
 import io.netty.util.concurrent.ScheduledFuture;
-import java.io.DataInput;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
@@ -34,6 +31,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
+import net.md_5.bungee.http.HttpClient;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.CipherDecoder;
@@ -42,6 +40,7 @@ import net.md_5.bungee.netty.PacketDecoder;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.Forge;
+import net.md_5.bungee.protocol.MinecraftInput;
 import net.md_5.bungee.protocol.Vanilla;
 import net.md_5.bungee.protocol.packet.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Packet1Login;
@@ -110,17 +109,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             if ( pingFuture.cancel( false ) )
             {
-                DataInput in = pluginMessage.getStream();
+                MinecraftInput in = pluginMessage.getMCStream();
                 version = in.readByte();
-                //
-                short len = in.readShort();
-                char[] chars = new char[ len ];
-                for ( int i = 0; i < len; i++ )
-                {
-                    chars[i] = in.readChar();
-                }
-                //
-                String connectHost = new String( chars );
+                String connectHost = in.readString();
                 int connectPort = in.readInt();
                 this.vHost = new InetSocketAddress( connectHost, connectPort );
 
@@ -152,7 +143,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             }
 
             ServerPing response = new ServerPing( bungee.getProtocolVersion(), bungee.getGameVersion(),
-                    listener.getMotd(), bungee.getOnlineCount(), listener.getMaxPlayers() );
+                    motd, bungee.getOnlineCount(), listener.getMaxPlayers() );
 
             response = bungee.getPluginManager().callEvent( new ProxyPingEvent( InitialHandler.this, response ) ).getResponse();
 
@@ -241,7 +232,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         sharedKey = EncryptionUtil.getSecret( encryptResponse, request );
         Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, sharedKey );
-        ch.getHandle().pipeline().addBefore( PipelineUtils.PACKET_DECODE_HANDLER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
+        ch.addBefore( PipelineUtils.PACKET_DECODE_HANDLER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
 
         if ( BungeeCord.getInstance().config.isOnlineMode() )
         {
@@ -258,35 +249,37 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
             String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
             String authURL = "http://session.minecraft.net/game/checkserver.jsp?user=" + encName + "&serverId=" + encodedHash;
-            bungee.getHttpClient().prepareGet( authURL ).execute( new AsyncCompletionHandler<Response>()
+
+            Callback<String> handler = new Callback<String>()
             {
                 @Override
-                public Response onCompleted(Response response) throws Exception
+                public void done(String result, Throwable error)
                 {
-                    if ( "YES".equals( response.getResponseBody() ) )
+                    if ( error == null )
                     {
-                        finish();
+                        if ( "YES".equals( result ) )
+                        {
+                            finish();
+                        } else
+                        {
+                            disconnect( "Not authenticated with Minecraft.net" );
+                        }
                     } else
                     {
-                        disconnect( "Not authenticated with Minecraft.net" );
+                        disconnect( bungee.getTranslation( "mojang_fail" ) );
+                        bungee.getLogger().log( Level.SEVERE, "Error authenticating " + getName() + " with minecraft.net", error );
                     }
-                    return response;
                 }
+            };
 
-                @Override
-                public void onThrowable(Throwable t)
-                {
-                    disconnect( bungee.getTranslation( "mojang_fail" ) );
-                    bungee.getLogger().log( Level.SEVERE, "Error authenticating " + getName() + " with minecraft.net", t );
-                }
-            } );
+            HttpClient.get( authURL, ch.getHandle().eventLoop(), handler );
         } else
         {
             finish();
         }
     }
 
-    private void finish() throws GeneralSecurityException
+    private void finish()
     {
         // Check for multiple connections
         ProxiedPlayer old = bungee.getPlayer( handshake.getUsername() );
@@ -310,22 +303,15 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 }
                 thisState = InitialHandler.State.LOGIN;
 
-                ch.getHandle().eventLoop().execute( new Runnable()
+                unsafe().sendPacket( new PacketFCEncryptionResponse( new byte[ 0 ], new byte[ 0 ] ) );
+                try
                 {
-                    @Override
-                    public void run()
-                    {
-                        unsafe().sendPacket( new PacketFCEncryptionResponse( new byte[ 0 ], new byte[ 0 ] ) );
-                        try
-                        {
-                            Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
-                            ch.getHandle().pipeline().addBefore( PipelineUtils.DECRYPT_HANDLER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
-                        } catch ( GeneralSecurityException ex )
-                        {
-                            disconnect( "Cipher error: " + Util.exception( ex ) );
-                        }
-                    }
-                } );
+                    Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
+                    ch.addBefore( PipelineUtils.DECRYPT_HANDLER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
+                } catch ( GeneralSecurityException ex )
+                {
+                    disconnect( "Cipher error: " + Util.exception( ex ) );
+                }
             }
         };
 
