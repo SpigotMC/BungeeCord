@@ -518,4 +518,9 @@ public class BungeeCord extends ProxyServer
     {
         return new Custom( player );
     }
+
+    public Collection<String> getDisabledCommands()
+    {
+        return config.getDisabledCommands();
+    }
 }

@@ -235,6 +235,12 @@ public class YamlConfig implements ConfigurationAdapter
     }
 
     @Override
+    public Collection<?> getList(String path, Collection<?> def)
+    {
+        return get( path, def );
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public Collection<String> getPermissions(String group)
     {
