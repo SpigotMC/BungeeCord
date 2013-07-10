@@ -2,6 +2,7 @@ package net.md_5.bungee.protocol;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 
 public class MinecraftOutput
@@ -46,5 +47,10 @@ public class MinecraftOutput
         {
             buf.writeChar( c );
         }
+    }
+
+    public void writeStringUTF8WithoutLengthHeaderBecauseDinnerboneStuffedUpTheMCBrandPacket(String s)
+    {
+        buf.writeBytes( s.getBytes( Charset.forName( "UTF-8" ) ) );
     }
 }
