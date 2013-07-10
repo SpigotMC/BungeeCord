@@ -48,6 +48,7 @@ public class DownstreamBridge extends PacketHandler
         ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getFallbackServer() );
         if ( server.getInfo() != def )
         {
+            server.setObsolete( true );
             con.connectNow( def );
             con.sendMessage( ChatColor.RED + "The server you were previously on went down, you have been connected to the lobby" );
         } else
