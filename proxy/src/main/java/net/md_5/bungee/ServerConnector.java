@@ -156,7 +156,7 @@ public class ServerConnector extends PacketHandler
                 user.unsafe().sendPacket( modLogin );
 
                 MinecraftOutput out = new MinecraftOutput();
-                out.writeString( ProxyServer.getInstance().getName() + " (" + ProxyServer.getInstance().getVersion() + ")" );
+                out.writeStringUTF8WithoutLengthHeaderBecauseDinnerboneStuffedUpTheMCBrandPacket(ProxyServer.getInstance().getName() + " (" + ProxyServer.getInstance().getVersion() + ")" );
                 user.unsafe().sendPacket( new PacketFAPluginMessage( "MC|Brand", out.toArray() ) );
             } else
             {
