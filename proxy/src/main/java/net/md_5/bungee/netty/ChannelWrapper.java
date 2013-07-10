@@ -15,7 +15,7 @@ public class ChannelWrapper
     private final Channel ch;
     @Getter
     private volatile boolean closed;
-    final MessageList<Object> queue = MessageList.newInstance();
+    private final MessageList<Object> queue = MessageList.newInstance();
     private volatile boolean flushNow = true;
 
     public ChannelWrapper(ChannelHandlerContext ctx)
