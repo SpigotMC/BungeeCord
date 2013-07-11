@@ -61,7 +61,6 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception
     {
-        channel.flushNow( false );
         for ( Object msg : msgs )
         {
             if ( handler != null && ctx.channel().isActive() )
@@ -86,7 +85,6 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                 }
             }
         }
-        channel.flushNow( true );
     }
 
     @Override
