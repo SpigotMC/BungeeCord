@@ -303,15 +303,23 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 }
                 thisState = InitialHandler.State.LOGIN;
 
-                unsafe().sendPacket( new PacketFCEncryptionResponse( new byte[ 0 ], new byte[ 0 ] ) );
-                try
+                ch.getHandle().eventLoop().execute( new Runnable()
                 {
-                    Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
-                    ch.addBefore( PipelineUtils.DECRYPT_HANDLER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
-                } catch ( GeneralSecurityException ex )
-                {
-                    disconnect( "Cipher error: " + Util.exception( ex ) );
-                }
+                    @Override
+                    public void run()
+                    {
+
+                        unsafe().sendPacket( new PacketFCEncryptionResponse( new byte[ 0 ], new byte[ 0 ] ) );
+                        try
+                        {
+                            Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
+                            ch.addBefore( PipelineUtils.DECRYPT_HANDLER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
+                        } catch ( GeneralSecurityException ex )
+                        {
+                            disconnect( "Cipher error: " + Util.exception( ex ) );
+                        }
+                    }
+                } );
             }
         };
 
