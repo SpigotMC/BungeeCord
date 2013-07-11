@@ -2,7 +2,7 @@ package net.md_5.bungee;
 
 import com.google.common.io.ByteStreams;
 import net.md_5.bungee.log.BungeeLogger;
-import net.md_5.bungee.reconnect.SQLReconnectHandler;
+import net.md_5.bungee.reconnect.YamlReconnectHandler;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
@@ -219,7 +219,7 @@ public class BungeeCord extends ProxyServer
         config.load();
         if ( reconnectHandler == null )
         {
-            reconnectHandler = new SQLReconnectHandler();
+            reconnectHandler = new YamlReconnectHandler();
         }
         isRunning = true;
 
