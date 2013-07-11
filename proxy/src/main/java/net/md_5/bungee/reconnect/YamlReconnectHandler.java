@@ -82,16 +82,22 @@ public class YamlReconnectHandler extends AbstractReconnectManager
     @Override
     public void save()
     {
+        Map<String, String> copy = new HashMap<>();
         lock.readLock().lock();
-        try ( FileWriter wr = new FileWriter( file ) )
+        try
         {
-            yaml.dump( data, wr );
-        } catch ( IOException ex )
-        {
-            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not save reconnect locations", ex );
+            copy.putAll( data );
         } finally
         {
             lock.readLock().unlock();
+        }
+
+        try ( FileWriter wr = new FileWriter( file ) )
+        {
+            yaml.dump( copy, wr );
+        } catch ( IOException ex )
+        {
+            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not save reconnect locations", ex );
         }
     }
 
