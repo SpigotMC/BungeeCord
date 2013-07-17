@@ -3,9 +3,10 @@ package net.md_5.bungee.netty;
 import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.MessageList;
 import io.netty.handler.timeout.ReadTimeoutException;
 import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Queue;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.connection.CancelSendSignal;
@@ -22,6 +23,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
 
     private ChannelWrapper channel;
     private PacketHandler handler;
+    private final Queue<Object> msgs = new ArrayDeque<>();
 
     public void setHandler(PacketHandler handler)
     {
@@ -59,10 +61,21 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
     {
-        for ( Object msg : msgs )
+        if ( ctx.channel().isActive() )
         {
+            msgs.add( msg );
+        }
+    }
+
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception
+    {
+        channel.flushNow( false );
+        while ( !msgs.isEmpty() )
+        {
+            Object msg = msgs.remove();
             if ( handler != null && ctx.channel().isActive() )
             {
                 if ( msg instanceof PacketWrapper )
@@ -85,6 +98,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                 }
             }
         }
+        channel.flushNow( true );
     }
 
     @Override
