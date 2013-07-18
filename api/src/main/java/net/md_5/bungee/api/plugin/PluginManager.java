@@ -181,7 +181,7 @@ public class PluginManager
         for ( String dependName : plugin.getDepends() )
         {
             PluginDescription depend = toLoad.get( dependName );
-            Boolean dependStatus = depend != null ? pluginStatuses.get( depend ) : Boolean.FALSE;
+            Boolean dependStatus = ( depend != null ) ? pluginStatuses.get( depend ) : Boolean.FALSE;
 
             if ( dependStatus == null )
             {
@@ -207,7 +207,7 @@ public class PluginManager
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} (required by {1}) is unavailable", new Object[]
                 {
-                    depend.getName(), plugin.getName()
+                    String.valueOf( depend.getName() ), plugin.getName()
                 } );
                 status = false;
             }

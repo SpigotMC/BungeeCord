@@ -49,11 +49,6 @@ public class ListenerInfo
      */
     private final Map<String, String> forcedHosts;
     /**
-     * Get the texture pack used for servers connected to this proxy. May be
-     * null.
-     */
-    private final TexturePackInfo texturePack;
-    /**
      * Class used to build tab lists for this player.
      */
     private final Class<? extends TabListHandler> tabList;
