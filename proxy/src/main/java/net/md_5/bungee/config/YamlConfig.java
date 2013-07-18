@@ -21,7 +21,6 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.config.TexturePackInfo;
 import net.md_5.bungee.api.tab.TabListHandler;
 import net.md_5.bungee.tab.Global;
 import net.md_5.bungee.tab.GlobalPing;
@@ -207,9 +206,6 @@ public class YamlConfig implements ConfigurationAdapter
             int tabListSize = get( "tab_size", 60, val );
             InetSocketAddress address = Util.getAddr( host );
             Map<String, String> forced = new CaseInsensitiveMap<>( get( "forced_hosts", forcedDef, val ) );
-            String textureURL = get( "texture_url", null, val );
-            int textureSize = get( "texture_size", 16, val );
-            TexturePackInfo texture = ( textureURL == null ) ? null : new TexturePackInfo( textureURL, textureSize );
             String tabListName = get( "tab_list", "GLOBAL_PING", val );
             DefaultTabList value = DefaultTabList.valueOf( tabListName.toUpperCase() );
             if ( value == null )
@@ -217,7 +213,7 @@ public class YamlConfig implements ConfigurationAdapter
                 value = DefaultTabList.GLOBAL_PING;
             }
 
-            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, fallbackServer, forceDefault, forced, texture, value.clazz );
+            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, fallbackServer, forceDefault, forced, value.clazz );
             ret.add( info );
         }
 

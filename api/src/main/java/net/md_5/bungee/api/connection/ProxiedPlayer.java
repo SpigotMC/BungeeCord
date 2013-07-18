@@ -2,7 +2,6 @@ package net.md_5.bungee.api.connection;
 
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.config.TexturePackInfo;
 import net.md_5.bungee.api.tab.TabListHandler;
 
 /**
@@ -71,13 +70,6 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param message the message to say
      */
     void chat(String message);
-
-    /**
-     * Send a request to change the players texture pack.
-     *
-     * @param pack the pack to request
-     */
-    void setTexturePack(TexturePackInfo pack);
 
     /**
      * Sets the new tab list for the user. At this stage it is not advisable to
