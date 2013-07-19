@@ -145,7 +145,7 @@ public class PluginManager
      */
     public Plugin getPlugin(String name)
     {
-        return plugins.get( name );
+        return plugins.get(name);
     }
 
     public void loadAndEnablePlugins()
@@ -268,6 +268,9 @@ public class PluginManager
     {
         Preconditions.checkNotNull( folder, "folder" );
         Preconditions.checkArgument( folder.isDirectory(), "Must load from a directory" );
+
+        if(toLoad == null)
+            toLoad = new HashMap<>();
 
         for ( File file : folder.listFiles() )
         {
