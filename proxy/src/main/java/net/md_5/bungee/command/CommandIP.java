@@ -28,7 +28,7 @@ public class CommandIP extends Command
             sender.sendMessage( ChatColor.RED + "That user is not online" );
         } else
         {
-            sender.sendMessage( ChatColor.RED + "IP of " + args[0] + " is " + user.getAddress() );
+            sender.sendMessage( ChatColor.BLUE + "IP of " + args[0] + " is " + user.getAddress() );
         }
     }
 }
