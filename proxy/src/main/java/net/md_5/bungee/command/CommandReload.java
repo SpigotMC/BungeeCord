@@ -21,8 +21,9 @@ public class CommandReload extends Command
         BungeeCord.getInstance().stopListeners();
         BungeeCord.getInstance().startListeners();
         try{
-            ProxyServer.getInstance().getPluginManager().disablePlugins();
-            ProxyServer.getInstance().getPluginManager().loadAndEnablePlugins();
+            BungeeCord.getInstance().getPluginManager().disablePlugins();
+            BungeeCord.getInstance().getPluginManager().detectPlugins( BungeeCord.getInstance().getPluginsFolder() );
+            BungeeCord.getInstance().getPluginManager().loadAndEnablePlugins();
         } catch ( Exception e ){
             e.printStackTrace();
             throw new InternalError( "There was an error reloading plugins!" );
