@@ -7,12 +7,7 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
@@ -42,6 +37,8 @@ public class PluginManager
     private final Map<String, Plugin> plugins = new LinkedHashMap<>();
     private final Map<String, Command> commandMap = new HashMap<>();
     private Map<String, PluginDescription> toLoad = new HashMap<>();
+    private final HashMap<Plugin, List<Listener>> listeners = new HashMap<>();
+    private final HashMap<Command, Plugin> commands = new HashMap<>();
 
     @SuppressWarnings("unchecked")
     public PluginManager(ProxyServer proxy)
@@ -58,11 +55,25 @@ public class PluginManager
      */
     public void registerCommand(Plugin plugin, Command command)
     {
+        if( plugin != null )
+            commands.put( command, plugin );
         commandMap.put( command.getName().toLowerCase(), command );
         for ( String alias : command.getAliases() )
         {
             commandMap.put( alias.toLowerCase(), command );
         }
+    }
+
+    /**
+     * Unregister all commands for a plugin.
+     *
+     * @param plugin the plugin.
+     */
+    public void unregisterCommand(Plugin plugin)
+    {
+        for( Command command : commands.keySet() )
+            if( commands.get( command ).equals( plugin ))
+                unregisterCommand( command );
     }
 
     /**
@@ -156,6 +167,7 @@ public class PluginManager
             try
             {
                 plugin.onEnable();
+                this.listeners.put(plugin, new ArrayList<Listener>());
                 ProxyServer.getInstance().getLogger().log( Level.INFO, "Enabled plugin {0} version {1} by {2}", new Object[]
                 {
                     plugin.getDescription().getName(), plugin.getDescription().getVersion(), plugin.getDescription().getAuthor()
@@ -322,6 +334,57 @@ public class PluginManager
             Preconditions.checkArgument( !method.isAnnotationPresent( Subscribe.class ),
                     "Listener %s has registered using deprecated subscribe annotation! Please update to @EventHandler.", listener );
             eventBus.register( listener );
+            listeners.get( plugin ).add( listener );
         }
+    }
+
+    /**
+     * Disable all loaded plugins.
+     */
+    public void disablePlugins(){
+        for( Plugin plugin : plugins.values() )
+            disablePlugin( plugin );
+    }
+
+    /**
+     * Use to disable a plugin.
+     *
+     * @param plugin the plugin to disable.
+     */
+    public void disablePlugin(Plugin plugin){
+        try{
+            final String name = plugin.getDescription().getName();
+            plugin.onDisable();
+            unregisterListener( plugin );
+            unregisterCommand( plugin );
+            plugins.values().remove( plugin );
+            ProxyServer.getInstance().getLogger().log( Level.INFO, "Plugin {0} disabled!", new Object[]{
+                   name
+            } );
+        }catch ( Exception e ){
+            ProxyServer.getInstance().getLogger().log( Level.SEVERE, "There was an error disabling {0}! Report this error to {1}, the plugin author!", new Object[]{
+                    plugin.getDescription().getName(), plugin.getDescription().getAuthor()
+            } );
+        }
+    }
+
+
+    /**
+     * Unregister a selected listener.
+     *
+     * @param listener the listener.
+     */
+    public void unregisterListener(Listener listener){
+        eventBus.unregister( listener );
+    }
+
+    /**
+     * Unregister a selected plugin's listeners.
+     *
+     * @param plugin the plugin.
+     */
+    public void unregisterListener(Plugin plugin){
+        for( Listener l : listeners.get( plugin ) )
+            unregisterListener( l );
     }
 }
