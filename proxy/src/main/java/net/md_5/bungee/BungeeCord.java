@@ -28,7 +28,6 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -50,7 +49,6 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
-import net.md_5.bungee.api.scheduler.TaskScheduler;
 import net.md_5.bungee.api.tab.CustomTabList;
 import net.md_5.bungee.command.*;
 import net.md_5.bungee.config.YamlConfig;
@@ -60,7 +58,6 @@ import net.md_5.bungee.protocol.packet.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Packet3Chat;
 import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
 import net.md_5.bungee.protocol.Vanilla;
-import net.md_5.bungee.scheduler.BungeeThreadPool;
 import net.md_5.bungee.tab.Custom;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.fusesource.jansi.AnsiConsole;
@@ -83,10 +80,6 @@ public class BungeeCord extends ProxyServer
      * Localization bundle.
      */
     public final ResourceBundle bundle = ResourceBundle.getBundle( "messages_en" );
-    /**
-     * Thread pools.
-     */
-    public final ScheduledThreadPoolExecutor executors = new BungeeThreadPool( new ThreadFactoryBuilder().setNameFormat( "Bungee Pool Thread #%1$d" ).build() );
     public final MultithreadEventLoopGroup eventLoops = new NioEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
     /**
      * locations.yml save thread.
@@ -117,7 +110,7 @@ public class BungeeCord extends ProxyServer
     @Getter
     private final File pluginsFolder = new File( "plugins" );
     @Getter
-    private final TaskScheduler scheduler = new BungeeScheduler();
+    private final BungeeScheduler scheduler = new BungeeScheduler();
     @Getter
     private ConsoleReader consoleReader;
     @Getter
@@ -288,8 +281,6 @@ public class BungeeCord extends ProxyServer
             {
                 BungeeCord.this.isRunning = false;
 
-                executors.shutdown();
-
                 stopListeners();
                 getLogger().info( "Closing pending connections" );
 
@@ -329,6 +320,7 @@ public class BungeeCord extends ProxyServer
                     getScheduler().cancel( plugin );
                 }
 
+                scheduler.shutdown();
                 getLogger().info( "Thankyou and goodbye" );
                 System.exit( 0 );
             }
