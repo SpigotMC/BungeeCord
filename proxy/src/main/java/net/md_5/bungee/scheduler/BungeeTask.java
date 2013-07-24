@@ -61,6 +61,12 @@ public class BungeeTask implements Runnable, ScheduledTask
                 ProxyServer.getInstance().getLogger().log( Level.SEVERE, String.format( "Task %s encountered an exception", this ), t );
             }
 
+            // If we have a period of 0 or less, only run once
+            if ( period <= 0 )
+            {
+                break;
+            }
+
             try
             {
                 Thread.sleep( period );
