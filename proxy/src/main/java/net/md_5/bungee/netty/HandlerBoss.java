@@ -63,10 +63,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
     {
-        if ( ctx.channel().isActive() )
-        {
-            msgs.add( msg );
-        }
+        msgs.add( msg );
     }
 
     @Override
@@ -76,7 +73,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
         while ( !msgs.isEmpty() )
         {
             Object msg = msgs.remove();
-            if ( handler != null && ctx.channel().isActive() )
+            if ( handler != null )
             {
                 if ( msg instanceof PacketWrapper )
                 {

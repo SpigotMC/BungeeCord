@@ -209,11 +209,6 @@ public class BungeeCord extends ProxyServer
     @Override
     public void start() throws Exception
     {
-        if ( System.getProperty( "io.netty.noResourceLeakDetection" ) != null )
-        {
-            System.setProperty( "io.netty.noResourceLeakDetection", "true" );
-        }
-
         pluginsFolder.mkdir();
         pluginManager.detectPlugins( pluginsFolder );
         config.load();
