@@ -19,9 +19,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -76,6 +78,11 @@ public class BungeeCord extends ProxyServer
      * Configuration.
      */
     public final Configuration config = new Configuration();
+    /**
+     * Version bundle.
+     */
+    public static final ResourceBundle versionBundle = ResourceBundle.getBundle( "version" );
+    public static final String timestamp = versionBundle.getString( "timestamp" );
     /**
      * Localization bundle.
      */
@@ -165,7 +172,10 @@ public class BungeeCord extends ProxyServer
     public static void main(String[] args) throws Exception
     {
         Calendar deadline = Calendar.getInstance();
-        deadline.set( 2013, 8, 12 ); // year, month, date
+        Date formattedDate = new SimpleDateFormat("yyyy-MM-dd").parse(timestamp);
+
+        deadline.setTime(formattedDate);
+        deadline.add(Calendar.WEEK_OF_YEAR, 2);
         if ( Calendar.getInstance().after( deadline ) )
         {
             System.err.println( "*** Warning, this build is outdated ***" );
