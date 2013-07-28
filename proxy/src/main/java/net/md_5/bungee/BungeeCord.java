@@ -33,6 +33,9 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jline.UnsupportedTerminal;
@@ -78,11 +81,6 @@ public class BungeeCord extends ProxyServer
      * Configuration.
      */
     public final Configuration config = new Configuration();
-    /**
-     * Version bundle.
-     */
-    public static final ResourceBundle versionBundle = ResourceBundle.getBundle( "version" );
-    public static final String timestamp = versionBundle.getString( "timestamp" );
     /**
      * Localization bundle.
      */
@@ -171,9 +169,12 @@ public class BungeeCord extends ProxyServer
      */
     public static void main(String[] args) throws Exception
     {
-        Calendar deadline = Calendar.getInstance();
-        Date formattedDate = new SimpleDateFormat("yyyy-MM-dd").parse(timestamp);
+        JarFile jar = new JarFile( BungeeCord.class.getProtectionDomain().getCodeSource().getLocation().getPath() );
+        Manifest manifest = jar.getManifest();
+        Attributes attributes = manifest.getMainAttributes();
 
+        Calendar deadline = Calendar.getInstance();
+        Date formattedDate = new SimpleDateFormat( "yyyy-MM-dd" ).parse( attributes.getValue( "Timestamp" ) );
         deadline.setTime(formattedDate);
         deadline.add(Calendar.WEEK_OF_YEAR, 2);
         if ( Calendar.getInstance().after( deadline ) )
