@@ -19,9 +19,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -31,6 +33,9 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jline.UnsupportedTerminal;
@@ -164,8 +169,14 @@ public class BungeeCord extends ProxyServer
      */
     public static void main(String[] args) throws Exception
     {
+        JarFile jar = new JarFile( BungeeCord.class.getProtectionDomain().getCodeSource().getLocation().getPath() );
+        Manifest manifest = jar.getManifest();
+        Attributes attributes = manifest.getMainAttributes();
+
         Calendar deadline = Calendar.getInstance();
-        deadline.set( 2013, 8, 12 ); // year, month, date
+        Date formattedDate = new SimpleDateFormat( "yyyy-MM-dd" ).parse( attributes.getValue( "Timestamp" ) );
+        deadline.setTime( formattedDate );
+        deadline.add( Calendar.WEEK_OF_YEAR, 2 );
         if ( Calendar.getInstance().after( deadline ) )
         {
             System.err.println( "*** Warning, this build is outdated ***" );

@@ -18,6 +18,10 @@
     <name>BungeeCord-Proxy</name>
     <description>Proxy component of the Elastic Portal Suite</description>
 
+    <properties>
+        <maven.build.timestamp.format>yyyy-MM-dd</maven.build.timestamp.format>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -89,6 +93,7 @@
                         <manifestEntries>
                             <Main-Class>net.md_5.bungee.BungeeCord</Main-Class>
                             <Implementation-Version>${describe}</Implementation-Version>
+                            <Timestamp>${maven.build.timestamp}</Timestamp>
                         </manifestEntries>
                     </archive>
                 </configuration>
