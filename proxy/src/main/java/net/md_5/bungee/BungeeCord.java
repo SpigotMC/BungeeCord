@@ -175,8 +175,8 @@ public class BungeeCord extends ProxyServer
 
         Calendar deadline = Calendar.getInstance();
         Date formattedDate = new SimpleDateFormat( "yyyy-MM-dd" ).parse( attributes.getValue( "Timestamp" ) );
-        deadline.setTime(formattedDate);
-        deadline.add(Calendar.WEEK_OF_YEAR, 2);
+        deadline.setTime( formattedDate );
+        deadline.add( Calendar.WEEK_OF_YEAR, 2 );
         if ( Calendar.getInstance().after( deadline ) )
         {
             System.err.println( "*** Warning, this build is outdated ***" );
