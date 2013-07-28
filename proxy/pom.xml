@@ -75,12 +75,6 @@
 
     <build>
         <finalName>BungeeCord</finalName>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <!-- Don't deploy proxy to maven repo, only APIs -->
