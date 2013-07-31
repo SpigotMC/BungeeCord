@@ -12,7 +12,6 @@ public class ChannelWrapper
     private final Channel ch;
     @Getter
     private volatile boolean closed;
-    private boolean flushNow = true;
 
     public ChannelWrapper(ChannelHandlerContext ctx)
     {
@@ -23,21 +22,8 @@ public class ChannelWrapper
     {
         if ( !closed )
         {
-            ch.write( packet );
-            if ( flushNow )
-            {
-                ch.flush();
-            }
+            ch.writeAndFlush( packet );
         }
-    }
-
-    public synchronized void flushNow(boolean flush)
-    {
-        if ( !flushNow && flush )
-        {
-            ch.flush();
-        }
-        this.flushNow = flush;
     }
 
     public synchronized void close()

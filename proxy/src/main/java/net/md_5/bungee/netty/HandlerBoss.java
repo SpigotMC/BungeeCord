@@ -69,7 +69,6 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception
     {
-        channel.flushNow( false );
         while ( !msgs.isEmpty() )
         {
             Object msg = msgs.remove();
@@ -95,7 +94,6 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                 }
             }
         }
-        channel.flushNow( true );
     }
 
     @Override
