@@ -63,7 +63,7 @@ public class HttpClient
                     HttpRequest request = new DefaultHttpRequest( HttpVersion.HTTP_1_1, HttpMethod.GET, path );
                     request.headers().set( HttpHeaders.Names.HOST, uri.getHost() );
 
-                    future.channel().writeAndFlush( request );
+                    future.channel().write( request );
                 } else
                 {
                     callback.done( null, future.cause() );

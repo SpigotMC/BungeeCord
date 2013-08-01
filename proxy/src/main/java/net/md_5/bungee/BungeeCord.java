@@ -167,14 +167,14 @@ public class BungeeCord extends ProxyServer
     public static void main(String[] args) throws Exception
     {
         Calendar deadline = Calendar.getInstance();
-        deadline.set( 2013, 8, 12 ); // year, month, date
+        deadline.set( 2013, 8, 4 ); // year, month, date
         if ( Calendar.getInstance().after( deadline ) )
         {
             System.err.println( "*** Warning, this build is outdated ***" );
             System.err.println( "*** Please download a new build from http://ci.md-5.net/job/BungeeCord ***" );
             System.err.println( "*** You will get NO support regarding this build ***" );
-            System.err.println( "*** Server will start in 15 seconds ***" );
-            Thread.sleep( TimeUnit.SECONDS.toMillis( 15 ) );
+            System.err.println( "*** Server will start in 30 seconds ***" );
+            Thread.sleep( TimeUnit.SECONDS.toMillis( 30 ) );
         }
 
         BungeeCord bungee = new BungeeCord();

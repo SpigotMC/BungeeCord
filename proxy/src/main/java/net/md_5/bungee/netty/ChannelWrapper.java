@@ -22,7 +22,7 @@ public class ChannelWrapper
     {
         if ( !closed )
         {
-            ch.writeAndFlush( packet );
+            ch.write( packet );
         }
     }
 
@@ -31,7 +31,6 @@ public class ChannelWrapper
         if ( !closed )
         {
             closed = true;
-            ch.flush();
             ch.close();
         }
     }
@@ -39,7 +38,6 @@ public class ChannelWrapper
     public void addBefore(String baseName, String name, ChannelHandler handler)
     {
         Preconditions.checkState( ch.eventLoop().inEventLoop(), "cannot add handler outside of event loop" );
-        ch.pipeline().flush();
         ch.pipeline().addBefore( baseName, name, handler );
     }
 
