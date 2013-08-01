@@ -3,10 +3,9 @@ package net.md_5.bungee.netty;
 import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.MessageList;
 import io.netty.handler.timeout.ReadTimeoutException;
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Queue;
 import java.util.logging.Level;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ProxyServer;
@@ -24,7 +23,6 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
 
     private ChannelWrapper channel;
     private PacketHandler handler;
-    private final Queue<Object> msgs = new ArrayDeque<>();
 
     public void setHandler(PacketHandler handler)
     {
@@ -68,17 +66,10 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
+    public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception
     {
-        msgs.add( msg );
-    }
-
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception
-    {
-        while ( !msgs.isEmpty() )
+        for ( Object msg : msgs )
         {
-            Object msg = msgs.remove();
             if ( handler != null )
             {
                 if ( msg instanceof PacketWrapper )
