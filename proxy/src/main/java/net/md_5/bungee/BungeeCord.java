@@ -19,9 +19,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -191,6 +193,35 @@ public class BungeeCord extends ProxyServer
                 }
             }
         }
+    }
+    private final Map<SocketAddress, Long> throttle = new HashMap<>();
+
+    public void unThrottle(SocketAddress address)
+    {
+        if ( address != null )
+        {
+            synchronized ( throttle )
+            {
+                throttle.remove( address );
+            }
+        }
+    }
+
+    public boolean throttle(SocketAddress address)
+    {
+        long currentTime = System.currentTimeMillis();
+        synchronized ( throttle )
+        {
+            Long value = throttle.get( address );
+            if ( value != null && currentTime - value < config.getThrottle() )
+            {
+                throttle.put( address, currentTime );
+                return true;
+            }
+
+            throttle.put( address, currentTime );
+        }
+        return false;
     }
 
     /**

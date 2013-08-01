@@ -153,6 +153,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     + "\00" + response.getMotd()
                     + "\00" + response.getCurrentPlayers()
                     + "\00" + response.getMaxPlayers();
+            BungeeCord.getInstance().unThrottle( getAddress() );
             disconnect( kickMessage );
         } catch ( Throwable t )
         {
