@@ -6,6 +6,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.MessageList;
 import io.netty.handler.timeout.ReadTimeoutException;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ProxyServer;
@@ -33,12 +34,6 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception
     {
-        if ( BungeeCord.getInstance().throttle( ctx.channel().remoteAddress() ) )
-        {
-            ctx.channel().close();
-            return;
-        }
-
         if ( handler != null )
         {
             channel = new ChannelWrapper( ctx );

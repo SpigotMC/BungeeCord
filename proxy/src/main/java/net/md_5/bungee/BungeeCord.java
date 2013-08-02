@@ -18,6 +18,7 @@ import net.md_5.bungee.config.Configuration;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Calendar;
@@ -194,9 +195,9 @@ public class BungeeCord extends ProxyServer
             }
         }
     }
-    private final Map<SocketAddress, Long> throttle = new HashMap<>();
+    private final Map<InetAddress, Long> throttle = new HashMap<>();
 
-    public void unThrottle(SocketAddress address)
+    public void unThrottle(InetAddress address)
     {
         if ( address != null )
         {
@@ -207,7 +208,7 @@ public class BungeeCord extends ProxyServer
         }
     }
 
-    public boolean throttle(SocketAddress address)
+    public boolean throttle(InetAddress address)
     {
         long currentTime = System.currentTimeMillis();
         synchronized ( throttle )
