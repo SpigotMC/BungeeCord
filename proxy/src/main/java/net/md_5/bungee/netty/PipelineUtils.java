@@ -7,6 +7,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.AttributeKey;
+import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.BungeeServerInfo;
@@ -28,6 +29,12 @@ public class PipelineUtils
         @Override
         protected void initChannel(Channel ch) throws Exception
         {
+            if ( BungeeCord.getInstance().throttle( ( (InetSocketAddress) ch.remoteAddress() ).getAddress() ) )
+            {
+                ch.close();
+                return;
+            }
+
             BASE.initChannel( ch );
             ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( ProxyServer.getInstance(), ch.attr( LISTENER ).get() ) );
         }
