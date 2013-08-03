@@ -225,18 +225,13 @@ public final class UserConnection implements ProxiedPlayer
                 }
             }
         };
-        Bootstrap b = new Bootstrap()
+        new Bootstrap()
                 .channel( NioSocketChannel.class )
                 .group( BungeeCord.getInstance().eventLoops )
                 .handler( initializer )
                 .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000 ) // TODO: Configurable
-                .remoteAddress( target.getAddress() );
-        // Windows is bugged, multi homed users will just have to live with random connecting IPs
-        if ( !PlatformDependent.isWindows() )
-        {
-            b.localAddress( getPendingConnection().getListener().getHost().getHostString(), 0 );
-        }
-        b.connect().addListener( listener );
+                .remoteAddress( target.getAddress() )
+                .connect().addListener( listener );
     }
 
     @Override
