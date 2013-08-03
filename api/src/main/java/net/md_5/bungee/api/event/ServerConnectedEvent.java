@@ -3,9 +3,9 @@ package net.md_5.bungee.api.event;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
-import net.md_5.bungee.api.plugin.Event;
 
 /**
  * Not to be confused with {@link ServerConnectEvent}, this event is called once
@@ -16,7 +16,7 @@ import net.md_5.bungee.api.plugin.Event;
 @Data
 @ToString(callSuper = false)
 @EqualsAndHashCode(callSuper = false)
-public class ServerConnectedEvent extends Event
+public class ServerConnectedEvent extends AsyncEvent<ServerConnectedEvent>
 {
 
     /**
@@ -27,4 +27,11 @@ public class ServerConnectedEvent extends Event
      * The server itself.
      */
     private final Server server;
+
+    public ServerConnectedEvent(ProxiedPlayer player, Server server, Callback<ServerConnectedEvent> done)
+    {
+        super( done );
+        this.player = player;
+        this.server = server;
+    }
 }
