@@ -52,4 +52,8 @@ public class ListenerInfo
      * Class used to build tab lists for this player.
      */
     private final Class<? extends TabListHandler> tabList;
+    /**
+     * Whether to set the local address when connecting to servers.
+     */
+    private final boolean setLocalAddress;
 }
