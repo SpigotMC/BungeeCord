@@ -212,8 +212,9 @@ public class YamlConfig implements ConfigurationAdapter
             {
                 value = DefaultTabList.GLOBAL_PING;
             }
+            boolean setLocalAddress = get( "bind_local_address", true, val );
 
-            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, fallbackServer, forceDefault, forced, value.clazz );
+            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, fallbackServer, forceDefault, forced, value.clazz, setLocalAddress );
             ret.add( info );
         }
 
