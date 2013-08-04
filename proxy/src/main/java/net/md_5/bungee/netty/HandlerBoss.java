@@ -3,7 +3,6 @@ package net.md_5.bungee.netty;
 import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.MessageList;
 import io.netty.handler.timeout.ReadTimeoutException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -61,9 +60,8 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
     {
-        for ( Object msg : msgs )
         {
             if ( handler != null )
             {

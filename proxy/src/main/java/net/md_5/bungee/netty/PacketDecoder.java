@@ -2,8 +2,8 @@ package net.md_5.bungee.netty;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.MessageList;
 import io.netty.handler.codec.ReplayingDecoder;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,7 +28,7 @@ public class PacketDecoder extends ReplayingDecoder<Void>
     private Protocol protocol;
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, MessageList<Object> out) throws Exception
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
     {
         // While we have enough data
         while ( true )
