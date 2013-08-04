@@ -104,6 +104,17 @@ public class ServerConnector extends PacketHandler
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not exepcting LOGIN" );
 
+        synchronized ( user.getSwitchMutex() )
+        {
+            if ( user.getServer() != null )
+            {
+                user.sendDimensionSwitch();
+                // Remove from old servers
+                user.getServer().setObsolete( true );
+                user.getServer().disconnect( "Quitting" );
+            }
+        }
+
         final ServerConnection server = new ServerConnection( ch, target );
         Callback<ServerConnectedEvent> callback = new Callback<ServerConnectedEvent>()
         {
@@ -177,14 +188,8 @@ public class ServerConnector extends PacketHandler
                         }
                         serverScoreboard.clear();
 
-                        user.sendDimensionSwitch();
-
                         user.setServerEntityId( login.getEntityId() );
                         user.unsafe().sendPacket( new Packet9Respawn( login.getDimension(), login.getDifficulty(), login.getGameMode(), (short) 256, login.getLevelType() ) );
-
-                        // Remove from old servers
-                        user.getServer().setObsolete( true );
-                        user.getServer().disconnect( "Quitting" );
                     }
 
                     // TODO: Fix this?
