@@ -2,13 +2,18 @@ package net.md_5.bungee.api.plugin;
 
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class PluginClassloader extends URLClassLoader
 {
 
-    private static final Set<PluginClassloader> allLoaders = new HashSet<>();
+    private static final Set<PluginClassloader> allLoaders = new CopyOnWriteArraySet<>();
+
+    static
+    {
+        ClassLoader.registerAsParallelCapable();
+    }
 
     public PluginClassloader(URL[] urls)
     {
