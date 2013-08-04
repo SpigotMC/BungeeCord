@@ -59,7 +59,7 @@
 
     <properties>
         <build.number>unknown</build.number>
-        <netty.version>4.0.0.CR9</netty.version>
+        <netty.version>4.0.6.Final</netty.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
