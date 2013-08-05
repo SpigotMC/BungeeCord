@@ -50,7 +50,7 @@ public class DownstreamBridge extends PacketHandler
         {
             server.setObsolete( true );
             con.connectNow( def );
-            con.sendMessage( ChatColor.RED + "The server you were previously on went down, you have been connected to the lobby" );
+            con.sendMessage( bungee.getTranslation( "server_went_down" ) );
         } else
         {
             con.disconnect( Util.exception( t ) );

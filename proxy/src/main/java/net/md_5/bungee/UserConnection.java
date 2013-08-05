@@ -182,7 +182,7 @@ public final class UserConnection implements ProxiedPlayer
         }
         if ( pendingConnects.contains( target ) )
         {
-            sendMessage( ChatColor.RED + "Already connecting to this server!" );
+            sendMessage( bungee.getTranslation( "already_connecting" ) );
             return;
         }
 
