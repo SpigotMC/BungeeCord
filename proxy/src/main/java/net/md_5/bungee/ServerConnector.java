@@ -10,7 +10,6 @@ import java.util.Queue;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -100,124 +99,111 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
-    public void handle(final Packet1Login login) throws Exception
+    public void handle(Packet1Login login) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not exepcting LOGIN" );
 
+        ServerConnection server = new ServerConnection( ch, target );
+        ServerConnectedEvent event = new ServerConnectedEvent( user, server );
+        bungee.getPluginManager().callEvent( event );
+
+        ch.write( BungeeCord.getInstance().registerChannels() );
+        Queue<DefinedPacket> packetQueue = target.getPacketQueue();
+        synchronized ( packetQueue )
+        {
+            while ( !packetQueue.isEmpty() )
+            {
+                ch.write( packetQueue.poll() );
+            }
+        }
+
+        for ( PacketFAPluginMessage message : user.getPendingConnection().getRegisterMessages() )
+        {
+            ch.write( message );
+        }
+        if ( !sentMessages )
+        {
+            for ( PacketFAPluginMessage message : user.getPendingConnection().getLoginMessages() )
+            {
+                ch.write( message );
+            }
+        }
+
+        if ( user.getSettings() != null )
+        {
+            ch.write( user.getSettings() );
+        }
+
         synchronized ( user.getSwitchMutex() )
         {
-            if ( user.getServer() != null )
+            if ( user.getServer() == null )
             {
+                // Once again, first connection
+                user.setClientEntityId( login.getEntityId() );
+                user.setServerEntityId( login.getEntityId() );
+
+                // Set tab list size, this sucks balls, TODO: what shall we do about packet mutability
+                Packet1Login modLogin;
+                if ( ch.getHandle().pipeline().get( PacketDecoder.class ).getProtocol() == Forge.getInstance() )
+                {
+                    modLogin = new Forge1Login( login.getEntityId(), login.getLevelType(), login.getGameMode(), login.getDimension(), login.getDifficulty(), login.getUnused(),
+                            (byte) user.getPendingConnection().getListener().getTabListSize() );
+                } else
+                {
+                    modLogin = new Packet1Login( login.getEntityId(), login.getLevelType(), login.getGameMode(), (byte) login.getDimension(), login.getDifficulty(), login.getUnused(),
+                            (byte) user.getPendingConnection().getListener().getTabListSize() );
+                }
+                user.unsafe().sendPacket( modLogin );
+
+                MinecraftOutput out = new MinecraftOutput();
+                out.writeStringUTF8WithoutLengthHeaderBecauseDinnerboneStuffedUpTheMCBrandPacket(ProxyServer.getInstance().getName() + " (" + ProxyServer.getInstance().getVersion() + ")" );
+                user.unsafe().sendPacket( new PacketFAPluginMessage( "MC|Brand", out.toArray() ) );
+            } else
+            {
+                user.getTabList().onServerChange();
+
+                Scoreboard serverScoreboard = user.getServerSentScoreboard();
+                for ( Objective objective : serverScoreboard.getObjectives() )
+                {
+                    user.unsafe().sendPacket( new PacketCEScoreboardObjective( objective.getName(), objective.getValue(), (byte) 1 ) );
+                }
+                for ( Team team : serverScoreboard.getTeams() )
+                {
+                    user.unsafe().sendPacket( new PacketD1Team( team.getName() ) );
+                }
+                serverScoreboard.clear();
+
                 user.sendDimensionSwitch();
+
+                user.setServerEntityId( login.getEntityId() );
+                user.unsafe().sendPacket( new Packet9Respawn( login.getDimension(), login.getDifficulty(), login.getGameMode(), (short) 256, login.getLevelType() ) );
+
                 // Remove from old servers
                 user.getServer().setObsolete( true );
                 user.getServer().disconnect( "Quitting" );
             }
+
+            // TODO: Fix this?
+            if ( !user.isActive() )
+            {
+                server.disconnect( "Quitting" );
+                // Silly server admins see stack trace and die
+                bungee.getLogger().warning( "No client connected for pending server!" );
+                return;
+            }
+
+            // Add to new server
+            // TODO: Move this to the connected() method of DownstreamBridge
+            target.addPlayer( user );
+            user.getPendingConnects().remove( target );
+
+            user.setServer( server );
+            ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user, server ) );
         }
 
-        final ServerConnection server = new ServerConnection( ch, target );
-        Callback<ServerConnectedEvent> callback = new Callback<ServerConnectedEvent>()
-        {
-            @Override
-            public void done(ServerConnectedEvent result, Throwable error)
-            {
+        bungee.getPluginManager().callEvent( new ServerSwitchEvent( user ) );
 
-                ch.write( BungeeCord.getInstance().registerChannels() );
-                Queue<DefinedPacket> packetQueue = target.getPacketQueue();
-                synchronized ( packetQueue )
-                {
-                    while ( !packetQueue.isEmpty() )
-                    {
-                        ch.write( packetQueue.poll() );
-                    }
-                }
-
-                for ( PacketFAPluginMessage message : user.getPendingConnection().getRegisterMessages() )
-                {
-                    ch.write( message );
-                }
-                if ( !sentMessages )
-                {
-                    for ( PacketFAPluginMessage message : user.getPendingConnection().getLoginMessages() )
-                    {
-                        ch.write( message );
-                    }
-                }
-
-                if ( user.getSettings() != null )
-                {
-                    ch.write( user.getSettings() );
-                }
-
-                synchronized ( user.getSwitchMutex() )
-                {
-                    if ( user.getServer() == null )
-                    {
-                        // Once again, first connection
-                        user.setClientEntityId( login.getEntityId() );
-                        user.setServerEntityId( login.getEntityId() );
-
-                        // Set tab list size, this sucks balls, TODO: what shall we do about packet mutability
-                        Packet1Login modLogin;
-                        if ( ch.getHandle().pipeline().get( PacketDecoder.class ).getProtocol() == Forge.getInstance() )
-                        {
-                            modLogin = new Forge1Login( login.getEntityId(), login.getLevelType(), login.getGameMode(), login.getDimension(), login.getDifficulty(), login.getUnused(),
-                                    (byte) user.getPendingConnection().getListener().getTabListSize() );
-                        } else
-                        {
-                            modLogin = new Packet1Login( login.getEntityId(), login.getLevelType(), login.getGameMode(), (byte) login.getDimension(), login.getDifficulty(), login.getUnused(),
-                                    (byte) user.getPendingConnection().getListener().getTabListSize() );
-                        }
-                        user.unsafe().sendPacket( modLogin );
-
-                        MinecraftOutput out = new MinecraftOutput();
-                        out.writeStringUTF8WithoutLengthHeaderBecauseDinnerboneStuffedUpTheMCBrandPacket( ProxyServer.getInstance().getName() + " (" + ProxyServer.getInstance().getVersion() + ")" );
-                        user.unsafe().sendPacket( new PacketFAPluginMessage( "MC|Brand", out.toArray() ) );
-                    } else
-                    {
-                        user.getTabList().onServerChange();
-
-                        Scoreboard serverScoreboard = user.getServerSentScoreboard();
-                        for ( Objective objective : serverScoreboard.getObjectives() )
-                        {
-                            user.unsafe().sendPacket( new PacketCEScoreboardObjective( objective.getName(), objective.getValue(), (byte) 1 ) );
-                        }
-                        for ( Team team : serverScoreboard.getTeams() )
-                        {
-                            user.unsafe().sendPacket( new PacketD1Team( team.getName() ) );
-                        }
-                        serverScoreboard.clear();
-
-                        user.setServerEntityId( login.getEntityId() );
-                        user.unsafe().sendPacket( new Packet9Respawn( login.getDimension(), login.getDifficulty(), login.getGameMode(), (short) 256, login.getLevelType() ) );
-                    }
-
-                    // TODO: Fix this?
-                    if ( !user.isActive() )
-                    {
-                        server.disconnect( "Quitting" );
-                        // Silly server admins see stack trace and die
-                        bungee.getLogger().warning( "No client connected for pending server!" );
-                        return;
-                    }
-
-                    // Add to new server
-                    // TODO: Move this to the connected() method of DownstreamBridge
-                    target.addPlayer( user );
-                    user.getPendingConnects().remove( target );
-
-                    user.setServer( server );
-                    ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user, server ) );
-                }
-
-                bungee.getPluginManager().callEvent( new ServerSwitchEvent( user ) );
-
-                thisState = State.FINISHED;
-            }
-        };
-
-        ServerConnectedEvent event = new ServerConnectedEvent( user, server, callback );
-        bungee.getPluginManager().callEvent( event );
+        thisState = State.FINISHED;
 
         throw new CancelSendSignal();
     }
