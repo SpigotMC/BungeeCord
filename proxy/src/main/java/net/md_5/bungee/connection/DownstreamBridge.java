@@ -99,15 +99,6 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(PacketCBTabComplete tabComplete) throws Exception
-    {
-        if ( tabComplete.getCommands()[0].startsWith( "/" ) && !tabComplete.getCommands()[0].contains( " " ) )
-        {
-            // TODO how the hell can i implement this? D:
-        }
-    }
-
-    @Override
     public void handle(PacketCEScoreboardObjective objective) throws Exception
     {
         Scoreboard serverScoreboard = con.getServerSentScoreboard();

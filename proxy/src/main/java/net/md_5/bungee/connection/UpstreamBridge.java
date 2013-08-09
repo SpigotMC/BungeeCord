@@ -126,7 +126,7 @@ public class UpstreamBridge extends PacketHandler
                                     }
                                 }
                             }
-                        }// TODO might add else and return all players, but that might be an pain for big servers.
+                        }
                     }
                     con.unsafe().sendPacket( new PacketCBTabComplete( result.toArray( new String[ result.size() ] ) ) );
                     throw new CancelSendSignal();
