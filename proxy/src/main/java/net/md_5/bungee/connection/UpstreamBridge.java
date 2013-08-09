@@ -119,7 +119,8 @@ public class UpstreamBridge extends PacketHandler
                             String playerToCheck = args[args.length - 1];
                             if ( playerToCheck.length() > 0 )
                             {
-                                for ( ProxiedPlayer player : bungee.getPlayers() ) {
+                                for ( ProxiedPlayer player : bungee.getPlayers() )
+                                {
                                     if ( player.getName().substring( 0, playerToCheck.length() ).equalsIgnoreCase( playerToCheck ) )
                                     {
                                         result.add( player.getName() );
