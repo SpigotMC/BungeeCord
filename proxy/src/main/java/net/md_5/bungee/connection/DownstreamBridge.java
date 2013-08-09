@@ -25,7 +25,6 @@ import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.packet.Packet0KeepAlive;
 import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
-import net.md_5.bungee.protocol.packet.PacketCBTabComplete;
 import net.md_5.bungee.protocol.packet.PacketCEScoreboardObjective;
 import net.md_5.bungee.protocol.packet.PacketCFScoreboardScore;
 import net.md_5.bungee.protocol.packet.PacketD0DisplayScoreboard;
