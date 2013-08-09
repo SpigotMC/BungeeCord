@@ -14,6 +14,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.MultithreadEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.util.ResourceLeakDetector;
 import net.md_5.bungee.config.Configuration;
 import java.io.File;
 import java.io.IOException;
@@ -234,6 +235,8 @@ public class BungeeCord extends ProxyServer
     @Override
     public void start() throws Exception
     {
+        ResourceLeakDetector.setEnabled( false ); // Eats performance
+
         pluginsFolder.mkdir();
         pluginManager.detectPlugins( pluginsFolder );
         config.load();
