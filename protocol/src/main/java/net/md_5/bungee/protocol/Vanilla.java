@@ -5,25 +5,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import lombok.Getter;
 import static net.md_5.bungee.protocol.OpCode.*;
-import net.md_5.bungee.protocol.packet.DefinedPacket;
-import net.md_5.bungee.protocol.packet.Packet0KeepAlive;
-import net.md_5.bungee.protocol.packet.Packet1Login;
-import net.md_5.bungee.protocol.packet.Packet2CEntityProperties;
-import net.md_5.bungee.protocol.packet.Packet2Handshake;
-import net.md_5.bungee.protocol.packet.Packet3Chat;
-import net.md_5.bungee.protocol.packet.Packet9Respawn;
-import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
-import net.md_5.bungee.protocol.packet.PacketCCSettings;
-import net.md_5.bungee.protocol.packet.PacketCDClientStatus;
-import net.md_5.bungee.protocol.packet.PacketCEScoreboardObjective;
-import net.md_5.bungee.protocol.packet.PacketCFScoreboardScore;
-import net.md_5.bungee.protocol.packet.PacketD0DisplayScoreboard;
-import net.md_5.bungee.protocol.packet.PacketD1Team;
-import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
-import net.md_5.bungee.protocol.packet.PacketFCEncryptionResponse;
-import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
-import net.md_5.bungee.protocol.packet.PacketFEPing;
-import net.md_5.bungee.protocol.packet.PacketFFKick;
+
+import net.md_5.bungee.protocol.packet.*;
 import net.md_5.bungee.protocol.skip.PacketReader;
 
 public class Vanilla implements Protocol
@@ -56,6 +39,7 @@ public class Vanilla implements Protocol
         classes[0xC9] = PacketC9PlayerListItem.class;
         classes[0x2C] = Packet2CEntityProperties.class;
         classes[0xCC] = PacketCCSettings.class;
+        classes[0xCB] = PacketCBTabComplete.class;
         classes[0xCD] = PacketCDClientStatus.class;
         classes[0xCE] = PacketCEScoreboardObjective.class;
         classes[0xCF] = PacketCFScoreboardScore.class;

@@ -117,6 +117,26 @@ public class PluginManager
     }
 
     /**
+     * Returns command registered
+     *
+     * @param cmd to look for
+     * @return the command registered
+     */
+    public Command getCommand(String cmd)
+    {
+        return commandMap.get( cmd );
+    }
+
+    /**
+     *
+     */
+
+    public String[] getRegisteredCommands()
+    {
+        return commandMap.keySet().toArray( new String[commandMap.keySet().size()] );
+    }
+
+    /**
      * Returns the {@link Plugin} objects corresponding to all loaded plugins.
      *
      * @return the set of loaded plugins

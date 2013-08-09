@@ -16,6 +16,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
+import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.score.Objective;
 import net.md_5.bungee.api.score.Position;
 import net.md_5.bungee.api.score.Score;
@@ -23,14 +24,7 @@ import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.api.score.Team;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
-import net.md_5.bungee.protocol.packet.Packet0KeepAlive;
-import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
-import net.md_5.bungee.protocol.packet.PacketCEScoreboardObjective;
-import net.md_5.bungee.protocol.packet.PacketCFScoreboardScore;
-import net.md_5.bungee.protocol.packet.PacketD0DisplayScoreboard;
-import net.md_5.bungee.protocol.packet.PacketD1Team;
-import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
-import net.md_5.bungee.protocol.packet.PacketFFKick;
+import net.md_5.bungee.protocol.packet.*;
 
 ;
 
@@ -94,6 +88,15 @@ public class DownstreamBridge extends PacketHandler
         if ( !con.getTabList().onListUpdate( playerList.getUsername(), playerList.isOnline(), playerList.getPing() ) )
         {
             throw new CancelSendSignal();
+        }
+    }
+
+    @Override
+    public void handle(PacketCBTabComplete tabComplete) throws Exception
+    {
+        if ( tabComplete.getCommands()[0].startsWith( "/" ) && !tabComplete.getCommands()[0].contains( " " ) )
+        {
+            // TODO how the hell can i implement this? D:
         }
     }
 
