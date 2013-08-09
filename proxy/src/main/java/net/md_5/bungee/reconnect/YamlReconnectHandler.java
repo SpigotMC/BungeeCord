@@ -14,6 +14,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.error.YAMLException;
 
 public class YamlReconnectHandler extends AbstractReconnectManager
 {
@@ -34,6 +35,10 @@ public class YamlReconnectHandler extends AbstractReconnectManager
             {
                 data = yaml.loadAs( rd, Map.class );
             }
+        } catch ( YAMLException ex )
+        {
+            file.renameTo( new File( "locations.yml.old" ) );
+            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load reconnect locations, resetting them" );
         } catch ( IOException ex )
         {
             ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load reconnect locations", ex );
