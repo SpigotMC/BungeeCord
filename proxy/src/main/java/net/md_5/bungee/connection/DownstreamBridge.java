@@ -24,7 +24,26 @@ import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.api.score.Team;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
-import net.md_5.bungee.protocol.packet.*;
+import net.md_5.bungee.protocol.packet.DefinedPacket;
+import net.md_5.bungee.protocol.packet.Packet0KeepAlive;
+import net.md_5.bungee.protocol.packet.Packet1Login;
+import net.md_5.bungee.protocol.packet.Packet2CEntityProperties;
+import net.md_5.bungee.protocol.packet.Packet2Handshake;
+import net.md_5.bungee.protocol.packet.Packet3Chat;
+import net.md_5.bungee.protocol.packet.Packet9Respawn;
+import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
+import net.md_5.bungee.protocol.packet.PacketCBTabComplete;
+import net.md_5.bungee.protocol.packet.PacketCCSettings;
+import net.md_5.bungee.protocol.packet.PacketCDClientStatus;
+import net.md_5.bungee.protocol.packet.PacketCEScoreboardObjective;
+import net.md_5.bungee.protocol.packet.PacketCFScoreboardScore;
+import net.md_5.bungee.protocol.packet.PacketD0DisplayScoreboard;
+import net.md_5.bungee.protocol.packet.PacketD1Team;
+import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
+import net.md_5.bungee.protocol.packet.PacketFCEncryptionResponse;
+import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
+import net.md_5.bungee.protocol.packet.PacketFEPing;
+import net.md_5.bungee.protocol.packet.PacketFFKick;
 
 ;
 
