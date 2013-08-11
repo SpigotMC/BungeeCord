@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 public class EventBus
 {
 
-    private final Map<Class<?>, Map<Object, Map<EventPriority,Method[]>>> eventToHandler = new HashMap<>();
+    private final Map<Class<?>, Map<Object, Map<EventPriority, Method[]>>> eventToHandler = new HashMap<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final Logger logger;
 
@@ -39,10 +39,10 @@ public class EventBus
             {
                 for ( Map.Entry<Object, Map<EventPriority, Method[]>> handler : handlers.entrySet() )
                 {
-                    for(EventPriority ep:EventPriority.values())
+                    for ( EventPriority ep : EventPriority.values() )
                     {
-                        Method[] methods=handler.getValue().get( ep );
-                        if(methods==null)
+                        Method[] methods = handler.getValue().get( ep );
+                        if ( methods == null )
                         {
                             continue;
                         }
@@ -51,18 +51,21 @@ public class EventBus
                             try
                             {
                                 // at this point we check if the method ignores cancelled events
-                                boolean execute=true;
-                                if (event instanceof Cancellable){
-                                    if (((Cancellable) event).isCancelled() && method.getAnnotation( EventHandler.class ).ignoreCancelled()){
-                                        execute=false;
+                                boolean execute = true;
+                                if ( event instanceof Cancellable )
+                                {
+                                    if ( ( (Cancellable) event ).isCancelled() && method.getAnnotation( EventHandler.class ).ignoreCancelled() )
+                                    {
+                                        execute = false;
                                     }
                                 }
 
                                 // only invoke if exection is allowed
-                                if(execute){
-                                     method.invoke( handler.getKey(), event );
+                                if ( execute )
+                                {
+                                    method.invoke( handler.getKey(), event );
                                 }
-                               
+
                             } catch ( IllegalAccessException ex )
                             {
                                 throw new Error( "Method became inaccessible: " + event, ex );
@@ -85,7 +88,7 @@ public class EventBus
 
     private Map<Class<?>, Map<EventPriority, Set<Method>>> findHandlers(Object listener)
     {
-        Map<Class<?>, Map<EventPriority,Set<Method>>> handler = new HashMap<>();
+        Map<Class<?>, Map<EventPriority, Set<Method>>> handler = new HashMap<>();
         for ( Method m : listener.getClass().getDeclaredMethods() )
         {
             EventHandler annotation = m.getAnnotation( EventHandler.class );
@@ -100,8 +103,8 @@ public class EventBus
                     } );
                     continue;
                 }
-                
-                Map<EventPriority,Set<Method>> existingMap = handler.get( params[0] );
+
+                Map<EventPriority, Set<Method>> existingMap = handler.get( params[0] );
                 if ( existingMap == null )
                 {
                     existingMap = new HashMap<>();
@@ -133,14 +136,14 @@ public class EventBus
                     a = new HashMap<>();
                     eventToHandler.put( e.getKey(), a );
                 }
-                
+
                 Map<EventPriority, Method[]> b = a.get( listener );
                 if ( b == null )
                 {
                     b = new HashMap<>();
                     a.put( listener, b );
                 }
-                for(Map.Entry<EventPriority, Set<Method>> entry:e.getValue().entrySet())
+                for ( Map.Entry<EventPriority, Set<Method>> entry : e.getValue().entrySet() )
                 {
                     Method[] baked = new Method[ entry.getValue().size() ];
                     b.put( entry.getKey(), entry.getValue().toArray( baked ) );
