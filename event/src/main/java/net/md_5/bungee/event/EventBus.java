@@ -50,7 +50,7 @@ public class EventBus
                         {
                             try
                             {
-                                // at this point we check the method ignores cancelled events
+                                // at this point we check if the method ignores cancelled events
                                 boolean execute=true;
                                 if (event instanceof Cancellable){
                                     if (((Cancellable) event).isCancelled() && method.getAnnotation( EventHandler.class ).ignoreCancelled()){
