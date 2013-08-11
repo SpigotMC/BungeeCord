@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import net.md_5.bungee.api.connection.Connection;
-import net.md_5.bungee.api.plugin.Cancellable;
+import net.md_5.bungee.event.Cancellable;
 
 /**
  * Event called when a player sends a message to a server, or a server sends a
