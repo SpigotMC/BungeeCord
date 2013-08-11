@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import net.md_5.bungee.api.connection.Connection;
-import net.md_5.bungee.api.plugin.Cancellable;
+import net.md_5.bungee.event.Cancellable;
 
 /**
  * Event called when a plugin message is sent to the client or server.

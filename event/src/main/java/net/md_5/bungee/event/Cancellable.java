@@ -1,4 +1,4 @@
-package net.md_5.bungee.api.plugin;
+package net.md_5.bungee.event;
 
 /**
  * Events that implement this indicate that they may be cancelled and thus

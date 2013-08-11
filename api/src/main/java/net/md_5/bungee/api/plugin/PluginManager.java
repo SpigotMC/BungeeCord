@@ -22,7 +22,6 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.event.EventBus;
-import net.md_5.bungee.event.EventHandler;
 import org.yaml.snakeyaml.Yaml;
 
 /**
@@ -310,7 +309,7 @@ public class PluginManager
     /**
      * Register a {@link Listener} for receiving called events. Methods in this
      * Object which wish to receive events must be annotated with the
-     * {@link Subscribe} annotation.
+     * {@link EventHandler} annotation.
      *
      * @param plugin the owning plugin
      * @param listener the listener to register events for
@@ -321,7 +320,23 @@ public class PluginManager
         {
             Preconditions.checkArgument( !method.isAnnotationPresent( Subscribe.class ),
                     "Listener %s has registered using deprecated subscribe annotation! Please update to @EventHandler.", listener );
-            eventBus.register( listener );
         }
+        eventBus.register( listener );
+    }
+    
+    /**
+     * Unregister a {@link Listener} from receiving called events.
+     *
+     * @param plugin the owning plugin
+     * @param listener the listener to unregister events from
+     */
+    public void unregisterListener(Plugin plugin, Listener listener)
+    {
+        for ( Method method : listener.getClass().getDeclaredMethods() )
+        {
+            Preconditions.checkArgument( !method.isAnnotationPresent( Subscribe.class ),
+                    "Listener %s has unregistered using deprecated subscribe annotation! Please update to @EventHandler.", listener );
+        }
+        eventBus.unregister( listener );
     }
 }

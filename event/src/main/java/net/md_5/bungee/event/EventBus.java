@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 public class EventBus
 {
 
-    private final Map<Class<?>, Map<Object, Method[]>> eventToHandler = new HashMap<>();
+    private final Map<Class<?>, Map<Object, Map<EventPriority,Method[]>>> eventToHandler = new HashMap<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final Logger logger;
 
@@ -34,25 +34,45 @@ public class EventBus
         lock.readLock().lock();
         try
         {
-            Map<Object, Method[]> handlers = eventToHandler.get( event.getClass() );
+            Map<Object, Map<EventPriority, Method[]>> handlers = eventToHandler.get( event.getClass() );
             if ( handlers != null )
             {
-                for ( Map.Entry<Object, Method[]> handler : handlers.entrySet() )
+                for ( Map.Entry<Object, Map<EventPriority, Method[]>> handler : handlers.entrySet() )
                 {
-                    for ( Method method : handler.getValue() )
+                    for(EventPriority ep:EventPriority.values())
                     {
-                        try
+                        Method[] methods=handler.getValue().get( ep );
+                        if(methods==null)
                         {
-                            method.invoke( handler.getKey(), event );
-                        } catch ( IllegalAccessException ex )
+                            continue;
+                        }
+                        for ( Method method : methods )
                         {
-                            throw new Error( "Method became inaccessible: " + event, ex );
-                        } catch ( IllegalArgumentException ex )
-                        {
-                            throw new Error( "Method rejected target/argument: " + event, ex );
-                        } catch ( InvocationTargetException ex )
-                        {
-                            logger.log( Level.WARNING, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, handler.getKey() ), ex.getCause() );
+                            try
+                            {
+                                // at this point we check the method ignores cancelled events
+                                boolean execute=true;
+                                if (event instanceof Cancellable){
+                                    if (((Cancellable) event).isCancelled() && method.getAnnotation( EventHandler.class ).ignoreCancelled()){
+                                        execute=false;
+                                    }
+                                }
+
+                                // only invoke if exection is allowed
+                                if(execute){
+                                     method.invoke( handler.getKey(), event );
+                                }
+                               
+                            } catch ( IllegalAccessException ex )
+                            {
+                                throw new Error( "Method became inaccessible: " + event, ex );
+                            } catch ( IllegalArgumentException ex )
+                            {
+                                throw new Error( "Method rejected target/argument: " + event, ex );
+                            } catch ( InvocationTargetException ex )
+                            {
+                                logger.log( Level.WARNING, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, handler.getKey() ), ex.getCause() );
+                            }
                         }
                     }
                 }
@@ -63,9 +83,9 @@ public class EventBus
         }
     }
 
-    private Map<Class<?>, Set<Method>> findHandlers(Object listener)
+    private Map<Class<?>, Map<EventPriority, Set<Method>>> findHandlers(Object listener)
     {
-        Map<Class<?>, Set<Method>> handler = new HashMap<>();
+        Map<Class<?>, Map<EventPriority,Set<Method>>> handler = new HashMap<>();
         for ( Method m : listener.getClass().getDeclaredMethods() )
         {
             EventHandler annotation = m.getAnnotation( EventHandler.class );
@@ -80,12 +100,18 @@ public class EventBus
                     } );
                     continue;
                 }
-
-                Set<Method> existing = handler.get( params[0] );
+                
+                Map<EventPriority,Set<Method>> existingMap = handler.get( params[0] );
+                if ( existingMap == null )
+                {
+                    existingMap = new HashMap<>();
+                    handler.put( params[0], existingMap );
+                }
+                Set<Method> existing = existingMap.get( annotation.priority() );
                 if ( existing == null )
                 {
                     existing = new HashSet<>();
-                    handler.put( params[0], existing );
+                    existingMap.put( annotation.priority(), existing );
                 }
                 existing.add( m );
             }
@@ -95,20 +121,30 @@ public class EventBus
 
     public void register(Object listener)
     {
-        Map<Class<?>, Set<Method>> handler = findHandlers( listener );
+        Map<Class<?>, Map<EventPriority, Set<Method>>> handler = findHandlers( listener );
         lock.writeLock().lock();
         try
         {
-            for ( Map.Entry<Class<?>, Set<Method>> e : handler.entrySet() )
+            for ( Map.Entry<Class<?>, Map<EventPriority, Set<Method>>> e : handler.entrySet() )
             {
-                Map<Object, Method[]> a = eventToHandler.get( e.getKey() );
+                Map<Object, Map<EventPriority, Method[]>> a = eventToHandler.get( e.getKey() );
                 if ( a == null )
                 {
                     a = new HashMap<>();
                     eventToHandler.put( e.getKey(), a );
                 }
-                Method[] baked = new Method[ e.getValue().size() ];
-                a.put( listener, e.getValue().toArray( baked ) );
+                
+                Map<EventPriority, Method[]> b = a.get( listener );
+                if ( b == null )
+                {
+                    b = new HashMap<>();
+                    a.put( listener, b );
+                }
+                for(Map.Entry<EventPriority, Set<Method>> entry:e.getValue().entrySet())
+                {
+                    Method[] baked = new Method[ entry.getValue().size() ];
+                    b.put( entry.getKey(), entry.getValue().toArray( baked ) );
+                }
             }
         } finally
         {
@@ -118,13 +154,13 @@ public class EventBus
 
     public void unregister(Object listener)
     {
-        Map<Class<?>, Set<Method>> handler = findHandlers( listener );
+        Map<Class<?>, Map<EventPriority, Set<Method>>> handler = findHandlers( listener );
         lock.writeLock().lock();
         try
         {
-            for ( Map.Entry<Class<?>, Set<Method>> e : handler.entrySet() )
+            for ( Map.Entry<Class<?>, Map<EventPriority, Set<Method>>> e : handler.entrySet() )
             {
-                Map<Object, Method[]> a = eventToHandler.get( e.getKey() );
+                Map<Object, Map<EventPriority, Method[]>> a = eventToHandler.get( e.getKey() );
                 if ( a != null )
                 {
                     a.remove( listener );
