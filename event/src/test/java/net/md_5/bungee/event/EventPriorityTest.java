@@ -1,12 +1,12 @@
 package net.md_5.bungee.event;
 
+import net.md_5.bungee.api.plugin.Cancellable;
 import java.text.MessageFormat;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.Setter;
-import net.md_5.bungee.api.plugin.Cancellable;
 import org.junit.Assert;
 import org.junit.Test;
 

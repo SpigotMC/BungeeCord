@@ -1,5 +1,6 @@
 package net.md_5.bungee.event;
 
+import net.md_5.bungee.api.plugin.Cancellable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
@@ -11,7 +12,6 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.md_5.bungee.api.plugin.Cancellable;
 
 public class EventBus
 {
