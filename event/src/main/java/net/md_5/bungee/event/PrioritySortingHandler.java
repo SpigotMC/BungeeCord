@@ -17,15 +17,20 @@ public class PrioritySortingHandler
      */
     public static EventMethod[] sort(Method[] methods)
     {
-        EventMethod[] tmp = convert( methods );
-        Arrays.sort( tmp );
-        return tmp;
+        return sort( convert( methods ) );
+    }
+
+    public static EventMethod[] sort(EventMethod[] methods)
+    {
+        Arrays.sort( methods );
+        return methods;
     }
 
     /**
      * Converts the EventMethods to Methods again
+     *
      * @param methods
-     * @return 
+     * @return
      */
     @Deprecated
     private static Method[] convert(EventMethod[] methods)
@@ -38,10 +43,11 @@ public class PrioritySortingHandler
         return tmp;
     }
 
-    /** 
+    /**
      * Converts Methods to EventMethods for sorting
+     *
      * @param methods
-     * @return 
+     * @return
      */
     private static EventMethod[] convert(Method[] methods)
     {

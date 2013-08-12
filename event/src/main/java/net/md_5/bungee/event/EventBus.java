@@ -16,7 +16,7 @@ import net.md_5.bungee.api.plugin.Cancellable;
 public class EventBus
 {
 
-    private final Map<Class<?>, Map<Object, Method[]>> eventToHandler = new HashMap<>();
+    private final Map<Class<?>, Map<Object, EventMethod[]>> eventToHandler = new HashMap<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final Logger logger;
 
@@ -35,7 +35,7 @@ public class EventBus
         lock.readLock().lock();
         try
         {
-            Map<Object, Method[]> handlers = eventToHandler.get( event.getClass() );
+            Map<Object, EventMethod[]> handlers = eventToHandler.get( event.getClass() );
             if ( handlers != null )
             {
                 Cancellable c = null;
@@ -43,9 +43,9 @@ public class EventBus
                 {
                     c = (Cancellable) event;
                 }
-                for ( Map.Entry<Object, Method[]> handler : handlers.entrySet() )
+                for ( Map.Entry<Object, EventMethod[]> handler : handlers.entrySet() )
                 {
-                    for ( EventMethod method : PrioritySortingHandler.sort( handler.getValue() ) )
+                    for ( EventMethod method : handler.getValue() )
                     {
                         if ( c != null && c.isCancelled() )
                         {
@@ -76,9 +76,9 @@ public class EventBus
         }
     }
 
-    private Map<Class<?>, Set<Method>> findHandlers(Object listener)
+    private Map<Class<?>, Set<EventMethod>> findHandlers(Object listener)
     {
-        Map<Class<?>, Set<Method>> handler = new HashMap<>();
+        Map<Class<?>, Set<EventMethod>> handler = new HashMap<>();
         for ( Method m : listener.getClass().getDeclaredMethods() )
         {
             EventHandler annotation = m.getAnnotation( EventHandler.class );
@@ -94,13 +94,13 @@ public class EventBus
                     continue;
                 }
 
-                Set<Method> existing = handler.get( params[0] );
+                Set<EventMethod> existing = handler.get( params[0] );
                 if ( existing == null )
                 {
                     existing = new HashSet<>();
                     handler.put( params[0], existing );
                 }
-                existing.add( m );
+                existing.add( new EventMethod( annotation, m ) );
             }
         }
         return handler;
@@ -108,21 +108,20 @@ public class EventBus
 
     public void register(Object listener)
     {
-        Map<Class<?>, Set<Method>> handler = findHandlers( listener );
+        Map<Class<?>, Set<EventMethod>> handler = findHandlers( listener );
         lock.writeLock().lock();
         try
         {
-            for ( Map.Entry<Class<?>, Set<Method>> e : handler.entrySet() )
+            for ( Map.Entry<Class<?>, Set<EventMethod>> e : handler.entrySet() )
             {
-                //Actually for performance we could sort this one instead for each call
-                Map<Object, Method[]> a = eventToHandler.get( e.getKey() );
+                Map<Object, EventMethod[]> a = eventToHandler.get( e.getKey() );
                 if ( a == null )
                 {
                     a = new HashMap<>();
                     eventToHandler.put( e.getKey(), a );
                 }
-                Method[] baked = new Method[ e.getValue().size() ];
-                a.put( listener, e.getValue().toArray( baked ) );
+                EventMethod[] baked = new EventMethod[ e.getValue().size() ];
+                a.put( listener, PrioritySortingHandler.sort( e.getValue().toArray( baked ) ) );
             }
         } finally
         {
@@ -132,13 +131,13 @@ public class EventBus
 
     public void unregister(Object listener)
     {
-        Map<Class<?>, Set<Method>> handler = findHandlers( listener );
+        Map<Class<?>, Set<EventMethod>> handler = findHandlers( listener );
         lock.writeLock().lock();
         try
         {
-            for ( Map.Entry<Class<?>, Set<Method>> e : handler.entrySet() )
+            for ( Map.Entry<Class<?>, Set<EventMethod>> e : handler.entrySet() )
             {
-                Map<Object, Method[]> a = eventToHandler.get( e.getKey() );
+                Map<Object, EventMethod[]> a = eventToHandler.get( e.getKey() );
                 if ( a != null )
                 {
                     a.remove( listener );

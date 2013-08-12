@@ -1,8 +1,10 @@
 package net.md_5.bungee.event;
 
 import java.lang.reflect.Method;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+@AllArgsConstructor
 @Getter
 public class EventMethod implements Comparable<EventMethod>
 {
@@ -12,8 +14,7 @@ public class EventMethod implements Comparable<EventMethod>
 
     protected EventMethod(Method method)
     {
-        this.method = method;
-        handler = method.getAnnotation( EventHandler.class );
+        this( method.getAnnotation( EventHandler.class ), method );
     }
 
     public int getPriority()
