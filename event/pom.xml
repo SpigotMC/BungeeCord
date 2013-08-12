@@ -17,4 +17,12 @@
 
     <name>BungeeCord-Event</name>
     <description>Generic java event dispatching API intended for use with BungeeCord</description>
+    <dependencies>
+        <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-api</artifactId>
+            <version>1.6.2-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
 </project>
