@@ -11,6 +11,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.md_5.bungee.api.plugin.Cancellable;
 
 public class EventBus
 {
@@ -37,13 +38,25 @@ public class EventBus
             Map<Object, Method[]> handlers = eventToHandler.get( event.getClass() );
             if ( handlers != null )
             {
+                Cancellable c = null;
+                if ( event instanceof Cancellable )
+                {
+                    c = (Cancellable) event;
+                }
                 for ( Map.Entry<Object, Method[]> handler : handlers.entrySet() )
                 {
-                    for ( Method method : handler.getValue() )
+                    for ( EventMethod method : PrioritySortingHandler.sort( handler.getValue() ) )
                     {
+                        if ( c != null && c.isCancelled() )
+                        {
+                            if ( !method.getHandler().ignoreCancelled() )
+                            {
+                                continue;
+                            }
+                        }
                         try
                         {
-                            method.invoke( handler.getKey(), event );
+                            method.getMethod().invoke( handler.getKey(), event );
                         } catch ( IllegalAccessException ex )
                         {
                             throw new Error( "Method became inaccessible: " + event, ex );
@@ -101,6 +114,7 @@ public class EventBus
         {
             for ( Map.Entry<Class<?>, Set<Method>> e : handler.entrySet() )
             {
+                //Actually for performance we could sort this one instead for each call
                 Map<Object, Method[]> a = eventToHandler.get( e.getKey() );
                 if ( a == null )
                 {
