@@ -310,7 +310,7 @@ public class PluginManager
     /**
      * Register a {@link Listener} for receiving called events. Methods in this
      * Object which wish to receive events must be annotated with the
-     * {@link Subscribe} annotation.
+     * {@link EventHandler} annotation.
      *
      * @param plugin the owning plugin
      * @param listener the listener to register events for
@@ -321,7 +321,7 @@ public class PluginManager
         {
             Preconditions.checkArgument( !method.isAnnotationPresent( Subscribe.class ),
                     "Listener %s has registered using deprecated subscribe annotation! Please update to @EventHandler.", listener );
-            eventBus.register( listener );
         }
+        eventBus.register( listener );
     }
 }
