@@ -240,9 +240,13 @@ public class BungeeCord extends ProxyServer
         pluginsFolder.mkdir();
         pluginManager.detectPlugins( pluginsFolder );
         config.load();
-        if ( reconnectHandler == null )
+        for ( ListenerInfo info : config.getListeners() )
         {
-            reconnectHandler = new YamlReconnectHandler();
+            if ( !info.isForceDefault() && reconnectHandler == null )
+            {
+                reconnectHandler = new YamlReconnectHandler();
+                break;
+            }
         }
         isRunning = true;
 
@@ -342,8 +346,11 @@ public class BungeeCord extends ProxyServer
                 }
 
                 getLogger().info( "Saving reconnect locations" );
-                reconnectHandler.save();
-                reconnectHandler.close();
+                if ( reconnectHandler != null )
+                {
+                    reconnectHandler.save();
+                    reconnectHandler.close();
+                }
                 saveThread.cancel();
                 metricsThread.cancel();
 

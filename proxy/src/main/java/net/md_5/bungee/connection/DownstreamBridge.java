@@ -32,7 +32,6 @@ import net.md_5.bungee.protocol.packet.PacketD1Team;
 import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
 import net.md_5.bungee.protocol.packet.PacketFFKick;
 
-;
 
 @RequiredArgsConstructor
 public class DownstreamBridge extends PacketHandler
@@ -62,7 +61,10 @@ public class DownstreamBridge extends PacketHandler
     {
         // We lost connection to the server
         server.getInfo().removePlayer( con );
-        bungee.getReconnectHandler().setServer( con );
+        if (bungee.getReconnectHandler() != null)
+        {
+            bungee.getReconnectHandler().setServer( con );
+        }
 
         if ( !server.isObsolete() )
         {

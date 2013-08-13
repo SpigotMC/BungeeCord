@@ -335,14 +335,21 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
-        UserConnection userCon = new UserConnection( (BungeeCord) bungee, ch, getName(), this );
+        UserConnection userCon = new UserConnection( bungee, ch, getName(), this );
         userCon.init();
 
         bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
 
         ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
 
-        ServerInfo server = bungee.getReconnectHandler().getServer( userCon );
+        ServerInfo server;
+        if ( bungee.getReconnectHandler() != null )
+        {
+            server = bungee.getReconnectHandler().getServer( userCon );
+        } else
+        {
+            server = AbstractReconnectManager.getForcedHost( this );
+        }
         userCon.connect( server, true );
 
         thisState = State.FINISHED;
