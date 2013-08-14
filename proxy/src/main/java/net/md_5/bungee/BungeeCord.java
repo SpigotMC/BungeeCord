@@ -259,7 +259,10 @@ public class BungeeCord extends ProxyServer
             @Override
             public void run()
             {
-                getReconnectHandler().save();
+                if ( getReconnectHandler() != null )
+                {
+                    getReconnectHandler().save();
+                }
             }
         }, 0, TimeUnit.MINUTES.toMillis( 5 ) );
         metricsThread.scheduleAtFixedRate( new Metrics(), 0, TimeUnit.MINUTES.toMillis( Metrics.PING_INTERVAL ) );
