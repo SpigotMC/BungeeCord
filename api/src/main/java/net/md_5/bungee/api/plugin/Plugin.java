@@ -71,6 +71,14 @@ public class Plugin
     }
 
     /**
+     * Get a logger.
+     * @return logger for this plugin
+     */
+    public Logger getLogger() {
+        return logger;
+    }
+
+    /**
      * Called by the loader to initialize the fields in this plugin.
      *
      * @param description the description that describes this plugin
