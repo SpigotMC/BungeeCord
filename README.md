@@ -17,3 +17,9 @@ Installation & Usage
 For and in depth guide to the installation and usage of BungeeCord you should check the current primary download location. The current link is provided below for your convenience.
 
 <http://www.spigotmc.org/threads/bungeecord.392/>
+
+
+Plugin Development
+------------------
+To access some getter methods you need to install lombok and add it as library to your plugin project.
+See <http://projectlombok.org>
