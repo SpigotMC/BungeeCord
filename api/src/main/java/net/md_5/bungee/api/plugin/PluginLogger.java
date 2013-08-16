@@ -7,11 +7,13 @@ import net.md_5.bungee.api.ProxyServer;
 public class PluginLogger extends Logger
 {
 
+    private Logger bungeelogger;
     private String pluginName;
 
     protected PluginLogger(Plugin plugin)
     {
         super( plugin.getClass().getCanonicalName(), null );
+        this.bungeelogger = Logger.getLogger("BungeeCord");
         pluginName = "[" + plugin.getDescription().getName() + "] ";
         setParent( ProxyServer.getInstance().getLogger() );
     }
@@ -20,6 +22,6 @@ public class PluginLogger extends Logger
     public void log(LogRecord logRecord)
     {
         logRecord.setMessage( pluginName + logRecord.getMessage() );
-        super.log( logRecord );
+        bungeelogger.log( logRecord );
     }
 }
