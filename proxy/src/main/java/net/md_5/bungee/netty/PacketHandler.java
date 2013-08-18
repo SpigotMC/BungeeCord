@@ -10,7 +10,7 @@ public abstract class PacketHandler extends net.md_5.bungee.protocol.packet.Abst
     {
     }
 
-    public void handle(byte[] buf) throws Exception
+    public void handle(PacketWrapper packet) throws Exception
     {
     }
 

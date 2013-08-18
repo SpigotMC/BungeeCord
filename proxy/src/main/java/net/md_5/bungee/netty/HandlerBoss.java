@@ -62,23 +62,27 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     {
         if ( handler != null )
         {
-            if ( msg instanceof PacketWrapper )
+            PacketWrapper packet = (PacketWrapper) msg;
+            boolean sendPacket = true;
+            try
             {
-                boolean sendPacket = true;
-                try
+                if ( packet.packet != null )
                 {
-                    ( (PacketWrapper) msg ).packet.handle( handler );
-                } catch ( CancelSendSignal ex )
-                {
-                    sendPacket = false;
+                    try
+                    {
+                        packet.packet.handle( handler );
+                    } catch ( CancelSendSignal ex )
+                    {
+                        sendPacket = false;
+                    }
                 }
                 if ( sendPacket )
                 {
-                    handler.handle( ( (PacketWrapper) msg ).buf );
+                    handler.handle( packet );
                 }
-            } else
+            } finally
             {
-                handler.handle( (byte[]) msg );
+                packet.trySingleRelease();
             }
         }
     }

@@ -21,6 +21,7 @@ import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.api.score.Team;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
+import net.md_5.bungee.netty.PacketWrapper;
 import net.md_5.bungee.protocol.packet.Packet0KeepAlive;
 import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
 import net.md_5.bungee.protocol.packet.PacketCEScoreboardObjective;
@@ -70,12 +71,12 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(byte[] buf) throws Exception
+    public void handle(PacketWrapper packet) throws Exception
     {
         if ( !server.isObsolete() )
         {
-            EntityMap.rewrite( buf, con.getServerEntityId(), con.getClientEntityId() );
-            con.sendPacket( buf );
+            EntityMap.rewrite( packet.buf, con.getServerEntityId(), con.getClientEntityId() );
+            con.sendPacket( packet );
         }
     }
 
