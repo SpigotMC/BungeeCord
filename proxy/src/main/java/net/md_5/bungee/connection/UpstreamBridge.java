@@ -10,6 +10,7 @@ import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
+import net.md_5.bungee.netty.PacketWrapper;
 import net.md_5.bungee.protocol.packet.Packet0KeepAlive;
 import net.md_5.bungee.protocol.packet.Packet3Chat;
 import net.md_5.bungee.protocol.packet.PacketCCSettings;
@@ -53,12 +54,12 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(byte[] buf) throws Exception
+    public void handle(PacketWrapper packet) throws Exception
     {
-        EntityMap.rewrite( buf, con.getClientEntityId(), con.getServerEntityId() );
+        EntityMap.rewrite( packet.buf, con.getClientEntityId(), con.getServerEntityId() );
         if ( con.getServer() != null )
         {
-            con.getServer().getCh().write( buf );
+            con.getServer().getCh().write( packet );
         }
     }
 

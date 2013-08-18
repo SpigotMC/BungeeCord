@@ -22,7 +22,14 @@ public class ChannelWrapper
     {
         if ( !closed )
         {
-            ch.write( packet );
+            if ( packet instanceof PacketWrapper )
+            {
+                ( (PacketWrapper) packet ).setReleased( true );
+                ch.write( ( (PacketWrapper) packet ).buf );
+            } else
+            {
+                ch.write( packet );
+            }
             ch.flush();
         }
     }
