@@ -181,11 +181,15 @@ public class PluginManager
             }
         }
         
-        if ( ! toLoad.isEmpty())
+        plugins.clear();
+        
+        if (toLoad != null && ! toLoad.isEmpty())
         {
             toLoad.clear();
             toLoad = null;
         }
+        
+        this.toLoad = new HashMap<>();
         
         this.detectPlugins( proxy.getPluginsFolder() );
         this.loadAndEnablePlugins();
