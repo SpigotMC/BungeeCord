@@ -166,6 +166,34 @@ public class PluginManager
             }
         }
     }
+    
+    public void reloadPlugins()
+    {
+        for ( Plugin plugin : plugins.values() )
+        {
+            try
+            {
+                plugin.onDisable();
+                proxy.getScheduler().cancel( plugin );
+            } catch ( Throwable t )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Exception encountered when disabling plugin: " + plugin.getDescription().getName(), t );
+            }
+        }
+        
+        plugins.clear();
+        
+        if (toLoad != null && ! toLoad.isEmpty())
+        {
+            toLoad.clear();
+            toLoad = null;
+        }
+        
+        this.toLoad = new HashMap<>();
+        
+        this.detectPlugins( proxy.getPluginsFolder() );
+        this.loadAndEnablePlugins();
+    }
 
     private boolean enablePlugin(Map<PluginDescription, Boolean> pluginStatuses, Stack<PluginDescription> dependStack, PluginDescription plugin)
     {

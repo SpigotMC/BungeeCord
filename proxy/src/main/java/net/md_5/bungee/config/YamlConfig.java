@@ -82,7 +82,7 @@ public class YamlConfig implements ConfigurationAdapter
             } ) );
             permissions.put( "admin", Arrays.asList( new String[]
             {
-                "bungeecord.command.alert", "bungeecord.command.end", "bungeecord.command.ip", "bungeecord.command.reload"
+                "bungeecord.command.alert", "bungeecord.command.end", "bungeecord.command.ip", "bungeecord.command.reload", "bungeecord.command.reloadplugins"
             } ) );
         }
 
