@@ -5,9 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.ReadTimeoutException;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.logging.Level;
-import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.InitialHandler;
@@ -62,27 +60,25 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
     {
+        if ( handler != null )
         {
-            if ( handler != null )
+            if ( msg instanceof PacketWrapper )
             {
-                if ( msg instanceof PacketWrapper )
+                boolean sendPacket = true;
+                try
                 {
-                    boolean sendPacket = true;
-                    try
-                    {
-                        ( (PacketWrapper) msg ).packet.handle( handler );
-                    } catch ( CancelSendSignal ex )
-                    {
-                        sendPacket = false;
-                    }
-                    if ( sendPacket )
-                    {
-                        handler.handle( ( (PacketWrapper) msg ).buf );
-                    }
-                } else
+                    ( (PacketWrapper) msg ).packet.handle( handler );
+                } catch ( CancelSendSignal ex )
                 {
-                    handler.handle( (byte[]) msg );
+                    sendPacket = false;
                 }
+                if ( sendPacket )
+                {
+                    handler.handle( ( (PacketWrapper) msg ).buf );
+                }
+            } else
+            {
+                handler.handle( (byte[]) msg );
             }
         }
     }
