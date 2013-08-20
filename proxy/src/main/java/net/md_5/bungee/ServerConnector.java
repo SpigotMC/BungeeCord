@@ -263,7 +263,7 @@ public class ServerConnector extends PacketHandler
             return;
         }
 
-        String message = bungee.getTranslation( "connect_kick" ) + target.getName() + ": " + kick.getMessage();
+        String message = bungee.getTranslation( "connect_kick" ) + target.getName() + ": " + event.getKickReason();
         if ( user.getServer() == null )
         {
             user.disconnect( message );
