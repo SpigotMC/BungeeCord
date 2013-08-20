@@ -35,7 +35,7 @@ public class ServerKickEvent extends Event implements Cancellable
     private ServerInfo cancelServer;
     /**
      * State in which the kick occured.
-    */
+     */
     private State state;
 
     public enum State
@@ -46,7 +46,7 @@ public class ServerKickEvent extends Event implements Cancellable
 
     public ServerKickEvent(ProxiedPlayer player, String kickReason, ServerInfo cancelServer)
     {
-        this(player, kickReason, cancelServer, State.UNKNOWN);
+        this( player, kickReason, cancelServer, State.UNKNOWN );
     }
 
     public ServerKickEvent(ProxiedPlayer player, String kickReason, ServerInfo cancelServer, State state)

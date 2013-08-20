@@ -1,6 +1,5 @@
 package net.md_5.bungee.connection;
 
-import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import java.io.DataInput;
@@ -10,7 +9,6 @@ import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -31,7 +29,6 @@ import net.md_5.bungee.protocol.packet.PacketD0DisplayScoreboard;
 import net.md_5.bungee.protocol.packet.PacketD1Team;
 import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
 import net.md_5.bungee.protocol.packet.PacketFFKick;
-
 
 @RequiredArgsConstructor
 public class DownstreamBridge extends PacketHandler
@@ -61,7 +58,7 @@ public class DownstreamBridge extends PacketHandler
     {
         // We lost connection to the server
         server.getInfo().removePlayer( con );
-        if (bungee.getReconnectHandler() != null)
+        if ( bungee.getReconnectHandler() != null )
         {
             bungee.getReconnectHandler().setServer( con );
         }
