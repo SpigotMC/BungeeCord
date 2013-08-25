@@ -244,6 +244,18 @@ public class DownstreamBridge extends PacketHandler
                     con.connect( server );
                 }
             }
+            if ( subChannel.equals( "ConnectOther" ) )
+            {
+                ProxiedPlayer player = bungee.getPlayer( in.readUTF() );
+                if ( player != null )
+                {
+                    ServerInfo server = bungee.getServerInfo( in.readUTF() );
+                    if ( server != null )
+                    {
+                        player.connect( server );
+                    }
+                }
+            }
             if ( subChannel.equals( "IP" ) )
             {
                 out.writeUTF( "IP" );
