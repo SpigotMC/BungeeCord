@@ -14,7 +14,7 @@
 
     <name>BungeeCord</name>
     <description>Parent project for all BungeeCord modules.</description>
-    <url>https://github.com/SpigotMC/BungeeCord</url>
+    <url>https://github.com/SpigotMC/BungeeCord/</url>
     <inceptionYear>2012</inceptionYear>
     <organization>
         <name>SpigotMC</name>
