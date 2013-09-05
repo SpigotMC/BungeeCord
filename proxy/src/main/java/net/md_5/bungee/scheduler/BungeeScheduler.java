@@ -35,6 +35,7 @@ public class BungeeScheduler implements TaskScheduler
     public void cancel(int id)
     {
         BungeeTask task = tasks.remove( id );
+        task.cancel();
         tasksByPlugin.values().remove( task );
     }
 
