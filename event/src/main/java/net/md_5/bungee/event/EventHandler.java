@@ -9,4 +9,19 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface EventHandler
 {
+
+    /**
+     * Define the priority of the event handler.
+     * <p>
+     * Event handlers are called in order of priority:
+     * <ol>
+     * <li>LOWEST</li>
+     * <li>LOW</li>
+     * <li>NORMAL</li>
+     * <li>HIGH</li>
+     * <li>HIGHEST</li>
+     * <li>MONITOR</li>
+     * </ol>
+     */
+    EventPriority priority() default EventPriority.NORMAL;
 }
