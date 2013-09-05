@@ -26,7 +26,12 @@ public class CommandPerms extends Command
             groups.append( ", " );
             permissions.addAll( ProxyServer.getInstance().getConfigurationAdapter().getPermissions( group ) );
         }
-        sender.sendMessage( ChatColor.GOLD + "You have the following groups: " + groups.substring( 0, groups.length() - 2 ) );
+
+        if (groups.length() == 0) {
+            sender.sendMessage( ChatColor.GOLD + "You have no groups" );
+        } else {
+            sender.sendMessage( ChatColor.GOLD + "You have the following groups: " + groups.substring( 0, groups.length() - 2 ) );
+        }
 
         for ( String permission : permissions )
         {
