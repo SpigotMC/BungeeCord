@@ -14,6 +14,7 @@ public class EventPriorityTest
     public void testPriority()
     {
         bus.register( this );
+        bus.register( new EventPriorityListenerPartner() );
         bus.post( new PriorityTestEvent() );
         Assert.assertEquals( 0, latch.getCount() );
     }
@@ -21,28 +22,14 @@ public class EventPriorityTest
     @EventHandler(priority = EventPriority.LOWEST)
     public void onLowestPriority(PriorityTestEvent event)
     {
-        Assert.assertEquals( latch.getCount(), 5 );
-        latch.countDown();
-    }
-
-    @EventHandler(priority = EventPriority.LOW)
-    public void onLowPriority(PriorityTestEvent event)
-    {
-        Assert.assertEquals( latch.getCount(), 4 );
+        Assert.assertEquals( 5, latch.getCount() );
         latch.countDown();
     }
 
     @EventHandler
     public void onNormalPriority(PriorityTestEvent event)
     {
-        Assert.assertEquals( latch.getCount(), 3 );
-        latch.countDown();
-    }
-
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onHighPriority(PriorityTestEvent event)
-    {
-        Assert.assertEquals( 2, latch.getCount() );
+        Assert.assertEquals( 3, latch.getCount() );
         latch.countDown();
     }
 
@@ -55,5 +42,23 @@ public class EventPriorityTest
 
     public static class PriorityTestEvent
     {
+    }
+
+    public class EventPriorityListenerPartner
+    {
+
+        @EventHandler(priority = EventPriority.HIGH)
+        public void onHighPriority(PriorityTestEvent event)
+        {
+            Assert.assertEquals( 2, latch.getCount() );
+            latch.countDown();
+        }
+
+        @EventHandler(priority = EventPriority.LOW)
+        public void onLowPriority(PriorityTestEvent event)
+        {
+            Assert.assertEquals( 4, latch.getCount() );
+            latch.countDown();
+        }
     }
 }
