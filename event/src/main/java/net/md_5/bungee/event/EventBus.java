@@ -57,7 +57,6 @@ public class EventBus
                     }
                 }
             }
-
         } finally
         {
             lock.readLock().unlock();
