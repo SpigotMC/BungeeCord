@@ -176,22 +176,28 @@ public class EventBus
     private void bakeHandlers(Class<?> eventClass)
     {
         Map<EventPriority, Map<Object, Method[]>> handlersByPriority = byListenerAndPriority.get( eventClass );
-        List<EventHandlerMethod> handlersList = new ArrayList<>( handlersByPriority.size() * 2 );
-        for ( EventPriority value : EventPriority.values() )
+        if ( handlersByPriority != null )
         {
-            Map<Object, Method[]> handlersByListener = handlersByPriority.get( value );
-            if ( handlersByListener != null )
+            List<EventHandlerMethod> handlersList = new ArrayList<>( handlersByPriority.size() * 2 );
+            for ( EventPriority value : EventPriority.values() )
             {
-                for ( Map.Entry<Object, Method[]> listenerHandlers : handlersByListener.entrySet() )
+                Map<Object, Method[]> handlersByListener = handlersByPriority.get( value );
+                if ( handlersByListener != null )
                 {
-                    for ( Method method : listenerHandlers.getValue() )
+                    for ( Map.Entry<Object, Method[]> listenerHandlers : handlersByListener.entrySet() )
                     {
-                        EventHandlerMethod ehm = new EventHandlerMethod( listenerHandlers.getKey(), method );
-                        handlersList.add( ehm );
+                        for ( Method method : listenerHandlers.getValue() )
+                        {
+                            EventHandlerMethod ehm = new EventHandlerMethod( listenerHandlers.getKey(), method );
+                            handlersList.add( ehm );
+                        }
                     }
                 }
             }
+            byEventBaked.put( eventClass, handlersList.toArray( new EventHandlerMethod[ handlersList.size() ] ) );
+        } else
+        {
+            byEventBaked.put( eventClass, null );
         }
-        byEventBaked.put( eventClass, handlersList.toArray( new EventHandlerMethod[ handlersList.size() ] ) );
     }
 }
