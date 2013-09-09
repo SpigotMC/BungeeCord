@@ -1,15 +1,8 @@
-/*
- * Copyright (C) 2013 Dabo Ross <www.daboross.net>
- */
 package net.md_5.bungee.event;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- *
- * @author daboross
- */
 public class UnregisteringListenerTest
 {
 

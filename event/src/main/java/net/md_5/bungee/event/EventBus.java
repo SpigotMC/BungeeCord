@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 public class EventBus
 {
 
-    private final Map<Class<?>, Map<EventPriority, Map<Object, Method[]>>> byListenerAndPriority = new HashMap<>();
+    private final Map<Class<?>, Map<Byte, Map<Object, Method[]>>> byListenerAndPriority = new HashMap<>();
     private final Map<Class<?>, EventHandlerMethod[]> byEventBaked = new HashMap<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final Logger logger;
@@ -63,9 +63,9 @@ public class EventBus
         }
     }
 
-    private Map<Class<?>, Map<EventPriority, Set<Method>>> findHandlers(Object listener)
+    private Map<Class<?>, Map<Byte, Set<Method>>> findHandlers(Object listener)
     {
-        Map<Class<?>, Map<EventPriority, Set<Method>>> handler = new HashMap<>();
+        Map<Class<?>, Map<Byte, Set<Method>>> handler = new HashMap<>();
         for ( Method m : listener.getClass().getDeclaredMethods() )
         {
             EventHandler annotation = m.getAnnotation( EventHandler.class );
@@ -80,7 +80,7 @@ public class EventBus
                     } );
                     continue;
                 }
-                Map<EventPriority, Set<Method>> prioritiesMap = handler.get( params[0] );
+                Map<Byte, Set<Method>> prioritiesMap = handler.get( params[0] );
                 if ( prioritiesMap == null )
                 {
                     prioritiesMap = new HashMap<>();
@@ -100,19 +100,19 @@ public class EventBus
 
     public void register(Object listener)
     {
-        Map<Class<?>, Map<EventPriority, Set<Method>>> handler = findHandlers( listener );
+        Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers( listener );
         lock.writeLock().lock();
         try
         {
-            for ( Map.Entry<Class<?>, Map<EventPriority, Set<Method>>> e : handler.entrySet() )
+            for ( Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet() )
             {
-                Map<EventPriority, Map<Object, Method[]>> prioritiesMap = byListenerAndPriority.get( e.getKey() );
+                Map<Byte, Map<Object, Method[]>> prioritiesMap = byListenerAndPriority.get( e.getKey() );
                 if ( prioritiesMap == null )
                 {
                     prioritiesMap = new HashMap<>();
                     byListenerAndPriority.put( e.getKey(), prioritiesMap );
                 }
-                for ( Map.Entry<EventPriority, Set<Method>> entry : e.getValue().entrySet() )
+                for ( Map.Entry<Byte, Set<Method>> entry : e.getValue().entrySet() )
                 {
                     Map<Object, Method[]> currentPriorityMap = prioritiesMap.get( entry.getKey() );
                     if ( currentPriorityMap == null )
@@ -133,16 +133,16 @@ public class EventBus
 
     public void unregister(Object listener)
     {
-        Map<Class<?>, Map<EventPriority, Set<Method>>> handler = findHandlers( listener );
+        Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers( listener );
         lock.writeLock().lock();
         try
         {
-            for ( Map.Entry<Class<?>, Map<EventPriority, Set<Method>>> e : handler.entrySet() )
+            for ( Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet() )
             {
-                Map<EventPriority, Map<Object, Method[]>> prioritiesMap = byListenerAndPriority.get( e.getKey() );
+                Map<Byte, Map<Object, Method[]>> prioritiesMap = byListenerAndPriority.get( e.getKey() );
                 if ( prioritiesMap != null )
                 {
-                    for ( EventPriority priority : e.getValue().keySet() )
+                    for ( Byte priority : e.getValue().keySet() )
                     {
                         Map<Object, Method[]> currentPriority = prioritiesMap.get( priority );
                         if ( currentPriority != null )
@@ -174,11 +174,11 @@ public class EventBus
      */
     private void bakeHandlers(Class<?> eventClass)
     {
-        Map<EventPriority, Map<Object, Method[]>> handlersByPriority = byListenerAndPriority.get( eventClass );
+        Map<Byte, Map<Object, Method[]>> handlersByPriority = byListenerAndPriority.get( eventClass );
         if ( handlersByPriority != null )
         {
             List<EventHandlerMethod> handlersList = new ArrayList<>( handlersByPriority.size() * 2 );
-            for ( EventPriority value : EventPriority.values() )
+            for ( byte value = Byte.MIN_VALUE; value < Byte.MAX_VALUE; value++ )
             {
                 Map<Object, Method[]> handlersByListener = handlersByPriority.get( value );
                 if ( handlersByListener != null )
