@@ -31,6 +31,8 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -195,34 +197,21 @@ public class BungeeCord extends ProxyServer
             }
         }
     }
-    private final Map<InetAddress, Long> throttle = new HashMap<>();
+    private final ConcurrentMap<InetAddress, Long> throttle = new ConcurrentHashMap<>();
 
     public void unThrottle(InetAddress address)
     {
         if ( address != null )
         {
-            synchronized ( throttle )
-            {
-                throttle.remove( address );
-            }
+            throttle.remove( address );
         }
     }
 
     public boolean throttle(InetAddress address)
     {
         long currentTime = System.currentTimeMillis();
-        synchronized ( throttle )
-        {
-            Long value = throttle.get( address );
-            if ( value != null && currentTime - value < config.getThrottle() )
-            {
-                throttle.put( address, currentTime );
-                return true;
-            }
-
-            throttle.put( address, currentTime );
-        }
-        return false;
+        Long value = throttle.put( address, currentTime );
+        return value != null && currentTime - value < config.getThrottle();
     }
 
     /**
