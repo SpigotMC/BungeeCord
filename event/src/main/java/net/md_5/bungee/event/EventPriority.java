@@ -1,45 +1,19 @@
 package net.md_5.bungee.event;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 /**
  * Importance of the {@link EventHandler}. When executing an Event, the handlers
  * are called in order of their Priority.
  */
-@AllArgsConstructor
-public enum EventPriority
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class EventPriority
 {
 
-    /**
-     * Lowest EventPriority. Use this priority to allow other plugins to further
-     * customize the outcome.
-     */
-    LOWEST( 0 ),
-    /**
-     * Higher than lowest, lower than normal.
-     */
-    LOW( 1 ),
-    /**
-     * Default EventPriority
-     */
-    NORMAL( 2 ),
-    /**
-     * High EventPriority. Use this priority to have more verdict on the
-     * outcome.
-     */
-    HIGH( 3 ),
-    /**
-     * Most important EventPriorty for changes. Use this priority to have
-     * absolute verdict of the outcome of this event.
-     */
-    HIGHEST( 4 ),
-    /**
-     * Logging/Monitor EventPriority. This priority is for <b>read only</b>
-     * event handlers. Do not change the outcome of the event in this priority.
-     * Intended for logging purposes.
-     */
-    MONITOR( 5 );
-    @Getter
-    private final int priority;
+    public static final byte LOWEST = -64;
+    public static final byte LOW = -32;
+    public static final byte NORMAL = 0;
+    public static final byte HIGH = 32;
+    public static final byte HIGHEST = 64;
 }

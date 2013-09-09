@@ -5,10 +5,6 @@ import java.lang.reflect.Method;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-/**
- *
- * @author daboross
- */
 @AllArgsConstructor
 public class EventHandlerMethod
 {
