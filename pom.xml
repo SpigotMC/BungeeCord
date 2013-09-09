@@ -16,11 +16,11 @@
 
     <name>BungeeCord</name>
     <description>Parent project for all BungeeCord modules.</description>
-    <url>https://github.com/ElasticPortalSuite/BungeeCord</url>
+    <url>https://github.com/SpigotMC/BungeeCord</url>
     <inceptionYear>2012</inceptionYear>
     <organization>
         <name>Elastic Portal Suite</name>
-        <url>https://github.com/ElasticPortalSuite</url>
+        <url>https://github.com/SpigotMC</url>
     </organization>
     <licenses>
         <license>
@@ -44,13 +44,13 @@
     </modules>
 
     <scm>
-        <connection>scm:git:git@github.com:ElasticPortalSuite/BungeeCord.git</connection>
-        <developerConnection>scm:git:git@github.com:ElasticPortalSuite/BungeeCord.git</developerConnection>
-        <url>git@github.com:ElasticPortalSuite/BungeeCord.git</url>
+        <connection>scm:git:git@github.com:SpigotMC/BungeeCord.git</connection>
+        <developerConnection>scm:git:git@github.com:SpigotMC/BungeeCord.git</developerConnection>
+        <url>git@github.com:SpigotMC/BungeeCord.git</url>
     </scm>
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/ElasticPortalSuite/BungeeCord/issues</url>
+        <url>https://github.com/SpigotMC/BungeeCord/issues</url>
     </issueManagement>
     <ciManagement>
         <system>jenkins</system>
