@@ -4,7 +4,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.AttributeKey;
 import java.net.InetSocketAddress;
@@ -29,7 +28,7 @@ public class PipelineUtils
         @Override
         protected void initChannel(Channel ch) throws Exception
         {
-            if ( BungeeCord.getInstance().throttle( ( (InetSocketAddress) ch.remoteAddress() ).getAddress() ) )
+            if ( BungeeCord.getInstance().getConnectionThrottle().throttle( ( (InetSocketAddress) ch.remoteAddress() ).getAddress() ) )
             {
                 ch.close();
                 return;

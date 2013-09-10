@@ -19,13 +19,11 @@ import net.md_5.bungee.config.Configuration;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -120,6 +118,8 @@ public class BungeeCord extends ProxyServer
     @Getter
     private final Logger logger;
     public final Gson gson = new Gson();
+    @Getter
+    private ConnectionThrottle connectionThrottle;
 
     
     {
@@ -199,35 +199,6 @@ public class BungeeCord extends ProxyServer
             }
         }
     }
-    private final Map<InetAddress, Long> throttle = new HashMap<>();
-
-    public void unThrottle(InetAddress address)
-    {
-        if ( address != null )
-        {
-            synchronized ( throttle )
-            {
-                throttle.remove( address );
-            }
-        }
-    }
-
-    public boolean throttle(InetAddress address)
-    {
-        long currentTime = System.currentTimeMillis();
-        synchronized ( throttle )
-        {
-            Long value = throttle.get( address );
-            if ( value != null && currentTime - value < config.getThrottle() )
-            {
-                throttle.put( address, currentTime );
-                return true;
-            }
-
-            throttle.put( address, currentTime );
-        }
-        return false;
-    }
 
     /**
      * Start this proxy instance by loading the configuration, plugins and
@@ -255,6 +226,7 @@ public class BungeeCord extends ProxyServer
 
         pluginManager.loadAndEnablePlugins();
 
+        connectionThrottle = new ConnectionThrottle( config.getThrottle() );
         startListeners();
 
         saveThread.scheduleAtFixedRate( new TimerTask()
@@ -367,7 +339,7 @@ public class BungeeCord extends ProxyServer
                     try
                     {
                         plugin.onDisable();
-                    } catch (Throwable t)
+                    } catch ( Throwable t )
                     {
                         getLogger().severe( "Exception disabling plugin " + plugin.getDescription().getName() );
                         t.printStackTrace();
