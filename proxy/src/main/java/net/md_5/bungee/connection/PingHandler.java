@@ -17,10 +17,10 @@ public class PingHandler extends PacketHandler
     private final ServerInfo target;
     private final Callback<ServerPing> callback;
     // TODO: Update this to 1.6.2 style!
-    private static final ByteBuf pingBuf = Unpooled.wrappedBuffer( new byte[]
+    private static final ByteBuf pingBuf = Unpooled.unreleasableBuffer( Unpooled.wrappedBuffer( new byte[]
     {
         (byte) 0xFE, (byte) 0x01
-    } );
+    } ) );
 
     @Override
     public void connected(ChannelWrapper channel) throws Exception
