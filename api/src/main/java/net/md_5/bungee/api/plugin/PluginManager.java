@@ -86,6 +86,12 @@ public class PluginManager
     public boolean dispatchCommand(CommandSender sender, String commandLine)
     {
         String[] split = argsSplit.split( commandLine );
+        // Check for chat that only contains " "
+        if ( split.length == 0 )
+        {
+            return false;
+        }
+
         String commandName = split[0].toLowerCase();
         if ( proxy.getDisabledCommands().contains( commandName ) )
         {
