@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -167,15 +168,18 @@ public class BungeeCord extends ProxyServer
      */
     public static void main(String[] args) throws Exception
     {
-        Calendar deadline = Calendar.getInstance();
-        deadline.set( 2013, 9, 31 ); // year, month, date
-        if ( Calendar.getInstance().after( deadline ) )
+        if ( BungeeCord.class.getPackage().getSpecificationVersion() != null )
         {
-            System.err.println( "*** Warning, this build is outdated ***" );
-            System.err.println( "*** Please download a new build from http://ci.md-5.net/job/BungeeCord ***" );
-            System.err.println( "*** You will get NO support regarding this build ***" );
-            System.err.println( "*** Server will start in 30 seconds ***" );
-            Thread.sleep( TimeUnit.SECONDS.toMillis( 30 ) );
+            Calendar deadline = Calendar.getInstance();
+            deadline.add( Calendar.WEEK_OF_YEAR, 2 );
+            if ( Calendar.getInstance().after( new SimpleDateFormat( "yyyyMMdd" ).parse( BungeeCord.class.getPackage().getSpecificationVersion() ) ) )
+            {
+                System.err.println( "*** Warning, this build is outdated ***" );
+                System.err.println( "*** Please download a new build from http://ci.md-5.net/job/BungeeCord ***" );
+                System.err.println( "*** You will get NO support regarding this build ***" );
+                System.err.println( "*** Server will start in 30 seconds ***" );
+                Thread.sleep( TimeUnit.SECONDS.toMillis( 30 ) );
+            }
         }
 
         BungeeCord bungee = new BungeeCord();

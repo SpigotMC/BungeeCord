@@ -18,6 +18,10 @@
     <name>BungeeCord-Proxy</name>
     <description>Proxy component of the Elastic Portal Suite</description>
 
+    <properties>
+         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -71,6 +75,12 @@
 
     <build>
         <finalName>BungeeCord</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <!-- Don't deploy proxy to maven repo, only APIs -->
@@ -89,6 +99,7 @@
                         <manifestEntries>
                             <Main-Class>net.md_5.bungee.BungeeCord</Main-Class>
                             <Implementation-Version>${describe}</Implementation-Version>
+                            <Specification-Version>${maven.build.timestamp}</Specification-Version>
                         </manifestEntries>
                     </archive>
                 </configuration>
