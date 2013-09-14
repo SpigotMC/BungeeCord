@@ -85,4 +85,18 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @return the tab list in use by this user
      */
     TabListHandler getTabList();
+
+    /**
+     * Get the server which this player will be sent to next time the log in.
+     *
+     * @return the server, or null if default
+     */
+    ServerInfo getReconnectServer();
+
+    /**
+     * Set the server which this player will be sent to next time the log in.
+     *
+     * @param server the server to set
+     */
+    void setReconnectServer(ServerInfo server);
 }
