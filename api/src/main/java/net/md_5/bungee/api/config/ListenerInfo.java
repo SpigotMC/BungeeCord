@@ -56,4 +56,9 @@ public class ListenerInfo
      * Whether to set the local address when connecting to servers.
      */
     private final boolean setLocalAddress;
+    /**
+     * Whether to pass the ping through when we can reliably get the target
+     * server (force default server).
+     */
+    private final boolean pingPassthrough;
 }

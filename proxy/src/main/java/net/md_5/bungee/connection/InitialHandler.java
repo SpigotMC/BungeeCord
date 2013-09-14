@@ -133,31 +133,37 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
     private void respondToPing()
     {
-        try
+        ServerInfo forced = AbstractReconnectManager.getForcedHost( this );
+        final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
+
+        Callback<ServerPing> pingBack = new Callback<ServerPing>()
         {
-            ServerInfo forced = AbstractReconnectManager.getForcedHost( this );
-            String motd = listener.getMotd();
-            if ( forced != null )
+            @Override
+            public void done(ServerPing result, Throwable error)
             {
-                motd = forced.getMotd();
+                if ( error != null )
+                {
+                    result = new ServerPing( (byte) -1, "-1", "Error pinging remote server: " + Util.exception( error ), -1, -1 );
+                }
+                result = bungee.getPluginManager().callEvent( new ProxyPingEvent( InitialHandler.this, result ) ).getResponse();
+
+                String kickMessage = ChatColor.DARK_BLUE
+                        + "\00" + result.getProtocolVersion()
+                        + "\00" + result.getGameVersion()
+                        + "\00" + result.getMotd()
+                        + "\00" + result.getCurrentPlayers()
+                        + "\00" + result.getMaxPlayers();
+                BungeeCord.getInstance().getConnectionThrottle().unthrottle( getAddress().getAddress() );
+                disconnect( kickMessage );
             }
+        };
 
-            ServerPing response = new ServerPing( bungee.getProtocolVersion(), bungee.getGameVersion(),
-                    motd, bungee.getOnlineCount(), listener.getMaxPlayers() );
-
-            response = bungee.getPluginManager().callEvent( new ProxyPingEvent( InitialHandler.this, response ) ).getResponse();
-
-            String kickMessage = ChatColor.DARK_BLUE
-                    + "\00" + response.getProtocolVersion()
-                    + "\00" + response.getGameVersion()
-                    + "\00" + response.getMotd()
-                    + "\00" + response.getCurrentPlayers()
-                    + "\00" + response.getMaxPlayers();
-            BungeeCord.getInstance().getConnectionThrottle().unthrottle( getAddress().getAddress() );
-            disconnect( kickMessage );
-        } catch ( Throwable t )
+        if ( forced != null && listener.isPingPassthrough() )
         {
-            t.printStackTrace();
+            forced.ping( pingBack );
+        } else
+        {
+            pingBack.done( new ServerPing( bungee.getProtocolVersion(), bungee.getGameVersion(), motd, bungee.getOnlineCount(), listener.getMaxPlayers() ), null );
         }
     }
 
