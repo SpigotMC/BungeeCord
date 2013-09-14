@@ -1,7 +1,7 @@
 # Eclipse stuff
 .classpath
 .project
-.settings
+.settings/
 
 # netbeans
 nbproject/
