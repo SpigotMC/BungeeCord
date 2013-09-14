@@ -13,8 +13,11 @@ import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.netty.PacketWrapper;
 import net.md_5.bungee.protocol.packet.Packet0KeepAlive;
 import net.md_5.bungee.protocol.packet.Packet3Chat;
+import net.md_5.bungee.protocol.packet.PacketCBTabComplete;
 import net.md_5.bungee.protocol.packet.PacketCCSettings;
 import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UpstreamBridge extends PacketHandler
 {
@@ -87,6 +90,18 @@ public class UpstreamBridge extends PacketHandler
             }
         }
         throw new CancelSendSignal();
+    }
+
+    @Override
+    public void handle(PacketCBTabComplete tabComplete) throws Exception
+    {
+        if ( tabComplete.getCursor().startsWith( "/" ) )
+        {
+            List<String> results = new ArrayList<>();
+            bungee.getPluginManager().dispatchCommand( con, tabComplete.getCursor(), results );
+            con.unsafe().sendPacket( new PacketCBTabComplete( results.toArray( new String[ results.size() ] ) ) );
+            throw new CancelSendSignal();
+        }
     }
 
     @Override
