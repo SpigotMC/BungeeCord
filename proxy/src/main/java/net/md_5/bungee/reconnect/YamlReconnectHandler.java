@@ -71,7 +71,7 @@ public class YamlReconnectHandler extends AbstractReconnectManager
         lock.writeLock().lock();
         try
         {
-            data.put( key( player ), player.getServer().getInfo().getName() );
+            data.put( key( player ), ( player.getReconnectServer() != null ) ? player.getReconnectServer().getName() : player.getServer().getInfo().getName() );
         } finally
         {
             lock.writeLock().unlock();

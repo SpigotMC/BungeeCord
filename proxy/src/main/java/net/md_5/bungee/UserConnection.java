@@ -73,6 +73,9 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     @Setter
     private int ping = 100;
+    @Getter
+    @Setter
+    private ServerInfo reconnectServer;
     /*========================================================================*/
     private final Collection<String> groups = new CaseInsensitiveSet();
     private final Collection<String> permissions = new CaseInsensitiveSet();
