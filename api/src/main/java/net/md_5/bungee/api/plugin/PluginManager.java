@@ -145,7 +145,10 @@ public class PluginManager
                 command.execute( sender, args );
             } else if ( command instanceof TabExecutor )
             {
-                tabResults.addAll( ( (TabExecutor) command ).onTabComplete( sender, args ) );
+                for ( String s : ( (TabExecutor) command ).onTabComplete( sender, args ) )
+                {
+                    tabResults.add( s );
+                }
             }
         } catch ( Exception ex )
         {
