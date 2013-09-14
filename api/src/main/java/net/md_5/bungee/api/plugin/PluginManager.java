@@ -369,8 +369,6 @@ public class PluginManager
      * Unregister a {@link Listener} so that the events do not reach it anymore.
      *
      * @param listener the listener to unregister
-     * @throws IllegalArgumentException if the listener was not previously
-     * registered
      */
     public void unregisterListener(Listener listener)
     {
