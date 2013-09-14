@@ -1,6 +1,8 @@
 package net.md_5.bungee.api.plugin;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.eventbus.Subscribe;
 import java.io.File;
 import java.io.InputStream;
@@ -10,6 +12,7 @@ import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +46,8 @@ public class PluginManager
     private final Map<String, Plugin> plugins = new LinkedHashMap<>();
     private final Map<String, Command> commandMap = new HashMap<>();
     private Map<String, PluginDescription> toLoad = new HashMap<>();
+    private Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
+    private Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
 
     @SuppressWarnings("unchecked")
     public PluginManager(ProxyServer proxy)
@@ -64,6 +69,7 @@ public class PluginManager
         {
             commandMap.put( alias.toLowerCase(), command );
         }
+        commandsByPlugin.put( plugin, command );
     }
 
     /**
@@ -74,6 +80,21 @@ public class PluginManager
     public void unregisterCommand(Command command)
     {
         commandMap.values().remove( command );
+        commandsByPlugin.values().remove( command );
+    }
+
+    /**
+     * Unregister all commands owned by a {@link Plugin}
+     *
+     * @param plugin the plugin to register the commands of
+     */
+    public void unregisterCommands(Plugin plugin)
+    {
+        for ( Iterator<Command> it = commandsByPlugin.get( plugin ).iterator(); it.hasNext(); )
+        {
+            commandMap.values().remove( it.next() );
+            it.remove();
+        }
     }
 
     public boolean dispatchCommand(CommandSender sender, String commandLine)
@@ -341,5 +362,33 @@ public class PluginManager
                     "Listener %s has registered using deprecated subscribe annotation! Please update to @EventHandler.", listener );
         }
         eventBus.register( listener );
+        listenersByPlugin.put( plugin, listener );
+    }
+
+    /**
+     * Unregister a {@link Listener} so that the events do not reach it anymore.
+     *
+     * @param listener the listener to unregister
+     * @throws IllegalArgumentException if the listener was not previously
+     * registered
+     */
+    public void unregisterListener(Listener listener)
+    {
+        eventBus.unregister( listener );
+        listenersByPlugin.values().remove( listener );
+    }
+
+    /**
+     * Unregister all of a Plugin's listener.
+     *
+     * @param plugin
+     */
+    public void unregisterListeners(Plugin plugin)
+    {
+        for ( Iterator<Listener> it = listenersByPlugin.get( plugin ).iterator(); it.hasNext(); )
+        {
+            eventBus.unregister( it.next() );
+            it.remove();
+        }
     }
 }
