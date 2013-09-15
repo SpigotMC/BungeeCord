@@ -1,5 +1,6 @@
 package net.md_5.bungee.command;
 
+import java.util.Collections;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -30,5 +31,11 @@ public class CommandFind extends PlayerCommand
                 sender.sendMessage( ChatColor.BLUE + args[0] + " is online at " + player.getServer().getInfo().getName() );
             }
         }
+    }
+
+    @Override
+    public Iterable<String> onTabComplete(CommandSender sender, String[] args)
+    {
+        return ( args.length == 0 ) ? super.onTabComplete( sender, args ) : Collections.EMPTY_LIST;
     }
 }
