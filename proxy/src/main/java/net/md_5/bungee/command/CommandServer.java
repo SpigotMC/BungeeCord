@@ -3,6 +3,7 @@ package net.md_5.bungee.command;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import java.util.Collections;
 import java.util.Map;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -68,7 +69,7 @@ public class CommandServer extends Command implements TabExecutor
     @Override
     public Iterable<String> onTabComplete(final CommandSender sender, String[] args)
     {
-        return Iterables.transform( Iterables.filter( ProxyServer.getInstance().getServers().values(), new Predicate<ServerInfo>()
+        return ( args.length != 0 ) ? Collections.EMPTY_LIST : Iterables.transform( Iterables.filter( ProxyServer.getInstance().getServers().values(), new Predicate<ServerInfo>()
         {
             @Override
             public boolean apply(ServerInfo input)
