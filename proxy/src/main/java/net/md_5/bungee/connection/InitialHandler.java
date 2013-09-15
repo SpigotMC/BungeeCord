@@ -51,7 +51,7 @@ import net.md_5.bungee.protocol.packet.PacketFCEncryptionResponse;
 import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.protocol.packet.PacketFEPing;
 import net.md_5.bungee.protocol.packet.PacketFFKick;
-import net.md_5.bungee.reconnect.AbstractReconnectManager;
+import net.md_5.bungee.api.AbstractReconnectHandler;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -133,7 +133,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
     private void respondToPing()
     {
-        ServerInfo forced = AbstractReconnectManager.getForcedHost( this );
+        ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
         final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
 
         Callback<ServerPing> pingBack = new Callback<ServerPing>()
@@ -354,7 +354,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             server = bungee.getReconnectHandler().getServer( userCon );
         } else
         {
-            server = AbstractReconnectManager.getForcedHost( this );
+            server = AbstractReconnectHandler.getForcedHost( this );
         }
         userCon.connect( server, true );
 

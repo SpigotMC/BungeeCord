@@ -1,13 +1,11 @@
-package net.md_5.bungee.reconnect;
+package net.md_5.bungee.api;
 
 import com.google.common.base.Preconditions;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.ReconnectHandler;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-public abstract class AbstractReconnectManager implements ReconnectHandler
+public abstract class AbstractReconnectHandler implements ReconnectHandler
 {
 
     @Override
