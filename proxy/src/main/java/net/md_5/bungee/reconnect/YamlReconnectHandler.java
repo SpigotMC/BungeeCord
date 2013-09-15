@@ -1,5 +1,6 @@
 package net.md_5.bungee.reconnect;
 
+import net.md_5.bungee.api.AbstractReconnectHandler;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -16,7 +17,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.error.YAMLException;
 
-public class YamlReconnectHandler extends AbstractReconnectManager
+public class YamlReconnectHandler extends AbstractReconnectHandler
 {
 
     private final Yaml yaml = new Yaml();
