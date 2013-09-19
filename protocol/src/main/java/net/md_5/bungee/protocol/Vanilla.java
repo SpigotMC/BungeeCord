@@ -30,8 +30,8 @@ import net.md_5.bungee.protocol.skip.PacketReader;
 public class Vanilla implements Protocol
 {
 
-    public static final byte PROTOCOL_VERSION = 77;
-    public static final String GAME_VERSION = "1.6.3";
+    public static final byte PROTOCOL_VERSION = 78;
+    public static final String GAME_VERSION = "1.6.4";
     @Getter
     private static final Vanilla instance = new Vanilla();
     /*========================================================================*/
