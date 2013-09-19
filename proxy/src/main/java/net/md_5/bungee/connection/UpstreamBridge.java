@@ -98,7 +98,7 @@ public class UpstreamBridge extends PacketHandler
         if ( tabComplete.getCursor().startsWith( "/" ) )
         {
             List<String> results = new ArrayList<>();
-            bungee.getPluginManager().dispatchCommand( con, tabComplete.getCursor().substring( 1, tabComplete.getCursor().length() ), results );
+            bungee.getPluginManager().dispatchCommand( con, tabComplete.getCursor().substring( 1 ), results );
 
             if ( !results.isEmpty() )
             {
