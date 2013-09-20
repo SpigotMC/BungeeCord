@@ -74,4 +74,8 @@ public abstract class AbstractPacketHandler
     public void handle(PacketFFKick kick) throws Exception
     {
     }
+
+    public void handle(PacketCBTabComplete tabComplete) throws Exception
+    {
+    }
 }

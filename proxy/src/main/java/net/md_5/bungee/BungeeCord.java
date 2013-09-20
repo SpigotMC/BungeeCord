@@ -2,7 +2,7 @@ package net.md_5.bungee;
 
 import com.google.common.io.ByteStreams;
 import net.md_5.bungee.log.BungeeLogger;
-import net.md_5.bungee.reconnect.SQLReconnectHandler;
+import net.md_5.bungee.reconnect.YamlReconnectHandler;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
@@ -14,11 +14,13 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.MultithreadEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.util.ResourceLeakDetector;
 import net.md_5.bungee.config.Configuration;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,7 +30,6 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -50,7 +51,6 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
-import net.md_5.bungee.api.scheduler.TaskScheduler;
 import net.md_5.bungee.api.tab.CustomTabList;
 import net.md_5.bungee.command.*;
 import net.md_5.bungee.config.YamlConfig;
@@ -60,7 +60,6 @@ import net.md_5.bungee.protocol.packet.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Packet3Chat;
 import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
 import net.md_5.bungee.protocol.Vanilla;
-import net.md_5.bungee.scheduler.BungeeThreadPool;
 import net.md_5.bungee.tab.Custom;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.fusesource.jansi.AnsiConsole;
@@ -89,10 +88,6 @@ public class BungeeCord extends ProxyServer
      * Localization bundle.
      */
     public final ResourceBundle bundle = ResourceBundle.getBundle( "messages_en" );
-    /**
-     * Thread pools.
-     */
-    public final ScheduledThreadPoolExecutor executors = new BungeeThreadPool( new ThreadFactoryBuilder().setNameFormat( "Bungee Pool Thread #%1$d" ).build() );
     public final MultithreadEventLoopGroup eventLoops = new NioEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
     /**
      * locations.yml save thread.
@@ -123,12 +118,14 @@ public class BungeeCord extends ProxyServer
     @Getter
     private final File pluginsFolder = new File( "plugins" );
     @Getter
-    private final TaskScheduler scheduler = new BungeeScheduler();
+    private final BungeeScheduler scheduler = new BungeeScheduler();
     @Getter
     private ConsoleReader consoleReader;
     @Getter
     private final Logger logger;
     public final Gson gson = new Gson();
+    @Getter
+    private ConnectionThrottle connectionThrottle;
 
     
     {
@@ -179,15 +176,18 @@ public class BungeeCord extends ProxyServer
      */
     public static void main(String[] args) throws Exception
     {
-        Calendar deadline = Calendar.getInstance();
-        deadline.set( 2013, 7, 24 ); // year, month, date
-        if ( Calendar.getInstance().after( deadline ) )
+        if ( BungeeCord.class.getPackage().getSpecificationVersion() != null )
         {
-            System.err.println( "*** Warning, this build is outdated ***" );
-            System.err.println( "*** Please download a new build from http://ci.md-5.net/job/BungeeCord ***" );
-            System.err.println( "*** You will get NO support regarding this build ***" );
-            System.err.println( "*** Server will start in 15 seconds ***" );
-            Thread.sleep( TimeUnit.SECONDS.toMillis( 15 ) );
+            Calendar deadline = Calendar.getInstance();
+            deadline.add( Calendar.WEEK_OF_YEAR, 2 );
+            if ( Calendar.getInstance().after( new SimpleDateFormat( "yyyyMMdd" ).parse( BungeeCord.class.getPackage().getSpecificationVersion() ) ) )
+            {
+                System.err.println( "*** Warning, this build is outdated ***" );
+                System.err.println( "*** Please download a new build from http://ci.md-5.net/job/BungeeCord ***" );
+                System.err.println( "*** You will get NO support regarding this build ***" );
+                System.err.println( "*** Server will start in 30 seconds ***" );
+                Thread.sleep( TimeUnit.SECONDS.toMillis( 30 ) );
+            }
         }
 
         BungeeCord bungee = new BungeeCord();
@@ -217,22 +217,24 @@ public class BungeeCord extends ProxyServer
     @Override
     public void start() throws Exception
     {
-        if ( System.getProperty( "io.netty.noResourceLeakDetection" ) != null )
-        {
-            System.setProperty( "io.netty.noResourceLeakDetection", "true" );
-        }
+        ResourceLeakDetector.setEnabled( false ); // Eats performance
 
         pluginsFolder.mkdir();
         pluginManager.detectPlugins( pluginsFolder );
         config.load();
-        if ( reconnectHandler == null )
+        for ( ListenerInfo info : config.getListeners() )
         {
-            reconnectHandler = new SQLReconnectHandler();
+            if ( !info.isForceDefault() && reconnectHandler == null )
+            {
+                reconnectHandler = new YamlReconnectHandler();
+                break;
+            }
         }
         isRunning = true;
 
         pluginManager.loadAndEnablePlugins();
 
+        connectionThrottle = new ConnectionThrottle( config.getThrottle() );
         startListeners();
 
         saveThread.scheduleAtFixedRate( new TimerTask()
@@ -240,7 +242,10 @@ public class BungeeCord extends ProxyServer
             @Override
             public void run()
             {
-                getReconnectHandler().save();
+                if ( getReconnectHandler() != null )
+                {
+                    getReconnectHandler().save();
+                }
             }
         }, 0, TimeUnit.MINUTES.toMillis( 5 ) );
         metricsThread.scheduleAtFixedRate( new Metrics(), 0, TimeUnit.MINUTES.toMillis( Metrics.PING_INTERVAL ) );
@@ -301,8 +306,6 @@ public class BungeeCord extends ProxyServer
             {
                 BungeeCord.this.isRunning = false;
 
-                executors.shutdown();
-
                 stopListeners();
                 getLogger().info( "Closing pending connections" );
 
@@ -328,9 +331,12 @@ public class BungeeCord extends ProxyServer
                 {
                 }
 
-                getLogger().info( "Saving reconnect locations" );
-                reconnectHandler.save();
-                reconnectHandler.close();
+                if ( reconnectHandler != null )
+                {
+                    getLogger().info( "Saving reconnect locations" );
+                    reconnectHandler.save();
+                    reconnectHandler.close();
+                }
                 saveThread.cancel();
                 metricsThread.cancel();
 
@@ -338,10 +344,18 @@ public class BungeeCord extends ProxyServer
                 getLogger().info( "Disabling plugins" );
                 for ( Plugin plugin : pluginManager.getPlugins() )
                 {
-                    plugin.onDisable();
+                    try
+                    {
+                        plugin.onDisable();
+                    } catch ( Throwable t )
+                    {
+                        getLogger().severe( "Exception disabling plugin " + plugin.getDescription().getName() );
+                        t.printStackTrace();
+                    }
                     getScheduler().cancel( plugin );
                 }
 
+                scheduler.shutdown();
                 getLogger().info( "Thankyou and goodbye" );
                 System.exit( 0 );
             }
@@ -525,5 +539,10 @@ public class BungeeCord extends ProxyServer
     public CustomTabList customTabList(ProxiedPlayer player)
     {
         return new Custom( player );
+    }
+
+    public Collection<String> getDisabledCommands()
+    {
+        return config.getDisabledCommands();
     }
 }

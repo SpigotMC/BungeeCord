@@ -11,6 +11,7 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.plugin.Plugin;
 
 public class CommandGraceful extends Command
 {
@@ -65,7 +66,7 @@ public class CommandGraceful extends Command
                     {
                         player.sendMessage( ChatColor.RED + "Legion Servers Staff is doing maintenance.  Please reconnect at your earliest convenience.  Thanks." );
                     }
-                    BungeeCord.getInstance().executors.schedule( this, 5, TimeUnit.MINUTES );
+                    BungeeCord.getInstance().getScheduler().schedule( new Plugin() {}, this, 5, TimeUnit.MINUTES );
                 }
             }
 

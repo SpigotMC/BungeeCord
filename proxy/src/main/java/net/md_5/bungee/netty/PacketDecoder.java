@@ -2,8 +2,8 @@ package net.md_5.bungee.netty;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.MessageList;
 import io.netty.handler.codec.ReplayingDecoder;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,7 +28,7 @@ public class PacketDecoder extends ReplayingDecoder<Void>
     private Protocol protocol;
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, MessageList<Object> out) throws Exception
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
     {
         // While we have enough data
         while ( true )
@@ -40,24 +40,11 @@ public class PacketDecoder extends ReplayingDecoder<Void>
             // If we got this far, it means we have formed a packet, so lets grab the end index
             int endIndex = in.readerIndex();
             // Allocate a buffer big enough for all bytes we have read
-            byte[] buf = new byte[ endIndex - startIndex ];
-            // Go back to start index
-            in.readerIndex( startIndex );
-            // Drain all the bytes into our buffer
-            in.readBytes( buf, 0, buf.length );
-            // Jump back to the end of this packet
-            in.readerIndex( endIndex );
+            ByteBuf buf = in.copy( startIndex, endIndex - startIndex );
             // Checkpoint our state incase we don't have enough data for another packet
             checkpoint();
-
             // Store our decoded message
-            if ( packet != null )
-            {
-                out.add( new PacketWrapper( packet, buf ) );
-            } else
-            {
-                out.add( buf );
-            }
+            out.add( new PacketWrapper( packet, buf ) );
         }
     }
 }

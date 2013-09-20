@@ -13,13 +13,12 @@ public class PluginLogger extends Logger
     {
         super( plugin.getClass().getCanonicalName(), null );
         pluginName = "[" + plugin.getDescription().getName() + "] ";
-        setParent( ProxyServer.getInstance().getLogger() );
     }
 
     @Override
     public void log(LogRecord logRecord)
     {
         logRecord.setMessage( pluginName + logRecord.getMessage() );
-        super.log( logRecord );
+        ProxyServer.getInstance().getLogger().log( logRecord );
     }
 }

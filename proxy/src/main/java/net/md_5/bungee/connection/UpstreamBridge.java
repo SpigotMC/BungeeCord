@@ -5,18 +5,20 @@ import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.config.TexturePackInfo;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
+import net.md_5.bungee.netty.PacketWrapper;
 import net.md_5.bungee.protocol.packet.Packet0KeepAlive;
 import net.md_5.bungee.protocol.packet.Packet3Chat;
+import net.md_5.bungee.protocol.packet.PacketCBTabComplete;
 import net.md_5.bungee.protocol.packet.PacketCCSettings;
 import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
 import net.md_5.bungee.protocol.packet.PacketFFKick;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UpstreamBridge extends PacketHandler
 {
@@ -32,12 +34,6 @@ public class UpstreamBridge extends PacketHandler
         BungeeCord.getInstance().addConnection( con );
         con.getTabList().onConnect();
         con.unsafe().sendPacket( BungeeCord.getInstance().registerChannels() );
-
-        TexturePackInfo texture = con.getPendingConnection().getListener().getTexturePack();
-        if ( texture != null )
-        {
-            con.setTexturePack( texture );
-        }
     }
 
     @Override
@@ -69,12 +65,12 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(byte[] buf) throws Exception
+    public void handle(PacketWrapper packet) throws Exception
     {
-        EntityMap.rewrite( buf, con.getClientEntityId(), con.getServerEntityId() );
+        EntityMap.rewrite( packet.buf, con.getClientEntityId(), con.getServerEntityId() );
         if ( con.getServer() != null )
         {
-            con.getServer().getCh().write( buf );
+            con.getServer().getCh().write( packet );
         }
     }
 
@@ -102,6 +98,22 @@ public class UpstreamBridge extends PacketHandler
             }
         }
         throw new CancelSendSignal();
+    }
+
+    @Override
+    public void handle(PacketCBTabComplete tabComplete) throws Exception
+    {
+        if ( tabComplete.getCursor().startsWith( "/" ) )
+        {
+            List<String> results = new ArrayList<>();
+            bungee.getPluginManager().dispatchCommand( con, tabComplete.getCursor().substring( 1 ), results );
+
+            if ( !results.isEmpty() )
+            {
+                con.unsafe().sendPacket( new PacketCBTabComplete( results.toArray( new String[ results.size() ] ) ) );
+                throw new CancelSendSignal();
+            }
+        }
     }
 
     @Override

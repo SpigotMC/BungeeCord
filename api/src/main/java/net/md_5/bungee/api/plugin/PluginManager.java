@@ -1,6 +1,8 @@
 package net.md_5.bungee.api.plugin;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.eventbus.Subscribe;
 import java.io.File;
 import java.io.InputStream;
@@ -10,7 +12,9 @@ import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.jar.JarEntry;
@@ -42,6 +46,8 @@ public class PluginManager
     private final Map<String, Plugin> plugins = new LinkedHashMap<>();
     private final Map<String, Command> commandMap = new HashMap<>();
     private Map<String, PluginDescription> toLoad = new HashMap<>();
+    private Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
+    private Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
 
     @SuppressWarnings("unchecked")
     public PluginManager(ProxyServer proxy)
@@ -63,6 +69,7 @@ public class PluginManager
         {
             commandMap.put( alias.toLowerCase(), command );
         }
+        commandsByPlugin.put( plugin, command );
     }
 
     /**
@@ -73,6 +80,26 @@ public class PluginManager
     public void unregisterCommand(Command command)
     {
         commandMap.values().remove( command );
+        commandsByPlugin.values().remove( command );
+    }
+
+    /**
+     * Unregister all commands owned by a {@link Plugin}
+     *
+     * @param plugin the plugin to register the commands of
+     */
+    public void unregisterCommands(Plugin plugin)
+    {
+        for ( Iterator<Command> it = commandsByPlugin.get( plugin ).iterator(); it.hasNext(); )
+        {
+            commandMap.values().remove( it.next() );
+            it.remove();
+        }
+    }
+
+    public boolean dispatchCommand(CommandSender sender, String commandLine)
+    {
+        return dispatchCommand( sender, commandLine, null );
     }
 
     /**
@@ -83,10 +110,21 @@ public class PluginManager
      * arguments
      * @return whether the command was handled
      */
-    public boolean dispatchCommand(CommandSender sender, String commandLine)
+    public boolean dispatchCommand(CommandSender sender, String commandLine, List<String> tabResults)
     {
         String[] split = argsSplit.split( commandLine );
-        Command command = commandMap.get( split[0].toLowerCase() );
+        // Check for chat that only contains " "
+        if ( split.length == 0 )
+        {
+            return false;
+        }
+
+        String commandName = split[0].toLowerCase();
+        if ( proxy.getDisabledCommands().contains( commandName ) )
+        {
+            return false;
+        }
+        Command command = commandMap.get( commandName );
         if ( command == null )
         {
             return false;
@@ -102,7 +140,16 @@ public class PluginManager
         String[] args = Arrays.copyOfRange( split, 1, split.length );
         try
         {
-            command.execute( sender, args );
+            if ( tabResults == null )
+            {
+                command.execute( sender, args );
+            } else if ( command instanceof TabExecutor )
+            {
+                for ( String s : ( (TabExecutor) command ).onTabComplete( sender, args ) )
+                {
+                    tabResults.add( s );
+                }
+            }
         } catch ( Exception ex )
         {
             sender.sendMessage( ChatColor.RED + "An internal error occurred whilst executing this command, please check the console log for details." );
@@ -176,7 +223,7 @@ public class PluginManager
         for ( String dependName : plugin.getDepends() )
         {
             PluginDescription depend = toLoad.get( dependName );
-            Boolean dependStatus = depend != null ? pluginStatuses.get( depend ) : Boolean.FALSE;
+            Boolean dependStatus = ( depend != null ) ? pluginStatuses.get( depend ) : Boolean.FALSE;
 
             if ( dependStatus == null )
             {
@@ -202,7 +249,7 @@ public class PluginManager
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} (required by {1}) is unavailable", new Object[]
                 {
-                    depend.getName(), plugin.getName()
+                    String.valueOf( depend.getName() ), plugin.getName()
                 } );
                 status = false;
             }
@@ -305,7 +352,7 @@ public class PluginManager
     /**
      * Register a {@link Listener} for receiving called events. Methods in this
      * Object which wish to receive events must be annotated with the
-     * {@link Subscribe} annotation.
+     * {@link EventHandler} annotation.
      *
      * @param plugin the owning plugin
      * @param listener the listener to register events for
@@ -316,7 +363,33 @@ public class PluginManager
         {
             Preconditions.checkArgument( !method.isAnnotationPresent( Subscribe.class ),
                     "Listener %s has registered using deprecated subscribe annotation! Please update to @EventHandler.", listener );
-            eventBus.register( listener );
+        }
+        eventBus.register( listener );
+        listenersByPlugin.put( plugin, listener );
+    }
+
+    /**
+     * Unregister a {@link Listener} so that the events do not reach it anymore.
+     *
+     * @param listener the listener to unregister
+     */
+    public void unregisterListener(Listener listener)
+    {
+        eventBus.unregister( listener );
+        listenersByPlugin.values().remove( listener );
+    }
+
+    /**
+     * Unregister all of a Plugin's listener.
+     *
+     * @param plugin
+     */
+    public void unregisterListeners(Plugin plugin)
+    {
+        for ( Iterator<Listener> it = listenersByPlugin.get( plugin ).iterator(); it.hasNext(); )
+        {
+            eventBus.unregister( it.next() );
+            it.remove();
         }
     }
 }

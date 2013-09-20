@@ -240,4 +240,11 @@ public abstract class ProxyServer
      * @return a new {@link CustomTabList} instance
      */
     public abstract CustomTabList customTabList(ProxiedPlayer player);
+
+    /**
+     * Gets the commands which are disabled and will not be run on this proxy.
+     *
+     * @return the set of disabled commands
+     */
+    public abstract Collection<String> getDisabledCommands();
 }

@@ -21,7 +21,6 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.config.TexturePackInfo;
 import net.md_5.bungee.api.tab.TabListHandler;
 import net.md_5.bungee.tab.Global;
 import net.md_5.bungee.tab.GlobalPing;
@@ -171,7 +170,7 @@ public class YamlConfig implements ConfigurationAdapter
             Map<String, Object> val = entry.getValue();
             String name = entry.getKey();
             String addr = get( "address", "localhost:25565", val );
-            String motd = ChatColor.translateAlternateColorCodes( '&', get( "motd", "Just another BungeeCord - Forced Host", val ) );
+            String motd = ChatColor.translateAlternateColorCodes( '&', get( "motd", "&1Just another BungeeCord - Forced Host", val ) );
             boolean restricted = get( "restricted", false, val );
             InetSocketAddress address = Util.getAddr( addr );
             ServerInfo info = ProxyServer.getInstance().constructServerInfo( name, address, motd, restricted );
@@ -196,7 +195,7 @@ public class YamlConfig implements ConfigurationAdapter
 
         for ( Map<String, Object> val : base )
         {
-            String motd = get( "motd", "Another Bungee server", val );
+            String motd = get( "motd", "&1Another Bungee server", val );
             motd = ChatColor.translateAlternateColorCodes( '&', motd );
 
             int maxPlayers = get( "max_players", 1, val );
@@ -207,17 +206,16 @@ public class YamlConfig implements ConfigurationAdapter
             int tabListSize = get( "tab_size", 60, val );
             InetSocketAddress address = Util.getAddr( host );
             Map<String, String> forced = new CaseInsensitiveMap<>( get( "forced_hosts", forcedDef, val ) );
-            String textureURL = get( "texture_url", null, val );
-            int textureSize = get( "texture_size", 16, val );
-            TexturePackInfo texture = ( textureURL == null ) ? null : new TexturePackInfo( textureURL, textureSize );
             String tabListName = get( "tab_list", "GLOBAL_PING", val );
             DefaultTabList value = DefaultTabList.valueOf( tabListName.toUpperCase() );
             if ( value == null )
             {
                 value = DefaultTabList.GLOBAL_PING;
             }
+            boolean setLocalAddress = get( "bind_local_address", true, val );
+            boolean pingPassthrough = get( "ping_passthrough", false, val );
 
-            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, fallbackServer, forceDefault, forced, texture, value.clazz );
+            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, fallbackServer, forceDefault, forced, value.clazz, setLocalAddress, pingPassthrough );
             ret.add( info );
         }
 
@@ -239,6 +237,12 @@ public class YamlConfig implements ConfigurationAdapter
     public Collection<String> getDownstreamProxies() {
     	Collection<String> proxies = get( "downstream_proxies", null );
     	return (proxies == null) ? new HashSet<String>() : new HashSet<>( proxies );
+    }
+
+    @Override
+    public Collection<?> getList(String path, Collection<?> def)
+    {
+        return get( path, def );
     }
 
     @Override

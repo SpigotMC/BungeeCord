@@ -3,7 +3,6 @@ package net.md_5.bungee.netty;
 import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.MessageList;
 import io.netty.handler.timeout.ReadTimeoutException;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -59,34 +58,33 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
     {
-        channel.flushNow( false );
-        for ( Object msg : msgs )
+        if ( handler != null )
         {
-            if ( handler != null && ctx.channel().isActive() )
+            PacketWrapper packet = (PacketWrapper) msg;
+            boolean sendPacket = true;
+            try
             {
-                if ( msg instanceof PacketWrapper )
+                if ( packet.packet != null )
                 {
-                    boolean sendPacket = true;
                     try
                     {
-                        ( (PacketWrapper) msg ).packet.handle( handler );
+                        packet.packet.handle( handler );
                     } catch ( CancelSendSignal ex )
                     {
                         sendPacket = false;
                     }
-                    if ( sendPacket )
-                    {
-                        handler.handle( ( (PacketWrapper) msg ).buf );
-                    }
-                } else
-                {
-                    handler.handle( (byte[]) msg );
                 }
+                if ( sendPacket )
+                {
+                    handler.handle( packet );
+                }
+            } finally
+            {
+                packet.trySingleRelease();
             }
         }
-        channel.flushNow( true );
     }
 
     @Override

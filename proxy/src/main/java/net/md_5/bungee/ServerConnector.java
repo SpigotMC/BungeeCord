@@ -104,7 +104,7 @@ public class ServerConnector extends PacketHandler
     {
         user.getPendingConnects().remove( target );
         if( user.getServer() != null && user.getServer().isObsolete() && user.isActive() )
-            BungeeCord.getInstance().executors.schedule( new Runnable() {
+            user.getCh().getHandle().eventLoop().schedule( new Runnable() {
                 @Override
                 public void run() {
                     if( user.isActive() )
@@ -171,7 +171,7 @@ public class ServerConnector extends PacketHandler
                 user.unsafe().sendPacket( modLogin );
 
                 MinecraftOutput out = new MinecraftOutput();
-                out.writeString( ProxyServer.getInstance().getName() + " (" + ProxyServer.getInstance().getVersion() + ")" );
+                out.writeStringUTF8WithoutLengthHeaderBecauseDinnerboneStuffedUpTheMCBrandPacket( ProxyServer.getInstance().getName() + " (" + ProxyServer.getInstance().getVersion() + ")" );
                 user.unsafe().sendPacket( new PacketFAPluginMessage( "MC|Brand", out.toArray() ) );
             } else
             {
@@ -273,7 +273,7 @@ public class ServerConnector extends PacketHandler
         {
             def = null;
         }
-        ServerKickEvent origEvt = new ServerKickEvent( user, kick.getMessage(), def );
+        ServerKickEvent origEvt = new ServerKickEvent( user, kick.getMessage(), def, ServerKickEvent.State.CONNECTING );
         
         if( ! target.getName().equalsIgnoreCase( BungeeCord.jailServerName ) && ( kick.getMessage().contains( "Server" ) || kick.getMessage().contains( "closed" ) || kick.getMessage().contains( "white-listed" ) ) && user.getServer() == null )
             origEvt.setCancelled( true );
@@ -285,7 +285,7 @@ public class ServerConnector extends PacketHandler
             return;
         }
 
-        String message = bungee.getTranslation( "connect_kick" ) + target.getName() + ": " + kick.getMessage();
+        String message = bungee.getTranslation( "connect_kick" ) + target.getName() + ": " + event.getKickReason();
         if ( user.getServer() == null )
         {
             user.disconnect( message );

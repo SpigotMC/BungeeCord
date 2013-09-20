@@ -13,6 +13,7 @@ import net.md_5.bungee.protocol.packet.Packet2Handshake;
 import net.md_5.bungee.protocol.packet.Packet3Chat;
 import net.md_5.bungee.protocol.packet.Packet9Respawn;
 import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
+import net.md_5.bungee.protocol.packet.PacketCBTabComplete;
 import net.md_5.bungee.protocol.packet.PacketCCSettings;
 import net.md_5.bungee.protocol.packet.PacketCDClientStatus;
 import net.md_5.bungee.protocol.packet.PacketCEScoreboardObjective;
@@ -29,8 +30,8 @@ import net.md_5.bungee.protocol.skip.PacketReader;
 public class Vanilla implements Protocol
 {
 
-    public static final byte PROTOCOL_VERSION = 74;
-    public static final String GAME_VERSION = "1.6.2";
+    public static final byte PROTOCOL_VERSION = 78;
+    public static final String GAME_VERSION = "1.6.4";
     @Getter
     private static final Vanilla instance = new Vanilla();
     /*========================================================================*/
@@ -56,6 +57,7 @@ public class Vanilla implements Protocol
         classes[0xC9] = PacketC9PlayerListItem.class;
         classes[0x2C] = Packet2CEntityProperties.class;
         classes[0xCC] = PacketCCSettings.class;
+        classes[0xCB] = PacketCBTabComplete.class;
         classes[0xCD] = PacketCDClientStatus.class;
         classes[0xCE] = PacketCEScoreboardObjective.class;
         classes[0xCF] = PacketCFScoreboardScore.class;

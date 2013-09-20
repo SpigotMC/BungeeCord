@@ -24,7 +24,6 @@ import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.config.TexturePackInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
@@ -33,6 +32,7 @@ import net.md_5.bungee.api.tab.TabListHandler;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
+import net.md_5.bungee.netty.PacketWrapper;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.packet.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Packet3Chat;
@@ -49,6 +49,7 @@ public final class UserConnection implements ProxiedPlayer
     @NonNull
     private final ProxyServer bungee;
     @NonNull
+    @Getter
     private final ChannelWrapper ch;
     @Getter
     @NonNull
@@ -75,6 +76,9 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     @Setter
     private int ping = 100;
+    @Getter
+    @Setter
+    private ServerInfo reconnectServer;
     /*========================================================================*/
     private final Collection<String> groups = new CaseInsensitiveSet();
     private final Collection<String> permissions = new CaseInsensitiveSet();
@@ -130,9 +134,9 @@ public final class UserConnection implements ProxiedPlayer
         this.tabList = tabList;
     }
 
-    public void sendPacket(byte[] b)
+    public void sendPacket(PacketWrapper packet)
     {
-        ch.write( b );
+        ch.write( packet );
     }
 
     @Deprecated
@@ -186,12 +190,12 @@ public final class UserConnection implements ProxiedPlayer
 
         if ( getServer() != null && Objects.equals( getServer().getInfo(), target ) && ! getServer().isObsolete() )
         {
-            sendMessage( ChatColor.RED + "Cannot connect to server you are already on!" );
+            sendMessage( bungee.getTranslation( "already_connected" ) );
             return;
         }
         if ( pendingConnects.contains( target ) )
         {
-            sendMessage( ChatColor.RED + "Already connecting to this server!" );
+            sendMessage( bungee.getTranslation( "already_connecting" ) );
             return;
         }
         
@@ -223,7 +227,7 @@ public final class UserConnection implements ProxiedPlayer
                         connect( def, false );
                     } else if ( target == def && retry && retryCount <= 12 && isActive() )
                     {
-                        BungeeCord.getInstance().executors.schedule( new Runnable() {
+                        ch.getHandle().eventLoop().schedule( new Runnable() {
                             @Override
                             public void run() {
                                 connect( def, true, retryCount + 1 );
@@ -249,7 +253,7 @@ public final class UserConnection implements ProxiedPlayer
                 .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000 ) // TODO: Configurable
                 .remoteAddress( target.getAddress() );
         // Windows is bugged, multi homed users will just have to live with random connecting IPs
-        if ( !PlatformDependent.isWindows() )
+        if ( getPendingConnection().getListener().isSetLocalAddress() && !PlatformDependent.isWindows() )
         {
             b.localAddress( getPendingConnection().getListener().getHost().getHostString(), 0 );
         }
@@ -372,12 +376,6 @@ public final class UserConnection implements ProxiedPlayer
     public String toString()
     {
         return name;
-    }
-
-    @Override
-    public void setTexturePack(TexturePackInfo pack)
-    {
-        unsafe().sendPacket( new PacketFAPluginMessage( "MC|TPack", ( pack.getUrl() + "\00" + pack.getSize() ).getBytes() ) );
     }
 
     @Override

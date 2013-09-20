@@ -49,12 +49,16 @@ public class ListenerInfo
      */
     private final Map<String, String> forcedHosts;
     /**
-     * Get the texture pack used for servers connected to this proxy. May be
-     * null.
-     */
-    private final TexturePackInfo texturePack;
-    /**
      * Class used to build tab lists for this player.
      */
     private final Class<? extends TabListHandler> tabList;
+    /**
+     * Whether to set the local address when connecting to servers.
+     */
+    private final boolean setLocalAddress;
+    /**
+     * Whether to pass the ping through when we can reliably get the target
+     * server (force default server).
+     */
+    private final boolean pingPassthrough;
 }

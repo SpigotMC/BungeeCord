@@ -1,6 +1,5 @@
 package net.md_5.bungee.connection;
 
-import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import java.io.DataInput;
@@ -11,7 +10,6 @@ import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -24,6 +22,7 @@ import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.api.score.Team;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
+import net.md_5.bungee.netty.PacketWrapper;
 import net.md_5.bungee.protocol.packet.Packet0KeepAlive;
 import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
 import net.md_5.bungee.protocol.packet.PacketCEScoreboardObjective;
@@ -32,8 +31,7 @@ import net.md_5.bungee.protocol.packet.PacketD0DisplayScoreboard;
 import net.md_5.bungee.protocol.packet.PacketD1Team;
 import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
 import net.md_5.bungee.protocol.packet.PacketFFKick;
-
-;
+import net.md_5.bungee.api.ChatColor;
 
 @RequiredArgsConstructor
 public class DownstreamBridge extends PacketHandler
@@ -54,9 +52,9 @@ public class DownstreamBridge extends PacketHandler
         ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getFallbackServer() );
         if ( ! server.getInfo().getName().equalsIgnoreCase( BungeeCord.jailServerName ) )
         {
-            con.getServer().setObsolete( true );
+            server.setObsolete( true );
             con.connectNow( def );
-            //con.sendMessage( ChatColor.RED + "The server you were previously on went down, you have been connected to the lobby" );
+            //con.sendMessage( bungee.getTranslation( "server_went_down" ) );
         } else
         {
             con.disconnect( kickMessage );
@@ -74,7 +72,10 @@ public class DownstreamBridge extends PacketHandler
     {
         // We lost connection to the server
         server.getInfo().removePlayer( con );
-        bungee.getReconnectHandler().setServer( con );
+        if ( bungee.getReconnectHandler() != null )
+        {
+            bungee.getReconnectHandler().setServer( con );
+        }
 
         if ( !server.isObsolete() && con.isActive() )
         {
@@ -83,12 +84,12 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(byte[] buf) throws Exception
+    public void handle(PacketWrapper packet) throws Exception
     {
         if ( !server.isObsolete() )
         {
-            EntityMap.rewrite( buf, con.getServerEntityId(), con.getClientEntityId() );
-            con.sendPacket( buf );
+            EntityMap.rewrite( packet.buf, con.getServerEntityId(), con.getClientEntityId() );
+            con.sendPacket( packet );
         }
     }
 
@@ -207,11 +208,6 @@ public class DownstreamBridge extends PacketHandler
             throw new CancelSendSignal();
         }
 
-        if ( pluginMessage.getTag().equals( "MC|TPack" ) && con.getPendingConnection().getListener().getTexturePack() != null )
-        {
-            throw new CancelSendSignal();
-        }
-
         if ( pluginMessage.getTag().equals( "BungeeCord" ) )
         {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
@@ -259,6 +255,18 @@ public class DownstreamBridge extends PacketHandler
                 if ( server != null )
                 {
                     con.connect( server );
+                }
+            }
+            if ( subChannel.equals( "ConnectOther" ) )
+            {
+                ProxiedPlayer player = bungee.getPlayer( in.readUTF() );
+                if ( player != null )
+                {
+                    ServerInfo server = bungee.getServerInfo( in.readUTF() );
+                    if ( server != null )
+                    {
+                        player.connect( server );
+                    }
                 }
             }
             if ( subChannel.equals( "IP" ) )
@@ -343,7 +351,7 @@ public class DownstreamBridge extends PacketHandler
         {
             def = null;
         }*/
-        ServerKickEvent origEvt = new ServerKickEvent( con, kick.getMessage(), def );
+        ServerKickEvent origEvt = new ServerKickEvent( con, kick.getMessage(), def, ServerKickEvent.State.CONNECTED );
         
         if( ! server.getInfo().getName().equalsIgnoreCase( BungeeCord.jailServerName ) && ( kick.getMessage().contains( "Server" ) || kick.getMessage().contains( "closed" ) || kick.getMessage().contains( "white-listed" ) ) )
             origEvt.setCancelled( true );

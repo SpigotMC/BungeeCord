@@ -2,7 +2,6 @@ package net.md_5.bungee.api.connection;
 
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.config.TexturePackInfo;
 import net.md_5.bungee.api.tab.TabListHandler;
 
 /**
@@ -73,13 +72,6 @@ public interface ProxiedPlayer extends Connection, CommandSender
     void chat(String message);
 
     /**
-     * Send a request to change the players texture pack.
-     *
-     * @param pack the pack to request
-     */
-    void setTexturePack(TexturePackInfo pack);
-
-    /**
      * Sets the new tab list for the user. At this stage it is not advisable to
      * change after the user has logged in!
      *
@@ -93,4 +85,18 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @return the tab list in use by this user
      */
     TabListHandler getTabList();
+
+    /**
+     * Get the server which this player will be sent to next time the log in.
+     *
+     * @return the server, or null if default
+     */
+    ServerInfo getReconnectServer();
+
+    /**
+     * Set the server which this player will be sent to next time the log in.
+     *
+     * @param server the server to set
+     */
+    void setReconnectServer(ServerInfo server);
 }
