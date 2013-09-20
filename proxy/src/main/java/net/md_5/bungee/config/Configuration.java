@@ -38,6 +38,8 @@ public class Configuration
      * Set of all servers.
      */
     private TMap<String, ServerInfo> servers;
+    
+    private Collection<String> downstreamProxies;
     /**
      * Should we check minecraft.net auth.
      */
@@ -54,6 +56,7 @@ public class Configuration
         uuid = adapter.getString( "stats", uuid );
         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
         playerLimit = adapter.getInt( "player_limit", playerLimit );
+        downstreamProxies = adapter.getDownstreamProxies();
 
         Preconditions.checkArgument( listeners != null && !listeners.isEmpty(), "No listeners defined." );
 

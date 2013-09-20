@@ -1,7 +1,12 @@
 package net.md_5.bungee.connection;
 
 import com.google.common.base.Preconditions;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+
 import io.netty.util.concurrent.ScheduledFuture;
+
+import java.io.DataInput;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
@@ -83,6 +88,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private ScheduledFuture<?> pingFuture;
     private InetSocketAddress vHost;
     private byte version = -1;
+    private InetSocketAddress effectiveAddress = null;
 
     private enum State
     {
@@ -119,6 +125,20 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             }
 
             return;
+        }
+        
+        if ( pluginMessage.getTag().equals( "BungeeCord" ) )
+        {
+        	DataInput in = pluginMessage.getStream();
+            String subChannel = in.readUTF();
+
+            if ( subChannel.equals( "Login" ) )
+            {
+                String srcHost = in.readUTF();
+                int srcPort = in.readInt();
+                if ( ((BungeeCord) bungee).config.getDownstreamProxies().contains( ((InetSocketAddress) ch.getHandle().remoteAddress()).getAddress().getHostAddress() ) )
+                	effectiveAddress = new InetSocketAddress(srcHost, srcPort);
+            }
         }
 
         // TODO: Unregister?
@@ -326,6 +346,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         UserConnection userCon = new UserConnection( (BungeeCord) bungee, ch, getName(), this );
         userCon.init();
+        userCon.setEffectiveAddress( effectiveAddress );
 
         bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
 

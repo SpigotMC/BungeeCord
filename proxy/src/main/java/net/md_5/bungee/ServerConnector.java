@@ -86,8 +86,8 @@ public class ServerConnector extends PacketHandler
 
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF( "Login" );
-        out.writeUTF( user.getAddress().getHostString() );
-        out.writeInt( user.getAddress().getPort() );
+        out.writeUTF( user.getEffectiveAddress().getHostString() );
+        out.writeInt( user.getEffectiveAddress().getPort() );
         channel.write( new PacketFAPluginMessage( "BungeeCord", out.toByteArray() ) );
 
         channel.write( user.getPendingConnection().getHandshake() );

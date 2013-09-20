@@ -93,6 +93,7 @@ public final class UserConnection implements ProxiedPlayer
     /*========================================================================*/
     @Getter
     private String displayName;
+    private InetSocketAddress effectiveAddress = null;
     /*========================================================================*/
     private final Unsafe unsafe = new Unsafe()
     {
@@ -305,6 +306,16 @@ public final class UserConnection implements ProxiedPlayer
     public InetSocketAddress getAddress()
     {
         return (InetSocketAddress) ch.getHandle().remoteAddress();
+    }
+    
+    public InetSocketAddress getEffectiveAddress() {
+    	if (effectiveAddress == null)
+    		return getAddress();
+    	return effectiveAddress;
+    }
+    
+    public void setEffectiveAddress(InetSocketAddress addr) {
+    	effectiveAddress = addr;
     }
 
     @Override
