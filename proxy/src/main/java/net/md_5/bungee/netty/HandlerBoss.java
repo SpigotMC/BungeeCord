@@ -10,6 +10,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.connection.PingHandler;
+import net.md_5.bungee.protocol.BadPacketException;
 
 /**
  * This class is a primitive wrapper for {@link PacketHandler} instances tied to
@@ -95,6 +96,9 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
             if ( cause instanceof ReadTimeoutException )
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, handler + " - read timed out" );
+            } else if ( cause instanceof BadPacketException )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, handler + " - bad packet ID, are mods in use!?" );
             } else if ( cause instanceof IOException )
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, handler + " - IOException: " + cause.getMessage() );

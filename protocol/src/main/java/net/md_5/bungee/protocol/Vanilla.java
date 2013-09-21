@@ -78,7 +78,7 @@ public class Vanilla implements Protocol
         DefinedPacket packet = read( packetId, buf, this );
         if ( buf.readerIndex() == start )
         {
-            throw new RuntimeException( "Unknown packet id " + packetId );
+            throw new BadPacketException( "Unknown packet id " + packetId );
         }
         return packet;
     }
