@@ -19,7 +19,7 @@
     <description>Proxy component of the Elastic Portal Suite</description>
 
     <properties>
-         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
+        <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
     </properties>
 
     <dependencies>
@@ -43,13 +43,13 @@
         </dependency>
         <dependency>
             <groupId>net.md-5</groupId>
-            <artifactId>bungeecord-protocol</artifactId>
+            <artifactId>bungeecord-api</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>net.md-5</groupId>
-            <artifactId>bungeecord-api</artifactId>
+            <artifactId>bungeecord-protocol</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
@@ -97,7 +97,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Main-Class>net.md_5.bungee.BungeeCord</Main-Class>
+                            <Main-Class>net.md_5.bungee.Bootstrap</Main-Class>
                             <Implementation-Version>${describe}</Implementation-Version>
                             <Specification-Version>${maven.build.timestamp}</Specification-Version>
                         </manifestEntries>

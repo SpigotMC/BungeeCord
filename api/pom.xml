@@ -27,6 +27,12 @@
         </dependency>
         <dependency>
             <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-config</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.md-5</groupId>
             <artifactId>bungeecord-event</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
@@ -35,12 +41,6 @@
             <groupId>net.md-5</groupId>
             <artifactId>bungeecord-protocol</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>1.12</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
