@@ -15,7 +15,7 @@ public abstract class ConfigurationProvider
         providers.put( YamlConfiguration.class, new YamlConfiguration() );
     }
 
-    public ConfigurationProvider getProvider(Class<? extends ConfigurationProvider> provider)
+    public static ConfigurationProvider getProvider(Class<? extends ConfigurationProvider> provider)
     {
         return providers.get( provider );
     }
