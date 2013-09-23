@@ -97,7 +97,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Main-Class>net.md_5.bungee.Bootstrap</Main-Class>
+                            <Main-Class>net.md_5.bungee.BungeeCord</Main-Class> 
                             <Implementation-Version>${describe}</Implementation-Version>
                             <Specification-Version>${maven.build.timestamp}</Specification-Version>
                         </manifestEntries>
