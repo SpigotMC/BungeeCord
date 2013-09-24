@@ -60,6 +60,7 @@ import net.md_5.bungee.protocol.packet.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Packet3Chat;
 import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
 import net.md_5.bungee.protocol.Vanilla;
+import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.tab.Custom;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.fusesource.jansi.AnsiConsole;
@@ -269,6 +270,26 @@ public class BungeeCord extends ProxyServer
                     .group( eventLoops )
                     .localAddress( info.getHost() )
                     .bind().addListener( listener );
+
+            if ( info.isQueryEnabled() )
+            {
+                ChannelFutureListener bindListener = new ChannelFutureListener()
+                {
+                    @Override
+                    public void operationComplete(ChannelFuture future) throws Exception
+                    {
+                        if ( future.isSuccess() )
+                        {
+                            listeners.add( future.channel() );
+                            getLogger().info( "Started query on " + future.channel().localAddress() );
+                        } else
+                        {
+                            getLogger().log( Level.WARNING, "Could not bind to host " + future.channel().remoteAddress(), future.cause() );
+                        }
+                    }
+                };
+                new RemoteQuery( this, info ).start( new InetSocketAddress( info.getHost().getAddress(), info.getQueryPort() ), eventLoops, bindListener );
+            }
         }
     }
 
