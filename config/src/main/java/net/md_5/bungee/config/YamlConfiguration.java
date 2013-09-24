@@ -5,10 +5,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Map;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
-class YamlConfiguration extends ConfigurationProvider
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
+public class YamlConfiguration extends ConfigurationProvider
 {
 
     private final ThreadLocal<Yaml> yaml = new ThreadLocal<Yaml>()
