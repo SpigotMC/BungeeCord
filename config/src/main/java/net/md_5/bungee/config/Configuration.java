@@ -13,7 +13,7 @@ public final class Configuration
 {
 
     private static final char SEPARATOR = '.';
-    private final Map<String, Object> self;
+    final Map<String, Object> self;
     private final Configuration defaults;
 
     private Configuration getSectionFor(String path)
