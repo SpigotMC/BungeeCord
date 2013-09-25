@@ -82,7 +82,7 @@ public class BungeeCord extends ProxyServer
     /**
      * Localization bundle.
      */
-    public final ResourceBundle bundle = ResourceBundle.getBundle( "messages_en" );
+    public final ResourceBundle bundle = ResourceBundle.getBundle( "messages" );
     public final MultithreadEventLoopGroup eventLoops = new NioEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
     /**
      * locations.yml save thread.
