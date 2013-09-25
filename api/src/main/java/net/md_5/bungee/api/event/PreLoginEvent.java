@@ -10,7 +10,7 @@ import net.md_5.bungee.protocol.packet.Packet2Handshake;
 import net.md_5.bungee.api.plugin.Event;
 
 /**
- * Event called to represent a player logging in.
+ * Event called to represent a player before logging in.
  */
 @Data
 @ToString(callSuper = false)
