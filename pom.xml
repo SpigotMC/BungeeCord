@@ -11,7 +11,7 @@
 
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-parent</artifactId>
-    <version>1.6.2-SNAPSHOT</version>
+    <version>1.6.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>BungeeCord</name>
@@ -38,9 +38,12 @@
 
     <modules>
         <module>api</module>
+        <module>bootstrap</module>
+        <module>config</module>
         <module>event</module>
         <module>protocol</module>
         <module>proxy</module>
+        <module>query</module>
     </modules>
 
     <scm>

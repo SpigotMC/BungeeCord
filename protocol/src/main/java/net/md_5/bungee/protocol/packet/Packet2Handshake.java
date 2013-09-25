@@ -11,7 +11,7 @@ import lombok.ToString;
 public class Packet2Handshake extends DefinedPacket
 {
 
-    private byte procolVersion;
+    private byte protocolVersion;
     private String username;
     private String host;
     private int port;
@@ -24,7 +24,7 @@ public class Packet2Handshake extends DefinedPacket
     @Override
     public void read(ByteBuf buf)
     {
-        procolVersion = buf.readByte();
+        protocolVersion = buf.readByte();
         username = readString( buf );
         host = readString( buf );
         port = buf.readInt();
@@ -33,7 +33,7 @@ public class Packet2Handshake extends DefinedPacket
     @Override
     public void write(ByteBuf buf)
     {
-        buf.writeByte( procolVersion );
+        buf.writeByte( protocolVersion );
         writeString( username, buf );
         writeString( host, buf );
         buf.writeInt( port );

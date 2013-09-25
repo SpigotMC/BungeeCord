@@ -98,9 +98,13 @@ public class UpstreamBridge extends PacketHandler
         if ( tabComplete.getCursor().startsWith( "/" ) )
         {
             List<String> results = new ArrayList<>();
-            bungee.getPluginManager().dispatchCommand( con, tabComplete.getCursor().substring( 1, tabComplete.getCursor().length() ), results );
-            con.unsafe().sendPacket( new PacketCBTabComplete( results.toArray( new String[ results.size() ] ) ) );
-            throw new CancelSendSignal();
+            bungee.getPluginManager().dispatchCommand( con, tabComplete.getCursor().substring( 1 ), results );
+
+            if ( !results.isEmpty() )
+            {
+                con.unsafe().sendPacket( new PacketCBTabComplete( results.toArray( new String[ results.size() ] ) ) );
+                throw new CancelSendSignal();
+            }
         }
     }
 

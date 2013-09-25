@@ -20,7 +20,7 @@ public class PingHandler extends PacketHandler
     @Override
     public void connected(ChannelWrapper channel) throws Exception
     {
-        // TODO: Update this to 1.6.2 style!
+        // TODO: Update this to 1.6.4 style!
         channel.write( Unpooled.wrappedBuffer( new byte[]
         {
             (byte) 0xFE, (byte) 0x01

@@ -198,10 +198,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         this.vHost = new InetSocketAddress( handshake.getHost(), handshake.getPort() );
         bungee.getLogger().log( Level.INFO, "{0} has connected", this );
 
-        if ( handshake.getProcolVersion() > Vanilla.PROTOCOL_VERSION )
+        if ( handshake.getProtocolVersion() > Vanilla.PROTOCOL_VERSION )
         {
             disconnect( bungee.getTranslation( "outdated_server" ) );
-        } else if ( handshake.getProcolVersion() < Vanilla.PROTOCOL_VERSION )
+        } else if ( handshake.getProtocolVersion() < Vanilla.PROTOCOL_VERSION )
         {
             disconnect( bungee.getTranslation( "outdated_client" ) );
         }
@@ -381,7 +381,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public byte getVersion()
     {
-        return ( handshake == null ) ? version : handshake.getProcolVersion();
+        return ( handshake == null ) ? version : handshake.getProtocolVersion();
     }
 
     @Override

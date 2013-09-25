@@ -215,7 +215,10 @@ public class YamlConfig implements ConfigurationAdapter
             boolean setLocalAddress = get( "bind_local_address", true, val );
             boolean pingPassthrough = get( "ping_passthrough", false, val );
 
-            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, fallbackServer, forceDefault, forced, value.clazz, setLocalAddress, pingPassthrough );
+            boolean query = get( "query_enabled", false, val );
+            int queryPort = get( "query_port", 25577, val );
+
+            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, fallbackServer, forceDefault, forced, value.clazz, setLocalAddress, pingPassthrough, queryPort, query );
             ret.add( info );
         }
 
