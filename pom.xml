@@ -38,6 +38,7 @@
 
     <modules>
         <module>api</module>
+        <module>bootstrap</module>
         <module>config</module>
         <module>event</module>
         <module>protocol</module>
