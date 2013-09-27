@@ -87,6 +87,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
     public void setOnlineMode(boolean onlineMode){
            this.onlineMode = onlineMode;
+           //System.out.println(this.onlineMode);
         }
 
     private ScheduledFuture<?> pingFuture;
@@ -203,18 +204,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(Packet2Handshake handshake) throws Exception
     {
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
-        Callback<PreLoginEvent> complete = new Callback<PreLoginEvent>()
-        {
-            @Override
-            public void done(PreLoginEvent result, Throwable error)
-            {
-                if ( result.isCancelled() )
-                {
-                    disconnect( result.getCancelReason() );
-                }
 
-            }
-        };  
+
         this.handshake = handshake;
         this.vHost = new InetSocketAddress( handshake.getHost(), handshake.getPort() );
         bungee.getLogger().log( Level.INFO, "{0} has connected", this );
@@ -239,11 +230,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             disconnect( bungee.getTranslation( "proxy_full" ) );
             return;
         }
-
         bungee.getPluginManager().callEvent( new PreLoginEvent( InitialHandler.this, handshake) );
         unsafe().sendPacket( PacketConstants.I_AM_BUNGEE );
         unsafe().sendPacket( PacketConstants.FORGE_MOD_REQUEST );
-        unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
+        //bungee.getLogger().log( Level.INFO, "Mode({0}):" + this.onlineMode , this );
+        unsafe().sendPacket( request = EncryptionUtil.encryptRequest( this.onlineMode ) );
         thisState = State.ENCRYPT;
     }
 
@@ -256,6 +247,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, sharedKey );
         ch.addBefore( PipelineUtils.PACKET_DECODE_HANDLER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
 
+        //bungee.getLogger().log( Level.INFO, "Mode({0}):" + this.onlineMode , this );
+        //System.out.println(this.onlineMode);
+        
         if ( this.onlineMode )
         {
             String encName = URLEncoder.encode( InitialHandler.this.getName(), "UTF-8" );
