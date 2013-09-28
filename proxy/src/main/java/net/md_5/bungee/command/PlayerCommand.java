@@ -29,12 +29,12 @@ public abstract class PlayerCommand extends Command implements TabExecutor
     	return Iterables.transform( Iterables.filter(ProxyServer.getInstance().getPlayers(),
     		new Predicate<ProxiedPlayer>() {
     			public boolean apply(ProxiedPlayer player) {
-    				return player.getName().toLowerCase().startsWith(lastArg.toLowerCase());
+    				return player.getDisplayName().toLowerCase().startsWith(lastArg.toLowerCase());
     			}
     		}),	
     		new Function<ProxiedPlayer, String>() {
     			public String apply(ProxiedPlayer player) {
-    				return player.getName();
+    				return player.getDisplayName();
     			}
     		}
     	);
