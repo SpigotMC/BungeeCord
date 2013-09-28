@@ -136,8 +136,18 @@ public class PluginManager
             sender.sendMessage( proxy.getTranslation( "no_permission" ) );
             return true;
         }
-
-        String[] args = Arrays.copyOfRange( split, 1, split.length );
+        
+        String[] args;
+        
+        // add empty argument for tab completion
+        if (commandLine.endsWith(" ")) {
+        	args = new String[split.length];
+        	System.arraycopy(split, 0, args, 0, split.length);
+        	args[ split.length - 1 ] = "";
+        } else {
+        	args = Arrays.copyOfRange( split, 1, split.length );
+        }
+        
         try
         {
             if ( tabResults == null )
