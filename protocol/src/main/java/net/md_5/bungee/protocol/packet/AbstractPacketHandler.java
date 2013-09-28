@@ -27,6 +27,10 @@ public abstract class AbstractPacketHandler
     {
     }
 
+    public void handle(PacketC8Statistic statistic) throws Exception
+    {
+    }
+
     public void handle(PacketC9PlayerListItem playerList) throws Exception
     {
     }

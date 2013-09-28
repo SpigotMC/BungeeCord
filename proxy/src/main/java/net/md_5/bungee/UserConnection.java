@@ -357,4 +357,10 @@ public final class UserConnection implements ProxiedPlayer
     {
         return unsafe;
     }
+
+    @Override
+    public String getUUID()
+    {
+        return getPendingConnection().getUUID();
+    }
 }
