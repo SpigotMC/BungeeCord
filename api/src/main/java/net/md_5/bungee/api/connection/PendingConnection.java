@@ -36,4 +36,11 @@ public interface PendingConnection extends Connection
      * @return the accepting listener
      */
     ListenerInfo getListener();
+
+    /**
+     * Get this connection's UUID, if set.
+     *
+     * @return the UUID
+     */
+    String getUUID();
 }
