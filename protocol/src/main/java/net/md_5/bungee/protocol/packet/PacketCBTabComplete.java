@@ -39,10 +39,10 @@ public class PacketCBTabComplete extends DefinedPacket
         {
             if ( tab.isEmpty() )
             {
-                tab = alternative + " ";
+                tab = alternative;
             } else
             {
-                tab += "\0" + alternative + " ";
+                tab += "\0" + alternative;
             }
         }
         writeString( tab, buf );

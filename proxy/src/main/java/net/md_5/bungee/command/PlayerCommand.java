@@ -1,6 +1,7 @@
 package net.md_5.bungee.command;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -24,13 +25,18 @@ public abstract class PlayerCommand extends Command implements TabExecutor
     @Override
     public Iterable<String> onTabComplete(CommandSender sender, String[] args)
     {
-        return Iterables.transform( ProxyServer.getInstance().getPlayers(), new Function<ProxiedPlayer, String>()
-        {
-            @Override
-            public String apply(ProxiedPlayer input)
-            {
-                return input.getDisplayName();
-            }
-        } );
+    	final String lastArg = (args.length > 0) ? args[args.length-1] : ""; 
+    	return Iterables.transform( Iterables.filter(ProxyServer.getInstance().getPlayers(),
+    		new Predicate<ProxiedPlayer>() {
+    			public boolean apply(ProxiedPlayer player) {
+    				return player.getName().toLowerCase().startsWith(lastArg.toLowerCase());
+    			}
+    		}),	
+    		new Function<ProxiedPlayer, String>() {
+    			public String apply(ProxiedPlayer player) {
+    				return player.getName();
+    			}
+    		}
+    	);
     }
 }
