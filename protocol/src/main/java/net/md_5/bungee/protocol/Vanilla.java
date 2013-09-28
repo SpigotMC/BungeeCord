@@ -382,9 +382,5 @@ public class Vanilla implements Protocol
         {
             BYTE, FLOAT, FLOAT
         };
-        opCodes[0xCB] = new OpCode[]
-        {
-            STRING
-        };
     }
 }
