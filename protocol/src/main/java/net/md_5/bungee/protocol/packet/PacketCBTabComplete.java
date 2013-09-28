@@ -34,18 +34,13 @@ public class PacketCBTabComplete extends DefinedPacket
     @Override
     public void write(ByteBuf buf)
     {
-        String tab = "";
+        StringBuilder tab = new StringBuilder();
         for ( String alternative : commands )
         {
-            if ( tab.isEmpty() )
-            {
-                tab = alternative + " ";
-            } else
-            {
-                tab += "\0" + alternative + " ";
-            }
+            tab.append( alternative );
+            tab.append( "\00" );
         }
-        writeString( tab, buf );
+        writeString( tab.substring( 0, tab.length() - 1 ), buf );
     }
 
     @Override
