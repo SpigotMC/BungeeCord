@@ -29,6 +29,7 @@ public class Bootstrap
     public static void main(String[] args) throws Exception
     {
         OptionParser parser = new OptionParser();
+        parser.allowsUnrecognizedOptions();
         parser.acceptsAll( list( "v", "version" ) );
 
         OptionSet options = parser.parse( args );
