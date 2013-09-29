@@ -52,6 +52,7 @@ import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.protocol.packet.PacketFEPing;
 import net.md_5.bungee.protocol.packet.PacketFFKick;
 import net.md_5.bungee.api.AbstractReconnectHandler;
+import net.md_5.bungee.api.event.PlayerHandshakeEvent;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -80,6 +81,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             ch.write( packet );
         }
     };
+    @Getter
+    private boolean onlineMode = BungeeCord.getInstance().config.isOnlineMode();
     private ScheduledFuture<?> pingFuture;
     private InetSocketAddress vHost;
     private byte version = -1;
@@ -198,6 +201,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         this.vHost = new InetSocketAddress( handshake.getHost(), handshake.getPort() );
         bungee.getLogger().log( Level.INFO, "{0} has connected", this );
 
+        bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
+
         if ( handshake.getProtocolVersion() > Vanilla.PROTOCOL_VERSION )
         {
             disconnect( bungee.getTranslation( "outdated_server" ) );
@@ -220,7 +225,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         // If offline mode and they are already on, don't allow connect
-        if ( !BungeeCord.getInstance().config.isOnlineMode() && bungee.getPlayer( handshake.getUsername() ) != null )
+        if ( !isOnlineMode() && bungee.getPlayer( handshake.getUsername() ) != null )
         {
             disconnect( bungee.getTranslation( "already_connected" ) );
             return;
@@ -228,7 +233,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         unsafe().sendPacket( PacketConstants.I_AM_BUNGEE );
         unsafe().sendPacket( PacketConstants.FORGE_MOD_REQUEST );
-        unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
+
+        unsafe().sendPacket( request = EncryptionUtil.encryptRequest( this.onlineMode ) );
         thisState = State.ENCRYPT;
     }
 
@@ -241,7 +247,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, sharedKey );
         ch.addBefore( PipelineUtils.PACKET_DECODE_HANDLER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
 
-        if ( BungeeCord.getInstance().config.isOnlineMode() )
+        if ( this.onlineMode )
         {
             String encName = URLEncoder.encode( InitialHandler.this.getName(), "UTF-8" );
 
@@ -400,6 +406,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public Unsafe unsafe()
     {
         return unsafe;
+    }
+
+    public void setOnlineMode(boolean onlineMode)
+    {
+        Preconditions.checkState( thisState == State.HANDSHAKE, "Can only set online mode status whilst handshaking" );
+        this.onlineMode = onlineMode;
     }
 
     @Override
