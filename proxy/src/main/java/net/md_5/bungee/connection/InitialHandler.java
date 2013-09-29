@@ -201,8 +201,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         this.vHost = new InetSocketAddress( handshake.getHost(), handshake.getPort() );
         bungee.getLogger().log( Level.INFO, "{0} has connected", this );
 
-        bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
-
         if ( handshake.getProtocolVersion() > Vanilla.PROTOCOL_VERSION )
         {
             disconnect( bungee.getTranslation( "outdated_server" ) );
@@ -230,12 +228,36 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             disconnect( bungee.getTranslation( "already_connected" ) );
             return;
         }
+        Callback<PlayerHandshakeEvent> complete = new Callback<PlayerHandshakeEvent>() {
 
-        unsafe().sendPacket( PacketConstants.I_AM_BUNGEE );
-        unsafe().sendPacket( PacketConstants.FORGE_MOD_REQUEST );
-
-        unsafe().sendPacket( request = EncryptionUtil.encryptRequest( this.onlineMode ) );
-        thisState = State.ENCRYPT;
+            @Override
+            public void done(PlayerHandshakeEvent result, Throwable error)
+            {
+                if ( result.isCancelled() )
+                {
+                    disconnect( result.getCancelReason() );
+                }
+                if ( ch.isClosed() )
+                {
+                    return;
+                }
+                thisState = State.ENCRYPT;
+                ch.getHandle().eventLoop().execute( new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        if ( ch.getHandle().isActive() )
+                        {
+                            unsafe().sendPacket( PacketConstants.I_AM_BUNGEE );
+                            unsafe().sendPacket( PacketConstants.FORGE_MOD_REQUEST );
+                            unsafe().sendPacket( request = EncryptionUtil.encryptRequest( InitialHandler.this.onlineMode ) );
+                        }
+                    }
+                } );
+            }
+        };
+        bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake, complete ) );
     }
 
     @Override
