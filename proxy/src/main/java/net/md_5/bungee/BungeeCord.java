@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
@@ -82,7 +83,7 @@ public class BungeeCord extends ProxyServer
     /**
      * Localization bundle.
      */
-    public final ResourceBundle bundle = ResourceBundle.getBundle( "messages_en" );
+    public final ResourceBundle bundle = ResourceBundle.getBundle( "messages" );
     public final MultithreadEventLoopGroup eventLoops = new NioEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
     /**
      * locations.yml save thread.
@@ -368,12 +369,12 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public String getTranslation(String name)
+    public String getTranslation(String name, Object... args)
     {
         String translation = "<translation '" + name + "' missing>";
         try
         {
-            translation = bundle.getString( name );
+            translation = MessageFormat.format( bundle.getString( name ), args );
         } catch ( MissingResourceException ex )
         {
         }
