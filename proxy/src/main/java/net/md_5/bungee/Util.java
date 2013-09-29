@@ -54,12 +54,12 @@ public class Util
                 + ( ( trace.length > 0 ) ? " @ " + t.getStackTrace()[0].getClassName() + ":" + t.getStackTrace()[0].getLineNumber() : "" );
     }
 
-    public static String csv(Collection<?> objects)
+    public static String csv(Iterable<?> objects)
     {
         return format( objects, ", " );
     }
 
-    public static String format(Collection<?> objects, String separators)
+    public static String format(Iterable<?> objects, String separators)
     {
         StringBuilder ret = new StringBuilder();
         for ( Object o : objects )
