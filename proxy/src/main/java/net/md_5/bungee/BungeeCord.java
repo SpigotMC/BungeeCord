@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
@@ -368,12 +369,12 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public String getTranslation(String name)
+    public String getTranslation(String name, Object... args)
     {
         String translation = "<translation '" + name + "' missing>";
         try
         {
-            translation = bundle.getString( name );
+            translation = MessageFormat.format( bundle.getString( name ), args );
         } catch ( MissingResourceException ex )
         {
         }
