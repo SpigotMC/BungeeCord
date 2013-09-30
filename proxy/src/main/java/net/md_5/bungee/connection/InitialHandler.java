@@ -236,9 +236,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 if ( result.isCancelled() )
                 {
                     disconnect( result.getCancelReason() );
-                }
-                if ( ch.isClosed() )
-                {
                     return;
                 }
                 thisState = State.ENCRYPT;
