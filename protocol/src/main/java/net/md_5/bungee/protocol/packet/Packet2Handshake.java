@@ -3,9 +3,11 @@ package net.md_5.bungee.protocol.packet;
 import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 @Getter
+@Setter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class Packet2Handshake extends DefinedPacket
