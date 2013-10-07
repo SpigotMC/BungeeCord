@@ -2,6 +2,7 @@ package net.md_5.bungee.api.event;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -21,6 +22,7 @@ public class ServerConnectEvent extends Event implements Cancellable
     /**
      * Server the player will be connected to.
      */
+    @NonNull
     private ServerInfo target;
     /**
      * Cancelled state.
