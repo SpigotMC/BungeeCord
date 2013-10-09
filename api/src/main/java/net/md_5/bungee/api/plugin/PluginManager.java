@@ -137,18 +137,7 @@ public class PluginManager
             return true;
         }
 
-        String[] args;
-
-        // add empty argument for tab completion
-        if ( commandLine.endsWith( " " ) )
-        {
-            args = Arrays.copyOfRange( split, 1, split.length + 1 );
-            args[ split.length - 1] = "";
-        } else
-        {
-            args = Arrays.copyOfRange( split, 1, split.length );
-        }
-
+        String[] args = Arrays.copyOfRange( split, 1, split.length );
         try
         {
             if ( tabResults == null )

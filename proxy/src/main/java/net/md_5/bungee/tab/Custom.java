@@ -46,7 +46,7 @@ public class Custom extends TabListAdapter implements CustomTabList
 
         if ( text != null )
         {
-            Preconditions.checkArgument( text.length() <= MAX_LEN, "text must be <= %s chars", MAX_LEN );
+            Preconditions.checkArgument( text.length() <= MAX_LEN - 2, "text must be <= %s chars", MAX_LEN - 2 );
             Preconditions.checkArgument( !ChatColor.stripColor( text ).isEmpty(), "Text cannot consist entirely of colour codes" );
             text = attempt( text );
             sentStuff.add( text );

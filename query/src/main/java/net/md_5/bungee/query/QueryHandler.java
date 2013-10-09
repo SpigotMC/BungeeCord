@@ -45,12 +45,6 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception
-    {
-        super.channelActive( ctx ); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception
     {
         ByteBuf in = msg.content();

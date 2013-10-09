@@ -180,7 +180,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             {
                 respondToPing();
             }
-        }, 500, TimeUnit.MILLISECONDS );
+        }, 200, TimeUnit.MILLISECONDS );
     }
 
     @Override
