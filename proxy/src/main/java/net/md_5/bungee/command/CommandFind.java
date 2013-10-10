@@ -32,10 +32,4 @@ public class CommandFind extends PlayerCommand
             }
         }
     }
-
-    @Override
-    public Iterable<String> onTabComplete(CommandSender sender, String[] args)
-    {
-        return ( args.length == 0 ) ? super.onTabComplete( sender, args ) : Collections.EMPTY_LIST;
-    }
 }
