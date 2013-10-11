@@ -1,8 +1,6 @@
 package net.md_5.bungee.connection;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
@@ -40,7 +38,6 @@ import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.Handshake;
-import net.md_5.bungee.protocol.packet.ClientStatus;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
@@ -93,7 +90,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private enum State
     {
 
-        HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, LOGIN, FINISHED;
+        HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, FINISHED;
     }
 
     @Override
@@ -320,7 +317,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 {
                     return;
                 }
-                thisState = InitialHandler.State.LOGIN;
 
                 ch.getHandle().eventLoop().execute( new Runnable()
                 {
@@ -332,7 +328,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
                             if ( onlineMode )
                             {
-                                unsafe().sendPacket( new EncryptionResponse( new byte[ 0 ], new byte[ 0 ] ) );
+                                // unsafe().sendPacket( new EncryptionResponse( new byte[ 0 ], new byte[ 0 ] ) );
                                 try
                                 {
                                     Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
@@ -349,6 +345,25 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             }
                             unsafe.sendPacket( new LoginSuccess( BungeeCord.getInstance().gson.toJson( new LoginResult( UUID ) ) ) );
                             ch.setProtocol( Protocol.GAME );
+
+                            UserConnection userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
+                            userCon.init();
+
+                            bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
+
+                            ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
+
+                            ServerInfo server;
+                            if ( bungee.getReconnectHandler() != null )
+                            {
+                                server = bungee.getReconnectHandler().getServer( userCon );
+                            } else
+                            {
+                                server = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
+                            }
+                            userCon.connect( server, true );
+
+                            thisState = State.FINISHED;
                         }
                     }
                 } );
@@ -357,32 +372,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         // fire login event
         bungee.getPluginManager().callEvent( new LoginEvent( InitialHandler.this, complete ) );
-    }
-
-    @Override
-    public void handle(ClientStatus clientStatus) throws Exception
-    {
-        Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
-
-        UserConnection userCon = new UserConnection( bungee, ch, getName(), this );
-        userCon.init();
-
-        bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
-
-        ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
-
-        ServerInfo server;
-        if ( bungee.getReconnectHandler() != null )
-        {
-            server = bungee.getReconnectHandler().getServer( userCon );
-        } else
-        {
-            server = AbstractReconnectHandler.getForcedHost( this );
-        }
-        userCon.connect( server, true );
-
-        thisState = State.FINISHED;
-        throw new CancelSendSignal();
     }
 
     @Override
