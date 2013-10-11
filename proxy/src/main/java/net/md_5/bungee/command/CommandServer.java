@@ -9,13 +9,12 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.plugin.Command;
-import net.md_5.bungee.api.plugin.TabExecutor;
+import net.md_5.bungee.api.plugin.PlayerCommand;
 
 /**
  * Command to list and switch a player between available servers.
  */
-public class CommandServer extends Command implements TabExecutor
+public class CommandServer extends PlayerCommand
 {
 
     public CommandServer()
