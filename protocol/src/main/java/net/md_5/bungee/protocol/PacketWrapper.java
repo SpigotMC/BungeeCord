@@ -1,4 +1,4 @@
-package net.md_5.bungee.netty;
+package net.md_5.bungee.protocol;
 
 import io.netty.buffer.ByteBuf;
 import lombok.RequiredArgsConstructor;

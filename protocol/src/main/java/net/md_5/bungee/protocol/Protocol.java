@@ -5,6 +5,7 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 import java.lang.reflect.Constructor;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
+import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.KeepAlive;
@@ -82,7 +83,7 @@ public enum Protocol
         
         {
             registerPacket( 0x00, Kick.class );
-            registerPacket( 0x01, EncryptionResponse.class );
+            registerPacket( 0x01, EncryptionRequest.class );
             registerPacket( 0x02, LoginSuccess.class );
         }
     },
@@ -92,14 +93,22 @@ public enum Protocol
         
         {
             registerPacket( 0x00, LoginRequest.class );
+            registerPacket( 0x01, EncryptionResponse.class );
         }
     };
     /*========================================================================*/
     public static final int MAX_PACKET_ID = 0xFF;
+    public static final int PROTOCOL_VERSION = 0x00;
+    public static final String MINECRAFT_VERSION = "13w41a";
     /*========================================================================*/
     private final TObjectIntMap<Class<? extends DefinedPacket>> packetMap = new TObjectIntHashMap<>( MAX_PACKET_ID );
     private final Class<? extends DefinedPacket>[] packetClasses = new Class[ MAX_PACKET_ID ];
     private final Constructor<? extends DefinedPacket>[] packetConstructors = new Constructor[ MAX_PACKET_ID ];
+
+    public boolean hasPacket(int id)
+    {
+        return id < MAX_PACKET_ID && packetConstructors[id] != null;
+    }
 
     public final DefinedPacket createPacket(int id)
     {

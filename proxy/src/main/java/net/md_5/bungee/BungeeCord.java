@@ -58,9 +58,9 @@ import net.md_5.bungee.config.YamlConfig;
 import net.md_5.bungee.log.LoggingOutputStream;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.PluginMessage;
-import net.md_5.bungee.protocol.Vanilla;
 import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.tab.Custom;
 import net.md_5.bungee.util.CaseInsensitiveMap;
@@ -453,15 +453,15 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public byte getProtocolVersion()
+    public int getProtocolVersion()
     {
-        return Vanilla.PROTOCOL_VERSION;
+        return Protocol.PROTOCOL_VERSION;
     }
 
     @Override
     public String getGameVersion()
     {
-        return Vanilla.GAME_VERSION;
+        return Protocol.MINECRAFT_VERSION;
     }
 
     @Override

@@ -21,7 +21,7 @@ public interface PendingConnection extends Connection
      *
      * @return the protocol version of the remote client
      */
-    byte getVersion();
+    int getVersion();
 
     /**
      * Get the requested virtual host that the client tried to connect to.

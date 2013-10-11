@@ -1,5 +1,6 @@
 package net.md_5.bungee.netty;
 
+import net.md_5.bungee.protocol.PacketWrapper;
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
