@@ -4,7 +4,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.AttributeKey;
 import java.net.InetSocketAddress;
@@ -18,6 +17,8 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.protocol.MinecraftCodec;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.Varint21FrameDecoder;
+import net.md_5.bungee.protocol.Varint21LengthFieldPrepender;
 
 public class PipelineUtils
 {
@@ -38,6 +39,7 @@ public class PipelineUtils
             }
 
             BASE.initChannel( ch );
+            ch.pipeline().addAfter( FRAME_DECODER, PACKET_CODEC, new MinecraftCodec( Protocol.HANDSHAKE, true ) );
             ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( ProxyServer.getInstance(), ch.attr( LISTENER ).get() ) );
         }
     };
@@ -47,12 +49,12 @@ public class PipelineUtils
         protected void initChannel(Channel ch) throws Exception
         {
             BASE.initChannel( ch );
+            ch.pipeline().addAfter( FRAME_DECODER, PACKET_CODEC, new MinecraftCodec( Protocol.LOGIN, false) );
             ch.pipeline().get( HandlerBoss.class ).setHandler( new ServerConnector( ProxyServer.getInstance(), ch.attr( USER ).get(), ch.attr( TARGET ).get() ) );
         }
     };
     public static final Base BASE = new Base();
-    private static final ProtobufVarint32FrameDecoder frameDecoder = new ProtobufVarint32FrameDecoder();
-    private static final ProtobufVarint32FrameDecoder framePrepender = new ProtobufVarint32FrameDecoder();
+    private static final Varint21LengthFieldPrepender framePrepender = new Varint21LengthFieldPrepender();
     public static String TIMEOUT_HANDLER = "timeout";
     public static String PACKET_CODEC = "packet-codec";
     public static String BOSS_HANDLER = "inbound-boss";
@@ -76,8 +78,7 @@ public class PipelineUtils
             }
 
             ch.pipeline().addLast( TIMEOUT_HANDLER, new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
-            ch.pipeline().addLast( FRAME_DECODER, frameDecoder );
-            ch.pipeline().addLast( PACKET_CODEC, new MinecraftCodec( Protocol.SERVER_HANDSHAKE ) );
+            ch.pipeline().addLast( FRAME_DECODER, new Varint21FrameDecoder() );
             ch.pipeline().addLast( FRAME_PREPENDER, framePrepender );
             ch.pipeline().addLast( BOSS_HANDLER, new HandlerBoss() );
         }

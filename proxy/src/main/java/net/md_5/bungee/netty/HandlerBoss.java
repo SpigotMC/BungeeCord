@@ -12,6 +12,8 @@ import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.connection.PingHandler;
 import net.md_5.bungee.protocol.BadPacketException;
+import net.md_5.bungee.protocol.MinecraftCodec;
+import net.md_5.bungee.protocol.Protocol;
 
 /**
  * This class is a primitive wrapper for {@link PacketHandler} instances tied to
