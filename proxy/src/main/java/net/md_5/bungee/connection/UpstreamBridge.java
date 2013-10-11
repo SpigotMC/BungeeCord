@@ -10,7 +10,7 @@ import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
-import net.md_5.bungee.netty.PacketWrapper;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.TabComplete;

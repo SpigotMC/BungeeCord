@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import java.io.DataInput;
-import java.security.PublicKey;
 import java.util.Objects;
 import java.util.Queue;
 import javax.crypto.Cipher;
@@ -24,22 +23,16 @@ import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.CipherDecoder;
-import net.md_5.bungee.netty.CipherEncoder;
-import net.md_5.bungee.netty.PacketDecoder;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.netty.PipelineUtils;
-import net.md_5.bungee.protocol.Forge;
 import net.md_5.bungee.protocol.MinecraftOutput;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
-import net.md_5.bungee.protocol.packet.Team;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
-import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.protocol.packet.Kick;
-import net.md_5.bungee.protocol.packet.forge.Forge1Login;
 
 @RequiredArgsConstructor
 public class ServerConnector extends PacketHandler
@@ -83,7 +76,7 @@ public class ServerConnector extends PacketHandler
         out.writeInt( user.getAddress().getPort() );
         channel.write( new PluginMessage( "BungeeCord", out.toByteArray() ) );
 
-        channel.write( user.getPendingConnection().getHandshake() );
+        // channel.write( user.getPendingConnection().getHandshake() ); FIX
 
         // Skip encryption if we are not using Forge
         if ( user.getPendingConnection().getForgeLogin() == null )
@@ -143,16 +136,9 @@ public class ServerConnector extends PacketHandler
                 user.setServerEntityId( login.getEntityId() );
 
                 // Set tab list size, this sucks balls, TODO: what shall we do about packet mutability
-                Login modLogin;
-                if ( ch.getHandle().pipeline().get( PacketDecoder.class ).getProtocol() == Forge.getInstance() )
-                {
-                    modLogin = new Forge1Login( login.getEntityId(), login.getLevelType(), login.getGameMode(), login.getDimension(), login.getDifficulty(), login.getUnused(),
-                            (byte) user.getPendingConnection().getListener().getTabListSize() );
-                } else
-                {
-                    modLogin = new Login( login.getEntityId(), login.getLevelType(), login.getGameMode(), (byte) login.getDimension(), login.getDifficulty(), login.getUnused(),
-                            (byte) user.getPendingConnection().getListener().getTabListSize() );
-                }
+                Login modLogin = new Login( login.getEntityId(), login.getLevelType(), login.getGameMode(), (byte) login.getDimension(), login.getDifficulty(), login.getUnused(),
+                        (byte) user.getPendingConnection().getListener().getTabListSize() );
+
                 user.unsafe().sendPacket( modLogin );
 
                 MinecraftOutput out = new MinecraftOutput();
@@ -169,7 +155,7 @@ public class ServerConnector extends PacketHandler
                 }
                 for ( Team team : serverScoreboard.getTeams() )
                 {
-                    user.unsafe().sendPacket( new Team( team.getName() ) );
+                    user.unsafe().sendPacket( new net.md_5.bungee.protocol.packet.Team( team.getName() ) );
                 }
                 serverScoreboard.clear();
 
@@ -209,38 +195,12 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
-    public void handle(PacketFDEncryptionRequest encryptRequest) throws Exception
-    {
-        Preconditions.checkState( thisState == State.ENCRYPT_REQUEST, "Not expecting ENCRYPT_REQUEST" );
-
-        // Only need to handle this if we want to use encryption
-        if ( user.getPendingConnection().getForgeLogin() != null )
-        {
-            PublicKey publickey = EncryptionUtil.getPubkey( encryptRequest );
-            this.secretkey = EncryptionUtil.getSecret();
-
-            byte[] shared = EncryptionUtil.encrypt( publickey, secretkey.getEncoded() );
-            byte[] token = EncryptionUtil.encrypt( publickey, encryptRequest.getVerifyToken() );
-
-            ch.write( new EncryptionResponse( shared, token ) );
-
-            Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, secretkey );
-            ch.addBefore( PipelineUtils.PACKET_DECODE_HANDLER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
-
-            thisState = State.ENCRYPT_RESPONSE;
-        } else
-        {
-            thisState = State.LOGIN;
-        }
-    }
-
-    @Override
     public void handle(EncryptionResponse encryptResponse) throws Exception
     {
         Preconditions.checkState( thisState == State.ENCRYPT_RESPONSE, "Not expecting ENCRYPT_RESPONSE" );
 
         Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, secretkey );
-        ch.addBefore( PipelineUtils.PACKET_DECODE_HANDLER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
+        ch.addBefore( PipelineUtils.FRAME_DECODER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
 
         ch.write( user.getPendingConnection().getForgeLogin() );
 
@@ -292,7 +252,6 @@ public class ServerConnector extends PacketHandler
             if ( in.readByte() != 0 )
             {
                 // TODO: Using forge flag
-                ch.getHandle().pipeline().get( PacketDecoder.class ).setProtocol( Forge.getInstance() );
             }
         }
 

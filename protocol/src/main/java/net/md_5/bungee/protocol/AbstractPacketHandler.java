@@ -5,6 +5,7 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.ClientStatus;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.Chat;
+import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.TabComplete;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
@@ -67,6 +68,10 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(ScoreboardScore scoreboardScore) throws Exception
+    {
+    }
+
+    public void handle(EncryptionRequest encryptionRequest) throws Exception
     {
     }
 

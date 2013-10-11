@@ -30,7 +30,7 @@ import net.md_5.bungee.api.tab.TabListHandler;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
-import net.md_5.bungee.netty.PacketWrapper;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Chat;

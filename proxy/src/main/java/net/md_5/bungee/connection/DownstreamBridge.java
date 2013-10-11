@@ -21,13 +21,12 @@ import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.api.score.Team;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
-import net.md_5.bungee.netty.PacketWrapper;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
-import net.md_5.bungee.protocol.packet.Team;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Kick;
 
@@ -138,7 +137,7 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(Team team) throws Exception
+    public void handle(net.md_5.bungee.protocol.packet.Team team) throws Exception
     {
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
         // Remove team and move on

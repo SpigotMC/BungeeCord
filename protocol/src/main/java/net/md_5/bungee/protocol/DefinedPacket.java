@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 public abstract class DefinedPacket
 {
 
-    public void writeString(String s, ByteBuf buf)
+    public static void writeString(String s, ByteBuf buf)
     {
         // TODO: Check len - use Guava?
         byte[] b = s.getBytes( Charsets.UTF_8 );
@@ -16,7 +16,7 @@ public abstract class DefinedPacket
         buf.writeBytes( b );
     }
 
-    public String readString(ByteBuf buf)
+    public static String readString(ByteBuf buf)
     {
         int len = readVarInt( buf );
         byte[] b = new byte[ len ];
@@ -25,14 +25,14 @@ public abstract class DefinedPacket
         return new String( b, Charsets.UTF_8 );
     }
 
-    public void writeArray(byte[] b, ByteBuf buf)
+    public static void writeArray(byte[] b, ByteBuf buf)
     {
         // TODO: Check len - use Guava?
         buf.writeShort( b.length );
         buf.writeBytes( b );
     }
 
-    public byte[] readArray(ByteBuf buf)
+    public static byte[] readArray(ByteBuf buf)
     {
         // TODO: Check len - use Guava?
         short len = buf.readShort();
@@ -41,7 +41,7 @@ public abstract class DefinedPacket
         return ret;
     }
 
-    public int readVarInt(ByteBuf input)
+    public static int readVarInt(ByteBuf input)
     {
         int out = 0;
         int bytes = 0;
@@ -66,7 +66,7 @@ public abstract class DefinedPacket
         return out;
     }
 
-    public void writeVarInt(int value, ByteBuf output)
+    public static void writeVarInt(int value, ByteBuf output)
     {
         int part;
         while ( true )

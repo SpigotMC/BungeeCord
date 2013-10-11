@@ -16,7 +16,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.Getter;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
-import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
+import net.md_5.bungee.protocol.packet.EncryptionRequest;
 
 /**
  * Class containing all encryption related methods for the proxy.
@@ -40,16 +40,16 @@ public class EncryptionUtil
         }
     }
 
-    public static PacketFDEncryptionRequest encryptRequest(boolean onlinemode)
+    public static EncryptionRequest encryptRequest(boolean onlinemode)
     {
         String hash = ( onlinemode ) ? Long.toString( random.nextLong(), 16 ) : "-";
         byte[] pubKey = keys.getPublic().getEncoded();
         byte[] verify = new byte[ 4 ];
         random.nextBytes( verify );
-        return new PacketFDEncryptionRequest( hash, pubKey, verify );
+        return new EncryptionRequest( hash, pubKey, verify );
     }
 
-    public static SecretKey getSecret(EncryptionResponse resp, PacketFDEncryptionRequest request) throws GeneralSecurityException
+    public static SecretKey getSecret(EncryptionResponse resp, EncryptionRequest request) throws GeneralSecurityException
     {
         Cipher cipher = Cipher.getInstance( "RSA" );
         cipher.init( Cipher.DECRYPT_MODE, keys.getPrivate() );
@@ -71,7 +71,7 @@ public class EncryptionUtil
         return cip;
     }
 
-    public static PublicKey getPubkey(PacketFDEncryptionRequest request) throws GeneralSecurityException
+    public static PublicKey getPubkey(EncryptionRequest request) throws GeneralSecurityException
     {
         return KeyFactory.getInstance( "RSA" ).generatePublic( new X509EncodedKeySpec( request.getPublicKey() ) );
     }
