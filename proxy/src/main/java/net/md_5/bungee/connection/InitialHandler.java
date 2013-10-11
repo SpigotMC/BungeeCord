@@ -45,14 +45,14 @@ import net.md_5.bungee.protocol.Forge;
 import net.md_5.bungee.protocol.MinecraftInput;
 import net.md_5.bungee.protocol.Vanilla;
 import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.game.Packet1Login;
+import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.Packet2Handshake;
-import net.md_5.bungee.protocol.game.Packet16ClientStatus;
-import net.md_5.bungee.protocol.game.Packet42PluginMessage;
-import net.md_5.bungee.protocol.login.Packet1EncryptionResponse;
+import net.md_5.bungee.protocol.packet.ClientStatus;
+import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
 import net.md_5.bungee.protocol.packet.PacketFEPing;
-import net.md_5.bungee.protocol.game.Packet43Kick;
+import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.api.AbstractReconnectHandler;
 import net.md_5.bungee.api.event.PlayerHandshakeEvent;
 
@@ -65,14 +65,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Getter
     private final ListenerInfo listener;
     @Getter
-    private Packet1Login forgeLogin;
+    private Login forgeLogin;
     @Getter
     private Packet2Handshake handshake;
     private PacketFDEncryptionRequest request;
     @Getter
-    private List<Packet42PluginMessage> loginMessages = new ArrayList<>();
+    private List<PluginMessage> loginMessages = new ArrayList<>();
     @Getter
-    private List<Packet42PluginMessage> registerMessages = new ArrayList<>();
+    private List<PluginMessage> registerMessages = new ArrayList<>();
     private State thisState = State.HANDSHAKE;
     private SecretKey sharedKey;
     private final Unsafe unsafe = new Unsafe()
@@ -110,7 +110,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void handle(Packet42PluginMessage pluginMessage) throws Exception
+    public void handle(PluginMessage pluginMessage) throws Exception
     {
         if ( pluginMessage.getTag().equals( "MC|PingHost" ) )
         {
@@ -188,7 +188,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void handle(Packet1Login login) throws Exception
+    public void handle(Login login) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting FORGE LOGIN" );
         Preconditions.checkState( forgeLogin == null, "Already received FORGE LOGIN" );
@@ -243,7 +243,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void handle(final Packet1EncryptionResponse encryptResponse) throws Exception
+    public void handle(final EncryptionResponse encryptResponse) throws Exception
     {
         Preconditions.checkState( thisState == State.ENCRYPT, "Not expecting ENCRYPT" );
 
@@ -323,7 +323,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     {
                         if ( ch.getHandle().isActive() )
                         {
-                            unsafe().sendPacket( new Packet1EncryptionResponse( new byte[ 0 ], new byte[ 0 ] ) );
+                            unsafe().sendPacket( new EncryptionResponse( new byte[ 0 ], new byte[ 0 ] ) );
                             try
                             {
                                 Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
@@ -343,7 +343,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void handle(Packet16ClientStatus clientStatus) throws Exception
+    public void handle(ClientStatus clientStatus) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
@@ -373,7 +373,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( !ch.isClosed() )
         {
-            unsafe().sendPacket( new Packet43Kick( reason ) );
+            unsafe().sendPacket( new Kick( reason ) );
             ch.close();
         }
     }

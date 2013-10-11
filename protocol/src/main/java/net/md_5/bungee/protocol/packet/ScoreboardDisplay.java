@@ -1,4 +1,4 @@
-package net.md_5.bungee.protocol.game;
+package net.md_5.bungee.protocol.packet;
 
 import net.md_5.bungee.protocol.DefinedPacket;
 import io.netty.buffer.ByteBuf;
@@ -12,21 +12,27 @@ import net.md_5.bungee.protocol.AbstractPacketHandler;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Packet2Chat extends DefinedPacket
+public class ScoreboardDisplay extends DefinedPacket
 {
 
-    private String message;
+    /**
+     * 0 = list, 1 = side, 2 = below.
+     */
+    private byte position;
+    private String name;
 
     @Override
     public void read(ByteBuf buf)
     {
-        message = readString( buf );
+        position = buf.readByte();
+        name = readString( buf );
     }
 
     @Override
     public void write(ByteBuf buf)
     {
-        writeString( message, buf );
+        buf.writeByte( position );
+        writeString( name, buf );
     }
 
     @Override

@@ -1,4 +1,4 @@
-package net.md_5.bungee.protocol.game;
+package net.md_5.bungee.protocol.packet;
 
 import net.md_5.bungee.protocol.DefinedPacket;
 import io.netty.buffer.ByteBuf;
@@ -12,7 +12,7 @@ import net.md_5.bungee.protocol.AbstractPacketHandler;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Packet41Team extends DefinedPacket
+public class Team extends DefinedPacket
 {
 
     private String name;
@@ -32,7 +32,7 @@ public class Packet41Team extends DefinedPacket
      *
      * @param name
      */
-    public Packet41Team(String name)
+    public Team(String name)
     {
         this();
         this.name = name;

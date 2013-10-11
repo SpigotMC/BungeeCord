@@ -1,4 +1,4 @@
-package net.md_5.bungee.protocol.login;
+package net.md_5.bungee.protocol.packet;
 
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
@@ -12,21 +12,30 @@ import net.md_5.bungee.protocol.AbstractPacketHandler;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Packet2LoginSuccess extends DefinedPacket
+public class Handshake extends DefinedPacket
 {
 
-    private String data;
+    private int protocolVersion;
+    private String serverAddress;
+    private int serverPort;
+    private int requestedProtocol;
 
     @Override
     public void read(ByteBuf buf)
     {
-        data = readString( buf );
+        protocolVersion = readVarInt( buf );
+        serverAddress = readString( buf );
+        serverPort = readVarInt( buf );
+        requestedProtocol = readVarInt( buf );
     }
 
     @Override
     public void write(ByteBuf buf)
     {
-        writeString( data, buf );
+        writeVarInt( protocolVersion, buf );
+        writeString( serverAddress, buf );
+        writeVarInt( serverPort, buf );
+        writeVarInt( requestedProtocol, buf );
     }
 
     @Override

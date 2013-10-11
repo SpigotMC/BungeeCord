@@ -1,11 +1,10 @@
-package net.md_5.bungee.protocol.game;
+package net.md_5.bungee.protocol.packet;
 
 import net.md_5.bungee.protocol.DefinedPacket;
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
@@ -14,39 +13,33 @@ import net.md_5.bungee.protocol.AbstractPacketHandler;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Packet1Login extends DefinedPacket
+public class Respawn extends DefinedPacket
 {
 
-    private int entityId;
-    private String levelType;
-    private byte gameMode;
     private int dimension;
     private byte difficulty;
-    private byte unused;
-    private byte maxPlayers;
+    private byte gameMode;
+    private short worldHeight;
+    private String levelType;
 
     @Override
     public void read(ByteBuf buf)
     {
-        entityId = buf.readInt();
-        levelType = readString( buf );
-        gameMode = buf.readByte();
-        dimension = buf.readByte();
+        dimension = buf.readInt();
         difficulty = buf.readByte();
-        unused = buf.readByte();
-        maxPlayers = buf.readByte();
+        gameMode = buf.readByte();
+        worldHeight = buf.readShort();
+        levelType = readString( buf );
     }
 
     @Override
     public void write(ByteBuf buf)
     {
-        buf.writeInt( entityId );
-        writeString( levelType, buf );
-        buf.writeByte( gameMode );
-        buf.writeByte( dimension );
+        buf.writeInt( dimension );
         buf.writeByte( difficulty );
-        buf.writeByte( unused );
-        buf.writeByte( maxPlayers );
+        buf.writeByte( gameMode );
+        buf.writeShort( worldHeight );
+        writeString( levelType, buf );
     }
 
     @Override

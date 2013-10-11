@@ -31,14 +31,14 @@ import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.Forge;
 import net.md_5.bungee.protocol.MinecraftOutput;
 import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.game.Packet1Login;
-import net.md_5.bungee.protocol.game.Packet7Respawn;
-import net.md_5.bungee.protocol.game.Packet3EScoreboardObjective;
-import net.md_5.bungee.protocol.game.Packet41Team;
-import net.md_5.bungee.protocol.game.Packet42PluginMessage;
-import net.md_5.bungee.protocol.login.Packet1EncryptionResponse;
+import net.md_5.bungee.protocol.packet.Login;
+import net.md_5.bungee.protocol.packet.Respawn;
+import net.md_5.bungee.protocol.packet.ScoreboardObjective;
+import net.md_5.bungee.protocol.packet.Team;
+import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
-import net.md_5.bungee.protocol.game.Packet43Kick;
+import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.forge.Forge1Login;
 
 @RequiredArgsConstructor
@@ -81,7 +81,7 @@ public class ServerConnector extends PacketHandler
         out.writeUTF( "Login" );
         out.writeUTF( user.getAddress().getHostString() );
         out.writeInt( user.getAddress().getPort() );
-        channel.write( new Packet42PluginMessage( "BungeeCord", out.toByteArray() ) );
+        channel.write( new PluginMessage( "BungeeCord", out.toByteArray() ) );
 
         channel.write( user.getPendingConnection().getHandshake() );
 
@@ -99,7 +99,7 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
-    public void handle(Packet1Login login) throws Exception
+    public void handle(Login login) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not exepcting LOGIN" );
 
@@ -117,13 +117,13 @@ public class ServerConnector extends PacketHandler
             }
         }
 
-        for ( Packet42PluginMessage message : user.getPendingConnection().getRegisterMessages() )
+        for ( PluginMessage message : user.getPendingConnection().getRegisterMessages() )
         {
             ch.write( message );
         }
         if ( !sentMessages )
         {
-            for ( Packet42PluginMessage message : user.getPendingConnection().getLoginMessages() )
+            for ( PluginMessage message : user.getPendingConnection().getLoginMessages() )
             {
                 ch.write( message );
             }
@@ -143,21 +143,21 @@ public class ServerConnector extends PacketHandler
                 user.setServerEntityId( login.getEntityId() );
 
                 // Set tab list size, this sucks balls, TODO: what shall we do about packet mutability
-                Packet1Login modLogin;
+                Login modLogin;
                 if ( ch.getHandle().pipeline().get( PacketDecoder.class ).getProtocol() == Forge.getInstance() )
                 {
                     modLogin = new Forge1Login( login.getEntityId(), login.getLevelType(), login.getGameMode(), login.getDimension(), login.getDifficulty(), login.getUnused(),
                             (byte) user.getPendingConnection().getListener().getTabListSize() );
                 } else
                 {
-                    modLogin = new Packet1Login( login.getEntityId(), login.getLevelType(), login.getGameMode(), (byte) login.getDimension(), login.getDifficulty(), login.getUnused(),
+                    modLogin = new Login( login.getEntityId(), login.getLevelType(), login.getGameMode(), (byte) login.getDimension(), login.getDifficulty(), login.getUnused(),
                             (byte) user.getPendingConnection().getListener().getTabListSize() );
                 }
                 user.unsafe().sendPacket( modLogin );
 
                 MinecraftOutput out = new MinecraftOutput();
                 out.writeStringUTF8WithoutLengthHeaderBecauseDinnerboneStuffedUpTheMCBrandPacket( ProxyServer.getInstance().getName() + " (" + ProxyServer.getInstance().getVersion() + ")" );
-                user.unsafe().sendPacket( new Packet42PluginMessage( "MC|Brand", out.toArray() ) );
+                user.unsafe().sendPacket( new PluginMessage( "MC|Brand", out.toArray() ) );
             } else
             {
                 user.getTabList().onServerChange();
@@ -165,18 +165,18 @@ public class ServerConnector extends PacketHandler
                 Scoreboard serverScoreboard = user.getServerSentScoreboard();
                 for ( Objective objective : serverScoreboard.getObjectives() )
                 {
-                    user.unsafe().sendPacket( new Packet3EScoreboardObjective( objective.getName(), objective.getValue(), (byte) 1 ) );
+                    user.unsafe().sendPacket( new ScoreboardObjective( objective.getName(), objective.getValue(), (byte) 1 ) );
                 }
                 for ( Team team : serverScoreboard.getTeams() )
                 {
-                    user.unsafe().sendPacket( new Packet41Team( team.getName() ) );
+                    user.unsafe().sendPacket( new Team( team.getName() ) );
                 }
                 serverScoreboard.clear();
 
                 user.sendDimensionSwitch();
 
                 user.setServerEntityId( login.getEntityId() );
-                user.unsafe().sendPacket( new Packet7Respawn( login.getDimension(), login.getDifficulty(), login.getGameMode(), (short) 256, login.getLevelType() ) );
+                user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getDifficulty(), login.getGameMode(), (short) 256, login.getLevelType() ) );
 
                 // Remove from old servers
                 user.getServer().setObsolete( true );
@@ -222,7 +222,7 @@ public class ServerConnector extends PacketHandler
             byte[] shared = EncryptionUtil.encrypt( publickey, secretkey.getEncoded() );
             byte[] token = EncryptionUtil.encrypt( publickey, encryptRequest.getVerifyToken() );
 
-            ch.write( new Packet1EncryptionResponse( shared, token ) );
+            ch.write( new EncryptionResponse( shared, token ) );
 
             Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, secretkey );
             ch.addBefore( PipelineUtils.PACKET_DECODE_HANDLER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
@@ -235,7 +235,7 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
-    public void handle(Packet1EncryptionResponse encryptResponse) throws Exception
+    public void handle(EncryptionResponse encryptResponse) throws Exception
     {
         Preconditions.checkState( thisState == State.ENCRYPT_RESPONSE, "Not expecting ENCRYPT_RESPONSE" );
 
@@ -249,7 +249,7 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
-    public void handle(Packet43Kick kick) throws Exception
+    public void handle(Kick kick) throws Exception
     {
         ServerInfo def = bungee.getServerInfo( user.getPendingConnection().getListener().getFallbackServer() );
         if ( Objects.equals( target, def ) )
@@ -274,7 +274,7 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
-    public void handle(Packet42PluginMessage pluginMessage) throws Exception
+    public void handle(PluginMessage pluginMessage) throws Exception
     {
         if ( pluginMessage.equals( PacketConstants.I_AM_BUNGEE ) )
         {
@@ -299,7 +299,7 @@ public class ServerConnector extends PacketHandler
         user.unsafe().sendPacket( pluginMessage ); // We have to forward these to the user, especially with Forge as stuff might break
         if ( !sentMessages && user.getPendingConnection().getForgeLogin() != null )
         {
-            for ( Packet42PluginMessage message : user.getPendingConnection().getLoginMessages() )
+            for ( PluginMessage message : user.getPendingConnection().getLoginMessages() )
             {
                 ch.write( message );
             }

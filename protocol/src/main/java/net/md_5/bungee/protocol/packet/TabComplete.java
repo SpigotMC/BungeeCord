@@ -1,4 +1,4 @@
-package net.md_5.bungee.protocol.game;
+package net.md_5.bungee.protocol.packet;
 
 import net.md_5.bungee.protocol.DefinedPacket;
 import io.netty.buffer.ByteBuf;
@@ -12,27 +12,33 @@ import net.md_5.bungee.protocol.AbstractPacketHandler;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Packet3BPlayerListItem extends DefinedPacket
+public class TabComplete extends DefinedPacket
 {
 
-    private String username;
-    private boolean online;
-    private short ping;
+    private String cursor;
+    private String[] commands;
+
+    public TabComplete(String[] alternatives)
+    {
+        commands = alternatives;
+    }
 
     @Override
     public void read(ByteBuf buf)
     {
-        username = readString( buf );
-        online = buf.readBoolean();
-        ping = buf.readShort();
+        cursor = readString( buf );
     }
 
     @Override
     public void write(ByteBuf buf)
     {
-        writeString( username, buf );
-        buf.writeBoolean( online );
-        buf.writeShort( ping );
+        StringBuilder tab = new StringBuilder();
+        for ( String alternative : commands )
+        {
+            tab.append( alternative );
+            tab.append( "\00" );
+        }
+        writeString( tab.substring( 0, tab.length() - 1 ), buf );
     }
 
     @Override
