@@ -1,4 +1,4 @@
-package net.md_5.bungee.protocol.game;
+package net.md_5.bungee.protocol.packet;
 
 import net.md_5.bungee.protocol.DefinedPacket;
 import io.netty.buffer.ByteBuf;
@@ -6,40 +6,45 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Packet7Respawn extends DefinedPacket
+public class Login extends DefinedPacket
 {
 
+    private int entityId;
+    private String levelType;
+    private byte gameMode;
     private int dimension;
     private byte difficulty;
-    private byte gameMode;
-    private short worldHeight;
-    private String levelType;
+    private byte unused;
+    private byte maxPlayers;
 
     @Override
     public void read(ByteBuf buf)
     {
-        dimension = buf.readInt();
-        difficulty = buf.readByte();
-        gameMode = buf.readByte();
-        worldHeight = buf.readShort();
+        entityId = buf.readInt();
         levelType = readString( buf );
+        gameMode = buf.readByte();
+        dimension = buf.readByte();
+        difficulty = buf.readByte();
+        unused = buf.readByte();
+        maxPlayers = buf.readByte();
     }
 
     @Override
     public void write(ByteBuf buf)
     {
-        buf.writeInt( dimension );
-        buf.writeByte( difficulty );
-        buf.writeByte( gameMode );
-        buf.writeShort( worldHeight );
+        buf.writeInt( entityId );
         writeString( levelType, buf );
+        buf.writeByte( gameMode );
+        buf.writeByte( dimension );
+        buf.writeByte( difficulty );
+        buf.writeByte( unused );
+        buf.writeByte( maxPlayers );
     }
 
     @Override

@@ -1,4 +1,4 @@
-package net.md_5.bungee.protocol.game;
+package net.md_5.bungee.protocol.packet;
 
 import net.md_5.bungee.protocol.DefinedPacket;
 import io.netty.buffer.ByteBuf;
@@ -12,21 +12,24 @@ import net.md_5.bungee.protocol.AbstractPacketHandler;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Packet43Kick extends DefinedPacket
+public class EncryptionResponse extends DefinedPacket
 {
 
-    private String message;
+    private byte[] sharedSecret;
+    private byte[] verifyToken;
 
     @Override
     public void read(ByteBuf buf)
     {
-        message = readString( buf );
+        sharedSecret = readArray( buf );
+        verifyToken = readArray( buf );
     }
 
     @Override
     public void write(ByteBuf buf)
     {
-        writeString( message, buf );
+        writeArray( sharedSecret, buf );
+        writeArray( verifyToken, buf );
     }
 
     @Override

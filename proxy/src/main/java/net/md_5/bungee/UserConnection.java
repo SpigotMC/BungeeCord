@@ -33,10 +33,10 @@ import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PacketWrapper;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.game.Packet2Chat;
-import net.md_5.bungee.protocol.game.Packet15Settings;
-import net.md_5.bungee.protocol.game.Packet42PluginMessage;
-import net.md_5.bungee.protocol.game.Packet43Kick;
+import net.md_5.bungee.protocol.packet.Chat;
+import net.md_5.bungee.protocol.packet.ClientSettings;
+import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.util.CaseInsensitiveSet;
 
 @RequiredArgsConstructor
@@ -88,7 +88,7 @@ public final class UserConnection implements ProxiedPlayer
     private int serverEntityId;
     @Getter
     @Setter
-    private Packet15Settings settings;
+    private ClientSettings settings;
     @Getter
     private final Scoreboard serverSentScoreboard = new Scoreboard();
     /*========================================================================*/
@@ -251,7 +251,7 @@ public final class UserConnection implements ProxiedPlayer
         if ( ch.getHandle().isActive() )
         {
             bungee.getLogger().log( Level.INFO, "[" + getName() + "] disconnected with: " + reason );
-            unsafe().sendPacket( new Packet43Kick( reason ) );
+            unsafe().sendPacket( new Kick( reason ) );
             ch.close();
             if ( server != null )
             {
@@ -264,7 +264,7 @@ public final class UserConnection implements ProxiedPlayer
     public void chat(String message)
     {
         Preconditions.checkState( server != null, "Not connected to server" );
-        server.getCh().write( new Packet2Chat( message ) );
+        server.getCh().write( new Chat( message ) );
     }
 
     @Override
@@ -272,7 +272,7 @@ public final class UserConnection implements ProxiedPlayer
     {
         // TODO: Fix this
         String encoded = BungeeCord.getInstance().gson.toJson( message );
-        unsafe().sendPacket( new Packet2Chat( "{\"text\":" + encoded + "}" ) );
+        unsafe().sendPacket( new Chat( "{\"text\":" + encoded + "}" ) );
     }
 
     @Override
@@ -287,7 +287,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendData(String channel, byte[] data)
     {
-        unsafe().sendPacket( new Packet42PluginMessage( channel, data ) );
+        unsafe().sendPacket( new PluginMessage( channel, data ) );
     }
 
     @Override

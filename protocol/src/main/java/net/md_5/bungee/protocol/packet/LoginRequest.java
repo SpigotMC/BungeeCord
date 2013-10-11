@@ -1,32 +1,36 @@
-package net.md_5.bungee.protocol.login;
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package net.md_5.bungee.protocol.packet;
 
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
+import net.md_5.bungee.protocol.DefinedPacket;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Packet0Kick extends DefinedPacket
+public class LoginRequest extends DefinedPacket
 {
 
-    private String message;
+    private String data;
 
     @Override
     public void read(ByteBuf buf)
     {
-        message = readString( buf );
+        data = readString( buf );
     }
 
     @Override
     public void write(ByteBuf buf)
     {
-        writeString( message, buf );
+        writeString( data, buf );
     }
 
     @Override

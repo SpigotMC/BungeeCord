@@ -7,7 +7,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.tab.CustomTabList;
 import net.md_5.bungee.api.tab.TabListAdapter;
-import net.md_5.bungee.protocol.game.Packet3BPlayerListItem;
+import net.md_5.bungee.protocol.packet.PlayerListItem;
 
 public class Custom extends TabListAdapter implements CustomTabList
 {
@@ -96,7 +96,7 @@ public class Custom extends TabListAdapter implements CustomTabList
             {
                 String text = ( slots[i][j] != null ) ? slots[i][j] : new StringBuilder().append( base( i ) ).append( base( j ) ).toString();
                 sent[i][j] = text;
-                getPlayer().unsafe().sendPacket( new Packet3BPlayerListItem( text, true, (short) 0 ) );
+                getPlayer().unsafe().sendPacket( new PlayerListItem( text, true, (short) 0 ) );
             }
         }
     }
@@ -112,7 +112,7 @@ public class Custom extends TabListAdapter implements CustomTabList
                 {
                     String text = sent[i][j];
                     sent[i][j] = null;
-                    getPlayer().unsafe().sendPacket( new Packet3BPlayerListItem( text, false, (short) 9999 ) );
+                    getPlayer().unsafe().sendPacket( new PlayerListItem( text, false, (short) 9999 ) );
                 }
             }
         }

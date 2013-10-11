@@ -1,52 +1,41 @@
-package net.md_5.bungee.protocol.game;
+package net.md_5.bungee.protocol.packet;
 
 import net.md_5.bungee.protocol.DefinedPacket;
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Packet3FScoreboardScore extends DefinedPacket
+public class ScoreboardObjective extends DefinedPacket
 {
 
-    private String itemName;
+    private String name;
+    private String text;
     /**
-     * 0 = create / update, 1 = remove.
+     * 0 to create, 1 to remove.
      */
     private byte action;
-    private String scoreName;
-    private int value;
 
     @Override
     public void read(ByteBuf buf)
     {
-        itemName = readString( buf );
+        name = readString( buf );
+        text = readString( buf );
         action = buf.readByte();
-        if ( action != 1 )
-        {
-            scoreName = readString( buf );
-            value = buf.readInt();
-        }
     }
 
     @Override
     public void write(ByteBuf buf)
     {
-        writeString( itemName, buf );
+        writeString( name, buf );
+        writeString( text, buf );
         buf.writeByte( action );
-        if ( action != 1 )
-        {
-            writeString( scoreName, buf );
-            buf.writeInt( value );
-        }
     }
 
     @Override

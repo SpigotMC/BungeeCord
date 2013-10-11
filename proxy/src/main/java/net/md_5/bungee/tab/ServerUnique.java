@@ -3,7 +3,7 @@ package net.md_5.bungee.tab;
 import java.util.Collection;
 import java.util.HashSet;
 import net.md_5.bungee.api.tab.TabListAdapter;
-import net.md_5.bungee.protocol.game.Packet3BPlayerListItem;
+import net.md_5.bungee.protocol.packet.PlayerListItem;
 
 public class ServerUnique extends TabListAdapter
 {
@@ -17,7 +17,7 @@ public class ServerUnique extends TabListAdapter
         {
             for ( String username : usernames )
             {
-                getPlayer().unsafe().sendPacket( new Packet3BPlayerListItem( username, false, (short) 9999 ) );
+                getPlayer().unsafe().sendPacket( new PlayerListItem( username, false, (short) 9999 ) );
             }
             usernames.clear();
         }
