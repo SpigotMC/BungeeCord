@@ -48,6 +48,7 @@ import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.api.AbstractReconnectHandler;
 import net.md_5.bungee.api.event.PlayerHandshakeEvent;
+import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 
 @RequiredArgsConstructor
@@ -166,7 +167,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             forced.ping( pingBack );
         } else
         {
-           // pingBack.done( new ServerPing( bungee.getProtocolVersion(), bungee.getGameVersion(), motd, bungee.getOnlineCount(), listener.getMaxPlayers() ), null );
+            // pingBack.done( new ServerPing( bungee.getProtocolVersion(), bungee.getGameVersion(), motd, bungee.getOnlineCount(), listener.getMaxPlayers() ), null );
         }
     }
     /*
@@ -201,6 +202,19 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             disconnect( bungee.getTranslation( "outdated_client" ) );
         }
 
+        switch ( handshake.getRequestedProtocol() )
+        {
+            case 1:
+                // Ping
+                ch.setProtocol( Protocol.STATUS );
+                break;
+            case 2:
+                ch.setProtocol( Protocol.LOGIN );
+                // Login
+                break;
+            default:
+                throw new IllegalArgumentException( "Cannot request protocol " + handshake.getRequestedProtocol() );
+        }
     }
 
     @Override

@@ -6,6 +6,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.Getter;
+import net.md_5.bungee.protocol.MinecraftCodec;
+import net.md_5.bungee.protocol.Protocol;
 
 public class ChannelWrapper
 {
@@ -17,6 +19,11 @@ public class ChannelWrapper
     public ChannelWrapper(ChannelHandlerContext ctx)
     {
         this.ch = ctx.channel();
+    }
+
+    public void setProtocol(Protocol protocol)
+    {
+        ch.pipeline().get( MinecraftCodec.class ).setProtocol( protocol );
     }
 
     public synchronized void write(Object packet)

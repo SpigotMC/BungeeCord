@@ -26,74 +26,56 @@ public enum Protocol
 {
 
     // Undef
-    SERVER_HANDSHAKE
+    HANDSHAKE
     {
         
         {
-            registerPacket( 0x00, Handshake.class );
+            TO_SERVER.registerPacket( 0x00, Handshake.class );
         }
     },
     // 0
-    CLIENT_GAME
+    GAME
     {
         
         {
-            registerPacket( 0x00, KeepAlive.class );
-            registerPacket( 0x01, Login.class );
-            registerPacket( 0x02, Chat.class );
-            registerPacket( 0x07, Respawn.class );
-            registerPacket( 0x3B, PlayerListItem.class );
-            registerPacket( 0x3D, TabComplete.class );
-            registerPacket( 0x3E, ScoreboardObjective.class );
-            registerPacket( 0x3F, ScoreboardScore.class );
-            registerPacket( 0x40, ScoreboardDisplay.class );
-            registerPacket( 0x41, Team.class );
-            registerPacket( 0x42, PluginMessage.class );
-            registerPacket( 0x43, Kick.class );
-        }
-    },
-    // 0
-    SERVER_GAME
-    {
-        
-        {
-            registerPacket( 0x00, KeepAlive.class );
-            registerPacket( 0x14, TabComplete.class );
-            registerPacket( 0x15, ClientSettings.class );
-            registerPacket( 0x17, PluginMessage.class );
+            TO_CLIENT.registerPacket( 0x00, KeepAlive.class );
+            TO_CLIENT.registerPacket( 0x01, Login.class );
+            TO_CLIENT.registerPacket( 0x02, Chat.class );
+            TO_CLIENT.registerPacket( 0x07, Respawn.class );
+            TO_CLIENT.registerPacket( 0x3B, PlayerListItem.class );
+            TO_CLIENT.registerPacket( 0x3D, TabComplete.class );
+            TO_CLIENT.registerPacket( 0x3E, ScoreboardObjective.class );
+            TO_CLIENT.registerPacket( 0x3F, ScoreboardScore.class );
+            TO_CLIENT.registerPacket( 0x40, ScoreboardDisplay.class );
+            TO_CLIENT.registerPacket( 0x41, Team.class );
+            TO_CLIENT.registerPacket( 0x42, PluginMessage.class );
+            TO_CLIENT.registerPacket( 0x43, Kick.class );
+
+
+            TO_SERVER.registerPacket( 0x00, KeepAlive.class );
+            TO_SERVER.registerPacket( 0x14, TabComplete.class );
+            TO_SERVER.registerPacket( 0x15, ClientSettings.class );
+            TO_SERVER.registerPacket( 0x17, PluginMessage.class );
         }
     },
     // 1
-    CLIENT_STATUS
+    STATUS
     {
         
         {
         }
     },
-    // 1
-    SERVER_STATUS
+    //2
+    LOGIN
     {
         
         {
-        }
-    },
-    // 2
-    CLIENT_LOGIN
-    {
-        
-        {
-            registerPacket( 0x00, Kick.class );
-            registerPacket( 0x01, EncryptionRequest.class );
-            registerPacket( 0x02, LoginSuccess.class );
-        }
-    },
-    // 2
-    SERVER_LOGIN
-    {
-        
-        {
-            registerPacket( 0x00, LoginRequest.class );
-            registerPacket( 0x01, EncryptionResponse.class );
+            TO_CLIENT.registerPacket( 0x00, Kick.class );
+            TO_CLIENT.registerPacket( 0x01, EncryptionRequest.class );
+            TO_CLIENT.registerPacket( 0x02, LoginSuccess.class );
+
+            TO_SERVER.registerPacket( 0x00, LoginRequest.class );
+            TO_SERVER.registerPacket( 0x01, EncryptionResponse.class );
         }
     };
     /*========================================================================*/
@@ -101,57 +83,64 @@ public enum Protocol
     public static final int PROTOCOL_VERSION = 0x00;
     public static final String MINECRAFT_VERSION = "13w41a";
     /*========================================================================*/
-    private final TObjectIntMap<Class<? extends DefinedPacket>> packetMap = new TObjectIntHashMap<>( MAX_PACKET_ID );
-    private final Class<? extends DefinedPacket>[] packetClasses = new Class[ MAX_PACKET_ID ];
-    private final Constructor<? extends DefinedPacket>[] packetConstructors = new Constructor[ MAX_PACKET_ID ];
+    public final ProtocolDirection TO_SERVER = new ProtocolDirection();
+    public final ProtocolDirection TO_CLIENT = new ProtocolDirection();
 
-    public boolean hasPacket(int id)
+    public class ProtocolDirection
     {
-        return id < MAX_PACKET_ID && packetConstructors[id] != null;
-    }
 
-    public final DefinedPacket createPacket(int id)
-    {
-        if ( id > MAX_PACKET_ID )
+        private final TObjectIntMap<Class<? extends DefinedPacket>> packetMap = new TObjectIntHashMap<>( MAX_PACKET_ID );
+        private final Class<? extends DefinedPacket>[] packetClasses = new Class[ MAX_PACKET_ID ];
+        private final Constructor<? extends DefinedPacket>[] packetConstructors = new Constructor[ MAX_PACKET_ID ];
+
+        public boolean hasPacket(int id)
         {
-            throw new BadPacketException( "Packet with id " + id + " outside of range " );
-        }
-        if ( packetConstructors[id] == null )
-        {
-            throw new BadPacketException( "No packet with id " + id );
+            return id < MAX_PACKET_ID && packetConstructors[id] != null;
         }
 
-        try
+        public final DefinedPacket createPacket(int id)
         {
-            return packetClasses[id].newInstance();
-        } catch ( ReflectiveOperationException ex )
-        {
-            throw new BadPacketException( "Could not construct packet with id " + id, ex );
+            if ( id > MAX_PACKET_ID )
+            {
+                throw new BadPacketException( "Packet with id " + id + " outside of range " );
+            }
+            if ( packetConstructors[id] == null )
+            {
+                throw new BadPacketException( "No packet with id " + id );
+            }
+
+            try
+            {
+                return packetClasses[id].newInstance();
+            } catch ( ReflectiveOperationException ex )
+            {
+                throw new BadPacketException( "Could not construct packet with id " + id, ex );
+            }
         }
-    }
 
-    protected final void registerPacket(int id, Class<? extends DefinedPacket> packetClass)
-    {
-        try
+        protected final void registerPacket(int id, Class<? extends DefinedPacket> packetClass)
         {
-            packetConstructors[id] = packetClass.getDeclaredConstructor();
-        } catch ( NoSuchMethodException ex )
-        {
-            throw new BadPacketException( "No NoArgsConstructor for packet class " + packetClass );
+            try
+            {
+                packetConstructors[id] = packetClass.getDeclaredConstructor();
+            } catch ( NoSuchMethodException ex )
+            {
+                throw new BadPacketException( "No NoArgsConstructor for packet class " + packetClass );
+            }
+            packetClasses[id] = packetClass;
+            packetMap.put( packetClass, id );
         }
-        packetClasses[id] = packetClass;
-        packetMap.put( packetClass, id );
-    }
 
-    protected final void unregisterPacket(int id)
-    {
-        packetMap.remove( packetClasses[id] );
-        packetClasses[id] = null;
-        packetConstructors[id] = null;
-    }
+        protected final void unregisterPacket(int id)
+        {
+            packetMap.remove( packetClasses[id] );
+            packetClasses[id] = null;
+            packetConstructors[id] = null;
+        }
 
-    final int getId(Class<? extends DefinedPacket> packet)
-    {
-        return packetMap.get( packet );
+        final int getId(Class<? extends DefinedPacket> packet)
+        {
+            return packetMap.get( packet );
+        }
     }
 }
