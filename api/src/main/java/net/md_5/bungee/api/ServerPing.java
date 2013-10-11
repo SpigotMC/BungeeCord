@@ -13,7 +13,7 @@ public class ServerPing
     /**
      * Numeric protocol version supported by the server.
      */
-    private final byte protocolVersion;
+    private final int protocolVersion;
     /**
      * Human readable game version.
      */

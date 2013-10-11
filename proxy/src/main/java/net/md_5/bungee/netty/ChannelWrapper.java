@@ -33,10 +33,10 @@ public class ChannelWrapper
             if ( packet instanceof PacketWrapper )
             {
                 ( (PacketWrapper) packet ).setReleased( true );
-                ch.write( ( (PacketWrapper) packet ).buf );
+                ch.write( ( (PacketWrapper) packet ).buf, ch.voidPromise() );
             } else
             {
-                ch.write( packet );
+                ch.write( packet, ch.voidPromise() );
             }
             ch.flush();
         }
