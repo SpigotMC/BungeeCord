@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.netty.ChannelWrapper;
-import net.md_5.bungee.protocol.packet.DefinedPacket;
-import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
-import net.md_5.bungee.protocol.packet.PacketFFKick;
+import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.game.Packet42PluginMessage;
+import net.md_5.bungee.protocol.game.Packet43Kick;
 
 @RequiredArgsConstructor
 public class ServerConnection implements Server
@@ -34,7 +34,7 @@ public class ServerConnection implements Server
     @Override
     public void sendData(String channel, byte[] data)
     {
-        unsafe().sendPacket( new PacketFAPluginMessage( channel, data ) );
+        unsafe().sendPacket( new Packet42PluginMessage( channel, data ) );
     }
 
     @Override
@@ -43,7 +43,7 @@ public class ServerConnection implements Server
         if ( !ch.isClosed() )
         {
             // TODO: Can we just use a future here?
-            unsafe().sendPacket( new PacketFFKick( reason ) );
+            unsafe().sendPacket( new Packet43Kick( reason ) );
             ch.getHandle().eventLoop().schedule( new Runnable()
             {
                 @Override

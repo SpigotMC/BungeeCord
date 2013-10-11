@@ -1,6 +1,6 @@
 package net.md_5.bungee.netty;
 
-public abstract class PacketHandler extends net.md_5.bungee.protocol.packet.AbstractPacketHandler
+public abstract class PacketHandler extends net.md_5.bungee.protocol.AbstractPacketHandler
 {
 
     @Override

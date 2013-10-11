@@ -20,12 +20,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>14.0.1</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>net.md-5</groupId>
             <artifactId>bungeecord-config</artifactId>
             <version>${project.version}</version>

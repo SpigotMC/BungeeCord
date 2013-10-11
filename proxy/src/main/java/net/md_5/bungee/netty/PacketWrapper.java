@@ -3,7 +3,7 @@ package net.md_5.bungee.netty;
 import io.netty.buffer.ByteBuf;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import net.md_5.bungee.protocol.packet.DefinedPacket;
+import net.md_5.bungee.protocol.DefinedPacket;
 
 @RequiredArgsConstructor
 public class PacketWrapper

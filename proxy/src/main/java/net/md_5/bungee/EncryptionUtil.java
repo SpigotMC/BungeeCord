@@ -15,7 +15,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.Getter;
-import net.md_5.bungee.protocol.packet.PacketFCEncryptionResponse;
+import net.md_5.bungee.protocol.login.Packet1EncryptionResponse;
 import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
 
 /**
@@ -49,7 +49,7 @@ public class EncryptionUtil
         return new PacketFDEncryptionRequest( hash, pubKey, verify );
     }
 
-    public static SecretKey getSecret(PacketFCEncryptionResponse resp, PacketFDEncryptionRequest request) throws GeneralSecurityException
+    public static SecretKey getSecret(Packet1EncryptionResponse resp, PacketFDEncryptionRequest request) throws GeneralSecurityException
     {
         Cipher cipher = Cipher.getInstance( "RSA" );
         cipher.init( Cipher.DECRYPT_MODE, keys.getPrivate() );
