@@ -19,9 +19,24 @@ import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
+import net.md_5.bungee.protocol.packet.PingPacket;
+import net.md_5.bungee.protocol.packet.StatusRequest;
+import net.md_5.bungee.protocol.packet.StatusResponse;
 
 public abstract class AbstractPacketHandler
 {
+
+    public void handle(PingPacket ping) throws Exception
+    {
+    }
+
+    public void handle(StatusRequest statusRequest) throws Exception
+    {
+    }
+
+    public void handle(StatusResponse statusResponse) throws Exception
+    {
+    }
 
     public void handle(Handshake handshake) throws Exception
     {

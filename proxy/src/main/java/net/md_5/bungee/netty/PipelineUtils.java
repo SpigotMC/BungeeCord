@@ -76,10 +76,10 @@ public class PipelineUtils
             {
                 // IP_TOS is not supported (Windows XP / Windows Server 2003)
             }
-
+            ch.pipeline().addLast( FRAME_PREPENDER, framePrepender );
             ch.pipeline().addLast( TIMEOUT_HANDLER, new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
             ch.pipeline().addLast( FRAME_DECODER, new Varint21FrameDecoder() );
-            ch.pipeline().addLast( FRAME_PREPENDER, framePrepender );
+
             ch.pipeline().addLast( BOSS_HANDLER, new HandlerBoss() );
         }
     };

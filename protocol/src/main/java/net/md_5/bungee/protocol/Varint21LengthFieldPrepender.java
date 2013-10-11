@@ -17,7 +17,7 @@ public class Varint21LengthFieldPrepender extends MessageToByteEncoder<ByteBuf>
         out.ensureWritable( headerLen + bodyLen );
 
         DefinedPacket.writeVarInt( bodyLen, out );
-        out.writeBytes( msg, msg.readerIndex(), bodyLen );
+        out.writeBytes( msg );
     }
 
     private static int varintSize(int paramInt)

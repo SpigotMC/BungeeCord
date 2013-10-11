@@ -3,10 +3,11 @@ package net.md_5.bungee.connection;
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.netty.util.concurrent.ScheduledFuture;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -16,7 +17,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.EncryptionUtil;
-import net.md_5.bungee.PacketConstants;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.Callback;
@@ -37,7 +37,6 @@ import net.md_5.bungee.netty.CipherDecoder;
 import net.md_5.bungee.netty.CipherEncoder;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.netty.PipelineUtils;
-import net.md_5.bungee.protocol.MinecraftInput;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.Handshake;
@@ -48,8 +47,12 @@ import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.api.AbstractReconnectHandler;
 import net.md_5.bungee.api.event.PlayerHandshakeEvent;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.LoginRequest;
+import net.md_5.bungee.protocol.packet.LoginSuccess;
+import net.md_5.bungee.protocol.packet.PingPacket;
+import net.md_5.bungee.protocol.packet.StatusRequest;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -82,7 +85,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     };
     @Getter
     private boolean onlineMode = BungeeCord.getInstance().config.isOnlineMode();
-    private ScheduledFuture<?> pingFuture;
     private InetSocketAddress vHost;
     private byte version = -1;
     @Getter
@@ -91,13 +93,21 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private enum State
     {
 
-        HANDSHAKE, ENCRYPT, LOGIN, FINISHED;
+        HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, LOGIN, FINISHED;
     }
 
     @Override
     public void connected(ChannelWrapper channel) throws Exception
     {
         this.ch = channel;
+    }
+
+    @Override
+    public void handle(PacketWrapper packet) throws Exception
+    {
+        int len = DefinedPacket.readVarInt( packet.buf );
+        int id = DefinedPacket.readVarInt( packet.buf );
+        throw new UnsupportedOperationException( "Cannot handle unknown packet at login!" );
     }
 
     @Override
@@ -109,22 +119,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(PluginMessage pluginMessage) throws Exception
     {
-        if ( pluginMessage.getTag().equals( "MC|PingHost" ) )
-        {
-            if ( pingFuture.cancel( false ) )
-            {
-                MinecraftInput in = pluginMessage.getMCStream();
-                version = in.readByte();
-                String connectHost = in.readString();
-                int connectPort = in.readInt();
-                this.vHost = new InetSocketAddress( connectHost, connectPort );
-
-                respondToPing();
-            }
-
-            return;
-        }
-
         // TODO: Unregister?
         if ( pluginMessage.getTag().equals( "REGISTER" ) )
         {
@@ -135,7 +129,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
     }
 
-    private void respondToPing()
+    @Override
+    public void handle(StatusRequest statusRequest) throws Exception
     {
         ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
         final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
@@ -167,22 +162,17 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             forced.ping( pingBack );
         } else
         {
-            // pingBack.done( new ServerPing( bungee.getProtocolVersion(), bungee.getGameVersion(), motd, bungee.getOnlineCount(), listener.getMaxPlayers() ), null );
+            pingBack.done( new ServerPing( bungee.getProtocolVersion(), bungee.getGameVersion(), motd, bungee.getOnlineCount(), listener.getMaxPlayers() ), null );
         }
     }
-    /*
-     @Override
-     public void handle(PacketFEPing ping) throws Exception
-     {
-     pingFuture = ch.getHandle().eventLoop().schedule( new Runnable()
-     {
-     @Override
-     public void run()
-     {
-     respondToPing();
-     }
-     }, 200, TimeUnit.MILLISECONDS );
-     }*/
+
+    @Override
+    public void handle(PingPacket ping) throws Exception
+    {
+        Preconditions.checkState( thisState == State.PING, "Not expecting PING" );
+        unsafe.sendPacket( ping );
+        disconnect( "" );
+    }
 
     @Override
     public void handle(Handshake handshake) throws Exception
@@ -206,9 +196,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             case 1:
                 // Ping
+                thisState = State.STATUS;
                 ch.setProtocol( Protocol.STATUS );
                 break;
             case 2:
+                thisState = State.USERNAME;
                 ch.setProtocol( Protocol.LOGIN );
                 // Login
                 break;
@@ -220,6 +212,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(LoginRequest loginRequest) throws Exception
     {
+        Preconditions.checkState( thisState == State.USERNAME, "Not expecting USERNAME" );
         this.loginRequest = loginRequest;
 
         if ( getName().length() > 16 )
@@ -242,8 +235,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             return;
         }
 
-        unsafe().sendPacket( PacketConstants.I_AM_BUNGEE );
-        unsafe().sendPacket( PacketConstants.FORGE_MOD_REQUEST );
+        // TODO: Nuuuu Mojang why u do this
+        // unsafe().sendPacket( PacketConstants.I_AM_BUNGEE );
+        // unsafe().sendPacket( PacketConstants.FORGE_MOD_REQUEST );
 
         unsafe().sendPacket( request = EncryptionUtil.encryptRequest( this.onlineMode ) );
         thisState = State.ENCRYPT;
@@ -261,9 +255,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         if ( this.onlineMode )
         {
             String encName = URLEncoder.encode( InitialHandler.this.getName(), "UTF-8" );
-            String encID = URLEncoder.encode( InitialHandler.this.request.getServerId(), "UTF-8" );
 
-            String authURL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" + encName + "&serverId=" + encID;
+            MessageDigest sha = MessageDigest.getInstance( "SHA-1" );
+            for ( byte[] bit : new byte[][]
+            {
+                request.getServerId().getBytes( "ISO_8859_1" ), sharedKey.getEncoded(), EncryptionUtil.keys.getPublic().getEncoded()
+            } )
+            {
+                sha.update( bit );
+            }
+            String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
+
+            String authURL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" + encName + "&serverId=" + encodedHash;
 
             Callback<String> handler = new Callback<String>()
             {
@@ -272,16 +275,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 {
                     if ( error == null )
                     {
-                        JsonObject obj = BungeeCord.getInstance().gson.fromJson( result, JsonObject.class );
+                        LoginResult obj = BungeeCord.getInstance().gson.fromJson( result, LoginResult.class );
                         if ( obj != null )
                         {
-                            JsonElement id = obj.get( "id" );
-                            if ( id != null )
-                            {
-                                UUID = id.getAsString();
-                                finish();
-                                return;
-                            }
+                            UUID = obj.getId();
+                            finish();
+                            return;
                         }
                         disconnect( "Not authenticated with Minecraft.net" );
                     } else
@@ -330,15 +329,26 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     {
                         if ( ch.getHandle().isActive() )
                         {
-                            unsafe().sendPacket( new EncryptionResponse( new byte[ 0 ], new byte[ 0 ] ) );
-                            try
+
+                            if ( onlineMode )
                             {
-                                Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
-                                ch.addBefore( PipelineUtils.DECRYPT_HANDLER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
-                            } catch ( GeneralSecurityException ex )
-                            {
-                                disconnect( "Cipher error: " + Util.exception( ex ) );
+                                unsafe().sendPacket( new EncryptionResponse( new byte[ 0 ], new byte[ 0 ] ) );
+                                try
+                                {
+                                    Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
+                                    ch.addBefore( PipelineUtils.DECRYPT_HANDLER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
+                                } catch ( GeneralSecurityException ex )
+                                {
+                                    disconnect( "Cipher error: " + Util.exception( ex ) );
+                                }
                             }
+
+                            if ( UUID == null )
+                            {
+                                UUID = java.util.UUID.randomUUID().toString();
+                            }
+                            unsafe.sendPacket( new LoginSuccess( BungeeCord.getInstance().gson.toJson( new LoginResult( UUID ) ) ) );
+                            ch.setProtocol( Protocol.GAME );
                         }
                     }
                 } );
@@ -380,7 +390,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( !ch.isClosed() )
         {
-            unsafe().sendPacket( new Kick( reason ) );
+            unsafe().sendPacket( new Kick( BungeeCord.getInstance().gson.toJson( reason ) ) );
             ch.close();
         }
     }

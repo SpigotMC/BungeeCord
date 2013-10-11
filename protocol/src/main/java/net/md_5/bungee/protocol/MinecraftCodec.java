@@ -23,6 +23,8 @@ public class MinecraftCodec extends MessageToMessageCodec<ByteBuf, DefinedPacket
         ByteBuf buf = ctx.alloc().buffer();
         DefinedPacket.writeVarInt( prot.getId( msg.getClass() ), buf );
         msg.write( buf );
+        
+        out.add( buf );
     }
 
     @Override
