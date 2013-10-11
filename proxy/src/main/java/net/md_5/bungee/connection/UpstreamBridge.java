@@ -11,11 +11,11 @@ import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.netty.PacketWrapper;
-import net.md_5.bungee.protocol.packet.Packet0KeepAlive;
-import net.md_5.bungee.protocol.packet.Packet3Chat;
-import net.md_5.bungee.protocol.packet.PacketCBTabComplete;
-import net.md_5.bungee.protocol.packet.PacketCCSettings;
-import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
+import net.md_5.bungee.protocol.game.Packet0KeepAlive;
+import net.md_5.bungee.protocol.game.Packet2Chat;
+import net.md_5.bungee.protocol.game.Packet3DTabComplete;
+import net.md_5.bungee.protocol.game.Packet15Settings;
+import net.md_5.bungee.protocol.game.Packet42PluginMessage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,7 +78,7 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(Packet3Chat chat) throws Exception
+    public void handle(Packet2Chat chat) throws Exception
     {
         ChatEvent chatEvent = new ChatEvent( con, con.getServer(), chat.getMessage() );
         if ( !bungee.getPluginManager().callEvent( chatEvent ).isCancelled() )
@@ -93,7 +93,7 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(PacketCBTabComplete tabComplete) throws Exception
+    public void handle(Packet3DTabComplete tabComplete) throws Exception
     {
         if ( tabComplete.getCursor().startsWith( "/" ) )
         {
@@ -102,20 +102,20 @@ public class UpstreamBridge extends PacketHandler
 
             if ( !results.isEmpty() )
             {
-                con.unsafe().sendPacket( new PacketCBTabComplete( results.toArray( new String[ results.size() ] ) ) );
+                con.unsafe().sendPacket( new Packet3DTabComplete( results.toArray( new String[ results.size() ] ) ) );
                 throw new CancelSendSignal();
             }
         }
     }
 
     @Override
-    public void handle(PacketCCSettings settings) throws Exception
+    public void handle(Packet15Settings settings) throws Exception
     {
         con.setSettings( settings );
     }
 
     @Override
-    public void handle(PacketFAPluginMessage pluginMessage) throws Exception
+    public void handle(Packet42PluginMessage pluginMessage) throws Exception
     {
         if ( pluginMessage.getTag().equals( "BungeeCord" ) )
         {

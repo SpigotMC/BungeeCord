@@ -22,14 +22,14 @@ import net.md_5.bungee.api.score.Team;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.netty.PacketWrapper;
-import net.md_5.bungee.protocol.packet.Packet0KeepAlive;
-import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
-import net.md_5.bungee.protocol.packet.PacketCEScoreboardObjective;
-import net.md_5.bungee.protocol.packet.PacketCFScoreboardScore;
-import net.md_5.bungee.protocol.packet.PacketD0DisplayScoreboard;
-import net.md_5.bungee.protocol.packet.PacketD1Team;
-import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
-import net.md_5.bungee.protocol.packet.PacketFFKick;
+import net.md_5.bungee.protocol.game.Packet0KeepAlive;
+import net.md_5.bungee.protocol.game.Packet3BPlayerListItem;
+import net.md_5.bungee.protocol.game.Packet3EScoreboardObjective;
+import net.md_5.bungee.protocol.game.Packet3FScoreboardScore;
+import net.md_5.bungee.protocol.game.Packet40DisplayScoreboard;
+import net.md_5.bungee.protocol.game.Packet41Team;
+import net.md_5.bungee.protocol.game.Packet42PluginMessage;
+import net.md_5.bungee.protocol.game.Packet43Kick;
 
 @RequiredArgsConstructor
 public class DownstreamBridge extends PacketHandler
@@ -88,7 +88,7 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(PacketC9PlayerListItem playerList) throws Exception
+    public void handle(Packet3BPlayerListItem playerList) throws Exception
     {
 
         if ( !con.getTabList().onListUpdate( playerList.getUsername(), playerList.isOnline(), playerList.getPing() ) )
@@ -98,7 +98,7 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(PacketCEScoreboardObjective objective) throws Exception
+    public void handle(Packet3EScoreboardObjective objective) throws Exception
     {
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
         switch ( objective.getAction() )
@@ -113,7 +113,7 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(PacketCFScoreboardScore score) throws Exception
+    public void handle(Packet3FScoreboardScore score) throws Exception
     {
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
         switch ( score.getAction() )
@@ -130,7 +130,7 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(PacketD0DisplayScoreboard displayScoreboard) throws Exception
+    public void handle(Packet40DisplayScoreboard displayScoreboard) throws Exception
     {
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
         serverScoreboard.setName( displayScoreboard.getName() );
@@ -138,7 +138,7 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(PacketD1Team team) throws Exception
+    public void handle(Packet41Team team) throws Exception
     {
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
         // Remove team and move on
@@ -185,7 +185,7 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(PacketFAPluginMessage pluginMessage) throws Exception
+    public void handle(Packet42PluginMessage pluginMessage) throws Exception
     {
         DataInput in = pluginMessage.getStream();
         PluginMessageEvent event = new PluginMessageEvent( con.getServer(), con, pluginMessage.getTag(), pluginMessage.getData().clone() );
@@ -330,7 +330,7 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(PacketFFKick kick) throws Exception
+    public void handle(Packet43Kick kick) throws Exception
     {
         ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getFallbackServer() );
         if ( Objects.equals( server.getInfo(), def ) )
