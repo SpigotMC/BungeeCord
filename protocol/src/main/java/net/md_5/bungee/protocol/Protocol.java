@@ -58,6 +58,7 @@ public enum Protocol
 
 
             TO_SERVER.registerPacket( 0x00, KeepAlive.class );
+            TO_SERVER.registerPacket( 0x01, Chat.class );
             TO_SERVER.registerPacket( 0x14, TabComplete.class );
             TO_SERVER.registerPacket( 0x15, ClientSettings.class );
             TO_SERVER.registerPacket( 0x17, PluginMessage.class );
