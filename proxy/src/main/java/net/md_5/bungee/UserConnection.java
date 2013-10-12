@@ -32,7 +32,11 @@ import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.netty.PipelineUtils;
+import static net.md_5.bungee.netty.PipelineUtils.FRAME_DECODER;
+import static net.md_5.bungee.netty.PipelineUtils.PACKET_CODEC;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.MinecraftCodec;
+import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.PluginMessage;
@@ -200,6 +204,7 @@ public final class UserConnection implements ProxiedPlayer
             protected void initChannel(Channel ch) throws Exception
             {
                 PipelineUtils.BASE.initChannel( ch );
+                ch.pipeline().addAfter( FRAME_DECODER, PACKET_CODEC, new MinecraftCodec( Protocol.HANDSHAKE, false ) );
                 ch.pipeline().get( HandlerBoss.class ).setHandler( new ServerConnector( bungee, UserConnection.this, target ) );
             }
         };
