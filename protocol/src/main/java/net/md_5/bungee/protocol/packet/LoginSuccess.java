@@ -15,18 +15,21 @@ import net.md_5.bungee.protocol.AbstractPacketHandler;
 public class LoginSuccess extends DefinedPacket
 {
 
-    private String data;
+    private String uuid;
+    private String username;
 
     @Override
     public void read(ByteBuf buf)
     {
-        data = readString( buf );
+        uuid = readString( buf );
+        username = readString( buf );
     }
 
     @Override
     public void write(ByteBuf buf)
     {
-        writeString( data, buf );
+        writeString( uuid, buf );
+        writeString( username, buf );
     }
 
     @Override

@@ -3,11 +3,8 @@ package net.md_5.bungee;
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import java.io.DataInput;
 import java.util.Objects;
 import java.util.Queue;
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
@@ -22,17 +19,17 @@ import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.ChannelWrapper;
-import net.md_5.bungee.netty.CipherDecoder;
 import net.md_5.bungee.netty.PacketHandler;
-import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.MinecraftOutput;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.PluginMessage;
-import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.Kick;
+import net.md_5.bungee.protocol.packet.LoginSuccess;
 
 @RequiredArgsConstructor
 public class ServerConnector extends PacketHandler
@@ -42,14 +39,12 @@ public class ServerConnector extends PacketHandler
     private ChannelWrapper ch;
     private final UserConnection user;
     private final BungeeServerInfo target;
-    private State thisState = State.ENCRYPT_REQUEST;
-    private SecretKey secretkey;
-    private boolean sentMessages;
+    private State thisState = State.LOGIN_SUCCESS;
 
     private enum State
     {
 
-        ENCRYPT_REQUEST, ENCRYPT_RESPONSE, LOGIN, FINISHED;
+        LOGIN_SUCCESS, ENCRYPT_RESPONSE, LOGIN, FINISHED;
     }
 
     @Override
@@ -74,21 +69,36 @@ public class ServerConnector extends PacketHandler
         out.writeUTF( "Login" );
         out.writeUTF( user.getAddress().getHostString() );
         out.writeInt( user.getAddress().getPort() );
-        channel.write( new PluginMessage( "BungeeCord", out.toByteArray() ) );
+        // channel.write( new PluginMessage( "BungeeCord", out.toByteArray() ) ); MOJANG
 
-        // channel.write( user.getPendingConnection().getHandshake() ); FIX
+        channel.write( user.getPendingConnection().getHandshake() );
 
-        // Skip encryption if we are not using Forge
-        if ( user.getPendingConnection().getForgeLogin() == null )
-        {
-            channel.write( PacketConstants.CLIENT_LOGIN );
-        }
+        channel.setProtocol( Protocol.LOGIN );
+        channel.write( user.getPendingConnection().getLoginRequest() );
     }
 
     @Override
     public void disconnected(ChannelWrapper channel) throws Exception
     {
         user.getPendingConnects().remove( target );
+    }
+
+    @Override
+    public void handle(PacketWrapper packet) throws Exception
+    {
+        int packetID = DefinedPacket.readVarInt( packet.buf );
+        System.out.println( packetID + " : " + packet.packet );
+        super.handle( packet ); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void handle(LoginSuccess loginSuccess) throws Exception
+    {
+        Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not exepcting LOGIN_SUCCESS" );
+        ch.setProtocol( Protocol.GAME );
+        thisState = State.LOGIN;
+
+        throw new CancelSendSignal();
     }
 
     @Override
@@ -113,13 +123,6 @@ public class ServerConnector extends PacketHandler
         for ( PluginMessage message : user.getPendingConnection().getRegisterMessages() )
         {
             ch.write( message );
-        }
-        if ( !sentMessages )
-        {
-            for ( PluginMessage message : user.getPendingConnection().getLoginMessages() )
-            {
-                ch.write( message );
-            }
         }
 
         if ( user.getSettings() != null )
@@ -195,20 +198,6 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
-    public void handle(EncryptionResponse encryptResponse) throws Exception
-    {
-        Preconditions.checkState( thisState == State.ENCRYPT_RESPONSE, "Not expecting ENCRYPT_RESPONSE" );
-
-        Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, secretkey );
-        ch.addBefore( PipelineUtils.FRAME_DECODER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
-
-        ch.write( user.getPendingConnection().getForgeLogin() );
-
-        ch.write( PacketConstants.CLIENT_LOGIN );
-        thisState = State.LOGIN;
-    }
-
-    @Override
     public void handle(Kick kick) throws Exception
     {
         ServerInfo def = bungee.getServerInfo( user.getPendingConnection().getListener().getFallbackServer() );
@@ -230,39 +219,6 @@ public class ServerConnector extends PacketHandler
         } else
         {
             user.sendMessage( message );
-        }
-    }
-
-    @Override
-    public void handle(PluginMessage pluginMessage) throws Exception
-    {
-        if ( pluginMessage.equals( PacketConstants.I_AM_BUNGEE ) )
-        {
-            throw new IllegalStateException( "May not connect to another BungeCord!" );
-        }
-
-        DataInput in = pluginMessage.getStream();
-        if ( pluginMessage.getTag().equals( "FML" ) && in.readUnsignedByte() == 0 )
-        {
-            int count = in.readInt();
-            for ( int i = 0; i < count; i++ )
-            {
-                in.readUTF();
-            }
-            if ( in.readByte() != 0 )
-            {
-                // TODO: Using forge flag
-            }
-        }
-
-        user.unsafe().sendPacket( pluginMessage ); // We have to forward these to the user, especially with Forge as stuff might break
-        if ( !sentMessages && user.getPendingConnection().getForgeLogin() != null )
-        {
-            for ( PluginMessage message : user.getPendingConnection().getLoginMessages() )
-            {
-                ch.write( message );
-            }
-            sentMessages = true;
         }
     }
 

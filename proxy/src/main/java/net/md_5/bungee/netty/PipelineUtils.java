@@ -10,7 +10,6 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.BungeeServerInfo;
-import net.md_5.bungee.ServerConnector;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.api.ProxyServer;
@@ -40,17 +39,8 @@ public class PipelineUtils
 
             BASE.initChannel( ch );
             ch.pipeline().addAfter( FRAME_DECODER, PACKET_CODEC, new MinecraftCodec( Protocol.HANDSHAKE, true ) );
+            System.out.println( ch.pipeline() );
             ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( ProxyServer.getInstance(), ch.attr( LISTENER ).get() ) );
-        }
-    };
-    public static final ChannelInitializer<Channel> CLIENT = new ChannelInitializer<Channel>()
-    {
-        @Override
-        protected void initChannel(Channel ch) throws Exception
-        {
-            BASE.initChannel( ch );
-            ch.pipeline().addAfter( FRAME_DECODER, PACKET_CODEC, new MinecraftCodec( Protocol.LOGIN, false) );
-            ch.pipeline().get( HandlerBoss.class ).setHandler( new ServerConnector( ProxyServer.getInstance(), ch.attr( USER ).get(), ch.attr( TARGET ).get() ) );
         }
     };
     public static final Base BASE = new Base();
@@ -76,9 +66,10 @@ public class PipelineUtils
             {
                 // IP_TOS is not supported (Windows XP / Windows Server 2003)
             }
-            ch.pipeline().addLast( FRAME_PREPENDER, framePrepender );
+
             ch.pipeline().addLast( TIMEOUT_HANDLER, new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
             ch.pipeline().addLast( FRAME_DECODER, new Varint21FrameDecoder() );
+            ch.pipeline().addLast( FRAME_PREPENDER, framePrepender );
 
             ch.pipeline().addLast( BOSS_HANDLER, new HandlerBoss() );
         }

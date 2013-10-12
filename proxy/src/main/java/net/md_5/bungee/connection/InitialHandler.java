@@ -104,7 +104,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         int len = DefinedPacket.readVarInt( packet.buf );
         int id = DefinedPacket.readVarInt( packet.buf );
-        throw new UnsupportedOperationException( "Cannot handle unknown packet at login!" );
+        // throw new UnsupportedOperationException( "Cannot handle unknown packet at login!" );
     }
 
     @Override
@@ -343,7 +343,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             {
                                 UUID = java.util.UUID.randomUUID().toString();
                             }
-                            unsafe.sendPacket( new LoginSuccess( BungeeCord.getInstance().gson.toJson( new LoginResult( UUID ) ) ) );
+                            System.out.println( ch.getHandle().pipeline() );
+                            unsafe.sendPacket( new LoginSuccess( UUID, getName() ) );
                             ch.setProtocol( Protocol.GAME );
 
                             UserConnection userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
@@ -361,7 +362,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             {
                                 server = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
                             }
-                            userCon.connect( server, true );
+                           // userCon.connect( server, true );
 
                             thisState = State.FINISHED;
                         }

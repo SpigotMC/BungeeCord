@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import java.lang.reflect.Constructor;
+import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
@@ -92,12 +93,14 @@ public enum Protocol
     public static final int PROTOCOL_VERSION = 0x00;
     public static final String MINECRAFT_VERSION = "13w41a";
     /*========================================================================*/
-    public final ProtocolDirection TO_SERVER = new ProtocolDirection();
-    public final ProtocolDirection TO_CLIENT = new ProtocolDirection();
+    public final ProtocolDirection TO_SERVER = new ProtocolDirection( "TO_SERVER" );
+    public final ProtocolDirection TO_CLIENT = new ProtocolDirection( "TO_CLIENT" );
 
+    @RequiredArgsConstructor
     public class ProtocolDirection
     {
 
+        private final String name;
         private final TObjectIntMap<Class<? extends DefinedPacket>> packetMap = new TObjectIntHashMap<>( MAX_PACKET_ID );
         private final Class<? extends DefinedPacket>[] packetClasses = new Class[ MAX_PACKET_ID ];
         private final Constructor<? extends DefinedPacket>[] packetConstructors = new Constructor[ MAX_PACKET_ID ];
@@ -105,6 +108,12 @@ public enum Protocol
         public boolean hasPacket(int id)
         {
             return id < MAX_PACKET_ID && packetConstructors[id] != null;
+        }
+
+        @Override
+        public String toString()
+        {
+            return name;
         }
 
         public final DefinedPacket createPacket(int id)
