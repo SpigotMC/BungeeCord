@@ -22,7 +22,7 @@ public class ServerPing
     {
 
         private String name;
-        private int version;
+        private int protocol;
     }
     private Players players;
 
