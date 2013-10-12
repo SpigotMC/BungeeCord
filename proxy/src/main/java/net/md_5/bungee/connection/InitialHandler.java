@@ -332,7 +332,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                                 try
                                 {
                                     Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
-                                    ch.addBefore( PipelineUtils.DECRYPT_HANDLER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
+                                    ch.addBefore( PipelineUtils.FRAME_PREPENDER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
                                 } catch ( GeneralSecurityException ex )
                                 {
                                     disconnect( "Cipher error: " + Util.exception( ex ) );
