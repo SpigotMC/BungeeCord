@@ -14,7 +14,8 @@ import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
-import net.md_5.bungee.protocol.MinecraftCodec;
+import net.md_5.bungee.protocol.MinecraftDecoder;
+import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.Varint21FrameDecoder;
 import net.md_5.bungee.protocol.Varint21LengthFieldPrepender;
@@ -38,7 +39,8 @@ public class PipelineUtils
             }
 
             BASE.initChannel( ch );
-            ch.pipeline().addAfter( FRAME_DECODER, PACKET_CODEC, new MinecraftCodec( Protocol.HANDSHAKE, true ) );
+            ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true ) );
+            ch.pipeline().addAfter( FRAME_PREPENDER, PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, true ) );
             System.out.println( ch.pipeline() );
             ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( ProxyServer.getInstance(), ch.attr( LISTENER ).get() ) );
         }
@@ -46,7 +48,8 @@ public class PipelineUtils
     public static final Base BASE = new Base();
     private static final Varint21LengthFieldPrepender framePrepender = new Varint21LengthFieldPrepender();
     public static String TIMEOUT_HANDLER = "timeout";
-    public static String PACKET_CODEC = "packet-codec";
+    public static String PACKET_DECODER = "packet-decoder";
+    public static String PACKET_ENCODER = "packet-encoder";
     public static String BOSS_HANDLER = "inbound-boss";
     public static String ENCRYPT_HANDLER = "encrypt";
     public static String DECRYPT_HANDLER = "decrypt";

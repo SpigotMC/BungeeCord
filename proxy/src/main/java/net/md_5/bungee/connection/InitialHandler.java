@@ -362,7 +362,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             {
                                 server = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
                             }
-                           // userCon.connect( server, true );
+                            userCon.connect( server, true );
 
                             thisState = State.FINISHED;
                         }
