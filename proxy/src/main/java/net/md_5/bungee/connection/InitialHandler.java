@@ -50,6 +50,7 @@ import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PingPacket;
 import net.md_5.bungee.protocol.packet.StatusRequest;
+import net.md_5.bungee.protocol.packet.StatusResponse;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -102,8 +103,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(PacketWrapper packet) throws Exception
     {
-        int len = DefinedPacket.readVarInt( packet.buf );
-        int id = DefinedPacket.readVarInt( packet.buf );
+        // int len = DefinedPacket.readVarInt( packet.buf );
+        // int id = DefinedPacket.readVarInt( packet.buf );
         // throw new UnsupportedOperationException( "Cannot handle unknown packet at login!" );
     }
 
@@ -129,6 +130,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(StatusRequest statusRequest) throws Exception
     {
+        Preconditions.checkState( thisState == State.STATUS, "Not expecting STATUS" );
+
         ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
         final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
 
@@ -139,18 +142,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             {
                 if ( error != null )
                 {
-                    result = new ServerPing( (byte) -1, "-1", "Error pinging remote server: " + Util.exception( error ), -1, -1 );
+                    result = new ServerPing();
+                    result.setDescription( "Error pinging remote server: " + Util.exception( error ) );
                 }
                 result = bungee.getPluginManager().callEvent( new ProxyPingEvent( InitialHandler.this, result ) ).getResponse();
 
-                String kickMessage = ChatColor.DARK_BLUE
-                        + "\00" + result.getProtocolVersion()
-                        + "\00" + result.getGameVersion()
-                        + "\00" + result.getMotd()
-                        + "\00" + result.getCurrentPlayers()
-                        + "\00" + result.getMaxPlayers();
                 BungeeCord.getInstance().getConnectionThrottle().unthrottle( getAddress().getAddress() );
-                disconnect( kickMessage );
+                unsafe.sendPacket( new StatusResponse( BungeeCord.getInstance().gson.toJson( result ) ) );
             }
         };
 
@@ -159,8 +157,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             forced.ping( pingBack );
         } else
         {
-            pingBack.done( new ServerPing( bungee.getProtocolVersion(), bungee.getGameVersion(), motd, bungee.getOnlineCount(), listener.getMaxPlayers() ), null );
+            pingBack.done( new ServerPing(
+                    new ServerPing.Protocol( bungee.getGameVersion(), bungee.getProtocolVersion() ),
+                    new ServerPing.Players( bungee.getOnlineCount(), listener.getMaxPlayers() ),
+                    motd ),
+                    null );
         }
+
+        thisState = State.PING;
     }
 
     @Override
