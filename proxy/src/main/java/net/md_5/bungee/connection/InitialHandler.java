@@ -101,14 +101,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void handle(PacketWrapper packet) throws Exception
-    {
-        // int len = DefinedPacket.readVarInt( packet.buf );
-        // int id = DefinedPacket.readVarInt( packet.buf );
-        // throw new UnsupportedOperationException( "Cannot handle unknown packet at login!" );
-    }
-
-    @Override
     public void exception(Throwable t) throws Exception
     {
         disconnect( ChatColor.RED + Util.exception( t ) );
@@ -347,7 +339,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             {
                                 UUID = java.util.UUID.randomUUID().toString();
                             }
-                            System.out.println( ch.getHandle().pipeline() );
                             unsafe.sendPacket( new LoginSuccess( UUID, getName() ) );
                             ch.setProtocol( Protocol.GAME );
 

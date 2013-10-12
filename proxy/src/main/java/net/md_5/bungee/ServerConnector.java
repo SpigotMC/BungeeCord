@@ -84,14 +84,6 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
-    public void handle(PacketWrapper packet) throws Exception
-    {
-        int packetID = DefinedPacket.readVarInt( packet.buf );
-        System.out.println( packetID + " : " + packet.packet );
-        super.handle( packet ); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public void handle(LoginSuccess loginSuccess) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not exepcting LOGIN_SUCCESS" );
