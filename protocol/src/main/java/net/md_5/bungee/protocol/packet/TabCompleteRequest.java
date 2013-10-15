@@ -12,33 +12,21 @@ import net.md_5.bungee.protocol.AbstractPacketHandler;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Login extends DefinedPacket
+public class TabCompleteRequest extends DefinedPacket
 {
 
-    private int entityId;
-    private short gameMode;
-    private int dimension;
-    private short difficulty;
-    private short maxPlayers;
+    private String cursor;
 
     @Override
     public void read(ByteBuf buf)
     {
-        entityId = buf.readInt();
-        gameMode = buf.readUnsignedByte();
-        dimension = buf.readByte();
-        difficulty = buf.readUnsignedByte();
-        maxPlayers = buf.readUnsignedByte();
+        cursor = readString( buf );
     }
 
     @Override
     public void write(ByteBuf buf)
     {
-        buf.writeInt( entityId );
-        buf.writeByte( gameMode );
-        buf.writeByte( dimension );
-        buf.writeByte( difficulty );
-        buf.writeByte( maxPlayers );
+        writeString( cursor, buf );
     }
 
     @Override

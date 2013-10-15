@@ -12,33 +12,21 @@ import net.md_5.bungee.protocol.AbstractPacketHandler;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class TabComplete extends DefinedPacket
+public class TabCompleteResponse extends DefinedPacket
 {
 
-    private String cursor;
     private String[] commands;
-
-    public TabComplete(String[] alternatives)
-    {
-        commands = alternatives;
-    }
 
     @Override
     public void read(ByteBuf buf)
     {
-        cursor = readString( buf );
+        commands = readStringArray( buf );
     }
 
     @Override
     public void write(ByteBuf buf)
     {
-        StringBuilder tab = new StringBuilder();
-        for ( String alternative : commands )
-        {
-            tab.append( alternative );
-            tab.append( "\00" );
-        }
-        writeString( tab.substring( 0, tab.length() - 1 ), buf );
+        writeStringArray( commands, buf );
     }
 
     @Override

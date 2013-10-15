@@ -1,7 +1,6 @@
 package net.md_5.bungee.connection;
 
 import net.md_5.bungee.BungeeCord;
-import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
@@ -13,11 +12,12 @@ import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Chat;
-import net.md_5.bungee.protocol.packet.TabComplete;
+import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import java.util.ArrayList;
 import java.util.List;
+import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 
 public class UpstreamBridge extends PacketHandler
 {
@@ -93,7 +93,7 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(TabComplete tabComplete) throws Exception
+    public void handle(TabCompleteRequest tabComplete) throws Exception
     {
         if ( tabComplete.getCursor().startsWith( "/" ) )
         {
@@ -102,7 +102,7 @@ public class UpstreamBridge extends PacketHandler
 
             if ( !results.isEmpty() )
             {
-                con.unsafe().sendPacket( new TabComplete( results.toArray( new String[ results.size() ] ) ) );
+                con.unsafe().sendPacket( new TabCompleteResponse( results.toArray( new String[ results.size() ] ) ) );
                 throw new CancelSendSignal();
             }
         }
