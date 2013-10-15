@@ -7,7 +7,7 @@ import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
-import net.md_5.bungee.protocol.packet.TabComplete;
+import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
@@ -22,9 +22,14 @@ import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PingPacket;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
+import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 
 public abstract class AbstractPacketHandler
 {
+
+    public void handle(TabCompleteResponse tabResponse) throws Exception
+    {
+    }
 
     public void handle(PingPacket ping) throws Exception
     {
@@ -74,7 +79,7 @@ public abstract class AbstractPacketHandler
     {
     }
 
-    public void handle(TabComplete tabComplete) throws Exception
+    public void handle(TabCompleteRequest tabComplete) throws Exception
     {
     }
 

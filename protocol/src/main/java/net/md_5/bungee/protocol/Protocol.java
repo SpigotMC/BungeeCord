@@ -24,7 +24,8 @@ import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
-import net.md_5.bungee.protocol.packet.TabComplete;
+import net.md_5.bungee.protocol.packet.TabCompleteRequest;
+import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.Team;
 
 public enum Protocol
@@ -48,7 +49,7 @@ public enum Protocol
             TO_CLIENT.registerPacket( 0x02, Chat.class );
             TO_CLIENT.registerPacket( 0x07, Respawn.class );
             TO_CLIENT.registerPacket( 0x3B, PlayerListItem.class );
-            TO_CLIENT.registerPacket( 0x3D, TabComplete.class );
+            TO_CLIENT.registerPacket( 0x3D, TabCompleteResponse.class );
             TO_CLIENT.registerPacket( 0x3E, ScoreboardObjective.class );
             TO_CLIENT.registerPacket( 0x3F, ScoreboardScore.class );
             TO_CLIENT.registerPacket( 0x40, ScoreboardDisplay.class );
@@ -59,7 +60,7 @@ public enum Protocol
 
             TO_SERVER.registerPacket( 0x00, KeepAlive.class );
             TO_SERVER.registerPacket( 0x01, Chat.class );
-            TO_SERVER.registerPacket( 0x14, TabComplete.class );
+            TO_SERVER.registerPacket( 0x14, TabCompleteRequest.class );
             TO_SERVER.registerPacket( 0x15, ClientSettings.class );
             TO_SERVER.registerPacket( 0x17, PluginMessage.class );
         }
@@ -92,7 +93,7 @@ public enum Protocol
     /*========================================================================*/
     public static final int MAX_PACKET_ID = 0xFF;
     public static final int PROTOCOL_VERSION = 0x00;
-    public static final String MINECRAFT_VERSION = "13w41a";
+    public static final String MINECRAFT_VERSION = "13w41b";
     /*========================================================================*/
     public final ProtocolDirection TO_SERVER = new ProtocolDirection( "TO_SERVER" );
     public final ProtocolDirection TO_CLIENT = new ProtocolDirection( "TO_CLIENT" );

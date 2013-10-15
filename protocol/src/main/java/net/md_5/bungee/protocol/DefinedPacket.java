@@ -41,6 +41,26 @@ public abstract class DefinedPacket
         return ret;
     }
 
+    public static void writeStringArray(String[] s, ByteBuf buf)
+    {
+        writeVarInt( s.length, buf );
+        for ( String str : s )
+        {
+            writeString( str, buf );
+        }
+    }
+
+    public static String[] readStringArray(ByteBuf buf)
+    {
+        int len = readVarInt( buf );
+        String[] ret = new String[ len ];
+        for ( int i = 0; i < ret.length; i++ )
+        {
+            ret[i] = readString( buf );
+        }
+        return ret;
+    }
+
     public static int readVarInt(ByteBuf input)
     {
         int out = 0;

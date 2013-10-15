@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 
 @Data
@@ -17,19 +16,15 @@ public class Respawn extends DefinedPacket
 {
 
     private int dimension;
-    private byte difficulty;
-    private byte gameMode;
-    private short worldHeight;
-    private String levelType;
+    private short difficulty;
+    private short gameMode;
 
     @Override
     public void read(ByteBuf buf)
     {
         dimension = buf.readInt();
-        difficulty = buf.readByte();
-        gameMode = buf.readByte();
-        worldHeight = buf.readShort();
-        levelType = readString( buf );
+        difficulty = buf.readUnsignedByte();
+        gameMode = buf.readUnsignedByte();
     }
 
     @Override
@@ -38,8 +33,6 @@ public class Respawn extends DefinedPacket
         buf.writeInt( dimension );
         buf.writeByte( difficulty );
         buf.writeByte( gameMode );
-        buf.writeShort( worldHeight );
-        writeString( levelType, buf );
     }
 
     @Override
