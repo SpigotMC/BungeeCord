@@ -48,14 +48,14 @@ public enum Protocol
             TO_CLIENT.registerPacket( 0x01, Login.class );
             TO_CLIENT.registerPacket( 0x02, Chat.class );
             TO_CLIENT.registerPacket( 0x07, Respawn.class );
-            TO_CLIENT.registerPacket( 0x3B, PlayerListItem.class );
-            TO_CLIENT.registerPacket( 0x3D, TabCompleteResponse.class );
-            TO_CLIENT.registerPacket( 0x3E, ScoreboardObjective.class );
-            TO_CLIENT.registerPacket( 0x3F, ScoreboardScore.class );
-            TO_CLIENT.registerPacket( 0x40, ScoreboardDisplay.class );
-            TO_CLIENT.registerPacket( 0x41, Team.class );
-            TO_CLIENT.registerPacket( 0x42, PluginMessage.class );
-            TO_CLIENT.registerPacket( 0x43, Kick.class );
+            TO_CLIENT.registerPacket( 0x38, PlayerListItem.class );
+            TO_CLIENT.registerPacket( 0x3A, TabCompleteResponse.class );
+            TO_CLIENT.registerPacket( 0x3B, ScoreboardObjective.class );
+            TO_CLIENT.registerPacket( 0x3C, ScoreboardScore.class );
+            TO_CLIENT.registerPacket( 0x3D, ScoreboardDisplay.class );
+            TO_CLIENT.registerPacket( 0x3E, Team.class );
+            TO_CLIENT.registerPacket( 0x3F, PluginMessage.class );
+            TO_CLIENT.registerPacket( 0x40, Kick.class );
 
 
             TO_SERVER.registerPacket( 0x00, KeepAlive.class );
