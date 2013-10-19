@@ -17,6 +17,7 @@ import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
+import net.md_5.bungee.protocol.packet.LegacyPing;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PingPacket;
@@ -26,6 +27,10 @@ import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 
 public abstract class AbstractPacketHandler
 {
+
+    public void handle(LegacyPing ping) throws Exception
+    {
+    }
 
     public void handle(TabCompleteResponse tabResponse) throws Exception
     {

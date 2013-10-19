@@ -14,6 +14,8 @@ import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
+import net.md_5.bungee.protocol.KickStringWriter;
+import net.md_5.bungee.protocol.LegacyDecoder;
 import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.Protocol;
@@ -39,8 +41,10 @@ public class PipelineUtils
             }
 
             BASE.initChannel( ch );
+            ch.pipeline().addBefore( FRAME_DECODER, LEGACY_DECODER, new LegacyDecoder() );
             ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true ) );
             ch.pipeline().addAfter( FRAME_PREPENDER, PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, true ) );
+            ch.pipeline().addBefore( FRAME_PREPENDER, LEGACY_KICKER, new KickStringWriter() );
             ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( ProxyServer.getInstance(), ch.attr( LISTENER ).get() ) );
         }
     };
@@ -54,6 +58,8 @@ public class PipelineUtils
     public static String DECRYPT_HANDLER = "decrypt";
     public static String FRAME_DECODER = "frame-decoder";
     public static String FRAME_PREPENDER = "frame-prepender";
+    public static String LEGACY_DECODER = "legacy-decoder";
+    public static String LEGACY_KICKER = "legacy-kick";
 
     public final static class Base extends ChannelInitializer<Channel>
     {
