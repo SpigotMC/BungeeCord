@@ -1,6 +1,8 @@
 package net.md_5.bungee.connection;
 
 import com.google.common.base.Preconditions;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
@@ -44,8 +46,8 @@ import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.api.AbstractReconnectHandler;
 import net.md_5.bungee.api.event.PlayerHandshakeEvent;
-import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.packet.LegacyPing;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PingPacket;
@@ -117,6 +119,20 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             loginMessages.add( pluginMessage );
         }
+    }
+
+    @Override
+    public void handle(LegacyPing ping) throws Exception
+    {
+        String kickMessage = ChatColor.DARK_BLUE
+                + "\00" + bungee.getProtocolVersion()
+                + "\00" + bungee.getGameVersion()
+                + "\00" + listener.getMotd()
+                + "\00" + bungee.getOnlineCount()
+                + "\00" + listener.getMaxPlayers();
+
+        ch.getHandle().writeAndFlush( kickMessage );
+        ch.close();
     }
 
     @Override
@@ -231,7 +247,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         // TODO: Nuuuu Mojang why u do this
         // unsafe().sendPacket( PacketConstants.I_AM_BUNGEE );
         // unsafe().sendPacket( PacketConstants.FORGE_MOD_REQUEST );
-
         unsafe().sendPacket( request = EncryptionUtil.encryptRequest( this.onlineMode ) );
         thisState = State.ENCRYPT;
     }
