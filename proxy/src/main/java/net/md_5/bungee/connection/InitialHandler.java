@@ -193,14 +193,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
 
-        if ( handshake.getProtocolVersion() > bungee.getProtocolVersion() )
-        {
-            disconnect( bungee.getTranslation( "outdated_server" ) );
-        } else if ( handshake.getProtocolVersion() < bungee.getProtocolVersion() )
-        {
-            disconnect( bungee.getTranslation( "outdated_client" ) );
-        }
-
         switch ( handshake.getRequestedProtocol() )
         {
             case 1:
@@ -223,6 +215,16 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.USERNAME, "Not expecting USERNAME" );
         this.loginRequest = loginRequest;
+
+        if ( handshake.getProtocolVersion() > bungee.getProtocolVersion() )
+        {
+            disconnect( bungee.getTranslation( "outdated_server" ) );
+            return;
+        } else if ( handshake.getProtocolVersion() < bungee.getProtocolVersion() )
+        {
+            disconnect( bungee.getTranslation( "outdated_client" ) );
+            return;
+        }
 
         if ( getName().length() > 16 )
         {
