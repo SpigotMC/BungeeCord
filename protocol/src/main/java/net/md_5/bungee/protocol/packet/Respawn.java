@@ -18,6 +18,7 @@ public class Respawn extends DefinedPacket
     private int dimension;
     private short difficulty;
     private short gameMode;
+    private String levelType;
 
     @Override
     public void read(ByteBuf buf)
@@ -25,6 +26,7 @@ public class Respawn extends DefinedPacket
         dimension = buf.readInt();
         difficulty = buf.readUnsignedByte();
         gameMode = buf.readUnsignedByte();
+        levelType = readString( buf );
     }
 
     @Override
@@ -33,6 +35,7 @@ public class Respawn extends DefinedPacket
         buf.writeInt( dimension );
         buf.writeByte( difficulty );
         buf.writeByte( gameMode );
+        writeString( levelType, buf );
     }
 
     @Override

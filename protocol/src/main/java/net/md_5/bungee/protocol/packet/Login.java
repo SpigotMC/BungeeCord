@@ -20,6 +20,7 @@ public class Login extends DefinedPacket
     private int dimension;
     private short difficulty;
     private short maxPlayers;
+    private String levelType;
 
     @Override
     public void read(ByteBuf buf)
@@ -29,6 +30,7 @@ public class Login extends DefinedPacket
         dimension = buf.readByte();
         difficulty = buf.readUnsignedByte();
         maxPlayers = buf.readUnsignedByte();
+        levelType = readString( buf );
     }
 
     @Override
@@ -39,6 +41,7 @@ public class Login extends DefinedPacket
         buf.writeByte( dimension );
         buf.writeByte( difficulty );
         buf.writeByte( maxPlayers );
+        writeString( levelType, buf );
     }
 
     @Override

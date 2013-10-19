@@ -92,8 +92,8 @@ public enum Protocol
     };
     /*========================================================================*/
     public static final int MAX_PACKET_ID = 0xFF;
-    public static final int PROTOCOL_VERSION = 0x00;
-    public static final String MINECRAFT_VERSION = "13w41b";
+    public static final int PROTOCOL_VERSION = 0x01;
+    public static final String MINECRAFT_VERSION = "13w42b";
     /*========================================================================*/
     public final ProtocolDirection TO_SERVER = new ProtocolDirection( "TO_SERVER" );
     public final ProtocolDirection TO_CLIENT = new ProtocolDirection( "TO_CLIENT" );
