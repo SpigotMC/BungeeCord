@@ -1,8 +1,6 @@
 package net.md_5.bungee.connection;
 
 import com.google.common.base.Preconditions;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
@@ -249,7 +247,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         // TODO: Nuuuu Mojang why u do this
         // unsafe().sendPacket( PacketConstants.I_AM_BUNGEE );
         // unsafe().sendPacket( PacketConstants.FORGE_MOD_REQUEST );
-        unsafe().sendPacket( request = EncryptionUtil.encryptRequest( this.onlineMode ) );
+        if ( this.onlineMode )
+        {
+            unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
+        } else
+        {
+            finish();
+        }
         thisState = State.ENCRYPT;
     }
 

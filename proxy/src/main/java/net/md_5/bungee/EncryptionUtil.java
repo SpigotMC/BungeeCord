@@ -40,9 +40,9 @@ public class EncryptionUtil
         }
     }
 
-    public static EncryptionRequest encryptRequest(boolean onlinemode)
+    public static EncryptionRequest encryptRequest()
     {
-        String hash = ( onlinemode ) ? Long.toString( random.nextLong(), 16 ) : "-";
+        String hash = Long.toString( random.nextLong(), 16 );
         byte[] pubKey = keys.getPublic().getEncoded();
         byte[] verify = new byte[ 4 ];
         random.nextBytes( verify );
