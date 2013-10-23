@@ -47,7 +47,7 @@ public class Metrics extends TimerTask
             firstPost = false;
         } catch ( IOException ex )
         {
-            ProxyServer.getInstance().getLogger().info( "[Metrics] " + ex.getMessage() );
+            // ProxyServer.getInstance().getLogger().info( "[Metrics] " + ex.getMessage() );
         }
     }
 
