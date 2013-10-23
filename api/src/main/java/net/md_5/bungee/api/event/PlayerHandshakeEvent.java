@@ -4,8 +4,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import net.md_5.bungee.api.connection.PendingConnection;
-import net.md_5.bungee.protocol.packet.Packet2Handshake;
 import net.md_5.bungee.api.plugin.Event;
+import net.md_5.bungee.protocol.packet.Handshake;
 
 /**
  * Event called to represent a player first making their presence and username
@@ -24,9 +24,9 @@ public class PlayerHandshakeEvent extends Event
     /**
      * The handshake.
      */
-    private final Packet2Handshake handshake;
+    private final Handshake handshake;
 
-    public PlayerHandshakeEvent(PendingConnection connection, Packet2Handshake handshake)
+    public PlayerHandshakeEvent(PendingConnection connection, Handshake handshake)
     {
         this.connection = connection;
         this.handshake = handshake;

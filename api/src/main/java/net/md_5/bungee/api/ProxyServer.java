@@ -180,7 +180,7 @@ public abstract class ProxyServer
      *
      * @return the Minecraft protocol version
      */
-    public abstract byte getProtocolVersion();
+    public abstract int getProtocolVersion();
 
     /**
      * Factory method to construct an implementation specific server info
