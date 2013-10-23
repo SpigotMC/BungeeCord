@@ -35,4 +35,5 @@ public class ServerPing
         private int online;
     }
     private String description;
+    private String favicon;
 }
