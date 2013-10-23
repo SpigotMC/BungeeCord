@@ -36,7 +36,15 @@ public class HttpHandler extends SimpleChannelInboundHandler<HttpObject>
         if ( msg instanceof HttpResponse )
         {
             HttpResponse response = (HttpResponse) msg;
-            if ( response.getStatus().code() != 200 )
+            int responseCode = response.getStatus().code();
+
+            if ( responseCode == HttpResponseStatus.NO_CONTENT.code() )
+            {
+                done( ctx );
+                return;
+            }
+
+            if ( responseCode != HttpResponseStatus.OK.code() )
             {
                 throw new IllegalStateException( "Expected HTTP response 200 OK, got " + response.getStatus() );
             }
@@ -48,14 +56,19 @@ public class HttpHandler extends SimpleChannelInboundHandler<HttpObject>
 
             if ( msg instanceof LastHttpContent )
             {
-                try
-                {
-                    callback.done( buffer.toString(), null );
-                } finally
-                {
-                    ctx.channel().close();
-                }
+                done( ctx );
             }
+        }
+    }
+
+    private void done(ChannelHandlerContext ctx)
+    {
+        try
+        {
+            callback.done( buffer.toString(), null );
+        } finally
+        {
+            ctx.channel().close();
         }
     }
 }

@@ -57,10 +57,10 @@ import net.md_5.bungee.command.*;
 import net.md_5.bungee.config.YamlConfig;
 import net.md_5.bungee.log.LoggingOutputStream;
 import net.md_5.bungee.netty.PipelineUtils;
-import net.md_5.bungee.protocol.packet.DefinedPacket;
-import net.md_5.bungee.protocol.packet.Packet3Chat;
-import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
-import net.md_5.bungee.protocol.Vanilla;
+import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.packet.Chat;
+import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.tab.Custom;
 import net.md_5.bungee.util.CaseInsensitiveMap;
@@ -448,21 +448,21 @@ public class BungeeCord extends ProxyServer
         return Collections.unmodifiableCollection( pluginChannels );
     }
 
-    public PacketFAPluginMessage registerChannels()
+    public PluginMessage registerChannels()
     {
-        return new PacketFAPluginMessage( "REGISTER", Util.format( pluginChannels, "\00" ).getBytes() );
+        return new PluginMessage( "REGISTER", Util.format( pluginChannels, "\00" ).getBytes() );
     }
 
     @Override
-    public byte getProtocolVersion()
+    public int getProtocolVersion()
     {
-        return Vanilla.PROTOCOL_VERSION;
+        return Protocol.PROTOCOL_VERSION;
     }
 
     @Override
     public String getGameVersion()
     {
-        return Vanilla.GAME_VERSION;
+        return Protocol.MINECRAFT_VERSION;
     }
 
     @Override
@@ -483,7 +483,7 @@ public class BungeeCord extends ProxyServer
         getConsole().sendMessage( message );
         // TODO: Here too
         String encoded = BungeeCord.getInstance().gson.toJson( message );
-        broadcast( new Packet3Chat( "{\"text\":" + encoded + "}" ) );
+        broadcast( new Chat( "{\"text\":" + encoded + "}" ) );
     }
 
     public void addConnection(UserConnection con)

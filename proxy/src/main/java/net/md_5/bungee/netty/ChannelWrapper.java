@@ -1,10 +1,14 @@
 package net.md_5.bungee.netty;
 
+import net.md_5.bungee.protocol.PacketWrapper;
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.Getter;
+import net.md_5.bungee.protocol.MinecraftDecoder;
+import net.md_5.bungee.protocol.MinecraftEncoder;
+import net.md_5.bungee.protocol.Protocol;
 
 public class ChannelWrapper
 {
@@ -18,6 +22,12 @@ public class ChannelWrapper
         this.ch = ctx.channel();
     }
 
+    public void setProtocol(Protocol protocol)
+    {
+        ch.pipeline().get( MinecraftDecoder.class ).setProtocol( protocol );
+        ch.pipeline().get( MinecraftEncoder.class ).setProtocol( protocol );
+    }
+
     public synchronized void write(Object packet)
     {
         if ( !closed )
@@ -25,10 +35,10 @@ public class ChannelWrapper
             if ( packet instanceof PacketWrapper )
             {
                 ( (PacketWrapper) packet ).setReleased( true );
-                ch.write( ( (PacketWrapper) packet ).buf );
+                ch.write( ( (PacketWrapper) packet ).buf, ch.voidPromise() );
             } else
             {
-                ch.write( packet );
+                ch.write( packet, ch.voidPromise() );
             }
             ch.flush();
         }

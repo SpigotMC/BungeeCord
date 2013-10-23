@@ -7,4 +7,9 @@ public class BadPacketException extends RuntimeException
     {
         super( message );
     }
+
+    public BadPacketException(String message, Throwable cause)
+    {
+        super( message, cause );
+    }
 }
