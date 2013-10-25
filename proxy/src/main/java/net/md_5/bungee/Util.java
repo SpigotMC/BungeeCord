@@ -70,4 +70,10 @@ public class Util
 
         return ( ret.length() == 0 ) ? "" : ret.substring( 0, ret.length() - separators.length() );
     }
+
+    public static String stupify(String text)
+    {
+        // TODO: Colour text wrapper to work around 1.7 client bug with section sign
+        return "{\"text\":" + BungeeCord.getInstance().gson.toJson( text ) + "}";
+    }
 }

@@ -255,7 +255,7 @@ public final class UserConnection implements ProxiedPlayer
         if ( ch.getHandle().isActive() )
         {
             bungee.getLogger().log( Level.INFO, "[" + getName() + "] disconnected with: " + reason );
-            unsafe().sendPacket( new Kick( BungeeCord.getInstance().gson.toJson( reason ) ) );
+            unsafe().sendPacket( new Kick( Util.stupify( reason ) ) );
             ch.close();
             if ( server != null )
             {
@@ -275,8 +275,7 @@ public final class UserConnection implements ProxiedPlayer
     public void sendMessage(String message)
     {
         // TODO: Fix this
-        String encoded = BungeeCord.getInstance().gson.toJson( message );
-        unsafe().sendPacket( new Chat( "{\"text\":" + encoded + "}" ) );
+        unsafe().sendPacket( new Chat( Util.stupify( message ) ) );
     }
 
     @Override

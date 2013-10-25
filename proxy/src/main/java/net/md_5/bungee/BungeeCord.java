@@ -23,8 +23,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -44,7 +42,6 @@ import jline.internal.Log;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ReconnectHandler;
@@ -492,8 +489,7 @@ public class BungeeCord extends ProxyServer
     {
         getConsole().sendMessage( message );
         // TODO: Here too
-        String encoded = BungeeCord.getInstance().gson.toJson( message );
-        broadcast( new Chat( "{\"text\":" + encoded + "}" ) );
+        broadcast( new Chat( Util.stupify( message ) ) );
     }
 
     public void addConnection(UserConnection con)
