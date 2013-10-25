@@ -74,7 +74,7 @@ public class DownstreamBridge extends PacketHandler
     {
         if ( !server.isObsolete() )
         {
-            // EntityMap.rewrite( packet.buf, con.getServerEntityId(), con.getClientEntityId() );
+            EntityMap.rewrite( packet.buf, con.getServerEntityId(), con.getClientEntityId() );
             con.sendPacket( packet );
         }
     }
