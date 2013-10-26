@@ -39,9 +39,9 @@ public class Bootstrap
             return;
         }
 
-        if ( !System.getProperty( "java.version" ).startsWith( "1.7" ) )
+        if ( !System.getProperty( "java.version" ).startsWith( "1.7" ) && !System.getProperty( "java.version" ).startsWith( "1.8" ) )
         {
-            System.err.println( "*** ERROR *** BungeeCord requires Java 7 to function!" );
+            System.err.println( "*** ERROR *** BungeeCord requires at least Java 7 to function!" );
             return;
         }
 
