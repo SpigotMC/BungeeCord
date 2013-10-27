@@ -23,6 +23,7 @@ import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.MinecraftOutput;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
@@ -186,6 +187,12 @@ public class ServerConnector extends PacketHandler
         thisState = State.FINISHED;
 
         throw new CancelSendSignal();
+    }
+
+    @Override
+    public void handle(EncryptionRequest encryptionRequest) throws Exception
+    {
+        throw new RuntimeException( "Server is online mode!" );
     }
 
     @Override
