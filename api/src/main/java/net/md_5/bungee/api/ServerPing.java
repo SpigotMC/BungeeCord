@@ -35,7 +35,7 @@ public class ServerPing
         private int online;
     }
 
-    private PlayerInfo sample;
+    private PlayerInfo[] sample;
 
     @Data
     @AllArgsConstructor
