@@ -44,6 +44,7 @@ public class Configuration
     private int playerLimit = -1;
     private Collection<String> disabledCommands;
     private int throttle = 4000;
+    private boolean ipFoward;
 
     public void load()
     {
@@ -56,6 +57,7 @@ public class Configuration
         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
         playerLimit = adapter.getInt( "player_limit", playerLimit );
         throttle = adapter.getInt( "connection_throttle", throttle );
+        ipFoward = adapter.getBoolean( "ip_forward", ipFoward);
 
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "find" ) ) );
 
