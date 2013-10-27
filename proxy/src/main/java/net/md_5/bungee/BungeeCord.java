@@ -121,7 +121,6 @@ public class BungeeCord extends ProxyServer
     public final Gson gson = new Gson();
     @Getter
     private ConnectionThrottle connectionThrottle;
-    public String favicon;
 
     
     {
@@ -186,13 +185,6 @@ public class BungeeCord extends ProxyServer
             }
         }
         isRunning = true;
-
-        File fav = new File( "server-icon.png" );
-        if ( fav.exists() )
-        {
-
-            favicon = "data:image/png;base64," + BaseEncoding.base64().encode( Files.toByteArray( fav ) );
-        }
 
         pluginManager.loadAndEnablePlugins();
 

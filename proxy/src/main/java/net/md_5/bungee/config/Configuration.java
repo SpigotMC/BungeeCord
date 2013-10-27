@@ -1,11 +1,16 @@
 package net.md_5.bungee.config;
 
 import com.google.common.base.Preconditions;
+import com.google.common.io.BaseEncoding;
+import com.google.common.io.Files;
 import gnu.trove.map.TMap;
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 import lombok.Getter;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
@@ -45,11 +50,25 @@ public class Configuration
     private Collection<String> disabledCommands;
     private int throttle = 4000;
     private boolean ipFoward;
+    public String favicon;
 
     public void load()
     {
         ConfigurationAdapter adapter = ProxyServer.getInstance().getConfigurationAdapter();
         adapter.load();
+
+        File fav = new File( "server-icon.png" );
+        if ( fav.exists() )
+        {
+            
+            try
+            {
+                favicon = "data:image/png;base64," + BaseEncoding.base64().encode( Files.toByteArray( fav ) );
+            } catch ( IOException ex )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load server icon", ex );
+            }
+        }
 
         listeners = adapter.getListeners();
         timeout = adapter.getInt( "timeout", timeout );
@@ -57,7 +76,7 @@ public class Configuration
         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
         playerLimit = adapter.getInt( "player_limit", playerLimit );
         throttle = adapter.getInt( "connection_throttle", throttle );
-        ipFoward = adapter.getBoolean( "ip_forward", ipFoward);
+        ipFoward = adapter.getBoolean( "ip_forward", ipFoward );
 
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "find" ) ) );
 
