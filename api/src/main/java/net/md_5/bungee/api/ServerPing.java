@@ -34,6 +34,17 @@ public class ServerPing
         private int max;
         private int online;
     }
+
+    private PlayerInfo sample;
+
+    @Data
+    @AllArgsConstructor
+    public static class PlayerInfo
+    {
+
+        private String name;
+        private String id;
+    }
     private String description;
     private String favicon;
 }
