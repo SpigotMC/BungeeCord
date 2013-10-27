@@ -40,6 +40,7 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.util.CaseInsensitiveSet;
+import net.md_5.bungee.util.TextWrapper;
 
 @RequiredArgsConstructor
 public final class UserConnection implements ProxiedPlayer
@@ -275,7 +276,10 @@ public final class UserConnection implements ProxiedPlayer
     public void sendMessage(String message)
     {
         // TODO: Fix this
-        unsafe().sendPacket( new Chat( Util.stupify( message ) ) );
+        for ( String s : TextWrapper.wrapText( message ) )
+        {
+            unsafe().sendPacket( new Chat( Util.stupify( s ) ) );
+        }
     }
 
     @Override
