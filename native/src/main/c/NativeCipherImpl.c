@@ -2,6 +2,7 @@
 #include <openssl/aes.h>
 #include <jni.h>
 #include <stdio.h>
+#include <stdlib.h>
 #define BYTE unsigned char
 
 void Java_net_md_15_bungee_NativeCipherImpl_cipher
@@ -9,7 +10,9 @@ void Java_net_md_15_bungee_NativeCipherImpl_cipher
 {
     AES_KEY aes_key;
 
-    BYTE *key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
+    jboolean isKeyCopy;
+
+    BYTE *key_bytes = (*env)->GetByteArrayElements(env, key, &isKeyCopy);
     int key_length = (*env)->GetArrayLength(env, key) * 8; // in bits
     size_t buffer_length = (size_t) length;
 
@@ -32,5 +35,11 @@ void Java_net_md_15_bungee_NativeCipherImpl_cipher
     );
 
     // IV has changed, let's copy it back
-    if (isCopy) (*env)->ReleaseByteArrayElements(env, iv, (jbyte*)iv_bytes, 0);
+    if (isCopy) {
+      (*env)->ReleaseByteArrayElements(env, iv, (jbyte*)iv_bytes, 0);
+    }
+
+    if (isKeyCopy) {
+      free(key_bytes);
+    }
 }
