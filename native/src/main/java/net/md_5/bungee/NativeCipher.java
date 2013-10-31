@@ -15,13 +15,13 @@ import java.security.GeneralSecurityException;
 public class NativeCipher implements BungeeCipher
 {
     private boolean forEncryption;
-    private SecretKey key;
     private byte[] iv;
 
     @Getter
     private final NativeCipherImpl nativeCipher = new NativeCipherImpl();
     private static boolean loaded = false;
 
+    private long pointer;
 
     public static boolean load()
     {
@@ -44,7 +44,8 @@ public class NativeCipher implements BungeeCipher
             int read;
             byte[] bytes = new byte[1024];
 
-            while ((read = lib.read(bytes)) != -1) {
+            while ((read = lib.read(bytes)) != -1)
+            {
                 outputStream.write(bytes, 0, read);
             }
 
@@ -64,13 +65,27 @@ public class NativeCipher implements BungeeCipher
     }
 
     @Override
-    public void init(boolean forEncryption, SecretKey key) throws GeneralSecurityException {
+    public void init(boolean forEncryption, SecretKey key) throws GeneralSecurityException
+    {
+        if ( pointer != 0 ) nativeCipher.free( pointer );
         this.forEncryption = forEncryption;
-        this.key = key;
         this.iv = key.getEncoded(); // initialize the IV
+        this.pointer = nativeCipher.init(key.getEncoded());
     }
 
-    public void cipher(ByteBuf in, ByteBuf out) throws GeneralSecurityException {
+    @Override
+    public void free()
+    {
+        if ( pointer != 0 )
+        {
+            nativeCipher.free( pointer );
+            pointer = 0;
+        }
+    }
+
+    @Override
+    public void cipher(ByteBuf in, ByteBuf out) throws GeneralSecurityException
+    {
         // Smoke tests
         in.memoryAddress();
         out.memoryAddress();
@@ -82,7 +97,7 @@ public class NativeCipher implements BungeeCipher
             out.capacity( length );
         }
         // Cipher the bytes
-        nativeCipher.cipher(forEncryption, key.getEncoded(), iv, in.memoryAddress() + in.readerIndex(), out.memoryAddress() + out.writerIndex(), length);
+        nativeCipher.cipher(forEncryption, pointer, iv, in.memoryAddress() + in.readerIndex(), out.memoryAddress() + out.writerIndex(), length);
 
         // Go to the end of the buffer, all bytes would of been read
         in.readerIndex( in.writerIndex() );

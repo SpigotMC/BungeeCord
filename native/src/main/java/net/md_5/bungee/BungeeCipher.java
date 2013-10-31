@@ -14,6 +14,8 @@ public interface BungeeCipher
 {
     public void init(boolean forEncryption, SecretKey key) throws GeneralSecurityException;
 
+    public void free();
+
     public void cipher(ByteBuf in, ByteBuf out) throws GeneralSecurityException;
 
     public ByteBuf cipher(ChannelHandlerContext ctx, ByteBuf in) throws GeneralSecurityException;

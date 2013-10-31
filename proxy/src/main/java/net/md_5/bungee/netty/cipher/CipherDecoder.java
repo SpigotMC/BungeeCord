@@ -19,4 +19,9 @@ public class CipherDecoder extends MessageToMessageDecoder<ByteBuf>
     {
         out.add( cipher.cipher( ctx, msg ) );
     }
+
+    @Override
+    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+        cipher.free();
+    }
 }

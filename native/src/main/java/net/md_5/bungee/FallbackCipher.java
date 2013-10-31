@@ -65,6 +65,12 @@ public class FallbackCipher implements BungeeCipher {
         return heapOut;
     }
 
+    @Override
+    public void free()
+    {
+
+    }
+
     private byte[] bufToByte(ByteBuf in)
     {
         byte[] heapIn = heapInLocal.get();

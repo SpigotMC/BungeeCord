@@ -2,6 +2,7 @@ package net.md_5.bungee.netty.cipher;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.MessageToByteEncoder;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.BungeeCipher;
@@ -17,5 +18,10 @@ public class CipherEncoder extends MessageToByteEncoder<ByteBuf>
     protected void encode(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out) throws Exception
     {
         cipher.cipher( in, out );
+    }
+
+    @Override
+    public void deregister(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
+        cipher.free();
     }
 }
