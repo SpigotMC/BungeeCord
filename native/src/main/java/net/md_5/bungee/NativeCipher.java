@@ -51,7 +51,7 @@ public class NativeCipher implements BungeeCipher
             System.load(new File(dir.getPath(), file).getPath());
             NativeCipher.loaded = true;
             return true;
-        } catch (Exception ex)
+        } catch (Throwable ex)
         {
             ex.printStackTrace();
             return false;
