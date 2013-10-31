@@ -31,8 +31,13 @@ public class NativeCipher implements BungeeCipher
         {
             String file = "libbungeecord-native-1.0.so";
             InputStream lib = BungeeCipher.class.getClassLoader().getResourceAsStream("lib/amd64-Linux-gpp/jni/"+file);
-
-            File dir = Files.createTempDirectory(null).toFile();
+            if ( lib == null )
+            {
+                NativeCipher.loaded = true;
+                System.loadLibrary("bungeecord-native-1.0");
+                return true; // ssssh, we are inside of cipher tests!
+            }
+            File dir = Files.createTempDirectory("bungee").toFile();
             OutputStream outputStream =
                     new FileOutputStream(new File(dir, file));
 
@@ -48,6 +53,7 @@ public class NativeCipher implements BungeeCipher
             return true;
         } catch (Exception ex)
         {
+            ex.printStackTrace();
             return false;
         }
     }
