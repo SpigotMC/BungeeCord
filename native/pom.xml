@@ -1,0 +1,62 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.md-5</groupId>
+        <artifactId>bungeecord-parent</artifactId>
+        <version>1.7-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>bungeecord-native</artifactId>
+    <version>1.0</version>
+    <packaging>nar</packaging>
+
+    <name>BungeeCord-Native</name>
+    <description>Optional native code to speed up and enhance BungeeCord functionality.</description>
+
+    <properties>
+        <!-- Tests via nar are run in the integration test phase, so turn off the normal test phase. -->
+        <skipTests>true</skipTests>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-api</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.maven-nar</groupId>
+                <artifactId>nar-maven-plugin</artifactId>
+                <version>3.0.0-SNAPSHOT</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <java>
+                        <include>true</include>
+                    </java>
+
+                    <linker>
+                        <sysLibs>
+                            <sysLib>
+                                <name>ssl</name>
+                            </sysLib>
+                        </sysLibs>
+                    </linker>
+                    <libraries>
+                        <library>
+                            <type>jni</type>
+                            <narSystemPackage>net.md_5.bungee</narSystemPackage>
+                        </library>
+                    </libraries>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
