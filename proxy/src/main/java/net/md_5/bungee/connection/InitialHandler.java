@@ -122,12 +122,16 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(LegacyPing ping) throws Exception
     {
+        ServerPing legacy = new ServerPing( new ServerPing.Protocol( bungee.getGameVersion(), bungee.getProtocolVersion() ),
+                new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount() ), null, listener.getMotd(), null );
+        legacy = bungee.getPluginManager().callEvent( new ProxyPingEvent( this, legacy ) ).getResponse();
+
         String kickMessage = ChatColor.DARK_BLUE
-                + "\00" + bungee.getProtocolVersion()
-                + "\00" + bungee.getGameVersion()
-                + "\00" + listener.getMotd()
-                + "\00" + bungee.getOnlineCount()
-                + "\00" + listener.getMaxPlayers();
+                + "\00" + legacy.getVersion().getProtocol()
+                + "\00" + legacy.getVersion().getName()
+                + "\00" + legacy.getDescription()
+                + "\00" + legacy.getPlayers().getOnline()
+                + "\00" + legacy.getPlayers().getMax();
 
         ch.getHandle().writeAndFlush( kickMessage );
         ch.close();
@@ -166,7 +170,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             pingBack.done( new ServerPing(
                     new ServerPing.Protocol( bungee.getGameVersion(), bungee.getProtocolVersion() ),
                     new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount() ),
-                    null, motd, BungeeCord.getInstance().config.favicon),
+                    null, motd, BungeeCord.getInstance().config.favicon ),
                     null );
         }
 
