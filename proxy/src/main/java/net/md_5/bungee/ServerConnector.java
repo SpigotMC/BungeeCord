@@ -218,6 +218,8 @@ public class ServerConnector extends PacketHandler
         {
             user.sendMessage( message );
         }
+
+        throw new CancelSendSignal();
     }
 
     @Override
