@@ -177,6 +177,7 @@ public class ServerConnector extends PacketHandler
             // TODO: Move this to the connected() method of DownstreamBridge
             target.addPlayer( user );
             user.getPendingConnects().remove( target );
+            user.setDimensionChange( false );
 
             user.setServer( server );
             ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user, server ) );
@@ -211,7 +212,7 @@ public class ServerConnector extends PacketHandler
         }
 
         String message = bungee.getTranslation( "connect_kick" ) + target.getName() + ": " + event.getKickReason();
-        if ( user.getServer() == null )
+        if ( user.isDimensionChange() )
         {
             user.disconnect( message );
         } else

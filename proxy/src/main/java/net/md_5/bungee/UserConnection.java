@@ -60,6 +60,9 @@ public final class UserConnection implements ProxiedPlayer
     @Setter
     private ServerConnection server;
     @Getter
+    @Setter
+    private boolean dimensionChange = true;
+    @Getter
     private final Object switchMutex = new Object();
     @Getter
     private final Collection<ServerInfo> pendingConnects = new HashSet<>();
@@ -161,6 +164,7 @@ public final class UserConnection implements ProxiedPlayer
 
     void sendDimensionSwitch()
     {
+        dimensionChange = true;
         unsafe().sendPacket( PacketConstants.DIM1_SWITCH );
         unsafe().sendPacket( PacketConstants.DIM2_SWITCH );
     }
@@ -224,7 +228,7 @@ public final class UserConnection implements ProxiedPlayer
                         connect( def, false );
                     } else
                     {
-                        if ( server == null )
+                        if ( dimensionChange )
                         {
                             disconnect( bungee.getTranslation( "fallback_kick" ) + future.cause().getClass().getName() );
                         } else
