@@ -2,6 +2,7 @@ package net.md_5.bungee;
 
 import io.netty.buffer.ByteBuf;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 
 /**
  * Class to rewrite integers within packets.
@@ -62,6 +63,22 @@ public class EntityMap
                 if ( readId == oldId )
                 {
                     packet.setInt( packetIdLength + pos, newId );
+                }
+            }
+        }
+
+        if ( packetId == 0x0E )
+        {
+            DefinedPacket.readVarInt( packet );
+            byte type = packet.readByte();
+            if ( type == 60 || type == 90 )
+            {
+                packet.skipBytes( 14 );
+                int pos = packet.readerIndex();
+                int shooterId = packet.getInt( pos );
+                if ( shooterId == oldId )
+                {
+                    packet.setInt( pos, newId );
                 }
             }
         }
