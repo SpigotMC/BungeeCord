@@ -44,6 +44,7 @@
         <module>protocol</module>
         <module>proxy</module>
         <module>query</module>
+        <module>native</module>
     </modules>
 
     <scm>

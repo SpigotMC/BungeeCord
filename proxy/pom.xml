@@ -66,6 +66,22 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-native</artifactId>
+            <version>1.0</version>
+            <type>nar</type>
+            <scope>compile</scope>
+        </dependency>
+        <!-- FIXME -->
+        <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-native</artifactId>
+            <version>1.0</version>
+            <type>nar</type>
+            <classifier>amd64-Linux-gpp-jni</classifier>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
             <version>3.18.0-GA</version>
