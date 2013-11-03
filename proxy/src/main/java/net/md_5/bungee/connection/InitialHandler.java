@@ -289,7 +289,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
         String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
 
-        String authURL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?usernamea=" + encName + "&serverId=" + encodedHash;
+        String authURL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" + encName + "&serverId=" + encodedHash;
 
         Callback<String> handler = new Callback<String>()
         {
