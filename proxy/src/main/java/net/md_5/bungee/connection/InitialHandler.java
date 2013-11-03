@@ -347,20 +347,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     {
                         if ( ch.getHandle().isActive() )
                         {
-
-                            if ( onlineMode )
-                            {
-                                // unsafe().sendPacket( new EncryptionResponse( new byte[ 0 ], new byte[ 0 ] ) );
-                                try
-                                {
-                                    Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
-                                    ch.addBefore( PipelineUtils.FRAME_PREPENDER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
-                                } catch ( GeneralSecurityException ex )
-                                {
-                                    disconnect( "Cipher error: " + Util.exception( ex ) );
-                                }
-                            }
-
                             if ( UUID == null )
                             {
                                 UUID = java.util.UUID.randomUUID().toString();
