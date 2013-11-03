@@ -274,51 +274,47 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         sharedKey = EncryptionUtil.getSecret( encryptResponse, request );
         Cipher decrypt = EncryptionUtil.getCipher( Cipher.DECRYPT_MODE, sharedKey );
         ch.addBefore( PipelineUtils.FRAME_DECODER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
+        Cipher encrypt = EncryptionUtil.getCipher( Cipher.ENCRYPT_MODE, sharedKey );
+        ch.addBefore( PipelineUtils.FRAME_PREPENDER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
 
-        if ( this.onlineMode )
+        String encName = URLEncoder.encode( InitialHandler.this.getName(), "UTF-8" );
+
+        MessageDigest sha = MessageDigest.getInstance( "SHA-1" );
+        for ( byte[] bit : new byte[][]
         {
-            String encName = URLEncoder.encode( InitialHandler.this.getName(), "UTF-8" );
-
-            MessageDigest sha = MessageDigest.getInstance( "SHA-1" );
-            for ( byte[] bit : new byte[][]
-            {
-                request.getServerId().getBytes( "ISO_8859_1" ), sharedKey.getEncoded(), EncryptionUtil.keys.getPublic().getEncoded()
-            } )
-            {
-                sha.update( bit );
-            }
-            String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
-
-            String authURL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" + encName + "&serverId=" + encodedHash;
-
-            Callback<String> handler = new Callback<String>()
-            {
-                @Override
-                public void done(String result, Throwable error)
-                {
-                    if ( error == null )
-                    {
-                        LoginResult obj = BungeeCord.getInstance().gson.fromJson( result, LoginResult.class );
-                        if ( obj != null )
-                        {
-                            UUID = obj.getId();
-                            finish();
-                            return;
-                        }
-                        disconnect( "Not authenticated with Minecraft.net" );
-                    } else
-                    {
-                        disconnect( bungee.getTranslation( "mojang_fail" ) );
-                        bungee.getLogger().log( Level.SEVERE, "Error authenticating " + getName() + " with minecraft.net", error );
-                    }
-                }
-            };
-
-            HttpClient.get( authURL, ch.getHandle().eventLoop(), handler );
-        } else
+            request.getServerId().getBytes( "ISO_8859_1" ), sharedKey.getEncoded(), EncryptionUtil.keys.getPublic().getEncoded()
+        } )
         {
-            finish();
+            sha.update( bit );
         }
+        String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
+
+        String authURL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?usernamea=" + encName + "&serverId=" + encodedHash;
+
+        Callback<String> handler = new Callback<String>()
+        {
+            @Override
+            public void done(String result, Throwable error)
+            {
+                if ( error == null )
+                {
+                    LoginResult obj = BungeeCord.getInstance().gson.fromJson( result, LoginResult.class );
+                    if ( obj != null )
+                    {
+                        UUID = obj.getId();
+                        finish();
+                        return;
+                    }
+                    disconnect( "Not authenticated with Minecraft.net" );
+                } else
+                {
+                    disconnect( bungee.getTranslation( "mojang_fail" ) );
+                    bungee.getLogger().log( Level.SEVERE, "Error authenticating " + getName() + " with minecraft.net", error );
+                }
+            }
+        };
+
+        HttpClient.get( authURL, ch.getHandle().eventLoop(), handler );
     }
 
     private void finish()
