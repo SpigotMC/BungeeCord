@@ -13,6 +13,7 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.EncryptionUtil;
 import net.md_5.bungee.UserConnection;
@@ -44,6 +45,7 @@ import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.api.AbstractReconnectHandler;
 import net.md_5.bungee.api.event.PlayerHandshakeEvent;
+import net.md_5.bungee.api.event.PreLoginEvent;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.LegacyPing;
 import net.md_5.bungee.protocol.packet.LoginRequest;
@@ -251,14 +253,33 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         // TODO: Nuuuu Mojang why u do this
         // unsafe().sendPacket( PacketConstants.I_AM_BUNGEE );
         // unsafe().sendPacket( PacketConstants.FORGE_MOD_REQUEST );
-        if ( this.onlineMode )
+        Callback<PreLoginEvent> callback = new Callback<PreLoginEvent>()
         {
-            unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
-        } else
-        {
-            finish();
-        }
-        thisState = State.ENCRYPT;
+
+            @Override
+            public void done(PreLoginEvent result, Throwable error)
+            {
+                if ( result.isCancelled() )
+                {
+                    disconnect( result.getCancelReason() );
+                }
+                if ( ch.isClosed() )
+                {
+                    return;
+                }
+                if ( InitialHandler.this.onlineMode )
+                {
+                    unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
+                } else
+                {
+                    finish();
+                }
+                thisState = State.ENCRYPT;
+            }
+        };
+        
+        // fire pre login event
+        bungee.getPluginManager().callEvent( new PreLoginEvent( InitialHandler.this, callback ) );
     }
 
     @Override
@@ -417,9 +438,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         return unsafe;
     }
 
+    @Override
     public void setOnlineMode(boolean onlineMode)
     {
-        Preconditions.checkState( thisState == State.HANDSHAKE, "Can only set online mode status whilst handshaking" );
+        Preconditions.checkState( thisState == State.USERNAME, "Can only set online mode status whilst state is username" );
         this.onlineMode = onlineMode;
     }
 
