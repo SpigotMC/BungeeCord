@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
-import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +12,6 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.EncryptionUtil;
 import net.md_5.bungee.UserConnection;
@@ -272,7 +270,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 {
                     return;
                 }
-                if ( InitialHandler.this.onlineMode )
+                if ( onlineMode )
                 {
                     unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
                 } else
