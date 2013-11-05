@@ -211,7 +211,7 @@ public class ServerConnector extends PacketHandler
         {
             def = null;
         }
-        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( user, kick.getMessage(), def, ServerKickEvent.State.CONNECTING ) );
+        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( user, Util.unstupify(kick.getMessage()), def, ServerKickEvent.State.CONNECTING ) );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
             user.connect( event.getCancelServer() );

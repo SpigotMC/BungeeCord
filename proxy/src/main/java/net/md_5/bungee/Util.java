@@ -111,4 +111,28 @@ public class Util
         buffer.setLength( 0 );
         return entry;
     }
+
+    public static String unstupify(String message) {
+        if (message.startsWith("[")) {
+            List<JsonObject> sections = new Gson().fromJson(message, ArrayList.class);
+            System.out.println("Sections: " + sections.size());
+            StringBuilder buffer = new StringBuilder();
+            for (JsonObject jsonObject : sections) {
+                if (jsonObject.has("color"))
+                    buffer.append(ChatColor.fromName(jsonObject.get("color").getAsString()));
+                if(jsonObject.has("text"))
+                    buffer.append(jsonObject.get("text").getAsString());
+            }
+            System.out.println(buffer.toString());
+            return buffer.toString();
+        }
+        JsonObject section = new Gson().fromJson(message, JsonObject.class);
+        StringBuilder buffer = new StringBuilder();
+        if (section.has("color"))
+            buffer.append(ChatColor.fromName(section.get("color").getAsString()));
+        if(section.has("text"))
+            buffer.append(section.get("text").getAsString());
+        System.out.println(buffer.toString());
+        return buffer.toString();
+    }
 }
