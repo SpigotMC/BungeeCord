@@ -60,7 +60,6 @@ public class Configuration
         File fav = new File( "server-icon.png" );
         if ( fav.exists() )
         {
-
             try
             {
                 favicon = "data:image/png;base64," + BaseEncoding.base64().encode( Files.toByteArray( fav ) );
