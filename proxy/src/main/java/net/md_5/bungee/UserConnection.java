@@ -256,10 +256,15 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public synchronized void disconnect(String reason)
     {
+        disconnect0( Util.stupify( reason ) );
+    }
+
+    public synchronized void disconnect0(String reason)
+    {
         if ( ch.getHandle().isActive() )
         {
             bungee.getLogger().log( Level.INFO, "[" + getName() + "] disconnected with: " + reason );
-            unsafe().sendPacket( new Kick( Util.stupify( reason ) ) );
+            unsafe().sendPacket( new Kick(reason) );
             ch.close();
             if ( server != null )
             {
