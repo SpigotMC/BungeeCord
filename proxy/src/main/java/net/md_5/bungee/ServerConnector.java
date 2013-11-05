@@ -24,6 +24,7 @@ import net.md_5.bungee.protocol.MinecraftOutput;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
+import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
@@ -71,7 +72,13 @@ public class ServerConnector extends PacketHandler
         out.writeInt( user.getAddress().getPort() );
         // channel.write( new PluginMessage( "BungeeCord", out.toByteArray() ) ); MOJANG
 
-        channel.write( user.getPendingConnection().getHandshake() );
+        Handshake originalHandshake = user.getPendingConnection().getHandshake();
+        Handshake copiedHandshake = new Handshake( originalHandshake.getProtocolVersion(), originalHandshake.getHost(), originalHandshake.getPort(), 2 );
+        if ( BungeeCord.getInstance().config.isIpFoward() )
+        {
+            copiedHandshake.setHost( copiedHandshake.getHost() + "\00" + user.getAddress().getHostString() );
+        }
+        channel.write( copiedHandshake );
 
         channel.setProtocol( Protocol.LOGIN );
         channel.write( user.getPendingConnection().getLoginRequest() );
