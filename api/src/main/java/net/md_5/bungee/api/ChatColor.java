@@ -114,6 +114,10 @@ public enum ChatColor
      */
     private static final Map<Character, ChatColor> BY_CHAR = new HashMap<>();
     /**
+     * Colour instances kyed by their name
+     */
+    private static final Map<String, ChatColor> BY_NAME = new HashMap<>();
+    /**
      * The code appended to {@link #COLOR_CHAR} to make usable colour.
      */
     private final char code;
@@ -129,6 +133,10 @@ public enum ChatColor
         for ( ChatColor colour : values() )
         {
             BY_CHAR.put( colour.code, colour );
+        }
+        for ( ChatColor colour : values() )
+        {
+            BY_NAME.put( colour.name, colour );
         }
     }
 
@@ -187,5 +195,9 @@ public enum ChatColor
     public static ChatColor getByChar(char code)
     {
         return BY_CHAR.get( code );
+    }
+
+    public static ChatColor fromName(String name) {
+        return BY_NAME.get(name);
     }
 }
