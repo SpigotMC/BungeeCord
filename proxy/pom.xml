@@ -49,6 +49,12 @@
         </dependency>
         <dependency>
             <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-native</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.md-5</groupId>
             <artifactId>bungeecord-protocol</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
