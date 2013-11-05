@@ -342,7 +342,7 @@ public class DownstreamBridge extends PacketHandler
             con.connectNow( event.getCancelServer() );
         } else
         {
-            con.disconnect( bungee.getTranslation( "server_kick" ) + event.getKickReason() );
+            con.disconnect0( "[" + Util.stupify( bungee.getTranslation( "server_kick" ) ) + "," + event.getKickReason() + "]" ); // TODO: Json concat util method
         }
         server.setObsolete( true );
         throw new CancelSendSignal();
