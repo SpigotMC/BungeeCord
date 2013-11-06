@@ -43,18 +43,18 @@ public interface PendingConnection extends Connection
      * @return the UUID
      */
     String getUUID();
-    
+
     /**
      * Get this connection's online mode.
      *
      * @return the online mode
      */
     boolean isOnlineMode();
-    
+
     /**
      * Set this connection's online mode.
-     * 
-     * @param onlineMode 
+     *
+     * @param onlineMode
      */
     void setOnlineMode(boolean onlineMode);
 }

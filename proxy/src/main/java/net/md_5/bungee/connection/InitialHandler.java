@@ -275,7 +275,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 thisState = State.ENCRYPT;
             }
         };
-        
+
         // fire pre login event
         bungee.getPluginManager().callEvent( new PreLoginEvent( InitialHandler.this, callback ) );
     }

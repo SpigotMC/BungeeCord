@@ -13,10 +13,12 @@ public class ThrottleTest
     {
         ConnectionThrottle throttle = new ConnectionThrottle( 5 );
         InetAddress address;
-        
-        try {
+
+        try
+        {
             address = InetAddress.getLocalHost();
-        } catch (UnknownHostException ex) {
+        } catch ( UnknownHostException ex )
+        {
             address = InetAddress.getByName( null );
         }
 
