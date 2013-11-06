@@ -7,6 +7,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 import java.nio.ByteOrder;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -39,7 +40,7 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
     {
         for ( char c : s.toCharArray() )
         {
-            buf.writeChar( c );
+            buf.writeByte( c );
         }
         buf.writeByte( 0x00 );
     }
@@ -48,7 +49,7 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception
     {
         ByteBuf in = msg.content();
-        if ( in.readUnsignedByte() != 0xFE && in.readUnsignedByte() != 0xFD )
+        if ( in.readUnsignedByte() != 0xFE || in.readUnsignedByte() != 0xFD )
         {
             throw new IllegalStateException( "Incorrect magic!" );
         }
@@ -72,7 +73,7 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
 
         if ( type == 0x00 )
         {
-            int challengeToken = out.readInt();
+            int challengeToken = in.readInt();
             Long session = sessions.get( challengeToken );
             if ( session == null || System.currentTimeMillis() - session > TimeUnit.SECONDS.toMillis( 30 ) )
             {
@@ -92,18 +93,18 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
                 writeNumber( out, listener.getMaxPlayers() ); // Max Players
                 writeShort( out, listener.getHost().getPort() ); // Port
                 writeString( out, listener.getHost().getHostString() ); // IP
-            } else if ( in.readableBytes() == 8 )
+            } else if ( in.readableBytes() == 4 )
             {
                 // Long Response
                 out.writeBytes( new byte[ 11 ] );
-                Map<String, String> data = new HashMap<>();
+                Map<String, String> data = new LinkedHashMap<>();
 
                 data.put( "hostname", listener.getMotd() );
                 data.put( "gametype", "SMP" );
                 // Start Extra Info
                 data.put( "game_id", "MINECRAFT" );
                 data.put( "version", bungee.getGameVersion() );
-                // data.put( "plugins","");
+                data.put( "plugins", "" );
                 // End Extra Info
                 data.put( "map", "BungeeCord_Proxy" );
                 data.put( "numplayers", Integer.toString( bungee.getOnlineCount() ) );
@@ -115,12 +116,11 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
                 {
                     writeString( out, entry.getKey() );
                     writeString( out, entry.getValue() );
-
                 }
                 out.writeByte( 0x00 ); // Null                
 
                 // Padding
-                out.writeBytes( new byte[ 10 ] );
+                writeString( out, "\01player_\00" );
                 // Player List
                 for ( ProxiedPlayer p : bungee.getPlayers() )
                 {
