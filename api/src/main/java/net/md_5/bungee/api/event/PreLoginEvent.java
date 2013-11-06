@@ -14,7 +14,8 @@ import net.md_5.bungee.api.plugin.Cancellable;
 @Data
 @ToString(callSuper = false)
 @EqualsAndHashCode(callSuper = false)
-public class PreLoginEvent extends AsyncEvent<PreLoginEvent> implements Cancellable {
+public class PreLoginEvent extends AsyncEvent<PreLoginEvent> implements Cancellable
+{
 
     /**
      * Cancelled state.
