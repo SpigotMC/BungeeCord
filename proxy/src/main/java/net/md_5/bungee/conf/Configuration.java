@@ -1,4 +1,4 @@
-package net.md_5.bungee.config;
+package net.md_5.bungee.conf;
 
 import com.google.common.base.Preconditions;
 import com.google.common.io.BaseEncoding;
