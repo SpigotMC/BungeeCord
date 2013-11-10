@@ -49,7 +49,7 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
-    public void exception ( Throwable t ) throws Exception
+    public void exception(Throwable t) throws Exception
     {
         String message = "Exception Connecting:" + Util.exception( t );
         if ( user.getLocation().getServer() == null )
@@ -62,7 +62,7 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
-    public void connected ( ChannelWrapper channel ) throws Exception
+    public void connected(ChannelWrapper channel) throws Exception
     {
         this.ch = channel;
 
@@ -85,13 +85,13 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
-    public void disconnected ( ChannelWrapper channel ) throws Exception
+    public void disconnected(ChannelWrapper channel) throws Exception
     {
         user.getPendingConnects().remove( target );
     }
 
     @Override
-    public void handle ( LoginSuccess loginSuccess ) throws Exception
+    public void handle(LoginSuccess loginSuccess) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not exepcting LOGIN_SUCCESS" );
         ch.setProtocol( Protocol.GAME );
@@ -101,7 +101,7 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
-    public void handle ( Login login ) throws Exception
+    public void handle(Login login) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not exepcting LOGIN" );
 
@@ -138,8 +138,8 @@ public class ServerConnector extends PacketHandler
                 user.setServerEntityId( login.getEntityId() );
 
                 // Set tab list size, this sucks balls, TODO: what shall we do about packet mutability
-                Login modLogin = new Login( login.getEntityId(), login.getGameMode(), ( byte ) login.getDimension(), login.getDifficulty(),
-                        ( byte ) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType() );
+                Login modLogin = new Login( login.getEntityId(), login.getGameMode(), (byte) login.getDimension(), login.getDifficulty(),
+                        (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType() );
 
                 user.unsafe().sendPacket( modLogin );
 
@@ -153,7 +153,7 @@ public class ServerConnector extends PacketHandler
                 Scoreboard serverScoreboard = user.getServerSentScoreboard();
                 for ( Objective objective : serverScoreboard.getObjectives() )
                 {
-                    user.unsafe().sendPacket( new ScoreboardObjective( objective.getName(), objective.getValue(), ( byte ) 1 ) );
+                    user.unsafe().sendPacket( new ScoreboardObjective( objective.getName(), objective.getValue(), (byte) 1 ) );
                 }
                 for ( Team team : serverScoreboard.getTeams() )
                 {
@@ -199,13 +199,13 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
-    public void handle ( EncryptionRequest encryptionRequest ) throws Exception
+    public void handle(EncryptionRequest encryptionRequest) throws Exception
     {
         throw new RuntimeException( "Server is online mode!" );
     }
 
     @Override
-    public void handle ( Kick kick ) throws Exception
+    public void handle(Kick kick) throws Exception
     {
         ServerInfo def = bungee.getServerInfo( user.getPendingConnection().getListener().getFallbackServer() );
         if ( Objects.equals( target, def ) )
@@ -232,7 +232,7 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
-    public String toString ()
+    public String toString()
     {
         return "[" + user.getName() + "] <-> ServerConnector [" + target.getName() + "]";
     }

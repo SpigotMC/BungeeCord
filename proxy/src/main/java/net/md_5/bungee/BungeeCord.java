@@ -121,7 +121,7 @@ public class BungeeCord extends ProxyServer
     public final Gson gson = new Gson();
     @Getter
     private ConnectionThrottle connectionThrottle;
-    
+
     
     {
         // TODO: Proper fallback when we interface the manager
@@ -135,26 +135,26 @@ public class BungeeCord extends ProxyServer
         getPluginManager().registerCommand( null, new CommandPerms() );
         getPluginManager().registerCommand( null, new CommandSend() );
         getPluginManager().registerCommand( null, new CommandFind() );
-        
+
         registerChannel( "BungeeCord" );
     }
-    
-    public static BungeeCord getInstance ()
+
+    public static BungeeCord getInstance()
     {
-        return ( BungeeCord ) ProxyServer.getInstance();
+        return (BungeeCord) ProxyServer.getInstance();
     }
-    
-    public BungeeCord () throws IOException
+
+    public BungeeCord() throws IOException
     {
         Log.setOutput( new PrintStream( ByteStreams.nullOutputStream() ) ); // TODO: Bug JLine
         AnsiConsole.systemInstall();
         consoleReader = new ConsoleReader();
         consoleReader.setExpandEvents( false );
-        
+
         logger = new BungeeLogger( this );
         System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
         System.setOut( new PrintStream( new LoggingOutputStream( logger, Level.INFO ), true ) );
-        
+
         if ( consoleReader.getTerminal() instanceof UnsupportedTerminal )
         {
             logger.info( "Unable to initialize fancy terminal. To fix this on Windows, install the correct Microsoft Visual C++ 2008 Runtime" );
@@ -169,7 +169,7 @@ public class BungeeCord extends ProxyServer
      * @throws Exception
      */
     @Override
-    public void start () throws Exception
+    public void start() throws Exception
     {
         ResourceLeakDetector.setEnabled( false ); // Eats performance
 
@@ -185,16 +185,16 @@ public class BungeeCord extends ProxyServer
             }
         }
         isRunning = true;
-        
+
         pluginManager.loadAndEnablePlugins();
-        
+
         connectionThrottle = new ConnectionThrottle( config.getThrottle() );
         startListeners();
-        
+
         saveThread.scheduleAtFixedRate( new TimerTask()
         {
             @Override
-            public void run ()
+            public void run()
             {
                 if ( getReconnectHandler() != null )
                 {
@@ -204,15 +204,15 @@ public class BungeeCord extends ProxyServer
         }, 0, TimeUnit.MINUTES.toMillis( 5 ) );
         metricsThread.scheduleAtFixedRate( new Metrics(), 0, TimeUnit.MINUTES.toMillis( Metrics.PING_INTERVAL ) );
     }
-    
-    public void startListeners ()
+
+    public void startListeners()
     {
         for ( final ListenerInfo info : config.getListeners() )
         {
             ChannelFutureListener listener = new ChannelFutureListener()
             {
                 @Override
-                public void operationComplete ( ChannelFuture future ) throws Exception
+                public void operationComplete(ChannelFuture future) throws Exception
                 {
                     if ( future.isSuccess() )
                     {
@@ -231,13 +231,13 @@ public class BungeeCord extends ProxyServer
                     .group( eventLoops )
                     .localAddress( info.getHost() )
                     .bind().addListener( listener );
-            
+
             if ( info.isQueryEnabled() )
             {
                 ChannelFutureListener bindListener = new ChannelFutureListener()
                 {
                     @Override
-                    public void operationComplete ( ChannelFuture future ) throws Exception
+                    public void operationComplete(ChannelFuture future) throws Exception
                     {
                         if ( future.isSuccess() )
                         {
@@ -253,8 +253,8 @@ public class BungeeCord extends ProxyServer
             }
         }
     }
-    
-    public void stopListeners ()
+
+    public void stopListeners()
     {
         for ( Channel listener : listeners )
         {
@@ -269,20 +269,20 @@ public class BungeeCord extends ProxyServer
         }
         listeners.clear();
     }
-    
+
     @Override
-    public void stop ()
+    public void stop()
     {
         new Thread( "Shutdown Thread" )
         {
             @Override
-            public void run ()
+            public void run()
             {
                 BungeeCord.this.isRunning = false;
-                
+
                 stopListeners();
                 getLogger().info( "Closing pending connections" );
-                
+
                 connectionLock.readLock().lock();
                 try
                 {
@@ -295,7 +295,7 @@ public class BungeeCord extends ProxyServer
                 {
                     connectionLock.readLock().unlock();
                 }
-                
+
                 getLogger().info( "Closing IO threads" );
                 eventLoops.shutdownGracefully();
                 try
@@ -304,7 +304,7 @@ public class BungeeCord extends ProxyServer
                 } catch ( InterruptedException ex )
                 {
                 }
-                
+
                 if ( reconnectHandler != null )
                 {
                     getLogger().info( "Saving reconnect locations" );
@@ -328,7 +328,7 @@ public class BungeeCord extends ProxyServer
                     }
                     getScheduler().cancel( plugin );
                 }
-                
+
                 scheduler.shutdown();
                 getLogger().info( "Thankyou and goodbye" );
                 System.exit( 0 );
@@ -341,7 +341,7 @@ public class BungeeCord extends ProxyServer
      *
      * @param packet the packet to send
      */
-    public void broadcast ( DefinedPacket packet )
+    public void broadcast(DefinedPacket packet)
     {
         connectionLock.readLock().lock();
         try
@@ -355,21 +355,21 @@ public class BungeeCord extends ProxyServer
             connectionLock.readLock().unlock();
         }
     }
-    
+
     @Override
-    public String getName ()
+    public String getName()
     {
         return "BungeeCord";
     }
-    
+
     @Override
-    public String getVersion ()
+    public String getVersion()
     {
         return ( BungeeCord.class.getPackage().getImplementationVersion() == null ) ? "unknown" : BungeeCord.class.getPackage().getImplementationVersion();
     }
-    
+
     @Override
-    public String getTranslation ( String name, Object... args )
+    public String getTranslation(String name, Object... args)
     {
         String translation = "<translation '" + name + "' missing>";
         try
@@ -380,29 +380,29 @@ public class BungeeCord extends ProxyServer
         }
         return translation;
     }
-    
+
     @Override
-    @SuppressWarnings( "unchecked" )
-    public Collection<ProxiedPlayer> getPlayers ()
+    @SuppressWarnings("unchecked")
+    public Collection<ProxiedPlayer> getPlayers()
     {
         connectionLock.readLock().lock();
         try
         {
-            return ( Collection ) new HashSet<>( connections.values() );
+            return (Collection) new HashSet<>( connections.values() );
         } finally
         {
             connectionLock.readLock().unlock();
         }
     }
-    
+
     @Override
-    public int getOnlineCount ()
+    public int getOnlineCount()
     {
         return connections.size();
     }
-    
+
     @Override
-    public ProxiedPlayer getPlayer ( String name )
+    public ProxiedPlayer getPlayer(String name)
     {
         connectionLock.readLock().lock();
         try
@@ -413,78 +413,78 @@ public class BungeeCord extends ProxyServer
             connectionLock.readLock().unlock();
         }
     }
-    
+
     @Override
-    public Map<String, ServerInfo> getServers ()
+    public Map<String, ServerInfo> getServers()
     {
         return config.getServers();
     }
-    
+
     @Override
-    public ServerInfo getServerInfo ( String name )
+    public ServerInfo getServerInfo(String name)
     {
         return getServers().get( name );
     }
-    
+
     @Override
-    @Synchronized( "pluginChannels" )
-    public void registerChannel ( String channel )
+    @Synchronized("pluginChannels")
+    public void registerChannel(String channel)
     {
         pluginChannels.add( channel );
     }
-    
+
     @Override
-    @Synchronized( "pluginChannels" )
-    public void unregisterChannel ( String channel )
+    @Synchronized("pluginChannels")
+    public void unregisterChannel(String channel)
     {
         pluginChannels.remove( channel );
     }
-    
+
     @Override
-    @Synchronized( "pluginChannels" )
-    public Collection<String> getChannels ()
+    @Synchronized("pluginChannels")
+    public Collection<String> getChannels()
     {
         return Collections.unmodifiableCollection( pluginChannels );
     }
-    
-    public PluginMessage registerChannels ()
+
+    public PluginMessage registerChannels()
     {
         return new PluginMessage( "REGISTER", Util.format( pluginChannels, "\00" ).getBytes() );
     }
-    
+
     @Override
-    public int getProtocolVersion ()
+    public int getProtocolVersion()
     {
         return Protocol.PROTOCOL_VERSION;
     }
-    
+
     @Override
-    public String getGameVersion ()
+    public String getGameVersion()
     {
         return Protocol.MINECRAFT_VERSION;
     }
-    
+
     @Override
-    public ServerInfo constructServerInfo ( String name, InetSocketAddress address, String motd, boolean restricted )
+    public ServerInfo constructServerInfo(String name, InetSocketAddress address, String motd, boolean restricted)
     {
         return new BungeeServerInfo( name, address, motd, restricted );
     }
-    
+
     @Override
-    public CommandSender getConsole ()
+    public CommandSender getConsole()
     {
         return ConsoleCommandSender.getInstance();
     }
-    
+
     @Override
-    public void broadcast ( String message )
+    public void broadcast(String message)
     {
         getConsole().sendMessage( message );
         // TODO: Here too
         broadcast( new Chat( Util.stupify( message ) ) );
     }
-    
-    public void addConnection ( UserConnection con )
+
+    public void addConnection(UserConnection con)
     {
         connectionLock.writeLock().lock();
         try
@@ -495,8 +495,8 @@ public class BungeeCord extends ProxyServer
             connectionLock.writeLock().unlock();
         }
     }
-    
-    public void removeConnection ( UserConnection con )
+
+    public void removeConnection(UserConnection con)
     {
         connectionLock.writeLock().lock();
         try
@@ -507,14 +507,14 @@ public class BungeeCord extends ProxyServer
             connectionLock.writeLock().unlock();
         }
     }
-    
+
     @Override
-    public CustomTabList customTabList ( ProxiedPlayer player )
+    public CustomTabList customTabList(ProxiedPlayer player)
     {
         return new Custom( player );
     }
-    
-    public Collection<String> getDisabledCommands ()
+
+    public Collection<String> getDisabledCommands()
     {
         return config.getDisabledCommands();
     }
