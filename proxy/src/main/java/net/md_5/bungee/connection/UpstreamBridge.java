@@ -17,6 +17,10 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import java.util.ArrayList;
 import java.util.List;
+import net.md_5.bungee.UserLocation;
+import net.md_5.bungee.protocol.packet.PlayerLook;
+import net.md_5.bungee.protocol.packet.PlayerPosition;
+import net.md_5.bungee.protocol.packet.PlayerPositionAndLook;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 
 public class UpstreamBridge extends PacketHandler
@@ -25,7 +29,7 @@ public class UpstreamBridge extends PacketHandler
     private final ProxyServer bungee;
     private final UserConnection con;
 
-    public UpstreamBridge(ProxyServer bungee, UserConnection con)
+    public UpstreamBridge ( ProxyServer bungee, UserConnection con )
     {
         this.bungee = bungee;
         this.con = con;
@@ -36,13 +40,13 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
-    public void exception(Throwable t) throws Exception
+    public void exception ( Throwable t ) throws Exception
     {
         con.disconnect( Util.exception( t ) );
     }
 
     @Override
-    public void disconnected(ChannelWrapper channel) throws Exception
+    public void disconnected ( ChannelWrapper channel ) throws Exception
     {
         // We lost connection to the client
         PlayerDisconnectEvent event = new PlayerDisconnectEvent( con );
@@ -57,7 +61,7 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(PacketWrapper packet) throws Exception
+    public void handle ( PacketWrapper packet ) throws Exception
     {
         // EntityMap.rewrite( packet.buf, con.getClientEntityId(), con.getServerEntityId() );
         if ( con.getServer() != null )
@@ -67,18 +71,49 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(KeepAlive alive) throws Exception
+    public void handle ( PlayerPosition pos ) throws Exception
+    {
+        UserLocation loc = con.getLocation();
+        loc.setX( pos.getX() );
+        loc.setY( pos.getY() );
+        loc.setZ( pos.getZ() );
+        con.setLocation( loc );
+    }
+
+    @Override
+    public void handle ( PlayerLook look ) throws Exception
+    {
+        UserLocation loc = con.getLocation();
+        loc.setYaw( look.getYaw() );
+        loc.setPitch( look.getPitch() );
+        con.setLocation( loc );
+    }
+
+    @Override
+    public void handle ( PlayerPositionAndLook pos ) throws Exception
+    {
+        UserLocation loc = con.getLocation();
+        loc.setX( pos.getX() );
+        loc.setY( pos.getY() );
+        loc.setZ( pos.getZ() );
+        loc.setYaw( pos.getYaw() );
+        loc.setPitch( pos.getYaw() );
+        con.setLocation( loc );
+    }
+
+    @Override
+    public void handle ( KeepAlive alive ) throws Exception
     {
         if ( alive.getRandomId() == con.getSentPingId() )
         {
-            int newPing = (int) ( System.currentTimeMillis() - con.getSentPingTime() );
+            int newPing = ( int ) ( System.currentTimeMillis() - con.getSentPingTime() );
             con.getTabList().onPingChange( newPing );
             con.setPing( newPing );
         }
     }
 
     @Override
-    public void handle(Chat chat) throws Exception
+    public void handle ( Chat chat ) throws Exception
     {
         ChatEvent chatEvent = new ChatEvent( con, con.getServer(), chat.getMessage() );
         if ( !bungee.getPluginManager().callEvent( chatEvent ).isCancelled() )
@@ -86,14 +121,14 @@ public class UpstreamBridge extends PacketHandler
             chat.setMessage( chatEvent.getMessage() );
             if ( !chatEvent.isCommand() || !bungee.getPluginManager().dispatchCommand( con, chat.getMessage().substring( 1 ) ) )
             {
-                con.getServer().unsafe().sendPacket( chat );
+                con.getLocation().getServer().unsafe().sendPacket( chat );
             }
         }
         throw new CancelSendSignal();
     }
 
     @Override
-    public void handle(TabCompleteRequest tabComplete) throws Exception
+    public void handle ( TabCompleteRequest tabComplete ) throws Exception
     {
         if ( tabComplete.getCursor().startsWith( "/" ) )
         {
@@ -109,13 +144,13 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(ClientSettings settings) throws Exception
+    public void handle ( ClientSettings settings ) throws Exception
     {
         con.setSettings( settings );
     }
 
     @Override
-    public void handle(PluginMessage pluginMessage) throws Exception
+    public void handle ( PluginMessage pluginMessage ) throws Exception
     {
         if ( pluginMessage.getTag().equals( "BungeeCord" ) )
         {
@@ -141,7 +176,7 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
-    public String toString()
+    public String toString ()
     {
         return "[" + con.getName() + "] -> UpstreamBridge";
     }

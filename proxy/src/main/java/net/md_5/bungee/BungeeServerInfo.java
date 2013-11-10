@@ -91,7 +91,7 @@ public class BungeeServerInfo implements ServerInfo
 
         synchronized ( packetQueue )
         {
-            Server server = ( players.isEmpty() ) ? null : players.iterator().next().getServer();
+            Server server = ( players.isEmpty() ) ? null : players.iterator().next().getLocation().getServer();
             if ( server != null )
             {
                 server.sendData( channel, data );
