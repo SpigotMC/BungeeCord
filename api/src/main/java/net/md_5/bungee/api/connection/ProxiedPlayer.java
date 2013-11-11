@@ -88,7 +88,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      *
      * @param list the new list
      */
-void setTabList(TabListHandler list);
+    void setTabList(TabListHandler list);
 
     /**
      * Get the current tab list.

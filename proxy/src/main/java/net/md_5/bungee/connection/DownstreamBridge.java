@@ -40,7 +40,7 @@ public class DownstreamBridge extends PacketHandler
     private final ServerConnection server;
 
     @Override
-    public void exception( Throwable t ) throws Exception
+    public void exception(Throwable t) throws Exception
     {
         ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getFallbackServer() );
         if ( server.getInfo() != def )
@@ -55,7 +55,7 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void disconnected( ChannelWrapper channel ) throws Exception
+    public void disconnected(ChannelWrapper channel) throws Exception
     {
         // We lost connection to the server
         server.getInfo().removePlayer( con );
@@ -71,7 +71,7 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle( PacketWrapper packet ) throws Exception
+    public void handle(PacketWrapper packet) throws Exception
     {
         if ( !server.isObsolete() )
         {
@@ -81,14 +81,14 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle( KeepAlive alive ) throws Exception
+    public void handle(KeepAlive alive) throws Exception
     {
         con.setSentPingId( alive.getRandomId() );
         con.setSentPingTime( System.currentTimeMillis() );
     }
 
     @Override
-    public void handle( PlayerListItem playerList ) throws Exception
+    public void handle(PlayerListItem playerList) throws Exception
     {
 
         if ( !con.getTabList().onListUpdate( playerList.getUsername(), playerList.isOnline(), playerList.getPing() ) )
@@ -98,13 +98,13 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle( Respawn respawn ) throws Exception
+    public void handle(Respawn respawn) throws Exception
     {
         con.getLocation().setDimension( respawn.getDimension() );
     }
 
     @Override
-    public void handle( ScoreboardObjective objective ) throws Exception
+    public void handle(ScoreboardObjective objective) throws Exception
     {
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
         switch ( objective.getAction() )
@@ -119,7 +119,7 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle( ScoreboardScore score ) throws Exception
+    public void handle(ScoreboardScore score) throws Exception
     {
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
         switch ( score.getAction() )
@@ -136,7 +136,7 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle( ScoreboardDisplay displayScoreboard ) throws Exception
+    public void handle(ScoreboardDisplay displayScoreboard) throws Exception
     {
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
         serverScoreboard.setName( displayScoreboard.getName() );
@@ -144,7 +144,7 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle( net.md_5.bungee.protocol.packet.Team team ) throws Exception
+    public void handle(net.md_5.bungee.protocol.packet.Team team) throws Exception
     {
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
         // Remove team and move on
@@ -191,7 +191,7 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle( PluginMessage pluginMessage ) throws Exception
+    public void handle(PluginMessage pluginMessage) throws Exception
     {
         DataInput in = pluginMessage.getStream();
         PluginMessageEvent event = new PluginMessageEvent( con.getServer(), con, pluginMessage.getTag(), pluginMessage.getData().clone() );
@@ -336,7 +336,7 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle( Kick kick ) throws Exception
+    public void handle(Kick kick) throws Exception
     {
         ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getFallbackServer() );
         if ( Objects.equals( server.getInfo(), def ) )
