@@ -97,7 +97,7 @@ public class Metrics extends TimerTask
     }
 
     /**
-     * <p>
+     * Encode a key/value data pair to be used in a HTTP post request. This
      * Encode a key/value data pair to be used in a HTTP post request. This
      * INCLUDES a & so the first key/value pair MUST be included manually,
      * e.g:</p>
