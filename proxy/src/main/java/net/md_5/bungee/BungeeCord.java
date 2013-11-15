@@ -1,8 +1,6 @@
 package net.md_5.bungee;
 
-import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
 import net.md_5.bungee.log.BungeeLogger;
 import net.md_5.bungee.reconnect.YamlReconnectHandler;
 import net.md_5.bungee.scheduler.BungeeScheduler;
