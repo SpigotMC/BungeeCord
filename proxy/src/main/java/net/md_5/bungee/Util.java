@@ -69,11 +69,6 @@ public class Util
         return Joiner.on( separators ).join( objects );
     }
 
-    public static void main(String[] args)
-    {
-        System.out.println( stupify( "§5H§6E§7L" ) );
-    }
-
     public static String stupify(String text)
     {
         List<JsonObject> sections = new ArrayList<>();
@@ -95,7 +90,7 @@ public class Util
         }
         sections.add( generateAndReset( currentChar, buffer ) );
 
-        return new Gson().toJson( sections );
+        return BungeeCord.getInstance().gson.toJson( sections );
     }
 
     private static JsonObject generateAndReset(char currentChar, StringBuilder buffer)
