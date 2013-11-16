@@ -7,8 +7,7 @@ import net.md_5.bungee.api.connection.Connection;
 import net.md_5.bungee.api.plugin.Cancellable;
 
 /**
- * Event called when a player sends a message to a server, or a server sends a
- * message to a player.
+ * Event called when a player sends a message to a server.
  */
 @Data
 @ToString(callSuper = true)
