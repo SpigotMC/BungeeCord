@@ -3,8 +3,10 @@ package net.md_5.bungee.connection;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import java.io.DataInput;
+import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.UserConnection;
@@ -342,7 +344,7 @@ public class DownstreamBridge extends PacketHandler
             con.connectNow( event.getCancelServer() );
         } else
         {
-            con.disconnect0( "[" + Util.stupify( bungee.getTranslation( "server_kick" ) ) + "," + event.getKickReason() + "]" ); // TODO: Json concat util method
+            con.disconnect0( event.getKickReason() ); // TODO: Json concat util method // TODO: Prefix our own stuff.
         }
         server.setObsolete( true );
         throw new CancelSendSignal();
