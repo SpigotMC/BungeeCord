@@ -256,7 +256,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public synchronized void disconnect(String reason)
     {
-        disconnect0( Util.stupify( reason ) );
+        disconnect0( ChatConverter.toJSONChat( reason ) );
     }
 
     public synchronized void disconnect0(String reason)
@@ -283,7 +283,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendMessage(String message)
     {
-        unsafe().sendPacket( new Chat( Util.stupify( message ) ) );
+        unsafe().sendPacket( new Chat( ChatConverter.toJSONChat( message ) ) );
     }
 
     @Override

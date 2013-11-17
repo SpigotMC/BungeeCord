@@ -68,42 +68,4 @@ public class Util
     {
         return Joiner.on( separators ).join( objects );
     }
-
-    public static String stupify(String text)
-    {
-        List<JsonObject> sections = new ArrayList<>();
-        char[] c = text.toCharArray();
-
-        char currentChar = 0x00;
-        StringBuilder buffer = new StringBuilder();
-
-        for ( int i = 0; i < text.length(); i++ )
-        {
-            if ( c[i] == ChatColor.COLOR_CHAR && ChatColor.ALL_CODES.indexOf( c[i + 1] ) != -1 )
-            {
-                sections.add( generateAndReset( currentChar, buffer ) );
-                currentChar = Character.toLowerCase( c[++i] );
-            } else
-            {
-                buffer.append( c[i] );
-            }
-        }
-        sections.add( generateAndReset( currentChar, buffer ) );
-
-        return BungeeCord.getInstance().gson.toJson( sections );
-    }
-
-    private static JsonObject generateAndReset(char currentChar, StringBuilder buffer)
-    {
-        JsonObject entry = new JsonObject();
-        ChatColor colour = ChatColor.getByChar( currentChar );
-        if ( colour != null )
-        {
-            entry.addProperty( "color", colour.getName() );
-        }
-        entry.addProperty( "text", buffer.toString() );
-
-        buffer.setLength( 0 );
-        return entry;
-    }
 }
