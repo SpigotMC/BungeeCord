@@ -88,7 +88,7 @@ public class NativeCipher implements BungeeCipher
         // It is important to note that in AES CFB-8 mode, the number of read bytes, is the number of outputted bytes
         if ( out.writableBytes() < length )
         {
-            out.capacity( length );
+            out.capacity( out.writerIndex() + length );
         }
         // Cipher the bytes
         nativeCipher.cipher( forEncryption, pointer, iv, in.memoryAddress() + in.readerIndex(), out.memoryAddress() + out.writerIndex(), length );
