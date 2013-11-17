@@ -12,10 +12,7 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.BungeeCord;
-import net.md_5.bungee.EncryptionUtil;
-import net.md_5.bungee.UserConnection;
-import net.md_5.bungee.Util;
+import net.md_5.bungee.*;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
@@ -401,7 +398,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( !ch.isClosed() )
         {
-            unsafe().sendPacket( new Kick( Util.stupify( reason ) ) );
+            unsafe().sendPacket( new Kick( ChatConverter.toJSONChat( reason ) ) );
             ch.close();
         }
     }
