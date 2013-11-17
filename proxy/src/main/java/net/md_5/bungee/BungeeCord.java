@@ -158,6 +158,14 @@ public class BungeeCord extends ProxyServer
             logger.info( "Unable to initialize fancy terminal. To fix this on Windows, install the correct Microsoft Visual C++ 2008 Runtime" );
             logger.info( "NOTE: This error is non crucial, and BungeeCord will still function correctly! Do not bug the author about it unless you are still unable to get it working" );
         }
+
+        if ( !NativeCipher.load() )
+        {
+            logger.warning( "NOTE: Failed to load native code. Falling back to Java cipher." );
+        } else
+        {
+            logger.info( "Native code loaded." );
+        }
     }
 
     /**
