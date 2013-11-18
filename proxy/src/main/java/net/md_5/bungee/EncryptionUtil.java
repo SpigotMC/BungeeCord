@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.Random;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.Getter;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
@@ -64,11 +63,19 @@ public class EncryptionUtil
         return new SecretKeySpec( cipher.doFinal( resp.getSharedSecret() ), "AES" );
     }
 
-    public static Cipher getCipher(int opMode, Key shared) throws GeneralSecurityException
+    public static BungeeCipher getCipher(boolean forEncryption, SecretKey shared) throws GeneralSecurityException
     {
-        Cipher cip = Cipher.getInstance( "AES/CFB8/NoPadding" );
-        cip.init( opMode, shared, new IvParameterSpec( shared.getEncoded() ) );
-        return cip;
+        BungeeCipher cipher;
+        if ( NativeCipher.isLoaded() )
+        {
+            cipher = new NativeCipher();
+        } else
+        {
+            cipher = new FallbackCipher();
+        }
+
+        cipher.init( forEncryption, shared );
+        return cipher;
     }
 
     public static PublicKey getPubkey(EncryptionRequest request) throws GeneralSecurityException
