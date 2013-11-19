@@ -13,16 +13,15 @@ public class LegacyDecoder extends ByteToMessageDecoder
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
     {
-        if ( in.readableBytes() < 3 )
+        if ( in.readableBytes() < 2 )
         {
             return;
         }
         int i = in.readerIndex();
         short b1 = in.getUnsignedByte( i++ );
         short b2 = in.getUnsignedByte( i++ );
-        short b3 = in.getUnsignedByte( i++ );
 
-        if ( b1 == 0xFE && b2 == 0x01 && b3 == 0xFA )
+        if ( b1 == 0xFE && b2 == 0x01 )
         {
             out.add( new PacketWrapper( new LegacyPing(), Unpooled.EMPTY_BUFFER ) );
         }
