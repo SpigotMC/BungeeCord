@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.ServerConnection;
+import net.md_5.bungee.api.event.ServerDisconnectEvent;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
@@ -69,6 +70,9 @@ public class DownstreamBridge extends PacketHandler
         {
             con.disconnect( bungee.getTranslation( "lost_connection" ) );
         }
+
+        ServerDisconnectEvent serverDisconnectEvent = new ServerDisconnectEvent( con, server.getInfo() );
+        bungee.getPluginManager().callEvent( serverDisconnectEvent );
     }
 
     @Override
