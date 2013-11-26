@@ -1,12 +1,19 @@
 package net.md_5.bungee.connection;
 
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
-import net.md_5.bungee.protocol.packet.PacketFFKick;
+import net.md_5.bungee.netty.PipelineUtils;
+import net.md_5.bungee.protocol.MinecraftDecoder;
+import net.md_5.bungee.protocol.MinecraftEncoder;
+import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.packet.Handshake;
+import net.md_5.bungee.protocol.packet.StatusRequest;
+import net.md_5.bungee.protocol.packet.StatusResponse;
 
 @RequiredArgsConstructor
 public class PingHandler extends PacketHandler
@@ -14,15 +21,21 @@ public class PingHandler extends PacketHandler
 
     private final ServerInfo target;
     private final Callback<ServerPing> callback;
-    private static final byte[] pingBuf = new byte[]
-    {
-        (byte) 0xFE, (byte) 0x01
-    };
+    private ChannelWrapper channel;
 
     @Override
     public void connected(ChannelWrapper channel) throws Exception
     {
-        channel.write( pingBuf );
+        this.channel = channel;
+        MinecraftEncoder encoder = new MinecraftEncoder( Protocol.HANDSHAKE, false );
+
+        channel.getHandle().pipeline().addAfter( PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder( Protocol.STATUS, false ) );
+        channel.getHandle().pipeline().addAfter( PipelineUtils.FRAME_PREPENDER, PipelineUtils.PACKET_ENCODER, encoder );
+
+        channel.write( new Handshake( Protocol.PROTOCOL_VERSION, target.getAddress().getHostString(), target.getAddress().getPort(), 1 ) );
+
+        encoder.setProtocol( Protocol.STATUS );
+        channel.write( new StatusRequest() );
     }
 
     @Override
@@ -32,11 +45,10 @@ public class PingHandler extends PacketHandler
     }
 
     @Override
-    public void handle(PacketFFKick kick) throws Exception
+    public void handle(StatusResponse statusResponse) throws Exception
     {
-        String[] split = kick.getMessage().split( "\00" );
-        ServerPing ping = new ServerPing( Byte.parseByte( split[1] ), split[2], split[3], Integer.parseInt( split[4] ), Integer.parseInt( split[5] ) );
-        callback.done( ping, null );
+        callback.done( BungeeCord.getInstance().gson.fromJson( statusResponse.getResponse(), ServerPing.class ), null );
+        channel.close();
     }
 
     @Override

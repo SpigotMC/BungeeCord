@@ -76,11 +76,11 @@ public class Plugin
      * @param description the description that describes this plugin
      * @param jarfile this plugins jar or container
      */
-    final void init(ProxyServer proxy, PluginDescription description, File file)
+    final void init(ProxyServer proxy, PluginDescription description)
     {
         this.proxy = proxy;
         this.description = description;
-        this.file = file;
+        this.file = description.getFile();
         this.logger = new PluginLogger( this );
     }
 }

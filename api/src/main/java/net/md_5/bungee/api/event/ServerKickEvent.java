@@ -33,11 +33,27 @@ public class ServerKickEvent extends Event implements Cancellable
      * Server to send player to if this event is cancelled.
      */
     private ServerInfo cancelServer;
+    /**
+     * State in which the kick occured.
+     */
+    private State state;
+
+    public enum State
+    {
+
+        CONNECTING, CONNECTED, UNKNOWN;
+    }
 
     public ServerKickEvent(ProxiedPlayer player, String kickReason, ServerInfo cancelServer)
+    {
+        this( player, kickReason, cancelServer, State.UNKNOWN );
+    }
+
+    public ServerKickEvent(ProxiedPlayer player, String kickReason, ServerInfo cancelServer, State state)
     {
         this.player = player;
         this.kickReason = kickReason;
         this.cancelServer = cancelServer;
+        this.state = state;
     }
 }

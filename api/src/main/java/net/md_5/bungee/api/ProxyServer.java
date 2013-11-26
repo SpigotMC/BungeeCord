@@ -2,7 +2,6 @@ package net.md_5.bungee.api;
 
 import net.md_5.bungee.api.plugin.PluginManager;
 import com.google.common.base.Preconditions;
-import com.ning.http.client.AsyncHttpClient;
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.Collection;
@@ -12,9 +11,9 @@ import lombok.Getter;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.scheduler.TaskScheduler;
+import net.md_5.bungee.api.tab.CustomTabList;
 
 public abstract class ProxyServer
 {
@@ -54,7 +53,7 @@ public abstract class ProxyServer
      *
      * @return the localized string
      */
-    public abstract String getTranslation(String name);
+    public abstract String getTranslation(String name, Object... args);
 
     /**
      * Gets the main logger which can be used as a suitable replacement for
@@ -121,21 +120,6 @@ public abstract class ProxyServer
     public abstract void setConfigurationAdapter(ConfigurationAdapter adapter);
 
     /**
-     * Get the currently in use tab list handle.
-     *
-     * @return the tab list handler
-     */
-    public abstract TabListHandler getTabListHandler();
-
-    /**
-     * Set the used tab list handler, should not be changed once players have
-     * connected
-     *
-     * @param handler the tab list handler to set
-     */
-    public abstract void setTabListHandler(TabListHandler handler);
-
-    /**
      * Get the currently in use reconnect handler.
      *
      * @return the in use reconnect handler
@@ -196,7 +180,7 @@ public abstract class ProxyServer
      *
      * @return the Minecraft protocol version
      */
-    public abstract byte getProtocolVersion();
+    public abstract int getProtocolVersion();
 
     /**
      * Factory method to construct an implementation specific server info
@@ -204,10 +188,11 @@ public abstract class ProxyServer
      *
      * @param name name of the server
      * @param address connectable Minecraft address + port of the server
+     * @param motd the motd when used as a forced server
      * @param restricted whether the server info restricted property will be set
      * @return the constructed instance
      */
-    public abstract ServerInfo constructServerInfo(String name, InetSocketAddress address, boolean restricted);
+    public abstract ServerInfo constructServerInfo(String name, InetSocketAddress address, String motd, boolean restricted);
 
     /**
      * Returns the console overlord for this proxy. Being the console, this
@@ -233,15 +218,6 @@ public abstract class ProxyServer
     public abstract TaskScheduler getScheduler();
 
     /**
-     * Gets the the web client used by this proxy to facilitate making web
-     * requests. Care should be taken to ensure that all operations are non
-     * blocking where applicable.
-     *
-     * @return the server's {@link AsyncHttpClient} instance
-     */
-    public abstract AsyncHttpClient getHttpClient();
-
-    /**
      * Get the current number of connected users. The default implementation is
      * more efficient than {@link #getPlayers()} as it does not take a lock or
      * make a copy.
@@ -256,4 +232,19 @@ public abstract class ProxyServer
      * @param message the message to broadcast
      */
     public abstract void broadcast(String message);
+
+    /**
+     * Gets a new instance of this proxies custom tab list.
+     *
+     * @param player the player to generate this list in the context of
+     * @return a new {@link CustomTabList} instance
+     */
+    public abstract CustomTabList customTabList(ProxiedPlayer player);
+
+    /**
+     * Gets the commands which are disabled and will not be run on this proxy.
+     *
+     * @return the set of disabled commands
+     */
+    public abstract Collection<String> getDisabledCommands();
 }

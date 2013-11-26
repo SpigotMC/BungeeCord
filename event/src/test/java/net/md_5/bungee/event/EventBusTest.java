@@ -15,14 +15,14 @@ public class EventBusTest
     {
         bus.register( this );
         bus.post( new FirstEvent() );
-        Assert.assertEquals( latch.getCount(), 0 );
+        Assert.assertEquals( 0, latch.getCount() );
     }
 
     @EventHandler
     public void firstListener(FirstEvent event)
     {
         bus.post( new SecondEvent() );
-        Assert.assertEquals( latch.getCount(), 1 );
+        Assert.assertEquals( 1, latch.getCount() );
         latch.countDown();
     }
 

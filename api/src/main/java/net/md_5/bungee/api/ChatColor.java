@@ -3,6 +3,7 @@ package net.md_5.bungee.api;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+import lombok.Getter;
 
 /**
  * Simplistic enumeration of all supported color values for chat.
@@ -13,100 +14,101 @@ public enum ChatColor
     /**
      * Represents black.
      */
-    BLACK( '0' ),
+    BLACK( '0', "black" ),
     /**
      * Represents dark blue.
      */
-    DARK_BLUE( '1' ),
+    DARK_BLUE( '1', "dark_blue" ),
     /**
      * Represents dark green.
      */
-    DARK_GREEN( '2' ),
+    DARK_GREEN( '2', "dark_green" ),
     /**
      * Represents dark blue (aqua).
      */
-    DARK_AQUA( '3' ),
+    DARK_AQUA( '3', "dark_aqua" ),
     /**
      * Represents dark red.
      */
-    DARK_RED( '4' ),
+    DARK_RED( '4', "dark_red" ),
     /**
      * Represents dark purple.
      */
-    DARK_PURPLE( '5' ),
+    DARK_PURPLE( '5', "dark_purple" ),
     /**
      * Represents gold.
      */
-    GOLD( '6' ),
+    GOLD( '6', "gold" ),
     /**
      * Represents gray.
      */
-    GRAY( '7' ),
+    GRAY( '7', "gray" ),
     /**
      * Represents dark gray.
      */
-    DARK_GRAY( '8' ),
+    DARK_GRAY( '8', "dark_gray" ),
     /**
      * Represents blue.
      */
-    BLUE( '9' ),
+    BLUE( '9', "blue" ),
     /**
      * Represents green.
      */
-    GREEN( 'a' ),
+    GREEN( 'a', "green" ),
     /**
      * Represents aqua.
      */
-    AQUA( 'b' ),
+    AQUA( 'b', "aqua" ),
     /**
      * Represents red.
      */
-    RED( 'c' ),
+    RED( 'c', "red" ),
     /**
      * Represents light purple.
      */
-    LIGHT_PURPLE( 'd' ),
+    LIGHT_PURPLE( 'd', "light_purple" ),
     /**
      * Represents yellow.
      */
-    YELLOW( 'e' ),
+    YELLOW( 'e', "yellow" ),
     /**
      * Represents white.
      */
-    WHITE( 'f' ),
+    WHITE( 'f', "white" ),
     /**
      * Represents magical characters that change around randomly.
      */
-    MAGIC( 'k' ),
+    MAGIC( 'k', "obfuscated" ),
     /**
      * Makes the text bold.
      */
-    BOLD( 'l' ),
+    BOLD( 'l', "bold" ),
     /**
      * Makes a line appear through the text.
      */
-    STRIKETHROUGH( 'm' ),
+    STRIKETHROUGH( 'm', "strikethrough" ),
     /**
      * Makes the text appear underlined.
      */
-    UNDERLINE( 'n' ),
+    UNDERLINE( 'n', "underline" ),
     /**
      * Makes the text italic.
      */
-    ITALIC( 'o' ),
+    ITALIC( 'o', "italic" ),
     /**
      * Resets all previous chat colors or formats.
      */
-    RESET( 'r' );
+    RESET( 'r', "reset" );
     /**
      * The special character which prefixes all chat colour codes. Use this if
      * you need to dynamically convert colour codes from your custom format.
      */
     public static final char COLOR_CHAR = '\u00A7';
+    public static final String ALL_CODES = "0123456789AaBbCcDdEeFfKkLlMmNnOoRr";
     /**
      * Pattern to remove all colour codes.
      */
-    private static final Pattern STRIP_COLOR_PATTERN = Pattern.compile( "(?i)" + String.valueOf( COLOR_CHAR ) + "[0-9A-FK-OR]" );
+    public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile( "(?i)" + String.valueOf( COLOR_CHAR ) + "[0-9A-FK-OR]" );
     /**
      * Colour instances keyed by their active character.
      */
@@ -119,6 +121,8 @@ public enum ChatColor
      * This colour's colour char prefixed by the {@link #COLOR_CHAR}.
      */
     private final String toString;
+    @Getter
+    private final String name;
 
     static
     {
@@ -128,9 +132,10 @@ public enum ChatColor
         }
     }
 
-    private ChatColor(char code)
+    private ChatColor(char code, String name)
     {
         this.code = code;
+        this.name = name;
         this.toString = new String( new char[]
         {
             COLOR_CHAR, code
@@ -164,7 +169,7 @@ public enum ChatColor
         char[] b = textToTranslate.toCharArray();
         for ( int i = 0; i < b.length - 1; i++ )
         {
-            if ( b[i] == altColorChar && "0123456789AaBbCcDdEeFfKkLlMmNnOoRr".indexOf( b[i + 1] ) > -1 )
+            if ( b[i] == altColorChar && ALL_CODES.indexOf( b[i + 1] ) > -1 )
             {
                 b[i] = ChatColor.COLOR_CHAR;
                 b[i + 1] = Character.toLowerCase( b[i + 1] );

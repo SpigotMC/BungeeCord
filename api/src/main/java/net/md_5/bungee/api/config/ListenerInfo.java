@@ -3,6 +3,7 @@ package net.md_5.bungee.api.config;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import lombok.Data;
+import net.md_5.bungee.api.tab.TabListHandler;
 
 /**
  * Class representing the configuration of a server listener. Used for allowing
@@ -48,8 +49,24 @@ public class ListenerInfo
      */
     private final Map<String, String> forcedHosts;
     /**
-     * Get the texture pack used for servers connected to this proxy. May be
-     * null.
+     * Class used to build tab lists for this player.
      */
-    private final TexturePackInfo texturePack;
+    private final Class<? extends TabListHandler> tabList;
+    /**
+     * Whether to set the local address when connecting to servers.
+     */
+    private final boolean setLocalAddress;
+    /**
+     * Whether to pass the ping through when we can reliably get the target
+     * server (force default server).
+     */
+    private final boolean pingPassthrough;
+    /**
+     * What port to run udp query on.
+     */
+    private final int queryPort;
+    /**
+     * Whether to enable udp query.
+     */
+    private final boolean queryEnabled;
 }
