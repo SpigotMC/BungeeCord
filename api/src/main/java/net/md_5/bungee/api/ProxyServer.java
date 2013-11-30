@@ -247,4 +247,12 @@ public abstract class ProxyServer
      * @return the set of disabled commands
      */
     public abstract Collection<String> getDisabledCommands();
+
+    /**
+     * Gets BungeeCord's core config.
+     *
+     * @return the config.
+     */
+    public abstract Config getConfig();
+
 }

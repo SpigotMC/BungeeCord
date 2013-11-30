@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import lombok.Getter;
+import net.md_5.bungee.api.Config;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
@@ -23,7 +24,7 @@ import net.md_5.bungee.util.CaseInsensitiveSet;
  * Core configuration for the proxy.
  */
 @Getter
-public class Configuration
+public class Configuration implements Config
 {
 
     /**
@@ -110,5 +111,15 @@ public class Configuration
             Preconditions.checkArgument( servers.containsKey( listener.getDefaultServer() ), "Default server %s is not defined", listener.getDefaultServer() );
             Preconditions.checkArgument( servers.containsKey( listener.getFallbackServer() ), "Fallback server %s is not defined", listener.getFallbackServer() );
         }
+    }
+
+    @Override
+    public boolean isOnlineMode(){
+        return onlineMode;
+    }
+
+    @Override
+    public boolean isIpForward() {
+        return ipFoward;
     }
 }
