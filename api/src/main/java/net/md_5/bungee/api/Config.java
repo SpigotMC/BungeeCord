@@ -13,51 +13,51 @@ public interface Config {
     /**
      * Time before users are disconnected due to no network activity.
      */
-    public abstract int getTimeout();
+    public int getTimeout();
 
     /**
      * UUID used for metrics.
      */
-    public abstract String getUuid();
+    public String getUuid();
 
     /**
      * Set of all listeners.
      */
-    public abstract Collection<ListenerInfo> getListeners();
+    public Collection<ListenerInfo> getListeners();
 
     /**
      * Set of all servers.
      */
-    public abstract TMap<String, ServerInfo> getServers();
+    public TMap<String, ServerInfo> getServers();
 
     /**
      * Does the server authenticate with mojang
      */
-    public abstract boolean isOnlineMode();
+    public boolean isOnlineMode();
 
     /**
      * Returns the player max.
      */
-    public abstract int getPlayerLimit();
+    public int getPlayerLimit();
 
     /**
      * A collection of disabled commands.
      */
-    public abstract Collection<String> getDisabledCommands();
+    public Collection<String> getDisabledCommands();
 
     /**
      * The connection throttle delay.
      */
-    public abstract int getThrottle();
+    public int getThrottle();
 
     /**
      * Whether the proxy will parse IPs with spigot or not
      */
-    public abstract boolean isIpForward();
+    public boolean isIpForward();
 
     /**
      * The path for the Favicon (I.e. server_icon.png)
      * Should be no more or no less than a 64 by 64 Pixel PNG picture.
      */
-    public abstract String getFavicon();
+    public String getFavicon();
 }
