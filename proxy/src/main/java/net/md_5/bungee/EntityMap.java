@@ -1,6 +1,8 @@
 package net.md_5.bungee;
 
 import io.netty.buffer.ByteBuf;
+import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 
 /**
  * Class to rewrite integers within packets.
@@ -12,158 +14,79 @@ public class EntityMap
 
     static
     {
-        entityIds[0x05] = new int[]
+        entityIds[0x0A] = new int[]
         {
-            1
+            0
         };
-        entityIds[0x07] = new int[]
+        entityIds[0x0D] = new int[]
         {
-            1, 5
-        };
-        entityIds[0x11] = new int[]
-        {
-            1
+            4
         };
         entityIds[0x12] = new int[]
         {
-            1
-        };
-        entityIds[0x13] = new int[]
-        {
-            1
-        };
-        entityIds[0x14] = new int[]
-        {
-            1
-        };
-        entityIds[0x16] = new int[]
-        {
-            1, 5
-        };
-        entityIds[0x17] = new int[]
-        {
-            1 //, 20
-        };
-        entityIds[0x18] = new int[]
-        {
-            1
-        };
-        entityIds[0x19] = new int[]
-        {
-            1
+            0
         };
         entityIds[0x1A] = new int[]
         {
-            1
+            0
+        };
+        entityIds[0x1B] = new int[]
+        {
+            0, 4
         };
         entityIds[0x1C] = new int[]
         {
-            1
+            0 // TODO: Meta
+        };
+        entityIds[0x1D] = new int[]
+        {
+            0
         };
         entityIds[0x1E] = new int[]
         {
-            1
-        };
-        entityIds[0x1F] = new int[]
-        {
-            1
+            0
         };
         entityIds[0x20] = new int[]
         {
-            1
-        };
-        entityIds[0x21] = new int[]
-        {
-            1
-        };
-        entityIds[0x22] = new int[]
-        {
-            1
-        };
-        entityIds[0x23] = new int[]
-        {
-            1
-        };
-        entityIds[0x26] = new int[]
-        {
-            1
-        };
-        entityIds[0x27] = new int[]
-        {
-            1, 5
-        };
-        entityIds[0x28] = new int[]
-        {
-            1
-        };
-        entityIds[0x29] = new int[]
-        {
-            1
-        };
-        entityIds[0x2A] = new int[]
-        {
-            1
-        };
-        entityIds[0x2C] = new int[]
-        {
-            1
-        };
-        entityIds[0x37] = new int[]
-        {
-            1
-        };
-
-        entityIds[0x47] = new int[]
-        {
-            1
+            0
         };
     }
 
     public static void rewrite(ByteBuf packet, int oldId, int newId)
     {
-        int packetId = packet.getUnsignedByte( 0 );
-        if ( packetId == 0x1D )
-        { // bulk entity
-            for ( int pos = 2; pos < packet.readableBytes(); pos += 4 )
+        int readerIndex = packet.readerIndex();
+        int packetId = DefinedPacket.readVarInt( packet );
+        int packetIdLength = packet.readerIndex() - readerIndex;
+        int[] idArray = entityIds[packetId];
+
+        if ( idArray != null )
+        {
+            for ( int pos : idArray )
             {
-                int readId = packet.getInt( pos );
+                int readId = packet.getInt( packetIdLength + pos );
                 if ( readId == oldId )
                 {
-                    packet.setInt( pos, newId );
-                } else if ( readId == newId )
-                {
-                    packet.setInt( pos, oldId );
-                }
-            }
-        } else
-        {
-            int[] idArray = entityIds[packetId];
-            if ( idArray != null )
-            {
-                for ( int pos : idArray )
-                {
-                    int readId = packet.getInt( pos );
-                    if ( readId == oldId )
-                    {
-                        packet.setInt( pos, newId );
-                    } else if ( readId == newId )
-                    {
-                        packet.setInt( pos, oldId );
-                    }
+                    packet.setInt( packetIdLength + pos, newId );
                 }
             }
         }
-        if ( packetId == 0x17 )
+
+        if ( packetId == 0x0E )
         {
-            int type = packet.getUnsignedByte( 5 );
+            DefinedPacket.readVarInt( packet );
+            byte type = packet.readByte();
             if ( type == 60 || type == 90 )
             {
-                int index20 = packet.getInt( 20 );
-                if ( packet.readableBytes() > 24 && index20 == oldId )
+                packet.skipBytes( 14 );
+                int pos = packet.readerIndex();
+                int shooterId = packet.getInt( pos );
+                if ( shooterId == oldId )
                 {
-                    packet.setInt( 20, newId );
+                    packet.setInt( pos, newId );
                 }
             }
         }
+
+        packet.readerIndex( readerIndex );
     }
 }

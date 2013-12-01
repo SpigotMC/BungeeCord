@@ -1,7 +1,12 @@
 package net.md_5.bungee;
 
+import com.google.common.base.Joiner;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import java.net.InetSocketAddress;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
+import net.md_5.bungee.api.ChatColor;
 
 /**
  * Series of utility classes to perform various operations.
@@ -54,20 +59,51 @@ public class Util
                 + ( ( trace.length > 0 ) ? " @ " + t.getStackTrace()[0].getClassName() + ":" + t.getStackTrace()[0].getLineNumber() : "" );
     }
 
-    public static String csv(Collection<?> objects)
+    public static String csv(Iterable<?> objects)
     {
         return format( objects, ", " );
     }
 
-    public static String format(Collection<?> objects, String separators)
+    public static String format(Iterable<?> objects, String separators)
     {
-        StringBuilder ret = new StringBuilder();
-        for ( Object o : objects )
-        {
-            ret.append( o );
-            ret.append( separators );
-        }
+        return Joiner.on( separators ).join( objects );
+    }
 
-        return ( ret.length() == 0 ) ? "" : ret.substring( 0, ret.length() - separators.length() );
+    public static String stupify(String text)
+    {
+        List<JsonObject> sections = new ArrayList<>();
+        char[] c = text.toCharArray();
+
+        char currentChar = 0x00;
+        StringBuilder buffer = new StringBuilder();
+
+        for ( int i = 0; i < text.length(); i++ )
+        {
+            if ( c[i] == ChatColor.COLOR_CHAR && ChatColor.ALL_CODES.indexOf( c[i + 1] ) != -1 )
+            {
+                sections.add( generateAndReset( currentChar, buffer ) );
+                currentChar = Character.toLowerCase( c[++i] );
+            } else
+            {
+                buffer.append( c[i] );
+            }
+        }
+        sections.add( generateAndReset( currentChar, buffer ) );
+
+        return BungeeCord.getInstance().gson.toJson( sections );
+    }
+
+    private static JsonObject generateAndReset(char currentChar, StringBuilder buffer)
+    {
+        JsonObject entry = new JsonObject();
+        ChatColor colour = ChatColor.getByChar( currentChar );
+        if ( colour != null )
+        {
+            entry.addProperty( "color", colour.getName() );
+        }
+        entry.addProperty( "text", buffer.toString() );
+
+        buffer.setLength( 0 );
+        return entry;
     }
 }

@@ -12,11 +12,10 @@ import java.util.Arrays;
 import java.util.Random;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.Getter;
-import net.md_5.bungee.protocol.packet.PacketFCEncryptionResponse;
-import net.md_5.bungee.protocol.packet.PacketFDEncryptionRequest;
+import net.md_5.bungee.protocol.packet.EncryptionResponse;
+import net.md_5.bungee.protocol.packet.EncryptionRequest;
 
 /**
  * Class containing all encryption related methods for the proxy.
@@ -40,16 +39,16 @@ public class EncryptionUtil
         }
     }
 
-    public static PacketFDEncryptionRequest encryptRequest()
+    public static EncryptionRequest encryptRequest()
     {
-        String hash = ( BungeeCord.getInstance().config.isOnlineMode() ) ? Long.toString( random.nextLong(), 16 ) : "-";
+        String hash = Long.toString( random.nextLong(), 16 );
         byte[] pubKey = keys.getPublic().getEncoded();
         byte[] verify = new byte[ 4 ];
         random.nextBytes( verify );
-        return new PacketFDEncryptionRequest( hash, pubKey, verify );
+        return new EncryptionRequest( hash, pubKey, verify );
     }
 
-    public static SecretKey getSecret(PacketFCEncryptionResponse resp, PacketFDEncryptionRequest request) throws GeneralSecurityException
+    public static SecretKey getSecret(EncryptionResponse resp, EncryptionRequest request) throws GeneralSecurityException
     {
         Cipher cipher = Cipher.getInstance( "RSA" );
         cipher.init( Cipher.DECRYPT_MODE, keys.getPrivate() );
@@ -64,14 +63,22 @@ public class EncryptionUtil
         return new SecretKeySpec( cipher.doFinal( resp.getSharedSecret() ), "AES" );
     }
 
-    public static Cipher getCipher(int opMode, Key shared) throws GeneralSecurityException
+    public static BungeeCipher getCipher(boolean forEncryption, SecretKey shared) throws GeneralSecurityException
     {
-        Cipher cip = Cipher.getInstance( "AES/CFB8/NoPadding" );
-        cip.init( opMode, shared, new IvParameterSpec( shared.getEncoded() ) );
-        return cip;
+        BungeeCipher cipher;
+        if ( NativeCipher.isLoaded() )
+        {
+            cipher = new NativeCipher();
+        } else
+        {
+            cipher = new FallbackCipher();
+        }
+
+        cipher.init( forEncryption, shared );
+        return cipher;
     }
 
-    public static PublicKey getPubkey(PacketFDEncryptionRequest request) throws GeneralSecurityException
+    public static PublicKey getPubkey(EncryptionRequest request) throws GeneralSecurityException
     {
         return KeyFactory.getInstance( "RSA" ).generatePublic( new X509EncodedKeySpec( request.getPublicKey() ) );
     }

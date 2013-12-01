@@ -14,26 +14,47 @@ public interface PendingConnection extends Connection
      *
      * @return the requested username, or null if not set
      */
-    public String getName();
+    String getName();
 
     /**
      * Get the numerical client version of the player attempting to log in.
      *
      * @return the protocol version of the remote client
      */
-    public byte getVersion();
+    int getVersion();
 
     /**
      * Get the requested virtual host that the client tried to connect to.
      *
      * @return request virtual host or null if invalid / not specified.
      */
-    public InetSocketAddress getVirtualHost();
+    InetSocketAddress getVirtualHost();
 
     /**
      * Get the listener that accepted this connection.
      *
      * @return the accepting listener
      */
-    public ListenerInfo getListener();
+    ListenerInfo getListener();
+
+    /**
+     * Get this connection's UUID, if set.
+     *
+     * @return the UUID
+     */
+    String getUUID();
+
+    /**
+     * Get this connection's online mode.
+     *
+     * @return the online mode
+     */
+    boolean isOnlineMode();
+
+    /**
+     * Set this connection's online mode.
+     *
+     * @param onlineMode
+     */
+    void setOnlineMode(boolean onlineMode);
 }

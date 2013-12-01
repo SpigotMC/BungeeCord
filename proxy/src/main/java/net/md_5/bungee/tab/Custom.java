@@ -7,7 +7,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.tab.CustomTabList;
 import net.md_5.bungee.api.tab.TabListAdapter;
-import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
+import net.md_5.bungee.protocol.packet.PlayerListItem;
 
 public class Custom extends TabListAdapter implements CustomTabList
 {
@@ -46,7 +46,7 @@ public class Custom extends TabListAdapter implements CustomTabList
 
         if ( text != null )
         {
-            Preconditions.checkArgument( text.length() <= MAX_LEN, "text must be <= %s chars", MAX_LEN );
+            Preconditions.checkArgument( text.length() <= MAX_LEN - 2, "text must be <= %s chars", MAX_LEN - 2 );
             Preconditions.checkArgument( !ChatColor.stripColor( text ).isEmpty(), "Text cannot consist entirely of colour codes" );
             text = attempt( text );
             sentStuff.add( text );
@@ -96,7 +96,7 @@ public class Custom extends TabListAdapter implements CustomTabList
             {
                 String text = ( slots[i][j] != null ) ? slots[i][j] : new StringBuilder().append( base( i ) ).append( base( j ) ).toString();
                 sent[i][j] = text;
-                getPlayer().unsafe().sendPacket( new PacketC9PlayerListItem( text, true, (short) 0 ) );
+                getPlayer().unsafe().sendPacket( new PlayerListItem( text, true, (short) 0 ) );
             }
         }
     }
@@ -112,7 +112,7 @@ public class Custom extends TabListAdapter implements CustomTabList
                 {
                     String text = sent[i][j];
                     sent[i][j] = null;
-                    getPlayer().unsafe().sendPacket( new PacketC9PlayerListItem( text, false, (short) 9999 ) );
+                    getPlayer().unsafe().sendPacket( new PlayerListItem( text, false, (short) 9999 ) );
                 }
             }
         }

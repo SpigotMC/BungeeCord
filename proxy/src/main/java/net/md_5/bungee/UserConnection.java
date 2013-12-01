@@ -21,7 +21,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -32,13 +31,16 @@ import net.md_5.bungee.api.tab.TabListHandler;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
-import net.md_5.bungee.netty.PacketWrapper;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.netty.PipelineUtils;
-import net.md_5.bungee.protocol.packet.DefinedPacket;
-import net.md_5.bungee.protocol.packet.Packet3Chat;
-import net.md_5.bungee.protocol.packet.PacketCCSettings;
-import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
-import net.md_5.bungee.protocol.packet.PacketFFKick;
+import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.MinecraftDecoder;
+import net.md_5.bungee.protocol.MinecraftEncoder;
+import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.packet.Chat;
+import net.md_5.bungee.protocol.packet.ClientSettings;
+import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.util.CaseInsensitiveSet;
 
 @RequiredArgsConstructor
@@ -60,6 +62,9 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     @Setter
     private ServerConnection server;
+    @Getter
+    @Setter
+    private boolean dimensionChange = true;
     @Getter
     private final Object switchMutex = new Object();
     @Getter
@@ -91,7 +96,7 @@ public final class UserConnection implements ProxiedPlayer
     private int serverEntityId;
     @Getter
     @Setter
-    private PacketCCSettings settings;
+    private ClientSettings settings;
     @Getter
     private final Scoreboard serverSentScoreboard = new Scoreboard();
     /*========================================================================*/
@@ -163,6 +168,7 @@ public final class UserConnection implements ProxiedPlayer
 
     void sendDimensionSwitch()
     {
+        dimensionChange = true;
         unsafe().sendPacket( PacketConstants.DIM1_SWITCH );
         unsafe().sendPacket( PacketConstants.DIM2_SWITCH );
     }
@@ -180,6 +186,8 @@ public final class UserConnection implements ProxiedPlayer
     
     public void connect(ServerInfo info, final boolean retry, final int retryCount)
     {
+        Preconditions.checkNotNull( info, "info" );
+
         ServerConnectEvent event = new ServerConnectEvent( this, info );
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
@@ -207,6 +215,8 @@ public final class UserConnection implements ProxiedPlayer
             protected void initChannel(Channel ch) throws Exception
             {
                 PipelineUtils.BASE.initChannel( ch );
+                ch.pipeline().addAfter( PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, false ) );
+                ch.pipeline().addAfter( PipelineUtils.FRAME_PREPENDER, PipelineUtils.PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, false ) );
                 ch.pipeline().get( HandlerBoss.class ).setHandler( new ServerConnector( bungee, UserConnection.this, target ) );
             }
         };
@@ -235,7 +245,7 @@ public final class UserConnection implements ProxiedPlayer
                         }, 5, TimeUnit.SECONDS );
                     } else
                     {
-                        if ( server == null )
+                        if ( dimensionChange )
                         {
                             disconnect( bungee.getTranslation( "fallback_kick" ) + future.cause().getClass().getName() );
                         } else
@@ -263,10 +273,16 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public synchronized void disconnect(String reason)
     {
-        if ( !ch.isClosed() )
+        disconnect0( Util.stupify( reason ) );
+    }
+
+    public synchronized void disconnect0(String reason)
+    {
+        if ( ch.getHandle().isActive() )
         {
             bungee.getLogger().log( Level.INFO, "[" + getName() + "] disconnected with: " + reason );
-            unsafe().sendPacket( new PacketFFKick( reason ) );
+            unsafe().sendPacket( new Kick( reason ) );
+            ch.close();
             if ( server != null )
             {
                 server.setObsolete( true );
@@ -280,15 +296,13 @@ public final class UserConnection implements ProxiedPlayer
     public void chat(String message)
     {
         Preconditions.checkState( server != null, "Not connected to server" );
-        server.getCh().write( new Packet3Chat( message ) );
+        server.getCh().write( new Chat( message ) );
     }
 
     @Override
     public void sendMessage(String message)
     {
-        // TODO: Fix this
-        String encoded = BungeeCord.getInstance().gson.toJson( message );
-        unsafe().sendPacket( new Packet3Chat( "{\"text\":" + encoded + "}" ) );
+        unsafe().sendPacket( new Chat( Util.stupify( message ) ) );
     }
 
     @Override
@@ -303,7 +317,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendData(String channel, byte[] data)
     {
-        unsafe().sendPacket( new PacketFAPluginMessage( channel, data ) );
+        unsafe().sendPacket( new PluginMessage( channel, data ) );
     }
 
     @Override
@@ -382,5 +396,11 @@ public final class UserConnection implements ProxiedPlayer
     public Unsafe unsafe()
     {
         return unsafe;
+    }
+
+    @Override
+    public String getUUID()
+    {
+        return getPendingConnection().getUUID();
     }
 }

@@ -1,7 +1,6 @@
 package net.md_5.bungee.command;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import net.md_5.bungee.Util;
@@ -33,31 +32,16 @@ public class CommandList extends Command
                 continue;
             }
 
-            Collection<ProxiedPlayer> serverPlayers = server.getPlayers();
-
-            StringBuilder message = new StringBuilder();
-            message.append( ChatColor.GREEN );
-            message.append( "[" );
-            message.append( server.getName() );
-            message.append( "] " );
-            message.append( ChatColor.YELLOW );
-            message.append( "(" );
-            message.append( serverPlayers.size() );
-            message.append( "): " );
-            message.append( ChatColor.RESET );
-
             List<String> players = new ArrayList<>();
-            for ( ProxiedPlayer player : serverPlayers )
+            for ( ProxiedPlayer player : server.getPlayers() )
             {
                 players.add( player.getDisplayName() );
             }
             Collections.sort( players, String.CASE_INSENSITIVE_ORDER );
 
-            message.append( Util.format( players, ChatColor.RESET + ", " ) );
-
-            sender.sendMessage( message.toString() );
+            sender.sendMessage( ProxyServer.getInstance().getTranslation( "command_list", server.getName(), server.getPlayers().size(), Util.format( players, ChatColor.RESET + ", " ) ) );
         }
 
-        sender.sendMessage( ProxyServer.getInstance().getTranslation( "total_players" ) + ProxyServer.getInstance().getOnlineCount() );
+        sender.sendMessage( ProxyServer.getInstance().getTranslation( "total_players", ProxyServer.getInstance().getOnlineCount() ) );
     }
 }

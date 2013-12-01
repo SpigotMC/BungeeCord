@@ -61,4 +61,12 @@ public class ListenerInfo
      * server (force default server).
      */
     private final boolean pingPassthrough;
+    /**
+     * What port to run udp query on.
+     */
+    private final int queryPort;
+    /**
+     * Whether to enable udp query.
+     */
+    private final boolean queryEnabled;
 }

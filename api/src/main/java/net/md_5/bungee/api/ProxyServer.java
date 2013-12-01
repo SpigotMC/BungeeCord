@@ -53,7 +53,7 @@ public abstract class ProxyServer
      *
      * @return the localized string
      */
-    public abstract String getTranslation(String name);
+    public abstract String getTranslation(String name, Object... args);
 
     /**
      * Gets the main logger which can be used as a suitable replacement for
@@ -180,7 +180,7 @@ public abstract class ProxyServer
      *
      * @return the Minecraft protocol version
      */
-    public abstract byte getProtocolVersion();
+    public abstract int getProtocolVersion();
 
     /**
      * Factory method to construct an implementation specific server info

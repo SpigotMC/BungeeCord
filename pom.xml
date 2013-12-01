@@ -11,7 +11,7 @@
 
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-parent</artifactId>
-    <version>1.6.4-SNAPSHOT</version>
+    <version>1.7-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>BungeeCord</name>
@@ -19,7 +19,7 @@
     <url>https://github.com/SpigotMC/BungeeCord</url>
     <inceptionYear>2012</inceptionYear>
     <organization>
-        <name>Elastic Portal Suite</name>
+        <name>SpigotMC</name>
         <url>https://github.com/SpigotMC</url>
     </organization>
     <licenses>
@@ -38,9 +38,13 @@
 
     <modules>
         <module>api</module>
+        <module>bootstrap</module>
+        <module>config</module>
         <module>event</module>
         <module>protocol</module>
         <module>proxy</module>
+        <module>query</module>
+        <module>native</module>
     </modules>
 
     <scm>
@@ -59,7 +63,7 @@
 
     <properties>
         <build.number>unknown</build.number>
-        <netty.version>4.0.9.Final</netty.version>
+        <netty.version>4.0.12.Final</netty.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -71,9 +75,21 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>14.0.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.trove4j</groupId>
+            <artifactId>trove4j</artifactId>
+            <version>3.0.3</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>0.12.0</version>
+            <version>1.12.2</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

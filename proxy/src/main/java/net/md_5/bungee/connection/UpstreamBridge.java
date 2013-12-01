@@ -1,7 +1,6 @@
 package net.md_5.bungee.connection;
 
 import net.md_5.bungee.BungeeCord;
-import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
@@ -10,15 +9,16 @@ import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
-import net.md_5.bungee.netty.PacketWrapper;
-import net.md_5.bungee.protocol.packet.Packet0KeepAlive;
-import net.md_5.bungee.protocol.packet.Packet3Chat;
-import net.md_5.bungee.protocol.packet.PacketCBTabComplete;
-import net.md_5.bungee.protocol.packet.PacketCCSettings;
-import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
-import net.md_5.bungee.protocol.packet.PacketFFKick;
+import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.protocol.packet.KeepAlive;
+import net.md_5.bungee.protocol.packet.Kick;
+import net.md_5.bungee.protocol.packet.Chat;
+import net.md_5.bungee.protocol.packet.TabCompleteRequest;
+import net.md_5.bungee.protocol.packet.ClientSettings;
+import net.md_5.bungee.protocol.packet.PluginMessage;
 import java.util.ArrayList;
 import java.util.List;
+import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 
 public class UpstreamBridge extends PacketHandler
 {
@@ -67,7 +67,7 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(PacketWrapper packet) throws Exception
     {
-        EntityMap.rewrite( packet.buf, con.getClientEntityId(), con.getServerEntityId() );
+        // EntityMap.rewrite( packet.buf, con.getClientEntityId(), con.getServerEntityId() );
         if ( con.getServer() != null )
         {
             con.getServer().getCh().write( packet );
@@ -75,7 +75,7 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(Packet0KeepAlive alive) throws Exception
+    public void handle(KeepAlive alive) throws Exception
     {
         if ( alive.getRandomId() == con.getSentPingId() )
         {
@@ -86,7 +86,7 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(Packet3Chat chat) throws Exception
+    public void handle(Chat chat) throws Exception
     {
         ChatEvent chatEvent = new ChatEvent( con, con.getServer(), chat.getMessage() );
         if ( !bungee.getPluginManager().callEvent( chatEvent ).isCancelled() )
@@ -101,7 +101,7 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(PacketCBTabComplete tabComplete) throws Exception
+    public void handle(TabCompleteRequest tabComplete) throws Exception
     {
         if ( tabComplete.getCursor().startsWith( "/" ) )
         {
@@ -110,20 +110,20 @@ public class UpstreamBridge extends PacketHandler
 
             if ( !results.isEmpty() )
             {
-                con.unsafe().sendPacket( new PacketCBTabComplete( results.toArray( new String[ results.size() ] ) ) );
+                con.unsafe().sendPacket( new TabCompleteResponse( results.toArray( new String[ results.size() ] ) ) );
                 throw new CancelSendSignal();
             }
         }
     }
 
     @Override
-    public void handle(PacketCCSettings settings) throws Exception
+    public void handle(ClientSettings settings) throws Exception
     {
         con.setSettings( settings );
     }
 
     @Override
-    public void handle(PacketFAPluginMessage pluginMessage) throws Exception
+    public void handle(PluginMessage pluginMessage) throws Exception
     {
         if ( pluginMessage.getTag().equals( "BungeeCord" ) )
         {
@@ -149,7 +149,7 @@ public class UpstreamBridge extends PacketHandler
     }
     
     @Override
-    public void handle( PacketFFKick kick ) throws Exception {
+    public void handle( Kick kick ) throws Exception {
         con.getServer().setObsolete( true );
         con.getServer().disconnect( "End of Stream" );
         con.setServer( null );

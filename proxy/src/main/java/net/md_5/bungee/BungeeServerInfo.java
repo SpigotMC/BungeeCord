@@ -25,8 +25,8 @@ import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.connection.PingHandler;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PipelineUtils;
-import net.md_5.bungee.protocol.packet.DefinedPacket;
-import net.md_5.bungee.protocol.packet.PacketFAPluginMessage;
+import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.packet.PluginMessage;
 
 @RequiredArgsConstructor
 public class BungeeServerInfo implements ServerInfo
@@ -89,15 +89,15 @@ public class BungeeServerInfo implements ServerInfo
         Preconditions.checkNotNull( channel, "channel" );
         Preconditions.checkNotNull( data, "data" );
 
-        Server server = ( players.isEmpty() ) ? null : players.iterator().next().getServer();
-        if ( server != null )
+        synchronized ( packetQueue )
         {
-            server.sendData( channel, data );
-        } else
-        {
-            synchronized ( packetQueue )
+            Server server = ( players.isEmpty() ) ? null : players.iterator().next().getServer();
+            if ( server != null )
             {
-                packetQueue.add( new PacketFAPluginMessage( channel, data ) );
+                server.sendData( channel, data );
+            } else
+            {
+                packetQueue.add( new PluginMessage( channel, data ) );
             }
         }
     }

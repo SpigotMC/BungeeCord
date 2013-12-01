@@ -2,7 +2,7 @@ package net.md_5.bungee.config;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.AccessLevel;
@@ -13,36 +13,53 @@ public final class Configuration
 {
 
     private static final char SEPARATOR = '.';
-    private final Map<String, Object> self;
-    private Map<String, Object> comments = new HashMap<>();
+    final Map<String, Object> self;
     private final Configuration defaults;
 
-    private Map<String, Object> getHolder(String path, Map<String, Object> parent, boolean create)
-    {
-        return null;
-    }
-
-    private Object get(String path, Map<String, Object> holder)
+    private Configuration getSectionFor(String path)
     {
         int index = path.indexOf( SEPARATOR );
-        String first, second;
         if ( index == -1 )
         {
-            second = path;
-        } else
-        {
-            first = path.substring( 0, index );
-            second = path.substring( index + 1, path.length() );
+            return this;
         }
-        return null;
+
+        String root = path.substring( 0, index );
+        Object section = self.get( root );
+        if ( section == null )
+        {
+            section = new LinkedHashMap<>();
+            self.put( root, section );
+        }
+        if ( section instanceof Configuration )
+        {
+            return (Configuration) section;
+        }
+
+        return new Configuration( (Map) section, ( defaults == null ) ? null : defaults.getSectionFor( path ) );
+    }
+
+    private String getChild(String path)
+    {
+        int index = path.indexOf( SEPARATOR );
+        return ( index == -1 ) ? path : path.substring( index + 1 );
     }
 
     /*------------------------------------------------------------------------*/
     @SuppressWarnings("unchecked")
     public <T> T get(String path, T def)
     {
-        Object val = get( path, self );
-        return ( val != null && val.getClass().isInstance( def ) ) ? (T) val : (T) defaults.get( path );
+        Configuration section = getSectionFor( path );
+        Object val;
+        if ( section == this )
+        {
+            val = self.get( path );
+        } else
+        {
+            val = section.get( getChild( path ), def );
+        }
+
+        return ( val != null ) ? (T) val : def;
     }
 
     public Object get(String path)
@@ -52,19 +69,26 @@ public final class Configuration
 
     public Object getDefault(String path)
     {
-        return defaults.get( path );
-    }
-
-    public void set(String path, Object value, String comment)
-    {
-        String child = path.substring( path.indexOf( SEPARATOR ) + 1 );
-        getHolder( path, self, true ).put( child, value );
-        getHolder( path, comments, true ).put( child, value );
+        return ( defaults == null ) ? null : defaults.get( path );
     }
 
     public void set(String path, Object value)
     {
-        set( path, value, null );
+        Configuration section = getSectionFor( path );
+        if ( section == this )
+        {
+            self.put( path, value );
+        } else
+        {
+            section.set( getChild( path ), value );
+        }
+    }
+
+    /*------------------------------------------------------------------------*/
+    public Configuration getSection(String path)
+    {
+        Object def = getDefault( path );
+        return new Configuration( (Map) ( get( path, ( def instanceof Map ) ? def : Collections.EMPTY_MAP ) ), ( defaults == null ) ? null : defaults.getSection( path ) );
     }
 
     /*------------------------------------------------------------------------*/

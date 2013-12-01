@@ -2,7 +2,7 @@ package net.md_5.bungee.tab;
 
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.protocol.packet.PacketC9PlayerListItem;
+import net.md_5.bungee.protocol.packet.PlayerListItem;
 
 public class GlobalPing extends Global
 {
@@ -17,7 +17,7 @@ public class GlobalPing extends Global
         if ( ping - PING_THRESHOLD > lastPing && ping + PING_THRESHOLD < lastPing )
         {
             lastPing = ping;
-            BungeeCord.getInstance().broadcast( new PacketC9PlayerListItem( getPlayer().getDisplayName(), true, (short) ping ) );
+            BungeeCord.getInstance().broadcast( new PlayerListItem( getPlayer().getDisplayName(), true, (short) ping ) );
         }
     }
 }

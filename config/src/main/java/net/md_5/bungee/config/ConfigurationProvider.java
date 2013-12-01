@@ -1,7 +1,9 @@
 package net.md_5.bungee.config;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Reader;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,13 +17,17 @@ public abstract class ConfigurationProvider
         providers.put( YamlConfiguration.class, new YamlConfiguration() );
     }
 
-    public ConfigurationProvider getProvider(Class<? extends ConfigurationProvider> provider)
+    public static ConfigurationProvider getProvider(Class<? extends ConfigurationProvider> provider)
     {
         return providers.get( provider );
     }
     /*------------------------------------------------------------------------*/
 
-    public abstract Configuration load(File file);
+    public abstract void save(Configuration config, File file) throws IOException;
+
+    public abstract void save(Configuration config, Writer writer);
+
+    public abstract Configuration load(File file) throws IOException;
 
     public abstract Configuration load(Reader reader);
 
