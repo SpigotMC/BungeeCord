@@ -321,6 +321,21 @@ public class DownstreamBridge extends PacketHandler
                 out.writeUTF( "GetServer" );
                 out.writeUTF( server.getInfo().getName() );
             }
+            if ( subChannel.equals( "UUID" ) )
+            {
+                out.writeUTF( "UUID" );
+                out.writeUTF( con.getUUID() );
+            }
+            if ( subChannel.equals("UUIDOther") )
+            {
+                ProxiedPlayer player = bungee.getPlayer( in.readUTF() );
+                if ( player != null )
+                {
+                    out.writeUTF( "UUIDOther" );
+                    out.writeUTF( player.getName() );
+                    out.writeUTF( player.getUUID() );
+                }
+            }
 
             // Check we haven't set out to null, and we have written data, if so reply back back along the BungeeCord channel
             if ( out != null )
