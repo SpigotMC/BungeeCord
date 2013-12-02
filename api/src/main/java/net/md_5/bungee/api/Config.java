@@ -1,10 +1,10 @@
 package net.md_5.bungee.api;
 
-import gnu.trove.map.TMap;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Core configuration adaptor for the proxy api.
@@ -13,51 +13,54 @@ public interface Config {
     /**
      * Time before users are disconnected due to no network activity.
      */
-    public int getTimeout();
+     int getTimeout();
 
     /**
      * UUID used for metrics.
      */
-    public String getUuid();
+     String getUuid();
 
     /**
      * Set of all listeners.
      */
-    public Collection<ListenerInfo> getListeners();
+     Collection<ListenerInfo> getListeners();
 
     /**
      * Set of all servers.
      */
-    public TMap<String, ServerInfo> getServers();
+     Map<String, ServerInfo> getServers();
 
     /**
      * Does the server authenticate with mojang
      */
-    public boolean isOnlineMode();
+     boolean isOnlineMode();
 
     /**
      * Returns the player max.
      */
-    public int getPlayerLimit();
+     int getPlayerLimit();
 
     /**
      * A collection of disabled commands.
      */
-    public Collection<String> getDisabledCommands();
+     Collection<String> getDisabledCommands();
 
     /**
      * The connection throttle delay.
      */
-    public int getThrottle();
+    @Deprecated
+     int getThrottle();
 
     /**
      * Whether the proxy will parse IPs with spigot or not
      */
-    public boolean isIpForward();
+    @Deprecated
+     boolean isIpFoward();
 
     /**
      * The path for the Favicon (I.e. server_icon.png)
      * Should be no more or no less than a 64 by 64 Pixel PNG picture.
      */
-    public String getFavicon();
+    @Deprecated
+     String getFavicon();
 }

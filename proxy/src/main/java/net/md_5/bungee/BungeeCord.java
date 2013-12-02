@@ -526,6 +526,9 @@ public class BungeeCord extends ProxyServer
         return config.getDisabledCommands();
     }
 
+    /**
+     * Needed to use over Lombok due to other classes needing direct access to the final config defined above.
+     */
     @Override
     public Config getConfig() {
         return config;

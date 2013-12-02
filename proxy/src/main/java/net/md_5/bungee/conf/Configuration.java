@@ -24,7 +24,7 @@ import net.md_5.bungee.util.CaseInsensitiveSet;
  * Core configuration for the proxy.
  */
 @Getter
-public class Configuration implements Config
+public class Configuration implements Config //implements Config
 {
 
     /**
@@ -55,6 +55,7 @@ public class Configuration implements Config
 
     public void load()
     {
+
         ConfigurationAdapter adapter = ProxyServer.getInstance().getConfigurationAdapter();
         adapter.load();
 
@@ -111,15 +112,5 @@ public class Configuration implements Config
             Preconditions.checkArgument( servers.containsKey( listener.getDefaultServer() ), "Default server %s is not defined", listener.getDefaultServer() );
             Preconditions.checkArgument( servers.containsKey( listener.getFallbackServer() ), "Fallback server %s is not defined", listener.getFallbackServer() );
         }
-    }
-
-    @Override
-    public boolean isOnlineMode(){
-        return onlineMode;
-    }
-
-    @Override
-    public boolean isIpForward() {
-        return ipFoward;
     }
 }
