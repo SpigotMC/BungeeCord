@@ -59,26 +59,26 @@ public class ChatConverter {
             msg = new Message(msg);
             switch(c) {
                 case 'k':
-                    msg.obfuscated = true;
+                    msg.obfuscated = Boolean.TRUE;
                     break;
                 case 'l':
-                    msg.bold = true;
+                    msg.bold = Boolean.TRUE;
                     break;
                 case 'm':
-                    msg.strikethrough = true;
+                    msg.strikethrough = Boolean.TRUE;
                     break;
                 case 'n':
-                    msg.underlined = true;
+                    msg.underlined = Boolean.TRUE;
                     break;
                 case 'o':
-                    msg.italic = true;
+                    msg.italic = Boolean.TRUE;
                     break;
                 default:
-                    msg.obfuscated = false;
-                    msg.bold = false;
-                    msg.strikethrough = false;
-                    msg.underlined = false;
-                    msg.italic = false;
+                    msg.obfuscated = null;
+                    msg.bold = null;
+                    msg.strikethrough = null;
+                    msg.underlined = null;
+                    msg.italic = null;
                     if (c != 'r') {
                         msg.color = Color.fromCode(Character.toString(c));
                     } else {
@@ -114,11 +114,11 @@ public class ChatConverter {
 class Message {
     public String text;
 
-    public boolean bold;
-    public boolean italic;
-    public boolean underlined;
-    public boolean strikethrough;
-    public boolean obfuscated;
+    public Boolean bold;
+    public Boolean italic;
+    public Boolean underlined;
+    public Boolean strikethrough;
+    public Boolean obfuscated;
 
     public Color color;
 
