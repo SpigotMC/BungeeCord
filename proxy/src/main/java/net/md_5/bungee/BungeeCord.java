@@ -1,6 +1,7 @@
 package net.md_5.bungee;
 
 import com.google.common.io.ByteStreams;
+import net.md_5.bungee.api.Config;
 import net.md_5.bungee.log.BungeeLogger;
 import net.md_5.bungee.reconnect.YamlReconnectHandler;
 import net.md_5.bungee.scheduler.BungeeScheduler;
@@ -523,5 +524,13 @@ public class BungeeCord extends ProxyServer
     public Collection<String> getDisabledCommands()
     {
         return config.getDisabledCommands();
+    }
+
+    /**
+     * Needed to use over Lombok due to other classes needing direct access to the final config defined above.
+     */
+    @Override
+    public Config getConfig() {
+        return config;
     }
 }
