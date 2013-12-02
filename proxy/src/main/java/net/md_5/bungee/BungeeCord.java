@@ -76,6 +76,7 @@ public class BungeeCord extends ProxyServer
     /**
      * Configuration.
      */
+    @Getter
     public final Configuration config = new Configuration();
     /**
      * Localization bundle.
