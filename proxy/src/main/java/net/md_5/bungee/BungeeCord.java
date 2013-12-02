@@ -488,7 +488,9 @@ public class BungeeCord extends ProxyServer
     {
         getConsole().sendMessage( message );
         // TODO: Here too
-        broadcast( new Chat( ChatConverter.toJSONChat( message ) ) );
+        for (String msg : ChatConverter.toJSONChat( message )) {
+            broadcast( new Chat( msg ) );
+        }
     }
 
     public void addConnection(UserConnection con)

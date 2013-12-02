@@ -397,7 +397,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( !ch.isClosed() )
         {
-            unsafe().sendPacket( new Kick( ChatConverter.toJSONChat( reason ) ) );
+            unsafe().sendPacket( new Kick( ChatConverter.toJSONChat( reason )[0] ) );
             ch.close();
         }
     }

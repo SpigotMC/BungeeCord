@@ -14,9 +14,10 @@ public class ChatConverter {
     private static final char COLOR_CHAR = '\u00A7';
     private static final Pattern url = Pattern.compile("^(?:(https?)://)?([-\\w_\\.]{2,}\\.[a-z]{2,4})(/\\S*)?$");
 
-    public static String toJSONChat(String txt) {
+    public static String[] toJSONChat(String txt) {
         Message msg = new Message();
-        ArrayList<Message> parts = new ArrayList<Message>();
+        ArrayList<String> parts = new ArrayList<String>();
+        StringBuilder outBuffer = new StringBuilder("[");
         StringBuilder buf = new StringBuilder();
         Matcher matcher = url.matcher(txt);
         for (int i = 0; i < txt.length(); i++) {
@@ -27,7 +28,7 @@ public class ChatConverter {
                 if (matcher.region(i, pos).find()) { //Web link handling
                     msg.text = buf.toString();
                     buf = new StringBuilder();
-                    parts.add(msg);
+                    outBuffer = append(parts, outBuffer, msg);
                     Message old = msg;
                     msg = new Message(old);
                     msg.clickEvent = new ClickEvent();
@@ -39,7 +40,7 @@ public class ChatConverter {
                         msg.text = urlString;
                         msg.clickEvent.value = "http://" + urlString;
                     }
-                    parts.add(msg);
+                    outBuffer = append(parts, outBuffer, msg);
                     i += pos - i - 1;
                     msg = new Message(old);
                     continue;
@@ -54,7 +55,7 @@ public class ChatConverter {
             }
             msg.text = buf.toString();
             buf = new StringBuilder();
-            parts.add(msg);
+            outBuffer = append(parts, outBuffer, msg);
             msg = new Message(msg);
             switch(c) {
                 case 'k':
@@ -87,8 +88,26 @@ public class ChatConverter {
             }
         }
         msg.text = buf.toString();
-        parts.add(msg);
-        return gson.toJson(parts);
+        append(parts, outBuffer, msg);
+
+        parts.add(outBuffer.append("]").toString());
+        String[] pArray = new String[parts.size()];
+        parts.toArray(pArray);
+        return pArray;
+    }
+
+    private static StringBuilder append(ArrayList<String> parts, StringBuilder outBuffer, Message part) {
+        String p = gson.toJson(part);
+        if (p.length() + outBuffer.length() + 1 >= Short.MAX_VALUE  - 20) {
+            outBuffer.append("]");
+            parts.add(outBuffer.toString());
+            outBuffer = new StringBuilder("[");
+        }
+        if (outBuffer.length() != 1) {
+            outBuffer.append(",");
+        }
+        outBuffer.append(p);
+        return outBuffer;
     }
 }
 
