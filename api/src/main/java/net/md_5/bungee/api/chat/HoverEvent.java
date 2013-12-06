@@ -5,7 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @NoArgsConstructor
-public class HoverEvent {
+public class HoverEvent
+{
     @Getter
     @Setter
     private Action action;
@@ -13,25 +14,30 @@ public class HoverEvent {
     @Getter
     private Object value;
 
-    public HoverEvent(Action action, String value) {
-        setAction(action);
-        setValue(value);
+    public HoverEvent(Action action, String value)
+    {
+        setAction( action );
+        setValue( value );
     }
 
-    public HoverEvent(Action action, BaseComponent value) {
-        setAction(action);
-        setValue(value);
+    public HoverEvent(Action action, BaseComponent value)
+    {
+        setAction( action );
+        setValue( value );
     }
 
-    public void setValue(String value) {
+    public void setValue(String value)
+    {
         this.value = value;
     }
 
-    public void setValue(BaseComponent value) {
+    public void setValue(BaseComponent value)
+    {
         this.value = value;
     }
 
-    public enum Action {
+    public enum Action
+    {
         SHOW_TEXT,
         SHOW_ACHIEVEMENT,
         SHOW_ITEM

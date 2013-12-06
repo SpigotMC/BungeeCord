@@ -259,27 +259,29 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public synchronized void disconnect(String reason)
     {
-        disconnect0( TextComponent.fromLegacyText(reason) );
+        disconnect0( TextComponent.fromLegacyText( reason ) );
     }
 
     @Override
-    public void disconnect(BaseComponent[] reason) {
+    public void disconnect(BaseComponent[] reason)
+    {
         disconnect0( reason );
     }
 
     @Override
-    public void disconnect(BaseComponent reason) {
-        disconnect0(new BaseComponent[]{reason});
+    public void disconnect(BaseComponent reason)
+    {
+        disconnect0( new BaseComponent[]{reason} );
     }
 
     public synchronized void disconnect0(BaseComponent[] reason)
     {
-        if ( ch.getHandle().isActive() )
+        if (ch.getHandle().isActive())
         {
-            bungee.getLogger().log( Level.INFO, "[" + getName() + "] disconnected with: " + BaseComponent.toLegacyText(reason) );
-            unsafe().sendPacket( new Kick( ComponentSerializer.toString(reason) ) );
+            bungee.getLogger().log( Level.INFO, "[" + getName() + "] disconnected with: " + BaseComponent.toLegacyText( reason ) );
+            unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
             ch.close();
-            if ( server != null )
+            if (server != null)
             {
                 server.disconnect( "Quitting" );
             }
@@ -296,25 +298,27 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendMessage(String message)
     {
-        sendMessage(TextComponent.fromLegacyText(message));
+        sendMessage( TextComponent.fromLegacyText( message ) );
     }
 
     @Override
     public void sendMessages(String... messages)
     {
-        for ( String message : messages )
+        for (String message : messages)
         {
             sendMessage( message );
         }
     }
 
     @Override
-    public void sendMessage(BaseComponent[] message) {
+    public void sendMessage(BaseComponent[] message)
+    {
         unsafe().sendPacket( new Chat( ComponentSerializer.toString( message ) ) );
     }
 
     @Override
-    public void sendMessage(BaseComponent message) {
+    public void sendMessage(BaseComponent message)
+    {
         unsafe().sendPacket( new Chat( ComponentSerializer.toString( message ) ) );
     }
 

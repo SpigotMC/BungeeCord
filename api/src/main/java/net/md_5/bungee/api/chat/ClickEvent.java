@@ -10,11 +10,13 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ClickEvent {
+public class ClickEvent
+{
     private Action action;
     private String value;
 
-    public enum Action {
+    public enum Action
+    {
         OPEN_URL,
         OPEN_FILE,
         RUN_COMMAND,

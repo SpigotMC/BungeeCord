@@ -43,15 +43,16 @@ public class ServerConnection implements Server
     @Override
     public synchronized void disconnect(String reason)
     {
-        disconnect( TextComponent.fromLegacyText(reason) );
+        disconnect( TextComponent.fromLegacyText( reason ) );
     }
 
     @Override
-    public void disconnect(BaseComponent[] reason) {
-        if ( !ch.isClosed() )
+    public void disconnect(BaseComponent[] reason)
+    {
+        if (!ch.isClosed())
         {
             // TODO: Can we just use a future here?
-            unsafe().sendPacket( new Kick(ComponentSerializer.toString(reason) ) );
+            unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
             ch.getHandle().eventLoop().schedule( new Runnable()
             {
                 @Override
@@ -65,8 +66,9 @@ public class ServerConnection implements Server
     }
 
     @Override
-    public void disconnect(BaseComponent reason) {
-        disconnect(new BaseComponent[]{reason});
+    public void disconnect(BaseComponent reason)
+    {
+        disconnect( new BaseComponent[]{reason} );
     }
 
     @Override

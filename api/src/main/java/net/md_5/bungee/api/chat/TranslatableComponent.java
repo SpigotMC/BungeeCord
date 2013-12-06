@@ -10,44 +10,54 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class TranslatableComponent extends BaseComponent {
+public class TranslatableComponent extends BaseComponent
+{
 
     private String translate;
     private List<BaseComponent> with;
 
-    public TranslatableComponent(String translate, Object ...with) {
-        setTranslate(translate);
+    public TranslatableComponent(String translate, Object... with)
+    {
+        setTranslate( translate );
         this.with = new ArrayList<>();
-        for (Object w : with) {
-            if (w instanceof String) {
-                this.with.add(new TextComponent((String) w));
-            } else {
-                this.with.add((BaseComponent) w);
+        for (Object w : with)
+        {
+            if (w instanceof String)
+            {
+                this.with.add( new TextComponent( (String) w ) );
+            } else
+            {
+                this.with.add( (BaseComponent) w );
             }
         }
     }
 
-    public void setWith(List<BaseComponent> components) {
-        for (BaseComponent component : components) {
+    public void setWith(List<BaseComponent> components)
+    {
+        for (BaseComponent component : components)
+        {
             component.parent = this;
         }
         with = components;
     }
 
     @Override
-    protected void toPlainText(StringBuilder builder) {
+    protected void toPlainText(StringBuilder builder)
+    {
         //TODO
-        super.toPlainText(builder);
+        super.toPlainText( builder );
     }
 
     @Override
-    protected void toLegacyText(StringBuilder builder) {
+    protected void toLegacyText(StringBuilder builder)
+    {
         //TODO
-        super.toLegacyText(builder);
+        super.toLegacyText( builder );
     }
 
     @Override
-    public String toString() {
-        return String.format("TranslatableComponent{translate=%s, with=%s, %s}", translate, with, super.toString());
+    public String toString()
+    {
+        return String.format( "TranslatableComponent{translate=%s, with=%s, %s}", translate, with, super.toString() );
     }
 }
