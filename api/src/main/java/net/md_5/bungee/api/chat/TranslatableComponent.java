@@ -14,7 +14,7 @@ import java.util.ResourceBundle;
 @NoArgsConstructor
 public class TranslatableComponent extends BaseComponent
 {
-    public final ResourceBundle locales = ResourceBundle.getBundle( "en_US" );
+    public final ResourceBundle locales = ResourceBundle.getBundle( "mojang-translations/en_US" );
 
     private String translate;
     private List<BaseComponent> with;
