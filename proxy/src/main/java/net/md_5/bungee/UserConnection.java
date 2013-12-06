@@ -263,7 +263,7 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public void disconnect(BaseComponent[] reason)
+    public void disconnect(BaseComponent... reason)
     {
         disconnect0( reason );
     }
@@ -271,10 +271,10 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void disconnect(BaseComponent reason)
     {
-        disconnect0( new BaseComponent[]{reason} );
+        disconnect0( reason );
     }
 
-    public synchronized void disconnect0(BaseComponent[] reason)
+    public synchronized void disconnect0(BaseComponent ...reason)
     {
         if ( ch.getHandle().isActive() )
         {
@@ -311,7 +311,7 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public void sendMessage(BaseComponent[] message)
+    public void sendMessage(BaseComponent... message)
     {
         unsafe().sendPacket( new Chat( ComponentSerializer.toString( message ) ) );
     }

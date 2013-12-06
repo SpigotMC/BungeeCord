@@ -50,7 +50,7 @@ public abstract class BaseComponent
         setObfuscated( old.isObfuscatedRaw() );
     }
 
-    public static String toLegacyText(BaseComponent[] components)
+    public static String toLegacyText(BaseComponent... components)
     {
         StringBuilder builder = new StringBuilder();
         for ( BaseComponent msg : components )
@@ -60,7 +60,7 @@ public abstract class BaseComponent
         return builder.toString();
     }
 
-    public static String toPlainText(BaseComponent[] components)
+    public static String toPlainText(BaseComponent... components)
     {
         StringBuilder builder = new StringBuilder();
         for ( BaseComponent msg : components )
