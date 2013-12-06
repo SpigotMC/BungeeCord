@@ -39,7 +39,7 @@ public interface Connection
      * @param reason the reason shown to the player / sent to the server on
      * disconnect
      */
-    void disconnect(BaseComponent[] reason);
+    void disconnect(BaseComponent... reason);
 
     /**
      * Disconnects this end of the connection for the specified reason. If this

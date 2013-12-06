@@ -406,7 +406,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void disconnect(BaseComponent[] reason)
+    public void disconnect(BaseComponent... reason)
     {
         if ( !ch.isClosed() )
         {

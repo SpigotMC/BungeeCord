@@ -240,7 +240,7 @@ public abstract class ProxyServer
      *
      * @param message the message to broadcast
      */
-    public abstract void broadcast(BaseComponent[] message);
+    public abstract void broadcast(BaseComponent... message);
 
     /**
      * Send the specified message to the console and all connected players.

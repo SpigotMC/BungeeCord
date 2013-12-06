@@ -38,7 +38,7 @@ public class ComponentSerializer implements JsonSerializer<BaseComponent>, JsonD
         return gson.toJson( component );
     }
 
-    public static String toString(BaseComponent[] components)
+    public static String toString(BaseComponent... components)
     {
         return gson.toJson( components );
     }

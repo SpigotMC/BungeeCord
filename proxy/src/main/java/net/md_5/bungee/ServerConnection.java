@@ -47,7 +47,7 @@ public class ServerConnection implements Server
     }
 
     @Override
-    public void disconnect(BaseComponent[] reason)
+    public void disconnect(BaseComponent... reason)
     {
         if ( !ch.isClosed() )
         {
