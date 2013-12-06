@@ -5,6 +5,7 @@ import java.util.Collections;
 import lombok.Getter;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
 
 /**
  * Command sender representing the proxy console.
@@ -32,6 +33,20 @@ public class ConsoleCommandSender implements CommandSender
         {
             sendMessage( message );
         }
+    }
+
+    @Override
+    public void sendMessage(BaseComponent[] message) {
+        StringBuilder constr = new StringBuilder();
+        for (BaseComponent msg : message) {
+            constr.append( msg.toLegacyText() );
+        }
+        sendMessage( constr.toString() );
+    }
+
+    @Override
+    public void sendMessage(BaseComponent message) {
+        sendMessage( message.toLegacyText() );
     }
 
     @Override
