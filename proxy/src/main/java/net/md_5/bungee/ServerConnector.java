@@ -215,7 +215,7 @@ public class ServerConnector extends PacketHandler
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
             user.connect( event.getCancelServer() );
-            return;
+            throw new CancelSendSignal();
         }
 
         String message = bungee.getTranslation( "connect_kick" ) + target.getName() + ": " + event.getKickReason();
