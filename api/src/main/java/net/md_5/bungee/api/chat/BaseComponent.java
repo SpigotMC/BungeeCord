@@ -49,6 +49,22 @@ public abstract class BaseComponent {
         setObfuscated(old.isObfuscatedRaw());
     }
 
+    public static String toLegacyText(BaseComponent[] components) {
+        StringBuilder builder = new StringBuilder();
+        for (BaseComponent msg : components) {
+            builder.append(msg.toLegacyText());
+        }
+        return builder.toString();
+    }
+
+    public static String toPlainText(BaseComponent[] components) {
+        StringBuilder builder = new StringBuilder();
+        for (BaseComponent msg : components) {
+            builder.append(msg.toPlainText());
+        }
+        return builder.toString();
+    }
+
 
     /**
      * Returns the color of this component. This uses the parent's color

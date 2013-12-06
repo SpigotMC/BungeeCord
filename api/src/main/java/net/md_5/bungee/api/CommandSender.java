@@ -19,6 +19,7 @@ public interface CommandSender
      *
      * @param message the message to send
      */
+    @Deprecated
     public void sendMessage(String message);
 
     /**
@@ -27,6 +28,7 @@ public interface CommandSender
      *
      * @param messages the messages to send
      */
+    @Deprecated
     public void sendMessages(String... messages);
 
     /**

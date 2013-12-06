@@ -16,6 +16,8 @@ import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerPing;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
@@ -398,9 +400,23 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( !ch.isClosed() )
         {
-            unsafe().sendPacket( new Kick( ComponentSerializer.toString(ComponentSerializer.fromLegacyChat(reason)) ) );
+            unsafe().sendPacket( new Kick( ComponentSerializer.toString(TextComponent.fromLegacyText(reason)) ) );
             ch.close();
         }
+    }
+
+    @Override
+    public void disconnect(BaseComponent[] reason) {
+        if ( !ch.isClosed() )
+        {
+            unsafe().sendPacket( new Kick( ComponentSerializer.toString(reason) ) );
+            ch.close();
+        }
+    }
+
+    @Override
+    public void disconnect(BaseComponent reason) {
+        disconnect(new BaseComponent[]{reason});
     }
 
     @Override
