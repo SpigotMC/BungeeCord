@@ -489,7 +489,6 @@ public class BungeeCord extends ProxyServer
     @Override
     public void broadcast(String message)
     {
-        getConsole().sendMessage( message );
         broadcast( TextComponent.fromLegacyText( message ) );
     }
 
