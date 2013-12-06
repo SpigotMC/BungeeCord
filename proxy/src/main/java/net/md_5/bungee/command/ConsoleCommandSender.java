@@ -29,19 +29,21 @@ public class ConsoleCommandSender implements CommandSender
     @Override
     public void sendMessages(String... messages)
     {
-        for ( String message : messages )
+        for (String message : messages)
         {
             sendMessage( message );
         }
     }
 
     @Override
-    public void sendMessage(BaseComponent[] message) {
-        sendMessage(BaseComponent.toLegacyText(message));
+    public void sendMessage(BaseComponent[] message)
+    {
+        sendMessage( BaseComponent.toLegacyText( message ) );
     }
 
     @Override
-    public void sendMessage(BaseComponent message) {
+    public void sendMessage(BaseComponent message)
+    {
         sendMessage( message.toLegacyText() );
     }
 

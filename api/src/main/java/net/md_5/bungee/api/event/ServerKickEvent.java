@@ -61,11 +61,11 @@ public class ServerKickEvent extends Event implements Cancellable
 
     @Deprecated
     public String getKickReason() {
-        return BaseComponent.toLegacyText(kickReasonComponent);
+        return BaseComponent.toLegacyText( kickReasonComponent );
     }
 
     @Deprecated
     public void setKickReason(String reason) {
-        kickReasonComponent = TextComponent.fromLegacyText(reason);
+        kickReasonComponent = TextComponent.fromLegacyText( reason );
     }
 }

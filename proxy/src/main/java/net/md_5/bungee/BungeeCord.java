@@ -490,19 +490,21 @@ public class BungeeCord extends ProxyServer
     public void broadcast(String message)
     {
         getConsole().sendMessage( message );
-        broadcast(TextComponent.fromLegacyText(message));
+        broadcast( TextComponent.fromLegacyText( message ) );
     }
 
     @Override
-    public void broadcast(BaseComponent[] message) {
-        getConsole().sendMessage(BaseComponent.toLegacyText(message));
-        broadcast(new Chat(ComponentSerializer.toString(message)));
+    public void broadcast(BaseComponent[] message)
+    {
+        getConsole().sendMessage( BaseComponent.toLegacyText( message ) );
+        broadcast( new Chat( ComponentSerializer.toString( message ) ) );
     }
 
     @Override
-    public void broadcast(BaseComponent message) {
+    public void broadcast(BaseComponent message)
+    {
         getConsole().sendMessage( message.toLegacyText() );
-        broadcast( new Chat(ComponentSerializer.toString(message)) );
+        broadcast( new Chat( ComponentSerializer.toString( message ) ) );
     }
 
     public void addConnection(UserConnection con)
