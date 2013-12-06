@@ -29,7 +29,7 @@ public class ConsoleCommandSender implements CommandSender
     @Override
     public void sendMessages(String... messages)
     {
-        for (String message : messages)
+        for ( String message : messages )
         {
             sendMessage( message );
         }

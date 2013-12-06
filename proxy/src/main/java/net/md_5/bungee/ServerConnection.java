@@ -49,7 +49,7 @@ public class ServerConnection implements Server
     @Override
     public void disconnect(BaseComponent[] reason)
     {
-        if (!ch.isClosed())
+        if ( !ch.isClosed() )
         {
             // TODO: Can we just use a future here?
             unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );

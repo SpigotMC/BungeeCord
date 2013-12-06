@@ -408,7 +408,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void disconnect(BaseComponent[] reason)
     {
-        if (!ch.isClosed())
+        if ( !ch.isClosed() )
         {
             unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
             ch.close();

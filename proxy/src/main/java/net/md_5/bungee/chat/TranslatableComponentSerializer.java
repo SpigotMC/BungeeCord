@@ -22,7 +22,7 @@ public class TranslatableComponentSerializer extends BaseComponentSerializer imp
         JsonObject object = json.getAsJsonObject();
         deserialize( object, component, context );
         component.setTranslate( object.get( "translate" ).getAsString() );
-        if (object.has( "with" ))
+        if ( object.has( "with" ) )
         {
             component.setWith( Arrays.asList( (BaseComponent[]) context.deserialize( object.get( "with" ), BaseComponent[].class ) ) );
         }
@@ -35,7 +35,7 @@ public class TranslatableComponentSerializer extends BaseComponentSerializer imp
         JsonObject object = new JsonObject();
         serialize( object, src, context );
         object.addProperty( "translate", src.getTranslate() );
-        if (src.getWith() != null)
+        if ( src.getWith() != null )
         {
             object.add( "with", context.serialize( src.getWith() ) );
         }

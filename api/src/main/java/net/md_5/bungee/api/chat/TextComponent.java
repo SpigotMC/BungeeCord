@@ -26,18 +26,18 @@ public class TextComponent extends BaseComponent
         TextComponent component = new TextComponent();
         Matcher matcher = url.matcher( message );
 
-        for (int i = 0; i < message.length(); i++)
+        for ( int i = 0; i < message.length(); i++ )
         {
             char c = message.charAt( i );
-            if (c == ChatColor.COLOR_CHAR)
+            if ( c == ChatColor.COLOR_CHAR )
             {
                 i++;
                 c = message.charAt( i );
-                if (c >= 'A' && c <= 'Z')
+                if ( c >= 'A' && c <= 'Z' )
                 {
                     c += 32;
                 }
-                if (builder.length() > 0)
+                if ( builder.length() > 0 )
                 {
                     TextComponent old = component;
                     component = new TextComponent( old );
@@ -46,7 +46,7 @@ public class TextComponent extends BaseComponent
                     components.add( old );
                 }
                 ChatColor format = ChatColor.getByChar( c );
-                switch (format)
+                switch ( format )
                 {
                     case BOLD:
                         component.setBold( true );
@@ -73,11 +73,11 @@ public class TextComponent extends BaseComponent
                 continue;
             }
             int pos = message.indexOf( ' ', i );
-            if (pos == -1) pos = message.length();
-            if (matcher.region( i, pos ).find())
+            if ( pos == -1 ) pos = message.length();
+            if ( matcher.region( i, pos ).find() )
             { //Web link handling
 
-                if (builder.length() > 0)
+                if ( builder.length() > 0 )
                 {
                     TextComponent old = component;
                     component = new TextComponent( old );
@@ -91,7 +91,7 @@ public class TextComponent extends BaseComponent
                 ClickEvent clickEvent = new ClickEvent();
                 clickEvent.setAction( ClickEvent.Action.OPEN_URL );
                 String urlString = message.substring( i, pos );
-                if (urlString.startsWith( "http" ))
+                if ( urlString.startsWith( "http" ) )
                 {
                     component.setText( urlString );
                     clickEvent.setValue( urlString );
@@ -108,7 +108,7 @@ public class TextComponent extends BaseComponent
             }
             builder.append( c );
         }
-        if (builder.length() > 0)
+        if ( builder.length() > 0 )
         {
             component.setText( builder.toString() );
             components.add( component );
@@ -135,11 +135,11 @@ public class TextComponent extends BaseComponent
     protected void toLegacyText(StringBuilder builder)
     {
         builder.append( getColor() );
-        if (isBold()) builder.append( ChatColor.BOLD );
-        if (isItalic()) builder.append( ChatColor.ITALIC );
-        if (isUnderlined()) builder.append( ChatColor.UNDERLINE );
-        if (isStrikethrough()) builder.append( ChatColor.STRIKETHROUGH );
-        if (isObfuscated()) builder.append( ChatColor.MAGIC );
+        if ( isBold() ) builder.append( ChatColor.BOLD );
+        if ( isItalic() ) builder.append( ChatColor.ITALIC );
+        if ( isUnderlined() ) builder.append( ChatColor.UNDERLINE );
+        if ( isStrikethrough() ) builder.append( ChatColor.STRIKETHROUGH );
+        if ( isObfuscated() ) builder.append( ChatColor.MAGIC );
         builder.append( text );
         super.toLegacyText( builder );
     }

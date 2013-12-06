@@ -27,7 +27,7 @@ public class TextComponentSerializer extends BaseComponentSerializer implements 
     @Override
     public JsonElement serialize(TextComponent src, Type typeOfSrc, JsonSerializationContext context)
     {
-        if (!src.hasFormatting())
+        if ( !src.hasFormatting() )
         {
             return new JsonPrimitive( src.getText() );
         }
