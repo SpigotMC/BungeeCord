@@ -232,6 +232,7 @@ public abstract class ProxyServer
      *
      * @param message the message to broadcast
      */
+    @Deprecated
     public abstract void broadcast(String message);
 
     /**

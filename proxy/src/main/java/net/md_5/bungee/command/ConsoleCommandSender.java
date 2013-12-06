@@ -37,11 +37,7 @@ public class ConsoleCommandSender implements CommandSender
 
     @Override
     public void sendMessage(BaseComponent[] message) {
-        StringBuilder constr = new StringBuilder();
-        for (BaseComponent msg : message) {
-            constr.append( msg.toLegacyText() );
-        }
-        sendMessage( constr.toString() );
+        sendMessage(BaseComponent.toLegacyText(message));
     }
 
     @Override
