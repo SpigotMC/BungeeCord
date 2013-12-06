@@ -53,7 +53,7 @@ public abstract class BaseComponent
     public static String toLegacyText(BaseComponent[] components)
     {
         StringBuilder builder = new StringBuilder();
-        for (BaseComponent msg : components)
+        for ( BaseComponent msg : components )
         {
             builder.append( msg.toLegacyText() );
         }
@@ -63,7 +63,7 @@ public abstract class BaseComponent
     public static String toPlainText(BaseComponent[] components)
     {
         StringBuilder builder = new StringBuilder();
-        for (BaseComponent msg : components)
+        for ( BaseComponent msg : components )
         {
             builder.append( msg.toPlainText() );
         }
@@ -80,9 +80,9 @@ public abstract class BaseComponent
      */
     public ChatColor getColor()
     {
-        if (color == null)
+        if ( color == null )
         {
-            if (parent == null)
+            if ( parent == null )
             {
                 return ChatColor.WHITE;
             }
@@ -111,7 +111,7 @@ public abstract class BaseComponent
      */
     public boolean isBold()
     {
-        if (bold == null)
+        if ( bold == null )
         {
             return parent != null && parent.isBold();
         }
@@ -138,7 +138,7 @@ public abstract class BaseComponent
      */
     public boolean isItalic()
     {
-        if (italic == null)
+        if ( italic == null )
         {
             return parent != null && parent.isItalic();
         }
@@ -165,7 +165,7 @@ public abstract class BaseComponent
      */
     public boolean isUnderlined()
     {
-        if (underlined == null)
+        if ( underlined == null )
         {
             return parent != null && parent.isUnderlined();
         }
@@ -192,7 +192,7 @@ public abstract class BaseComponent
      */
     public boolean isStrikethrough()
     {
-        if (strikethrough == null)
+        if ( strikethrough == null )
         {
             return parent != null && parent.isStrikethrough();
         }
@@ -219,7 +219,7 @@ public abstract class BaseComponent
      */
     public boolean isObfuscated()
     {
-        if (obfuscated == null)
+        if ( obfuscated == null )
         {
             return parent != null && parent.isObfuscated();
         }
@@ -239,7 +239,7 @@ public abstract class BaseComponent
 
     public void setExtra(List<BaseComponent> components)
     {
-        for (BaseComponent component : components)
+        for ( BaseComponent component : components )
         {
             component.parent = this;
         }
@@ -265,7 +265,7 @@ public abstract class BaseComponent
      */
     public void addExtra(BaseComponent component)
     {
-        if (extra == null)
+        if ( extra == null )
         {
             extra = new ArrayList<>();
         }
@@ -289,9 +289,9 @@ public abstract class BaseComponent
 
     protected void toPlainText(StringBuilder builder)
     {
-        if (extra != null)
+        if ( extra != null )
         {
-            for (BaseComponent e : extra)
+            for ( BaseComponent e : extra )
             {
                 e.toPlainText( builder );
             }
@@ -307,9 +307,9 @@ public abstract class BaseComponent
 
     protected void toLegacyText(StringBuilder builder)
     {
-        if (extra != null)
+        if ( extra != null )
         {
-            for (BaseComponent e : extra)
+            for ( BaseComponent e : extra )
             {
                 e.toLegacyText( builder );
             }

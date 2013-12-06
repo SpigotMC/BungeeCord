@@ -20,9 +20,9 @@ public class TranslatableComponent extends BaseComponent
     {
         setTranslate( translate );
         this.with = new ArrayList<>();
-        for (Object w : with)
+        for ( Object w : with )
         {
-            if (w instanceof String)
+            if ( w instanceof String )
             {
                 this.with.add( new TextComponent( (String) w ) );
             } else
@@ -34,7 +34,7 @@ public class TranslatableComponent extends BaseComponent
 
     public void setWith(List<BaseComponent> components)
     {
-        for (BaseComponent component : components)
+        for ( BaseComponent component : components )
         {
             component.parent = this;
         }

@@ -276,12 +276,12 @@ public final class UserConnection implements ProxiedPlayer
 
     public synchronized void disconnect0(BaseComponent[] reason)
     {
-        if (ch.getHandle().isActive())
+        if ( ch.getHandle().isActive() )
         {
             bungee.getLogger().log( Level.INFO, "[" + getName() + "] disconnected with: " + BaseComponent.toLegacyText( reason ) );
             unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
             ch.close();
-            if (server != null)
+            if ( server != null )
             {
                 server.disconnect( "Quitting" );
             }
@@ -304,7 +304,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendMessages(String... messages)
     {
-        for (String message : messages)
+        for ( String message : messages )
         {
             sendMessage( message );
         }

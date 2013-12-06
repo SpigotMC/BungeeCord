@@ -26,7 +26,7 @@ public class ComponentSerializer implements JsonSerializer<BaseComponent>, JsonD
 
     public static BaseComponent[] parse(String json)
     {
-        if (json.startsWith( "[" ))
+        if ( json.startsWith( "[" ) )
         { //Array
             return gson.fromJson( json, BaseComponent[].class );
         }
@@ -46,12 +46,12 @@ public class ComponentSerializer implements JsonSerializer<BaseComponent>, JsonD
     @Override
     public BaseComponent deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        if (json.isJsonPrimitive())
+        if ( json.isJsonPrimitive() )
         {
             return new TextComponent( json.getAsString() );
         }
         JsonObject object = json.getAsJsonObject();
-        if (object.has( "translate" ))
+        if ( object.has( "translate" ) )
         {
             return context.deserialize( json, TranslatableComponent.class );
         }
