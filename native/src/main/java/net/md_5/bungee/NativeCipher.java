@@ -26,7 +26,8 @@ public class NativeCipher implements BungeeCipher
 
     public static boolean isSupported()
     {
-        return "Linux".equals( System.getProperty( "os.name" ) ) && "amd64".equals( System.getProperty( "os.arch" ) );
+        String os = System.getProperty( "os.name" );
+        return ( "Linux".equals( os ) || "FreeBSD".equals( os ) ) && "amd64".equals( System.getProperty( "os.arch" ) );
     }
 
     public static boolean load()
