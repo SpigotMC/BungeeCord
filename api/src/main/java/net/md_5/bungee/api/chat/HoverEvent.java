@@ -1,40 +1,18 @@
 package net.md_5.bungee.api.chat;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @NoArgsConstructor
+@Getter
+@Setter
+@AllArgsConstructor
 public class HoverEvent
 {
-    @Getter
-    @Setter
     private Action action;
-
-    @Getter
-    private Object value;
-
-    public HoverEvent(Action action, String value)
-    {
-        setAction( action );
-        setValue( value );
-    }
-
-    public HoverEvent(Action action, BaseComponent value)
-    {
-        setAction( action );
-        setValue( value );
-    }
-
-    public void setValue(String value)
-    {
-        this.value = value;
-    }
-
-    public void setValue(BaseComponent value)
-    {
-        this.value = value;
-    }
+    private BaseComponent value;
 
     public enum Action
     {
