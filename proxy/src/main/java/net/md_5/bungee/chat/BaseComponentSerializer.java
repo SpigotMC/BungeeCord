@@ -107,12 +107,14 @@ public class BaseComponentSerializer
             JsonObject clickEvent = new JsonObject();
             clickEvent.addProperty( "action", component.getClickEvent().getAction().toString().toLowerCase() );
             clickEvent.addProperty( "value", component.getClickEvent().getValue() );
+            object.add( "clickEvent", clickEvent );
         }
         if ( component.getHoverEvent() != null )
         {
-            JsonObject clickEvent = new JsonObject();
-            clickEvent.addProperty( "action", component.getHoverEvent().getAction().toString().toLowerCase() );
-            clickEvent.add( "value", context.serialize( component.getHoverEvent().getValue() ) );
+            JsonObject hoverEvent = new JsonObject();
+            hoverEvent.addProperty( "action", component.getHoverEvent().getAction().toString().toLowerCase() );
+            hoverEvent.add( "value", context.serialize( component.getHoverEvent().getValue() ) );
+            object.add( "hoverEvent", hoverEvent );
         }
     }
 }
