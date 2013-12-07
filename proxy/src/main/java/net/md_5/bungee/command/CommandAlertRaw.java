@@ -9,6 +9,8 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.chat.ComponentSerializer;
 
+import java.util.Arrays;
+
 public class CommandAlertRaw extends Command
 {
 
@@ -27,9 +29,11 @@ public class CommandAlertRaw extends Command
         {
             String message = Joiner.on(' ').join( args );
 
-            try {
+            try
+            {
                 ProxyServer.getInstance().broadcast( ComponentSerializer.parse( message ) );
-            } catch ( Exception e ) {
+            } catch ( Exception e )
+            {
                 TextComponent error = new TextComponent( "An error occurred while parsing your message. (Hover for details)" );
                 error.setColor( ChatColor.RED );
                 error.setUnderlined( true );

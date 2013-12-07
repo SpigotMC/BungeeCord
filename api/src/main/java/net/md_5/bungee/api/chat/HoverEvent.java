@@ -42,4 +42,9 @@ public class HoverEvent
         SHOW_ACHIEVEMENT,
         SHOW_ITEM
     }
+
+    @Override
+    public String toString() {
+        return String.format( "HoverEvent{action=%s, value=%s}", action, value );
+    }
 }

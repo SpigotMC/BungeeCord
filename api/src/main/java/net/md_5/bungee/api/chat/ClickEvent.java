@@ -22,4 +22,9 @@ public class ClickEvent
         RUN_COMMAND,
         SUGGEST_COMMAND
     }
+
+    @Override
+    public String toString() {
+        return String.format( "ClickEvent{action=%s, value=%s}", action, value );
+    }
 }

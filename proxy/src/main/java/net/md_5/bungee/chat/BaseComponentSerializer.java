@@ -41,7 +41,7 @@ public class BaseComponentSerializer
         }
         if ( object.has( "extra" ) )
         {
-            component.setExtra( Arrays.asList( (BaseComponent[]) context.deserialize( object.get( "extra" ), BaseComponent[].class ) ) );
+            component.setExtra( Arrays.<BaseComponent>asList( context.<BaseComponent[]>deserialize( object.get( "extra" ), BaseComponent[].class ) ) );
         }
 
         //Events
@@ -57,14 +57,8 @@ public class BaseComponentSerializer
             JsonObject event = object.getAsJsonObject( "hoverEvent" );
             HoverEvent hoverEvent = new HoverEvent();
             hoverEvent.setAction( HoverEvent.Action.valueOf( event.get( "action" ).getAsString().toUpperCase() ) );
-            Object res = context.deserialize( event.get( "value" ), BaseComponent.class );
-            if ( res instanceof String )
-            {
-                hoverEvent.setValue( (String) res );
-            } else
-            {
-                hoverEvent.setValue( (BaseComponent) res );
-            }
+            BaseComponent res = context.deserialize( event.get( "value" ), BaseComponent.class );
+            hoverEvent.setValue( res );
             component.setHoverEvent( hoverEvent );
         }
     }
