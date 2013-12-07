@@ -6,8 +6,11 @@ import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Getter
 @Setter
@@ -15,6 +18,7 @@ import java.util.ResourceBundle;
 public class TranslatableComponent extends BaseComponent
 {
     public final ResourceBundle locales = ResourceBundle.getBundle( "mojang-translations/en_US" );
+    private final Pattern format = Pattern.compile( "%(?:(\\d+)\\$)?([A-Za-z%]|$)" );
 
     private String translate;
     private List<BaseComponent> with;
@@ -22,17 +26,18 @@ public class TranslatableComponent extends BaseComponent
     public TranslatableComponent(String translate, Object... with)
     {
         setTranslate( translate );
-        this.with = new ArrayList<>();
+        List<BaseComponent> temp = new ArrayList<>();
         for ( Object w : with )
         {
             if ( w instanceof String )
             {
-                this.with.add( new TextComponent( (String) w ) );
+                temp.add( new TextComponent( (String) w ) );
             } else
             {
-                this.with.add( (BaseComponent) w );
+                temp.add( (BaseComponent) w );
             }
         }
+        setWith( temp );
     }
 
     public void setWith(List<BaseComponent> components)
@@ -47,18 +52,38 @@ public class TranslatableComponent extends BaseComponent
     @Override
     protected void toPlainText(StringBuilder builder)
     {
-        String[] parts = translate.split( "((?<=%s)|(?=%s))" );
-        int i = 0;
-        for ( String part : parts )
+        String trans = locales.getString( translate );
+        if ( trans == null )
         {
-            if ( part.equals( "%s" ) )
+            builder.append( translate );
+        } else
+        {
+            Matcher matcher = format.matcher( trans );
+            int position = 0;
+            int i = 0;
+            while ( matcher.find( position ) )
             {
-                with.get( i ).toPlainText( builder );
-                i++;
-            } else
-            {
-                builder.append( part );
+                int pos = matcher.start();
+                if ( pos != position )
+                {
+                    builder.append( trans.substring( position, pos ) );
+                }
+                position = matcher.end();
+
+                String formatCode = matcher.group( 2 );
+                switch ( formatCode.charAt( 0 ) )
+                {
+                    case 's':
+                    case 'd':
+                        String withIndex = matcher.group( 1 );
+                        with.get( withIndex != null ? Integer.parseInt( withIndex ) - 1 : i++ ).toPlainText( builder );
+                        break;
+                    case '%':
+                        builder.append( '%' );
+                        break;
+                }
             }
+
         }
         super.toPlainText( builder );
     }
@@ -66,26 +91,52 @@ public class TranslatableComponent extends BaseComponent
     @Override
     protected void toLegacyText(StringBuilder builder)
     {
-        String[] parts = locales.getString( translate ).split( "((?<=%s)|(?=%s))" );
-        int i = 0;
-        for ( String part : parts )
+        String trans = locales.getString( translate );
+        if ( trans == null )
         {
-            if ( part.equals( "%s" ) )
+            builder.append( translate );
+        } else
+        {
+            Matcher matcher = format.matcher( trans );
+            int position = 0;
+            int i = 0;
+            while ( matcher.find( position ) )
             {
-                with.get( i ).toLegacyText( builder );
-                i++;
-            } else
-            {
-                builder.append( getColor() );
-                if ( isBold() ) builder.append( ChatColor.BOLD );
-                if ( isItalic() ) builder.append( ChatColor.ITALIC );
-                if ( isUnderlined() ) builder.append( ChatColor.UNDERLINE );
-                if ( isStrikethrough() ) builder.append( ChatColor.STRIKETHROUGH );
-                if ( isObfuscated() ) builder.append( ChatColor.MAGIC );
-                builder.append( part );
+                int pos = matcher.start();
+                if ( pos != position )
+                {
+                    addFormat( builder );
+                    builder.append( trans.substring( position, pos ) );
+                }
+                position = matcher.end();
+
+                String formatCode = matcher.group( 2 );
+                switch ( formatCode.charAt( 0 ) )
+                {
+                    case 's':
+                    case 'd':
+                        String withIndex = matcher.group( 1 );
+                        with.get( withIndex != null ? Integer.parseInt( withIndex ) - 1 : i++ ).toLegacyText( builder );
+                        break;
+                    case '%':
+                        addFormat( builder );
+                        builder.append( '%' );
+                        break;
+                }
             }
+
         }
         super.toLegacyText( builder );
+    }
+
+    private void addFormat(StringBuilder builder)
+    {
+        builder.append( getColor() );
+        if ( isBold() ) builder.append( ChatColor.BOLD );
+        if ( isItalic() ) builder.append( ChatColor.ITALIC );
+        if ( isUnderlined() ) builder.append( ChatColor.UNDERLINE );
+        if ( isStrikethrough() ) builder.append( ChatColor.STRIKETHROUGH );
+        if ( isObfuscated() ) builder.append( ChatColor.MAGIC );
     }
 
     @Override
