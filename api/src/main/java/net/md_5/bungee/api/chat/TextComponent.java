@@ -19,6 +19,12 @@ public class TextComponent extends BaseComponent
 
     private static final Pattern url = Pattern.compile( "^(?:(https?)://)?([-\\w_\\.]{2,}\\.[a-z]{2,4})(/\\S*)?$" );
 
+    /**
+     * Converts the old formatting system that used {@link net.md_5.bungee.api.ChatColor#COLOR_CHAR}
+     * into the new json based system.
+     * @param message the text to convert
+     * @return the components needed to print the message to the client
+     */
     public static BaseComponent[] fromLegacyText(String message)
     {
         ArrayList<BaseComponent> components = new ArrayList<>();
@@ -116,12 +122,21 @@ public class TextComponent extends BaseComponent
         return components.toArray( new BaseComponent[components.size()] );
     }
 
+    /**
+     * The text of the component that will be
+     * displayed to the client
+     */
     private String text;
 
-    public TextComponent(TextComponent old)
+    /**
+     * Creates a TextComponent with formatting and text
+     * from the passed component
+     * @param textComponent the component to copy from
+     */
+    public TextComponent(TextComponent textComponent)
     {
-        super( old );
-        setText( old.getText() );
+        super( textComponent );
+        setText( textComponent.getText() );
     }
 
     @Override

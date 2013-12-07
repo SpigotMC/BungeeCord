@@ -22,7 +22,8 @@ public class HoverEvent
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return String.format( "HoverEvent{action=%s, value=%s}", action, value );
     }
 }
