@@ -17,12 +17,28 @@ import java.util.regex.Pattern;
 @NoArgsConstructor
 public class TranslatableComponent extends BaseComponent
 {
-    public final ResourceBundle locales = ResourceBundle.getBundle( "mojang-translations/en_US" );
+    private final ResourceBundle locales = ResourceBundle.getBundle( "mojang-translations/en_US" );
     private final Pattern format = Pattern.compile( "%(?:(\\d+)\\$)?([A-Za-z%]|$)" );
 
+    /**
+     * The key into the Minecraft locale files to use for the
+     * translation. The text depends on the client's locale setting.
+     * The console is always en_US
+     */
     private String translate;
+    /**
+     * The components to substitute into the translation
+     */
     private List<BaseComponent> with;
 
+    /**
+     * Creates a translatable component with the passed substitutions
+     * @see #setTranslate(String)
+     * @see #setWith(java.util.List)
+     * @param translate the translation key
+     * @param with the {@link java.lang.String}s and {@link net.md_5.bungee.api.chat.BaseComponent}s
+     *             to use into the translation
+     */
     public TranslatableComponent(String translate, Object... with)
     {
         setTranslate( translate );
@@ -40,6 +56,12 @@ public class TranslatableComponent extends BaseComponent
         setWith( temp );
     }
 
+    /**
+     * Sets the translation substitutions to be used in
+     * this component. Removes any previously set
+     * substitutions
+     * @param components the components to substitute
+     */
     public void setWith(List<BaseComponent> components)
     {
         for ( BaseComponent component : components )
@@ -47,6 +69,33 @@ public class TranslatableComponent extends BaseComponent
             component.parent = this;
         }
         with = components;
+    }
+
+    /**
+     * Adds a text substitution to the component. The text will
+     * inherit this component's formatting
+     *
+     * @param text the text to substitute
+     */
+    public void addWith(String text)
+    {
+        addWith( new TextComponent( text ) );
+    }
+
+    /**
+     * Adds a component substitution to the component. The text will
+     * inherit this component's formatting
+     *
+     * @param component the component to substitute
+     */
+    public void addWith(BaseComponent component)
+    {
+        if ( with == null )
+        {
+            with = new ArrayList<>();
+        }
+        component.parent = this;
+        with.add( component );
     }
 
     @Override

@@ -19,28 +19,61 @@ public abstract class BaseComponent
     @Setter(AccessLevel.NONE)
     BaseComponent parent;
 
-    //Formatting
+    /**
+     * The color of this component and any child
+     * components (unless overridden)
+     */
     @Getter(AccessLevel.NONE)
     private ChatColor color;
+    /**
+     * Whether this component and any child
+     * components (unless overridden) is bold
+     */
     @Getter(AccessLevel.NONE)
     private Boolean bold;
+    /**
+     * Whether this component and any child
+     * components (unless overridden) is italic
+     */
     @Getter(AccessLevel.NONE)
     private Boolean italic;
+    /**
+     * Whether this component and any child
+     * components (unless overridden) is underlined
+     */
     @Getter(AccessLevel.NONE)
     private Boolean underlined;
+    /**
+     * Whether this component and any child
+     * components (unless overridden) is strikethrough
+     */
     @Getter(AccessLevel.NONE)
     private Boolean strikethrough;
+    /**
+     * Whether this component and any child
+     * components (unless overridden) is obfuscated
+     */
     @Getter(AccessLevel.NONE)
     private Boolean obfuscated;
 
-    //Appended components
+    /**
+     * Appended components that inherit this component's
+     * formatting and events
+     */
     private List<BaseComponent> extra;
 
-    //Events
+    /**
+     * The action to preform when this component (and
+     * child components) are clicked
+     */
     private ClickEvent clickEvent;
+    /**
+     * The action to preform when this component (and
+     * child components) are hovered over
+     */
     private HoverEvent hoverEvent;
 
-    public BaseComponent(BaseComponent old)
+    protected BaseComponent(BaseComponent old)
     {
         setColor( old.getColorRaw() );
         setBold( old.isBoldRaw() );
@@ -50,6 +83,12 @@ public abstract class BaseComponent
         setObfuscated( old.isObfuscatedRaw() );
     }
 
+    /**
+     * Converts the components to a string that uses the
+     * old formatting codes ({@link net.md_5.bungee.api.ChatColor#COLOR_CHAR}
+     * @param components the components to convert
+     * @return the string in the old format
+     */
     public static String toLegacyText(BaseComponent... components)
     {
         StringBuilder builder = new StringBuilder();
@@ -60,6 +99,12 @@ public abstract class BaseComponent
         return builder.toString();
     }
 
+    /**
+     * Converts the components into a string without
+     * any formatting
+     * @param components the components to convert
+     * @return the string as plain text
+     */
     public static String toPlainText(BaseComponent... components)
     {
         StringBuilder builder = new StringBuilder();
@@ -273,6 +318,11 @@ public abstract class BaseComponent
         extra.add( component );
     }
 
+    /**
+     * Returns whether the component has any formatting
+     * or events applied to it
+     * @return
+     */
     public boolean hasFormatting()
     {
         return color != null || bold != null ||
@@ -281,6 +331,12 @@ public abstract class BaseComponent
                 hoverEvent != null || clickEvent != null;
     }
 
+
+    /**
+     * Converts the component into a string without
+     * any formatting
+     * @return the string as plain text
+     */
     public String toPlainText()
     {
         StringBuilder builder = new StringBuilder();
@@ -299,6 +355,12 @@ public abstract class BaseComponent
         }
     }
 
+
+    /**
+     * Converts the component to a string that uses the
+     * old formatting codes ({@link net.md_5.bungee.api.ChatColor#COLOR_CHAR}
+     * @return the string in the old format
+     */
     public String toLegacyText()
     {
         StringBuilder builder = new StringBuilder();
