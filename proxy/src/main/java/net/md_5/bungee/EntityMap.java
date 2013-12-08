@@ -13,6 +13,9 @@ public class EntityMap
     private final static boolean[] clientboundInts = new boolean[256];
     private final static boolean[] clientboundVarInts = new boolean[256];
 
+    private final static boolean[] serverboundInts = new boolean[256];
+    private final static boolean[] serverboundVarInts = new boolean[256];
+
     static
     {
         clientboundInts[0x04] = true;
@@ -39,15 +42,46 @@ public class EntityMap
         clientboundInts[0x20] = true;
         clientboundVarInts[0x25] = true;
         clientboundVarInts[0x2C] = true;
+
+        serverboundInts[0x02] = true;
+        serverboundInts[0x0A] = true;
+        serverboundInts[0x0B] = true;
+    }
+
+    public static void rewriteServerbound(ByteBuf packet, int serverEntityId, int clientEntityId)
+    {
+        rewrite(packet, serverEntityId, clientEntityId, serverboundInts, serverboundVarInts);
     }
 
     public static void rewriteClientbound(ByteBuf packet, int serverEntityId, int clientEntityId)
+    {
+        rewrite(packet, serverEntityId, clientEntityId, clientboundInts, clientboundVarInts);
+
+        //Special cases
+        int readerIndex = packet.readerIndex();
+        int packetId = DefinedPacket.readVarInt( packet );
+        int packetIdLength = packet.readerIndex() - readerIndex;
+        if ( packetId == 0x0D || packetId == 0x1B )
+        {
+            int readId = packet.getInt( packetIdLength + 4 );
+            if ( readId == serverEntityId )
+            {
+                packet.setInt( packetIdLength + 4, clientEntityId );
+            } else if ( readId == clientEntityId )
+            {
+                packet.setInt( packetIdLength + 4, serverEntityId );
+            }
+        }
+        packet.readerIndex( readerIndex );
+    }
+
+    private static void rewrite(ByteBuf packet, int serverEntityId, int clientEntityId, boolean[] ints, boolean[] varints)
     {
         int readerIndex = packet.readerIndex();
         int packetId = DefinedPacket.readVarInt( packet );
         int packetIdLength = packet.readerIndex() - readerIndex;
 
-        if ( clientboundInts[packetId] )
+        if ( ints[packetId] )
         {
             int readId = packet.getInt( packetIdLength );
             if ( readId == serverEntityId )
@@ -57,26 +91,14 @@ public class EntityMap
             {
                 packet.setInt( packetIdLength, serverEntityId );
             }
-
-            if ( packetId == 0x0D || packetId == 0x1B )
-            {
-                readId = packet.getInt( packetIdLength + 4 );
-                if ( readId == serverEntityId )
-                {
-                    packet.setInt( packetIdLength + 4, clientEntityId );
-                } else if ( readId == clientEntityId )
-                {
-                    packet.setInt( packetIdLength + 4, serverEntityId );
-                }
-            }
-        } else if ( clientboundVarInts[packetId] )
+        } else if ( varints[packetId] )
         {
             // Need to rewrite the packet because VarInts are variable length
             int readId = DefinedPacket.readVarInt( packet );
             int readIdLength = packet.readerIndex() - readerIndex - packetIdLength;
             if ( readId == serverEntityId || readId == clientEntityId )
             {
-                ByteBuf data = packet.slice();
+                ByteBuf data = packet.slice().copy();
                 packet.readerIndex( readerIndex );
                 packet.writerIndex( packetIdLength );
                 DefinedPacket.writeVarInt( readId == serverEntityId ? clientEntityId : serverEntityId, packet );
