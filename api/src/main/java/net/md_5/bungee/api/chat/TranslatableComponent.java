@@ -132,7 +132,10 @@ public class TranslatableComponent extends BaseComponent
                         break;
                 }
             }
-
+            if ( trans.length() != position )
+            {
+                builder.append( trans.substring( position, trans.length() ) );
+            }
         }
         super.toPlainText( builder );
     }
@@ -143,6 +146,7 @@ public class TranslatableComponent extends BaseComponent
         String trans = locales.getString( translate );
         if ( trans == null )
         {
+            addFormat( builder );
             builder.append( translate );
         } else
         {
@@ -173,7 +177,11 @@ public class TranslatableComponent extends BaseComponent
                         break;
                 }
             }
-
+            if ( trans.length() != position )
+            {
+                addFormat( builder );
+                builder.append( trans.substring( position, trans.length() ) );
+            }
         }
         super.toLegacyText( builder );
     }
