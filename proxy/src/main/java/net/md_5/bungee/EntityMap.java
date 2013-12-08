@@ -72,6 +72,21 @@ public class EntityMap
                 packet.setInt( packetIdLength + 4, serverEntityId );
             }
         }
+        if ( packetId == 0x13 )
+        {
+            int count = packet.getByte( packetIdLength );
+            for ( int i = 0; i < count; i++ )
+            {
+                int readId = packet.getInt( packetIdLength + 1 + i * 4);
+                if ( readId == serverEntityId )
+                {
+                    packet.setInt( packetIdLength + 1 + i * 4, clientEntityId );
+                } else if ( readId == clientEntityId )
+                {
+                    packet.setInt( packetIdLength + 1 + i * 4, serverEntityId );
+                }
+            }
+        }
         packet.readerIndex( readerIndex );
     }
 
@@ -104,20 +119,6 @@ public class EntityMap
                 DefinedPacket.writeVarInt( readId == serverEntityId ? clientEntityId : serverEntityId, packet );
                 packet.writeBytes( data );
                 data.release();
-            }
-        } else if ( packetId == 0x13 )
-        {
-            int count = packet.getByte( packetIdLength );
-            for ( int i = 0; i < count; i++ )
-            {
-                int readId = packet.getInt( packetIdLength + 1 + i * 4);
-                if ( readId == serverEntityId )
-                {
-                    packet.setInt( packetIdLength + 1 + i * 4, clientEntityId );
-                } else if ( readId == clientEntityId )
-                {
-                    packet.setInt( packetIdLength + 1 + i * 4, serverEntityId );
-                }
             }
         }
         packet.readerIndex( readerIndex );
