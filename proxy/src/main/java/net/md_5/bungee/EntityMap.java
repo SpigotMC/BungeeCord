@@ -71,8 +71,7 @@ public class EntityMap
             {
                 packet.setInt( packetIdLength + 4, serverEntityId );
             }
-        }
-        if ( packetId == 0x13 )
+        } else if ( packetId == 0x13 )
         {
             int count = packet.getByte( packetIdLength );
             for ( int i = 0; i < count; i++ )
@@ -84,6 +83,24 @@ public class EntityMap
                 } else if ( readId == clientEntityId )
                 {
                     packet.setInt( packetIdLength + 1 + i * 4, serverEntityId );
+                }
+            }
+        } else if ( packetId == 0x0E )
+        {
+            DefinedPacket.readVarInt( packet );
+            int idLength = packet.readerIndex() - readerIndex - packetIdLength;
+
+            int type = packet.getByte( idLength );
+
+            if ( type == 60 || type == 90 )
+            {
+                int readId = packet.getInt( packetIdLength + idLength + 15 );
+                if ( readId == serverEntityId )
+                {
+                    packet.setInt( packetIdLength + idLength + 15, clientEntityId );
+                } else if ( readId == clientEntityId )
+                {
+                    packet.setInt( packetIdLength + idLength + 15, serverEntityId );
                 }
             }
         }
