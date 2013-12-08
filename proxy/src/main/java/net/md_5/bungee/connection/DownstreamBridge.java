@@ -3,10 +3,8 @@ package net.md_5.bungee.connection;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import java.io.DataInput;
-import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.api.event.ServerDisconnectEvent;
@@ -80,7 +78,7 @@ public class DownstreamBridge extends PacketHandler
     {
         if ( !server.isObsolete() )
         {
-            EntityMap.rewrite( packet.buf, con.getServerEntityId(), con.getClientEntityId() );
+            EntityMap.rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId() );
             con.sendPacket( packet );
         }
     }
