@@ -90,7 +90,7 @@ public class EntityMap
             DefinedPacket.readVarInt( packet );
             int idLength = packet.readerIndex() - readerIndex - packetIdLength;
 
-            int type = packet.getByte( idLength );
+            int type = packet.getByte( packetIdLength + idLength );
 
             if ( type == 60 || type == 90 )
             {
