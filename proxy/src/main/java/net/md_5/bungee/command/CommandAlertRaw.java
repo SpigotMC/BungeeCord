@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Command;
@@ -34,15 +35,12 @@ public class CommandAlertRaw extends Command
                 ProxyServer.getInstance().broadcast( ComponentSerializer.parse( message ) );
             } catch ( Exception e )
             {
-                TextComponent error = new TextComponent( "An error occurred while parsing your message. (Hover for details)" );
-                error.setColor( ChatColor.RED );
-                error.setUnderlined( true );
-
-                TextComponent errorMessage = new TextComponent( e.getMessage() );
-                errorMessage.setColor( ChatColor.RED );
-
-                error.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, errorMessage ) );
-                sender.sendMessage( error );
+                sender.sendMessage(
+                        new ComponentBuilder( "An error occured while parsing your message. (Hover for details)" ).
+                                color( ChatColor.RED ).underlined( true ).
+                                event( new HoverEvent( HoverEvent.Action.SHOW_TEXT,
+                                        new ComponentBuilder( e.getMessage() ).color( ChatColor.RED ).create() ) ).
+                                create() );
             }
         }
     }

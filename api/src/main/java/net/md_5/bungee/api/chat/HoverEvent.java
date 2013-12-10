@@ -5,14 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor
 @Getter
-@Setter
 @AllArgsConstructor
-public class HoverEvent
+final public class HoverEvent
 {
-    private Action action;
-    private BaseComponent value;
+    private final Action action;
+    private final BaseComponent[] value;
 
     public enum Action
     {

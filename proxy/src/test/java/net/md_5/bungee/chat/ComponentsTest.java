@@ -3,6 +3,7 @@ package net.md_5.bungee.chat;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.junit.Assert;
@@ -64,6 +65,18 @@ public class ComponentsTest
 
         Assert.assertEquals( "Page 5 of 50", positional.toPlainText() );
         Assert.assertEquals( ChatColor.WHITE + "Page " + ChatColor.WHITE + "5" + ChatColor.WHITE + " of " + ChatColor.WHITE + "50", positional.toLegacyText() );
+    }
+
+    @Test
+    public void testBuilder()
+    {
+        BaseComponent[] components = new ComponentBuilder( "Hello " ).color( ChatColor.RED ).
+                append( "World" ).bold( true ).color( ChatColor.BLUE ).
+                append( "!" ).color( ChatColor.YELLOW ).create();
+
+        Assert.assertEquals( "Hello World!", BaseComponent.toPlainText( components ) );
+        Assert.assertEquals( ChatColor.RED + "Hello " + ChatColor.BLUE + ChatColor.BOLD +
+                "World" + ChatColor.YELLOW + ChatColor.BOLD + "!", BaseComponent.toLegacyText( components ) );
     }
 
 }
