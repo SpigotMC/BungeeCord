@@ -81,6 +81,8 @@ public abstract class BaseComponent
         setUnderlined( old.isUnderlined() );
         setStrikethrough( old.isStrikethroughRaw() );
         setObfuscated( old.isObfuscatedRaw() );
+        setClickEvent( old.getClickEvent() );
+        setHoverEvent( old.getHoverEvent() );
     }
 
     /**

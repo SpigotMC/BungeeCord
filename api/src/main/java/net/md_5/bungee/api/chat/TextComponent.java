@@ -94,19 +94,10 @@ public class TextComponent extends BaseComponent
 
                 TextComponent old = component;
                 component = new TextComponent( old );
-                ClickEvent clickEvent = new ClickEvent();
-                clickEvent.setAction( ClickEvent.Action.OPEN_URL );
                 String urlString = message.substring( i, pos );
-                if ( urlString.startsWith( "http" ) )
-                {
-                    component.setText( urlString );
-                    clickEvent.setValue( urlString );
-                } else
-                {
-                    component.setText( urlString );
-                    clickEvent.setValue( "http://" + urlString );
-                }
-                component.setClickEvent( clickEvent );
+                component.setText( urlString );
+                component.setClickEvent( new ClickEvent( ClickEvent.Action.OPEN_URL,
+                        urlString.startsWith( "http" ) ? urlString : "http://" + urlString ) );
                 components.add( component );
                 i += pos - i - 1;
                 component = old;
