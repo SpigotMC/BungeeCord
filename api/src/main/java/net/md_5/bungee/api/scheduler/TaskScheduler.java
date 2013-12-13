@@ -65,7 +65,7 @@ public interface TaskScheduler
      *
      * @param owner the plugin owning this task
      * @param task the task to run
-     * @param delay the delay in milliseconds before this task will be executed
+     * @param delay the delay before this task will be executed
      * @param period the interval before subsequent executions of this task
      * @param unit the unit in which the delay and period will be measured
      * @return the scheduled task
