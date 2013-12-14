@@ -1,6 +1,8 @@
 package net.md_5.bungee.api.connection;
 
 import java.net.InetSocketAddress;
+
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.DefinedPacket;
 
 /**
@@ -26,7 +28,28 @@ public interface Connection
      * @param reason the reason shown to the player / sent to the server on
      * disconnect
      */
+    @Deprecated
     void disconnect(String reason);
+
+    /**
+     * Disconnects this end of the connection for the specified reason. If this
+     * is an {@link ProxiedPlayer} the respective server connection will be
+     * closed too.
+     *
+     * @param reason the reason shown to the player / sent to the server on
+     * disconnect
+     */
+    void disconnect(BaseComponent... reason);
+
+    /**
+     * Disconnects this end of the connection for the specified reason. If this
+     * is an {@link ProxiedPlayer} the respective server connection will be
+     * closed too.
+     *
+     * @param reason the reason shown to the player / sent to the server on
+     * disconnect
+     */
+    void disconnect(BaseComponent reason);
 
     /**
      * Get the unsafe methods of this class.

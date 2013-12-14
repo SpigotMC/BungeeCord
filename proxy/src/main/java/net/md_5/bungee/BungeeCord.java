@@ -1,6 +1,9 @@
 package net.md_5.bungee;
 
 import com.google.common.io.ByteStreams;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.log.BungeeLogger;
 import net.md_5.bungee.reconnect.YamlReconnectHandler;
 import net.md_5.bungee.scheduler.BungeeScheduler;
@@ -134,6 +137,7 @@ public class BungeeCord extends ProxyServer
         getPluginManager().registerCommand( null, new CommandPerms() );
         getPluginManager().registerCommand( null, new CommandSend() );
         getPluginManager().registerCommand( null, new CommandFind() );
+        getPluginManager().registerCommand( null, new CommandAlertRaw() );
 
         registerChannel( "BungeeCord" );
     }
@@ -486,11 +490,21 @@ public class BungeeCord extends ProxyServer
     @Override
     public void broadcast(String message)
     {
-        getConsole().sendMessage( message );
-        // TODO: Here too
-        for (String msg : ChatConverter.toJSONChat( message )) {
-            broadcast( new Chat( msg ) );
-        }
+        broadcast( TextComponent.fromLegacyText( message ) );
+    }
+
+    @Override
+    public void broadcast(BaseComponent... message)
+    {
+        getConsole().sendMessage( BaseComponent.toLegacyText( message ) );
+        broadcast( new Chat( ComponentSerializer.toString( message ) ) );
+    }
+
+    @Override
+    public void broadcast(BaseComponent message)
+    {
+        getConsole().sendMessage( message.toLegacyText() );
+        broadcast( new Chat( ComponentSerializer.toString( message ) ) );
     }
 
     public void addConnection(UserConnection con)

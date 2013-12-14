@@ -20,12 +20,15 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.api.tab.TabListHandler;
+import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
@@ -256,15 +259,27 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public synchronized void disconnect(String reason)
     {
-        disconnect0( ChatConverter.toJSONChat( reason )[0] );
+        disconnect0( TextComponent.fromLegacyText( reason ) );
     }
 
-    public synchronized void disconnect0(String reason)
+    @Override
+    public void disconnect(BaseComponent... reason)
+    {
+        disconnect0( reason );
+    }
+
+    @Override
+    public void disconnect(BaseComponent reason)
+    {
+        disconnect0( reason );
+    }
+
+    public synchronized void disconnect0(BaseComponent ...reason)
     {
         if ( ch.getHandle().isActive() )
         {
-            bungee.getLogger().log( Level.INFO, "[" + getName() + "] disconnected with: " + reason );
-            unsafe().sendPacket( new Kick( reason ) );
+            bungee.getLogger().log( Level.INFO, "[" + getName() + "] disconnected with: " + BaseComponent.toLegacyText( reason ) );
+            unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
             ch.close();
             if ( server != null )
             {
@@ -283,9 +298,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendMessage(String message)
     {
-        for(String msg : ChatConverter.toJSONChat( message )) {
-            unsafe().sendPacket( new Chat( msg ) );
-        }
+        sendMessage( TextComponent.fromLegacyText( message ) );
     }
 
     @Override
@@ -295,6 +308,18 @@ public final class UserConnection implements ProxiedPlayer
         {
             sendMessage( message );
         }
+    }
+
+    @Override
+    public void sendMessage(BaseComponent... message)
+    {
+        unsafe().sendPacket( new Chat( ComponentSerializer.toString( message ) ) );
+    }
+
+    @Override
+    public void sendMessage(BaseComponent message)
+    {
+        unsafe().sendPacket( new Chat( ComponentSerializer.toString( message ) ) );
     }
 
     @Override
