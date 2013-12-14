@@ -9,7 +9,6 @@ import net.md_5.bungee.api.ChatColor;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
 @Setter
 @NoArgsConstructor
 public abstract class BaseComponent
@@ -60,17 +59,20 @@ public abstract class BaseComponent
      * Appended components that inherit this component's
      * formatting and events
      */
+    @Getter
     private List<BaseComponent> extra;
 
     /**
      * The action to preform when this component (and
      * child components) are clicked
      */
+    @Getter
     private ClickEvent clickEvent;
     /**
      * The action to preform when this component (and
      * child components) are hovered over
      */
+    @Getter
     private HoverEvent hoverEvent;
 
     protected BaseComponent(BaseComponent old)
