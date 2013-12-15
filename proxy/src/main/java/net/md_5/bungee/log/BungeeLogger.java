@@ -12,13 +12,16 @@ public class BungeeLogger extends Logger
 
     private final BungeeCord bungee;
     private final ColouredWriter writer;
-    private final Formatter formatter = new ConciseFormatter();
+    private final Formatter formatter;
     private final LogDispatcher dispatcher = new LogDispatcher( this );
 
-    public BungeeLogger(BungeeCord bungee)
+    public BungeeLogger( BungeeCord bungee, String log_format )
     {
         super( "BungeeCord", null );
         this.bungee = bungee;
+        
+        formatter = new ConciseFormatter( log_format );
+        
         this.writer = new ColouredWriter( bungee.getConsoleReader() );
 
         try

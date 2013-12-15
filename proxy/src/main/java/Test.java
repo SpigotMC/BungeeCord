@@ -20,7 +20,7 @@ public class Test
 
         System.setProperty( "java.net.preferIPv4Stack", "true" );
 
-        BungeeCord bungee = new BungeeCord();
+        BungeeCord bungee = new BungeeCord( "HH:mm:ss" );
         ProxyServer.setInstance( bungee );
         bungee.getLogger().info( "Enabled BungeeCord version " + bungee.getVersion() );
         bungee.start();

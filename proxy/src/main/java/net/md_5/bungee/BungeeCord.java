@@ -147,14 +147,14 @@ public class BungeeCord extends ProxyServer
         return (BungeeCord) ProxyServer.getInstance();
     }
 
-    public BungeeCord() throws IOException
+    public BungeeCord( String log_format ) throws IOException
     {
         Log.setOutput( new PrintStream( ByteStreams.nullOutputStream() ) ); // TODO: Bug JLine
         AnsiConsole.systemInstall();
         consoleReader = new ConsoleReader();
         consoleReader.setExpandEvents( false );
 
-        logger = new BungeeLogger( this );
+        logger = new BungeeLogger( this , log_format );
         System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
         System.setOut( new PrintStream( new LoggingOutputStream( logger, Level.INFO ), true ) );
 
