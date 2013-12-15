@@ -31,6 +31,7 @@ import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Kick;
+import net.md_5.bungee.protocol.packet.Respawn;
 
 @RequiredArgsConstructor
 public class DownstreamBridge extends PacketHandler
@@ -99,6 +100,12 @@ public class DownstreamBridge extends PacketHandler
         {
             throw new CancelSendSignal();
         }
+    }
+
+    @Override
+    public void handle(Respawn respawn) throws Exception
+    {
+        con.getLocation().setDimension( respawn.getDimension() );
     }
 
     @Override

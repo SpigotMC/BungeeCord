@@ -53,7 +53,7 @@ public class ServerConnector extends PacketHandler
     public void exception(Throwable t) throws Exception
     {
         String message = "Exception Connecting:" + Util.exception( t );
-        if ( user.getServer() == null )
+        if ( user.getLocation().getServer() == null )
         {
             user.disconnect( message );
         } else
@@ -168,8 +168,8 @@ public class ServerConnector extends PacketHandler
                 user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getDifficulty(), login.getGameMode(), login.getLevelType() ) );
 
                 // Remove from old servers
-                user.getServer().setObsolete( true );
-                user.getServer().disconnect( "Quitting" );
+                user.getLocation().getServer().setObsolete( true );
+                user.getLocation().getServer().disconnect( "Quitting" );
             }
 
             // TODO: Fix this?
@@ -187,6 +187,7 @@ public class ServerConnector extends PacketHandler
             user.getPendingConnects().remove( target );
             user.setDimensionChange( false );
 
+            user.getLocation().setServer( server );
             user.setServer( server );
             ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user, server ) );
         }

@@ -1,6 +1,7 @@
 package net.md_5.bungee.api.connection;
 
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.Location;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.tab.TabListHandler;
 
@@ -38,10 +39,20 @@ public interface ProxiedPlayer extends Connection, CommandSender
     /**
      * Gets the server this player is connected to.
      *
+     * @deprecated {@link #getLocation()}
+     * 
      * @return the server this player is connected to
      */
+    @Deprecated
     Server getServer();
 
+    /**
+     * Gets the current location of this player
+     * 
+     * @return the location
+     */
+    Location getLocation();
+    
     /**
      * Gets the ping time between the proxy and this connection.
      *

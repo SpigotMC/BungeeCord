@@ -20,8 +20,12 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.md_5.bungee.api.ProxyServer;
+<<<<<<< HEAD
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+=======
+import net.md_5.bungee.api.Location;
+>>>>>>> 13974085cf99a7488d6cb57cb54cee68ed68836b
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
@@ -59,6 +63,9 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     private final InitialHandler pendingConnection;
     /*========================================================================*/
+    @Getter
+    @Setter
+    private UserLocation location;
     @Getter
     @Setter
     private ServerConnection server;
@@ -115,6 +122,7 @@ public final class UserConnection implements ProxiedPlayer
     public void init()
     {
         this.displayName = name;
+        this.location = new UserLocation(0.0d, 0.0d, 0.0d, 0.0f, 0.0f, 0, null);
         try
         {
             this.tabList = getPendingConnection().getListener().getTabList().getDeclaredConstructor().newInstance();

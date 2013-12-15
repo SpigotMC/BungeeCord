@@ -18,6 +18,10 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import java.util.ArrayList;
 import java.util.List;
+import net.md_5.bungee.UserLocation;
+import net.md_5.bungee.protocol.packet.PlayerLook;
+import net.md_5.bungee.protocol.packet.PlayerPosition;
+import net.md_5.bungee.protocol.packet.PlayerPositionAndLook;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 
 public class UpstreamBridge extends PacketHandler
@@ -68,6 +72,37 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
+    public void handle(PlayerPosition pos) throws Exception
+    {
+        UserLocation loc = con.getLocation();
+        loc.setX( pos.getX() );
+        loc.setY( pos.getY() );
+        loc.setZ( pos.getZ() );
+        con.setLocation( loc );
+    }
+
+    @Override
+    public void handle(PlayerLook look) throws Exception
+    {
+        UserLocation loc = con.getLocation();
+        loc.setYaw( look.getYaw() );
+        loc.setPitch( look.getPitch() );
+        con.setLocation( loc );
+    }
+
+    @Override
+    public void handle(PlayerPositionAndLook pos) throws Exception
+    {
+        UserLocation loc = con.getLocation();
+        loc.setX( pos.getX() );
+        loc.setY( pos.getY() );
+        loc.setZ( pos.getZ() );
+        loc.setYaw( pos.getYaw() );
+        loc.setPitch( pos.getYaw() );
+        con.setLocation( loc );
+    }
+
+    @Override
     public void handle(KeepAlive alive) throws Exception
     {
         if ( alive.getRandomId() == con.getSentPingId() )
@@ -87,7 +122,7 @@ public class UpstreamBridge extends PacketHandler
             chat.setMessage( chatEvent.getMessage() );
             if ( !chatEvent.isCommand() || !bungee.getPluginManager().dispatchCommand( con, chat.getMessage().substring( 1 ) ) )
             {
-                con.getServer().unsafe().sendPacket( chat );
+                con.getLocation().getServer().unsafe().sendPacket( chat );
             }
         }
         throw new CancelSendSignal();

@@ -21,6 +21,9 @@ import net.md_5.bungee.protocol.packet.LegacyPing;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PingPacket;
+import net.md_5.bungee.protocol.packet.PlayerLook;
+import net.md_5.bungee.protocol.packet.PlayerPosition;
+import net.md_5.bungee.protocol.packet.PlayerPositionAndLook;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
@@ -65,6 +68,18 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(Respawn respawn) throws Exception
+    {
+    }
+
+    public void handle(PlayerPosition position) throws Exception
+    {
+    }
+
+    public void handle(PlayerLook look) throws Exception
+    {
+    }
+    
+    public void handle(PlayerPositionAndLook posAndLook) throws Exception
     {
     }
 

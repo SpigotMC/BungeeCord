@@ -44,7 +44,7 @@ public class CommandSend extends Command
                 return;
             }
             ProxiedPlayer player = (ProxiedPlayer) sender;
-            for ( ProxiedPlayer p : player.getServer().getInfo().getPlayers() )
+            for ( ProxiedPlayer p : player.getLocation().getServer().getInfo().getPlayers() )
             {
                 summon( p, target, sender );
             }
@@ -63,7 +63,7 @@ public class CommandSend extends Command
 
     private void summon(ProxiedPlayer player, ServerInfo target, CommandSender sender)
     {
-        if ( player.getServer() != null && !player.getServer().getInfo().equals( target ) )
+        if ( player.getLocation().getServer() != null && !player.getLocation().getServer().getInfo().equals( target ) )
         {
             player.connect( target );
             player.sendMessage( ChatColor.GOLD + "Summoned to " + target.getName() + " by " + sender.getName() );

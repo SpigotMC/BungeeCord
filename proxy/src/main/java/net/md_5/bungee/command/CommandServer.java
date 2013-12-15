@@ -34,7 +34,7 @@ public class CommandServer extends Command implements TabExecutor
         Map<String, ServerInfo> servers = ProxyServer.getInstance().getServers();
         if ( args.length == 0 )
         {
-            player.sendMessage( ProxyServer.getInstance().getTranslation( "current_server" ) + player.getServer().getInfo().getName() );
+            player.sendMessage( ProxyServer.getInstance().getTranslation( "current_server" ) + player.getLocation().getServer().getInfo().getName() );
 
             StringBuilder serverList = new StringBuilder();
             for ( ServerInfo server : servers.values() )

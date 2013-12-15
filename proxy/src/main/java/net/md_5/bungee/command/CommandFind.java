@@ -23,12 +23,12 @@ public class CommandFind extends PlayerCommand
         } else
         {
             ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
-            if ( player == null || player.getServer() == null )
+            if ( player == null || player.getLocation().getServer() == null )
             {
                 sender.sendMessage( ChatColor.RED + "That user is not online" );
             } else
             {
-                sender.sendMessage( ChatColor.BLUE + args[0] + " is online at " + player.getServer().getInfo().getName() );
+                sender.sendMessage( ChatColor.BLUE + args[0] + " is online at " + player.getLocation().getServer().getInfo().getName() );
             }
         }
     }
