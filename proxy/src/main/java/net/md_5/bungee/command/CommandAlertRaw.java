@@ -36,7 +36,7 @@ public class CommandAlertRaw extends Command
             } catch ( Exception e )
             {
                 sender.sendMessage(
-                        new ComponentBuilder( "An error occured while parsing your message. (Hover for details)" ).
+                        new ComponentBuilder( "An error occurred while parsing your message. (Hover for details)" ).
                                 color( ChatColor.RED ).underlined( true ).
                                 event( new HoverEvent( HoverEvent.Action.SHOW_TEXT,
                                         new ComponentBuilder( e.getMessage() ).color( ChatColor.RED ).create() ) ).
