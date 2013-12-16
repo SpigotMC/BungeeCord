@@ -12,6 +12,7 @@ import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.packet.KeepAlive;
+import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.ClientSettings;
@@ -53,8 +54,15 @@ public class UpstreamBridge extends PacketHandler
 
         if ( con.getServer() != null )
         {
+            con.getServer().setObsolete( true );
             con.getServer().disconnect( "Quitting" );
+            con.setServer( null );
         }
+        
+        con.disconnect( "End of Stream" );
+        
+        if ( BungeeCord.isExitWhenEmpty() && BungeeCord.getInstance().getOnlineCount() == 0 )
+            BungeeCord.getInstance().stop();
     }
 
     @Override
@@ -139,6 +147,14 @@ public class UpstreamBridge extends PacketHandler
         {
             con.getPendingConnection().getRegisterMessages().add( pluginMessage );
         }
+    }
+    
+    @Override
+    public void handle( Kick kick ) throws Exception {
+        con.getServer().setObsolete( true );
+        con.getServer().disconnect( "End of Stream" );
+        con.setServer( null );
+        con.disconnect( "End of stream" );
     }
 
     @Override

@@ -72,6 +72,12 @@ import org.fusesource.jansi.AnsiConsole;
 public class BungeeCord extends ProxyServer
 {
 
+    public static final String jailServerName = "Jail";
+
+    @Getter
+    @Setter
+    private static boolean exitWhenEmpty = false;
+    
     /**
      * Current operation state.
      */
@@ -136,6 +142,8 @@ public class BungeeCord extends ProxyServer
         getPluginManager().registerCommand( null, new CommandBungee() );
         getPluginManager().registerCommand( null, new CommandPerms() );
         getPluginManager().registerCommand( null, new CommandSend() );
+        getPluginManager().registerCommand( null, new CommandDefault() );
+        getPluginManager().registerCommand( null, new CommandGraceful() );
         getPluginManager().registerCommand( null, new CommandFind() );
         getPluginManager().registerCommand( null, new CommandAlertRaw() );
 

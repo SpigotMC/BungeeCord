@@ -234,6 +234,13 @@ public class YamlConfig implements ConfigurationAdapter
         ret.add( "default" );
         return ret;
     }
+    
+    @Override
+    @SuppressWarnings("unchecked")
+    public Collection<String> getDownstreamProxies() {
+    	Collection<String> proxies = get( "downstream_proxies", null );
+    	return (proxies == null) ? new HashSet<String>() : new HashSet<>( proxies );
+    }
 
     @Override
     public Collection<?> getList(String path, Collection<?> def)

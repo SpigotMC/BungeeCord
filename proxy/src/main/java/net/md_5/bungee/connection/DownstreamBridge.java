@@ -23,6 +23,7 @@ import net.md_5.bungee.api.score.Team;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
@@ -31,6 +32,7 @@ import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Kick;
+import net.md_5.bungee.BungeeCord;
 
 @RequiredArgsConstructor
 public class DownstreamBridge extends PacketHandler
@@ -41,18 +43,29 @@ public class DownstreamBridge extends PacketHandler
     private final ServerConnection server;
 
     @Override
-    public void exception(Throwable t) throws Exception
-    {
+    public void connected( ChannelWrapper channel ) throws Exception {
+        if( ! con.isActive() )
+            server.disconnect( "End of Stream" );
+        con.sendMessage( ChatColor.GREEN + "Welcome to " + ChatColor.RED + server.getInfo().getName() );
+    }
+    
+    public void tryRescue( String kickMessage ) {
         ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getFallbackServer() );
-        if ( server.getInfo() != def )
+        if ( ! server.getInfo().getName().equalsIgnoreCase( BungeeCord.jailServerName ) )
         {
             server.setObsolete( true );
             con.connectNow( def );
-            con.sendMessage( bungee.getTranslation( "server_went_down" ) );
+            //con.sendMessage( bungee.getTranslation( "server_went_down" ) );
         } else
         {
-            con.disconnect( Util.exception( t ) );
+            con.disconnect( kickMessage );
         }
+    }
+    
+    @Override
+    public void exception(Throwable t) throws Exception
+    {
+        tryRescue( Util.exception( t ) );
     }
 
     @Override
@@ -65,9 +78,9 @@ public class DownstreamBridge extends PacketHandler
             bungee.getReconnectHandler().setServer( con );
         }
 
-        if ( !server.isObsolete() )
+        if ( !server.isObsolete() && con.isActive() )
         {
-            con.disconnect( bungee.getTranslation( "lost_connection" ) );
+            tryRescue( bungee.getTranslation( "lost_connection" ) );
         }
 
         ServerDisconnectEvent serverDisconnectEvent = new ServerDisconnectEvent( con, server.getInfo() );
@@ -352,19 +365,25 @@ public class DownstreamBridge extends PacketHandler
     public void handle(Kick kick) throws Exception
     {
         ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getFallbackServer() );
+        /*
         if ( Objects.equals( server.getInfo(), def ) )
         {
             def = null;
-        }
-        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, ComponentSerializer.parse(kick.getMessage()), def, ServerKickEvent.State.CONNECTED ) );
+        }*/
+        ServerKickEvent origEvt = new ServerKickEvent( con, ComponentSerializer.parse(kick.getMessage()), def, ServerKickEvent.State.CONNECTED );
+        
+        if( ! server.getInfo().getName().equalsIgnoreCase( BungeeCord.jailServerName ) && ( kick.getMessage().contains( "Server" ) || kick.getMessage().contains( "closed" ) || kick.getMessage().contains( "white-listed" ) ) )
+            origEvt.setCancelled( true );
+        ServerKickEvent event = bungee.getPluginManager().callEvent( origEvt );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
+            server.setObsolete( true );
             con.connectNow( event.getCancelServer() );
         } else
         {
             con.disconnect0( event.getKickReasonComponent() ); // TODO: Prefix our own stuff.
+            server.setObsolete( true ); // TODO: Is this still needed?
         }
-        server.setObsolete( true );
         throw new CancelSendSignal();
     }
 

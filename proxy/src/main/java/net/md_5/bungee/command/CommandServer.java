@@ -5,6 +5,10 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -20,7 +24,7 @@ public class CommandServer extends Command implements TabExecutor
 
     public CommandServer()
     {
-        super( "server", "bungeecord.command.server" );
+        super( "gserver", "bungeecord.command.server" );
     }
 
     @Override
@@ -31,6 +35,10 @@ public class CommandServer extends Command implements TabExecutor
             return;
         }
         ProxiedPlayer player = (ProxiedPlayer) sender;
+        if( BungeeCord.jailServerName.equalsIgnoreCase( player.getServer().getInfo().getName() ) ) {
+            player.sendMessage( ChatColor.RED + "You are on the jail server.  If you are not jailed, type /jret to return." );
+            return;
+        }
         Map<String, ServerInfo> servers = ProxyServer.getInstance().getServers();
         if ( args.length == 0 )
         {
@@ -52,7 +60,12 @@ public class CommandServer extends Command implements TabExecutor
             player.sendMessage( ProxyServer.getInstance().getTranslation( "server_list" ) + serverList.toString() );
         } else
         {
-            ServerInfo server = servers.get( args[0] );
+            //ServerInfo server = servers.get( args[0] );
+            ServerInfo server = null;
+            for( Entry<String,ServerInfo> entry : servers.entrySet() ) {
+                if( entry.getKey().equalsIgnoreCase( args[0] ) )
+                    server = entry.getValue();
+            }
             if ( server == null )
             {
                 player.sendMessage( ProxyServer.getInstance().getTranslation( "no_server" ) );

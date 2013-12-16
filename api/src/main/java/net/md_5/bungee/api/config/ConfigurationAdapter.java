@@ -82,4 +82,6 @@ public interface ConfigurationAdapter
      * @return all true permissions for this group
      */
     public Collection<String> getPermissions(String group);
+
+	Collection<String> getDownstreamProxies();
 }

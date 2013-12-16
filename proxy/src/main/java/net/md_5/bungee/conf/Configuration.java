@@ -43,6 +43,8 @@ public class Configuration implements ProxyConfig
      * Set of all servers.
      */
     private TMap<String, ServerInfo> servers;
+    
+    private Collection<String> downstreamProxies;
     /**
      * Should we check minecraft.net auth.
      */
@@ -75,6 +77,7 @@ public class Configuration implements ProxyConfig
         uuid = adapter.getString( "stats", uuid );
         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
         playerLimit = adapter.getInt( "player_limit", playerLimit );
+        downstreamProxies = adapter.getDownstreamProxies();
         throttle = adapter.getInt( "connection_throttle", throttle );
         ipFoward = adapter.getBoolean( "ip_forward", ipFoward );
 

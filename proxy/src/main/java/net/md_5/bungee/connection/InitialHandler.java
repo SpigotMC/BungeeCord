@@ -1,6 +1,12 @@
 package net.md_5.bungee.connection;
 
 import com.google.common.base.Preconditions;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+
+import io.netty.util.concurrent.ScheduledFuture;
+
+import java.io.DataInput;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
@@ -84,6 +90,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private boolean onlineMode = BungeeCord.getInstance().config.isOnlineMode();
     private InetSocketAddress vHost;
     private byte version = -1;
+    private InetSocketAddress effectiveAddress = null;
     @Getter
     private String UUID;
 
@@ -190,6 +197,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
         this.handshake = handshake;
         this.vHost = new InetSocketAddress( handshake.getHost(), handshake.getPort() );
+        //if ( ((BungeeCord) bungee).config.getDownstreamProxies().contains( ((InetSocketAddress) ch.getHandle().remoteAddress()).getAddress().getHostAddress() ) )
+        //    effectiveAddress = new InetSocketAddress(srcHost, srcPort);
         bungee.getLogger().log( Level.INFO, "{0} has connected", this );
 
         bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
@@ -369,6 +378,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
                             UserConnection userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
                             userCon.init();
+                            userCon.setEffectiveAddress( effectiveAddress );
 
                             bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
 

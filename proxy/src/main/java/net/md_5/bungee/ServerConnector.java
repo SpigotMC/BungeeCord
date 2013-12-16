@@ -5,6 +5,10 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import java.util.Objects;
 import java.util.Queue;
+import java.util.concurrent.TimeUnit;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
@@ -66,11 +70,16 @@ public class ServerConnector extends PacketHandler
     public void connected(ChannelWrapper channel) throws Exception
     {
         this.ch = channel;
+        if ( !user.isActive() )
+        {
+            ch.close();
+            return;
+        }
 
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF( "Login" );
-        out.writeUTF( user.getAddress().getHostString() );
-        out.writeInt( user.getAddress().getPort() );
+        out.writeUTF( user.getEffectiveAddress().getHostString() );
+        out.writeInt( user.getEffectiveAddress().getPort() );
         // channel.write( new PluginMessage( "BungeeCord", out.toByteArray() ) ); MOJANG
 
         Handshake originalHandshake = user.getPendingConnection().getHandshake();
@@ -89,6 +98,14 @@ public class ServerConnector extends PacketHandler
     public void disconnected(ChannelWrapper channel) throws Exception
     {
         user.getPendingConnects().remove( target );
+        if( user.getServer() != null && user.getServer().isObsolete() && user.isActive() )
+            user.getCh().getHandle().eventLoop().schedule( new Runnable() {
+                @Override
+                public void run() {
+                    if( user.isActive() )
+                        user.connect( bungee.getServerInfo( user.getPendingConnection().getListener().getFallbackServer() ), true );
+                }
+            }, 5, TimeUnit.SECONDS );
     }
 
     @Override
@@ -104,7 +121,7 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(Login login) throws Exception
     {
-        Preconditions.checkState( thisState == State.LOGIN, "Not exepcting LOGIN" );
+        Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
         ServerConnection server = new ServerConnection( ch, target );
         ServerConnectedEvent event = new ServerConnectedEvent( user, server );
@@ -207,12 +224,19 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(Kick kick) throws Exception
     {
+        user.getPendingConnects().remove( target );
+        
         ServerInfo def = bungee.getServerInfo( user.getPendingConnection().getListener().getFallbackServer() );
         if ( Objects.equals( target, def ) )
         {
             def = null;
         }
-        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( user, ComponentSerializer.parse(kick.getMessage()), def, ServerKickEvent.State.CONNECTING ) );
+        ServerKickEvent origEvt = new ServerKickEvent( user, ComponentSerializer.parse(kick.getMessage()), def, ServerKickEvent.State.CONNECTING );
+        
+        if( ! target.getName().equalsIgnoreCase( BungeeCord.jailServerName ) && ( kick.getMessage().contains( "Server" ) || kick.getMessage().contains( "closed" ) || kick.getMessage().contains( "white-listed" ) ) && user.getServer() == null )
+            origEvt.setCancelled( true );
+        
+        ServerKickEvent event = bungee.getPluginManager().callEvent( origEvt );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
             user.connect( event.getCancelServer() );

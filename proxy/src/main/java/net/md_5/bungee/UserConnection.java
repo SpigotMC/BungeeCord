@@ -13,6 +13,8 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.Objects;
 import java.util.logging.Level;
 import lombok.Getter;
@@ -52,6 +54,7 @@ public final class UserConnection implements ProxiedPlayer
     @NonNull
     private final ProxyServer bungee;
     @NonNull
+    @Getter
     private final ChannelWrapper ch;
     @Getter
     @NonNull
@@ -102,6 +105,7 @@ public final class UserConnection implements ProxiedPlayer
     /*========================================================================*/
     @Getter
     private String displayName;
+    private InetSocketAddress effectiveAddress = null;
     /*========================================================================*/
     private final Unsafe unsafe = new Unsafe()
     {
@@ -175,10 +179,15 @@ public final class UserConnection implements ProxiedPlayer
     public void connectNow(ServerInfo target)
     {
         sendDimensionSwitch();
-        connect( target );
+        connect( target, true );
     }
 
     public void connect(ServerInfo info, final boolean retry)
+    {
+        connect(info, retry, 0);
+    }
+    
+    public void connect(ServerInfo info, final boolean retry, final int retryCount)
     {
         Preconditions.checkNotNull( info, "info" );
 
@@ -190,7 +199,7 @@ public final class UserConnection implements ProxiedPlayer
 
         final BungeeServerInfo target = (BungeeServerInfo) event.getTarget(); // Update in case the event changed target
 
-        if ( getServer() != null && Objects.equals( getServer().getInfo(), target ) )
+        if ( getServer() != null && Objects.equals( getServer().getInfo(), target ) && ! getServer().isObsolete() )
         {
             sendMessage( bungee.getTranslation( "already_connected" ) );
             return;
@@ -200,7 +209,7 @@ public final class UserConnection implements ProxiedPlayer
             sendMessage( bungee.getTranslation( "already_connecting" ) );
             return;
         }
-
+        
         pendingConnects.add( target );
 
         ChannelInitializer initializer = new ChannelInitializer()
@@ -224,11 +233,19 @@ public final class UserConnection implements ProxiedPlayer
                     future.channel().close();
                     pendingConnects.remove( target );
 
-                    ServerInfo def = ProxyServer.getInstance().getServers().get( getPendingConnection().getListener().getFallbackServer() );
-                    if ( retry && target != def && ( getServer() == null || def != getServer().getInfo() ) )
+                    final ServerInfo def = ProxyServer.getInstance().getServers().get( getPendingConnection().getListener().getFallbackServer() );
+                    if ( retry && target != def && ( getServer() == null || def != getServer().getInfo() ) && isActive() )
                     {
                         sendMessage( bungee.getTranslation( "fallback_lobby" ) );
                         connect( def, false );
+                    } else if ( target == def && retry && retryCount <= 12 && isActive() )
+                    {
+                        ch.getHandle().eventLoop().schedule( new Runnable() {
+                            @Override
+                            public void run() {
+                                connect( def, true, retryCount + 1 );
+                            }
+                        }, 5, TimeUnit.SECONDS );
                     } else
                     {
                         if ( dimensionChange )
@@ -283,8 +300,10 @@ public final class UserConnection implements ProxiedPlayer
             ch.close();
             if ( server != null )
             {
+                server.setObsolete( true );
                 server.disconnect( "Quitting" );
             }
+            ch.close();
         }
     }
 
@@ -332,6 +351,16 @@ public final class UserConnection implements ProxiedPlayer
     public InetSocketAddress getAddress()
     {
         return (InetSocketAddress) ch.getHandle().remoteAddress();
+    }
+    
+    public InetSocketAddress getEffectiveAddress() {
+    	if (effectiveAddress == null)
+    		return getAddress();
+    	return effectiveAddress;
+    }
+    
+    public void setEffectiveAddress(InetSocketAddress addr) {
+    	effectiveAddress = addr;
     }
 
     @Override
