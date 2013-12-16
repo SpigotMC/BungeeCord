@@ -1,6 +1,7 @@
 package net.md_5.bungee.connection;
 
 import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
@@ -67,7 +68,7 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(PacketWrapper packet) throws Exception
     {
-        // EntityMap.rewrite( packet.buf, con.getClientEntityId(), con.getServerEntityId() );
+        EntityMap.rewriteServerbound( packet.buf, con.getClientEntityId(), con.getServerEntityId() );
         if ( con.getServer() != null )
         {
             con.getServer().getCh().write( packet );

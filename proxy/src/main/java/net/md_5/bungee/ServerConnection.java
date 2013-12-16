@@ -5,7 +5,10 @@ import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.Server;
+import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.PluginMessage;
@@ -40,10 +43,16 @@ public class ServerConnection implements Server
     @Override
     public synchronized void disconnect(String reason)
     {
+        disconnect( TextComponent.fromLegacyText( reason ) );
+    }
+
+    @Override
+    public void disconnect(BaseComponent... reason)
+    {
         if ( !ch.isClosed() )
         {
             // TODO: Can we just use a future here?
-            unsafe().sendPacket( new Kick( reason ) );
+            unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
             ch.getHandle().eventLoop().schedule( new Runnable()
             {
                 @Override
@@ -53,6 +62,13 @@ public class ServerConnection implements Server
                 }
             }, 100, TimeUnit.MILLISECONDS );
         }
+
+    }
+
+    @Override
+    public void disconnect(BaseComponent reason)
+    {
+        disconnect( new BaseComponent[]{reason} );
     }
 
     @Override

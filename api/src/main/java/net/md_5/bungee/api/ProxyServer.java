@@ -1,5 +1,6 @@
 package net.md_5.bungee.api;
 
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.plugin.PluginManager;
 import com.google.common.base.Preconditions;
 import java.io.File;
@@ -231,7 +232,22 @@ public abstract class ProxyServer
      *
      * @param message the message to broadcast
      */
+    @Deprecated
     public abstract void broadcast(String message);
+
+    /**
+     * Send the specified message to the console and all connected players.
+     *
+     * @param message the message to broadcast
+     */
+    public abstract void broadcast(BaseComponent... message);
+
+    /**
+     * Send the specified message to the console and all connected players.
+     *
+     * @param message the message to broadcast
+     */
+    public abstract void broadcast(BaseComponent message);
 
     /**
      * Gets a new instance of this proxies custom tab list.
@@ -247,4 +263,12 @@ public abstract class ProxyServer
      * @return the set of disabled commands
      */
     public abstract Collection<String> getDisabledCommands();
+
+    /**
+     * Gets BungeeCord's core config.
+     *
+     * @return the config.
+     */
+    public abstract ProxyConfig getConfig();
+
 }

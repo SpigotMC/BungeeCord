@@ -3,10 +3,8 @@ package net.md_5.bungee.connection;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import java.io.DataInput;
-import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.EntityMap;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.api.event.ServerDisconnectEvent;
@@ -22,6 +20,7 @@ import net.md_5.bungee.api.score.Position;
 import net.md_5.bungee.api.score.Score;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.api.score.Team;
+import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.api.ChatColor;
@@ -33,6 +32,7 @@ import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Kick;
+import net.md_5.bungee.BungeeCord;
 
 @RequiredArgsConstructor
 public class DownstreamBridge extends PacketHandler
@@ -92,7 +92,7 @@ public class DownstreamBridge extends PacketHandler
     {
         if ( !server.isObsolete() )
         {
-            EntityMap.rewrite( packet.buf, con.getServerEntityId(), con.getClientEntityId() );
+            EntityMap.rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId() );
             con.sendPacket( packet );
         }
     }
@@ -333,6 +333,21 @@ public class DownstreamBridge extends PacketHandler
                 out.writeUTF( "GetServer" );
                 out.writeUTF( server.getInfo().getName() );
             }
+            if ( subChannel.equals( "UUID" ) )
+            {
+                out.writeUTF( "UUID" );
+                out.writeUTF( con.getUUID() );
+            }
+            if ( subChannel.equals("UUIDOther") )
+            {
+                ProxiedPlayer player = bungee.getPlayer( in.readUTF() );
+                if ( player != null )
+                {
+                    out.writeUTF( "UUIDOther" );
+                    out.writeUTF( player.getName() );
+                    out.writeUTF( player.getUUID() );
+                }
+            }
 
             // Check we haven't set out to null, and we have written data, if so reply back back along the BungeeCord channel
             if ( out != null )
@@ -355,7 +370,7 @@ public class DownstreamBridge extends PacketHandler
         {
             def = null;
         }*/
-        ServerKickEvent origEvt = new ServerKickEvent( con, kick.getMessage(), def, ServerKickEvent.State.CONNECTED );
+        ServerKickEvent origEvt = new ServerKickEvent( con, ComponentSerializer.parse(kick.getMessage()), def, ServerKickEvent.State.CONNECTED );
         
         if( ! server.getInfo().getName().equalsIgnoreCase( BungeeCord.jailServerName ) && ( kick.getMessage().contains( "Server" ) || kick.getMessage().contains( "closed" ) || kick.getMessage().contains( "white-listed" ) ) )
             origEvt.setCancelled( true );
@@ -366,7 +381,7 @@ public class DownstreamBridge extends PacketHandler
             con.connectNow( event.getCancelServer() );
         } else
         {
-            con.disconnect0( event.getKickReason() ); // TODO: Json concat util method // TODO: Prefix our own stuff.
+            con.disconnect0( event.getKickReasonComponent() ); // TODO: Prefix our own stuff.
             server.setObsolete( true ); // TODO: Is this still needed?
         }
         throw new CancelSendSignal();

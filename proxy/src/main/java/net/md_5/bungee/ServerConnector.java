@@ -19,6 +19,7 @@ import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.score.Objective;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.api.score.Team;
+import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.netty.HandlerBoss;
@@ -230,7 +231,7 @@ public class ServerConnector extends PacketHandler
         {
             def = null;
         }
-        ServerKickEvent origEvt = new ServerKickEvent( user, kick.getMessage(), def, ServerKickEvent.State.CONNECTING );
+        ServerKickEvent origEvt = new ServerKickEvent( user, ComponentSerializer.parse(kick.getMessage()), def, ServerKickEvent.State.CONNECTING );
         
         if( ! target.getName().equalsIgnoreCase( BungeeCord.jailServerName ) && ( kick.getMessage().contains( "Server" ) || kick.getMessage().contains( "closed" ) || kick.getMessage().contains( "white-listed" ) ) && user.getServer() == null )
             origEvt.setCancelled( true );
@@ -239,7 +240,7 @@ public class ServerConnector extends PacketHandler
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
             user.connect( event.getCancelServer() );
-            return;
+            throw new CancelSendSignal();
         }
 
         String message = bungee.getTranslation( "connect_kick" ) + target.getName() + ": " + event.getKickReason();
