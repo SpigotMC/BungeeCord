@@ -1,5 +1,6 @@
 package net.md_5.bungee.connection;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
@@ -362,7 +363,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                         {
                             if ( UUID == null )
                             {
-                                UUID = java.util.UUID.randomUUID().toString();
+                                UUID = java.util.UUID.nameUUIDFromBytes( ( "OfflinePlayer:" + getName() ).getBytes( Charsets.UTF_8 ) ).toString();
                             }
                             unsafe.sendPacket( new LoginSuccess( UUID, getName() ) );
                             ch.setProtocol( Protocol.GAME );
