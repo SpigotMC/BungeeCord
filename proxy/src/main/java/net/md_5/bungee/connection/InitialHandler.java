@@ -230,7 +230,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         if ( getName().length() > 16 )
         {
-            disconnect( "Cannot have username longer than 16 characters" );
+            disconnect( bungee.getTranslation( "username_to_long" ,new Object[]{getName()}) );
             return;
         }
 
