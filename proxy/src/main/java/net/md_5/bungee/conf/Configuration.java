@@ -110,6 +110,10 @@ public class Configuration implements ProxyConfig
         {
             Preconditions.checkArgument( servers.containsKey( listener.getDefaultServer() ), "Default server %s is not defined", listener.getDefaultServer() );
             Preconditions.checkArgument( servers.containsKey( listener.getFallbackServer() ), "Fallback server %s is not defined", listener.getFallbackServer() );
+            for ( String server : listener.getForcedHosts().values() )
+            {
+                Preconditions.checkArgument( servers.containsKey( server ), "Forced host server %s is not defined", server );
+            }
         }
     }
 }
