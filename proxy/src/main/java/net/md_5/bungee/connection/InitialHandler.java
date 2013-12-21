@@ -383,7 +383,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             {
                                 server = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
                             }
-                            userCon.connect( server, true );
+                            userCon.connect( server, null, true );
 
                             thisState = State.FINISHED;
                         }
@@ -399,7 +399,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public synchronized void disconnect(String reason)
     {
-        if (!ch.isClosed())
+        if ( !ch.isClosed() )
         {
             unsafe().sendPacket( new Kick( ComponentSerializer.toString( TextComponent.fromLegacyText( reason ) ) ) );
             ch.close();
@@ -419,7 +419,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void disconnect(BaseComponent reason)
     {
-        disconnect( new BaseComponent[]{reason} );
+        disconnect( new BaseComponent[]
+        {
+            reason
+        } );
     }
 
     @Override
