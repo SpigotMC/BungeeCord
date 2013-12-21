@@ -226,7 +226,10 @@ public final class UserConnection implements ProxiedPlayer
             @Override
             public void operationComplete(ChannelFuture future) throws Exception
             {
-                callback.done( future.isSuccess(), future.cause() );
+                if ( callback != null )
+                {
+                    callback.done( future.isSuccess(), future.cause() );
+                }
 
                 if ( !future.isSuccess() )
                 {
