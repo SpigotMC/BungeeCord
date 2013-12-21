@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -162,7 +163,13 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void connect(ServerInfo target)
     {
-        connect( target, false );
+        connect( target, null );
+    }
+
+    @Override
+    public void connect(ServerInfo target, Callback<Boolean> callback)
+    {
+        connect( target, callback, false );
     }
 
     void sendDimensionSwitch()
@@ -178,7 +185,7 @@ public final class UserConnection implements ProxiedPlayer
         connect( target );
     }
 
-    public void connect(ServerInfo info, final boolean retry)
+    public void connect(ServerInfo info, final Callback<Boolean> callback, final boolean retry)
     {
         Preconditions.checkNotNull( info, "info" );
 
@@ -219,6 +226,8 @@ public final class UserConnection implements ProxiedPlayer
             @Override
             public void operationComplete(ChannelFuture future) throws Exception
             {
+                callback.done( future.isSuccess(), future.cause() );
+
                 if ( !future.isSuccess() )
                 {
                     future.channel().close();
@@ -228,7 +237,7 @@ public final class UserConnection implements ProxiedPlayer
                     if ( retry && target != def && ( getServer() == null || def != getServer().getInfo() ) )
                     {
                         sendMessage( bungee.getTranslation( "fallback_lobby" ) );
-                        connect( def, false );
+                        connect( def, null, false );
                     } else
                     {
                         if ( dimensionChange )
@@ -274,7 +283,7 @@ public final class UserConnection implements ProxiedPlayer
         disconnect0( reason );
     }
 
-    public synchronized void disconnect0(BaseComponent ...reason)
+    public synchronized void disconnect0(BaseComponent... reason)
     {
         if ( ch.getHandle().isActive() )
         {
