@@ -129,6 +129,7 @@ public class ComponentBuilder
 
     /**
      * Sets the click event for the current part.
+     * 
      * @param clickEvent the click event
      * @return this ComponentBuilder for chaining
      */
@@ -140,6 +141,7 @@ public class ComponentBuilder
 
     /**
      * Sets the hover event for the current part.
+     * 
      * @param hoverEvent the hover event
      * @return this ComponentBuilder for chaining
      */
@@ -151,7 +153,8 @@ public class ComponentBuilder
 
     /**
      * Returns the components needed to display the message
-     * created by this builder
+     * created by this builder.
+     * 
      * @return the created components
      */
     public BaseComponent[] create()
