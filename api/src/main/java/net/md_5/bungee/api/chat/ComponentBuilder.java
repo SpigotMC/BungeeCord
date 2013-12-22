@@ -29,7 +29,7 @@ public class ComponentBuilder
     private List<BaseComponent> parts = new ArrayList<>();
 
     /**
-     * Creates a componentBuilder with the given text as the
+     * Creates a ComponentBuilder with the given text as the
      * first part.
      *
      * @param text the first text element
@@ -80,7 +80,7 @@ public class ComponentBuilder
     }
 
     /**
-     * Sets whether the current part is italic
+     * Sets whether the current part is italic.
      *
      * @param italic whether this part is italic
      * @return this ComponentBuilder for chaining
@@ -92,7 +92,7 @@ public class ComponentBuilder
     }
 
     /**
-     * Sets whether the current part is underlined
+     * Sets whether the current part is underlined.
      *
      * @param underlined whether this part is underlined
      * @return this ComponentBuilder for chaining
@@ -104,7 +104,7 @@ public class ComponentBuilder
     }
 
     /**
-     * Sets whether the current part is strikethrough
+     * Sets whether the current part is strikethrough.
      *
      * @param strikethrough whether this part is strikethrough
      * @return this ComponentBuilder for chaining
@@ -116,7 +116,7 @@ public class ComponentBuilder
     }
 
     /**
-     * Sets whether the current pat is obfuscated
+     * Sets whether the current part is obfuscated.
      *
      * @param obfuscated whether this part is obfuscated
      * @return this ComponentBuilder for chaining
@@ -129,8 +129,8 @@ public class ComponentBuilder
 
     /**
      * Sets the click event for the current part.
-     * @param clickEvent
-     * @return
+     * @param clickEvent the click event
+     * @return this ComponentBuilder for chaining
      */
     public ComponentBuilder event(ClickEvent clickEvent)
     {
@@ -138,6 +138,11 @@ public class ComponentBuilder
         return this;
     }
 
+    /**
+     * Sets the hover event for the current part.
+     * @param hoverEvent the hover event
+     * @return this ComponentBuilder for chaining
+     */
     public ComponentBuilder event(HoverEvent hoverEvent)
     {
         current.setHoverEvent( hoverEvent );
