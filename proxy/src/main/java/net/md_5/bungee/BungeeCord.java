@@ -399,7 +399,7 @@ public class BungeeCord extends ProxyServer
         connectionLock.readLock().lock();
         try
         {
-            return (Collection) new HashSet<>( connections.values() );
+            return Collections.unmodifiableCollection( new HashSet( connections.values() ) );
         } finally
         {
             connectionLock.readLock().unlock();
