@@ -18,34 +18,34 @@ public class EntityMap
 
     static
     {
-        clientboundInts[0x04] = true;
-        clientboundInts[0x0A] = true;
-        clientboundVarInts[0x0B] = true;
-        clientboundVarInts[0x0C] = true;
-        clientboundInts[0x0D] = true;
-        clientboundVarInts[0x0E] = true;
-        clientboundVarInts[0x0F] = true;
-        clientboundVarInts[0x10] = true;
-        clientboundVarInts[0x11] = true;
-        clientboundInts[0x12] = true;
-        clientboundInts[0x14] = true;
-        clientboundInts[0x15] = true;
-        clientboundInts[0x16] = true;
-        clientboundInts[0x17] = true;
-        clientboundInts[0x18] = true;
-        clientboundInts[0x19] = true;
-        clientboundInts[0x1A] = true;
-        clientboundInts[0x1B] = true;
-        clientboundInts[0x1C] = true;
-        clientboundInts[0x1D] = true;
-        clientboundInts[0x1E] = true;
-        clientboundInts[0x20] = true;
-        clientboundVarInts[0x25] = true;
-        clientboundVarInts[0x2C] = true;
+        clientboundInts[0x04] = true; // Entity Equipment
+        clientboundInts[0x0A] = true; // Use bed
+        clientboundVarInts[0x0B] = true; // Animation
+        clientboundVarInts[0x0C] = true; // Spawn Player
+        clientboundInts[0x0D] = true; // Collect Item
+        clientboundVarInts[0x0E] = true; // Spawn Object
+        clientboundVarInts[0x0F] = true; // Spawn Mob
+        clientboundVarInts[0x10] = true; // Spawn Painting
+        clientboundVarInts[0x11] = true; // Spawn Experience Orb
+        clientboundInts[0x12] = true; // Entity Velocity
+        clientboundInts[0x14] = true; // Entity
+        clientboundInts[0x15] = true; // Entity Relative Move
+        clientboundInts[0x16] = true; // Entity Look
+        clientboundInts[0x17] = true; // Entity Look and Relative Move
+        clientboundInts[0x18] = true; // Entity Teleport
+        clientboundInts[0x19] = true; // Entity Head Look
+        clientboundInts[0x1A] = true; // Entity Status
+        clientboundInts[0x1B] = true; // Attach Entity
+        clientboundInts[0x1C] = true; // Entity Metadata
+        clientboundInts[0x1D] = true; // Entity Effect
+        clientboundInts[0x1E] = true; // Remove Entity Effect
+        clientboundInts[0x20] = true; // Entity Properties
+        clientboundVarInts[0x25] = true; // Block Break Animation
+        clientboundVarInts[0x2C] = true; // Spawn Global Entity
 
-        serverboundInts[0x02] = true;
-        serverboundInts[0x0A] = true;
-        serverboundInts[0x0B] = true;
+        serverboundInts[0x02] = true; // Use Entity
+        serverboundInts[0x0A] = true; // Animation
+        serverboundInts[0x0B] = true; // Entity Action
     }
 
     public static void rewriteServerbound(ByteBuf packet, int serverEntityId, int clientEntityId)
@@ -61,7 +61,7 @@ public class EntityMap
         int readerIndex = packet.readerIndex();
         int packetId = DefinedPacket.readVarInt( packet );
         int packetIdLength = packet.readerIndex() - readerIndex;
-        if ( packetId == 0x0D || packetId == 0x1B )
+        if ( packetId == 0x0D /* Collect Item */ || packetId == 0x1B /* Attach Entity */ )
         {
             int readId = packet.getInt( packetIdLength + 4 );
             if ( readId == serverEntityId )
@@ -71,7 +71,7 @@ public class EntityMap
             {
                 packet.setInt( packetIdLength + 4, serverEntityId );
             }
-        } else if ( packetId == 0x13 )
+        } else if ( packetId == 0x13 /* Destroy Entities */ )
         {
             int count = packet.getByte( packetIdLength );
             for ( int i = 0; i < count; i++ )
@@ -85,7 +85,7 @@ public class EntityMap
                     packet.setInt( packetIdLength + 1 + i * 4, serverEntityId );
                 }
             }
-        } else if ( packetId == 0x0E )
+        } else if ( packetId == 0x0E /* Spawn Object */ )
         {
             DefinedPacket.readVarInt( packet );
             int idLength = packet.readerIndex() - readerIndex - packetIdLength;
