@@ -260,6 +260,37 @@ public class PluginManager
             }
         }
 
+        // next, try to resolve softdepends
+        if ( status )
+        {
+            for ( String softDependName : plugin.getSoftdepends() )
+            {
+                PluginDescription depend = toLoad.get( softDependName );
+                Boolean dependStatus = ( depend != null ) ? pluginStatuses.get( depend ) : Boolean.FALSE;
+
+                if ( dependStatus == null )
+                {
+                    if ( dependStack.contains( depend ) )
+                    {
+                        StringBuilder dependencyGraph = new StringBuilder();
+                        for ( PluginDescription element : dependStack )
+                        {
+                            dependencyGraph.append( element.getName() ).append( " -> " );
+                        }
+                        dependencyGraph.append( plugin.getName() ).append( " -> " ).append( softDependName );
+                        ProxyServer.getInstance().getLogger().log( Level.WARNING, "Circular soft dependency detected: " + dependencyGraph );
+                        status = false;
+                    } else
+                    {
+                        dependStack.push( plugin );
+                        // ignore the result
+                        this.enablePlugin( pluginStatuses, dependStack, depend );
+                        dependStack.pop();
+                    }
+                }
+            }
+        }
+
         // do actual loading
         if ( status )
         {
