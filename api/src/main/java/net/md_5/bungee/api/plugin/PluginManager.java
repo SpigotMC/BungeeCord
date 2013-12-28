@@ -282,10 +282,8 @@ public class PluginManager
                         status = false;
                     } else
                     {
-                        dependStack.push( plugin );
                         // ignore the result
                         this.enablePlugin( pluginStatuses, dependStack, depend );
-                        dependStack.pop();
                     }
                 }
             }
