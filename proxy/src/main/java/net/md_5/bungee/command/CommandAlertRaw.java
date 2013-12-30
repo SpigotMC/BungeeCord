@@ -49,7 +49,7 @@ public class CommandAlertRaw extends Command
 	                                create() );
             	} else
             	{
-            		sender.sendMessage(new ComponentBuilder( "An error occurred while parsing your message: " ).color( ChatColor.RED ).append( e.getMessage() ).create() );
+            		sender.sendMessage(new ComponentBuilder( "An error occurred while parsing your message: " ).color( ChatColor.RED ).append( error.getMessage() ).create() );
             	}
             }
         }
