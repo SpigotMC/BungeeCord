@@ -46,7 +46,7 @@ public class CommandAlertRaw extends Command
 	                                create() );
             	} else
             	{
-            		sender.sendMessage(ChatColor.RED + "An error occurred while parsing your message. " + e.getMessage());
+            		sender.sendMessage(new ComponentBuilder( "An error occurred while parsing your message: " ).color( ChatColor.RED ).append( e.getMessage() ).create() );
             	}
             }
         }
