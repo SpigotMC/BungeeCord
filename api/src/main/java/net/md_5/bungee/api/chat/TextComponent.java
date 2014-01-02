@@ -110,6 +110,12 @@ public class TextComponent extends BaseComponent
             component.setText( builder.toString() );
             components.add( component );
         }
+
+        //The client will crash if the array is empty
+        if ( components.size() == 0 ) {
+            components.add( new TextComponent( "" ) );
+        }
+
         return components.toArray( new BaseComponent[components.size()] );
     }
 
