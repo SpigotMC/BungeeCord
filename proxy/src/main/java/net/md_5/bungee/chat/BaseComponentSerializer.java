@@ -56,10 +56,15 @@ public class BaseComponentSerializer
         {
             JsonObject event = object.getAsJsonObject( "hoverEvent" );
             BaseComponent[] res;
-            if (event.get("value").isJsonArray()) {
+            if ( event.get( "value" ).isJsonArray() )
+            {
                 res = context.deserialize( event.get( "value" ), BaseComponent[].class );
-            } else {
-                res = new BaseComponent[]{context.<BaseComponent>deserialize( event.get( "value" ), BaseComponent.class )};
+            } else
+            {
+                res = new BaseComponent[]
+                {
+                    context.<BaseComponent>deserialize( event.get( "value" ), BaseComponent.class )
+                };
             }
             component.setHoverEvent( new HoverEvent( HoverEvent.Action.valueOf( event.get( "action" ).getAsString().toUpperCase() ), res ) );
         }

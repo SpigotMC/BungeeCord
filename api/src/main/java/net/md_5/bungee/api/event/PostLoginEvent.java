@@ -7,8 +7,8 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Event;
 
 /**
- * Event called as soon as a connection has a {@link ProxiedPlayer} and is
- * ready to be connected to a server.
+ * Event called as soon as a connection has a {@link ProxiedPlayer} and is ready
+ * to be connected to a server.
  */
 @Data
 @ToString(callSuper = false)

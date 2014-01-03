@@ -10,11 +10,11 @@ import net.md_5.bungee.protocol.PacketWrapper;
 public class EntityMap
 {
 
-    private final static boolean[] clientboundInts = new boolean[256];
-    private final static boolean[] clientboundVarInts = new boolean[256];
+    private final static boolean[] clientboundInts = new boolean[ 256 ];
+    private final static boolean[] clientboundVarInts = new boolean[ 256 ];
 
-    private final static boolean[] serverboundInts = new boolean[256];
-    private final static boolean[] serverboundVarInts = new boolean[256];
+    private final static boolean[] serverboundInts = new boolean[ 256 ];
+    private final static boolean[] serverboundVarInts = new boolean[ 256 ];
 
     static
     {
@@ -50,12 +50,12 @@ public class EntityMap
 
     public static void rewriteServerbound(ByteBuf packet, int serverEntityId, int clientEntityId)
     {
-        rewrite(packet, serverEntityId, clientEntityId, serverboundInts, serverboundVarInts);
+        rewrite( packet, serverEntityId, clientEntityId, serverboundInts, serverboundVarInts );
     }
 
     public static void rewriteClientbound(ByteBuf packet, int serverEntityId, int clientEntityId)
     {
-        rewrite(packet, serverEntityId, clientEntityId, clientboundInts, clientboundVarInts);
+        rewrite( packet, serverEntityId, clientEntityId, clientboundInts, clientboundVarInts );
 
         //Special cases
         int readerIndex = packet.readerIndex();
@@ -76,7 +76,7 @@ public class EntityMap
             int count = packet.getByte( packetIdLength );
             for ( int i = 0; i < count; i++ )
             {
-                int readId = packet.getInt( packetIdLength + 1 + i * 4);
+                int readId = packet.getInt( packetIdLength + 1 + i * 4 );
                 if ( readId == serverEntityId )
                 {
                     packet.setInt( packetIdLength + 1 + i * 4, clientEntityId );

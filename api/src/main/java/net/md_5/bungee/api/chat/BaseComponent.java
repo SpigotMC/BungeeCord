@@ -19,58 +19,56 @@ public abstract class BaseComponent
     BaseComponent parent;
 
     /**
-     * The color of this component and any child
-     * components (unless overridden)
+     * The color of this component and any child components (unless overridden)
      */
     @Getter(AccessLevel.NONE)
     private ChatColor color;
     /**
-     * Whether this component and any child
-     * components (unless overridden) is bold
+     * Whether this component and any child components (unless overridden) is
+     * bold
      */
     @Getter(AccessLevel.NONE)
     private Boolean bold;
     /**
-     * Whether this component and any child
-     * components (unless overridden) is italic
+     * Whether this component and any child components (unless overridden) is
+     * italic
      */
     @Getter(AccessLevel.NONE)
     private Boolean italic;
     /**
-     * Whether this component and any child
-     * components (unless overridden) is underlined
+     * Whether this component and any child components (unless overridden) is
+     * underlined
      */
     @Getter(AccessLevel.NONE)
     private Boolean underlined;
     /**
-     * Whether this component and any child
-     * components (unless overridden) is strikethrough
+     * Whether this component and any child components (unless overridden) is
+     * strikethrough
      */
     @Getter(AccessLevel.NONE)
     private Boolean strikethrough;
     /**
-     * Whether this component and any child
-     * components (unless overridden) is obfuscated
+     * Whether this component and any child components (unless overridden) is
+     * obfuscated
      */
     @Getter(AccessLevel.NONE)
     private Boolean obfuscated;
 
     /**
-     * Appended components that inherit this component's
-     * formatting and events
+     * Appended components that inherit this component's formatting and events
      */
     @Getter
     private List<BaseComponent> extra;
 
     /**
-     * The action to preform when this component (and
-     * child components) are clicked
+     * The action to preform when this component (and child components) are
+     * clicked
      */
     @Getter
     private ClickEvent clickEvent;
     /**
-     * The action to preform when this component (and
-     * child components) are hovered over
+     * The action to preform when this component (and child components) are
+     * hovered over
      */
     @Getter
     private HoverEvent hoverEvent;
@@ -88,8 +86,9 @@ public abstract class BaseComponent
     }
 
     /**
-     * Converts the components to a string that uses the
-     * old formatting codes ({@link net.md_5.bungee.api.ChatColor#COLOR_CHAR}
+     * Converts the components to a string that uses the old formatting codes
+     * ({@link net.md_5.bungee.api.ChatColor#COLOR_CHAR}
+     *
      * @param components the components to convert
      * @return the string in the old format
      */
@@ -104,8 +103,8 @@ public abstract class BaseComponent
     }
 
     /**
-     * Converts the components into a string without
-     * any formatting
+     * Converts the components into a string without any formatting
+     *
      * @param components the components to convert
      * @return the string as plain text
      */
@@ -119,10 +118,9 @@ public abstract class BaseComponent
         return builder.toString();
     }
 
-
     /**
-     * Returns the color of this component. This uses the parent's color
-     * if this component doesn't have one. {@link net.md_5.bungee.api.ChatColor#WHITE}
+     * Returns the color of this component. This uses the parent's color if this
+     * component doesn't have one. {@link net.md_5.bungee.api.ChatColor#WHITE}
      * is returned if no color is found.
      *
      * @return the color of this component
@@ -141,8 +139,8 @@ public abstract class BaseComponent
     }
 
     /**
-     * Returns the color of this component without checking the parents
-     * color. May return null
+     * Returns the color of this component without checking the parents color.
+     * May return null
      *
      * @return the color of this component
      */
@@ -152,9 +150,9 @@ public abstract class BaseComponent
     }
 
     /**
-     * Returns whether this component is bold. This uses the parent's
-     * setting if this component hasn't been set. false is returned
-     * if none of the parent chain has been set.
+     * Returns whether this component is bold. This uses the parent's setting if
+     * this component hasn't been set. false is returned if none of the parent
+     * chain has been set.
      *
      * @return whether the component is bold
      */
@@ -168,8 +166,8 @@ public abstract class BaseComponent
     }
 
     /**
-     * Returns whether this component is bold without checking
-     * the parents setting. May return null
+     * Returns whether this component is bold without checking the parents
+     * setting. May return null
      *
      * @return whether the component is bold
      */
@@ -179,9 +177,9 @@ public abstract class BaseComponent
     }
 
     /**
-     * Returns whether this component is italic. This uses the parent's
-     * setting if this component hasn't been set. false is returned
-     * if none of the parent chain has been set.
+     * Returns whether this component is italic. This uses the parent's setting
+     * if this component hasn't been set. false is returned if none of the
+     * parent chain has been set.
      *
      * @return whether the component is italic
      */
@@ -195,8 +193,8 @@ public abstract class BaseComponent
     }
 
     /**
-     * Returns whether this component is italic without checking
-     * the parents setting. May return null
+     * Returns whether this component is italic without checking the parents
+     * setting. May return null
      *
      * @return whether the component is italic
      */
@@ -207,8 +205,8 @@ public abstract class BaseComponent
 
     /**
      * Returns whether this component is underlined. This uses the parent's
-     * setting if this component hasn't been set. false is returned
-     * if none of the parent chain has been set.
+     * setting if this component hasn't been set. false is returned if none of
+     * the parent chain has been set.
      *
      * @return whether the component is underlined
      */
@@ -222,8 +220,8 @@ public abstract class BaseComponent
     }
 
     /**
-     * Returns whether this component is underlined without checking
-     * the parents setting. May return null
+     * Returns whether this component is underlined without checking the parents
+     * setting. May return null
      *
      * @return whether the component is underlined
      */
@@ -234,8 +232,8 @@ public abstract class BaseComponent
 
     /**
      * Returns whether this component is strikethrough. This uses the parent's
-     * setting if this component hasn't been set. false is returned
-     * if none of the parent chain has been set.
+     * setting if this component hasn't been set. false is returned if none of
+     * the parent chain has been set.
      *
      * @return whether the component is strikethrough
      */
@@ -249,8 +247,8 @@ public abstract class BaseComponent
     }
 
     /**
-     * Returns whether this component is strikethrough without checking
-     * the parents setting. May return null
+     * Returns whether this component is strikethrough without checking the
+     * parents setting. May return null
      *
      * @return whether the component is strikethrough
      */
@@ -261,8 +259,8 @@ public abstract class BaseComponent
 
     /**
      * Returns whether this component is obfuscated. This uses the parent's
-     * setting if this component hasn't been set. false is returned
-     * if none of the parent chain has been set.
+     * setting if this component hasn't been set. false is returned if none of
+     * the parent chain has been set.
      *
      * @return whether the component is obfuscated
      */
@@ -276,8 +274,8 @@ public abstract class BaseComponent
     }
 
     /**
-     * Returns whether this component is obfuscated without checking
-     * the parents setting. May return null
+     * Returns whether this component is obfuscated without checking the parents
+     * setting. May return null
      *
      * @return whether the component is obfuscated
      */
@@ -296,8 +294,8 @@ public abstract class BaseComponent
     }
 
     /**
-     * Appends a text element to the component. The text will
-     * inherit this component's formatting
+     * Appends a text element to the component. The text will inherit this
+     * component's formatting
      *
      * @param text the text to append
      */
@@ -307,8 +305,8 @@ public abstract class BaseComponent
     }
 
     /**
-     * Appends a component to the component. The text will
-     * inherit this component's formatting
+     * Appends a component to the component. The text will inherit this
+     * component's formatting
      *
      * @param component the component to append
      */
@@ -323,22 +321,21 @@ public abstract class BaseComponent
     }
 
     /**
-     * Returns whether the component has any formatting
-     * or events applied to it
+     * Returns whether the component has any formatting or events applied to it
+     *
      * @return
      */
     public boolean hasFormatting()
     {
-        return color != null || bold != null ||
-                italic != null || underlined != null ||
-                strikethrough != null || obfuscated != null ||
-                hoverEvent != null || clickEvent != null;
+        return color != null || bold != null
+                || italic != null || underlined != null
+                || strikethrough != null || obfuscated != null
+                || hoverEvent != null || clickEvent != null;
     }
 
-
     /**
-     * Converts the component into a string without
-     * any formatting
+     * Converts the component into a string without any formatting
+     *
      * @return the string as plain text
      */
     public String toPlainText()
@@ -359,10 +356,10 @@ public abstract class BaseComponent
         }
     }
 
-
     /**
-     * Converts the component to a string that uses the
-     * old formatting codes ({@link net.md_5.bungee.api.ChatColor#COLOR_CHAR}
+     * Converts the component to a string that uses the old formatting codes
+     * ({@link net.md_5.bungee.api.ChatColor#COLOR_CHAR}
+     *
      * @return the string in the old format
      */
     public String toLegacyText()
@@ -382,7 +379,6 @@ public abstract class BaseComponent
             }
         }
     }
-
 
     @Override
     public String toString()
