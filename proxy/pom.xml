@@ -68,13 +68,13 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.25</version>
+            <version>5.1.28</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
-            <version>3.18.0-GA</version>
+            <version>3.18.1-GA</version>
             <scope>runtime</scope>
         </dependency>
     </dependencies>
