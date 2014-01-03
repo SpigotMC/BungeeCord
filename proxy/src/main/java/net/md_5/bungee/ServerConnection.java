@@ -68,7 +68,10 @@ public class ServerConnection implements Server
     @Override
     public void disconnect(BaseComponent reason)
     {
-        disconnect( new BaseComponent[]{reason} );
+        disconnect( new BaseComponent[]
+        {
+            reason
+        } );
     }
 
     @Override

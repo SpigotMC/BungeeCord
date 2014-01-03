@@ -11,6 +11,7 @@ import org.junit.Test;
 
 public class ComponentsTest
 {
+
     @Test
     public void testBasicComponent()
     {
@@ -75,8 +76,8 @@ public class ComponentsTest
                 append( "!" ).color( ChatColor.YELLOW ).create();
 
         Assert.assertEquals( "Hello World!", BaseComponent.toPlainText( components ) );
-        Assert.assertEquals( ChatColor.RED + "Hello " + ChatColor.BLUE + ChatColor.BOLD +
-                "World" + ChatColor.YELLOW + ChatColor.BOLD + "!", BaseComponent.toLegacyText( components ) );
+        Assert.assertEquals( ChatColor.RED + "Hello " + ChatColor.BLUE + ChatColor.BOLD
+                + "World" + ChatColor.YELLOW + ChatColor.BOLD + "!", BaseComponent.toLegacyText( components ) );
     }
 
 }

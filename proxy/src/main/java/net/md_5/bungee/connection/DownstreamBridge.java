@@ -325,7 +325,7 @@ public class DownstreamBridge extends PacketHandler
                 out.writeUTF( "UUID" );
                 out.writeUTF( con.getUUID() );
             }
-            if ( subChannel.equals("UUIDOther") )
+            if ( subChannel.equals( "UUIDOther" ) )
             {
                 ProxiedPlayer player = bungee.getPlayer( in.readUTF() );
                 if ( player != null )
@@ -356,7 +356,7 @@ public class DownstreamBridge extends PacketHandler
         {
             def = null;
         }
-        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, ComponentSerializer.parse(kick.getMessage()), def, ServerKickEvent.State.CONNECTED ) );
+        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTED ) );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
             con.connectNow( event.getCancelServer() );

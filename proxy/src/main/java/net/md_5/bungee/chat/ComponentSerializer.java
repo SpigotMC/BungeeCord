@@ -30,7 +30,10 @@ public class ComponentSerializer implements JsonSerializer<BaseComponent>, JsonD
         { //Array
             return gson.fromJson( json, BaseComponent[].class );
         }
-        return new BaseComponent[]{gson.fromJson( json, BaseComponent.class )};
+        return new BaseComponent[]
+        {
+            gson.fromJson( json, BaseComponent.class )
+        };
     }
 
     public static String toString(BaseComponent component)

@@ -42,10 +42,10 @@ public class CommandAlertRaw extends Command
                 {
                     sender.sendMessage(
                             new ComponentBuilder( "An error occurred while parsing your message. (Hover for details)" ).
-                                    color( ChatColor.RED ).underlined( true ).
-                                    event( new HoverEvent( HoverEvent.Action.SHOW_TEXT,
+                            color( ChatColor.RED ).underlined( true ).
+                            event( new HoverEvent( HoverEvent.Action.SHOW_TEXT,
                                             new ComponentBuilder( error.getMessage() ).color( ChatColor.RED ).create() ) ).
-                                    create() );
+                            create() );
                 } else
                 {
                     sender.sendMessage( new ComponentBuilder( "An error occurred while parsing your message: " ).color( ChatColor.RED ).append( error.getMessage() ).create() );
