@@ -41,6 +41,7 @@ import net.md_5.bungee.api.AbstractReconnectHandler;
 import net.md_5.bungee.api.event.PlayerHandshakeEvent;
 import net.md_5.bungee.api.event.PreLoginEvent;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.packet.LegacyHandshake;
 import net.md_5.bungee.protocol.packet.LegacyPing;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
@@ -113,6 +114,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             loginMessages.add( pluginMessage );
         }
+    }
+
+    @Override
+    public void handle(LegacyHandshake legacyHandshake) throws Exception
+    {
+        ch.getHandle().writeAndFlush( bungee.getTranslation( "outdated_client" ) );
+        ch.close();
     }
 
     @Override
