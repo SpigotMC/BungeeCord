@@ -5,6 +5,8 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import java.util.List;
+
+import net.md_5.bungee.protocol.packet.LegacyHandshake;
 import net.md_5.bungee.protocol.packet.LegacyPing;
 
 public class LegacyDecoder extends ByteToMessageDecoder
@@ -25,6 +27,11 @@ public class LegacyDecoder extends ByteToMessageDecoder
         if ( b1 == 0xFE && b2 == 0x01 && b3 == 0xFA )
         {
             out.add( new PacketWrapper( new LegacyPing(), Unpooled.EMPTY_BUFFER ) );
+        }
+        if ( b1 == 0x02 && b2 >= 60 && b2 <= 78 )
+        {
+            out.add( new PacketWrapper( new LegacyHandshake(), Unpooled.EMPTY_BUFFER ) );
+            return;
         }
         ctx.pipeline().remove( this );
     }
