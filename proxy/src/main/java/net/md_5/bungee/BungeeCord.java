@@ -27,6 +27,7 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -84,7 +85,7 @@ public class BungeeCord extends ProxyServer
     /**
      * Localization bundle.
      */
-    public final ResourceBundle bundle = ResourceBundle.getBundle( "messages" );
+    public ResourceBundle bundle;
     public final MultithreadEventLoopGroup eventLoops = new NioEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
     /**
      * locations.yml save thread.
@@ -149,6 +150,14 @@ public class BungeeCord extends ProxyServer
 
     public BungeeCord() throws IOException
     {
+        try
+        {
+            bundle = ResourceBundle.getBundle( "messages" );
+        } catch ( MissingResourceException ex )
+        {
+            bundle = ResourceBundle.getBundle( "messages", Locale.ENGLISH );
+        }
+
         Log.setOutput( new PrintStream( ByteStreams.nullOutputStream() ) ); // TODO: Bug JLine
         AnsiConsole.systemInstall();
         consoleReader = new ConsoleReader();
