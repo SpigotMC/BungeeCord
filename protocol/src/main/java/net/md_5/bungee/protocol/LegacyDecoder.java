@@ -30,6 +30,7 @@ public class LegacyDecoder extends ByteToMessageDecoder
         if ( b1 == 0x02 && b2 >= 60 && b2 <= 78 )
         {
             out.add( new PacketWrapper( new LegacyHandshake(), Unpooled.EMPTY_BUFFER ) );
+            return;
         }
         ctx.pipeline().remove( this );
     }
