@@ -249,7 +249,7 @@ public class PluginManager
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} (required by {1}) is unavailable", new Object[]
                 {
-                    String.valueOf( depend.getName() ), plugin.getName()
+                    String.valueOf( dependName ), plugin.getName()
                 } );
                 status = false;
             }
