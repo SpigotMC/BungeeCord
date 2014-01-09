@@ -13,7 +13,7 @@
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-module-cmd-find</artifactId>
     <version>1.7-SNAPSHOT</version>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
     <name>cmd_find</name>
     <description>Provides the find command</description>
