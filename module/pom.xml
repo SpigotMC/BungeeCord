@@ -1,0 +1,38 @@
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.md-5</groupId>
+        <artifactId>bungeecord-parent</artifactId>
+        <version>1.7-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <groupId>net.md-5</groupId>
+    <artifactId>bungeecord-module</artifactId>
+    <version>1.7-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>BungeeCord</name>
+    <description>Parent project for all BungeeCord modules.</description>
+
+    <modules>
+        <module>cmd-alert</module>
+        <module>cmd-find</module>
+        <module>cmd-list</module>
+        <module>cmd-send</module>
+        <module>cmd-server</module>
+    </modules>
+
+    <build>
+        <finalName>${project.name}</finalName>
+        <resources>
+            <resource>
+                <filtering>true</filtering>
+                <directory>${basedir}/src/main/resources</directory>
+            </resource>
+        </resources>
+    </build>
+</project>

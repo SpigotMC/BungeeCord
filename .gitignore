@@ -34,4 +34,6 @@ manifest.mf
 
 # other files
 *.log*
-*.yml
+
+# delombok
+*/src/main/lombok

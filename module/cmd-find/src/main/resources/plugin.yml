@@ -1,0 +1,4 @@
+name: ${project.name}
+main: foo
+version: ${describe}
+description: ${project.description}
