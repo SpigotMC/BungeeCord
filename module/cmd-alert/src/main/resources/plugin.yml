@@ -1,4 +1,4 @@
 name: ${project.name}
-main: foo
+main: net.md_5.bungee.module.cmd.alert.PluginAlert
 version: ${describe}
 description: ${project.description}
