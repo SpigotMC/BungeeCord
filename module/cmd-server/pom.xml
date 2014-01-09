@@ -13,7 +13,7 @@
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-module-cmd-server</artifactId>
     <version>1.7-SNAPSHOT</version>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
     <name>cmd_server</name>
     <description>Provides the server command</description>

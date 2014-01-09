@@ -13,7 +13,7 @@
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-module-cmd-send</artifactId>
     <version>1.7-SNAPSHOT</version>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
     <name>cmd_send</name>
     <description>Provides the gsend command</description>
