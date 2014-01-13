@@ -124,6 +124,7 @@ public class BungeeCord extends ProxyServer
     public final Gson gson = new Gson();
     @Getter
     private ConnectionThrottle connectionThrottle;
+    private final ModuleManager moduleManager = new ModuleManager();
 
     
     {
@@ -186,6 +187,8 @@ public class BungeeCord extends ProxyServer
     public void start() throws Exception
     {
         ResourceLeakDetector.setEnabled( false ); // Eats performance
+
+        moduleManager.load( this );
 
         pluginsFolder.mkdir();
         pluginManager.detectPlugins( pluginsFolder );
