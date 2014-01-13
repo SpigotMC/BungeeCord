@@ -72,9 +72,14 @@ public class TextComponent extends BaseComponent
                         component.setObfuscated( true );
                         break;
                     case RESET:
+                        if(component.isBold()) component.setBold(false);
+                        if(component.isUnderlined()) component.setUnderlined(false);
+                        if(component.isItalic()) component.setBold(false);
+                        if(component.isStrikethrough()) component.setStrikethrough(false);
+                        if(component.isObfuscated()) component.setObfuscated(false);
+
                         format = ChatColor.WHITE;
                     default:
-                        component = new TextComponent();
                         component.setColor( format );
                         break;
                 }
