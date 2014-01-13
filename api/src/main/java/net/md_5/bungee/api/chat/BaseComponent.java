@@ -14,44 +14,37 @@ import java.util.List;
 public abstract class BaseComponent
 {
 
-    @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     BaseComponent parent;
 
     /**
      * The color of this component and any child components (unless overridden)
      */
-    @Getter(AccessLevel.NONE)
     private ChatColor color;
     /**
      * Whether this component and any child components (unless overridden) is
      * bold
      */
-    @Getter(AccessLevel.NONE)
     private Boolean bold;
     /**
      * Whether this component and any child components (unless overridden) is
      * italic
      */
-    @Getter(AccessLevel.NONE)
     private Boolean italic;
     /**
      * Whether this component and any child components (unless overridden) is
      * underlined
      */
-    @Getter(AccessLevel.NONE)
     private Boolean underlined;
     /**
      * Whether this component and any child components (unless overridden) is
      * strikethrough
      */
-    @Getter(AccessLevel.NONE)
     private Boolean strikethrough;
     /**
      * Whether this component and any child components (unless overridden) is
      * obfuscated
      */
-    @Getter(AccessLevel.NONE)
     private Boolean obfuscated;
 
     /**
