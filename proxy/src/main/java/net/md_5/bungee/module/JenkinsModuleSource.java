@@ -4,15 +4,17 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import java.io.IOException;
 import java.net.URL;
+import lombok.Data;
 import net.md_5.bungee.Util;
 
+@Data
 public class JenkinsModuleSource implements ModuleSource
 {
 
     @Override
     public void retrieve(ModuleSpec module, ModuleVersion version)
     {
-        System.out.println( "Attempting to Jenkins download module " + module.getName() + "v" + version.getBuild() );
+        System.out.println( "Attempting to Jenkins download module " + module.getName() + " v" + version.getBuild() );
         try
         {
             URL website = new URL( "http://ci.md-5.net/job/BungeeCord/" + version.getBuild() + "/artifact/module/" + module.getName().replace( '_', '-' ) + "/target/" + module.getName() + ".jar" );
