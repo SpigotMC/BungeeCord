@@ -39,10 +39,6 @@ public class Bootstrap
             return;
         }
 
-        System.out.println( "This version is not ready for production use, please download #788 or below" );
-        if (true){
-            return;
-        }
         
         if ( Float.parseFloat( System.getProperty( "java.class.version" ) ) < 51.0 )
         {
