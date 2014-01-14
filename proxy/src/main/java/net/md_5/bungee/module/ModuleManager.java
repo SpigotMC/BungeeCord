@@ -30,7 +30,7 @@ public class ModuleManager
         knownSources.put( "jenkins", new JenkinsModuleSource() );
     }
 
-    public void load(ProxyServer proxy) throws Exception
+    public void load(ProxyServer proxy, File moduleDirectory) throws Exception
     {
         ModuleVersion bungeeVersion = ModuleVersion.parse( proxy.getVersion() );
         if ( bungeeVersion == null )
@@ -39,7 +39,6 @@ public class ModuleManager
             return;
         }
 
-        File moduleDirectory = new File( "modules" );
         moduleDirectory.mkdir();
 
         List<ModuleSpec> modules = new ArrayList<>();
@@ -121,8 +120,6 @@ public class ModuleManager
                 module.getProvider().retrieve( module, bungeeVersion );
             }
         }
-
-        proxy.getPluginManager().detectPlugins( moduleDirectory );
     }
 
     private ModuleVersion getVersion(File file)

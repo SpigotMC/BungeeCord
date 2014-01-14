@@ -189,7 +189,9 @@ public class BungeeCord extends ProxyServer
     {
         ResourceLeakDetector.setEnabled( false ); // Eats performance
 
-        moduleManager.load( this );
+        File moduleDirectory = new File( "modules" );
+        moduleManager.load( this, moduleDirectory );
+        pluginManager.detectPlugins( moduleDirectory );
 
         pluginsFolder.mkdir();
         pluginManager.detectPlugins( pluginsFolder );
