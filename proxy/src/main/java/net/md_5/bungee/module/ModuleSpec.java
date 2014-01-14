@@ -9,5 +9,5 @@ public class ModuleSpec
 
     private final String name;
     private final File file;
-    private ModuleSource provider;
+    private final ModuleSource provider;
 }

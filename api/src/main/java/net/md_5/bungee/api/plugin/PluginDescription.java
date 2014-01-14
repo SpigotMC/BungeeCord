@@ -40,4 +40,8 @@ public class PluginDescription
      * File we were loaded from.
      */
     private File file = null;
+    /**
+     * Optional description.
+     */
+    private String description = null;
 }
