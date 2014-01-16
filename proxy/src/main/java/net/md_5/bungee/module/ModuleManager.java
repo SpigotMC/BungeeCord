@@ -79,9 +79,11 @@ public class ModuleManager
                 defaults.add( "jenkins://cmd_list" );
                 defaults.add( "jenkins://cmd_send" );
                 defaults.add( "jenkins://cmd_server" );
+            case 1:
+                defaults.add( "jenkins://reconnect_yaml" );
         }
         config.put( "modules", defaults );
-        config.put( "version", 1 );
+        config.put( "version", 2 );
 
         try ( FileWriter wr = new FileWriter( configFile ) )
         {

@@ -1,4 +1,4 @@
-package net.md_5.bungee.reconnect;
+package net.md_5.bungee.module.reconnect.yaml;
 
 import net.md_5.bungee.api.AbstractReconnectHandler;
 import java.io.File;

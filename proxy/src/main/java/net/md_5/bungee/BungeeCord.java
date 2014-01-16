@@ -6,7 +6,6 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.log.BungeeLogger;
-import net.md_5.bungee.reconnect.YamlReconnectHandler;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
@@ -196,14 +195,7 @@ public class BungeeCord extends ProxyServer
         pluginsFolder.mkdir();
         pluginManager.detectPlugins( pluginsFolder );
         config.load();
-        for ( ListenerInfo info : config.getListeners() )
-        {
-            if ( !info.isForceDefault() && reconnectHandler == null )
-            {
-                reconnectHandler = new YamlReconnectHandler();
-                break;
-            }
-        }
+
         isRunning = true;
 
         pluginManager.loadAndEnablePlugins();
