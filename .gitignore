@@ -1,4 +1,4 @@
-# Eclipse stuff
+# Eclipse IDE
 .metadata
 .gradle
 bin/
@@ -11,7 +11,8 @@ local.properties
 .settings/
 .loadpath
 
-# netbeans
+# NetBeans IDE
+nbproject/
 build/
 nbbuild/
 dist/
