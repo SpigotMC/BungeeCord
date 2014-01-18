@@ -1,16 +1,26 @@
 # Eclipse stuff
-.classpath
-.project
+.metadata
+.gradle
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
 .settings/
+.loadpath
 
 # netbeans
-nbproject/
+build/
+nbbuild/
+dist/
+nbdist/
 nbactions.xml
+nb-configuration.xml
 
-# we use maven!
+# Apache Maven
 build.xml
-
-# maven
 target/
 dependency-reduced-pom.xml
 
