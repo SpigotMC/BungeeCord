@@ -194,11 +194,13 @@ public class BungeeCord extends ProxyServer
 
         pluginsFolder.mkdir();
         pluginManager.detectPlugins( pluginsFolder );
+
+        pluginManager.loadPlugins();
         config.load();
 
         isRunning = true;
 
-        pluginManager.loadAndEnablePlugins();
+        pluginManager.enablePlugins();
 
         connectionThrottle = new ConnectionThrottle( config.getThrottle() );
         startListeners();
