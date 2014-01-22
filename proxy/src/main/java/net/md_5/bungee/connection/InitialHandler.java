@@ -198,6 +198,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
         this.handshake = handshake;
+
+        // SRV records can end with a . depending on DNS / client.
+        if ( handshake.getHost().endsWith( "." ) )
+        {
+            handshake.setHost( handshake.getHost().substring( 0, handshake.getHost().length() - 1 ) );
+        }
+
         this.vHost = new InetSocketAddress( handshake.getHost(), handshake.getPort() );
         bungee.getLogger().log( Level.INFO, "{0} has connected", this );
 
