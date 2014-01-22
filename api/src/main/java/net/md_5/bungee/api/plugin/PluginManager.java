@@ -179,7 +179,7 @@ public class PluginManager
         return plugins.get( name );
     }
 
-    public void loadAndEnablePlugins()
+    public void loadPlugins()
     {
         Map<PluginDescription, Boolean> pluginStatuses = new HashMap<>();
         for ( Map.Entry<String, PluginDescription> entry : toLoad.entrySet() )
@@ -192,7 +192,10 @@ public class PluginManager
         }
         toLoad.clear();
         toLoad = null;
+    }
 
+    public void enablePlugins()
+    {
         for ( Plugin plugin : plugins.values() )
         {
             try
