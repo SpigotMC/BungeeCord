@@ -323,8 +323,7 @@ public abstract class BaseComponent
         return color != null || bold != null
                 || italic != null || underlined != null
                 || strikethrough != null || obfuscated != null
-                || hoverEvent != null || clickEvent != null
-                || (extra != null && extra.size() > 0);
+                || hoverEvent != null || clickEvent != null;
     }
 
     /**
