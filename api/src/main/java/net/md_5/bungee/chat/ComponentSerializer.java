@@ -43,7 +43,7 @@ public class ComponentSerializer implements JsonSerializer<BaseComponent>, JsonD
 
     public static String toString(BaseComponent... components)
     {
-        return gson.toJson( components );
+        return gson.toJson( new TextComponent( components ) );
     }
 
     @Override

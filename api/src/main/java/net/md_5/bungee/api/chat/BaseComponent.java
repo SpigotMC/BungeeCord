@@ -323,7 +323,8 @@ public abstract class BaseComponent
         return color != null || bold != null
                 || italic != null || underlined != null
                 || strikethrough != null || obfuscated != null
-                || hoverEvent != null || clickEvent != null;
+                || hoverEvent != null || clickEvent != null
+                || (extra != null && extra.size() > 0);
     }
 
     /**
@@ -376,6 +377,6 @@ public abstract class BaseComponent
     @Override
     public String toString()
     {
-        return String.format( "BaseComponent{color=%s, bold=%b, italic=%b, underlined=%b, strikethrough=%b, obfuscated=%b, clickEvent=%s, hoverEvent=%s}", getColor().getName(), isBold(), isItalic(), isUnderlined(), isStrikethrough(), isObfuscated(), getClickEvent(), getHoverEvent() );
+        return String.format( "BaseComponent{color=%s, bold=%b, italic=%b, underlined=%b, strikethrough=%b, obfuscated=%b, clickEvent=%s, hoverEvent=%s, extra=%s}", getColor().getName(), isBold(), isItalic(), isUnderlined(), isStrikethrough(), isObfuscated(), getClickEvent(), getHoverEvent(), getExtra() );
     }
 }
