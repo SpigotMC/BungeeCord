@@ -7,6 +7,7 @@ import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -140,6 +141,17 @@ public class TextComponent extends BaseComponent
     {
         super( textComponent );
         setText( textComponent.getText() );
+    }
+
+    /**
+     * Creates a TextComponent with blank text and the extras set
+     * to the passed array
+     *
+     * @param extras the extras to set
+     */
+    public TextComponent(BaseComponent ...extras) {
+        setText( "" );
+        setExtra( Arrays.asList(extras) );
     }
 
     @Override
