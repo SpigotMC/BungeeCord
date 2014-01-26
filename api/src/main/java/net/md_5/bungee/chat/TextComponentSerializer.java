@@ -8,9 +8,11 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 import java.lang.reflect.Type;
+import java.util.List;
 
 public class TextComponentSerializer extends BaseComponentSerializer implements JsonSerializer<TextComponent>, JsonDeserializer<TextComponent>
 {
@@ -28,7 +30,8 @@ public class TextComponentSerializer extends BaseComponentSerializer implements 
     @Override
     public JsonElement serialize(TextComponent src, Type typeOfSrc, JsonSerializationContext context)
     {
-        if ( !src.hasFormatting() )
+        List<BaseComponent> extra = src.getExtra();
+        if ( !src.hasFormatting() && (extra == null || extra.size() > 0) )
         {
             return new JsonPrimitive( src.getText() );
         }
