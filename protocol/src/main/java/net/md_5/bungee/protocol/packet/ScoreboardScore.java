@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
+import net.md_5.bungee.protocol.Protocol;
 
 @Data
 @NoArgsConstructor
@@ -24,26 +25,38 @@ public class ScoreboardScore extends DefinedPacket
     private int value;
 
     @Override
-    public void read(ByteBuf buf)
+    public void read(ByteBuf buf, Protocol.ProtocolDirection direction, int protocolVersion)
     {
         itemName = readString( buf );
         action = buf.readByte();
         if ( action != 1 )
         {
             scoreName = readString( buf );
-            value = buf.readInt();
+            if ( protocolVersion >= 7 )
+            {
+                value = readVarInt( buf );
+            } else
+            {
+                value = buf.readInt();
+            }
         }
     }
 
     @Override
-    public void write(ByteBuf buf)
+    public void write(ByteBuf buf, Protocol.ProtocolDirection direction, int protocolVersion)
     {
         writeString( itemName, buf );
         buf.writeByte( action );
         if ( action != 1 )
         {
             writeString( scoreName, buf );
-            buf.writeInt( value );
+            if ( protocolVersion >= 7 )
+            {
+                writeVarInt( value, buf );
+            } else
+            {
+                buf.writeInt( value );
+            }
         }
     }
 

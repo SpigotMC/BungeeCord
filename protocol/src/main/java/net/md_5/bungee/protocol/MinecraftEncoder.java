@@ -13,12 +13,14 @@ public class MinecraftEncoder extends MessageToByteEncoder<DefinedPacket>
     @Setter
     private Protocol protocol;
     private boolean server;
+    @Setter
+    private int protocolVersion;
 
     @Override
     protected void encode(ChannelHandlerContext ctx, DefinedPacket msg, ByteBuf out) throws Exception
     {
         Protocol.ProtocolDirection prot = ( server ) ? protocol.TO_CLIENT : protocol.TO_SERVER;
         DefinedPacket.writeVarInt( prot.getId( msg.getClass() ), out );
-        msg.write( out );
+        msg.write( out, prot, protocolVersion );
     }
 }

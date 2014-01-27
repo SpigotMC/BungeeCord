@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
+import net.md_5.bungee.protocol.Protocol;
 
 @Data
 @NoArgsConstructor
@@ -16,17 +17,31 @@ public class Chat extends DefinedPacket
 {
 
     private String message;
+    private byte position;
 
-    @Override
-    public void read(ByteBuf buf)
+    public Chat(String message)
     {
-        message = readString( buf );
+        this( message, (byte) 0 );
     }
 
     @Override
-    public void write(ByteBuf buf)
+    public void read(ByteBuf buf, Protocol.ProtocolDirection direction, int protocolVersion)
+    {
+        message = readString( buf );
+        if ( direction.toString().equals( "TO_CLIENT" ) && protocolVersion >= 5 )
+        {
+            position = buf.readByte();
+        }
+    }
+
+    @Override
+    public void write(ByteBuf buf, Protocol.ProtocolDirection direction, int protocolVersion)
     {
         writeString( message, buf );
+        if ( direction.toString().equals( "TO_CLIENT" ) && protocolVersion >= 5 )
+        {
+            buf.writeByte( position );
+        }
     }
 
     @Override
