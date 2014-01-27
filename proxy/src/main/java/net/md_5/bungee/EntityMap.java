@@ -2,7 +2,6 @@ package net.md_5.bungee;
 
 import io.netty.buffer.ByteBuf;
 import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.PacketWrapper;
 
 /**
  * Class to rewrite integers within packets.
@@ -10,13 +9,13 @@ import net.md_5.bungee.protocol.PacketWrapper;
 public class EntityMap
 {
 
-    private final static boolean[] clientboundInts = new boolean[ 256 ];
-    private final static boolean[] clientboundVarInts = new boolean[ 256 ];
+    private final boolean[] clientboundInts = new boolean[ 256 ];
+    private final boolean[] clientboundVarInts = new boolean[ 256 ];
 
-    private final static boolean[] serverboundInts = new boolean[ 256 ];
-    private final static boolean[] serverboundVarInts = new boolean[ 256 ];
+    private final boolean[] serverboundInts = new boolean[ 256 ];
+    private final boolean[] serverboundVarInts = new boolean[ 256 ];
 
-    static
+    public EntityMap(int version)
     {
         clientboundInts[0x04] = true; // Entity Equipment
         clientboundInts[0x0A] = true; // Use bed
@@ -46,14 +45,32 @@ public class EntityMap
         serverboundInts[0x02] = true; // Use Entity
         serverboundInts[0x0A] = true; // Animation
         serverboundInts[0x0B] = true; // Entity Action
+
+        if ( version >= 7 )
+        {
+            migrateIntToVarint( clientboundInts, clientboundVarInts );
+            migrateIntToVarint( serverboundInts, serverboundVarInts );
+        }
     }
 
-    public static void rewriteServerbound(ByteBuf packet, int serverEntityId, int clientEntityId)
+    private void migrateIntToVarint(boolean[] ints, boolean[] varints)
+    {
+        for ( int i = 0; i < ints.length; i++ )
+        {
+            if ( ints[i] = true )
+            {
+                varints[i] = true;
+                ints[i] = false;
+            }
+        }
+    }
+
+    public void rewriteServerbound(ByteBuf packet, int serverEntityId, int clientEntityId)
     {
         rewrite( packet, serverEntityId, clientEntityId, serverboundInts, serverboundVarInts );
     }
 
-    public static void rewriteClientbound(ByteBuf packet, int serverEntityId, int clientEntityId)
+    public void rewriteClientbound(ByteBuf packet, int serverEntityId, int clientEntityId)
     {
         rewrite( packet, serverEntityId, clientEntityId, clientboundInts, clientboundVarInts );
 
