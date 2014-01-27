@@ -103,6 +103,8 @@ public final class UserConnection implements ProxiedPlayer
     /*========================================================================*/
     @Getter
     private String displayName;
+    @Getter
+    private EntityMap entityRewrite;
     /*========================================================================*/
     private final Unsafe unsafe = new Unsafe()
     {
@@ -115,6 +117,8 @@ public final class UserConnection implements ProxiedPlayer
 
     public void init()
     {
+        this.entityRewrite = new EntityMap( getPendingConnection().getVersion() );
+
         this.displayName = name;
         try
         {
