@@ -175,8 +175,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             forced.ping( pingBack );
         } else
         {
+            int protocol = ( Protocol.supportedVersions.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : -1;
             pingBack.done( new ServerPing(
-                    new ServerPing.Protocol( bungee.getGameVersion(), bungee.getProtocolVersion() ),
+                    new ServerPing.Protocol( bungee.getGameVersion(), protocol ),
                     new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
                     motd, BungeeCord.getInstance().config.favicon ),
                     null );
@@ -198,6 +199,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
         this.handshake = handshake;
+        ch.setVersion( handshake.getProtocolVersion() );
 
         // SRV records can end with a . depending on DNS / client.
         if ( handshake.getHost().endsWith( "." ) )
@@ -233,13 +235,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( thisState == State.USERNAME, "Not expecting USERNAME" );
         this.loginRequest = loginRequest;
 
-        if ( handshake.getProtocolVersion() > bungee.getProtocolVersion() )
+        if ( !Protocol.supportedVersions.contains( handshake.getProtocolVersion() ) )
         {
             disconnect( bungee.getTranslation( "outdated_server" ) );
-            return;
-        } else if ( handshake.getProtocolVersion() < bungee.getProtocolVersion() )
-        {
-            disconnect( bungee.getTranslation( "outdated_client" ) );
             return;
         }
 

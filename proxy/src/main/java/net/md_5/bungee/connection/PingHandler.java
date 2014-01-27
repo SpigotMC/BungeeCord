@@ -3,6 +3,7 @@ package net.md_5.bungee.connection;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.Callback;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.netty.ChannelWrapper;
@@ -27,12 +28,12 @@ public class PingHandler extends PacketHandler
     public void connected(ChannelWrapper channel) throws Exception
     {
         this.channel = channel;
-        MinecraftEncoder encoder = new MinecraftEncoder( Protocol.HANDSHAKE, false );
+        MinecraftEncoder encoder = new MinecraftEncoder( Protocol.HANDSHAKE, false, ProxyServer.getInstance().getProtocolVersion() );
 
-        channel.getHandle().pipeline().addAfter( PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder( Protocol.STATUS, false ) );
+        channel.getHandle().pipeline().addAfter( PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder( Protocol.STATUS, false, ProxyServer.getInstance().getProtocolVersion() ) );
         channel.getHandle().pipeline().addAfter( PipelineUtils.FRAME_PREPENDER, PipelineUtils.PACKET_ENCODER, encoder );
 
-        channel.write( new Handshake( Protocol.PROTOCOL_VERSION, target.getAddress().getHostString(), target.getAddress().getPort(), 1 ) );
+        channel.write( new Handshake( ProxyServer.getInstance().getProtocolVersion(), target.getAddress().getHostString(), target.getAddress().getPort(), 1 ) );
 
         encoder.setProtocol( Protocol.STATUS );
         channel.write( new StatusRequest() );

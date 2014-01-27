@@ -114,9 +114,25 @@ public abstract class DefinedPacket
         }
     }
 
-    public abstract void read(ByteBuf buf);
+    public void read(ByteBuf buf)
+    {
+        throw new UnsupportedOperationException( "Packet must implement read method" );
+    }
 
-    public abstract void write(ByteBuf buf);
+    public void read(ByteBuf buf, Protocol.ProtocolDirection direction, int protocolVersion)
+    {
+        read( buf );
+    }
+
+    public void write(ByteBuf buf)
+    {
+        throw new UnsupportedOperationException( "Packet must implement write method" );
+    }
+
+    public void write(ByteBuf buf, Protocol.ProtocolDirection direction, int protocolVersion)
+    {
+        write( buf );
+    }
 
     public abstract void handle(AbstractPacketHandler handler) throws Exception;
 

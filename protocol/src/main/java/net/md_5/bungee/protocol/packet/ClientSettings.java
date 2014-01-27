@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
+import net.md_5.bungee.protocol.Protocol;
 
 @Data
 @NoArgsConstructor
@@ -20,28 +21,34 @@ public class ClientSettings extends DefinedPacket
     private byte chatFlags;
     private boolean unknown;
     private byte difficulty;
-    private boolean showCape;
+    private byte showCape;
 
     @Override
-    public void read(ByteBuf buf)
+    public void read(ByteBuf buf, Protocol.ProtocolDirection direction, int protocolVersion)
     {
         locale = readString( buf );
         viewDistance = buf.readByte();
         chatFlags = buf.readByte();
         unknown = buf.readBoolean();
-        difficulty = buf.readByte();
-        showCape = buf.readBoolean();
+        if ( protocolVersion < 5 )
+        {
+            difficulty = buf.readByte();
+        }
+        showCape = buf.readByte();
     }
 
     @Override
-    public void write(ByteBuf buf)
+    public void write(ByteBuf buf, Protocol.ProtocolDirection direction, int protocolVersion)
     {
         writeString( locale, buf );
         buf.writeByte( viewDistance );
         buf.writeByte( chatFlags );
         buf.writeBoolean( unknown );
-        buf.writeByte( difficulty );
-        buf.writeBoolean( showCape );
+        if ( protocolVersion < 5 )
+        {
+            buf.writeByte( difficulty );
+        }
+        buf.writeByte( showCape );
     }
 
     @Override

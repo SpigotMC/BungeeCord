@@ -469,13 +469,13 @@ public class BungeeCord extends ProxyServer
     @Override
     public int getProtocolVersion()
     {
-        return Protocol.PROTOCOL_VERSION;
+        return Protocol.supportedVersions.get( Protocol.supportedVersions.size() - 1 );
     }
 
     @Override
     public String getGameVersion()
     {
-        return Protocol.MINECRAFT_VERSION;
+        return "1.7.4";
     }
 
     @Override

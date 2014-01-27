@@ -1,6 +1,5 @@
 package net.md_5.bungee.protocol;
 
-import com.google.common.base.Charsets;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -15,6 +14,8 @@ public class MinecraftDecoder extends ByteToMessageDecoder
     @Setter
     private Protocol protocol;
     private boolean server;
+    @Setter
+    private int protocolVersion;
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
@@ -28,7 +29,7 @@ public class MinecraftDecoder extends ByteToMessageDecoder
         if ( prot.hasPacket( packetId ) )
         {
             packet = prot.createPacket( packetId );
-            packet.read( in );
+            packet.read( in, prot, protocolVersion );
             if ( in.readableBytes() != 0 )
             {
                 throw new BadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot );

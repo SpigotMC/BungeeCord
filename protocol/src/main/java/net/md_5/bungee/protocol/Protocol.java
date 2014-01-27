@@ -4,6 +4,8 @@ import com.google.common.base.Preconditions;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
@@ -95,8 +97,7 @@ public enum Protocol
             };
     /*========================================================================*/
     public static final int MAX_PACKET_ID = 0xFF;
-    public static final int PROTOCOL_VERSION = 0x04;
-    public static final String MINECRAFT_VERSION = "1.7.2";
+    public static List<Integer> supportedVersions = Arrays.asList( 4, 8 );
     /*========================================================================*/
     public final ProtocolDirection TO_SERVER = new ProtocolDirection( "TO_SERVER" );
     public final ProtocolDirection TO_CLIENT = new ProtocolDirection( "TO_CLIENT" );
