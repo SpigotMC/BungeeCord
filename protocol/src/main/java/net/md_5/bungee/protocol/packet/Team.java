@@ -54,7 +54,7 @@ public class Team extends DefinedPacket
         }
         if ( mode == 0 || mode == 3 || mode == 4 )
         {
-            int len = ( protocolVersion >= 7 ) ? readVarInt( buf ) : buf.readInt();
+            int len = ( protocolVersion >= 7 ) ? readVarInt( buf ) : buf.readShort();
             players = new String[ len ];
             for ( int i = 0; i < len; i++ )
             {
