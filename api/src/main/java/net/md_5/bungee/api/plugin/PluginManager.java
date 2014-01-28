@@ -4,6 +4,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.eventbus.Subscribe;
+import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.event.EventBus;
+import net.md_5.bungee.event.EventHandler;
+import org.yaml.snakeyaml.Yaml;
+
 import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -21,13 +29,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
-import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.event.EventBus;
-import net.md_5.bungee.event.EventHandler;
-import org.yaml.snakeyaml.Yaml;
 
 /**
  * Class to manage bridging between plugin duties and implementation duties, for
@@ -308,7 +309,12 @@ public class PluginManager
             {
                 try ( JarFile jar = new JarFile( file ) )
                 {
-                    JarEntry pdf = jar.getJarEntry( "plugin.yml" );
+                    JarEntry pdf = jar.getJarEntry( "bungeeplugin.yml" );
+                    if(pdf == null)
+                    {
+                        pdf = jar.getJarEntry( "plugin.yml" );
+                    }
+
                     Preconditions.checkNotNull( pdf, "Plugin must have a plugin.yml" );
 
                     try ( InputStream in = jar.getInputStream( pdf ) )
