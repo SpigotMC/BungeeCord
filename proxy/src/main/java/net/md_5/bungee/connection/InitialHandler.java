@@ -33,7 +33,6 @@ import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.netty.cipher.CipherDecoder;
 import net.md_5.bungee.netty.cipher.CipherEncoder;
 import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
@@ -59,14 +58,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Getter
     private final ListenerInfo listener;
     @Getter
-    private Login forgeLogin;
-    @Getter
     private Handshake handshake;
     @Getter
     private LoginRequest loginRequest;
     private EncryptionRequest request;
     private State thisState = State.HANDSHAKE;
-    private SecretKey sharedKey;
     private final Unsafe unsafe = new Unsafe()
     {
         @Override
@@ -79,7 +75,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private boolean onlineMode = BungeeCord.getInstance().config.isOnlineMode();
     @Getter
     private InetSocketAddress virtualHost;
-    private byte version = -1;
     @Getter
     private String UUID;
 
@@ -279,7 +274,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.ENCRYPT, "Not expecting ENCRYPT" );
 
-        sharedKey = EncryptionUtil.getSecret( encryptResponse, request );
+        SecretKey sharedKey = EncryptionUtil.getSecret( encryptResponse, request );
         BungeeCipher decrypt = EncryptionUtil.getCipher( false, sharedKey );
         ch.addBefore( PipelineUtils.FRAME_DECODER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
         BungeeCipher encrypt = EncryptionUtil.getCipher( true, sharedKey );
@@ -428,7 +423,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public int getVersion()
     {
-        return ( handshake == null ) ? version : handshake.getProtocolVersion();
+        return ( handshake == null ) ? -1 : handshake.getProtocolVersion();
     }
 
     @Override
