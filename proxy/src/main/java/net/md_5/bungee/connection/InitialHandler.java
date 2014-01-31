@@ -6,8 +6,6 @@ import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import javax.crypto.SecretKey;
 import lombok.Getter;
@@ -37,7 +35,6 @@ import net.md_5.bungee.netty.cipher.CipherEncoder;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.Handshake;
-import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.Kick;
@@ -68,10 +65,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Getter
     private LoginRequest loginRequest;
     private EncryptionRequest request;
-    @Getter
-    private List<PluginMessage> loginMessages = new ArrayList<>();
-    @Getter
-    private List<PluginMessage> registerMessages = new ArrayList<>();
     private State thisState = State.HANDSHAKE;
     private SecretKey sharedKey;
     private final Unsafe unsafe = new Unsafe()
@@ -106,19 +99,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void exception(Throwable t) throws Exception
     {
         disconnect( ChatColor.RED + Util.exception( t ) );
-    }
-
-    @Override
-    public void handle(PluginMessage pluginMessage) throws Exception
-    {
-        // TODO: Unregister?
-        if ( pluginMessage.getTag().equals( "REGISTER" ) )
-        {
-            registerMessages.add( pluginMessage );
-        } else
-        {
-            loginMessages.add( pluginMessage );
-        }
     }
 
     @Override
