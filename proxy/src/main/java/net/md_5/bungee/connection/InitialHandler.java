@@ -84,7 +84,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     };
     @Getter
     private boolean onlineMode = BungeeCord.getInstance().config.isOnlineMode();
-    private InetSocketAddress vHost;
+    @Getter
+    private InetSocketAddress virtualHost;
     private byte version = -1;
     @Getter
     private String UUID;
@@ -207,7 +208,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             handshake.setHost( handshake.getHost().substring( 0, handshake.getHost().length() - 1 ) );
         }
 
-        this.vHost = new InetSocketAddress( handshake.getHost(), handshake.getPort() );
+        this.virtualHost = new InetSocketAddress( handshake.getHost(), handshake.getPort() );
         bungee.getLogger().log( Level.INFO, "{0} has connected", this );
 
         bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
@@ -410,7 +411,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public synchronized void disconnect(String reason)
+    public void disconnect(String reason)
     {
         if ( !ch.isClosed() )
         {
@@ -448,12 +449,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public int getVersion()
     {
         return ( handshake == null ) ? version : handshake.getProtocolVersion();
-    }
-
-    @Override
-    public InetSocketAddress getVirtualHost()
-    {
-        return vHost;
     }
 
     @Override
