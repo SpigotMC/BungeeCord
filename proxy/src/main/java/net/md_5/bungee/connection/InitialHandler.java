@@ -135,7 +135,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         legacy = bungee.getPluginManager().callEvent( new ProxyPingEvent( this, legacy ) ).getResponse();
 
         String kickMessage = ChatColor.DARK_BLUE
-                + "\00" + legacy.getVersion().getProtocol()
+                + "\00" + 127
                 + "\00" + legacy.getVersion().getName()
                 + "\00" + legacy.getDescription()
                 + "\00" + legacy.getPlayers().getOnline()
