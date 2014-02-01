@@ -11,7 +11,7 @@ jlong Java_net_md_15_bungee_NativeCipherImpl_init
     AES_KEY *aes_key = malloc(sizeof(AES_KEY));
 
     jboolean isKeyCopy;
-    BYTE *key_bytes = (*env)->GetByteArrayElements(env, key, &isKeyCopy);
+    BYTE *key_bytes = (BYTE*)(*env)->GetByteArrayElements(env, key, &isKeyCopy);
     int key_length = (*env)->GetArrayLength(env, key) * 8; // in bits
 
     AES_set_encrypt_key(key_bytes, key_length, aes_key);
@@ -37,7 +37,7 @@ void Java_net_md_15_bungee_NativeCipherImpl_cipher
     BYTE *output =  (BYTE*) out;
 
     jboolean isCopy;
-    BYTE *iv_bytes = (*env)->GetByteArrayElements(env, iv, &isCopy);
+    BYTE *iv_bytes = (BYTE*)(*env)->GetByteArrayElements(env, iv, &isCopy);
 
     AES_cfb8_encrypt(
       input,                                     // input buffer
