@@ -11,6 +11,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
+import net.md_5.bungee.protocol.packet.Chat;
 
 /**
  * Command to list and switch a player between available servers.
@@ -36,20 +37,22 @@ public class CommandServer extends Command implements TabExecutor
         {
             player.sendMessage( ProxyServer.getInstance().getTranslation( "current_server" ) + player.getServer().getInfo().getName() );
 
-            StringBuilder serverList = new StringBuilder();
+            StringBuilder serverList = new StringBuilder("{\"text\":\"" + ProxyServer.getInstance().getTranslation( "server_list" ) + "\",\"extra\":[");
+            boolean first = true;
             for ( ServerInfo server : servers.values() )
             {
                 if ( server.canAccess( player ) )
                 {
-                    serverList.append( server.getName() );
-                    serverList.append( ", " );
+                    serverList.append( "{\"text\":\"" + (first ? server.getName() : (", " + server.getName())) + "\",\"color\":\"gold\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/server " + server.getName() + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"" + server.getPlayers().size() + " players\"}},");
+                    first = false;
                 }
             }
             if ( serverList.length() != 0 )
             {
-                serverList.setLength( serverList.length() - 2 );
+                serverList.setLength( serverList.length() - 1 );
             }
-            player.sendMessage( ProxyServer.getInstance().getTranslation( "server_list" ) + serverList.toString() );
+            serverList.append("]}");
+            player.unsafe().sendPacket(new Chat(serverList.toString()));
         } else
         {
             ServerInfo server = servers.get( args[0] );
