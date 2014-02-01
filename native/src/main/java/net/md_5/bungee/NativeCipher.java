@@ -26,14 +26,33 @@ public class NativeCipher implements BungeeCipher
 
     public static boolean isSupported()
     {
-        return "Linux".equals( System.getProperty( "os.name" ) ) && "amd64".equals( System.getProperty( "os.arch" ) );
+        return getNativeLib() != null;
+    }
+
+    public static String getNativeLib() {
+        String os = System.getProperty( "os.name" );
+        String arch = System.getProperty( "os.arch" );
+        String version = System.getProperty( "os.version" );
+
+        if ( os.equals( "Linux" ) && arch.equals( "amd64" ) ) {
+            return "native-cipher.so";
+        } else if ( os.equals( "FreeBSD" ) && arch.equals( "amd64" ) ) {
+            if ( version.startsWith( "9." ) ) {
+                return "native-cipher-freebsd9.so";
+            } else if ( version.startsWith( "10." ) ) {
+                return "native-cipher-freebsd10.so";
+            }
+        }
+
+        return null;
     }
 
     public static boolean load()
     {
-        if ( !loaded && isSupported() )
+        String nativeLib = getNativeLib();
+        if ( !loaded && nativeLib != null )
         {
-            try ( InputStream lib = BungeeCipher.class.getClassLoader().getResourceAsStream( "native-cipher.so" ) )
+            try ( InputStream lib = BungeeCipher.class.getClassLoader().getResourceAsStream( nativeLib ) )
             {
                 // Else we will create and copy it to a temp file
                 File temp = File.createTempFile( "bungeecord-native-cipher", ".so" );
