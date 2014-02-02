@@ -30,6 +30,7 @@ public class Bootstrap
         OptionParser parser = new OptionParser();
         parser.allowsUnrecognizedOptions();
         parser.acceptsAll( list( "v", "version" ) );
+        parser.accepts( "log-format" ).withRequiredArg();
 
         OptionSet options = parser.parse( args );
 
@@ -38,6 +39,19 @@ public class Bootstrap
             System.out.println( Bootstrap.class.getPackage().getImplementationVersion() );
             return;
         }
+        String log_format = "HH:mm:ss";
+        if ( options.has( "log-format" ) )
+        {
+            if ( !options.hasArgument( "log-format" ) )
+            {
+                System.out.println("Please use the '-log-format' param with an argument! Default example: \"HH:mm:ss\"");
+            }
+            else
+            {
+                log_format = (String) options.valueOf( "log-format" );
+            }
+        }
+        
 
         
         if ( Float.parseFloat( System.getProperty( "java.class.version" ) ) < 51.0 )
@@ -62,7 +76,7 @@ public class Bootstrap
 
         System.setProperty( "java.net.preferIPv4Stack", "true" );
 
-        BungeeCord bungee = new BungeeCord();
+        BungeeCord bungee = new BungeeCord( log_format );
         ProxyServer.setInstance( bungee );
         bungee.getLogger().info( "Enabled BungeeCord version " + bungee.getVersion() );
         bungee.start();

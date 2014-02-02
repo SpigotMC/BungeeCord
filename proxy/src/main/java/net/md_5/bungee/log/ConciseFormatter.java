@@ -10,7 +10,12 @@ import java.util.logging.LogRecord;
 public class ConciseFormatter extends Formatter
 {
 
-    private final DateFormat date = new SimpleDateFormat( "HH:mm:ss" );
+    private final DateFormat date;
+
+    protected ConciseFormatter( String log_format )
+    {
+        date = new SimpleDateFormat( log_format );
+    }
 
     @Override
     public String format(LogRecord record)
