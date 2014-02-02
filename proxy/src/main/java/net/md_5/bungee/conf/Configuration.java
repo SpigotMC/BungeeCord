@@ -68,19 +68,25 @@ public class Configuration implements ProxyConfig
             try
             {
                 BufferedImage image = ImageIO.read( fav );
-                if ( image.getHeight() == 64 && image.getWidth() == 64 )
+                if ( image != null )
                 {
-                    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                    ImageIO.write( image, "png", bytes );
-                    favicon = "data:image/png;base64," + BaseEncoding.base64().encode( bytes.toByteArray() );
-                    if ( favicon.length() > Short.MAX_VALUE )
+                    if ( image.getHeight() == 64 && image.getWidth() == 64 )
                     {
-                        ProxyServer.getInstance().getLogger().log( Level.WARNING, "Favicon file too large for server to process" );
-                        favicon = null;
+                        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                        ImageIO.write( image, "png", bytes );
+                        favicon = "data:image/png;base64," + BaseEncoding.base64().encode( bytes.toByteArray() );
+                        if ( favicon.length() > Short.MAX_VALUE )
+                        {
+                            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Favicon file too large for server to process" );
+                            favicon = null;
+                        }
+                    } else
+                    {
+                        ProxyServer.getInstance().getLogger().log( Level.WARNING, "Server icon must be exactly 64x64 pixels" );
                     }
                 } else
                 {
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "Server icon must be exactly 64x64 pixels" );
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load server icon for unknown reason. Please double check its format." );
                 }
             } catch ( IOException ex )
             {
