@@ -52,4 +52,9 @@ public class PluginClassloader extends URLClassLoader
         }
         throw new ClassNotFoundException( name );
     }
+
+    protected void remove()
+    {
+        allLoaders.remove( this );
+    }
 }
