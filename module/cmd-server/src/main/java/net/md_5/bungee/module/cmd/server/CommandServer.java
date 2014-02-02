@@ -12,6 +12,11 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
 import net.md_5.bungee.protocol.packet.Chat;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 /**
  * Command to list and switch a player between available servers.
@@ -36,23 +41,21 @@ public class CommandServer extends Command implements TabExecutor
         if ( args.length == 0 )
         {
             player.sendMessage( ProxyServer.getInstance().getTranslation( "current_server" ) + player.getServer().getInfo().getName() );
-
-            StringBuilder serverList = new StringBuilder("{\"text\":\"" + ProxyServer.getInstance().getTranslation( "server_list" ) + "\",\"extra\":[");
+            TextComponent serverList = new TextComponent( ProxyServer.getInstance().getTranslation( "server_list" ) );
+            serverList.setColor( ChatColor.GOLD );
             boolean first = true;
             for ( ServerInfo server : servers.values() )
             {
                 if ( server.canAccess( player ) )
                 {
-                    serverList.append( "{\"text\":\"" + (first ? server.getName() : (", " + server.getName())) + "\",\"color\":\"gold\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/server " + server.getName() + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"" + server.getPlayers().size() + " players\"}},");
+                    TextComponent serverTextComponent = new TextComponent( first ? server.getName() : ", " + server.getName() );
+                    serverTextComponent.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(server.getPlayers().size() + " players").create() ) );
+                    serverTextComponent.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, "/server " + server.getName() ) );
+                    serverList.addExtra( serverTextComponent );
                     first = false;
                 }
             }
-            if ( serverList.length() != 0 )
-            {
-                serverList.setLength( serverList.length() - 1 );
-            }
-            serverList.append("]}");
-            player.unsafe().sendPacket(new Chat(serverList.toString()));
+            player.sendMessage( serverList );
         } else
         {
             ServerInfo server = servers.get( args[0] );
