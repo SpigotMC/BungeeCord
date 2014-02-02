@@ -308,8 +308,12 @@ public class PluginManager
             {
                 try ( JarFile jar = new JarFile( file ) )
                 {
-                    JarEntry pdf = jar.getJarEntry( "plugin.yml" );
-                    Preconditions.checkNotNull( pdf, "Plugin must have a plugin.yml" );
+                    JarEntry pdf = jar.getJarEntry( "bungee.yml" );
+                    if ( pdf == null )
+                    {
+                        pdf = jar.getJarEntry( "plugin.yml" );
+                    }
+                    Preconditions.checkNotNull( pdf, "Plugin must have a plugin.yml or bungee.yml" );
 
                     try ( InputStream in = jar.getInputStream( pdf ) )
                     {
