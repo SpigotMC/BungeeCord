@@ -10,22 +10,22 @@ import net.md_5.bungee.BungeeCord;
 public class BungeeLogger extends Logger
 {
 
-    private final BungeeCord bungee;
-    private final ColouredWriter writer;
     private final Formatter formatter = new ConciseFormatter();
     private final LogDispatcher dispatcher = new LogDispatcher( this );
 
     public BungeeLogger(BungeeCord bungee)
     {
         super( "BungeeCord", null );
-        this.bungee = bungee;
-        this.writer = new ColouredWriter( bungee.getConsoleReader() );
 
         try
         {
-            FileHandler handler = new FileHandler( "proxy.log", 1 << 24, 8, true );
-            handler.setFormatter( formatter );
-            addHandler( handler );
+            FileHandler fileHandler = new FileHandler( "proxy.log", 1 << 24, 8, true );
+            fileHandler.setFormatter( formatter );
+            addHandler( fileHandler );
+
+            ColouredWriter consoleHandler = new ColouredWriter( bungee.getConsoleReader() );
+            consoleHandler.setFormatter( formatter );
+            addHandler( consoleHandler );
         } catch ( IOException ex )
         {
             System.err.println( "Could not register logger!" );
@@ -43,6 +43,5 @@ public class BungeeLogger extends Logger
     void doLog(LogRecord record)
     {
         super.log( record );
-        writer.print( formatter.format( record ) );
     }
 }
