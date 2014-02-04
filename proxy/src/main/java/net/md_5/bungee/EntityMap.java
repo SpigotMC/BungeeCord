@@ -57,7 +57,7 @@ public class EntityMap
     {
         for ( int i = 0; i < ints.length; i++ )
         {
-            if ( ints[i] = true )
+            if ( ints[i] )
             {
                 varints[i] = true;
                 ints[i] = false;
