@@ -3,11 +3,13 @@ package net.md_5.bungee.log;
 import java.io.IOException;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 import jline.console.ConsoleReader;
 import net.md_5.bungee.api.ChatColor;
 import org.fusesource.jansi.Ansi;
 
-public class ColouredWriter
+public class ColouredWriter extends Handler
 {
 
     private final Map<ChatColor, String> replacements = new EnumMap<>( ChatColor.class );
@@ -57,4 +59,21 @@ public class ColouredWriter
         {
         }
     }
+
+    @Override
+    public void publish(LogRecord record)
+    {
+        print( getFormatter().format( record ) );
+    }
+
+    @Override
+    public void flush()
+    {
+    }
+
+    @Override
+    public void close() throws SecurityException
+    {
+    }
+
 }
