@@ -67,12 +67,6 @@ public class ServerConnector extends PacketHandler
     {
         this.ch = channel;
 
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF( "Login" );
-        out.writeUTF( user.getAddress().getHostString() );
-        out.writeInt( user.getAddress().getPort() );
-        // channel.write( new PluginMessage( "BungeeCord", out.toByteArray() ) ); MOJANG
-
         Handshake originalHandshake = user.getPendingConnection().getHandshake();
         Handshake copiedHandshake = new Handshake( originalHandshake.getProtocolVersion(), originalHandshake.getHost(), originalHandshake.getPort(), 2 );
         if ( BungeeCord.getInstance().config.isIpFoward() )
