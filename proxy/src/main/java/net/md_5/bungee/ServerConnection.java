@@ -1,7 +1,7 @@
 package net.md_5.bungee;
 
+import io.netty.channel.ChannelFutureListener;
 import java.net.InetSocketAddress;
-import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -41,7 +41,7 @@ public class ServerConnection implements Server
     }
 
     @Override
-    public synchronized void disconnect(String reason)
+    public void disconnect(String reason)
     {
         disconnect( TextComponent.fromLegacyText( reason ) );
     }
@@ -49,20 +49,7 @@ public class ServerConnection implements Server
     @Override
     public void disconnect(BaseComponent... reason)
     {
-        if ( !ch.isClosed() )
-        {
-            // TODO: Can we just use a future here?
-            unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
-            ch.getHandle().eventLoop().schedule( new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    ch.getHandle().close();
-                }
-            }, 100, TimeUnit.MILLISECONDS );
-        }
-
+        ch.write( new Kick( ComponentSerializer.toString( reason ) ), ChannelFutureListener.CLOSE );
     }
 
     @Override

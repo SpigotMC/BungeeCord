@@ -1,8 +1,6 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import java.util.Objects;
 import java.util.Queue;
 import lombok.RequiredArgsConstructor;

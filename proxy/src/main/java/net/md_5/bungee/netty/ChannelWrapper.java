@@ -3,6 +3,8 @@ package net.md_5.bungee.netty;
 import net.md_5.bungee.protocol.PacketWrapper;
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.Getter;
@@ -34,20 +36,30 @@ public class ChannelWrapper
         ch.pipeline().get( MinecraftEncoder.class ).setProtocolVersion( protocol );
     }
 
-    public synchronized void write(Object packet)
+    public synchronized void write(Object packet, ChannelFutureListener future)
     {
         if ( !closed )
         {
+            ChannelFuture listener;
             if ( packet instanceof PacketWrapper )
             {
                 ( (PacketWrapper) packet ).setReleased( true );
-                ch.write( ( (PacketWrapper) packet ).buf, ch.voidPromise() );
+                listener = ch.write( ( (PacketWrapper) packet ).buf, ch.voidPromise() );
             } else
             {
-                ch.write( packet, ch.voidPromise() );
+                listener = ch.write( packet, ch.voidPromise() );
+            }
+            if ( future != null )
+            {
+                listener.addListener( future );
             }
             ch.flush();
         }
+    }
+
+    public synchronized void write(Object packet)
+    {
+        write( packet, null );
     }
 
     public synchronized void close()
