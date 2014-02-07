@@ -17,9 +17,6 @@ public class Test
 
     public static void main(String[] args) throws Exception
     {
-
-        System.setProperty( "java.net.preferIPv4Stack", "true" );
-
         BungeeCord bungee = new BungeeCord();
         ProxyServer.setInstance( bungee );
         bungee.getLogger().info( "Enabled BungeeCord version " + bungee.getVersion() );

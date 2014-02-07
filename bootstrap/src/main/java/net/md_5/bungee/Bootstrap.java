@@ -27,6 +27,12 @@ public class Bootstrap
      */
     public static void main(String[] args) throws Exception
     {
+        if ( Float.parseFloat( System.getProperty( "java.class.version" ) ) < 51.0 )
+        {
+            System.err.println( "*** ERROR *** BungeeCord requires Java 7 or above to function!" );
+            return;
+        }
+
         OptionParser parser = new OptionParser();
         parser.allowsUnrecognizedOptions();
         parser.acceptsAll( list( "v", "version" ) );
@@ -36,13 +42,6 @@ public class Bootstrap
         if ( options.has( "version" ) )
         {
             System.out.println( Bootstrap.class.getPackage().getImplementationVersion() );
-            return;
-        }
-
-        
-        if ( Float.parseFloat( System.getProperty( "java.class.version" ) ) < 51.0 )
-        {
-            System.err.println( "*** ERROR *** BungeeCord requires Java 7 or above to function!" );
             return;
         }
 
@@ -59,8 +58,6 @@ public class Bootstrap
                 Thread.sleep( TimeUnit.SECONDS.toMillis( 30 ) );
             }
         }
-
-        System.setProperty( "java.net.preferIPv4Stack", "true" );
 
         BungeeCord bungee = new BungeeCord();
         ProxyServer.setInstance( bungee );
