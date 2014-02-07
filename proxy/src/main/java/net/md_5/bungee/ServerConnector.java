@@ -90,7 +90,7 @@ public class ServerConnector extends PacketHandler
         ch.setProtocol( Protocol.GAME );
         thisState = State.LOGIN;
 
-        throw new CancelSendSignal();
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override
@@ -182,7 +182,7 @@ public class ServerConnector extends PacketHandler
 
         thisState = State.FINISHED;
 
-        throw new CancelSendSignal();
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override
@@ -203,7 +203,7 @@ public class ServerConnector extends PacketHandler
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
             user.connect( event.getCancelServer() );
-            throw new CancelSendSignal();
+            throw CancelSendSignal.INSTANCE;
         }
 
         String message = bungee.getTranslation( "connect_kick" ) + target.getName() + ": " + event.getKickReason();
@@ -215,7 +215,7 @@ public class ServerConnector extends PacketHandler
             user.sendMessage( message );
         }
 
-        throw new CancelSendSignal();
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override

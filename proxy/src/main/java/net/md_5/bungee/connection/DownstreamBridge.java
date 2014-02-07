@@ -97,7 +97,7 @@ public class DownstreamBridge extends PacketHandler
 
         if ( !con.getTabList().onListUpdate( playerList.getUsername(), playerList.isOnline(), playerList.getPing() ) )
         {
-            throw new CancelSendSignal();
+            throw CancelSendSignal.INSTANCE;
         }
     }
 
@@ -196,7 +196,7 @@ public class DownstreamBridge extends PacketHandler
 
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
-            throw new CancelSendSignal();
+            throw CancelSendSignal.INSTANCE;
         }
 
         if ( pluginMessage.getTag().equals( "BungeeCord" ) )
@@ -365,7 +365,7 @@ public class DownstreamBridge extends PacketHandler
             con.disconnect0( event.getKickReasonComponent() ); // TODO: Prefix our own stuff.
         }
         server.setObsolete( true );
-        throw new CancelSendSignal();
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override

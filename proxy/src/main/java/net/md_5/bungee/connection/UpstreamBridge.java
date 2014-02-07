@@ -90,7 +90,7 @@ public class UpstreamBridge extends PacketHandler
                 con.getServer().unsafe().sendPacket( chat );
             }
         }
-        throw new CancelSendSignal();
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override
@@ -104,7 +104,7 @@ public class UpstreamBridge extends PacketHandler
             if ( !results.isEmpty() )
             {
                 con.unsafe().sendPacket( new TabCompleteResponse( results.toArray( new String[ results.size() ] ) ) );
-                throw new CancelSendSignal();
+                throw CancelSendSignal.INSTANCE;
             }
         }
     }
@@ -120,18 +120,18 @@ public class UpstreamBridge extends PacketHandler
     {
         if ( pluginMessage.getTag().equals( "BungeeCord" ) )
         {
-            throw new CancelSendSignal();
+            throw CancelSendSignal.INSTANCE;
         }
         // Hack around Forge race conditions
         if ( pluginMessage.getTag().equals( "FML" ) && pluginMessage.getStream().readUnsignedByte() == 1 )
         {
-            throw new CancelSendSignal();
+            throw CancelSendSignal.INSTANCE;
         }
 
         PluginMessageEvent event = new PluginMessageEvent( con, con.getServer(), pluginMessage.getTag(), pluginMessage.getData().clone() );
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
-            throw new CancelSendSignal();
+            throw CancelSendSignal.INSTANCE;
         }
     }
 
