@@ -86,7 +86,7 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(LoginSuccess loginSuccess) throws Exception
     {
-        Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not exepcting LOGIN_SUCCESS" );
+        Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not expecting LOGIN_SUCCESS" );
         ch.setProtocol( Protocol.GAME );
         thisState = State.LOGIN;
 
@@ -96,7 +96,7 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(Login login) throws Exception
     {
-        Preconditions.checkState( thisState == State.LOGIN, "Not exepcting LOGIN" );
+        Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
         ServerConnection server = new ServerConnection( ch, target );
         ServerConnectedEvent event = new ServerConnectedEvent( user, server );
