@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 public class CancelSendSignal extends Error
 {
 
-    public static final CancelSendSignal INSTANCE = CancelSendSignal.INSTANCE;
+    public static final CancelSendSignal INSTANCE = new CancelSendSignal();
 
     @Override
     public Throwable initCause(Throwable cause)
