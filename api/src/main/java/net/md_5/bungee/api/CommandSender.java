@@ -82,4 +82,10 @@ public interface CommandSender
      * @param value the value of the node
      */
     public void setPermission(String permission, boolean value);
+
+    /**
+     * Get all Permissions which this CommandSender has
+     * @return a unmodifiable Collection of Strings which represent their permissions
+     */
+    public Collection<String> getPermissions();
 }
