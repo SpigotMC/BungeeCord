@@ -41,13 +41,13 @@ public class ServerConnection implements Server
     }
 
     @Override
-    public synchronized void disconnect(String reason)
+    public void disconnect(String reason)
     {
         disconnect( TextComponent.fromLegacyText( reason ) );
     }
 
     @Override
-    public void disconnect(BaseComponent... reason)
+    public synchronized void disconnect(BaseComponent... reason)
     {
         if ( !ch.isClosed() )
         {

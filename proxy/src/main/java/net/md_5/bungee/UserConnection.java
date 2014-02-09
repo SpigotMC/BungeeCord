@@ -273,7 +273,7 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public synchronized void disconnect(String reason)
+    public void disconnect(String reason)
     {
         disconnect0( TextComponent.fromLegacyText( reason ) );
     }
