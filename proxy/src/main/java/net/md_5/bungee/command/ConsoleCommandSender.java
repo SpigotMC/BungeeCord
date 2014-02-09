@@ -82,4 +82,10 @@ public class ConsoleCommandSender implements CommandSender
     {
         throw new UnsupportedOperationException( "Console has all permissions" );
     }
+
+    @Override
+    public Collection<String> getPermissions()
+    {
+        return Collections.emptySet();
+    }
 }
