@@ -401,6 +401,12 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
+    public Collection<String> getPermissions()
+    {
+        return Collections.unmodifiableCollection(permissions);
+    }
+
+    @Override
     public String toString()
     {
         return name;
