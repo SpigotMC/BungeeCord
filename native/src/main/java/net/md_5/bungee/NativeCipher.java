@@ -59,6 +59,7 @@ public class NativeCipher implements BungeeCipher
     @Override
     public void init(boolean forEncryption, SecretKey key) throws GeneralSecurityException
     {
+        Preconditions.checkArgument( key.getEncoded().length == 16, "Invalid key size" );
         if ( pointer != 0 )
         {
             nativeCipher.free( pointer );
