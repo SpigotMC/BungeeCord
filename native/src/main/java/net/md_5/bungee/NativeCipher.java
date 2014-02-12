@@ -44,6 +44,7 @@ public class NativeCipher implements BungeeCipher
                 loaded = true;
             } catch ( Throwable t )
             {
+                t.printStackTrace();
             }
         }
 
