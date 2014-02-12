@@ -37,6 +37,8 @@ public class NativeCipher implements BungeeCipher
             {
                 // Else we will create and copy it to a temp file
                 File temp = File.createTempFile( "bungeecord-native-cipher", ".so" );
+                temp.deleteOnExit();
+
                 try ( OutputStream outputStream = new FileOutputStream( temp ) )
                 {
                     ByteStreams.copy( lib, outputStream );
