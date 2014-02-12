@@ -16,12 +16,13 @@ public class NativeCipher implements BungeeCipher
 {
 
     @Getter
-    private final static NativeCipherImpl nativeCipher = new NativeCipherImpl();
-    private static boolean loaded;
-    /*============================================================================*/
+    private final NativeCipherImpl nativeCipher = new NativeCipherImpl();
     private boolean forEncryption;
-    private long keyPointer;
-    private long ivPointer;
+    private byte[] iv;
+    /*============================================================================*/
+    private static boolean loaded;
+
+    private long pointer;
 
     public static boolean isSupported()
     {
@@ -44,7 +45,6 @@ public class NativeCipher implements BungeeCipher
                 loaded = true;
             } catch ( Throwable t )
             {
-                t.printStackTrace();
             }
         }
 
@@ -59,18 +59,23 @@ public class NativeCipher implements BungeeCipher
     @Override
     public void init(boolean forEncryption, SecretKey key) throws GeneralSecurityException
     {
-        nativeCipher.free( this.keyPointer, this.ivPointer );
+        if ( pointer != 0 )
+        {
+            nativeCipher.free( pointer );
+        }
         this.forEncryption = forEncryption;
-
-        byte[] encoded = key.getEncoded();
-        this.keyPointer = nativeCipher.initKey( encoded );
-        this.ivPointer = nativeCipher.initIV( encoded );
+        this.iv = key.getEncoded(); // initialize the IV
+        this.pointer = nativeCipher.init( key.getEncoded() );
     }
 
     @Override
     public void free()
     {
-        nativeCipher.free( keyPointer, ivPointer );
+        if ( pointer != 0 )
+        {
+            nativeCipher.free( pointer );
+            pointer = 0;
+        }
     }
 
     @Override
@@ -79,8 +84,8 @@ public class NativeCipher implements BungeeCipher
         // Smoke tests
         in.memoryAddress();
         out.memoryAddress();
-        Preconditions.checkState( keyPointer != 0, "Invalid pointer to AES key!" );
-        Preconditions.checkState( ivPointer != 0, "Invalid pointer to IV!" );
+        Preconditions.checkState( pointer != 0, "Invalid pointer to AES key!" );
+        Preconditions.checkState( iv != null, "Invalid IV!" );
 
         // Store how many bytes we can cipher
         int length = in.readableBytes();
@@ -88,7 +93,7 @@ public class NativeCipher implements BungeeCipher
         out.ensureWritable( length );
 
         // Cipher the bytes
-        nativeCipher.cipher( forEncryption, keyPointer, ivPointer, in.memoryAddress() + in.readerIndex(), out.memoryAddress() + out.writerIndex(), length );
+        nativeCipher.cipher( forEncryption, pointer, iv, in.memoryAddress() + in.readerIndex(), out.memoryAddress() + out.writerIndex(), length );
 
         // Go to the end of the buffer, all bytes would of been read
         in.readerIndex( in.writerIndex() );
