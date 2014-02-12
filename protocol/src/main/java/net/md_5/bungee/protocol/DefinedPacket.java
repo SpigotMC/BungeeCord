@@ -78,7 +78,7 @@ public abstract class DefinedPacket
 
             out |= ( in & 0x7F ) << ( bytes++ * 7 );
 
-            if ( bytes > 4 )
+            if ( bytes > 5 )
             {
                 throw new RuntimeException( "VarInt too big" );
             }
