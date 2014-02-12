@@ -49,19 +49,12 @@ void Java_net_md_15_bungee_NativeCipherImpl_free
 void Java_net_md_15_bungee_NativeCipherImpl_cipher
 (JNIEnv* env, jobject obj, jboolean forEncryption, jlong key, jlong iv, jlong in, jlong out, jint length)
 {
-    AES_KEY *aes_key = (AES_KEY*)key;
-    size_t buffer_length = (size_t) length;
-
-    BYTE *input = (BYTE*) in;
-    BYTE *output = (BYTE*) out;
-    BYTE* jni_iv = (BYTE*) iv;
-
     AES_cfb8_encrypt(
-      input,                                     // input buffer
-      output,                                    // output buffer
-      buffer_length,                             // readable bytes
-      aes_key,                                   // encryption key
-      jni_iv,                                    // IV
+      (BYTE*) in,                                // input buffer
+      (BYTE*) out,                               // output buffer
+      (size_t) length,                           // readable bytes
+      (AES_KEY*) key,                            // encryption key
+      (BYTE*) iv,                                // IV
       NULL,                                      // not needed
       forEncryption ? AES_ENCRYPT : AES_DECRYPT  // encryption mode
     );
