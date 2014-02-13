@@ -57,4 +57,9 @@ public interface PendingConnection extends Connection
      * @param onlineMode
      */
     void setOnlineMode(boolean onlineMode);
+
+    /**
+     * Get the clients real IP
+     */
+    String getIp();
 }

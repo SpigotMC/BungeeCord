@@ -24,6 +24,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.tab.TabListHandler;
 import net.md_5.bungee.tab.Global;
 import net.md_5.bungee.tab.GlobalPing;
+import net.md_5.bungee.tab.Passthrough;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.yaml.snakeyaml.DumperOptions;
@@ -39,7 +40,7 @@ public class YamlConfig implements ConfigurationAdapter
     private enum DefaultTabList
     {
 
-        GLOBAL( Global.class ), GLOBAL_PING( GlobalPing.class ), SERVER( ServerUnique.class );
+        GLOBAL( Global.class ), GLOBAL_PING( GlobalPing.class ), SERVER( ServerUnique.class ), PASSTHROUGH( Passthrough.class );
         private final Class<? extends TabListHandler> clazz;
     }
     private Yaml yaml;
@@ -217,8 +218,9 @@ public class YamlConfig implements ConfigurationAdapter
 
             boolean query = get( "query_enabled", false, val );
             int queryPort = get( "query_port", 25577, val );
+            boolean isForwarded = get( "is_forwarded", false, val );
 
-            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, fallbackServer, forceDefault, forced, value.clazz, setLocalAddress, pingPassthrough, queryPort, query );
+            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, fallbackServer, forceDefault, forced, value.clazz, setLocalAddress, pingPassthrough, queryPort, query, isForwarded );
             ret.add( info );
         }
 

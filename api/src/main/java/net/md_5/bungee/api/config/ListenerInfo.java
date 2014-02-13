@@ -69,4 +69,8 @@ public class ListenerInfo
      * Whether to enable udp query.
      */
     private final boolean queryEnabled;
+    /**
+     * Is the input (UpStream) ipforwarded ?
+     */
+    private final boolean isForwarded;
 }

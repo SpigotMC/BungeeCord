@@ -69,7 +69,7 @@ public class ServerConnector extends PacketHandler
         Handshake copiedHandshake = new Handshake( originalHandshake.getProtocolVersion(), originalHandshake.getHost(), originalHandshake.getPort(), 2 );
         if ( BungeeCord.getInstance().config.isIpFoward() )
         {
-            copiedHandshake.setHost( copiedHandshake.getHost() + "\00" + user.getAddress().getHostString() + "\00" + user.getUUID() );
+            copiedHandshake.setHost( copiedHandshake.getHost() + "\00" + user.getPendingConnection().getIp() + "\00" + user.getUUID() );
         }
         channel.write( copiedHandshake );
 

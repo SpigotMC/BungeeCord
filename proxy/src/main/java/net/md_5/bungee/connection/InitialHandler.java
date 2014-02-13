@@ -77,6 +77,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private InetSocketAddress virtualHost;
     @Getter
     private String UUID;
+    @Getter
+    private String ip;
 
     private enum State
     {
@@ -148,7 +150,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         if ( forced != null && listener.isPingPassthrough() )
         {
-            forced.ping( pingBack );
+            forced.ping( pingBack, this );
         } else
         {
             int protocol = ( Protocol.supportedVersions.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : -1;
@@ -177,8 +179,25 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         this.handshake = handshake;
         ch.setVersion( handshake.getProtocolVersion() );
 
+        // IP Forwarded client ?
+        ip = getAddress().getHostString();
+        if ( listener.isForwarded() )
+        {
+            String[] split = handshake.getHost().split("\00");
+            if (split.length == 2 || split.length == 3)
+            {
+                handshake.setHost( split[0] );
+                ip = split[1];
+            }
+
+            if ( split.length == 3 )
+            {
+                UUID = split[2];
+            }
+        }
+
         // SRV records can end with a . depending on DNS / client.
-        if ( handshake.getHost().endsWith( "." ) )
+        if ( handshake.getHost().endsWith(".") )
         {
             handshake.setHost( handshake.getHost().substring( 0, handshake.getHost().length() - 1 ) );
         }
