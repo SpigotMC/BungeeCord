@@ -21,6 +21,7 @@ import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.connection.PingHandler;
@@ -48,7 +49,7 @@ public class BungeeServerInfo implements ServerInfo
     @Synchronized("players")
     public void addPlayer(ProxiedPlayer player)
     {
-        players.add( player );
+        players.add(player);
     }
 
     @Synchronized("players")
@@ -68,7 +69,7 @@ public class BungeeServerInfo implements ServerInfo
     public boolean canAccess(CommandSender player)
     {
         Preconditions.checkNotNull( player, "player" );
-        return !restricted || player.hasPermission( "bungeecord.server." + name );
+        return !restricted || player.hasPermission("bungeecord.server." + name);
     }
 
     @Override
@@ -87,7 +88,7 @@ public class BungeeServerInfo implements ServerInfo
     @Override
     public void sendData(String channel, byte[] data)
     {
-        Preconditions.checkNotNull( channel, "channel" );
+        Preconditions.checkNotNull(channel, "channel");
         Preconditions.checkNotNull( data, "data" );
 
         synchronized ( packetQueue )
@@ -106,6 +107,12 @@ public class BungeeServerInfo implements ServerInfo
     @Override
     public void ping(final Callback<ServerPing> callback)
     {
+        ping(callback, null);
+    }
+
+    @Override
+    public void ping(final Callback<ServerPing> callback, final PendingConnection pendingConnection)
+    {
         Preconditions.checkNotNull( callback, "callback" );
 
         ChannelFutureListener listener = new ChannelFutureListener()
@@ -115,7 +122,7 @@ public class BungeeServerInfo implements ServerInfo
             {
                 if ( future.isSuccess() )
                 {
-                    future.channel().pipeline().get( HandlerBoss.class ).setHandler( new PingHandler( BungeeServerInfo.this, callback ) );
+                    future.channel().pipeline().get( HandlerBoss.class ).setHandler( new PingHandler( BungeeServerInfo.this, callback, pendingConnection ) );
                 } else
                 {
                     callback.done( null, future.cause() );
