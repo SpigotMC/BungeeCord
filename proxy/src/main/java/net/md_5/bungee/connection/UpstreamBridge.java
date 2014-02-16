@@ -9,6 +9,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.api.event.TabCompleteEvent;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.PacketWrapper;
@@ -99,16 +100,26 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(TabCompleteRequest tabComplete) throws Exception
     {
+        List<String> suggestions = new ArrayList<>();
+
         if ( tabComplete.getCursor().startsWith( "/" ) )
         {
-            List<String> results = new ArrayList<>();
-            bungee.getPluginManager().dispatchCommand( con, tabComplete.getCursor().substring( 1 ), results );
+            bungee.getPluginManager().dispatchCommand( con, tabComplete.getCursor().substring( 1 ), suggestions );
+        }
 
-            if ( !results.isEmpty() )
-            {
-                con.unsafe().sendPacket( new TabCompleteResponse( results.toArray( new String[ results.size() ] ) ) );
-                throw CancelSendSignal.INSTANCE;
-            }
+        TabCompleteEvent tabCompleteEvent = new TabCompleteEvent(con, con.getServer(), tabComplete.getCursor(), suggestions);
+        bungee.getPluginManager().callEvent(tabCompleteEvent);
+
+        List<String> results = tabCompleteEvent.getSuggestions();
+        if ( !results.isEmpty() )
+        {
+            con.unsafe().sendPacket( new TabCompleteResponse( results.toArray( new String[ results.size() ] ) ) );
+            throw CancelSendSignal.INSTANCE;
+        }
+
+        if ( tabCompleteEvent.isCancelled() )
+        {
+            throw CancelSendSignal.INSTANCE;
         }
     }
 
