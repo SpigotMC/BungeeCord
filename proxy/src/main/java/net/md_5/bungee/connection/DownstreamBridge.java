@@ -43,6 +43,12 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void exception(Throwable t) throws Exception
     {
+        if ( server.isObsolete() )
+        {
+            // do not perform any actions if the user has already moved
+            return;
+        }
+
         ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getFallbackServer() );
         if ( server.getInfo() != def )
         {
