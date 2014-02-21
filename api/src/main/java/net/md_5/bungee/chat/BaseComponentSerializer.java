@@ -10,6 +10,7 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 
 import java.util.Arrays;
+import java.util.HashSet;
 
 public class BaseComponentSerializer
 {
@@ -73,52 +74,66 @@ public class BaseComponentSerializer
 
     protected void serialize(JsonObject object, BaseComponent component, JsonSerializationContext context)
     {
-        Preconditions.checkArgument( !ComponentSerializer.serializedComponents.get().contains( component ), "Component loop" );
-        ComponentSerializer.serializedComponents.get().add( component );
-        if ( component.getColorRaw() != null )
-        {
-            object.addProperty( "color", component.getColorRaw().getName() );
+        boolean first = false;
+        if ( ComponentSerializer.serializedComponents.get() == null ) {
+            first = true;
+            ComponentSerializer.serializedComponents.set( new HashSet<BaseComponent>(  ) );
         }
-        if ( component.isBoldRaw() != null )
+        try
         {
-            object.addProperty( "bold", component.isBoldRaw() );
-        }
-        if ( component.isItalicRaw() != null )
-        {
-            object.addProperty( "italic", component.isItalicRaw() );
-        }
-        if ( component.isUnderlinedRaw() != null )
-        {
-            object.addProperty( "underlined", component.isUnderlinedRaw() );
-        }
-        if ( component.isStrikethroughRaw() != null )
-        {
-            object.addProperty( "strikethrough", component.isStrikethroughRaw() );
-        }
-        if ( component.isObfuscatedRaw() != null )
-        {
-            object.addProperty( "obfuscated", component.isObfuscatedRaw() );
-        }
+            Preconditions.checkArgument( !ComponentSerializer.serializedComponents.get().contains( component ), "Component loop" );
+            ComponentSerializer.serializedComponents.get().add( component );
+            if ( component.getColorRaw() != null )
+            {
+                object.addProperty( "color", component.getColorRaw().getName() );
+            }
+            if ( component.isBoldRaw() != null )
+            {
+                object.addProperty( "bold", component.isBoldRaw() );
+            }
+            if ( component.isItalicRaw() != null )
+            {
+                object.addProperty( "italic", component.isItalicRaw() );
+            }
+            if ( component.isUnderlinedRaw() != null )
+            {
+                object.addProperty( "underlined", component.isUnderlinedRaw() );
+            }
+            if ( component.isStrikethroughRaw() != null )
+            {
+                object.addProperty( "strikethrough", component.isStrikethroughRaw() );
+            }
+            if ( component.isObfuscatedRaw() != null )
+            {
+                object.addProperty( "obfuscated", component.isObfuscatedRaw() );
+            }
 
-        if ( component.getExtra() != null )
-        {
-            object.add( "extra", context.serialize( component.getExtra() ) );
-        }
+            if ( component.getExtra() != null )
+            {
+                object.add( "extra", context.serialize( component.getExtra() ) );
+            }
 
-        //Events
-        if ( component.getClickEvent() != null )
+            //Events
+            if ( component.getClickEvent() != null )
+            {
+                JsonObject clickEvent = new JsonObject();
+                clickEvent.addProperty( "action", component.getClickEvent().getAction().toString().toLowerCase() );
+                clickEvent.addProperty( "value", component.getClickEvent().getValue() );
+                object.add( "clickEvent", clickEvent );
+            }
+            if ( component.getHoverEvent() != null )
+            {
+                JsonObject hoverEvent = new JsonObject();
+                hoverEvent.addProperty( "action", component.getHoverEvent().getAction().toString().toLowerCase() );
+                hoverEvent.add( "value", context.serialize( component.getHoverEvent().getValue() ) );
+                object.add( "hoverEvent", hoverEvent );
+            }
+        } finally
         {
-            JsonObject clickEvent = new JsonObject();
-            clickEvent.addProperty( "action", component.getClickEvent().getAction().toString().toLowerCase() );
-            clickEvent.addProperty( "value", component.getClickEvent().getValue() );
-            object.add( "clickEvent", clickEvent );
-        }
-        if ( component.getHoverEvent() != null )
-        {
-            JsonObject hoverEvent = new JsonObject();
-            hoverEvent.addProperty( "action", component.getHoverEvent().getAction().toString().toLowerCase() );
-            hoverEvent.add( "value", context.serialize( component.getHoverEvent().getValue() ) );
-            object.add( "hoverEvent", hoverEvent );
+            ComponentSerializer.serializedComponents.get().remove( component );
+            if (first) {
+                ComponentSerializer.serializedComponents.set( null );
+            }
         }
     }
 }
