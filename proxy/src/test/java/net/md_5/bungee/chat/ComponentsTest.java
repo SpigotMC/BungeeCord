@@ -80,4 +80,22 @@ public class ComponentsTest
                 + "World" + ChatColor.YELLOW + ChatColor.BOLD + "!", BaseComponent.toLegacyText( components ) );
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testLoopSimple() {
+        TextComponent component = new TextComponent( "Testing" );
+        component.addExtra( component );
+        ComponentSerializer.toString( component );
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testLoopComplex() {
+        TextComponent a = new TextComponent( "A" );
+        TextComponent b = new TextComponent( "B" );
+        TextComponent c = new TextComponent( "C" );
+        a.addExtra( b );
+        b.addExtra( c );
+        c.addExtra( a );
+        ComponentSerializer.toString( a );
+    }
+
 }
