@@ -25,7 +25,6 @@ public class Team extends DefinedPacket
     private String prefix;
     private String suffix;
     private boolean friendlyFire;
-    private short playerCount;
     private String[] players;
 
     /**
