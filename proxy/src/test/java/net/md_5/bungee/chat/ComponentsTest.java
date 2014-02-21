@@ -81,21 +81,50 @@ public class ComponentsTest
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testLoopSimple() {
+    public void testLoopSimple()
+    {
         TextComponent component = new TextComponent( "Testing" );
         component.addExtra( component );
         ComponentSerializer.toString( component );
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testLoopComplex() {
+    public void testLoopComplex()
+    {
         TextComponent a = new TextComponent( "A" );
         TextComponent b = new TextComponent( "B" );
+        b.setColor( ChatColor.AQUA );
         TextComponent c = new TextComponent( "C" );
+        c.setColor( ChatColor.RED );
         a.addExtra( b );
         b.addExtra( c );
         c.addExtra( a );
         ComponentSerializer.toString( a );
     }
 
+    @Test
+    public void testRepeated()
+    {
+        TextComponent a = new TextComponent( "A" );
+        TextComponent b = new TextComponent( "B" );
+        b.setColor( ChatColor.AQUA );
+        a.addExtra( b );
+        a.addExtra( b );
+        ComponentSerializer.toString( a );
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRepeatedError()
+    {
+        TextComponent a = new TextComponent( "A" );
+        TextComponent b = new TextComponent( "B" );
+        b.setColor( ChatColor.AQUA );
+        TextComponent c = new TextComponent( "C" );
+        c.setColor( ChatColor.RED );
+        a.addExtra( b );
+        a.addExtra( c );
+        c.addExtra( a );
+        a.addExtra( b );
+        ComponentSerializer.toString( a );
+    }
 }

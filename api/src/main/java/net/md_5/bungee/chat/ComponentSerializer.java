@@ -16,7 +16,7 @@ import net.md_5.bungee.api.chat.TranslatableComponent;
 import java.lang.reflect.Type;
 import java.util.HashSet;
 
-public class ComponentSerializer implements JsonSerializer<BaseComponent>, JsonDeserializer<BaseComponent>
+public class ComponentSerializer implements JsonDeserializer<BaseComponent>
 {
 
     private final static Gson gson = new GsonBuilder().
@@ -25,14 +25,7 @@ public class ComponentSerializer implements JsonSerializer<BaseComponent>, JsonD
             registerTypeAdapter( TranslatableComponent.class, new TranslatableComponentSerializer() ).
             create();
 
-    public final static ThreadLocal<HashSet<BaseComponent>> serializedComponents = new ThreadLocal<HashSet<BaseComponent>>()
-    {
-        @Override
-        protected HashSet<BaseComponent> initialValue()
-        {
-            return new HashSet<>();
-        }
-    };
+    public final static ThreadLocal<HashSet<BaseComponent>> serializedComponents = new ThreadLocal<>();
 
     public static BaseComponent[] parse(String json)
     {
@@ -69,16 +62,5 @@ public class ComponentSerializer implements JsonSerializer<BaseComponent>, JsonD
             return context.deserialize( json, TranslatableComponent.class );
         }
         return context.deserialize( json, TextComponent.class );
-    }
-
-    @Override
-    public JsonElement serialize(BaseComponent src, Type typeOfSrc, JsonSerializationContext context)
-    {
-        try {
-            return context.serialize( src, src.getClass() );
-        } finally
-        {
-            serializedComponents.get().clear();
-        }
     }
 }
