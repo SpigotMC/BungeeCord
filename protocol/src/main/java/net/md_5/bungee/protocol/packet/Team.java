@@ -25,8 +25,13 @@ public class Team extends DefinedPacket
     private String prefix;
     private String suffix;
     private boolean friendlyFire;
-    private short playerCount;
+//  private short playerCount; is stored in the length of the players array
     private String[] players;
+    
+    public int getPlayerCount()
+    {
+    	return players.length;
+    }
 
     /**
      * Packet to destroy a team.
