@@ -171,6 +171,8 @@ public class BungeeCord extends ProxyServer
         if ( !NativeCipher.load() )
         {
             logger.warning( "NOTE: Failed to load native code. Falling back to Java cipher." );
+            logger.warning( "This is NOT a bug, your operating system just doesn't support this." );
+            logger.warning( "Please do not go and make a forum post about this." );
         } else
         {
             logger.info( "Native code loaded." );
