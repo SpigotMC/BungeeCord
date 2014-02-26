@@ -117,66 +117,63 @@ public class ServerConnector extends PacketHandler
             ch.write( user.getSettings() );
         }
 
-        synchronized ( user.getSwitchMutex() )
+        if ( user.getServer() == null )
         {
-            if ( user.getServer() == null )
+            // Once again, first connection
+            user.setClientEntityId( login.getEntityId() );
+            user.setServerEntityId( login.getEntityId() );
+
+            // Set tab list size, this sucks balls, TODO: what shall we do about packet mutability
+            Login modLogin = new Login( login.getEntityId(), login.getGameMode(), (byte) login.getDimension(), login.getDifficulty(),
+                    (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType() );
+
+            user.unsafe().sendPacket( modLogin );
+
+            MinecraftOutput out = new MinecraftOutput();
+            out.writeStringUTF8WithoutLengthHeaderBecauseDinnerboneStuffedUpTheMCBrandPacket( ProxyServer.getInstance().getName() + " (" + ProxyServer.getInstance().getVersion() + ")" );
+            user.unsafe().sendPacket( new PluginMessage( "MC|Brand", out.toArray() ) );
+        } else
+        {
+            user.getTabList().onServerChange();
+
+            Scoreboard serverScoreboard = user.getServerSentScoreboard();
+            for ( Objective objective : serverScoreboard.getObjectives() )
             {
-                // Once again, first connection
-                user.setClientEntityId( login.getEntityId() );
-                user.setServerEntityId( login.getEntityId() );
-
-                // Set tab list size, this sucks balls, TODO: what shall we do about packet mutability
-                Login modLogin = new Login( login.getEntityId(), login.getGameMode(), (byte) login.getDimension(), login.getDifficulty(),
-                        (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType() );
-
-                user.unsafe().sendPacket( modLogin );
-
-                MinecraftOutput out = new MinecraftOutput();
-                out.writeStringUTF8WithoutLengthHeaderBecauseDinnerboneStuffedUpTheMCBrandPacket( ProxyServer.getInstance().getName() + " (" + ProxyServer.getInstance().getVersion() + ")" );
-                user.unsafe().sendPacket( new PluginMessage( "MC|Brand", out.toArray() ) );
-            } else
-            {
-                user.getTabList().onServerChange();
-
-                Scoreboard serverScoreboard = user.getServerSentScoreboard();
-                for ( Objective objective : serverScoreboard.getObjectives() )
-                {
-                    user.unsafe().sendPacket( new ScoreboardObjective( objective.getName(), objective.getValue(), (byte) 1 ) );
-                }
-                for ( Team team : serverScoreboard.getTeams() )
-                {
-                    user.unsafe().sendPacket( new net.md_5.bungee.protocol.packet.Team( team.getName() ) );
-                }
-                serverScoreboard.clear();
-
-                user.sendDimensionSwitch();
-
-                user.setServerEntityId( login.getEntityId() );
-                user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getDifficulty(), login.getGameMode(), login.getLevelType() ) );
-
-                // Remove from old servers
-                user.getServer().setObsolete( true );
-                user.getServer().disconnect( "Quitting" );
+                user.unsafe().sendPacket( new ScoreboardObjective( objective.getName(), objective.getValue(), (byte) 1 ) );
             }
-
-            // TODO: Fix this?
-            if ( !user.isActive() )
+            for ( Team team : serverScoreboard.getTeams() )
             {
-                server.disconnect( "Quitting" );
-                // Silly server admins see stack trace and die
-                bungee.getLogger().warning( "No client connected for pending server!" );
-                return;
+                user.unsafe().sendPacket( new net.md_5.bungee.protocol.packet.Team( team.getName() ) );
             }
+            serverScoreboard.clear();
 
-            // Add to new server
-            // TODO: Move this to the connected() method of DownstreamBridge
-            target.addPlayer( user );
-            user.getPendingConnects().remove( target );
-            user.setDimensionChange( false );
+            user.sendDimensionSwitch();
 
-            user.setServer( server );
-            ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user, server ) );
+            user.setServerEntityId( login.getEntityId() );
+            user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getDifficulty(), login.getGameMode(), login.getLevelType() ) );
+
+            // Remove from old servers
+            user.getServer().setObsolete( true );
+            user.getServer().disconnect( "Quitting" );
         }
+
+        // TODO: Fix this?
+        if ( !user.isActive() )
+        {
+            server.disconnect( "Quitting" );
+            // Silly server admins see stack trace and die
+            bungee.getLogger().warning( "No client connected for pending server!" );
+            return;
+        }
+
+        // Add to new server
+        // TODO: Move this to the connected() method of DownstreamBridge
+        target.addPlayer( user );
+        user.getPendingConnects().remove( target );
+        user.setDimensionChange( false );
+
+        user.setServer( server );
+        ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user, server ) );
 
         bungee.getPluginManager().callEvent( new ServerSwitchEvent( user ) );
 
