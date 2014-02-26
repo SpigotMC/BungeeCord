@@ -67,8 +67,6 @@ public final class UserConnection implements ProxiedPlayer
     @Setter
     private boolean dimensionChange = true;
     @Getter
-    private final Object switchMutex = new Object();
-    @Getter
     private final Collection<ServerInfo> pendingConnects = new HashSet<>();
     /*========================================================================*/
     @Getter
