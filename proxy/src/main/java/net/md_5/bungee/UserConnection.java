@@ -260,7 +260,7 @@ public final class UserConnection implements ProxiedPlayer
         };
         Bootstrap b = new Bootstrap()
                 .channel( NioSocketChannel.class )
-                .group( BungeeCord.getInstance().eventLoops )
+                .group( ch.getHandle().eventLoop() )
                 .handler( initializer )
                 .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000 ) // TODO: Configurable
                 .remoteAddress( target.getAddress() );
