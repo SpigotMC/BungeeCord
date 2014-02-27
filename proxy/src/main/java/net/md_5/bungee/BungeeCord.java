@@ -168,12 +168,12 @@ public class BungeeCord extends ProxyServer
             logger.info( "NOTE: This error is non crucial, and BungeeCord will still function correctly! Do not bug the author about it unless you are still unable to get it working" );
         }
 
-        if ( !NativeCipher.load() )
+        if ( NativeCipher.load() )
         {
-            logger.warning( "NOTE: Failed to load native code. Falling back to Java cipher." );
+            logger.info( "Using OpenSSL based native cipher." );
         } else
         {
-            logger.info( "Native code loaded." );
+            logger.info( "Using standard Java JCE cipher. To enable the OpenSSL based native cipher, please make sure you are using 64 bit Ubuntu or Debian with libssl installed." );
         }
     }
 
