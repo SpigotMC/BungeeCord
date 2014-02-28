@@ -7,7 +7,7 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Event;
 
 /**
- * An event which occurs in the communication between two nodes.
+ * Called when somebody reload BungeeCord
  */
 @Getter
 @AllArgsConstructor
