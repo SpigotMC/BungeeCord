@@ -19,10 +19,17 @@ public class EventPriorityTest
         Assert.assertEquals( 0, latch.getCount() );
     }
 
+    @EventHandler(priority = Byte.MIN_VALUE)
+    public void onMinPriority(PriorityTestEvent event)
+    {
+        Assert.assertEquals( 5, latch.getCount() );
+        latch.countDown();
+    }
+
     @EventHandler(priority = EventPriority.LOWEST)
     public void onLowestPriority(PriorityTestEvent event)
     {
-        Assert.assertEquals( 5, latch.getCount() );
+        Assert.assertEquals( 4, latch.getCount() );
         latch.countDown();
     }
 
@@ -35,6 +42,13 @@ public class EventPriorityTest
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onHighestPriority(PriorityTestEvent event)
+    {
+        Assert.assertEquals( 2, latch.getCount() );
+        latch.countDown();
+    }
+
+    @EventHandler(priority = Byte.MAX_VALUE)
+    public void onMaxPriority(PriorityTestEvent event)
     {
         Assert.assertEquals( 1, latch.getCount() );
         latch.countDown();
