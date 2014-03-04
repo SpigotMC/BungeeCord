@@ -178,7 +178,11 @@ public class EventBus
         if ( handlersByPriority != null )
         {
             List<EventHandlerMethod> handlersList = new ArrayList<>( handlersByPriority.size() * 2 );
-            for ( byte value = Byte.MIN_VALUE; value < Byte.MAX_VALUE; value++ )
+
+            // Either I'm really tired, or the only way we can iterate between Byte.MIN_VALUE and Byte.MAX_VALUE inclusively,
+            // with only a byte on the stack is by using a do {} while() format loop.
+            byte value = Byte.MIN_VALUE;
+            do
             {
                 Map<Object, Method[]> handlersByListener = handlersByPriority.get( value );
                 if ( handlersByListener != null )
@@ -192,7 +196,7 @@ public class EventBus
                         }
                     }
                 }
-            }
+            } while ( value++ < Byte.MAX_VALUE );
             byEventBaked.put( eventClass, handlersList.toArray( new EventHandlerMethod[ handlersList.size() ] ) );
         } else
         {
