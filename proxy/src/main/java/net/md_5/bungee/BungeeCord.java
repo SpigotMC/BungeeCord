@@ -1,5 +1,8 @@
 package net.md_5.bungee;
 
+import io.netty.channel.*;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollServerSocketChannel;
 import net.md_5.bungee.module.ModuleManager;
 import com.google.common.io.ByteStreams;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -10,11 +13,6 @@ import net.md_5.bungee.scheduler.BungeeScheduler;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelException;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.MultithreadEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.ResourceLeakDetector;
@@ -86,7 +84,7 @@ public class BungeeCord extends ProxyServer
      * Localization bundle.
      */
     public ResourceBundle bundle;
-    public final MultithreadEventLoopGroup eventLoops = new NioEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
+    public final MultithreadEventLoopGroup eventLoops = getEventLoopGroups();
     /**
      * locations.yml save thread.
      */
@@ -241,7 +239,7 @@ public class BungeeCord extends ProxyServer
                 }
             };
             new ServerBootstrap()
-                    .channel( NioServerSocketChannel.class )
+                    .channel( getServerSocketChannel() )
                     .childAttr( PipelineUtils.LISTENER, info )
                     .childHandler( PipelineUtils.SERVER_CHILD )
                     .group( eventLoops )
@@ -267,6 +265,28 @@ public class BungeeCord extends ProxyServer
                 };
                 new RemoteQuery( this, info ).start( new InetSocketAddress( info.getHost().getAddress(), info.getQueryPort() ), eventLoops, bindListener );
             }
+        }
+    }
+
+    private Class<? extends ServerChannel> getServerSocketChannel()
+    {
+        if( System.getProperty( "os.name" ).contains( "Linux" ) )
+        {
+            return EpollServerSocketChannel.class;
+        } else
+        {
+            return NioServerSocketChannel.class;
+        }
+    }
+
+    private MultithreadEventLoopGroup getEventLoopGroups()
+    {
+        if( System.getProperty( "os.name" ).contains( "Linux" ) )
+        {
+            return new EpollEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Epoll Thread #%1$d" ).build() );
+        } else
+        {
+            return new NioEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty NIO Thread #%1$d" ).build() );
         }
     }
 

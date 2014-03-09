@@ -2,9 +2,10 @@ package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelOption;
+import io.netty.channel.*;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollSocketChannel;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -122,13 +123,25 @@ public class BungeeServerInfo implements ServerInfo
                 }
             }
         };
+        MultithreadEventLoopGroup loopGroup = BungeeCord.getInstance().eventLoops;
         new Bootstrap()
-                .channel( NioSocketChannel.class )
-                .group( BungeeCord.getInstance().eventLoops )
+                .channel( getSocketChannel( loopGroup ) )
+                .group( loopGroup )
                 .handler( PipelineUtils.BASE )
                 .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000 ) // TODO: Configurable
                 .remoteAddress( getAddress() )
                 .connect()
                 .addListener( listener );
+    }
+
+    private Class<? extends SocketChannel> getSocketChannel(MultithreadEventLoopGroup eventLoop)
+    {
+        if( eventLoop instanceof EpollEventLoopGroup )
+        {
+            return EpollSocketChannel.class;
+        } else
+        {
+            return NioSocketChannel.class;
+        }
     }
 }
