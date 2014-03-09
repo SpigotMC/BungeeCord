@@ -6,7 +6,9 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoop;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollSocketChannel;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -14,6 +16,7 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
 import java.net.URI;
+
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.Callback;
@@ -71,7 +74,19 @@ public class HttpClient
             }
         };
 
-        new Bootstrap().channel( NioSocketChannel.class ).group( eventLoop ).handler( new HttpInitializer( callback, ssl ) ).
+        new Bootstrap().channel( getSocketChannel( eventLoop ) ).group( eventLoop ).handler( new HttpInitializer( callback, ssl ) ).
                 option( ChannelOption.CONNECT_TIMEOUT_MILLIS, TIMEOUT ).remoteAddress( uri.getHost(), port ).connect().addListener( future );
     }
+
+    private static Class<? extends SocketChannel> getSocketChannel(EventLoop eventLoop)
+    {
+        if( eventLoop.parent() instanceof EpollEventLoopGroup )
+        {
+            return EpollSocketChannel.class;
+        } else
+        {
+            return NioSocketChannel.class;
+        }
+    }
+
 }
