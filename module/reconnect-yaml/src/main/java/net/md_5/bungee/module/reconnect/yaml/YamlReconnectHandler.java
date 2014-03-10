@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.error.YAMLException;
 
@@ -24,7 +25,7 @@ public class YamlReconnectHandler extends AbstractReconnectHandler
     private final File file = new File( "locations.yml" );
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     /*========================================================================*/
-    private Map<String, String> data;
+    private CaseInsensitiveMap< String> data;
 
     @SuppressWarnings("unchecked")
     public YamlReconnectHandler()
@@ -34,7 +35,7 @@ public class YamlReconnectHandler extends AbstractReconnectHandler
             file.createNewFile();
             try ( FileReader rd = new FileReader( file ) )
             {
-                data = yaml.loadAs( rd, Map.class );
+                data = new CaseInsensitiveMap<>( yaml.loadAs( rd, Map.class ) );
             }
         } catch ( YAMLException ex )
         {
@@ -47,7 +48,7 @@ public class YamlReconnectHandler extends AbstractReconnectHandler
 
         if ( data == null )
         {
-            data = new HashMap<>();
+            data = new CaseInsensitiveMap<>();
         }
     }
 

@@ -6,6 +6,8 @@ import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
+import java.util.Date;
+import java.util.UUID;
 import java.util.logging.Level;
 import javax.crypto.SecretKey;
 import lombok.Getter;
@@ -305,6 +307,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     if ( obj != null )
                     {
                         UUID = obj.getId();
+                        UUID = UUID.substring(0, 8) + "-" + UUID.substring(8, 12) + "-" + UUID.substring(12, 16) + "-" + UUID.substring(16, 20) + "-" + UUID.substring(20, 32);
+                        java.util.UUID u = java.util.UUID.fromString( UUID );
+                        System.out.println( u.version() );
+                        System.out.println( new Date(u.clockSequence()) );
                         finish();
                         return;
                     }
