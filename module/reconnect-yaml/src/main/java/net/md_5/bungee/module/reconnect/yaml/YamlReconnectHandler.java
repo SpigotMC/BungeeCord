@@ -35,7 +35,11 @@ public class YamlReconnectHandler extends AbstractReconnectHandler
             file.createNewFile();
             try ( FileReader rd = new FileReader( file ) )
             {
-                data = new CaseInsensitiveMap<>( yaml.loadAs( rd, Map.class ) );
+                Map map = yaml.loadAs( rd, Map.class );
+                if ( map != null )
+                {
+                    data = new CaseInsensitiveMap<>( map );
+                }
             }
         } catch ( YAMLException ex )
         {
