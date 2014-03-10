@@ -8,14 +8,16 @@ import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -268,11 +270,7 @@ public class PluginManager
         {
             try
             {
-                URLClassLoader loader = new PluginClassloader( new URL[]
-                {
-                    plugin.getFile().toURI().toURL()
-                } );
-                Class<?> main = loader.loadClass( plugin.getMain() );
+                Class<?> main = plugin.getClassloader().loadClass( plugin.getMain() );
                 Plugin clazz = (Plugin) main.getDeclaredConstructor().newInstance();
 
                 clazz.init( proxy, plugin );
@@ -284,6 +282,7 @@ public class PluginManager
                 } );
             } catch ( Throwable t )
             {
+                plugin.getClassloader().remove();
                 proxy.getLogger().log( Level.WARNING, "Error enabling plugin " + plugin.getName(), t );
             }
         }
@@ -308,18 +307,69 @@ public class PluginManager
             {
                 try ( JarFile jar = new JarFile( file ) )
                 {
+                    PluginClassloader loader = new PluginClassloader( new URL[]
+                    {
+                        file.toURI().toURL()
+                    } );
+
+                    boolean validPlugin = false;
+
                     JarEntry pdf = jar.getJarEntry( "bungee.yml" );
                     if ( pdf == null )
                     {
                         pdf = jar.getJarEntry( "plugin.yml" );
                     }
-                    Preconditions.checkNotNull( pdf, "Plugin must have a plugin.yml or bungee.yml" );
 
-                    try ( InputStream in = jar.getInputStream( pdf ) )
+                    if ( pdf == null )
                     {
-                        PluginDescription desc = yaml.loadAs( in, PluginDescription.class );
-                        desc.setFile( file );
-                        toLoad.put( desc.getName(), desc );
+                        Enumeration<JarEntry> jarEntries = jar.entries();
+
+                        if (jarEntries == null)
+                        {
+                            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load Plugin. File " + file + " is empty" );
+                            continue;
+                        }
+
+                        while ( jarEntries.hasMoreElements() )
+                        {
+                            JarEntry jarEntry = jarEntries.nextElement();
+
+                            if ( jarEntry != null && jarEntry.getName().endsWith( ".class" ) )
+                            {
+                                String className = jarEntry.getName().replace( "/", "." ).substring( 0, jarEntry.getName().length() - 6 );
+                                Class<?> testClass = loader.loadClass( className );
+                                if (Plugin.class.isAssignableFrom( testClass ) )
+                                {
+                                    if ( testClass.isAnnotationPresent(net.md_5.bungee.api.plugin.annotation.PluginDescription.class) )
+                                    {
+                                        net.md_5.bungee.api.plugin.annotation.PluginDescription pluginDescription = testClass.getAnnotation( net.md_5.bungee.api.plugin.annotation.PluginDescription.class );
+
+                                        Set<String> depends = new HashSet<>();
+                                        depends.addAll( Arrays.asList( pluginDescription.depends() ) );
+
+                                        PluginDescription desc = new PluginDescription( pluginDescription.name(), className, pluginDescription.version(), pluginDescription.author(), depends, loader, file, pluginDescription.description() );
+                                        toLoad.put( desc.getName(), desc );
+                                        validPlugin = true;
+                                    }
+                                }
+                            }
+                        }
+                    } else
+                    {
+                        try ( InputStream in = jar.getInputStream( pdf ) )
+                        {
+                            PluginDescription desc = yaml.loadAs( in, PluginDescription.class );
+                            desc.setClassloader( loader );
+                            desc.setFile( file );
+                            toLoad.put( desc.getName(), desc );
+                            validPlugin = true;
+                        }
+                    }
+
+                    if ( !validPlugin )
+                    {
+                        loader.remove();
+                        throw new IllegalStateException( "Could not find bungee.yml or plugin.yml and auto detection did not find a valid Plugin Class" );
                     }
                 } catch ( Exception ex )
                 {

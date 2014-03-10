@@ -37,6 +37,10 @@ public class PluginDescription
      */
     private Set<String> depends = new HashSet<>();
     /**
+     * The PluginClassloader from which this Plugin should be loaded from
+     */
+    private PluginClassloader classloader = null;
+    /**
      * File we were loaded from.
      */
     private File file = null;
