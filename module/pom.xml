@@ -27,6 +27,10 @@
         <module>reconnect-yaml</module>
     </modules>
 
+    <properties>
+        <module.author>SpigotMC</module.author>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>net.md-5</groupId>
