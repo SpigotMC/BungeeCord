@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -55,15 +56,23 @@ public class YamlConfiguration extends ConfigurationProvider
     @SuppressWarnings("unchecked")
     public Configuration load(Reader reader)
     {
-        Configuration conf = new Configuration( (Map<String, Object>) yaml.get().loadAs( reader, Map.class ), null );
-        return conf;
+        Map<String,Object> map = yaml.get().loadAs( reader, LinkedHashMap.class );
+        if( map == null )
+        {
+            map = new LinkedHashMap<>();
+        }
+        return new Configuration( map , null );
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Configuration load(String string)
     {
-        Configuration conf = new Configuration( (Map<String, Object>) yaml.get().loadAs( string, Map.class ), null );
-        return conf;
+        Map<String,Object> map = yaml.get().loadAs( string, LinkedHashMap.class );
+        if( map == null )
+        {
+            map = new LinkedHashMap<>();
+        }
+        return new Configuration( map, null );
     }
 }
