@@ -1,6 +1,7 @@
 package net.md_5.bungee;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import net.md_5.bungee.protocol.DefinedPacket;
 
 /**
@@ -112,12 +113,27 @@ public class EntityMap
             if ( type == 60 || type == 90 )
             {
                 int readId = packet.getInt( packetIdLength + idLength + 15 );
+                int newId = -1;
                 if ( readId == serverEntityId )
                 {
                     packet.setInt( packetIdLength + idLength + 15, clientEntityId );
+                    newId = clientEntityId;
                 } else if ( readId == clientEntityId )
                 {
                     packet.setInt( packetIdLength + idLength + 15, serverEntityId );
+                    newId = clientEntityId;
+                }
+                if ( newId != -1 )
+                {
+                    if ( newId == 0 && readId != 0 )
+                    { // Trim off the extra data
+                        packet.readerIndex( readerIndex );
+                        packet.capacity( packet.capacity() - 6 );
+                    } else if ( newId != 0 && readId == 0 )
+                    { // Add on the extra data
+                        packet.readerIndex( readerIndex );
+                        packet.capacity( packet.capacity() + 6 );
+                    }
                 }
             }
         }
