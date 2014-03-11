@@ -32,14 +32,14 @@ public class ModuleManager
 
     public void load(ProxyServer proxy, File moduleDirectory) throws Exception
     {
+        moduleDirectory.mkdir();
+
         ModuleVersion bungeeVersion = ModuleVersion.parse( proxy.getVersion() );
         if ( bungeeVersion == null )
         {
             System.out.println( "Could detect bungee version. Custom build?" );
             return;
         }
-
-        moduleDirectory.mkdir();
 
         List<ModuleSpec> modules = new ArrayList<>();
         File configFile = new File( "modules.yml" );
@@ -66,9 +66,10 @@ public class ModuleManager
         // End yaml
 
         List<String> defaults = new ArrayList<>();
-        if ( config.containsKey( "modules" ) )
+        Object readModules = config.get( "modules" );
+        if ( readModules != null )
         {
-            defaults.addAll( (Collection) config.get( "modules" ) );
+            defaults.addAll( (Collection) readModules );
         }
         int version = ( config.containsKey( "version" ) ) ? (int) config.get( "version" ) : 0;
         switch ( version )
