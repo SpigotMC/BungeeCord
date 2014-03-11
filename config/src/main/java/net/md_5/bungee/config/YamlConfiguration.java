@@ -38,9 +38,15 @@ public class YamlConfiguration extends ConfigurationProvider
     }
 
     @Override
-    public void save(Configuration config, Writer writer)
+    public void save(Configuration config, Writer writer) throws IOException
     {
-        yaml.get().dump( config.self, writer );
+        try
+        {
+            writer.write( yaml.get().dump( config.self ) );
+        } finally
+        {
+            writer.close();
+        }
     }
 
     @Override

@@ -25,7 +25,7 @@ public abstract class ConfigurationProvider
 
     public abstract void save(Configuration config, File file) throws IOException;
 
-    public abstract void save(Configuration config, Writer writer);
+    public abstract void save(Configuration config, Writer writer) throws IOException;
 
     public abstract Configuration load(File file) throws IOException;
 
