@@ -132,6 +132,7 @@ public class EntityMap
                     } else if ( newId != 0 && readId == 0 )
                     { // Add on the extra data
                         packet.readerIndex( readerIndex );
+                        packet.capacity( packet.readableBytes() + 6 );
                         packet.writerIndex( packet.readableBytes() + 6 );
                     }
                 }
