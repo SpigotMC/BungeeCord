@@ -372,6 +372,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             {
                                 server = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
                             }
+                            if ( server == null )
+                            {
+                                server = bungee.getServerInfo( listener.getDefaultServer() );
+                            }
+
                             userCon.connect( server, null, true );
 
                             thisState = State.FINISHED;
