@@ -27,6 +27,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
+import net.md_5.bungee.api.event.ServerConnectFailEvent;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.api.tab.TabListHandler;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -237,12 +238,17 @@ public final class UserConnection implements ProxiedPlayer
                 {
                     future.channel().close();
                     pendingConnects.remove( target );
-
                     ServerInfo def = ProxyServer.getInstance().getServers().get( getPendingConnection().getListener().getFallbackServer() );
-                    if ( retry && target != def && ( getServer() == null || def != getServer().getInfo() ) )
+	                ServerConnectFailEvent failEvent = new ServerConnectFailEvent( UserConnection.this, target, def, future.cause(), true );
+	                ProxyServer.getInstance().getPluginManager().callEvent( failEvent );
+
+                    if ( retry && target != failEvent.getFallbackServer() && ( getServer() == null || failEvent.getFallbackServer() != getServer().getInfo() ) )
                     {
-                        sendMessage( bungee.getTranslation( "fallback_lobby" ) );
-                        connect( def, null, false );
+	                    if( failEvent.isSendMessage() )
+	                    {
+	                        sendMessage( bungee.getTranslation( "fallback_lobby" ) );
+	                    }
+                        connect( failEvent.getFallbackServer(), null, false );
                     } else
                     {
                         if ( dimensionChange )
