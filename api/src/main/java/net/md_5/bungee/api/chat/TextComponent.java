@@ -42,6 +42,8 @@ public class TextComponent extends BaseComponent
             {
                 i++;
                 c = message.charAt( i );
+                ChatColor format = ChatColor.getByChar( c );
+                if ( format == null ) continue;
                 if ( c >= 'A' && c <= 'Z' )
                 {
                     c += 32;
@@ -54,7 +56,6 @@ public class TextComponent extends BaseComponent
                     builder = new StringBuilder();
                     components.add( old );
                 }
-                ChatColor format = ChatColor.getByChar( c );
                 switch ( format )
                 {
                     case BOLD:
