@@ -46,6 +46,8 @@ public class TextComponent extends BaseComponent
                 {
                     c += 32;
                 }
+                ChatColor format = ChatColor.getByChar( c );
+                if ( format == null ) continue;
                 if ( builder.length() > 0 )
                 {
                     TextComponent old = component;
@@ -54,7 +56,6 @@ public class TextComponent extends BaseComponent
                     builder = new StringBuilder();
                     components.add( old );
                 }
-                ChatColor format = ChatColor.getByChar( c );
                 switch ( format )
                 {
                     case BOLD:
