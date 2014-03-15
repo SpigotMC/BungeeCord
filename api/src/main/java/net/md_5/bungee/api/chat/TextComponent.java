@@ -42,12 +42,12 @@ public class TextComponent extends BaseComponent
             {
                 i++;
                 c = message.charAt( i );
-                ChatColor format = ChatColor.getByChar( c );
-                if ( format == null ) continue;
                 if ( c >= 'A' && c <= 'Z' )
                 {
                     c += 32;
                 }
+                ChatColor format = ChatColor.getByChar( c );
+                if ( format == null ) continue;
                 if ( builder.length() > 0 )
                 {
                     TextComponent old = component;
