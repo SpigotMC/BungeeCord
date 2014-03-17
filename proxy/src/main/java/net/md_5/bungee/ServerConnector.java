@@ -66,6 +66,11 @@ public class ServerConnector extends PacketHandler
         this.ch = channel;
 
         Handshake originalHandshake = user.getPendingConnection().getHandshake();
+        if ( originalHandshake.getHost() != null && originalHandshake.getHost().contains("\00") )
+        {
+            user.disconnect( "Invalid Hostname" );
+            return;
+        }
         Handshake copiedHandshake = new Handshake( originalHandshake.getProtocolVersion(), originalHandshake.getHost(), originalHandshake.getPort(), 2 );
         if ( BungeeCord.getInstance().config.isIpFoward() )
         {
