@@ -19,28 +19,28 @@ import net.md_5.bungee.api.plugin.Event;
 @ToString(callSuper = false)
 @EqualsAndHashCode(callSuper = false)
 public class ServerConnectFailEvent extends Event {
-	/**
-	 * The player this event is in context to.
-	 */
-	private ProxiedPlayer player;
+    /**
+     * The player this event is in context to.
+     */
+    private ProxiedPlayer player;
 
-	/**
-	 * The server the player was attempting to connect to but failed.
-	 */
-	private ServerInfo attemptingTo;
+    /**
+     * The server the player was attempting to connect to but failed.
+     */
+    private ServerInfo attemptingTo;
 
-	/**
-	 * The server the will fallback to.
-	 */
-	private ServerInfo fallbackServer;
+    /**
+     * The server the will fallback to.
+     */
+    private ServerInfo fallbackServer;
 
-	/**
-	 * The Throwable that was caught during this causing the player connect to fail.
-	 */
-	private Throwable cause;
+    /**
+     * The Throwable that was caught during this causing the player connect to fail.
+     */
+    private Throwable cause;
 
-	/**
-	 * Send the player the internal BungeeCord failed message.
-	 */
-	private boolean sendMessage;
+    /**
+     * Send the player the internal BungeeCord failed message.
+     */
+    private boolean sendMessage;
 }

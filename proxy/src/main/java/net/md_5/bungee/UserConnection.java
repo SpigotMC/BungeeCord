@@ -239,15 +239,15 @@ public final class UserConnection implements ProxiedPlayer
                     future.channel().close();
                     pendingConnects.remove( target );
                     ServerInfo def = ProxyServer.getInstance().getServers().get( getPendingConnection().getListener().getFallbackServer() );
-	                ServerConnectFailEvent failEvent = new ServerConnectFailEvent( UserConnection.this, target, def, future.cause(), true );
-	                ProxyServer.getInstance().getPluginManager().callEvent( failEvent );
+                    ServerConnectFailEvent failEvent = new ServerConnectFailEvent( UserConnection.this, target, def, future.cause(), true );
+                    ProxyServer.getInstance().getPluginManager().callEvent( failEvent );
 
                     if ( retry && target != failEvent.getFallbackServer() && ( getServer() == null || failEvent.getFallbackServer() != getServer().getInfo() ) )
                     {
-	                    if( failEvent.isSendMessage() )
-	                    {
-	                        sendMessage( bungee.getTranslation( "fallback_lobby" ) );
-	                    }
+                        if( failEvent.isSendMessage() )
+                        {
+                            sendMessage( bungee.getTranslation( "fallback_lobby" ) );
+                        }
                         connect( failEvent.getFallbackServer(), null, false );
                     } else
                     {
