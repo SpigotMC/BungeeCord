@@ -112,6 +112,11 @@ public class ServerConnector extends PacketHandler
             }
         }
 
+        for ( PluginMessage message : user.getPendingConnection().getRegisterMessages() )
+        {
+            ch.write( message );
+        }
+
         if ( user.getSettings() != null )
         {
             ch.write( user.getSettings() );
