@@ -86,7 +86,7 @@ public class BungeeCord extends ProxyServer
      * Localization bundle.
      */
     public ResourceBundle bundle;
-    public final MultithreadEventLoopGroup eventLoops = new NioEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
+    public MultithreadEventLoopGroup eventLoops;
     /**
      * locations.yml save thread.
      */
@@ -189,6 +189,8 @@ public class BungeeCord extends ProxyServer
         System.setProperty( "java.net.preferIPv4Stack", "true" ); // Minecraft does not support IPv6
         System.setProperty( "io.netty.selectorAutoRebuildThreshold", "0" ); // Seems to cause Bungee to stop accepting connections
         ResourceLeakDetector.setEnabled( false ); // Eats performance
+
+        eventLoops = new NioEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
 
         File moduleDirectory = new File( "modules" );
         moduleManager.load( this, moduleDirectory );
