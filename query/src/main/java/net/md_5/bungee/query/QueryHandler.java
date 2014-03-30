@@ -98,7 +98,7 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
             } else if ( in.readableBytes() == 4 )
             {
                 // Long Response
-                out.writeBytes( new byte[ 11 ] );
+                out.writeBytes( new byte[]{0x73, 0x70, 0x6C, 0x69, 0x74, 0x6E, 0x75, 0x6D, 0x00, (byte) 0x80, 0x00 } );
                 Map<String, String> data = new LinkedHashMap<>();
 
                 data.put( "hostname", listener.getMotd() );
@@ -122,7 +122,7 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
                 out.writeByte( 0x00 ); // Null                
 
                 // Padding
-                writeString( out, "\01player_\00" );
+                out.writeBytes( new byte[]{0x01, 0x70, 0x6C, 0x61, 0x79, 0x65, 0x72, 0x5F, 0x00, 0x00 } );
                 // Player List
                 for ( ProxiedPlayer p : bungee.getPlayers() )
                 {
