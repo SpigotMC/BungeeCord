@@ -98,7 +98,10 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
             } else if ( in.readableBytes() == 4 )
             {
                 // Long Response
-                out.writeBytes( new byte[ 11 ] );
+                out.writeBytes( new byte[]
+                {
+                    0x73, 0x70, 0x6C, 0x69, 0x74, 0x6E, 0x75, 0x6D, 0x00, (byte) 0x80, 0x00
+                } );
                 Map<String, String> data = new LinkedHashMap<>();
 
                 data.put( "hostname", listener.getMotd() );
