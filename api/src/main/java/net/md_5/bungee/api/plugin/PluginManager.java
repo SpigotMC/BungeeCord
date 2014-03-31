@@ -12,10 +12,12 @@ import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -219,11 +221,16 @@ public class PluginManager
             return pluginStatuses.get( plugin );
         }
 
+        // combine all dependencies for 'for loop'
+        Set<String> dependencies = new HashSet<>();
+        dependencies.addAll( plugin.getDepends() );
+        dependencies.addAll( plugin.getSoftDepends() );
+
         // success status
         boolean status = true;
 
         // try to load dependencies first
-        for ( String dependName : plugin.getDepends() )
+        for ( String dependName : dependencies )
         {
             PluginDescription depend = toLoad.get( dependName );
             Boolean dependStatus = ( depend != null ) ? pluginStatuses.get( depend ) : Boolean.FALSE;
@@ -248,7 +255,7 @@ public class PluginManager
                 }
             }
 
-            if ( dependStatus == Boolean.FALSE )
+            if ( dependStatus == Boolean.FALSE && plugin.getDepends().contains( dependName ) ) // only fail if this wasn't a soft dependency
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} (required by {1}) is unavailable", new Object[]
                 {
