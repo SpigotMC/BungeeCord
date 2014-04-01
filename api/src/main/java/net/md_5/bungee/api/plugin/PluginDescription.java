@@ -37,6 +37,10 @@ public class PluginDescription
      */
     private Set<String> depends = new HashSet<>();
     /**
+     * Plugin soft dependencies.
+     */
+    private Set<String> softDepends = new HashSet<>();
+    /**
      * File we were loaded from.
      */
     private File file = null;
