@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.logging.Level;
 import lombok.Getter;
 import lombok.NonNull;
@@ -401,7 +402,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public Collection<String> getPermissions()
     {
-        return Collections.unmodifiableCollection(permissions);
+        return Collections.unmodifiableCollection( permissions );
     }
 
     @Override
@@ -420,5 +421,11 @@ public final class UserConnection implements ProxiedPlayer
     public String getUUID()
     {
         return getPendingConnection().getUUID();
+    }
+
+    @Override
+    public UUID getUniqueId()
+    {
+        return getPendingConnection().getUniqueId();
     }
 }

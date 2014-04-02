@@ -2,6 +2,7 @@ package net.md_5.bungee;
 
 import com.google.common.base.Joiner;
 import java.net.InetSocketAddress;
+import java.util.UUID;
 
 /**
  * Series of utility classes to perform various operations.
@@ -62,5 +63,16 @@ public class Util
     public static String format(Iterable<?> objects, String separators)
     {
         return Joiner.on( separators ).join( objects );
+    }
+
+    /**
+     * Converts a String to a UUID
+     *
+     * @param uuid The string to be converted
+     * @return The result
+     */
+    public static UUID getUUID(String uuid)
+    {
+        return UUID.fromString( uuid.substring( 0, 8 ) + "-" + uuid.substring( 8, 12 ) + "-" + uuid.substring( 12, 16 ) + "-" + uuid.substring( 16, 20 ) + "-" + uuid.substring( 20, 32 ) );
     }
 }

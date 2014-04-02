@@ -8,6 +8,7 @@ import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import javax.crypto.SecretKey;
 import lombok.Getter;
@@ -81,7 +82,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Getter
     private InetSocketAddress virtualHost;
     @Getter
-    private String UUID;
+    private UUID uniqueId;
 
     private enum State
     {
@@ -320,7 +321,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     LoginResult obj = BungeeCord.getInstance().gson.fromJson( result, LoginResult.class );
                     if ( obj != null )
                     {
-                        UUID = obj.getId();
+                        uniqueId = Util.getUUID( obj.getId() );
                         finish();
                         return;
                     }
@@ -366,11 +367,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     {
                         if ( ch.getHandle().isActive() )
                         {
-                            if ( UUID == null )
+                            if ( uniqueId == null )
                             {
-                                UUID = java.util.UUID.nameUUIDFromBytes( ( "OfflinePlayer:" + getName() ).getBytes( Charsets.UTF_8 ) ).toString();
+                                uniqueId = java.util.UUID.nameUUIDFromBytes( ( "OfflinePlayer:" + getName() ).getBytes( Charsets.UTF_8 ) );
                             }
-                            unsafe.sendPacket( new LoginSuccess( UUID, getName() ) );
+                            unsafe.sendPacket( new LoginSuccess( uniqueId.toString(), getName() ) );
                             ch.setProtocol( Protocol.GAME );
 
                             UserConnection userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
@@ -464,6 +465,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.USERNAME, "Can only set online mode status whilst state is username" );
         this.onlineMode = onlineMode;
+    }
+
+    @Override
+    public String getUUID()
+    {
+        return uniqueId.toString().replaceAll( "-", "" );
     }
 
     @Override
