@@ -4,6 +4,7 @@ import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.tab.TabListHandler;
+import java.util.UUID;
 
 /**
  * Represents a player who's connection is being connected to somewhere else,
@@ -117,6 +118,15 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * Get this connection's UUID, if set.
      *
      * @return the UUID
+     * @deprecated In favour of {@link #getUniqueId()}
      */
+    @Deprecated
     String getUUID();
+
+    /**
+     * Get this connection's UUID, if set.
+     *
+     * @return the UUID
+     */
+    UUID getUniqueId();
 }

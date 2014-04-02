@@ -1,6 +1,7 @@
 package net.md_5.bungee.api.connection;
 
 import java.net.InetSocketAddress;
+import java.util.UUID;
 import net.md_5.bungee.api.config.ListenerInfo;
 
 /**
@@ -41,8 +42,17 @@ public interface PendingConnection extends Connection
      * Get this connection's UUID, if set.
      *
      * @return the UUID
+     * @deprecated In favour of {@link #getUniqueId()}
      */
+    @Deprecated
     String getUUID();
+
+    /**
+     * Get this connection's UUID, if set.
+     *
+     * @return the UUID
+     */
+    UUID getUniqueId();
 
     /**
      * Get this connection's online mode.
