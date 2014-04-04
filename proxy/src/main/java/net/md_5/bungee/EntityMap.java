@@ -16,8 +16,12 @@ public class EntityMap
     private final boolean[] serverboundInts = new boolean[ 256 ];
     private final boolean[] serverboundVarInts = new boolean[ 256 ];
 
+    private final int version;
+
     public EntityMap(int version)
     {
+        this.version = version;
+
         clientboundInts[0x04] = true; // Entity Equipment
         clientboundInts[0x0A] = true; // Use bed
         clientboundVarInts[0x0B] = true; // Animation
@@ -135,6 +139,22 @@ public class EntityMap
                         packet.capacity( packet.readableBytes() + 6 );
                         packet.writerIndex( packet.readableBytes() + 6 );
                     }
+                }
+            }
+        } else if ( packetId == 0x0C /* Spawn Player */ && version == 5 )
+        {
+            DefinedPacket.readVarInt( packet );
+            int idLength = packet.readerIndex() - readerIndex - packetIdLength;
+            String uuid = DefinedPacket.readString( packet );
+            if ( uuid.length() == 36 ) {
+                String actualUUID = BungeeCord.getInstance().getActualUUID( uuid );
+                if ( actualUUID != null )
+                {
+                    packet.readerIndex( readerIndex );
+                    int writerIndex = packet.writerIndex();
+                    packet.writerIndex( readerIndex + packetIdLength + idLength );
+                    DefinedPacket.writeString( actualUUID, packet );
+                    packet.writerIndex( writerIndex );
                 }
             }
         }

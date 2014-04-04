@@ -83,6 +83,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private InetSocketAddress virtualHost;
     @Getter
     private UUID uniqueId;
+    @Getter
+    private UUID offlineId;
 
     private enum State
     {
@@ -367,10 +369,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     {
                         if ( ch.getHandle().isActive() )
                         {
+                            offlineId = java.util.UUID.nameUUIDFromBytes( ( "OfflinePlayer:" + getName() ).getBytes( Charsets.UTF_8 ) );
                             if ( uniqueId == null )
                             {
-                                uniqueId = java.util.UUID.nameUUIDFromBytes( ( "OfflinePlayer:" + getName() ).getBytes( Charsets.UTF_8 ) );
+                                uniqueId = offlineId;
                             }
+                            BungeeCord.getInstance().addUUID( offlineId.toString(), uniqueId.toString() );
                             // Version 5 == 1.7.6. This is a screwup as 1.7.6 was also a snapshot.
                             if ( getVersion() == 5 )
                             {
