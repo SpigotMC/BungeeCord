@@ -30,7 +30,7 @@ public class ClientSettings extends DefinedPacket
         viewDistance = buf.readByte();
         chatFlags = buf.readByte();
         unknown = buf.readBoolean();
-        if ( protocolVersion < 5 )
+        if ( protocolVersion < 6 )
         {
             difficulty = buf.readByte();
         }
@@ -44,7 +44,7 @@ public class ClientSettings extends DefinedPacket
         buf.writeByte( viewDistance );
         buf.writeByte( chatFlags );
         buf.writeBoolean( unknown );
-        if ( protocolVersion < 5 )
+        if ( protocolVersion < 6 )
         {
             buf.writeByte( difficulty );
         }

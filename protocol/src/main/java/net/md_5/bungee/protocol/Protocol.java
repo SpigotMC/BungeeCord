@@ -97,7 +97,7 @@ public enum Protocol
             };
     /*========================================================================*/
     public static final int MAX_PACKET_ID = 0xFF;
-    public static List<Integer> supportedVersions = Arrays.asList( 4, 8 );
+    public static List<Integer> supportedVersions = Arrays.asList( 4, 5, 8 );
     /*========================================================================*/
     public final ProtocolDirection TO_SERVER = new ProtocolDirection( "TO_SERVER" );
     public final ProtocolDirection TO_CLIENT = new ProtocolDirection( "TO_CLIENT" );
