@@ -14,7 +14,7 @@ import javax.imageio.ImageIO;
 public class Favicon
 {
 
-    private String favicon;
+    private String favicon = "";
 
     public Favicon(File fav)
     {
@@ -62,7 +62,7 @@ public class Favicon
             }
         } catch ( IOException e )
         {
-            favicon = "";
+            e.printStackTrace();
         }
     }
 
