@@ -44,6 +44,30 @@ public class ServerPing
         private String name;
         private String id;
     }
+
+    @java.lang.SuppressWarnings("all")
+    public void setFavicon(Favicon icon)
+    {
+        this.favicon = icon.getIcon();
+    }
+
+    @Deprecated
+    @java.lang.SuppressWarnings("all")
+    public void setFavicon(String icon)
+    {
+        this.favicon = icon;
+    }
+
+    @java.beans.ConstructorProperties({"version", "players", "description", "favicon"})
+    @java.lang.SuppressWarnings("all")
+    public ServerPing(final Protocol version, final Players players, final String description, final Favicon favicon)
+    {
+        this.version = version;
+        this.players = players;
+        this.description = description;
+        this.favicon = favicon.getIcon();
+    }
+    
     private String description;
     private String favicon;
 }
