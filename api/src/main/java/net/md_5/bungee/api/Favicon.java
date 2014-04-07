@@ -27,14 +27,15 @@ public class Favicon
             {
                 throw new FaviconException( "Could not load server icon because it does not exist!" );
             }
-            if ( !fav.getName().toLowerCase().endsWith( ".png" ) )
-            {
-                throw new FaviconException( "Could not load server icon because it is not a PNG file!" );
-            }
             if ( !fav.isFile() )
             {
                 throw new FaviconException( "Could not load server icon because it is not a file!" );
             }
+            if ( !fav.getName().toLowerCase().endsWith( ".png" ) )
+            {
+                throw new FaviconException( "Could not load server icon because it is not a PNG file!" );
+            }
+
             BufferedImage image = ImageIO.read( fav );
             if ( image != null )
             {
