@@ -27,7 +27,7 @@ public class Favicon
             {
                 throw new FaviconException( "Could not load server icon because it does not exist!" );
             }
-            if ( !fav.getName().endsWith( ".png" ) )
+            if ( !fav.getName().toLowerCase().endsWith( ".png" ) )
             {
                 throw new FaviconException( "Could not load server icon because it is not a PNG file!" );
             }
