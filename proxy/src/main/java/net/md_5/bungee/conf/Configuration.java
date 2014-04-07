@@ -51,7 +51,7 @@ public class Configuration implements ProxyConfig
     private Collection<String> disabledCommands;
     private int throttle = 4000;
     private boolean ipFoward;
-    public String favicon;
+    public String favicon = "";
 
     public void load()
     {
@@ -62,8 +62,8 @@ public class Configuration implements ProxyConfig
         try
         {
             favicon = new Favicon( fav ).getIcon();
-        } catch ( FaviconException ex )
-        {
+        } catch ( FaviconException ex )           
+        {            
         }
 
         listeners = adapter.getListeners();
