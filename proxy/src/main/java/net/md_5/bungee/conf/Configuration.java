@@ -8,8 +8,10 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.Getter;
 import net.md_5.bungee.api.Favicon;
+import net.md_5.bungee.api.FaviconException;
 import net.md_5.bungee.api.ProxyConfig;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
@@ -57,7 +59,12 @@ public class Configuration implements ProxyConfig
         adapter.load();
 
         File fav = new File( "server-icon.png" );
-        favicon = new Favicon( fav ).getIcon();
+        try
+        {
+            favicon = new Favicon( fav ).getIcon();
+        } catch ( FaviconException ex )
+        {
+        }
 
         listeners = adapter.getListeners();
         timeout = adapter.getInt( "timeout", timeout );
