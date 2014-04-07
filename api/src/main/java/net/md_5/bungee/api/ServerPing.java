@@ -66,10 +66,6 @@ public class ServerPing
         this.favicon = icon;
     }
 
-    @java.beans.ConstructorProperties(
-            {
-                "version", "players", "description", "favicon"
-            })
     public ServerPing(final Protocol version, final Players players, final String description, final Favicon favicon)
     {
         this.version = version;

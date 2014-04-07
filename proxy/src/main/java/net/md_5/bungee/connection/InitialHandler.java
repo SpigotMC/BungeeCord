@@ -125,7 +125,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(LegacyPing ping) throws Exception
     {
         ServerPing legacy = new ServerPing( new ServerPing.Protocol( bungee.getGameVersion(), bungee.getProtocolVersion() ),
-                new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ), listener.getMotd(), new Favicon( null ) );
+                new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ), listener.getMotd(), (Favicon) null );
         legacy = bungee.getPluginManager().callEvent( new ProxyPingEvent( this, legacy ) ).getResponse();
 
         String kickMessage = ChatColor.DARK_BLUE

@@ -5,7 +5,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
 import javax.imageio.ImageIO;
 
 /**
@@ -16,7 +15,7 @@ public class Favicon
 
     private String favicon = "";
 
-    public Favicon(File fav)
+    public Favicon(File fav) throws FaviconException
     {
         if ( fav == null )
         {
@@ -26,18 +25,15 @@ public class Favicon
         {
             if ( !fav.exists() )
             {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load server icon because it does not exist!" );
-                return;
+                throw new FaviconException( "Could not load server icon because it does not exist!" );
             }
             if ( !fav.getName().endsWith( ".png" ) )
             {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load server icon because it is not a PNG file!" );
-                return;
+                throw new FaviconException( "Could not load server icon because it is not a PNG file!" );
             }
             if ( !fav.isFile() )
             {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load server icon because it is not a file!" );
-                return;
+                throw new FaviconException( "Could not load server icon because it is not a file!" );
             }
             BufferedImage image = ImageIO.read( fav );
             if ( image != null )
@@ -49,20 +45,19 @@ public class Favicon
                     favicon = "data:image/png;base64," + BaseEncoding.base64().encode( bytes.toByteArray() );
                     if ( favicon.length() > Short.MAX_VALUE )
                     {
-                        ProxyServer.getInstance().getLogger().log( Level.WARNING, "Favicon file too large for server to process" );
-                        favicon = null;
+                        throw new FaviconException( "Favicon file too large for server to process" );
                     }
                 } else
                 {
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "Server icon must be exactly 64x64 pixels" );
+                    throw new FaviconException( "Server icon must be exactly 64x64 pixels" );
                 }
             } else
             {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load server icon for unknown reason. Please double check its format." );
+                throw new FaviconException( "Could not load server icon for unknown reason. Please double check its format." );
             }
         } catch ( IOException e )
         {
-            e.printStackTrace();
+            throw new FaviconException( e );
         }
     }
 
