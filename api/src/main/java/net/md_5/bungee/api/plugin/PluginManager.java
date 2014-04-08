@@ -22,6 +22,7 @@ import java.util.Stack;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
@@ -56,6 +57,7 @@ public class PluginManager
     {
         this.proxy = proxy;
         eventBus = new EventBus( proxy.getLogger() );
+        eventBus.setExceptionHandler( new NotifyingExceptionHandler( proxy.getLogger() == null ? Logger.getGlobal() : proxy.getLogger(), this ) );
     }
 
     /**
