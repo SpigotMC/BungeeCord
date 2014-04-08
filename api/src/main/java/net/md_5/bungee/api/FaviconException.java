@@ -11,14 +11,4 @@ public class FaviconException extends Exception
         super( message );
     }
     
-    public FaviconException()
-    {
-        super();
-    }
-    
-    public FaviconException(Throwable t)
-    {
-        super( t );
-    }
-    
 }

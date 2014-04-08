@@ -58,7 +58,7 @@ public class Favicon
             }
         } catch ( IOException e )
         {
-            throw new FaviconException( e );
+            throw new FaviconException( e.getMessage() );
         }
     }
 

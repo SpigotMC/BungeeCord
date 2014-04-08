@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import lombok.Getter;
 import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.FaviconException;
@@ -52,20 +51,21 @@ public class Configuration implements ProxyConfig
     private int throttle = 4000;
     private boolean ipFoward;
     public String favicon = "";
-
+    
     public void load()
     {
         ConfigurationAdapter adapter = ProxyServer.getInstance().getConfigurationAdapter();
         adapter.load();
-
+        
         File fav = new File( "server-icon.png" );
         try
         {
             favicon = new Favicon( fav ).getIcon();
-        } catch ( FaviconException ex )           
+        } catch ( FaviconException ex )        
         {            
+            ProxyServer.getInstance().getLogger().severe( ex.getMessage() );
         }
-
+        
         listeners = adapter.getListeners();
         timeout = adapter.getInt( "timeout", timeout );
         uuid = adapter.getString( "stats", uuid );
@@ -73,14 +73,14 @@ public class Configuration implements ProxyConfig
         playerLimit = adapter.getInt( "player_limit", playerLimit );
         throttle = adapter.getInt( "connection_throttle", throttle );
         ipFoward = adapter.getBoolean( "ip_forward", ipFoward );
-
+        
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
-
+        
         Preconditions.checkArgument( listeners != null && !listeners.isEmpty(), "No listeners defined." );
-
+        
         Map<String, ServerInfo> newServers = adapter.getServers();
         Preconditions.checkArgument( newServers != null && !newServers.isEmpty(), "No servers defined" );
-
+        
         if ( servers == null )
         {
             servers = new CaseInsensitiveMap<>( newServers );
@@ -101,7 +101,7 @@ public class Configuration implements ProxyConfig
                 }
             }
         }
-
+        
         for ( ListenerInfo listener : listeners )
         {
             Preconditions.checkArgument( servers.containsKey( listener.getDefaultServer() ), "Default server %s is not defined", listener.getDefaultServer() );
