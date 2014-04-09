@@ -7,6 +7,7 @@ import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Logger;
 import lombok.Getter;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
@@ -78,6 +79,14 @@ public abstract class ProxyServer
      * @return their player instance
      */
     public abstract ProxiedPlayer getPlayer(String name);
+
+    /**
+     * Gets a connected player via their UUID
+     *
+     * @param uuid of the player
+     * @return their player instance
+     */
+    public abstract ProxiedPlayer getPlayer(UUID uuid);
 
     /**
      * Return all servers registered to this proxy, keyed by name. Unlike the
