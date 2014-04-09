@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import javax.crypto.SecretKey;
+
+import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.*;
@@ -161,7 +163,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 result = bungee.getPluginManager().callEvent( new ProxyPingEvent( InitialHandler.this, result ) ).getResponse();
 
                 BungeeCord.getInstance().getConnectionThrottle().unthrottle( getAddress().getAddress() );
-                unsafe.sendPacket( new StatusResponse( BungeeCord.getInstance().gson.toJson( result ) ) );
+                Gson gson = handshake.getProtocolVersion() == 4 ? BungeeCord.getInstance().gsonLegacy : BungeeCord.getInstance().gson;
+                unsafe.sendPacket( new StatusResponse( gson.toJson( result ) ) );
             }
         };
 
