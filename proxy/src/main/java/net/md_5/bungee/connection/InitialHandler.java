@@ -84,6 +84,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private InetSocketAddress virtualHost;
     @Getter
     private UUID uniqueId;
+    @Getter
+    private UUID offlineId;
 
     private enum State
     {
@@ -166,7 +168,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         if ( forced != null && listener.isPingPassthrough() )
         {
-            forced.ping( pingBack );
+            ((BungeeServerInfo) forced).ping( pingBack, handshake.getProtocolVersion() );
         } else
         {
             int protocol = ( Protocol.supportedVersions.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : -1;
@@ -368,11 +370,20 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     {
                         if ( ch.getHandle().isActive() )
                         {
+                            offlineId = java.util.UUID.nameUUIDFromBytes( ( "OfflinePlayer:" + getName() ).getBytes( Charsets.UTF_8 ) );
                             if ( uniqueId == null )
                             {
-                                uniqueId = java.util.UUID.nameUUIDFromBytes( ( "OfflinePlayer:" + getName() ).getBytes( Charsets.UTF_8 ) );
+                                uniqueId = offlineId;
                             }
-                            unsafe.sendPacket( new LoginSuccess( uniqueId.toString(), getName() ) );
+                            BungeeCord.getInstance().addUUID( offlineId.toString(), uniqueId.toString() );
+                            // Version 5 == 1.7.6. This is a screwup as 1.7.6 was also a snapshot.
+                            if ( getVersion() == 5 )
+                            {
+                                unsafe.sendPacket( new LoginSuccess( getUniqueId().toString(), getName() ) ); // With dashes in between
+                            } else
+                            {
+                                unsafe.sendPacket( new LoginSuccess( getUUID(), getName() ) ); // Without dashes, for older clients.
+                            }
                             ch.setProtocol( Protocol.GAME );
 
                             UserConnection userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );

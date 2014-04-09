@@ -52,6 +52,7 @@ public class UpstreamBridge extends PacketHandler
         bungee.getPluginManager().callEvent( event );
         con.getTabList().onDisconnect();
         BungeeCord.getInstance().removeConnection( con );
+        BungeeCord.getInstance().removeUUID( con.getPendingConnection().getOfflineId().toString() );
 
         if ( con.getServer() != null )
         {

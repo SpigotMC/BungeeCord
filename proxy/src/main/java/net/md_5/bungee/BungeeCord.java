@@ -26,6 +26,7 @@ import java.net.InetSocketAddress;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
@@ -33,6 +34,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -101,6 +103,11 @@ public class BungeeCord extends ProxyServer
      */
     private final Map<String, UserConnection> connections = new CaseInsensitiveMap<>();
     private final ReadWriteLock connectionLock = new ReentrantReadWriteLock();
+    /**
+     * Skin support for servers that don't support ip-forwarding
+     */
+    private final Map<String, String> uuidMap = new HashMap<>();
+    private final ReadWriteLock uuidLock = new ReentrantReadWriteLock();
     /**
      * Plugin manager.
      */
@@ -535,6 +542,42 @@ public class BungeeCord extends ProxyServer
         } finally
         {
             connectionLock.writeLock().unlock();
+        }
+    }
+
+    public void addUUID(String offlineUUID, String actualUUID)
+    {
+        uuidLock.writeLock().lock();
+        try
+        {
+            uuidMap.put( offlineUUID, actualUUID );
+        } finally
+        {
+            uuidLock.writeLock().unlock();
+        }
+    }
+
+    public void removeUUID(String offlineUUID)
+    {
+        uuidLock.writeLock().lock();
+        try
+        {
+            uuidMap.remove( offlineUUID );
+        } finally
+        {
+            uuidLock.writeLock().unlock();
+        }
+    }
+
+    public String getActualUUID(String offlineUUID)
+    {
+        uuidLock.readLock().lock();
+        try
+        {
+            return uuidMap.get( offlineUUID );
+        } finally
+        {
+            uuidLock.readLock().unlock();
         }
     }
 
