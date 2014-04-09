@@ -167,7 +167,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         if ( forced != null && listener.isPingPassthrough() )
         {
-            forced.ping( pingBack );
+            ((BungeeServerInfo) forced).ping( pingBack, handshake.getProtocolVersion() );
         } else
         {
             int protocol = ( Protocol.supportedVersions.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : -1;
