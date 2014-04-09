@@ -1,5 +1,6 @@
 package net.md_5.bungee.connection;
 
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.Callback;
@@ -49,7 +50,8 @@ public class PingHandler extends PacketHandler
     @Override
     public void handle(StatusResponse statusResponse) throws Exception
     {
-        callback.done( BungeeCord.getInstance().gson.fromJson( statusResponse.getResponse(), ServerPing.class ), null );
+        Gson gson = protocol == 4 ? BungeeCord.getInstance().gsonLegacy : BungeeCord.getInstance().gson;
+        callback.done( gson.fromJson( statusResponse.getResponse(), ServerPing.class ), null );
         channel.close();
     }
 

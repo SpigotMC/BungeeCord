@@ -1,5 +1,7 @@
 package net.md_5.bungee;
 
+import com.google.gson.GsonBuilder;
+import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.module.ModuleManager;
 import com.google.common.io.ByteStreams;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -128,7 +130,10 @@ public class BungeeCord extends ProxyServer
     private ConsoleReader consoleReader;
     @Getter
     private final Logger logger;
-    public final Gson gson = new Gson();
+    public final Gson gson = new GsonBuilder()
+            .registerTypeAdapter( ServerPing.PlayerInfo.class, new PlayerInfoSerializer( 5 ) ).create();
+    public final Gson gsonLegacy = new GsonBuilder()
+            .registerTypeAdapter( ServerPing.PlayerInfo.class, new PlayerInfoSerializer( 4 ) ).create();
     @Getter
     private ConnectionThrottle connectionThrottle;
     private final ModuleManager moduleManager = new ModuleManager();
