@@ -22,18 +22,19 @@ public class PingHandler extends PacketHandler
 
     private final ServerInfo target;
     private final Callback<ServerPing> callback;
+    private final int protocol;
     private ChannelWrapper channel;
 
     @Override
     public void connected(ChannelWrapper channel) throws Exception
     {
         this.channel = channel;
-        MinecraftEncoder encoder = new MinecraftEncoder( Protocol.HANDSHAKE, false, ProxyServer.getInstance().getProtocolVersion() );
+        MinecraftEncoder encoder = new MinecraftEncoder( Protocol.HANDSHAKE, false, protocol );
 
         channel.getHandle().pipeline().addAfter( PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder( Protocol.STATUS, false, ProxyServer.getInstance().getProtocolVersion() ) );
         channel.getHandle().pipeline().addAfter( PipelineUtils.FRAME_PREPENDER, PipelineUtils.PACKET_ENCODER, encoder );
 
-        channel.write( new Handshake( ProxyServer.getInstance().getProtocolVersion(), target.getAddress().getHostString(), target.getAddress().getPort(), 1 ) );
+        channel.write( new Handshake( protocol, target.getAddress().getHostString(), target.getAddress().getPort(), 1 ) );
 
         encoder.setProtocol( Protocol.STATUS );
         channel.write( new StatusRequest() );
