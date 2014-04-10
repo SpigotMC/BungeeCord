@@ -106,11 +106,6 @@ public class BungeeCord extends ProxyServer
     private final Map<String, UserConnection> connections = new CaseInsensitiveMap<>();
     private final ReadWriteLock connectionLock = new ReentrantReadWriteLock();
     /**
-     * Skin support for servers that don't support ip-forwarding
-     */
-    private final Map<String, String> uuidMap = new HashMap<>();
-    private final ReadWriteLock uuidLock = new ReentrantReadWriteLock();
-    /**
      * Plugin manager.
      */
     @Getter
@@ -547,42 +542,6 @@ public class BungeeCord extends ProxyServer
         } finally
         {
             connectionLock.writeLock().unlock();
-        }
-    }
-
-    public void addUUID(String offlineUUID, String actualUUID)
-    {
-        uuidLock.writeLock().lock();
-        try
-        {
-            uuidMap.put( offlineUUID, actualUUID );
-        } finally
-        {
-            uuidLock.writeLock().unlock();
-        }
-    }
-
-    public void removeUUID(String offlineUUID)
-    {
-        uuidLock.writeLock().lock();
-        try
-        {
-            uuidMap.remove( offlineUUID );
-        } finally
-        {
-            uuidLock.writeLock().unlock();
-        }
-    }
-
-    public String getActualUUID(String offlineUUID)
-    {
-        uuidLock.readLock().lock();
-        try
-        {
-            return uuidMap.get( offlineUUID );
-        } finally
-        {
-            uuidLock.readLock().unlock();
         }
     }
 

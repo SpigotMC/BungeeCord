@@ -87,6 +87,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private UUID uniqueId;
     @Getter
     private UUID offlineId;
+    @Getter
+    private LoginResult loginProfile;
 
     private enum State
     {
@@ -326,6 +328,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     LoginResult obj = BungeeCord.getInstance().gson.fromJson( result, LoginResult.class );
                     if ( obj != null )
                     {
+                        loginProfile = obj;
                         uniqueId = Util.getUUID( obj.getId() );
                         finish();
                         return;
@@ -377,7 +380,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             {
                                 uniqueId = offlineId;
                             }
-                            BungeeCord.getInstance().addUUID( offlineId.toString(), uniqueId.toString() );
                             // Version 5 == 1.7.6. This is a screwup as 1.7.6 was also a snapshot.
                             if ( getVersion() == 5 )
                             {
