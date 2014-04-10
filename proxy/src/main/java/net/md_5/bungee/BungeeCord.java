@@ -277,7 +277,7 @@ public class BungeeCord extends ProxyServer
                 new RemoteQuery( this, info ).start( new InetSocketAddress( info.getHost().getAddress(), info.getQueryPort() ), eventLoops, bindListener );
             }
         }
-    }
+    } 
 
     public void stopListeners()
     {

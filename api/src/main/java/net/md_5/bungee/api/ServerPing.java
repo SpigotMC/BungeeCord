@@ -72,6 +72,36 @@ public class ServerPing
             return uniqueId.toString().replaceAll( "-", "" );
         }
     }
+
+    /**
+     * Loads a favicon from a File object.
+     *
+     * @param icon The icon object.
+     */
+    public void setFavicon(Favicon icon)
+    {
+        this.favicon = icon.getIcon();
+    }
+
+    /**
+     * Set's the favicon for this instance. If you want to load a favicon from a
+     * File, you should use {@link #setFavicon(net.md_5.bungee.api.Favicon)}
+     *
+     * @param icon The icon string
+     */
+    public void setFavicon(String icon)
+    {
+        this.favicon = icon;
+    }
+
+    public ServerPing(final Protocol version, final Players players, final String description, final Favicon favicon)
+    {
+        this.version = version;
+        this.players = players;
+        this.description = description;
+        this.favicon = favicon.getIcon();
+    }
+
     private String description;
     private String favicon;
 }
