@@ -3,6 +3,8 @@ package net.md_5.bungee;
 import com.google.common.base.Preconditions;
 import java.util.Objects;
 import java.util.Queue;
+
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
@@ -16,6 +18,7 @@ import net.md_5.bungee.api.score.Team;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
+import net.md_5.bungee.connection.LoginResult;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
@@ -35,6 +38,7 @@ import net.md_5.bungee.protocol.packet.LoginSuccess;
 public class ServerConnector extends PacketHandler
 {
 
+    private final static Gson gson = new Gson();
     private final ProxyServer bungee;
     private ChannelWrapper ch;
     private final UserConnection user;
@@ -69,7 +73,15 @@ public class ServerConnector extends PacketHandler
         Handshake copiedHandshake = new Handshake( originalHandshake.getProtocolVersion(), originalHandshake.getHost(), originalHandshake.getPort(), 2 );
         if ( BungeeCord.getInstance().config.isIpFoward() )
         {
-            copiedHandshake.setHost( copiedHandshake.getHost() + "\00" + user.getAddress().getHostString() + "\00" + user.getUUID() );
+            LoginResult profile = user.getPendingConnection().getLoginProfile();
+            if ( profile != null && profile.getProperties() != null && profile.getProperties().length >= 1 )
+            {
+                String profileString = gson.toJson(profile.getProperties());
+                copiedHandshake.setHost( copiedHandshake.getHost() + "\00" + user.getAddress().getHostString() + "\00" + user.getUUID() + "\00" + profileString );
+            } else
+            {
+                copiedHandshake.setHost( copiedHandshake.getHost() + "\00" + user.getAddress().getHostString() + "\00" + user.getUUID());
+            }
         }
         channel.write( copiedHandshake );
 
