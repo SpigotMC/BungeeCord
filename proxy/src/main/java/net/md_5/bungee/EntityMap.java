@@ -27,6 +27,7 @@ public class EntityMap
         clientboundInts[0x04] = true; // Entity Equipment
         clientboundInts[0x0A] = true; // Use bed
         clientboundVarInts[0x0B] = true; // Animation
+        clientboundVarInts[0x0C] = true; // Spawn Player
         clientboundInts[0x0D] = true; // Collect Item
         clientboundVarInts[0x0E] = true; // Spawn Object
         clientboundVarInts[0x0F] = true; // Spawn Mob
@@ -139,6 +140,39 @@ public class EntityMap
                         packet.readerIndex( readerIndex );
                         packet.capacity( packet.readableBytes() + 6 );
                         packet.writerIndex( packet.readableBytes() + 6 );
+                    }
+                }
+            }
+        } else if ( packetId == 0x0C /* Spawn Player */ && version == 5 )
+        {
+            DefinedPacket.readVarInt( packet );
+            int idLength = packet.readerIndex() - readerIndex - packetIdLength;
+            String uuid = DefinedPacket.readString( packet );
+            String username = DefinedPacket.readString( packet );
+            int props = DefinedPacket.readVarInt( packet );
+            if ( props == 0 )
+            {
+                UserConnection player = (UserConnection) BungeeCord.getInstance().getPlayer( username );
+                if ( player != null )
+                {
+                    LoginResult profile = player.getPendingConnection().getLoginProfile();
+                    if ( profile != null && profile.getProperties() != null
+                            && profile.getProperties().length >= 1 )
+                    {
+                        ByteBuf rest = packet.slice().copy();
+                        packet.readerIndex( readerIndex );
+                        packet.writerIndex( readerIndex + packetIdLength + idLength );
+                        DefinedPacket.writeString( player.getUniqueId().toString(), packet );
+                        DefinedPacket.writeString( username, packet);
+                        DefinedPacket.writeVarInt( profile.getProperties().length, packet );
+                        for ( LoginResult.Property property : profile.getProperties() )
+                        {
+                            DefinedPacket.writeString( property.getName(), packet );
+                            DefinedPacket.writeString( property.getValue(), packet );
+                            DefinedPacket.writeString( property.getSignature(), packet );
+                        }
+                        packet.writeBytes( rest );
+                        rest.release();
                     }
                 }
             }
