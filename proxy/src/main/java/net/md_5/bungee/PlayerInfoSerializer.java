@@ -35,7 +35,7 @@ public class PlayerInfoSerializer implements JsonSerializer<ServerPing.PlayerInf
         {
             info.setUniqueId( UUID.fromString( id ) );
         }
-        return null;
+        return info;
     }
 
     @Override
