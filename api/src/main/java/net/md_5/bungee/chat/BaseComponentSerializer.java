@@ -75,9 +75,10 @@ public class BaseComponentSerializer
     protected void serialize(JsonObject object, BaseComponent component, JsonSerializationContext context)
     {
         boolean first = false;
-        if ( ComponentSerializer.serializedComponents.get() == null ) {
+        if ( ComponentSerializer.serializedComponents.get() == null )
+        {
             first = true;
-            ComponentSerializer.serializedComponents.set( new HashSet<BaseComponent>(  ) );
+            ComponentSerializer.serializedComponents.set( new HashSet<BaseComponent>() );
         }
         try
         {
@@ -131,7 +132,8 @@ public class BaseComponentSerializer
         } finally
         {
             ComponentSerializer.serializedComponents.get().remove( component );
-            if (first) {
+            if ( first )
+            {
                 ComponentSerializer.serializedComponents.set( null );
             }
         }

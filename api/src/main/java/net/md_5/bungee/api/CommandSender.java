@@ -85,7 +85,9 @@ public interface CommandSender
 
     /**
      * Get all Permissions which this CommandSender has
-     * @return a unmodifiable Collection of Strings which represent their permissions
+     *
+     * @return a unmodifiable Collection of Strings which represent their
+     * permissions
      */
     public Collection<String> getPermissions();
 }

@@ -163,7 +163,7 @@ public class EntityMap
                         packet.readerIndex( readerIndex );
                         packet.writerIndex( readerIndex + packetIdLength + idLength );
                         DefinedPacket.writeString( player.getUniqueId().toString(), packet );
-                        DefinedPacket.writeString( username, packet);
+                        DefinedPacket.writeString( username, packet );
                         DefinedPacket.writeVarInt( profile.getProperties().length, packet );
                         for ( LoginResult.Property property : profile.getProperties() )
                         {

@@ -37,7 +37,6 @@ public enum Protocol
     HANDSHAKE
             {
 
-                
                 {
                     TO_SERVER.registerPacket( 0x00, Handshake.class );
                 }
@@ -46,7 +45,6 @@ public enum Protocol
     GAME
             {
 
-                
                 {
                     TO_CLIENT.registerPacket( 0x00, KeepAlive.class );
                     TO_CLIENT.registerPacket( 0x01, Login.class );
@@ -72,7 +70,6 @@ public enum Protocol
     STATUS
             {
 
-                
                 {
                     TO_CLIENT.registerPacket( 0x00, StatusResponse.class );
                     TO_CLIENT.registerPacket( 0x01, PingPacket.class );
@@ -85,7 +82,6 @@ public enum Protocol
     LOGIN
             {
 
-                
                 {
                     TO_CLIENT.registerPacket( 0x00, Kick.class );
                     TO_CLIENT.registerPacket( 0x01, EncryptionRequest.class );

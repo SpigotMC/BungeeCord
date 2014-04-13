@@ -5,7 +5,8 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
 
 /**
- * Command to terminate the proxy instance. May only be used by the console by default.
+ * Command to terminate the proxy instance. May only be used by the console by
+ * default.
  */
 public class CommandEnd extends Command
 {
