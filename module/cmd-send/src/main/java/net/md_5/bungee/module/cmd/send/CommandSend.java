@@ -95,8 +95,14 @@ public class CommandSend extends Command implements TabExecutor
                     matches.add( player.getName() );
                 }
             }
-            if ( "all".startsWith( search ) ) matches.add( "all" );
-            if ( "current".startsWith( search ) ) matches.add( "current" );
+            if ( "all".startsWith( search ) )
+            {
+                matches.add( "all" );
+            }
+            if ( "current".startsWith( search ) )
+            {
+                matches.add( "current" );
+            }
         } else
         {
             String search = args[1].toLowerCase();

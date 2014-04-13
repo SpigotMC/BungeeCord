@@ -47,7 +47,10 @@ public class TextComponent extends BaseComponent
                     c += 32;
                 }
                 ChatColor format = ChatColor.getByChar( c );
-                if ( format == null ) continue;
+                if ( format == null )
+                {
+                    continue;
+                }
                 if ( builder.length() > 0 )
                 {
                     TextComponent old = component;
@@ -145,14 +148,15 @@ public class TextComponent extends BaseComponent
     }
 
     /**
-     * Creates a TextComponent with blank text and the extras set
-     * to the passed array
+     * Creates a TextComponent with blank text and the extras set to the passed
+     * array
      *
      * @param extras the extras to set
      */
-    public TextComponent(BaseComponent ...extras) {
+    public TextComponent(BaseComponent... extras)
+    {
         setText( "" );
-        setExtra( Arrays.asList(extras) );
+        setExtra( Arrays.asList( extras ) );
     }
 
     @Override

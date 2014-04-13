@@ -56,20 +56,20 @@ public class YamlConfiguration extends ConfigurationProvider
     @SuppressWarnings("unchecked")
     public Configuration load(Reader reader)
     {
-        Map<String,Object> map = yaml.get().loadAs( reader, LinkedHashMap.class );
-        if( map == null )
+        Map<String, Object> map = yaml.get().loadAs( reader, LinkedHashMap.class );
+        if ( map == null )
         {
             map = new LinkedHashMap<>();
         }
-        return new Configuration( map , null );
+        return new Configuration( map, null );
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Configuration load(String string)
     {
-        Map<String,Object> map = yaml.get().loadAs( string, LinkedHashMap.class );
-        if( map == null )
+        Map<String, Object> map = yaml.get().loadAs( string, LinkedHashMap.class );
+        if ( map == null )
         {
             map = new LinkedHashMap<>();
         }

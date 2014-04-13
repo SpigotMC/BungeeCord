@@ -28,7 +28,7 @@ public class PlayerInfoSerializer implements JsonSerializer<ServerPing.PlayerInf
         JsonObject js = json.getAsJsonObject();
         ServerPing.PlayerInfo info = new ServerPing.PlayerInfo( js.get( "name" ).getAsString(), (UUID) null );
         String id = js.get( "id" ).getAsString();
-        if ( protocol == 4 || !id.contains( "-" ))
+        if ( protocol == 4 || !id.contains( "-" ) )
         {
             info.setId( id );
         } else
