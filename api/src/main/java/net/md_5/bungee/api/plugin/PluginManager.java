@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.event.EventBus;
 import net.md_5.bungee.event.EventHandler;
 import org.yaml.snakeyaml.Yaml;
@@ -122,7 +123,7 @@ public class PluginManager
         }
 
         String commandName = split[0].toLowerCase();
-        if ( proxy.getDisabledCommands().contains( commandName ) )
+        if ( sender instanceof ProxiedPlayer && proxy.getDisabledCommands().contains( commandName ) )
         {
             return false;
         }
