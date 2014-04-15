@@ -442,6 +442,26 @@ public class BungeeCord extends ProxyServer
         }
     }
 
+    public ProxiedPlayer getPlayer(UUID uuid)
+    {
+        connectionLock.readLock().lock();
+        try
+        {
+            for (ProxiedPlayer proxiedPlayer : connections.values())
+            {
+                if (proxiedPlayer.getUniqueId().equals(uuid))
+                {
+                    return proxiedPlayer;
+                }
+            }
+
+            return null;
+        } finally
+        {
+            connectionLock.readLock().unlock();
+        }
+    }
+
     @Override
     public Map<String, ServerInfo> getServers()
     {
