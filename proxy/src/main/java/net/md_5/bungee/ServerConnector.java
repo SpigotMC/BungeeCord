@@ -16,6 +16,7 @@ import net.md_5.bungee.api.score.Team;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
+import net.md_5.bungee.connection.LoginResult;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
@@ -67,9 +68,17 @@ public class ServerConnector extends PacketHandler
 
         Handshake originalHandshake = user.getPendingConnection().getHandshake();
         Handshake copiedHandshake = new Handshake( originalHandshake.getProtocolVersion(), originalHandshake.getHost(), originalHandshake.getPort(), 2 );
+
         if ( BungeeCord.getInstance().config.isIpFoward() )
         {
-            copiedHandshake.setHost( copiedHandshake.getHost() + "\00" + user.getAddress().getHostString() + "\00" + user.getUUID() );
+            String newHost = copiedHandshake.getHost() + "\00" + user.getAddress().getHostString() + "\00" + user.getUUID();
+
+            LoginResult profile = user.getPendingConnection().getLoginProfile();
+            if ( profile != null && profile.getProperties() != null && profile.getProperties().length > 0 )
+            {
+                newHost += "\00" + BungeeCord.getInstance().gson.toJson( profile.getProperties() );
+            }
+            copiedHandshake.setHost( newHost );
         }
         channel.write( copiedHandshake );
 
