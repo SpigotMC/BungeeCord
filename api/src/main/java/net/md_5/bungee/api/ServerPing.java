@@ -1,10 +1,11 @@
 package net.md_5.bungee.api;
 
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.Util;
+
+import java.util.UUID;
 
 /**
  * Represents the standard list data returned by opening a server in the
@@ -72,33 +73,5 @@ public class ServerPing
         }
     }
     private String description;
-    private Favicon favicon;
-
-    @Deprecated
-    public ServerPing(Protocol version, Players players, String description, String favicon)
-    {
-        this( version, players, description, Favicon.create( favicon ) );
-    }
-
-    @Deprecated
-    public String getFavicon()
-    {
-        return getFaviconObject() == null ? null : getFaviconObject().getEncoded();
-    }
-
-    public Favicon getFaviconObject()
-    {
-        return this.favicon;
-    }
-
-    @Deprecated
-    public void setFavicon(String favicon)
-    {
-        setFavicon( favicon == null ? null : Favicon.create( favicon ) );
-    }
-
-    public void setFavicon(Favicon favicon)
-    {
-        this.favicon = favicon;
-    }
+    private String favicon;
 }
