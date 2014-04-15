@@ -1,12 +1,7 @@
 package net.md_5.bungee.conf;
 
 import com.google.common.base.Preconditions;
-import com.google.common.io.BaseEncoding;
-import com.google.common.io.Files;
 import gnu.trove.map.TMap;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -16,6 +11,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import javax.imageio.ImageIO;
 import lombok.Getter;
+import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ProxyConfig;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
@@ -55,7 +51,7 @@ public class Configuration implements ProxyConfig
     private Collection<String> disabledCommands;
     private int throttle = 4000;
     private boolean ipFoward;
-    public String favicon;
+    private Favicon favicon;
 
     public void load()
     {
@@ -67,28 +63,8 @@ public class Configuration implements ProxyConfig
         {
             try
             {
-                BufferedImage image = ImageIO.read( fav );
-                if ( image != null )
-                {
-                    if ( image.getHeight() == 64 && image.getWidth() == 64 )
-                    {
-                        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                        ImageIO.write( image, "png", bytes );
-                        favicon = "data:image/png;base64," + BaseEncoding.base64().encode( bytes.toByteArray() );
-                        if ( favicon.length() > Short.MAX_VALUE )
-                        {
-                            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Favicon file too large for server to process" );
-                            favicon = null;
-                        }
-                    } else
-                    {
-                        ProxyServer.getInstance().getLogger().log( Level.WARNING, "Server icon must be exactly 64x64 pixels" );
-                    }
-                } else
-                {
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load server icon for unknown reason. Please double check its format." );
-                }
-            } catch ( IOException ex )
+                favicon = Favicon.create( ImageIO.read( fav ) );
+            } catch ( IOException | IllegalArgumentException ex )
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load server icon", ex );
             }
@@ -142,5 +118,16 @@ public class Configuration implements ProxyConfig
                 }
             }
         }
+    }
+
+    @Deprecated
+    public String getFavicon()
+    {
+        return getFaviconObject().getEncoded();
+    }
+
+    public Favicon getFaviconObject()
+    {
+        return favicon;
     }
 }
