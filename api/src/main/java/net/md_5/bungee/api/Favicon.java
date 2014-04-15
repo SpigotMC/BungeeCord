@@ -14,6 +14,7 @@ import java.io.InputStream;
 import javax.imageio.ImageIO;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -28,13 +29,14 @@ public class Favicon
         @Override
         public void write(JsonWriter out, Favicon value) throws IOException
         {
-            TypeAdapters.STRING.write( out, value.getEncoded() );
+            TypeAdapters.STRING.write( out, value == null ? null : value.getEncoded() );
         }
 
         @Override
         public Favicon read(JsonReader in) throws IOException
         {
-            return create( TypeAdapters.STRING.read( in ) );
+            String enc = TypeAdapters.STRING.read( in );
+            return enc == null ? null : create( enc );
         }
     };
 
@@ -46,6 +48,7 @@ public class Favicon
     /**
      * The base64 encoded favicon, including MIME header.
      */
+    @NonNull
     @Getter
     private final String encoded;
 
