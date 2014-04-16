@@ -23,7 +23,6 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.PacketWrapper;
-import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
@@ -177,8 +176,8 @@ public class DownstreamBridge extends PacketHandler
                 t.setPrefix( team.getPrefix() );
                 t.setSuffix( team.getSuffix() );
                 t.setFriendlyFire( team.getFriendlyFire() );
-                t.setUnknown( team.getUnknown() );
-                t.setUnknown2( team.getUnknown2() );
+                t.setNameTagVisibility( team.getNameTagVisibility() );
+                t.setColor( team.getColor() );
             }
             if ( team.getPlayers() != null )
             {

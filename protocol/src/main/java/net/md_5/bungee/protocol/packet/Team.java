@@ -24,8 +24,8 @@ public class Team extends DefinedPacket
     private String displayName;
     private String prefix;
     private String suffix;
-    private String unknown;
-    private byte unknown2;
+    private String nameTagVisibility;
+    private byte color;
     private byte friendlyFire;
     private String[] players;
 
@@ -54,8 +54,8 @@ public class Team extends DefinedPacket
             friendlyFire = buf.readByte();
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_14_11_a )
             {
-                unknown = readString( buf );
-                unknown2 = buf.readByte();
+                nameTagVisibility = readString( buf );
+                color = buf.readByte();
             }
         }
         if ( mode == 0 || mode == 3 || mode == 4 )
@@ -82,8 +82,8 @@ public class Team extends DefinedPacket
             buf.writeByte( friendlyFire );
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_14_11_a )
             {
-                writeString( unknown, buf );
-                buf.writeByte( unknown2 );
+                writeString( nameTagVisibility, buf );
+                buf.writeByte( color );
             }
         }
         if ( mode == 0 || mode == 3 || mode == 4 )
