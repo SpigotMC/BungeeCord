@@ -32,6 +32,7 @@ import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.api.tab.TabListHandler;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.InitialHandler;
+import net.md_5.bungee.entitymap.EntityMap;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.protocol.PacketWrapper;
@@ -116,7 +117,7 @@ public final class UserConnection implements ProxiedPlayer
 
     public void init()
     {
-        this.entityRewrite = new EntityMap( getPendingConnection().getVersion() );
+        this.entityRewrite = EntityMap.getEntityMap( getPendingConnection().getVersion() );
 
         this.displayName = name;
         try
