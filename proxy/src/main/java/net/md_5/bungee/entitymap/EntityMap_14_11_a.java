@@ -146,6 +146,20 @@ class EntityMap_14_11_a extends EntityMap
                     }
                 }
             }
+        } else if ( packetId == 0x42 /* Combat Event */ )
+        {
+            int event = packet.readUnsignedByte();
+            if ( event == 1 /* End Combat*/ )
+            {
+                DefinedPacket.readVarInt( packet );
+                rewriteInt( packet, oldId, newId, packet.readerIndex() );
+            } else if ( event == 2 /* Entity Dead */ ) {
+                int position = packet.readerIndex();
+                rewriteVarInt( packet, oldId, newId, packet.readerIndex() );
+                packet.readerIndex( position );
+                DefinedPacket.readVarInt( packet );
+                rewriteInt( packet, oldId, newId, packet.readerIndex() );
+            }
         }
         packet.readerIndex( readerIndex );
     }
