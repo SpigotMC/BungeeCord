@@ -383,7 +383,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                                 uniqueId = offlineId;
                             }
 
-                            if ( getVersion() == ProtocolConstants.MINECRAFT_1_7_6 )
+                            if ( getVersion() >= ProtocolConstants.MINECRAFT_1_7_6 )
                             {
                                 unsafe.sendPacket( new LoginSuccess( getUniqueId().toString(), getName() ) ); // With dashes in between
                             } else

@@ -54,7 +54,7 @@ public class EntityMap
         serverboundInts[0x0A] = true; // Animation
         serverboundInts[0x0B] = true; // Entity Action
 
-        if ( version >= 7 )
+        if ( version >= ProtocolConstants.MINECRAFT_14_11_a )
         {
             migrateIntToVarint( clientboundInts, clientboundVarInts );
             migrateIntToVarint( serverboundInts, serverboundVarInts );
