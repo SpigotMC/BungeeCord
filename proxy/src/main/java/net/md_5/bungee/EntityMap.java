@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.connection.LoginResult;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 
 /**
@@ -143,7 +144,7 @@ public class EntityMap
                     }
                 }
             }
-        } else if ( packetId == 0x0C /* Spawn Player */ && version == 5 )
+        } else if ( packetId == 0x0C /* Spawn Player */ && version == ProtocolConstants.MINECRAFT_1_7_6 )
         {
             DefinedPacket.readVarInt( packet );
             int idLength = packet.readerIndex() - readerIndex - packetIdLength;
