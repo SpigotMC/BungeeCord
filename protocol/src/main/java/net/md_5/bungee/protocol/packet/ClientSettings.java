@@ -19,9 +19,9 @@ public class ClientSettings extends DefinedPacket
     private String locale;
     private byte viewDistance;
     private byte chatFlags;
-    private boolean unknown;
+    private boolean chatColours;
     private byte difficulty;
-    private byte showCape;
+    private byte skinParts;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
@@ -29,12 +29,12 @@ public class ClientSettings extends DefinedPacket
         locale = readString( buf );
         viewDistance = buf.readByte();
         chatFlags = buf.readByte();
-        unknown = buf.readBoolean();
+        chatColours = buf.readBoolean();
         if ( protocolVersion <= ProtocolConstants.MINECRAFT_1_7_6 )
         {
             difficulty = buf.readByte();
         }
-        showCape = buf.readByte();
+        skinParts = buf.readByte();
     }
 
     @Override
@@ -43,12 +43,12 @@ public class ClientSettings extends DefinedPacket
         writeString( locale, buf );
         buf.writeByte( viewDistance );
         buf.writeByte( chatFlags );
-        buf.writeBoolean( unknown );
+        buf.writeBoolean( chatColours );
         if ( protocolVersion <= ProtocolConstants.MINECRAFT_1_7_6 )
         {
             buf.writeByte( difficulty );
         }
-        buf.writeByte( showCape );
+        buf.writeByte( skinParts );
     }
 
     @Override

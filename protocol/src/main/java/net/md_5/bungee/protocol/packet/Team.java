@@ -24,7 +24,9 @@ public class Team extends DefinedPacket
     private String displayName;
     private String prefix;
     private String suffix;
-    private boolean friendlyFire;
+    private String unknown;
+    private byte unknown2;
+    private byte friendlyFire;
     private String[] players;
 
     /**
@@ -49,7 +51,12 @@ public class Team extends DefinedPacket
             displayName = readString( buf );
             prefix = readString( buf );
             suffix = readString( buf );
-            friendlyFire = buf.readBoolean();
+            friendlyFire = buf.readByte();
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_14_11_a )
+            {
+                unknown = readString( buf );
+                unknown2 = buf.readByte();
+            }
         }
         if ( mode == 0 || mode == 3 || mode == 4 )
         {
@@ -72,7 +79,12 @@ public class Team extends DefinedPacket
             writeString( displayName, buf );
             writeString( prefix, buf );
             writeString( suffix, buf );
-            buf.writeBoolean( friendlyFire );
+            buf.writeByte( friendlyFire );
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_14_11_a )
+            {
+                writeString( unknown, buf );
+                buf.writeByte( unknown2 );
+            }
         }
         if ( mode == 0 || mode == 3 || mode == 4 )
         {

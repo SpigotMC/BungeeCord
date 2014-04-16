@@ -114,7 +114,7 @@ public class DownstreamBridge extends PacketHandler
         switch ( objective.getAction() )
         {
             case 0:
-                serverScoreboard.addObjective( new Objective( objective.getName(), objective.getText() ) );
+                serverScoreboard.addObjective( new Objective( objective.getName(), objective.getValue() ) );
                 break;
             case 1:
                 serverScoreboard.removeObjective( objective.getName() );
@@ -176,7 +176,7 @@ public class DownstreamBridge extends PacketHandler
                 t.setDisplayName( team.getDisplayName() );
                 t.setPrefix( team.getPrefix() );
                 t.setSuffix( team.getSuffix() );
-                t.setFriendlyFire( team.isFriendlyFire() );
+                t.setFriendlyFire( team.getFriendlyFire() );
             }
             if ( team.getPlayers() != null )
             {
