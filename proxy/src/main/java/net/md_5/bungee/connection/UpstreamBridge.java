@@ -20,6 +20,7 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import java.util.ArrayList;
 import java.util.List;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 
 public class UpstreamBridge extends PacketHandler
@@ -62,7 +63,10 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(PacketWrapper packet) throws Exception
     {
-        con.getEntityRewrite().rewriteServerbound( packet.buf, con.getClientEntityId(), con.getServerEntityId() );
+        if ( con.getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_7_6 )
+        {
+            con.getEntityRewrite().rewriteServerbound( packet.buf, con.getClientEntityId(), con.getServerEntityId() );
+        }
         if ( con.getServer() != null )
         {
             con.getServer().getCh().write( packet );

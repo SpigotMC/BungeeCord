@@ -94,7 +94,7 @@ public enum Protocol
             };
     /*========================================================================*/
     public static final int MAX_PACKET_ID = 0xFF;
-    public static List<Integer> supportedVersions = Arrays.asList( ProtocolConstants.MINECRAFT_1_7_2, ProtocolConstants.MINECRAFT_1_7_6 );
+    public static List<Integer> supportedVersions = Arrays.asList( ProtocolConstants.MINECRAFT_1_7_2, ProtocolConstants.MINECRAFT_1_7_6, ProtocolConstants.MINECRAFT_14_11_a );
     /*========================================================================*/
     public final DirectionData TO_SERVER = new DirectionData( ProtocolConstants.Direction.TO_SERVER );
     public final DirectionData TO_CLIENT = new DirectionData( ProtocolConstants.Direction.TO_CLIENT );

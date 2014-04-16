@@ -17,6 +17,8 @@ public class Team
     private String prefix;
     private String suffix;
     private byte friendlyFire;
+    private String unknown;
+    private byte unknown2;
     private Set<String> players = new HashSet<>();
 
     public Collection<String> getPlayers()

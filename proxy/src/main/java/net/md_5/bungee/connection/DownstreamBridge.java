@@ -24,6 +24,7 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
@@ -85,7 +86,10 @@ public class DownstreamBridge extends PacketHandler
     {
         if ( !server.isObsolete() )
         {
-            con.getEntityRewrite().rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId() );
+            if ( con.getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_7_6 )
+            {
+                con.getEntityRewrite().rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId() );
+            }
             con.sendPacket( packet );
         }
     }
@@ -114,7 +118,7 @@ public class DownstreamBridge extends PacketHandler
         switch ( objective.getAction() )
         {
             case 0:
-                serverScoreboard.addObjective( new Objective( objective.getName(), objective.getValue() ) );
+                serverScoreboard.addObjective( new Objective( objective.getName(), objective.getValue(), objective.getType() ) );
                 break;
             case 1:
                 serverScoreboard.removeObjective( objective.getName() );
@@ -177,6 +181,8 @@ public class DownstreamBridge extends PacketHandler
                 t.setPrefix( team.getPrefix() );
                 t.setSuffix( team.getSuffix() );
                 t.setFriendlyFire( team.getFriendlyFire() );
+                t.setUnknown( team.getUnknown() );
+                t.setUnknown2( team.getUnknown2() );
             }
             if ( team.getPlayers() != null )
             {

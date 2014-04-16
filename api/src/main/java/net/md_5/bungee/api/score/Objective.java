@@ -16,5 +16,9 @@ public class Objective
     /**
      * Value of the objective.
      */
-    private final String value; // displayName
+    private final String value;
+    /**
+     * Type; integer or hearts
+     */
+    private final String type;
 }
