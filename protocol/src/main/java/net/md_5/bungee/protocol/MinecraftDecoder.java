@@ -20,7 +20,7 @@ public class MinecraftDecoder extends ByteToMessageDecoder
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
     {
-        Protocol.ProtocolDirection prot = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
+        Protocol.DirectionData prot = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
         ByteBuf copy = in.copy(); // TODO
 
         int packetId = DefinedPacket.readVarInt( in );
@@ -29,7 +29,7 @@ public class MinecraftDecoder extends ByteToMessageDecoder
         if ( prot.hasPacket( packetId ) )
         {
             packet = prot.createPacket( packetId );
-            packet.read( in, prot, protocolVersion );
+            packet.read( in, prot.getDirection(), protocolVersion );
             if ( in.readableBytes() != 0 )
             {
                 throw new BadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot );

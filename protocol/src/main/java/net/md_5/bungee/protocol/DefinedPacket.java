@@ -119,7 +119,7 @@ public abstract class DefinedPacket
         throw new UnsupportedOperationException( "Packet must implement read method" );
     }
 
-    public void read(ByteBuf buf, Protocol.ProtocolDirection direction, int protocolVersion)
+    public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         read( buf );
     }
@@ -129,7 +129,7 @@ public abstract class DefinedPacket
         throw new UnsupportedOperationException( "Packet must implement write method" );
     }
 
-    public void write(ByteBuf buf, Protocol.ProtocolDirection direction, int protocolVersion)
+    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         write( buf );
     }

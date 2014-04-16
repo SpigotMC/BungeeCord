@@ -6,6 +6,7 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.List;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
@@ -95,14 +96,15 @@ public enum Protocol
     public static final int MAX_PACKET_ID = 0xFF;
     public static List<Integer> supportedVersions = Arrays.asList( ProtocolConstants.MINECRAFT_1_7_2, ProtocolConstants.MINECRAFT_1_7_6 );
     /*========================================================================*/
-    public final ProtocolDirection TO_SERVER = new ProtocolDirection( "TO_SERVER" );
-    public final ProtocolDirection TO_CLIENT = new ProtocolDirection( "TO_CLIENT" );
+    public final DirectionData TO_SERVER = new DirectionData( ProtocolConstants.Direction.TO_SERVER );
+    public final DirectionData TO_CLIENT = new DirectionData( ProtocolConstants.Direction.TO_CLIENT );
 
     @RequiredArgsConstructor
-    public class ProtocolDirection
+    public class DirectionData
     {
 
-        private final String name;
+        @Getter
+        private final ProtocolConstants.Direction direction;
         private final TObjectIntMap<Class<? extends DefinedPacket>> packetMap = new TObjectIntHashMap<>( MAX_PACKET_ID );
         private final Class<? extends DefinedPacket>[] packetClasses = new Class[ MAX_PACKET_ID ];
         private final Constructor<? extends DefinedPacket>[] packetConstructors = new Constructor[ MAX_PACKET_ID ];
@@ -110,12 +112,6 @@ public enum Protocol
         public boolean hasPacket(int id)
         {
             return id < MAX_PACKET_ID && packetConstructors[id] != null;
-        }
-
-        @Override
-        public String toString()
-        {
-            return name;
         }
 
         public final DefinedPacket createPacket(int id)
