@@ -85,10 +85,7 @@ public class DownstreamBridge extends PacketHandler
     {
         if ( !server.isObsolete() )
         {
-            if ( con.getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_7_6 )
-            {
-                con.getEntityRewrite().rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId() );
-            }
+            con.getEntityRewrite().rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId() );
             con.sendPacket( packet );
         }
     }
