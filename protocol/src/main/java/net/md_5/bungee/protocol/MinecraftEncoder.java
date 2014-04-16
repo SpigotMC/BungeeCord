@@ -19,8 +19,8 @@ public class MinecraftEncoder extends MessageToByteEncoder<DefinedPacket>
     @Override
     protected void encode(ChannelHandlerContext ctx, DefinedPacket msg, ByteBuf out) throws Exception
     {
-        Protocol.ProtocolDirection prot = ( server ) ? protocol.TO_CLIENT : protocol.TO_SERVER;
+        Protocol.DirectionData prot = ( server ) ? protocol.TO_CLIENT : protocol.TO_SERVER;
         DefinedPacket.writeVarInt( prot.getId( msg.getClass() ), out );
-        msg.write( out, prot, protocolVersion );
+        msg.write( out, prot.getDirection(), protocolVersion );
     }
 }

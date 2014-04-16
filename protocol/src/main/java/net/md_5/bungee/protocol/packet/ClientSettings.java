@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
-import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
@@ -24,13 +24,13 @@ public class ClientSettings extends DefinedPacket
     private byte showCape;
 
     @Override
-    public void read(ByteBuf buf, Protocol.ProtocolDirection direction, int protocolVersion)
+    public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         locale = readString( buf );
         viewDistance = buf.readByte();
         chatFlags = buf.readByte();
         unknown = buf.readBoolean();
-        if ( protocolVersion < 6 )
+        if ( protocolVersion <= ProtocolConstants.MINECRAFT_1_7_6 )
         {
             difficulty = buf.readByte();
         }
@@ -38,13 +38,13 @@ public class ClientSettings extends DefinedPacket
     }
 
     @Override
-    public void write(ByteBuf buf, Protocol.ProtocolDirection direction, int protocolVersion)
+    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         writeString( locale, buf );
         buf.writeByte( viewDistance );
         buf.writeByte( chatFlags );
         buf.writeBoolean( unknown );
-        if ( protocolVersion < 6 )
+        if ( protocolVersion <= ProtocolConstants.MINECRAFT_1_7_6 )
         {
             buf.writeByte( difficulty );
         }

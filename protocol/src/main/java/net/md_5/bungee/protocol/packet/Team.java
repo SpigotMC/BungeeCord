@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
-import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
@@ -40,7 +40,7 @@ public class Team extends DefinedPacket
     }
 
     @Override
-    public void read(ByteBuf buf, Protocol.ProtocolDirection direction, int protocolVersion)
+    public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         name = readString( buf );
         mode = buf.readByte();
@@ -53,7 +53,7 @@ public class Team extends DefinedPacket
         }
         if ( mode == 0 || mode == 3 || mode == 4 )
         {
-            int len = ( protocolVersion >= 7 ) ? readVarInt( buf ) : buf.readShort();
+            int len = ( protocolVersion >= ProtocolConstants.MINECRAFT_14_11_a ) ? readVarInt( buf ) : buf.readShort();
             players = new String[ len ];
             for ( int i = 0; i < len; i++ )
             {
@@ -63,7 +63,7 @@ public class Team extends DefinedPacket
     }
 
     @Override
-    public void write(ByteBuf buf, Protocol.ProtocolDirection direction, int protocolVersion)
+    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         writeString( name, buf );
         buf.writeByte( mode );
@@ -76,7 +76,7 @@ public class Team extends DefinedPacket
         }
         if ( mode == 0 || mode == 3 || mode == 4 )
         {
-            if ( protocolVersion >= 7 )
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_14_11_a )
             {
                 writeVarInt( players.length, buf );
             } else
