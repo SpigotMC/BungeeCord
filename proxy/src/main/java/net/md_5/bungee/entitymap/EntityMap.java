@@ -29,6 +29,8 @@ public abstract class EntityMap
                 return new EntityMap_1_7_2();
             case 5:
                 return new EntityMap_1_7_6();
+            case 14:
+                return new EntityMap_14_11_a();
         }
         throw new RuntimeException( "Version " + version + " has no entity map" );
     }

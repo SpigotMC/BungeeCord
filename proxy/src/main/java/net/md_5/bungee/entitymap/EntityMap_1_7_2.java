@@ -49,7 +49,7 @@ class EntityMap_1_7_2 extends EntityMap
         int packetIdLength = packet.readerIndex() - readerIndex;
         if ( packetId == 0x0D /* Collect Item */ || packetId == 0x1B /* Attach Entity */ )
         {
-            rewriteInt( packet, readerIndex + packetIdLength + 4, oldId, newId );
+            rewriteInt( packet, oldId, newId, readerIndex + packetIdLength + 4 );
         } else if ( packetId == 0x13 /* Destroy Entities */ )
         {
             int count = packet.getByte( packetIdLength );
