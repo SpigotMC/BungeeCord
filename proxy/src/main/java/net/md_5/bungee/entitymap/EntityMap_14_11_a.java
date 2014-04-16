@@ -35,6 +35,7 @@ class EntityMap_14_11_a extends EntityMap
         addRewrite( 0x20, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Properties
         addRewrite( 0x25, ProtocolConstants.Direction.TO_CLIENT, true ); // Block Break Animation
         addRewrite( 0x2C, ProtocolConstants.Direction.TO_CLIENT, true ); // Spawn Global Entity
+        addRewrite( 0x43, ProtocolConstants.Direction.TO_CLIENT, true ); // Camera
 
         addRewrite( 0x02, ProtocolConstants.Direction.TO_SERVER, true ); // Use Entity
         addRewrite( 0x0B, ProtocolConstants.Direction.TO_SERVER, true ); // Entity Action
