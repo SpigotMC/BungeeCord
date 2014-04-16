@@ -65,6 +65,7 @@ import net.md_5.bungee.log.LoggingOutputStream;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.query.RemoteQuery;
@@ -127,10 +128,10 @@ public class BungeeCord extends ProxyServer
     @Getter
     private final Logger logger;
     public final Gson gson = new GsonBuilder()
-            .registerTypeAdapter( ServerPing.PlayerInfo.class, new PlayerInfoSerializer( 5 ) )
+            .registerTypeAdapter( ServerPing.PlayerInfo.class, new PlayerInfoSerializer( ProtocolConstants.MINECRAFT_1_7_6 ) )
             .registerTypeAdapter( Favicon.class, Favicon.getFaviconTypeAdapter() ).create();
     public final Gson gsonLegacy = new GsonBuilder()
-            .registerTypeAdapter( ServerPing.PlayerInfo.class, new PlayerInfoSerializer( 4 ) )
+            .registerTypeAdapter( ServerPing.PlayerInfo.class, new PlayerInfoSerializer( ProtocolConstants.MINECRAFT_1_7_2 ) )
             .registerTypeAdapter( Favicon.class, Favicon.getFaviconTypeAdapter() ).create();
     @Getter
     private ConnectionThrottle connectionThrottle;

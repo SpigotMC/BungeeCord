@@ -48,6 +48,7 @@ import net.md_5.bungee.api.AbstractReconnectHandler;
 import net.md_5.bungee.api.event.PlayerHandshakeEvent;
 import net.md_5.bungee.api.event.PreLoginEvent;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.LegacyHandshake;
 import net.md_5.bungee.protocol.packet.LegacyPing;
 import net.md_5.bungee.protocol.packet.LoginRequest;
@@ -166,7 +167,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 result = bungee.getPluginManager().callEvent( new ProxyPingEvent( InitialHandler.this, result ) ).getResponse();
 
                 BungeeCord.getInstance().getConnectionThrottle().unthrottle( getAddress().getAddress() );
-                Gson gson = handshake.getProtocolVersion() == 4 ? BungeeCord.getInstance().gsonLegacy : BungeeCord.getInstance().gson;
+                Gson gson = handshake.getProtocolVersion() == ProtocolConstants.MINECRAFT_1_7_2 ? BungeeCord.getInstance().gsonLegacy : BungeeCord.getInstance().gson;
                 unsafe.sendPacket( new StatusResponse( gson.toJson( result ) ) );
             }
         };
@@ -381,8 +382,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             {
                                 uniqueId = offlineId;
                             }
-                            // Version 5 == 1.7.6. This is a screwup as 1.7.6 was also a snapshot.
-                            if ( getVersion() == 5 )
+
+                            if ( getVersion() == ProtocolConstants.MINECRAFT_1_7_6 )
                             {
                                 unsafe.sendPacket( new LoginSuccess( getUniqueId().toString(), getName() ) ); // With dashes in between
                             } else
