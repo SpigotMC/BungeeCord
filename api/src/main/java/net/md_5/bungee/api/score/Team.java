@@ -16,7 +16,7 @@ public class Team
     private String displayName;
     private String prefix;
     private String suffix;
-    private boolean friendlyFire;
+    private byte friendlyFire;
     private Set<String> players = new HashSet<>();
 
     public Collection<String> getPlayers()

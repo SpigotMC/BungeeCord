@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
+import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
@@ -17,22 +18,34 @@ public class PlayerListItem extends DefinedPacket
 
     private String username;
     private boolean online;
-    private short ping;
+    private int ping;
 
     @Override
-    public void read(ByteBuf buf)
+    public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         username = readString( buf );
         online = buf.readBoolean();
-        ping = buf.readShort();
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_14_11_a )
+        {
+            ping = readVarInt( buf );
+        } else
+        {
+            ping = buf.readShort();
+        }
     }
 
     @Override
-    public void write(ByteBuf buf)
+    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         writeString( username, buf );
         buf.writeBoolean( online );
-        buf.writeShort( ping );
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_14_11_a )
+        {
+            writeVarInt( ping, buf );
+        } else
+        {
+            buf.writeShort( ping );
+        }
     }
 
     @Override

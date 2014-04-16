@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
+import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
@@ -18,15 +19,27 @@ public class KeepAlive extends DefinedPacket
     private int randomId;
 
     @Override
-    public void read(ByteBuf buf)
+    public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        randomId = buf.readInt();
+        if ( direction == ProtocolConstants.Direction.TO_SERVER && protocolVersion >= ProtocolConstants.MINECRAFT_14_11_a )
+        {
+            randomId = readVarInt( buf );
+        } else
+        {
+            randomId = buf.readInt();
+        }
     }
 
     @Override
-    public void write(ByteBuf buf)
+    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        buf.writeInt( randomId );
+        if ( direction == ProtocolConstants.Direction.TO_SERVER && protocolVersion >= ProtocolConstants.MINECRAFT_14_11_a )
+        {
+            writeVarInt( randomId, buf );
+        } else
+        {
+            buf.writeInt( randomId );
+        }
     }
 
     @Override
