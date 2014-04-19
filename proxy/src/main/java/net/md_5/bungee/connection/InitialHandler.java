@@ -162,7 +162,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 if ( error != null )
                 {
                     result = new ServerPing();
-                    result.setDescription( "Error pinging remote server: " + Util.exception( error ) );
+                    result.setDescription( bungee.getTranslation( "ping_cannot_connect" ) );
+                    bungee.getLogger().log( Level.WARNING, "Error pinging remote server", error );
                 }
                 result = bungee.getPluginManager().callEvent( new ProxyPingEvent( InitialHandler.this, result ) ).getResponse();
 
