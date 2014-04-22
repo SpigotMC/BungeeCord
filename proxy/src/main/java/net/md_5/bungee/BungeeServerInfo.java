@@ -17,6 +17,7 @@ import java.util.Queue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Synchronized;
+import lombok.ToString;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -31,6 +32,7 @@ import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
 @RequiredArgsConstructor
+@ToString(of = { "name", "address", "restricted" })
 public class BungeeServerInfo implements ServerInfo
 {
 
