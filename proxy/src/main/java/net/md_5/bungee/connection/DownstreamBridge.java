@@ -345,9 +345,11 @@ public class DownstreamBridge extends PacketHandler
             if ( subChannel.equals( "ServerIP" ) )
             {
                 ServerInfo info = bungee.getServerInfo( in.readUTF() );
-                out.writeUTF( "ServerIP" );
-                out.writeUTF( info.getAddress().getAddress().getHostAddress() );
-                out.writeShort( info.getAddress().getPort() );
+                if ( info != null ) {
+                    out.writeUTF( "ServerIP" );
+                    out.writeUTF( info.getAddress().getAddress().getHostAddress() );
+                    out.writeShort( info.getAddress().getPort() );
+                }
             }
 
             // Check we haven't set out to null, and we have written data, if so reply back back along the BungeeCord channel
