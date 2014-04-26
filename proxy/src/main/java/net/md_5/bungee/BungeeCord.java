@@ -359,7 +359,7 @@ public class BungeeCord extends ProxyServer
                 }
 
                 scheduler.shutdown();
-                getLogger().info( "Thankyou and goodbye" );
+                getLogger().info( "Thank you and goodbye" );
                 System.exit( 0 );
             }
         }.start();
