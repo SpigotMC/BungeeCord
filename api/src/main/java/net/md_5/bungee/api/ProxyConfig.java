@@ -63,9 +63,15 @@ public interface ProxyConfig
     boolean isIpFoward();
 
     /**
-     * The path for the Favicon (I.e. server_icon.png) Should be no more or no
-     * less than a 64 by 64 Pixel PNG picture.
+     * The encoded favicon.
+     *
+     * @deprecated Use #getFaviconObject instead.
      */
     @Deprecated
     String getFavicon();
+
+    /**
+     * The favicon used for the server ping list.
+     */
+    Favicon getFaviconObject();
 }
