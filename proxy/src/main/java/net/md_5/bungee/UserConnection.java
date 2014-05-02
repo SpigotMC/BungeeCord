@@ -119,6 +119,10 @@ public final class UserConnection implements ProxiedPlayer
     private EntityMap entityRewrite;
     private Locale locale;
     /*========================================================================*/
+    @Getter
+    @Setter
+    private byte[] fmlModData;
+    /*========================================================================*/
     private final Unsafe unsafe = new Unsafe()
     {
         @Override

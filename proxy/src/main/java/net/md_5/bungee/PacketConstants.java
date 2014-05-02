@@ -15,4 +15,8 @@ public class PacketConstants
         0, 0, 0, 0, 0, 2
     } );
     public static final PluginMessage I_AM_BUNGEE = new PluginMessage( "BungeeCord", new byte[ 0 ] );
+
+    public static final PluginMessage FML_REGISTER = new PluginMessage( "REGISTER", "FML|HS".getBytes() );
+    public static final PluginMessage FML_START_CLIENT_HANDSHAKE = new PluginMessage( "FML|HS", new byte[] { 0, 1 } );
+    public static final PluginMessage FML_START_SERVER_HANDSHAKE = new PluginMessage( "FML|HS", new byte[] { 1, 1 } );
 }
