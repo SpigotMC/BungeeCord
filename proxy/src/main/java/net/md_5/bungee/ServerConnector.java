@@ -100,6 +100,15 @@ public class ServerConnector extends PacketHandler
         ch.setProtocol( Protocol.GAME );
         thisState = State.LOGIN;
 
+        if ( user.getFmlModData() != null )
+        {
+            //The client is a FML client. Let's start the handshake phase
+            ch.write( PacketConstants.FML_REGISTER );
+            ch.write( PacketConstants.FML_START_SERVER_HANDSHAKE );
+            ch.write( new PluginMessage( "FML|HS", user.getFmlModData() ) );
+            ch.write( new PluginMessage( "FML|HS", new byte[]{ -1, 2 } ) );
+        }
+
         throw CancelSendSignal.INSTANCE;
     }
 
@@ -235,6 +244,32 @@ public class ServerConnector extends PacketHandler
         }
 
         throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void handle(PluginMessage pluginMessage) throws Exception
+    {
+        if(pluginMessage.getTag().equals("FML|HS"))
+        {
+            byte state = pluginMessage.getData()[ 0 ];
+            switch ( state )
+            {
+                case -1:
+                    // ACK
+                    user.sendData( "FML|HS", pluginMessage.getData() );
+                    break;
+                case 2:
+                    // ModList
+                    user.sendData( "FML|HS", pluginMessage.getData() );
+                    break;
+                case 3:
+                    // IdList
+                    user.sendData( "FML|HS", pluginMessage.getData() );
+                    ch.write( new PluginMessage( "FML|HS", new byte[]{ -1, 2 } ) );
+                    break;
+            }
+            throw CancelSendSignal.INSTANCE;
+        }
     }
 
     @Override

@@ -142,6 +142,21 @@ public class UpstreamBridge extends PacketHandler
             throw CancelSendSignal.INSTANCE;
         }
 
+        // We handle forge handshake messages
+        if ( pluginMessage.getTag().equals( "FML|HS" ) )
+        {
+            byte state = pluginMessage.getData()[ 0 ];
+            switch ( state )
+            {
+                case 2:
+                    // Mod List
+                    con.setFmlModData(pluginMessage.getData());
+                    break;
+            }
+
+            throw CancelSendSignal.INSTANCE;
+        }
+
         PluginMessageEvent event = new PluginMessageEvent( con, con.getServer(), pluginMessage.getTag(), pluginMessage.getData().clone() );
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {

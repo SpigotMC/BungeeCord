@@ -416,6 +416,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                                 server = bungee.getServerInfo( listener.getDefaultServer() );
                             }
 
+                            //Start FML handshake. This is ignored by vanilla clients
+                            unsafe.sendPacket( PacketConstants.FML_REGISTER );
+                            unsafe.sendPacket(PacketConstants.FML_START_CLIENT_HANDSHAKE);
+
                             userCon.connect( server, null, true );
 
                             thisState = State.FINISHED;
