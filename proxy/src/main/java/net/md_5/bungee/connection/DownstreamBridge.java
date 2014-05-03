@@ -348,6 +348,7 @@ public class DownstreamBridge extends PacketHandler
                 if ( info != null )
                 {
                     out.writeUTF( "ServerIP" );
+                    out.writeUTF( info.getName() );
                     out.writeUTF( info.getAddress().getAddress().getHostAddress() );
                     out.writeShort( info.getAddress().getPort() );
                 }
