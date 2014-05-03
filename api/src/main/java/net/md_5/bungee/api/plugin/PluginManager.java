@@ -1,14 +1,14 @@
 package net.md_5.bungee.api.plugin;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicates;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.eventbus.Subscribe;
 import java.io.File;
-import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,9 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
@@ -48,15 +47,41 @@ public class PluginManager
     private final EventBus eventBus;
     private final Map<String, Plugin> plugins = new LinkedHashMap<>();
     private final Map<String, Command> commandMap = new HashMap<>();
-    private Map<String, PluginDescription> toLoad = new HashMap<>();
     private final Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
     private final Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
+
+    /**
+     * All available plugin loaders.
+     */
+    private final List<PluginLoader> pluginLoaders = new ArrayList<>();
+    private Map<String, AvailablePluginWrapper> toLoad = new HashMap<>();
 
     @SuppressWarnings("unchecked")
     public PluginManager(ProxyServer proxy)
     {
         this.proxy = proxy;
         eventBus = new EventBus( proxy.getLogger() );
+
+        // recursive directory search
+        pluginLoaders.add( new DirectoryPluginLoader() );
+        // jar files with plugin.yml / bungee.yml
+        pluginLoaders.add( new YamlJarPluginLoader() );
+    }
+
+    /**
+     * Returns an Iterable of all plugin loaders of the given type (for example FilePluginLoader).
+     */
+    <T extends PluginLoader> Iterable<T> getPluginLoadersByType(Class<T> type)
+    {
+        return (Iterable<T>) Iterables.filter(pluginLoaders, Predicates.instanceOf(type));
+    }
+
+    /**
+     * Returns the logger that should be used for plugin loading.
+     */
+    Logger getLogger()
+    {
+        return ProxyServer.getInstance().getLogger();
     }
 
     /**
@@ -123,7 +148,7 @@ public class PluginManager
             return false;
         }
 
-        String commandName = split[0].toLowerCase();
+        String commandName = split[ 0 ].toLowerCase();
         if ( sender instanceof ProxiedPlayer && proxy.getDisabledCommands().contains( commandName ) )
         {
             return false;
@@ -185,13 +210,13 @@ public class PluginManager
 
     public void loadPlugins()
     {
-        Map<PluginDescription, Boolean> pluginStatuses = new HashMap<>();
-        for ( Map.Entry<String, PluginDescription> entry : toLoad.entrySet() )
+        Map<AvailablePluginWrapper, Boolean> pluginStatuses = new HashMap<>();
+        for ( Map.Entry<String, AvailablePluginWrapper> entry : toLoad.entrySet() )
         {
-            PluginDescription plugin = entry.getValue();
-            if ( !enablePlugin( pluginStatuses, new Stack<PluginDescription>(), plugin ) )
+            AvailablePluginWrapper plugin = entry.getValue();
+            if ( !enablePlugin( pluginStatuses, new Stack<AvailablePluginWrapper>(), plugin ) )
             {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Failed to enable {0}", entry.getKey() );
+                ProxyServer.getInstance().getLogger().log(Level.WARNING, "Failed to enable {0}", entry.getKey());
             }
         }
         toLoad.clear();
@@ -216,7 +241,7 @@ public class PluginManager
         }
     }
 
-    private boolean enablePlugin(Map<PluginDescription, Boolean> pluginStatuses, Stack<PluginDescription> dependStack, PluginDescription plugin)
+    private boolean enablePlugin(Map<AvailablePluginWrapper, Boolean> pluginStatuses, Stack<AvailablePluginWrapper> dependStack, AvailablePluginWrapper plugin)
     {
         if ( pluginStatuses.containsKey( plugin ) )
         {
@@ -225,8 +250,8 @@ public class PluginManager
 
         // combine all dependencies for 'for loop'
         Set<String> dependencies = new HashSet<>();
-        dependencies.addAll( plugin.getDepends() );
-        dependencies.addAll( plugin.getSoftDepends() );
+        dependencies.addAll( plugin.getDescription().getDepends() );
+        dependencies.addAll( plugin.getDescription().getSoftDepends() );
 
         // success status
         boolean status = true;
@@ -234,7 +259,7 @@ public class PluginManager
         // try to load dependencies first
         for ( String dependName : dependencies )
         {
-            PluginDescription depend = toLoad.get( dependName );
+            AvailablePluginWrapper depend = toLoad.get( dependName );
             Boolean dependStatus = ( depend != null ) ? pluginStatuses.get( depend ) : Boolean.FALSE;
 
             if ( dependStatus == null )
@@ -242,11 +267,11 @@ public class PluginManager
                 if ( dependStack.contains( depend ) )
                 {
                     StringBuilder dependencyGraph = new StringBuilder();
-                    for ( PluginDescription element : dependStack )
+                    for ( AvailablePluginWrapper element : dependStack )
                     {
-                        dependencyGraph.append( element.getName() ).append( " -> " );
+                        dependencyGraph.append( element.getDescription().getName() ).append( " -> " );
                     }
-                    dependencyGraph.append( plugin.getName() ).append( " -> " ).append( dependName );
+                    dependencyGraph.append( plugin.getDescription().getName() ).append( " -> " ).append( dependName );
                     ProxyServer.getInstance().getLogger().log( Level.WARNING, "Circular dependency detected: {0}", dependencyGraph );
                     status = false;
                 } else
@@ -257,12 +282,12 @@ public class PluginManager
                 }
             }
 
-            if ( dependStatus == Boolean.FALSE && plugin.getDepends().contains( dependName ) ) // only fail if this wasn't a soft dependency
+            if ( dependStatus == Boolean.FALSE && plugin.getDescription().getDepends().contains( dependName ) ) // only fail if this wasn't a soft dependency
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} (required by {1}) is unavailable", new Object[]
-                {
-                    String.valueOf( dependName ), plugin.getName()
-                } );
+                        {
+                                String.valueOf( dependName ), plugin.getDescription().getName()
+                        } );
                 status = false;
             }
 
@@ -277,23 +302,18 @@ public class PluginManager
         {
             try
             {
-                URLClassLoader loader = new PluginClassloader( new URL[]
-                {
-                    plugin.getFile().toURI().toURL()
-                } );
-                Class<?> main = loader.loadClass( plugin.getMain() );
-                Plugin clazz = (Plugin) main.getDeclaredConstructor().newInstance();
+                Plugin clazz = plugin.loadPlugin( this );
 
-                clazz.init( proxy, plugin );
-                plugins.put( plugin.getName(), clazz );
+                clazz.init( proxy, plugin.getDescription() );
+                plugins.put( plugin.getDescription().getName(), clazz );
                 clazz.onLoad();
                 ProxyServer.getInstance().getLogger().log( Level.INFO, "Loaded plugin {0} version {1} by {2}", new Object[]
-                {
-                    plugin.getName(), plugin.getVersion(), plugin.getAuthor()
-                } );
+                        {
+                                plugin.getDescription().getName(), plugin.getDescription().getVersion(), plugin.getDescription().getAuthor()
+                        } );
             } catch ( Throwable t )
             {
-                proxy.getLogger().log( Level.WARNING, "Error enabling plugin " + plugin.getName(), t );
+                proxy.getLogger().log( Level.WARNING, "Error enabling plugin " + plugin.getDescription().getName(), t );
             }
         }
 
@@ -311,29 +331,16 @@ public class PluginManager
         Preconditions.checkNotNull( folder, "folder" );
         Preconditions.checkArgument( folder.isDirectory(), "Must load from a directory" );
 
-        for ( File file : folder.listFiles() )
+        for ( FilePluginLoader loader : getPluginLoadersByType(FilePluginLoader.class) )
         {
-            if ( file.isFile() && file.getName().endsWith( ".jar" ) )
+            Collection<AvailablePluginWrapper> loaded = loader.listPlugins( this, folder );
+            if ( loaded != null )
             {
-                try ( JarFile jar = new JarFile( file ) )
+                for ( AvailablePluginWrapper wrapper : loaded )
                 {
-                    JarEntry pdf = jar.getJarEntry( "bungee.yml" );
-                    if ( pdf == null )
-                    {
-                        pdf = jar.getJarEntry( "plugin.yml" );
-                    }
-                    Preconditions.checkNotNull( pdf, "Plugin must have a plugin.yml or bungee.yml" );
-
-                    try ( InputStream in = jar.getInputStream( pdf ) )
-                    {
-                        PluginDescription desc = yaml.loadAs( in, PluginDescription.class );
-                        desc.setFile( file );
-                        toLoad.put( desc.getName(), desc );
-                    }
-                } catch ( Exception ex )
-                {
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load plugin from file " + file, ex );
+                    toLoad.put( wrapper.getDescription().getName(), wrapper );
                 }
+                break;
             }
         }
     }
