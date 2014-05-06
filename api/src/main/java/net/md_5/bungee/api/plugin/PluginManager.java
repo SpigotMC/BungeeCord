@@ -59,10 +59,14 @@ public class PluginManager
         this.proxy = proxy;
         eventBus = new EventBus( proxy.getLogger() );
 
+        // plugin.yml / bungee.yml
+        pluginLoaders.add( new YamlDescriptionLoader() );
+        // jar files
+        pluginLoaders.add( new JarPluginLoader() );
+        // class directories
+        pluginLoaders.add( new ClassDirectoryPluginLoader() );
         // recursive directory search
         pluginLoaders.add( new DirectoryPluginLoader() );
-        // jar files with plugin.yml / bungee.yml
-        pluginLoaders.add( new YamlJarPluginLoader() );
     }
 
     /**

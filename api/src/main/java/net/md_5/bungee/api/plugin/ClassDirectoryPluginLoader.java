@@ -9,16 +9,15 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * FilePluginLoader that loads jar files.
+ * FilePluginLoader that loads class directories.
  */
-class JarPluginLoader implements FilePluginLoader
+class ClassDirectoryPluginLoader implements FilePluginLoader
 {
 
     @Override
     public Collection<AvailablePluginWrapper> listPlugins(PluginManager manager, final File file)
     {
-        // only accept jar files
-        if ( !file.isFile() || !file.getName().endsWith( ".jar" ) )
+        if ( !file.isDirectory() )
         {
             return null;
         }
@@ -49,7 +48,7 @@ class JarPluginLoader implements FilePluginLoader
     {
         for ( PluginDescriptionLoader loader : manager.getPluginLoadersByType( PluginDescriptionLoader.class ) )
         {
-            PluginDescription desc = loader.loadFromJar( manager, file );
+            PluginDescription desc = loader.loadFromDirectory( manager, file );
             if ( desc != null )
             {
                 return desc;

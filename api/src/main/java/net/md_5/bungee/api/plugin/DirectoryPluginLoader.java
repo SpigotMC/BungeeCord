@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * FilePluginLoader that (recursively) loads a plugin folder.
+ * FilePluginLoader that (recursively) loads jars in a plugin folder.
  */
 class DirectoryPluginLoader implements FilePluginLoader
 {
