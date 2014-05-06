@@ -12,13 +12,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -210,17 +207,13 @@ public class PluginManager
 
     public void loadPlugins()
     {
-        Map<AvailablePluginWrapper, Boolean> pluginStatuses = new HashMap<>();
-        for ( Map.Entry<String, AvailablePluginWrapper> entry : toLoad.entrySet() )
+        DependencyLoader resolver = new DependencyLoader( this, toLoad );
+        resolver.loadPlugins();
+        for ( Map.Entry<AvailablePluginWrapper, Plugin> plugin : resolver.getPlugins().entrySet() )
         {
-            AvailablePluginWrapper plugin = entry.getValue();
-            if ( !enablePlugin( pluginStatuses, new Stack<AvailablePluginWrapper>(), plugin ) )
-            {
-                ProxyServer.getInstance().getLogger().log(Level.WARNING, "Failed to enable {0}", entry.getKey());
-            }
+            plugins.put( plugin.getKey().getDescription().getName(), plugin.getValue() );
         }
         toLoad.clear();
-        toLoad = null;
     }
 
     public void enablePlugins()
@@ -231,94 +224,14 @@ public class PluginManager
             {
                 plugin.onEnable();
                 ProxyServer.getInstance().getLogger().log( Level.INFO, "Enabled plugin {0} version {1} by {2}", new Object[]
-                {
-                    plugin.getDescription().getName(), plugin.getDescription().getVersion(), plugin.getDescription().getAuthor()
-                } );
-            } catch ( Throwable t )
-            {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Exception encountered when loading plugin: " + plugin.getDescription().getName(), t );
-            }
-        }
-    }
-
-    private boolean enablePlugin(Map<AvailablePluginWrapper, Boolean> pluginStatuses, Stack<AvailablePluginWrapper> dependStack, AvailablePluginWrapper plugin)
-    {
-        if ( pluginStatuses.containsKey( plugin ) )
-        {
-            return pluginStatuses.get( plugin );
-        }
-
-        // combine all dependencies for 'for loop'
-        Set<String> dependencies = new HashSet<>();
-        dependencies.addAll( plugin.getDescription().getDepends() );
-        dependencies.addAll( plugin.getDescription().getSoftDepends() );
-
-        // success status
-        boolean status = true;
-
-        // try to load dependencies first
-        for ( String dependName : dependencies )
-        {
-            AvailablePluginWrapper depend = toLoad.get( dependName );
-            Boolean dependStatus = ( depend != null ) ? pluginStatuses.get( depend ) : Boolean.FALSE;
-
-            if ( dependStatus == null )
-            {
-                if ( dependStack.contains( depend ) )
-                {
-                    StringBuilder dependencyGraph = new StringBuilder();
-                    for ( AvailablePluginWrapper element : dependStack )
-                    {
-                        dependencyGraph.append( element.getDescription().getName() ).append( " -> " );
-                    }
-                    dependencyGraph.append( plugin.getDescription().getName() ).append( " -> " ).append( dependName );
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "Circular dependency detected: {0}", dependencyGraph );
-                    status = false;
-                } else
-                {
-                    dependStack.push( plugin );
-                    dependStatus = this.enablePlugin( pluginStatuses, dependStack, depend );
-                    dependStack.pop();
-                }
-            }
-
-            if ( dependStatus == Boolean.FALSE && plugin.getDescription().getDepends().contains( dependName ) ) // only fail if this wasn't a soft dependency
-            {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} (required by {1}) is unavailable", new Object[]
-                        {
-                                String.valueOf( dependName ), plugin.getDescription().getName()
-                        } );
-                status = false;
-            }
-
-            if ( !status )
-            {
-                break;
-            }
-        }
-
-        // do actual loading
-        if ( status )
-        {
-            try
-            {
-                Plugin clazz = plugin.loadPlugin( this );
-
-                clazz.init( proxy, plugin.getDescription() );
-                plugins.put( plugin.getDescription().getName(), clazz );
-                clazz.onLoad();
-                ProxyServer.getInstance().getLogger().log( Level.INFO, "Loaded plugin {0} version {1} by {2}", new Object[]
                         {
                                 plugin.getDescription().getName(), plugin.getDescription().getVersion(), plugin.getDescription().getAuthor()
                         } );
             } catch ( Throwable t )
             {
-                proxy.getLogger().log( Level.WARNING, "Error enabling plugin " + plugin.getDescription().getName(), t );
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Exception encountered when loading plugin: " + plugin.getDescription().getName(), t );
             }
         }
-
-        pluginStatuses.put( plugin, status );
-        return status;
     }
 
     /**
@@ -331,7 +244,7 @@ public class PluginManager
         Preconditions.checkNotNull( folder, "folder" );
         Preconditions.checkArgument( folder.isDirectory(), "Must load from a directory" );
 
-        for ( FilePluginLoader loader : getPluginLoadersByType(FilePluginLoader.class) )
+        for ( FilePluginLoader loader : getPluginLoadersByType( FilePluginLoader.class ) )
         {
             Collection<AvailablePluginWrapper> loaded = loader.listPlugins( this, folder );
             if ( loaded != null )
