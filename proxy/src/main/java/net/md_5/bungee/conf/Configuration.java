@@ -147,7 +147,7 @@ public class Configuration implements ProxyConfig
             }
 
             player.connect( servers.get( def ) );
-            player.sendMessage( ProxyServer.getInstance().getTranslation( "server_removed" ) );
+            player.sendMessage( ProxyServer.getInstance().getTranslation( "server_removed", def ) );
         }
     }
 
