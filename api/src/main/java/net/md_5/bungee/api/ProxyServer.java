@@ -137,6 +137,12 @@ public abstract class ProxyServer
     public abstract ReconnectHandler getReconnectHandler();
 
     /**
+     * Changes which server is marked as the default server for new clients.
+     * @param server
+     */
+    public abstract void setDefaultServer(String server);
+
+    /**
      * Sets the reconnect handler to be used for subsequent connections.
      *
      * @param handler the new handler
