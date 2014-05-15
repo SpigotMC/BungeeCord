@@ -64,7 +64,7 @@
 
     <properties>
         <build.number>unknown</build.number>
-        <netty.version>4.0.17.Final</netty.version>
+        <netty.version>4.0.19.Final</netty.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -78,7 +78,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>16.0.1</version>
+            <version>17.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
