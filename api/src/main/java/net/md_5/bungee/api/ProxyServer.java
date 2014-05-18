@@ -6,6 +6,7 @@ import com.google.common.base.Preconditions;
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -88,6 +89,14 @@ public abstract class ProxyServer
      */
     public abstract ProxiedPlayer getPlayer(UUID uuid);
 
+    /**
+     * Gets a list of players based on the partial or full name.  If the name is exact, one player will be returned in the list.
+     *
+     * @param uuid of the player
+     * @return their player instance
+     */
+    public abstract List<ProxiedPlayer> matchPlayer(String partialName);
+    
     /**
      * Return all servers registered to this proxy, keyed by name. Unlike the
      * methods in {@link ConfigurationAdapter#getServers()}, this will not

@@ -27,10 +27,12 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -441,6 +443,25 @@ public class BungeeCord extends ProxyServer
         {
             connectionLock.readLock().unlock();
         }
+    }
+    
+    public List<ProxiedPlayer> matchPlayer(String partialName) {
+
+        List<ProxiedPlayer> matched = new ArrayList<ProxiedPlayer>();
+
+        for (ProxiedPlayer iPlayer : this.getPlayers()) {
+            String iterPlayerName = iPlayer.getName();
+
+            if (partialName.equalsIgnoreCase(iterPlayerName)) {
+            	matched.add(iPlayer);
+                break;
+            }
+            if (iterPlayerName.toLowerCase().contains(partialName.toLowerCase())) {
+            	matched.add(iPlayer);
+            }
+        }
+
+        return matched;
     }
 
     public ProxiedPlayer getPlayer(UUID uuid)
