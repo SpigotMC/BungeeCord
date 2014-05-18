@@ -456,7 +456,7 @@ public class BungeeCord extends ProxyServer
             	matched.add(iPlayer);
                 break;
             }
-            if (iterPlayerName.toLowerCase().contains(partialName.toLowerCase())) {
+            if (iterPlayerName.toLowerCase().startsWith(partialName.toLowerCase())) {
             	matched.add(iPlayer);
             }
         }
