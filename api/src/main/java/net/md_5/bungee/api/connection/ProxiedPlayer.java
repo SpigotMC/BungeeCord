@@ -90,14 +90,18 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * change after the user has logged in!
      *
      * @param list the new list
+     * @deprecated Future Minecraft versions render this API useless
      */
+    @Deprecated
     void setTabList(TabListHandler list);
 
     /**
      * Get the current tab list.
      *
      * @return the tab list in use by this user
+     * @deprecated Future Minecraft versions render this API useless
      */
+    @Deprecated
     TabListHandler getTabList();
 
     /**

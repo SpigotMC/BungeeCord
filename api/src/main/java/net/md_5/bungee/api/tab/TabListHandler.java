@@ -2,6 +2,10 @@ package net.md_5.bungee.api.tab;
 
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
+/**
+ * @deprecated Future Minecraft versions render this API useless
+ */
+@Deprecated
 public interface TabListHandler
 {
 
