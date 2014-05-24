@@ -50,7 +50,10 @@ public class ListenerInfo
     private final Map<String, String> forcedHosts;
     /**
      * Class used to build tab lists for this player.
+     *
+     * @deprecated Future Minecraft versions render this API useless
      */
+    @Deprecated
     private final Class<? extends TabListHandler> tabList;
     /**
      * Whether to set the local address when connecting to servers.

@@ -4,6 +4,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
+/**
+ * @deprecated Future Minecraft versions render this API useless
+ */
+@Deprecated
 @NoArgsConstructor
 public abstract class TabListAdapter implements TabListHandler
 {

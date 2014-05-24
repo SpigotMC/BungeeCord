@@ -2,7 +2,9 @@ package net.md_5.bungee.api.tab;
 
 /**
  * Represents a custom tab list, which may have slots manipulated.
+ * @deprecated Future Minecraft versions render this API useless
  */
+@Deprecated
 public interface CustomTabList extends TabListHandler
 {
 
