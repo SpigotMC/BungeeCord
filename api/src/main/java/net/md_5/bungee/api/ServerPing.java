@@ -77,7 +77,7 @@ public class ServerPing
     @Deprecated
     public ServerPing(Protocol version, Players players, String description, String favicon)
     {
-        this( version, players, description, Favicon.create( favicon ) );
+        this( version, players, description, favicon == null ? null : Favicon.create( favicon ) );
     }
 
     @Deprecated
