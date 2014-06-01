@@ -149,7 +149,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(StatusRequest statusRequest) throws Exception
     {
-        Preconditions.checkState( thisState == State.STATUS, "Not expecting STATUS" );
+        Preconditions.checkState( thisState == State.STATUS || thisState == State.PING, "Not expecting STATUS" );
 
         ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
         final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
@@ -185,16 +185,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     motd, BungeeCord.getInstance().config.getFaviconObject() ),
                     null );
         }
-
-        thisState = State.PING;
     }
 
     @Override
     public void handle(PingPacket ping) throws Exception
     {
-        Preconditions.checkState( thisState == State.PING, "Not expecting PING" );
+        Preconditions.checkState( thisState == State.STATUS || thisState == State.PING, "Not expecting PING" );
         unsafe.sendPacket( ping );
-        disconnect( "" );
     }
 
     @Override
