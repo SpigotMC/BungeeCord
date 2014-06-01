@@ -206,6 +206,15 @@ public class DownstreamBridge extends PacketHandler
             throw CancelSendSignal.INSTANCE;
         }
 
+        if ( pluginMessage.getTag().equals( "MC|Brand" ) )
+        {
+            String serverBrand = new String( pluginMessage.getData(), "UTF-8" );
+            pluginMessage.setData( ( bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand ).getBytes( "UTF-8" ) );
+            // changes in the packet are ignored so we need to send it manually
+            con.unsafe().sendPacket( pluginMessage );
+            throw CancelSendSignal.INSTANCE;
+        }
+
         if ( pluginMessage.getTag().equals( "BungeeCord" ) )
         {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
