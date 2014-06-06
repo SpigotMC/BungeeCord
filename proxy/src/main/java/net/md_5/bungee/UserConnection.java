@@ -429,4 +429,10 @@ public final class UserConnection implements ProxiedPlayer
     {
         return getPendingConnection().getUniqueId();
     }
+	
+	@Override
+    public String getLocale()
+    {
+        return this.settings.getLocale();
+    }
 }

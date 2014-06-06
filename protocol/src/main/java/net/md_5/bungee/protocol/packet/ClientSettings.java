@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.ProtocolConstants;
@@ -15,7 +16,7 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @EqualsAndHashCode(callSuper = false)
 public class ClientSettings extends DefinedPacket
 {
-
+	@Getter
     private String locale;
     private byte viewDistance;
     private byte chatFlags;
