@@ -16,7 +16,7 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @EqualsAndHashCode(callSuper = false)
 public class ClientSettings extends DefinedPacket
 {
-	@Getter
+    @Getter
     private String locale;
     private byte viewDistance;
     private byte chatFlags;
