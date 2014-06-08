@@ -71,7 +71,7 @@ public abstract class BaseComponent
         setColor( old.getColorRaw() );
         setBold( old.isBoldRaw() );
         setItalic( old.isItalicRaw() );
-        setUnderlined( old.isUnderlined() );
+        setUnderlined( old.isUnderlinedRaw() );
         setStrikethrough( old.isStrikethroughRaw() );
         setObfuscated( old.isObfuscatedRaw() );
         setClickEvent( old.getClickEvent() );
