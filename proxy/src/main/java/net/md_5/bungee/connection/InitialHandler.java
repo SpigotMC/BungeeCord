@@ -95,7 +95,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private enum State
     {
 
-        HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, FINISHED;
+        HANDSHAKE, STATUS, USERNAME, ENCRYPT, FINISHED;
     }
 
     @Override
@@ -185,16 +185,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     motd, BungeeCord.getInstance().config.getFaviconObject() ),
                     null );
         }
-
-        thisState = State.PING;
     }
 
     @Override
     public void handle(PingPacket ping) throws Exception
     {
-        Preconditions.checkState( thisState == State.PING, "Not expecting PING" );
+        Preconditions.checkState( thisState == State.STATUS, "Not expecting STATUS" );
         unsafe.sendPacket( ping );
-        disconnect( "" );
     }
 
     @Override
