@@ -13,6 +13,7 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -105,6 +106,7 @@ public final class UserConnection implements ProxiedPlayer
     private String displayName;
     @Getter
     private EntityMap entityRewrite;
+    private Locale locale;
     /*========================================================================*/
     private final Unsafe unsafe = new Unsafe()
     {
@@ -428,5 +430,11 @@ public final class UserConnection implements ProxiedPlayer
     public UUID getUniqueId()
     {
         return getPendingConnection().getUniqueId();
+    }
+
+    @Override
+    public Locale getLocale()
+    {
+        return ( locale == null ) ? locale = Locale.forLanguageTag( settings.getLocale() ) : locale;
     }
 }

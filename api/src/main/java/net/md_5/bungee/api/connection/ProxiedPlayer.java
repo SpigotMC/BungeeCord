@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.connection;
 
+import java.util.Locale;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -133,4 +134,11 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @return the UUID
      */
     UUID getUniqueId();
+
+    /**
+     * Gets this player's locale.
+     *
+     * @return the locale
+     */
+    Locale getLocale();
 }
