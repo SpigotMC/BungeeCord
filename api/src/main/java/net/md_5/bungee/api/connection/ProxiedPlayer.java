@@ -133,4 +133,11 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @return the UUID
      */
     UUID getUniqueId();
+	
+    /**
+     * Get this connection's locale settings.
+     *
+     * @return the clients locale settings
+     */
+    String getLocale();
 }
