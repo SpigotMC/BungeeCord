@@ -36,8 +36,9 @@ public class PipelineUtils
         {
             if ( BungeeCord.getInstance().getConnectionThrottle().throttle( ( (InetSocketAddress) ch.remoteAddress() ).getAddress() ) )
             {
-                ch.close();
-                return;
+                // TODO: Better throttle - we can't throttle this way if we want to maintain 1.7 compat!
+                // ch.close();
+                // return;
             }
 
             BASE.initChannel( ch );
