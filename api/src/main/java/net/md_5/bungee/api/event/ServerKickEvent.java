@@ -39,6 +39,10 @@ public class ServerKickEvent extends Event implements Cancellable
      * State in which the kick occured.
      */
     private State state;
+    /**
+     * Server which player was kicked from.
+     */
+    private ServerInfo kickedFrom;
 
     public enum State
     {
@@ -46,17 +50,18 @@ public class ServerKickEvent extends Event implements Cancellable
         CONNECTING, CONNECTED, UNKNOWN;
     }
 
-    public ServerKickEvent(ProxiedPlayer player, BaseComponent[] kickReasonComponent, ServerInfo cancelServer)
+    public ServerKickEvent(ProxiedPlayer player, BaseComponent[] kickReasonComponent, ServerInfo cancelServer, ServerInfo kickedFrom)
     {
-        this( player, kickReasonComponent, cancelServer, State.UNKNOWN );
+        this( player, kickReasonComponent, cancelServer, State.UNKNOWN, kickedFrom );
     }
 
-    public ServerKickEvent(ProxiedPlayer player, BaseComponent[] kickReasonComponent, ServerInfo cancelServer, State state)
+    public ServerKickEvent(ProxiedPlayer player, BaseComponent[] kickReasonComponent, ServerInfo cancelServer, State state, ServerInfo kickedFrom)
     {
         this.player = player;
         this.kickReasonComponent = kickReasonComponent;
         this.cancelServer = cancelServer;
         this.state = state;
+        this.kickedFrom = kickedFrom;
     }
 
     @Deprecated
