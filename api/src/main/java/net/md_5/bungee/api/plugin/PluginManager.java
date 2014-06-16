@@ -82,7 +82,7 @@ public class PluginManager
      */
     public void unregisterCommand(Command command)
     {
-        commandMap.values().remove( command );
+        commandMap.values().removeAll( command );
         commandsByPlugin.values().remove( command );
     }
 
@@ -95,7 +95,7 @@ public class PluginManager
     {
         for ( Iterator<Command> it = commandsByPlugin.get( plugin ).iterator(); it.hasNext(); )
         {
-            commandMap.values().remove( it.next() );
+            commandMap.values().removeAll( it.next() );
             it.remove();
         }
     }
