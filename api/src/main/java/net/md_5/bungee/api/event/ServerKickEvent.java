@@ -42,7 +42,7 @@ public class ServerKickEvent extends Event implements Cancellable
     /**
      * Server which player was kicked from.
      */
-    private ServerInfo kickedFrom;
+    private final ServerInfo kickedFrom;
 
     public enum State
     {
