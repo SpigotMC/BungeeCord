@@ -14,7 +14,7 @@ public class MinecraftInput
         return buf.readByte();
     }
 
-    public short readUnisgnedByte()
+    public short readUnsignedByte()
     {
         return buf.readUnsignedByte();
     }
