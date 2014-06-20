@@ -41,6 +41,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jline.UnsupportedTerminal;
@@ -360,6 +361,7 @@ public class BungeeCord extends ProxyServer
 
                 scheduler.shutdown();
                 getLogger().info( "Thank you and goodbye" );
+                for (Handler h : getLogger().getHandlers()) h.close();
                 System.exit( 0 );
             }
         }.start();
