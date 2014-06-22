@@ -28,6 +28,11 @@ public class ServerKickEvent extends Event implements Cancellable
      */
     private final ProxiedPlayer player;
     /**
+     * The server the player was kicked from, should be used in preference to
+     * {@link ProxiedPlayer#getServer()}.
+     */
+    private final ServerInfo kickedFrom;
+    /**
      * Kick reason.
      */
     private BaseComponent[] kickReasonComponent;
@@ -46,14 +51,22 @@ public class ServerKickEvent extends Event implements Cancellable
         CONNECTING, CONNECTED, UNKNOWN;
     }
 
+    @Deprecated
     public ServerKickEvent(ProxiedPlayer player, BaseComponent[] kickReasonComponent, ServerInfo cancelServer)
     {
         this( player, kickReasonComponent, cancelServer, State.UNKNOWN );
     }
 
+    @Deprecated
     public ServerKickEvent(ProxiedPlayer player, BaseComponent[] kickReasonComponent, ServerInfo cancelServer, State state)
     {
+        this( player, player.getServer().getInfo(), kickReasonComponent, cancelServer, state );
+    }
+
+    public ServerKickEvent(ProxiedPlayer player, ServerInfo kickedFrom, BaseComponent[] kickReasonComponent, ServerInfo cancelServer, State state)
+    {
         this.player = player;
+        this.kickedFrom = kickedFrom;
         this.kickReasonComponent = kickReasonComponent;
         this.cancelServer = cancelServer;
         this.state = state;
