@@ -16,7 +16,6 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.error.YAMLException;
 
 public class YamlReconnectHandler extends AbstractReconnectHandler
 {
@@ -41,13 +40,10 @@ public class YamlReconnectHandler extends AbstractReconnectHandler
                     data = new CaseInsensitiveMap<>( map );
                 }
             }
-        } catch ( YAMLException ex )
+        } catch ( Exception ex )
         {
             file.renameTo( new File( "locations.yml.old" ) );
             ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load reconnect locations, resetting them" );
-        } catch ( IOException ex )
-        {
-            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load reconnect locations", ex );
         }
 
         if ( data == null )
