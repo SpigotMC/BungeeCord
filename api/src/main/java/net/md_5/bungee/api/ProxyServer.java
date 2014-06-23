@@ -282,4 +282,14 @@ public abstract class ProxyServer
      */
     public abstract ProxyConfig getConfig();
 
+    /**
+     * Attempts to match any players with the given name, and returns a list of
+     * all possible matches.
+     *
+     * @param name the (partial) name to match
+     * @return list of all possible players, singleton if there is an exact
+     * match
+     */
+    public abstract Collection<ProxiedPlayer> matchPlayer(String name);
+
 }

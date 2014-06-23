@@ -1,5 +1,9 @@
 package net.md_5.bungee;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import com.google.gson.GsonBuilder;
 import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ServerPing;
@@ -581,8 +585,31 @@ public class BungeeCord extends ProxyServer
         return new Custom( player );
     }
 
+    @Override
     public Collection<String> getDisabledCommands()
     {
         return config.getDisabledCommands();
+    }
+
+    @Override
+    public Collection<ProxiedPlayer> matchPlayer(final String partialName)
+    {
+        Preconditions.checkNotNull( partialName, "partialName" );
+
+        ProxiedPlayer exactMatch = getPlayer( partialName );
+        if ( exactMatch != null )
+        {
+            return Collections.singleton( exactMatch );
+        }
+
+        return Sets.newHashSet( Iterables.find( getPlayers(), new Predicate<ProxiedPlayer>()
+        {
+
+            @Override
+            public boolean apply(ProxiedPlayer input)
+            {
+                return input.getName().toLowerCase().contains( partialName.toLowerCase() );
+            }
+        } ) );
     }
 }
