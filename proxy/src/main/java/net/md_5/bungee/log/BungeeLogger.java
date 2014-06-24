@@ -3,6 +3,7 @@ package net.md_5.bungee.log;
 import java.io.IOException;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
+import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import net.md_5.bungee.BungeeCord;
@@ -17,6 +18,8 @@ public class BungeeLogger extends Logger
     {
         super( "BungeeCord", null );
 
+        setLevel( Level.ALL );
+
         try
         {
             FileHandler fileHandler = new FileHandler( "proxy.log", 1 << 24, 8, true );
@@ -24,6 +27,7 @@ public class BungeeLogger extends Logger
             addHandler( fileHandler );
 
             ColouredWriter consoleHandler = new ColouredWriter( bungee.getConsoleReader() );
+            consoleHandler.setLevel( Level.INFO );
             consoleHandler.setFormatter( formatter );
             addHandler( consoleHandler );
         } catch ( IOException ex )

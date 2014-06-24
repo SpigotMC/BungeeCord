@@ -63,7 +63,10 @@ public class ColouredWriter extends Handler
     @Override
     public void publish(LogRecord record)
     {
-        print( getFormatter().format( record ) );
+        if ( isLoggable( record ) )
+        {
+            print( getFormatter().format( record ) );
+        }
     }
 
     @Override
