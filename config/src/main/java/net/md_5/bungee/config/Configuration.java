@@ -1,6 +1,8 @@
 package net.md_5.bungee.config;
 
+import com.google.common.collect.Sets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -89,6 +91,16 @@ public final class Configuration
     {
         Object def = getDefault( path );
         return new Configuration( (Map) ( get( path, ( def instanceof Map ) ? def : Collections.EMPTY_MAP ) ), ( defaults == null ) ? null : defaults.getSection( path ) );
+    }
+
+    /**
+     * Gets keys, not deep by default.
+     *
+     * @return top level keys for this section
+     */
+    public Collection<String> getKeys()
+    {
+        return Sets.newLinkedHashSet( self.keySet() );
     }
 
     /*------------------------------------------------------------------------*/
