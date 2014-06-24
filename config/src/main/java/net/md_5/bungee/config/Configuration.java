@@ -1,10 +1,8 @@
 package net.md_5.bungee.config;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import com.google.common.collect.Sets;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -89,6 +87,11 @@ public final class Configuration
     {
         Object def = getDefault( path );
         return new Configuration( (Map) ( get( path, ( def instanceof Map ) ? def : Collections.EMPTY_MAP ) ), ( defaults == null ) ? null : defaults.getSection( path ) );
+    }
+
+    public Set<String> getKeys()
+    {
+        return Sets.newHashSet( self.keySet() );
     }
 
     /*------------------------------------------------------------------------*/
