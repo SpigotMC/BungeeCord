@@ -355,6 +355,10 @@ public class BungeeCord extends ProxyServer
                     try
                     {
                         plugin.onDisable();
+                        for ( Handler handler : plugin.getLogger().getHandlers() )
+                        {
+                            handler.close();
+                        }
                     } catch ( Throwable t )
                     {
                         getLogger().severe( "Exception disabling plugin " + plugin.getDescription().getName() );
