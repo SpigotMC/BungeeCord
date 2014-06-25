@@ -21,9 +21,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.MultithreadEventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.channel.EventLoopGroup;
 import io.netty.util.ResourceLeakDetector;
 import net.md_5.bungee.conf.Configuration;
 import java.io.File;
@@ -33,7 +31,6 @@ import java.net.InetSocketAddress;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
@@ -97,7 +94,7 @@ public class BungeeCord extends ProxyServer
      * Localization bundle.
      */
     public ResourceBundle bundle;
-    public MultithreadEventLoopGroup eventLoops;
+    public EventLoopGroup eventLoops;
     /**
      * locations.yml save thread.
      */
@@ -206,7 +203,7 @@ public class BungeeCord extends ProxyServer
         System.setProperty( "io.netty.selectorAutoRebuildThreshold", "0" ); // Seems to cause Bungee to stop accepting connections
         ResourceLeakDetector.setEnabled( false ); // Eats performance
 
-        eventLoops = new NioEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
+        eventLoops = PipelineUtils.newEventLoopGroup(0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
 
         File moduleDirectory = new File( "modules" );
         moduleManager.load( this, moduleDirectory );
@@ -259,7 +256,7 @@ public class BungeeCord extends ProxyServer
                 }
             };
             new ServerBootstrap()
-                    .channel( NioServerSocketChannel.class )
+                    .channel( PipelineUtils.getServerChannel() )
                     .childAttr( PipelineUtils.LISTENER, info )
                     .childHandler( PipelineUtils.SERVER_CHILD )
                     .group( eventLoops )

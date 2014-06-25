@@ -7,7 +7,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.internal.PlatformDependent;
 import java.net.InetSocketAddress;
 import java.util.Collection;
@@ -261,7 +260,7 @@ public final class UserConnection implements ProxiedPlayer
             }
         };
         Bootstrap b = new Bootstrap()
-                .channel( NioSocketChannel.class )
+                .channel( PipelineUtils.getChannel() )
                 .group( ch.getHandle().eventLoop() )
                 .handler( initializer )
                 .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000 ) // TODO: Configurable

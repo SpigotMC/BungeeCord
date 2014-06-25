@@ -5,13 +5,25 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.ServerChannel;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollServerSocketChannel;
+import io.netty.channel.epoll.EpollSocketChannel;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.AttributeKey;
+import io.netty.util.internal.PlatformDependent;
 import java.net.InetSocketAddress;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.BungeeServerInfo;
 import net.md_5.bungee.UserConnection;
+import net.md_5.bungee.Util;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
@@ -61,6 +73,47 @@ public class PipelineUtils
     public static String FRAME_PREPENDER = "frame-prepender";
     public static String LEGACY_DECODER = "legacy-decoder";
     public static String LEGACY_KICKER = "legacy-kick";
+
+    private static boolean epoll;
+
+    static
+    {
+        if ( !PlatformDependent.isWindows() )
+        {
+            ProxyServer.getInstance().getLogger().info( "Not on Windows, attempting to use enhanced EpollEventLoop" );
+            EpollEventLoopGroup testGroup = null;
+            try
+            {
+                testGroup = new EpollEventLoopGroup( 1 );
+                epoll = true;
+                ProxyServer.getInstance().getLogger().info( "Epoll is working, utilising it!" );
+            } catch ( Throwable t )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Event though Epoll should be supported, it is not working, falling back to NIO: {0}", Util.exception( t ) );
+            } finally
+            {
+                if ( testGroup != null )
+                {
+                    testGroup.shutdownGracefully();
+                }
+            }
+        }
+    }
+
+    public static EventLoopGroup newEventLoopGroup(int threads, ThreadFactory factory)
+    {
+        return epoll ? new EpollEventLoopGroup( threads, factory ) : new NioEventLoopGroup( threads, factory );
+    }
+
+    public static Class<? extends ServerChannel> getServerChannel()
+    {
+        return epoll ? EpollServerSocketChannel.class : NioServerSocketChannel.class;
+    }
+
+    public static Class<? extends Channel> getChannel()
+    {
+        return epoll ? EpollSocketChannel.class : NioSocketChannel.class;
+    }
 
     public final static class Base extends ChannelInitializer<Channel>
     {
