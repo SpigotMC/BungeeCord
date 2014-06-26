@@ -203,7 +203,7 @@ public class BungeeCord extends ProxyServer
         System.setProperty( "io.netty.selectorAutoRebuildThreshold", "0" ); // Seems to cause Bungee to stop accepting connections
         ResourceLeakDetector.setEnabled( false ); // Eats performance
 
-        eventLoops = PipelineUtils.newEventLoopGroup(0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
+        eventLoops = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
 
         File moduleDirectory = new File( "modules" );
         moduleManager.load( this, moduleDirectory );
@@ -276,11 +276,11 @@ public class BungeeCord extends ProxyServer
                             getLogger().info( "Started query on " + future.channel().localAddress() );
                         } else
                         {
-                            getLogger().log( Level.WARNING, "Could not bind to host " + future.channel().remoteAddress(), future.cause() );
+                            getLogger().log( Level.WARNING, "Could not bind to host " + info.getHost(), future.cause() );
                         }
                     }
                 };
-                new RemoteQuery( this, info ).start(PipelineUtils.getDatagramChannel(), new InetSocketAddress( info.getHost().getAddress(), info.getQueryPort() ), eventLoops, bindListener );
+                new RemoteQuery( this, info ).start( PipelineUtils.getDatagramChannel(), new InetSocketAddress( info.getHost().getAddress(), info.getQueryPort() ), eventLoops, bindListener );
             }
         }
     }
