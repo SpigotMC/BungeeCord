@@ -1,9 +1,9 @@
 package net.md_5.bungee.query;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.socket.nio.NioDatagramChannel;
 import java.net.InetSocketAddress;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ProxyServer;
@@ -16,10 +16,10 @@ public class RemoteQuery
     private final ProxyServer bungee;
     private final ListenerInfo listener;
 
-    public void start(InetSocketAddress address, EventLoopGroup eventLoop, ChannelFutureListener future)
+    public void start(Class<? extends Channel> channel, InetSocketAddress address, EventLoopGroup eventLoop, ChannelFutureListener future)
     {
         new Bootstrap()
-                .channel( NioDatagramChannel.class )
+                .channel( channel )
                 .group( eventLoop )
                 .handler( new QueryHandler( bungee, listener ) )
                 .localAddress( address )
