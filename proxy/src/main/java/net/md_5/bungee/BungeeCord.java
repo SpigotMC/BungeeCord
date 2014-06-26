@@ -258,7 +258,7 @@ public class BungeeCord extends ProxyServer
             };
             new ServerBootstrap()
                     .channel( PipelineUtils.getServerChannel() )
-                    .option( ChannelOption.SO_REUSEADDR, true )
+                    .option( ChannelOption.SO_REUSEADDR, true ) // TODO: Move this elsewhere!
                     .childAttr( PipelineUtils.LISTENER, info )
                     .childHandler( PipelineUtils.SERVER_CHILD )
                     .group( eventLoops )
