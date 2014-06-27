@@ -397,8 +397,6 @@ public class PluginManager
 
     /**
      * Unregister all of a Plugin's listener.
-     *
-     * @param plugin
      */
     public void unregisterListeners(Plugin plugin)
     {

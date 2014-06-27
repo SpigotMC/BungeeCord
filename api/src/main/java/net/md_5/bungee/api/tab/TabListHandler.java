@@ -25,8 +25,6 @@ public interface TabListHandler
 
     /**
      * Called when a player first connects to the proxy.
-     *
-     * @param player the connecting player
      */
     void onServerChange();
 
@@ -34,22 +32,18 @@ public interface TabListHandler
      * Called when a players ping changes. The new ping will have not updated in
      * the player instance until this method returns.
      *
-     * @param player the player who's ping changed
      * @param ping the player's new ping.
      */
     void onPingChange(int ping);
 
     /**
      * Called when a player disconnects.
-     *
-     * @param player the disconnected player
      */
     void onDisconnect();
 
     /**
      * Called when a list update packet is sent from server to client.
      *
-     * @param player receiving this packet
      * @param name the player which this packet is relevant to
      * @param online whether the subject player is online
      * @param ping ping of the subject player

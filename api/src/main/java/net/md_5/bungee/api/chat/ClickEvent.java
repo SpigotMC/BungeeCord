@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.md_5.bungee.api.chat.ClickEvent.Action;
 
 @Getter
 @AllArgsConstructor
@@ -17,7 +18,7 @@ final public class ClickEvent
     /**
      * Depends on action
      *
-     * @see net.md_5.bungee.api.chat.ClickEvent.Action
+     * @see Action
      */
     private final String value;
 
@@ -26,22 +27,22 @@ final public class ClickEvent
 
         /**
          * Open a url at the path given by
-         * {@link net.md_5.bungee.api.chat.ClickEvent#getValue()}
+         * {@link net.md_5.bungee.api.chat.ClickEvent#value}
          */
         OPEN_URL,
         /**
          * Open a file at the path given by
-         * {@link net.md_5.bungee.api.chat.ClickEvent#getValue()}
+         * {@link net.md_5.bungee.api.chat.ClickEvent#value}
          */
         OPEN_FILE,
         /**
          * Run the command given by
-         * {@link net.md_5.bungee.api.chat.ClickEvent#getValue()}
+         * {@link net.md_5.bungee.api.chat.ClickEvent#value}
          */
         RUN_COMMAND,
         /**
          * Inserts the string given by
-         * {@link net.md_5.bungee.api.chat.ClickEvent#getValue()} into the
+         * {@link net.md_5.bungee.api.chat.ClickEvent#value} into the
          * players text box
          */
         SUGGEST_COMMAND
