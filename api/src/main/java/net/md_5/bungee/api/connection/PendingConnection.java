@@ -63,8 +63,6 @@ public interface PendingConnection extends Connection
 
     /**
      * Set this connection's online mode.
-     *
-     * @param onlineMode
      */
     void setOnlineMode(boolean onlineMode);
 }
