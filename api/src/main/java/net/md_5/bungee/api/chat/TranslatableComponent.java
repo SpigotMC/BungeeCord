@@ -34,7 +34,7 @@ public class TranslatableComponent extends BaseComponent
     /**
      * Creates a translatable component with the passed substitutions
      *
-     * @see #setTranslate(String)
+     * @see #translate
      * @see #setWith(java.util.List)
      * @param translate the translation key
      * @param with the {@link java.lang.String}s and

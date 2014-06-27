@@ -31,8 +31,6 @@ public class Team extends DefinedPacket
 
     /**
      * Packet to destroy a team.
-     *
-     * @param name
      */
     public Team(String name)
     {
