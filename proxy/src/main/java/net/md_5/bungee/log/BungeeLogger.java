@@ -19,6 +19,8 @@ public class BungeeLogger extends Logger
         super( "BungeeCord", null );
         setLevel( Level.ALL );
 
+        setLevel( Level.ALL );
+
         try
         {
             FileHandler fileHandler = new FileHandler( "proxy.log", 1 << 24, 8, true );
