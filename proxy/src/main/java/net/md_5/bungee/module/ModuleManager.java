@@ -37,7 +37,7 @@ public class ModuleManager
         ModuleVersion bungeeVersion = ModuleVersion.parse( proxy.getVersion() );
         if ( bungeeVersion == null )
         {
-            System.out.println( "Could detect bungee version. Custom build?" );
+            System.out.println( "Couldn't detect bungee version. Custom build?" );
             return;
         }
 
