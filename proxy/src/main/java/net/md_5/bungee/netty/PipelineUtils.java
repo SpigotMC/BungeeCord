@@ -80,7 +80,7 @@ public class PipelineUtils
 
     static
     {
-        if ( !PlatformDependent.isWindows() )
+        if ( !PlatformDependent.isWindows() && Boolean.parseBoolean( System.getProperty( "bungee.epoll", "false" ) ) )
         {
             ProxyServer.getInstance().getLogger().info( "Not on Windows, attempting to use enhanced EpollEventLoop" );
             EpollEventLoopGroup testGroup = null;
@@ -116,7 +116,7 @@ public class PipelineUtils
     {
         return epoll ? EpollSocketChannel.class : NioSocketChannel.class;
     }
-    
+
     public static Class<? extends Channel> getDatagramChannel()
     {
         return epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
