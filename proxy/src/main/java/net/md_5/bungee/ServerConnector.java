@@ -17,20 +17,24 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.connection.LoginResult;
-import net.md_5.bungee.netty.HandlerBoss;
+import net.md_5.bungee.forge.ForgeConstants;
+import net.md_5.bungee.forge.ForgeServer;
+import net.md_5.bungee.forge.IForgeServer;
+import net.md_5.bungee.forge.VanillaForgeServer;
 import net.md_5.bungee.netty.ChannelWrapper;
+import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PacketHandler;
-import net.md_5.bungee.protocol.MinecraftOutput;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.MinecraftOutput;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.Handshake;
+import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Login;
+import net.md_5.bungee.protocol.packet.LoginSuccess;
+import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
-import net.md_5.bungee.protocol.packet.PluginMessage;
-import net.md_5.bungee.protocol.packet.Kick;
-import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.SetCompression;
 
 @RequiredArgsConstructor
@@ -42,10 +46,11 @@ public class ServerConnector extends PacketHandler
     private final UserConnection user;
     private final BungeeServerInfo target;
     private State thisState = State.LOGIN_SUCCESS;
+    
+    private IForgeServer handshakeHandler = VanillaForgeServer.vanilla;
 
     private enum State
     {
-
         LOGIN_SUCCESS, ENCRYPT_RESPONSE, LOGIN, FINISHED;
     }
 
@@ -66,6 +71,11 @@ public class ServerConnector extends PacketHandler
     public void connected(ChannelWrapper channel) throws Exception
     {
         this.ch = channel;
+
+        if (bungee.getConfig().isForgeSupported()) {
+            // Enable the forge handshake handler
+            this.handshakeHandler = new ForgeServer(user, ch, target, bungee);
+        }
 
         Handshake originalHandshake = user.getPendingConnection().getHandshake();
         Handshake copiedHandshake = new Handshake( originalHandshake.getProtocolVersion(), originalHandshake.getHost(), originalHandshake.getPort(), 2 );
@@ -99,15 +109,6 @@ public class ServerConnector extends PacketHandler
         Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not expecting LOGIN_SUCCESS" );
         ch.setProtocol( Protocol.GAME );
         thisState = State.LOGIN;
-
-        if ( user.getFmlModData() != null )
-        {
-            //The client is a FML client. Let's start the handshake phase
-            ch.write( PacketConstants.FML_REGISTER );
-            ch.write( PacketConstants.FML_START_SERVER_HANDSHAKE );
-            ch.write( new PluginMessage( "FML|HS", user.getFmlModData() ) );
-            ch.write( new PluginMessage( "FML|HS", new byte[]{ -1, 2 } ) );
-        }
 
         throw CancelSendSignal.INSTANCE;
     }
@@ -150,6 +151,16 @@ public class ServerConnector extends PacketHandler
 
         if ( user.getServer() == null )
         {
+            if (bungee.getConfig().isForgeSupported() && !handshakeHandler.isServerForge() && !user.getForgeClientData().isHandshakeComplete()) {
+                // Set the mod and ID list data for the forge handshake. If we are
+                // logging onto a Vanilla server, we can't assume that the user isn't Forge,
+                // and that the handshake will have completed by now, so set it for everyone.
+                //
+                // If the user is forge, then we have to do the handshake much earlier, hence the final flag.
+                // See the plugin message handler.
+                user.getForgeClientData().setVanilla();
+            }
+                    
             // Once again, first connection
             user.setClientEntityId( login.getEntityId() );
             user.setServerEntityId( login.getEntityId() );
@@ -162,9 +173,19 @@ public class ServerConnector extends PacketHandler
 
             MinecraftOutput out = new MinecraftOutput();
             out.writeStringUTF8WithoutLengthHeaderBecauseDinnerboneStuffedUpTheMCBrandPacket( ProxyServer.getInstance().getName() + " (" + ProxyServer.getInstance().getVersion() + ")" );
-            user.unsafe().sendPacket( new PluginMessage( "MC|Brand", out.toArray() ) );
+            user.unsafe().sendPacket( new PluginMessage( "MC|Brand", out.toArray(), handshakeHandler.isServerForge() ) );
         } else
         {
+            if (bungee.getConfig().isForgeSupported() && user.getForgeClientData().isHandshakeComplete()) {
+                // If we already have a completed handshake, we need to reset the handshake now (if we can). We then set the
+                // vanilla forge data. This should be handled automatically by the handshake handler.
+                user.getForgeClientData().resetHandshake();
+                
+                // Set the mod and ID list data for the handshake. By this point, we know that the user is a Forge user,
+                // so we just set it for them in these cases.
+                user.getForgeClientData().setVanilla();
+            }
+
             user.getTabListHandler().onServerChange();
 
             Scoreboard serverScoreboard = user.getServerSentScoreboard();
@@ -249,25 +270,9 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(PluginMessage pluginMessage) throws Exception
     {
-        if(pluginMessage.getTag().equals("FML|HS"))
+        if(bungee.getConfig().isForgeSupported() && pluginMessage.getTag().equals(ForgeConstants.FORGE_HANDSHAKE_TAG))
         {
-            byte state = pluginMessage.getData()[ 0 ];
-            switch ( state )
-            {
-                case -1:
-                    // ACK
-                    user.sendData( "FML|HS", pluginMessage.getData() );
-                    break;
-                case 2:
-                    // ModList
-                    user.sendData( "FML|HS", pluginMessage.getData() );
-                    break;
-                case 3:
-                    // IdList
-                    user.sendData( "FML|HS", pluginMessage.getData() );
-                    ch.write( new PluginMessage( "FML|HS", new byte[]{ -1, 2 } ) );
-                    break;
-            }
+            handshakeHandler.handle( pluginMessage );
             throw CancelSendSignal.INSTANCE;
         }
     }
