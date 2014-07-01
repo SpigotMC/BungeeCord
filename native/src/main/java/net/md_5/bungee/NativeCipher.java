@@ -17,12 +17,9 @@ public class NativeCipher implements BungeeCipher
 
     @Getter
     private final NativeCipherImpl nativeCipher = new NativeCipherImpl();
-    private boolean forEncryption;
-    private byte[] iv;
     /*============================================================================*/
     private static boolean loaded;
-
-    private long pointer;
+    private long ctx;
 
     public static boolean isSupported()
     {
@@ -62,22 +59,18 @@ public class NativeCipher implements BungeeCipher
     public void init(boolean forEncryption, SecretKey key) throws GeneralSecurityException
     {
         Preconditions.checkArgument( key.getEncoded().length == 16, "Invalid key size" );
-        if ( pointer != 0 )
-        {
-            nativeCipher.free( pointer );
-        }
-        this.forEncryption = forEncryption;
-        this.iv = key.getEncoded(); // initialize the IV
-        this.pointer = nativeCipher.init( key.getEncoded() );
+        free();
+
+        this.ctx = nativeCipher.init( forEncryption, key.getEncoded() );
     }
 
     @Override
     public void free()
     {
-        if ( pointer != 0 )
+        if ( ctx != 0 )
         {
-            nativeCipher.free( pointer );
-            pointer = 0;
+            nativeCipher.free( ctx );
+            ctx = 0;
         }
     }
 
@@ -87,8 +80,7 @@ public class NativeCipher implements BungeeCipher
         // Smoke tests
         in.memoryAddress();
         out.memoryAddress();
-        Preconditions.checkState( pointer != 0, "Invalid pointer to AES key!" );
-        Preconditions.checkState( iv != null, "Invalid IV!" );
+        Preconditions.checkState( ctx != 0, "Invalid pointer to AES key!" );
 
         // Store how many bytes we can cipher
         int length = in.readableBytes();
@@ -96,7 +88,7 @@ public class NativeCipher implements BungeeCipher
         out.ensureWritable( length );
 
         // Cipher the bytes
-        nativeCipher.cipher( forEncryption, pointer, iv, in.memoryAddress() + in.readerIndex(), out.memoryAddress() + out.writerIndex(), length );
+        nativeCipher.cipher( ctx, in.memoryAddress() + in.readerIndex(), out.memoryAddress() + out.writerIndex(), length );
 
         // Go to the end of the buffer, all bytes would of been read
         in.readerIndex( in.writerIndex() );
