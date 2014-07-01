@@ -79,7 +79,13 @@ public final class Configuration
         Configuration section = getSectionFor( path );
         if ( section == this )
         {
-            self.put( path, value );
+            if ( value == null )
+            {
+                self.remove( path );
+            } else
+            {
+                self.put( path, value );
+            }
         } else
         {
             section.set( getChild( path ), value );
