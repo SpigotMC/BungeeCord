@@ -1,5 +1,7 @@
 package net.md_5.bungee.config;
 
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 import org.junit.Assert;
@@ -8,7 +10,7 @@ import org.junit.Test;
 public class YamlConfigurationTest
 {
 
-    private String docuement = ""
+    private String document = ""
             + "receipt:     Oz-Ware Purchase Invoice\n"
             + "date:        2012-08-06\n"
             + "customer:\n"
@@ -43,10 +45,24 @@ public class YamlConfigurationTest
             + "    man behind the curtain.";
 
     @Test
-    public void testRead() throws Exception
+    public void testConfig() throws Exception
     {
-        Configuration conf = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( docuement );
+        Configuration conf = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( document );
+        testSection( conf );
 
+        StringWriter sw = new StringWriter();
+        ConfigurationProvider.getProvider( YamlConfiguration.class ).save( conf, sw );
+
+        // Check nulls were saved, see #1094
+        Assert.assertFalse( "Config contains null", sw.toString().contains( "null" ) );
+
+        conf = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( new StringReader( sw.toString() ) );
+        conf.set( "receipt", "Oz-Ware Purchase Invoice" ); // Add it back
+        testSection( conf );
+    }
+
+    private void testSection(Configuration conf)
+    {
         Assert.assertEquals( "receipt", "Oz-Ware Purchase Invoice", conf.getString( "receipt" ) );
         // Assert.assertEquals( "date", "2012-08-06", conf.get( "date" ).toString() );
 
@@ -57,5 +73,9 @@ public class YamlConfigurationTest
         List items = conf.getList( "items" );
         Map item = (Map) items.get( 0 );
         Assert.assertEquals( "items[0].part_no", "A4786", item.get( "part_no" ) );
+
+        conf.set( "receipt", null );
+        Assert.assertEquals( null, conf.get( "receipt" ) );
+        Assert.assertEquals( "foo", conf.get( "receipt", "foo" ) );
     }
 }
