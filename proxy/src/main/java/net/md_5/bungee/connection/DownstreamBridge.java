@@ -362,6 +362,16 @@ public class DownstreamBridge extends PacketHandler
                     out.writeShort( info.getAddress().getPort() );
                 }
             }
+            if ( subChannel.equals( "ServerMotd" ) )
+            {
+                ServerInfo info = bungee.getServerInfo( in.readUTF() );
+                if ( info != null )
+                {
+                    out.writeUTF( "ServerMotd" );
+                    out.writeUTF( info.getName() );
+                    out.writeUTF( info.getMotd() );
+                }
+            }
 
             // Check we haven't set out to null, and we have written data, if so reply back back along the BungeeCord channel
             if ( out != null )
