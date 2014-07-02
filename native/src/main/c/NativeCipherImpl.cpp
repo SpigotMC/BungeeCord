@@ -6,7 +6,7 @@ typedef unsigned char byte;
 jlong JNICALL Java_net_md_15_bungee_NativeCipherImpl_init(JNIEnv* env, jobject obj, jboolean forEncryption, jbyteArray key) {
     jbyte *keyBytes = env->GetByteArrayElements(key, NULL);
 
-    EVP_CIPHER_CTX *cipherCtx = new EVP_CIPHER_CTX();
+    EVP_CIPHER_CTX *cipherCtx = EVP_CIPHER_CTX_new();
     EVP_CipherInit(cipherCtx, EVP_aes_128_cfb8(), (byte*) keyBytes, (byte*) keyBytes, forEncryption);
 
     env->ReleaseByteArrayElements(key, keyBytes, JNI_ABORT);
