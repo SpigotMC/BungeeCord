@@ -355,6 +355,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             old.disconnect( bungee.getTranslation( "already_connected" ) );
         }
 
+        offlineId = java.util.UUID.nameUUIDFromBytes( ( "OfflinePlayer:" + getName() ).getBytes( Charsets.UTF_8 ) );
+        if ( uniqueId == null )
+        {
+            uniqueId = offlineId;
+        }
+
         Callback<LoginEvent> complete = new Callback<LoginEvent>()
         {
             @Override
@@ -377,12 +383,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     {
                         if ( ch.getHandle().isActive() )
                         {
-                            offlineId = java.util.UUID.nameUUIDFromBytes( ( "OfflinePlayer:" + getName() ).getBytes( Charsets.UTF_8 ) );
-                            if ( uniqueId == null )
-                            {
-                                uniqueId = offlineId;
-                            }
-
                             if ( getVersion() >= ProtocolConstants.MINECRAFT_1_7_6 )
                             {
                                 unsafe.sendPacket( new LoginSuccess( getUniqueId().toString(), getName() ) ); // With dashes in between
