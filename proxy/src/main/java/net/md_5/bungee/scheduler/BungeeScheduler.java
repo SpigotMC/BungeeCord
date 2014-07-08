@@ -25,6 +25,16 @@ public class BungeeScheduler implements TaskScheduler
     private final AtomicInteger taskCounter = new AtomicInteger();
     private final TIntObjectMap<BungeeTask> tasks = TCollections.synchronizedMap( new TIntObjectHashMap<BungeeTask>() );
     private final Multimap<Plugin, BungeeTask> tasksByPlugin = Multimaps.synchronizedMultimap( HashMultimap.<Plugin, BungeeTask>create() );
+    //
+    private final Unsafe unsafe = new Unsafe()
+    {
+
+        @Override
+        public ExecutorService getExecutorService()
+        {
+            return s;
+        }
+    };
 
     public void shutdown()
     {
@@ -81,5 +91,11 @@ public class BungeeScheduler implements TaskScheduler
         tasks.put( prepared.getId(), prepared );
         s.execute( prepared );
         return prepared;
+    }
+
+    @Override
+    public Unsafe unsafe()
+    {
+        return unsafe;
     }
 }

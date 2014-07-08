@@ -159,6 +159,8 @@ public class BungeeCord extends ProxyServer
 
     public BungeeCord() throws IOException
     {
+        System.setSecurityManager( new BungeeSecurityManager() );
+
         try
         {
             bundle = ResourceBundle.getBundle( "messages" );

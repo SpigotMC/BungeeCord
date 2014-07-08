@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.scheduler;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -71,4 +72,22 @@ public interface TaskScheduler
      * @return the scheduled task
      */
     ScheduledTask schedule(Plugin owner, Runnable task, long delay, long period, TimeUnit unit);
+
+    /**
+     * Get the unsafe methods of this class.
+     *
+     * @return the unsafe method interface
+     */
+    Unsafe unsafe();
+
+    interface Unsafe
+    {
+
+        /**
+         * An executor service which underlies this scheduler.
+         *
+         * @return the underlying executor service or compatible wrapper
+         */
+        ExecutorService getExecutorService();
+    }
 }
