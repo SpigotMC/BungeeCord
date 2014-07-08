@@ -88,6 +88,6 @@ public interface TaskScheduler
          *
          * @return the underlying executor service or compatible wrapper
          */
-        ExecutorService getExecutorService();
+        ExecutorService getExecutorService(Plugin plugin);
     }
 }
