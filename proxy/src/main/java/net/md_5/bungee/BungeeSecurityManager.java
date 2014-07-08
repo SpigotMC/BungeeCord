@@ -54,5 +54,10 @@ public class BungeeSecurityManager extends SecurityManager
     @Override
     public void checkPermission(Permission perm)
     {
+        switch ( perm.getName() )
+        {
+            case "setSecurityManager":
+                throw new AccessControlException( "Restricted Action", perm );
+        }
     }
 }
