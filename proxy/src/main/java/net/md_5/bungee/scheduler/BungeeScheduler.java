@@ -30,7 +30,7 @@ public class BungeeScheduler implements TaskScheduler
     {
 
         @Override
-        public ExecutorService getExecutorService()
+        public ExecutorService getExecutorService(Plugin plugin)
         {
             return s;
         }
