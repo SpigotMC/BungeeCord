@@ -4,6 +4,7 @@ import java.security.AccessControlException;
 import java.security.Permission;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.scheduler.GroupedThreadFactory;
 
 public class BungeeSecurityManager extends SecurityManager
 {
@@ -54,10 +55,12 @@ public class BungeeSecurityManager extends SecurityManager
     }
 
     @Override
-    public ThreadGroup getThreadGroup()
+    public void checkAccess(ThreadGroup g)
     {
-        checkRestricted( "Thread Creation: Use scheduler" );
-        return super.getThreadGroup();
+        if ( !( g instanceof GroupedThreadFactory.BungeeGroup ) )
+        {
+            checkRestricted( "Illegal thread group access" );
+        }
     }
 
     @Override
