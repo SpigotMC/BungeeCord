@@ -26,7 +26,7 @@ public class BungeeSecurityManager extends SecurityManager
             // Allow external packages from the system class loader to create threads.
             if ( loader == null )
             {
-                if ( !context[i].getName().startsWith( "java.lang" ) )
+                if ( !context[i].getName().startsWith( "java" ) )
                 {
                     break;
                 }
