@@ -159,7 +159,24 @@ public class BungeeCord extends ProxyServer
 
     public BungeeCord() throws IOException
     {
-        System.setSecurityManager( new BungeeSecurityManager() );
+        if ( Boolean.getBoolean( "net.md_5.bungee.disableSecurityManager" ) )
+        {
+            System.err.println( "*** Warning: You have disabled the BungeeCord security manager. ***" );
+            System.err.println( "*** Disabling the BungeeCord security manager may compromise the stability of your server! ***" );
+            System.err.println( "*** SpigotMC is not responsible for any harm caused by disabling the security manager! ***" );
+            System.err.println( "*** Please proceed with caution! ***" );
+            System.err.println( "*** Starting server in 10 seconds ***" );
+            try
+            {
+                Thread.sleep( TimeUnit.SECONDS.toMillis( 10 ) );
+            } catch (InterruptedException ignored)
+            {
+                // Ignored, we should never be interrupted at this point!
+            }
+        } else
+        {
+            System.setSecurityManager( new BungeeSecurityManager() );
+        }
 
         try
         {
