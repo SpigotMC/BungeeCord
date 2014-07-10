@@ -23,9 +23,19 @@ public class BungeeSecurityManager extends SecurityManager
                 break;
             }
 
+            // Allow external packages from the system class loader to create threads.
+            if ( loader == null )
+            {
+                if ( !context[i].getName().startsWith( "java.lang" ) )
+                {
+                    break;
+                }
+            }
+
             // Everyone but system can't do anything
             if ( loader != null )
             {
+                System.out.println( loader );
                 AccessControlException ex = new AccessControlException( "Plugin violation: " + text );
                 if ( ENFORCE )
                 {
