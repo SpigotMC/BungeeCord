@@ -35,7 +35,6 @@ public class BungeeSecurityManager extends SecurityManager
             // Everyone but system can't do anything
             if ( loader != null )
             {
-                System.out.println( loader );
                 AccessControlException ex = new AccessControlException( "Plugin violation: " + text );
                 if ( ENFORCE )
                 {
