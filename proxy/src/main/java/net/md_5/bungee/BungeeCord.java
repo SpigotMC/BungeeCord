@@ -366,9 +366,9 @@ public class BungeeCord extends ProxyServer
                         t.printStackTrace();
                     }
                     getScheduler().cancel( plugin );
+                    plugin.getExecutorService().shutdownNow();
                 }
 
-                scheduler.shutdown();
                 getLogger().info( "Thank you and goodbye" );
                 // Need to close loggers after last message!
                 for ( Handler handler : getLogger().getHandlers() )
