@@ -64,6 +64,12 @@ public class BungeeSecurityManager extends SecurityManager
     }
 
     @Override
+    public void checkPermission(Permission perm, Object context)
+    {
+        checkPermission( perm );
+    }
+
+    @Override
     public void checkPermission(Permission perm)
     {
         switch ( perm.getName() )
