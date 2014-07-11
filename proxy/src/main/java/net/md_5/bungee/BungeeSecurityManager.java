@@ -4,6 +4,8 @@ import java.security.AccessControlException;
 import java.security.Permission;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.plugin.PluginClassloader;
 import net.md_5.bungee.api.scheduler.GroupedThreadFactory;
 
 public class BungeeSecurityManager extends SecurityManager
@@ -11,10 +13,13 @@ public class BungeeSecurityManager extends SecurityManager
 
     private static final boolean ENFORCE = false;
 
-    private void checkRestricted(String text)
+    /**
+     * @param stackDepth How far back (at least) we need to go in the call stack.
+     */
+    private ClassLoader getPluginContextClassLoader(int stackDepth)
     {
         Class[] context = getClassContext();
-        for ( int i = 2; i < context.length; i++ )
+        for ( int i = stackDepth + 1; i < context.length; i++ )
         {
             ClassLoader loader = context[i].getClassLoader();
 
@@ -36,15 +41,26 @@ public class BungeeSecurityManager extends SecurityManager
             // Everyone but system can't do anything
             if ( loader != null )
             {
-                AccessControlException ex = new AccessControlException( "Plugin violation: " + text );
-                if ( ENFORCE )
-                {
-                    throw ex;
-                }
-
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Plugin performed restricted action, please inform them to use proper API methods: " + text, ex );
-                break;
+                return loader;
             }
+        }
+        return null;
+    }
+
+    private void checkRestricted(String text)
+    {
+        ClassLoader loader = getPluginContextClassLoader(2);
+
+        // Everyone but system can't do anything
+        if ( loader != null )
+        {
+            AccessControlException ex = new AccessControlException( "Plugin violation: " + text );
+            if ( ENFORCE )
+            {
+                throw ex;
+            }
+
+            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Plugin performed restricted action, please inform them to use proper API methods: " + text, ex );
         }
     }
 
@@ -77,5 +93,19 @@ public class BungeeSecurityManager extends SecurityManager
             case "setSecurityManager":
                 throw new AccessControlException( "Restricted Action", perm );
         }
+    }
+
+    @Override
+    public ThreadGroup getThreadGroup() {
+        ClassLoader loader = getPluginContextClassLoader(1);
+        if ( loader instanceof PluginClassloader )
+        {
+            Plugin plugin = ( (PluginClassloader) loader ).getPlugin();
+            if ( plugin != null )
+            {
+                return plugin.getThreadGroup();
+            }
+        }
+        return super.getThreadGroup();
     }
 }

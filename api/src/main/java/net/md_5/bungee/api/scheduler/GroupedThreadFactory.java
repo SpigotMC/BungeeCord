@@ -2,6 +2,7 @@ package net.md_5.bungee.api.scheduler;
 
 import java.util.concurrent.ThreadFactory;
 import lombok.Data;
+import lombok.Getter;
 import net.md_5.bungee.api.plugin.Plugin;
 
 @Data
@@ -9,6 +10,7 @@ import net.md_5.bungee.api.plugin.Plugin;
 public class GroupedThreadFactory implements ThreadFactory
 {
 
+    @Getter
     private final ThreadGroup group;
 
     public class BungeeGroup extends ThreadGroup

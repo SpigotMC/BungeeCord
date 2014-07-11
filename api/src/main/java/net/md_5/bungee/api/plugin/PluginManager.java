@@ -277,12 +277,14 @@ public class PluginManager
         {
             try
             {
-                URLClassLoader loader = new PluginClassloader( new URL[]
+                PluginClassloader loader = new PluginClassloader( new URL[]
                 {
                     plugin.getFile().toURI().toURL()
                 } );
                 Class<?> main = loader.loadClass( plugin.getMain() );
                 Plugin clazz = (Plugin) main.getDeclaredConstructor().newInstance();
+
+                loader.setPlugin( clazz );
 
                 clazz.init( proxy, plugin );
                 plugins.put( plugin.getName(), clazz );

@@ -91,16 +91,35 @@ public class Plugin
 
     //
     private ExecutorService service;
+    private ThreadGroup threadGroup;
+
+    private void ensureExecutorLoaded()
+    {
+        if ( service != null ) return;
+        synchronized ( this )
+        {
+            if ( service != null ) return;
+
+            GroupedThreadFactory pluginThreadFactory = new GroupedThreadFactory( this );
+
+            service = Executors.newCachedThreadPool( new ThreadFactoryBuilder().setNameFormat( getDescription().getName() + " Pool Thread #%1$d" )
+                    .setThreadFactory( pluginThreadFactory ).build() );
+            threadGroup = pluginThreadFactory.getGroup();
+        }
+    }
 
     @Deprecated
     public ExecutorService getExecutorService()
     {
-        if ( service == null )
-        {
-            service = Executors.newCachedThreadPool( new ThreadFactoryBuilder().setNameFormat( getDescription().getName() + " Pool Thread #%1$d" )
-                    .setThreadFactory( new GroupedThreadFactory( this ) ).build() );
-        }
+        ensureExecutorLoaded();
         return service;
+    }
+
+    @Deprecated
+    public ThreadGroup getThreadGroup()
+    {
+        ensureExecutorLoaded();
+        return threadGroup;
     }
     //
 }
