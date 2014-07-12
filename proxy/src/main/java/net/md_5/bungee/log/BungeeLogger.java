@@ -14,6 +14,10 @@ public class BungeeLogger extends Logger
     private final Formatter formatter = new ConciseFormatter();
     private final LogDispatcher dispatcher = new LogDispatcher( this );
 
+    @SuppressWarnings(
+    {
+        "CallToPrintStackTrace", "CallToThreadStartDuringObjectConstruction"
+    })
     public BungeeLogger(BungeeCord bungee)
     {
         super( "BungeeCord", null );

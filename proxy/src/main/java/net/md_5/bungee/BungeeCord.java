@@ -104,7 +104,7 @@ public class BungeeCord extends ProxyServer
     /**
      * Server socket listener.
      */
-    private Collection<Channel> listeners = new HashSet<>();
+    private final Collection<Channel> listeners = new HashSet<>();
     /**
      * Fully qualified connections.
      */
@@ -127,7 +127,7 @@ public class BungeeCord extends ProxyServer
     @Getter
     private final BungeeScheduler scheduler = new BungeeScheduler();
     @Getter
-    private ConsoleReader consoleReader;
+    private final ConsoleReader consoleReader;
     @Getter
     private final Logger logger;
     public final Gson gson = new GsonBuilder()
@@ -251,7 +251,7 @@ public class BungeeCord extends ProxyServer
                     if ( future.isSuccess() )
                     {
                         listeners.add( future.channel() );
-                        getLogger().info( "Listening on " + info.getHost() );
+                        getLogger().log( Level.INFO, "Listening on {0}", info.getHost() );
                     } else
                     {
                         getLogger().log( Level.WARNING, "Could not bind to host " + info.getHost(), future.cause() );
@@ -277,7 +277,7 @@ public class BungeeCord extends ProxyServer
                         if ( future.isSuccess() )
                         {
                             listeners.add( future.channel() );
-                            getLogger().info( "Started query on " + future.channel().localAddress() );
+                            getLogger().log( Level.INFO, "Started query on {0}", future.channel().localAddress() );
                         } else
                         {
                             getLogger().log( Level.WARNING, "Could not bind to host " + info.getHost(), future.cause() );
@@ -311,6 +311,7 @@ public class BungeeCord extends ProxyServer
         new Thread( "Shutdown Thread" )
         {
             @Override
+            @SuppressWarnings("TooBroadCatch")
             public void run()
             {
                 BungeeCord.this.isRunning = false;
@@ -321,7 +322,7 @@ public class BungeeCord extends ProxyServer
                 connectionLock.readLock().lock();
                 try
                 {
-                    getLogger().info( "Disconnecting " + connections.size() + " connections" );
+                    getLogger().log( Level.INFO, "Disconnecting {0} connections", connections.size() );
                     for ( UserConnection user : connections.values() )
                     {
                         user.disconnect( getTranslation( "restart" ) );
@@ -362,8 +363,7 @@ public class BungeeCord extends ProxyServer
                         }
                     } catch ( Throwable t )
                     {
-                        getLogger().severe( "Exception disabling plugin " + plugin.getDescription().getName() );
-                        t.printStackTrace();
+                        getLogger().log( Level.SEVERE, "Exception disabling plugin " + plugin.getDescription().getName(), t );
                     }
                     getScheduler().cancel( plugin );
                     plugin.getExecutorService().shutdownNow();
@@ -458,6 +458,7 @@ public class BungeeCord extends ProxyServer
         }
     }
 
+    @Override
     public ProxiedPlayer getPlayer(UUID uuid)
     {
         connectionLock.readLock().lock();

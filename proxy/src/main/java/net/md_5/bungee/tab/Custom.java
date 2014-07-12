@@ -22,8 +22,8 @@ public class Custom extends TabListAdapter implements CustomTabList
     /*========================================================================*/
     private final Collection<String> sentStuff = new HashSet<>();
     /*========================================================================*/
-    private String[][] sent = new String[ ROWS ][ COLUMNS ];
-    private String[][] slots = new String[ ROWS ][ COLUMNS ];
+    private final String[][] sent = new String[ ROWS ][ COLUMNS ];
+    private final String[][] slots = new String[ ROWS ][ COLUMNS ];
     private int rowLim;
     private int colLim;
 
