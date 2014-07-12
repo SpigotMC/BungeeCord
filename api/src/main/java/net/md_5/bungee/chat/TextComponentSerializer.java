@@ -31,7 +31,7 @@ public class TextComponentSerializer extends BaseComponentSerializer implements 
     public JsonElement serialize(TextComponent src, Type typeOfSrc, JsonSerializationContext context)
     {
         List<BaseComponent> extra = src.getExtra();
-        if ( !src.hasFormatting() && ( extra == null || extra.size() == 0 ) )
+        if ( !src.hasFormatting() && ( extra == null || extra.isEmpty() ) )
         {
             return new JsonPrimitive( src.getText() );
         }

@@ -8,8 +8,10 @@ import net.md_5.bungee.api.ChatColor;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.ToString;
 
 @Setter
+@ToString
 @NoArgsConstructor
 public abstract class BaseComponent
 {
@@ -369,11 +371,5 @@ public abstract class BaseComponent
                 e.toLegacyText( builder );
             }
         }
-    }
-
-    @Override
-    public String toString()
-    {
-        return String.format( "BaseComponent{color=%s, bold=%b, italic=%b, underlined=%b, strikethrough=%b, obfuscated=%b, clickEvent=%s, hoverEvent=%s, extra=%s}", getColor().getName(), isBold(), isItalic(), isUnderlined(), isStrikethrough(), isObfuscated(), getClickEvent(), getHoverEvent(), getExtra() );
     }
 }

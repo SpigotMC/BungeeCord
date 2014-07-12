@@ -4,16 +4,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 public class TranslatableComponent extends BaseComponent
 {
@@ -104,6 +104,7 @@ public class TranslatableComponent extends BaseComponent
     protected void toPlainText(StringBuilder builder)
     {
         String trans = locales.getString( translate );
+        // TODO: Yell @ Thinkofdeath, this is impossible. getString(..) actually throws an exception when there is no string.
         if ( trans == null )
         {
             builder.append( translate );
@@ -211,11 +212,5 @@ public class TranslatableComponent extends BaseComponent
         {
             builder.append( ChatColor.MAGIC );
         }
-    }
-
-    @Override
-    public String toString()
-    {
-        return String.format( "TranslatableComponent{translate=%s, with=%s, %s}", translate, with, super.toString() );
     }
 }

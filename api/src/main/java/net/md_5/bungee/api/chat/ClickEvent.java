@@ -1,14 +1,14 @@
 package net.md_5.bungee.api.chat;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import net.md_5.bungee.api.chat.ClickEvent.Action;
 
 @Getter
-@AllArgsConstructor
-final public class ClickEvent
+@ToString
+@RequiredArgsConstructor
+public final class ClickEvent
 {
 
     /**
@@ -42,15 +42,9 @@ final public class ClickEvent
         RUN_COMMAND,
         /**
          * Inserts the string given by
-         * {@link net.md_5.bungee.api.chat.ClickEvent#value} into the
-         * players text box
+         * {@link net.md_5.bungee.api.chat.ClickEvent#value} into the players
+         * text box
          */
         SUGGEST_COMMAND
-    }
-
-    @Override
-    public String toString()
-    {
-        return String.format( "ClickEvent{action=%s, value=%s}", action, value );
     }
 }
