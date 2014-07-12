@@ -6,6 +6,7 @@ import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -103,13 +104,8 @@ public class TranslatableComponent extends BaseComponent
     @Override
     protected void toPlainText(StringBuilder builder)
     {
-        String trans = locales.getString( translate );
-        // TODO: Yell @ Thinkofdeath, this is impossible. getString(..) actually throws an exception when there is no string.
-        if ( trans == null )
-        {
-            builder.append( translate );
-        } else
-        {
+        try {
+            String trans = locales.getString( translate );
             Matcher matcher = format.matcher( trans );
             int position = 0;
             int i = 0;
@@ -139,7 +135,11 @@ public class TranslatableComponent extends BaseComponent
             {
                 builder.append( trans.substring( position, trans.length() ) );
             }
+        } catch ( MissingResourceException e )
+        {
+            builder.append( translate );
         }
+
         super.toPlainText( builder );
     }
 
