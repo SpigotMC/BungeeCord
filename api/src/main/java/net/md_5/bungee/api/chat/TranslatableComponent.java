@@ -104,7 +104,8 @@ public class TranslatableComponent extends BaseComponent
     @Override
     protected void toPlainText(StringBuilder builder)
     {
-        try {
+        try
+        {
             String trans = locales.getString( translate );
             Matcher matcher = format.matcher( trans );
             int position = 0;

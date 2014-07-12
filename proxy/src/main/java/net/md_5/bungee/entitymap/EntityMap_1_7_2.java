@@ -6,6 +6,7 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 
 class EntityMap_1_7_2 extends EntityMap
 {
+
     EntityMap_1_7_2()
     {
         addRewrite( 0x04, ProtocolConstants.Direction.TO_CLIENT, false ); // Entity Equipment
