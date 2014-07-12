@@ -1,5 +1,6 @@
 package net.md_5.bungee.conf;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -42,9 +43,16 @@ public class YamlConfig implements ConfigurationAdapter
         GLOBAL( Global.class ), GLOBAL_PING( GlobalPing.class ), SERVER( ServerUnique.class );
         private final Class<? extends TabListHandler> clazz;
     }
-    private Yaml yaml;
+    private final Yaml yaml;
     private Map config;
     private final File file = new File( "config.yml" );
+
+    public YamlConfig()
+    {
+        DumperOptions options = new DumperOptions();
+        options.setDefaultFlowStyle( DumperOptions.FlowStyle.BLOCK );
+        yaml = new Yaml( options );
+    }
 
     @Override
     public void load()
@@ -52,9 +60,6 @@ public class YamlConfig implements ConfigurationAdapter
         try
         {
             file.createNewFile();
-            DumperOptions options = new DumperOptions();
-            options.setDefaultFlowStyle( DumperOptions.FlowStyle.BLOCK );
-            yaml = new Yaml( options );
 
             try ( InputStream is = new FileInputStream( file ) )
             {
@@ -182,6 +187,7 @@ public class YamlConfig implements ConfigurationAdapter
 
     @Override
     @SuppressWarnings("unchecked")
+    @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
     public Collection<ListenerInfo> getListeners()
     {
         Collection<Map<String, Object>> base = get( "listeners", (Collection) Arrays.asList( new Map[]

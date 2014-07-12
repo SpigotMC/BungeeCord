@@ -118,6 +118,8 @@ public class DownstreamBridge extends PacketHandler
             case 1:
                 serverScoreboard.removeObjective( objective.getName() );
                 break;
+            default:
+                throw new IllegalArgumentException( "Unknown objective action: " + objective.getAction() );
         }
     }
 
@@ -135,6 +137,8 @@ public class DownstreamBridge extends PacketHandler
             case 1:
                 serverScoreboard.removeScore( score.getItemName() );
                 break;
+            default:
+                throw new IllegalArgumentException( "Unknown scoreboard action: " + score.getAction() );
         }
     }
 

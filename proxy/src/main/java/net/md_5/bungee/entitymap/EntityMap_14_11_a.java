@@ -1,5 +1,6 @@
 package net.md_5.bungee.entitymap;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
@@ -9,6 +10,7 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 
 class EntityMap_14_11_a extends EntityMap
 {
+
     EntityMap_14_11_a()
     {
         addRewrite( 0x04, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Equipment
@@ -42,6 +44,7 @@ class EntityMap_14_11_a extends EntityMap
     }
 
     @Override
+    @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
     public void rewriteClientbound(ByteBuf packet, int oldId, int newId)
     {
         super.rewriteClientbound( packet, oldId, newId );
@@ -153,7 +156,8 @@ class EntityMap_14_11_a extends EntityMap
             {
                 DefinedPacket.readVarInt( packet );
                 rewriteInt( packet, oldId, newId, packet.readerIndex() );
-            } else if ( event == 2 /* Entity Dead */ ) {
+            } else if ( event == 2 /* Entity Dead */ )
+            {
                 int position = packet.readerIndex();
                 rewriteVarInt( packet, oldId, newId, packet.readerIndex() );
                 packet.readerIndex( position );

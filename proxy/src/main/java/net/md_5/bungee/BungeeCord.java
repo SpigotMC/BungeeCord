@@ -1,5 +1,6 @@
 package net.md_5.bungee;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -16,6 +17,7 @@ import net.md_5.bungee.log.BungeeLogger;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
@@ -157,6 +159,7 @@ public class BungeeCord extends ProxyServer
         return (BungeeCord) ProxyServer.getInstance();
     }
 
+    @SuppressFBWarnings("DM_DEFAULT_ENCODING")
     public BungeeCord() throws IOException
     {
         System.setSecurityManager( new BungeeSecurityManager() );
@@ -200,6 +203,7 @@ public class BungeeCord extends ProxyServer
      * @throws Exception
      */
     @Override
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public void start() throws Exception
     {
         System.setProperty( "java.net.preferIPv4Stack", "true" ); // Minecraft does not support IPv6
@@ -311,6 +315,7 @@ public class BungeeCord extends ProxyServer
         new Thread( "Shutdown Thread" )
         {
             @Override
+            @SuppressFBWarnings("DM_EXIT")
             @SuppressWarnings("TooBroadCatch")
             public void run()
             {
@@ -514,7 +519,7 @@ public class BungeeCord extends ProxyServer
 
     public PluginMessage registerChannels()
     {
-        return new PluginMessage( "REGISTER", Util.format( pluginChannels, "\00" ).getBytes() );
+        return new PluginMessage( "REGISTER", Util.format( pluginChannels, "\00" ).getBytes( Charsets.UTF_8 ) );
     }
 
     @Override
@@ -614,7 +619,7 @@ public class BungeeCord extends ProxyServer
             @Override
             public boolean apply(ProxiedPlayer input)
             {
-                return input.getName().toLowerCase().contains( partialName.toLowerCase() );
+                return ( input == null ) ? false : input.getName().toLowerCase().contains( partialName.toLowerCase() );
             }
         } ) );
     }

@@ -96,7 +96,6 @@ public final class UserConnection implements ProxiedPlayer
     @Setter
     private int serverEntityId;
     @Getter
-    @Setter
     private ClientSettings settings;
     @Getter
     private final Scoreboard serverSentScoreboard = new Scoreboard();
@@ -435,9 +434,15 @@ public final class UserConnection implements ProxiedPlayer
         return getPendingConnection().getUniqueId();
     }
 
+    public void setSettings(ClientSettings settings)
+    {
+        this.settings = settings;
+        this.locale = null;
+    }
+
     @Override
     public Locale getLocale()
     {
-        return ( locale == null ) ? locale = Locale.forLanguageTag( settings.getLocale() ) : locale;
+        return ( locale == null && settings != null ) ? locale = Locale.forLanguageTag( settings.getLocale() ) : locale;
     }
 }

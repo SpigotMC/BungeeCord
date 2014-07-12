@@ -56,9 +56,6 @@ public class Custom extends TabListAdapter implements CustomTabList
                 rowLim = row;
                 colLim = column;
             }
-        } else
-        {
-            sentStuff.remove( text );
         }
 
         slots[--row][--column] = text;
