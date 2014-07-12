@@ -120,12 +120,14 @@ public class Configuration implements ProxyConfig
         }
     }
 
+    @Override
     @Deprecated
     public String getFavicon()
     {
         return getFaviconObject().getEncoded();
     }
 
+    @Override
     public Favicon getFaviconObject()
     {
         return favicon;

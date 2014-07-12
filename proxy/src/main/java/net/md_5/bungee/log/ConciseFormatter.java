@@ -13,6 +13,7 @@ public class ConciseFormatter extends Formatter
     private final DateFormat date = new SimpleDateFormat( System.getProperty( "net.md_5.bungee.log-date-format", "HH:mm:ss" ) );
 
     @Override
+    @SuppressWarnings("ThrowableResultIgnored")
     public String format(LogRecord record)
     {
         StringBuilder formatted = new StringBuilder();

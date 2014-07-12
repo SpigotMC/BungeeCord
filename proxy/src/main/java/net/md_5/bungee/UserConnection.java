@@ -229,6 +229,7 @@ public final class UserConnection implements ProxiedPlayer
         ChannelFutureListener listener = new ChannelFutureListener()
         {
             @Override
+            @SuppressWarnings("ThrowableResultIgnored")
             public void operationComplete(ChannelFuture future) throws Exception
             {
                 if ( callback != null )
@@ -295,7 +296,10 @@ public final class UserConnection implements ProxiedPlayer
     {
         if ( ch.getHandle().isActive() )
         {
-            bungee.getLogger().log( Level.INFO, "[" + getName() + "] disconnected with: " + BaseComponent.toLegacyText( reason ) );
+            bungee.getLogger().log( Level.INFO, "[{0}] disconnected with: {1}", new Object[]
+            {
+                getName(), BaseComponent.toLegacyText( reason )
+            } );
             unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
             ch.close();
             if ( server != null )
