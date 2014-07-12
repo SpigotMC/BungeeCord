@@ -68,7 +68,7 @@ public abstract class BaseComponent
     @Getter
     private HoverEvent hoverEvent;
 
-    protected BaseComponent(BaseComponent old)
+    BaseComponent(BaseComponent old)
     {
         setColor( old.getColorRaw() );
         setBold( old.isBoldRaw() );
@@ -317,6 +317,8 @@ public abstract class BaseComponent
 
     /**
      * Returns whether the component has any formatting or events applied to it
+     *
+     * @return Whether any formatting or events are applied
      */
     public boolean hasFormatting()
     {
@@ -338,7 +340,7 @@ public abstract class BaseComponent
         return builder.toString();
     }
 
-    protected void toPlainText(StringBuilder builder)
+    void toPlainText(StringBuilder builder)
     {
         if ( extra != null )
         {
@@ -362,7 +364,7 @@ public abstract class BaseComponent
         return builder.toString();
     }
 
-    protected void toLegacyText(StringBuilder builder)
+    void toLegacyText(StringBuilder builder)
     {
         if ( extra != null )
         {
