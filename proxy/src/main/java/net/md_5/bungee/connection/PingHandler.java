@@ -1,6 +1,7 @@
 package net.md_5.bungee.connection;
 
 import com.google.gson.Gson;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.Callback;
@@ -49,6 +50,7 @@ public class PingHandler extends PacketHandler
     }
 
     @Override
+    @SuppressFBWarnings("UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
     public void handle(StatusResponse statusResponse) throws Exception
     {
         Gson gson = protocol == ProtocolConstants.MINECRAFT_1_7_2 ? BungeeCord.getInstance().gsonLegacy : BungeeCord.getInstance().gson;

@@ -65,16 +65,16 @@ public class PipelineUtils
     };
     public static final Base BASE = new Base();
     private static final Varint21LengthFieldPrepender framePrepender = new Varint21LengthFieldPrepender();
-    public static String TIMEOUT_HANDLER = "timeout";
-    public static String PACKET_DECODER = "packet-decoder";
-    public static String PACKET_ENCODER = "packet-encoder";
-    public static String BOSS_HANDLER = "inbound-boss";
-    public static String ENCRYPT_HANDLER = "encrypt";
-    public static String DECRYPT_HANDLER = "decrypt";
-    public static String FRAME_DECODER = "frame-decoder";
-    public static String FRAME_PREPENDER = "frame-prepender";
-    public static String LEGACY_DECODER = "legacy-decoder";
-    public static String LEGACY_KICKER = "legacy-kick";
+    public static final String TIMEOUT_HANDLER = "timeout";
+    public static final String PACKET_DECODER = "packet-decoder";
+    public static final String PACKET_ENCODER = "packet-encoder";
+    public static final String BOSS_HANDLER = "inbound-boss";
+    public static final String ENCRYPT_HANDLER = "encrypt";
+    public static final String DECRYPT_HANDLER = "decrypt";
+    public static final String FRAME_DECODER = "frame-decoder";
+    public static final String FRAME_PREPENDER = "frame-prepender";
+    public static final String LEGACY_DECODER = "legacy-decoder";
+    public static final String LEGACY_KICKER = "legacy-kick";
 
     private static boolean epoll;
 

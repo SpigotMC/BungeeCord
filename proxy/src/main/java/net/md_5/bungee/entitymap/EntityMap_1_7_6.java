@@ -1,5 +1,6 @@
 package net.md_5.bungee.entitymap;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
@@ -8,12 +9,9 @@ import net.md_5.bungee.protocol.DefinedPacket;
 
 class EntityMap_1_7_6 extends EntityMap_1_7_2
 {
-    EntityMap_1_7_6()
-    {
-        super();
-    }
 
     @Override
+    @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
     public void rewriteClientbound(ByteBuf packet, int oldId, int newId)
     {
         super.rewriteClientbound( packet, oldId, newId );
