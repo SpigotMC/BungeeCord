@@ -1,12 +1,12 @@
 package net.md_5.bungee.api.chat;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 @Getter
-@AllArgsConstructor
+@ToString
+@RequiredArgsConstructor
 final public class HoverEvent
 {
 
@@ -19,11 +19,5 @@ final public class HoverEvent
         SHOW_TEXT,
         SHOW_ACHIEVEMENT,
         SHOW_ITEM
-    }
-
-    @Override
-    public String toString()
-    {
-        return String.format( "HoverEvent{action=%s, value=%s}", action, value );
     }
 }

@@ -121,8 +121,8 @@ public class TextComponent extends BaseComponent
             components.add( component );
         }
 
-        //The client will crash if the array is empty
-        if ( components.size() == 0 )
+        // The client will crash if the array is empty
+        if ( components.isEmpty() )
         {
             components.add( new TextComponent( "" ) );
         }

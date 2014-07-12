@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.logging.Logger;
 import lombok.Getter;
 import net.md_5.bungee.api.ProxyServer;

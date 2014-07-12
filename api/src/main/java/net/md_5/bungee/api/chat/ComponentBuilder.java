@@ -1,8 +1,6 @@
 package net.md_5.bungee.api.chat;
 
-import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +26,7 @@ public class ComponentBuilder
 {
 
     private TextComponent current;
-    private List<BaseComponent> parts = new ArrayList<>();
+    private final List<BaseComponent> parts = new ArrayList<>();
 
     /**
      * Creates a ComponentBuilder with the given text as the first part.

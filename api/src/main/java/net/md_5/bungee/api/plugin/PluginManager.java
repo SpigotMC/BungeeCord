@@ -49,8 +49,8 @@ public class PluginManager
     private final Map<String, Plugin> plugins = new LinkedHashMap<>();
     private final Map<String, Command> commandMap = new HashMap<>();
     private Map<String, PluginDescription> toLoad = new HashMap<>();
-    private Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
-    private Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
+    private final Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
+    private final Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
 
     @SuppressWarnings("unchecked")
     public PluginManager(ProxyServer proxy)
@@ -191,7 +191,7 @@ public class PluginManager
             PluginDescription plugin = entry.getValue();
             if ( !enablePlugin( pluginStatuses, new Stack<PluginDescription>(), plugin ) )
             {
-                ProxyServer.getInstance().getLogger().warning( "Failed to enable " + entry.getKey() );
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Failed to enable {0}", entry.getKey() );
             }
         }
         toLoad.clear();
@@ -247,7 +247,7 @@ public class PluginManager
                         dependencyGraph.append( element.getName() ).append( " -> " );
                     }
                     dependencyGraph.append( plugin.getName() ).append( " -> " ).append( dependName );
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "Circular dependency detected: " + dependencyGraph );
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "Circular dependency detected: {0}", dependencyGraph );
                     status = false;
                 } else
                 {
