@@ -11,9 +11,9 @@ import java.security.GeneralSecurityException;
 public class FallbackCipher implements BungeeCipher
 {
 
-    private Cipher cipher;
-    private ThreadLocal<byte[]> heapInLocal = new EmptyByteThreadLocal();
-    private ThreadLocal<byte[]> heapOutLocal = new EmptyByteThreadLocal();
+    private final Cipher cipher;
+    private static final ThreadLocal<byte[]> heapInLocal = new EmptyByteThreadLocal();
+    private static final ThreadLocal<byte[]> heapOutLocal = new EmptyByteThreadLocal();
 
     private static class EmptyByteThreadLocal extends ThreadLocal<byte[]>
     {
