@@ -29,7 +29,7 @@ public class BungeeScheduler implements TaskScheduler
         @Override
         public ExecutorService getExecutorService(Plugin plugin)
         {
-            return plugin.getExecutorService();
+            return plugin.unsafe().getExecutorService();
         }
     };
 

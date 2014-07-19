@@ -26,6 +26,7 @@ public class Plugin
     private File file;
     @Getter
     private Logger logger;
+    private final Unsafe unsafe = new Unsafe();
 
     /**
      * Called when the plugin has just been loaded. Most of the proxy will not
@@ -88,18 +89,42 @@ public class Plugin
         this.logger = new PluginLogger( this );
     }
 
-    //
-    private ExecutorService service;
+    public Unsafe unsafe()
+    {
+        return unsafe;
+    }
 
+    //
     @Deprecated
     public ExecutorService getExecutorService()
     {
-        if ( service == null )
-        {
-            service = Executors.newCachedThreadPool( new ThreadFactoryBuilder().setNameFormat( getDescription().getName() + " Pool Thread #%1$d" )
-                    .setThreadFactory( new GroupedThreadFactory( this ) ).build() );
-        }
-        return service;
+        return unsafe().getExecutorService();
     }
     //
+
+    public final class Unsafe {
+        private GroupedThreadFactory groupedThreadFactory;
+        private ExecutorService service;
+
+        private Unsafe(){}
+
+        public ExecutorService getExecutorService()
+        {
+            if ( service == null )
+            {
+                service = Executors.newCachedThreadPool( new ThreadFactoryBuilder().setNameFormat( getDescription().getName() + " Pool Thread #%1$d" )
+                        .setThreadFactory( getGroupedThreadFactory() ).build() );
+            }
+            return service;
+        }
+
+        public GroupedThreadFactory getGroupedThreadFactory()
+        {
+            if ( groupedThreadFactory == null )
+            {
+                groupedThreadFactory = new GroupedThreadFactory( Plugin.this );
+            }
+            return groupedThreadFactory;
+        }
+    }
 }
