@@ -76,7 +76,7 @@ class EntityMap_1_7_2 extends EntityMap
                 } else if ( readId == newId )
                 {
                     packet.setInt( packetIdLength + idLength + 15, oldId );
-                    changedId = newId;
+                    changedId = oldId;
                 }
                 if ( changedId != -1 )
                 {
