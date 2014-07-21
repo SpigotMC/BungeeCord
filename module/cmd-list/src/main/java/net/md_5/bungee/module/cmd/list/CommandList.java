@@ -32,7 +32,7 @@ public class CommandList extends Command
                 continue;
             }
 
-            List<String> players = new ArrayList<>();
+            List<String> players = new ArrayList<String>();
             for ( ProxiedPlayer player : server.getPlayers() )
             {
                 players.add( player.getDisplayName() );
