@@ -10,6 +10,10 @@ import net.md_5.bungee.api.plugin.Cancellable;
 /**
  * Event called to represent a player first making their presence and username
  * known.
+ *
+ * This will NOT contain many attributes relating to the player which are filled
+ * in after authentication with Mojang's servers. Examples of attributes which
+ * are not available include their UUID.
  */
 @Data
 @ToString(callSuper = false)
