@@ -6,6 +6,7 @@ import java.io.DataInput;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.ServerConnection;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.ServerDisconnectEvent;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
@@ -380,6 +381,15 @@ public class DownstreamBridge extends PacketHandler
                     out.writeUTF( info.getName() );
                     out.writeUTF( info.getAddress().getAddress().getHostAddress() );
                     out.writeShort( info.getAddress().getPort() );
+                }
+            }
+            if ( subChannel.equals( "KickPlayer" ) )
+            {
+                ProxiedPlayer player = bungee.getPlayer( in.readUTF() );
+                if ( player != null )
+                {
+                    String kickReason = in.readUTF();
+                    player.disconnect( new TextComponent( kickReason ) );
                 }
             }
 
