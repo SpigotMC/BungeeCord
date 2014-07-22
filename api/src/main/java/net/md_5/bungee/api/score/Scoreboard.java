@@ -74,6 +74,11 @@ public class Scoreboard
         return teams.get( name );
     }
 
+    public Objective getObjective(String name)
+    {
+        return objectives.get( name );
+    }
+
     public void removeObjective(String objectiveName)
     {
         objectives.remove( objectiveName );

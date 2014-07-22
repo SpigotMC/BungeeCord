@@ -1,11 +1,13 @@
 package net.md_5.bungee.api.score;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
  * Represents an objective entry.
  */
 @Data
+@AllArgsConstructor
 public class Objective
 {
 
@@ -16,7 +18,7 @@ public class Objective
     /**
      * Value of the objective.
      */
-    private final String value;
+    private String value;
     /**
      * Type; integer or hearts
      */
