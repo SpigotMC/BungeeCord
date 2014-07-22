@@ -1,8 +1,9 @@
 package net.md_5.bungee.event;
 
+import lombok.Setter;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,6 +23,9 @@ public class EventBus
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final Logger logger;
 
+    @Setter
+    private EventExceptionHandler exceptionHandler;
+
     public EventBus()
     {
         this( null );
@@ -30,6 +34,7 @@ public class EventBus
     public EventBus(Logger logger)
     {
         this.logger = ( logger == null ) ? Logger.getGlobal() : logger;
+        this.exceptionHandler = new LoggingExceptionHandler( this.logger );
     }
 
     public void post(Object event)
@@ -53,7 +58,7 @@ public class EventBus
                         throw new Error( "Method rejected target/argument: " + event, ex );
                     } catch ( InvocationTargetException ex )
                     {
-                        logger.log( Level.WARNING, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, method.getListener() ), ex.getCause() );
+                        exceptionHandler.onException( ex.getCause(), event, method );
                     }
                 }
             }
