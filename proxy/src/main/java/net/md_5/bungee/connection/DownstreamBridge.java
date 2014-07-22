@@ -119,7 +119,11 @@ public class DownstreamBridge extends PacketHandler
                 serverScoreboard.removeObjective( objective.getName() );
                 break;
             case 2:
-                // TODO: Handle this if we ever make an API
+                Objective oldObjective = serverScoreboard.getObjective( objective.getName() );
+                if ( oldObjective != null )
+                {
+                    oldObjective.setValue( objective.getValue() );
+                }
                 break;
             default:
                 throw new IllegalArgumentException( "Unknown objective action: " + objective.getAction() );
