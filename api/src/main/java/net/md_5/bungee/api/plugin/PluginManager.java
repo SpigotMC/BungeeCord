@@ -322,13 +322,21 @@ public class PluginManager
                     {
                         pdf = jar.getJarEntry( "plugin.yml" );
                     }
-                    Preconditions.checkNotNull( pdf, "Plugin must have a plugin.yml or bungee.yml" );
 
-                    try ( InputStream in = jar.getInputStream( pdf ) )
+                    if ( pdf == null )
                     {
-                        PluginDescription desc = yaml.loadAs( in, PluginDescription.class );
-                        desc.setFile( file );
-                        toLoad.put( desc.getName(), desc );
+                        PluginDescription desc = PluginAutoDetector.checkPlugin( jar );
+                        Preconditions.checkNotNull(desc, "Plugin does not contain plugin.yml, bungee.yml or is automaticly detectable");
+                        desc.setFile(file);
+                        toLoad.put(desc.getName(), desc);
+                    } else
+                    {
+                        try (InputStream in = jar.getInputStream(pdf))
+                        {
+                            PluginDescription desc = yaml.loadAs(in, PluginDescription.class);
+                            desc.setFile(file);
+                            toLoad.put(desc.getName(), desc);
+                        }
                     }
                 } catch ( Exception ex )
                 {
