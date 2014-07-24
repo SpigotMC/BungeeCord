@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.chat;
 
+import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,8 @@ import java.util.List;
  * part's formatting
  * </p>
  */
- @Getter
+
+@Getter
 public class ComponentBuilder
 {
 
@@ -39,7 +41,7 @@ public class ComponentBuilder
      {
          current = new TextComponent( original.getCurrent() );
          for (BaseComponent baseComponent : original.getParts()) {
-             parts.add( ( baseComponent instanceof TextComponent ? new TextComponent( (TextComponent) baseComponent ) : new TranslatableComponent( (TranslatableComponent) baseComponent ) ) );
+             parts.add( baseComponent.duplicate() );
          }
      }
 
