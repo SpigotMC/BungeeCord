@@ -33,6 +33,19 @@ public class TranslatableComponent extends BaseComponent
     private List<BaseComponent> with;
 
     /**
+     * Creates a translatable component from the original to clone it.
+     * 
+     * @param original the original for the new translatable component.
+     */
+     public TranslatableComponent(TranslatableComponent original)
+     {
+         translate = original.getTranslate();
+         for (BaseComponent baseComponent : original.getWith()) {
+             with.add( ( baseComponent instanceof TextComponent ? new TextComponent( (TextComponent) baseComponent ) : new TranslatableComponent( (TranslatableComponent) baseComponent ) ) );
+         }
+     }
+
+    /**
      * Creates a translatable component with the passed substitutions
      *
      * @see #translate
