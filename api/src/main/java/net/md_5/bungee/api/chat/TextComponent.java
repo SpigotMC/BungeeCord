@@ -159,6 +159,17 @@ public class TextComponent extends BaseComponent
         setExtra( Arrays.asList( extras ) );
     }
 
+    /**
+     * Creates a duplicate of this TextComponent.
+     *
+     * @return the duplicate of this TextComponent.
+     */
+    @Override
+    public BaseComponent duplicate()
+    {
+        return new TextComponent( this );
+    }
+
     @Override
     protected void toPlainText(StringBuilder builder)
     {

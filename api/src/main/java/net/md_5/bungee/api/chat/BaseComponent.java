@@ -81,6 +81,13 @@ public abstract class BaseComponent
     }
 
     /**
+     * Clones the BaseComponent and returns the clone.
+     *
+     * @return The duplicate of this BaseComponent
+     */
+    public abstract BaseComponent duplicate();
+
+    /**
      * Converts the components to a string that uses the old formatting codes
      * ({@link net.md_5.bungee.api.ChatColor#COLOR_CHAR}
      *
