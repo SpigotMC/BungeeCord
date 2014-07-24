@@ -39,7 +39,7 @@ public class ComponentBuilder
      {
          current = new TextComponent( original.getCurrent() );
          for (BaseComponent baseComponent : original.getParts()) {
-             parts.add( new TextComponent( (TextComponent) baseComponent ) );
+             parts.add( ( baseComponent instanceof TextComponent ? new TextComponent( (TextComponent) baseComponent ) : new TranslatableComponent( (TranslatableComponent) baseComponent ) ) );
          }
      }
 
