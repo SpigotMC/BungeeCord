@@ -22,11 +22,26 @@ import java.util.List;
  * part's formatting
  * </p>
  */
+ @Getter
 public class ComponentBuilder
 {
 
     private TextComponent current;
     private final List<BaseComponent> parts = new ArrayList<>();
+    
+    
+    /**
+     * Creates a ComponentBuilder from the other given Componentbuilder to clone it.
+     * 
+     * @param original the original for the new ComponentBuilder. 
+     */
+     public ComponentBuilder(ComponentBuilder original)
+     {
+         current = new TextComponent( original.getCurrent() );
+         for (BaseComponent baseComponent : original.getParts()) {
+             parts.add( new TextComponent( (TextComponent) baseComponent ) );
+         }
+     }
 
     /**
      * Creates a ComponentBuilder with the given text as the first part.
