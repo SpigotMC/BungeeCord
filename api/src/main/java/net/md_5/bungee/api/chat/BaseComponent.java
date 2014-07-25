@@ -1,6 +1,10 @@
 package net.md_5.bungee.api.chat;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Getter;
+import lombok.ToString;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.ArrayList;
