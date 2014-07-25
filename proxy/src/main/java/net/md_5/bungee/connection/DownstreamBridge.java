@@ -4,7 +4,6 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import java.io.DataInput;
 import java.util.Objects;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
@@ -12,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.ServerDisconnectEvent;
+import net.md_5.bungee.api.event.TabCompleteResponseEvent;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
@@ -38,6 +38,7 @@ import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.SetCompression;
+import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.tab.TabList;
 
 @RequiredArgsConstructor
@@ -236,7 +237,8 @@ public class DownstreamBridge extends PacketHandler
                     DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand, brand );
                     pluginMessage.setData( brand.array().clone() );
                     brand.release();
-                } catch ( Exception ignored ) {
+                } catch ( Exception ignored )
+                {
                     // TODO: Remove this
                     // Older spigot protocol builds sent the brand incorrectly
                     return;
@@ -477,6 +479,19 @@ public class DownstreamBridge extends PacketHandler
     {
         con.setCompressionThreshold( setCompression.getThreshold() );
         server.getCh().setCompressionThreshold( setCompression.getThreshold() );
+    }
+
+    @Override
+    public void handle(TabCompleteResponse tabCompleteResponse) throws Exception
+    {
+        TabCompleteResponseEvent tabCompleteResponseEvent = new TabCompleteResponseEvent( con.getServer(), con, tabCompleteResponse.getCommands() );
+
+        if ( !bungee.getPluginManager().callEvent( tabCompleteResponseEvent ).isCancelled() )
+        {
+            con.unsafe().sendPacket( tabCompleteResponse );
+        }
+
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override
