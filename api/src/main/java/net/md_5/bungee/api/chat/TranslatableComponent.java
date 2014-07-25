@@ -3,14 +3,15 @@ package net.md_5.bungee.api.chat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import net.md_5.bungee.api.ChatColor;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import lombok.ToString;
 
 @Getter
 @Setter
@@ -31,6 +32,20 @@ public class TranslatableComponent extends BaseComponent
      * The components to substitute into the translation
      */
     private List<BaseComponent> with;
+
+    /**
+     * Creates a translatable component from the original to clone it.
+     * 
+     * @param original the original for the new translatable component.
+     */
+     public TranslatableComponent(TranslatableComponent original)
+     {
+         super( original );
+         setTranslate(original.getTranslate());
+         for (BaseComponent baseComponent : original.getWith()) {
+             with.add( baseComponent.duplicate() );
+         }
+     }
 
     /**
      * Creates a translatable component with the passed substitutions
@@ -57,6 +72,16 @@ public class TranslatableComponent extends BaseComponent
             }
         }
         setWith( temp );
+    }
+
+    /**
+     * Creates a duplicate of this TranslatableComponent.
+     *
+     * @return the duplicate of this TranslatableComponent.
+     */
+    @Override
+    public BaseComponent duplicate() {
+        return new TranslatableComponent( this );
     }
 
     /**

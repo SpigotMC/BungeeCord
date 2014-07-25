@@ -1,14 +1,14 @@
 package net.md_5.bungee.api.chat;
 
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.Getter;
+import lombok.ToString;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.ArrayList;
 import java.util.List;
-import lombok.ToString;
 
 @Setter
 @ToString
@@ -79,6 +79,13 @@ public abstract class BaseComponent
         setClickEvent( old.getClickEvent() );
         setHoverEvent( old.getHoverEvent() );
     }
+
+    /**
+     * Clones the BaseComponent and returns the clone.
+     *
+     * @return The duplicate of this BaseComponent
+     */
+    public abstract BaseComponent duplicate();
 
     /**
      * Converts the components to a string that uses the old formatting codes
