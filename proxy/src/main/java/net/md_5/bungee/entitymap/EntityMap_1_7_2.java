@@ -61,21 +61,21 @@ class EntityMap_1_7_2 extends EntityMap
         } else if ( packetId == 0x0E /* Spawn Object */ )
         {
             DefinedPacket.readVarInt( packet );
-            int idLength = packet.readerIndex() - readerIndex - packetIdLength;
-
-            int type = packet.getByte( packetIdLength + idLength );
+            int type = packet.readUnsignedByte();
 
             if ( type == 60 || type == 90 )
             {
-                int readId = packet.getInt( packetIdLength + idLength + 15 );
+                packet.skipBytes( 14 );
+                int position = packet.readerIndex();
+                int readId = packet.readInt();
                 int changedId = -1;
                 if ( readId == oldId )
                 {
-                    packet.setInt( packetIdLength + idLength + 15, newId );
+                    packet.setInt( position, newId );
                     changedId = newId;
                 } else if ( readId == newId )
                 {
-                    packet.setInt( packetIdLength + idLength + 15, oldId );
+                    packet.setInt( position, oldId );
                     changedId = oldId;
                 }
                 if ( changedId != -1 )
