@@ -231,6 +231,37 @@ public class DownstreamBridge extends PacketHandler
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             String subChannel = in.readUTF();
 
+            /**
+             * It works similary to the "Forward" subchanell,
+             * only difference is that the pluign message is sent to specific player, not server
+             * 
+             * Example:
+             * out.writeUTF("ForwardToPlayer");
+             * out.writeUTF("playerName");
+             * out.writeUTF("subchannel");
+             * out.writeShort(arrayOfData.length);
+             * out.write(arrayOfData);
+             */
+            if ( subChannel.equals( "ForwardToPlayer" ) ) {
+            	
+            	ProxiedPlayer target = bungee.getPlayer(in.readUTF());
+            	if ( target != null ) {
+            		
+            		String channel = in.readUTF();
+            		short len = in.readShort();
+            		byte[] data = new byte[len];
+            		in.readFully(data);
+            		
+            		out.writeUTF(channel);
+            		out.writeShort(data.length);
+            		out.write(data);
+            		byte[] payload = out.toByteArray();
+            		
+            		target.getServer().sendData("BungeeCord", payload);
+            	}
+            	
+            	out = null;
+            }
             if ( subChannel.equals( "Forward" ) )
             {
                 // Read data from server
