@@ -232,6 +232,29 @@ public class DownstreamBridge extends PacketHandler
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             String subChannel = in.readUTF();
 
+            if ( subChannel.equals( "ForwardToPlayer" ) )
+            {
+                ProxiedPlayer target = bungee.getPlayer( in.readUTF() );
+                if ( target != null )
+                {
+                    // Read data from server
+                    String channel = in.readUTF();
+                    short len = in.readShort();
+                    byte[] data = new byte[ len ];
+                    in.readFully( data );
+
+                    // Prepare new data to send
+                    out.writeUTF( channel );
+                    out.writeShort( data.length );
+                    out.write( data );
+                    byte[] payload = out.toByteArray();
+
+                    target.getServer().sendData( "BungeeCord", payload );
+                }
+
+                // Null out stream, important as we don't want to send to ourselves
+                out = null;
+            }
             if ( subChannel.equals( "Forward" ) )
             {
                 // Read data from server
