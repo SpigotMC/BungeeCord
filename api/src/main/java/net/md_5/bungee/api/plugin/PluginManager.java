@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -300,70 +299,6 @@ public class PluginManager
 
         pluginStatuses.put( plugin, status );
         return status;
-    }
-
-    public void disablePlugins()
-    {
-        Set<PluginDescription> enabledPlugins = new HashSet<>();
-        for ( Plugin plugin : getPlugins() )
-        {
-            enabledPlugins.add( plugin.getDescription() );
-        }
-
-        for ( Plugin plugin : getPlugins() )
-        {
-            this.disablePlugin( enabledPlugins, new Stack<PluginDescription>(), plugin.getDescription() );
-        }
-    }
-
-    private void disablePlugin(Set<PluginDescription> enabledPlugins, Stack<PluginDescription> dependStack, PluginDescription plugin)
-    {
-        if (!enabledPlugins.contains( plugin )) return;
-
-        for ( PluginDescription enabledPlugin : enabledPlugins.toArray( new PluginDescription[0] ) ) // to prevent a ConcurrentModificationException
-        {
-            Set<String> dependencies = new HashSet<>();
-            dependencies.addAll( enabledPlugin.getDepends() );
-            dependencies.addAll( enabledPlugin.getSoftDepends() );
-
-            if ( dependencies.contains( plugin.getName() ))
-            {
-                if ( dependStack.contains( enabledPlugin ) )
-                {
-                    StringBuilder dependencyGraph = new StringBuilder();
-                    for ( PluginDescription element : dependStack )
-                    {
-                        dependencyGraph.append( element.getName() ).append( " -> " );
-                    }
-                    dependencyGraph.append( plugin.getName() ).append( " -> " ).append( enabledPlugin.getName() );
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "Circular dependency detected: {0}", dependencyGraph );
-                } else
-                {
-                    dependStack.push( plugin );
-                    this.disablePlugin( enabledPlugins, dependStack, enabledPlugin );
-                    dependStack.pop();
-                }
-            }
-        }
-
-        // disable plugin
-        try
-        {
-            Plugin pluginClass = plugins.get( plugin.getName() );
-            pluginClass.onDisable();
-            for ( Handler handler : pluginClass.getLogger().getHandlers() )
-            {
-                handler.close();
-            }
-
-            proxy.getScheduler().cancel( pluginClass );
-            pluginClass.getExecutorService().shutdownNow();
-        } catch ( Throwable t )
-        {
-            proxy.getLogger().log( Level.SEVERE, "Exception disabling plugin " + plugin.getName(), t );
-        }
-
-        enabledPlugins.remove( plugin );
     }
 
     /**
