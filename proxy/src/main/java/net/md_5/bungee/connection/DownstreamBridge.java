@@ -258,6 +258,15 @@ public class DownstreamBridge extends PacketHandler
                             server.sendData( "BungeeCord", payload );
                         }
                     }
+                } else if ( target.equals( "ONLINE" ) )
+                {
+                    for ( ServerInfo server : bungee.getServers().values() )
+                    {
+                        if ( server != con.getServer().getInfo() )
+                        {
+                            server.sendData( "BungeeCord", payload, false );
+                        }
+                    }
                 } else
                 {
                     ServerInfo server = bungee.getServerInfo( target );

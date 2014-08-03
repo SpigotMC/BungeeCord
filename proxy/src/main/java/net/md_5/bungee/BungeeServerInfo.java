@@ -88,9 +88,15 @@ public class BungeeServerInfo implements ServerInfo
         return address.hashCode();
     }
 
-    // TODO: Don't like this method
     @Override
     public void sendData(String channel, byte[] data)
+    {
+        sendData( channel, data, true );
+    }
+
+    // TODO: Don't like this method
+    @Override
+    public boolean sendData(String channel, byte[] data, boolean queue)
     {
         Preconditions.checkNotNull( channel, "channel" );
         Preconditions.checkNotNull( data, "data" );
@@ -101,10 +107,12 @@ public class BungeeServerInfo implements ServerInfo
             if ( server != null )
             {
                 server.sendData( channel, data );
-            } else
+                return true;
+            } else if ( queue )
             {
                 packetQueue.add( new PluginMessage( channel, data ) );
             }
+            return false;
         }
     }
 
