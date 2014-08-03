@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.GsonBuilder;
 import net.md_5.bungee.api.Favicon;
@@ -32,6 +33,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -360,7 +362,7 @@ public class BungeeCord extends ProxyServer
 
                 // TODO: Fix this shit
                 getLogger().info( "Disabling plugins" );
-                for ( Plugin plugin : pluginManager.getPlugins() )
+                for ( Plugin plugin : Lists.reverse( new ArrayList<>( pluginManager.getPlugins() ) ) )
                 {
                     try
                     {
