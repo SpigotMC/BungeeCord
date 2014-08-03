@@ -360,22 +360,7 @@ public class BungeeCord extends ProxyServer
 
                 // TODO: Fix this shit
                 getLogger().info( "Disabling plugins" );
-                for ( Plugin plugin : pluginManager.getPlugins() )
-                {
-                    try
-                    {
-                        plugin.onDisable();
-                        for ( Handler handler : plugin.getLogger().getHandlers() )
-                        {
-                            handler.close();
-                        }
-                    } catch ( Throwable t )
-                    {
-                        getLogger().log( Level.SEVERE, "Exception disabling plugin " + plugin.getDescription().getName(), t );
-                    }
-                    getScheduler().cancel( plugin );
-                    plugin.getExecutorService().shutdownNow();
-                }
+                pluginManager.disablePlugins();
 
                 getLogger().info( "Thank you and goodbye" );
                 // Need to close loggers after last message!
