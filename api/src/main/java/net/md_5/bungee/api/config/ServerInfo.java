@@ -53,14 +53,12 @@ public interface ServerInfo
     boolean canAccess(CommandSender sender);
 
     /**
-     * Send data by any available means to this server.
+     * Send data by any available means to this server. This data may be queued
+     * and there is no guarantee of its timely arrival.
      *
      * @param channel the channel to send this data via
      * @param data the data to send
-     * @deprecated use #sendData(String, byte[], boolean). Deprecated to highlight queuing behaviour of this method.
-     * @see #sendData(String, byte[], boolean)
      */
-    @Deprecated
     void sendData(String channel, byte[] data);
 
     /**
@@ -68,12 +66,12 @@ public interface ServerInfo
      *
      * @param channel the channel to send this data via
      * @param data the data to send
-     * @param queueIfEmpty if set to <code>true</code> and this server is empty, the data will be queued until a player
-     *                     joins that server.
-     * @return <code>true</code> if the message was sent immediately, <code>false</code> otherwise (if queueIfEmpty is
-     * true, it has been queued, if it is false it has been discarded).
+     * @param realTime fail fast if the message cannot be sent immediately.
+     * @return <code>true</code> if the message was sent immediately,
+     * <code>false</code> otherwise (if realTime is true, it has been queued, if
+     * it is false it has been discarded).
      */
-    boolean sendData(String channel, byte[] data, boolean queueIfEmpty);
+    boolean sendData(String channel, byte[] data, boolean realTime);
 
     /**
      * Asynchronously gets the current player count on this server.
