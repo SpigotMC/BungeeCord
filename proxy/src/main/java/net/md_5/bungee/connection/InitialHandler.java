@@ -28,6 +28,7 @@ import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.LoginCancelEvent;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
@@ -461,6 +462,19 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             reason
         } );
+    }
+
+    @Override
+    public void disconnected(ChannelWrapper channel)
+    {
+        switch ( thisState )
+        {
+            // do not fire for status and handshake because that's included in status
+            // do not fire for finish because PlayerDisconnectEvent should be called when that state is reached
+            case USERNAME:
+            case ENCRYPT:
+                bungee.getPluginManager().callEvent( new LoginCancelEvent( this ) );
+        }
     }
 
     @Override
