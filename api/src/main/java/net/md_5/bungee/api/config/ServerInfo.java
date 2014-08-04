@@ -66,12 +66,13 @@ public interface ServerInfo
      *
      * @param channel the channel to send this data via
      * @param data the data to send
-     * @param realTime fail fast if the message cannot be sent immediately.
+     * @param queue hold the message for later sending if it cannot be sent
+     * immediately.
      * @return <code>true</code> if the message was sent immediately,
-     * <code>false</code> otherwise (if realTime is true, it has been queued, if
-     * it is false it has been discarded).
+     * <code>false</code> otherwise if queue is true, it has been queued, if it
+     * is false it has been discarded.
      */
-    boolean sendData(String channel, byte[] data, boolean realTime);
+    boolean sendData(String channel, byte[] data, boolean queue);
 
     /**
      * Asynchronously gets the current player count on this server.
