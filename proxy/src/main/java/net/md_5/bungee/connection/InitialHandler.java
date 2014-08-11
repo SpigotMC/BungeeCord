@@ -93,6 +93,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Getter
     private LoginResult loginProfile;
 
+    private int pingCount = 0;
+
     private enum State
     {
 
@@ -171,6 +173,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 BungeeCord.getInstance().getConnectionThrottle().unthrottle( getAddress().getAddress() );
                 Gson gson = handshake.getProtocolVersion() == ProtocolConstants.MINECRAFT_1_7_2 ? BungeeCord.getInstance().gsonLegacy : BungeeCord.getInstance().gson;
                 unsafe.sendPacket( new StatusResponse( gson.toJson( result ) ) );
+
+                pingThrottle();
             }
         };
 
@@ -193,6 +197,20 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.STATUS, "Not expecting STATUS" );
         unsafe.sendPacket( ping );
+        pingThrottle();
+    }
+
+    private void pingThrottle()
+    {
+        int pingLimit = BungeeCord.getInstance().getConfig().getPingThrottle();
+        if ( pingLimit != -1 )
+        {
+            pingCount++;
+            if ( pingCount >= pingLimit )
+            {
+                ch.close();
+            }
+        }
     }
 
     @Override

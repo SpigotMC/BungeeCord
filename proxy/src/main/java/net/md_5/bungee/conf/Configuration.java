@@ -52,6 +52,7 @@ public class Configuration implements ProxyConfig
     private int throttle = 4000;
     private boolean ipFoward;
     private Favicon favicon;
+    private int pingThrottle = 5;
 
     public void load()
     {
@@ -77,6 +78,7 @@ public class Configuration implements ProxyConfig
         playerLimit = adapter.getInt( "player_limit", playerLimit );
         throttle = adapter.getInt( "connection_throttle", throttle );
         ipFoward = adapter.getBoolean( "ip_forward", ipFoward );
+        pingThrottle = adapter.getInt( "ping_throttle", pingThrottle );
 
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
 
