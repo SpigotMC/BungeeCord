@@ -25,5 +25,5 @@ public class ServerDisconnectEvent extends Event
      * Server the player is disconnecting from.
      */
     @NonNull
-    private ServerInfo target;
+    private final ServerInfo target;
 }
