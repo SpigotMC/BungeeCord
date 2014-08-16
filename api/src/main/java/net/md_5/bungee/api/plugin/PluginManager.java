@@ -31,6 +31,8 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.event.EventBus;
 import net.md_5.bungee.event.EventHandler;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.introspector.PropertyUtils;
 
 /**
  * Class to manage bridging between plugin duties and implementation duties, for
@@ -44,7 +46,7 @@ public class PluginManager
     /*========================================================================*/
     private final ProxyServer proxy;
     /*========================================================================*/
-    private final Yaml yaml = new Yaml();
+    private final Yaml yaml;
     private final EventBus eventBus;
     private final Map<String, Plugin> plugins = new LinkedHashMap<>();
     private final Map<String, Command> commandMap = new HashMap<>();
@@ -56,6 +58,14 @@ public class PluginManager
     public PluginManager(ProxyServer proxy)
     {
         this.proxy = proxy;
+
+        // Ignore unknown entries in the plugin descriptions
+        Constructor yamlConstructor = new Constructor();
+        PropertyUtils propertyUtils = yamlConstructor.getPropertyUtils();
+        propertyUtils.setSkipMissingProperties( true );
+        yamlConstructor.setPropertyUtils( propertyUtils );
+        yaml = new Yaml( yamlConstructor );
+
         eventBus = new EventBus( proxy.getLogger() );
     }
 
