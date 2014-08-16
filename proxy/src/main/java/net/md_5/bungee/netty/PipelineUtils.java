@@ -7,6 +7,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
+import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollDatagramChannel;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
@@ -80,24 +81,16 @@ public class PipelineUtils
 
     static
     {
-        if ( !PlatformDependent.isWindows() && Boolean.parseBoolean( System.getProperty( "bungee.epoll", "false" ) ) )
+        if ( !PlatformDependent.isWindows() && Boolean.parseBoolean( System.getProperty( "bungee.epoll", "true" ) ) )
         {
             ProxyServer.getInstance().getLogger().info( "Not on Windows, attempting to use enhanced EpollEventLoop" );
-            EpollEventLoopGroup testGroup = null;
-            try
+
+            if ( epoll = Epoll.isAvailable() )
             {
-                testGroup = new EpollEventLoopGroup( 1 );
-                epoll = true;
                 ProxyServer.getInstance().getLogger().info( "Epoll is working, utilising it!" );
-            } catch ( Throwable t )
+            } else
             {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Event though Epoll should be supported, it is not working, falling back to NIO: {0}", Util.exception( t ) );
-            } finally
-            {
-                if ( testGroup != null )
-                {
-                    testGroup.shutdownGracefully();
-                }
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Epoll is not working, falling back to NIO: {0}", Util.exception( Epoll.unavailabilityCause() ) );
             }
         }
     }
