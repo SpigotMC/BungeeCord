@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import lombok.Getter;
 import lombok.NonNull;
@@ -291,16 +292,31 @@ public final class UserConnection implements ProxiedPlayer
         disconnect0( reason );
     }
 
-    public synchronized void disconnect0(BaseComponent... reason)
+    public void disconnect0(final BaseComponent... reason)
     {
-        if ( ch.getHandle().isActive() )
+        if ( !ch.isClosed() )
         {
             bungee.getLogger().log( Level.INFO, "[{0}] disconnected with: {1}", new Object[]
             {
                 getName(), BaseComponent.toLegacyText( reason )
             } );
-            unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
-            ch.close();
+
+            // Why do we have to delay this you might ask? Well the simple reason is MOJANG.
+            // Despite many a bug report posted, ever since the 1.7 protocol rewrite, the client STILL has a race condition upon switching protocols.
+            // As such, despite the protocol switch packets already having been sent, there is the possibility of a client side exception
+            // To help combat this we will wait half a second before actually sending the disconnected packet so that whoever is on the other
+            // end has a somewhat better chance of receiving the proper packet.
+            ch.getHandle().eventLoop().schedule( new Runnable()
+            {
+
+                @Override
+                public void run()
+                {
+                    unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
+                    ch.close();
+                }
+            }, 500, TimeUnit.MILLISECONDS );
+
             if ( server != null )
             {
                 server.disconnect( "Quitting" );
