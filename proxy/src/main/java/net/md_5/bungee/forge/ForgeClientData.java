@@ -88,9 +88,6 @@ public class ForgeClientData implements IForgeClientData
             con.unsafe().sendPacket(new LoginSuccess(con.getUUID(), con.getName())); // Without dashes, for older clients.
         }
 
-        // Unregister the FML|HS channel, ready to be re-registered.
-        con.unsafe().sendPacket( ForgeConstants.FML_UNREGISTER );
-
         // Now start the handshake again
         startHandshake();
     }

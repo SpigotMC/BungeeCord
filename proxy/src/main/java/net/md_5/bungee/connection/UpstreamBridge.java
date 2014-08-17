@@ -19,6 +19,7 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import java.util.ArrayList;
 import java.util.List;
+import net.md_5.bungee.forge.ForgeClientData;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
@@ -37,6 +38,12 @@ public class UpstreamBridge extends PacketHandler
         BungeeCord.getInstance().addConnection( con );
         con.getTabListHandler().onConnect();
         con.unsafe().sendPacket( BungeeCord.getInstance().registerChannels() );
+        
+        if (bungee.getConfig().isForgeSupported()) {
+            // Create the Forge handshake handler, and fire it. Ignored by vanilla clients.
+            con.setForgeClientData(new ForgeClientData( con ));
+            con.getForgeClientData().startHandshake();
+        }
     }
 
     @Override

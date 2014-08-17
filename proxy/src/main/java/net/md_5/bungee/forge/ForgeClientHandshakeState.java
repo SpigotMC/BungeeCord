@@ -28,7 +28,6 @@ enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientH
         @Override
         public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
         {
-            con.unsafe().sendPacket( ForgeConstants.FML_REGISTER );
             con.unsafe().sendPacket( ForgeConstants.FML_START_CLIENT_HANDSHAKE );
             return HELLO;
         }

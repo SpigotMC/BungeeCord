@@ -50,7 +50,6 @@ public enum ForgeServerHandshakeState implements IForgeServerPacketHandler<Forge
         public ForgeServerHandshakeState send(PluginMessage message, UserConnection con, ChannelWrapper ch)
         {
             // Send custom channel registration. Send Hello. Send Server Mod List.
-            ch.write( ForgeConstants.FML_REGISTER );
             ch.write( ForgeConstants.FML_START_SERVER_HANDSHAKE );
             ch.write( message );
 
