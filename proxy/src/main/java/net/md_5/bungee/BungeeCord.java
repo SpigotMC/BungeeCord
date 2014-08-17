@@ -68,6 +68,7 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.command.*;
 import net.md_5.bungee.conf.YamlConfig;
+import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.log.LoggingOutputStream;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.DefinedPacket;
@@ -227,6 +228,14 @@ public class BungeeCord extends ProxyServer
 
         pluginManager.loadPlugins();
         config.load();
+
+        if (config.isForgeSupported()) 
+        {
+            // If we enable forge support, we need to register the FML FML|HS tag.
+            registerChannel( ForgeConstants.FORGE_TAG );
+            registerChannel( ForgeConstants.FORGE_HANDSHAKE_TAG );
+            logger.info( "Forge support has been enabled." );
+        }
 
         isRunning = true;
 
