@@ -5,7 +5,7 @@ import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
 /**
- * Handshake sequence manager for the Forge Client. Modelled after the Forge implementation.
+ * Handshake sequence manager for the Bungee - Forge Client (Upstream) link. Modelled after the Forge implementation.
  * See https://github.com/MinecraftForge/FML/blob/master/src/main/java/cpw/mods/fml/common/network/handshake/FMLHandshakeServerState.java
  */
 enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientHandshakeState>

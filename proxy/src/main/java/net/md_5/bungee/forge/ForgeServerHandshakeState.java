@@ -4,6 +4,9 @@ import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
+/**
+ * Handshake sequence manager for the Bungee - Forge Server (Downstream/Server Connector) link. Modelled after the Forge implementation.
+ */
 public enum ForgeServerHandshakeState implements IForgeServerPacketHandler<ForgeServerHandshakeState> {
     /**
      * Start the handshake. 
