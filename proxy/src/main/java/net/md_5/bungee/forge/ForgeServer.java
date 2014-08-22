@@ -75,7 +75,7 @@ public class ForgeServer extends AbstractPacketHandler implements IForgeServer {
         final Timer timer = new Timer();
 
         // Setup the success callback
-        con.getForgeClientData().setDelayedPacketSender( new IForgePacketSender() {
+        con.getForgeClientData().setDelayedPacketSender( new IForgePluginMessageSender() {
             @Override
             public void send(PluginMessage message) {
                 timer.cancel();

@@ -4,8 +4,11 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import net.md_5.bungee.ServerConnector;
 import net.md_5.bungee.UserConnection;
+import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
@@ -20,7 +23,11 @@ public class ForgeClientData implements IForgeClientData
     
     @NonNull
     private ForgeClientHandshakeState state = ForgeClientHandshakeState.START;
-    
+
+    private Login loginPacket;
+
+    private ServerConnector serverConnector;
+
     /**
      * The users' mod list.
      */
@@ -32,7 +39,7 @@ public class ForgeClientData implements IForgeClientData
      * the client has returned a mod list.
      */
     @Setter
-    private IForgePacketSender delayedPacketSender = null;
+    private IForgePluginMessageSender delayedPacketSender = null;
     
     private PluginMessage serverModList = null;
     private PluginMessage serverIdList = null;
@@ -59,6 +66,13 @@ public class ForgeClientData implements IForgeClientData
 
             // Null the server mod list now, we don't need to keep it in memory.
             serverIdList = null;
+        } else if (state == ForgeClientHandshakeState.DONE && loginPacket != null && serverConnector != null) {
+            // Fire login packet handler now!
+            try {
+                serverConnector.handle( loginPacket );
+            } catch (Exception e) {
+                // Swallow it, we're outside of the Netty workflow.
+            }
         }
     }
 
@@ -171,5 +185,54 @@ public class ForgeClientData implements IForgeClientData
         
         // TODO: Minecraft version.
         setServerIdList(ForgeConstants.FML_DEFAULT_IDS_17);
+    }
+
+    @Override
+    public void loginPacketInterception(Login login, ServerConnector sc, boolean firstServer) throws Exception {
+
+        // If we have a stored login packet, use that as an indicator as we don't need
+        // to intercept again.
+        if (loginPacket != null) {
+            loginPacket = null;
+            serverConnector = null;
+            return;
+        }
+
+        loginPacket = login;
+        serverConnector = sc;
+
+        if (firstServer) {
+            onFirstServer();
+        } else {
+            onServerSwitch();
+        }
+        
+        // If we get here, there is no need for a callback, so re-null the variables we set.
+        loginPacket = null;
+        serverConnector = null;
+    }
+    
+    private void onFirstServer() throws Exception {
+        // Set the mod and ID list data for the forge handshake. If we are
+        // logging onto a Vanilla server, we can't assume that the user isn't Forge,
+        // and that the handshake will have completed by now, so set it for everyone.
+        //
+        // If the user is forge, then we have to do the handshake much earlier, hence the final flag.
+        // See the plugin message handler.
+        setVanilla();
+        throw CancelSendSignal.INSTANCE;
+    }
+    
+    private void onServerSwitch() {
+        if (isHandshakeComplete()) {
+            // If we already have a completed handshake, we need to reset the handshake now (if we can). We then set the
+            // vanilla forge data. This should be handled automatically by the handshake handler.
+            resetHandshake();
+        }
+
+        // Set the mod and ID list data for the handshake. By this point, we know that the user is a Forge user,
+        // so we just set it for them in these cases.
+        setVanilla();
+        throw CancelSendSignal.INSTANCE;
     }
 }
