@@ -44,6 +44,13 @@ public interface ServerInfo
     String getMotd();
 
     /**
+     * Returns whether the server has been marked as a Forge server in the config files.
+     * 
+     * @return <code>true</code> if so.
+     */
+    boolean isModded();
+
+    /**
      * Whether the player can access this server. It will only return false when
      * the player has no permission and this server is restricted.
      *

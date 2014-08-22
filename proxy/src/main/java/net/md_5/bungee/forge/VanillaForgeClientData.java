@@ -1,7 +1,7 @@
 package net.md_5.bungee.forge;
 
 import net.md_5.bungee.ServerConnector;
-import net.md_5.bungee.protocol.packet.Login;
+import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
 /**
@@ -76,7 +76,7 @@ public class VanillaForgeClientData implements IForgeClientData {
     }
 
     @Override
-    public void loginPacketInterception(Login login, ServerConnector sc, boolean firstServer) throws Exception
+    public void loginSuccessPacketInterception(LoginSuccess login, ServerConnector sc) throws Exception
     {
     }
 }
