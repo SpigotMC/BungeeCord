@@ -44,13 +44,11 @@ import net.md_5.bungee.protocol.packet.SetCompression;
 @RequiredArgsConstructor
 public class ServerConnector extends PacketHandler
 {
-
     private final ProxyServer bungee;
     private ChannelWrapper ch;
     private final UserConnection user;
     private final BungeeServerInfo target;
     private State thisState = State.LOGIN_SUCCESS;
-    
     private IForgeServer handshakeHandler = VanillaForgeServer.vanilla;
 
     private enum State
@@ -129,6 +127,14 @@ public class ServerConnector extends PacketHandler
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
+        if (!handshakeHandler.isServerForge()) {
+            // If we have to wait for a handshake to complete, this will throw the 
+            // CancelSendState exception. We will then invoke this method later.
+            //
+            // If forge isn't enabled, this is just an empty method.
+            user.getForgeClientData().loginPacketInterception( login, this, user.getServer() == null );
+        }
+
         ServerConnection server = new ServerConnection( ch, target );
         ServerConnectedEvent event = new ServerConnectedEvent( user, server );
         bungee.getPluginManager().callEvent( event );
@@ -155,16 +161,6 @@ public class ServerConnector extends PacketHandler
 
         if ( user.getServer() == null )
         {
-            if (bungee.getConfig().isForgeSupported() && !handshakeHandler.isServerForge() && !user.getForgeClientData().isHandshakeComplete()) {
-                // Set the mod and ID list data for the forge handshake. If we are
-                // logging onto a Vanilla server, we can't assume that the user isn't Forge,
-                // and that the handshake will have completed by now, so set it for everyone.
-                //
-                // If the user is forge, then we have to do the handshake much earlier, hence the final flag.
-                // See the plugin message handler.
-                user.getForgeClientData().setVanilla();
-            }
-                    
             // Once again, first connection
             user.setClientEntityId( login.getEntityId() );
             user.setServerEntityId( login.getEntityId() );
@@ -189,16 +185,6 @@ public class ServerConnector extends PacketHandler
             }
         } else
         {
-            if (bungee.getConfig().isForgeSupported() && user.getForgeClientData().isHandshakeComplete()) {
-                // If we already have a completed handshake, we need to reset the handshake now (if we can). We then set the
-                // vanilla forge data. This should be handled automatically by the handshake handler.
-                user.getForgeClientData().resetHandshake();
-                
-                // Set the mod and ID list data for the handshake. By this point, we know that the user is a Forge user,
-                // so we just set it for them in these cases.
-                user.getForgeClientData().setVanilla();
-            }
-
             user.getTabListHandler().onServerChange();
 
             Scoreboard serverScoreboard = user.getServerSentScoreboard();
