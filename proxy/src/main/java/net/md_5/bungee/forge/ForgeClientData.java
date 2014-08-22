@@ -8,7 +8,6 @@ import net.md_5.bungee.ServerConnector;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
@@ -24,7 +23,7 @@ public class ForgeClientData implements IForgeClientData
     @NonNull
     private ForgeClientHandshakeState state = ForgeClientHandshakeState.START;
 
-    private Login loginPacket;
+    private LoginSuccess loginPacket;
 
     private ServerConnector serverConnector;
 
@@ -177,10 +176,20 @@ public class ForgeClientData implements IForgeClientData
     }
 
     /**
-     * Sets the client to the vanilla experience!
+     * Sets the client to the vanilla experience. If the user has a completed handshake, reset it.
      */
     @Override
     public void setVanilla() {
+        if (isHandshakeComplete()) {
+            // TODO: When we get to resend the handshake - then we reset it. For now, though, we have
+            // to ignore the request here and just return. Remove this line when we can.
+            return;
+            
+            // If we already have a completed handshake, we need to reset the handshake now (if we can). We then set the
+            // vanilla forge data. This should be handled automatically by the handshake handler.
+            // resetHandshake();
+        }
+
         setServerModList(ForgeConstants.FML_EMPTY_MOD_LIST);
         
         // TODO: Minecraft version.
@@ -188,52 +197,9 @@ public class ForgeClientData implements IForgeClientData
     }
 
     @Override
-    public void loginPacketInterception(Login login, ServerConnector sc, boolean firstServer) throws Exception {
-
-        // If we have a stored login packet, use that as an indicator as we don't need
-        // to intercept again.
-        if (loginPacket != null) {
-            loginPacket = null;
-            serverConnector = null;
-            return;
-        }
-
+    public void loginSuccessPacketInterception(LoginSuccess login, ServerConnector sc) throws Exception {
         loginPacket = login;
         serverConnector = sc;
-
-        if (firstServer) {
-            onFirstServer();
-        } else {
-            // TODO: Uncomment when we can resend handshakes.
-            // onServerSwitch();
-        }
-        
-        // If we get here, there is no need for a callback, so re-null the variables we set.
-        loginPacket = null;
-        serverConnector = null;
-    }
-    
-    private void onFirstServer() throws Exception {
-        // Set the mod and ID list data for the forge handshake. If we are
-        // logging onto a Vanilla server, we can't assume that the user isn't Forge,
-        // and that the handshake will have completed by now, so set it for everyone.
-        //
-        // If the user is forge, then we have to do the handshake much earlier, hence the final flag.
-        // See the plugin message handler.
-        setVanilla();
-        throw CancelSendSignal.INSTANCE;
-    }
-    
-    private void onServerSwitch() {
-        if (isHandshakeComplete()) {
-            // If we already have a completed handshake, we need to reset the handshake now (if we can). We then set the
-            // vanilla forge data. This should be handled automatically by the handshake handler.
-            resetHandshake();
-        }
-
-        // Set the mod and ID list data for the handshake. By this point, we know that the user is a Forge user,
-        // so we just set it for them in these cases.
-        setVanilla();
         throw CancelSendSignal.INSTANCE;
     }
 }

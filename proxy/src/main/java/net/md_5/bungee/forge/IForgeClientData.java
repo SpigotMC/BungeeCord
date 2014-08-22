@@ -1,7 +1,7 @@
 package net.md_5.bungee.forge;
 
 import net.md_5.bungee.ServerConnector;
-import net.md_5.bungee.protocol.packet.Login;
+import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
 public interface IForgeClientData {
@@ -63,8 +63,7 @@ public interface IForgeClientData {
      * 
      * @param login The packet to resend later.
      * @param sc The {@link ServerConnector} to call when the server is ready.
-     * @param firstServer Whether this is the first server the user is connecting to in the session.
      * @throws Exception If the interceptor needs to do work before the method can continue.
      */
-    void loginPacketInterception(Login login, ServerConnector sc, boolean firstServer) throws Exception;
+    void loginSuccessPacketInterception(LoginSuccess login, ServerConnector sc) throws Exception;
 }

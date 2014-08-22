@@ -73,10 +73,18 @@ public class ServerConnector extends PacketHandler
     public void connected(ChannelWrapper channel) throws Exception
     {
         this.ch = channel;
-
+        
+        // TODO: Consider using a Protocol.STATUS to get whether the server is forge, rather
+        // than do this.
         if (bungee.getConfig().isForgeSupported()) {
-            // Enable the forge handshake handler
-            this.handshakeHandler = new ForgeServer(user, ch, target, bungee);
+            // If the server is marked as modded, enable the packet handler.
+            if (target.isModded()) {
+                // Enable the forge handshake handler
+                this.handshakeHandler = new ForgeServer(user, ch, target, bungee);
+            } else {
+                // Get the user to complete the handshake now.
+                user.getForgeClientData().setVanilla();
+            }
         }
 
         Handshake originalHandshake = user.getPendingConnection().getHandshake();
@@ -109,6 +117,17 @@ public class ServerConnector extends PacketHandler
     public void handle(LoginSuccess loginSuccess) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not expecting LOGIN_SUCCESS" );
+
+        /*
+        if (user.getForgeClientData().isHandshakeComplete()) {
+            // If we have to wait for a handshake to complete, this will throw the 
+            // CancelSendState exception. We will then invoke this method later.
+            //
+            // If forge isn't enabled, this is just an empty method.
+            user.getForgeClientData().loginSuccessPacketInterception( loginSuccess, this );
+        }
+                */
+
         ch.setProtocol( Protocol.GAME );
         thisState = State.LOGIN;
 
@@ -126,14 +145,6 @@ public class ServerConnector extends PacketHandler
     public void handle(Login login) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
-
-        if (!handshakeHandler.isServerForge()) {
-            // If we have to wait for a handshake to complete, this will throw the 
-            // CancelSendState exception. We will then invoke this method later.
-            //
-            // If forge isn't enabled, this is just an empty method.
-            user.getForgeClientData().loginPacketInterception( login, this, user.getServer() == null );
-        }
 
         ServerConnection server = new ServerConnection( ch, target );
         ServerConnectedEvent event = new ServerConnectedEvent( user, server );
