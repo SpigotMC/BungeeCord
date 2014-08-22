@@ -204,7 +204,8 @@ public class ForgeClientData implements IForgeClientData
         if (firstServer) {
             onFirstServer();
         } else {
-            onServerSwitch();
+            // TODO: Uncomment when we can resend handshakes.
+            // onServerSwitch();
         }
         
         // If we get here, there is no need for a callback, so re-null the variables we set.
