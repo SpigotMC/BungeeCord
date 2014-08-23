@@ -66,6 +66,16 @@ public class DownstreamBridge extends PacketHandler
     {
         // We lost connection to the server
         server.getInfo().removePlayer( con );
+
+        ServerDisconnectEvent serverDisconnectEvent = new ServerDisconnectEvent( con, server.getInfo() );
+        bungee.getPluginManager().callEvent( serverDisconnectEvent );
+
+        if ( serverDisconnectEvent.getFallbackServer() != null && serverDisconnectEvent.isCancelled() )
+        {
+            con.connectNow( serverDisconnectEvent.getFallbackServer() );
+            return;
+        }
+
         if ( bungee.getReconnectHandler() != null )
         {
             bungee.getReconnectHandler().setServer( con );
@@ -75,9 +85,6 @@ public class DownstreamBridge extends PacketHandler
         {
             con.disconnect( bungee.getTranslation( "lost_connection" ) );
         }
-
-        ServerDisconnectEvent serverDisconnectEvent = new ServerDisconnectEvent( con, server.getInfo() );
-        bungee.getPluginManager().callEvent( serverDisconnectEvent );
     }
 
     @Override
