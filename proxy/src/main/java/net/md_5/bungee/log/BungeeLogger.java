@@ -2,6 +2,7 @@ package net.md_5.bungee.log;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
+import java.io.File;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
@@ -27,7 +28,7 @@ public class BungeeLogger extends Logger
 
         try
         {
-            FileHandler fileHandler = new FileHandler( "proxy.log", 1 << 24, 8, true );
+            FileHandler fileHandler = new FileHandler( "logs" + File.separator + "proxy.log", 1 << 24, 16, true );
             fileHandler.setFormatter( formatter );
             addHandler( fileHandler );
 
