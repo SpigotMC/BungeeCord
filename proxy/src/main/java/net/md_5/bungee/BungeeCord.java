@@ -181,7 +181,9 @@ public class BungeeCord extends ProxyServer
         AnsiConsole.systemInstall();
         consoleReader = new ConsoleReader();
         consoleReader.setExpandEvents( false );
-
+        
+        File logsDirectory = new File( "logs" );
+        logsDirectory.mkdir();
         logger = new BungeeLogger( this );
         System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
         System.setOut( new PrintStream( new LoggingOutputStream( logger, Level.INFO ), true ) );
