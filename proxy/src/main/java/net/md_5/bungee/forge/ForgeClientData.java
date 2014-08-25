@@ -1,5 +1,7 @@
 package net.md_5.bungee.forge;
 
+import net.md_5.bungee.forge.delegates.IForgePluginMessageSender;
+import net.md_5.bungee.forge.delegates.IVoidAction;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +47,7 @@ public class ForgeClientData implements IForgeClientData
      * the client has transitioned to the DONE state.
      */
     @Setter
-    private IForgePluginMessageSender serverHandshakeCompletion = null;
+    private IVoidAction serverHandshakeCompletion = null;
     
     private PluginMessage serverModList = null;
     private PluginMessage serverIdList = null;
@@ -75,7 +77,7 @@ public class ForgeClientData implements IForgeClientData
         } else if (state == ForgeClientHandshakeState.DONE) {
             if ( serverHandshakeCompletion != null ) {
                 // Send a null, we hard code the ack into the method.
-                serverHandshakeCompletion.send( null );
+                serverHandshakeCompletion.action();
 
                 // ...and now, like everything else, null it as we don't need it any more!
                 serverHandshakeCompletion = null;
