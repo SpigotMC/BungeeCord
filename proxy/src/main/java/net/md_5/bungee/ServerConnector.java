@@ -75,7 +75,8 @@ public class ServerConnector extends PacketHandler
         if (bungee.getConfig().isForgeSupported()) {
             // If the server is marked as modded, enable the packet handler.
             if (target.isModded()) {
-                // Enable the forge handshake handler
+                // Enable the forge handshake handler. Modded servers should act on this automatically,
+                // they are the ones to initiate the modded connection.
                 this.handshakeHandler = new ForgeServer(user, ch, target, bungee);
             }
         }

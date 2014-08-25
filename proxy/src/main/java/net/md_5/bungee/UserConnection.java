@@ -252,12 +252,12 @@ public final class UserConnection implements ProxiedPlayer
                 });
 
                 forgeClientData.setVanilla();
+                return;
             }
         } 
-        else 
-        {
-            connect(target, callback, retry);
-        }
+
+        connect(target, callback, retry);
+
     }
 
     /**
