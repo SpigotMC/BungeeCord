@@ -36,6 +36,8 @@ import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.entitymap.EntityMap;
 import net.md_5.bungee.forge.ForgeClientData;
 import net.md_5.bungee.forge.IForgeClientData;
+import net.md_5.bungee.forge.delegates.IForgePluginMessageSender;
+import net.md_5.bungee.forge.delegates.IVoidAction;
 import net.md_5.bungee.forge.VanillaForgeClientData;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
@@ -231,7 +233,45 @@ public final class UserConnection implements ProxiedPlayer
         }
 
         pendingConnects.add( target );
+        
+        // We're connecting, so we need to start considering the Forge client.
+        // If this is the first connect, start the handshake NOW. If the target is
+        // not a modded server, complete handshake here too.
+        if (bungee.getConfig().isForgeSupported() && getServer() == null) 
+        {
+            forgeClientData.startHandshake();
+            if (!target.isModded()) 
+            {
+                forgeClientData.setServerHandshakeCompletion( new IVoidAction() 
+                {
+                    /**
+                     * Continue the connection once the vanilla handshake has completed.
+                     */
+                    @Override
+                    public void action()
+                    {
+                        UserConnection.this.connect( target, callback, retry );
+                    }
+                });
 
+                forgeClientData.setVanilla();
+            }
+        } 
+        else 
+        {
+            connect(target, callback, retry);
+        }
+    }
+
+    /**
+     * Continues connecting to the target server.
+     * 
+     * @param target The {@link BungeeServerInfo} to connect to.
+     * @param callback The callback to execute upon completion, if any.
+     * @param retry Whether to connect to the fallback server if the selected server is unavailable.
+     */
+    private void connect(final BungeeServerInfo target, final Callback<Boolean> callback, final boolean retry)
+    {
         ChannelInitializer initializer = new ChannelInitializer()
         {
             @Override

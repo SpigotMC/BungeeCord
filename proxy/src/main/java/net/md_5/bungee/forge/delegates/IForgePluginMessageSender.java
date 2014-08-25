@@ -1,4 +1,4 @@
-package net.md_5.bungee.forge;
+package net.md_5.bungee.forge.delegates;
 
 import net.md_5.bungee.protocol.packet.PluginMessage;
 

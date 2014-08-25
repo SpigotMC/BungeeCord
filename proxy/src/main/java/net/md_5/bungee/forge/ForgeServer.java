@@ -1,5 +1,7 @@
 package net.md_5.bungee.forge;
 
+import net.md_5.bungee.forge.delegates.IForgePluginMessageSender;
+import net.md_5.bungee.forge.delegates.IVoidAction;
 import java.util.Timer;
 import java.util.TimerTask;
 import lombok.AccessLevel;
@@ -54,9 +56,9 @@ public class ForgeServer extends AbstractPacketHandler implements IForgeServer {
                 // fire later. We need to wait for the client to complete it's handshake,
                 // once it's done, we can continue the server handshake, and then move ahead to
                 // logging everyone back in.
-                con.getForgeClientData().setServerHandshakeCompletion( new IForgePluginMessageSender() {
+                con.getForgeClientData().setServerHandshakeCompletion( new IVoidAction() {
                     @Override
-                    public void send(PluginMessage message)
+                    public void action()
                     {
                         ch.write( ForgeConstants.FML_ACK );
                     }

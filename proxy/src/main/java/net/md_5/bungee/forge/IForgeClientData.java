@@ -1,5 +1,7 @@
 package net.md_5.bungee.forge;
 
+import net.md_5.bungee.forge.delegates.IForgePluginMessageSender;
+import net.md_5.bungee.forge.delegates.IVoidAction;
 import net.md_5.bungee.ServerConnector;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PluginMessage;
@@ -35,7 +37,7 @@ public interface IForgeClientData {
 
     void setDelayedPacketSender(IForgePluginMessageSender sender);
 
-    void setServerHandshakeCompletion(IForgePluginMessageSender sender);
+    void setServerHandshakeCompletion(IVoidAction sender);
 
     void setVanilla();
 

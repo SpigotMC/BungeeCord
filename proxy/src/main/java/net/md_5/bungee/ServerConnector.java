@@ -81,9 +81,6 @@ public class ServerConnector extends PacketHandler
             if (target.isModded()) {
                 // Enable the forge handshake handler
                 this.handshakeHandler = new ForgeServer(user, ch, target, bungee);
-            } else {
-                // Get the user to complete the handshake now.
-                user.getForgeClientData().setVanilla();
             }
         }
 
@@ -117,17 +114,6 @@ public class ServerConnector extends PacketHandler
     public void handle(LoginSuccess loginSuccess) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not expecting LOGIN_SUCCESS" );
-
-        /*
-        if (user.getForgeClientData().isHandshakeComplete()) {
-            // If we have to wait for a handshake to complete, this will throw the 
-            // CancelSendState exception. We will then invoke this method later.
-            //
-            // If forge isn't enabled, this is just an empty method.
-            user.getForgeClientData().loginSuccessPacketInterception( loginSuccess, this );
-        }
-                */
-
         ch.setProtocol( Protocol.GAME );
         thisState = State.LOGIN;
 
