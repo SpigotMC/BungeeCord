@@ -97,8 +97,9 @@ public enum ForgeServerHandshakeState implements IForgeServerPacketHandler<Forge
         public ForgeServerHandshakeState handle(PluginMessage message, UserConnection con, ChannelWrapper ch)
         {
             if (message.getData()[0] == 3) {
-                // Send ACK
-                ch.write( ForgeConstants.FML_ACK );
+                // We don't send back "ACK" just yet. We hold the server at this state in order to
+                // wait for the user to recieve the ID list and accept it, and complete their handshake.
+                // Once their handshake is complete, then we finish this and complete server connection.
                 con.getForgeClientData().setServerIdList( message );
                 return PRECOMPLETION;
             }
@@ -133,6 +134,8 @@ public enum ForgeServerHandshakeState implements IForgeServerPacketHandler<Forge
         @Override
         public ForgeServerHandshakeState send(PluginMessage message, UserConnection con, ChannelWrapper ch)
         {
+            // Send ACK
+            ch.write( ForgeConstants.FML_ACK );
             return this;
         }
         
