@@ -1,14 +1,12 @@
 package net.md_5.bungee.forge;
 
-import net.md_5.bungee.forge.delegates.IForgePluginMessageSender;
-import net.md_5.bungee.forge.delegates.IVoidAction;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import net.md_5.bungee.ServerConnector;
 import net.md_5.bungee.UserConnection;
-import net.md_5.bungee.connection.CancelSendSignal;
+import net.md_5.bungee.forge.delegates.IForgePluginMessageSender;
+import net.md_5.bungee.forge.delegates.IVoidAction;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PluginMessage;
@@ -25,10 +23,6 @@ public class ForgeClientData implements IForgeClientData
     @NonNull
     private ForgeClientHandshakeState state = ForgeClientHandshakeState.START;
 
-    private LoginSuccess loginPacket;
-
-    private ServerConnector serverConnector;
-    
     /**
      * The users' mod list.
      */
@@ -61,35 +55,27 @@ public class ForgeClientData implements IForgeClientData
         if (!message.getTag().equalsIgnoreCase( ForgeConstants.FORGE_HANDSHAKE_TAG )) {
             throw new IllegalArgumentException("Expecting a Forge Handshake packet.");
         }
-        
+
+        ForgeLogger.logClient( ForgeLogger.LogDirection.RECIEVED, state.name(), message);
         state = state.handle( message, con );
-        
-        if (state == ForgeClientHandshakeState.SENDMODLIST && serverModList != null) {
+
+        if (state == ForgeClientHandshakeState.WAITINGCACK && serverModList != null) {
             setServerModList(serverModList);
 
             // Null the server mod list now, we don't need to keep it in memory.
             serverModList = null;
-        } else if (state == ForgeClientHandshakeState.COMPLETEHANDSHAKE && serverIdList != null) {
+        } else if (state == ForgeClientHandshakeState.COMPLETE && serverIdList != null) {
             setServerIdList(serverIdList);
 
             // Null the server mod list now, we don't need to keep it in memory.
             serverIdList = null;
         } else if (state == ForgeClientHandshakeState.DONE) {
             if ( serverHandshakeCompletion != null ) {
-                // Send a null, we hard code the ack into the method.
+                // We hard code the ack into the method.
                 serverHandshakeCompletion.action();
 
                 // ...and now, like everything else, null it as we don't need it any more!
                 serverHandshakeCompletion = null;
-            }
-            
-            if ( loginPacket != null && serverConnector != null ) {
-                // Fire login packet handler now!
-                try {
-                    serverConnector.handle( loginPacket );
-                } catch (Exception e) {
-                    // Swallow it, we're outside of the Netty workflow.
-                }
             }
         }
     }
@@ -100,9 +86,7 @@ public class ForgeClientData implements IForgeClientData
     @Override
     public void startHandshake() {
         if (state == ForgeClientHandshakeState.START) {
-            // For the START state, it's already part of the call. No need to provide the
-            // plugin message here.
-            state = state.send( null, con);
+            state = state.send( ForgeConstants.FML_START_CLIENT_HANDSHAKE, con );
         }
     }
 
@@ -136,7 +120,7 @@ public class ForgeClientData implements IForgeClientData
             throw new IllegalArgumentException("modList");
         }
         
-        if (state == ForgeClientHandshakeState.SENDMODLIST) {
+        if (state == ForgeClientHandshakeState.WAITINGCACK) {
             // Directly send it.
             state = state.send( modList, con );
         } else {
@@ -157,7 +141,7 @@ public class ForgeClientData implements IForgeClientData
             throw new IllegalArgumentException("idList");
         }
         
-        if (state == ForgeClientHandshakeState.COMPLETEHANDSHAKE) {
+        if (state == ForgeClientHandshakeState.COMPLETE) {
             // Directly send it.
             state = state.send( idList, con );
         } else {
@@ -213,12 +197,5 @@ public class ForgeClientData implements IForgeClientData
         
         // TODO: Minecraft version.
         setServerIdList(ForgeConstants.FML_DEFAULT_IDS_17);
-    }
-
-    @Override
-    public void loginSuccessPacketInterception(LoginSuccess login, ServerConnector sc) throws Exception {
-        loginPacket = login;
-        serverConnector = sc;
-        throw CancelSendSignal.INSTANCE;
     }
 }

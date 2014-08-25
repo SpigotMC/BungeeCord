@@ -61,13 +61,4 @@ public interface IForgeClientData {
      * Starts a Forge handshake.
      */
     void startHandshake();
-    
-    /**
-     * A method used to intercept the handle(Login) method. 
-     * 
-     * @param login The packet to resend later.
-     * @param sc The {@link ServerConnector} to call when the server is ready.
-     * @throws Exception If the interceptor needs to do work before the method can continue.
-     */
-    void loginSuccessPacketInterception(LoginSuccess login, ServerConnector sc) throws Exception;
 }

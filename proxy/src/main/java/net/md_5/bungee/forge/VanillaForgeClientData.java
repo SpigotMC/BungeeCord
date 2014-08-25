@@ -78,11 +78,6 @@ public class VanillaForgeClientData implements IForgeClientData {
     }
 
     @Override
-    public void loginSuccessPacketInterception(LoginSuccess login, ServerConnector sc) throws Exception
-    {
-    }
-
-    @Override
     public void setServerHandshakeCompletion(IVoidAction sender)
     {
     }

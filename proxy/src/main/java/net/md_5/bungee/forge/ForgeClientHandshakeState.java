@@ -28,7 +28,8 @@ enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientH
         @Override
         public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
         {
-            con.unsafe().sendPacket( ForgeConstants.FML_START_CLIENT_HANDSHAKE );
+            ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, this.name(), message );
+            con.unsafe().sendPacket( message );
             return HELLO;
         }
     },
@@ -39,7 +40,7 @@ enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientH
      * 
      * We will be stuck in this state if we don't have a forge client. This is OK.
      * 
-     * Transitions to the SENDMODLIST state upon completion.
+     * Transitions to the WAITINGCACK state upon completion.
      * 
      * Requires: {@link PluginMessage}, {@link UserConnection}, {@link ServerConnector}
      */
@@ -60,8 +61,9 @@ enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientH
                 // here. The "setFmlModData" method will set it all in motion.
                 con.getForgeClientData().setClientModList(message.getData());
                
-                // We are yet to get a mod list. Once we get one, it'll get fired by the send method.
-                return SENDMODLIST;
+                // We are yet to get a mod list. Once we get one, it'll get fired by the send method
+                // of the next state.
+                return WAITINGCACK;
             }
             
             // Ignore anything else.
@@ -79,9 +81,9 @@ enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientH
     /**
      * Sends mod list, and waits for ACK to signify acceptance of the mod list.
      * 
-     * Transitions to COMPLETEHANDSHAKE
+     * Transitions to COMPLETE
      */
-    SENDMODLIST {
+    WAITINGCACK {
 
         @Override
         public ForgeClientHandshakeState handle(PluginMessage message, UserConnection con)
@@ -89,7 +91,7 @@ enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientH
             // Ack.
             if (message.getData()[0] == -1) {
                 // We got acceptance - so complete the handshake.
-                return COMPLETEHANDSHAKE;
+                return COMPLETE;
             }
 
             return this;
@@ -106,6 +108,7 @@ enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientH
         public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
         {
             // Send the message, and wait for ACK.
+            ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, this.name(), message );
             con.unsafe().sendPacket( message );
             return this;
         }
@@ -115,7 +118,7 @@ enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientH
      * Completes the handshake by sending the ID list, and waiting for acceptance. Transitions to the DONE state
      * upon acceptance.
      */
-    COMPLETEHANDSHAKE {
+    COMPLETE {
 
         @Override
         public ForgeClientHandshakeState handle(PluginMessage message, UserConnection con)
@@ -123,6 +126,7 @@ enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientH
             // Ack.
             if (message.getData()[0] == -1) {
                 // We got acceptance - so send an "ack" to put the client into the COMPLETE state, and we are done!
+                ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, this.name(), ForgeConstants.FML_ACK );
                 con.unsafe().sendPacket( ForgeConstants.FML_ACK );
                 return DONE;
             }
@@ -140,8 +144,12 @@ enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientH
         @Override
         public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
         {
-            // Send the ID list, and wait for ACK.
+            // Send the ID list and an ACK, and wait for ACK.
+            ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, this.name(), message );
             con.unsafe().sendPacket( message );
+
+            ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, this.name(), ForgeConstants.FML_ACK );
+            con.unsafe().sendPacket( ForgeConstants.FML_ACK );
             return this;
         }
         
