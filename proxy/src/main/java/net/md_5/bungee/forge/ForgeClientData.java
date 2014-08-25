@@ -26,7 +26,7 @@ public class ForgeClientData implements IForgeClientData
     private LoginSuccess loginPacket;
 
     private ServerConnector serverConnector;
-
+    
     /**
      * The users' mod list.
      */
@@ -39,6 +39,13 @@ public class ForgeClientData implements IForgeClientData
      */
     @Setter
     private IForgePluginMessageSender delayedPacketSender = null;
+    
+    /**
+     * Provides an interface that allows us to send a Forge packet to the server when
+     * the client has transitioned to the DONE state.
+     */
+    @Setter
+    private IForgePluginMessageSender serverHandshakeCompletion = null;
     
     private PluginMessage serverModList = null;
     private PluginMessage serverIdList = null;
@@ -65,12 +72,22 @@ public class ForgeClientData implements IForgeClientData
 
             // Null the server mod list now, we don't need to keep it in memory.
             serverIdList = null;
-        } else if (state == ForgeClientHandshakeState.DONE && loginPacket != null && serverConnector != null) {
-            // Fire login packet handler now!
-            try {
-                serverConnector.handle( loginPacket );
-            } catch (Exception e) {
-                // Swallow it, we're outside of the Netty workflow.
+        } else if (state == ForgeClientHandshakeState.DONE) {
+            if ( serverHandshakeCompletion != null ) {
+                // Send a null, we hard code the ack into the method.
+                serverHandshakeCompletion.send( null );
+
+                // ...and now, like everything else, null it as we don't need it any more!
+                serverHandshakeCompletion = null;
+            }
+            
+            if ( loginPacket != null && serverConnector != null ) {
+                // Fire login packet handler now!
+                try {
+                    serverConnector.handle( loginPacket );
+                } catch (Exception e) {
+                    // Swallow it, we're outside of the Netty workflow.
+                }
             }
         }
     }

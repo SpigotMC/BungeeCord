@@ -44,6 +44,24 @@ public class ForgeServer extends AbstractPacketHandler implements IForgeServer {
         if ( state == ForgeServerHandshakeState.PENDINGUSER ) {
             // We are waiting for the user.
             setDelayedResponse();
+        } else if ( state == ForgeServerHandshakeState.PRECOMPLETION ) {
+            if (con.getForgeClientData().isHandshakeComplete()) {
+                // If the handshake is complete, then just continue
+                // We don't care about the message here, it's hardcoded.
+                state.send( null, con, ch);
+            } else {
+                // Otherwise, on the client side, add a delegate-like object to
+                // fire later. We need to wait for the client to complete it's handshake,
+                // once it's done, we can continue the server handshake, and then move ahead to
+                // logging everyone back in.
+                con.getForgeClientData().setServerHandshakeCompletion( new IForgePluginMessageSender() {
+                    @Override
+                    public void send(PluginMessage message)
+                    {
+                        ch.write( ForgeConstants.FML_ACK );
+                    }
+                });
+            }
         }
     }
 

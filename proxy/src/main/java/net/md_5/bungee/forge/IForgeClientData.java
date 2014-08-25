@@ -35,6 +35,8 @@ public interface IForgeClientData {
 
     void setDelayedPacketSender(IForgePluginMessageSender sender);
 
+    void setServerHandshakeCompletion(IForgePluginMessageSender sender);
+
     void setVanilla();
 
     /**

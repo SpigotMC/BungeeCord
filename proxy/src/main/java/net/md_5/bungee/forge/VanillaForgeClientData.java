@@ -79,4 +79,9 @@ public class VanillaForgeClientData implements IForgeClientData {
     public void loginSuccessPacketInterception(LoginSuccess login, ServerConnector sc) throws Exception
     {
     }
+
+    @Override
+    public void setServerHandshakeCompletion(IForgePluginMessageSender sender)
+    {
+    }
 }
