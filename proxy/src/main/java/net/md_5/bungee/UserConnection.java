@@ -123,7 +123,10 @@ public final class UserConnection implements ProxiedPlayer
     /*========================================================================*/
     @Getter
     @Setter
-    private IForgeClientData forgeClientData = VanillaForgeClientData.vanilla;
+    private IForgeClientData forgeClientData;
+    @Getter
+    @Setter
+    private ServerConnection serverConnection;
     /*========================================================================*/
     private final Unsafe unsafe = new Unsafe()
     {
@@ -230,34 +233,8 @@ public final class UserConnection implements ProxiedPlayer
         }
 
         pendingConnects.add( target );
-        
-        // We're connecting, so we need to start considering the Forge client.
-        // If this is the first connect, start the handshake NOW. If the target is
-        // not a modded server, complete handshake here too.
-        if (bungee.getConfig().isForgeSupported() && getServer() == null) 
-        {
-            forgeClientData.startHandshake();
-            if (!target.isModded()) 
-            {
-                forgeClientData.setServerHandshakeCompletion( new IVoidAction() 
-                {
-                    /**
-                     * Continue the connection once the vanilla handshake has completed.
-                     */
-                    @Override
-                    public void action()
-                    {
-                        UserConnection.this.connect( target, callback, retry );
-                    }
-                });
-
-                forgeClientData.setVanilla();
-                return;
-            }
-        } 
 
         connect(target, callback, retry);
-
     }
 
     /**

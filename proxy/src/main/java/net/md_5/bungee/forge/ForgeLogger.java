@@ -8,11 +8,11 @@ class ForgeLogger
 {
     static void logServer(LogDirection direction, String stateName, PluginMessage message) {
         // [Server START][STATE: LOGIN][SENDING: FMLHandshakeMessage.ServerHello]
-        String arrow = direction == LogDirection.RECIEVED ? "->" : "<-";
+        String arrow = direction == LogDirection.RECEIVED ? "->" : "<-";
         String log = "[Bungee " + arrow + " Server " + stateName + "][" + direction.name() + ": " + getNameFromDiscriminator(message) + "]";
         BungeeCord.getInstance().getLogger().log( Level.INFO, log );
     }
-    
+
     static void logClient(LogDirection direction, String stateName, PluginMessage message) {
         // [Server START][STATE: LOGIN][SENDING: FMLHandshakeMessage.ServerHello]
         String arrow = direction == LogDirection.SENDING ? "->" : "<-";
@@ -41,11 +41,11 @@ class ForgeLogger
             
         }
     }
-    
+
     public enum LogDirection
     {
         SENDING,
-        RECIEVED
+        RECEIVED
     }
     
     private ForgeLogger() { }

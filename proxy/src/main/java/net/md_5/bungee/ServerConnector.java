@@ -3,6 +3,8 @@ package net.md_5.bungee;
 import com.google.common.base.Preconditions;
 import java.util.Objects;
 import java.util.Queue;
+
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
@@ -17,6 +19,7 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.connection.LoginResult;
+import net.md_5.bungee.forge.ForgeClientData;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.forge.ForgeServer;
 import net.md_5.bungee.forge.IForgeServer;
@@ -45,6 +48,7 @@ public class ServerConnector extends PacketHandler
     private final UserConnection user;
     private final BungeeServerInfo target;
     private State thisState = State.LOGIN_SUCCESS;
+    @Getter
     private IForgeServer handshakeHandler = VanillaForgeServer.vanilla;
 
     private enum State
@@ -69,17 +73,6 @@ public class ServerConnector extends PacketHandler
     public void connected(ChannelWrapper channel) throws Exception
     {
         this.ch = channel;
-        
-        // TODO: Consider using a Protocol.STATUS to get whether the server is forge, rather
-        // than do this.
-        if (bungee.getConfig().isForgeSupported()) {
-            // If the server is marked as modded, enable the packet handler.
-            if (target.isModded()) {
-                // Enable the forge handshake handler. Modded servers should act on this automatically,
-                // they are the ones to initiate the modded connection.
-                this.handshakeHandler = new ForgeServer(user, ch, target, bungee);
-            }
-        }
 
         Handshake originalHandshake = user.getPendingConnection().getHandshake();
         Handshake copiedHandshake = new Handshake( originalHandshake.getProtocolVersion(), originalHandshake.getHost(), originalHandshake.getPort(), 2 );
@@ -113,6 +106,10 @@ public class ServerConnector extends PacketHandler
         Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not expecting LOGIN_SUCCESS" );
         ch.setProtocol( Protocol.GAME );
         thisState = State.LOGIN;
+        if (user.getServer() != null) // only reset handshakes after initial connection
+        {
+            user.getForgeClientData().resetHandshake();
+        }
 
         throw CancelSendSignal.INSTANCE;
     }
@@ -153,6 +150,10 @@ public class ServerConnector extends PacketHandler
             ch.write( user.getSettings() );
         }
 
+        if (user.getForgeClientData().getClientModList() == null && !user.getForgeClientData().isHandshakeComplete()) // Vanilla
+        {
+            this.handshakeHandler = VanillaForgeServer.vanilla;
+        }
         if ( user.getServer() == null )
         {
             // Once again, first connection
@@ -254,11 +255,19 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(PluginMessage pluginMessage) throws Exception
     {
-        if(bungee.getConfig().isForgeSupported() && pluginMessage.getTag().equals(ForgeConstants.FORGE_HANDSHAKE_TAG))
+        if(pluginMessage.getTag().equals(ForgeConstants.FORGE_HANDSHAKE_TAG))
         {
-            handshakeHandler.handle( pluginMessage );
-            throw CancelSendSignal.INSTANCE;
+            ServerConnection server = new ServerConnection( ch, target );
+            user.setServerConnection(server);
+            if (this.handshakeHandler == VanillaForgeServer.vanilla)
+            {
+                this.handshakeHandler = new ForgeServer(user, ch, target, bungee);
+                // make sure the user is using forge client data
+                user.setForgeClientData(new ForgeClientData( user ));
+            }
         }
+
+        user.unsafe().sendPacket( pluginMessage ); // We have to forward these to the user, especially with Forge as stuff might break
     }
 
     @Override

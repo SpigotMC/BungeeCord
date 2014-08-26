@@ -265,9 +265,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             return;
         }
 
-        // TODO: Nuuuu Mojang why u do this
-        // unsafe().sendPacket( PacketConstants.I_AM_BUNGEE );
-        // unsafe().sendPacket( PacketConstants.FORGE_MOD_REQUEST );
         Callback<PreLoginEvent> callback = new Callback<PreLoginEvent>()
         {
 

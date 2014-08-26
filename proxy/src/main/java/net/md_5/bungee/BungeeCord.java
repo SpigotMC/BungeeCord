@@ -562,9 +562,9 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public ServerInfo constructServerInfo(String name, InetSocketAddress address, String motd, boolean restricted, boolean modded)
+    public ServerInfo constructServerInfo(String name, InetSocketAddress address, String motd, boolean restricted)
     {
-        return new BungeeServerInfo( name, address, motd, restricted, modded );
+        return new BungeeServerInfo( name, address, motd, restricted );
     }
 
     @Override

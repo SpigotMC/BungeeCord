@@ -56,38 +56,8 @@ public class ForgeClientData implements IForgeClientData
             throw new IllegalArgumentException("Expecting a Forge Handshake packet.");
         }
 
-        ForgeLogger.logClient( ForgeLogger.LogDirection.RECIEVED, state.name(), message);
-        state = state.handle( message, con );
-
-        if (state == ForgeClientHandshakeState.WAITINGCACK && serverModList != null) {
-            setServerModList(serverModList);
-
-            // Null the server mod list now, we don't need to keep it in memory.
-            serverModList = null;
-        } else if (state == ForgeClientHandshakeState.COMPLETE && serverIdList != null) {
-            setServerIdList(serverIdList);
-
-            // Null the server mod list now, we don't need to keep it in memory.
-            serverIdList = null;
-        } else if (state == ForgeClientHandshakeState.DONE) {
-            if ( serverHandshakeCompletion != null ) {
-                // We hard code the ack into the method.
-                serverHandshakeCompletion.action();
-
-                // ...and now, like everything else, null it as we don't need it any more!
-                serverHandshakeCompletion = null;
-            }
-        }
-    }
-
-    /**
-     * Starts a Forge handshake.
-     */
-    @Override
-    public void startHandshake() {
-        if (state == ForgeClientHandshakeState.START) {
-            state = state.send( ForgeConstants.FML_START_CLIENT_HANDSHAKE, con );
-        }
+        ForgeLogger.logClient( ForgeLogger.LogDirection.RECEIVED, state.name(), message);
+        state = state.send( message, con );
     }
 
     /**
@@ -96,16 +66,7 @@ public class ForgeClientData implements IForgeClientData
     @Override
     public void resetHandshake() {
         state = ForgeClientHandshakeState.START;
-
-        // Send a LoginSuccess packet to reset the handshake.
-        if (con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_7_6) {
-            con.unsafe().sendPacket(new LoginSuccess(con.getUniqueId().toString(), con.getName())); // With dashes in between
-        } else {
-            con.unsafe().sendPacket(new LoginSuccess(con.getUUID(), con.getName())); // Without dashes, for older clients.
-        }
-
-        // Now start the handshake again
-        startHandshake();
+        con.unsafe().sendPacket(ForgeConstants.FML_RESET_HANDSHAKE);
     }
 
     /**
@@ -119,14 +80,8 @@ public class ForgeClientData implements IForgeClientData
         if (!modList.getTag().equalsIgnoreCase( ForgeConstants.FORGE_HANDSHAKE_TAG ) || modList.getData()[0] != 2) {
             throw new IllegalArgumentException("modList");
         }
-        
-        if (state == ForgeClientHandshakeState.WAITINGCACK) {
-            // Directly send it.
-            state = state.send( modList, con );
-        } else {
-            // Store it for use later.
-            this.serverModList = modList;
-        }
+
+        this.serverModList = modList;
     }
 
     /**
@@ -140,14 +95,8 @@ public class ForgeClientData implements IForgeClientData
         if (!idList.getTag().equalsIgnoreCase( ForgeConstants.FORGE_HANDSHAKE_TAG ) || idList.getData()[0] != 3) {
             throw new IllegalArgumentException("idList");
         }
-        
-        if (state == ForgeClientHandshakeState.COMPLETE) {
-            // Directly send it.
-            state = state.send( idList, con );
-        } else {
-            // Store it for use later.
-            this.serverIdList = idList;
-        }
+
+        this.serverIdList = idList;
     }
     
     /**
@@ -171,31 +120,5 @@ public class ForgeClientData implements IForgeClientData
     @Override
     public void setClientModList(byte[] value) {
         this.clientModList = value;
-        
-        // If we have a delayed packet, process it again.
-        if ( delayedPacketSender != null ) {
-            delayedPacketSender.send( new PluginMessage( ForgeConstants.FORGE_HANDSHAKE_TAG, value, true ) );
-        }
-    }
-
-    /**
-     * Sets the client to the vanilla experience. If the user has a completed handshake, reset it.
-     */
-    @Override
-    public void setVanilla() {
-        if (isHandshakeComplete()) {
-            // TODO: When we get to resend the handshake - then we reset it. For now, though, we have
-            // to ignore the request here and just return. Remove this line when we can.
-            return;
-            
-            // If we already have a completed handshake, we need to reset the handshake now (if we can). We then set the
-            // vanilla forge data. This should be handled automatically by the handshake handler.
-            // resetHandshake();
-        }
-
-        setServerModList(ForgeConstants.FML_EMPTY_MOD_LIST);
-        
-        // TODO: Minecraft version.
-        setServerIdList(ForgeConstants.FML_DEFAULT_IDS_17);
     }
 }
