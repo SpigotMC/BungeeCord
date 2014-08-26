@@ -1,14 +1,9 @@
 package net.md_5.bungee.forge;
 
-import net.md_5.bungee.forge.delegates.IForgePluginMessageSender;
-import net.md_5.bungee.forge.delegates.IVoidAction;
-import java.util.Timer;
-import java.util.TimerTask;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.UserConnection;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.netty.ChannelWrapper;
@@ -26,7 +21,7 @@ public class ForgeServer extends AbstractPacketHandler implements IForgeServer {
 
     @Getter(AccessLevel.PACKAGE)
     private final ServerInfo serverInfo;
-    private final ProxyServer bungee;
+
     @Getter
     private ForgeServerHandshakeState state = ForgeServerHandshakeState.START;
 

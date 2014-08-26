@@ -261,7 +261,7 @@ public class ServerConnector extends PacketHandler
             user.setServerConnection(server);
             if (this.handshakeHandler == VanillaForgeServer.vanilla)
             {
-                this.handshakeHandler = new ForgeServer(user, ch, target, bungee);
+                this.handshakeHandler = new ForgeServer( user, ch, target );
                 // make sure the user is using forge client data
                 user.setForgeClientData(new ForgeClientData( user ));
             }

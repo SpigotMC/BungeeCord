@@ -3,12 +3,7 @@ package net.md_5.bungee.forge;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import net.md_5.bungee.UserConnection;
-import net.md_5.bungee.forge.delegates.IForgePluginMessageSender;
-import net.md_5.bungee.forge.delegates.IVoidAction;
-import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
 /**
@@ -28,21 +23,7 @@ public class ForgeClientData implements IForgeClientData
      */
     @Getter
     private byte[] clientModList = null;
-    
-    /**
-     * Provides an interface that allows us to send a Forge packet to the server when
-     * the client has returned a mod list.
-     */
-    @Setter
-    private IForgePluginMessageSender delayedPacketSender = null;
-    
-    /**
-     * Provides an interface that allows us to send a Forge packet to the server when
-     * the client has transitioned to the DONE state.
-     */
-    @Setter
-    private IVoidAction serverHandshakeCompletion = null;
-    
+
     private PluginMessage serverModList = null;
     private PluginMessage serverIdList = null;
     

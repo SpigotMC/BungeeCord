@@ -74,9 +74,4 @@ public interface ProxyConfig
      * The favicon used for the server ping list.
      */
     Favicon getFaviconObject();
-    
-    /**
-     * Whether Forge support is enabled.
-     */
-    boolean isForgeSupported();
 }

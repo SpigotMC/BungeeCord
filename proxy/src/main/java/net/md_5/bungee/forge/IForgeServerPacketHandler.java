@@ -14,7 +14,6 @@ public interface IForgeServerPacketHandler<S>
      * Handles any {@link net.md_5.bungee.protocol.packet.PluginMessage} packets.
      *
      * @param message The {@link net.md_5.bungee.protocol.packet.PluginMessage} to handle.
-     * @param con The {@link net.md_5.bungee.UserConnection} to read from.
      * @param ch The {@link ChannelWrapper} to send packets to.
      * @return The state to transition to.
      */
@@ -25,7 +24,6 @@ public interface IForgeServerPacketHandler<S>
      *
      * @param message The {@link net.md_5.bungee.protocol.packet.PluginMessage} to send.
      * @param con The {@link net.md_5.bungee.UserConnection} to send packets to or read from.
-     * @param ch The {@link ChannelWrapper} to send packets to.
      * @return The state to transition to.
      */
     public S send(PluginMessage message, UserConnection con);

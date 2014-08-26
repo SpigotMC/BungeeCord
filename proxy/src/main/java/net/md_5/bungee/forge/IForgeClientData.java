@@ -1,9 +1,5 @@
 package net.md_5.bungee.forge;
 
-import net.md_5.bungee.forge.delegates.IForgePluginMessageSender;
-import net.md_5.bungee.forge.delegates.IVoidAction;
-import net.md_5.bungee.ServerConnector;
-import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
 public interface IForgeClientData {
@@ -34,8 +30,6 @@ public interface IForgeClientData {
     void resetHandshake();
 
     void setClientModList(byte[] value);
-
-    void setServerHandshakeCompletion(IVoidAction sender);
 
     /**
      * Sends the server ID list to the client, or stores it for sending later.

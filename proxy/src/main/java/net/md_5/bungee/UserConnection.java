@@ -33,11 +33,7 @@ import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.entitymap.EntityMap;
-import net.md_5.bungee.forge.ForgeClientData;
 import net.md_5.bungee.forge.IForgeClientData;
-import net.md_5.bungee.forge.delegates.IForgePluginMessageSender;
-import net.md_5.bungee.forge.delegates.IVoidAction;
-import net.md_5.bungee.forge.VanillaForgeClientData;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PipelineUtils;
@@ -234,18 +230,6 @@ public final class UserConnection implements ProxiedPlayer
 
         pendingConnects.add( target );
 
-        connect(target, callback, retry);
-    }
-
-    /**
-     * Continues connecting to the target server.
-     * 
-     * @param target The {@link BungeeServerInfo} to connect to.
-     * @param callback The callback to execute upon completion, if any.
-     * @param retry Whether to connect to the fallback server if the selected server is unavailable.
-     */
-    private void connect(final BungeeServerInfo target, final Callback<Boolean> callback, final boolean retry)
-    {
         ChannelInitializer initializer = new ChannelInitializer()
         {
             @Override

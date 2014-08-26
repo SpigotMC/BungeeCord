@@ -3,12 +3,7 @@ package net.md_5.bungee.forge;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
-import net.md_5.bungee.forge.delegates.IForgePluginMessageSender;
-import net.md_5.bungee.forge.delegates.IVoidAction;
-import net.md_5.bungee.ServerConnector;
 import net.md_5.bungee.UserConnection;
-import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
 /**
@@ -16,7 +11,7 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
  * without Forge support enabled.
  */
 @RequiredArgsConstructor
-public class VanillaForgeClientData implements IForgeClientData {
+public class VanillaClientData implements IForgeClientData {
 
     @NonNull
     private final UserConnection con;
@@ -62,11 +57,6 @@ public class VanillaForgeClientData implements IForgeClientData {
 
     @Override
     public void setServerModList(PluginMessage modList) throws IllegalArgumentException
-    {
-    }
-
-    @Override
-    public void setServerHandshakeCompletion(IVoidAction sender)
     {
     }
 }

@@ -229,13 +229,8 @@ public class BungeeCord extends ProxyServer
         pluginManager.loadPlugins();
         config.load();
 
-        if (config.isForgeSupported()) 
-        {
-            // If we enable forge support, we need to register the FML FML|HS tag.
-            registerChannel( ForgeConstants.FORGE_TAG );
-            registerChannel( ForgeConstants.FORGE_HANDSHAKE_TAG );
-            logger.info( "Forge support has been enabled." );
-        }
+        registerChannel( ForgeConstants.FORGE_TAG );
+        registerChannel( ForgeConstants.FORGE_HANDSHAKE_TAG );
 
         isRunning = true;
 
