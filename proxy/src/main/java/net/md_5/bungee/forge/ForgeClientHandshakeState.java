@@ -1,13 +1,8 @@
 package net.md_5.bungee.forge;
 
-import java.util.logging.Level;
-
 import net.md_5.bungee.ServerConnector;
 import net.md_5.bungee.UserConnection;
-import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.forge.ForgeLogger.LogDirection;
-import net.md_5.bungee.netty.ChannelWrapper;
-import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
 /**
