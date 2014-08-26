@@ -21,11 +21,13 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 @RequiredArgsConstructor
 public class ForgeServer extends AbstractPacketHandler implements IForgeServer {
     private final UserConnection con;
+    @Getter
     private final ChannelWrapper ch;
 
     @Getter(AccessLevel.PACKAGE)
     private final ServerInfo serverInfo;
     private final ProxyServer bungee;
+    @Getter
     private ForgeServerHandshakeState state = ForgeServerHandshakeState.START;
 
     /**
@@ -41,30 +43,7 @@ public class ForgeServer extends AbstractPacketHandler implements IForgeServer {
             throw new IllegalArgumentException( "Expecting a Forge Handshake packet." );
         }
 
-        state = state.handle( message, con, ch );
-
-        if ( state == ForgeServerHandshakeState.PENDINGUSER ) {
-            // We are waiting for the user.
-            setDelayedResponse();
-        } else if ( state == ForgeServerHandshakeState.PRECOMPLETION ) {
-            if (con.getForgeClientData().isHandshakeComplete()) {
-                // If the handshake is complete, then just continue
-                // We don't care about the message here, it's hardcoded.
-                state.send( null, con, ch);
-            } else {
-                // Otherwise, on the client side, add a delegate-like object to
-                // fire later. We need to wait for the client to complete it's handshake,
-                // once it's done, we can continue the server handshake, and then move ahead to
-                // logging everyone back in.
-                con.getForgeClientData().setServerHandshakeCompletion( new IVoidAction() {
-                    @Override
-                    public void action()
-                    {
-                        ch.write( ForgeConstants.FML_ACK );
-                    }
-                });
-            }
-        }
+        state = state.send( message, con );
     }
 
     /**
@@ -75,62 +54,5 @@ public class ForgeServer extends AbstractPacketHandler implements IForgeServer {
     @Override
     public boolean isServerForge() {
         return state != ForgeServerHandshakeState.START;
-    }
-
-    /**
-     * Sends the defined plugin message.
-     *
-     * @param message The {@link PluginMessage} to send.
-     */
-    private void send(PluginMessage message) {
-        state = state.send( message, con, ch );
-    }
-
-    /**
-     * Sets the delayed response, which waits for the mod list to load.
-     */
-    private void setDelayedResponse() {
-        // If we cannot identify them as a forge user, then wait a couple of seconds, as we might be waiting for the 
-        // user to complete the forge handshake. 
-        final Timer timer = new Timer();
-
-        // Setup the success callback
-        con.getForgeClientData().setDelayedPacketSender( new IForgePluginMessageSender() {
-            @Override
-            public void send(PluginMessage message) {
-                timer.cancel();
-                ForgeServer.this.send( message );
-            }
-        } );
-
-        // If we don't get a mod list in a reasonable amount of time, then we should 
-        // kick the client.
-        timer.schedule( new TimerTask() {
-            @Override
-            public void run() {
-                if ( timer != null ) {
-                    timer.cancel();
-                }
-
-                // If this wasn't cancelled, then continue anyway.
-                if ( con.getForgeClientData().isForgeUser() ) {
-                    return;
-                }
-
-                try {
-                    // If the user is not a mod user, then throw them off.
-                    con.getPendingConnects().remove( serverInfo );
-                    ch.close();
-
-                    String message = bungee.getTranslation( "connect_kick" ) + serverInfo.getName() + ": " + bungee.getTranslation( "connect_kick_modded" );
-                    if ( con.getServer() == null ) {
-                        con.disconnect( message );
-                    } else {
-                        con.sendMessage( ChatColor.RED + message );
-                    }
-                } finally {
-                }
-            }
-        }, 2000 );
     }
 }

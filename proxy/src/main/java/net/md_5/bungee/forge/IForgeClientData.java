@@ -35,11 +35,7 @@ public interface IForgeClientData {
 
     void setClientModList(byte[] value);
 
-    void setDelayedPacketSender(IForgePluginMessageSender sender);
-
     void setServerHandshakeCompletion(IVoidAction sender);
-
-    void setVanilla();
 
     /**
      * Sends the server ID list to the client, or stores it for sending later.
@@ -56,9 +52,4 @@ public interface IForgeClientData {
      * @throws IllegalArgumentException Thrown if the {@link PluginMessage} was not as expected.
      */
     void setServerModList(PluginMessage modList) throws IllegalArgumentException;
-
-    /**
-     * Starts a Forge handshake.
-     */
-    void startHandshake();
 }

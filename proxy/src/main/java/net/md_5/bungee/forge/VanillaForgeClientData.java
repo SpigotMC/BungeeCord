@@ -1,8 +1,13 @@
 package net.md_5.bungee.forge;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import net.md_5.bungee.forge.delegates.IForgePluginMessageSender;
 import net.md_5.bungee.forge.delegates.IVoidAction;
 import net.md_5.bungee.ServerConnector;
+import net.md_5.bungee.UserConnection;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
@@ -10,14 +15,11 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
  * An implementation of {@link IForgeClientData} for when the system is being run
  * without Forge support enabled.
  */
+@RequiredArgsConstructor
 public class VanillaForgeClientData implements IForgeClientData {
 
-    /**
-     * Static variable to hold the vanilla instance.
-     */
-    public final static VanillaForgeClientData vanilla = new VanillaForgeClientData();
-
-    private VanillaForgeClientData() { }
+    @NonNull
+    private final UserConnection con;
 
     @Override
     public byte[] getClientModList()
@@ -45,15 +47,11 @@ public class VanillaForgeClientData implements IForgeClientData {
     @Override
     public void resetHandshake()
     {
+        con.unsafe().sendPacket(ForgeConstants.FML_RESET_HANDSHAKE); // ignored by vanilla clients
     }
 
     @Override
     public void setClientModList(byte[] value)
-    {
-    }
-
-    @Override
-    public void setDelayedPacketSender(IForgePluginMessageSender sender)
     {
     }
 
@@ -64,16 +62,6 @@ public class VanillaForgeClientData implements IForgeClientData {
 
     @Override
     public void setServerModList(PluginMessage modList) throws IllegalArgumentException
-    {
-    }
-
-    @Override
-    public void startHandshake()
-    {
-    }
-
-    @Override
-    public void setVanilla()
     {
     }
 

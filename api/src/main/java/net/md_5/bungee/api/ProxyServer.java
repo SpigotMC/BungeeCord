@@ -201,10 +201,9 @@ public abstract class ProxyServer
      * @param address connectable Minecraft address + port of the server
      * @param motd the motd when used as a forced server
      * @param restricted whether the server info restricted property will be set
-     * @param forge whether the server is a Forge server
      * @return the constructed instance
      */
-    public abstract ServerInfo constructServerInfo(String name, InetSocketAddress address, String motd, boolean restricted, boolean forge);
+    public abstract ServerInfo constructServerInfo(String name, InetSocketAddress address, String motd, boolean restricted);
 
     /**
      * Returns the console overlord for this proxy. Being the console, this

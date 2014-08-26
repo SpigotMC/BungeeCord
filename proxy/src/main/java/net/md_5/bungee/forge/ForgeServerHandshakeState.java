@@ -1,6 +1,7 @@
 package net.md_5.bungee.forge;
 
 import net.md_5.bungee.UserConnection;
+import net.md_5.bungee.forge.ForgeLogger.LogDirection;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
@@ -11,149 +12,124 @@ public enum ForgeServerHandshakeState implements IForgeServerPacketHandler<Forge
     /**
      * Start the handshake. 
      * 
-     * If the user is already known to be a Forge user, then send the mod list - transition to WAITINGFORSERVERDATA state.
-     * If not, hold on, transition to PENDINGUSER state.
      */
     START {
         @Override
-        public ForgeServerHandshakeState handle(PluginMessage message, UserConnection con, ChannelWrapper ch)
+        public ForgeServerHandshakeState handle(PluginMessage message, ChannelWrapper ch)
         {
-            // If the user is a Forge user already, return the state from the
-            // PENDINGUSER send method.
-            if (con.getForgeClientData().isForgeUser()) {
-                return PENDINGUSER.send( new PluginMessage ( ForgeConstants.FORGE_HANDSHAKE_TAG, con.getForgeClientData().getClientModList(), true), con, ch );
-            }
-
-            // Otherwise, we have to wait for the user to be ready. 
-            return PENDINGUSER;
-        }
-
-        @Override
-        public ForgeServerHandshakeState send(PluginMessage message, UserConnection con, ChannelWrapper ch)
-        {
-            return this;
-        }
-        
-    },
-    
-    /**
-     * A special state, indicating that we are waiting for a user to send their Mod list. 
-     * 
-     * Generally only seen during a User's initial connection. Will transition to the WAITINGFORSERVERDATA state.
-     */
-    PENDINGUSER {
-
-        @Override
-        public ForgeServerHandshakeState handle(PluginMessage message, UserConnection con, ChannelWrapper ch)
-        {
-            return this;
-        }
-
-        @Override
-        public ForgeServerHandshakeState send(PluginMessage message, UserConnection con, ChannelWrapper ch)
-        {
-            // Send custom channel registration. Send Hello. Send Server Mod List.
-            ch.write( ForgeConstants.FML_START_SERVER_HANDSHAKE );
+            ForgeLogger.logServer(LogDirection.RECEIVED, this.name(), message);
             ch.write( message );
-
-            return WAITINGFORSERVERDATA;
+            return this;
         }
-    },
-    
-    /**
-     * Waiting for the server to accept the mod list, and send their mod list. 
-     * 
-     * Will send the server an "ack" packet, and transition to the WAITINGFORIDLIST state.
-     */
-    WAITINGFORSERVERDATA {
 
         @Override
-        public ForgeServerHandshakeState handle(PluginMessage message, UserConnection con, ChannelWrapper ch)
+        public ForgeServerHandshakeState send(PluginMessage message, UserConnection con)
         {
-            // Mod List
-            if (message.getData()[0] == 2) {
-                // Send ACK
-                ch.write( ForgeConstants.FML_ACK );
-                con.getForgeClientData().setServerModList( message );
-                return WAITFORIDLIST;
+            // Send custom channel registration. Send Hello.
+            ForgeLogger.logServer(LogDirection.SENDING, this.name(), message);
+            con.unsafe().sendPacket( message ); // Send Hello then transition
+            return HELLO;
+        }
+    },
+
+    HELLO {
+
+        @Override
+        public ForgeServerHandshakeState handle(PluginMessage message, ChannelWrapper ch)
+        {
+            ForgeLogger.logServer(LogDirection.RECEIVED, this.name(), message);
+            if (message.getData()[0] == 1) // Client Hello
+            {
+                ch.write( message );
+            }
+
+            if (message.getData()[0] == 2) // Client ModList
+            {
+                ch.write( message );
             }
 
             return this;
         }
 
         @Override
-        public ForgeServerHandshakeState send(PluginMessage message, UserConnection con, ChannelWrapper ch)
+        public ForgeServerHandshakeState send(PluginMessage message, UserConnection con)
         {
-            return this;
+            // Send Server Mod List.
+            ForgeLogger.logServer(LogDirection.SENDING, this.name(), message);
+            con.unsafe().sendPacket( message );
+            return WAITINGCACK;
         }
     },
-    
-    /**
-     * Accepts the server item ID list, and sends an "Ack" back. Transitions to the PRECOMPLETION state.
-     */
-    WAITFORIDLIST {
+
+    WAITINGCACK {
 
         @Override
-        public ForgeServerHandshakeState handle(PluginMessage message, UserConnection con, ChannelWrapper ch)
+        public ForgeServerHandshakeState handle(PluginMessage message, ChannelWrapper ch)
         {
-            if (message.getData()[0] == 3) {
-                // We don't send back "ACK" just yet. We hold the server at this state in order to
-                // wait for the user to recieve the ID list and accept it, and complete their handshake.
-                // Once their handshake is complete, then we finish this and complete server connection.
+            ForgeLogger.logServer(LogDirection.RECEIVED, this.name(), message);
+            ch.write( message );
+            return this;
+        }
+
+        @Override
+        public ForgeServerHandshakeState send(PluginMessage message, UserConnection con)
+        {
+            ForgeLogger.logServer(LogDirection.SENDING, this.name(), message);
+
+            if (message.getData()[0] == 3)
+            {
                 con.getForgeClientData().setServerIdList( message );
-                return PRECOMPLETION;
+                con.unsafe().sendPacket( message );
+                return this;
             }
-            
-            return this;
-        }
 
-        @Override
-        public ForgeServerHandshakeState send(PluginMessage message, UserConnection con, ChannelWrapper ch)
-        {
+            if (message.getData()[0] == -1) // transition to COMPLETE after receiving ACK
+            {
+                con.unsafe().sendPacket( message );
+                return COMPLETE;
+            }
             return this;
         }
-        
     },
-    
-    /**
-     * Responds to the server's final "Ack". Transitions to the "DONE" state.
-     */
-    PRECOMPLETION {
+
+    COMPLETE {
 
         @Override
-        public ForgeServerHandshakeState handle(PluginMessage message, UserConnection con, ChannelWrapper ch)
+        public ForgeServerHandshakeState handle(PluginMessage message, ChannelWrapper ch)
         {
-            if (message.getData()[0] == -1) {
-                ch.write( ForgeConstants.FML_ACK );
-                return DONE;
-            }
-
+            // Wait for ACK
+            ForgeLogger.logServer(LogDirection.RECEIVED, this.name(), message);
+            ch.write( message );
             return this;
         }
 
         @Override
-        public ForgeServerHandshakeState send(PluginMessage message, UserConnection con, ChannelWrapper ch)
+        public ForgeServerHandshakeState send(PluginMessage message, UserConnection con)
         {
             // Send ACK
-            ch.write( ForgeConstants.FML_ACK );
-            return this;
+            ForgeLogger.logServer(LogDirection.SENDING, this.name(), message);
+            con.unsafe().sendPacket( message );
+            return DONE;
         }
         
     },
-    
+
     /**
      * Handshake has been completed. Do not respond to any more handshake packets.
      */
     DONE {
 
         @Override
-        public ForgeServerHandshakeState handle(PluginMessage message, UserConnection con, ChannelWrapper ch)
+        public ForgeServerHandshakeState handle(PluginMessage message, ChannelWrapper ch)
         {
+            // RECEIVE 2 ACKS
+            ForgeLogger.logServer(LogDirection.RECEIVED, this.name(), message);
+            ch.write( message );
             return this;
         }
 
         @Override
-        public ForgeServerHandshakeState send(PluginMessage message, UserConnection con, ChannelWrapper ch)
+        public ForgeServerHandshakeState send(PluginMessage message, UserConnection con)
         {
             return this;
         }
