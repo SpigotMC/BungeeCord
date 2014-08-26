@@ -66,7 +66,7 @@ public class BungeeServerInfo implements ServerInfo
     @Override
     public Collection<ProxiedPlayer> getPlayers()
     {
-        return Collections.unmodifiableCollection( new HashSet( players ) );
+        return Collections.unmodifiableCollection( new HashSet<>( players ) );
     }
 
     @Override
@@ -101,19 +101,25 @@ public class BungeeServerInfo implements ServerInfo
         Preconditions.checkNotNull( channel, "channel" );
         Preconditions.checkNotNull( data, "data" );
 
-        synchronized ( packetQueue )
+        Server server;
+
+        synchronized ( players )
         {
-            Server server = ( players.isEmpty() ) ? null : players.iterator().next().getServer();
-            if ( server != null )
-            {
-                server.sendData( channel, data );
-                return true;
-            } else if ( queue )
+            server = ( players.isEmpty() ) ? null : players.iterator().next().getServer();
+        }
+
+        if ( server != null )
+        {
+            server.sendData( channel, data );
+            return true;
+        } else if ( queue )
+        {
+            synchronized ( packetQueue )
             {
                 packetQueue.add( new PluginMessage( channel, data ) );
             }
-            return false;
         }
+        return false;
     }
 
     @Override

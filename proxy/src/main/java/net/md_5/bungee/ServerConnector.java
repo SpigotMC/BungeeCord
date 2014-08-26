@@ -112,12 +112,11 @@ public class ServerConnector extends PacketHandler
         bungee.getPluginManager().callEvent( event );
 
         ch.write( BungeeCord.getInstance().registerChannels() );
-        Queue<DefinedPacket> packetQueue = target.getPacketQueue();
-        synchronized ( packetQueue )
+        synchronized ( target.getPacketQueue() )
         {
-            while ( !packetQueue.isEmpty() )
+            while ( !target.getPacketQueue().isEmpty() )
             {
-                ch.write( packetQueue.poll() );
+                ch.write( target.getPacketQueue().poll() );
             }
         }
 
