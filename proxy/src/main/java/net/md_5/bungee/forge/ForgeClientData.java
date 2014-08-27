@@ -14,9 +14,6 @@ public class ForgeClientData implements IForgeClientData
 {
     @NonNull
     private final UserConnection con;
-    
-    @NonNull
-    private ForgeClientHandshakeState state = ForgeClientHandshakeState.START;
 
     /**
      * The users' mod list.
@@ -26,7 +23,7 @@ public class ForgeClientData implements IForgeClientData
 
     private PluginMessage serverModList = null;
     private PluginMessage serverIdList = null;
-    
+
     /**
      * Handles the Forge packet.
      * @param message The Forge Handshake packet to handle.
@@ -37,8 +34,8 @@ public class ForgeClientData implements IForgeClientData
             throw new IllegalArgumentException("Expecting a Forge Handshake packet.");
         }
 
-        ForgeLogger.logClient( ForgeLogger.LogDirection.RECEIVED, state.name(), message);
-        state = state.send( message, con );
+        ForgeLogger.logClient( ForgeLogger.LogDirection.RECEIVED, con.getState().name(), message);
+        con.setState(con.getState().send( message, con ));
     }
 
     /**
@@ -46,7 +43,7 @@ public class ForgeClientData implements IForgeClientData
      */
     @Override
     public void resetHandshake() {
-        state = ForgeClientHandshakeState.START;
+        con.setState(ForgeClientHandshakeState.START);
         con.unsafe().sendPacket(ForgeConstants.FML_RESET_HANDSHAKE);
     }
 
@@ -86,7 +83,7 @@ public class ForgeClientData implements IForgeClientData
      */
     @Override
     public boolean isHandshakeComplete() {
-        return state == ForgeClientHandshakeState.DONE;
+        return con.getState() == ForgeClientHandshakeState.DONE;
     }
 
     /**

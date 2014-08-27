@@ -7,16 +7,14 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 class ForgeLogger
 {
     static void logServer(LogDirection direction, String stateName, PluginMessage message) {
-        // [Server START][STATE: LOGIN][SENDING: FMLHandshakeMessage.ServerHello]
-        String arrow = direction == LogDirection.RECEIVED ? "->" : "<-";
-        String log = "[Bungee " + arrow + " Server " + stateName + "][" + direction.name() + ": " + getNameFromDiscriminator(message) + "]";
+        String dir = direction == LogDirection.RECEIVED ? "-> Client " : "<- Server ";
+        String log = "[Bungee " + dir + stateName + "][" + direction.name() + ": " + getNameFromDiscriminator(message) + "]";
         BungeeCord.getInstance().getLogger().log( Level.INFO, log );
     }
 
     static void logClient(LogDirection direction, String stateName, PluginMessage message) {
-        // [Server START][STATE: LOGIN][SENDING: FMLHandshakeMessage.ServerHello]
-        String arrow = direction == LogDirection.SENDING ? "->" : "<-";
-        String log = "[Bungee " + arrow + " Client " + stateName + "][" + direction.name() + ": " + getNameFromDiscriminator(message) + "]";
+        String dir = direction == LogDirection.SENDING ? "-> Server " : "<- Client ";
+        String log = "[Bungee " + dir + stateName + "][" + direction.name() + ": " + getNameFromDiscriminator(message) + "]";
         BungeeCord.getInstance().getLogger().log( Level.INFO, log );
     }
 
@@ -38,7 +36,6 @@ class ForgeLogger
                 return "ModIdData";
             default:
                 return "Unknown";
-            
         }
     }
 
@@ -47,6 +44,6 @@ class ForgeLogger
         SENDING,
         RECEIVED
     }
-    
+
     private ForgeLogger() { }
 }
