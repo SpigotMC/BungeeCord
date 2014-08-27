@@ -9,7 +9,7 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
  * Handshake sequence manager for the Bungee - Forge Client (Upstream) link. Modelled after the Forge implementation.
  * See https://github.com/MinecraftForge/FML/blob/master/src/main/java/cpw/mods/fml/common/network/handshake/FMLHandshakClientState.java
  */
-enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientHandshakeState>
+public enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientHandshakeState>
 {
     /**
      * Initiated at the start of a client handshake. This is a special case where we don't want to use a
@@ -25,6 +25,7 @@ enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientH
         {
             ForgeLogger.logClient(LogDirection.RECEIVED, this.name(), message);
             con.unsafe().sendPacket( message );
+            con.setState(HELLO);
             return HELLO;
         }
 
@@ -164,10 +165,9 @@ enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientH
             // Ack.
             if (message.getData()[0] == -1) {
                 ForgeLogger.logClient( ForgeLogger.LogDirection.RECEIVED, this.name(), message );
-                con.unsafe().sendPacket( ForgeConstants.FML_ACK );
-                return DONE;
+                con.unsafe().sendPacket( message );
             }
-            
+
             return this;
         }
 
@@ -176,9 +176,8 @@ enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientH
         {
             ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, this.name(), message );
             con.getServerConnection().getCh().write(message);
-            return this;
+            return DONE;
         }
-        
     },
 
     /**
@@ -189,14 +188,15 @@ enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientH
         @Override
         public ForgeClientHandshakeState handle(PluginMessage message, UserConnection con)
         {
+            ForgeLogger.logClient( ForgeLogger.LogDirection.RECEIVED, this.name(), message );
             return this;
         }
 
         @Override
         public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
         {
+            ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, this.name(), message );
             return this;
         }
-        
     }
 }

@@ -21,6 +21,7 @@ import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.connection.LoginResult;
 import net.md_5.bungee.forge.ForgeClientData;
+import net.md_5.bungee.forge.ForgeClientHandshakeState;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.forge.ForgeServer;
 import net.md_5.bungee.forge.IForgeServer;
@@ -108,7 +109,7 @@ public class ServerConnector extends PacketHandler
         Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not expecting LOGIN_SUCCESS" );
         ch.setProtocol( Protocol.GAME );
         thisState = State.LOGIN;
-        if (user.getServer() != null) // only reset handshakes after initial connection
+        if (user.getServer() != null && user.getState() == ForgeClientHandshakeState.DONE)
         {
             user.getForgeClientData().resetHandshake();
         }
@@ -152,9 +153,10 @@ public class ServerConnector extends PacketHandler
             ch.write( user.getSettings() );
         }
 
-        if (user.getForgeClientData().getClientModList() == null && !user.getForgeClientData().isHandshakeComplete()) // Vanilla
+        if (user.getForgeClientData().getClientModList() == null && user.getState() != ForgeClientHandshakeState.DONE) // Vanilla
         {
             this.handshakeHandler = VanillaForgeServer.vanilla;
+            user.setState(ForgeClientHandshakeState.DONE);
         }
         if ( user.getServer() == null )
         {

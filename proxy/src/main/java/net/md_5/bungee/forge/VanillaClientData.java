@@ -42,6 +42,7 @@ public class VanillaClientData implements IForgeClientData {
     @Override
     public void resetHandshake()
     {
+        con.setState(ForgeClientHandshakeState.START);
         con.unsafe().sendPacket(ForgeConstants.FML_RESET_HANDSHAKE); // ignored by vanilla clients
     }
 
