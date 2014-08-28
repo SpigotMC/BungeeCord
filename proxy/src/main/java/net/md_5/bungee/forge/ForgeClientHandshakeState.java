@@ -32,7 +32,6 @@ public enum ForgeClientHandshakeState implements IForgeClientPacketHandler<Forge
         @Override
         public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
         {
-            ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, this.name(), message );
             return HELLO;
         }
     },
@@ -63,7 +62,6 @@ public enum ForgeClientHandshakeState implements IForgeClientPacketHandler<Forge
         @Override
         public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
         {
-            ForgeLogger.logClient(LogDirection.SENDING, this.name(), message);
             // Client Hello.
             if (message.getData()[0] == 1) {
                 return this;
@@ -98,7 +96,6 @@ public enum ForgeClientHandshakeState implements IForgeClientPacketHandler<Forge
         public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
         {
             // ACK
-            ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, this.name(), message );
             return WAITINGSERVERCOMPLETE;
         }
     },
@@ -123,7 +120,6 @@ public enum ForgeClientHandshakeState implements IForgeClientPacketHandler<Forge
         public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
         {
             // Send ACK.
-            ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, this.name(), message );
             return PENDINGCOMPLETE;
         }
     },
@@ -146,7 +142,6 @@ public enum ForgeClientHandshakeState implements IForgeClientPacketHandler<Forge
         public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
         {
             // Send an ACK
-            ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, this.name(), message );
             return COMPLETE;
         }
     },
@@ -168,7 +163,6 @@ public enum ForgeClientHandshakeState implements IForgeClientPacketHandler<Forge
         @Override
         public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
         {
-            ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, this.name(), message );
             return DONE;
         }
     },
@@ -188,7 +182,6 @@ public enum ForgeClientHandshakeState implements IForgeClientPacketHandler<Forge
         @Override
         public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
         {
-            ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, this.name(), message );
             return this;
         }
     }

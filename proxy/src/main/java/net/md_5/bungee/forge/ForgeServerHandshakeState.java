@@ -26,7 +26,6 @@ public enum ForgeServerHandshakeState implements IForgeServerPacketHandler<Forge
         public ForgeServerHandshakeState send(PluginMessage message, UserConnection con)
         {
             // Send custom channel registration. Send Hello.
-            ForgeLogger.logServer(LogDirection.SENDING, this.name(), message);
             return HELLO;
         }
     },
@@ -54,7 +53,6 @@ public enum ForgeServerHandshakeState implements IForgeServerPacketHandler<Forge
         public ForgeServerHandshakeState send(PluginMessage message, UserConnection con)
         {
             // Send Server Mod List.
-            ForgeLogger.logServer(LogDirection.SENDING, this.name(), message);
             return WAITINGCACK;
         }
     },
@@ -72,8 +70,6 @@ public enum ForgeServerHandshakeState implements IForgeServerPacketHandler<Forge
         @Override
         public ForgeServerHandshakeState send(PluginMessage message, UserConnection con)
         {
-            ForgeLogger.logServer(LogDirection.SENDING, this.name(), message);
-
             if (message.getData()[0] == 3 && message.getTag().equals(ForgeConstants.FML_HANDSHAKE_TAG))
             {
                 con.getForgeClientData().setServerIdList( message );
@@ -109,7 +105,6 @@ public enum ForgeServerHandshakeState implements IForgeServerPacketHandler<Forge
         public ForgeServerHandshakeState send(PluginMessage message, UserConnection con)
         {
             // Send ACK
-            ForgeLogger.logServer(LogDirection.SENDING, this.name(), message);
             return DONE;
         }
         

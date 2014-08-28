@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.forge.ForgeLogger.LogDirection;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.packet.PluginMessage;
@@ -42,6 +43,7 @@ public class ForgeServer extends AbstractPacketHandler implements IForgeServer {
             throw new IllegalArgumentException( "Expecting a Forge REGISTER or FML Handshake packet." );
         }
 
+        message.setAllowExtendedPacket(true); // FML allows extended packets so this must be enabled
         ForgeServerHandshakeState prevState = state;
         packetQueue.add(message);
         state = state.send( message, con );
@@ -51,6 +53,7 @@ public class ForgeServer extends AbstractPacketHandler implements IForgeServer {
             {
                 while (!packetQueue.isEmpty())
                 {
+                    ForgeLogger.logServer(LogDirection.SENDING, prevState.name(), packetQueue.getFirst());
                     con.getForgeClientData().receive(packetQueue.removeFirst());
                 }
             }

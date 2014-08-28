@@ -41,6 +41,7 @@ public class ForgeClientData implements IForgeClientData
             throw new IllegalArgumentException("Expecting a Forge Handshake packet.");
         }
 
+        message.setAllowExtendedPacket(true); // FML allows extended packets so this must be enabled
         ForgeClientHandshakeState prevState = con.getState();
         packetQueue.add(message);
         con.setState(con.getState().send( message, con ));
@@ -50,6 +51,7 @@ public class ForgeClientData implements IForgeClientData
             {
                 while (!packetQueue.isEmpty())
                 {
+                    ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, prevState.name(), packetQueue.getFirst());
                     con.getForgeServer().receive(packetQueue.removeFirst());
                 }
             }
