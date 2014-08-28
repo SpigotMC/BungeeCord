@@ -72,7 +72,7 @@ public enum ForgeServerHandshakeState implements IForgeServerPacketHandler<Forge
         {
             if (message.getData()[0] == 3 && message.getTag().equals(ForgeConstants.FML_HANDSHAKE_TAG))
             {
-                con.getForgeClientData().setServerIdList( message );
+                con.getForgeClientHandler().setServerIdList( message );
                 return this;
             }
 

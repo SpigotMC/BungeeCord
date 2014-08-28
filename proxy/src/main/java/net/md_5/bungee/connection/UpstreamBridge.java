@@ -147,7 +147,7 @@ public class UpstreamBridge extends PacketHandler
         if (pluginMessage.getTag().equals(ForgeConstants.FML_HANDSHAKE_TAG)) 
         {
             // Let our forge client handler deal with this packet.
-            con.getForgeClientData().handle( pluginMessage );
+            con.getForgeClientHandler().handle( pluginMessage );
             throw CancelSendSignal.INSTANCE;
         }
 

@@ -34,10 +34,8 @@ import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.entitymap.EntityMap;
-import net.md_5.bungee.forge.ForgeClientData;
-import net.md_5.bungee.forge.ForgeClientHandshakeState;
-import net.md_5.bungee.forge.IForgeClientData;
-import net.md_5.bungee.forge.IForgeServer;
+import net.md_5.bungee.forge.ForgeClientHandler;
+import net.md_5.bungee.forge.ForgeServerHandler;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PipelineUtils;
@@ -125,14 +123,10 @@ public final class UserConnection implements ProxiedPlayer
     /*========================================================================*/
     @Getter
     @Setter
-    private IForgeClientData forgeClientData;
+    private ForgeClientHandler forgeClientHandler;
     @Getter
     @Setter
-    private IForgeServer forgeServer;
-    @NonNull
-    @Getter
-    @Setter
-    private ForgeClientHandshakeState state = ForgeClientHandshakeState.HELLO;
+    private ForgeServerHandler forgeServerHandler;
     /*========================================================================*/
     private final Unsafe unsafe = new Unsafe()
     {
@@ -170,7 +164,7 @@ public final class UserConnection implements ProxiedPlayer
             addGroups( s );
         }
 
-        forgeClientData = new ForgeClientData( this );
+        forgeClientHandler = new ForgeClientHandler( this );
     }
 
     public void sendPacket(PacketWrapper packet)
@@ -388,7 +382,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendData(String channel, byte[] data)
     {
-        unsafe().sendPacket( new PluginMessage( channel, data, forgeClientData.isForgeUser() ) );
+        unsafe().sendPacket( new PluginMessage( channel, data, forgeClientHandler.isForgeUser() ) );
     }
 
     @Override
