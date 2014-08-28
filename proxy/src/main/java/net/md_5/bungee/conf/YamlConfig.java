@@ -251,6 +251,13 @@ public class YamlConfig implements ConfigurationAdapter
     @SuppressWarnings("unchecked")
     public Collection<String> getPermissions(String group)
     {
-        return get( "permissions." + group, Collections.EMPTY_LIST );
+        //Would have rather returned null but that may break plugins already expecting an empty list.
+        // so will return an empty list but not create one in the config.
+        Collection<String> permissionList = get( "permissions." + group, null );
+        if(permissionList==null)
+            return (Collection<String>)Collections.EMPTY_LIST;
+        else
+            return permissionList;
+
     }
 }
