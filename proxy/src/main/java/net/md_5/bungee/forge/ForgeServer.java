@@ -6,7 +6,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.UserConnection;
-import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.forge.ForgeLogger.LogDirection;
 import net.md_5.bungee.netty.ChannelWrapper;
