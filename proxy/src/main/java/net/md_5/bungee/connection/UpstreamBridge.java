@@ -19,9 +19,7 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import java.util.ArrayList;
 import java.util.List;
-import net.md_5.bungee.forge.ForgeClientData;
 import net.md_5.bungee.forge.ForgeConstants;
-import net.md_5.bungee.forge.VanillaClientData;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 
@@ -39,7 +37,6 @@ public class UpstreamBridge extends PacketHandler
         BungeeCord.getInstance().addConnection( con );
         con.getTabListHandler().onConnect();
         con.unsafe().sendPacket( BungeeCord.getInstance().registerChannels() );
-        con.setForgeClientData(new VanillaClientData( con ));
     }
 
     @Override
@@ -149,11 +146,6 @@ public class UpstreamBridge extends PacketHandler
         // We handle forge handshake messages if forge support is enabled.
         if (pluginMessage.getTag().equals(ForgeConstants.FML_HANDSHAKE_TAG)) 
         {
-            // Create the Forge handshake handler, and fire it. Ignored by vanilla clients.
-            if (con.getForgeClientData() instanceof VanillaClientData)
-            {
-                con.setForgeClientData(new ForgeClientData( con ));
-            }
             // Let our forge client handler deal with this packet.
             con.getForgeClientData().handle( pluginMessage );
             throw CancelSendSignal.INSTANCE;
