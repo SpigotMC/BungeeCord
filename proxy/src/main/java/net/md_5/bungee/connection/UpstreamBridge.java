@@ -147,7 +147,7 @@ public class UpstreamBridge extends PacketHandler
         }
 
         // We handle forge handshake messages if forge support is enabled.
-        if (pluginMessage.getTag().equals( ForgeConstants.FORGE_HANDSHAKE_TAG ) ) 
+        if (pluginMessage.getTag().equals(ForgeConstants.FML_HANDSHAKE_TAG)) 
         {
             // Create the Forge handshake handler, and fire it. Ignored by vanilla clients.
             if (con.getForgeClientData() instanceof VanillaClientData)

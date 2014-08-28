@@ -16,4 +16,9 @@ public class VanillaForgeServer implements IForgeServer {
     public boolean isServerForge() {
         return false;
     }
+
+    @Override
+    public void receive(PluginMessage message) throws IllegalArgumentException
+    {
+    }
 }

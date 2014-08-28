@@ -13,6 +13,12 @@ public interface IForgeClientData {
     void handle(PluginMessage message) throws IllegalArgumentException;
 
     /**
+     * Receives a {@link PluginMessage} from ForgeServer to pass to Client.
+     * @param message The message to being received.
+     */
+    void receive(PluginMessage message) throws IllegalArgumentException;
+
+    /**
      * Returns whether we know if the user is a forge user.
      * @return <code>true</code> if the user is a forge user.
      */

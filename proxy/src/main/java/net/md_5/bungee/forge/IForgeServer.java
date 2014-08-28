@@ -12,6 +12,13 @@ public interface IForgeServer {
     void handle(PluginMessage message) throws IllegalArgumentException;
 
     /**
+     * Receives a {@link PluginMessage} from ForgeClientData to pass to Server.
+     *
+     * @param message The message to being received.
+     */
+    void receive(PluginMessage message) throws IllegalArgumentException;
+
+    /**
      * Returns whether the server handshake has been initiated.
      *
      * @return <code>true</code> if the server has started a Forge handshake.

@@ -7,7 +7,7 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 
 /**
  * Handshake sequence manager for the Bungee - Forge Client (Upstream) link. Modelled after the Forge implementation.
- * See https://github.com/MinecraftForge/FML/blob/master/src/main/java/cpw/mods/fml/common/network/handshake/FMLHandshakClientState.java
+ * See https://github.com/MinecraftForge/FML/blob/master/src/main/java/cpw/mods/fml/common/network/handshake/FMLHandshakeClientState.java
  */
 public enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientHandshakeState>
 {
@@ -33,7 +33,6 @@ public enum ForgeClientHandshakeState implements IForgeClientPacketHandler<Forge
         public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
         {
             ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, this.name(), message );
-            con.getServerConnection().getCh().write(message);
             return HELLO;
         }
     },
@@ -67,14 +66,12 @@ public enum ForgeClientHandshakeState implements IForgeClientPacketHandler<Forge
             ForgeLogger.logClient(LogDirection.SENDING, this.name(), message);
             // Client Hello.
             if (message.getData()[0] == 1) {
-                con.getServerConnection().getCh().write(message);
                 return this;
             }
 
             // Mod list.
             if (message.getData()[0] == 2) {
                 con.getForgeClientData().setClientModList(message.getData()); // cache used for switching servers
-                con.getServerConnection().getCh().write(message);;
                 return WAITINGSERVERDATA;
             }
 
@@ -88,11 +85,9 @@ public enum ForgeClientHandshakeState implements IForgeClientPacketHandler<Forge
         @Override
         public ForgeClientHandshakeState handle(PluginMessage message, UserConnection con)
         {
+            ForgeLogger.logClient( ForgeLogger.LogDirection.RECEIVED, this.name(), message );
             // Mod list.
             if (message.getData()[0] == 2) {
-                // Mod List. The server will actually pass the mod list down to the client
-                // (from the FML server, or the empty mod list from Bungee), so no need to send it
-                // here. The "setFmlModData" method will set it all in motion.
                 con.unsafe().sendPacket( message );
             }
 
@@ -102,9 +97,8 @@ public enum ForgeClientHandshakeState implements IForgeClientPacketHandler<Forge
         @Override
         public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
         {
-            // Send the message, and wait for ACK.
+            // ACK
             ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, this.name(), message );
-            con.getServerConnection().getCh().write(message);
             return WAITINGSERVERCOMPLETE;
         }
     },
@@ -118,8 +112,10 @@ public enum ForgeClientHandshakeState implements IForgeClientPacketHandler<Forge
             // Mod ID's.
             if (message.getData()[0] == 3) {
                 con.unsafe().sendPacket( message );
+                return this;
             }
 
+            con.unsafe().sendPacket(message); // pass everything else
             return this;
         }
 
@@ -128,7 +124,6 @@ public enum ForgeClientHandshakeState implements IForgeClientPacketHandler<Forge
         {
             // Send ACK.
             ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, this.name(), message );
-            con.getServerConnection().getCh().write(message);
             return PENDINGCOMPLETE;
         }
     },
@@ -152,7 +147,6 @@ public enum ForgeClientHandshakeState implements IForgeClientPacketHandler<Forge
         {
             // Send an ACK
             ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, this.name(), message );
-            con.getServerConnection().getCh().write(message);
             return COMPLETE;
         }
     },
@@ -175,7 +169,6 @@ public enum ForgeClientHandshakeState implements IForgeClientPacketHandler<Forge
         public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
         {
             ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, this.name(), message );
-            con.getServerConnection().getCh().write(message);
             return DONE;
         }
     },

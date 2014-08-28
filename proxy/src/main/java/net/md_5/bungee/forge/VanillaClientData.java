@@ -60,4 +60,9 @@ public class VanillaClientData implements IForgeClientData {
     public void setServerModList(PluginMessage modList) throws IllegalArgumentException
     {
     }
+
+    @Override
+    public void receive(PluginMessage message) throws IllegalArgumentException
+    {
+    }
 }

@@ -1,8 +1,11 @@
 package net.md_5.bungee.forge;
 
+import java.util.ArrayDeque;
+
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
@@ -21,6 +24,10 @@ public class ForgeClientData implements IForgeClientData
     @Getter
     private byte[] clientModList = null;
 
+    @Getter
+    @Setter
+    private ArrayDeque<PluginMessage> packetQueue = new ArrayDeque<PluginMessage>();
+
     private PluginMessage serverModList = null;
     private PluginMessage serverIdList = null;
 
@@ -30,12 +37,33 @@ public class ForgeClientData implements IForgeClientData
      */
     @Override
     public void handle(PluginMessage message) throws IllegalArgumentException {
-        if (!message.getTag().equalsIgnoreCase( ForgeConstants.FORGE_HANDSHAKE_TAG )) {
+        if (!message.getTag().equalsIgnoreCase(ForgeConstants.FML_HANDSHAKE_TAG)) {
             throw new IllegalArgumentException("Expecting a Forge Handshake packet.");
         }
 
-        ForgeLogger.logClient( ForgeLogger.LogDirection.RECEIVED, con.getState().name(), message);
+        ForgeClientHandshakeState prevState = con.getState();
+        packetQueue.add(message);
         con.setState(con.getState().send( message, con ));
+        if (con.getState() != prevState) // state finished, send packets
+        {
+            synchronized (packetQueue)
+            {
+                while (!packetQueue.isEmpty())
+                {
+                    con.getForgeServer().receive(packetQueue.removeFirst());
+                }
+            }
+        }
+    }
+
+    /**
+     * Receives a {@link PluginMessage} from ForgeServer to pass to Client.
+     *
+     * @param message The message to being received.
+     */
+    @Override
+    public void receive(PluginMessage message) throws IllegalArgumentException {
+        con.setState(con.getState().handle(message, con));
     }
 
     /**
@@ -43,7 +71,7 @@ public class ForgeClientData implements IForgeClientData
      */
     @Override
     public void resetHandshake() {
-        con.setState(ForgeClientHandshakeState.START);
+        con.setState(ForgeClientHandshakeState.HELLO);
         con.unsafe().sendPacket(ForgeConstants.FML_RESET_HANDSHAKE);
     }
 
@@ -55,7 +83,7 @@ public class ForgeClientData implements IForgeClientData
      */
     @Override
     public void setServerModList(PluginMessage modList) throws IllegalArgumentException {
-        if (!modList.getTag().equalsIgnoreCase( ForgeConstants.FORGE_HANDSHAKE_TAG ) || modList.getData()[0] != 2) {
+        if (!modList.getTag().equalsIgnoreCase( ForgeConstants.FML_HANDSHAKE_TAG ) || modList.getData()[0] != 2) {
             throw new IllegalArgumentException("modList");
         }
 
@@ -70,7 +98,7 @@ public class ForgeClientData implements IForgeClientData
      */
     @Override
     public void setServerIdList(PluginMessage idList) throws IllegalArgumentException {
-        if (!idList.getTag().equalsIgnoreCase( ForgeConstants.FORGE_HANDSHAKE_TAG ) || idList.getData()[0] != 3) {
+        if (!idList.getTag().equalsIgnoreCase( ForgeConstants.FML_HANDSHAKE_TAG ) || idList.getData()[0] != 3) {
             throw new IllegalArgumentException("idList");
         }
 
