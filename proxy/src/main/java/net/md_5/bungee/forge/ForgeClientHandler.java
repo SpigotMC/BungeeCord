@@ -1,7 +1,7 @@
 package net.md_5.bungee.forge;
 
 import java.util.ArrayDeque;
-
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
  * Handles the Forge Client data and handshake procedure.
  */
 @RequiredArgsConstructor
-public class ForgeClientData implements IForgeClientData
+public class ForgeClientHandler
 {
     @NonNull
     private final UserConnection con;
@@ -24,9 +24,11 @@ public class ForgeClientData implements IForgeClientData
     @Getter
     private byte[] clientModList = null;
 
-    @Getter
-    @Setter
-    private ArrayDeque<PluginMessage> packetQueue = new ArrayDeque<PluginMessage>();
+    private final ArrayDeque<PluginMessage> packetQueue = new ArrayDeque<PluginMessage>();
+
+    @NonNull
+    @Setter(AccessLevel.PACKAGE)
+    private ForgeClientHandshakeState state = ForgeClientHandshakeState.HELLO;
 
     private PluginMessage serverModList = null;
     private PluginMessage serverIdList = null;
@@ -35,24 +37,23 @@ public class ForgeClientData implements IForgeClientData
      * Handles the Forge packet.
      * @param message The Forge Handshake packet to handle.
      */
-    @Override
     public void handle(PluginMessage message) throws IllegalArgumentException {
         if (!message.getTag().equalsIgnoreCase(ForgeConstants.FML_HANDSHAKE_TAG)) {
             throw new IllegalArgumentException("Expecting a Forge Handshake packet.");
         }
 
         message.setAllowExtendedPacket(true); // FML allows extended packets so this must be enabled
-        ForgeClientHandshakeState prevState = con.getState();
+        ForgeClientHandshakeState prevState = state;
         packetQueue.add(message);
-        con.setState(con.getState().send( message, con ));
-        if (con.getState() != prevState) // state finished, send packets
+        state = state.send( message, con );
+        if (state != prevState) // state finished, send packets
         {
             synchronized (packetQueue)
             {
                 while (!packetQueue.isEmpty())
                 {
                     ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, prevState.name(), packetQueue.getFirst());
-                    con.getForgeServer().receive(packetQueue.removeFirst());
+                    con.getForgeServerHandler().receive(packetQueue.removeFirst());
                 }
             }
         }
@@ -63,17 +64,15 @@ public class ForgeClientData implements IForgeClientData
      *
      * @param message The message to being received.
      */
-    @Override
     public void receive(PluginMessage message) throws IllegalArgumentException {
-        con.setState(con.getState().handle(message, con));
+        state = state.handle(message, con);
     }
 
     /**
      * Sends a LoginSuccess packet to the Forge client, to reset the handshake state.
      */
-    @Override
     public void resetHandshake() {
-        con.setState(ForgeClientHandshakeState.HELLO);
+        state = ForgeClientHandshakeState.HELLO;
         con.unsafe().sendPacket(ForgeConstants.FML_RESET_HANDSHAKE);
     }
 
@@ -83,7 +82,6 @@ public class ForgeClientData implements IForgeClientData
      * @param modList The {@link PluginMessage} to send to the client containing the mod list.
      * @throws IllegalArgumentException Thrown if the {@link PluginMessage} was not as expected.
      */
-    @Override
     public void setServerModList(PluginMessage modList) throws IllegalArgumentException {
         if (!modList.getTag().equalsIgnoreCase( ForgeConstants.FML_HANDSHAKE_TAG ) || modList.getData()[0] != 2) {
             throw new IllegalArgumentException("modList");
@@ -98,7 +96,6 @@ public class ForgeClientData implements IForgeClientData
      * @param idList The {@link PluginMessage} to send to the client containing the ID list.
      * @throws IllegalArgumentException Thrown if the {@link PluginMessage} was not as expected.
      */
-    @Override
     public void setServerIdList(PluginMessage idList) throws IllegalArgumentException {
         if (!idList.getTag().equalsIgnoreCase( ForgeConstants.FML_HANDSHAKE_TAG ) || idList.getData()[0] != 3) {
             throw new IllegalArgumentException("idList");
@@ -111,22 +108,27 @@ public class ForgeClientData implements IForgeClientData
      * Returns whether the handshake is complete.
      * @return <code>true</code> if the handshake has been completed.
      */
-    @Override
-    public boolean isHandshakeComplete() {
-        return con.getState() == ForgeClientHandshakeState.DONE;
+    public boolean isHandshakeComplete() 
+    {
+        return this.state == ForgeClientHandshakeState.DONE;
+    }
+
+    public void setHandshakeComplete()
+    {
+        this.state = ForgeClientHandshakeState.DONE;
     }
 
     /**
      * Returns whether we know if the user is a forge user.
      * @return <code>true</code> if the user is a forge user.
      */
-    @Override
-    public boolean isForgeUser() {
+    public boolean isForgeUser() 
+    {
         return clientModList != null;
     }
-    
-    @Override
-    public void setClientModList(byte[] value) {
+
+    public void setClientModList(byte[] value) 
+    {
         this.clientModList = value;
     }
 }

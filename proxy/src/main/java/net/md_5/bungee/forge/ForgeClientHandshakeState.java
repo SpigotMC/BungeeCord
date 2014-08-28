@@ -9,7 +9,7 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
  * Handshake sequence manager for the Bungee - Forge Client (Upstream) link. Modelled after the Forge implementation.
  * See https://github.com/MinecraftForge/FML/blob/master/src/main/java/cpw/mods/fml/common/network/handshake/FMLHandshakeClientState.java
  */
-public enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientHandshakeState>
+enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientHandshakeState>
 {
     /**
      * Initiated at the start of a client handshake. This is a special case where we don't want to use a
@@ -25,7 +25,7 @@ public enum ForgeClientHandshakeState implements IForgeClientPacketHandler<Forge
         {
             ForgeLogger.logClient(LogDirection.RECEIVED, this.name(), message);
             con.unsafe().sendPacket( message );
-            con.setState(HELLO);
+            con.getForgeClientHandler().setState(HELLO);
             return HELLO;
         }
 
@@ -69,7 +69,7 @@ public enum ForgeClientHandshakeState implements IForgeClientPacketHandler<Forge
 
             // Mod list.
             if (message.getData()[0] == 2) {
-                con.getForgeClientData().setClientModList(message.getData()); // cache used for switching servers
+                con.getForgeClientHandler().setClientModList(message.getData()); // cache used for switching servers
                 return WAITINGSERVERDATA;
             }
 

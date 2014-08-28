@@ -33,9 +33,9 @@ public abstract class DefinedPacket
 
     public static void writeArrayLegacy(byte[] b, ByteBuf buf, boolean allowExtended)
     {
-        // (Integer.MAX_VALUE & 0x7FFFFF) = 8388607
+        // (Integer.MAX_VALUE & 0x1FFF9A ) = 2097050 - Forge's current upper limit
         if (allowExtended) {
-            Preconditions.checkArgument( b.length <= (Integer.MAX_VALUE & 0x7FFFFF), "Cannot send array longer than 8388607 (got %s bytes)", b.length );
+            Preconditions.checkArgument( b.length <= (Integer.MAX_VALUE & 0x1FFF9A ), "Cannot send array longer than 2097050 (got %s bytes)", b.length );
         } else {
             Preconditions.checkArgument( b.length <= Short.MAX_VALUE, "Cannot send array longer than Short.MAX_VALUE (got %s bytes)", b.length );
         }
@@ -51,8 +51,8 @@ public abstract class DefinedPacket
         // No vanilla packet should give a 3 byte packet, this method will still retain vanilla behaviour.
         int len = readVarShort(buf);
 
-        // (Integer.MAX_VALUE & 0x7FFFFF) = 8388607
-        Preconditions.checkArgument( len <= (Integer.MAX_VALUE & 0x7FFFFF), "Cannot receive array longer than 8388607 (got %s bytes)", len );
+        // (Integer.MAX_VALUE & 0x1FFF9A ) = 2097050 - Forge's current upper limit
+        Preconditions.checkArgument( len <= (Integer.MAX_VALUE & 0x1FFF9A), "Cannot receive array longer than 2097050 (got %s bytes)", len );
 
         byte[] ret = new byte[ len ];
         buf.readBytes( ret );

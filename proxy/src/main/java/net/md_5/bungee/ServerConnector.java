@@ -20,13 +20,9 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.connection.LoginResult;
-import net.md_5.bungee.forge.ForgeClientData;
-import net.md_5.bungee.forge.ForgeClientHandshakeState;
 import net.md_5.bungee.forge.ForgeConstants;
-import net.md_5.bungee.forge.ForgeServer;
+import net.md_5.bungee.forge.ForgeServerHandler;
 import net.md_5.bungee.forge.ForgeUtils;
-import net.md_5.bungee.forge.IForgeServer;
-import net.md_5.bungee.forge.VanillaForgeServer;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PacketHandler;
@@ -52,7 +48,7 @@ public class ServerConnector extends PacketHandler
     private final BungeeServerInfo target;
     private State thisState = State.LOGIN_SUCCESS;
     @Getter
-    private IForgeServer handshakeHandler = VanillaForgeServer.vanilla;
+    private ForgeServerHandler handshakeHandler;
 
     private enum State
     {
@@ -77,6 +73,7 @@ public class ServerConnector extends PacketHandler
     {
         this.ch = channel;
 
+        this.handshakeHandler = new ForgeServerHandler( user, ch, target );
         Handshake originalHandshake = user.getPendingConnection().getHandshake();
         Handshake copiedHandshake = new Handshake( originalHandshake.getProtocolVersion(), originalHandshake.getHost(), originalHandshake.getPort(), 2 );
 
@@ -109,9 +106,9 @@ public class ServerConnector extends PacketHandler
         Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not expecting LOGIN_SUCCESS" );
         ch.setProtocol( Protocol.GAME );
         thisState = State.LOGIN;
-        if (user.getServer() != null && user.getState() == ForgeClientHandshakeState.DONE)
+        if (user.getServer() != null && user.getForgeClientHandler().isHandshakeComplete())
         {
-            user.getForgeClientData().resetHandshake();
+            user.getForgeClientHandler().resetHandshake();
         }
 
         throw CancelSendSignal.INSTANCE;
@@ -153,11 +150,11 @@ public class ServerConnector extends PacketHandler
             ch.write( user.getSettings() );
         }
 
-        if (user.getForgeClientData().getClientModList() == null && user.getState() != ForgeClientHandshakeState.DONE) // Vanilla
+        if (user.getForgeClientHandler().getClientModList() == null && !user.getForgeClientHandler().isHandshakeComplete()) // Vanilla
         {
-            this.handshakeHandler = VanillaForgeServer.vanilla;
-            user.setState(ForgeClientHandshakeState.DONE);
+            user.getForgeClientHandler().setHandshakeComplete();
         }
+
         if ( user.getServer() == null )
         {
             // Once again, first connection
@@ -271,14 +268,14 @@ public class ServerConnector extends PacketHandler
                     break;
                 }
             }
+
             if (isForgeServer) // Forge Server
             {
                 if (!this.handshakeHandler.isServerForge())
                 {
-                    this.handshakeHandler = new ForgeServer( user, ch, target );
-                    // make sure the user is using forge client data
-                    user.setForgeClientData(new ForgeClientData( user ));
-                    user.setForgeServer(handshakeHandler);
+                    // We now set the server-side handshake handler for the client to this.
+                    handshakeHandler.setServerAsForgeServer();
+                    user.setForgeServerHandler(handshakeHandler);
                 }
                 user.unsafe().sendPacket( pluginMessage ); // pass FML REGISTER packet to client
             }

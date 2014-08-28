@@ -9,14 +9,13 @@ import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.forge.ForgeLogger.LogDirection;
 import net.md_5.bungee.netty.ChannelWrapper;
-import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
 /**
  * Contains data about the Forge server, and handles the handshake.
  */
 @RequiredArgsConstructor
-public class ForgeServer extends AbstractPacketHandler implements IForgeServer {
+public class ForgeServerHandler {
     private final UserConnection con;
     @Getter
     private final ChannelWrapper ch;
@@ -27,7 +26,10 @@ public class ForgeServer extends AbstractPacketHandler implements IForgeServer {
     @Getter
     private ForgeServerHandshakeState state = ForgeServerHandshakeState.START;
 
-    private ArrayDeque<PluginMessage> packetQueue = new ArrayDeque<PluginMessage>();
+    @Getter
+    private boolean serverForge = false;
+
+    private final ArrayDeque<PluginMessage> packetQueue = new ArrayDeque<PluginMessage>();
 
     /**
      * Handles any {@link PluginMessage} that contains a FML Handshake or Forge Register.
@@ -35,7 +37,6 @@ public class ForgeServer extends AbstractPacketHandler implements IForgeServer {
      * @param message The message to handle.
      * @throws IllegalArgumentException If the wrong packet is sent down.
      */
-    @Override
     public void handle(PluginMessage message) throws IllegalArgumentException
     {
         if ( !message.getTag().equalsIgnoreCase( ForgeConstants.FML_HANDSHAKE_TAG ) && !message.getTag().equalsIgnoreCase( ForgeConstants.FORGE_REGISTER )) {
@@ -53,7 +54,7 @@ public class ForgeServer extends AbstractPacketHandler implements IForgeServer {
                 while (!packetQueue.isEmpty())
                 {
                     ForgeLogger.logServer(LogDirection.SENDING, prevState.name(), packetQueue.getFirst());
-                    con.getForgeClientData().receive(packetQueue.removeFirst());
+                    con.getForgeClientHandler().receive(packetQueue.removeFirst());
                 }
             }
         }
@@ -64,19 +65,17 @@ public class ForgeServer extends AbstractPacketHandler implements IForgeServer {
      *
      * @param message The message to being received.
      */
-    @Override
     public void receive(PluginMessage message) throws IllegalArgumentException
     {
         state = state.handle(message, ch);
     }
 
     /**
-     * Returns whether the server handshake has been initiated.
-     *
-     * @return <code>true</code> if the server has started a Forge handshake.
+     * Flags the server as a Forge server. Cannot be used to set a server 
+     * back to vanilla (there would be no need)
      */
-    @Override
-    public boolean isServerForge() {
-        return state != ForgeServerHandshakeState.START;
+    public void setServerAsForgeServer() 
+    {
+        serverForge = true;
     }
 }
