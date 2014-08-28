@@ -3,6 +3,7 @@ package net.md_5.bungee;
 import com.google.common.base.Preconditions;
 import java.util.Objects;
 import java.util.Queue;
+import java.util.Set;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import net.md_5.bungee.forge.ForgeClientData;
 import net.md_5.bungee.forge.ForgeClientHandshakeState;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.forge.ForgeServer;
+import net.md_5.bungee.forge.ForgeUtils;
 import net.md_5.bungee.forge.IForgeServer;
 import net.md_5.bungee.forge.VanillaForgeServer;
 import net.md_5.bungee.netty.ChannelWrapper;
@@ -257,19 +259,39 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(PluginMessage pluginMessage) throws Exception
     {
-        if(pluginMessage.getTag().equals(ForgeConstants.FORGE_HANDSHAKE_TAG))
+        if (pluginMessage.getTag().equals(ForgeConstants.FML_REGISTER))
         {
-            ServerConnection server = new ServerConnection( ch, target );
-            user.setServerConnection(server);
-            if (this.handshakeHandler == VanillaForgeServer.vanilla)
+            Set<String> channels = ForgeUtils.readRegisteredChannels(pluginMessage);
+            boolean isForgeServer = false;
+            for (String channel : channels)
             {
-                this.handshakeHandler = new ForgeServer( user, ch, target );
-                // make sure the user is using forge client data
-                user.setForgeClientData(new ForgeClientData( user ));
+                if (channel.equals(ForgeConstants.FML_HANDSHAKE_TAG)) 
+                {
+                    isForgeServer = true;
+                    break;
+                }
+            }
+            if (isForgeServer) // Forge Server
+            {
+                if (!this.handshakeHandler.isServerForge())
+                {
+                    this.handshakeHandler = new ForgeServer( user, ch, target );
+                    // make sure the user is using forge client data
+                    user.setForgeClientData(new ForgeClientData( user ));
+                    user.setForgeServer(handshakeHandler);
+                }
+                user.unsafe().sendPacket( pluginMessage ); // pass FML REGISTER packet to client
             }
         }
 
-        user.unsafe().sendPacket( pluginMessage ); // We have to forward these to the user, especially with Forge as stuff might break
+        if(pluginMessage.getTag().equals(ForgeConstants.FML_HANDSHAKE_TAG) || pluginMessage.getTag().equals(ForgeConstants.FORGE_REGISTER))
+        {
+            this.handshakeHandler.handle(pluginMessage);
+        }
+        else
+        {
+            user.unsafe().sendPacket( pluginMessage ); // We have to forward these to the user, especially with Forge as stuff might break
+        }
     }
 
     @Override

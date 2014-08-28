@@ -27,7 +27,6 @@ public enum ForgeServerHandshakeState implements IForgeServerPacketHandler<Forge
         {
             // Send custom channel registration. Send Hello.
             ForgeLogger.logServer(LogDirection.SENDING, this.name(), message);
-            con.unsafe().sendPacket( message ); // Send Hello then transition
             return HELLO;
         }
     },
@@ -56,7 +55,6 @@ public enum ForgeServerHandshakeState implements IForgeServerPacketHandler<Forge
         {
             // Send Server Mod List.
             ForgeLogger.logServer(LogDirection.SENDING, this.name(), message);
-            con.unsafe().sendPacket( message );
             return WAITINGCACK;
         }
     },
@@ -76,18 +74,22 @@ public enum ForgeServerHandshakeState implements IForgeServerPacketHandler<Forge
         {
             ForgeLogger.logServer(LogDirection.SENDING, this.name(), message);
 
-            if (message.getData()[0] == 3)
+            if (message.getData()[0] == 3 && message.getTag().equals(ForgeConstants.FML_HANDSHAKE_TAG))
             {
                 con.getForgeClientData().setServerIdList( message );
-                con.unsafe().sendPacket( message );
                 return this;
             }
 
-            if (message.getData()[0] == -1) // transition to COMPLETE after receiving ACK
+            if (message.getData()[0] == -1 && message.getTag().equals(ForgeConstants.FML_HANDSHAKE_TAG)) // transition to COMPLETE after sending ACK
             {
-                con.unsafe().sendPacket( message );
+                return this;
+            }
+
+            if (message.getTag().equals(ForgeConstants.FORGE_REGISTER)) // wait for Forge channel registration
+            {
                 return COMPLETE;
             }
+
             return this;
         }
     },
@@ -108,7 +110,6 @@ public enum ForgeServerHandshakeState implements IForgeServerPacketHandler<Forge
         {
             // Send ACK
             ForgeLogger.logServer(LogDirection.SENDING, this.name(), message);
-            con.unsafe().sendPacket( message );
             return DONE;
         }
         

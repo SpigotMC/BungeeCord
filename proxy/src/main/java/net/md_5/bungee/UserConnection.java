@@ -35,6 +35,7 @@ import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.entitymap.EntityMap;
 import net.md_5.bungee.forge.ForgeClientHandshakeState;
 import net.md_5.bungee.forge.IForgeClientData;
+import net.md_5.bungee.forge.IForgeServer;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PipelineUtils;
@@ -123,11 +124,11 @@ public final class UserConnection implements ProxiedPlayer
     private IForgeClientData forgeClientData;
     @Getter
     @Setter
-    private ServerConnection serverConnection;
+    private IForgeServer forgeServer;
     @NonNull
     @Getter
     @Setter
-    private ForgeClientHandshakeState state = ForgeClientHandshakeState.START;
+    private ForgeClientHandshakeState state = ForgeClientHandshakeState.HELLO;
     /*========================================================================*/
     private final Unsafe unsafe = new Unsafe()
     {

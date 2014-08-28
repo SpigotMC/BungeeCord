@@ -1,5 +1,7 @@
 package net.md_5.bungee.forge;
 
+import java.util.ArrayDeque;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +27,10 @@ public class ForgeServer extends AbstractPacketHandler implements IForgeServer {
     @Getter
     private ForgeServerHandshakeState state = ForgeServerHandshakeState.START;
 
+    private ArrayDeque<PluginMessage> packetQueue = new ArrayDeque<PluginMessage>();
+
     /**
-     * Handles any {@link PluginMessage} that contains a Forge Handshake.
+     * Handles any {@link PluginMessage} that contains a FML Handshake or Forge Register.
      *
      * @param message The message to handle.
      * @throws IllegalArgumentException If the wrong packet is sent down.
@@ -34,11 +38,34 @@ public class ForgeServer extends AbstractPacketHandler implements IForgeServer {
     @Override
     public void handle(PluginMessage message) throws IllegalArgumentException
     {
-        if ( !message.getTag().equalsIgnoreCase( ForgeConstants.FORGE_HANDSHAKE_TAG ) ) {
-            throw new IllegalArgumentException( "Expecting a Forge Handshake packet." );
+        if ( !message.getTag().equalsIgnoreCase( ForgeConstants.FML_HANDSHAKE_TAG ) && !message.getTag().equalsIgnoreCase( ForgeConstants.FORGE_REGISTER )) {
+            throw new IllegalArgumentException( "Expecting a Forge REGISTER or FML Handshake packet." );
         }
 
+        ForgeServerHandshakeState prevState = state;
+        packetQueue.add(message);
         state = state.send( message, con );
+        if (state != prevState) // send packets
+        {
+            synchronized (packetQueue)
+            {
+                while (!packetQueue.isEmpty())
+                {
+                    con.getForgeClientData().receive(packetQueue.removeFirst());
+                }
+            }
+        }
+    }
+
+    /**
+     * Receives a {@link PluginMessage} from ForgeClientData to pass to Server.
+     *
+     * @param message The message to being received.
+     */
+    @Override
+    public void receive(PluginMessage message) throws IllegalArgumentException
+    {
+        state = state.handle(message, ch);
     }
 
     /**
