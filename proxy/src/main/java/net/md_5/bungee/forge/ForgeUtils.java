@@ -1,15 +1,13 @@
 package net.md_5.bungee.forge;
 
+import net.md_5.bungee.protocol.forge.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
@@ -55,27 +53,21 @@ public class ForgeUtils {
     /**
      * Get the build number of FML from the packet.
      * 
-     * @param modList The modlist, as bytes.
+     * @param modList The modlist, as a Map.
      * @return The build number, or 0 if it failed.
      */
-    public static int getBuildNumber(byte[] modList)
+    public static int getFmlBuildNumber(Map<String, String> modList)
     {
-        try
+        if (modList.containsKey( "FML" ))
         {
-            String s = new String(modList, "UTF-8");
-            Matcher matcher = ForgeConstants.FML_HANDSHAKE_VERSION_REGEX.matcher( s );
-
+            Matcher matcher = ForgeConstants.FML_HANDSHAKE_VERSION_REGEX.matcher( modList.get( "FML" ) );
             if ( matcher.find() ) 
             {
                 // We know from the regex that we have an int.
                 return Integer.parseInt( matcher.group( 4 ));
             }
-
-            return 0;
-        } catch ( UnsupportedEncodingException ex )
-        {
-            Logger.getLogger( ForgeUtils.class.getName() ).log( Level.SEVERE, null, ex );
-            return 0;
         }
+
+        return 0;
     }
 }
