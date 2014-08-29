@@ -1,5 +1,6 @@
 package net.md_5.bungee.forge;
 
+import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.ServerConnector;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.forge.ForgeLogger.LogDirection;
@@ -69,7 +70,25 @@ enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientH
 
             // Mod list.
             if (message.getData()[0] == 2) {
+                if ( con.getForgeClientHandler().getClientModList() == null )
+                {
+                    // This is the first Forge connection - so we perform our version check now.
+                    // Otherwise, we've done it once, no point doing it again.
+                    //
+                    // Get the version from the mod list.
+                    // TODO: Remove this once Bungee becomes 1.8 only.
+                    int buildNumber = ForgeUtils.getBuildNumber( message.getData() );
+
+                    // If we get 0, we're probably using a testing build, so let it though. Otherwise, check the build number.
+                    if ( buildNumber < ForgeConstants.FML_MIN_BUILD_VERSION && buildNumber != 0 ) {
+                        // Mark the user as an old Forge user. This will then cause any Forge ServerConnectors to cancel any
+                        // connections to it.
+                        con.getForgeClientHandler().setForgeOutdated( true );
+                    }
+                }
+
                 con.getForgeClientHandler().setClientModList(message.getData()); // cache used for switching servers
+
                 return WAITINGSERVERDATA;
             }
 
