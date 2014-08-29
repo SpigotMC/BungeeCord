@@ -1,8 +1,12 @@
 package net.md_5.bungee.forge;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -11,12 +15,41 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 
 public class ForgeUtils {
 
+    /**
+     * Gets the registered FML channels from the packet.
+     * 
+     * @param pluginMessage The packet representing FMLProxyPacket.
+     * @return The registered channels.
+     */
     public static Set<String> readRegisteredChannels(PluginMessage pluginMessage)
     {
         String channels = new String(pluginMessage.getData(), Charsets.UTF_8);
         String[] split = channels.split("\0");
         Set<String> channelSet = ImmutableSet.copyOf(split);
         return channelSet;
+    }
+
+    /**
+     * Gets the modlist from the packet.
+     * 
+     * @param pluginMessage The packet representing FMLProxyPacket.
+     * @return The modlist.
+     */
+    public static Map<String, String> readModList(PluginMessage pluginMessage)
+    {
+        Map<String,String> modTags = Maps.newHashMap();
+        ByteBuf payload = Unpooled.wrappedBuffer(pluginMessage.getData());
+        byte discriminator = payload.readByte();
+        if (discriminator == 2) // ModList
+        {
+            ByteBuf buffer = payload.slice();
+            int modCount = ByteBufUtils.readVarInt(buffer, 2);
+            for (int i = 0; i < modCount; i++)
+            {
+                modTags.put(ByteBufUtils.readUTF8String(buffer), ByteBufUtils.readUTF8String(buffer));
+            }
+        }
+        return modTags;
     }
 
     /**
