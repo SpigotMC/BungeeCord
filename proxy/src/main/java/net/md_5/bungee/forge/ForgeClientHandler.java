@@ -1,6 +1,7 @@
 package net.md_5.bungee.forge;
 
 import java.util.ArrayDeque;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
@@ -27,7 +28,8 @@ public class ForgeClientHandler
      * The users' mod list.
      */
     @Getter
-    private byte[] clientModList = null;
+    @Setter(AccessLevel.PACKAGE)
+    private Map<String, String> clientModList = null;
 
     private final ArrayDeque<PluginMessage> packetQueue = new ArrayDeque<PluginMessage>();
 
@@ -74,7 +76,8 @@ public class ForgeClientHandler
     }
 
     /**
-     * Sends a LoginSuccess packet to the Forge client, to reset the handshake state.
+     * Resets the client handshake state to HELLO, and, if we know the handshake has been
+     * completed before, send the reset packet.
      */
     public void resetHandshake() {
         state = ForgeClientHandshakeState.HELLO;
@@ -130,11 +133,6 @@ public class ForgeClientHandler
     public boolean isForgeUser() 
     {
         return clientModList != null;
-    }
-
-    public void setClientModList(byte[] value) 
-    {
-        this.clientModList = value;
     }
 
     /**

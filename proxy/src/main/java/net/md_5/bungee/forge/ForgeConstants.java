@@ -28,5 +28,5 @@ public class ForgeConstants
     /**
      * Regex to use to scrape the version information from a FML handshake.
      */
-    public static final Pattern FML_HANDSHAKE_VERSION_REGEX = Pattern.compile( "FML\t(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)" );
+    public static final Pattern FML_HANDSHAKE_VERSION_REGEX = Pattern.compile( "(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)" );
 }
