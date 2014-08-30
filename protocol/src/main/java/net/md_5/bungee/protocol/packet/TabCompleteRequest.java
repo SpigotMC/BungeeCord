@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
+import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
@@ -16,17 +17,34 @@ public class TabCompleteRequest extends DefinedPacket
 {
 
     private String cursor;
+    private boolean hasPositon;
+    private long position;
 
     @Override
-    public void read(ByteBuf buf)
+    public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         cursor = readString( buf );
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_SNAPSHOT )
+        {
+            if ( hasPositon = buf.readBoolean() )
+            {
+                position = buf.readLong();
+            }
+        }
     }
 
     @Override
-    public void write(ByteBuf buf)
+    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         writeString( cursor, buf );
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_SNAPSHOT )
+        {
+            buf.writeBoolean( hasPositon );
+            if ( hasPositon )
+            {
+                buf.writeLong( position );
+            }
+        }
     }
 
     @Override

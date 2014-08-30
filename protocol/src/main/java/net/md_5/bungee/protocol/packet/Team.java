@@ -50,7 +50,7 @@ public class Team extends DefinedPacket
             prefix = readString( buf );
             suffix = readString( buf );
             friendlyFire = buf.readByte();
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_14_11_a )
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_SNAPSHOT )
             {
                 nameTagVisibility = readString( buf );
                 color = buf.readByte();
@@ -58,7 +58,7 @@ public class Team extends DefinedPacket
         }
         if ( mode == 0 || mode == 3 || mode == 4 )
         {
-            int len = ( protocolVersion >= ProtocolConstants.MINECRAFT_14_11_a ) ? readVarInt( buf ) : buf.readShort();
+            int len = ( protocolVersion >= ProtocolConstants.MINECRAFT_SNAPSHOT ) ? readVarInt( buf ) : buf.readShort();
             players = new String[ len ];
             for ( int i = 0; i < len; i++ )
             {
@@ -78,7 +78,7 @@ public class Team extends DefinedPacket
             writeString( prefix, buf );
             writeString( suffix, buf );
             buf.writeByte( friendlyFire );
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_14_11_a )
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_SNAPSHOT )
             {
                 writeString( nameTagVisibility, buf );
                 buf.writeByte( color );
@@ -86,7 +86,7 @@ public class Team extends DefinedPacket
         }
         if ( mode == 0 || mode == 3 || mode == 4 )
         {
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_14_11_a )
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_SNAPSHOT )
             {
                 writeVarInt( players.length, buf );
             } else

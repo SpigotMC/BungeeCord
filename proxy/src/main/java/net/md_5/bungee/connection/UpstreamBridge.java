@@ -34,7 +34,7 @@ public class UpstreamBridge extends PacketHandler
         this.con = con;
 
         BungeeCord.getInstance().addConnection( con );
-        con.getTabList().onConnect();
+        con.getTabListHandler().onConnect();
         con.unsafe().sendPacket( BungeeCord.getInstance().registerChannels() );
     }
 
@@ -50,7 +50,7 @@ public class UpstreamBridge extends PacketHandler
         // We lost connection to the client
         PlayerDisconnectEvent event = new PlayerDisconnectEvent( con );
         bungee.getPluginManager().callEvent( event );
-        con.getTabList().onDisconnect();
+        con.getTabListHandler().onDisconnect();
         BungeeCord.getInstance().removeConnection( con );
 
         if ( con.getServer() != null )
@@ -62,10 +62,7 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(PacketWrapper packet) throws Exception
     {
-        if ( con.getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_7_6 )
-        {
-            con.getEntityRewrite().rewriteServerbound( packet.buf, con.getClientEntityId(), con.getServerEntityId() );
-        }
+        con.getEntityRewrite().rewriteServerbound( packet.buf, con.getClientEntityId(), con.getServerEntityId() );
         if ( con.getServer() != null )
         {
             con.getServer().getCh().write( packet );
@@ -78,7 +75,7 @@ public class UpstreamBridge extends PacketHandler
         if ( alive.getRandomId() == con.getSentPingId() )
         {
             int newPing = (int) ( System.currentTimeMillis() - con.getSentPingTime() );
-            con.getTabList().onPingChange( newPing );
+            con.getTabListHandler().onPingChange( newPing );
             con.setPing( newPing );
         }
     }

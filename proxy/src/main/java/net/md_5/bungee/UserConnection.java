@@ -30,7 +30,6 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.score.Scoreboard;
-import net.md_5.bungee.api.tab.TabListHandler;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.entitymap.EntityMap;
@@ -46,6 +45,11 @@ import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Kick;
+import net.md_5.bungee.protocol.packet.SetCompression;
+import net.md_5.bungee.tab.Global;
+import net.md_5.bungee.tab.GlobalPing;
+import net.md_5.bungee.tab.ServerUnique;
+import net.md_5.bungee.tab.TabList;
 import net.md_5.bungee.util.CaseInsensitiveSet;
 
 @RequiredArgsConstructor
@@ -73,8 +77,6 @@ public final class UserConnection implements ProxiedPlayer
     private final Collection<ServerInfo> pendingConnects = new HashSet<>();
     /*========================================================================*/
     @Getter
-    private TabListHandler tabList;
-    @Getter
     @Setter
     private int sentPingId;
     @Getter
@@ -86,6 +88,13 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     @Setter
     private ServerInfo reconnectServer;
+    @Getter
+    private TabList tabListHandler;
+    @Getter
+    @Setter
+    private int gamemode;
+    @Getter
+    private int compressionThreshold = -1;
     /*========================================================================*/
     private final Collection<String> groups = new CaseInsensitiveSet();
     private final Collection<String> permissions = new CaseInsensitiveSet();
@@ -121,27 +130,25 @@ public final class UserConnection implements ProxiedPlayer
         this.entityRewrite = EntityMap.getEntityMap( getPendingConnection().getVersion() );
 
         this.displayName = name;
-        try
+
+        switch ( getPendingConnection().getListener().getTabListType() )
         {
-            this.tabList = getPendingConnection().getListener().getTabList().getDeclaredConstructor().newInstance();
-        } catch ( ReflectiveOperationException ex )
-        {
-            throw new RuntimeException( ex );
+            case "GLOBAL":
+                tabListHandler = new Global( this );
+                break;
+            case "SERVER":
+                tabListHandler = new ServerUnique( this );
+                break;
+            default:
+                tabListHandler = new GlobalPing( this );
+                break;
         }
-        this.tabList.init( this );
 
         Collection<String> g = bungee.getConfigurationAdapter().getGroups( name );
         for ( String s : g )
         {
             addGroups( s );
         }
-    }
-
-    @Override
-    public void setTabList(TabListHandler tabList)
-    {
-        tabList.init( this );
-        this.tabList = tabList;
     }
 
     public void sendPacket(PacketWrapper packet)
@@ -160,9 +167,7 @@ public final class UserConnection implements ProxiedPlayer
     {
         Preconditions.checkNotNull( name, "displayName" );
         Preconditions.checkArgument( name.length() <= 16, "Display name cannot be longer than 16 characters" );
-        getTabList().onDisconnect();
         displayName = name;
-        getTabList().onConnect();
     }
 
     @Override
@@ -460,5 +465,15 @@ public final class UserConnection implements ProxiedPlayer
     public Locale getLocale()
     {
         return ( locale == null && settings != null ) ? locale = Locale.forLanguageTag( settings.getLocale().replaceAll( "_", "-" ) ) : locale;
+    }
+
+    public void setCompressionThreshold(int compressionThreshold)
+    {
+        if ( this.compressionThreshold == -1 )
+        {
+            this.compressionThreshold = compressionThreshold;
+            unsafe.sendPacket( new SetCompression( compressionThreshold ) );
+            ch.setCompressionThreshold( compressionThreshold );
+        }
     }
 }

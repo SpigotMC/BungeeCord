@@ -5,6 +5,8 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import lombok.RequiredArgsConstructor;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 public abstract class DefinedPacket
 {
@@ -29,7 +31,7 @@ public abstract class DefinedPacket
         return new String( b, Charsets.UTF_8 );
     }
 
-    public static void writeArray(byte[] b, ByteBuf buf)
+    public static void writeArrayLegacy(byte[] b, ByteBuf buf)
     {
         Preconditions.checkArgument( b.length <= Short.MAX_VALUE, "Cannot send array longer than Short.MAX_VALUE (got %s bytes)", b.length );
 
@@ -37,12 +39,25 @@ public abstract class DefinedPacket
         buf.writeBytes( b );
     }
 
-    public static byte[] readArray(ByteBuf buf)
+    public static byte[] readArrayLegacy(ByteBuf buf)
     {
         short len = buf.readShort();
         Preconditions.checkArgument( len <= Short.MAX_VALUE, "Cannot receive array longer than Short.MAX_VALUE (got %s bytes)", len );
 
         byte[] ret = new byte[ len ];
+        buf.readBytes( ret );
+        return ret;
+    }
+
+    public static void writeArray(byte[] b, ByteBuf buf)
+    {
+        writeVarInt( b.length, buf );
+        buf.writeBytes( b );
+    }
+
+    public static byte[] readArray(ByteBuf buf)
+    {
+        byte[] ret = new byte[ readVarInt( buf ) ];
         buf.readBytes( ret );
         return ret;
     }
@@ -112,6 +127,17 @@ public abstract class DefinedPacket
                 break;
             }
         }
+    }
+
+    public static void writeUUID(UUID value, ByteBuf output)
+    {
+        output.writeLong( value.getMostSignificantBits() );
+        output.writeLong( value.getLeastSignificantBits() );
+    }
+
+    public static UUID readUUID(ByteBuf input)
+    {
+        return new UUID( input.readLong(), input.readLong() );
     }
 
     public void read(ByteBuf buf)
