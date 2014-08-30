@@ -4,14 +4,15 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
-import net.md_5.bungee.connection.LoginResult;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import java.util.UUID;
 
-class EntityMap_14_11_a extends EntityMap
+class EntityMap_14_21_b extends EntityMap
 {
 
-    EntityMap_14_11_a()
+    EntityMap_14_21_b()
     {
         addRewrite( 0x04, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Equipment
         addRewrite( 0x0A, ProtocolConstants.Direction.TO_CLIENT, true ); // Use bed
@@ -38,6 +39,7 @@ class EntityMap_14_11_a extends EntityMap
         addRewrite( 0x25, ProtocolConstants.Direction.TO_CLIENT, true ); // Block Break Animation
         addRewrite( 0x2C, ProtocolConstants.Direction.TO_CLIENT, true ); // Spawn Global Entity
         addRewrite( 0x43, ProtocolConstants.Direction.TO_CLIENT, true ); // Camera
+        addRewrite( 0x49, ProtocolConstants.Direction.TO_CLIENT, true ); // Update Entity NBT
 
         addRewrite( 0x02, ProtocolConstants.Direction.TO_SERVER, true ); // Use Entity
         addRewrite( 0x0B, ProtocolConstants.Direction.TO_SERVER, true ); // Entity Action
@@ -84,23 +86,24 @@ class EntityMap_14_11_a extends EntityMap
             }
         } else if ( packetId == 0x0E /* Spawn Object */ )
         {
-            DefinedPacket.readVarInt( packet );
-            int idLength = packet.readerIndex() - readerIndex - packetIdLength;
 
-            int type = packet.getByte( readerIndex + packetIdLength + idLength );
+            DefinedPacket.readVarInt( packet );
+            int type = packet.readUnsignedByte();
 
             if ( type == 60 || type == 90 )
             {
-                int readId = packet.getInt( packetIdLength + idLength + 15 );
+                packet.skipBytes( 14 );
+                int position = packet.readerIndex();
+                int readId = packet.readInt();
                 int changedId = -1;
                 if ( readId == oldId )
                 {
-                    packet.setInt( packetIdLength + idLength + 15, newId );
+                    packet.setInt( position, newId );
                     changedId = newId;
                 } else if ( readId == newId )
                 {
-                    packet.setInt( packetIdLength + idLength + 15, oldId );
-                    changedId = newId;
+                    packet.setInt( position, oldId );
+                    changedId = oldId;
                 }
                 if ( changedId != -1 )
                 {
@@ -118,36 +121,17 @@ class EntityMap_14_11_a extends EntityMap
             }
         } else if ( packetId == 0x0C /* Spawn Player */ )
         {
-            DefinedPacket.readVarInt( packet );
+            DefinedPacket.readVarInt( packet ); // Entity ID
             int idLength = packet.readerIndex() - readerIndex - packetIdLength;
-            String uuid = DefinedPacket.readString( packet );
-            String username = DefinedPacket.readString( packet );
-            int props = DefinedPacket.readVarInt( packet );
-            if ( props == 0 )
+            UUID uuid = DefinedPacket.readUUID( packet );
+            ProxiedPlayer player;
+            if ( ( player = BungeeCord.getInstance().getPlayerByOfflineUUID( uuid ) ) != null )
             {
-                UserConnection player = (UserConnection) BungeeCord.getInstance().getPlayer( username );
-                if ( player != null )
-                {
-                    LoginResult profile = player.getPendingConnection().getLoginProfile();
-                    if ( profile != null && profile.getProperties() != null
-                            && profile.getProperties().length >= 1 )
-                    {
-                        ByteBuf rest = packet.slice().copy();
-                        packet.readerIndex( readerIndex );
-                        packet.writerIndex( readerIndex + packetIdLength + idLength );
-                        DefinedPacket.writeString( player.getUniqueId().toString(), packet );
-                        DefinedPacket.writeString( username, packet );
-                        DefinedPacket.writeVarInt( profile.getProperties().length, packet );
-                        for ( LoginResult.Property property : profile.getProperties() )
-                        {
-                            DefinedPacket.writeString( property.getName(), packet );
-                            DefinedPacket.writeString( property.getValue(), packet );
-                            DefinedPacket.writeString( property.getSignature(), packet );
-                        }
-                        packet.writeBytes( rest );
-                        rest.release();
-                    }
-                }
+                int previous = packet.writerIndex();
+                packet.readerIndex( readerIndex );
+                packet.writerIndex( readerIndex + packetIdLength + idLength );
+                DefinedPacket.writeUUID( player.getUniqueId(), packet );
+                packet.writerIndex( previous );
             }
         } else if ( packetId == 0x42 /* Combat Event */ )
         {
@@ -163,6 +147,31 @@ class EntityMap_14_11_a extends EntityMap
                 packet.readerIndex( position );
                 DefinedPacket.readVarInt( packet );
                 rewriteInt( packet, oldId, newId, packet.readerIndex() );
+            }
+        }
+        packet.readerIndex( readerIndex );
+    }
+
+    @Override
+    public void rewriteServerbound(ByteBuf packet, int oldId, int newId)
+    {
+        super.rewriteServerbound( packet, oldId, newId );
+        //Special cases
+        int readerIndex = packet.readerIndex();
+        int packetId = DefinedPacket.readVarInt( packet );
+        int packetIdLength = packet.readerIndex() - readerIndex;
+
+        if ( packetId == 0x18 /* Spectate */ )
+        {
+            UUID uuid = DefinedPacket.readUUID( packet );
+            ProxiedPlayer player;
+            if ( ( player = BungeeCord.getInstance().getPlayer( uuid ) ) != null )
+            {
+                int previous = packet.writerIndex();
+                packet.readerIndex( readerIndex );
+                packet.writerIndex( readerIndex + packetIdLength );
+                DefinedPacket.writeUUID( ( (UserConnection) player ).getPendingConnection().getOfflineId(), packet );
+                packet.writerIndex( previous );
             }
         }
         packet.readerIndex( readerIndex );

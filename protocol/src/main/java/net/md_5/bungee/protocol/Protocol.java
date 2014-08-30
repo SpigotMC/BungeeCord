@@ -25,6 +25,7 @@ import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
+import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
@@ -59,6 +60,7 @@ public enum Protocol
                     TO_CLIENT.registerPacket( 0x3E, Team.class );
                     TO_CLIENT.registerPacket( 0x3F, PluginMessage.class );
                     TO_CLIENT.registerPacket( 0x40, Kick.class );
+                    TO_CLIENT.registerPacket( 0x46, SetCompression.class );
 
                     TO_SERVER.registerPacket( 0x00, KeepAlive.class );
                     TO_SERVER.registerPacket( 0x01, Chat.class );
@@ -87,6 +89,7 @@ public enum Protocol
                     TO_CLIENT.registerPacket( 0x00, Kick.class );
                     TO_CLIENT.registerPacket( 0x01, EncryptionRequest.class );
                     TO_CLIENT.registerPacket( 0x02, LoginSuccess.class );
+                    TO_CLIENT.registerPacket( 0x03, SetCompression.class );
 
                     TO_SERVER.registerPacket( 0x00, LoginRequest.class );
                     TO_SERVER.registerPacket( 0x01, EncryptionResponse.class );
@@ -94,7 +97,11 @@ public enum Protocol
             };
     /*========================================================================*/
     public static final int MAX_PACKET_ID = 0xFF;
-    public static List<Integer> supportedVersions = Arrays.asList( ProtocolConstants.MINECRAFT_1_7_2, ProtocolConstants.MINECRAFT_1_7_6, ProtocolConstants.MINECRAFT_14_11_a );
+    public static List<Integer> supportedVersions = Arrays.asList(
+            ProtocolConstants.MINECRAFT_1_7_2,
+            ProtocolConstants.MINECRAFT_1_7_6,
+            ProtocolConstants.MINECRAFT_SNAPSHOT
+    );
     /*========================================================================*/
     public final DirectionData TO_SERVER = new DirectionData( ProtocolConstants.Direction.TO_SERVER );
     public final DirectionData TO_CLIENT = new DirectionData( ProtocolConstants.Direction.TO_CLIENT );

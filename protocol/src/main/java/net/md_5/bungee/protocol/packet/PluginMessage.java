@@ -12,6 +12,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.MinecraftInput;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
+import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
@@ -24,17 +25,30 @@ public class PluginMessage extends DefinedPacket
     private byte[] data;
 
     @Override
-    public void read(ByteBuf buf)
+    public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         tag = readString( buf );
-        data = readArray( buf );
+        if ( protocolVersion < ProtocolConstants.MINECRAFT_SNAPSHOT )
+        {
+            data = readArrayLegacy( buf );
+        } else
+        {
+            data = new byte[ buf.readableBytes() ];
+            buf.readBytes( data );
+        }
     }
 
     @Override
-    public void write(ByteBuf buf)
+    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         writeString( tag, buf );
-        writeArray( data, buf );
+        if ( protocolVersion < ProtocolConstants.MINECRAFT_SNAPSHOT )
+        {
+            writeArrayLegacy( data, buf );
+        } else
+        {
+            buf.writeBytes( data );
+        }
     }
 
     @Override

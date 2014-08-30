@@ -31,6 +31,7 @@ import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
+import net.md_5.bungee.protocol.packet.SetCompression;
 
 @RequiredArgsConstructor
 public class ServerConnector extends PacketHandler
@@ -103,6 +104,13 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
+    public void handle(SetCompression setCompression) throws Exception
+    {
+        user.setCompressionThreshold( setCompression.getThreshold() );
+        ch.setCompressionThreshold( setCompression.getThreshold() );
+    }
+
+    @Override
     public void handle(Login login) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
@@ -139,7 +147,7 @@ public class ServerConnector extends PacketHandler
 
             // Set tab list size, this sucks balls, TODO: what shall we do about packet mutability
             Login modLogin = new Login( login.getEntityId(), login.getGameMode(), (byte) login.getDimension(), login.getDifficulty(),
-                    (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType() );
+                    (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.isReducedDebugInfo() );
 
             user.unsafe().sendPacket( modLogin );
 
@@ -148,7 +156,7 @@ public class ServerConnector extends PacketHandler
             user.unsafe().sendPacket( new PluginMessage( "MC|Brand", out.toArray() ) );
         } else
         {
-            user.getTabList().onServerChange();
+            user.getTabListHandler().onServerChange();
 
             Scoreboard serverScoreboard = user.getServerSentScoreboard();
             for ( Objective objective : serverScoreboard.getObjectives() )

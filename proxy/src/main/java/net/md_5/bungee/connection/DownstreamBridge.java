@@ -31,6 +31,8 @@ import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Kick;
+import net.md_5.bungee.protocol.packet.SetCompression;
+import net.md_5.bungee.tab.TabList;
 
 @RequiredArgsConstructor
 public class DownstreamBridge extends PacketHandler
@@ -100,11 +102,8 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(PlayerListItem playerList) throws Exception
     {
-
-        if ( !con.getTabList().onListUpdate( playerList.getUsername(), playerList.isOnline(), playerList.getPing() ) )
-        {
-            throw CancelSendSignal.INSTANCE;
-        }
+        con.getTabListHandler().onUpdate( TabList.rewrite( playerList ) );
+        throw CancelSendSignal.INSTANCE; // Always throw because of profile rewriting
     }
 
     @Override
@@ -446,6 +445,13 @@ public class DownstreamBridge extends PacketHandler
         }
         server.setObsolete( true );
         throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void handle(SetCompression setCompression) throws Exception
+    {
+        con.setCompressionThreshold( setCompression.getThreshold() );
+        server.getCh().setCompressionThreshold( setCompression.getThreshold() );
     }
 
     @Override

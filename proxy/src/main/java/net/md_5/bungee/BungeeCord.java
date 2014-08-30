@@ -36,6 +36,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
@@ -65,7 +66,6 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
-import net.md_5.bungee.api.tab.CustomTabList;
 import net.md_5.bungee.command.*;
 import net.md_5.bungee.conf.YamlConfig;
 import net.md_5.bungee.log.LoggingOutputStream;
@@ -76,7 +76,6 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.query.RemoteQuery;
-import net.md_5.bungee.tab.Custom;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.fusesource.jansi.AnsiConsole;
 
@@ -113,6 +112,8 @@ public class BungeeCord extends ProxyServer
      * Fully qualified connections.
      */
     private final Map<String, UserConnection> connections = new CaseInsensitiveMap<>();
+    // Used to help with packet rewriting
+    private final Map<UUID, UserConnection> connectionsByOfflineUUID = new HashMap<>();
     private final ReadWriteLock connectionLock = new ReentrantReadWriteLock();
     /**
      * Plugin manager.
@@ -144,7 +145,7 @@ public class BungeeCord extends ProxyServer
     private ConnectionThrottle connectionThrottle;
     private final ModuleManager moduleManager = new ModuleManager();
 
-    
+
     {
         // TODO: Proper fallback when we interface the manager
         getPluginManager().registerCommand( null, new CommandReload() );
@@ -468,6 +469,18 @@ public class BungeeCord extends ProxyServer
         }
     }
 
+    public UserConnection getPlayerByOfflineUUID(UUID name)
+    {
+        connectionLock.readLock().lock();
+        try
+        {
+            return connectionsByOfflineUUID.get( name );
+        } finally
+        {
+            connectionLock.readLock().unlock();
+        }
+    }
+
     @Override
     public ProxiedPlayer getPlayer(UUID uuid)
     {
@@ -577,6 +590,7 @@ public class BungeeCord extends ProxyServer
         try
         {
             connections.put( con.getName(), con );
+            connectionsByOfflineUUID.put( con.getPendingConnection().getOfflineId(), con );
         } finally
         {
             connectionLock.writeLock().unlock();
@@ -589,19 +603,13 @@ public class BungeeCord extends ProxyServer
         try
         {
             connections.remove( con.getName() );
+            connectionsByOfflineUUID.remove( con.getPendingConnection().getOfflineId() );
         } finally
         {
             connectionLock.writeLock().unlock();
         }
     }
 
-    @Override
-    public CustomTabList customTabList(ProxiedPlayer player)
-    {
-        return new Custom( player );
-    }
-
-    @Override
     public Collection<String> getDisabledCommands()
     {
         return config.getDisabledCommands();
