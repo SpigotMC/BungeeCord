@@ -28,9 +28,9 @@ public class ComponentBuilder
     private TextComponent current;
     private final List<BaseComponent> parts = new ArrayList<>();
 
-
     /**
-     * Creates a ComponentBuilder from the other given ComponentBuilder to clone it.
+     * Creates a ComponentBuilder from the other given ComponentBuilder to clone
+     * it.
      *
      * @param original the original for the new ComponentBuilder.
      */
