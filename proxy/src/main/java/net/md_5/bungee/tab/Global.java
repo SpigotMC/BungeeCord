@@ -70,17 +70,23 @@ public class Global extends TabList
             item.setUsername( p.getName() );
             item.setDisplayName( ComponentSerializer.toString( TextComponent.fromLegacyText( p.getDisplayName() ) ) );
             LoginResult loginResult = ( (UserConnection) p ).getPendingConnection().getLoginProfile();
-            String[][] props = new String[ loginResult.getProperties().length ][];
-            for ( int j = 0; j < props.length; j++ )
+            if ( loginResult != null )
             {
-                props[ j] = new String[]
+                String[][] props = new String[ loginResult.getProperties().length ][];
+                for ( int j = 0; j < props.length; j++ )
                 {
-                    loginResult.getProperties()[j].getName(),
-                    loginResult.getProperties()[j].getValue(),
-                    loginResult.getProperties()[j].getSignature()
-                };
+                    props[ j ] = new String[]
+                    {
+                            loginResult.getProperties()[ j ].getName(),
+                            loginResult.getProperties()[ j ].getValue(),
+                            loginResult.getProperties()[ j ].getSignature()
+                    };
+                }
+                item.setProperties( props );
+            } else
+            {
+                item.setProperties( new String[0][0] );
             }
-            item.setProperties( props );
             item.setGamemode( ( (UserConnection) p ).getGamemode() );
             item.setPing( p.getPing() );
         }
