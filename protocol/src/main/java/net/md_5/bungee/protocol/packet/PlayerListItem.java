@@ -91,7 +91,7 @@ public class PlayerListItem extends DefinedPacket
         if ( protocolVersion < ProtocolConstants.MINECRAFT_SNAPSHOT )
         {
             Item item = items[0]; // Only one at a time
-            writeString( TextComponent.toLegacyText( ComponentSerializer.parse( item.displayName ) ), buf );
+            writeString( item.displayName, buf ); // TODO: Server unique only!
             buf.writeBoolean( action != Action.REMOVE_PLAYER );
             buf.writeShort( item.ping );
         } else
