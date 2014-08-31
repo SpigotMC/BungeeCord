@@ -100,9 +100,11 @@ public class Global extends TabList
             {
                 PlayerListItem packet = new PlayerListItem();
                 packet.setAction( playerListItem.getAction() );
-                PlayerListItem.Item[] it = new PlayerListItem.Item[ 1 ];
-                it[0] = item;
-                packet.setItems( it );
+
+                packet.setItems( new PlayerListItem.Item[]
+                {
+                    item
+                } );
                 player.unsafe().sendPacket( packet );
             }
         }
