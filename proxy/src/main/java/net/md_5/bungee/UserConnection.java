@@ -131,7 +131,8 @@ public final class UserConnection implements ProxiedPlayer
 
         this.displayName = name;
 
-        switch ( getPendingConnection().getListener().getTabListType() )
+        // Blame Mojang for this one
+        /*switch ( getPendingConnection().getListener().getTabListType() )
         {
             case "GLOBAL":
                 tabListHandler = new Global( this );
@@ -142,7 +143,8 @@ public final class UserConnection implements ProxiedPlayer
             default:
                 tabListHandler = new GlobalPing( this );
                 break;
-        }
+        }*/
+        tabListHandler = new ServerUnique( this );
 
         Collection<String> g = bungee.getConfigurationAdapter().getGroups( name );
         for ( String s : g )
