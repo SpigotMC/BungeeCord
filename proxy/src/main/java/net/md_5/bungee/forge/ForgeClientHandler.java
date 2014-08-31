@@ -137,7 +137,7 @@ public class ForgeClientHandler
 
     /**
      * Checks to see if a user is using an outdated FML build, and takes appropriate action on the User side.
-     * This should only be called during a server connection, by the {@link ServerConnector}
+     * This should only be called during a server connection, by the ServerConnector
      * 
      * @return <code>true</code> if the user's FML build is outdated, otherwise <code>false</code>
      */
