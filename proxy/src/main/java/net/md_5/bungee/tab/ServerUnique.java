@@ -82,9 +82,11 @@ public class ServerUnique extends TabList
             {
                 PlayerListItem p2 = new PlayerListItem();
                 p2.setAction( packet.getAction() );
-                PlayerListItem.Item[] it = new PlayerListItem.Item[ 1 ];
-                it[0] = item;
-                p2.setItems( it );
+
+                p2.setItems( new PlayerListItem.Item[]
+                {
+                    item
+                } );
                 player.unsafe().sendPacket( p2 );
             }
         }

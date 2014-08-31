@@ -20,6 +20,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-chat</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec</artifactId>
             <version>${netty.version}</version>
