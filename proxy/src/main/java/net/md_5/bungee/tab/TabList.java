@@ -36,17 +36,23 @@ public abstract class TabList
             {
                 item.setUuid( player.getUniqueId() );
                 LoginResult loginResult = player.getPendingConnection().getLoginProfile();
-                String[][] props = new String[ loginResult.getProperties().length ][];
-                for ( int i = 0; i < props.length; i++ )
+                if ( loginResult != null )
                 {
-                    props[ i] = new String[]
+                    String[][] props = new String[ loginResult.getProperties().length ][];
+                    for ( int i = 0; i < props.length; i++ )
                     {
-                        loginResult.getProperties()[i].getName(),
-                        loginResult.getProperties()[i].getValue(),
-                        loginResult.getProperties()[i].getSignature()
-                    };
+                        props[ i ] = new String[]
+                        {
+                                loginResult.getProperties()[ i ].getName(),
+                                loginResult.getProperties()[ i ].getValue(),
+                                loginResult.getProperties()[ i ].getSignature()
+                        };
+                    }
+                    item.setProperties( props );
+                } else
+                {
+                    item.setProperties( new String[ 0 ][ 0 ] );
                 }
-                item.setProperties( props );
                 if ( playerListItem.getAction() == PlayerListItem.Action.ADD_PLAYER || playerListItem.getAction() == PlayerListItem.Action.UPDATE_GAMEMODE )
                 {
                     player.setGamemode( item.getGamemode() );
