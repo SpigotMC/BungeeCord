@@ -106,7 +106,7 @@ public class ByteBufUtils {
     }
     /**
      * Read a UTF8 string from the byte buffer.
-     * It is encoded as <varint length>[<UTF8 char bytes>]
+     * It is encoded as (varint length)[(UTF8 char bytes)]
      *
      * @param from The buffer to read from
      * @return The string
@@ -121,7 +121,7 @@ public class ByteBufUtils {
 
     /**
      * Write a String with UTF8 byte encoding to the buffer.
-     * It is encoded as <varint length>[<UTF8 char bytes>]
+     * It is encoded as (varint length)[(UTF8 char bytes)]
      * @param to the buffer to write to
      * @param string The string to write
      */
