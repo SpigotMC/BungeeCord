@@ -60,7 +60,7 @@ public interface ProxyConfig
      * Whether the proxy will parse IPs with spigot or not
      */
     @Deprecated
-    boolean isIpFoward();
+    boolean isIpForward();
 
     /**
      * The encoded favicon.
