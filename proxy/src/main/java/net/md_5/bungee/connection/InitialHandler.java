@@ -139,12 +139,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         String kickMessage = ChatColor.DARK_BLUE
                 + "\00" + 127
                 + "\00" + legacy.getVersion().getName()
-                + "\00" + legacy.getDescription()
+                + "\00" + getFirstLine( legacy.getDescription() )
                 + "\00" + legacy.getPlayers().getOnline()
                 + "\00" + legacy.getPlayers().getMax();
 
         ch.getHandle().writeAndFlush( kickMessage );
         ch.close();
+    }
+
+    private static String getFirstLine(String str)
+    {
+        int pos = str.indexOf( '\n' );
+        return pos == -1 ? str : str.substring( 0, pos );
     }
 
     @Override
