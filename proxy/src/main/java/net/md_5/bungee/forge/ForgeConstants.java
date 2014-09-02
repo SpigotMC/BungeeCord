@@ -5,6 +5,7 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 
 public class ForgeConstants
 {
+
     // Forge
     public static final String FORGE_REGISTER = "FORGE";
 
@@ -13,15 +14,31 @@ public class ForgeConstants
     public static final String FML_HANDSHAKE_TAG = "FML|HS";
     public static final String FML_REGISTER = "REGISTER";
 
-    public static final PluginMessage FML_RESET_HANDSHAKE = new PluginMessage( FML_HANDSHAKE_TAG, new byte[] { -2, 0 }, false );
-    public static final PluginMessage FML_ACK = new PluginMessage( FML_HANDSHAKE_TAG, new byte[] { -1, 0 }, false );
-    public static final PluginMessage FML_START_CLIENT_HANDSHAKE = new PluginMessage( FML_HANDSHAKE_TAG, new byte[] { 0, 1 }, false );
-    public static final PluginMessage FML_START_SERVER_HANDSHAKE = new PluginMessage( FML_HANDSHAKE_TAG, new byte[] { 1, 1 }, false );
-    public static final PluginMessage FML_EMPTY_MOD_LIST = new PluginMessage( FML_HANDSHAKE_TAG, new byte[] { 2, 0 }, false );
+    public static final PluginMessage FML_RESET_HANDSHAKE = new PluginMessage( FML_HANDSHAKE_TAG, new byte[]
+    {
+        -2, 0
+    }, false );
+    public static final PluginMessage FML_ACK = new PluginMessage( FML_HANDSHAKE_TAG, new byte[]
+    {
+        -1, 0
+    }, false );
+    public static final PluginMessage FML_START_CLIENT_HANDSHAKE = new PluginMessage( FML_HANDSHAKE_TAG, new byte[]
+    {
+        0, 1
+    }, false );
+    public static final PluginMessage FML_START_SERVER_HANDSHAKE = new PluginMessage( FML_HANDSHAKE_TAG, new byte[]
+    {
+        1, 1
+    }, false );
+    public static final PluginMessage FML_EMPTY_MOD_LIST = new PluginMessage( FML_HANDSHAKE_TAG, new byte[]
+    {
+        2, 0
+    }, false );
 
     /**
-     * The minimum Forge version required to use Forge features.
-     * TODO: When the FML branch gets pulled, update this number to be the build that includes the change.
+     * The minimum Forge version required to use Forge features. TODO: When the
+     * FML branch gets pulled, update this number to be the build that includes
+     * the change.
      */
     public static final int FML_MIN_BUILD_VERSION = 1209;
 

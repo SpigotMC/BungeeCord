@@ -54,6 +54,7 @@ public class ServerConnector extends PacketHandler
 
     private enum State
     {
+
         LOGIN_SUCCESS, ENCRYPT_RESPONSE, LOGIN, FINISHED;
     }
 
@@ -280,18 +281,14 @@ public class ServerConnector extends PacketHandler
                 }
             }
 
-            if (isForgeServer) // Forge Server
+            if (isForgeServer && !this.handshakeHandler.isServerForge())
             {
-                if (!this.handshakeHandler.isServerForge())
-                {
-                    // We now set the server-side handshake handler for the client to this.
-                    handshakeHandler.setServerAsForgeServer();
-                    user.setForgeServerHandler(handshakeHandler);
-                }
-                user.unsafe().sendPacket( pluginMessage ); // pass FML REGISTER packet to client
+                // We now set the server-side handshake handler for the client to this.
+                handshakeHandler.setServerAsForgeServer();
+                user.setForgeServerHandler(handshakeHandler);
             }
         }
-
+        
         if(pluginMessage.getTag().equals(ForgeConstants.FML_HANDSHAKE_TAG) || pluginMessage.getTag().equals(ForgeConstants.FORGE_REGISTER))
         {
             this.handshakeHandler.handle(pluginMessage);
@@ -303,7 +300,9 @@ public class ServerConnector extends PacketHandler
         }
         else
         {
-            user.unsafe().sendPacket( pluginMessage ); // We have to forward these to the user, especially with Forge as stuff might break
+            // We have to forward these to the user, especially with Forge as stuff might break
+            // This includes any REGISTER messages we intercepted earlier.
+            user.unsafe().sendPacket( pluginMessage );
         }
     }
 

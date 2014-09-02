@@ -17,6 +17,7 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 @RequiredArgsConstructor
 public class ForgeClientHandler
 {
+
     @NonNull
     private final UserConnection con;
 
@@ -42,25 +43,28 @@ public class ForgeClientHandler
 
     /**
      * Handles the Forge packet.
+     *
      * @param message The Forge Handshake packet to handle.
      */
-    public void handle(PluginMessage message) throws IllegalArgumentException {
-        if (!message.getTag().equalsIgnoreCase(ForgeConstants.FML_HANDSHAKE_TAG)) {
-            throw new IllegalArgumentException("Expecting a Forge Handshake packet.");
+    public void handle(PluginMessage message) throws IllegalArgumentException
+    {
+        if ( !message.getTag().equalsIgnoreCase( ForgeConstants.FML_HANDSHAKE_TAG ) )
+        {
+            throw new IllegalArgumentException( "Expecting a Forge Handshake packet." );
         }
 
-        message.setAllowExtendedPacket(true); // FML allows extended packets so this must be enabled
+        message.setAllowExtendedPacket( true ); // FML allows extended packets so this must be enabled
         ForgeClientHandshakeState prevState = state;
-        packetQueue.add(message);
+        packetQueue.add( message );
         state = state.send( message, con );
-        if (state != prevState) // state finished, send packets
+        if ( state != prevState ) // state finished, send packets
         {
-            synchronized (packetQueue)
+            synchronized ( packetQueue )
             {
-                while (!packetQueue.isEmpty())
+                while ( !packetQueue.isEmpty() )
                 {
-                    ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, prevState.name(), packetQueue.getFirst());
-                    con.getForgeServerHandler().receive(packetQueue.removeFirst());
+                    ForgeLogger.logClient( ForgeLogger.LogDirection.SENDING, prevState.name(), packetQueue.getFirst() );
+                    con.getForgeServerHandler().receive( packetQueue.removeFirst() );
                 }
             }
         }
@@ -71,28 +75,34 @@ public class ForgeClientHandler
      *
      * @param message The message to being received.
      */
-    public void receive(PluginMessage message) throws IllegalArgumentException {
-        state = state.handle(message, con);
+    public void receive(PluginMessage message) throws IllegalArgumentException
+    {
+        state = state.handle( message, con );
     }
 
     /**
-     * Resets the client handshake state to HELLO, and, if we know the handshake has been
-     * completed before, send the reset packet.
+     * Resets the client handshake state to HELLO, and, if we know the handshake
+     * has been completed before, send the reset packet.
      */
-    public void resetHandshake() {
+    public void resetHandshake()
+    {
         state = ForgeClientHandshakeState.HELLO;
-        con.unsafe().sendPacket(ForgeConstants.FML_RESET_HANDSHAKE);
+        con.unsafe().sendPacket( ForgeConstants.FML_RESET_HANDSHAKE );
     }
 
     /**
      * Sends the server mod list to the client, or stores it for sending later.
-     * 
-     * @param modList The {@link PluginMessage} to send to the client containing the mod list.
-     * @throws IllegalArgumentException Thrown if the {@link PluginMessage} was not as expected.
+     *
+     * @param modList The {@link PluginMessage} to send to the client containing
+     * the mod list.
+     * @throws IllegalArgumentException Thrown if the {@link PluginMessage} was
+     * not as expected.
      */
-    public void setServerModList(PluginMessage modList) throws IllegalArgumentException {
-        if (!modList.getTag().equalsIgnoreCase( ForgeConstants.FML_HANDSHAKE_TAG ) || modList.getData()[0] != 2) {
-            throw new IllegalArgumentException("modList");
+    public void setServerModList(PluginMessage modList) throws IllegalArgumentException
+    {
+        if ( !modList.getTag().equalsIgnoreCase( ForgeConstants.FML_HANDSHAKE_TAG ) || modList.getData()[0] != 2 )
+        {
+            throw new IllegalArgumentException( "modList" );
         }
 
         this.serverModList = modList;
@@ -100,23 +110,28 @@ public class ForgeClientHandler
 
     /**
      * Sends the server ID list to the client, or stores it for sending later.
-     * 
-     * @param idList The {@link PluginMessage} to send to the client containing the ID list.
-     * @throws IllegalArgumentException Thrown if the {@link PluginMessage} was not as expected.
+     *
+     * @param idList The {@link PluginMessage} to send to the client containing
+     * the ID list.
+     * @throws IllegalArgumentException Thrown if the {@link PluginMessage} was
+     * not as expected.
      */
-    public void setServerIdList(PluginMessage idList) throws IllegalArgumentException {
-        if (!idList.getTag().equalsIgnoreCase( ForgeConstants.FML_HANDSHAKE_TAG ) || idList.getData()[0] != 3) {
-            throw new IllegalArgumentException("idList");
+    public void setServerIdList(PluginMessage idList) throws IllegalArgumentException
+    {
+        if ( !idList.getTag().equalsIgnoreCase( ForgeConstants.FML_HANDSHAKE_TAG ) || idList.getData()[0] != 3 )
+        {
+            throw new IllegalArgumentException( "idList" );
         }
 
         this.serverIdList = idList;
     }
-    
+
     /**
      * Returns whether the handshake is complete.
+     *
      * @return <code>true</code> if the handshake has been completed.
      */
-    public boolean isHandshakeComplete() 
+    public boolean isHandshakeComplete()
     {
         return this.state == ForgeClientHandshakeState.DONE;
     }
@@ -128,22 +143,25 @@ public class ForgeClientHandler
 
     /**
      * Returns whether we know if the user is a forge user.
+     *
      * @return <code>true</code> if the user is a forge user.
      */
-    public boolean isForgeUser() 
+    public boolean isForgeUser()
     {
         return clientModList != null;
     }
 
     /**
-     * Checks to see if a user is using an outdated FML build, and takes appropriate action on the User side.
-     * This should only be called during a server connection, by the ServerConnector
-     * 
-     * @return <code>true</code> if the user's FML build is outdated, otherwise <code>false</code>
+     * Checks to see if a user is using an outdated FML build, and takes
+     * appropriate action on the User side. This should only be called during a
+     * server connection, by the ServerConnector
+     *
+     * @return <code>true</code> if the user's FML build is outdated, otherwise
+     * <code>false</code>
      */
     public boolean checkUserOutdated()
     {
-        if (forgeOutdated)
+        if ( forgeOutdated )
         {
             if ( con.isDimensionChange() )
             {
