@@ -199,8 +199,14 @@ public interface ProxiedPlayer extends Connection, CommandSender
     void sendTitle(BaseComponent[] title, BaseComponent[] subtitle, int fadeIn, int stay, int fadeOut);
 
     /**
+     * Remove the title from the player's screen, but keep the last used display times.
+     */
+    void clearTitle();
+
+
+    /**
      * Remove the currently displayed title from the player's screen and reset
-     * all settings to the defaults.
+     * the display times to the defaults.
      */
     void resetTitle();
 }

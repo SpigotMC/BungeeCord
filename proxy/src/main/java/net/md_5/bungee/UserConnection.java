@@ -550,6 +550,15 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
+    public void clearTitle()
+    {
+        if ( v1_7 ) return;
+        Title clear = new Title();
+        clear.setAction( Title.Action.CLEAR );
+        unsafe().sendPacket( clear );
+    }
+
+    @Override
     public void resetTitle()
     {
         if ( v1_7 ) return;
