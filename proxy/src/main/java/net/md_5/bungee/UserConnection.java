@@ -41,13 +41,14 @@ import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
+import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.SetCompression;
-import net.md_5.bungee.tab.Global;
-import net.md_5.bungee.tab.GlobalPing;
+import net.md_5.bungee.protocol.packet.Title;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
 import net.md_5.bungee.util.CaseInsensitiveSet;
@@ -93,6 +94,7 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     @Setter
     private int gamemode;
+    private boolean v1_7 = false;
     @Getter
     private int compressionThreshold = -1;
     /*========================================================================*/
@@ -130,6 +132,7 @@ public final class UserConnection implements ProxiedPlayer
         this.entityRewrite = EntityMap.getEntityMap( getPendingConnection().getVersion() );
 
         this.displayName = name;
+        this.v1_7 = getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_SNAPSHOT;
 
         // Blame Mojang for this one
         /*switch ( getPendingConnection().getListener().getTabListType() )
@@ -467,6 +470,101 @@ public final class UserConnection implements ProxiedPlayer
     public Locale getLocale()
     {
         return ( locale == null && settings != null ) ? locale = Locale.forLanguageTag( settings.getLocale().replaceAll( "_", "-" ) ) : locale;
+    }
+
+    @Override
+    public void setTabHeader(BaseComponent header, BaseComponent footer)
+    {
+        if ( v1_7 ) return;
+        unsafe().sendPacket( new PlayerListHeaderFooter( ComponentSerializer.toString( header ), ComponentSerializer.toString( footer ) ) );
+    }
+
+    @Override
+    public void setTabHeader(BaseComponent[] header, BaseComponent[] footer)
+    {
+        if ( v1_7 ) return;
+        unsafe().sendPacket( new PlayerListHeaderFooter( ComponentSerializer.toString( header ), ComponentSerializer.toString( footer ) ) );
+    }
+
+    private void sendTitle(String json, Title.Action action) {
+        Title title = new Title();
+        title.setAction( action );
+        title.setText( json );
+        unsafe().sendPacket( title );
+    }
+
+    @Override
+    public void sendTitle(BaseComponent title)
+    {
+        if ( v1_7 ) return;
+        sendTitle( ComponentSerializer.toString( title ), Title.Action.TITLE );
+    }
+
+    @Override
+    public void sendTitle(BaseComponent... title)
+    {
+        if ( v1_7 ) return;
+        sendTitle( ComponentSerializer.toString( title ), Title.Action.TITLE );
+    }
+
+    @Override
+    public void sendTitle(BaseComponent title, BaseComponent subtitle)
+    {
+        if ( v1_7 ) return;
+        sendTitle( ComponentSerializer.toString( subtitle ), Title.Action.SUBTITLE );
+        sendTitle( title );
+    }
+
+    @Override
+    public void sendTitle(BaseComponent[] title, BaseComponent[] subtitle)
+    {
+        if ( v1_7 ) return;
+        sendTitle( ComponentSerializer.toString( subtitle ), Title.Action.SUBTITLE );
+        sendTitle( title );
+    }
+
+    private void sendTitleTimes(int fadeIn, int stay, int fadeOut)
+    {
+        Title times = new Title();
+        times.setAction( Title.Action.TIMES );
+        times.setFadeIn( fadeIn );
+        times.setStay( stay );
+        times.setFadeIn( fadeOut );
+        unsafe().sendPacket( times );
+    }
+
+    @Override
+    public void sendTitle(BaseComponent title, BaseComponent subtitle, int fadeIn, int stay, int fadeOut)
+    {
+        if ( v1_7 ) return;
+        sendTitleTimes( fadeIn, stay, fadeOut );
+        sendTitle( title, subtitle );
+    }
+
+    @Override
+    public void sendTitle(BaseComponent[] title, BaseComponent[] subtitle, int fadeIn, int stay, int fadeOut)
+    {
+        if ( v1_7 ) return;
+        sendTitleTimes( fadeIn, stay, fadeOut );
+        sendTitle( title, subtitle );
+    }
+
+    @Override
+    public void clearTitle()
+    {
+        if ( v1_7 ) return;
+        Title clear = new Title();
+        clear.setAction( Title.Action.CLEAR );
+        unsafe().sendPacket( clear );
+    }
+
+    @Override
+    public void resetTitle()
+    {
+        if ( v1_7 ) return;
+        Title reset = new Title();
+        reset.setAction( Title.Action.RESET );
+        unsafe().sendPacket( reset );
     }
 
     public void setCompressionThreshold(int compressionThreshold)

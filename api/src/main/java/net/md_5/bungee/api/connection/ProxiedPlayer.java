@@ -3,6 +3,7 @@ package net.md_5.bungee.api.connection;
 import java.util.Locale;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import java.util.UUID;
 
@@ -121,4 +122,91 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @return the locale
      */
     Locale getLocale();
+
+    /**
+     * Set the header and footer displayed in the tab player list.
+     * @param header The header for the tab player list.
+     * @param footer The footer for the tab player list.
+     */
+    void setTabHeader(BaseComponent header, BaseComponent footer);
+
+    /**
+     * Set the header and footer displayed in the tab player list.
+     * @param header The header for the tab player list.
+     * @param footer The footer for the tab player list.
+     */
+    void setTabHeader(BaseComponent[] header, BaseComponent[] footer);
+
+    /**
+     * Send a title to the player using the previously used subtitle and display times.
+     * It will be displayed in the center of the player screen.
+     * You should call {@link #resetTitle()} first if your want your title
+     * to be displayed correctly with the default settings.
+     * @param title The title to display.
+     */
+    void sendTitle(BaseComponent title);
+
+    /**
+     * Send a title to the player using the previously used subtitle and display times.
+     * It will be displayed in the center of the player screen.
+     * You should call {@link #resetTitle()} first if your want your title
+     * to be displayed correctly with the default settings.
+     * @param title The title to display.
+     */
+    void sendTitle(BaseComponent... title);
+
+    /**
+     * Send a title and a subtitle to the player using the previously
+     * used display times.
+     * It will be displayed in the center of the player screen.
+     * You should call {@link #resetTitle()} first if your want your title
+     * to be displayed correctly with the default settings.
+     * @param title The title to display.
+     * @param subtitle The subtitle to display.
+     */
+    void sendTitle(BaseComponent title, BaseComponent subtitle);
+
+    /**
+     * Send a title and a subtitle to the player using the previously used display times.
+     * It will be displayed in the center of the player screen.
+     * You should call {@link #resetTitle()} first if your want your title
+     * to be displayed correctly with the default settings.
+     * @param title The title to display.
+     * @param subtitle The subtitle to display.
+     */
+    void sendTitle(BaseComponent[] title, BaseComponent[] subtitle);
+
+    /**
+     * Send a title and a subtitle to the player with specified fade in, stay and fade out times.
+     * It will be displayed in the center of the player screen.
+     * @param title The title to display.
+     * @param subtitle The subtitle to display.
+     * @param fadeIn The time for the fade in effect, in ticks.
+     * @param stay How long the title should stay on the player's screen, in ticks.
+     * @param fadeOut The time for the fade out effect, in ticks.
+     */
+    void sendTitle(BaseComponent title, BaseComponent subtitle, int fadeIn, int stay, int fadeOut);
+
+    /**
+     * Send a title and a subtitle to the player with specified fade in, stay and fade out times.
+     * It will be displayed in the center of the player screen.
+     * @param title The title to display.
+     * @param subtitle The subtitle to display.
+     * @param fadeIn The time for the fade in effect, in ticks.
+     * @param stay How long the title should stay on the player's screen, in ticks.
+     * @param fadeOut The time for the fade out effect, in ticks.
+     */
+    void sendTitle(BaseComponent[] title, BaseComponent[] subtitle, int fadeIn, int stay, int fadeOut);
+
+    /**
+     * Remove the title from the player's screen, but keep the last used display times.
+     */
+    void clearTitle();
+
+
+    /**
+     * Remove the currently displayed title from the player's screen and reset
+     * the display times to the defaults.
+     */
+    void resetTitle();
 }
