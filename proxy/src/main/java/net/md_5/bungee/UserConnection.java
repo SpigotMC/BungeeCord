@@ -511,16 +511,16 @@ public final class UserConnection implements ProxiedPlayer
     public void sendTitle(BaseComponent title, BaseComponent subtitle)
     {
         if ( v1_7 ) return;
-        sendTitle( title );
         sendTitle( ComponentSerializer.toString( subtitle ), Title.Action.SUBTITLE );
+        sendTitle( title );
     }
 
     @Override
     public void sendTitle(BaseComponent[] title, BaseComponent[] subtitle)
     {
         if ( v1_7 ) return;
-        sendTitle( title );
         sendTitle( ComponentSerializer.toString( subtitle ), Title.Action.SUBTITLE );
+        sendTitle( title );
     }
 
     private void sendTitleTimes(int fadeIn, int stay, int fadeOut)
@@ -537,16 +537,16 @@ public final class UserConnection implements ProxiedPlayer
     public void sendTitle(BaseComponent title, BaseComponent subtitle, int fadeIn, int stay, int fadeOut)
     {
         if ( v1_7 ) return;
-        sendTitle( title, subtitle );
         sendTitleTimes( fadeIn, stay, fadeOut );
+        sendTitle( title, subtitle );
     }
 
     @Override
     public void sendTitle(BaseComponent[] title, BaseComponent[] subtitle, int fadeIn, int stay, int fadeOut)
     {
         if ( v1_7 ) return;
-        sendTitle( title, subtitle );
         sendTitleTimes( fadeIn, stay, fadeOut );
+        sendTitle( title, subtitle );
     }
 
     @Override
