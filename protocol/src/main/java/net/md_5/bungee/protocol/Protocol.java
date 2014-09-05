@@ -19,6 +19,7 @@ import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PingPacket;
+import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Respawn;
@@ -61,6 +62,7 @@ public enum Protocol
                     TO_CLIENT.registerPacket( 0x3F, PluginMessage.class );
                     TO_CLIENT.registerPacket( 0x40, Kick.class );
                     TO_CLIENT.registerPacket( 0x46, SetCompression.class );
+                    TO_CLIENT.registerPacket( 0x47, PlayerListHeaderFooter.class );
 
                     TO_SERVER.registerPacket( 0x00, KeepAlive.class );
                     TO_SERVER.registerPacket( 0x01, Chat.class );
