@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -502,6 +503,12 @@ public final class UserConnection implements ProxiedPlayer
     {
         // Mojang did not add a way to remove the header / footer completely, we can only set it to empty
         setTabHeader( (BaseComponent) null, null );
+    }
+
+    @Override
+    public void sendTitle(Title title)
+    {
+        title.send( this );
     }
 
     public void setCompressionThreshold(int compressionThreshold)

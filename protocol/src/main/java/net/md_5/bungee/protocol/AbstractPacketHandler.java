@@ -27,6 +27,7 @@ import net.md_5.bungee.protocol.packet.PingPacket;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
+import net.md_5.bungee.protocol.packet.Title;
 
 public abstract class AbstractPacketHandler
 {
@@ -112,6 +113,10 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(Team team) throws Exception
+    {
+    }
+
+    public void handle(Title title) throws Exception
     {
     }
 
