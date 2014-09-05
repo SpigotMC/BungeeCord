@@ -9,6 +9,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.GsonBuilder;
 import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ServerPing;
+import net.md_5.bungee.api.Title;
 import net.md_5.bungee.module.ModuleManager;
 import com.google.common.io.ByteStreams;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -635,5 +636,11 @@ public class BungeeCord extends ProxyServer
                 return ( input == null ) ? false : input.getName().toLowerCase().contains( partialName.toLowerCase() );
             }
         } ) );
+    }
+
+    @Override
+    public Title createTitle()
+    {
+        return new BungeeTitle();
     }
 }
