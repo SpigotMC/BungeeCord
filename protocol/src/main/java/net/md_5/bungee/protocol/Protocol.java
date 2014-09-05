@@ -31,6 +31,7 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.Team;
+import net.md_5.bungee.protocol.packet.Title;
 
 public enum Protocol
 {
@@ -58,6 +59,7 @@ public enum Protocol
                     TO_CLIENT.registerPacket( 0x3C, ScoreboardScore.class );
                     TO_CLIENT.registerPacket( 0x3D, ScoreboardDisplay.class );
                     TO_CLIENT.registerPacket( 0x3E, Team.class );
+                    TO_CLIENT.registerPacket( 0x45, Title.class );
                     TO_CLIENT.registerPacket( 0x3F, PluginMessage.class );
                     TO_CLIENT.registerPacket( 0x40, Kick.class );
                     TO_CLIENT.registerPacket( 0x46, SetCompression.class );
