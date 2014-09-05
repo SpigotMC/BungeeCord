@@ -297,6 +297,9 @@ public class ServerConnector extends PacketHandler
                 ch.close();
                 user.getPendingConnects().remove( target );
             }
+
+            // We send the message as part of the handler, so don't send it here.
+            throw CancelSendSignal.INSTANCE;
         }
         else
         {
