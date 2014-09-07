@@ -49,10 +49,7 @@ import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.SetCompression;
-import net.md_5.bungee.tab.Global;
-import net.md_5.bungee.tab.GlobalPing;
-import net.md_5.bungee.tab.ServerUnique;
-import net.md_5.bungee.tab.TabList;
+import net.md_5.bungee.tab.*;
 import net.md_5.bungee.util.CaseInsensitiveSet;
 
 @RequiredArgsConstructor
@@ -138,7 +135,7 @@ public final class UserConnection implements ProxiedPlayer
         switch ( getPendingConnection().getListener().getTabListType() )
         {
             case "EMPTY":
-                tabListHandler = new Global( this );
+                tabListHandler = new Empty( this );
                 break;
             default:
                 tabListHandler = new ServerUnique( this );
