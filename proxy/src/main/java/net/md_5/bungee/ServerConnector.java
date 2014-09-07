@@ -7,7 +7,8 @@ import java.util.Set;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import lombok.Getter;import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -44,6 +45,7 @@ import net.md_5.bungee.protocol.packet.SetCompression;
 @RequiredArgsConstructor
 public class ServerConnector extends PacketHandler
 {
+
     private final ProxyServer bungee;
     private ChannelWrapper ch;
     private final UserConnection user;
@@ -109,7 +111,7 @@ public class ServerConnector extends PacketHandler
         Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not expecting LOGIN_SUCCESS" );
         ch.setProtocol( Protocol.GAME );
         thisState = State.LOGIN;
-        if (user.getServer() != null && user.getForgeClientHandler().isHandshakeComplete())
+        if ( user.getServer() != null && user.getForgeClientHandler().isHandshakeComplete() )
         {
             user.getForgeClientHandler().resetHandshake();
         }
@@ -153,7 +155,7 @@ public class ServerConnector extends PacketHandler
             ch.write( user.getSettings() );
         }
 
-        if (user.getForgeClientHandler().getClientModList() == null && !user.getForgeClientHandler().isHandshakeComplete()) // Vanilla
+        if ( user.getForgeClientHandler().getClientModList() == null && !user.getForgeClientHandler().isHandshakeComplete() ) // Vanilla
         {
             user.getForgeClientHandler().setHandshakeComplete();
         }
@@ -268,30 +270,30 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(PluginMessage pluginMessage) throws Exception
     {
-        if (pluginMessage.getTag().equals(ForgeConstants.FML_REGISTER))
+        if ( pluginMessage.getTag().equals( ForgeConstants.FML_REGISTER ) )
         {
-            Set<String> channels = ForgeUtils.readRegisteredChannels(pluginMessage);
+            Set<String> channels = ForgeUtils.readRegisteredChannels( pluginMessage );
             boolean isForgeServer = false;
-            for (String channel : channels)
+            for ( String channel : channels )
             {
-                if (channel.equals(ForgeConstants.FML_HANDSHAKE_TAG)) 
+                if ( channel.equals( ForgeConstants.FML_HANDSHAKE_TAG ) )
                 {
                     isForgeServer = true;
                     break;
                 }
             }
 
-            if (isForgeServer && !this.handshakeHandler.isServerForge())
+            if ( isForgeServer && !this.handshakeHandler.isServerForge() )
             {
                 // We now set the server-side handshake handler for the client to this.
                 handshakeHandler.setServerAsForgeServer();
-                user.setForgeServerHandler(handshakeHandler);
+                user.setForgeServerHandler( handshakeHandler );
             }
         }
-        
-        if(pluginMessage.getTag().equals(ForgeConstants.FML_HANDSHAKE_TAG) || pluginMessage.getTag().equals(ForgeConstants.FORGE_REGISTER))
+
+        if ( pluginMessage.getTag().equals( ForgeConstants.FML_HANDSHAKE_TAG ) || pluginMessage.getTag().equals( ForgeConstants.FORGE_REGISTER ) )
         {
-            this.handshakeHandler.handle(pluginMessage);
+            this.handshakeHandler.handle( pluginMessage );
             if ( user.getForgeClientHandler().checkUserOutdated() )
             {
                 ch.close();
@@ -300,8 +302,7 @@ public class ServerConnector extends PacketHandler
 
             // We send the message as part of the handler, so don't send it here.
             throw CancelSendSignal.INSTANCE;
-        }
-        else
+        } else
         {
             // We have to forward these to the user, especially with Forge as stuff might break
             // This includes any REGISTER messages we intercepted earlier.
