@@ -9,6 +9,10 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Cancellable;
 import net.md_5.bungee.api.plugin.Event;
 
+/**
+ * Called when a {@link ProxiedPlayer} attempts to connect to a server
+ * It is useful if you wish to prevent a user from connecting if they for example are on an unsupported minecraft version
+ */
 @Data
 @ToString(callSuper = false)
 @EqualsAndHashCode(callSuper = false)
