@@ -95,17 +95,17 @@ public class YamlConfig implements ConfigurationAdapter
 
     private <T> T get(String path, T def)
     {
-        return get( path, def, config, true);
+        return get( path, def, config, true );
     }
     
     private <T> T get(String path, T def, Boolean create)
     {
-        return get( path, def, config, create);
+        return get( path, def, config, create );
     }
     
-    private <T> T get(String path, T def , Map submap)
+    private <T> T get(String path, T def, Map submap)
     {
-        return get( path, def, submap, true);
+        return get( path, def, submap, true );
     }
 
     @SuppressWarnings("unchecked")
