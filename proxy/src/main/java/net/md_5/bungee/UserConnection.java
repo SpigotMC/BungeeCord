@@ -135,8 +135,11 @@ public final class UserConnection implements ProxiedPlayer
         switch ( getPendingConnection().getListener().getTabListType() )
         {
             case "EMPTY":
-                tabListHandler = new Empty( this );
-                break;
+                if( getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_SNAPSHOT )
+                {
+                    tabListHandler = new Empty(this);
+                    break;
+                }
             default:
                 tabListHandler = new ServerUnique( this );
                 break;

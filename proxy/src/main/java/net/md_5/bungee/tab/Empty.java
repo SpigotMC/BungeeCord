@@ -10,11 +10,11 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.UUID;
 
 public class Empty extends TabList
 {
-
-    private boolean sentPing;
 
     public Empty(ProxiedPlayer player)
     {
