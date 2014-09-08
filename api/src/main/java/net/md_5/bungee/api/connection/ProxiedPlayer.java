@@ -2,6 +2,7 @@ package net.md_5.bungee.api.connection;
 
 import java.util.Locale;
 import net.md_5.bungee.api.Callback;
+import net.md_5.bungee.api.ChatPosition;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -29,6 +30,22 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param name the name to set
      */
     void setDisplayName(String name);
+
+    /**
+     * Send a message to the specified screen position of this player.
+     *
+     * @param position the screen position
+     * @param message the message to send
+     */
+    public void sendMessage(ChatPosition position, BaseComponent... message);
+
+    /**
+     * Send a message to the specified screen position of this player.
+     *
+     * @param position the screen position
+     * @param message the message to send
+     */
+    public void sendMessage(ChatPosition position, BaseComponent message);
 
     /**
      * Connects / transfers this user to the specified connection, gracefully
