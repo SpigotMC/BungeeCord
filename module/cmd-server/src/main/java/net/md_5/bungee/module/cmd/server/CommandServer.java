@@ -39,7 +39,7 @@ public class CommandServer extends Command implements TabExecutor
         Map<String, ServerInfo> servers = ProxyServer.getInstance().getServers();
         if ( args.length == 0 )
         {
-            player.sendMessage( ProxyServer.getInstance().getTranslation( "current_server" ) + player.getServer().getInfo().getName() );
+            player.sendMessage( ProxyServer.getInstance().getTranslation( "current_server", player.getServer().getInfo().getName() ) );
             TextComponent serverList = new TextComponent( ProxyServer.getInstance().getTranslation( "server_list" ) );
             serverList.setColor( ChatColor.GOLD );
             boolean first = true;
