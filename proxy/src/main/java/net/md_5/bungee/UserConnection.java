@@ -261,10 +261,10 @@ public final class UserConnection implements ProxiedPlayer
                     {
                         if ( dimensionChange )
                         {
-                            disconnect( bungee.getTranslation( "fallback_kick" ) + future.cause().getClass().getName() );
+                            disconnect( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
                         } else
                         {
-                            sendMessage( bungee.getTranslation( "fallback_kick" ) + future.cause().getClass().getName() );
+                            sendMessage( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
                         }
                     }
                 }
