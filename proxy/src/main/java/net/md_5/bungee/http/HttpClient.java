@@ -68,8 +68,8 @@ public class HttpClient
                 callback.done( null, ex );
                 return;
             }
+            addressCache.put( uri.getHost(), inetHost );
         }
-        addressCache.put( uri.getHost(), inetHost );
 
         ChannelFutureListener future = new ChannelFutureListener()
         {
