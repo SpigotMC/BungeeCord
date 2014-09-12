@@ -146,7 +146,7 @@ public class BungeeCord extends ProxyServer
     private ConnectionThrottle connectionThrottle;
     private final ModuleManager moduleManager = new ModuleManager();
 
-
+    
     {
         // TODO: Proper fallback when we interface the manager
         getPluginManager().registerCommand( null, new CommandReload() );
@@ -603,14 +603,19 @@ public class BungeeCord extends ProxyServer
         connectionLock.writeLock().lock();
         try
         {
-            connections.remove( con.getName() );
-            connectionsByOfflineUUID.remove( con.getPendingConnection().getOfflineId() );
+            // TODO See #1218
+            if ( connections.get( con.getName() ) == con )
+            {
+                connections.remove( con.getName() );
+                connectionsByOfflineUUID.remove( con.getPendingConnection().getOfflineId() );
+            }
         } finally
         {
             connectionLock.writeLock().unlock();
         }
     }
 
+    @Override
     public Collection<String> getDisabledCommands()
     {
         return config.getDisabledCommands();
