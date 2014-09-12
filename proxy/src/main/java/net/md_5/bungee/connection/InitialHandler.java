@@ -379,6 +379,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         ProxiedPlayer old = bungee.getPlayer( getName() );
         if ( old != null )
         {
+            // TODO See #1218
             old.disconnect( bungee.getTranslation( "already_connected" ) );
         }
 
