@@ -74,7 +74,7 @@ public final class Configuration
 
     public Object get(String path)
     {
-        return get( path, null );
+        return get( path, getDefault( path ) );
     }
 
     public Object getDefault(String path)
