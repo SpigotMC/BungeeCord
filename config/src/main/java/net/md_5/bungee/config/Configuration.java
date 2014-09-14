@@ -18,6 +18,14 @@ public final class Configuration
     final Map<String, Object> self;
     private final Configuration defaults;
 
+    public Configuration() {
+        this( null );
+    }
+
+    public Configuration(Configuration defaults) {
+        this( new LinkedHashMap<String, Object>(), defaults );
+    }
+
     private Configuration getSectionFor(String path)
     {
         int index = path.indexOf( SEPARATOR );
