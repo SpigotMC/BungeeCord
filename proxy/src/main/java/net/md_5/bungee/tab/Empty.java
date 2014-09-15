@@ -16,6 +16,7 @@ import java.util.UUID;
 public class Empty extends TabList
 {
 
+    //This empty TabList is set for players with 1.7
     public Empty(ProxiedPlayer player)
     {
         super( player );
