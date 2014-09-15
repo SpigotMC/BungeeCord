@@ -49,10 +49,7 @@ import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.SetCompression;
-import net.md_5.bungee.tab.Global;
-import net.md_5.bungee.tab.GlobalPing;
-import net.md_5.bungee.tab.ServerUnique;
-import net.md_5.bungee.tab.TabList;
+import net.md_5.bungee.tab.*;
 import net.md_5.bungee.util.CaseInsensitiveSet;
 
 @RequiredArgsConstructor
@@ -134,7 +131,24 @@ public final class UserConnection implements ProxiedPlayer
 
         this.displayName = name;
 
-        // Blame Mojang for this one
+        //Add EMPTY TabList
+        switch ( getPendingConnection().getListener().getTabListType() )
+        {
+            case "EMPTY":
+                if( getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_SNAPSHOT )
+                {
+                    tabListHandler = new Empty(this);
+                }
+                else
+                {
+                    tabListHandler = new EmptyNew(this);
+                }
+                break;
+            default:
+                tabListHandler = new ServerUnique( this );
+                break;
+        }
+
         /*switch ( getPendingConnection().getListener().getTabListType() )
         {
             case "GLOBAL":
@@ -147,7 +161,6 @@ public final class UserConnection implements ProxiedPlayer
                 tabListHandler = new GlobalPing( this );
                 break;
         }*/
-        tabListHandler = new ServerUnique( this );
 
         Collection<String> g = bungee.getConfigurationAdapter().getGroups( name );
         for ( String s : g )

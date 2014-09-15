@@ -36,7 +36,7 @@ public class YamlConfig implements ConfigurationAdapter
     private enum DefaultTabList
     {
 
-        GLOBAL(), GLOBAL_PING(), SERVER();
+        GLOBAL(), GLOBAL_PING(), SERVER(), EMPTY();
     }
     private final Yaml yaml;
     private Map config;
