@@ -9,6 +9,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.GsonBuilder;
 import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ServerPing;
+import net.md_5.bungee.api.Title;
 import net.md_5.bungee.module.ModuleManager;
 import com.google.common.io.ByteStreams;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -145,7 +146,7 @@ public class BungeeCord extends ProxyServer
     private ConnectionThrottle connectionThrottle;
     private final ModuleManager moduleManager = new ModuleManager();
 
-
+    
     {
         // TODO: Proper fallback when we interface the manager
         getPluginManager().registerCommand( null, new CommandReload() );
@@ -602,14 +603,19 @@ public class BungeeCord extends ProxyServer
         connectionLock.writeLock().lock();
         try
         {
-            connections.remove( con.getName() );
-            connectionsByOfflineUUID.remove( con.getPendingConnection().getOfflineId() );
+            // TODO See #1218
+            if ( connections.get( con.getName() ) == con )
+            {
+                connections.remove( con.getName() );
+                connectionsByOfflineUUID.remove( con.getPendingConnection().getOfflineId() );
+            }
         } finally
         {
             connectionLock.writeLock().unlock();
         }
     }
 
+    @Override
     public Collection<String> getDisabledCommands()
     {
         return config.getDisabledCommands();
@@ -635,5 +641,11 @@ public class BungeeCord extends ProxyServer
                 return ( input == null ) ? false : input.getName().toLowerCase().contains( partialName.toLowerCase() );
             }
         } ) );
+    }
+
+    @Override
+    public Title createTitle()
+    {
+        return new BungeeTitle();
     }
 }

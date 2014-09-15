@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -41,8 +42,10 @@ import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
+import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.SetCompression;
@@ -467,6 +470,45 @@ public final class UserConnection implements ProxiedPlayer
     public Locale getLocale()
     {
         return ( locale == null && settings != null ) ? locale = Locale.forLanguageTag( settings.getLocale().replaceAll( "_", "-" ) ) : locale;
+    }
+
+    private static final String EMPTY_TEXT = ComponentSerializer.toString( new TextComponent( "" ) );
+
+    @Override
+    public void setTabHeader(BaseComponent header, BaseComponent footer)
+    {
+        if ( pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_SNAPSHOT )
+        {
+            unsafe().sendPacket( new PlayerListHeaderFooter(
+                    ( header != null ) ? ComponentSerializer.toString( header ) : EMPTY_TEXT,
+                    ( footer != null ) ? ComponentSerializer.toString( footer ) : EMPTY_TEXT
+            ) );
+        }
+    }
+
+    @Override
+    public void setTabHeader(BaseComponent[] header, BaseComponent[] footer)
+    {
+        if ( pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_SNAPSHOT )
+        {
+            unsafe().sendPacket( new PlayerListHeaderFooter(
+                    ( header != null ) ? ComponentSerializer.toString( header ) : EMPTY_TEXT,
+                    ( footer != null ) ? ComponentSerializer.toString( footer ) : EMPTY_TEXT
+            ) );
+        }
+    }
+
+    @Override
+    public void resetTabHeader()
+    {
+        // Mojang did not add a way to remove the header / footer completely, we can only set it to empty
+        setTabHeader( (BaseComponent) null, null );
+    }
+
+    @Override
+    public void sendTitle(Title title)
+    {
+        title.send( this );
     }
 
     public void setCompressionThreshold(int compressionThreshold)

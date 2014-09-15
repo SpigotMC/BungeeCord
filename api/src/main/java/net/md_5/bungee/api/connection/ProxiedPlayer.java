@@ -3,6 +3,8 @@ package net.md_5.bungee.api.connection;
 import java.util.Locale;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.Title;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import java.util.UUID;
 
@@ -121,4 +123,32 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @return the locale
      */
     Locale getLocale();
+
+    /**
+     * Set the header and footer displayed in the tab player list.
+     * @param header The header for the tab player list, null to clear it.
+     * @param footer The footer for the tab player list, null to clear it.
+     */
+    void setTabHeader(BaseComponent header, BaseComponent footer);
+
+    /**
+     * Set the header and footer displayed in the tab player list.
+     * @param header The header for the tab player list, null to clear it.
+     * @param footer The footer for the tab player list, null to clear it.
+     */
+    void setTabHeader(BaseComponent[] header, BaseComponent[] footer);
+
+    /**
+     * Clears the header and footer displayed in the tab player list.
+     */
+    void resetTabHeader();
+
+    /**
+     * Sends a {@link Title} to this player.
+     * This is the same as calling {@link Title#send(ProxiedPlayer)}.
+     *
+     * @param title The title to send to the player.
+     * @see Title
+     */
+    void sendTitle(Title title);
 }
