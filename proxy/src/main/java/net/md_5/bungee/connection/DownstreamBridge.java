@@ -350,6 +350,11 @@ public class DownstreamBridge extends PacketHandler
                 out.writeUTF( con.getAddress().getHostString() );
                 out.writeInt( con.getAddress().getPort() );
             }
+            if ( subChannel.equals( "OnlineMode" ) )
+            {
+                out.writeUTF( "OnlineMode" );
+                out.writeBoolean( con.getPendingConnection().isOnlineMode() );
+            }
             if ( subChannel.equals( "PlayerCount" ) )
             {
                 String target = in.readUTF();
