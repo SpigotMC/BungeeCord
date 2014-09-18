@@ -92,6 +92,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private UUID offlineId;
     @Getter
     private LoginResult loginProfile;
+    @Getter
+    private boolean legacy;
 
     private enum State
     {
@@ -125,6 +127,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(LegacyHandshake legacyHandshake) throws Exception
     {
+        this.legacy = true;
         ch.getHandle().writeAndFlush( bungee.getTranslation( "outdated_client" ) );
         ch.close();
     }
@@ -132,6 +135,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(LegacyPing ping) throws Exception
     {
+        this.legacy = true;
+        final boolean v1_5 = ping.isV1_5();
+
         ServerPing legacy = new ServerPing( new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), bungee.getProtocolVersion() ),
                 new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ), listener.getMotd(), (Favicon) null );
 
@@ -145,14 +151,24 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     return;
                 }
 
-                ServerPing ping = result.getResponse();
+                ServerPing legacy = result.getResponse();
+                String kickMessage;
 
-                String kickMessage = ChatColor.DARK_BLUE
-                        + "\00" + 127
-                        + "\00" + ping.getVersion().getName()
-                        + "\00" + ping.getDescription()
-                        + "\00" + ping.getPlayers().getOnline()
-                        + "\00" + ping.getPlayers().getMax();
+                if ( v1_5 )
+                {
+                    kickMessage = ChatColor.DARK_BLUE
+                            + "\00" + 127
+                            + '\00' + legacy.getVersion().getName()
+                            + '\00' + getFirstLine( legacy.getDescription() )
+                            + '\00' + legacy.getPlayers().getOnline()
+                            + '\00' + legacy.getPlayers().getMax();
+                } else
+                {
+                    // Clients <= 1.3 don't support colored motds because the color char is used as delimiter
+                    kickMessage = ChatColor.stripColor( getFirstLine( legacy.getDescription() ) )
+                            + '\u00a7' + legacy.getPlayers().getOnline()
+                            + '\u00a7' + legacy.getPlayers().getMax();
+                }
 
                 ch.getHandle().writeAndFlush( kickMessage );
                 ch.close();
@@ -160,6 +176,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         };
 
         bungee.getPluginManager().callEvent( new ProxyPingEvent( this, legacy, callback ) );
+    }
+
+    private static String getFirstLine(String str)
+    {
+        int pos = str.indexOf( '\n' );
+        return pos == -1 ? str : str.substring( 0, pos );
     }
 
     @Override

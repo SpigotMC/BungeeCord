@@ -1,11 +1,19 @@
 package net.md_5.bungee.protocol.packet;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
+
 import io.netty.buffer.ByteBuf;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 
+@Data
+@RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 public class LegacyPing extends DefinedPacket
 {
+    private final boolean v1_5;
 
     @Override
     public void read(ByteBuf buf)
@@ -24,23 +32,4 @@ public class LegacyPing extends DefinedPacket
     {
         handler.handle( this );
     }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-        throw new UnsupportedOperationException( "Not supported yet." ); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int hashCode()
-    {
-        throw new UnsupportedOperationException( "Not supported yet." ); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public String toString()
-    {
-        throw new UnsupportedOperationException( "Not supported yet." ); //To change body of generated methods, choose Tools | Templates.
-    }
-
 }
