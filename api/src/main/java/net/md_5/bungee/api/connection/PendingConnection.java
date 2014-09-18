@@ -65,4 +65,12 @@ public interface PendingConnection extends Connection
      * Set this connection's online mode.
      */
     void setOnlineMode(boolean onlineMode);
+
+    /**
+     * Check if the client is using the older unsupported Minecraft protocol
+     * used by Minecraft clients older than 1.7.
+     *
+     * @return Whether the client is using a legacy client.
+     */
+    boolean isLegacy();
 }
