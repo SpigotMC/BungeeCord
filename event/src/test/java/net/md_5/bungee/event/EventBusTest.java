@@ -4,11 +4,15 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class EventBusTest
+public class EventBusTest extends ImplementationRegistry
 {
 
-    private final EventBus bus = new EventBus();
     private final CountDownLatch latch = new CountDownLatch( 2 );
+
+    public EventBusTest(EventBus bus)
+    {
+        super( bus );
+    }
 
     @Test
     public void testNestedEvents()

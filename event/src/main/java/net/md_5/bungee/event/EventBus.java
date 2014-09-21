@@ -1,206 +1,48 @@
 package net.md_5.bungee.event;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-public class EventBus
+/**
+ * This class represents a basic event bus. The general general idea of such a
+ * class is that objects (listeners) are registered as being able to receive
+ * events of a specific class. When such an event is posted, all listeners which
+ * listen to that class will receive a notification of the event.
+ *
+ * In this event bus implementation, all event handling methods must have a
+ * single parameter designating the event class which they wish to handle, and
+ * an {@link EventHandler} annotation signifying themselves as a handler and
+ * providing extra information such as priority.
+ */
+public interface EventBus
 {
 
-    private final Map<Class<?>, Map<Byte, Map<Object, Method[]>>> byListenerAndPriority = new HashMap<>();
-    private final Map<Class<?>, EventHandlerMethod[]> byEventBaked = new HashMap<>();
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
-    private final Logger logger;
-
-    public EventBus()
-    {
-        this( null );
-    }
-
-    public EventBus(Logger logger)
-    {
-        this.logger = ( logger == null ) ? Logger.getGlobal() : logger;
-    }
-
-    public void post(Object event)
-    {
-        lock.readLock().lock();
-        try
-        {
-            EventHandlerMethod[] handlers = byEventBaked.get( event.getClass() );
-            if ( handlers != null )
-            {
-                for ( EventHandlerMethod method : handlers )
-                {
-                    try
-                    {
-                        method.invoke( event );
-                    } catch ( IllegalAccessException ex )
-                    {
-                        throw new Error( "Method became inaccessible: " + event, ex );
-                    } catch ( IllegalArgumentException ex )
-                    {
-                        throw new Error( "Method rejected target/argument: " + event, ex );
-                    } catch ( InvocationTargetException ex )
-                    {
-                        logger.log( Level.WARNING, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, method.getListener() ), ex.getCause() );
-                    }
-                }
-            }
-        } finally
-        {
-            lock.readLock().unlock();
-        }
-    }
-
-    private Map<Class<?>, Map<Byte, Set<Method>>> findHandlers(Object listener)
-    {
-        Map<Class<?>, Map<Byte, Set<Method>>> handler = new HashMap<>();
-        for ( Method m : listener.getClass().getDeclaredMethods() )
-        {
-            EventHandler annotation = m.getAnnotation( EventHandler.class );
-            if ( annotation != null )
-            {
-                Class<?>[] params = m.getParameterTypes();
-                if ( params.length != 1 )
-                {
-                    logger.log( Level.INFO, "Method {0} in class {1} annotated with {2} does not have single argument", new Object[]
-                    {
-                        m, listener.getClass(), annotation
-                    } );
-                    continue;
-                }
-                Map<Byte, Set<Method>> prioritiesMap = handler.get( params[0] );
-                if ( prioritiesMap == null )
-                {
-                    prioritiesMap = new HashMap<>();
-                    handler.put( params[0], prioritiesMap );
-                }
-                Set<Method> priority = prioritiesMap.get( annotation.priority() );
-                if ( priority == null )
-                {
-                    priority = new HashSet<>();
-                    prioritiesMap.put( annotation.priority(), priority );
-                }
-                priority.add( m );
-            }
-        }
-        return handler;
-    }
-
-    public void register(Object listener)
-    {
-        Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers( listener );
-        lock.writeLock().lock();
-        try
-        {
-            for ( Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet() )
-            {
-                Map<Byte, Map<Object, Method[]>> prioritiesMap = byListenerAndPriority.get( e.getKey() );
-                if ( prioritiesMap == null )
-                {
-                    prioritiesMap = new HashMap<>();
-                    byListenerAndPriority.put( e.getKey(), prioritiesMap );
-                }
-                for ( Map.Entry<Byte, Set<Method>> entry : e.getValue().entrySet() )
-                {
-                    Map<Object, Method[]> currentPriorityMap = prioritiesMap.get( entry.getKey() );
-                    if ( currentPriorityMap == null )
-                    {
-                        currentPriorityMap = new HashMap<>();
-                        prioritiesMap.put( entry.getKey(), currentPriorityMap );
-                    }
-                    Method[] baked = new Method[ entry.getValue().size() ];
-                    currentPriorityMap.put( listener, entry.getValue().toArray( baked ) );
-                }
-                bakeHandlers( e.getKey() );
-            }
-        } finally
-        {
-            lock.writeLock().unlock();
-        }
-    }
-
-    public void unregister(Object listener)
-    {
-        Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers( listener );
-        lock.writeLock().lock();
-        try
-        {
-            for ( Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet() )
-            {
-                Map<Byte, Map<Object, Method[]>> prioritiesMap = byListenerAndPriority.get( e.getKey() );
-                if ( prioritiesMap != null )
-                {
-                    for ( Byte priority : e.getValue().keySet() )
-                    {
-                        Map<Object, Method[]> currentPriority = prioritiesMap.get( priority );
-                        if ( currentPriority != null )
-                        {
-                            currentPriority.remove( listener );
-                            if ( currentPriority.isEmpty() )
-                            {
-                                prioritiesMap.remove( priority );
-                            }
-                        }
-                    }
-                    if ( prioritiesMap.isEmpty() )
-                    {
-                        byListenerAndPriority.remove( e.getKey() );
-                    }
-                }
-                bakeHandlers( e.getKey() );
-            }
-        } finally
-        {
-            lock.writeLock().unlock();
-        }
-    }
+    /**
+     * Posts an event to this event bus so that is will be received by all
+     * registered listeners. This event will not throw any exceptions, so any
+     * exceptions thrown by registered listeners must be handled by the
+     * implementation.
+     *
+     * @param event the event to be posted
+     */
+    void post(Object event);
 
     /**
-     * Shouldn't be called without first locking the writeLock; intended for use
-     * only inside {@link #register(java.lang.Object) register(Object)} or
-     * {@link #unregister(java.lang.Object) unregister(Object)}.
+     * Register a listener for receiving events. This method will add all
+     * methods annotated with {@link EventHandler} to the list of event
+     * handlers. Any invalid {@link EventHandler} annotated methods, such as
+     * those which are private or have more than a single argument will be
+     * ignored.
+     *
+     * @param listener the object to search for event handling methods
      */
-    private void bakeHandlers(Class<?> eventClass)
-    {
-        Map<Byte, Map<Object, Method[]>> handlersByPriority = byListenerAndPriority.get( eventClass );
-        if ( handlersByPriority != null )
-        {
-            List<EventHandlerMethod> handlersList = new ArrayList<>( handlersByPriority.size() * 2 );
+    void register(Object listener);
 
-            // Either I'm really tired, or the only way we can iterate between Byte.MIN_VALUE and Byte.MAX_VALUE inclusively,
-            // with only a byte on the stack is by using a do {} while() format loop.
-            byte value = Byte.MIN_VALUE;
-            do
-            {
-                Map<Object, Method[]> handlersByListener = handlersByPriority.get( value );
-                if ( handlersByListener != null )
-                {
-                    for ( Map.Entry<Object, Method[]> listenerHandlers : handlersByListener.entrySet() )
-                    {
-                        for ( Method method : listenerHandlers.getValue() )
-                        {
-                            EventHandlerMethod ehm = new EventHandlerMethod( listenerHandlers.getKey(), method );
-                            handlersList.add( ehm );
-                        }
-                    }
-                }
-            } while ( value++ < Byte.MAX_VALUE );
-            byEventBaked.put( eventClass, handlersList.toArray( new EventHandlerMethod[ handlersList.size() ] ) );
-        } else
-        {
-            byEventBaked.put( eventClass, null );
-        }
-    }
+    /**
+     * Unregister a previously registered event listener. This method will do
+     * the reverse of {@link #register(java.lang.Object)}, and remove any
+     * registered event handling methods belonging to the specified class.
+     *
+     * @param listener the object to remove from the list of event handlers
+     * @throws IllegalArgumentException if the specified listener was not
+     * previously registered.
+     */
+    void unregister(Object listener);
 }

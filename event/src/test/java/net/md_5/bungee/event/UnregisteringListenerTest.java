@@ -3,10 +3,13 @@ package net.md_5.bungee.event;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class UnregisteringListenerTest
+public class UnregisteringListenerTest extends ImplementationRegistry
 {
 
-    private final EventBus bus = new EventBus();
+    public UnregisteringListenerTest(EventBus bus)
+    {
+        super( bus );
+    }
 
     @Test
     public void testPriority()

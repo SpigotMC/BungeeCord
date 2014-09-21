@@ -1,4 +1,4 @@
-package net.md_5.bungee.event;
+package net.md_5.bungee.event.standard;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

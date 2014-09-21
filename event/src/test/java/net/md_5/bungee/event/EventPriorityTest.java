@@ -4,11 +4,15 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class EventPriorityTest
+public class EventPriorityTest extends ImplementationRegistry
 {
 
-    private final EventBus bus = new EventBus();
     private final CountDownLatch latch = new CountDownLatch( 5 );
+
+    public EventPriorityTest(EventBus bus)
+    {
+        super( bus );
+    }
 
     @Test
     public void testPriority()
