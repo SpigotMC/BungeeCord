@@ -3,6 +3,7 @@ package net.md_5.bungee.event;
 import java.util.Arrays;
 import java.util.Collection;
 import lombok.Getter;
+import net.md_5.bungee.event.asm.CompiledEventBus;
 import net.md_5.bungee.event.standard.StandardEventBus;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -26,7 +27,10 @@ public class ImplementationRegistry
         {
             {
                 new StandardEventBus()
-            }
+            },/*
+            {
+                new CompiledEventBus()
+            }*/
         } );
     }
 }

@@ -17,6 +17,14 @@ public interface BakedEventBus extends EventBus
     void bake();
 
     /**
+     * Run the baking process on all registered handlers for the specified event
+     * class.
+     *
+     * @param eventClass the class to bake handlers for.
+     */
+    void bake(Class<?> eventClass);
+
+    /**
      * Return whether or not the handler will auto bake events after each
      * handler registration.
      *
