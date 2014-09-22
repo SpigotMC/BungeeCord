@@ -92,6 +92,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private UUID offlineId;
     @Getter
     private LoginResult loginProfile;
+    private InetSocketAddress remoteAddress;
 
     private enum State
     {
@@ -103,6 +104,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void connected(ChannelWrapper channel) throws Exception
     {
         this.ch = channel;
+        this.remoteAddress = (InetSocketAddress) this.ch.getHandle().remoteAddress();
     }
 
     @Override
@@ -506,7 +508,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public InetSocketAddress getAddress()
     {
-        return (InetSocketAddress) ch.getHandle().remoteAddress();
+        return this.remoteAddress;
     }
 
     @Override
