@@ -1,5 +1,6 @@
 package net.md_5.bungee.protocol;
 
+import net.md_5.bungee.protocol.forge.ByteBufUtils;
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
@@ -31,18 +32,28 @@ public abstract class DefinedPacket
         return new String( b, Charsets.UTF_8 );
     }
 
-    public static void writeArrayLegacy(byte[] b, ByteBuf buf)
+    public static void writeArrayLegacy(byte[] b, ByteBuf buf, boolean allowExtended)
     {
-        Preconditions.checkArgument( b.length <= Short.MAX_VALUE, "Cannot send array longer than Short.MAX_VALUE (got %s bytes)", b.length );
-
-        buf.writeShort( b.length );
+        // (Integer.MAX_VALUE & 0x1FFF9A ) = 2097050 - Forge's current upper limit
+        if (allowExtended) {
+            Preconditions.checkArgument( b.length <= (Integer.MAX_VALUE & 0x1FFF9A ), "Cannot send array longer than 2097050 (got %s bytes)", b.length );
+        } else {
+            Preconditions.checkArgument( b.length <= Short.MAX_VALUE, "Cannot send array longer than Short.MAX_VALUE (got %s bytes)", b.length );
+        }
+        // Write a 2 or 3 byte number that represents the length of the packet. (3 byte "shorts" for Forge only)
+        // No vanilla packet should give a 3 byte packet, this method will still retain vanilla behaviour.
+        ByteBufUtils.writeVarShort(buf, b.length);
         buf.writeBytes( b );
     }
 
     public static byte[] readArrayLegacy(ByteBuf buf)
     {
-        short len = buf.readShort();
-        Preconditions.checkArgument( len <= Short.MAX_VALUE, "Cannot receive array longer than Short.MAX_VALUE (got %s bytes)", len );
+        // Read in a 2 or 3 byte number that represents the length of the packet. (3 byte "shorts" for Forge only)
+        // No vanilla packet should give a 3 byte packet, this method will still retain vanilla behaviour.
+        int len = ByteBufUtils.readVarShort(buf);
+
+        // (Integer.MAX_VALUE & 0x1FFF9A ) = 2097050 - Forge's current upper limit
+        Preconditions.checkArgument( len <= (Integer.MAX_VALUE & 0x1FFF9A), "Cannot receive array longer than 2097050 (got %s bytes)", len );
 
         byte[] ret = new byte[ len ];
         buf.readBytes( ret );

@@ -3,9 +3,11 @@ package net.md_5.bungee;
 import com.google.common.base.Preconditions;
 import java.util.Objects;
 import java.util.Queue;
+import java.util.Set;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
@@ -20,21 +22,24 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.connection.LoginResult;
-import net.md_5.bungee.netty.HandlerBoss;
+import net.md_5.bungee.forge.ForgeConstants;
+import net.md_5.bungee.forge.ForgeServerHandler;
+import net.md_5.bungee.forge.ForgeUtils;
 import net.md_5.bungee.netty.ChannelWrapper;
+import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PacketHandler;
-import net.md_5.bungee.protocol.MinecraftOutput;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.MinecraftOutput;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.Handshake;
+import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Login;
+import net.md_5.bungee.protocol.packet.LoginSuccess;
+import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
-import net.md_5.bungee.protocol.packet.PluginMessage;
-import net.md_5.bungee.protocol.packet.Kick;
-import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.SetCompression;
 
 @RequiredArgsConstructor
@@ -46,6 +51,8 @@ public class ServerConnector extends PacketHandler
     private final UserConnection user;
     private final BungeeServerInfo target;
     private State thisState = State.LOGIN_SUCCESS;
+    @Getter
+    private ForgeServerHandler handshakeHandler;
 
     private enum State
     {
@@ -71,6 +78,7 @@ public class ServerConnector extends PacketHandler
     {
         this.ch = channel;
 
+        this.handshakeHandler = new ForgeServerHandler( user, ch, target );
         Handshake originalHandshake = user.getPendingConnection().getHandshake();
         Handshake copiedHandshake = new Handshake( originalHandshake.getProtocolVersion(), originalHandshake.getHost(), originalHandshake.getPort(), 2 );
 
@@ -103,6 +111,10 @@ public class ServerConnector extends PacketHandler
         Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not expecting LOGIN_SUCCESS" );
         ch.setProtocol( Protocol.GAME );
         thisState = State.LOGIN;
+        if ( user.getServer() != null && user.getForgeClientHandler().isHandshakeComplete() )
+        {
+            user.getForgeClientHandler().resetHandshake();
+        }
 
         throw CancelSendSignal.INSTANCE;
     }
@@ -143,6 +155,11 @@ public class ServerConnector extends PacketHandler
             ch.write( user.getSettings() );
         }
 
+        if ( user.getForgeClientHandler().getClientModList() == null && !user.getForgeClientHandler().isHandshakeComplete() ) // Vanilla
+        {
+            user.getForgeClientHandler().setHandshakeComplete();
+        }
+
         if ( user.getServer() == null )
         {
             // Once again, first connection
@@ -159,12 +176,12 @@ public class ServerConnector extends PacketHandler
             {
                 MinecraftOutput out = new MinecraftOutput();
                 out.writeStringUTF8WithoutLengthHeaderBecauseDinnerboneStuffedUpTheMCBrandPacket( ProxyServer.getInstance().getName() + " (" + ProxyServer.getInstance().getVersion() + ")" );
-                user.unsafe().sendPacket( new PluginMessage( "MC|Brand", out.toArray() ) );
+                user.unsafe().sendPacket( new PluginMessage( "MC|Brand", out.toArray(), handshakeHandler.isServerForge() ) );
             } else
             {
                 ByteBuf brand = ByteBufAllocator.DEFAULT.heapBuffer();
                 DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")", brand );
-                user.unsafe().sendPacket( new PluginMessage( "MC|Brand", brand.array().clone() ) );
+                user.unsafe().sendPacket( new PluginMessage( "MC|Brand", brand.array().clone(), handshakeHandler.isServerForge() ) );
                 brand.release();
             }
         } else
@@ -248,6 +265,49 @@ public class ServerConnector extends PacketHandler
         }
 
         throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void handle(PluginMessage pluginMessage) throws Exception
+    {
+        if ( pluginMessage.getTag().equals( ForgeConstants.FML_REGISTER ) )
+        {
+            Set<String> channels = ForgeUtils.readRegisteredChannels( pluginMessage );
+            boolean isForgeServer = false;
+            for ( String channel : channels )
+            {
+                if ( channel.equals( ForgeConstants.FML_HANDSHAKE_TAG ) )
+                {
+                    isForgeServer = true;
+                    break;
+                }
+            }
+
+            if ( isForgeServer && !this.handshakeHandler.isServerForge() )
+            {
+                // We now set the server-side handshake handler for the client to this.
+                handshakeHandler.setServerAsForgeServer();
+                user.setForgeServerHandler( handshakeHandler );
+            }
+        }
+
+        if ( pluginMessage.getTag().equals( ForgeConstants.FML_HANDSHAKE_TAG ) || pluginMessage.getTag().equals( ForgeConstants.FORGE_REGISTER ) )
+        {
+            this.handshakeHandler.handle( pluginMessage );
+            if ( user.getForgeClientHandler().checkUserOutdated() )
+            {
+                ch.close();
+                user.getPendingConnects().remove( target );
+            }
+
+            // We send the message as part of the handler, so don't send it here.
+            throw CancelSendSignal.INSTANCE;
+        } else
+        {
+            // We have to forward these to the user, especially with Forge as stuff might break
+            // This includes any REGISTER messages we intercepted earlier.
+            user.unsafe().sendPacket( pluginMessage );
+        }
     }
 
     @Override
