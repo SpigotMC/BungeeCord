@@ -124,6 +124,12 @@
                     <target>1.7</target>
                 </configuration>
             </plugin>
+            <!-- OSS Parent 9 uses 2.7, 2.10+ is broken anyway -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.7</version>
+            </plugin>
         </plugins>
     </build>
 </project>
