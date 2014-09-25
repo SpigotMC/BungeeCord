@@ -285,7 +285,7 @@ public abstract class ProxyServer
 
     /**
      * Creates a new empty title configuration.
-     * In most cases you will want to {@link #reset()} the current title first so
+     * In most cases you will want to {@link Title#reset() reset} the current title first so
      * your title won't be affected by a previous one.
      *
      * @return A new empty title configuration.
