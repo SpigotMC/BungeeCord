@@ -284,9 +284,9 @@ public abstract class ProxyServer
     public abstract Collection<ProxiedPlayer> matchPlayer(String name);
 
     /**
-     * Creates a new empty title configuration.
-     * In most cases you will want to {@link #reset()} the current title first so
-     * your title won't be affected by a previous one.
+     * Creates a new empty title configuration. In most cases you will want to
+     * {@link Title#reset()} the current title first so your title won't be
+     * affected by a previous one.
      *
      * @return A new empty title configuration.
      * @see Title
