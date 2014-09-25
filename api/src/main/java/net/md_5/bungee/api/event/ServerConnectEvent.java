@@ -9,6 +9,12 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Cancellable;
 import net.md_5.bungee.api.plugin.Event;
 
+/**
+ * Called when deciding to connect to a server. At the time when this event is
+ * called, no connection has actually been made. Cancelling the event will
+ * ensure that the connection does not proceed and can be useful to prevent
+ * certain players from accessing certain servers.
+ */
 @Data
 @ToString(callSuper = false)
 @EqualsAndHashCode(callSuper = false)
