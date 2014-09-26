@@ -24,6 +24,11 @@ public class PluginMessage extends DefinedPacket
     private String tag;
     private byte[] data;
 
+    /**
+     * Allow this packet to be sent as an "extended" packet.
+     */
+    private boolean allowExtendedPacket = false;
+
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
@@ -44,7 +49,7 @@ public class PluginMessage extends DefinedPacket
         writeString( tag, buf );
         if ( protocolVersion < ProtocolConstants.MINECRAFT_SNAPSHOT )
         {
-            writeArrayLegacy( data, buf );
+            writeArrayLegacy( data, buf, allowExtendedPacket );
         } else
         {
             buf.writeBytes( data );

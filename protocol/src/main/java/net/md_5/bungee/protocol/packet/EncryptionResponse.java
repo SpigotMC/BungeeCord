@@ -38,8 +38,8 @@ public class EncryptionResponse extends DefinedPacket
     {
         if ( protocolVersion < ProtocolConstants.MINECRAFT_SNAPSHOT )
         {
-            writeArrayLegacy( sharedSecret, buf );
-            writeArrayLegacy( verifyToken, buf );
+            writeArrayLegacy( sharedSecret, buf, false );
+            writeArrayLegacy( verifyToken, buf, false );
         } else
         {
             writeArray( sharedSecret, buf );
