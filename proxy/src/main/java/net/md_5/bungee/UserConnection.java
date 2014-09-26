@@ -36,21 +36,19 @@ import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.entitymap.EntityMap;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
-import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
+import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
-import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.SetCompression;
-import net.md_5.bungee.tab.Global;
-import net.md_5.bungee.tab.GlobalPing;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
 import net.md_5.bungee.util.CaseInsensitiveSet;
@@ -136,17 +134,17 @@ public final class UserConnection implements ProxiedPlayer
 
         // Blame Mojang for this one
         /*switch ( getPendingConnection().getListener().getTabListType() )
-        {
-            case "GLOBAL":
-                tabListHandler = new Global( this );
-                break;
-            case "SERVER":
-                tabListHandler = new ServerUnique( this );
-                break;
-            default:
-                tabListHandler = new GlobalPing( this );
-                break;
-        }*/
+         {
+         case "GLOBAL":
+         tabListHandler = new Global( this );
+         break;
+         case "SERVER":
+         tabListHandler = new ServerUnique( this );
+         break;
+         default:
+         tabListHandler = new GlobalPing( this );
+         break;
+         }*/
         tabListHandler = new ServerUnique( this );
 
         Collection<String> g = bungee.getConfigurationAdapter().getGroups( name );
