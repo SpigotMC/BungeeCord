@@ -1,12 +1,12 @@
 package net.md_5.bungee.api.connection;
 
 import java.util.Locale;
+import java.util.UUID;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
-import java.util.UUID;
 
 /**
  * Represents a player who's connection is being connected to somewhere else,
@@ -126,6 +126,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
 
     /**
      * Set the header and footer displayed in the tab player list.
+     *
      * @param header The header for the tab player list, null to clear it.
      * @param footer The footer for the tab player list, null to clear it.
      */
@@ -133,6 +134,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
 
     /**
      * Set the header and footer displayed in the tab player list.
+     *
      * @param header The header for the tab player list, null to clear it.
      * @param footer The footer for the tab player list, null to clear it.
      */
@@ -144,8 +146,8 @@ public interface ProxiedPlayer extends Connection, CommandSender
     void resetTabHeader();
 
     /**
-     * Sends a {@link Title} to this player.
-     * This is the same as calling {@link Title#send(ProxiedPlayer)}.
+     * Sends a {@link Title} to this player. This is the same as calling
+     * {@link Title#send(ProxiedPlayer)}.
      *
      * @param title The title to send to the player.
      * @see Title
