@@ -69,6 +69,7 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.command.*;
 import net.md_5.bungee.conf.YamlConfig;
+import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.log.LoggingOutputStream;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.DefinedPacket;
@@ -228,6 +229,10 @@ public class BungeeCord extends ProxyServer
 
         pluginManager.loadPlugins();
         config.load();
+
+        registerChannel( ForgeConstants.FML_TAG );
+        registerChannel( ForgeConstants.FML_HANDSHAKE_TAG );
+        registerChannel( ForgeConstants.FORGE_REGISTER );
 
         isRunning = true;
 
@@ -538,7 +543,7 @@ public class BungeeCord extends ProxyServer
 
     public PluginMessage registerChannels()
     {
-        return new PluginMessage( "REGISTER", Util.format( pluginChannels, "\00" ).getBytes( Charsets.UTF_8 ) );
+        return new PluginMessage( "REGISTER", Util.format( pluginChannels, "\00" ).getBytes( Charsets.UTF_8 ), false );
     }
 
     @Override

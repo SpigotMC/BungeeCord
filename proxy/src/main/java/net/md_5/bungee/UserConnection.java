@@ -1,6 +1,7 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -13,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -34,6 +36,8 @@ import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.entitymap.EntityMap;
+import net.md_5.bungee.forge.ForgeClientHandler;
+import net.md_5.bungee.forge.ForgeServerHandler;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PipelineUtils;
@@ -117,6 +121,13 @@ public final class UserConnection implements ProxiedPlayer
     private EntityMap entityRewrite;
     private Locale locale;
     /*========================================================================*/
+    @Getter
+    @Setter
+    private ForgeClientHandler forgeClientHandler;
+    @Getter
+    @Setter
+    private ForgeServerHandler forgeServerHandler;
+    /*========================================================================*/
     private final Unsafe unsafe = new Unsafe()
     {
         @Override
@@ -152,6 +163,8 @@ public final class UserConnection implements ProxiedPlayer
         {
             addGroups( s );
         }
+
+        forgeClientHandler = new ForgeClientHandler( this );
     }
 
     public void sendPacket(PacketWrapper packet)
@@ -369,7 +382,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendData(String channel, byte[] data)
     {
-        unsafe().sendPacket( new PluginMessage( channel, data ) );
+        unsafe().sendPacket( new PluginMessage( channel, data, forgeClientHandler.isForgeUser() ) );
     }
 
     @Override
@@ -468,6 +481,19 @@ public final class UserConnection implements ProxiedPlayer
     public Locale getLocale()
     {
         return ( locale == null && settings != null ) ? locale = Locale.forLanguageTag( settings.getLocale().replaceAll( "_", "-" ) ) : locale;
+    }
+
+    @Override
+    public Map<String, String> getModList()
+    {
+        if ( forgeClientHandler.getClientModList() == null )
+        {
+            // Return an empty map, rather than a null, if the client hasn't got any mods,
+            // or is yet to complete a handshake.
+            return ImmutableMap.of();
+        }
+
+        return ImmutableMap.copyOf( forgeClientHandler.getClientModList() );
     }
 
     private static final String EMPTY_TEXT = ComponentSerializer.toString( new TextComponent( "" ) );

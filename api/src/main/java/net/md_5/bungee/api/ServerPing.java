@@ -1,5 +1,7 @@
 package net.md_5.bungee.api;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -73,6 +75,27 @@ public class ServerPing
     }
     private String description;
     private Favicon favicon;
+
+    @Data
+    public static class ModInfo
+    {
+
+        private String type = "FML";
+        private List<ModItem> modList = new ArrayList<>();
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class ModItem
+    {
+
+        private String modid;
+        private String version;
+    }
+
+    // Right now, we don't get the mods from the user, so we just use a stock ModInfo object to
+    // create the server ping. Vanilla clients will ignore this.
+    private final ModInfo modinfo = new ModInfo();
 
     @Deprecated
     public ServerPing(Protocol version, Players players, String description, String favicon)
