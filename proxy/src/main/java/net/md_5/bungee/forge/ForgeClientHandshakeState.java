@@ -90,6 +90,13 @@ enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientH
                             // TODO: Remove this once Bungee becomes 1.8 only.
                             int buildNumber = ForgeUtils.getFmlBuildNumber( clientModList );
 
+                            // Be sure that FML is inside the modlist so we can be sure its a Forge Mod loader and nothing
+                            // 3rd Party shit using the FML:HS channels
+                            if ( buildNumber != 0 )
+                            {
+                                con.getForgeClientHandler().setForgeClient( true );
+                            }
+
                             // If we get 0, we're probably using a testing build, so let it though. Otherwise, check the build number.
                             if ( buildNumber < ForgeConstants.FML_MIN_BUILD_VERSION && buildNumber != 0 )
                             {
