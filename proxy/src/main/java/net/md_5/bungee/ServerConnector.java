@@ -3,9 +3,6 @@ package net.md_5.bungee;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import java.util.Objects;
-import java.util.Queue;
-import java.util.Set;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
@@ -31,15 +28,11 @@ import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.MinecraftOutput;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.packet.EncryptionRequest;
-import net.md_5.bungee.protocol.packet.Handshake;
-import net.md_5.bungee.protocol.packet.Kick;
-import net.md_5.bungee.protocol.packet.Login;
-import net.md_5.bungee.protocol.packet.LoginSuccess;
-import net.md_5.bungee.protocol.packet.PluginMessage;
-import net.md_5.bungee.protocol.packet.Respawn;
-import net.md_5.bungee.protocol.packet.ScoreboardObjective;
-import net.md_5.bungee.protocol.packet.SetCompression;
+import net.md_5.bungee.protocol.packet.*;
+
+import java.util.Objects;
+import java.util.Queue;
+import java.util.Set;
 
 @RequiredArgsConstructor
 public class ServerConnector extends PacketHandler
@@ -110,7 +103,7 @@ public class ServerConnector extends PacketHandler
         Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not expecting LOGIN_SUCCESS" );
         ch.setProtocol( Protocol.GAME );
         thisState = State.LOGIN;
-        if ( user.getServer() != null && user.getForgeClientHandler().isHandshakeComplete() )
+        if ( user.getServer() != null && user.getForgeClientHandler().isHandshakeComplete() && !user.getForgeClientHandler().isForgeOutdated() )
         {
             user.getForgeClientHandler().resetHandshake();
         }
