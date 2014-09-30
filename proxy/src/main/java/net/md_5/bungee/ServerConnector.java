@@ -110,7 +110,22 @@ public class ServerConnector extends PacketHandler
         Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not expecting LOGIN_SUCCESS" );
         ch.setProtocol( Protocol.GAME );
         thisState = State.LOGIN;
-        if ( user.getServer() != null && user.getForgeClientHandler().isHandshakeComplete() )
+
+        // Only reset the Forge client when:
+        // 1) The user is switching servers (so has a current server)
+        // 2) The handshake is complete
+        // 3) The user is currently on a modded server (if we are on a vanilla server,
+        //    we may be heading for another vanilla server, so we don't need to reset.)
+        //
+        // user.getServer() gets the user's CURRENT server, not the one we are trying
+        // to connect to.
+        //
+        // We will reset the connection later if the current server is vanilla, and
+        // we need to switch to a modded connection. However, we always need to reset the
+        // connection when we have a modded server regardless of where we go - doing it
+        // here makes sense.
+        if ( user.getServer() != null && user.getForgeClientHandler().isHandshakeComplete()
+                && user.getServer().isForgeServer() )
         {
             user.getForgeClientHandler().resetHandshake();
         }
@@ -277,6 +292,14 @@ public class ServerConnector extends PacketHandler
             {
                 if ( channel.equals( ForgeConstants.FML_HANDSHAKE_TAG ) )
                 {
+                    // If we have a completed handshake and we have been asked to register a FML|HS
+                    // packet, let's send the reset packet now. Then, we can continue the message sending.
+                    // The handshake will not be complete if we reset this earlier.
+                    if ( user.getServer() != null && user.getForgeClientHandler().isHandshakeComplete() )
+                    {
+                        user.getForgeClientHandler().resetHandshake();
+                    }
+
                     isForgeServer = true;
                     break;
                 }
