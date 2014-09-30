@@ -26,6 +26,13 @@ public class ForgeClientHandler
     private boolean forgeOutdated = false;
 
     /**
+     * The client is non forge until it sends a FML Buildnumber
+     */
+    @Getter
+    @Setter(AccessLevel.PACKAGE)
+    private boolean forgeClient = false;
+
+    /**
      * The users' mod list.
      */
     @Getter
@@ -161,7 +168,7 @@ public class ForgeClientHandler
      */
     public boolean checkUserOutdated()
     {
-        if ( forgeOutdated )
+        if ( isForgeClient() && isForgeOutdated() )
         {
             if ( con.isDimensionChange() )
             {
@@ -172,6 +179,6 @@ public class ForgeClientHandler
             }
         }
 
-        return forgeOutdated;
+        return isForgeOutdated();
     }
 }

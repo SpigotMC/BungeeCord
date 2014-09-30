@@ -110,7 +110,7 @@ public class ServerConnector extends PacketHandler
         Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not expecting LOGIN_SUCCESS" );
         ch.setProtocol( Protocol.GAME );
         thisState = State.LOGIN;
-        if ( user.getServer() != null && user.getForgeClientHandler().isHandshakeComplete() )
+        if ( user.getServer() != null && user.getForgeClientHandler().isForgeClient() && !user.getForgeClientHandler().isForgeOutdated() )
         {
             user.getForgeClientHandler().resetHandshake();
         }
