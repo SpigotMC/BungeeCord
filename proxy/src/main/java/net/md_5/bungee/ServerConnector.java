@@ -313,7 +313,7 @@ public class ServerConnector extends PacketHandler
             }
         }
 
-        if ( pluginMessage.getTag().equals( ForgeConstants.FML_HANDSHAKE_TAG ) || pluginMessage.getTag().equals( ForgeConstants.FORGE_REGISTER ) )
+        if ( pluginMessage.getTag().equals( ForgeConstants.FML_HANDSHAKE_TAG ) || pluginMessage.getTag().equals( ForgeConstants.FORGE_TAG ) )
         {
             this.handshakeHandler.handle( pluginMessage );
             if ( user.getForgeClientHandler().checkUserOutdated() )

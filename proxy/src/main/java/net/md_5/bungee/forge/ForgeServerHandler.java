@@ -19,6 +19,7 @@ public class ForgeServerHandler
 {
 
     private final UserConnection con;
+
     @Getter
     private final ChannelWrapper ch;
 
@@ -42,9 +43,9 @@ public class ForgeServerHandler
      */
     public void handle(PluginMessage message) throws IllegalArgumentException
     {
-        if ( !message.getTag().equalsIgnoreCase( ForgeConstants.FML_HANDSHAKE_TAG ) && !message.getTag().equalsIgnoreCase( ForgeConstants.FORGE_REGISTER ) )
+        if ( !message.getTag().equalsIgnoreCase( ForgeConstants.FML_HANDSHAKE_TAG ) && !message.getTag().equalsIgnoreCase(ForgeConstants.FORGE_TAG ) )
         {
-            throw new IllegalArgumentException( "Expecting a Forge REGISTER or FML Handshake packet." );
+            throw new IllegalArgumentException( "Expecting a FML Handshake or FORGE packet." );
         }
 
         message.setAllowExtendedPacket( true ); // FML allows extended packets so this must be enabled
@@ -81,5 +82,15 @@ public class ForgeServerHandler
     public void setServerAsForgeServer()
     {
         serverForge = true;
+    }
+
+    /**
+     * Returns whether the server is able to accept REGISTER messages at the beginning of the handshake.
+     * 
+     * @return <code>true</code> if the server accepts REGISTER messages at this time.
+     */
+    public boolean acceptRegisterMessages()
+    {
+        return state == ForgeServerHandshakeState.HELLO;
     }
 }

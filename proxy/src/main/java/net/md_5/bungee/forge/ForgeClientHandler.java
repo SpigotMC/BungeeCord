@@ -48,9 +48,9 @@ public class ForgeClientHandler
      */
     public void handle(PluginMessage message) throws IllegalArgumentException
     {
-        if ( !message.getTag().equalsIgnoreCase( ForgeConstants.FML_HANDSHAKE_TAG ) )
+        if ( !message.getTag().equalsIgnoreCase( ForgeConstants.FML_HANDSHAKE_TAG ) && !message.getTag().equalsIgnoreCase( "REGISTER" ) )
         {
-            throw new IllegalArgumentException( "Expecting a Forge Handshake packet." );
+            throw new IllegalArgumentException( "Expecting a Forge Handshake or REGISTER packet." );
         }
 
         message.setAllowExtendedPacket( true ); // FML allows extended packets so this must be enabled

@@ -230,10 +230,6 @@ public class BungeeCord extends ProxyServer
         pluginManager.loadPlugins();
         config.load();
 
-        registerChannel( ForgeConstants.FML_TAG );
-        registerChannel( ForgeConstants.FML_HANDSHAKE_TAG );
-        registerChannel( ForgeConstants.FORGE_REGISTER );
-
         isRunning = true;
 
         pluginManager.enablePlugins();
