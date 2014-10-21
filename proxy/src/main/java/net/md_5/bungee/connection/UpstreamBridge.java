@@ -20,7 +20,6 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import java.util.ArrayList;
 import java.util.List;
 import net.md_5.bungee.forge.ForgeConstants;
-import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 
 public class UpstreamBridge extends PacketHandler
@@ -168,6 +167,13 @@ public class UpstreamBridge extends PacketHandler
         if ( pluginMessage.getTag().equals( "REGISTER" ) )
         {
             con.getPendingConnection().getRegisterMessages().add( pluginMessage );
+
+            // If we have a forge handshake in progress, send the REGISTER message along containing the forge channel registrations.
+            if ( con.getForgeServerHandler().acceptRegisterMessages() )
+            {
+                // Send it through the full handler sequence.
+                con.getForgeClientHandler().handle( pluginMessage );
+            }
         }
     }
 
