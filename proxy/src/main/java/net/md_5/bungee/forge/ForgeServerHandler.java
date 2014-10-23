@@ -91,6 +91,6 @@ public class ForgeServerHandler
      */
     public boolean acceptRegisterMessages()
     {
-        return state == ForgeServerHandshakeState.HELLO;
+        return state == ForgeServerHandshakeState.START || state == ForgeServerHandshakeState.HELLO;
     }
 }
