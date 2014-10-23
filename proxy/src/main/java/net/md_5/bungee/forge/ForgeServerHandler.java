@@ -93,4 +93,14 @@ public class ForgeServerHandler
     {
         return state == ForgeServerHandshakeState.START || state == ForgeServerHandshakeState.HELLO;
     }
+
+    /**
+     * Returns whether the handshake is complete.
+     * 
+     * @return <code>true</code> if the handshake is complete.
+     */
+    public boolean isHandshakeComplete()
+    {
+        return state == ForgeServerHandshakeState.COMPLETE;
+    }
 }
