@@ -78,6 +78,8 @@ public class ServerConnector extends PacketHandler
         this.ch = channel;
 
         this.handshakeHandler = new ForgeServerHandler( user, ch, target );
+        user.setForgeServerHandler( handshakeHandler );
+
         Handshake originalHandshake = user.getPendingConnection().getHandshake();
         Handshake copiedHandshake = new Handshake( originalHandshake.getProtocolVersion(), originalHandshake.getHost(), originalHandshake.getPort(), 2 );
 
@@ -309,7 +311,6 @@ public class ServerConnector extends PacketHandler
             {
                 // We now set the server-side handshake handler for the client to this.
                 handshakeHandler.setServerAsForgeServer();
-                user.setForgeServerHandler( handshakeHandler );
             }
         }
 
