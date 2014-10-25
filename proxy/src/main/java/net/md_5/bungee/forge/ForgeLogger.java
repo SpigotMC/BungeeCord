@@ -43,7 +43,7 @@ class ForgeLogger
                 default:
                     return "Unknown";
             }
-        } else if ( channel.equals( ForgeConstants.FORGE_REGISTER ) )
+        } else if ( channel.equals( ForgeConstants.FORGE_TAG ) )
         {
             switch ( discrim )
             {

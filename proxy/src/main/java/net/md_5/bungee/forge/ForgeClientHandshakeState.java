@@ -70,8 +70,8 @@ enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientH
                 @Override
                 public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
                 {
-                    // Client Hello.
-                    if ( message.getData()[0] == 1 )
+                    // FML Register and Client Hello.
+                    if ( message.getTag().equals( "REGISTER") || message.getData()[0] == 1 )
                     {
                         return this;
                     }

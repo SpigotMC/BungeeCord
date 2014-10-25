@@ -78,6 +78,8 @@ public class ServerConnector extends PacketHandler
         this.ch = channel;
 
         this.handshakeHandler = new ForgeServerHandler( user, ch, target );
+        user.setForgeServerHandler( handshakeHandler );
+
         Handshake originalHandshake = user.getPendingConnection().getHandshake();
         Handshake copiedHandshake = new Handshake( originalHandshake.getProtocolVersion(), originalHandshake.getHost(), originalHandshake.getPort(), 2 );
 
@@ -309,11 +311,11 @@ public class ServerConnector extends PacketHandler
             {
                 // We now set the server-side handshake handler for the client to this.
                 handshakeHandler.setServerAsForgeServer();
-                user.setForgeServerHandler( handshakeHandler );
             }
         }
 
-        if ( pluginMessage.getTag().equals( ForgeConstants.FML_HANDSHAKE_TAG ) || pluginMessage.getTag().equals( ForgeConstants.FORGE_REGISTER ) )
+        if ( handshakeHandler.isServerForge() && !handshakeHandler.isHandshakeComplete() && 
+                ( pluginMessage.getTag().equals( ForgeConstants.FML_HANDSHAKE_TAG ) || pluginMessage.getTag().equals( ForgeConstants.FORGE_TAG ) ))
         {
             this.handshakeHandler.handle( pluginMessage );
             if ( user.getForgeClientHandler().checkUserOutdated() )
@@ -324,12 +326,12 @@ public class ServerConnector extends PacketHandler
 
             // We send the message as part of the handler, so don't send it here.
             throw CancelSendSignal.INSTANCE;
-        } else
-        {
-            // We have to forward these to the user, especially with Forge as stuff might break
-            // This includes any REGISTER messages we intercepted earlier.
-            user.unsafe().sendPacket( pluginMessage );
         }
+
+        // We have to forward these to the user, especially with Forge as stuff might break
+        // This includes any REGISTER messages we intercepted earlier, and everything if the
+        // handshake is complete - FML|HS packets are ignored then.
+        user.unsafe().sendPacket( pluginMessage );
     }
 
     @Override
