@@ -6,13 +6,13 @@
     <parent>
         <groupId>net.md-5</groupId>
         <artifactId>bungeecord-parent</artifactId>
-        <version>1.7-SNAPSHOT</version>
+        <version>1.8-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-protocol</artifactId>
-    <version>1.7-SNAPSHOT</version>
+    <version>1.8-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>BungeeCord-Protocol</name>
@@ -20,9 +20,21 @@
 
     <dependencies>
         <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-chat</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec</artifactId>
             <version>${netty.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.trove4j</groupId>
+            <artifactId>trove4j</artifactId>
+            <version>3.0.3</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

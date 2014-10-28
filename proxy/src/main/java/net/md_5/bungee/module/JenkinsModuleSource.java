@@ -4,6 +4,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLConnection;
 import lombok.Data;
 import net.md_5.bungee.Util;
 
@@ -18,7 +19,12 @@ public class JenkinsModuleSource implements ModuleSource
         try
         {
             URL website = new URL( "http://ci.md-5.net/job/BungeeCord/" + version.getBuild() + "/artifact/module/" + module.getName().replace( '_', '-' ) + "/target/" + module.getName() + ".jar" );
-            Files.copy( ByteStreams.newInputStreamSupplier( ByteStreams.toByteArray( website.openStream() ) ), module.getFile() );
+            URLConnection con = website.openConnection();
+            // 15 second timeout at various stages
+            con.setConnectTimeout( 15000 );
+            con.setReadTimeout( 15000 );
+
+            Files.write( ByteStreams.toByteArray( con.getInputStream() ), module.getFile() );
             System.out.println( "Download complete" );
         } catch ( IOException ex )
         {

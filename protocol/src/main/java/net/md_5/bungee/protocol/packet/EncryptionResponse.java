@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
+import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
@@ -19,17 +20,31 @@ public class EncryptionResponse extends DefinedPacket
     private byte[] verifyToken;
 
     @Override
-    public void read(ByteBuf buf)
+    public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        sharedSecret = readArray( buf );
-        verifyToken = readArray( buf );
+        if ( protocolVersion < ProtocolConstants.MINECRAFT_SNAPSHOT )
+        {
+            sharedSecret = readArrayLegacy( buf );
+            verifyToken = readArrayLegacy( buf );
+        } else
+        {
+            sharedSecret = readArray( buf );
+            verifyToken = readArray( buf );
+        }
     }
 
     @Override
-    public void write(ByteBuf buf)
+    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        writeArray( sharedSecret, buf );
-        writeArray( verifyToken, buf );
+        if ( protocolVersion < ProtocolConstants.MINECRAFT_SNAPSHOT )
+        {
+            writeArrayLegacy( sharedSecret, buf, false );
+            writeArrayLegacy( verifyToken, buf, false );
+        } else
+        {
+            writeArray( sharedSecret, buf );
+            writeArray( verifyToken, buf );
+        }
     }
 
     @Override

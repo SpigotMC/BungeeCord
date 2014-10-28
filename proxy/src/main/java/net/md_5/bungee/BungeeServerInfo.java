@@ -116,7 +116,7 @@ public class BungeeServerInfo implements ServerInfo
         {
             synchronized ( packetQueue )
             {
-                packetQueue.add( new PluginMessage( channel, data ) );
+                packetQueue.add( new PluginMessage( channel, data, false ) );
             }
         }
         return false;

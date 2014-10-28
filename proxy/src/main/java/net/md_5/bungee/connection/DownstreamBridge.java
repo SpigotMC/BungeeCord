@@ -4,6 +4,10 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import java.io.DataInput;
 import java.util.Objects;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.Unpooled;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -23,7 +27,9 @@ import net.md_5.bungee.api.score.Team;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
+import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
@@ -31,6 +37,8 @@ import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Kick;
+import net.md_5.bungee.protocol.packet.SetCompression;
+import net.md_5.bungee.tab.TabList;
 
 @RequiredArgsConstructor
 public class DownstreamBridge extends PacketHandler
@@ -100,11 +108,8 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(PlayerListItem playerList) throws Exception
     {
-
-        if ( !con.getTabList().onListUpdate( playerList.getUsername(), playerList.isOnline(), playerList.getPing() ) )
-        {
-            throw CancelSendSignal.INSTANCE;
-        }
+        con.getTabListHandler().onUpdate( TabList.rewrite( playerList ) );
+        throw CancelSendSignal.INSTANCE; // Always throw because of profile rewriting
     }
 
     @Override
@@ -220,8 +225,27 @@ public class DownstreamBridge extends PacketHandler
 
         if ( pluginMessage.getTag().equals( "MC|Brand" ) )
         {
-            String serverBrand = new String( pluginMessage.getData(), "UTF-8" );
-            pluginMessage.setData( ( bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand ).getBytes( "UTF-8" ) );
+            if ( con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_SNAPSHOT )
+            {
+                try
+                {
+                    ByteBuf brand = Unpooled.wrappedBuffer( pluginMessage.getData() );
+                    String serverBrand = DefinedPacket.readString( brand );
+                    brand.release();
+                    brand = ByteBufAllocator.DEFAULT.heapBuffer();
+                    DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand, brand );
+                    pluginMessage.setData( brand.array().clone() );
+                    brand.release();
+                } catch ( Exception ignored ) {
+                    // TODO: Remove this
+                    // Older spigot protocol builds sent the brand incorrectly
+                    return;
+                }
+            } else
+            {
+                String serverBrand = new String( pluginMessage.getData(), "UTF-8" );
+                pluginMessage.setData( ( bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand ).getBytes( "UTF-8" ) );
+            }
             // changes in the packet are ignored so we need to send it manually
             con.unsafe().sendPacket( pluginMessage );
             throw CancelSendSignal.INSTANCE;
@@ -446,6 +470,13 @@ public class DownstreamBridge extends PacketHandler
         }
         server.setObsolete( true );
         throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void handle(SetCompression setCompression) throws Exception
+    {
+        con.setCompressionThreshold( setCompression.getThreshold() );
+        server.getCh().setCompressionThreshold( setCompression.getThreshold() );
     }
 
     @Override

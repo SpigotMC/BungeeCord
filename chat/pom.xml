@@ -1,0 +1,29 @@
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.md-5</groupId>
+        <artifactId>bungeecord-parent</artifactId>
+        <version>1.8-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <groupId>net.md-5</groupId>
+    <artifactId>bungeecord-chat</artifactId>
+    <version>1.8-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>BungeeCord-Chat</name>
+    <description>Minecraft JSON chat API intended for use with BungeeCord</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.3</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+</project>

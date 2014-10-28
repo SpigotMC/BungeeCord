@@ -132,19 +132,34 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(LegacyPing ping) throws Exception
     {
-        ServerPing legacy = new ServerPing( new ServerPing.Protocol( bungee.getGameVersion(), bungee.getProtocolVersion() ),
+        ServerPing legacy = new ServerPing( new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), bungee.getProtocolVersion() ),
                 new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ), listener.getMotd(), (Favicon) null );
-        legacy = bungee.getPluginManager().callEvent( new ProxyPingEvent( this, legacy ) ).getResponse();
 
-        String kickMessage = ChatColor.DARK_BLUE
-                + "\00" + 127
-                + "\00" + legacy.getVersion().getName()
-                + "\00" + legacy.getDescription()
-                + "\00" + legacy.getPlayers().getOnline()
-                + "\00" + legacy.getPlayers().getMax();
+        Callback<ProxyPingEvent> callback = new Callback<ProxyPingEvent>()
+        {
+            @Override
+            public void done(ProxyPingEvent result, Throwable error)
+            {
+                if ( ch.isClosed() )
+                {
+                    return;
+                }
 
-        ch.getHandle().writeAndFlush( kickMessage );
-        ch.close();
+                ServerPing ping = result.getResponse();
+
+                String kickMessage = ChatColor.DARK_BLUE
+                        + "\00" + 127
+                        + "\00" + ping.getVersion().getName()
+                        + "\00" + ping.getDescription()
+                        + "\00" + ping.getPlayers().getOnline()
+                        + "\00" + ping.getPlayers().getMax();
+
+                ch.getHandle().writeAndFlush( kickMessage );
+                ch.close();
+            }
+        };
+
+        bungee.getPluginManager().callEvent( new ProxyPingEvent( this, legacy, callback ) );
     }
 
     @Override
@@ -166,11 +181,19 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     result.setDescription( bungee.getTranslation( "ping_cannot_connect" ) );
                     bungee.getLogger().log( Level.WARNING, "Error pinging remote server", error );
                 }
-                result = bungee.getPluginManager().callEvent( new ProxyPingEvent( InitialHandler.this, result ) ).getResponse();
 
-                BungeeCord.getInstance().getConnectionThrottle().unthrottle( getAddress().getAddress() );
-                Gson gson = handshake.getProtocolVersion() == ProtocolConstants.MINECRAFT_1_7_2 ? BungeeCord.getInstance().gsonLegacy : BungeeCord.getInstance().gson;
-                unsafe.sendPacket( new StatusResponse( gson.toJson( result ) ) );
+                Callback<ProxyPingEvent> callback = new Callback<ProxyPingEvent>()
+                {
+                    @Override
+                    public void done(ProxyPingEvent pingResult, Throwable error)
+                    {
+                        BungeeCord.getInstance().getConnectionThrottle().unthrottle( getAddress().getAddress() );
+                        Gson gson = handshake.getProtocolVersion() == ProtocolConstants.MINECRAFT_1_7_2 ? BungeeCord.getInstance().gsonLegacy : BungeeCord.getInstance().gson;
+                        unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
+                    }
+                };
+
+                bungee.getPluginManager().callEvent( new ProxyPingEvent( InitialHandler.this, result, callback ) );
             }
         };
 
@@ -181,7 +204,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             int protocol = ( Protocol.supportedVersions.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
             pingBack.done( new ServerPing(
-                    new ServerPing.Protocol( bungee.getGameVersion(), protocol ),
+                    new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), protocol ),
                     new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
                     motd, BungeeCord.getInstance().config.getFaviconObject() ),
                     null );
@@ -265,9 +288,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             return;
         }
 
-        // TODO: Nuuuu Mojang why u do this
-        // unsafe().sendPacket( PacketConstants.I_AM_BUNGEE );
-        // unsafe().sendPacket( PacketConstants.FORGE_MOD_REQUEST );
         Callback<PreLoginEvent> callback = new Callback<PreLoginEvent>()
         {
 
@@ -356,6 +376,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         ProxiedPlayer old = bungee.getPlayer( getName() );
         if ( old != null )
         {
+            // TODO See #1218
             old.disconnect( bungee.getTranslation( "already_connected" ) );
         }
 

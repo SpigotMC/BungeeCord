@@ -22,10 +22,6 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.tab.TabListHandler;
-import net.md_5.bungee.tab.Global;
-import net.md_5.bungee.tab.GlobalPing;
-import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -40,8 +36,7 @@ public class YamlConfig implements ConfigurationAdapter
     private enum DefaultTabList
     {
 
-        GLOBAL( Global.class ), GLOBAL_PING( GlobalPing.class ), SERVER( ServerUnique.class );
-        private final Class<? extends TabListHandler> clazz;
+        GLOBAL(), GLOBAL_PING(), SERVER();
     }
     private final Yaml yaml;
     private Map config;
@@ -224,7 +219,7 @@ public class YamlConfig implements ConfigurationAdapter
             boolean query = get( "query_enabled", false, val );
             int queryPort = get( "query_port", 25577, val );
 
-            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, fallbackServer, forceDefault, forced, value.clazz, setLocalAddress, pingPassthrough, queryPort, query );
+            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, fallbackServer, forceDefault, forced, value.toString(), setLocalAddress, pingPassthrough, queryPort, query );
             ret.add( info );
         }
 
@@ -251,6 +246,7 @@ public class YamlConfig implements ConfigurationAdapter
     @SuppressWarnings("unchecked")
     public Collection<String> getPermissions(String group)
     {
-        return get( "permissions." + group, Collections.EMPTY_LIST );
+        Collection<String> permissions = get( "permissions." + group, null );
+        return ( permissions == null ) ? Collections.EMPTY_SET : permissions;
     }
 }

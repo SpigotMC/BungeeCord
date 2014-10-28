@@ -33,7 +33,7 @@ public class ScoreboardObjective extends DefinedPacket
             value = readString( buf );
         }
         action = buf.readByte();
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_14_11_a && ( action == 0 || action == 2 ) )
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_SNAPSHOT && ( action == 0 || action == 2 ) )
         {
             value = readString( buf );
             type = readString( buf );
@@ -49,7 +49,7 @@ public class ScoreboardObjective extends DefinedPacket
             writeString( value, buf );
         }
         buf.writeByte( action );
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_14_11_a && ( action == 0 || action == 2 ) )
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_SNAPSHOT && ( action == 0 || action == 2 ) )
         {
             writeString( value, buf );
             writeString( type, buf );

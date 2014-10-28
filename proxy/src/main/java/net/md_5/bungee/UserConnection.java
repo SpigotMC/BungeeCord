@@ -1,6 +1,7 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -13,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -30,22 +33,28 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.score.Scoreboard;
-import net.md_5.bungee.api.tab.TabListHandler;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.entitymap.EntityMap;
+import net.md_5.bungee.forge.ForgeClientHandler;
+import net.md_5.bungee.forge.ForgeServerHandler;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
-import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
-import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Kick;
+import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
+import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.SetCompression;
+import net.md_5.bungee.tab.ServerUnique;
+import net.md_5.bungee.tab.TabList;
 import net.md_5.bungee.util.CaseInsensitiveSet;
 
 @RequiredArgsConstructor
@@ -73,8 +82,6 @@ public final class UserConnection implements ProxiedPlayer
     private final Collection<ServerInfo> pendingConnects = new HashSet<>();
     /*========================================================================*/
     @Getter
-    private TabListHandler tabList;
-    @Getter
     @Setter
     private int sentPingId;
     @Getter
@@ -86,6 +93,13 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     @Setter
     private ServerInfo reconnectServer;
+    @Getter
+    private TabList tabListHandler;
+    @Getter
+    @Setter
+    private int gamemode;
+    @Getter
+    private int compressionThreshold = -1;
     /*========================================================================*/
     private final Collection<String> groups = new CaseInsensitiveSet();
     private final Collection<String> permissions = new CaseInsensitiveSet();
@@ -107,6 +121,13 @@ public final class UserConnection implements ProxiedPlayer
     private EntityMap entityRewrite;
     private Locale locale;
     /*========================================================================*/
+    @Getter
+    @Setter
+    private ForgeClientHandler forgeClientHandler;
+    @Getter
+    @Setter
+    private ForgeServerHandler forgeServerHandler;
+    /*========================================================================*/
     private final Unsafe unsafe = new Unsafe()
     {
         @Override
@@ -121,27 +142,29 @@ public final class UserConnection implements ProxiedPlayer
         this.entityRewrite = EntityMap.getEntityMap( getPendingConnection().getVersion() );
 
         this.displayName = name;
-        try
-        {
-            this.tabList = getPendingConnection().getListener().getTabList().getDeclaredConstructor().newInstance();
-        } catch ( ReflectiveOperationException ex )
-        {
-            throw new RuntimeException( ex );
-        }
-        this.tabList.init( this );
+
+        // Blame Mojang for this one
+        /*switch ( getPendingConnection().getListener().getTabListType() )
+         {
+         case "GLOBAL":
+         tabListHandler = new Global( this );
+         break;
+         case "SERVER":
+         tabListHandler = new ServerUnique( this );
+         break;
+         default:
+         tabListHandler = new GlobalPing( this );
+         break;
+         }*/
+        tabListHandler = new ServerUnique( this );
 
         Collection<String> g = bungee.getConfigurationAdapter().getGroups( name );
         for ( String s : g )
         {
             addGroups( s );
         }
-    }
 
-    @Override
-    public void setTabList(TabListHandler tabList)
-    {
-        tabList.init( this );
-        this.tabList = tabList;
+        forgeClientHandler = new ForgeClientHandler( this );
     }
 
     public void sendPacket(PacketWrapper packet)
@@ -160,9 +183,7 @@ public final class UserConnection implements ProxiedPlayer
     {
         Preconditions.checkNotNull( name, "displayName" );
         Preconditions.checkArgument( name.length() <= 16, "Display name cannot be longer than 16 characters" );
-        getTabList().onDisconnect();
         displayName = name;
-        getTabList().onConnect();
     }
 
     @Override
@@ -251,10 +272,10 @@ public final class UserConnection implements ProxiedPlayer
                     {
                         if ( dimensionChange )
                         {
-                            disconnect( bungee.getTranslation( "fallback_kick" ) + future.cause().getClass().getName() );
+                            disconnect( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
                         } else
                         {
-                            sendMessage( bungee.getTranslation( "fallback_kick" ) + future.cause().getClass().getName() );
+                            sendMessage( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
                         }
                     }
                 }
@@ -361,7 +382,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendData(String channel, byte[] data)
     {
-        unsafe().sendPacket( new PluginMessage( channel, data ) );
+        unsafe().sendPacket( new PluginMessage( channel, data, forgeClientHandler.isForgeUser() ) );
     }
 
     @Override
@@ -460,5 +481,67 @@ public final class UserConnection implements ProxiedPlayer
     public Locale getLocale()
     {
         return ( locale == null && settings != null ) ? locale = Locale.forLanguageTag( settings.getLocale().replaceAll( "_", "-" ) ) : locale;
+    }
+
+    @Override
+    public Map<String, String> getModList()
+    {
+        if ( forgeClientHandler.getClientModList() == null )
+        {
+            // Return an empty map, rather than a null, if the client hasn't got any mods,
+            // or is yet to complete a handshake.
+            return ImmutableMap.of();
+        }
+
+        return ImmutableMap.copyOf( forgeClientHandler.getClientModList() );
+    }
+
+    private static final String EMPTY_TEXT = ComponentSerializer.toString( new TextComponent( "" ) );
+
+    @Override
+    public void setTabHeader(BaseComponent header, BaseComponent footer)
+    {
+        if ( pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_SNAPSHOT )
+        {
+            unsafe().sendPacket( new PlayerListHeaderFooter(
+                    ( header != null ) ? ComponentSerializer.toString( header ) : EMPTY_TEXT,
+                    ( footer != null ) ? ComponentSerializer.toString( footer ) : EMPTY_TEXT
+            ) );
+        }
+    }
+
+    @Override
+    public void setTabHeader(BaseComponent[] header, BaseComponent[] footer)
+    {
+        if ( pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_SNAPSHOT )
+        {
+            unsafe().sendPacket( new PlayerListHeaderFooter(
+                    ( header != null ) ? ComponentSerializer.toString( header ) : EMPTY_TEXT,
+                    ( footer != null ) ? ComponentSerializer.toString( footer ) : EMPTY_TEXT
+            ) );
+        }
+    }
+
+    @Override
+    public void resetTabHeader()
+    {
+        // Mojang did not add a way to remove the header / footer completely, we can only set it to empty
+        setTabHeader( (BaseComponent) null, null );
+    }
+
+    @Override
+    public void sendTitle(Title title)
+    {
+        title.send( this );
+    }
+
+    public void setCompressionThreshold(int compressionThreshold)
+    {
+        if ( this.compressionThreshold == -1 )
+        {
+            this.compressionThreshold = compressionThreshold;
+            unsafe.sendPacket( new SetCompression( compressionThreshold ) );
+            ch.setCompressionThreshold( compressionThreshold );
+        }
     }
 }

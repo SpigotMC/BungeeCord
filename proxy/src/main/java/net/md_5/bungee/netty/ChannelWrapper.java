@@ -1,5 +1,7 @@
 package net.md_5.bungee.netty;
 
+import net.md_5.bungee.protocol.PacketCompressor;
+import net.md_5.bungee.protocol.PacketDecompressor;
 import net.md_5.bungee.protocol.PacketWrapper;
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
@@ -70,5 +72,29 @@ public class ChannelWrapper
     public Channel getHandle()
     {
         return ch;
+    }
+
+    public void setCompressionThreshold(int compressionThreshold)
+    {
+        if ( ch.pipeline().get( PacketCompressor.class ) == null && compressionThreshold != -1 )
+        {
+            addBefore( PipelineUtils.PACKET_ENCODER, "compress", new PacketCompressor() );
+        }
+        if ( compressionThreshold != -1 )
+        {
+            ch.pipeline().get( PacketCompressor.class ).setThreshold( compressionThreshold );
+        } else
+        {
+            ch.pipeline().remove( "compress" );
+        }
+
+        if ( ch.pipeline().get( PacketDecompressor.class ) == null && compressionThreshold != -1 )
+        {
+            addBefore( PipelineUtils.PACKET_DECODER, "decompress", new PacketDecompressor() );
+        }
+        if ( compressionThreshold == -1 )
+        {
+            ch.pipeline().remove( "decompress" );
+        }
     }
 }
