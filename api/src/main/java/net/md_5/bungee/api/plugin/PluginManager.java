@@ -147,7 +147,9 @@ public class PluginManager
         String permission = command.getPermission();
         if ( permission != null && !permission.isEmpty() && !sender.hasPermission( permission ) )
         {
-            sender.sendMessage( proxy.getTranslation( "no_permission" ) );
+            if (tabResults != null && (!(command instanceof TabExecutor))) {
+                sender.sendMessage( proxy.getTranslation( "no_permission" ) );
+            }
             return true;
         }
 
