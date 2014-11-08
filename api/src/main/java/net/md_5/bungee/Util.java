@@ -1,7 +1,9 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -63,6 +65,11 @@ public class Util
     public static String format(Iterable<?> objects, String separators)
     {
         return Joiner.on( separators ).join( objects );
+    }
+
+    public static List<String> split(String string, String separator) 
+    {
+        return Splitter.on( separator ).splitToList( string );
     }
 
     /**
