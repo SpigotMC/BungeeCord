@@ -5,6 +5,7 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
@@ -14,6 +15,7 @@ import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Chat;
+import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.PluginMessage;
@@ -56,6 +58,23 @@ public class UpstreamBridge extends PacketHandler
 
         if ( con.getServer() != null )
         {
+            // Manually remove from everyone's tab list
+            // since the packet from the server arrives
+            // too late
+            // TODO: This should only done with server_unique
+            //       tab list (which is the only one supported
+            //       currently)
+            PlayerListItem packet = new PlayerListItem();
+            packet.setAction( PlayerListItem.Action.REMOVE_PLAYER );
+            PlayerListItem.Item item = new PlayerListItem.Item();
+            item.setUuid( con.getUniqueId() );
+            packet.setItems( new PlayerListItem.Item[]{
+                    item
+            } );
+            for ( ProxiedPlayer player : con.getServer().getInfo().getPlayers() )
+            {
+                player.unsafe().sendPacket( packet );
+            }
             con.getServer().disconnect( "Quitting" );
         }
     }
