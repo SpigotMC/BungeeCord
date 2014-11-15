@@ -24,6 +24,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.md_5.bungee.api.Callback;
+import net.md_5.bungee.api.ChatPosition;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -370,13 +371,44 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendMessage(BaseComponent... message)
     {
-        unsafe().sendPacket( new Chat( ComponentSerializer.toString( message ) ) );
+        sendMessage( ChatPosition.CHAT, message );
     }
 
     @Override
     public void sendMessage(BaseComponent message)
     {
-        unsafe().sendPacket( new Chat( ComponentSerializer.toString( message ) ) );
+        sendMessage( ChatPosition.CHAT, message );
+    }
+
+    private void sendMessage(ChatPosition position, String message)
+    {
+        unsafe().sendPacket( new Chat( message, (byte) position.ordinal() ) );
+    }
+
+    @Override
+    public void sendMessage(ChatPosition position, BaseComponent... message)
+    {
+        // Action bar doesn't display the new JSON formattings, legacy works - send it using this for now
+        if ( position == ChatPosition.ACTION_BAR && pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_SNAPSHOT )
+        {
+            sendMessage( position, ComponentSerializer.toString( new TextComponent( TextComponent.toLegacyText( message ) ) ) );
+        } else
+        {
+            sendMessage( position, ComponentSerializer.toString( message ) );
+        }
+    }
+
+    @Override
+    public void sendMessage(ChatPosition position, BaseComponent message)
+    {
+        // Action bar doesn't display the new JSON formattings, legacy works - send it using this for now
+        if ( position == ChatPosition.ACTION_BAR && pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_SNAPSHOT )
+        {
+            sendMessage( position, ComponentSerializer.toString( new TextComponent( TextComponent.toLegacyText( message ) ) ) );
+        } else
+        {
+            sendMessage( position, ComponentSerializer.toString( message ) );
+        }
     }
 
     @Override
