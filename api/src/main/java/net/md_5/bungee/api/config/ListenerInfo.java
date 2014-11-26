@@ -68,4 +68,11 @@ public class ListenerInfo
      * Whether to enable udp query.
      */
     private final boolean queryEnabled;
+    /**
+     * If a new FML Client connects (1.8) they will have a \000FML\000 Marker in them. This destroys BungeeCords ip
+     * forwarding. If you set this to true it will reappend the marker when it was found. If this is false the
+     * marker will be removed so IP forwarding will work again. Please only set this to true when you have a 1.8 Forge/FML
+     * network.
+     */
+    private boolean reappendFMLMarker = false;
 }

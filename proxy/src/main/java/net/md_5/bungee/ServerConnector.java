@@ -90,7 +90,16 @@ public class ServerConnector extends PacketHandler
             {
                 newHost += "\00" + BungeeCord.getInstance().gson.toJson( profile.getProperties() );
             }
+
+            if ( user.getPendingConnection().getListener().isReappendFMLMarker() && user.getPendingConnection().isFmlMarker() )
+            {
+                newHost += "\000FML\000";
+            }
+
             copiedHandshake.setHost( newHost );
+        } else if ( user.getPendingConnection().getListener().isReappendFMLMarker() && user.getPendingConnection().isFmlMarker() )
+        {
+            copiedHandshake.setHost( copiedHandshake.getHost() + "\000FML\000" );
         }
         channel.write( copiedHandshake );
 
