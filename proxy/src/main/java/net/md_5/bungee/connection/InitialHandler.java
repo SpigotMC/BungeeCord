@@ -94,6 +94,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private LoginResult loginProfile;
     @Getter
     private boolean legacy;
+    @Getter
+    private boolean fmlMarker;
 
     private enum State
     {
@@ -249,6 +251,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
         this.handshake = handshake;
         ch.setVersion( handshake.getProtocolVersion() );
+
+        // The new FML appends "\000FML\000" to the host for whatever reason
+        if ( handshake.getHost().endsWith( "\000FML\000" ) )
+        {
+            this.fmlMarker = true;
+            handshake.setHost( handshake.getHost().substring( 0, handshake.getHost().length() - 5 ) );
+        }
 
         // SRV records can end with a . depending on DNS / client.
         if ( handshake.getHost().endsWith( "." ) )

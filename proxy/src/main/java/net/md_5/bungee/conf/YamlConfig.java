@@ -218,8 +218,10 @@ public class YamlConfig implements ConfigurationAdapter
 
             boolean query = get( "query_enabled", false, val );
             int queryPort = get( "query_port", 25577, val );
+            boolean reappendFMLMarker = get( "readd_fml_marker", false, val );
 
             ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, fallbackServer, forceDefault, forced, value.toString(), setLocalAddress, pingPassthrough, queryPort, query );
+            info.setReappendFMLMarker( reappendFMLMarker );
             ret.add( info );
         }
 
