@@ -81,6 +81,7 @@ public class BungeeScheduler implements TaskScheduler
         Preconditions.checkNotNull( task, "task" );
         BungeeTask prepared = new BungeeTask( this, taskCounter.getAndIncrement(), owner, task, delay, period, unit );
         tasks.put( prepared.getId(), prepared );
+        tasksByPlugin.put( owner, prepared );
         owner.getExecutorService().execute( prepared );
         return prepared;
     }
