@@ -122,7 +122,7 @@ public class BungeeCord extends ProxyServer
      * Plugin manager.
      */
     @Getter
-    public final PluginManager pluginManager = new PluginManager( this );
+    public final PluginManager pluginManager;
     @Getter
     @Setter
     private ReconnectHandler reconnectHandler;
@@ -147,18 +147,6 @@ public class BungeeCord extends ProxyServer
     @Getter
     private ConnectionThrottle connectionThrottle;
     private final ModuleManager moduleManager = new ModuleManager();
-
-    
-    {
-        // TODO: Proper fallback when we interface the manager
-        getPluginManager().registerCommand( null, new CommandReload() );
-        getPluginManager().registerCommand( null, new CommandEnd() );
-        getPluginManager().registerCommand( null, new CommandIP() );
-        getPluginManager().registerCommand( null, new CommandBungee() );
-        getPluginManager().registerCommand( null, new CommandPerms() );
-
-        registerChannel( "BungeeCord" );
-    }
 
     public static BungeeCord getInstance()
     {
@@ -216,6 +204,17 @@ public class BungeeCord extends ProxyServer
         {
             logger.info( "Using standard Java compressor. To enable zero copy compression, run on 64 bit Linux" );
         }
+
+        pluginManager = new PluginManager( this );
+
+        // TODO: Proper fallback when we interface the manager
+        getPluginManager().registerCommand( null, new CommandReload() );
+        getPluginManager().registerCommand( null, new CommandEnd() );
+        getPluginManager().registerCommand( null, new CommandIP() );
+        getPluginManager().registerCommand( null, new CommandBungee() );
+        getPluginManager().registerCommand( null, new CommandPerms() );
+
+        registerChannel( "BungeeCord" );
     }
 
     /**
