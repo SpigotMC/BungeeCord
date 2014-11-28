@@ -1,6 +1,8 @@
 package net.md_5.bungee.protocol;
 
-public class BadPacketException extends RuntimeException
+import io.netty.handler.codec.DecoderException;
+
+public class BadPacketException extends DecoderException
 {
 
     public BadPacketException(String message)

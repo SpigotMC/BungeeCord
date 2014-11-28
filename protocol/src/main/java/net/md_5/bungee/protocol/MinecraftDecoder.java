@@ -29,10 +29,17 @@ public class MinecraftDecoder extends ByteToMessageDecoder
         if ( prot.hasPacket( packetId ) )
         {
             packet = prot.createPacket( packetId );
-            packet.read( in, prot.getDirection(), protocolVersion );
+
+            try {
+                packet.read( in, prot.getDirection(), protocolVersion );
+            }
+            catch(Exception e) {
+                throw new DetailedBadPacketException("Exception decoding packet", e, packetId, packet, protocol, prot.getDirection());
+            }
+
             if ( in.readableBytes() != 0 )
             {
-                throw new BadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot );
+                throw new DetailedBadPacketException(in.readableBytes() + " bytes remain after decoding packet", packetId, packet, protocol, prot.getDirection());
             }
         } else
         {

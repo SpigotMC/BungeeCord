@@ -1,5 +1,6 @@
 package net.md_5.bungee.netty;
 
+import net.md_5.bungee.protocol.DetailedBadPacketException;
 import net.md_5.bungee.protocol.PacketWrapper;
 import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelHandlerContext;
@@ -12,6 +13,7 @@ import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.connection.PingHandler;
 import net.md_5.bungee.protocol.BadPacketException;
+import net.md_5.bungee.protocol.packet.Handshake;
 
 /**
  * This class is a primitive wrapper for {@link PacketHandler} instances tied to
@@ -97,9 +99,12 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
             if ( cause instanceof ReadTimeoutException )
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - read timed out", handler );
+            } else if ( cause instanceof DetailedBadPacketException && ((DetailedBadPacketException) cause).getPacket() instanceof Handshake)
+            {
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, handler + " - bad handshake packet: " + cause.getMessage() );
             } else if ( cause instanceof BadPacketException )
             {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - bad packet ID, are mods in use!?", handler );
+                ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - " + cause, cause );
             } else if ( cause instanceof IOException )
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - IOException: {1}", new Object[]
