@@ -82,4 +82,14 @@ public class ForgeServerHandler
     {
         serverForge = true;
     }
+
+    /**
+     * Returns whether the handshake is complete.
+     *
+     * @return <code>true</code> if the handshake has been completed.
+     */
+    public boolean isHandshakeComplete()
+    {
+        return this.state == ForgeServerHandshakeState.DONE;
+    }
 }
