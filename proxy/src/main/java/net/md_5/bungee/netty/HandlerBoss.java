@@ -13,6 +13,7 @@ import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.connection.PingHandler;
 import net.md_5.bungee.protocol.BadPacketException;
+import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.Handshake;
 
 /**
@@ -99,7 +100,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
             if ( cause instanceof ReadTimeoutException )
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - read timed out", handler );
-            } else if ( cause instanceof DetailedBadPacketException && ((DetailedBadPacketException) cause).getPacket() instanceof Handshake)
+            } else if ( cause instanceof DetailedBadPacketException && ((DetailedBadPacketException) cause).getProtocol() == Protocol.HANDSHAKE)
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, handler + " - bad handshake packet: " + cause.getMessage() );
             } else if ( cause instanceof BadPacketException )

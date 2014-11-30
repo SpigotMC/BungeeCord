@@ -23,7 +23,13 @@ public class MinecraftDecoder extends ByteToMessageDecoder
         Protocol.DirectionData prot = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
         ByteBuf copy = in.copy(); // TODO
 
-        int packetId = DefinedPacket.readVarInt( in );
+        int packetId;
+        try {
+            packetId = DefinedPacket.readVarInt( in );
+        }
+        catch(Exception e) {
+            throw new DetailedBadPacketException("Exception decoding packet ID", e, null, null, protocol, prot.getDirection());
+        }
 
         DefinedPacket packet = null;
         if ( prot.hasPacket( packetId ) )
