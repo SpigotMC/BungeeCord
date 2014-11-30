@@ -122,7 +122,7 @@ public enum Protocol
 
         public boolean hasPacket(int id)
         {
-            return id < MAX_PACKET_ID && packetConstructors[id] != null;
+            return 0 <= id && id < MAX_PACKET_ID && packetConstructors[id] != null;
         }
 
         public final DefinedPacket createPacket(int id)
