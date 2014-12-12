@@ -23,9 +23,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import net.md_5.bungee.api.Callback;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.*;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -48,12 +46,7 @@ import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.packet.Chat;
-import net.md_5.bungee.protocol.packet.ClientSettings;
-import net.md_5.bungee.protocol.packet.Kick;
-import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
-import net.md_5.bungee.protocol.packet.PluginMessage;
-import net.md_5.bungee.protocol.packet.SetCompression;
+import net.md_5.bungee.protocol.packet.*;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
 import net.md_5.bungee.util.CaseInsensitiveSet;
@@ -575,5 +568,15 @@ public final class UserConnection implements ProxiedPlayer
             unsafe.sendPacket( new SetCompression( compressionThreshold ) );
             ch.setCompressionThreshold( compressionThreshold );
         }
+    }
+
+    @Override
+    public void playSound(String soundName, int posX, int posY, int posZ, float volume, int pitch){
+        this.unsafe().sendPacket(new PlaySound(soundName, posX, posY, posZ, volume, pitch));
+    }
+
+    @Override
+    public void playSound(Sounds sound, int posX, int posY, int posZ, float volume, int pitch){
+        playSound(sound.toString(), posX, posY, posZ, volume, pitch);
     }
 }

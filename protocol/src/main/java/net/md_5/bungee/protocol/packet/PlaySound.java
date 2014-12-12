@@ -9,7 +9,7 @@ import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 
 /**
- * Packet to playsound
+ * Packet to Play Sound at the player
  */
 @Data
 @NoArgsConstructor
