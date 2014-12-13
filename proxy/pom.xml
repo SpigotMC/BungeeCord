@@ -18,10 +18,6 @@
     <name>BungeeCord-Proxy</name>
     <description>Proxy component of the Elastic Portal Suite</description>
 
-    <properties>
-        <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>io.netty</groupId>

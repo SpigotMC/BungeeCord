@@ -18,6 +18,10 @@
     <name>BungeeCord-Bootstrap</name>
     <description>Java 1.6 loader for BungeeCord</description>
 
+    <properties>
+        <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>net.md-5</groupId>
