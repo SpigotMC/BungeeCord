@@ -12,6 +12,8 @@ import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.Protocol;
 
+import java.util.NoSuchElementException;
+
 public class ChannelWrapper
 {
 
@@ -78,7 +80,11 @@ public class ChannelWrapper
     {
         if ( ch.pipeline().get( PacketCompressor.class ) == null && compressionThreshold != -1 )
         {
-            addBefore( PipelineUtils.PACKET_ENCODER, "compress", new PacketCompressor() );
+            try {
+                addBefore(PipelineUtils.PACKET_ENCODER, "compress", new PacketCompressor());
+            } catch(NoSuchElementException ignored) {
+                // Sometimes packet-encoder is not in the pipeline, probably when the client disconnects soon after connecting
+            }
         }
         if ( compressionThreshold != -1 )
         {
