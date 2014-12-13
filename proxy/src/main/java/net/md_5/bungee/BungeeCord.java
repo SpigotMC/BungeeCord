@@ -30,7 +30,11 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.util.ResourceLeakDetector;
 import net.md_5.bungee.conf.Configuration;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.text.MessageFormat;
@@ -42,6 +46,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.Properties;
+import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -147,6 +153,8 @@ public class BungeeCord extends ProxyServer
     private ConnectionThrottle connectionThrottle;
     private final ModuleManager moduleManager = new ModuleManager();
 
+    private final File messagesFile = new File( "messages.properties" );
+
     
     {
         // TODO: Proper fallback when we interface the manager
@@ -195,12 +203,56 @@ public class BungeeCord extends ProxyServer
             logger.info( "NOTE: This error is non crucial, and BungeeCord will still function correctly! Do not bug the author about it unless you are still unable to get it working" );
         }
 
+        reloadMessages();
+
         if ( NativeCipher.load() )
         {
             logger.info( "Using OpenSSL based native cipher." );
         } else
         {
             logger.info( "Using standard Java JCE cipher. To enable the OpenSSL based native cipher, please make sure you are using 64 bit Ubuntu or Debian with libssl installed." );
+        }
+    }
+
+    @Override
+    public void reloadMessages() {
+        try // Make sure the translation file is up to date
+        {
+            Properties messages = new Properties();
+
+            if ( messagesFile.exists() )
+                try ( InputStream is = new FileInputStream( messagesFile ) ) {
+                    messages.load( is );
+                }
+
+            // Check for new entries
+            int newEntries = 0;
+            for ( String key : bundle.keySet() ) {
+                if ( !messages.containsKey( key ) ) {
+                    messages.put( key, bundle.getObject(key) );
+                    newEntries++;
+                }
+            }
+
+            if ( newEntries > 0 ) {
+                // We need to save the file to add the new entries
+                try ( OutputStream os = new FileOutputStream( messagesFile ) )
+                {
+                    messages.store( os, "BungeeCord messages, last updated for " + getVersion() );
+                }
+            }
+        } catch ( Exception ex )
+        {
+            getLogger().log( Level.SEVERE, "Could not update messages", ex );
+        }
+
+        // Load the messages from the configuration file
+        try ( InputStream is = new FileInputStream( messagesFile ) )
+        {
+            bundle = new PropertyResourceBundle( is );
+        } catch ( Exception ex )
+        {
+            getLogger().log( Level.SEVERE, "Could not reload messages", ex );
         }
     }
 

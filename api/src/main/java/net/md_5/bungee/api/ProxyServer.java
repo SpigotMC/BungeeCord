@@ -129,6 +129,11 @@ public abstract class ProxyServer
     public abstract void setConfigurationAdapter(ConfigurationAdapter adapter);
 
     /**
+     * Reload the proxy server messages from the configuration file.
+     */
+    public abstract void reloadMessages();
+
+    /**
      * Get the currently in use reconnect handler.
      *
      * @return the in use reconnect handler
