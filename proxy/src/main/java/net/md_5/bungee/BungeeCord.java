@@ -181,7 +181,7 @@ public class BungeeCord extends ProxyServer
         }
 
         Log.setOutput( new PrintStream( ByteStreams.nullOutputStream() ) ); // TODO: Bug JLine
-        AnsiConsole.systemInstall();
+
         consoleReader = new ConsoleReader();
         consoleReader.setExpandEvents( false );
 
