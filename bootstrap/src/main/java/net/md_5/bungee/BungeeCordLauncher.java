@@ -33,14 +33,14 @@ public class BungeeCordLauncher
             Date buildDate = new SimpleDateFormat( "yyyyMMdd" ).parse( BungeeCord.class.getPackage().getSpecificationVersion() );
 
             Calendar deadline = Calendar.getInstance();
-            deadline.add( Calendar.WEEK_OF_YEAR, -3 );
+            deadline.add( Calendar.WEEK_OF_YEAR, -4 );
             if ( buildDate.before( deadline.getTime() ) )
             {
                 System.err.println( "*** Warning, this build is outdated ***" );
                 System.err.println( "*** Please download a new build from http://ci.md-5.net/job/BungeeCord ***" );
                 System.err.println( "*** You will get NO support regarding this build ***" );
-                System.err.println( "*** Server will start in 30 seconds ***" );
-                Thread.sleep( TimeUnit.SECONDS.toMillis( 30 ) );
+                System.err.println( "*** Server will start in 10 seconds ***" );
+                Thread.sleep( TimeUnit.SECONDS.toMillis( 10 ) );
             }
         }
 
