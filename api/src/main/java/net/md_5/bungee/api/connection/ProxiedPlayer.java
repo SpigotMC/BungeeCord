@@ -3,8 +3,12 @@ package net.md_5.bungee.api.connection;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import net.md_5.bungee.api.Callback;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.Title;
+import net.md_5.bungee.api.Sounds;
 
-import net.md_5.bungee.api.*;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 
