@@ -76,6 +76,11 @@ public class BungeeTask implements Runnable, ScheduledTask
             }
         }
 
-        sched.cancel( this );
+        // We might have been previously running before, but now we aren't.
+        // If we weren't already cancelled, then cancel ourselves.
+        if ( running.get() )
+        {
+            sched.cancel( this );
+        }
     }
 }
