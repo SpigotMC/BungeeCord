@@ -34,7 +34,12 @@ public class BungeeTask implements Runnable, ScheduledTask
     @Override
     public void cancel()
     {
-        running.set( false );
+        boolean wasRunning = running.getAndSet( false );
+
+        if ( wasRunning )
+        {
+            sched.cancel( this.getId() );
+        }
     }
 
     @Override
@@ -76,6 +81,6 @@ public class BungeeTask implements Runnable, ScheduledTask
             }
         }
 
-        sched.cancel( this );
+        cancel();
     }
 }
