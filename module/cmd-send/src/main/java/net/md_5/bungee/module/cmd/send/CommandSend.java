@@ -72,7 +72,6 @@ public class CommandSend extends Command implements TabExecutor
         if ( player.getServer() != null && !player.getServer().getInfo().equals( target ) )
         {
             player.connect( target );
-            player.sendMessage( ChatColor.GOLD + "Summoned to " + target.getName() + " by " + sender.getName() );
         }
     }
 
