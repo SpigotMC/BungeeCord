@@ -558,7 +558,7 @@ public class BungeeCord extends ProxyServer
     @Override
     public String getGameVersion()
     {
-        return "1.8";
+        return "1.8.1";
     }
 
     @Override
