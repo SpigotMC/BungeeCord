@@ -74,12 +74,6 @@
             <version>3.18.2-GA</version>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>org.fusesource.jansi</groupId>
-            <artifactId>jansi</artifactId>
-            <version>1.11</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 
     <build>

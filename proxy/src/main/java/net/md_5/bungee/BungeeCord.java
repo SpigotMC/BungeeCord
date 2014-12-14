@@ -180,20 +180,23 @@ public class BungeeCord extends ProxyServer
             bundle = ResourceBundle.getBundle( "messages", Locale.ENGLISH );
         }
 
-        Log.setOutput( new PrintStream( ByteStreams.nullOutputStream() ) ); // TODO: Bug JLine
+        // This is a workaround for quite possibly the weirdest bug I have ever encountered in my life!
+        // When jansi attempts to extract its natives, by default it tries to extract a specific version,
+        // using the loading class's implementation version. Normally this works completely fine,
+        // however when on Windows certain characters such as - and : can trigger special behaviour.
+        // Furthermore this behaviour only occurs in specific combinations due to the parsing done by jansi.
+        // For example test-test works fine, but test-test-test does not! In order to avoid this all together but
+        // still keep our versions the same as they were, we set the override property to the essentially garbage version
+        // BungeeCord. This version is only used when extracting the libraries to their temp folder.
+        System.setProperty( "library.jansi.version", "BungeeCord" );
 
+        AnsiConsole.systemInstall();
         consoleReader = new ConsoleReader();
         consoleReader.setExpandEvents( false );
 
         logger = new BungeeLogger( this );
         System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
         System.setOut( new PrintStream( new LoggingOutputStream( logger, Level.INFO ), true ) );
-
-        if ( consoleReader.getTerminal() instanceof UnsupportedTerminal )
-        {
-            logger.info( "Unable to initialize fancy terminal. To fix this on Windows, install the correct Microsoft Visual C++ 2008 Runtime" );
-            logger.info( "NOTE: This error is non crucial, and BungeeCord will still function correctly! Do not bug the author about it unless you are still unable to get it working" );
-        }
 
         if ( NativeCipher.load() )
         {

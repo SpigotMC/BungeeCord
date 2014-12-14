@@ -1,7 +1,5 @@
 package net.md_5.bungee;
 
-import org.fusesource.jansi.AnsiConsole;
-
 public class Bootstrap
 {
 
@@ -13,8 +11,6 @@ public class Bootstrap
             System.out.println( "You can check your Java version with the command: java -version" );
             return;
         }
-
-        AnsiConsole.systemInstall();
 
         BungeeCordLauncher.main( args );
     }
