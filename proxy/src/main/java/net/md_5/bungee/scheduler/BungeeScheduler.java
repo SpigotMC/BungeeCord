@@ -44,7 +44,7 @@ public class BungeeScheduler implements TaskScheduler
     @Override
     public void cancel(ScheduledTask task)
     {
-        cancel( task.getId() );
+        task.cancel();
     }
 
     @Override
