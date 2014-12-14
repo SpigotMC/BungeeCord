@@ -82,8 +82,9 @@ public class ChannelWrapper
         {
             try {
                 addBefore(PipelineUtils.PACKET_ENCODER, "compress", new PacketCompressor());
-            } catch(NoSuchElementException ignored) {
+            } catch(NoSuchElementException ex) {
                 // Sometimes packet-encoder is not in the pipeline, probably when the client disconnects soon after connecting
+                return;
             }
         }
         if ( compressionThreshold != -1 )
