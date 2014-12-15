@@ -119,10 +119,16 @@ public class BungeeServerInfo implements ServerInfo
     @Override
     public void ping(final Callback<ServerPing> callback)
     {
-        ping( callback, ProxyServer.getInstance().getProtocolVersion() );
+        ping( callback, 500 );
     }
 
-    public void ping(final Callback<ServerPing> callback, final int protocolVersion)
+    @Override
+    public void ping(final Callback<ServerPing> callback, final int timeout)
+    {
+        ping( callback, timeout, ProxyServer.getInstance().getProtocolVersion() );
+    }
+
+    public void ping(final Callback<ServerPing> callback, final int timeout, final int protocolVersion)
     {
         Preconditions.checkNotNull( callback, "callback" );
 
@@ -144,8 +150,8 @@ public class BungeeServerInfo implements ServerInfo
                 .channel( PipelineUtils.getChannel() )
                 .group( BungeeCord.getInstance().eventLoops )
                 .handler( PipelineUtils.BASE )
-                .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000 ) // TODO: Configurable
-                .remoteAddress( getAddress() )
+                .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, timeout )
+                .remoteAddress(getAddress())
                 .connect()
                 .addListener( listener );
     }

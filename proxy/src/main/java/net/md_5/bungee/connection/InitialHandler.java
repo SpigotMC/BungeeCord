@@ -221,7 +221,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         if ( forced != null && listener.isPingPassthrough() )
         {
-            ( (BungeeServerInfo) forced ).ping( pingBack, handshake.getProtocolVersion() );
+            ( (BungeeServerInfo) forced ).ping( pingBack, 500, handshake.getProtocolVersion() );
         } else
         {
             int protocol = ( Protocol.supportedVersions.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
