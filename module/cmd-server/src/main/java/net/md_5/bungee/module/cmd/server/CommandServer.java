@@ -81,16 +81,19 @@ public class CommandServer extends Command implements TabExecutor
             List<String> completions = new ArrayList<String>();
             for (ServerInfo server : ProxyServer.getInstance().getServers().values())
             {
-                String serverName = server.getName();
-                if (args.length == 1)
+                if (server.canAccess(sender))
                 {
-                    if (serverName.toLowerCase().startsWith(args[0].toLowerCase()))
+                    String serverName = server.getName();
+                    if (args.length == 1)
+                    {
+                        if (serverName.toLowerCase().startsWith(args[0].toLowerCase())) 
+                        {
+                            completions.add(serverName);
+                        }
+                    } else 
                     {
                         completions.add(serverName);
                     }
-                } else
-                {
-                    completions.add(serverName);
                 }
             }
             return completions;
