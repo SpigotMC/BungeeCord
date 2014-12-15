@@ -76,22 +76,28 @@ public class CommandServer extends Command implements TabExecutor
     }
 
     @Override
-    public Iterable<String> onTabComplete(final CommandSender sender, String[] args)
-    {
-        return ( args.length != 0 ) ? Collections.EMPTY_LIST : Iterables.transform( Iterables.filter( ProxyServer.getInstance().getServers().values(), new Predicate<ServerInfo>()
+    public Iterable<String> onTabComplete(final CommandSender sender, String[] args) {
+        if (args.length <= 1)
         {
-            @Override
-            public boolean apply(ServerInfo input)
+            List<String> completions = new ArrayList<String>();
+            for (ServerInfo server : ProxyServer.getInstance().getServers().values())
             {
-                return input.canAccess( sender );
+                String serverName = server.getName();
+                if (args.length == 1)
+                {
+                    if (serverName.toLowerCase().startsWith(args[0].toLowerCase()))
+                    {
+                        completions.add(serverName);
+                    }
+                } else
+                {
+                    completions.add(serverName);
+                }
             }
-        } ), new Function<ServerInfo, String>()
+            return completions;
+        } else
         {
-            @Override
-            public String apply(ServerInfo input)
-            {
-                return input.getName();
-            }
-        } );
+            return Collections.emptyList();
+        }
     }
 }
