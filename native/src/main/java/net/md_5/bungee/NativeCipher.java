@@ -30,20 +30,31 @@ public class NativeCipher implements BungeeCipher
     {
         if ( !loaded && isSupported() )
         {
-            try ( InputStream lib = BungeeCipher.class.getClassLoader().getResourceAsStream( "native-cipher.so" ) )
+            try
             {
-                // Else we will create and copy it to a temp file
-                File temp = File.createTempFile( "bungeecord-native-cipher", ".so" );
-                temp.deleteOnExit();
-
-                try ( OutputStream outputStream = new FileOutputStream( temp ) )
-                {
-                    ByteStreams.copy( lib, outputStream );
-                    System.load( temp.getPath() );
-                }
+                System.loadLibrary( "bungeecord-native-cipher" );
                 loaded = true;
             } catch ( Throwable t )
             {
+            }
+
+            if ( !loaded )
+            {
+                try ( InputStream lib = BungeeCipher.class.getClassLoader().getResourceAsStream( "native-cipher.so" ) )
+                {
+                    // Else we will create and copy it to a temp file
+                    File temp = File.createTempFile( "bungeecord-native-cipher", ".so" );
+                    temp.deleteOnExit();
+
+                    try ( OutputStream outputStream = new FileOutputStream( temp ) )
+                    {
+                        ByteStreams.copy( lib, outputStream );
+                        System.load( temp.getPath() );
+                    }
+                    loaded = true;
+                } catch ( Throwable t )
+                {
+                }
             }
         }
 
