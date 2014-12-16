@@ -23,7 +23,7 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
             registerTypeAdapter( TranslatableComponent.class, new TranslatableComponentSerializer() ).
             create();
 
-    public final static ThreadLocal<HashSet<BaseComponent>> serializedComponents = new ThreadLocal<>();
+    public final static ThreadLocal<HashSet<BaseComponent>> serializedComponents = new ThreadLocal<HashSet<BaseComponent>>();
 
     public static BaseComponent[] parse(String json)
     {

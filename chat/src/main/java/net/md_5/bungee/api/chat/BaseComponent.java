@@ -323,7 +323,7 @@ public abstract class BaseComponent
     {
         if ( extra == null )
         {
-            extra = new ArrayList<>();
+            extra = new ArrayList<BaseComponent>();
         }
         component.parent = this;
         extra.add( component );

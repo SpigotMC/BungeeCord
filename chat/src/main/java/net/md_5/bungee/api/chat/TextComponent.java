@@ -30,7 +30,7 @@ public class TextComponent extends BaseComponent
      */
     public static BaseComponent[] fromLegacyText(String message)
     {
-        ArrayList<BaseComponent> components = new ArrayList<>();
+        ArrayList<BaseComponent> components = new ArrayList<BaseComponent>();
         StringBuilder builder = new StringBuilder();
         TextComponent component = new TextComponent();
         Matcher matcher = url.matcher( message );

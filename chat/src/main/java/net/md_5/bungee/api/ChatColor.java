@@ -112,7 +112,7 @@ public enum ChatColor
     /**
      * Colour instances keyed by their active character.
      */
-    private static final Map<Character, ChatColor> BY_CHAR = new HashMap<>();
+    private static final Map<Character, ChatColor> BY_CHAR = new HashMap<Character, ChatColor>();
     /**
      * The code appended to {@link #COLOR_CHAR} to make usable colour.
      */

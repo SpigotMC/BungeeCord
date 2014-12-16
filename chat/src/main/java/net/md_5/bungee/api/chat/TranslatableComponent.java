@@ -60,7 +60,7 @@ public class TranslatableComponent extends BaseComponent
     public TranslatableComponent(String translate, Object... with)
     {
         setTranslate( translate );
-        List<BaseComponent> temp = new ArrayList<>();
+        List<BaseComponent> temp = new ArrayList<BaseComponent>();
         for ( Object w : with )
         {
             if ( w instanceof String )
@@ -121,7 +121,7 @@ public class TranslatableComponent extends BaseComponent
     {
         if ( with == null )
         {
-            with = new ArrayList<>();
+            with = new ArrayList<BaseComponent>();
         }
         component.parent = this;
         with.add( component );
