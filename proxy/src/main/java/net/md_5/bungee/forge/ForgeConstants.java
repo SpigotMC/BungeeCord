@@ -14,6 +14,11 @@ public class ForgeConstants
     public static final String FML_HANDSHAKE_TAG = "FML|HS";
     public static final String FML_REGISTER = "REGISTER";
 
+    /**
+     * The FML 1.8 handshake token.
+     */
+    public static final String FML_HANDSHAKE_TOKEN = "\0FML\0";
+
     public static final PluginMessage FML_RESET_HANDSHAKE = new PluginMessage( FML_HANDSHAKE_TAG, new byte[]
     {
         -2, 0
