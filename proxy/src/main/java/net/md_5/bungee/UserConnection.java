@@ -520,6 +520,12 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
+    public boolean isForgeUser() 
+    {
+        return forgeClientHandler.isForgeUser();
+    }
+
+    @Override
     public Map<String, String> getModList()
     {
         if ( forgeClientHandler.getClientModList() == null )
