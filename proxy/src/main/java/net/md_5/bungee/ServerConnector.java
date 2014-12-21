@@ -92,6 +92,13 @@ public class ServerConnector extends PacketHandler
             }
             copiedHandshake.setHost( newHost );
         }
+        else if ( !user.getExtraDataInHandshake().isEmpty() ) 
+        {
+            // Only restore the extra data if IP forwarding is off. 
+            // TODO: Add support for this data with IP forwarding.
+            copiedHandshake.setHost( copiedHandshake.getHost() + user.getExtraDataInHandshake() );
+        }
+
         channel.write( copiedHandshake );
 
         channel.setProtocol( Protocol.LOGIN );
