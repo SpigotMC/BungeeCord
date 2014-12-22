@@ -76,14 +76,16 @@ public class CommandServer extends Command implements TabExecutor
     }
 
     @Override
-    public Iterable<String> onTabComplete(final CommandSender sender, String[] args)
+    public Iterable<String> onTabComplete(final CommandSender sender, final String[] args)
     {
         return ( args.length != 0 ) ? Collections.EMPTY_LIST : Iterables.transform( Iterables.filter( ProxyServer.getInstance().getServers().values(), new Predicate<ServerInfo>()
         {
+            private final String lower = args[0].toLowerCase();
+
             @Override
             public boolean apply(ServerInfo input)
             {
-                return input.canAccess( sender );
+                return input.getName().toLowerCase().startsWith( lower ) && input.canAccess( sender );
             }
         } ), new Function<ServerInfo, String>()
         {
