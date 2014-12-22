@@ -22,7 +22,6 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import java.util.ArrayList;
 import java.util.List;
 import net.md_5.bungee.forge.ForgeConstants;
-import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 
 public class UpstreamBridge extends PacketHandler
@@ -68,8 +67,9 @@ public class UpstreamBridge extends PacketHandler
             packet.setAction( PlayerListItem.Action.REMOVE_PLAYER );
             PlayerListItem.Item item = new PlayerListItem.Item();
             item.setUuid( con.getUniqueId() );
-            packet.setItems( new PlayerListItem.Item[]{
-                    item
+            packet.setItems( new PlayerListItem.Item[]
+            {
+                item
             } );
             for ( ProxiedPlayer player : con.getServer().getInfo().getPlayers() )
             {
@@ -133,7 +133,7 @@ public class UpstreamBridge extends PacketHandler
         List<String> results = tabCompleteEvent.getSuggestions();
         if ( !results.isEmpty() )
         {
-            con.unsafe().sendPacket( new TabCompleteResponse( results.toArray( new String[ results.size() ] ) ) );
+            con.unsafe().sendPacket( new TabCompleteResponse( results ) );
             throw CancelSendSignal.INSTANCE;
         }
 

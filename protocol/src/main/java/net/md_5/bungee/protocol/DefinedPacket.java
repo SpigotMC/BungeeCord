@@ -3,6 +3,8 @@ package net.md_5.bungee.protocol;
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
@@ -74,22 +76,22 @@ public abstract class DefinedPacket
         return ret;
     }
 
-    public static void writeStringArray(String[] s, ByteBuf buf)
+    public static void writeStringArray(List<String> s, ByteBuf buf)
     {
-        writeVarInt( s.length, buf );
+        writeVarInt( s.size(), buf );
         for ( String str : s )
         {
             writeString( str, buf );
         }
     }
 
-    public static String[] readStringArray(ByteBuf buf)
+    public static List<String> readStringArray(ByteBuf buf)
     {
         int len = readVarInt( buf );
-        String[] ret = new String[ len ];
-        for ( int i = 0; i < ret.length; i++ )
+        List<String> ret = new ArrayList<>( len );
+        for ( int i = 0; i < len; i++ )
         {
-            ret[i] = readString( buf );
+            ret.add( readString( buf ) );
         }
         return ret;
     }

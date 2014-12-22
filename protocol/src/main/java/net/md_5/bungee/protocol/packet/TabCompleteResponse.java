@@ -2,6 +2,7 @@ package net.md_5.bungee.protocol.packet;
 
 import net.md_5.bungee.protocol.DefinedPacket;
 import io.netty.buffer.ByteBuf;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,7 +16,7 @@ import net.md_5.bungee.protocol.AbstractPacketHandler;
 public class TabCompleteResponse extends DefinedPacket
 {
 
-    private String[] commands;
+    private List<String> commands;
 
     @Override
     public void read(ByteBuf buf)
