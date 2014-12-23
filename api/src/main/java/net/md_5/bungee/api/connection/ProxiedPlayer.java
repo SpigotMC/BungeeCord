@@ -7,6 +7,8 @@ import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.Title;
+import net.md_5.bungee.api.Sounds;
+
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 
@@ -171,6 +173,28 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @see Title
      */
     void sendTitle(Title title);
+
+    /**
+     * Plays a sound at the specified player.
+     * @param soundName The String name of the souund
+     * @param posX The x position at which the player will hear it
+     * @param posY The y position at which the player will hear it
+     * @param posZ The z position at which the player will hear it
+     * @param volume The volume of the sound
+     * @param pitch The sounds pitch
+     */
+    void playSound(String soundName, int posX, int posY, int posZ, float volume, int pitch);
+
+    /**
+     * Plays a sound at the specified player.
+     * @param sound Yhe Sound enum for the specified sound
+     * @param posX The x position at which the player will hear it
+     * @param posY The y position at which the player will hear it
+     * @param posZ The z position at which the player will hear it
+     * @param volume The volume of the sound
+     * @param pitch The sounds pitch
+     */
+    void playSound(Sounds sound, int posX, int posY, int posZ, float volume, int pitch);
 
     /**
      * Gets this player's Forge Mod List, if the player has sent this

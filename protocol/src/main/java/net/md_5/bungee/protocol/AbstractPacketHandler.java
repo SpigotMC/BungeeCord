@@ -1,5 +1,4 @@
 package net.md_5.bungee.protocol;
-
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.ClientStatus;
@@ -28,6 +27,7 @@ import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.Title;
+import net.md_5.bungee.protocol.packet.PlaySound;
 
 public abstract class AbstractPacketHandler
 {
@@ -141,6 +141,10 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(SetCompression setCompression) throws Exception
+    {
+    }
+
+    public void handle(PlaySound playSound) throws Exception
     {
     }
 }

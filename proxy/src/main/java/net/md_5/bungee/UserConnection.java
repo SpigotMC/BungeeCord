@@ -57,6 +57,8 @@ import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
 import net.md_5.bungee.util.CaseInsensitiveSet;
+import net.md_5.bungee.protocol.packet.PlaySound;
+import net.md_5.bungee.api.Sounds;
 
 @RequiredArgsConstructor
 public final class UserConnection implements ProxiedPlayer
@@ -575,5 +577,15 @@ public final class UserConnection implements ProxiedPlayer
             unsafe.sendPacket( new SetCompression( compressionThreshold ) );
             ch.setCompressionThreshold( compressionThreshold );
         }
+    }
+
+    @Override
+    public void playSound(String soundName, int posX, int posY, int posZ, float volume, int pitch){
+        this.unsafe().sendPacket(new PlaySound(soundName, posX, posY, posZ, volume, pitch));
+    }
+
+    @Override
+    public void playSound(Sounds sound, int posX, int posY, int posZ, float volume, int pitch){
+        playSound(sound.toString(), posX, posY, posZ, volume, pitch);
     }
 }

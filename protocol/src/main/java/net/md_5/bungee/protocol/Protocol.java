@@ -33,6 +33,7 @@ import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.Team;
 import net.md_5.bungee.protocol.packet.Title;
+import net.md_5.bungee.protocol.packet.PlaySound;
 
 public enum Protocol
 {
@@ -71,6 +72,7 @@ public enum Protocol
                     TO_SERVER.registerPacket( 0x14, TabCompleteRequest.class );
                     TO_SERVER.registerPacket( 0x15, ClientSettings.class );
                     TO_SERVER.registerPacket( 0x17, PluginMessage.class );
+                    TO_CLIENT.registerPacket(0x29, PlaySound.class);
                 }
             },
     // 1
