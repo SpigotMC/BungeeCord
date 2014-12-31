@@ -80,6 +80,16 @@ public class ComponentsTest
                 + "World" + ChatColor.YELLOW + ChatColor.BOLD + "!", BaseComponent.toLegacyText( components ) );
     }
 
+    @Test
+    public void testBuilderReset()
+    {
+        BaseComponent[] components = new ComponentBuilder( "Hello " ).color( ChatColor.RED )
+                .append( "World" ).reset().create();
+
+        Assert.assertEquals( components[0].getColor(), ChatColor.RED );
+        Assert.assertEquals( components[1].getColor(), ChatColor.WHITE );
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testLoopSimple()
     {

@@ -165,6 +165,17 @@ public class ComponentBuilder
     }
 
     /**
+     * Sets the current part back to normal settings. Only text is kept.
+     *
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder reset()
+    {
+        current = new TextComponent( current.getText() );
+        return this;
+    }
+
+    /**
      * Returns the components needed to display the message created by this
      * builder.
      *
