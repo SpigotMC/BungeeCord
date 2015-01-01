@@ -1,8 +1,11 @@
 package net.md_5.bungee.connection;
 
+import com.google.common.collect.Lists;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+
 import java.io.DataInput;
+import java.util.List;
 import java.util.Objects;
 
 import io.netty.buffer.ByteBuf;
@@ -19,6 +22,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
+import net.md_5.bungee.api.event.ServerTabCompleteEvent;
 import net.md_5.bungee.api.score.Objective;
 import net.md_5.bungee.api.score.Position;
 import net.md_5.bungee.api.score.Score;
@@ -38,6 +42,7 @@ import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.SetCompression;
+import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.tab.TabList;
 
 @RequiredArgsConstructor
@@ -477,6 +482,17 @@ public class DownstreamBridge extends PacketHandler
     {
         con.setCompressionThreshold( setCompression.getThreshold() );
         server.getCh().setCompressionThreshold( setCompression.getThreshold() );
+    }
+
+    @Override
+    public void handle(TabCompleteResponse tabResponse) throws Exception
+    {
+        List<String> results = Lists.newArrayList( tabResponse.getCommands() );
+        ServerTabCompleteEvent event = new ServerTabCompleteEvent( server, con, con.getLastTabCompleteRequest(), results );
+        bungee.getPluginManager().callEvent( event );
+
+        con.unsafe().sendPacket( new TabCompleteResponse( event.getSuggestions() ) );
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override
