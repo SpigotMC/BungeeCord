@@ -141,6 +141,8 @@ public class UpstreamBridge extends PacketHandler
         {
             throw CancelSendSignal.INSTANCE;
         }
+
+        con.setLastTabCompleteRequest(tabComplete.getCursor());
     }
 
     @Override
