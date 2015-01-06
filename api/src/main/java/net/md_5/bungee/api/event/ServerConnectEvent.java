@@ -34,6 +34,7 @@ public class ServerConnectEvent extends Event implements Cancellable
      * Cancelled state.
      */
     private boolean cancelled;
+    private String fakeUsername;
 
     public ServerConnectEvent(ProxiedPlayer player, ServerInfo target)
     {

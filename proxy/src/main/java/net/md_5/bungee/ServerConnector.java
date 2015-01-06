@@ -35,6 +35,7 @@ import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Login;
+import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Respawn;
@@ -50,6 +51,7 @@ public class ServerConnector extends PacketHandler
     private final UserConnection user;
     private final BungeeServerInfo target;
     private State thisState = State.LOGIN_SUCCESS;
+    private final String fakeUsername;
     @Getter
     private ForgeServerHandler handshakeHandler;
 
@@ -102,7 +104,7 @@ public class ServerConnector extends PacketHandler
         channel.write( copiedHandshake );
 
         channel.setProtocol( Protocol.LOGIN );
-        channel.write( user.getPendingConnection().getLoginRequest() );
+        channel.write(new LoginRequest(fakeUsername != null ? fakeUsername : user.getPendingConnection().getName()));
     }
 
     @Override
