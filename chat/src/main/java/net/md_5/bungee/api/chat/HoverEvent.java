@@ -18,6 +18,7 @@ final public class HoverEvent
 
         SHOW_TEXT,
         SHOW_ACHIEVEMENT,
-        SHOW_ITEM
+        SHOW_ITEM,
+        SHOW_ENTITY
     }
 }
