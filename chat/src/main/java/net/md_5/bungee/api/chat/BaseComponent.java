@@ -48,6 +48,12 @@ public abstract class BaseComponent
      * obfuscated
      */
     private Boolean obfuscated;
+    /**
+     * The text to insert into the chat when this component (and child
+     * components) are clicked while pressing the shift key
+     */
+    @Getter
+    private String insertion;
 
     /**
      * Appended components that inherit this component's formatting and events
@@ -76,6 +82,7 @@ public abstract class BaseComponent
         setUnderlined( old.isUnderlinedRaw() );
         setStrikethrough( old.isStrikethroughRaw() );
         setObfuscated( old.isObfuscatedRaw() );
+        setInsertion( old.getInsertion() );
         setClickEvent( old.getClickEvent() );
         setHoverEvent( old.getHoverEvent() );
         if ( old.getExtra() != null )

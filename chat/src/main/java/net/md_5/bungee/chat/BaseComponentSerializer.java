@@ -41,6 +41,10 @@ public class BaseComponentSerializer
         {
             component.setObfuscated( object.get( "obfuscated" ).getAsBoolean() );
         }
+        if ( object.has( "insertion" ) )
+        {
+            component.setInsertion( object.get( "insertion" ).getAsString() );
+        }
         if ( object.has( "extra" ) )
         {
             component.setExtra( Arrays.<BaseComponent>asList( context.<BaseComponent[]>deserialize( object.get( "extra" ), BaseComponent[].class ) ) );
@@ -107,6 +111,10 @@ public class BaseComponentSerializer
             if ( component.isObfuscatedRaw() != null )
             {
                 object.addProperty( "obfuscated", component.isObfuscatedRaw() );
+            }
+            if ( component.getInsertion() != null )
+            {
+                object.addProperty( "insertion", component.getInsertion() );
             }
 
             if ( component.getExtra() != null )
