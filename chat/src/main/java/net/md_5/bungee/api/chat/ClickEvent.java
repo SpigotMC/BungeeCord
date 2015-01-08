@@ -45,6 +45,11 @@ public final class ClickEvent
          * {@link net.md_5.bungee.api.chat.ClickEvent#value} into the players
          * text box
          */
-        SUGGEST_COMMAND
+        SUGGEST_COMMAND,
+        /**
+         * Change to the page number given by
+         * {@link net.md_5.bungee.api.chat.ClickEvent#value} in a book
+         */
+        CHANGE_PAGE
     }
 }
