@@ -80,7 +80,7 @@ public class CommandServer extends Command implements TabExecutor
     {
         return ( args.length > 1 ) ? Collections.EMPTY_LIST : Iterables.transform( Iterables.filter( ProxyServer.getInstance().getServers().values(), new Predicate<ServerInfo>()
         {
-            private final String lower = args[0].toLowerCase();
+            private final String lower = ( args.length == 0 ) ? "" : args[0].toLowerCase();
 
             @Override
             public boolean apply(ServerInfo input)
