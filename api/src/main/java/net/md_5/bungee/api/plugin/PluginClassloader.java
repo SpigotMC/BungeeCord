@@ -1,5 +1,9 @@
 package net.md_5.bungee.api.plugin;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Set;
@@ -9,6 +13,13 @@ public class PluginClassloader extends URLClassLoader
 {
 
     private static final Set<PluginClassloader> allLoaders = new CopyOnWriteArraySet<>();
+
+    /**
+     * The Plugin this loader was created for. May be null.
+     */
+    @Getter
+    @Setter(AccessLevel.PACKAGE)
+    private Plugin plugin = null;
 
     static
     {
