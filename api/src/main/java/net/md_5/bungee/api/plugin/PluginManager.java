@@ -160,7 +160,7 @@ public class PluginManager
             if ( tabResults == null )
             {
                 command.execute( sender, args );
-            } else if ( command instanceof TabExecutor )
+            } else if ( commandLine.contains( " " ) && command instanceof TabExecutor )
             {
                 for ( String s : ( (TabExecutor) command ).onTabComplete( sender, args ) )
                 {
