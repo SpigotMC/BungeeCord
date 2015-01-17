@@ -62,9 +62,45 @@ public class ComponentBuilder
      */
     public ComponentBuilder append(String text)
     {
+        return append( text, FormatRetention.ALL );
+    }
+
+    /**
+     * Appends the text to the builder and makes it the current target for
+     * formatting. You can specify the amount of formatting retained.
+     *
+     * @param text the text to append
+     * @param retention the formatting to retain
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder append(String text, FormatRetention retention)
+    {
         parts.add( current );
-        current = new TextComponent( current );
-        current.setText( text );
+
+        TextComponent previousCurrent = current;
+
+        switch ( retention )
+        {
+            case NONE:
+                current = new TextComponent( text );
+                break;
+            case ALL:
+                current = new TextComponent( current );
+                current.setText( text );
+                break;
+            case EVENTS:
+                current = new TextComponent( text );
+                current.setClickEvent( previousCurrent.getClickEvent() );
+                current.setHoverEvent( previousCurrent.getHoverEvent() );
+                break;
+            case FORMATTING:
+                current = new TextComponent( current );
+                current.setText( text );
+                current.setClickEvent( null );
+                current.setHoverEvent( null );
+                break;
+        }
+
         return this;
     }
 
@@ -185,5 +221,26 @@ public class ComponentBuilder
     {
         parts.add( current );
         return parts.toArray( new BaseComponent[ parts.size() ] );
+    }
+
+    public static enum FormatRetention
+    {
+
+        /**
+         * Specify that we do not want to retain anything from the previous component.
+         */
+        NONE,
+        /**
+         * Specify that we want the formatting retained from the previous component.
+         */
+        FORMATTING,
+        /**
+         * Specify that we want the events retained from the previous component.
+         */
+        EVENTS,
+        /**
+         * Specify that we want to retain everything from the previous component.
+         */
+        ALL
     }
 }
