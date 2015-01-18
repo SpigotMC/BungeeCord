@@ -12,6 +12,9 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.api.scheduler.TaskScheduler;
@@ -20,8 +23,9 @@ public class BungeeScheduler implements TaskScheduler
 {
 
     private final AtomicInteger taskCounter = new AtomicInteger();
-    private final TIntObjectMap<BungeeTask> tasks = TCollections.synchronizedMap( new TIntObjectHashMap<BungeeTask>() );
-    private final Multimap<Plugin, BungeeTask> tasksByPlugin = Multimaps.synchronizedMultimap( HashMultimap.<Plugin, BungeeTask>create() );
+    private final TIntObjectMap<BungeeTask> tasks = new TIntObjectHashMap<>();
+    private final Multimap<Plugin, BungeeTask> tasksByPlugin = HashMultimap.create();
+    private final Lock taskLock = new ReentrantLock();
     //
     private final Unsafe unsafe = new Unsafe()
     {
@@ -36,9 +40,19 @@ public class BungeeScheduler implements TaskScheduler
     @Override
     public void cancel(int id)
     {
-        BungeeTask task = tasks.remove( id );
-        task.cancel();
-        tasksByPlugin.values().remove( task );
+        taskLock.lock();
+        try
+        {
+            Preconditions.checkArgument( tasks.containsKey( id ), "task ID is invalid" );
+
+            // End the task directly, so we don't end up in flames.
+            BungeeTask task = tasks.remove( id );
+            task.getRunning().set( false );
+            tasksByPlugin.values().remove( task );
+        } finally
+        {
+            taskLock.unlock();
+        }
     }
 
     @Override
@@ -51,10 +65,19 @@ public class BungeeScheduler implements TaskScheduler
     public int cancel(Plugin plugin)
     {
         Set<ScheduledTask> toRemove = new HashSet<>();
-        for ( ScheduledTask task : tasksByPlugin.get( plugin ) )
+
+        taskLock.lock();
+        try
         {
-            toRemove.add( task );
+            for ( ScheduledTask task : tasksByPlugin.get( plugin ) )
+            {
+                toRemove.add( task );
+            }
+        } finally
+        {
+            taskLock.unlock();
         }
+
         for ( ScheduledTask task : toRemove )
         {
             cancel( task );
@@ -80,8 +103,17 @@ public class BungeeScheduler implements TaskScheduler
         Preconditions.checkNotNull( owner, "owner" );
         Preconditions.checkNotNull( task, "task" );
         BungeeTask prepared = new BungeeTask( this, taskCounter.getAndIncrement(), owner, task, delay, period, unit );
-        tasks.put( prepared.getId(), prepared );
-        tasksByPlugin.put( owner, prepared );
+
+        taskLock.lock();
+        try
+        {
+            tasks.put( prepared.getId(), prepared );
+            tasksByPlugin.put( owner, prepared );
+        } finally
+        {
+            taskLock.unlock();
+        }
+
         owner.getExecutorService().execute( prepared );
         return prepared;
     }
