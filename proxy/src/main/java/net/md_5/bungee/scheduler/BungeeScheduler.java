@@ -43,11 +43,11 @@ public class BungeeScheduler implements TaskScheduler
         taskLock.lock();
         try
         {
+            Preconditions.checkArgument( tasks.containsKey( id ), "task ID is invalid" );
+
+            // End the task directly, so we don't end up in flames.
             BungeeTask task = tasks.remove( id );
-
-            Preconditions.checkArgument( task != null, "task ID is invalid" );
-
-            task.cancel();
+            task.getRunning().set( false );
             tasksByPlugin.values().remove( task );
         } finally
         {
