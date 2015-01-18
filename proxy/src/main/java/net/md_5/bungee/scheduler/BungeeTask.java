@@ -38,7 +38,7 @@ public class BungeeTask implements Runnable, ScheduledTask
 
         if ( wasRunning )
         {
-            sched.cancel( this.getId() );
+            sched.cancel0( this );
         }
     }
 

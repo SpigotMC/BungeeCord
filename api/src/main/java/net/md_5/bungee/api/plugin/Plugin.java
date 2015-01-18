@@ -96,8 +96,9 @@ public class Plugin
     {
         if ( service == null )
         {
-            service = Executors.newCachedThreadPool( new ThreadFactoryBuilder().setNameFormat( getDescription().getName() + " Pool Thread #%1$d" )
-                    .setThreadFactory( new GroupedThreadFactory( this ) ).build() );
+            String name = ( getDescription() == null ) ? "unknown" : getDescription().getName();
+            service = Executors.newCachedThreadPool( new ThreadFactoryBuilder().setNameFormat( name + " Pool Thread #%1$d" )
+                    .setThreadFactory( new GroupedThreadFactory( this, name ) ).build() );
         }
         return service;
     }

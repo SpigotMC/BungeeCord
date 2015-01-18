@@ -19,6 +19,7 @@ import net.md_5.bungee.api.scheduler.TaskScheduler;
 public class BungeeScheduler implements TaskScheduler
 {
 
+    private final Object lock = new Object();
     private final AtomicInteger taskCounter = new AtomicInteger();
     private final TIntObjectMap<BungeeTask> tasks = TCollections.synchronizedMap( new TIntObjectHashMap<BungeeTask>() );
     private final Multimap<Plugin, BungeeTask> tasksByPlugin = Multimaps.synchronizedMultimap( HashMultimap.<Plugin, BungeeTask>create() );
@@ -36,9 +37,19 @@ public class BungeeScheduler implements TaskScheduler
     @Override
     public void cancel(int id)
     {
-        BungeeTask task = tasks.remove( id );
+        BungeeTask task = tasks.get( id );
+        Preconditions.checkArgument( task != null, "No task with id %s", id );
+
         task.cancel();
-        tasksByPlugin.values().remove( task );
+    }
+
+    void cancel0(BungeeTask task)
+    {
+        synchronized ( lock )
+        {
+            tasks.remove( task.getId() );
+            tasksByPlugin.values().remove( task );
+        }
     }
 
     @Override
@@ -80,8 +91,13 @@ public class BungeeScheduler implements TaskScheduler
         Preconditions.checkNotNull( owner, "owner" );
         Preconditions.checkNotNull( task, "task" );
         BungeeTask prepared = new BungeeTask( this, taskCounter.getAndIncrement(), owner, task, delay, period, unit );
-        tasks.put( prepared.getId(), prepared );
-        tasksByPlugin.put( owner, prepared );
+
+        synchronized ( lock )
+        {
+            tasks.put( prepared.getId(), prepared );
+            tasksByPlugin.put( owner, prepared );
+        }
+
         owner.getExecutorService().execute( prepared );
         return prepared;
     }

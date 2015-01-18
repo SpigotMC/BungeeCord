@@ -21,9 +21,9 @@ public class GroupedThreadFactory implements ThreadFactory
 
     }
 
-    public GroupedThreadFactory(Plugin plugin)
+    public GroupedThreadFactory(Plugin plugin, String name)
     {
-        this.group = new BungeeGroup( plugin.getDescription().getName() );
+        this.group = new BungeeGroup( name );
     }
 
     @Override
