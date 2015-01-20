@@ -2,6 +2,10 @@ package net.md_5.bungee;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
+
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -55,6 +59,7 @@ public class ServerConnection implements Server
         if ( !ch.isClosed() )
         {
             // TODO: Can we just use a future here?
+        	sendQuitMessage( ComponentSerializer.toString( reason ) );
             unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
             ch.getHandle().eventLoop().schedule( new Runnable()
             {
@@ -87,5 +92,14 @@ public class ServerConnection implements Server
     public Unsafe unsafe()
     {
         return unsafe;
+    }
+
+    private void sendQuitMessage(String reason)
+    {
+    	ByteArrayDataOutput out = ByteStreams.newDataOutput();
+    	out.writeUTF( "Quitting" );
+    	out.writeUTF( reason );
+    	
+    	sendData("BungeeCord", out.toByteArray());
     }
 }
