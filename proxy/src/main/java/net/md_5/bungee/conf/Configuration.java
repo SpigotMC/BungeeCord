@@ -6,7 +6,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import javax.imageio.ImageIO;
@@ -17,6 +19,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import net.md_5.bungee.util.CaseInsensitiveSet;
 
@@ -85,6 +88,8 @@ public class Configuration implements ProxyConfig
         Map<String, ServerInfo> newServers = adapter.getServers();
         Preconditions.checkArgument( newServers != null && !newServers.isEmpty(), "No servers defined" );
 
+        Set<ProxiedPlayer> playerRemovalList = new HashSet<>();
+
         if ( servers == null )
         {
             servers = new CaseInsensitiveMap<>( newServers );
@@ -92,17 +97,26 @@ public class Configuration implements ProxyConfig
         {
             for ( ServerInfo oldServer : servers.values() )
             {
-                // Don't allow servers to be removed
-                Preconditions.checkArgument( newServers.containsValue( oldServer ), "Server %s removed on reload!", oldServer.getName() );
+                // Queue up the players to be kicked/redirected
+                if ( !newServers.containsValue( oldServer ) )
+                {
+                    for ( ProxiedPlayer player : oldServer.getPlayers() )
+                    {
+                        if ( !playerRemovalList.contains( player ) )
+                        {
+                            playerRemovalList.add( player );
+                        }
+                    }
+                }
             }
+
+            // Clear old servers
+            servers.clear();
 
             // Add new servers
             for ( Map.Entry<String, ServerInfo> newServer : newServers.entrySet() )
             {
-                if ( !servers.containsValue( newServer.getValue() ) )
-                {
-                    servers.put( newServer.getKey(), newServer.getValue() );
-                }
+                servers.put( newServer.getKey(), newServer.getValue() );
             }
         }
 
@@ -117,6 +131,23 @@ public class Configuration implements ProxyConfig
                     ProxyServer.getInstance().getLogger().log( Level.WARNING, "Forced host server {0} is not defined", server );
                 }
             }
+        }
+
+        for ( ProxiedPlayer player : playerRemovalList )
+        {
+            String def = player.getPendingConnection().getListener().getDefaultServer();
+            if ( def == null )
+            {
+                def = player.getPendingConnection().getListener().getFallbackServer();
+                if ( def == null )
+                {
+                    player.disconnect( ProxyServer.getInstance().getTranslation( "server_removed_kick" ) );
+                    continue;
+                }
+            }
+
+            player.connect( servers.get( def ) );
+            player.sendMessage( ProxyServer.getInstance().getTranslation( "server_removed", def ) );
         }
     }
 
