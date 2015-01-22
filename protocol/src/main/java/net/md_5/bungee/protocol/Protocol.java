@@ -138,7 +138,7 @@ public enum Protocol
 
             try
             {
-                return packetClasses[id].newInstance();
+                return packetConstructors[id].newInstance();
             } catch ( ReflectiveOperationException ex )
             {
                 throw new BadPacketException( "Could not construct packet with id " + id, ex );
