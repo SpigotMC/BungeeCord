@@ -77,29 +77,9 @@ public class ComponentBuilder
     {
         parts.add( current );
 
-        TextComponent previousCurrent = current;
-
-        switch ( retention )
-        {
-            case NONE:
-                current = new TextComponent( text );
-                break;
-            case ALL:
-                current = new TextComponent( current );
-                current.setText( text );
-                break;
-            case EVENTS:
-                current = new TextComponent( text );
-                current.setClickEvent( previousCurrent.getClickEvent() );
-                current.setHoverEvent( previousCurrent.getHoverEvent() );
-                break;
-            case FORMATTING:
-                current = new TextComponent( current );
-                current.setText( text );
-                current.setClickEvent( null );
-                current.setHoverEvent( null );
-                break;
-        }
+        current = new TextComponent( current );
+        current.setText( text );
+        retain( retention );
 
         return this;
     }
@@ -207,7 +187,37 @@ public class ComponentBuilder
      */
     public ComponentBuilder reset()
     {
-        current = new TextComponent( current.getText() );
+        return retain( FormatRetention.NONE );
+    }
+
+    /**
+     * Retains only the specified formatting. Text is not modified.
+     *
+     * @param retention the formatting to retain
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder retain(FormatRetention retention)
+    {
+        BaseComponent previous = current;
+
+        switch ( retention )
+        {
+            case NONE:
+                current = new TextComponent( current.getText() );
+                break;
+            case ALL:
+                // No changes are required
+                break;
+            case EVENTS:
+                current = new TextComponent( current.getText() );
+                current.setClickEvent( previous.getClickEvent() );
+                current.setHoverEvent( previous.getHoverEvent() );
+                break;
+            case FORMATTING:
+                current.setClickEvent( null );
+                current.setHoverEvent( null );
+                break;
+        }
         return this;
     }
 
