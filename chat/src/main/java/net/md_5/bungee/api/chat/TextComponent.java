@@ -6,10 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Getter
 @Setter
@@ -18,7 +16,6 @@ import java.util.regex.Pattern;
 public class TextComponent extends BaseComponent
 {
 
-    private static final Pattern url = Pattern.compile( "^(?:(https?)://)?([-\\w_\\.]{2,}\\.[a-z]{2,4})(/\\S*)?$" );
 
     /**
      * Converts the old formatting system that used
@@ -28,13 +25,45 @@ public class TextComponent extends BaseComponent
      * @param message the text to convert
      * @return the components needed to print the message to the client
      */
-    public static BaseComponent[] fromLegacyText(String message)
+    /**
+     * Converts the old formatting system that used
+     * {@link net.md_5.bungee.api.ChatColor#COLOR_CHAR} into the new json based
+     * system.
+     *
+     * @param message the text to convert
+     * @return the components needed to print the message to the client
+     */
+    public static BaseComponent[] fromLegacyText(String message){
+        return fromLegacyText(message,Arrays.asList(MessageProcessor.URL_MESSAGEPROCESSOR));
+    }
+
+    /**
+     * Converts the old formatting system that used
+     * {@link net.md_5.bungee.api.ChatColor#COLOR_CHAR} into the new json based
+     * system.
+     *
+     * @param message the text to convert
+     * @return the components needed to print the message to the client
+     */
+    /**
+     * Converts the old formatting system that used
+     * {@link net.md_5.bungee.api.ChatColor#COLOR_CHAR} into the new json based
+     * system.
+     *
+     * @param message the text to convert
+     * @param messageProcessors list of message processors
+     * @return the components needed to print the message to the client
+     */
+    public static BaseComponent[] fromLegacyText(String message,List<MessageProcessor> messageProcessors)
     {
         ArrayList<BaseComponent> components = new ArrayList<BaseComponent>();
         StringBuilder builder = new StringBuilder();
         TextComponent component = new TextComponent();
-        Matcher matcher = url.matcher( message );
-
+        HashMap<Matcher,MessageProcessor> matchers = new HashMap<Matcher, MessageProcessor>();
+        for (MessageProcessor messageProcessor : messageProcessors) {
+            matchers.put(messageProcessor.getPattern().matcher(message), messageProcessor);
+        }
+mainloop:
         for ( int i = 0; i < message.length(); i++ )
         {
             char c = message.charAt( i );
@@ -90,28 +119,29 @@ public class TextComponent extends BaseComponent
             {
                 pos = message.length();
             }
-            if ( matcher.region( i, pos ).find() )
-            { //Web link handling
-
-                if ( builder.length() > 0 )
+            for (Map.Entry<Matcher, MessageProcessor> entry : matchers.entrySet()) {
+                Matcher matcher = entry.getKey();
+                MessageProcessor messageProcessor = entry.getValue();
+                if ( matcher.region( i, pos ).find() )
                 {
-                    TextComponent old = component;
-                    component = new TextComponent( old );
-                    old.setText( builder.toString() );
-                    builder = new StringBuilder();
-                    components.add( old );
-                }
 
-                TextComponent old = component;
-                component = new TextComponent( old );
-                String urlString = message.substring( i, pos );
-                component.setText( urlString );
-                component.setClickEvent( new ClickEvent( ClickEvent.Action.OPEN_URL,
-                        urlString.startsWith( "http" ) ? urlString : "http://" + urlString ) );
-                components.add( component );
-                i += pos - i - 1;
-                component = old;
-                continue;
+                    if ( builder.length() > 0 )
+                    {
+                        TextComponent old = component;
+                        component = new TextComponent( old );
+                        old.setText( builder.toString() );
+                        builder = new StringBuilder();
+                        components.add( old );
+                    }
+
+                    TextComponent old = component;
+                    String matchedMessage = message.substring( i, pos );
+                    component = messageProcessor.process(matchedMessage, old);
+                    components.add( component );
+                    i += pos - i - 1;
+                    component = old;
+                    continue mainloop;
+                }
             }
             builder.append( c );
         }
