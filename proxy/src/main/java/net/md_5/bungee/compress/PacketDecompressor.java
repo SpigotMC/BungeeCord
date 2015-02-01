@@ -1,17 +1,28 @@
-package net.md_5.bungee.protocol;
+package net.md_5.bungee.compress;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-
 import java.util.List;
-import java.util.zip.Inflater;
+import net.md_5.bungee.jni.zlib.BungeeZlib;
+import net.md_5.bungee.protocol.DefinedPacket;
 
 public class PacketDecompressor extends ByteToMessageDecoder
 {
 
-    private final Inflater inflater = new Inflater();
+    private final BungeeZlib zlib = CompressFactory.zlib.newInstance();
+
+    @Override
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception
+    {
+        zlib.init( false, 0 );
+    }
+
+    @Override
+    public void handlerRemoved0(ChannelHandlerContext ctx) throws Exception
+    {
+        zlib.free();
+    }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
@@ -27,14 +38,10 @@ public class PacketDecompressor extends ByteToMessageDecoder
             out.add( in.readBytes( in.readableBytes() ) );
         } else
         {
-            byte[] compressedData = new byte[ in.readableBytes() ];
-            in.readBytes( compressedData );
-            inflater.setInput( compressedData );
+            ByteBuf decompressed = ctx.alloc().directBuffer();
+            zlib.process( in, decompressed );
 
-            byte[] data = new byte[ size ];
-            inflater.inflate( data );
-            out.add( Unpooled.wrappedBuffer( data ) );
-            inflater.reset();
+            out.add( decompressed );
         }
     }
 }

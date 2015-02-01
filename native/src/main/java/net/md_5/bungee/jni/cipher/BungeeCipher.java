@@ -1,4 +1,4 @@
-package net.md_5.bungee;
+package net.md_5.bungee.jni.cipher;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

@@ -1,19 +1,31 @@
-package net.md_5.bungee.protocol;
+package net.md_5.bungee.compress;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-import lombok.Setter;
-
 import java.util.zip.Deflater;
+import lombok.Setter;
+import net.md_5.bungee.jni.zlib.BungeeZlib;
+import net.md_5.bungee.protocol.DefinedPacket;
 
 public class PacketCompressor extends MessageToByteEncoder<ByteBuf>
 {
 
-    private final byte[] buffer = new byte[ 8192 ];
-    private final Deflater deflater = new Deflater();
+    private final BungeeZlib zlib = CompressFactory.zlib.newInstance();
     @Setter
     private int threshold = 256;
+
+    @Override
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception
+    {
+        zlib.init( true, Deflater.DEFAULT_COMPRESSION );
+    }
+
+    @Override
+    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception
+    {
+        zlib.free();
+    }
 
     @Override
     protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) throws Exception
@@ -25,19 +37,9 @@ public class PacketCompressor extends MessageToByteEncoder<ByteBuf>
             out.writeBytes( msg );
         } else
         {
-            byte[] data = new byte[ origSize ];
-            msg.readBytes( data );
+            DefinedPacket.writeVarInt( origSize, out );
 
-            DefinedPacket.writeVarInt( data.length, out );
-
-            deflater.setInput( data );
-            deflater.finish();
-            while ( !deflater.finished() )
-            {
-                int count = deflater.deflate( buffer );
-                out.writeBytes( buffer, 0, count );
-            }
-            deflater.reset();
+            zlib.process( msg, out );
         }
     }
 }

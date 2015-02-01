@@ -1,5 +1,8 @@
 package net.md_5.bungee;
 
+import net.md_5.bungee.jni.cipher.NativeCipher;
+import net.md_5.bungee.jni.cipher.JavaCipher;
+import net.md_5.bungee.jni.cipher.BungeeCipher;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Assert;
@@ -8,6 +11,7 @@ import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import net.md_5.bungee.jni.NativeCode;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class NativeCipherTest
@@ -20,13 +24,15 @@ public class NativeCipherTest
     };
     private final SecretKey secret = new SecretKeySpec( new byte[ 16 ], "AES" );
     private static final int BENCHMARK_COUNT = 50000;
+    //
+    private static final NativeCode<BungeeCipher> factory = new NativeCode( "native-cipher", JavaCipher.class, NativeCipher.class );
 
     @Test
     public void testOpenSSL() throws Exception
     {
-        if ( NativeCipher.isSupported() )
+        if ( NativeCode.isSupported() )
         {
-            boolean loaded = NativeCipher.load();
+            boolean loaded = factory.load();
             Assert.assertTrue( "Native cipher failed to load!", loaded );
 
             NativeCipher cipher = new NativeCipher();
@@ -38,9 +44,9 @@ public class NativeCipherTest
     @Test
     public void testOpenSSLBenchmark() throws Exception
     {
-        if ( NativeCipher.isSupported() )
+        if ( NativeCode.isSupported() )
         {
-            boolean loaded = NativeCipher.load();
+            boolean loaded = factory.load();
             Assert.assertTrue( "Native cipher failed to load!", loaded );
 
             NativeCipher cipher = new NativeCipher();
@@ -54,7 +60,7 @@ public class NativeCipherTest
     public void testJDK() throws Exception
     {
         // Create JDK cipher
-        BungeeCipher cipher = new FallbackCipher();
+        BungeeCipher cipher = new JavaCipher();
 
         System.out.println( "Testing Java cipher..." );
         testACipher( cipher );
@@ -64,7 +70,7 @@ public class NativeCipherTest
     public void testJDKBenchmark() throws Exception
     {
         // Create JDK cipher
-        BungeeCipher cipher = new FallbackCipher();
+        BungeeCipher cipher = new JavaCipher();
 
         System.out.println( "Benchmarking Java cipher..." );
         testBenchmark( cipher );
