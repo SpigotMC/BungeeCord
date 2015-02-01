@@ -1,4 +1,4 @@
-package net.md_5.bungee;
+package net.md_5.bungee.jni.cipher;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -8,7 +8,7 @@ import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
 import java.security.GeneralSecurityException;
 
-public class FallbackCipher implements BungeeCipher
+public class JavaCipher implements BungeeCipher
 {
 
     private final Cipher cipher;
@@ -25,7 +25,7 @@ public class FallbackCipher implements BungeeCipher
         }
     }
 
-    public FallbackCipher() throws GeneralSecurityException
+    public JavaCipher() throws GeneralSecurityException
     {
         this.cipher = Cipher.getInstance( "AES/CFB8/NoPadding" );
     }
