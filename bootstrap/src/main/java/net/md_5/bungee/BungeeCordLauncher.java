@@ -1,5 +1,6 @@
 package net.md_5.bungee;
 
+import java.security.Security;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -16,6 +17,9 @@ public class BungeeCordLauncher
 
     public static void main(String[] args) throws Exception
     {
+        Security.setProperty( "networkaddress.cache.ttl", "30" );
+        Security.setProperty( "networkaddress.cache.negative.ttl", "10" );
+
         OptionParser parser = new OptionParser();
         parser.allowsUnrecognizedOptions();
         parser.acceptsAll( Arrays.asList( "v", "version" ) );
