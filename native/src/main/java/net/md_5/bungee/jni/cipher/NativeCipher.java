@@ -1,15 +1,10 @@
-package net.md_5.bungee;
+package net.md_5.bungee.jni.cipher;
 
 import com.google.common.base.Preconditions;
-import com.google.common.io.ByteStreams;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.Getter;
 import javax.crypto.SecretKey;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 
 public class NativeCipher implements BungeeCipher
@@ -18,53 +13,7 @@ public class NativeCipher implements BungeeCipher
     @Getter
     private final NativeCipherImpl nativeCipher = new NativeCipherImpl();
     /*============================================================================*/
-    private static boolean loaded;
     private long ctx;
-
-    public static boolean isSupported()
-    {
-        return "Linux".equals( System.getProperty( "os.name" ) ) && "amd64".equals( System.getProperty( "os.arch" ) );
-    }
-
-    public static boolean load()
-    {
-        if ( !loaded && isSupported() )
-        {
-            try
-            {
-                System.loadLibrary( "bungeecord-native-cipher" );
-                loaded = true;
-            } catch ( Throwable t )
-            {
-            }
-
-            if ( !loaded )
-            {
-                try ( InputStream lib = BungeeCipher.class.getClassLoader().getResourceAsStream( "native-cipher.so" ) )
-                {
-                    // Else we will create and copy it to a temp file
-                    File temp = File.createTempFile( "bungeecord-native-cipher", ".so" );
-                    temp.deleteOnExit();
-
-                    try ( OutputStream outputStream = new FileOutputStream( temp ) )
-                    {
-                        ByteStreams.copy( lib, outputStream );
-                        System.load( temp.getPath() );
-                    }
-                    loaded = true;
-                } catch ( Throwable t )
-                {
-                }
-            }
-        }
-
-        return loaded;
-    }
-
-    public static boolean isLoaded()
-    {
-        return loaded;
-    }
 
     @Override
     public void init(boolean forEncryption, SecretKey key) throws GeneralSecurityException

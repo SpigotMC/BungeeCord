@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.BungeeCipher;
+import net.md_5.bungee.jni.cipher.BungeeCipher;
 import java.util.List;
 
 @RequiredArgsConstructor
