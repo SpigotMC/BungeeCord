@@ -572,6 +572,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
+    public void setUniqueId(UUID uuid)
+    {
+        Preconditions.checkState( thisState == State.USERNAME, "Can only set uuid while state is username" );
+        Preconditions.checkState( !onlineMode, "Can only set uuid when online mode is false" );
+        this.uniqueId = uuid;
+    }
+
+    @Override
     public String getUUID()
     {
         return uniqueId.toString().replaceAll( "-", "" );
