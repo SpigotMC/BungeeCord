@@ -1,19 +1,8 @@
-#include <string>
+#include <stdlib.h>
 #include <zlib.h>
 #include "net_md_5_bungee_jni_zlib_NativeCompressImpl.h"
 
-using namespace std;
 typedef unsigned char byte;
-
-jint throwException(JNIEnv *env, string message) {
-    jclass exClass = env->FindClass("java/lang/RuntimeException");
-    // Can never actually happen on a sane JVM, but better be safe anyway
-    if (exClass == NULL) {
-        return -1;
-    }
-
-    return env->ThrowNew(exClass, message.c_str());
-}
 
 static jfieldID consumedID;
 static jfieldID finishedID;
@@ -24,12 +13,23 @@ void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_initFields(JNIEnv
     finishedID = env->GetFieldID(clazz, "finished", "Z");
 }
 
+jint throwException(JNIEnv *env, const char* message, int err) {
+    // These can't be static for some unknown reason
+    jclass exceptionClass = env->FindClass("net/md_5/bungee/jni/NativeCodeException");
+    jmethodID exceptionInitID = env->GetMethodID(exceptionClass, "<init>", "(Ljava/lang/String;I)V");
+
+    jstring jMessage = env->NewStringUTF(message);
+
+    jthrowable throwable = (jthrowable) env->NewObject(exceptionClass, exceptionInitID, jMessage, err);
+    return env->Throw(throwable);
+}
+
 void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_reset(JNIEnv* env, jobject obj, jlong ctx, jboolean compress) {
     z_stream* stream = (z_stream*) ctx;
     int ret = (compress) ? deflateReset(stream) : inflateReset(stream);
 
     if (ret != Z_OK) {
-        throwException(env, "Could not reset z_stream: " + to_string(ret));
+        throwException(env, "Could not reset z_stream", ret);
     }
 }
 
@@ -40,7 +40,7 @@ void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_end(JNIEnv* env, 
     free(stream);
 
     if (ret != Z_OK) {
-        throwException(env, "Could not free z_stream: " + to_string(ret));
+        throwException(env, "Could not free z_stream: ", ret);
     }
 }
 
@@ -49,7 +49,7 @@ jlong JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_init(JNIEnv* env
     int ret = (compress) ? deflateInit(stream, level) : inflateInit(stream);
 
     if (ret != Z_OK) {
-        throwException(env, "Could not init z_stream: " + to_string(ret));
+        throwException(env, "Could not init z_stream", ret);
     }
 
     return (jlong) stream;
@@ -73,7 +73,7 @@ jint JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_process(JNIEnv* e
         case Z_OK:
             break;
         default:
-            throwException(env, "Unknown z_stream return code: " + to_string(ret));
+            throwException(env, "Unknown z_stream return code", ret);
     }
 
     env->SetIntField(obj, consumedID, inLength - stream->avail_in);
