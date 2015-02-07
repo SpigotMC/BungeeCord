@@ -70,6 +70,9 @@ public final class NativeCode<T>
                 } catch ( IOException ex )
                 {
                     // Can't write to tmp?
+                } catch ( UnsatisfiedLinkError ex )
+                {
+                    System.out.println( "Could not load native library: " + ex.getMessage() );
                 }
             }
         }
