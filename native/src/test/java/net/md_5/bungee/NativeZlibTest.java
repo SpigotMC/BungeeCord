@@ -29,7 +29,7 @@ public class NativeZlibTest
         System.out.println( "Testing: " + zlib );
         long start = System.currentTimeMillis();
 
-        byte[] dataBuf = new byte[ 1 << 25 ]; // 32 megabytes
+        byte[] dataBuf = new byte[ 1 << 22 ]; // 2 megabytes
         new Random().nextBytes( dataBuf );
 
         zlib.init( true, 9 );
