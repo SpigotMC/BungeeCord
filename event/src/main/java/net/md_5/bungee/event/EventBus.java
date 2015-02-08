@@ -29,7 +29,7 @@ public class EventBus
 
     public EventBus(Logger logger)
     {
-        this.logger = ( logger == null ) ? Logger.getGlobal() : logger;
+        this.logger = ( logger == null ) ? Logger.getLogger( Logger.GLOBAL_LOGGER_NAME ) : logger;
     }
 
     public void post(Object event)

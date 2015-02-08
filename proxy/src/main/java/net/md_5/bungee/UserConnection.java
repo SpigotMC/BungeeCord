@@ -1,5 +1,6 @@
 package net.md_5.bungee;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import io.netty.bootstrap.Bootstrap;
@@ -15,7 +16,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -228,7 +228,7 @@ public final class UserConnection implements ProxiedPlayer
 
         final BungeeServerInfo target = (BungeeServerInfo) event.getTarget(); // Update in case the event changed target
 
-        if ( getServer() != null && Objects.equals( getServer().getInfo(), target ) )
+        if ( getServer() != null && Objects.equal( getServer().getInfo(), target ) )
         {
             sendMessage( bungee.getTranslation( "already_connected" ) );
             return;

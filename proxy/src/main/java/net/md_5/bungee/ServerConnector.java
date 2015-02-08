@@ -1,9 +1,9 @@
 package net.md_5.bungee;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import lombok.Getter;
@@ -265,7 +265,7 @@ public class ServerConnector extends PacketHandler
     public void handle(Kick kick) throws Exception
     {
         ServerInfo def = bungee.getServerInfo( user.getPendingConnection().getListener().getFallbackServer() );
-        if ( Objects.equals( target, def ) )
+        if ( Objects.equal( target, def ) )
         {
             def = null;
         }

@@ -1,9 +1,9 @@
 package net.md_5.bungee.connection;
 
+import com.google.common.base.Objects;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import java.io.DataInput;
-import java.util.Objects;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
@@ -458,7 +458,7 @@ public class DownstreamBridge extends PacketHandler
     public void handle(Kick kick) throws Exception
     {
         ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getFallbackServer() );
-        if ( Objects.equals( server.getInfo(), def ) )
+        if ( Objects.equal( server.getInfo(), def ) )
         {
             def = null;
         }
