@@ -29,7 +29,7 @@ public enum ForgeServerHandshakeState implements IForgeServerPacketHandler<Forge
                 @Override
                 public ForgeServerHandshakeState send(PluginMessage message, UserConnection con)
                 {
-                    // Send custom channel registration. Send Hello.
+                    // Send Hello.
                     return HELLO;
                 }
             },
@@ -40,12 +40,9 @@ public enum ForgeServerHandshakeState implements IForgeServerPacketHandler<Forge
                 public ForgeServerHandshakeState handle(PluginMessage message, ChannelWrapper ch)
                 {
                     ForgeLogger.logServer( LogDirection.RECEIVED, this.name(), message );
-                    if ( message.getData()[0] == 1 ) // Client Hello
-                    {
-                        ch.write( message );
-                    }
 
-                    if ( message.getData()[0] == 2 ) // Client ModList
+                    // REGISTER message, Client Hello or Client Mod List
+                    if ( message.getTag().equals( "REGISTER" ) || message.getData()[0] == 1 || message.getData()[0] == 2 ) 
                     {
                         ch.write( message );
                     }
@@ -85,7 +82,7 @@ public enum ForgeServerHandshakeState implements IForgeServerPacketHandler<Forge
                         return this;
                     }
 
-                    if ( message.getTag().equals( ForgeConstants.FORGE_REGISTER ) ) // wait for Forge channel registration
+                    if ( message.getTag().equals( ForgeConstants.FORGE_TAG ) ) // wait for Forge channel registration
                     {
                         return COMPLETE;
                     }

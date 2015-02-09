@@ -1,8 +1,10 @@
 package net.md_5.bungee;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
@@ -78,6 +80,8 @@ public class ServerConnector extends PacketHandler
         this.ch = channel;
 
         this.handshakeHandler = new ForgeServerHandler( user, ch, target );
+        user.setForgeServerHandler( handshakeHandler );
+
         Handshake originalHandshake = user.getPendingConnection().getHandshake();
         Handshake copiedHandshake = new Handshake( originalHandshake.getProtocolVersion(), originalHandshake.getHost(), originalHandshake.getPort(), 2 );
 
@@ -166,10 +170,7 @@ public class ServerConnector extends PacketHandler
             }
         }
 
-        for ( PluginMessage message : user.getPendingConnection().getRegisterMessages() )
-        {
-            ch.write( message );
-        }
+        createAndSendRegisterMessage();
 
         if ( user.getSettings() != null )
         {
@@ -316,11 +317,10 @@ public class ServerConnector extends PacketHandler
             {
                 // We now set the server-side handshake handler for the client to this.
                 handshakeHandler.setServerAsForgeServer();
-                user.setForgeServerHandler( handshakeHandler );
             }
         }
 
-        if ( pluginMessage.getTag().equals( ForgeConstants.FML_HANDSHAKE_TAG ) || pluginMessage.getTag().equals( ForgeConstants.FORGE_REGISTER ) )
+        if ( pluginMessage.getTag().equals( ForgeConstants.FML_HANDSHAKE_TAG ) || pluginMessage.getTag().equals( ForgeConstants.FORGE_TAG ) )
         {
             this.handshakeHandler.handle( pluginMessage );
             if ( user.getForgeClientHandler().checkUserOutdated() )
@@ -343,5 +343,27 @@ public class ServerConnector extends PacketHandler
     public String toString()
     {
         return "[" + user.getName() + "] <-> ServerConnector [" + target.getName() + "]";
+    }
+
+    private void createAndSendRegisterMessage()
+    {
+        // Get the REGISTER messages and take the channels out of them
+        HashSet<String> channels = new HashSet<>();
+        for ( PluginMessage message : user.getPendingConnection().getRegisterMessages() )
+        {
+            channels.addAll( Util.split( new String( message.getData(), Charsets.UTF_8 ), "\00") );
+        }
+
+        // Remove all that have already been sent.
+        channels.removeAll( handshakeHandler.getReceivedRegisterMessages() );
+
+        // Only send a packet if we have something we want to send.
+        if ( !channels.isEmpty() )
+        {
+            PluginMessage toSend = new PluginMessage( "REGISTER", Util.format( channels, "\00" ).getBytes( Charsets.UTF_8 ), false );
+
+            // Send the amalgamated register packet.
+            ch.write( toSend );
+        }
     }
 }
