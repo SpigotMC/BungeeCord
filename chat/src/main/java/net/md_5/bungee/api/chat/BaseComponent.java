@@ -11,7 +11,7 @@ import java.util.List;
 import lombok.ToString;
 
 @Setter
-@ToString
+@ToString(exclude = "parent")
 @NoArgsConstructor
 public abstract class BaseComponent
 {
