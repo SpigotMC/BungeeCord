@@ -19,6 +19,20 @@ public class CommandEnd extends Command
     @Override
     public void execute(CommandSender sender, String[] args)
     {
-        BungeeCord.getInstance().stop();
+        if ( args.length == 0 )	
+        {
+            BungeeCord.getInstance().stop();
+            return;
+        }
+        
+        StringBuilder builder = new StringBuilder();
+        for ( String s : args )
+        {
+            builder.append( s );
+            builder.append( " " );
+        }
+        
+        String message = builder.substring( 0, builder.length() - 1 );
+        BungeeCord.getInstance().stop( message );
     }
 }
