@@ -146,6 +146,11 @@ public abstract class ProxyServer
      * Gracefully mark this instance for shutdown.
      */
     public abstract void stop();
+    
+    /**
+     * Gracefully mark this instance for shutdown.
+     */
+    public abstract void stop(String message);
 
     /**
      * Start this instance so that it may accept connections.

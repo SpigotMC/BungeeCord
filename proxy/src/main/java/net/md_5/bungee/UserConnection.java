@@ -350,6 +350,25 @@ public final class UserConnection implements ProxiedPlayer
         }
     }
 
+    public void disconnectNow(BaseComponent... reason)
+    {
+        if ( !ch.isClosed() )
+        {
+        	bungee.getLogger().log( Level.INFO, "[{0}] disconnected with: {1}", new Object[]
+            {
+                getName(), BaseComponent.toLegacyText( reason )
+            } );
+        
+            unsafe.sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
+            ch.close();
+            
+            if ( server != null )
+            {
+                server.disconnect( "Quitting" );
+            }
+        }
+    }
+    
     @Override
     public void chat(String message)
     {
