@@ -18,9 +18,9 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
 {
 
     private final static Gson gson = new GsonBuilder().
-            registerTypeAdapter( BaseComponent.class, new ComponentSerializer() ).
-            registerTypeAdapter( TextComponent.class, new TextComponentSerializer() ).
-            registerTypeAdapter( TranslatableComponent.class, new TranslatableComponentSerializer() ).
+            registerTypeHierarchyAdapter( BaseComponent.class, new ComponentSerializer() ).
+            registerTypeHierarchyAdapter( TextComponent.class, new TextComponentSerializer() ).
+            registerTypeHierarchyAdapter( TranslatableComponent.class, new TranslatableComponentSerializer() ).
             create();
 
     public final static ThreadLocal<HashSet<BaseComponent>> serializedComponents = new ThreadLocal<HashSet<BaseComponent>>();
