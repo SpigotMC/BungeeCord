@@ -100,7 +100,7 @@ public enum Protocol
                 }
             };
     /*========================================================================*/
-    public static final int MAX_PACKET_ID = 0xFF;
+    public static final int MAX_PACKET_ID = 0x100;
     public static List<Integer> supportedVersions = Arrays.asList(
             ProtocolConstants.MINECRAFT_1_7_2,
             ProtocolConstants.MINECRAFT_1_7_6,
@@ -122,12 +122,12 @@ public enum Protocol
 
         public boolean hasPacket(int id)
         {
-            return id < MAX_PACKET_ID && packetConstructors[id] != null;
+            return 0 <= id && id < MAX_PACKET_ID && packetConstructors[id] != null;
         }
 
         public final DefinedPacket createPacket(int id)
         {
-            if ( id > MAX_PACKET_ID )
+            if ( id < 0 || id >= MAX_PACKET_ID )
             {
                 throw new BadPacketException( "Packet with id " + id + " outside of range " );
             }

@@ -122,7 +122,7 @@ public class BungeeCord extends ProxyServer
      * Plugin manager.
      */
     @Getter
-    public final PluginManager pluginManager = new PluginManager( this );
+    public final PluginManager pluginManager;
     @Getter
     @Setter
     private ReconnectHandler reconnectHandler;
@@ -148,18 +148,6 @@ public class BungeeCord extends ProxyServer
     private ConnectionThrottle connectionThrottle;
     private final ModuleManager moduleManager = new ModuleManager();
 
-    
-    {
-        // TODO: Proper fallback when we interface the manager
-        getPluginManager().registerCommand( null, new CommandReload() );
-        getPluginManager().registerCommand( null, new CommandEnd() );
-        getPluginManager().registerCommand( null, new CommandIP() );
-        getPluginManager().registerCommand( null, new CommandBungee() );
-        getPluginManager().registerCommand( null, new CommandPerms() );
-
-        registerChannel( "BungeeCord" );
-    }
-
     public static BungeeCord getInstance()
     {
         return (BungeeCord) ProxyServer.getInstance();
@@ -171,7 +159,8 @@ public class BungeeCord extends ProxyServer
         // Java uses ! to indicate a resource inside of a jar/zip/other container. Running Bungee from within a directory that has a ! will cause this to muck up.
         Preconditions.checkState( new File( "." ).getAbsolutePath().indexOf( '!' ) == -1, "Cannot use BungeeCord in directory with ! in path." );
 
-        System.setSecurityManager( new BungeeSecurityManager() );
+        // Overcast - disable security manager
+        // System.setSecurityManager( new BungeeSecurityManager() );
 
         try
         {
@@ -196,7 +185,9 @@ public class BungeeCord extends ProxyServer
         consoleReader.setExpandEvents( false );
 
         logger = new BungeeLogger( this );
-        System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
+
+        // Overcast - stderr gets a lot of non-error output, so log it at WARNING level instead of SEVERE
+        System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.WARNING ), true ) );
         System.setOut( new PrintStream( new LoggingOutputStream( logger, Level.INFO ), true ) );
 
         if ( EncryptionUtil.nativeFactory.load() )
@@ -213,6 +204,17 @@ public class BungeeCord extends ProxyServer
         {
             logger.info( "Using standard Java compressor. To enable zero copy compression, run on 64 bit Linux" );
         }
+
+        pluginManager = new PluginManager( this );
+
+        // TODO: Proper fallback when we interface the manager
+        getPluginManager().registerCommand( null, new CommandReload() );
+        getPluginManager().registerCommand( null, new CommandEnd() );
+        getPluginManager().registerCommand( null, new CommandIP() );
+        getPluginManager().registerCommand( null, new CommandBungee() );
+        getPluginManager().registerCommand( null, new CommandPerms() );
+
+        registerChannel( "BungeeCord" );
     }
 
     /**

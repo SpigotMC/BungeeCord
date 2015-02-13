@@ -53,7 +53,7 @@ public class EventBus
                         throw new Error( "Method rejected target/argument: " + event, ex );
                     } catch ( InvocationTargetException ex )
                     {
-                        logger.log( Level.WARNING, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, method.getListener() ), ex.getCause() );
+                        logger.log( Level.SEVERE, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, method.getListener() ), ex.getCause() );
                     }
                 }
             }
