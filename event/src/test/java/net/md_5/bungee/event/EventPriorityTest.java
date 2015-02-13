@@ -8,7 +8,7 @@ public class EventPriorityTest
 {
 
     private final EventBus bus = new EventBus();
-    private final CountDownLatch latch = new CountDownLatch( 7);
+    private final CountDownLatch latch = new CountDownLatch( 7 );
 
     @Test
     public void testPriority()
