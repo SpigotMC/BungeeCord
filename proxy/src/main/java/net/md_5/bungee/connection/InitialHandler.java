@@ -330,6 +330,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             disconnect( bungee.getTranslation( "already_connected" ) );
             return;
         }
+        
+        if ( !isOnlineMode() && bungee.getPlayer( getUUID() ) != null )
+        {
+            disconnect( bungee.getTranslation( "already_connected" ) );
+            return;
+        }
 
         Callback<PreLoginEvent> callback = new Callback<PreLoginEvent>()
         {
@@ -417,7 +423,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         // Check for multiple connections
         ProxiedPlayer old = bungee.getPlayer( getName() );
-        if ( old != null )
+        if ( old != null && old.getUniqueId() != null )
         {
             // TODO See #1218
             old.disconnect( bungee.getTranslation( "already_connected" ) );
