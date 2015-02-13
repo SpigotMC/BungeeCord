@@ -331,7 +331,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             return;
         }
         
-        if ( !isOnlineMode() && bungee.getPlayer( getName() ).getUniqueId() != null )
+        if ( !isOnlineMode() && bungee.getPlayer( getUUID() ) != null )
         {
             disconnect( bungee.getTranslation( "already_connected" ) );
             return;
