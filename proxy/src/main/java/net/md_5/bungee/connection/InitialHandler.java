@@ -325,7 +325,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         // If offline mode and they are already on, don't allow connect
-        if ( !isOnlineMode() && bungee.getPlayer( getName() ) != null )
+        // We can just check by UUID here as names are based on UUID
+        if ( !isOnlineMode() && bungee.getPlayer( getUniqueId() ) != null )
         {
             disconnect( bungee.getTranslation( "already_connected" ) );
             return;
@@ -416,11 +417,19 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private void finish()
     {
         // Check for multiple connections
-        ProxiedPlayer old = bungee.getPlayer( getName() );
-        if ( old != null )
+        // We have to check for the old name first
+        ProxiedPlayer oldName = bungee.getPlayer( getName() );
+        if ( oldName != null )
         {
             // TODO See #1218
-            old.disconnect( bungee.getTranslation( "already_connected" ) );
+            oldName.disconnect( bungee.getTranslation( "already_connected" ) );
+        }
+        // And then also for their old UUID
+        ProxiedPlayer oldID = bungee.getPlayer( getUniqueId() );
+        if ( oldID != null )
+        {
+            // TODO See #1218
+            oldID.disconnect( bungee.getTranslation( "already_connected" ) );
         }
 
         offlineId = java.util.UUID.nameUUIDFromBytes( ( "OfflinePlayer:" + getName() ).getBytes( Charsets.UTF_8 ) );
