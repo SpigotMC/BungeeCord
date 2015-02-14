@@ -335,6 +335,12 @@ public class BungeeCord extends ProxyServer
     @Override
     public void stop()
     {
+        stop( getTranslation( "restart" ) );
+    }
+
+    @Override
+    public void stop(final String reason)
+    {
         new Thread( "Shutdown Thread" )
         {
             @Override
@@ -353,7 +359,7 @@ public class BungeeCord extends ProxyServer
                     getLogger().log( Level.INFO, "Disconnecting {0} connections", connections.size() );
                     for ( UserConnection user : connections.values() )
                     {
-                        user.disconnect( getTranslation( "restart" ) );
+                        user.disconnect( reason );
                     }
                 } finally
                 {
