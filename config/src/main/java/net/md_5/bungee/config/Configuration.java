@@ -18,11 +18,13 @@ public final class Configuration
     final Map<String, Object> self;
     private final Configuration defaults;
 
-    public Configuration() {
+    public Configuration()
+    {
         this( null );
     }
 
-    public Configuration(Configuration defaults) {
+    public Configuration(Configuration defaults)
+    {
         this( new LinkedHashMap<String, Object>(), defaults );
     }
 

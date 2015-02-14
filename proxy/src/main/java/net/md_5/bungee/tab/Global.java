@@ -77,15 +77,15 @@ public class Global extends TabList
                 {
                     props[ j ] = new String[]
                     {
-                            loginResult.getProperties()[ j ].getName(),
-                            loginResult.getProperties()[ j ].getValue(),
-                            loginResult.getProperties()[ j ].getSignature()
+                        loginResult.getProperties()[ j ].getName(),
+                        loginResult.getProperties()[ j ].getValue(),
+                        loginResult.getProperties()[ j ].getSignature()
                     };
                 }
                 item.setProperties( props );
             } else
             {
-                item.setProperties( new String[0][0] );
+                item.setProperties( new String[ 0 ][ 0 ] );
             }
             item.setGamemode( ( (UserConnection) p ).getGamemode() );
             item.setPing( p.getPing() );
@@ -115,15 +115,16 @@ public class Global extends TabList
         item.setUsername( player.getName() );
         item.setDisplayName( ComponentSerializer.toString( TextComponent.fromLegacyText( player.getDisplayName() ) ) );
         LoginResult loginResult = ( (UserConnection) player ).getPendingConnection().getLoginProfile();
-        if ( loginResult != null ) {
+        if ( loginResult != null )
+        {
             String[][] props = new String[ loginResult.getProperties().length ][];
             for ( int j = 0; j < props.length; j++ )
             {
                 props[ j ] = new String[]
                 {
-                        loginResult.getProperties()[ j ].getName(),
-                        loginResult.getProperties()[ j ].getValue(),
-                        loginResult.getProperties()[ j ].getSignature()
+                    loginResult.getProperties()[ j ].getName(),
+                    loginResult.getProperties()[ j ].getValue(),
+                    loginResult.getProperties()[ j ].getSignature()
                 };
             }
             item.setProperties( props );

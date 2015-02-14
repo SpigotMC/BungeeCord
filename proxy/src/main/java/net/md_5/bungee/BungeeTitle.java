@@ -10,6 +10,7 @@ import net.md_5.bungee.protocol.packet.Title.Action;
 
 public class BungeeTitle implements Title
 {
+
     private net.md_5.bungee.protocol.packet.Title title, subtitle, times, clear, reset;
 
     private static net.md_5.bungee.protocol.packet.Title createPacket(Action action)

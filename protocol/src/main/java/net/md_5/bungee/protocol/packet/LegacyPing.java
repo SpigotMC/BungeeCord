@@ -13,6 +13,7 @@ import net.md_5.bungee.protocol.DefinedPacket;
 @EqualsAndHashCode(callSuper = false)
 public class LegacyPing extends DefinedPacket
 {
+
     private final boolean v1_5;
 
     @Override

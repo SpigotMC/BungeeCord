@@ -175,14 +175,15 @@ public interface ProxiedPlayer extends Connection, CommandSender
     /**
      * Gets whether this player is using a FML client.
      * <p>
-     * This method is only reliable if BungeeCord links Minecraft 1.8 servers 
-     * together, as Bungee can pick up whether a user is a Forge user with the 
+     * This method is only reliable if BungeeCord links Minecraft 1.8 servers
+     * together, as Bungee can pick up whether a user is a Forge user with the
      * initial handshake. If this is used for a 1.7 network, this might return
      * <code>false</code> even if the user is a FML user, as Bungee can only
      * determine this information if a handshake successfully completes.
      * </p>
-     * @return <code>true</code> if it is known that the user is using a FML 
-     *         client, <code>false</code> otherwise.
+     *
+     * @return <code>true</code> if it is known that the user is using a FML
+     * client, <code>false</code> otherwise.
      */
     boolean isForgeUser();
 
@@ -195,7 +196,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * <p>
      * Consumers of this API should be aware that an empty mod list does
      * <em>not</em> indicate that a user is not a Forge user, and so should not
-     * use this API to check for this. See the {@link #isForgeUser() 
+     * use this API to check for this. See the {@link #isForgeUser()
      * isForgeUser} method instead.
      * </p>
      * <p>
@@ -204,7 +205,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * place to do so as this event occurs after a FML handshake has completed,
      * if any has occurred.
      * </p>
-     * 
+     *
      * @return A {@link Map} of mods, where the key is the name of the mod, and
      * the value is the version. Returns an empty list if the FML handshake has
      * not occurred for this {@link ProxiedPlayer} yet.

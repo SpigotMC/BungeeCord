@@ -520,7 +520,7 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public boolean isForgeUser() 
+    public boolean isForgeUser()
     {
         return forgeClientHandler.isForgeUser();
     }
