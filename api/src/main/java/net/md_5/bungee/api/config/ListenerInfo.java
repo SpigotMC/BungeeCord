@@ -68,4 +68,8 @@ public class ListenerInfo
      * Whether to enable udp query.
      */
     private final boolean queryEnabled;
+    /**
+     * World Name to send query clients
+     */
+    private final String worldName;
 }

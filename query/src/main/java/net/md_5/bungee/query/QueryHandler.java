@@ -90,7 +90,7 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
                 // Short response
                 writeString( out, listener.getMotd() ); // MOTD
                 writeString( out, "SMP" ); // Game Type
-                writeString( out, "BungeeCord_Proxy" ); // World Name
+                writeString( out, listener.getWorldName() ); // World Name
                 writeNumber( out, bungee.getOnlineCount() ); // Online Count
                 writeNumber( out, listener.getMaxPlayers() ); // Max Players
                 writeShort( out, listener.getHost().getPort() ); // Port
