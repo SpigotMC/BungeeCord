@@ -161,7 +161,7 @@ class EntityMap_1_8 extends EntityMap
         int packetId = DefinedPacket.readVarInt( packet );
         int packetIdLength = packet.readerIndex() - readerIndex;
 
-        if ( packetId == 0x18 /* Spectate */ )
+        if ( packetId == 0x18 /* Spectate */ && !BungeeCord.getInstance().getConfig().isIpForward())
         {
             UUID uuid = DefinedPacket.readUUID( packet );
             ProxiedPlayer player;
