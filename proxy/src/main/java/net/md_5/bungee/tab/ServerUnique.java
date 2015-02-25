@@ -72,7 +72,7 @@ public class ServerUnique extends TabList
             item.setDisplayName( username );
         }
         packet.setItems( items );
-        if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_SNAPSHOT )
+        if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
         {
             player.unsafe().sendPacket( packet );
         } else

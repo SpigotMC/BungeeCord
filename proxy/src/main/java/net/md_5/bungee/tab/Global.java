@@ -90,7 +90,7 @@ public class Global extends TabList
             item.setGamemode( ( (UserConnection) p ).getGamemode() );
             item.setPing( p.getPing() );
         }
-        if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_SNAPSHOT )
+        if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
         {
             player.unsafe().sendPacket( playerListItem );
         } else

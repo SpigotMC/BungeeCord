@@ -152,7 +152,7 @@ public class BungeeTitle implements Title
     @Override
     public Title send(ProxiedPlayer player)
     {
-        if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_SNAPSHOT )
+        if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
         {
             // Send the packets in the correct order
             sendPacket( player, clear );

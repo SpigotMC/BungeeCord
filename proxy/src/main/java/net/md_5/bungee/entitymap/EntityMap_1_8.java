@@ -9,10 +9,10 @@ import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import java.util.UUID;
 
-class EntityMap_14_21_b extends EntityMap
+class EntityMap_1_8 extends EntityMap
 {
 
-    EntityMap_14_21_b()
+    EntityMap_1_8()
     {
         addRewrite( 0x04, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Equipment
         addRewrite( 0x0A, ProtocolConstants.Direction.TO_CLIENT, true ); // Use bed

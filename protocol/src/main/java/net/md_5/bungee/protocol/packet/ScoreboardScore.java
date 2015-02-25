@@ -29,7 +29,7 @@ public class ScoreboardScore extends DefinedPacket
     {
         itemName = readString( buf );
         action = buf.readByte();
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_SNAPSHOT )
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_8 )
         {
             scoreName = readString( buf );
             if ( action != 1 )
@@ -51,7 +51,7 @@ public class ScoreboardScore extends DefinedPacket
     {
         writeString( itemName, buf );
         buf.writeByte( action );
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_SNAPSHOT )
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_8 )
         {
             writeString( scoreName, buf );
             if ( action != 1 )

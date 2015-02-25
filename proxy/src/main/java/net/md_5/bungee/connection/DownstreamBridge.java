@@ -226,7 +226,7 @@ public class DownstreamBridge extends PacketHandler
 
         if ( pluginMessage.getTag().equals( "MC|Brand" ) )
         {
-            if ( con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_SNAPSHOT )
+            if ( con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
             {
                 try
                 {
