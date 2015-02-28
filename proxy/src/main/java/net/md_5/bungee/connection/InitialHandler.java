@@ -433,6 +433,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 // TODO See #1218
                 oldID.disconnect( bungee.getTranslation( "already_connected" ) );
             }
+        } else {
+            ProxiedPlayer oldName = bungee.getPlayer ( getName() );
+            if ( oldName != null )
+            {
+                oldName.disconnect( bungee.getTranslation( "already_connected" ) );
+            }
+            
+            ProxiedPlayer oldID = bungee.getPlayer( getUniqueID() );
+            if ( oldID != null )
+            {
+                oldID.disconnect( bungee.getTranslation( "already_connected" ) );
+            }
         }
 
         offlineId = java.util.UUID.nameUUIDFromBytes( ( "OfflinePlayer:" + getName() ).getBytes( Charsets.UTF_8 ) );
