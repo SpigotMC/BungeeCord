@@ -433,6 +433,16 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 // TODO See #1218
                 oldID.disconnect( bungee.getTranslation( "already_connected" ) );
             }
+        } else {
+            // In offline mode the existing user stays and we kick the new one
+            ProxiedPlayer oldName = bungee.getPlayer( getName() );
+            if ( oldName != null )
+            {
+                // TODO See #1218
+                disconnect( bungee.getTranslation( "already_connected" ) );
+                return;
+            }
+
         }
 
         offlineId = java.util.UUID.nameUUIDFromBytes( ( "OfflinePlayer:" + getName() ).getBytes( Charsets.UTF_8 ) );
