@@ -35,11 +35,11 @@ public class BaseComponentSerializer
         }
         if ( object.has( "strikethrough" ) )
         {
-            component.setUnderlined( object.get( "strikethrough" ).getAsBoolean() );
+            component.setStrikethrough( object.get( "strikethrough" ).getAsBoolean() );
         }
         if ( object.has( "obfuscated" ) )
         {
-            component.setUnderlined( object.get( "obfuscated" ).getAsBoolean() );
+            component.setObfuscated( object.get( "obfuscated" ).getAsBoolean() );
         }
         if ( object.has( "extra" ) )
         {
