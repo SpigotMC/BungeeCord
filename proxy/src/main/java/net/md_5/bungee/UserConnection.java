@@ -30,11 +30,13 @@ import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.Information;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.chat.ComponentSerializer;
+import net.md_5.bungee.connection.ConnectionInformation;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.entitymap.EntityMap;
 import net.md_5.bungee.forge.ForgeClientHandler;
@@ -65,27 +67,29 @@ public final class UserConnection implements ProxiedPlayer
 
     /*========================================================================*/
     @NonNull
-    private final ProxyServer bungee;
+    private final ProxyServer      bungee;
     @NonNull
-    private final ChannelWrapper ch;
+    private final ChannelWrapper   ch;
     @Getter
     @NonNull
-    private final String name;
+    private final String           name;
     @Getter
-    private final InitialHandler pendingConnection;
+    private final InitialHandler   pendingConnection;
     /*========================================================================*/
     @Getter
     @Setter
-    private ServerConnection server;
+    private       ServerConnection server;
     @Getter
     @Setter
-    private boolean dimensionChange = true;
+    private       boolean                  dimensionChange = true;
     @Getter
-    private final Collection<ServerInfo> pendingConnects = new HashSet<>();
+    private final Collection< ServerInfo > pendingConnects = new HashSet<>();
+    @Getter
+    private final Information              information     = new ConnectionInformation();
     /*========================================================================*/
     @Getter
     @Setter
-    private int sentPingId;
+    private int  sentPingId;
     @Getter
     @Setter
     private long sentPingTime;
@@ -96,32 +100,32 @@ public final class UserConnection implements ProxiedPlayer
     @Setter
     private ServerInfo reconnectServer;
     @Getter
-    private TabList tabListHandler;
+    private TabList    tabListHandler;
     @Getter
     @Setter
-    private int gamemode;
+    private int        gamemode;
     @Getter
-    private int compressionThreshold = -1;
+    private       int                  compressionThreshold = -1;
     /*========================================================================*/
-    private final Collection<String> groups = new CaseInsensitiveSet();
-    private final Collection<String> permissions = new CaseInsensitiveSet();
+    private final Collection< String > groups               = new CaseInsensitiveSet();
+    private final Collection< String > permissions          = new CaseInsensitiveSet();
     /*========================================================================*/
     @Getter
     @Setter
-    private int clientEntityId;
+    private int            clientEntityId;
     @Getter
     @Setter
-    private int serverEntityId;
+    private int            serverEntityId;
     @Getter
     private ClientSettings settings;
     @Getter
     private final Scoreboard serverSentScoreboard = new Scoreboard();
     /*========================================================================*/
     @Getter
-    private String displayName;
+    private String             displayName;
     @Getter
-    private EntityMap entityRewrite;
-    private Locale locale;
+    private EntityMap          entityRewrite;
+    private Locale             locale;
     /*========================================================================*/
     @Getter
     @Setter
@@ -133,7 +137,7 @@ public final class UserConnection implements ProxiedPlayer
     private final Unsafe unsafe = new Unsafe()
     {
         @Override
-        public void sendPacket(DefinedPacket packet)
+        public void sendPacket( DefinedPacket packet )
         {
             ch.write( packet );
         }
@@ -160,7 +164,7 @@ public final class UserConnection implements ProxiedPlayer
          }*/
         tabListHandler = new ServerUnique( this );
 
-        Collection<String> g = bungee.getConfigurationAdapter().getGroups( name );
+        Collection< String > g = bungee.getConfigurationAdapter().getGroups( name );
         for ( String s : g )
         {
             addGroups( s );
@@ -172,7 +176,7 @@ public final class UserConnection implements ProxiedPlayer
         forgeClientHandler.setFmlTokenInHandshake( this.getPendingConnection().getExtraDataInHandshake().contains( ForgeConstants.FML_HANDSHAKE_TOKEN ) );
     }
 
-    public void sendPacket(PacketWrapper packet)
+    public void sendPacket( PacketWrapper packet )
     {
         ch.write( packet );
     }
@@ -184,7 +188,7 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public void setDisplayName(String name)
+    public void setDisplayName( String name )
     {
         Preconditions.checkNotNull( name, "displayName" );
         Preconditions.checkArgument( name.length() <= 16, "Display name cannot be longer than 16 characters" );
@@ -192,13 +196,13 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public void connect(ServerInfo target)
+    public void connect( ServerInfo target )
     {
         connect( target, null );
     }
 
     @Override
-    public void connect(ServerInfo target, Callback<Boolean> callback)
+    public void connect( ServerInfo target, Callback< Boolean > callback )
     {
         connect( target, callback, false );
     }
@@ -210,13 +214,13 @@ public final class UserConnection implements ProxiedPlayer
         unsafe().sendPacket( PacketConstants.DIM2_SWITCH );
     }
 
-    public void connectNow(ServerInfo target)
+    public void connectNow( ServerInfo target )
     {
         sendDimensionSwitch();
         connect( target );
     }
 
-    public void connect(ServerInfo info, final Callback<Boolean> callback, final boolean retry)
+    public void connect( ServerInfo info, final Callback< Boolean > callback, final boolean retry )
     {
         Preconditions.checkNotNull( info, "info" );
 
@@ -226,7 +230,7 @@ public final class UserConnection implements ProxiedPlayer
             return;
         }
 
-        final BungeeServerInfo target = (BungeeServerInfo) event.getTarget(); // Update in case the event changed target
+        final BungeeServerInfo target = ( BungeeServerInfo ) event.getTarget(); // Update in case the event changed target
 
         if ( getServer() != null && Objects.equal( getServer().getInfo(), target ) )
         {

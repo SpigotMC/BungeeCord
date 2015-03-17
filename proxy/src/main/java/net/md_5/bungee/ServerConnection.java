@@ -7,8 +7,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.connection.Information;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.chat.ComponentSerializer;
+import net.md_5.bungee.connection.ConnectionInformation;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.PluginMessage;
@@ -19,9 +21,11 @@ public class ServerConnection implements Server
 {
 
     @Getter
-    private final ChannelWrapper ch;
+    private final ChannelWrapper   ch;
     @Getter
     private final BungeeServerInfo info;
+    @Getter
+    private final Information information = new ConnectionInformation();
     @Getter
     @Setter
     private boolean isObsolete;
@@ -31,26 +35,26 @@ public class ServerConnection implements Server
     private final Unsafe unsafe = new Unsafe()
     {
         @Override
-        public void sendPacket(DefinedPacket packet)
+        public void sendPacket( DefinedPacket packet )
         {
             ch.write( packet );
         }
     };
 
     @Override
-    public void sendData(String channel, byte[] data)
+    public void sendData( String channel, byte[] data )
     {
         unsafe().sendPacket( new PluginMessage( channel, data, forgeServer ) );
     }
 
     @Override
-    public void disconnect(String reason)
+    public void disconnect( String reason )
     {
         disconnect( TextComponent.fromLegacyText( reason ) );
     }
 
     @Override
-    public synchronized void disconnect(BaseComponent... reason)
+    public synchronized void disconnect( BaseComponent... reason )
     {
         if ( !ch.isClosed() )
         {

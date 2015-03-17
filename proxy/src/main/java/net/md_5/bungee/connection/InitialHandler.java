@@ -26,6 +26,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.Information;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
@@ -63,38 +64,40 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
 public class InitialHandler extends PacketHandler implements PendingConnection
 {
 
-    private final ProxyServer bungee;
-    private ChannelWrapper ch;
+    private final ProxyServer       bungee;
+    private       ChannelWrapper    ch;
     @Getter
-    private final ListenerInfo listener;
+    private final ListenerInfo      listener;
     @Getter
-    private Handshake handshake;
+    private       Handshake         handshake;
     @Getter
-    private LoginRequest loginRequest;
-    private EncryptionRequest request;
+    private       LoginRequest      loginRequest;
+    private       EncryptionRequest request;
     @Getter
-    private final List<PluginMessage> registerMessages = new ArrayList<>();
-    private State thisState = State.HANDSHAKE;
-    private final Unsafe unsafe = new Unsafe()
+    private final Information           information      = new ConnectionInformation();
+    @Getter
+    private final List< PluginMessage > registerMessages = new ArrayList<>();
+    private       State                 thisState        = State.HANDSHAKE;
+    private final Unsafe                unsafe           = new Unsafe()
     {
         @Override
-        public void sendPacket(DefinedPacket packet)
+        public void sendPacket( DefinedPacket packet )
         {
             ch.write( packet );
         }
     };
     @Getter
-    private boolean onlineMode = BungeeCord.getInstance().config.isOnlineMode();
+    private       boolean               onlineMode       = BungeeCord.getInstance().config.isOnlineMode();
     @Getter
     private InetSocketAddress virtualHost;
     @Getter
-    private UUID uniqueId;
+    private UUID              uniqueId;
     @Getter
-    private UUID offlineId;
+    private UUID              offlineId;
     @Getter
-    private LoginResult loginProfile;
+    private LoginResult       loginProfile;
     @Getter
-    private boolean legacy;
+    private boolean           legacy;
     @Getter
     private String extraDataInHandshake = "";
 
@@ -105,19 +108,19 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void connected(ChannelWrapper channel) throws Exception
+    public void connected( ChannelWrapper channel ) throws Exception
     {
         this.ch = channel;
     }
 
     @Override
-    public void exception(Throwable t) throws Exception
+    public void exception( Throwable t ) throws Exception
     {
         disconnect( ChatColor.RED + Util.exception( t ) );
     }
 
     @Override
-    public void handle(PluginMessage pluginMessage) throws Exception
+    public void handle( PluginMessage pluginMessage ) throws Exception
     {
         // TODO: Unregister?
         if ( pluginMessage.getTag().equals( "REGISTER" ) )
@@ -128,7 +131,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void handle(LegacyHandshake legacyHandshake) throws Exception
+    public void handle( LegacyHandshake legacyHandshake ) throws Exception
     {
         this.legacy = true;
         ch.getHandle().writeAndFlush( bungee.getTranslation( "outdated_client" ) );
@@ -136,18 +139,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void handle(LegacyPing ping) throws Exception
+    public void handle( LegacyPing ping ) throws Exception
     {
         this.legacy = true;
         final boolean v1_5 = ping.isV1_5();
 
         ServerPing legacy = new ServerPing( new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), bungee.getProtocolVersion() ),
-                new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ), listener.getMotd(), (Favicon) null );
+                new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ), listener.getMotd(), ( Favicon ) null );
 
-        Callback<ProxyPingEvent> callback = new Callback<ProxyPingEvent>()
+        Callback< ProxyPingEvent > callback = new Callback< ProxyPingEvent >()
         {
             @Override
-            public void done(ProxyPingEvent result, Throwable error)
+            public void done( ProxyPingEvent result, Throwable error )
             {
                 if ( ch.isClosed() )
                 {
