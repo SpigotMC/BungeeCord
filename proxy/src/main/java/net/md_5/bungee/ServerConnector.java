@@ -1,9 +1,9 @@
 package net.md_5.bungee;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import lombok.Getter;
@@ -92,7 +92,7 @@ public class ServerConnector extends PacketHandler
             }
             copiedHandshake.setHost( newHost );
         }
-        else if ( !user.getExtraDataInHandshake().isEmpty() ) 
+        else if ( !user.getExtraDataInHandshake().isEmpty() )
         {
             // Only restore the extra data if IP forwarding is off. 
             // TODO: Add support for this data with IP forwarding.
@@ -193,7 +193,7 @@ public class ServerConnector extends PacketHandler
 
             user.unsafe().sendPacket( modLogin );
 
-            if ( user.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_SNAPSHOT )
+            if ( user.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_8 )
             {
                 MinecraftOutput out = new MinecraftOutput();
                 out.writeStringUTF8WithoutLengthHeaderBecauseDinnerboneStuffedUpTheMCBrandPacket( ProxyServer.getInstance().getName() + " (" + ProxyServer.getInstance().getVersion() + ")" );
@@ -265,7 +265,7 @@ public class ServerConnector extends PacketHandler
     public void handle(Kick kick) throws Exception
     {
         ServerInfo def = bungee.getServerInfo( user.getPendingConnection().getListener().getFallbackServer() );
-        if ( Objects.equals( target, def ) )
+        if ( Objects.equal( target, def ) )
         {
             def = null;
         }

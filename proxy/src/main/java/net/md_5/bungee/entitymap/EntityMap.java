@@ -30,8 +30,8 @@ public abstract class EntityMap
                 return new EntityMap_1_7_2();
             case ProtocolConstants.MINECRAFT_1_7_6:
                 return new EntityMap_1_7_6();
-            case ProtocolConstants.MINECRAFT_SNAPSHOT:
-                return new EntityMap_14_21_b();
+            case ProtocolConstants.MINECRAFT_1_8:
+                return new EntityMap_1_8();
         }
         throw new RuntimeException( "Version " + version + " has no entity map" );
     }

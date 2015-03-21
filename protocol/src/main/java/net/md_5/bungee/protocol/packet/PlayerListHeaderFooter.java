@@ -16,6 +16,7 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @EqualsAndHashCode(callSuper = false)
 public class PlayerListHeaderFooter extends DefinedPacket
 {
+
     private String header;
     private String footer;
 

@@ -9,8 +9,6 @@ import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 import java.util.UUID;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
 
 @Data
 @NoArgsConstructor
@@ -24,7 +22,7 @@ public class PlayerListItem extends DefinedPacket
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        if ( protocolVersion < ProtocolConstants.MINECRAFT_SNAPSHOT )
+        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_8 )
         {
             items = new Item[ 1 ];
             Item item = items[ 0 ] = new Item();
@@ -88,7 +86,7 @@ public class PlayerListItem extends DefinedPacket
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        if ( protocolVersion < ProtocolConstants.MINECRAFT_SNAPSHOT )
+        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_8 )
         {
             Item item = items[0]; // Only one at a time
             writeString( item.displayName, buf ); // TODO: Server unique only!

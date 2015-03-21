@@ -48,6 +48,7 @@ import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.api.AbstractReconnectHandler;
 import net.md_5.bungee.api.event.PlayerHandshakeEvent;
 import net.md_5.bungee.api.event.PreLoginEvent;
+import net.md_5.bungee.jni.cipher.BungeeCipher;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.LegacyHandshake;
@@ -324,7 +325,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         // If offline mode and they are already on, don't allow connect
-        if ( !isOnlineMode() && bungee.getPlayer( getName() ) != null )
+        // We can just check by UUID here as names are based on UUID
+        if ( !isOnlineMode() && bungee.getPlayer( getUniqueId() ) != null )
         {
             disconnect( bungee.getTranslation( "already_connected" ) );
             return;
@@ -414,12 +416,33 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
     private void finish()
     {
-        // Check for multiple connections
-        ProxiedPlayer old = bungee.getPlayer( getName() );
-        if ( old != null )
+        if ( isOnlineMode() )
         {
-            // TODO See #1218
-            old.disconnect( bungee.getTranslation( "already_connected" ) );
+            // Check for multiple connections
+            // We have to check for the old name first
+            ProxiedPlayer oldName = bungee.getPlayer( getName() );
+            if ( oldName != null )
+            {
+                // TODO See #1218
+                oldName.disconnect( bungee.getTranslation( "already_connected" ) );
+            }
+            // And then also for their old UUID
+            ProxiedPlayer oldID = bungee.getPlayer( getUniqueId() );
+            if ( oldID != null )
+            {
+                // TODO See #1218
+                oldID.disconnect( bungee.getTranslation( "already_connected" ) );
+            }
+        } else {
+            // In offline mode the existing user stays and we kick the new one
+            ProxiedPlayer oldName = bungee.getPlayer( getName() );
+            if ( oldName != null )
+            {
+                // TODO See #1218
+                disconnect( bungee.getTranslation( "already_connected" ) );
+                return;
+            }
+
         }
 
         offlineId = java.util.UUID.nameUUIDFromBytes( ( "OfflinePlayer:" + getName() ).getBytes( Charsets.UTF_8 ) );
@@ -559,6 +582,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.USERNAME, "Can only set online mode status whilst state is username" );
         this.onlineMode = onlineMode;
+    }
+
+    @Override
+    public void setUniqueId(UUID uuid)
+    {
+        Preconditions.checkState( thisState == State.USERNAME, "Can only set uuid while state is username" );
+        Preconditions.checkState( !onlineMode, "Can only set uuid when online mode is false" );
+        this.uniqueId = uuid;
     }
 
     @Override

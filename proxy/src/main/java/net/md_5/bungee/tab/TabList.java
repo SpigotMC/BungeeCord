@@ -43,9 +43,9 @@ public abstract class TabList
                     {
                         props[ i ] = new String[]
                         {
-                                loginResult.getProperties()[ i ].getName(),
-                                loginResult.getProperties()[ i ].getValue(),
-                                loginResult.getProperties()[ i ].getSignature()
+                            loginResult.getProperties()[ i ].getName(),
+                            loginResult.getProperties()[ i ].getValue(),
+                            loginResult.getProperties()[ i ].getSignature()
                         };
                     }
                     item.setProperties( props );

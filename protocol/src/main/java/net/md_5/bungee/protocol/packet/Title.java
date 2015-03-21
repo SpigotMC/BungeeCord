@@ -14,6 +14,7 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @EqualsAndHashCode(callSuper = false)
 public class Title extends DefinedPacket
 {
+
     private Action action;
 
     // TITLE & SUBTITLE
@@ -68,6 +69,7 @@ public class Title extends DefinedPacket
 
     public static enum Action
     {
+
         TITLE,
         SUBTITLE,
         TIMES,

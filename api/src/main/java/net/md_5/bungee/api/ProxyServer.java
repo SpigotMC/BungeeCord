@@ -148,6 +148,13 @@ public abstract class ProxyServer
     public abstract void stop();
 
     /**
+     * Gracefully mark this instance for shutdown.
+     *
+     * @param reason the reason for stopping. This will be shown to players.
+     */
+    public abstract void stop(String reason);
+
+    /**
      * Start this instance so that it may accept connections.
      *
      * @throws Exception any exception thrown during startup causing the

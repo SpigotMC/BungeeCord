@@ -68,6 +68,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.command.*;
+import net.md_5.bungee.compress.CompressFactory;
 import net.md_5.bungee.conf.YamlConfig;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.log.LoggingOutputStream;
@@ -198,12 +199,19 @@ public class BungeeCord extends ProxyServer
         System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
         System.setOut( new PrintStream( new LoggingOutputStream( logger, Level.INFO ), true ) );
 
-        if ( NativeCipher.load() )
+        if ( EncryptionUtil.nativeFactory.load() )
         {
             logger.info( "Using OpenSSL based native cipher." );
         } else
         {
             logger.info( "Using standard Java JCE cipher. To enable the OpenSSL based native cipher, please make sure you are using 64 bit Ubuntu or Debian with libssl installed." );
+        }
+        if ( CompressFactory.zlib.load() )
+        {
+            logger.info( "Using native code compressor" );
+        } else
+        {
+            logger.info( "Using standard Java compressor. To enable zero copy compression, run on 64 bit Linux" );
         }
     }
 
@@ -327,6 +335,12 @@ public class BungeeCord extends ProxyServer
     @Override
     public void stop()
     {
+        stop( getTranslation( "restart" ) );
+    }
+
+    @Override
+    public void stop(final String reason)
+    {
         new Thread( "Shutdown Thread" )
         {
             @Override
@@ -345,7 +359,7 @@ public class BungeeCord extends ProxyServer
                     getLogger().log( Level.INFO, "Disconnecting {0} connections", connections.size() );
                     for ( UserConnection user : connections.values() )
                     {
-                        user.disconnect( getTranslation( "restart" ) );
+                        user.disconnect( reason );
                     }
                 } finally
                 {

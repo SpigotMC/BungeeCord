@@ -42,8 +42,8 @@ public class ForgeClientHandler
     private PluginMessage serverIdList = null;
 
     /**
-     * Gets or sets a value indicating whether the '\00FML\00' token was found in
-     * the handshake.
+     * Gets or sets a value indicating whether the '\00FML\00' token was found
+     * in the handshake.
      */
     @Getter
     @Setter
@@ -150,9 +150,9 @@ public class ForgeClientHandler
     }
 
     /**
-     * Returns whether we know if the user is a forge user.
-     * In FML 1.8, a "FML" token is included in the initial handshake.
-     * We can use that to determine if the user is a Forge 1.8 user.
+     * Returns whether we know if the user is a forge user. In FML 1.8, a "FML"
+     * token is included in the initial handshake. We can use that to determine
+     * if the user is a Forge 1.8 user.
      *
      * @return <code>true</code> if the user is a forge user.
      */

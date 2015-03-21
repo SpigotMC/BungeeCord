@@ -65,7 +65,9 @@
 
     <properties>
         <build.number>unknown</build.number>
-        <netty.version>4.0.23.Final</netty.version>
+        <netty.version>4.0.24.Final</netty.version>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -73,7 +75,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
+            <version>4.12</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -116,12 +118,28 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>animal-sniffer-maven-plugin</artifactId>
+                <version>1.13</version>
+                <executions>
+                    <execution>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <ignores>
+                        <ignore>java.lang.ClassLoader</ignore>
+                        <ignore>java.lang.Throwable</ignore>
+                        <ignore>java.util.Locale</ignore>
+                    </ignores>
+                    <signature>
+                        <groupId>org.codehaus.mojo.signature</groupId>
+                        <artifactId>java16</artifactId>
+                        <version>1.1</version>
+                    </signature>
                 </configuration>
             </plugin>
             <!-- OSS Parent 9 uses 2.7, 2.10+ is broken anyway -->

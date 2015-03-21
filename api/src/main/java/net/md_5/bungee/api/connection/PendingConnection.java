@@ -55,6 +55,11 @@ public interface PendingConnection extends Connection
     UUID getUniqueId();
 
     /**
+     * Set the connection's uuid
+     */
+    void setUniqueId(UUID uuid);
+
+    /**
      * Get this connection's online mode.
      *
      * @return the online mode

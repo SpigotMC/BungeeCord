@@ -33,7 +33,7 @@ public class PluginMessage extends DefinedPacket
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         tag = readString( buf );
-        if ( protocolVersion < ProtocolConstants.MINECRAFT_SNAPSHOT )
+        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_8 )
         {
             data = readArrayLegacy( buf );
         } else
@@ -47,7 +47,7 @@ public class PluginMessage extends DefinedPacket
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         writeString( tag, buf );
-        if ( protocolVersion < ProtocolConstants.MINECRAFT_SNAPSHOT )
+        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_8 )
         {
             writeArrayLegacy( data, buf, allowExtendedPacket );
         } else

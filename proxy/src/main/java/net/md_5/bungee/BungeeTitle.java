@@ -10,6 +10,7 @@ import net.md_5.bungee.protocol.packet.Title.Action;
 
 public class BungeeTitle implements Title
 {
+
     private net.md_5.bungee.protocol.packet.Title title, subtitle, times, clear, reset;
 
     private static net.md_5.bungee.protocol.packet.Title createPacket(Action action)
@@ -151,7 +152,7 @@ public class BungeeTitle implements Title
     @Override
     public Title send(ProxiedPlayer player)
     {
-        if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_SNAPSHOT )
+        if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
         {
             // Send the packets in the correct order
             sendPacket( player, clear );

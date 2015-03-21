@@ -93,7 +93,7 @@ public class Configuration implements ProxyConfig
             for ( ServerInfo oldServer : servers.values() )
             {
                 // Don't allow servers to be removed
-                Preconditions.checkArgument( newServers.containsValue( oldServer ), "Server %s removed on reload!", oldServer.getName() );
+                Preconditions.checkArgument( newServers.containsKey( oldServer.getName() ), "Server %s removed on reload!", oldServer.getName() );
             }
 
             // Add new servers

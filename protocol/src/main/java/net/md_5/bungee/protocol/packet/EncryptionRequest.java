@@ -24,7 +24,7 @@ public class EncryptionRequest extends DefinedPacket
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         serverId = readString( buf );
-        if ( protocolVersion < ProtocolConstants.MINECRAFT_SNAPSHOT )
+        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_8 )
         {
             publicKey = readArrayLegacy( buf );
             verifyToken = readArrayLegacy( buf );
@@ -39,7 +39,7 @@ public class EncryptionRequest extends DefinedPacket
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         writeString( serverId, buf );
-        if ( protocolVersion < ProtocolConstants.MINECRAFT_SNAPSHOT )
+        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_8 )
         {
             writeArrayLegacy( publicKey, buf, false );
             writeArrayLegacy( verifyToken, buf, false );

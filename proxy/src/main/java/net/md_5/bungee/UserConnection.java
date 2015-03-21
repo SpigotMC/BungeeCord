@@ -1,5 +1,6 @@
 package net.md_5.bungee;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import io.netty.bootstrap.Bootstrap;
@@ -15,7 +16,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -228,7 +228,7 @@ public final class UserConnection implements ProxiedPlayer
 
         final BungeeServerInfo target = (BungeeServerInfo) event.getTarget(); // Update in case the event changed target
 
-        if ( getServer() != null && Objects.equals( getServer().getInfo(), target ) )
+        if ( getServer() != null && Objects.equal( getServer().getInfo(), target ) )
         {
             sendMessage( bungee.getTranslation( "already_connected" ) );
             return;
@@ -393,7 +393,7 @@ public final class UserConnection implements ProxiedPlayer
     public void sendMessage(ChatMessageType position, BaseComponent... message)
     {
         // Action bar doesn't display the new JSON formattings, legacy works - send it using this for now
-        if ( position == ChatMessageType.ACTION_BAR && pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_SNAPSHOT )
+        if ( position == ChatMessageType.ACTION_BAR && pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
         {
             sendMessage( position, ComponentSerializer.toString( new TextComponent( TextComponent.toLegacyText( message ) ) ) );
         } else
@@ -406,7 +406,7 @@ public final class UserConnection implements ProxiedPlayer
     public void sendMessage(ChatMessageType position, BaseComponent message)
     {
         // Action bar doesn't display the new JSON formattings, legacy works - send it using this for now
-        if ( position == ChatMessageType.ACTION_BAR && pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_SNAPSHOT )
+        if ( position == ChatMessageType.ACTION_BAR && pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
         {
             sendMessage( position, ComponentSerializer.toString( new TextComponent( TextComponent.toLegacyText( message ) ) ) );
         } else
@@ -520,7 +520,7 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public boolean isForgeUser() 
+    public boolean isForgeUser()
     {
         return forgeClientHandler.isForgeUser();
     }
@@ -543,7 +543,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void setTabHeader(BaseComponent header, BaseComponent footer)
     {
-        if ( pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_SNAPSHOT )
+        if ( pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
         {
             unsafe().sendPacket( new PlayerListHeaderFooter(
                     ( header != null ) ? ComponentSerializer.toString( header ) : EMPTY_TEXT,
@@ -555,7 +555,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void setTabHeader(BaseComponent[] header, BaseComponent[] footer)
     {
-        if ( pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_SNAPSHOT )
+        if ( pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
         {
             unsafe().sendPacket( new PlayerListHeaderFooter(
                     ( header != null ) ? ComponentSerializer.toString( header ) : EMPTY_TEXT,
