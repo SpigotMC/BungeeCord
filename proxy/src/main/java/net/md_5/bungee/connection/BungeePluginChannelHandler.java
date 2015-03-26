@@ -8,7 +8,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PluginMessageEvent;
-
+import net.md_5.bungee.chat.ComponentSerializer;
 import java.io.DataInput;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -125,6 +125,12 @@ public class BungeePluginChannelHandler {
         ProxiedPlayer target = bridge.getBungee().getPlayer(in.readUTF());
         if ( target == null ) { return; }
         target.sendMessage( new TextComponent( in.readUTF() ) );
+    }
+    
+    private void handleRawMessage(DataInput in, ByteArrayDataOutput out) throws Exception {
+        ProxiedPlayer target = bridge.getBungee().getPlayer(in.readUTF());
+        if ( target == null ) { return; }
+        target.sendMessage( ComponentSerializer.parse(in.readUTF()) );
     }
 
     private void handlePlayerList(DataInput in, ByteArrayDataOutput out) throws Exception {
