@@ -238,9 +238,7 @@ public class DownstreamBridge extends PacketHandler
             throw CancelSendSignal.INSTANCE;
         }
 
-        String messageTag = pluginMessage.getTag();
-
-        switch (messageTag) {
+        switch (pluginMessage.getTag()) {
             case "MC|Brand":
                 handleMCBrand(pluginMessage, event);
                 break;
