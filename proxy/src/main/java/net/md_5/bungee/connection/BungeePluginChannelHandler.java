@@ -126,12 +126,6 @@ public class BungeePluginChannelHandler {
         if ( target == null ) { return; }
         target.sendMessage( new TextComponent( in.readUTF() ) );
     }
-    
-    private void handleRawMessage(DataInput in, ByteArrayDataOutput out) throws Exception {
-        ProxiedPlayer target = bridge.getBungee().getPlayer(in.readUTF());
-        if ( target == null ) { return; }
-        target.sendMessage( ComponentSerializer.parse(in.readUTF()) );
-    }
 
     private void handlePlayerList(DataInput in, ByteArrayDataOutput out) throws Exception {
         String target = in.readUTF();
@@ -144,6 +138,12 @@ public class BungeePluginChannelHandler {
             if (server == null) { return; }
             out.writeUTF( Util.csv( server.getPlayers() ) );
         }
+    }
+    
+    private void handleRawMessage(DataInput in, ByteArrayDataOutput out) throws Exception {
+        ProxiedPlayer target = bridge.getBungee().getPlayer(in.readUTF());
+        if ( target == null ) { return; }
+        target.sendMessage( ComponentSerializer.parse(in.readUTF()) );
     }
 
     private void handleServerIP(DataInput in, ByteArrayDataOutput out) throws Exception {
