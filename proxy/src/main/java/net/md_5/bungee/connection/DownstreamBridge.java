@@ -1,22 +1,19 @@
 package net.md_5.bungee.connection;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import java.io.DataInput;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.ServerConnection;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.ServerDisconnectEvent;
 import net.md_5.bungee.api.event.TabCompleteResponseEvent;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.score.Objective;
@@ -268,8 +265,8 @@ public class DownstreamBridge extends PacketHandler
             }
         } else
         {
-            String serverBrand = new String( pluginMessage.getData(), "UTF-8" );
-            pluginMessage.setData((bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand).getBytes("UTF-8"));
+            String serverBrand = new String( pluginMessage.getData(), Charsets.UTF_8 );
+            pluginMessage.setData((bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand).getBytes(Charsets.UTF_8));
         }
         // changes in the packet are ignored so we need to send it manually
         con.unsafe().sendPacket( pluginMessage );
