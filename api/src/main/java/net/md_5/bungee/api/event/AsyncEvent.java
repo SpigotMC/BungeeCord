@@ -33,11 +33,11 @@ public class AsyncEvent<T> extends Event
     @SuppressWarnings("unchecked")
     public void postCall()
     {
-        fired.set( true );
         if ( latch.get() == 0 )
         {
             done.done( (T) this, null );
         }
+        fired.set( true );
     }
 
     /**
@@ -67,9 +67,14 @@ public class AsyncEvent<T> extends Event
     {
         Preconditions.checkState( intents.contains( plugin ), "Plugin %s has not registered intent for event %s", plugin, this );
         intents.remove( plugin );
-        if ( latch.decrementAndGet() == 0 && fired.get() )
+        if ( fired.get() )
         {
-            done.done( (T) this, null );
+            if ( latch.decrementAndGet() == 0 )
+            {
+                done.done( (T) this, null );
+            }
+        } else {
+            latch.decrementAndGet();
         }
     }
 }
