@@ -36,7 +36,7 @@ public interface CommandSender
      *
      * @param message the message to send
      */
-    public void sendMessage(BaseComponent... message);
+    public void sendMessages(BaseComponent... messages);
 
     /**
      * Send a message to this sender.
