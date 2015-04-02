@@ -135,16 +135,62 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         ch.close();
     }
 
+    private void handlePing(final Callback<ProxyPingEvent> callback)
+    {
+        ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
+        final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
+
+        Callback<ServerPing> pingBack = new Callback<ServerPing>()
+        {
+            @Override
+            public void done(ServerPing result, Throwable error)
+            {
+                if ( error != null )
+                {
+                    result = new ServerPing();
+                    result.setDescription( bungee.getTranslation( "ping_cannot_connect" ) );
+
+                    if ( legacy )
+                    {
+                        // The legacy ping code requires we provide these.
+                        result.setVersion( new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), bungee.getProtocolVersion() ));
+                        result.setPlayers( new ServerPing.Players( 0, 0, null ) );
+                    }
+
+                    bungee.getLogger().log( Level.WARNING, "Error pinging remote server", error );
+                }
+
+                bungee.getPluginManager().callEvent( new ProxyPingEvent( InitialHandler.this, result, callback ) );
+            }
+        };
+
+        if ( forced != null && listener.isPingPassthrough() )
+        {
+            ( (BungeeServerInfo) forced ).ping( pingBack, legacy ? bungee.getProtocolVersion() : handshake.getProtocolVersion() );
+        } else
+        {
+            int protocol = legacy ? bungee.getProtocolVersion() : ( Protocol.supportedVersions.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
+            pingBack.done( new ServerPing(
+                            new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), protocol ),
+                            new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
+                            motd, BungeeCord.getInstance().config.getFaviconObject() ),
+                    null );
+        }
+
+        thisState = State.PING;
+    }
+
     @Override
     public void handle(LegacyPing ping) throws Exception
     {
         this.legacy = true;
         final boolean v1_5 = ping.isV1_5();
 
-        ServerPing legacy = new ServerPing( new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), bungee.getProtocolVersion() ),
-                new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ), listener.getMotd(), (Favicon) null );
+        // Due to the way AbstractReconnectHandler.getForcedHost() works, we will need to provide
+        // a fake virtual host. This is okay since <= 1.6 does not support forced hosts.
+        this.virtualHost = InetSocketAddress.createUnresolved( "oldping.md-5.net", 25565 );
 
-        Callback<ProxyPingEvent> callback = new Callback<ProxyPingEvent>()
+        handlePing( new Callback<ProxyPingEvent>()
         {
             @Override
             public void done(ProxyPingEvent result, Throwable error)
@@ -162,23 +208,21 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     kickMessage = ChatColor.DARK_BLUE
                             + "\00" + 127
                             + '\00' + legacy.getVersion().getName()
-                            + '\00' + getFirstLine( legacy.getDescription() )
+                            + '\00' + getFirstLine(legacy.getDescription())
                             + '\00' + legacy.getPlayers().getOnline()
                             + '\00' + legacy.getPlayers().getMax();
                 } else
                 {
                     // Clients <= 1.3 don't support colored motds because the color char is used as delimiter
-                    kickMessage = ChatColor.stripColor( getFirstLine( legacy.getDescription() ) )
+                    kickMessage = ChatColor.stripColor(getFirstLine(legacy.getDescription()))
                             + '\u00a7' + legacy.getPlayers().getOnline()
                             + '\u00a7' + legacy.getPlayers().getMax();
                 }
 
-                ch.getHandle().writeAndFlush( kickMessage );
+                ch.getHandle().writeAndFlush(kickMessage);
                 ch.close();
             }
-        };
-
-        bungee.getPluginManager().callEvent( new ProxyPingEvent( this, legacy, callback ) );
+        } );
     }
 
     private static String getFirstLine(String str)
@@ -192,50 +236,16 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.STATUS, "Not expecting STATUS" );
 
-        ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
-        final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
-
-        Callback<ServerPing> pingBack = new Callback<ServerPing>()
+        handlePing( new Callback<ProxyPingEvent>()
         {
             @Override
-            public void done(ServerPing result, Throwable error)
+            public void done(ProxyPingEvent pingResult, Throwable error)
             {
-                if ( error != null )
-                {
-                    result = new ServerPing();
-                    result.setDescription( bungee.getTranslation( "ping_cannot_connect" ) );
-                    bungee.getLogger().log( Level.WARNING, "Error pinging remote server", error );
-                }
-
-                Callback<ProxyPingEvent> callback = new Callback<ProxyPingEvent>()
-                {
-                    @Override
-                    public void done(ProxyPingEvent pingResult, Throwable error)
-                    {
-                        BungeeCord.getInstance().getConnectionThrottle().unthrottle( getAddress().getAddress() );
-                        Gson gson = handshake.getProtocolVersion() == ProtocolConstants.MINECRAFT_1_7_2 ? BungeeCord.getInstance().gsonLegacy : BungeeCord.getInstance().gson;
-                        unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
-                    }
-                };
-
-                bungee.getPluginManager().callEvent( new ProxyPingEvent( InitialHandler.this, result, callback ) );
+                BungeeCord.getInstance().getConnectionThrottle().unthrottle( getAddress().getAddress() );
+                Gson gson = handshake.getProtocolVersion() == ProtocolConstants.MINECRAFT_1_7_2 ? BungeeCord.getInstance().gsonLegacy : BungeeCord.getInstance().gson;
+                unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
             }
-        };
-
-        if ( forced != null && listener.isPingPassthrough() )
-        {
-            ( (BungeeServerInfo) forced ).ping( pingBack, handshake.getProtocolVersion() );
-        } else
-        {
-            int protocol = ( Protocol.supportedVersions.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
-            pingBack.done( new ServerPing(
-                    new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), protocol ),
-                    new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
-                    motd, BungeeCord.getInstance().config.getFaviconObject() ),
-                    null );
-        }
-
-        thisState = State.PING;
+        } );
     }
 
     @Override
