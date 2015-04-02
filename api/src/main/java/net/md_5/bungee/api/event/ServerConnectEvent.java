@@ -31,13 +31,19 @@ public class ServerConnectEvent extends Event implements Cancellable
     @NonNull
     private ServerInfo target;
     /**
+     * If the player has just connected to the Bungee
+     * instance from no previous server.
+     */
+    private final boolean initialJoin;
+    /**
      * Cancelled state.
      */
     private boolean cancelled;
 
-    public ServerConnectEvent(ProxiedPlayer player, ServerInfo target)
+    public ServerConnectEvent(ProxiedPlayer player, ServerInfo target, boolean initialJoin)
     {
         this.player = player;
         this.target = target;
+        this.initialJoin = initialJoin;
     }
 }
