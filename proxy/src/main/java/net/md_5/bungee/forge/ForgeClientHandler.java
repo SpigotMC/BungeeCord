@@ -173,13 +173,7 @@ public class ForgeClientHandler
     {
         if ( forgeOutdated )
         {
-            if ( con.isDimensionChange() )
-            {
-                con.disconnect( BungeeCord.getInstance().getTranslation( "connect_kick_outdated_forge" ) );
-            } else
-            {
-                con.sendMessage( BungeeCord.getInstance().getTranslation( "connect_kick_outdated_forge" ) );
-            }
+            con.sendMessage( BungeeCord.getInstance().getTranslation( "connect_kick_outdated_forge" ) );
         }
 
         return forgeOutdated;
