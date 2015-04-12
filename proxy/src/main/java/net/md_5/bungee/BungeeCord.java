@@ -227,7 +227,10 @@ public class BungeeCord extends ProxyServer
     {
         System.setProperty( "java.net.preferIPv4Stack", "true" ); // Minecraft does not support IPv6
         System.setProperty( "io.netty.selectorAutoRebuildThreshold", "0" ); // Seems to cause Bungee to stop accepting connections
-        ResourceLeakDetector.setEnabled( false ); // Eats performance
+        if ( System.getProperty( "io.netty.leakDetectionLevel" ) == null )
+        {
+            ResourceLeakDetector.setLevel( ResourceLeakDetector.Level.DISABLED ); // Eats performance
+        }
 
         eventLoops = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
 
