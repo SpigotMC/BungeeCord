@@ -23,22 +23,32 @@ public class MinecraftDecoder extends ByteToMessageDecoder
         Protocol.DirectionData prot = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
         ByteBuf copy = in.copy(); // TODO
 
-        int packetId = DefinedPacket.readVarInt( in );
-
-        DefinedPacket packet = null;
-        if ( prot.hasPacket( packetId ) )
+        try
         {
-            packet = prot.createPacket( packetId );
-            packet.read( in, prot.getDirection(), protocolVersion );
-            if ( in.readableBytes() != 0 )
+            int packetId = DefinedPacket.readVarInt( in );
+
+            DefinedPacket packet = null;
+            if ( prot.hasPacket( packetId ) )
             {
-                throw new BadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot );
+                packet = prot.createPacket( packetId );
+                packet.read( in, prot.getDirection(), protocolVersion );
+                if ( in.readableBytes() != 0 )
+                {
+                    throw new BadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot );
+                }
+            } else
+            {
+                in.skipBytes( in.readableBytes() );
             }
-        } else
-        {
-            in.skipBytes( in.readableBytes() );
-        }
 
-        out.add( new PacketWrapper( packet, copy ) );
+            out.add( new PacketWrapper( packet, copy ) );
+            copy = null;
+        } finally
+        {
+            if ( copy != null )
+            {
+                copy.release();
+            }
+        }
     }
 }
