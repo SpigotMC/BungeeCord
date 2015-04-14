@@ -161,6 +161,7 @@ public final class UserConnection implements ProxiedPlayer
         tabListHandler = new ServerUnique( this );
 
         Collection<String> g = bungee.getConfigurationAdapter().getGroups( name );
+        g.addAll( bungee.getConfigurationAdapter().getGroups( getUniqueId().toString() ) );
         for ( String s : g )
         {
             addGroups( s );
