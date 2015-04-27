@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.ReadTimeoutException;
+import io.netty.handler.codec.DecoderException;
 import java.io.IOException;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
@@ -97,9 +98,12 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
             if ( cause instanceof ReadTimeoutException )
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - read timed out", handler );
-            } else if ( cause instanceof BadPacketException )
+            } else if ( cause instanceof DecoderException && cause.getCause() instanceof BadPacketException )
             {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - bad packet ID, are mods in use!?", handler );
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - bad packet ID, are mods in use!? {1}", new Object[]
+                {
+                    handler, cause.getCause().getMessage()
+                } );
             } else if ( cause instanceof IOException )
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - IOException: {1}", new Object[]
