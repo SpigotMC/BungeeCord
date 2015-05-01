@@ -78,9 +78,9 @@ public abstract class BaseComponent
         setObfuscated( old.isObfuscatedRaw() );
         setClickEvent( old.getClickEvent() );
         setHoverEvent( old.getHoverEvent() );
-        if ( extra != null )
+        if ( old.getExtra() != null )
         {
-            for ( BaseComponent component : extra )
+            for ( BaseComponent component : old.getExtra() )
             {
                 addExtra( component.duplicate() );
             }
