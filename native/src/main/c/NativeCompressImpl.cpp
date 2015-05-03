@@ -7,6 +7,22 @@ typedef unsigned char byte;
 static jfieldID consumedID;
 static jfieldID finishedID;
 
+jclass exceptionClass;
+jmethodID exceptionInitID;
+
+jint JNI_OnLoad(JavaVM* vm, void* reserved) {
+    JNIEnv* env;
+    if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
+        return -1;
+    }
+
+    jclass localExceptionClass = env->FindClass("net/md_5/bungee/jni/NativeCodeException");
+    exceptionClass = reinterpret_cast<jclass>(env->NewGlobalRef(localExceptionClass));
+    exceptionInitID = env->GetMethodID(exceptionClass, "<init>", "(Ljava/lang/String;I)V");
+
+    return JNI_VERSION_1_6;
+}
+
 void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_initFields(JNIEnv* env, jclass clazz) {
     // We trust that these fields will be there
     consumedID = env->GetFieldID(clazz, "consumed", "I");
@@ -14,10 +30,6 @@ void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_initFields(JNIEnv
 }
 
 jint throwException(JNIEnv *env, const char* message, int err) {
-    // These can't be static for some unknown reason
-    jclass exceptionClass = env->FindClass("net/md_5/bungee/jni/NativeCodeException");
-    jmethodID exceptionInitID = env->GetMethodID(exceptionClass, "<init>", "(Ljava/lang/String;I)V");
-
     jstring jMessage = env->NewStringUTF(message);
 
     jthrowable throwable = (jthrowable) env->NewObject(exceptionClass, exceptionInitID, jMessage, err);
