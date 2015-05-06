@@ -283,6 +283,7 @@ public class ServerConnector extends PacketHandler
         } else
         {
             user.sendMessage( message );
+            user.sendConnectFail( message );
         }
 
         throw CancelSendSignal.INSTANCE;

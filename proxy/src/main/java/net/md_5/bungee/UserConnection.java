@@ -3,6 +3,9 @@ package net.md_5.bungee;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -10,6 +13,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.util.internal.PlatformDependent;
+
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,6 +23,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -223,6 +228,7 @@ public final class UserConnection implements ProxiedPlayer
         ServerConnectEvent event = new ServerConnectEvent( this, info );
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
+        	sendConnectFail( "Connect cancelled" );
             return;
         }
 
@@ -231,11 +237,13 @@ public final class UserConnection implements ProxiedPlayer
         if ( getServer() != null && Objects.equal( getServer().getInfo(), target ) )
         {
             sendMessage( bungee.getTranslation( "already_connected" ) );
+            sendConnectFail( bungee.getTranslation( "already_connected" ) );
             return;
         }
         if ( pendingConnects.contains( target ) )
         {
             sendMessage( bungee.getTranslation( "already_connecting" ) );
+            sendConnectFail( bungee.getTranslation( "already_connecting" ) );
             return;
         }
 
@@ -281,6 +289,7 @@ public final class UserConnection implements ProxiedPlayer
                         } else
                         {
                             sendMessage( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
+                            sendConnectFail( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
                         }
                     }
                 }
@@ -590,5 +599,19 @@ public final class UserConnection implements ProxiedPlayer
             unsafe.sendPacket( new SetCompression( compressionThreshold ) );
             ch.setCompressionThreshold( compressionThreshold );
         }
+    }
+    
+    public void sendConnectFail(String reason)
+    {
+    	if ( server == null )
+    	{
+    		return;
+    	}
+    	
+    	ByteArrayDataOutput out = ByteStreams.newDataOutput();
+    	out.writeUTF( "ConnectFail" );
+    	out.writeUTF( reason );
+    	
+    	server.sendData( "BungeeCord", out.toByteArray() );
     }
 }
