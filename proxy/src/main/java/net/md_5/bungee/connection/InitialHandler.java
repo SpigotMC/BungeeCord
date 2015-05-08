@@ -537,7 +537,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 @Override
                 public void run()
                 {
-                    unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
+                    if (thisState != State.STATUS && thisState != State.PING)
+                    {
+                        unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
+                    }
                     ch.close();
                 }
             }, 500, TimeUnit.MILLISECONDS );
