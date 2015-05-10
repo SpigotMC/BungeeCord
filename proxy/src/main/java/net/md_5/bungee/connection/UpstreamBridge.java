@@ -13,6 +13,7 @@ import net.md_5.bungee.api.event.TabCompleteEvent;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
@@ -73,7 +74,10 @@ public class UpstreamBridge extends PacketHandler
             } );
             for ( ProxiedPlayer player : con.getServer().getInfo().getPlayers() )
             {
-                player.unsafe().sendPacket( packet );
+                if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
+                {
+                    player.unsafe().sendPacket( packet );
+                }
             }
             con.getServer().disconnect( "Quitting" );
         }
