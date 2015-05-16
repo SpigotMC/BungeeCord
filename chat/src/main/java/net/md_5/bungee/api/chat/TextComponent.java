@@ -156,7 +156,7 @@ public class TextComponent extends BaseComponent
     public TextComponent(BaseComponent... extras)
     {
         setText( "" );
-        setExtra( Arrays.asList( extras ) );
+        setExtra( new ArrayList<BaseComponent>( Arrays.asList( extras ) ) );
     }
 
     /**
