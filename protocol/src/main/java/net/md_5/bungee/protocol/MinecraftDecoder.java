@@ -2,13 +2,13 @@ package net.md_5.bungee.protocol;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.codec.MessageToMessageDecoder;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
 
 @AllArgsConstructor
-public class MinecraftDecoder extends ByteToMessageDecoder
+public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
 {
 
     @Setter
