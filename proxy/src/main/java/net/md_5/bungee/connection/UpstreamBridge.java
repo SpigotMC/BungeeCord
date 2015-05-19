@@ -13,7 +13,6 @@ import net.md_5.bungee.api.event.TabCompleteEvent;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.PacketWrapper;
-import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
@@ -190,7 +189,18 @@ public class UpstreamBridge extends PacketHandler
         // TODO: Unregister as well?
         if ( pluginMessage.getTag().equals( "REGISTER" ) )
         {
-            con.getPendingConnection().getRegisterMessages().add( pluginMessage );
+            // If we have a forge handshake in progress, send the REGISTER message along containing the forge channel registrations.
+            if ( con.getForgeServerHandler().acceptRegisterMessages() )
+            {
+                // Send it through the full handler sequence, don't send it to the current server.
+                con.getForgeClientHandler().handle( pluginMessage );
+                throw CancelSendSignal.INSTANCE;
+            }
+            else
+            {
+                // Store the packet for sending later.
+                con.getPendingConnection().getRegisterMessages().add( pluginMessage );
+            }
         }
     }
 
