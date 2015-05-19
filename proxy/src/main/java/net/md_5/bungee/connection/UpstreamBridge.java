@@ -137,7 +137,7 @@ public class UpstreamBridge extends PacketHandler
         List<String> results = tabCompleteEvent.getSuggestions();
         if ( !results.isEmpty() )
         {
-            con.unsafe().sendPacket( new TabCompleteResponse( results ) );
+            con.unsafe().sendPacket( new TabCompleteResponse( results.toArray( new String[ results.size() ] ) ) );
             throw CancelSendSignal.INSTANCE;
         }
 
