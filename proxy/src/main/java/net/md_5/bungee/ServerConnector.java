@@ -188,8 +188,17 @@ public class ServerConnector extends PacketHandler
             user.setServerEntityId( login.getEntityId() );
 
             // Set tab list size, this sucks balls, TODO: what shall we do about packet mutability
-            Login modLogin = new Login( login.getEntityId(), login.getGameMode(), (byte) login.getDimension(), login.getDifficulty(),
+            // Forge allows dimension ID's > 127
+            Login modLogin;
+            if ( handshakeHandler != null && handshakeHandler.isServerForge() )
+            {
+                modLogin = new Login( login.getEntityId(), login.getGameMode(), login.getDimension(), login.getDifficulty(),
                     (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.isReducedDebugInfo() );
+            } else
+            {
+                modLogin = new Login( login.getEntityId(), login.getGameMode(), (byte) login.getDimension(), login.getDifficulty(),
+                        (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.isReducedDebugInfo() );
+            }
 
             user.unsafe().sendPacket( modLogin );
 
@@ -320,9 +329,9 @@ public class ServerConnector extends PacketHandler
             }
         }
 
-        if ( pluginMessage.getTag().equals( ForgeConstants.FML_HANDSHAKE_TAG ) || pluginMessage.getTag().equals( ForgeConstants.FORGE_REGISTER ) )
+        if ( !handshakeHandler.isHandshakeComplete() && ( pluginMessage.getTag().equals( ForgeConstants.FML_HANDSHAKE_TAG ) || pluginMessage.getTag().equals( ForgeConstants.FORGE_REGISTER ) ) )
         {
-            this.handshakeHandler.handle( pluginMessage );
+            handshakeHandler.handle( pluginMessage );
             if ( user.getForgeClientHandler().checkUserOutdated() )
             {
                 ch.close();

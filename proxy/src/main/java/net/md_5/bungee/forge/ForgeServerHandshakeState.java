@@ -132,6 +132,9 @@ public enum ForgeServerHandshakeState implements IForgeServerPacketHandler<Forge
                 @Override
                 public ForgeServerHandshakeState send(PluginMessage message, UserConnection con)
                 {
+                    // Packets should never make it here but if they ever do, pass everything to client
+                    ForgeLogger.logServer( LogDirection.SENDING, this.name(), message);
+                    con.unsafe().sendPacket(message);
                     return this;
                 }
             }
