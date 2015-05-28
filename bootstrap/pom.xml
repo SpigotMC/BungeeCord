@@ -19,6 +19,8 @@
     <description>Java 1.6 loader for BungeeCord</description>
 
     <properties>
+        <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.target>1.6</maven.compiler.target>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
     </properties>
 
@@ -40,15 +42,6 @@
     <build>
         <finalName>BungeeCord</finalName>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                </configuration>
-            </plugin>
             <plugin>
                 <!-- Don't deploy proxy to maven repo, only APIs -->
                 <groupId>org.apache.maven.plugins</groupId>
