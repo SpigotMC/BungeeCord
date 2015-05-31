@@ -19,9 +19,9 @@
     <description>Java 1.6 loader for BungeeCord</description>
 
     <properties>
-        <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
+        <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
     </properties>
 
     <dependencies>
