@@ -34,32 +34,34 @@ public class EventBus
 
     public void post(Object event)
     {
+        EventHandlerMethod[] handlers;
         lock.readLock().lock();
         try
         {
-            EventHandlerMethod[] handlers = byEventBaked.get( event.getClass() );
-            if ( handlers != null )
-            {
-                for ( EventHandlerMethod method : handlers )
-                {
-                    try
-                    {
-                        method.invoke( event );
-                    } catch ( IllegalAccessException ex )
-                    {
-                        throw new Error( "Method became inaccessible: " + event, ex );
-                    } catch ( IllegalArgumentException ex )
-                    {
-                        throw new Error( "Method rejected target/argument: " + event, ex );
-                    } catch ( InvocationTargetException ex )
-                    {
-                        logger.log( Level.WARNING, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, method.getListener() ), ex.getCause() );
-                    }
-                }
-            }
+            handlers = byEventBaked.get( event.getClass() );
         } finally
         {
             lock.readLock().unlock();
+        }
+
+        if ( handlers != null )
+        {
+            for ( EventHandlerMethod method : handlers )
+            {
+                try
+                {
+                    method.invoke( event );
+                } catch ( IllegalAccessException ex )
+                {
+                    throw new Error( "Method became inaccessible: " + event, ex );
+                } catch ( IllegalArgumentException ex )
+                {
+                    throw new Error( "Method rejected target/argument: " + event, ex );
+                } catch ( InvocationTargetException ex )
+                {
+                    logger.log( Level.WARNING, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, method.getListener() ), ex.getCause() );
+                }
+            }
         }
     }
 
