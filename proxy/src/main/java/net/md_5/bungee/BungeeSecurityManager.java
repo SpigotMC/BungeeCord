@@ -9,7 +9,9 @@ import net.md_5.bungee.api.scheduler.GroupedThreadFactory;
 public class BungeeSecurityManager extends SecurityManager
 {
 
-    private static final boolean ENFORCE = false;
+    private boolean ENFORCE = false;
+
+	private boolean WARN = true;
 
     private void checkRestricted(String text)
     {
@@ -37,12 +39,17 @@ public class BungeeSecurityManager extends SecurityManager
             if ( loader != null )
             {
                 AccessControlException ex = new AccessControlException( "Plugin violation: " + text );
+                
                 if ( ENFORCE )
                 {
                     throw ex;
                 }
 
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Plugin performed restricted action, please inform them to use proper API methods: " + text, ex );
+                if ( WARN )
+                {
+                	ProxyServer.getInstance().getLogger().log( Level.WARNING, "Plugin performed restricted action, please inform them to use proper API methods: " + text, ex );
+                }
+                
                 break;
             }
         }
@@ -78,4 +85,40 @@ public class BungeeSecurityManager extends SecurityManager
                 throw new AccessControlException( "Restricted Action", perm );
         }
     }
+    
+    /**
+     * 
+     * @return ENFORCE
+     */
+    public boolean isENFORCE() 
+    {
+		return ENFORCE;
+	}
+
+    /**
+     * 
+     * @param ENFORCE
+     */
+	public void setENFORCE(boolean ENFORCE) 
+	{
+		this.ENFORCE = ENFORCE;
+	}
+
+	/**
+	 * 
+	 * @return WARN
+	 */
+	public boolean isWARN() 
+	{
+		return WARN;
+	}
+
+	/**
+	 * 
+	 * @param WARN
+	 */
+	public void setWARN(boolean WARN) 
+	{
+		this.WARN = WARN;
+	}
 }
