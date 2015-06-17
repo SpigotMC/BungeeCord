@@ -479,7 +479,10 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(SetCompression setCompression) throws Exception
     {
-        con.setCompressionThreshold( setCompression.getThreshold() );
+        if ( !ProxyServer.getInstance().getConfig().isCustomTreshold() )
+        {
+            con.setCompressionThreshold( setCompression.getThreshold() );
+        }
         server.getCh().setCompressionThreshold( setCompression.getThreshold() );
     }
 
