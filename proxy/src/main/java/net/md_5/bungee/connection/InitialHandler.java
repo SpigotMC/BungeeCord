@@ -284,9 +284,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 ch.setProtocol( Protocol.STATUS );
                 break;
             case 2:
+                // Login
                 thisState = State.USERNAME;
                 ch.setProtocol( Protocol.LOGIN );
-                // Login
                 break;
             default:
                 throw new IllegalArgumentException( "Cannot request protocol " + handshake.getRequestedProtocol() );
@@ -500,6 +500,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             if ( server == null )
                             {
                                 server = bungee.getServerInfo( listener.getDefaultServer() );
+                            }
+
+                            if ( ProxyServer.getInstance().getConfig().isCustomTreshold() )
+                            {
+                                userCon.setCompressionThreshold( ProxyServer.getInstance().getConfig().getPlayerThreshold() );
                             }
 
                             userCon.connect( server, null, true );

@@ -49,6 +49,8 @@ public class Configuration implements ProxyConfig
     private boolean onlineMode = true;
     private int playerLimit = -1;
     private Collection<String> disabledCommands;
+    private boolean customTreshold = false;
+    private int playerThreshold = 256;
     private int throttle = 4000;
     private boolean ipForward;
     private Favicon favicon;
@@ -75,6 +77,8 @@ public class Configuration implements ProxyConfig
         uuid = adapter.getString( "stats", uuid );
         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
         playerLimit = adapter.getInt( "player_limit", playerLimit );
+        customTreshold = adapter.getBoolean( "use_custom_threshold", customTreshold );
+        playerThreshold = adapter.getInt( "user_threshold", playerThreshold);
         throttle = adapter.getInt( "connection_throttle", throttle );
         ipForward = adapter.getBoolean( "ip_forward", ipForward );
 

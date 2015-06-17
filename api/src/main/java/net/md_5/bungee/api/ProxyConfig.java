@@ -51,6 +51,16 @@ public interface ProxyConfig
     Collection<String> getDisabledCommands();
 
     /**
+     * Wheter player connections are going to use the custom threshold or the threshold set by the server
+     */
+    boolean isCustomTreshold();
+
+    /**
+     * Returns the threshold used for player connection
+     */
+    int getPlayerThreshold();
+
+    /**
      * The connection throttle delay.
      */
     @Deprecated
