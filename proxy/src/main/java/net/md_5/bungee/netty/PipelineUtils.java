@@ -41,6 +41,8 @@ import net.md_5.bungee.protocol.Varint21LengthFieldPrepender;
 public class PipelineUtils
 {
 
+    private static final boolean THROTTLE_ENABLED = Boolean.getBoolean("bungee.throttle");
+
     public static final AttributeKey<ListenerInfo> LISTENER = new AttributeKey<>( "ListerInfo" );
     public static final AttributeKey<UserConnection> USER = new AttributeKey<>( "User" );
     public static final AttributeKey<BungeeServerInfo> TARGET = new AttributeKey<>( "Target" );
@@ -49,11 +51,11 @@ public class PipelineUtils
         @Override
         protected void initChannel(Channel ch) throws Exception
         {
-            if ( BungeeCord.getInstance().getConnectionThrottle().throttle( ( (InetSocketAddress) ch.remoteAddress() ).getAddress() ) )
+            if ( THROTTLE_ENABLED && BungeeCord.getInstance().getConnectionThrottle().throttle( ( (InetSocketAddress) ch.remoteAddress() ).getAddress() ) )
             {
                 // TODO: Better throttle - we can't throttle this way if we want to maintain 1.7 compat!
-                // ch.close();
-                // return;
+                ch.close();
+                return;
             }
 
             BASE.initChannel( ch );
