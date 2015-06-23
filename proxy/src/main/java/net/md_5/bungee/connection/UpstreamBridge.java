@@ -2,6 +2,7 @@ package net.md_5.bungee.connection;
 
 import com.google.common.base.Preconditions;
 import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
@@ -109,13 +110,21 @@ public class UpstreamBridge extends PacketHandler
     {
         Preconditions.checkArgument( chat.getMessage().length() <= 100, "Chat message too long" ); // Mojang limit, check on updates
 
-        ChatEvent chatEvent = new ChatEvent( con, con.getServer(), chat.getMessage() );
+        ServerConnection server = con.getServer();
+
+        // if we're still connecting just ignore this packet
+        if ( server == null )
+        {
+            throw CancelSendSignal.INSTANCE;
+        }
+
+        ChatEvent chatEvent = new ChatEvent( con, server, chat.getMessage() );
         if ( !bungee.getPluginManager().callEvent( chatEvent ).isCancelled() )
         {
             chat.setMessage( chatEvent.getMessage() );
             if ( !chatEvent.isCommand() || !bungee.getPluginManager().dispatchCommand( con, chat.getMessage().substring( 1 ) ) )
             {
-                con.getServer().unsafe().sendPacket( chat );
+                server.unsafe().sendPacket( chat );
             }
         }
         throw CancelSendSignal.INSTANCE;
