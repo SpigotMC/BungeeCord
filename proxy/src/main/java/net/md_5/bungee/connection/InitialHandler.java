@@ -2,6 +2,7 @@ package net.md_5.bungee.connection;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
+import io.netty.channel.socket.SocketChannel;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
@@ -486,6 +487,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             userCon.init();
 
                             bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
+
+                            // auto read is disabled here to make sure any packets intended for the server are queued until we are logged in there
+                            ( (SocketChannel) ch.getHandle() ).config().setAutoRead( false );
 
                             ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
 

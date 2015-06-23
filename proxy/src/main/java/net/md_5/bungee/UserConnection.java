@@ -9,6 +9,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.util.internal.PlatformDependent;
 import java.net.InetSocketAddress;
 import java.util.Collection;
@@ -590,5 +591,11 @@ public final class UserConnection implements ProxiedPlayer
             unsafe.sendPacket( new SetCompression( compressionThreshold ) );
             ch.setCompressionThreshold( compressionThreshold );
         }
+    }
+
+    public void markServerReady()
+    {
+        // auto read is disabled just after LOGIN until we have a server connection
+        ( (SocketChannel) ch.getHandle() ).config().setAutoRead( true );
     }
 }
