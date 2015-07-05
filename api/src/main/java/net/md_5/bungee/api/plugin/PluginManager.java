@@ -126,7 +126,7 @@ public class PluginManager
      */
     public boolean dispatchCommand(CommandSender sender, String commandLine, List<String> tabResults)
     {
-        String[] split = argsSplit.split( commandLine );
+        String[] split = argsSplit.split( commandLine, -1 );
         // Check for chat that only contains " "
         if ( split.length == 0 )
         {
