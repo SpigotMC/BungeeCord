@@ -56,13 +56,24 @@ public class CommandSend extends Command implements TabExecutor
             }
         } else
         {
-            ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
-            if ( player == null )
+            // If we use a server name, send the entire server. This takes priority over players.
+            ServerInfo serverTarget = ProxyServer.getInstance().getServerInfo( args[0] );
+            if ( serverTarget != null )
             {
-                sender.sendMessage( ChatColor.RED + "That player is not online" );
-                return;
+                for ( ProxiedPlayer p : serverTarget.getPlayers() )
+                {
+                    summon( p, target, sender );
+                }
+            } else
+            {
+                ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
+                if ( player == null )
+                {
+                    sender.sendMessage( ChatColor.RED + "That player is not online" );
+                    return;
+                }
+                summon( player, target, sender );
             }
-            summon( player, target, sender );
         }
         sender.sendMessage( ChatColor.GREEN + "Successfully summoned player(s)" );
     }
