@@ -26,7 +26,7 @@ public class CommandSend extends Command implements TabExecutor
     {
         if ( args.length != 2 )
         {
-            sender.sendMessage( ChatColor.RED + "Not enough arguments, usage: /send <player|all|current> <target>" );
+            sender.sendMessage( ChatColor.RED + "Not enough arguments, usage: /send <server|player|all|current> <target>" );
             return;
         }
         ServerInfo target = ProxyServer.getInstance().getServerInfo( args[1] );
