@@ -1,5 +1,6 @@
 package net.md_5.bungee.protocol.packet;
 
+import com.google.common.base.Preconditions;
 import net.md_5.bungee.protocol.DefinedPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -38,6 +39,8 @@ public class PluginMessage extends DefinedPacket
             data = readArrayLegacy( buf );
         } else
         {
+            int maxSize = direction == ProtocolConstants.Direction.TO_SERVER ? Short.MAX_VALUE : 0x100000;
+            Preconditions.checkArgument(buf.readableBytes() < maxSize);
             data = new byte[ buf.readableBytes() ];
             buf.readBytes( data );
         }
