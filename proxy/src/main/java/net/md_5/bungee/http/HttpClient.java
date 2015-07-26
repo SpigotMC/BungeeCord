@@ -86,6 +86,7 @@ public class HttpClient
                     future.channel().writeAndFlush( request );
                 } else
                 {
+                    addressCache.invalidate( uri.getHost() );
                     callback.done( null, future.cause() );
                 }
             }
