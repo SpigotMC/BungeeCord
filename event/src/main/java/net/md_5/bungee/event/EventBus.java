@@ -9,8 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,8 +17,8 @@ public class EventBus
 {
 
     private final Map<Class<?>, Map<Byte, Map<Object, Method[]>>> byListenerAndPriority = new HashMap<>();
-    private final Map<Class<?>, EventHandlerMethod[]> byEventBaked = new HashMap<>();
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private volatile Map<Class<?>, EventHandlerMethod[]> byEventBaked = new HashMap<>();
+    private final ReentrantLock lock = new ReentrantLock();
     private final Logger logger;
 
     public EventBus()
@@ -34,16 +33,7 @@ public class EventBus
 
     public void post(Object event)
     {
-        EventHandlerMethod[] handlers;
-        lock.readLock().lock();
-        try
-        {
-            handlers = byEventBaked.get( event.getClass() );
-        } finally
-        {
-            lock.readLock().unlock();
-        }
-
+        EventHandlerMethod[] handlers = byEventBaked.get( event.getClass() );
         if ( handlers != null )
         {
             for ( EventHandlerMethod method : handlers )
@@ -103,7 +93,7 @@ public class EventBus
     public void register(Object listener)
     {
         Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers( listener );
-        lock.writeLock().lock();
+        lock.lock();
         try
         {
             for ( Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet() )
@@ -125,18 +115,18 @@ public class EventBus
                     Method[] baked = new Method[ entry.getValue().size() ];
                     currentPriorityMap.put( listener, entry.getValue().toArray( baked ) );
                 }
-                bakeHandlers( e.getKey() );
             }
+            bakeHandlers();
         } finally
         {
-            lock.writeLock().unlock();
+            lock.unlock();
         }
     }
 
     public void unregister(Object listener)
     {
         Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers( listener );
-        lock.writeLock().lock();
+        lock.lock();
         try
         {
             for ( Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet() )
@@ -161,11 +151,11 @@ public class EventBus
                         byListenerAndPriority.remove( e.getKey() );
                     }
                 }
-                bakeHandlers( e.getKey() );
             }
+            bakeHandlers();
         } finally
         {
-            lock.writeLock().unlock();
+            lock.unlock();
         }
     }
 
@@ -174,35 +164,41 @@ public class EventBus
      * only inside {@link #register(java.lang.Object) register(Object)} or
      * {@link #unregister(java.lang.Object) unregister(Object)}.
      */
-    private void bakeHandlers(Class<?> eventClass)
+    private void bakeHandlers()
     {
-        Map<Byte, Map<Object, Method[]>> handlersByPriority = byListenerAndPriority.get( eventClass );
-        if ( handlersByPriority != null )
+        Map<Class<?>, EventHandlerMethod[]> temp = new HashMap<>();
+        for ( Map.Entry<Class<?>, Map<Byte, Map<Object, Method[]>>> entrySet : byListenerAndPriority.entrySet() )
         {
-            List<EventHandlerMethod> handlersList = new ArrayList<>( handlersByPriority.size() * 2 );
-
-            // Either I'm really tired, or the only way we can iterate between Byte.MIN_VALUE and Byte.MAX_VALUE inclusively,
-            // with only a byte on the stack is by using a do {} while() format loop.
-            byte value = Byte.MIN_VALUE;
-            do
+            Class<? extends Object> eventClass = entrySet.getKey();
+            Map<Byte, Map<Object, Method[]>> handlersByPriority = entrySet.getValue();
+            if ( handlersByPriority != null )
             {
-                Map<Object, Method[]> handlersByListener = handlersByPriority.get( value );
-                if ( handlersByListener != null )
+                List<EventHandlerMethod> handlersList = new ArrayList<>( handlersByPriority.size() * 2 );
+
+                // Either I'm really tired, or the only way we can iterate between Byte.MIN_VALUE and Byte.MAX_VALUE inclusively,
+                // with only a byte on the stack is by using a do {} while() format loop.
+                byte value = Byte.MIN_VALUE;
+                do
                 {
-                    for ( Map.Entry<Object, Method[]> listenerHandlers : handlersByListener.entrySet() )
+                    Map<Object, Method[]> handlersByListener = handlersByPriority.get( value );
+                    if ( handlersByListener != null )
                     {
-                        for ( Method method : listenerHandlers.getValue() )
+                        for ( Map.Entry<Object, Method[]> listenerHandlers : handlersByListener.entrySet() )
                         {
-                            EventHandlerMethod ehm = new EventHandlerMethod( listenerHandlers.getKey(), method );
-                            handlersList.add( ehm );
+                            for ( Method method : listenerHandlers.getValue() )
+                            {
+                                EventHandlerMethod ehm = new EventHandlerMethod( listenerHandlers.getKey(), method );
+                                handlersList.add( ehm );
+                            }
                         }
                     }
-                }
-            } while ( value++ < Byte.MAX_VALUE );
-            byEventBaked.put( eventClass, handlersList.toArray( new EventHandlerMethod[ handlersList.size() ] ) );
-        } else
-        {
-            byEventBaked.put( eventClass, null );
+                } while ( value++ < Byte.MAX_VALUE );
+                temp.put( eventClass, handlersList.toArray( new EventHandlerMethod[ handlersList.size() ] ) );
+            } else
+            {
+                temp.put( eventClass, null );
+            }
         }
+        byEventBaked = temp;
     }
 }
