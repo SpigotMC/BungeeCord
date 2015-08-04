@@ -38,7 +38,7 @@ public class ChannelWrapper
 
     public void write(Object packet)
     {
-        if ( !closed )
+        if ( !closed && ch.isWritable() )
         {
             if ( packet instanceof PacketWrapper )
             {
