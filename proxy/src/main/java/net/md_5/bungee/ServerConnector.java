@@ -90,12 +90,23 @@ public class ServerConnector extends PacketHandler
             {
                 newHost += "\00" + BungeeCord.getInstance().gson.toJson( profile.getProperties() );
             }
+
+            // In order to be able to support Forge servers that use IP forwarding, we change the original host string from:
+            //     <host><extradata>
+            // to
+            //     <host><BungeeData>\00|<extradata>
+            // Implementations can then simply split on the string "\00|" and take the first chunk of the string and
+            // do their normal processing, and may ignore the extra data if they so wish.
+            if ( !user.getExtraDataInHandshake().isEmpty() ) 
+            {
+                newHost += "\00|" + user.getExtraDataInHandshake();
+            }
+
             copiedHandshake.setHost( newHost );
         }
         else if ( !user.getExtraDataInHandshake().isEmpty() )
         {
-            // Only restore the extra data if IP forwarding is off. 
-            // TODO: Add support for this data with IP forwarding.
+            // Restore the extra data
             copiedHandshake.setHost( copiedHandshake.getHost() + user.getExtraDataInHandshake() );
         }
 
