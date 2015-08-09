@@ -94,8 +94,7 @@ public class ServerConnector extends PacketHandler
         }
         else if ( !user.getExtraDataInHandshake().isEmpty() )
         {
-            // Only restore the extra data if IP forwarding is off. 
-            // TODO: Add support for this data with IP forwarding.
+            // Restore the extra data
             copiedHandshake.setHost( copiedHandshake.getHost() + user.getExtraDataInHandshake() );
         }
 
