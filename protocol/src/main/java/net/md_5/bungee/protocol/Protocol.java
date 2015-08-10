@@ -1,7 +1,11 @@
 package net.md_5.bungee.protocol;
 
 import com.google.common.base.Preconditions;
+import gnu.trove.map.TIntIntMap;
+import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TIntIntHashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
@@ -68,9 +72,9 @@ public enum Protocol
 
                     TO_SERVER.registerPacket( 0x00, KeepAlive.class );
                     TO_SERVER.registerPacket( 0x01, Chat.class );
-                    TO_SERVER.registerPacket( 0x14, TabCompleteRequest.class );
-                    TO_SERVER.registerPacket( 0x15, ClientSettings.class );
-                    TO_SERVER.registerPacket( 0x17, PluginMessage.class );
+                    TO_SERVER.registerPacket( 0x14, 0x15, TabCompleteRequest.class );
+                    TO_SERVER.registerPacket( 0x15, 0x16, ClientSettings.class );
+                    TO_SERVER.registerPacket( 0x17, 0x18, PluginMessage.class );
                 }
             },
     // 1
@@ -119,13 +123,29 @@ public enum Protocol
         private final Class<? extends DefinedPacket>[] packetClasses = new Class[ MAX_PACKET_ID ];
         private final Constructor<? extends DefinedPacket>[] packetConstructors = new Constructor[ MAX_PACKET_ID ];
 
-        public boolean hasPacket(int id)
+        private final TIntObjectMap<TIntIntMap> packetRemap = new TIntObjectHashMap<>();
+        private final TIntObjectMap<TIntIntMap> packetRemapInv = new TIntObjectHashMap<>();
+
         {
-            return id < MAX_PACKET_ID && packetConstructors[id] != null;
+            packetRemap.put( ProtocolConstants.MINECRAFT_1_8, new TIntIntHashMap() );
+            packetRemapInv.put( ProtocolConstants.MINECRAFT_1_8, new TIntIntHashMap() );
+            packetRemap.put( ProtocolConstants.MINECRAFT_SNAPSHOT, new TIntIntHashMap() );
+            packetRemapInv.put( ProtocolConstants.MINECRAFT_SNAPSHOT, new TIntIntHashMap() );
         }
 
-        public final DefinedPacket createPacket(int id)
+        public boolean hasPacket(int id, int protocol)
         {
+            TIntIntMap remap = packetRemap.get(protocol);
+            return id < MAX_PACKET_ID && remap.containsKey( id );
+        }
+
+        public final DefinedPacket createPacket(int id, int protocol)
+        {
+            TIntIntMap remap = packetRemap.get( protocol );
+            if ( !remap.containsKey( id ) ) {
+                throw new BadPacketException( "No packet with id " + id );
+            }
+            id = remap.get( id );
             if ( id > MAX_PACKET_ID )
             {
                 throw new BadPacketException( "Packet with id " + id + " outside of range " );
@@ -146,6 +166,11 @@ public enum Protocol
 
         protected final void registerPacket(int id, Class<? extends DefinedPacket> packetClass)
         {
+            registerPacket( id, id, packetClass );
+        }
+
+        protected final void registerPacket(int id, int newId, Class<? extends DefinedPacket> packetClass)
+        {
             try
             {
                 packetConstructors[id] = packetClass.getDeclaredConstructor();
@@ -155,6 +180,11 @@ public enum Protocol
             }
             packetClasses[id] = packetClass;
             packetMap.put( packetClass, id );
+
+            packetRemap.get( ProtocolConstants.MINECRAFT_1_8 ).put( id, id );
+            packetRemapInv.get( ProtocolConstants.MINECRAFT_1_8 ).put(id, id);
+            packetRemap.get( ProtocolConstants.MINECRAFT_SNAPSHOT ).put( newId, id );
+            packetRemapInv.get( ProtocolConstants.MINECRAFT_SNAPSHOT ).put( id, newId );
         }
 
         protected final void unregisterPacket(int id)
@@ -164,11 +194,13 @@ public enum Protocol
             packetConstructors[id] = null;
         }
 
-        final int getId(Class<? extends DefinedPacket> packet)
+        final int getId(Class<? extends DefinedPacket> packet, int protocol)
         {
-            Preconditions.checkArgument( packetMap.containsKey( packet ), "Cannot get ID for packet " + packet );
+            Preconditions.checkArgument(packetMap.containsKey(packet), "Cannot get ID for packet " + packet);
 
-            return packetMap.get( packet );
+            int id = packetMap.get( packet );
+            TIntIntMap remap = packetRemapInv.get( protocol );
+            return remap.get( id );
         }
     }
 }
