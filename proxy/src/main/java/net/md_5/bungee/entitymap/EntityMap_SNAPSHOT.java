@@ -7,12 +7,13 @@ import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
+
 import java.util.UUID;
 
-class EntityMap_1_8 extends EntityMap
+class EntityMap_SNAPSHOT extends EntityMap
 {
 
-    EntityMap_1_8()
+    EntityMap_SNAPSHOT()
     {
         addRewrite( 0x04, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Equipment
         addRewrite( 0x0A, ProtocolConstants.Direction.TO_CLIENT, true ); // Use bed
@@ -42,7 +43,7 @@ class EntityMap_1_8 extends EntityMap
         addRewrite( 0x49, ProtocolConstants.Direction.TO_CLIENT, true ); // Update Entity NBT
 
         addRewrite( 0x02, ProtocolConstants.Direction.TO_SERVER, true ); // Use Entity
-        addRewrite( 0x0B, ProtocolConstants.Direction.TO_SERVER, true ); // Entity Action
+        addRewrite( 0x0C, ProtocolConstants.Direction.TO_SERVER, true ); // Entity Action
     }
 
     @Override
@@ -95,12 +96,28 @@ class EntityMap_1_8 extends EntityMap
                 packet.skipBytes( 14 );
                 int position = packet.readerIndex();
                 int readId = packet.readInt();
+                int changedId = -1;
                 if ( readId == oldId )
                 {
                     packet.setInt( position, newId );
+                    changedId = newId;
                 } else if ( readId == newId )
                 {
                     packet.setInt( position, oldId );
+                    changedId = oldId;
+                }
+                if ( changedId != -1 )
+                {
+                    if ( changedId == 0 && readId != 0 )
+                    { // Trim off the extra data
+                        packet.readerIndex( readerIndex );
+                        packet.writerIndex( packet.readableBytes() - 6 );
+                    } else if ( changedId != 0 && readId == 0 )
+                    { // Add on the extra data
+                        packet.readerIndex( readerIndex );
+                        packet.capacity( packet.readableBytes() + 6 );
+                        packet.writerIndex( packet.readableBytes() + 6 );
+                    }
                 }
             }
         } else if ( packetId == 0x0C /* Spawn Player */ )
@@ -145,7 +162,7 @@ class EntityMap_1_8 extends EntityMap
         int packetId = DefinedPacket.readVarInt( packet );
         int packetIdLength = packet.readerIndex() - readerIndex;
 
-        if ( packetId == 0x18 /* Spectate */ && !BungeeCord.getInstance().getConfig().isIpForward())
+        if ( packetId == 0x19 /* Spectate */ && !BungeeCord.getInstance().getConfig().isIpForward() )
         {
             UUID uuid = DefinedPacket.readUUID( packet );
             ProxiedPlayer player;
