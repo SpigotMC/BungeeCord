@@ -22,63 +22,53 @@ public class PlayerListItem extends DefinedPacket
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_8 )
+        action = Action.values()[ DefinedPacket.readVarInt( buf )];
+        items = new Item[ DefinedPacket.readVarInt( buf ) ];
+        for ( int i = 0; i < items.length; i++ )
         {
-            items = new Item[ 1 ];
-            Item item = items[ 0 ] = new Item();
-            item.displayName = item.username = readString( buf );
-            action = !buf.readBoolean() ? Action.REMOVE_PLAYER : Action.ADD_PLAYER;
-            item.ping = buf.readShort();
-        } else
-        {
-            action = Action.values()[ DefinedPacket.readVarInt( buf )];
-            items = new Item[ DefinedPacket.readVarInt( buf ) ];
-            for ( int i = 0; i < items.length; i++ )
+            Item item = items[ i ] = new Item();
+            item.setUuid( DefinedPacket.readUUID( buf ) );
+            switch ( action )
             {
-                Item item = items[ i ] = new Item();
-                item.setUuid( DefinedPacket.readUUID( buf ) );
-                switch ( action )
-                {
-                    case ADD_PLAYER:
-                        item.username = DefinedPacket.readString( buf );
-                        item.properties = new String[ DefinedPacket.readVarInt( buf ) ][];
-                        for ( int j = 0; j < item.properties.length; j++ )
-                        {
-                            String name = DefinedPacket.readString( buf );
-                            String value = DefinedPacket.readString( buf );
-                            if ( buf.readBoolean() )
-                            {
-                                item.properties[ j] = new String[]
-                                {
-                                    name, value, DefinedPacket.readString( buf )
-                                };
-                            } else
-                            {
-                                item.properties[ j ] = new String[]
-                                {
-                                    name, value
-                                };
-                            }
-                        }
-                        item.gamemode = DefinedPacket.readVarInt( buf );
-                        item.ping = DefinedPacket.readVarInt( buf );
+                case ADD_PLAYER:
+                    item.username = DefinedPacket.readString( buf );
+                    item.properties = new String[ DefinedPacket.readVarInt( buf ) ][];
+                    for ( int j = 0; j < item.properties.length; j++ )
+                    {
+                        String name = DefinedPacket.readString( buf );
+                        String value = DefinedPacket.readString( buf );
                         if ( buf.readBoolean() )
                         {
-                            item.displayName = DefinedPacket.readString( buf );
-                        }
-                        break;
-                    case UPDATE_GAMEMODE:
-                        item.gamemode = DefinedPacket.readVarInt( buf );
-                        break;
-                    case UPDATE_LATENCY:
-                        item.ping = DefinedPacket.readVarInt( buf );
-                        break;
-                    case UPDATE_DISPLAY_NAME:
-                        if ( buf.readBoolean() )
+                            item.properties[ j] = new String[]
+                            {
+                                name, value, DefinedPacket.readString( buf )
+                            };
+                        } else
                         {
-                            item.displayName = DefinedPacket.readString( buf );
+                            item.properties[ j ] = new String[]
+                            {
+                                name, value
+                            };
                         }
-                }
+                    }
+                    item.gamemode = DefinedPacket.readVarInt( buf );
+                    item.ping = DefinedPacket.readVarInt( buf );
+                    if ( buf.readBoolean() )
+                    {
+                        item.displayName = DefinedPacket.readString( buf );
+                    }
+                    break;
+                case UPDATE_GAMEMODE:
+                    item.gamemode = DefinedPacket.readVarInt( buf );
+                    break;
+                case UPDATE_LATENCY:
+                    item.ping = DefinedPacket.readVarInt( buf );
+                    break;
+                case UPDATE_DISPLAY_NAME:
+                    if ( buf.readBoolean() )
+                    {
+                        item.displayName = DefinedPacket.readString( buf );
+                    }
             }
         }
     }
@@ -86,59 +76,50 @@ public class PlayerListItem extends DefinedPacket
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_8 )
+        DefinedPacket.writeVarInt( action.ordinal(), buf );
+        DefinedPacket.writeVarInt( items.length, buf );
+        for ( Item item : items )
         {
-            Item item = items[0]; // Only one at a time
-            writeString( item.displayName, buf ); // TODO: Server unique only!
-            buf.writeBoolean( action != Action.REMOVE_PLAYER );
-            buf.writeShort( item.ping );
-        } else
-        {
-            DefinedPacket.writeVarInt( action.ordinal(), buf );
-            DefinedPacket.writeVarInt( items.length, buf );
-            for ( Item item : items )
+            DefinedPacket.writeUUID( item.uuid, buf );
+            switch ( action )
             {
-                DefinedPacket.writeUUID( item.uuid, buf );
-                switch ( action )
-                {
-                    case ADD_PLAYER:
-                        DefinedPacket.writeString( item.username, buf );
-                        DefinedPacket.writeVarInt( item.properties.length, buf );
-                        for ( String[] prop : item.properties )
+                case ADD_PLAYER:
+                    DefinedPacket.writeString( item.username, buf );
+                    DefinedPacket.writeVarInt( item.properties.length, buf );
+                    for ( String[] prop : item.properties )
+                    {
+                        DefinedPacket.writeString( prop[ 0], buf );
+                        DefinedPacket.writeString( prop[ 1], buf );
+                        if ( prop.length >= 3 )
                         {
-                            DefinedPacket.writeString( prop[ 0], buf );
-                            DefinedPacket.writeString( prop[ 1], buf );
-                            if ( prop.length >= 3 )
-                            {
-                                buf.writeBoolean( true );
-                                DefinedPacket.writeString( prop[ 2], buf );
-                            } else
-                            {
-                                buf.writeBoolean( false );
-                            }
-                        }
-                        DefinedPacket.writeVarInt( item.gamemode, buf );
-                        DefinedPacket.writeVarInt( item.ping, buf );
-                        buf.writeBoolean( item.displayName != null );
-                        if ( item.displayName != null )
+                            buf.writeBoolean( true );
+                            DefinedPacket.writeString( prop[ 2], buf );
+                        } else
                         {
-                            DefinedPacket.writeString( item.displayName, buf );
+                            buf.writeBoolean( false );
                         }
-                        break;
-                    case UPDATE_GAMEMODE:
-                        DefinedPacket.writeVarInt( item.gamemode, buf );
-                        break;
-                    case UPDATE_LATENCY:
-                        DefinedPacket.writeVarInt( item.ping, buf );
-                        break;
-                    case UPDATE_DISPLAY_NAME:
-                        buf.writeBoolean( item.displayName != null );
-                        if ( item.displayName != null )
-                        {
-                            DefinedPacket.writeString( item.displayName, buf );
-                        }
-                        break;
-                }
+                    }
+                    DefinedPacket.writeVarInt( item.gamemode, buf );
+                    DefinedPacket.writeVarInt( item.ping, buf );
+                    buf.writeBoolean( item.displayName != null );
+                    if ( item.displayName != null )
+                    {
+                        DefinedPacket.writeString( item.displayName, buf );
+                    }
+                    break;
+                case UPDATE_GAMEMODE:
+                    DefinedPacket.writeVarInt( item.gamemode, buf );
+                    break;
+                case UPDATE_LATENCY:
+                    DefinedPacket.writeVarInt( item.ping, buf );
+                    break;
+                case UPDATE_DISPLAY_NAME:
+                    buf.writeBoolean( item.displayName != null );
+                    if ( item.displayName != null )
+                    {
+                        DefinedPacket.writeString( item.displayName, buf );
+                    }
+                    break;
             }
         }
     }
