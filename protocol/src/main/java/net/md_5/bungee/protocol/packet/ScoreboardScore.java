@@ -29,20 +29,10 @@ public class ScoreboardScore extends DefinedPacket
     {
         itemName = readString( buf );
         action = buf.readByte();
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_8 )
+        scoreName = readString( buf );
+        if ( action != 1 )
         {
-            scoreName = readString( buf );
-            if ( action != 1 )
-            {
-                value = readVarInt( buf );
-            }
-        } else
-        {
-            if ( action != 1 )
-            {
-                scoreName = readString( buf );
-                value = buf.readInt();
-            }
+            value = readVarInt( buf );
         }
     }
 
@@ -51,20 +41,10 @@ public class ScoreboardScore extends DefinedPacket
     {
         writeString( itemName, buf );
         buf.writeByte( action );
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_8 )
+        writeString( scoreName, buf );
+        if ( action != 1 )
         {
-            writeString( scoreName, buf );
-            if ( action != 1 )
-            {
-                writeVarInt( value, buf );
-            }
-        } else
-        {
-            if ( action != 1 )
-            {
-                writeString( scoreName, buf );
-                buf.writeInt( value );
-            }
+            writeVarInt( value, buf );
         }
     }
 

@@ -28,7 +28,7 @@ public class Chat extends DefinedPacket
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         message = readString( buf );
-        if ( direction == ProtocolConstants.Direction.TO_CLIENT && protocolVersion >= ProtocolConstants.MINECRAFT_1_8 )
+        if ( direction == ProtocolConstants.Direction.TO_CLIENT )
         {
             position = buf.readByte();
         }
@@ -38,7 +38,7 @@ public class Chat extends DefinedPacket
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         writeString( message, buf );
-        if ( direction == ProtocolConstants.Direction.TO_CLIENT && protocolVersion >= ProtocolConstants.MINECRAFT_1_8 )
+        if ( direction == ProtocolConstants.Direction.TO_CLIENT )
         {
             buf.writeByte( position );
         }

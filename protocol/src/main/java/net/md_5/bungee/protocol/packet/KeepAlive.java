@@ -21,25 +21,13 @@ public class KeepAlive extends DefinedPacket
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_8 )
-        {
-            randomId = readVarInt( buf );
-        } else
-        {
-            randomId = buf.readInt();
-        }
+        randomId = readVarInt( buf );
     }
 
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_8 )
-        {
-            writeVarInt( randomId, buf );
-        } else
-        {
-            buf.writeInt( randomId );
-        }
+        writeVarInt( randomId, buf );
     }
 
     @Override

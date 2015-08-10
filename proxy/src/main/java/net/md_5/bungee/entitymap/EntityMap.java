@@ -26,10 +26,6 @@ public abstract class EntityMap
     {
         switch ( version )
         {
-            case ProtocolConstants.MINECRAFT_1_7_2:
-                return new EntityMap_1_7_2();
-            case ProtocolConstants.MINECRAFT_1_7_6:
-                return new EntityMap_1_7_6();
             case ProtocolConstants.MINECRAFT_1_8:
                 return new EntityMap_1_8();
         }

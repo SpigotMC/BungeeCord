@@ -394,7 +394,7 @@ public final class UserConnection implements ProxiedPlayer
     public void sendMessage(ChatMessageType position, BaseComponent... message)
     {
         // Action bar doesn't display the new JSON formattings, legacy works - send it using this for now
-        if ( position == ChatMessageType.ACTION_BAR && pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
+        if ( position == ChatMessageType.ACTION_BAR )
         {
             sendMessage( position, ComponentSerializer.toString( new TextComponent( TextComponent.toLegacyText( message ) ) ) );
         } else
@@ -407,7 +407,7 @@ public final class UserConnection implements ProxiedPlayer
     public void sendMessage(ChatMessageType position, BaseComponent message)
     {
         // Action bar doesn't display the new JSON formattings, legacy works - send it using this for now
-        if ( position == ChatMessageType.ACTION_BAR && pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
+        if ( position == ChatMessageType.ACTION_BAR )
         {
             sendMessage( position, ComponentSerializer.toString( new TextComponent( TextComponent.toLegacyText( message ) ) ) );
         } else
@@ -544,25 +544,19 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void setTabHeader(BaseComponent header, BaseComponent footer)
     {
-        if ( pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
-        {
-            unsafe().sendPacket( new PlayerListHeaderFooter(
-                    ( header != null ) ? ComponentSerializer.toString( header ) : EMPTY_TEXT,
-                    ( footer != null ) ? ComponentSerializer.toString( footer ) : EMPTY_TEXT
-            ) );
-        }
+        unsafe().sendPacket( new PlayerListHeaderFooter(
+                ( header != null ) ? ComponentSerializer.toString( header ) : EMPTY_TEXT,
+                ( footer != null ) ? ComponentSerializer.toString( footer ) : EMPTY_TEXT
+        ) );
     }
 
     @Override
     public void setTabHeader(BaseComponent[] header, BaseComponent[] footer)
     {
-        if ( pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
-        {
-            unsafe().sendPacket( new PlayerListHeaderFooter(
-                    ( header != null ) ? ComponentSerializer.toString( header ) : EMPTY_TEXT,
-                    ( footer != null ) ? ComponentSerializer.toString( footer ) : EMPTY_TEXT
-            ) );
-        }
+        unsafe().sendPacket( new PlayerListHeaderFooter(
+                ( header != null ) ? ComponentSerializer.toString( header ) : EMPTY_TEXT,
+                ( footer != null ) ? ComponentSerializer.toString( footer ) : EMPTY_TEXT
+        ) );
     }
 
     @Override

@@ -90,24 +90,7 @@ public class Global extends TabList
             item.setGamemode( ( (UserConnection) p ).getGamemode() );
             item.setPing( p.getPing() );
         }
-        if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
-        {
-            player.unsafe().sendPacket( playerListItem );
-        } else
-        {
-            // Split up the packet
-            for ( PlayerListItem.Item item : playerListItem.getItems() )
-            {
-                PlayerListItem packet = new PlayerListItem();
-                packet.setAction( playerListItem.getAction() );
-
-                packet.setItems( new PlayerListItem.Item[]
-                {
-                    item
-                } );
-                player.unsafe().sendPacket( packet );
-            }
-        }
+        player.unsafe().sendPacket( playerListItem );
         PlayerListItem packet = new PlayerListItem();
         packet.setAction( PlayerListItem.Action.ADD_PLAYER );
         PlayerListItem.Item item = new PlayerListItem.Item();
