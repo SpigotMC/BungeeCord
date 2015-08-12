@@ -485,10 +485,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             UserConnection userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
                             userCon.init();
 
-                            bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
-
                             ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
-
+                            bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
                             ServerInfo server;
                             if ( bungee.getReconnectHandler() != null )
                             {
