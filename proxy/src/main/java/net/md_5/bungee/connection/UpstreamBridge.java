@@ -137,7 +137,7 @@ public class UpstreamBridge extends PacketHandler
         List<String> results = tabCompleteEvent.getSuggestions();
         if ( !results.isEmpty() )
         {
-            con.unsafe().sendPacket( new TabCompleteResponse( results ) );
+            con.unsafe().sendPacket( new TabCompleteResponse( results.toArray( new String[ results.size() ] ) ) );
             throw CancelSendSignal.INSTANCE;
         }
 
@@ -190,7 +190,18 @@ public class UpstreamBridge extends PacketHandler
         // TODO: Unregister as well?
         if ( pluginMessage.getTag().equals( "REGISTER" ) )
         {
-            con.getPendingConnection().getRegisterMessages().add( pluginMessage );
+            // If we have a forge handshake in progress, send the REGISTER message along containing the forge channel registrations.
+            if ( con.getForgeServerHandler().acceptRegisterMessages() )
+            {
+                // Send it through the full handler sequence, don't send it to the current server.
+                con.getForgeClientHandler().handle( pluginMessage );
+                throw CancelSendSignal.INSTANCE;
+            }
+            else
+            {
+                // Store the packet for sending later.
+                con.getPendingConnection().getRegisterMessages().add( pluginMessage );
+            }
         }
     }
 
