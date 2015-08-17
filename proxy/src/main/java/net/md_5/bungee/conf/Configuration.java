@@ -50,6 +50,7 @@ public class Configuration implements ProxyConfig
     private int playerLimit = -1;
     private Collection<String> disabledCommands;
     private int throttle = 4000;
+    private int connectTimeout = 5000;
     private boolean ipForward;
     private Favicon favicon;
 
@@ -77,6 +78,7 @@ public class Configuration implements ProxyConfig
         playerLimit = adapter.getInt( "player_limit", playerLimit );
         throttle = adapter.getInt( "connection_throttle", throttle );
         ipForward = adapter.getBoolean( "ip_forward", ipForward );
+        connectTimeout = adapter.getInt( "connect_timeout", connectTimeout );
 
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
 

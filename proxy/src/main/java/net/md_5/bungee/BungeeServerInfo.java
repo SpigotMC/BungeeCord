@@ -140,11 +140,12 @@ public class BungeeServerInfo implements ServerInfo
                 }
             }
         };
+
         new Bootstrap()
                 .channel( PipelineUtils.getChannel() )
                 .group( BungeeCord.getInstance().eventLoops )
                 .handler( PipelineUtils.BASE )
-                .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000 ) // TODO: Configurable
+                .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, BungeeCord.getInstance().getConfig().getConnectTimeout())
                 .remoteAddress( getAddress() )
                 .connect()
                 .addListener( listener );
