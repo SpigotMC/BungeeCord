@@ -21,10 +21,6 @@ public class ForgeClientHandler
     @NonNull
     private final UserConnection con;
 
-    @Getter
-    @Setter(AccessLevel.PACKAGE)
-    private boolean forgeOutdated = false;
-
     /**
      * The users' mod list.
      */
@@ -159,29 +155,5 @@ public class ForgeClientHandler
     public boolean isForgeUser()
     {
         return fmlTokenInHandshake || clientModList != null;
-    }
-
-    /**
-     * Checks to see if a user is using an outdated FML build, and takes
-     * appropriate action on the User side. This should only be called during a
-     * server connection, by the ServerConnector
-     *
-     * @return <code>true</code> if the user's FML build is outdated, otherwise
-     * <code>false</code>
-     */
-    public boolean checkUserOutdated()
-    {
-        if ( forgeOutdated )
-        {
-            if ( con.isDimensionChange() )
-            {
-                con.disconnect( BungeeCord.getInstance().getTranslation( "connect_kick_outdated_forge" ) );
-            } else
-            {
-                con.sendMessage( BungeeCord.getInstance().getTranslation( "connect_kick_outdated_forge" ) );
-            }
-        }
-
-        return forgeOutdated;
     }
 }

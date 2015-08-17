@@ -328,11 +328,6 @@ public class ServerConnector extends PacketHandler
         if ( pluginMessage.getTag().equals( ForgeConstants.FML_HANDSHAKE_TAG ) || pluginMessage.getTag().equals( ForgeConstants.FORGE_REGISTER ) )
         {
             this.handshakeHandler.handle( pluginMessage );
-            if ( user.getForgeClientHandler().checkUserOutdated() )
-            {
-                ch.close();
-                user.getPendingConnects().remove( target );
-            }
 
             // We send the message as part of the handler, so don't send it here.
             throw CancelSendSignal.INSTANCE;
