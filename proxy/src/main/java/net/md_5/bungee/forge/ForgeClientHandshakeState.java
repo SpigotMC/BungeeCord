@@ -86,17 +86,6 @@ enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientH
                             // Once we've done it, no point doing it again.
                             Map<String, String> clientModList = ForgeUtils.readModList( message );
                             con.getForgeClientHandler().setClientModList( clientModList );
-
-                            // Get the version from the mod list.
-                            int buildNumber = ForgeUtils.getFmlBuildNumber( clientModList );
-
-                            // If we get 0, we're probably using a testing build, so let it though. Otherwise, check the build number.
-                            if ( buildNumber < ForgeConstants.FML_MIN_BUILD_VERSION && buildNumber != 0 )
-                            {
-                                // Mark the user as an old Forge user. This will then cause any Forge ServerConnectors to cancel any
-                                // connections to it.
-                                con.getForgeClientHandler().setForgeOutdated( true );
-                            }
                         }
 
                         return WAITINGSERVERDATA;
