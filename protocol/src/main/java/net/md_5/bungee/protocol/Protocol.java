@@ -136,16 +136,26 @@ public enum Protocol
         public boolean hasPacket(int id, int protocol)
         {
             TIntIntMap remap = packetRemap.get(protocol);
+            if ( remap == null )
+            {
+                // Unsupported versions will go down this path, normally
+                // caused by status pings by newer/older clients
+                return id < MAX_PACKET_ID && packetConstructors[id] != null;
+            }
             return id < MAX_PACKET_ID && remap.containsKey( id );
         }
 
         public final DefinedPacket createPacket(int id, int protocol)
         {
             TIntIntMap remap = packetRemap.get( protocol );
-            if ( !remap.containsKey( id ) ) {
-                throw new BadPacketException( "No packet with id " + id );
+            if ( remap != null )
+            {
+                if ( !remap.containsKey( id ) )
+                {
+                    throw new BadPacketException( "No packet with id " + id );
+                }
+                id = remap.get( id );
             }
-            id = remap.get( id );
             if ( id > MAX_PACKET_ID )
             {
                 throw new BadPacketException( "Packet with id " + id + " outside of range " );
@@ -200,7 +210,11 @@ public enum Protocol
 
             int id = packetMap.get( packet );
             TIntIntMap remap = packetRemapInv.get( protocol );
-            return remap.get( id );
+            if ( remap != null )
+            {
+                return remap.get( id );
+            }
+            return id;
         }
     }
 }
