@@ -130,41 +130,42 @@ public class TranslatableComponent extends BaseComponent
     @Override
     protected void toPlainText(StringBuilder builder)
     {
+        String trans;
         try
         {
-            String trans = locales.getString( translate );
-            Matcher matcher = format.matcher( trans );
-            int position = 0;
-            int i = 0;
-            while ( matcher.find( position ) )
-            {
-                int pos = matcher.start();
-                if ( pos != position )
-                {
-                    builder.append( trans.substring( position, pos ) );
-                }
-                position = matcher.end();
+            trans = locales.getString( translate );
+        } catch ( MissingResourceException e ) {
+            trans = translate;
+        }
 
-                String formatCode = matcher.group( 2 );
-                switch ( formatCode.charAt( 0 ) )
-                {
-                    case 's':
-                    case 'd':
-                        String withIndex = matcher.group( 1 );
-                        with.get( withIndex != null ? Integer.parseInt( withIndex ) - 1 : i++ ).toPlainText( builder );
-                        break;
-                    case '%':
-                        builder.append( '%' );
-                        break;
-                }
-            }
-            if ( trans.length() != position )
-            {
-                builder.append( trans.substring( position, trans.length() ) );
-            }
-        } catch ( MissingResourceException e )
+        Matcher matcher = format.matcher( trans );
+        int position = 0;
+        int i = 0;
+        while ( matcher.find( position ) )
         {
-            builder.append( translate );
+            int pos = matcher.start();
+            if ( pos != position )
+            {
+                builder.append( trans.substring( position, pos ) );
+            }
+            position = matcher.end();
+
+            String formatCode = matcher.group( 2 );
+            switch ( formatCode.charAt( 0 ) )
+            {
+                case 's':
+                case 'd':
+                    String withIndex = matcher.group( 1 );
+                    with.get( withIndex != null ? Integer.parseInt( withIndex ) - 1 : i++ ).toPlainText( builder );
+                    break;
+                case '%':
+                    builder.append( '%' );
+                    break;
+            }
+        }
+        if ( trans.length() != position )
+        {
+            builder.append( trans.substring( position, trans.length() ) );
         }
 
         super.toPlainText( builder );
@@ -173,45 +174,45 @@ public class TranslatableComponent extends BaseComponent
     @Override
     protected void toLegacyText(StringBuilder builder)
     {
+        String trans;
         try
         {
-            String trans = locales.getString( translate );
-            Matcher matcher = format.matcher( trans );
-            int position = 0;
-            int i = 0;
-            while ( matcher.find( position ) )
-            {
-                int pos = matcher.start();
-                if ( pos != position )
-                {
-                    addFormat( builder );
-                    builder.append( trans.substring( position, pos ) );
-                }
-                position = matcher.end();
+            trans = locales.getString( translate );
+        } catch ( MissingResourceException e ) {
+            trans = translate;
+        }
 
-                String formatCode = matcher.group( 2 );
-                switch ( formatCode.charAt( 0 ) )
-                {
-                    case 's':
-                    case 'd':
-                        String withIndex = matcher.group( 1 );
-                        with.get( withIndex != null ? Integer.parseInt( withIndex ) - 1 : i++ ).toLegacyText( builder );
-                        break;
-                    case '%':
-                        addFormat( builder );
-                        builder.append( '%' );
-                        break;
-                }
-            }
-            if ( trans.length() != position )
+        Matcher matcher = format.matcher( trans );
+        int position = 0;
+        int i = 0;
+        while ( matcher.find( position ) )
+        {
+            int pos = matcher.start();
+            if ( pos != position )
             {
                 addFormat( builder );
-                builder.append( trans.substring( position, trans.length() ) );
+                builder.append( trans.substring( position, pos ) );
             }
-        } catch ( MissingResourceException e )
+            position = matcher.end();
+
+            String formatCode = matcher.group( 2 );
+            switch ( formatCode.charAt( 0 ) )
+            {
+                case 's':
+                case 'd':
+                    String withIndex = matcher.group( 1 );
+                    with.get( withIndex != null ? Integer.parseInt( withIndex ) - 1 : i++ ).toLegacyText( builder );
+                    break;
+                case '%':
+                    addFormat( builder );
+                    builder.append( '%' );
+                    break;
+            }
+        }
+        if ( trans.length() != position )
         {
             addFormat( builder );
-            builder.append( translate );
+            builder.append( trans.substring( position, trans.length() ) );
         }
         super.toLegacyText( builder );
     }
