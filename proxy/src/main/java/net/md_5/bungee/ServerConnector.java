@@ -252,6 +252,8 @@ public class ServerConnector extends PacketHandler
 
         thisState = State.FINISHED;
 
+        user.markServerReady();
+
         throw CancelSendSignal.INSTANCE;
     }
 
