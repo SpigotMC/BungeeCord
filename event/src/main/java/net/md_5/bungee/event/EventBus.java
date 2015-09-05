@@ -9,8 +9,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,8 +19,8 @@ public class EventBus
 {
 
     private final Map<Class<?>, Map<Byte, Map<Object, Method[]>>> byListenerAndPriority = new HashMap<>();
-    private final Map<Class<?>, EventHandlerMethod[]> byEventBaked = new HashMap<>();
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final Map<Class<?>, EventHandlerMethod[]> byEventBaked = new ConcurrentHashMap<>();
+    private final Lock lock = new ReentrantLock();
     private final Logger logger;
 
     public EventBus()
@@ -34,15 +35,7 @@ public class EventBus
 
     public void post(Object event)
     {
-        EventHandlerMethod[] handlers;
-        lock.readLock().lock();
-        try
-        {
-            handlers = byEventBaked.get( event.getClass() );
-        } finally
-        {
-            lock.readLock().unlock();
-        }
+        EventHandlerMethod[] handlers = byEventBaked.get( event.getClass() );
 
         if ( handlers != null )
         {
@@ -103,7 +96,7 @@ public class EventBus
     public void register(Object listener)
     {
         Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers( listener );
-        lock.writeLock().lock();
+        lock.lock();
         try
         {
             for ( Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet() )
@@ -129,14 +122,14 @@ public class EventBus
             }
         } finally
         {
-            lock.writeLock().unlock();
+            lock.unlock();
         }
     }
 
     public void unregister(Object listener)
     {
         Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers( listener );
-        lock.writeLock().lock();
+        lock.lock();
         try
         {
             for ( Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet() )
@@ -165,7 +158,7 @@ public class EventBus
             }
         } finally
         {
-            lock.writeLock().unlock();
+            lock.unlock();
         }
     }
 
@@ -202,7 +195,7 @@ public class EventBus
             byEventBaked.put( eventClass, handlersList.toArray( new EventHandlerMethod[ handlersList.size() ] ) );
         } else
         {
-            byEventBaked.put( eventClass, null );
+            byEventBaked.remove( eventClass );
         }
     }
 }
