@@ -660,13 +660,13 @@ public class BungeeCord extends ProxyServer
             return Collections.singleton( exactMatch );
         }
 
-        return Sets.newHashSet( Iterables.find( getPlayers(), new Predicate<ProxiedPlayer>()
+        return Sets.newHashSet( Iterables.filter( getPlayers(), new Predicate<ProxiedPlayer>()
         {
 
             @Override
             public boolean apply(ProxiedPlayer input)
             {
-                return ( input == null ) ? false : input.getName().toLowerCase().contains( partialName.toLowerCase() );
+                return ( input == null ) ? false : input.getName().toLowerCase().startsWith( partialName.toLowerCase() );
             }
         } ) );
     }

@@ -284,11 +284,15 @@ public abstract class ProxyServer
      * Attempts to match any players with the given name, and returns a list of
      * all possible matches.
      *
-     * @param name the (partial) name to match
+     * The exact algorithm to use to match players is implementation specific,
+     * but in general you can expect this method to return player's whose names
+     * begin with the specified prefix.
+     *
+     * @param match the (partial) name to match
      * @return list of all possible players, singleton if there is an exact
      * match
      */
-    public abstract Collection<ProxiedPlayer> matchPlayer(String name);
+    public abstract Collection<ProxiedPlayer> matchPlayer(String match);
 
     /**
      * Creates a new empty title configuration. In most cases you will want to
