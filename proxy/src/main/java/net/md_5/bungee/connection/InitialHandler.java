@@ -433,7 +433,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 // TODO See #1218
                 oldID.disconnect( bungee.getTranslation( "already_connected" ) );
             }
-        } else {
+        } else
+        {
             // In offline mode the existing user stays and we kick the new one
             ProxiedPlayer oldName = bungee.getPlayer( getName() );
             if ( oldName != null )
@@ -473,6 +474,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     {
                         if ( ch.getHandle().isActive() )
                         {
+                            UserConnection userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
+                            userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
+                            userCon.init();
+
                             if ( getVersion() >= ProtocolConstants.MINECRAFT_1_7_6 )
                             {
                                 unsafe.sendPacket( new LoginSuccess( getUniqueId().toString(), getName() ) ); // With dashes in between
@@ -481,9 +486,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                                 unsafe.sendPacket( new LoginSuccess( getUUID(), getName() ) ); // Without dashes, for older clients.
                             }
                             ch.setProtocol( Protocol.GAME );
-
-                            UserConnection userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
-                            userCon.init();
 
                             ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
                             bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
@@ -535,7 +537,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 @Override
                 public void run()
                 {
-                    if (thisState != State.STATUS && thisState != State.PING)
+                    if ( thisState != State.STATUS && thisState != State.PING )
                     {
                         unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
                     }
