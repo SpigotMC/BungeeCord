@@ -23,6 +23,7 @@ public class BungeeCordLauncher
         OptionParser parser = new OptionParser();
         parser.allowsUnrecognizedOptions();
         parser.acceptsAll( Arrays.asList( "v", "version" ) );
+        parser.acceptsAll( Arrays.asList( "noconsole" ) );
 
         OptionSet options = parser.parse( args );
 
@@ -53,10 +54,10 @@ public class BungeeCordLauncher
         bungee.getLogger().info( "Enabled BungeeCord version " + bungee.getVersion() );
         bungee.start();
 
-        while ( bungee.isRunning )
+        if ( !options.has( "noconsole" ) )
         {
-            String line = bungee.getConsoleReader().readLine( ">" );
-            if ( line != null )
+            String line;
+            while ( bungee.isRunning && ( line = bungee.getConsoleReader().readLine( ">" ) ) != null )
             {
                 if ( !bungee.getPluginManager().dispatchCommand( ConsoleCommandSender.getInstance(), line ) )
                 {
