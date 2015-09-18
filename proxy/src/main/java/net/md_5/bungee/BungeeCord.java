@@ -294,6 +294,8 @@ public class BungeeCord extends ProxyServer
             new ServerBootstrap()
                     .channel( PipelineUtils.getServerChannel() )
                     .option( ChannelOption.SO_REUSEADDR, true ) // TODO: Move this elsewhere!
+                    .childOption( ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 1024 * 1024 * 10 )
+                    .childOption( ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, 1024 * 1024 * 1 )
                     .childAttr( PipelineUtils.LISTENER, info )
                     .childHandler( PipelineUtils.SERVER_CHILD )
                     .group( eventLoops )
@@ -443,7 +445,7 @@ public class BungeeCord extends ProxyServer
     @Override
     public String getName()
     {
-        return "BungeeCord";
+        return "X-TimeCraft";
     }
 
     @Override
