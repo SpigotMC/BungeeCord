@@ -5,10 +5,14 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.eventbus.Subscribe;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -314,6 +318,27 @@ public class PluginManager
         return status;
     }
 
+    private void checkUpdate( File file )
+    {
+        File updateDirectory = proxy.getUpdateFolderFile();
+        if ( updateDirectory == null || !updateDirectory.isDirectory() )
+        {
+            return;
+        }
+
+        File updateFile = new File( updateDirectory, file.getName() );
+        if ( updateFile.isFile() )
+        {
+            try
+            {
+                Files.move( Paths.get( updateFile.getAbsolutePath() ), Paths.get( file.getAbsolutePath() ), StandardCopyOption.REPLACE_EXISTING );
+            } catch ( IOException ex )
+            {
+                ex.printStackTrace();
+            }
+        }
+    }
+
     /**
      * Load all plugins from the specified folder.
      *
@@ -326,6 +351,8 @@ public class PluginManager
 
         for ( File file : folder.listFiles() )
         {
+            checkUpdate(file);
+
             if ( file.isFile() && file.getName().endsWith( ".jar" ) )
             {
                 try ( JarFile jar = new JarFile( file ) )

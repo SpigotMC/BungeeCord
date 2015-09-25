@@ -453,6 +453,12 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
+    public File getUpdateFolderFile()
+    {
+        return new File(pluginsFolder, config.getPluginUpdateFolderFileName() );
+    }
+
+    @Override
     public String getTranslation(String name, Object... args)
     {
         String translation = "<translation '" + name + "' missing>";

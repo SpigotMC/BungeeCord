@@ -50,6 +50,14 @@ public abstract class ProxyServer
     public abstract String getVersion();
 
     /**
+     * Gets the update folder. The update folder is used to safely update
+     * plugins at the right moment on a plugin load.
+     *
+     * @return the update folder
+     */
+    public abstract File getUpdateFolderFile();
+
+    /**
      * Gets a localized string from the .properties file.
      *
      * @return the localized string
