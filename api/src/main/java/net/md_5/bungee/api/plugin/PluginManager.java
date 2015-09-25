@@ -10,9 +10,6 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,6 +24,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
+
+import com.google.common.io.Files;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -331,7 +330,7 @@ public class PluginManager
         {
             try
             {
-                Files.move( Paths.get( updateFile.getAbsolutePath() ), Paths.get( file.getAbsolutePath() ), StandardCopyOption.REPLACE_EXISTING );
+                Files.move( updateFile, file );
             } catch ( IOException ex )
             {
                 ex.printStackTrace();
