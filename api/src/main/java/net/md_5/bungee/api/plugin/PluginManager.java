@@ -159,6 +159,10 @@ public class PluginManager
         {
             if ( tabResults == null )
             {
+                proxy.getLogger().log( Level.INFO, "{0} executed proxy command: /{1}", new Object[]
+                        {
+                                sender.getName(), commandLine
+                        } );
                 command.execute( sender, args );
             } else if ( commandLine.contains( " " ) && command instanceof TabExecutor )
             {
