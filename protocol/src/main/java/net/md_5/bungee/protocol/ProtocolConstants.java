@@ -8,7 +8,7 @@ public class ProtocolConstants
     public static final int MINECRAFT_1_8 = 47;
     public static final int MINECRAFT_SNAPSHOT = 81;
     public static final List<String> SUPPORTED_VERSIONS = Arrays.asList(
-            "1.8.X",
+            "1.8.x",
             "15w43b"
     );
 
