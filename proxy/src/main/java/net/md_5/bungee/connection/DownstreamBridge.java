@@ -195,6 +195,7 @@ public class DownstreamBridge extends PacketHandler
                 t.setSuffix( team.getSuffix() );
                 t.setFriendlyFire( team.getFriendlyFire() );
                 t.setNameTagVisibility( team.getNameTagVisibility() );
+                t.setCollisionRule( team.getCollisionRule() );
                 t.setColor( team.getColor() );
             }
             if ( team.getPlayers() != null )
@@ -436,7 +437,7 @@ public class DownstreamBridge extends PacketHandler
                     con.getServer().sendData( "BungeeCord", b );
                 }
             }
-            
+
             throw CancelSendSignal.INSTANCE;
         }
     }
