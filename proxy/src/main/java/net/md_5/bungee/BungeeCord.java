@@ -171,7 +171,8 @@ public class BungeeCord extends ProxyServer
         // Java uses ! to indicate a resource inside of a jar/zip/other container. Running Bungee from within a directory that has a ! will cause this to muck up.
         Preconditions.checkState( new File( "." ).getAbsolutePath().indexOf( '!' ) == -1, "Cannot use BungeeCord in directory with ! in path." );
 
-        System.setSecurityManager( new BungeeSecurityManager() );
+        if(System.getProperty("IDontWantYourSecurityManagerThanks") == null) System.setSecurityManager( new BungeeSecurityManager() );
+        else System.out.println("*** YOU HAVE DISABLED THE INBUILT BUNGEECORD SECURITY MANAGER ***");
 
         try
         {
