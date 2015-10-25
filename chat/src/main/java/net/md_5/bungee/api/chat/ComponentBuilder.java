@@ -2,6 +2,7 @@ package net.md_5.bungee.api.chat;
 
 import net.md_5.bungee.api.ChatColor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -81,6 +82,22 @@ public class ComponentBuilder
         current.setText( text );
         retain( retention );
 
+        return this;
+    }
+
+    /**
+     * Appends the components from other builder.
+     *
+     * @param components the text to append
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder append(BaseComponent... components)
+    {
+        if(components.length > 0) {
+            parts.add(current);
+            parts.addAll(Arrays.asList(Arrays.copyOfRange(components, 0, components.length - 1)));
+            current = (TextComponent) components[components.length - 1]; // I don't have idea for TranslatableComponent :/
+        }
         return this;
     }
 
@@ -229,8 +246,12 @@ public class ComponentBuilder
      */
     public BaseComponent[] create()
     {
-        parts.add( current );
-        return parts.toArray( new BaseComponent[ parts.size() ] );
+        try {
+            parts.add(current);
+            return parts.toArray(new BaseComponent[parts.size()]);
+        } finally {
+            parts.remove(parts.size() - 1);
+        }
     }
 
     public static enum FormatRetention

@@ -92,6 +92,18 @@ public class ComponentsTest
     }
 
     @Test
+    public void testBuilderComponentAppend()
+    {
+        BaseComponent[] components = new ComponentBuilder( "Hello " ).color(ChatColor.RED)
+                .append("World").color(ChatColor.WHITE).append(
+                        new ComponentBuilder("!").color(ChatColor.YELLOW).create()
+                ).create();
+
+        Assert.assertEquals( "Hello World!", BaseComponent.toPlainText( components ) );
+        Assert.assertEquals( ChatColor.RED + "Hello " + ChatColor.WHITE + "World" + ChatColor.YELLOW + "!", BaseComponent.toLegacyText( components ) );
+    }
+
+    @Test
     public void testBuilderFormatRetention()
     {
         BaseComponent[] noneRetention = new ComponentBuilder( "Hello " ).color( ChatColor.RED )
