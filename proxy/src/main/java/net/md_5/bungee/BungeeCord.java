@@ -29,23 +29,11 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.ResourceLeakDetector;
 import net.md_5.bungee.conf.Configuration;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
+
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -173,14 +161,24 @@ public class BungeeCord extends ProxyServer
 
         System.setSecurityManager( new BungeeSecurityManager() );
 
-        try
-        {
-            bundle = ResourceBundle.getBundle( "messages" );
-        } catch ( MissingResourceException ex )
-        {
-            bundle = ResourceBundle.getBundle( "messages", Locale.ENGLISH );
+        boolean loaded = false;
+        File f = new File("messages.properties");
+        if (f.exists() && f.isFile()) {
+            try (Reader r = new FileReader(f)) {
+                bundle = new PropertyResourceBundle(r);
+                loaded = true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
+        if (!loaded) {
+            try {
+                bundle = ResourceBundle.getBundle("messages");
+            } catch (MissingResourceException ex) {
+                bundle = ResourceBundle.getBundle("messages", Locale.ENGLISH);
+            }
+        }
         // This is a workaround for quite possibly the weirdest bug I have ever encountered in my life!
         // When jansi attempts to extract its natives, by default it tries to extract a specific version,
         // using the loading class's implementation version. Normally this works completely fine,
@@ -247,9 +245,9 @@ public class BungeeCord extends ProxyServer
         pluginManager.loadPlugins();
         config.load();
 
-        registerChannel( ForgeConstants.FML_TAG );
-        registerChannel( ForgeConstants.FML_HANDSHAKE_TAG );
-        registerChannel( ForgeConstants.FORGE_REGISTER );
+        registerChannel(ForgeConstants.FML_TAG);
+        registerChannel(ForgeConstants.FML_HANDSHAKE_TAG);
+        registerChannel(ForgeConstants.FORGE_REGISTER);
 
         isRunning = true;
 
