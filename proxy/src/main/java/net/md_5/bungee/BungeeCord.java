@@ -30,6 +30,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.util.ResourceLeakDetector;
 import net.md_5.bungee.conf.Configuration;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
@@ -42,6 +43,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -54,7 +56,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import jline.UnsupportedTerminal;
 import jline.console.ConsoleReader;
-import jline.internal.Log;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
@@ -175,7 +176,17 @@ public class BungeeCord extends ProxyServer
 
         try
         {
-            bundle = ResourceBundle.getBundle( "messages" );
+            File messagesFile = new File("messages.properties");
+            if(messagesFile.exists() && messagesFile.isFile()) {
+                bundle = new PropertyResourceBundle(new FileReader(messagesFile));
+            }
+        } catch ( IOException e ) {
+            getLogger().log(Level.WARNING, "Cannot load file with messages:", e);
+        }
+
+        try
+        {
+            if(bundle == null) bundle = ResourceBundle.getBundle( "messages" );
         } catch ( MissingResourceException ex )
         {
             bundle = ResourceBundle.getBundle( "messages", Locale.ENGLISH );
