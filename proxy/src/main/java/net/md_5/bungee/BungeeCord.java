@@ -174,7 +174,8 @@ public class BungeeCord extends ProxyServer
 
         System.setSecurityManager( new BungeeSecurityManager() );
         
-        messagesLoad(); // load messages from messages.properties
+        // load messages from messages.properties
+        messagesLoad();
 
         // This is a workaround for quite possibly the weirdest bug I have ever encountered in my life!
         // When jansi attempts to extract its natives, by default it tries to extract a specific version,
