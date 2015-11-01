@@ -8,7 +8,6 @@ import net.md_5.bungee.api.event.ProxyReloadEvent;
 
 public class CommandReload extends Command
 {
-
     public CommandReload()
     {
         super( "greload", "bungeecord.command.reload" );
