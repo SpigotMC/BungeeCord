@@ -55,100 +55,104 @@ class EntityMap_SNAPSHOT extends EntityMap
         int readerIndex = packet.readerIndex();
         int packetId = DefinedPacket.readVarInt( packet );
         int packetIdLength = packet.readerIndex() - readerIndex;
-        if ( packetId == 0x4A /* Collect Item : PacketPlayOutCollect */ )
+        switch ( packetId )
         {
-            DefinedPacket.readVarInt( packet );
-            rewriteVarInt( packet, oldId, newId, packet.readerIndex() );
-        } else if ( packetId == 0x41 /* Attach Entity : PacketPlayOutMount */ )
-        {
-            if (true) throw new RuntimeException("TODO");
-            rewriteInt( packet, oldId, newId, readerIndex + packetIdLength + 4 );
-        } else if ( packetId == 0x31 /* Destroy Entities : PacketPlayOutEntityDestroy */ )
-        {
-            int count = DefinedPacket.readVarInt( packet );
-            int[] ids = new int[ count ];
-            for ( int i = 0; i < count; i++ )
-            {
-                ids[i] = DefinedPacket.readVarInt( packet );
-            }
-            packet.readerIndex( readerIndex + packetIdLength );
-            packet.writerIndex( readerIndex + packetIdLength );
-            DefinedPacket.writeVarInt( count, packet );
-            for ( int id : ids )
-            {
-                if ( id == oldId )
+            case 0x4A /* Collect Item : PacketPlayOutCollect */:
+                DefinedPacket.readVarInt( packet );
+                rewriteVarInt( packet, oldId, newId, packet.readerIndex() );
+                break;
+            case 0x41 /* Attach Entity : PacketPlayOutMount */:
+                DefinedPacket.readVarInt( packet );
+                // Fall through on purpose to int array of IDs
+            case 0x31 /* Destroy Entities : PacketPlayOutEntityDestroy */:
+                int count = DefinedPacket.readVarInt( packet );
+                int[] ids = new int[ count ];
+                for ( int i = 0; i < count; i++ )
                 {
-                    id = newId;
-                } else if ( id == newId )
-                {
-                    id = oldId;
+                    ids[i] = DefinedPacket.readVarInt( packet );
                 }
-                DefinedPacket.writeVarInt( id, packet );
-            }
-        } else if ( packetId == 0x00 /* Spawn Object : PacketPlayOutSpawnEntity */ )
-        {
-            if (true) throw new RuntimeException("TODO");
-            DefinedPacket.readVarInt( packet );
-            int type = packet.readUnsignedByte();
+                packet.readerIndex( readerIndex + packetIdLength );
+                packet.writerIndex( readerIndex + packetIdLength );
+                DefinedPacket.writeVarInt( count, packet );
+                for ( int id : ids )
+                {
+                    if ( id == oldId )
+                    {
+                        id = newId;
+                    } else if ( id == newId )
+                    {
+                        id = oldId;
+                    }
+                    DefinedPacket.writeVarInt( id, packet );
+                }
+                break;
+            case 0x00 /* Spawn Object : PacketPlayOutSpawnEntity */:
+                if ( true )
+                {
+                    throw new RuntimeException( "TODO" );
+                }
+                DefinedPacket.readVarInt( packet );
+                int type = packet.readUnsignedByte();
 
-            if ( type == 60 || type == 90 )
-            {
-                packet.skipBytes( 14 );
-                int position = packet.readerIndex();
-                int readId = packet.readInt();
-                int changedId = -1;
-                if ( readId == oldId )
+                if ( type == 60 || type == 90 )
                 {
-                    packet.setInt( position, newId );
-                    changedId = newId;
-                } else if ( readId == newId )
-                {
-                    packet.setInt( position, oldId );
-                    changedId = oldId;
-                }
-                if ( changedId != -1 )
-                {
-                    if ( changedId == 0 && readId != 0 )
-                    { // Trim off the extra data
-                        packet.readerIndex( readerIndex );
-                        packet.writerIndex( packet.readableBytes() - 6 );
-                    } else if ( changedId != 0 && readId == 0 )
-                    { // Add on the extra data
-                        packet.readerIndex( readerIndex );
-                        packet.capacity( packet.readableBytes() + 6 );
-                        packet.writerIndex( packet.readableBytes() + 6 );
+                    packet.skipBytes( 14 );
+                    int position = packet.readerIndex();
+                    int readId = packet.readInt();
+                    int changedId = -1;
+                    if ( readId == oldId )
+                    {
+                        packet.setInt( position, newId );
+                        changedId = newId;
+                    } else if ( readId == newId )
+                    {
+                        packet.setInt( position, oldId );
+                        changedId = oldId;
+                    }
+                    if ( changedId != -1 )
+                    {
+                        if ( changedId == 0 && readId != 0 )
+                        { // Trim off the extra data
+                            packet.readerIndex( readerIndex );
+                            packet.writerIndex( packet.readableBytes() - 6 );
+                        } else if ( changedId != 0 && readId == 0 )
+                        { // Add on the extra data
+                            packet.readerIndex( readerIndex );
+                            packet.capacity( packet.readableBytes() + 6 );
+                            packet.writerIndex( packet.readableBytes() + 6 );
+                        }
                     }
                 }
-            }
-        } else if ( packetId == 0x0C /* Spawn Player : PacketPlayOutNamedEntitySpawn */ )
-        {
-            DefinedPacket.readVarInt( packet ); // Entity ID
-            int idLength = packet.readerIndex() - readerIndex - packetIdLength;
-            UUID uuid = DefinedPacket.readUUID( packet );
-            ProxiedPlayer player;
-            if ( ( player = BungeeCord.getInstance().getPlayerByOfflineUUID( uuid ) ) != null )
-            {
-                int previous = packet.writerIndex();
-                packet.readerIndex( readerIndex );
-                packet.writerIndex( readerIndex + packetIdLength + idLength );
-                DefinedPacket.writeUUID( player.getUniqueId(), packet );
-                packet.writerIndex( previous );
-            }
-        } else if ( packetId == 0x2D /* Combat Event : PacketPlayOutCombatEvent */ )
-        {
-            int event = packet.readUnsignedByte();
-            if ( event == 1 /* End Combat*/ )
-            {
-                DefinedPacket.readVarInt( packet );
-                rewriteInt( packet, oldId, newId, packet.readerIndex() );
-            } else if ( event == 2 /* Entity Dead */ )
-            {
-                int position = packet.readerIndex();
-                rewriteVarInt( packet, oldId, newId, packet.readerIndex() );
-                packet.readerIndex( position );
-                DefinedPacket.readVarInt( packet );
-                rewriteInt( packet, oldId, newId, packet.readerIndex() );
-            }
+                break;
+            case 0x0C /* Spawn Player : PacketPlayOutNamedEntitySpawn */:
+                DefinedPacket.readVarInt( packet ); // Entity ID
+                int idLength = packet.readerIndex() - readerIndex - packetIdLength;
+                UUID uuid = DefinedPacket.readUUID( packet );
+                ProxiedPlayer player;
+                if ( ( player = BungeeCord.getInstance().getPlayerByOfflineUUID( uuid ) ) != null )
+                {
+                    int previous = packet.writerIndex();
+                    packet.readerIndex( readerIndex );
+                    packet.writerIndex( readerIndex + packetIdLength + idLength );
+                    DefinedPacket.writeUUID( player.getUniqueId(), packet );
+                    packet.writerIndex( previous );
+                }
+                break;
+            case 0x2D /* Combat Event : PacketPlayOutCombatEvent */:
+                int event = packet.readUnsignedByte();
+                if ( event == 1 /* End Combat*/ )
+                {
+                    DefinedPacket.readVarInt( packet );
+                    rewriteInt( packet, oldId, newId, packet.readerIndex() );
+                } else if ( event == 2 /* Entity Dead */ )
+                {
+                    int position = packet.readerIndex();
+                    rewriteVarInt( packet, oldId, newId, packet.readerIndex() );
+                    packet.readerIndex( position );
+                    DefinedPacket.readVarInt( packet );
+                    rewriteInt( packet, oldId, newId, packet.readerIndex() );
+                }
+                break;
         }
         packet.readerIndex( readerIndex );
     }
