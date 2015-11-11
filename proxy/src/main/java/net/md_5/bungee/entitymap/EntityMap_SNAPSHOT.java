@@ -63,7 +63,7 @@ class EntityMap_SNAPSHOT extends EntityMap
                 break;
             case 0x41 /* Attach Entity : PacketPlayOutMount */:
                 DefinedPacket.readVarInt( packet );
-                // Fall through on purpose to int array of IDs
+            // Fall through on purpose to int array of IDs
             case 0x31 /* Destroy Entities : PacketPlayOutEntityDestroy */:
                 int count = DefinedPacket.readVarInt( packet );
                 int[] ids = new int[ count ];
@@ -87,40 +87,21 @@ class EntityMap_SNAPSHOT extends EntityMap
                 }
                 break;
             case 0x00 /* Spawn Object : PacketPlayOutSpawnEntity */:
-                if ( true )
-                {
-                    throw new RuntimeException( "TODO" );
-                }
                 DefinedPacket.readVarInt( packet );
+                DefinedPacket.readUUID( packet );
                 int type = packet.readUnsignedByte();
 
                 if ( type == 60 || type == 90 )
                 {
-                    packet.skipBytes( 14 );
+                    packet.skipBytes( 14 ); // int, int, int, byte, byte
                     int position = packet.readerIndex();
                     int readId = packet.readInt();
-                    int changedId = -1;
                     if ( readId == oldId )
                     {
                         packet.setInt( position, newId );
-                        changedId = newId;
                     } else if ( readId == newId )
                     {
                         packet.setInt( position, oldId );
-                        changedId = oldId;
-                    }
-                    if ( changedId != -1 )
-                    {
-                        if ( changedId == 0 && readId != 0 )
-                        { // Trim off the extra data
-                            packet.readerIndex( readerIndex );
-                            packet.writerIndex( packet.readableBytes() - 6 );
-                        } else if ( changedId != 0 && readId == 0 )
-                        { // Add on the extra data
-                            packet.readerIndex( readerIndex );
-                            packet.capacity( packet.readableBytes() + 6 );
-                            packet.writerIndex( packet.readableBytes() + 6 );
-                        }
                     }
                 }
                 break;
@@ -161,7 +142,7 @@ class EntityMap_SNAPSHOT extends EntityMap
     public void rewriteServerbound(ByteBuf packet, int oldId, int newId)
     {
         super.rewriteServerbound( packet, oldId, newId );
-        //Special cases
+        // Special cases
         int readerIndex = packet.readerIndex();
         int packetId = DefinedPacket.readVarInt( packet );
         int packetIdLength = packet.readerIndex() - readerIndex;
