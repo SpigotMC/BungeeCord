@@ -22,8 +22,6 @@ public final class NativeCode<T>
         this.name = name;
         this.javaImpl = javaImpl;
         this.nativeImpl = nativeImpl;
-
-        load();
     }
 
     public T newInstance()
