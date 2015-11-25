@@ -6,6 +6,7 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 
 class EntityMap_1_7_2 extends EntityMap
 {
+    static EntityMap INSTANCE = new EntityMap_1_7_2();
 
     EntityMap_1_7_2()
     {

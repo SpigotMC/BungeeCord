@@ -27,11 +27,11 @@ public abstract class EntityMap
         switch ( version )
         {
             case ProtocolConstants.MINECRAFT_1_7_2:
-                return new EntityMap_1_7_2();
+                return EntityMap_1_7_2.INSTANCE;
             case ProtocolConstants.MINECRAFT_1_7_6:
-                return new EntityMap_1_7_6();
+                return EntityMap_1_7_6.INSTANCE;
             case ProtocolConstants.MINECRAFT_1_8:
-                return new EntityMap_1_8();
+                return EntityMap_1_8.INSTANCE;
         }
         throw new RuntimeException( "Version " + version + " has no entity map" );
     }

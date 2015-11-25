@@ -9,6 +9,7 @@ import net.md_5.bungee.protocol.DefinedPacket;
 
 class EntityMap_1_7_6 extends EntityMap_1_7_2
 {
+    static EntityMap INSTANCE = new EntityMap_1_7_6();
 
     @Override
     @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
