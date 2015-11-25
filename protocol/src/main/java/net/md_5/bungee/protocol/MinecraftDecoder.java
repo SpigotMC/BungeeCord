@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Setter;
 
 @AllArgsConstructor
-public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
+public class MinecraftDecoder extends BungeeMessageToMessageDecoder<ByteBuf>
 {
 
     @Setter
@@ -21,10 +21,10 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
     {
         Protocol.DirectionData prot = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
-        ByteBuf copy = in.copy(); // TODO
-
+        ByteBuf copy = in;
         try
         {
+            int index = in.readerIndex();
             int packetId = DefinedPacket.readVarInt( in );
 
             DefinedPacket packet = null;
@@ -36,12 +36,11 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
                 {
                     throw new BadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot );
                 }
-            } else
-            {
-                in.skipBytes( in.readableBytes() );
             }
 
-            out.add( new PacketWrapper( packet, copy ) );
+            in.readerIndex(index);
+
+            out.add( new PacketWrapper( packet, in ) );
             copy = null;
         } finally
         {
