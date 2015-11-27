@@ -68,7 +68,7 @@ public class ChannelWrapper
         if ( !closed )
         {
             closed = true;
-            ch.writeAndFlush(packet).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE).addListener(ChannelFutureListener.CLOSE);
+            ch.writeAndFlush(packet).addListener(ChannelFutureListener.CLOSE);
         }
     }
 
