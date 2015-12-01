@@ -177,7 +177,7 @@ public class PluginManager
             }
         } catch ( Exception ex )
         {
-            sender.sendMessage( new ComponentBuilder(ChatColor.RED + "An internal error occurred whilst executing this command, please check the console log for details.").create() );
+            sender.sendMessage( new ComponentBuilder("An internal error occurred whilst executing this command, please check the console log for details.").color( ChatColor.RED ).create() );
             ProxyServer.getInstance().getLogger().log( Level.WARNING, "Error in dispatching command", ex );
         }
         return true;
