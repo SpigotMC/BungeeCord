@@ -34,10 +34,15 @@ public class ServerConnectEvent extends Event implements Cancellable
      * Cancelled state.
      */
     private boolean cancelled;
+    /**
+     * Method used to reconnect the player.
+     */
+    private int method;
 
-    public ServerConnectEvent(ProxiedPlayer player, ServerInfo target)
+    public ServerConnectEvent(ProxiedPlayer player, ServerInfo target, int method)
     {
         this.player = player;
         this.target = target;
+        this.method = method;
     }
 }

@@ -4,21 +4,8 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
+import io.netty.channel.*;
 import io.netty.util.internal.PlatformDependent;
-import java.net.InetSocketAddress;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -43,21 +30,16 @@ import net.md_5.bungee.forge.ForgeServerHandler;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PipelineUtils;
-import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.MinecraftDecoder;
-import net.md_5.bungee.protocol.MinecraftEncoder;
-import net.md_5.bungee.protocol.PacketWrapper;
-import net.md_5.bungee.protocol.Protocol;
-import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.packet.Chat;
-import net.md_5.bungee.protocol.packet.ClientSettings;
-import net.md_5.bungee.protocol.packet.Kick;
-import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
-import net.md_5.bungee.protocol.packet.PluginMessage;
-import net.md_5.bungee.protocol.packet.SetCompression;
+import net.md_5.bungee.protocol.*;
+import net.md_5.bungee.protocol.packet.*;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
 import net.md_5.bungee.util.CaseInsensitiveSet;
+
+import java.net.InetSocketAddress;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 @RequiredArgsConstructor
 public final class UserConnection implements ProxiedPlayer
@@ -201,8 +183,20 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void connect(ServerInfo target, Callback<Boolean> callback)
     {
-        connect( target, callback, false );
+        connect( target, callback, false, METHOD_DIMENSION_CHANGE );
     }
+
+    @Override
+    public void connect(ServerInfo target, Callback<Boolean> callback, int method)
+    {
+        this.connect(target, callback, false, method);
+    }
+
+    public void connect(ServerInfo target, Callback<Boolean> callback, boolean retry)
+    {
+        this.connect(target, callback, retry, METHOD_DIMENSION_CHANGE);
+    }
+
 
     void sendDimensionSwitch()
     {
@@ -217,11 +211,11 @@ public final class UserConnection implements ProxiedPlayer
         connect( target );
     }
 
-    public void connect(ServerInfo info, final Callback<Boolean> callback, final boolean retry)
+    public void connect(ServerInfo info, final Callback<Boolean> callback, final boolean retry, final int method)
     {
         Preconditions.checkNotNull( info, "info" );
 
-        ServerConnectEvent event = new ServerConnectEvent( this, info );
+        ServerConnectEvent event = new ServerConnectEvent( this, info, method );
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
             return;
@@ -250,7 +244,7 @@ public final class UserConnection implements ProxiedPlayer
                 PipelineUtils.BASE.initChannel( ch );
                 ch.pipeline().addAfter( PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, false, getPendingConnection().getVersion() ) );
                 ch.pipeline().addAfter( PipelineUtils.FRAME_PREPENDER, PipelineUtils.PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, false, getPendingConnection().getVersion() ) );
-                ch.pipeline().get( HandlerBoss.class ).setHandler( new ServerConnector( bungee, UserConnection.this, target ) );
+                ch.pipeline().get( HandlerBoss.class ).setHandler( new ServerConnector( bungee, UserConnection.this, target, method ) );
             }
         };
         ChannelFutureListener listener = new ChannelFutureListener()
@@ -273,7 +267,7 @@ public final class UserConnection implements ProxiedPlayer
                     if ( retry && target != def && ( getServer() == null || def != getServer().getInfo() ) )
                     {
                         sendMessage( bungee.getTranslation( "fallback_lobby" ) );
-                        connect( def, null, false );
+                        connect( def, null, false, method );
                     } else
                     {
                         if ( dimensionChange )
