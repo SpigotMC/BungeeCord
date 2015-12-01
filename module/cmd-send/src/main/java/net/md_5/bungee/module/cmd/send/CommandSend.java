@@ -4,12 +4,12 @@ import com.google.common.collect.ImmutableSet;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,13 +26,13 @@ public class CommandSend extends Command implements TabExecutor
     {
         if ( args.length != 2 )
         {
-            sender.sendMessage( ChatColor.RED + "Not enough arguments, usage: /send <server|player|all|current> <target>" );
+            sender.sendMessage( new ComponentBuilder( "Not enough arguments, usage: /send <server|player|all|current> <target>" ).color( ChatColor.RED ).create() );
             return;
         }
         ServerInfo target = ProxyServer.getInstance().getServerInfo( args[1] );
         if ( target == null )
         {
-            sender.sendMessage( ProxyServer.getInstance().getTranslation( "no_server" ) );
+            sender.sendMessage( new ComponentBuilder( ProxyServer.getInstance().getTranslation( "no_server" ) ).create() );
             return;
         }
 
@@ -46,7 +46,7 @@ public class CommandSend extends Command implements TabExecutor
         {
             if ( !( sender instanceof ProxiedPlayer ) )
             {
-                sender.sendMessage( ChatColor.RED + "Only in game players can use this command" );
+                sender.sendMessage( new ComponentBuilder( "Only in game players can use this command" ).color( ChatColor.RED ).create() );
                 return;
             }
             ProxiedPlayer player = (ProxiedPlayer) sender;
@@ -69,13 +69,13 @@ public class CommandSend extends Command implements TabExecutor
                 ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
                 if ( player == null )
                 {
-                    sender.sendMessage( ChatColor.RED + "That player is not online" );
+                    sender.sendMessage( new ComponentBuilder( "That player is not online" ).color( ChatColor.RED ).create() );
                     return;
                 }
                 summon( player, target, sender );
             }
         }
-        sender.sendMessage( ChatColor.GREEN + "Successfully summoned player(s)" );
+        sender.sendMessage( new ComponentBuilder( "Successfully summoned player(s)" ).color( ChatColor.GREEN ).create() );
     }
 
     private void summon(ProxiedPlayer player, ServerInfo target, CommandSender sender)
@@ -83,7 +83,7 @@ public class CommandSend extends Command implements TabExecutor
         if ( player.getServer() != null && !player.getServer().getInfo().equals( target ) )
         {
             player.connect( target );
-            player.sendMessage( ChatColor.GOLD + "Summoned to " + target.getName() + " by " + sender.getName() );
+            player.sendMessage( new ComponentBuilder( "Summoned to " + target.getName() + " by " + sender.getName() ).color( ChatColor.GOLD ).create() );
         }
     }
 

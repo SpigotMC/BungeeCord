@@ -3,6 +3,7 @@ package net.md_5.bungee.command;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class CommandIP extends PlayerCommand
@@ -18,16 +19,16 @@ public class CommandIP extends PlayerCommand
     {
         if ( args.length < 1 )
         {
-            sender.sendMessage( ChatColor.RED + "Please follow this command by a user name" );
+            sender.sendMessage( new ComponentBuilder( "Please follow this command by a user name" ).color( ChatColor.RED ).create() );
             return;
         }
         ProxiedPlayer user = ProxyServer.getInstance().getPlayer( args[0] );
         if ( user == null )
         {
-            sender.sendMessage( ChatColor.RED + "That user is not online" );
+            sender.sendMessage( new ComponentBuilder( "That user is not online" ).color( ChatColor.RED ).create() );
         } else
         {
-            sender.sendMessage( ChatColor.BLUE + "IP of " + args[0] + " is " + user.getAddress() );
+            sender.sendMessage( new ComponentBuilder( "IP of " + args[0] + " is " + user.getAddress() ).color( ChatColor.BLUE ).create() );
         }
     }
 }

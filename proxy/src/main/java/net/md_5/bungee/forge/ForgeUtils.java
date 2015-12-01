@@ -24,8 +24,7 @@ public class ForgeUtils
     {
         String channels = new String( pluginMessage.getData(), Charsets.UTF_8 );
         String[] split = channels.split( "\0" );
-        Set<String> channelSet = ImmutableSet.copyOf( split );
-        return channelSet;
+        return ImmutableSet.copyOf( split );
     }
 
     /**

@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.event.EventBus;
 import net.md_5.bungee.event.EventHandler;
@@ -92,7 +93,7 @@ public class PluginManager
      */
     public void unregisterCommand(Command command)
     {
-        while ( commandMap.values().remove( command ) );
+        while ( commandMap.values().remove( command ) ) //not sure if there was an intended semicolin there
         commandsByPlugin.values().remove( command );
     }
 
@@ -106,7 +107,7 @@ public class PluginManager
         for ( Iterator<Command> it = commandsByPlugin.get( plugin ).iterator(); it.hasNext(); )
         {
             Command command = it.next();
-            while ( commandMap.values().remove( command ) );
+            while ( commandMap.values().remove( command ) ) //not sure if there was an intended semicolin there
             it.remove();
         }
     }
@@ -149,7 +150,7 @@ public class PluginManager
         {
             if ( !( command instanceof TabExecutor ) || tabResults == null )
             {
-                sender.sendMessage( proxy.getTranslation( "no_permission" ) );
+                sender.sendMessage( new ComponentBuilder(proxy.getTranslation( "no_permission" )).create() );
             }
             return true;
         }
@@ -176,7 +177,7 @@ public class PluginManager
             }
         } catch ( Exception ex )
         {
-            sender.sendMessage( ChatColor.RED + "An internal error occurred whilst executing this command, please check the console log for details." );
+            sender.sendMessage( new ComponentBuilder(ChatColor.RED + "An internal error occurred whilst executing this command, please check the console log for details.").create() );
             ProxyServer.getInstance().getLogger().log( Level.WARNING, "Error in dispatching command", ex );
         }
         return true;
@@ -330,7 +331,6 @@ public class PluginManager
     {
         Preconditions.checkNotNull( folder, "folder" );
         Preconditions.checkArgument( folder.isDirectory(), "Must load from a directory" );
-
         for ( File file : folder.listFiles() )
         {
             if ( file.isFile() && file.getName().endsWith( ".jar" ) )

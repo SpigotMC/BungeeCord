@@ -50,6 +50,7 @@ public class YamlConfig implements ConfigurationAdapter
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void load()
     {
         try
@@ -76,14 +77,8 @@ public class YamlConfig implements ConfigurationAdapter
         Map<String, Object> permissions = get( "permissions", new HashMap<String, Object>() );
         if ( permissions.isEmpty() )
         {
-            permissions.put( "default", Arrays.asList( new String[]
-            {
-                "bungeecord.command.server", "bungeecord.command.list"
-            } ) );
-            permissions.put( "admin", Arrays.asList( new String[]
-            {
-                "bungeecord.command.alert", "bungeecord.command.end", "bungeecord.command.ip", "bungeecord.command.reload"
-            } ) );
+            permissions.put( "default", Arrays.asList("bungeecord.command.server", "bungeecord.command.list") );
+            permissions.put( "admin", Arrays.asList("bungeecord.command.alert", "bungeecord.command.end", "bungeecord.command.ip", "bungeecord.command.reload") );
         }
 
         Map<String, Object> groups = get( "groups", new HashMap<String, Object>() );
@@ -185,10 +180,7 @@ public class YamlConfig implements ConfigurationAdapter
     @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
     public Collection<ListenerInfo> getListeners()
     {
-        Collection<Map<String, Object>> base = get( "listeners", (Collection) Arrays.asList( new Map[]
-        {
-            new HashMap()
-        } ) );
+        Collection<Map<String, Object>> base = get( "listeners", (Collection) Collections.singletonList(new HashMap()));
         Map<String, String> forcedDef = new HashMap<>();
         forcedDef.put( "pvp.md-5.net", "pvp" );
 

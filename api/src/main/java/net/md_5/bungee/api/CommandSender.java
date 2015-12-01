@@ -12,7 +12,7 @@ public interface CommandSender
      *
      * @return the senders username
      */
-    public String getName();
+    String getName();
 
     /**
      * Send a message to this sender.
@@ -20,7 +20,7 @@ public interface CommandSender
      * @param message the message to send
      */
     @Deprecated
-    public void sendMessage(String message);
+    void sendMessage(String message);
 
     /**
      * Send several messages to this sender. Each message will be sent
@@ -29,21 +29,21 @@ public interface CommandSender
      * @param messages the messages to send
      */
     @Deprecated
-    public void sendMessages(String... messages);
+    void sendMessages(String... messages);
 
     /**
      * Send a message to this sender.
      *
      * @param message the message to send
      */
-    public void sendMessage(BaseComponent... message);
+    void sendMessage(BaseComponent... message);
 
     /**
      * Send a message to this sender.
      *
      * @param message the message to send
      */
-    public void sendMessage(BaseComponent message);
+    void sendMessage(BaseComponent message);
 
     /**
      * Get all groups this user is part of. This returns an unmodifiable
@@ -51,21 +51,21 @@ public interface CommandSender
      *
      * @return the users groups
      */
-    public Collection<String> getGroups();
+    Collection<String> getGroups();
 
     /**
      * Adds groups to a this user for the current session only.
      *
      * @param groups the groups to add
      */
-    public void addGroups(String... groups);
+    void addGroups(String... groups);
 
     /**
      * Remove groups from this user for the current session only.
      *
      * @param groups the groups to remove
      */
-    public void removeGroups(String... groups);
+    void removeGroups(String... groups);
 
     /**
      * Checks if this user has the specified permission node.
@@ -73,7 +73,7 @@ public interface CommandSender
      * @param permission the node to check
      * @return whether they have this node
      */
-    public boolean hasPermission(String permission);
+    boolean hasPermission(String permission);
 
     /**
      * Set a permission node for this user.
@@ -81,7 +81,7 @@ public interface CommandSender
      * @param permission the node to set
      * @param value the value of the node
      */
-    public void setPermission(String permission, boolean value);
+    void setPermission(String permission, boolean value);
 
     /**
      * Get all Permissions which this CommandSender has
@@ -89,5 +89,5 @@ public interface CommandSender
      * @return a unmodifiable Collection of Strings which represent their
      * permissions
      */
-    public Collection<String> getPermissions();
+    Collection<String> getPermissions();
 }

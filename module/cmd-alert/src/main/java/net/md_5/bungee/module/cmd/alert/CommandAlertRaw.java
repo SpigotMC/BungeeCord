@@ -23,7 +23,7 @@ public class CommandAlertRaw extends Command
     {
         if ( args.length == 0 )
         {
-            sender.sendMessage( ChatColor.RED + "You must supply a message." );
+            sender.sendMessage( new ComponentBuilder( "You must supply a message." ).color( ChatColor.RED ).create() );
         } else
         {
             String message = Joiner.on( ' ' ).join( args );

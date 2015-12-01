@@ -38,7 +38,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param position the screen position
      * @param message the message to send
      */
-    public void sendMessage(ChatMessageType position, BaseComponent... message);
+    void sendMessage(ChatMessageType position, BaseComponent... message);
 
     /**
      * Send a message to the specified screen position of this player.
@@ -46,7 +46,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param position the screen position
      * @param message the message to send
      */
-    public void sendMessage(ChatMessageType position, BaseComponent message);
+    void sendMessage(ChatMessageType position, BaseComponent message);
 
     /**
      * Connects / transfers this user to the specified connection, gracefully

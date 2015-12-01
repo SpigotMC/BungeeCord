@@ -45,7 +45,7 @@ public final class NativeCode<T>
             {
                 System.loadLibrary( fullName );
                 loaded = true;
-            } catch ( Throwable t )
+            } catch ( Throwable ignored)
             {
             }
 

@@ -39,7 +39,7 @@ public class CommandServer extends Command implements TabExecutor
         Map<String, ServerInfo> servers = ProxyServer.getInstance().getServers();
         if ( args.length == 0 )
         {
-            player.sendMessage( ProxyServer.getInstance().getTranslation( "current_server", player.getServer().getInfo().getName() ) );
+            player.sendMessage( new ComponentBuilder ( ProxyServer.getInstance().getTranslation( "current_server", player.getServer().getInfo().getName() ) ).create() );
             TextComponent serverList = new TextComponent( ProxyServer.getInstance().getTranslation( "server_list" ) );
             serverList.setColor( ChatColor.GOLD );
             boolean first = true;
@@ -64,10 +64,10 @@ public class CommandServer extends Command implements TabExecutor
             ServerInfo server = servers.get( args[0] );
             if ( server == null )
             {
-                player.sendMessage( ProxyServer.getInstance().getTranslation( "no_server" ) );
+                player.sendMessage( new ComponentBuilder( ProxyServer.getInstance().getTranslation( "no_server" ) ).create() );
             } else if ( !server.canAccess( player ) )
             {
-                player.sendMessage( ProxyServer.getInstance().getTranslation( "no_server_permission" ) );
+                player.sendMessage( new ComponentBuilder( ProxyServer.getInstance().getTranslation( "no_server_permission" ) ).create() );
             } else
             {
                 player.connect( server );
@@ -75,6 +75,7 @@ public class CommandServer extends Command implements TabExecutor
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Iterable<String> onTabComplete(final CommandSender sender, final String[] args)
     {

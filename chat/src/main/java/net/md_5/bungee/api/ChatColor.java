@@ -132,7 +132,7 @@ public enum ChatColor
         }
     }
 
-    private ChatColor(char code, String name)
+    ChatColor(char code, String name)
     {
         this.code = code;
         this.name = name;

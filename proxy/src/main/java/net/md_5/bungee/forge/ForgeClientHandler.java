@@ -32,7 +32,7 @@ public class ForgeClientHandler
     @Setter(AccessLevel.PACKAGE)
     private Map<String, String> clientModList = null;
 
-    private final ArrayDeque<PluginMessage> packetQueue = new ArrayDeque<PluginMessage>();
+    private final ArrayDeque<PluginMessage> packetQueue = new ArrayDeque<>();
 
     @NonNull
     @Setter(AccessLevel.PACKAGE)
