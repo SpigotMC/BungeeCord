@@ -41,6 +41,11 @@ public interface ProxyConfig
     boolean isOnlineMode();
 
     /**
+     * Whether proxy commands are logged to the proxy log
+     */
+    boolean isLogCommands();
+
+    /**
      * Returns the player max.
      */
     int getPlayerLimit();

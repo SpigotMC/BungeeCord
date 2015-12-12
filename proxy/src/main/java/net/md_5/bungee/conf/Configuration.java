@@ -47,6 +47,10 @@ public class Configuration implements ProxyConfig
      * Should we check minecraft.net auth.
      */
     private boolean onlineMode = true;
+    /**
+     * Whether we log proxy commands to the proxy log
+     */
+    private boolean logCommands;
     private int playerLimit = -1;
     private Collection<String> disabledCommands;
     private int throttle = 4000;
@@ -75,6 +79,7 @@ public class Configuration implements ProxyConfig
         timeout = adapter.getInt( "timeout", timeout );
         uuid = adapter.getString( "stats", uuid );
         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
+        logCommands = adapter.getBoolean( "log_commands", logCommands );
         playerLimit = adapter.getInt( "player_limit", playerLimit );
         throttle = adapter.getInt( "connection_throttle", throttle );
         ipForward = adapter.getBoolean( "ip_forward", ipForward );
