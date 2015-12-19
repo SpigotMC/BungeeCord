@@ -174,7 +174,7 @@ public class BungeeCord extends ProxyServer
 
         System.setSecurityManager( new BungeeSecurityManager() );
         
-        // load messages from messages.properties
+        // Load messages from messages.properties
         messagesLoad();
 
         // This is a workaround for quite possibly the weirdest bug I have ever encountered in my life!
