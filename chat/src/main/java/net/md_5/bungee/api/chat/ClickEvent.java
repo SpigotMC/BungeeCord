@@ -12,7 +12,7 @@ public final class ClickEvent
 {
 
     /**
-     * The type of action to preform on click
+     * The type of action to perform on click
      */
     private final Action action;
     /**
