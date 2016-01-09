@@ -78,4 +78,11 @@ public interface PendingConnection extends Connection
      * @return Whether the client is using a legacy client.
      */
     boolean isLegacy();
+
+    /**
+     * Check if the client is online
+     *
+     * @return Whether the client is online.
+     */
+    boolean isOnline();
 }

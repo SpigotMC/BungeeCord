@@ -578,6 +578,11 @@ public final class UserConnection implements ProxiedPlayer
         title.send( this );
     }
 
+    @Override
+    public boolean isOnline(){
+        return !ch.isClosed();
+    }
+
     public String getExtraDataInHandshake()
     {
         return this.getPendingConnection().getExtraDataInHandshake();

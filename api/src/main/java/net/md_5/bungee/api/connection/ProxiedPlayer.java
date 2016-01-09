@@ -211,4 +211,11 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * not occurred for this {@link ProxiedPlayer} yet.
      */
     Map<String, String> getModList();
+
+    /**
+     * Check if the client is online
+     *
+     * @return Whether the client is online.
+     */
+    boolean isOnline();
 }
