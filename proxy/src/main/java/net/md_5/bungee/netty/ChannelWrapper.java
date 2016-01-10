@@ -63,7 +63,7 @@ public class ChannelWrapper
         }
     }
 
-    public void close(DefinedPacket packet)
+    public void close(Object packet)
     {
         if ( !closed )
         {
