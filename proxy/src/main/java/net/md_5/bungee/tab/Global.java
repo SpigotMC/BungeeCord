@@ -65,7 +65,8 @@ public class Global extends TabList
         int i = 0;
         for ( ProxiedPlayer p : players )
         {
-            PlayerListItem.Item item = items[i++] = new PlayerListItem.Item();
+            PlayerListItem.Item item = new PlayerListItem.Item();
+            items[i++] = item;
             item.setUuid( p.getUniqueId() );
             item.setUsername( p.getName() );
             item.setDisplayName( ComponentSerializer.toString( TextComponent.fromLegacyText( p.getDisplayName() ) ) );

@@ -62,12 +62,14 @@ public class ServerUnique extends TabList
         int i = 0;
         for ( UUID uuid : uuids )
         {
-            PlayerListItem.Item item = items[i++] = new PlayerListItem.Item();
+            PlayerListItem.Item item = new PlayerListItem.Item();
+            items[i++] = item;
             item.setUuid( uuid );
         }
         for ( String username : usernames )
         {
-            PlayerListItem.Item item = items[i++] = new PlayerListItem.Item();
+            PlayerListItem.Item item = new PlayerListItem.Item();
+            items[i++] = item;
             item.setUsername( username );
             item.setDisplayName( username );
         }
