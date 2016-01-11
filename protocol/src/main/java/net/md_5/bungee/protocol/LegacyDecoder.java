@@ -20,7 +20,7 @@ public class LegacyDecoder extends ByteToMessageDecoder
         }
 
         in.markReaderIndex();
-        short packetID = in.readUnsignedByte();
+        int packetID = in.readUnsignedByte();
 
         if ( packetID == 0xFE )
         {
