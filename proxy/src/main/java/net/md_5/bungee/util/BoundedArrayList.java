@@ -16,7 +16,7 @@ public class BoundedArrayList<E> extends ArrayList<E>
 
     private void checkSize(int increment)
     {
-        Preconditions.checkState( size() + increment < maxSize, "Adding %s elements would exceed capacity of %s", increment, maxSize );
+        Preconditions.checkState( size() + increment <= maxSize, "Adding %s elements would exceed capacity of %s", increment, maxSize );
     }
 
     @Override
