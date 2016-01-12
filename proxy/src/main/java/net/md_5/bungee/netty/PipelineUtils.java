@@ -38,7 +38,7 @@ import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.Varint21FrameDecoder;
 import net.md_5.bungee.protocol.Varint21LengthFieldPrepender;
 
-public class PipelineUtils
+public final class PipelineUtils
 {
 
     public static final AttributeKey<ListenerInfo> LISTENER = new AttributeKey<>( "ListerInfo" );
@@ -93,6 +93,11 @@ public class PipelineUtils
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "Epoll is not working, falling back to NIO: {0}", Util.exception( Epoll.unavailabilityCause() ) );
             }
         }
+    }
+
+    private PipelineUtils()
+    {
+        throw new InstantiationError( "Must not instantiate this class" );
     }
 
     public static EventLoopGroup newEventLoopGroup(int threads, ThreadFactory factory)

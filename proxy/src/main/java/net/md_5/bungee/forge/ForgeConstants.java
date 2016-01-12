@@ -3,7 +3,7 @@ package net.md_5.bungee.forge;
 import java.util.regex.Pattern;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
-public class ForgeConstants
+public final class ForgeConstants
 {
 
     // Forge
@@ -18,6 +18,11 @@ public class ForgeConstants
      * The FML 1.8 handshake token.
      */
     public static final String FML_HANDSHAKE_TOKEN = "\0FML\0";
+
+    private ForgeConstants()
+    {
+        throw new InstantiationError( "Must not instantiate this class" );
+    }
 
     public static final PluginMessage FML_RESET_HANDSHAKE = new PluginMessage( FML_HANDSHAKE_TAG, new byte[]
     {

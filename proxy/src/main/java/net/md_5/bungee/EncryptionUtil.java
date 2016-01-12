@@ -24,7 +24,7 @@ import net.md_5.bungee.protocol.packet.EncryptionRequest;
 /**
  * Class containing all encryption related methods for the proxy.
  */
-public class EncryptionUtil
+public final class EncryptionUtil
 {
 
     private static final Random random = new Random();
@@ -42,6 +42,11 @@ public class EncryptionUtil
         {
             throw new ExceptionInInitializerError( ex );
         }
+    }
+
+    private EncryptionUtil()
+    {
+        throw new InstantiationError( "Must not instantiate this class" );
     }
 
     public static EncryptionRequest encryptRequest()

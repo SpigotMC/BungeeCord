@@ -12,8 +12,12 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.command.ConsoleCommandSender;
 
-public class BungeeCordLauncher
+public final class BungeeCordLauncher
 {
+    private BungeeCordLauncher()
+    {
+        throw new InstantiationError( "Must not instantiate this class" );
+    }
 
     public static void main(String[] args) throws Exception
     {

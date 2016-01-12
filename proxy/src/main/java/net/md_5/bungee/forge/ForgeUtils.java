@@ -11,9 +11,13 @@ import java.util.regex.Matcher;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
-public class ForgeUtils
+public final class ForgeUtils
 {
 
+    private ForgeUtils()
+    {
+        throw new InstantiationError( "Must not instantiate this class" );
+    }
     /**
      * Gets the registered FML channels from the packet.
      *
