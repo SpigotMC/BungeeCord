@@ -16,8 +16,8 @@ public class Respawn extends DefinedPacket
 {
 
     private int dimension;
-    private short difficulty;
-    private short gameMode;
+    private int difficulty;
+    private int gameMode;
     private String levelType;
 
     @Override

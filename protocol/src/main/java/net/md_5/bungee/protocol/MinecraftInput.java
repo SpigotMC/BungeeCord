@@ -14,7 +14,7 @@ public class MinecraftInput
         return buf.readByte();
     }
 
-    public short readUnsignedByte()
+    public int readUnsignedByte()
     {
         return buf.readUnsignedByte();
     }
@@ -26,7 +26,7 @@ public class MinecraftInput
 
     public String readString()
     {
-        short len = buf.readShort();
+        int len = buf.readShort();
         char[] c = new char[ len ];
         for ( int i = 0; i < c.length; i++ )
         {

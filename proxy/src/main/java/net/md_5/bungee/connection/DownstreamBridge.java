@@ -265,7 +265,7 @@ public class DownstreamBridge extends PacketHandler
                 {
                     // Read data from server
                     String channel = in.readUTF();
-                    short len = in.readShort();
+                    int len = in.readShort();
                     byte[] data = new byte[ len ];
                     in.readFully( data );
 
@@ -286,7 +286,7 @@ public class DownstreamBridge extends PacketHandler
                 // Read data from server
                 String target = in.readUTF();
                 String channel = in.readUTF();
-                short len = in.readShort();
+                int len = in.readShort();
                 byte[] data = new byte[ len ];
                 in.readFully( data );
 

@@ -17,10 +17,10 @@ public class Login extends DefinedPacket
 {
 
     private int entityId;
-    private short gameMode;
+    private int gameMode;
     private int dimension;
-    private short difficulty;
-    private short maxPlayers;
+    private int difficulty;
+    private int maxPlayers;
     private String levelType;
     private boolean reducedDebugInfo;
 
