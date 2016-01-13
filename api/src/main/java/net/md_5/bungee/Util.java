@@ -20,13 +20,15 @@ public class Util
      */
     public static InetSocketAddress getAddr(String hostline)
     {
-        String[] split = hostline.split( ":" );
+        int lastColon = hostline.lastIndexOf( ':' );
         int port = DEFAULT_PORT;
-        if ( split.length > 1 )
+        String host = hostline;
+        if ( lastColon >= 0 )
         {
-            port = Integer.parseInt( split[1] );
+            port = Integer.parseInt( hostline.substring( lastColon + 1 ) );
+            host = hostline.substring( 0, lastColon );
         }
-        return new InetSocketAddress( split[0], port );
+        return new InetSocketAddress( host, port );
     }
 
     /**
