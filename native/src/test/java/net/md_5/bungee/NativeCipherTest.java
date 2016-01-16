@@ -5,6 +5,7 @@ import net.md_5.bungee.jni.cipher.JavaCipher;
 import net.md_5.bungee.jni.cipher.BungeeCipher;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.FixMethodOrder;
@@ -23,7 +24,7 @@ public class NativeCipherTest
         50, -7, 89, 1, -11, -32, -118, -48, -2, -72, 105, 97, -70, -81
     };
     private final SecretKey secret = new SecretKeySpec( new byte[ 16 ], "AES" );
-    private static final int BENCHMARK_COUNT = 50000;
+    private static final int BENCHMARK_COUNT = 4096;
     //
     private static final NativeCode<BungeeCipher> factory = new NativeCode( "native-cipher", JavaCipher.class, NativeCipher.class );
 
@@ -110,24 +111,27 @@ public class NativeCipherTest
     public void testBenchmark(BungeeCipher cipher) throws Exception
     {
         // Create input buf
-        ByteBuf nativePlain = Unpooled.directBuffer( plainBytes.length );
-        nativePlain.writeBytes( plainBytes );
-        // Create expected buf
-        ByteBuf nativeCiphered = Unpooled.directBuffer( cipheredBytes.length );
-        nativeCiphered.writeBytes( cipheredBytes );
+        byte[] random = new byte[ 1 << 12 ];
+        new Random().nextBytes( random );
+        ByteBuf nativePlain = Unpooled.directBuffer();
+        nativePlain.writeBytes( random );
+
         // Create output buf
-        ByteBuf out = Unpooled.directBuffer( plainBytes.length );
+        ByteBuf nativeCiphered = Unpooled.directBuffer( plainBytes.length );
 
         // Encrypt
         cipher.init( true, secret );
         long start = System.currentTimeMillis();
         for ( int i = 0; i < BENCHMARK_COUNT; i++ )
         {
-            cipher.cipher( nativePlain, out );
+            nativeCiphered.clear();
+            cipher.cipher( nativePlain, nativeCiphered );
             nativePlain.readerIndex( 0 );
-            out.clear();
         }
         System.out.println( String.format( "Encryption Iteration: %d, Elapsed: %d ms", BENCHMARK_COUNT, System.currentTimeMillis() - start ) );
+
+        // Create output buf
+        ByteBuf out = Unpooled.directBuffer( plainBytes.length );
 
         // Decrypt
         cipher.init( false, secret );
