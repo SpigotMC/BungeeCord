@@ -12,6 +12,8 @@ import java.util.UUID;
 class EntityMap_1_8 extends EntityMap
 {
 
+    static EntityMap INSTANCE = new EntityMap_1_8();
+
     EntityMap_1_8()
     {
         addRewrite( 0x04, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Equipment
