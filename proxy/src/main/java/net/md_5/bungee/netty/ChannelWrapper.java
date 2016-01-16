@@ -62,6 +62,15 @@ public class ChannelWrapper
         }
     }
 
+    public void close(Object packet)
+    {
+        if ( !closed )
+        {
+            closed = true;
+            ch.writeAndFlush( packet ).addListeners(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE, ChannelFutureListener.CLOSE);
+        }
+    }
+
     public void addBefore(String baseName, String name, ChannelHandler handler)
     {
         Preconditions.checkState( ch.eventLoop().inEventLoop(), "cannot add handler outside of event loop" );

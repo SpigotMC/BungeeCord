@@ -339,8 +339,7 @@ public final class UserConnection implements ProxiedPlayer
                 @Override
                 public void run()
                 {
-                    unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
-                    ch.close();
+                    ch.close( new Kick( ComponentSerializer.toString( reason ) ) );
                 }
             }, 500, TimeUnit.MILLISECONDS );
 

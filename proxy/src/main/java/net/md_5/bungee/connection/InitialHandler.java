@@ -131,8 +131,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(LegacyHandshake legacyHandshake) throws Exception
     {
         this.legacy = true;
-        ch.getHandle().writeAndFlush( bungee.getTranslation( "outdated_client" ) );
-        ch.close();
+        ch.close( bungee.getTranslation( "outdated_client" ) );
     }
 
     @Override
@@ -173,8 +172,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             + '\u00a7' + legacy.getPlayers().getMax();
                 }
 
-                ch.getHandle().writeAndFlush( kickMessage );
-                ch.close();
+                ch.close( kickMessage );
             }
         };
 
@@ -242,8 +240,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(PingPacket ping) throws Exception
     {
         Preconditions.checkState( thisState == State.PING, "Not expecting PING" );
-        unsafe.sendPacket( ping );
-        disconnect( "" );
+        ch.close( ping );
     }
 
     @Override
@@ -539,9 +536,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 {
                     if ( thisState != State.STATUS && thisState != State.PING )
                     {
-                        unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
+                        ch.close( new Kick( ComponentSerializer.toString( reason ) ) );
+                    } else {
+                        ch.close();
                     }
-                    ch.close();
                 }
             }, 500, TimeUnit.MILLISECONDS );
         }
