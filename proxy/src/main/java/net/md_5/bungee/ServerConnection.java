@@ -1,18 +1,16 @@
 package net.md_5.bungee;
 
+import com.google.common.base.Preconditions;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.Server;
-import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.PluginMessage;
-import net.md_5.bungee.protocol.packet.Kick;
 
 @RequiredArgsConstructor
 public class ServerConnection implements Server
@@ -46,12 +44,14 @@ public class ServerConnection implements Server
     @Override
     public void disconnect(String reason)
     {
-        disconnect( TextComponent.fromLegacyText( reason ) );
+        disconnect();
     }
 
     @Override
     public synchronized void disconnect(BaseComponent... reason)
     {
+        Preconditions.checkArgument( reason.length == 0, "Server cannot have disconnect reason" );
+
         if ( !ch.isClosed() )
         {
             ch.getHandle().eventLoop().schedule( new Runnable()
@@ -63,16 +63,12 @@ public class ServerConnection implements Server
                 }
             }, 100, TimeUnit.MILLISECONDS );
         }
-
     }
 
     @Override
     public void disconnect(BaseComponent reason)
     {
-        disconnect( new BaseComponent[]
-        {
-            reason
-        } );
+        disconnect();
     }
 
     @Override
