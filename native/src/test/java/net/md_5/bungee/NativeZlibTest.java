@@ -10,19 +10,28 @@ import net.md_5.bungee.jni.zlib.BungeeZlib;
 import net.md_5.bungee.jni.zlib.JavaZlib;
 import net.md_5.bungee.jni.zlib.NativeZlib;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class NativeZlibTest
 {
 
-    private final NativeCode<BungeeZlib> factory = new NativeCode( "native-compress", JavaZlib.class, NativeZlib.class );
+    private static final NativeCode<BungeeZlib> factory = new NativeCode( "native-compress", JavaZlib.class, NativeZlib.class );
+
+    @BeforeClass
+    public static void initializeZlib() throws Exception
+    {
+        if ( NativeCode.isSupported() )
+        {
+            Assert.assertTrue( "Native cipher failed to load!", factory.load() );
+        }
+    }
 
     @Test
     public void doTest() throws DataFormatException
     {
         if ( NativeCode.isSupported() )
         {
-            Assert.assertTrue( "Native code failed to load!", factory.load() );
             test( factory.newInstance() );
         }
         test( new JavaZlib() );
@@ -33,7 +42,7 @@ public class NativeZlibTest
         System.out.println( "Testing: " + zlib );
         long start = System.currentTimeMillis();
 
-        byte[] dataBuf = new byte[ 1 << 22 ]; // 2 megabytes
+        byte[] dataBuf = new byte[ 1 << 22 ]; // 4 megabytes
         new Random().nextBytes( dataBuf );
 
         zlib.init( true, 9 );
