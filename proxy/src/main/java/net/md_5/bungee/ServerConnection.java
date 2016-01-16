@@ -48,7 +48,7 @@ public class ServerConnection implements Server
     }
 
     @Override
-    public synchronized void disconnect(BaseComponent... reason)
+    public void disconnect(BaseComponent... reason)
     {
         Preconditions.checkArgument( reason.length == 0, "Server cannot have disconnect reason" );
 
