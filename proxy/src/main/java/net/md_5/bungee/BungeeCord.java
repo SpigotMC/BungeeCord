@@ -7,6 +7,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.GsonBuilder;
+import io.netty.buffer.PooledByteBufAllocator;
 import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.Title;
@@ -101,7 +102,7 @@ public class BungeeCord extends ProxyServer
      * Localization bundle.
      */
     public ResourceBundle bundle;
-    public EventLoopGroup eventLoops;
+    public EventLoopGroup eventLoops, workerEventLoop;
     /**
      * locations.yml save thread.
      */
@@ -235,7 +236,8 @@ public class BungeeCord extends ProxyServer
             ResourceLeakDetector.setLevel( ResourceLeakDetector.Level.DISABLED ); // Eats performance
         }
 
-        eventLoops = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
+        eventLoops = PipelineUtils.newEventLoopGroup( 1, new ThreadFactoryBuilder().setNameFormat( "Netty Boss IO Thread #%1$d" ).build() );
+        workerEventLoop = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Worker IO Thread #%1$d" ).build() );
 
         File moduleDirectory = new File( "modules" );
         moduleManager.load( this, moduleDirectory );
@@ -296,7 +298,10 @@ public class BungeeCord extends ProxyServer
                     .option( ChannelOption.SO_REUSEADDR, true ) // TODO: Move this elsewhere!
                     .childAttr( PipelineUtils.LISTENER, info )
                     .childHandler( PipelineUtils.SERVER_CHILD )
-                    .group( eventLoops )
+                    .childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 32 * 1024)
+                    .childOption(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, 8 * 1024)
+                    .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                    .group( eventLoops, workerEventLoop )
                     .localAddress( info.getHost() )
                     .bind().addListener( listener );
 
@@ -373,6 +378,7 @@ public class BungeeCord extends ProxyServer
                 }
 
                 getLogger().info( "Closing IO threads" );
+                workerEventLoop.shutdownGracefully();
                 eventLoops.shutdownGracefully();
                 try
                 {
