@@ -74,7 +74,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private LoginRequest loginRequest;
     private EncryptionRequest request;
     @Getter
-    private final List<PluginMessage> registerMessages = new BoundedArrayList<>(128);
+    private final List<PluginMessage> registerMessages = new BoundedArrayList<>( 128 );
     private State thisState = State.HANDSHAKE;
     private final Unsafe unsafe = new Unsafe()
     {
@@ -605,5 +605,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public String toString()
     {
         return "[" + ( ( getName() != null ) ? getName() : getAddress() ) + "] <-> InitialHandler";
+    }
+
+    @Override
+    public boolean isConnected()
+    {
+        return !ch.isClosed();
     }
 }
