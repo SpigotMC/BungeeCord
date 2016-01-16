@@ -1,5 +1,6 @@
 package net.md_5.bungee.netty;
 
+import io.netty.channel.ChannelFutureListener;
 import net.md_5.bungee.compress.PacketCompressor;
 import net.md_5.bungee.compress.PacketDecompressor;
 import net.md_5.bungee.protocol.PacketWrapper;
@@ -43,12 +44,11 @@ public class ChannelWrapper
             if ( packet instanceof PacketWrapper )
             {
                 ( (PacketWrapper) packet ).setReleased( true );
-                ch.write( ( (PacketWrapper) packet ).buf, ch.voidPromise() );
+                ch.writeAndFlush( ( (PacketWrapper) packet ).buf ).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
             } else
             {
-                ch.write( packet, ch.voidPromise() );
+                ch.writeAndFlush( packet ).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
             }
-            ch.flush();
         }
     }
 
