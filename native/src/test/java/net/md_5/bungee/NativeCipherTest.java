@@ -124,6 +124,7 @@ public class NativeCipherTest
         for ( int i = 0; i < BENCHMARK_COUNT; i++ )
         {
             cipher.cipher( nativePlain, out );
+            nativePlain.readerIndex( 0 );
             out.clear();
         }
         System.out.println( String.format( "Encryption Iteration: %d, Elapsed: %d ms", BENCHMARK_COUNT, System.currentTimeMillis() - start ) );
@@ -134,6 +135,7 @@ public class NativeCipherTest
         for ( int i = 0; i < BENCHMARK_COUNT; i++ )
         {
             cipher.cipher( nativeCiphered, out );
+            nativeCiphered.readerIndex( 0 );
             out.clear();
         }
         System.out.println( String.format( "Decryption Iteration: %d, Elapsed: %d ms", BENCHMARK_COUNT, System.currentTimeMillis() - start ) );

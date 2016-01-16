@@ -44,6 +44,12 @@ public class NativeCipher implements BungeeCipher
 
         // Store how many bytes we can cipher
         int length = in.readableBytes();
+        // Older OpenSSL versions will flip if length <= 0
+        if ( length <= 0 )
+        {
+            return;
+        }
+
         // It is important to note that in AES CFB-8 mode, the number of read bytes, is the number of outputted bytes
         out.ensureWritable( length );
 
