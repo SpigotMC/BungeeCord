@@ -1,5 +1,6 @@
 package net.md_5.bungee.netty;
 
+import io.netty.channel.ChannelFutureListener;
 import net.md_5.bungee.compress.PacketCompressor;
 import net.md_5.bungee.compress.PacketDecompressor;
 import net.md_5.bungee.protocol.PacketWrapper;
@@ -8,6 +9,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.Getter;
+import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.Protocol;
@@ -43,12 +45,11 @@ public class ChannelWrapper
             if ( packet instanceof PacketWrapper )
             {
                 ( (PacketWrapper) packet ).setReleased( true );
-                ch.write( ( (PacketWrapper) packet ).buf, ch.voidPromise() );
+                ch.writeAndFlush( ( (PacketWrapper) packet ).buf ).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
             } else
             {
-                ch.write( packet, ch.voidPromise() );
+                ch.writeAndFlush( packet ).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
             }
-            ch.flush();
         }
     }
 
@@ -59,6 +60,15 @@ public class ChannelWrapper
             closed = true;
             ch.flush();
             ch.close();
+        }
+    }
+
+    public void close(Object packet)
+    {
+        if ( !closed )
+        {
+            closed = true;
+            ch.writeAndFlush(packet).addListener(ChannelFutureListener.CLOSE);
         }
     }
 
