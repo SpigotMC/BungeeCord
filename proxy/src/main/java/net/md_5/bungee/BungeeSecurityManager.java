@@ -3,7 +3,7 @@ package net.md_5.bungee;
 import java.security.AccessControlException;
 import java.security.Permission;
 import java.util.logging.Level;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 import net.md_5.bungee.api.scheduler.GroupedThreadFactory;
 
 public class BungeeSecurityManager extends SecurityManager
@@ -42,7 +42,7 @@ public class BungeeSecurityManager extends SecurityManager
                     throw ex;
                 }
 
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Plugin performed restricted action, please inform them to use proper API methods: " + text, ex );
+                AbstractProxyServer.getInstance().getLogger().log( Level.WARNING, "Plugin performed restricted action, please inform them to use proper API methods: " + text, ex );
                 break;
             }
         }

@@ -14,7 +14,7 @@ import net.md_5.bungee.api.event.ServerDisconnectEvent;
 import net.md_5.bungee.api.event.TabCompleteResponseEvent;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PluginMessageEvent;
@@ -26,8 +26,8 @@ import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.api.score.Team;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.netty.ChannelWrapper;
-import net.md_5.bungee.netty.PacketHandler;
-import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.netty.AbstractPacketHandler;
+import net.md_5.bungee.protocol.AbstractDefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.KeepAlive;
@@ -39,13 +39,13 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
-import net.md_5.bungee.tab.TabList;
+import net.md_5.bungee.tab.AbstractTabList;
 
 @RequiredArgsConstructor
-public class DownstreamBridge extends PacketHandler
+public class DownstreamBridge extends AbstractPacketHandler
 {
 
-    private final ProxyServer bungee;
+    private final AbstractProxyServer bungee;
     private final UserConnection con;
     private final ServerConnection server;
 
@@ -109,7 +109,7 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(PlayerListItem playerList) throws Exception
     {
-        con.getTabListHandler().onUpdate( TabList.rewrite( playerList ) );
+        con.getTabListHandler().onUpdate( AbstractTabList.rewrite( playerList ) );
         throw CancelSendSignal.INSTANCE; // Always throw because of profile rewriting
     }
 
@@ -231,10 +231,10 @@ public class DownstreamBridge extends PacketHandler
                 try
                 {
                     ByteBuf brand = Unpooled.wrappedBuffer( pluginMessage.getData() );
-                    String serverBrand = DefinedPacket.readString( brand );
+                    String serverBrand = AbstractDefinedPacket.readString( brand );
                     brand.release();
                     brand = ByteBufAllocator.DEFAULT.heapBuffer();
-                    DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand, brand );
+                    AbstractDefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand, brand );
                     pluginMessage.setData( brand.array().clone() );
                     brand.release();
                 } catch ( Exception ignored )

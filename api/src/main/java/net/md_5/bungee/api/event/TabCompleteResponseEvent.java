@@ -16,7 +16,7 @@ import java.util.List;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class TabCompleteResponseEvent extends TargetedEvent implements Cancellable
+public class TabCompleteResponseEvent extends AbstractTargetedEvent implements Cancellable
 {
 
     /**

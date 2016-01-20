@@ -3,17 +3,16 @@ package net.md_5.bungee.module.cmd.send;
 import com.google.common.collect.ImmutableSet;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.plugin.AbstractCommand;
 import net.md_5.bungee.api.plugin.TabExecutor;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class CommandSend extends Command implements TabExecutor
+public class CommandSend extends AbstractCommand implements TabExecutor
 {
 
     public CommandSend()
@@ -29,16 +28,16 @@ public class CommandSend extends Command implements TabExecutor
             sender.sendMessage( ChatColor.RED + "Not enough arguments, usage: /send <server|player|all|current> <target>" );
             return;
         }
-        ServerInfo target = ProxyServer.getInstance().getServerInfo( args[1] );
+        ServerInfo target = AbstractProxyServer.getInstance().getServerInfo( args[1] );
         if ( target == null )
         {
-            sender.sendMessage( ProxyServer.getInstance().getTranslation( "no_server" ) );
+            sender.sendMessage( AbstractProxyServer.getInstance().getTranslation( "no_server" ) );
             return;
         }
 
         if ( args[0].equalsIgnoreCase( "all" ) )
         {
-            for ( ProxiedPlayer p : ProxyServer.getInstance().getPlayers() )
+            for ( ProxiedPlayer p : AbstractProxyServer.getInstance().getPlayers() )
             {
                 summon( p, target, sender );
             }
@@ -57,7 +56,7 @@ public class CommandSend extends Command implements TabExecutor
         } else
         {
             // If we use a server name, send the entire server. This takes priority over players.
-            ServerInfo serverTarget = ProxyServer.getInstance().getServerInfo( args[0] );
+            ServerInfo serverTarget = AbstractProxyServer.getInstance().getServerInfo( args[0] );
             if ( serverTarget != null )
             {
                 for ( ProxiedPlayer p : serverTarget.getPlayers() )
@@ -66,7 +65,7 @@ public class CommandSend extends Command implements TabExecutor
                 }
             } else
             {
-                ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
+                ProxiedPlayer player = AbstractProxyServer.getInstance().getPlayer( args[0] );
                 if ( player == null )
                 {
                     sender.sendMessage( ChatColor.RED + "That player is not online" );
@@ -99,7 +98,7 @@ public class CommandSend extends Command implements TabExecutor
         if ( args.length == 1 )
         {
             String search = args[0].toLowerCase();
-            for ( ProxiedPlayer player : ProxyServer.getInstance().getPlayers() )
+            for ( ProxiedPlayer player : AbstractProxyServer.getInstance().getPlayers() )
             {
                 if ( player.getName().toLowerCase().startsWith( search ) )
                 {
@@ -117,7 +116,7 @@ public class CommandSend extends Command implements TabExecutor
         } else
         {
             String search = args[1].toLowerCase();
-            for ( String server : ProxyServer.getInstance().getServers().keySet() )
+            for ( String server : AbstractProxyServer.getInstance().getServers().keySet() )
             {
                 if ( server.toLowerCase().startsWith( search ) )
                 {

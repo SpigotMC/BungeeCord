@@ -2,8 +2,8 @@ package net.md_5.bungee.api.connection;
 
 import java.net.InetSocketAddress;
 
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.api.chat.AbstractBaseComponent;
+import net.md_5.bungee.protocol.AbstractDefinedPacket;
 
 /**
  * A proxy connection is defined as a connection directly connected to a socket.
@@ -39,7 +39,7 @@ public interface Connection
      * @param reason the reason shown to the player / sent to the server on
      * disconnect
      */
-    void disconnect(BaseComponent... reason);
+    void disconnect(AbstractBaseComponent... reason);
 
     /**
      * Disconnects this end of the connection for the specified reason. If this
@@ -49,7 +49,7 @@ public interface Connection
      * @param reason the reason shown to the player / sent to the server on
      * disconnect
      */
-    void disconnect(BaseComponent reason);
+    void disconnect(AbstractBaseComponent reason);
 
     /**
      * Get the unsafe methods of this class.
@@ -66,6 +66,6 @@ public interface Connection
          *
          * @param packet the packet to send
          */
-        void sendPacket(DefinedPacket packet);
+        void sendPacket(AbstractDefinedPacket packet);
     }
 }

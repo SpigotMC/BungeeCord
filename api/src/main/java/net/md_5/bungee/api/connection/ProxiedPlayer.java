@@ -7,7 +7,7 @@ import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.Title;
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.AbstractBaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 
 /**
@@ -38,7 +38,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param position the screen position
      * @param message the message to send
      */
-    public void sendMessage(ChatMessageType position, BaseComponent... message);
+    public void sendMessage(ChatMessageType position, AbstractBaseComponent... message);
 
     /**
      * Send a message to the specified screen position of this player.
@@ -46,7 +46,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param position the screen position
      * @param message the message to send
      */
-    public void sendMessage(ChatMessageType position, BaseComponent message);
+    public void sendMessage(ChatMessageType position, AbstractBaseComponent message);
 
     /**
      * Connects / transfers this user to the specified connection, gracefully
@@ -148,7 +148,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param header The header for the tab player list, null to clear it.
      * @param footer The footer for the tab player list, null to clear it.
      */
-    void setTabHeader(BaseComponent header, BaseComponent footer);
+    void setTabHeader(AbstractBaseComponent header, AbstractBaseComponent footer);
 
     /**
      * Set the header and footer displayed in the tab player list.
@@ -156,7 +156,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param header The header for the tab player list, null to clear it.
      * @param footer The footer for the tab player list, null to clear it.
      */
-    void setTabHeader(BaseComponent[] header, BaseComponent[] footer);
+    void setTabHeader(AbstractBaseComponent[] header, AbstractBaseComponent[] footer);
 
     /**
      * Clears the header and footer displayed in the tab player list.

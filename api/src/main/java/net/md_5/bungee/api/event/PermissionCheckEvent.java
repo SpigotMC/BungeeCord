@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.plugin.Event;
+import net.md_5.bungee.api.plugin.AbstractEvent;
 
 /**
  * Called when the permission of a CommandSender is checked.
@@ -16,7 +16,7 @@ import net.md_5.bungee.api.plugin.Event;
 @AllArgsConstructor
 @ToString(callSuper = false)
 @EqualsAndHashCode(callSuper = false)
-public class PermissionCheckEvent extends Event
+public class PermissionCheckEvent extends AbstractEvent
 {
 
     /**

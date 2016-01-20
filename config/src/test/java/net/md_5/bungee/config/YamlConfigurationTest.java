@@ -47,16 +47,16 @@ public class YamlConfigurationTest
     @Test
     public void testConfig() throws Exception
     {
-        Configuration conf = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( document );
+        Configuration conf = AbstractConfigurationProvider.getProvider( YamlConfiguration.class ).load( document );
         testSection( conf );
 
         StringWriter sw = new StringWriter();
-        ConfigurationProvider.getProvider( YamlConfiguration.class ).save( conf, sw );
+        AbstractConfigurationProvider.getProvider( YamlConfiguration.class ).save( conf, sw );
 
         // Check nulls were saved, see #1094
         Assert.assertFalse( "Config contains null", sw.toString().contains( "null" ) );
 
-        conf = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( new StringReader( sw.toString() ) );
+        conf = AbstractConfigurationProvider.getProvider( YamlConfiguration.class ).load( new StringReader( sw.toString() ) );
         conf.set( "receipt", "Oz-Ware Purchase Invoice" ); // Add it back
         testSection( conf );
     }

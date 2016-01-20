@@ -4,24 +4,24 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.plugin.AbstractCommand;
 import net.md_5.bungee.api.plugin.TabExecutor;
 
 /**
  * @deprecated internal use only
  */
 @Deprecated
-public abstract class PlayerCommand extends Command implements TabExecutor
+public abstract class AbstractPlayerCommand extends AbstractCommand implements TabExecutor
 {
 
-    public PlayerCommand(String name)
+    public AbstractPlayerCommand(String name)
     {
         super( name );
     }
 
-    public PlayerCommand(String name, String permission, String... aliases)
+    public AbstractPlayerCommand(String name, String permission, String... aliases)
     {
         super( name, permission, aliases );
     }
@@ -30,7 +30,7 @@ public abstract class PlayerCommand extends Command implements TabExecutor
     public Iterable<String> onTabComplete(CommandSender sender, String[] args)
     {
         final String lastArg = ( args.length > 0 ) ? args[args.length - 1].toLowerCase() : "";
-        return Iterables.transform( Iterables.filter( ProxyServer.getInstance().getPlayers(), new Predicate<ProxiedPlayer>()
+        return Iterables.transform( Iterables.filter( AbstractProxyServer.getInstance().getPlayers(), new Predicate<ProxiedPlayer>()
         {
             @Override
             public boolean apply(ProxiedPlayer player)

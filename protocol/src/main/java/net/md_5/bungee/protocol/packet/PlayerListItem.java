@@ -1,6 +1,6 @@
 package net.md_5.bungee.protocol.packet;
 
-import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.AbstractDefinedPacket;
 import io.netty.buffer.ByteBuf;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,7 +13,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class PlayerListItem extends DefinedPacket
+public class PlayerListItem extends AbstractDefinedPacket
 {
 
     private Action action;
@@ -31,26 +31,26 @@ public class PlayerListItem extends DefinedPacket
             item.ping = buf.readShort();
         } else
         {
-            action = Action.values()[ DefinedPacket.readVarInt( buf )];
-            items = new Item[ DefinedPacket.readVarInt( buf ) ];
+            action = Action.values()[ AbstractDefinedPacket.readVarInt( buf )];
+            items = new Item[ AbstractDefinedPacket.readVarInt( buf ) ];
             for ( int i = 0; i < items.length; i++ )
             {
                 Item item = items[ i ] = new Item();
-                item.setUuid( DefinedPacket.readUUID( buf ) );
+                item.setUuid( AbstractDefinedPacket.readUUID( buf ) );
                 switch ( action )
                 {
                     case ADD_PLAYER:
-                        item.username = DefinedPacket.readString( buf );
-                        item.properties = new String[ DefinedPacket.readVarInt( buf ) ][];
+                        item.username = AbstractDefinedPacket.readString( buf );
+                        item.properties = new String[ AbstractDefinedPacket.readVarInt( buf ) ][];
                         for ( int j = 0; j < item.properties.length; j++ )
                         {
-                            String name = DefinedPacket.readString( buf );
-                            String value = DefinedPacket.readString( buf );
+                            String name = AbstractDefinedPacket.readString( buf );
+                            String value = AbstractDefinedPacket.readString( buf );
                             if ( buf.readBoolean() )
                             {
                                 item.properties[ j] = new String[]
                                 {
-                                    name, value, DefinedPacket.readString( buf )
+                                    name, value, AbstractDefinedPacket.readString( buf )
                                 };
                             } else
                             {
@@ -60,23 +60,23 @@ public class PlayerListItem extends DefinedPacket
                                 };
                             }
                         }
-                        item.gamemode = DefinedPacket.readVarInt( buf );
-                        item.ping = DefinedPacket.readVarInt( buf );
+                        item.gamemode = AbstractDefinedPacket.readVarInt( buf );
+                        item.ping = AbstractDefinedPacket.readVarInt( buf );
                         if ( buf.readBoolean() )
                         {
-                            item.displayName = DefinedPacket.readString( buf );
+                            item.displayName = AbstractDefinedPacket.readString( buf );
                         }
                         break;
                     case UPDATE_GAMEMODE:
-                        item.gamemode = DefinedPacket.readVarInt( buf );
+                        item.gamemode = AbstractDefinedPacket.readVarInt( buf );
                         break;
                     case UPDATE_LATENCY:
-                        item.ping = DefinedPacket.readVarInt( buf );
+                        item.ping = AbstractDefinedPacket.readVarInt( buf );
                         break;
                     case UPDATE_DISPLAY_NAME:
                         if ( buf.readBoolean() )
                         {
-                            item.displayName = DefinedPacket.readString( buf );
+                            item.displayName = AbstractDefinedPacket.readString( buf );
                         }
                 }
             }
@@ -94,48 +94,48 @@ public class PlayerListItem extends DefinedPacket
             buf.writeShort( item.ping );
         } else
         {
-            DefinedPacket.writeVarInt( action.ordinal(), buf );
-            DefinedPacket.writeVarInt( items.length, buf );
+            AbstractDefinedPacket.writeVarInt( action.ordinal(), buf );
+            AbstractDefinedPacket.writeVarInt( items.length, buf );
             for ( Item item : items )
             {
-                DefinedPacket.writeUUID( item.uuid, buf );
+                AbstractDefinedPacket.writeUUID( item.uuid, buf );
                 switch ( action )
                 {
                     case ADD_PLAYER:
-                        DefinedPacket.writeString( item.username, buf );
-                        DefinedPacket.writeVarInt( item.properties.length, buf );
+                        AbstractDefinedPacket.writeString( item.username, buf );
+                        AbstractDefinedPacket.writeVarInt( item.properties.length, buf );
                         for ( String[] prop : item.properties )
                         {
-                            DefinedPacket.writeString( prop[ 0], buf );
-                            DefinedPacket.writeString( prop[ 1], buf );
+                            AbstractDefinedPacket.writeString( prop[ 0], buf );
+                            AbstractDefinedPacket.writeString( prop[ 1], buf );
                             if ( prop.length >= 3 )
                             {
                                 buf.writeBoolean( true );
-                                DefinedPacket.writeString( prop[ 2], buf );
+                                AbstractDefinedPacket.writeString( prop[ 2], buf );
                             } else
                             {
                                 buf.writeBoolean( false );
                             }
                         }
-                        DefinedPacket.writeVarInt( item.gamemode, buf );
-                        DefinedPacket.writeVarInt( item.ping, buf );
+                        AbstractDefinedPacket.writeVarInt( item.gamemode, buf );
+                        AbstractDefinedPacket.writeVarInt( item.ping, buf );
                         buf.writeBoolean( item.displayName != null );
                         if ( item.displayName != null )
                         {
-                            DefinedPacket.writeString( item.displayName, buf );
+                            AbstractDefinedPacket.writeString( item.displayName, buf );
                         }
                         break;
                     case UPDATE_GAMEMODE:
-                        DefinedPacket.writeVarInt( item.gamemode, buf );
+                        AbstractDefinedPacket.writeVarInt( item.gamemode, buf );
                         break;
                     case UPDATE_LATENCY:
-                        DefinedPacket.writeVarInt( item.ping, buf );
+                        AbstractDefinedPacket.writeVarInt( item.ping, buf );
                         break;
                     case UPDATE_DISPLAY_NAME:
                         buf.writeBoolean( item.displayName != null );
                         if ( item.displayName != null )
                         {
-                            DefinedPacket.writeString( item.displayName, buf );
+                            AbstractDefinedPacket.writeString( item.displayName, buf );
                         }
                         break;
                 }

@@ -16,7 +16,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @NoArgsConstructor
-public class TranslatableComponent extends BaseComponent
+public class TranslatableComponent extends AbstractBaseComponent
 {
 
     private final ResourceBundle locales = ResourceBundle.getBundle( "mojang-translations/en_US" );
@@ -30,7 +30,7 @@ public class TranslatableComponent extends BaseComponent
     /**
      * The components to substitute into the translation
      */
-    private List<BaseComponent> with;
+    private List<AbstractBaseComponent> with;
 
     /**
      * Creates a translatable component from the original to clone it.
@@ -41,7 +41,7 @@ public class TranslatableComponent extends BaseComponent
     {
         super( original );
         setTranslate( original.getTranslate() );
-        for ( BaseComponent baseComponent : original.getWith() )
+        for ( AbstractBaseComponent baseComponent : original.getWith() )
         {
             with.add( baseComponent.duplicate() );
         }
@@ -54,13 +54,13 @@ public class TranslatableComponent extends BaseComponent
      * @see #setWith(java.util.List)
      * @param translate the translation key
      * @param with the {@link java.lang.String}s and
-     * {@link net.md_5.bungee.api.chat.BaseComponent}s to use into the
+     * {@link AbstractBaseComponent}s to use into the
      * translation
      */
     public TranslatableComponent(String translate, Object... with)
     {
         setTranslate( translate );
-        List<BaseComponent> temp = new ArrayList<BaseComponent>();
+        List<AbstractBaseComponent> temp = new ArrayList<AbstractBaseComponent>();
         for ( Object w : with )
         {
             if ( w instanceof String )
@@ -68,7 +68,7 @@ public class TranslatableComponent extends BaseComponent
                 temp.add( new TextComponent( (String) w ) );
             } else
             {
-                temp.add( (BaseComponent) w );
+                temp.add( (AbstractBaseComponent) w );
             }
         }
         setWith( temp );
@@ -80,7 +80,7 @@ public class TranslatableComponent extends BaseComponent
      * @return the duplicate of this TranslatableComponent.
      */
     @Override
-    public BaseComponent duplicate()
+    public AbstractBaseComponent duplicate()
     {
         return new TranslatableComponent( this );
     }
@@ -91,9 +91,9 @@ public class TranslatableComponent extends BaseComponent
      *
      * @param components the components to substitute
      */
-    public void setWith(List<BaseComponent> components)
+    public void setWith(List<AbstractBaseComponent> components)
     {
-        for ( BaseComponent component : components )
+        for ( AbstractBaseComponent component : components )
         {
             component.parent = this;
         }
@@ -117,11 +117,11 @@ public class TranslatableComponent extends BaseComponent
      *
      * @param component the component to substitute
      */
-    public void addWith(BaseComponent component)
+    public void addWith(AbstractBaseComponent component)
     {
         if ( with == null )
         {
-            with = new ArrayList<BaseComponent>();
+            with = new ArrayList<AbstractBaseComponent>();
         }
         component.parent = this;
         with.add( component );

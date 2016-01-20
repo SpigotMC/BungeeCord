@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 import net.md_5.bungee.api.plugin.PluginDescription;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.yaml.snakeyaml.DumperOptions;
@@ -35,7 +35,7 @@ public class ModuleManager
             {
                 "SF_SWITCH_FALLTHROUGH", "SF_SWITCH_NO_DEFAULT"
             })
-    public void load(ProxyServer proxy, File moduleDirectory) throws Exception
+    public void load(AbstractProxyServer proxy, File moduleDirectory) throws Exception
     {
         moduleDirectory.mkdir();
 
@@ -145,7 +145,7 @@ public class ModuleManager
             }
         } catch ( Exception ex )
         {
-            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not check module from file " + file, ex );
+            AbstractProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not check module from file " + file, ex );
         }
 
         return null;

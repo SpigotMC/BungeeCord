@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.md_5.bungee.api.connection.Connection;
-import net.md_5.bungee.api.plugin.Event;
+import net.md_5.bungee.api.plugin.AbstractEvent;
 
 /**
  * An event which occurs in the communication between two nodes.
@@ -12,7 +12,7 @@ import net.md_5.bungee.api.plugin.Event;
 @Data
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public abstract class TargetedEvent extends Event
+public abstract class AbstractTargetedEvent extends AbstractEvent
 {
 
     /**

@@ -9,7 +9,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.TimerTask;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 
 public class Metrics extends TimerTask
 {
@@ -59,9 +59,9 @@ public class Metrics extends TimerTask
         // Construct the post data
         final StringBuilder data = new StringBuilder();
         data.append( encode( "guid" ) ).append( '=' ).append( encode( BungeeCord.getInstance().config.getUuid() ) );
-        encodeDataPair( data, "version", ProxyServer.getInstance().getVersion() );
+        encodeDataPair( data, "version", AbstractProxyServer.getInstance().getVersion() );
         encodeDataPair( data, "server", "0" );
-        encodeDataPair( data, "players", Integer.toString( ProxyServer.getInstance().getOnlineCount() ) );
+        encodeDataPair( data, "players", Integer.toString( AbstractProxyServer.getInstance().getOnlineCount() ) );
         encodeDataPair( data, "revision", String.valueOf( REVISION ) );
 
         // If we're pinging, append it

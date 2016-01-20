@@ -1,7 +1,7 @@
 package net.md_5.bungee.protocol.packet;
 
 import com.google.common.base.Preconditions;
-import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.AbstractDefinedPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.ByteArrayInputStream;
@@ -19,7 +19,7 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class PluginMessage extends DefinedPacket
+public class PluginMessage extends AbstractDefinedPacket
 {
 
     private String tag;

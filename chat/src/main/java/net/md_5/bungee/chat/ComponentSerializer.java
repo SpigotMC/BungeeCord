@@ -7,48 +7,48 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.AbstractBaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 
 import java.lang.reflect.Type;
 import java.util.HashSet;
 
-public class ComponentSerializer implements JsonDeserializer<BaseComponent>
+public class ComponentSerializer implements JsonDeserializer<AbstractBaseComponent>
 {
 
     private final static Gson gson = new GsonBuilder().
-            registerTypeAdapter( BaseComponent.class, new ComponentSerializer() ).
+            registerTypeAdapter( AbstractBaseComponent.class, new ComponentSerializer() ).
             registerTypeAdapter( TextComponent.class, new TextComponentSerializer() ).
             registerTypeAdapter( TranslatableComponent.class, new TranslatableComponentSerializer() ).
             create();
 
-    public final static ThreadLocal<HashSet<BaseComponent>> serializedComponents = new ThreadLocal<HashSet<BaseComponent>>();
+    public final static ThreadLocal<HashSet<AbstractBaseComponent>> serializedComponents = new ThreadLocal<HashSet<AbstractBaseComponent>>();
 
-    public static BaseComponent[] parse(String json)
+    public static AbstractBaseComponent[] parse(String json)
     {
         if ( json.startsWith( "[" ) )
         { //Array
-            return gson.fromJson( json, BaseComponent[].class );
+            return gson.fromJson( json, AbstractBaseComponent[].class );
         }
-        return new BaseComponent[]
+        return new AbstractBaseComponent[]
         {
-            gson.fromJson( json, BaseComponent.class )
+            gson.fromJson( json, AbstractBaseComponent.class )
         };
     }
 
-    public static String toString(BaseComponent component)
+    public static String toString(AbstractBaseComponent component)
     {
         return gson.toJson( component );
     }
 
-    public static String toString(BaseComponent... components)
+    public static String toString(AbstractBaseComponent... components)
     {
         return gson.toJson( new TextComponent( components ) );
     }
 
     @Override
-    public BaseComponent deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
+    public AbstractBaseComponent deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
         if ( json.isJsonPrimitive() )
         {

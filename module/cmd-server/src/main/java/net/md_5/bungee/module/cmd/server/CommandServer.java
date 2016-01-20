@@ -6,10 +6,10 @@ import com.google.common.collect.Iterables;
 import java.util.Collections;
 import java.util.Map;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.plugin.AbstractCommand;
 import net.md_5.bungee.api.plugin.TabExecutor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -20,7 +20,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 /**
  * Command to list and switch a player between available servers.
  */
-public class CommandServer extends Command implements TabExecutor
+public class CommandServer extends AbstractCommand implements TabExecutor
 {
 
     public CommandServer()
@@ -36,11 +36,11 @@ public class CommandServer extends Command implements TabExecutor
             return;
         }
         ProxiedPlayer player = (ProxiedPlayer) sender;
-        Map<String, ServerInfo> servers = ProxyServer.getInstance().getServers();
+        Map<String, ServerInfo> servers = AbstractProxyServer.getInstance().getServers();
         if ( args.length == 0 )
         {
-            player.sendMessage( ProxyServer.getInstance().getTranslation( "current_server", player.getServer().getInfo().getName() ) );
-            TextComponent serverList = new TextComponent( ProxyServer.getInstance().getTranslation( "server_list" ) );
+            player.sendMessage( AbstractProxyServer.getInstance().getTranslation( "current_server", player.getServer().getInfo().getName() ) );
+            TextComponent serverList = new TextComponent( AbstractProxyServer.getInstance().getTranslation( "server_list" ) );
             serverList.setColor( ChatColor.GOLD );
             boolean first = true;
             for ( ServerInfo server : servers.values() )
@@ -64,10 +64,10 @@ public class CommandServer extends Command implements TabExecutor
             ServerInfo server = servers.get( args[0] );
             if ( server == null )
             {
-                player.sendMessage( ProxyServer.getInstance().getTranslation( "no_server" ) );
+                player.sendMessage( AbstractProxyServer.getInstance().getTranslation( "no_server" ) );
             } else if ( !server.canAccess( player ) )
             {
-                player.sendMessage( ProxyServer.getInstance().getTranslation( "no_server_permission" ) );
+                player.sendMessage( AbstractProxyServer.getInstance().getTranslation( "no_server_permission" ) );
             } else
             {
                 player.connect( server );
@@ -78,7 +78,7 @@ public class CommandServer extends Command implements TabExecutor
     @Override
     public Iterable<String> onTabComplete(final CommandSender sender, final String[] args)
     {
-        return ( args.length > 1 ) ? Collections.EMPTY_LIST : Iterables.transform( Iterables.filter( ProxyServer.getInstance().getServers().values(), new Predicate<ServerInfo>()
+        return ( args.length > 1 ) ? Collections.EMPTY_LIST : Iterables.transform( Iterables.filter( AbstractProxyServer.getInstance().getServers().values(), new Predicate<ServerInfo>()
         {
             private final String lower = ( args.length == 0 ) ? "" : args[0].toLowerCase();
 

@@ -18,7 +18,7 @@ import java.util.logging.Level;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -136,7 +136,7 @@ public class YamlConfig implements ConfigurationAdapter
             }
         } catch ( IOException ex )
         {
-            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not save config", ex );
+            AbstractProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not save config", ex );
         }
     }
 
@@ -173,7 +173,7 @@ public class YamlConfig implements ConfigurationAdapter
             String motd = ChatColor.translateAlternateColorCodes( '&', get( "motd", "&1Just another BungeeCord - Forced Host", val ) );
             boolean restricted = get( "restricted", false, val );
             InetSocketAddress address = Util.getAddr( addr );
-            ServerInfo info = ProxyServer.getInstance().constructServerInfo( name, address, motd, restricted );
+            ServerInfo info = AbstractProxyServer.getInstance().constructServerInfo( name, address, motd, restricted );
             ret.put( name, info );
         }
 

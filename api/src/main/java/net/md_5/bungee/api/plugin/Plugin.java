@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 import lombok.Getter;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.scheduler.GroupedThreadFactory;
 
@@ -21,7 +21,7 @@ public class Plugin
     @Getter
     private PluginDescription description;
     @Getter
-    private ProxyServer proxy;
+    private AbstractProxyServer proxy;
     @Getter
     private File file;
     @Getter
@@ -52,7 +52,7 @@ public class Plugin
 
     /**
      * Gets the data folder where this plugin may store arbitrary data. It will
-     * be a child of {@link ProxyServer#getPluginsFolder()}.
+     * be a child of {@link AbstractProxyServer#getPluginsFolder()}.
      *
      * @return the data folder of this plugin
      */
@@ -80,7 +80,7 @@ public class Plugin
      * @param description the description that describes this plugin
      * @param jarfile this plugins jar or container
      */
-    final void init(ProxyServer proxy, PluginDescription description)
+    final void init(AbstractProxyServer proxy, PluginDescription description)
     {
         this.proxy = proxy;
         this.description = description;

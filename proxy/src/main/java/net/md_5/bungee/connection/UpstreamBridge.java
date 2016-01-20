@@ -4,14 +4,14 @@ import com.google.common.base.Preconditions;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.TabCompleteEvent;
 import net.md_5.bungee.netty.ChannelWrapper;
-import net.md_5.bungee.netty.PacketHandler;
+import net.md_5.bungee.netty.AbstractPacketHandler;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.KeepAlive;
@@ -25,13 +25,13 @@ import java.util.List;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 
-public class UpstreamBridge extends PacketHandler
+public class UpstreamBridge extends AbstractPacketHandler
 {
 
-    private final ProxyServer bungee;
+    private final AbstractProxyServer bungee;
     private final UserConnection con;
 
-    public UpstreamBridge(ProxyServer bungee, UserConnection con)
+    public UpstreamBridge(AbstractProxyServer bungee, UserConnection con)
     {
         this.bungee = bungee;
         this.con = con;

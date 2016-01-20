@@ -1,7 +1,7 @@
 
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 import net.md_5.bungee.command.ConsoleCommandSender;
 
 /*
@@ -18,7 +18,7 @@ public class Test
     public static void main(String[] args) throws Exception
     {
         BungeeCord bungee = new BungeeCord();
-        ProxyServer.setInstance( bungee );
+        AbstractProxyServer.setInstance( bungee );
         bungee.getLogger().info( "Enabled BungeeCord version " + bungee.getVersion() );
         bungee.start();
 

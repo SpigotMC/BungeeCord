@@ -8,7 +8,7 @@ import lombok.Setter;
 public class PacketWrapper
 {
 
-    public final DefinedPacket packet;
+    public final AbstractDefinedPacket packet;
     public final ByteBuf buf;
     @Setter
     private boolean released;

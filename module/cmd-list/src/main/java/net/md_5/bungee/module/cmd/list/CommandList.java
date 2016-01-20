@@ -6,15 +6,15 @@ import java.util.List;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.plugin.AbstractCommand;
 
 /**
  * Command to list all players connected to the proxy.
  */
-public class CommandList extends Command
+public class CommandList extends AbstractCommand
 {
 
     public CommandList()
@@ -25,7 +25,7 @@ public class CommandList extends Command
     @Override
     public void execute(CommandSender sender, String[] args)
     {
-        for ( ServerInfo server : ProxyServer.getInstance().getServers().values() )
+        for ( ServerInfo server : AbstractProxyServer.getInstance().getServers().values() )
         {
             if ( !server.canAccess( sender ) )
             {
@@ -39,9 +39,9 @@ public class CommandList extends Command
             }
             Collections.sort( players, String.CASE_INSENSITIVE_ORDER );
 
-            sender.sendMessage( ProxyServer.getInstance().getTranslation( "command_list", server.getName(), server.getPlayers().size(), Util.format( players, ChatColor.RESET + ", " ) ) );
+            sender.sendMessage( AbstractProxyServer.getInstance().getTranslation( "command_list", server.getName(), server.getPlayers().size(), Util.format( players, ChatColor.RESET + ", " ) ) );
         }
 
-        sender.sendMessage( ProxyServer.getInstance().getTranslation( "total_players", ProxyServer.getInstance().getOnlineCount() ) );
+        sender.sendMessage( AbstractProxyServer.getInstance().getTranslation( "total_players", AbstractProxyServer.getInstance().getOnlineCount() ) );
     }
 }

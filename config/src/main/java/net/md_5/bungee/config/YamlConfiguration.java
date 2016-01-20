@@ -15,7 +15,7 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public class YamlConfiguration extends ConfigurationProvider
+public class YamlConfiguration extends AbstractConfigurationProvider
 {
 
     private final ThreadLocal<Yaml> yaml = new ThreadLocal<Yaml>()

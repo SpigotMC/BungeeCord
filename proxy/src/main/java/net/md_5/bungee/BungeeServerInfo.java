@@ -19,7 +19,7 @@ import lombok.Synchronized;
 import lombok.ToString;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -27,7 +27,7 @@ import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.connection.PingHandler;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PipelineUtils;
-import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.AbstractDefinedPacket;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
 @RequiredArgsConstructor
@@ -48,7 +48,7 @@ public class BungeeServerInfo implements ServerInfo
     @Getter
     private final boolean restricted;
     @Getter
-    private final Queue<DefinedPacket> packetQueue = new LinkedList<>();
+    private final Queue<AbstractDefinedPacket> packetQueue = new LinkedList<>();
 
     @Synchronized("players")
     public void addPlayer(ProxiedPlayer player)
@@ -119,7 +119,7 @@ public class BungeeServerInfo implements ServerInfo
     @Override
     public void ping(final Callback<ServerPing> callback)
     {
-        ping( callback, ProxyServer.getInstance().getProtocolVersion() );
+        ping( callback, AbstractProxyServer.getInstance().getProtocolVersion() );
     }
 
     public void ping(final Callback<ServerPing> callback, final int protocolVersion)

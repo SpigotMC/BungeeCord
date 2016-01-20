@@ -6,13 +6,13 @@ import lombok.NoArgsConstructor;
 
 import io.netty.buffer.ByteBuf;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
-import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.AbstractDefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Title extends DefinedPacket
+public class Title extends AbstractDefinedPacket
 {
 
     private Action action;

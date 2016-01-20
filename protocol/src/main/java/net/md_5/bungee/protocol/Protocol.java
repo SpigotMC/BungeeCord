@@ -116,16 +116,16 @@ public enum Protocol
 
         @Getter
         private final ProtocolConstants.Direction direction;
-        private final TObjectIntMap<Class<? extends DefinedPacket>> packetMap = new TObjectIntHashMap<>( MAX_PACKET_ID );
-        private final Class<? extends DefinedPacket>[] packetClasses = new Class[ MAX_PACKET_ID ];
-        private final Constructor<? extends DefinedPacket>[] packetConstructors = new Constructor[ MAX_PACKET_ID ];
+        private final TObjectIntMap<Class<? extends AbstractDefinedPacket>> packetMap = new TObjectIntHashMap<>( MAX_PACKET_ID );
+        private final Class<? extends AbstractDefinedPacket>[] packetClasses = new Class[ MAX_PACKET_ID ];
+        private final Constructor<? extends AbstractDefinedPacket>[] packetConstructors = new Constructor[ MAX_PACKET_ID ];
 
         public boolean hasPacket(int id)
         {
             return id < MAX_PACKET_ID && packetConstructors[id] != null;
         }
 
-        public final DefinedPacket createPacket(int id)
+        public final AbstractDefinedPacket createPacket(int id)
         {
             if ( id > MAX_PACKET_ID )
             {
@@ -145,7 +145,7 @@ public enum Protocol
             }
         }
 
-        protected final void registerPacket(int id, Class<? extends DefinedPacket> packetClass)
+        protected final void registerPacket(int id, Class<? extends AbstractDefinedPacket> packetClass)
         {
             try
             {
@@ -165,7 +165,7 @@ public enum Protocol
             packetConstructors[id] = null;
         }
 
-        final int getId(Class<? extends DefinedPacket> packet)
+        final int getId(Class<? extends AbstractDefinedPacket> packet)
         {
             Preconditions.checkArgument( packetMap.containsKey( packet ), "Cannot get ID for packet " + packet );
 

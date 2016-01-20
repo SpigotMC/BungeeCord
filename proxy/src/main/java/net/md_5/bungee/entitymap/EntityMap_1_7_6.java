@@ -5,7 +5,7 @@ import io.netty.buffer.ByteBuf;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.connection.LoginResult;
-import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.AbstractDefinedPacket;
 
 class EntityMap_1_7_6 extends EntityMap_1_7_2
 {
@@ -19,15 +19,15 @@ class EntityMap_1_7_6 extends EntityMap_1_7_2
         super.rewriteClientbound( packet, oldId, newId );
 
         int readerIndex = packet.readerIndex();
-        int packetId = DefinedPacket.readVarInt( packet );
+        int packetId = AbstractDefinedPacket.readVarInt( packet );
         int packetIdLength = packet.readerIndex() - readerIndex;
         if ( packetId == 0x0C /* Spawn Player */ )
         {
-            DefinedPacket.readVarInt( packet );
+            AbstractDefinedPacket.readVarInt( packet );
             int idLength = packet.readerIndex() - readerIndex - packetIdLength;
-            String uuid = DefinedPacket.readString( packet );
-            String username = DefinedPacket.readString( packet );
-            int props = DefinedPacket.readVarInt( packet );
+            String uuid = AbstractDefinedPacket.readString( packet );
+            String username = AbstractDefinedPacket.readString( packet );
+            int props = AbstractDefinedPacket.readVarInt( packet );
             if ( props == 0 )
             {
                 UserConnection player = (UserConnection) BungeeCord.getInstance().getPlayer( username );
@@ -40,14 +40,14 @@ class EntityMap_1_7_6 extends EntityMap_1_7_2
                         ByteBuf rest = packet.slice().copy();
                         packet.readerIndex( readerIndex );
                         packet.writerIndex( readerIndex + packetIdLength + idLength );
-                        DefinedPacket.writeString( player.getUniqueId().toString(), packet );
-                        DefinedPacket.writeString( username, packet );
-                        DefinedPacket.writeVarInt( profile.getProperties().length, packet );
+                        AbstractDefinedPacket.writeString( player.getUniqueId().toString(), packet );
+                        AbstractDefinedPacket.writeString( username, packet );
+                        AbstractDefinedPacket.writeVarInt( profile.getProperties().length, packet );
                         for ( LoginResult.Property property : profile.getProperties() )
                         {
-                            DefinedPacket.writeString( property.getName(), packet );
-                            DefinedPacket.writeString( property.getValue(), packet );
-                            DefinedPacket.writeString( property.getSignature(), packet );
+                            AbstractDefinedPacket.writeString( property.getName(), packet );
+                            AbstractDefinedPacket.writeString( property.getValue(), packet );
+                            AbstractDefinedPacket.writeString( property.getSignature(), packet );
                         }
                         packet.writeBytes( rest );
                         rest.release();

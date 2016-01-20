@@ -5,7 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import java.util.List;
 import net.md_5.bungee.jni.zlib.BungeeZlib;
-import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.AbstractDefinedPacket;
 
 public class PacketDecompressor extends ByteToMessageDecoder
 {
@@ -32,7 +32,7 @@ public class PacketDecompressor extends ByteToMessageDecoder
             return;
         }
 
-        int size = DefinedPacket.readVarInt( in );
+        int size = AbstractDefinedPacket.readVarInt( in );
         if ( size == 0 )
         {
             out.add( in.copy() );

@@ -1,7 +1,7 @@
 package net.md_5.bungee.chat;
 
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.AbstractBaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -26,17 +26,17 @@ public class ComponentsTest
     @Test
     public void testLegacyConverter()
     {
-        BaseComponent[] test1 = TextComponent.fromLegacyText( ChatColor.AQUA + "Aqua " + ChatColor.RED + ChatColor.BOLD + "RedBold" );
+        AbstractBaseComponent[] test1 = TextComponent.fromLegacyText( ChatColor.AQUA + "Aqua " + ChatColor.RED + ChatColor.BOLD + "RedBold" );
 
-        Assert.assertEquals( "Aqua RedBold", BaseComponent.toPlainText( test1 ) );
-        Assert.assertEquals( ChatColor.AQUA + "Aqua " + ChatColor.RED + ChatColor.BOLD + "RedBold", BaseComponent.toLegacyText( test1 ) );
+        Assert.assertEquals( "Aqua RedBold", AbstractBaseComponent.toPlainText( test1 ) );
+        Assert.assertEquals( ChatColor.AQUA + "Aqua " + ChatColor.RED + ChatColor.BOLD + "RedBold", AbstractBaseComponent.toLegacyText( test1 ) );
 
-        BaseComponent[] test2 = TextComponent.fromLegacyText( "Text http://spigotmc.org " + ChatColor.GREEN + "google.com/test" );
+        AbstractBaseComponent[] test2 = TextComponent.fromLegacyText( "Text http://spigotmc.org " + ChatColor.GREEN + "google.com/test" );
 
-        Assert.assertEquals( "Text http://spigotmc.org google.com/test", BaseComponent.toPlainText( test2 ) );
+        Assert.assertEquals( "Text http://spigotmc.org google.com/test", AbstractBaseComponent.toPlainText( test2 ) );
         //The extra ChatColor.WHITEs are sometimes inserted when not needed but it doesn't change the result
         Assert.assertEquals( ChatColor.WHITE + "Text " + ChatColor.WHITE + "http://spigotmc.org" + ChatColor.WHITE
-                + " " + ChatColor.GREEN + "google.com/test", BaseComponent.toLegacyText( test2 ) );
+                + " " + ChatColor.GREEN + "google.com/test", AbstractBaseComponent.toLegacyText( test2 ) );
 
         ClickEvent url1 = test2[1].getClickEvent();
         Assert.assertNotNull( url1 );
@@ -72,19 +72,19 @@ public class ComponentsTest
     @Test
     public void testBuilder()
     {
-        BaseComponent[] components = new ComponentBuilder( "Hello " ).color( ChatColor.RED ).
+        AbstractBaseComponent[] components = new ComponentBuilder( "Hello " ).color( ChatColor.RED ).
                 append( "World" ).bold( true ).color( ChatColor.BLUE ).
                 append( "!" ).color( ChatColor.YELLOW ).create();
 
-        Assert.assertEquals( "Hello World!", BaseComponent.toPlainText( components ) );
+        Assert.assertEquals( "Hello World!", AbstractBaseComponent.toPlainText( components ) );
         Assert.assertEquals( ChatColor.RED + "Hello " + ChatColor.BLUE + ChatColor.BOLD
-                + "World" + ChatColor.YELLOW + ChatColor.BOLD + "!", BaseComponent.toLegacyText( components ) );
+                + "World" + ChatColor.YELLOW + ChatColor.BOLD + "!", AbstractBaseComponent.toLegacyText( components ) );
     }
 
     @Test
     public void testBuilderReset()
     {
-        BaseComponent[] components = new ComponentBuilder( "Hello " ).color(ChatColor.RED)
+        AbstractBaseComponent[] components = new ComponentBuilder( "Hello " ).color(ChatColor.RED)
                 .append("World").reset().create();
 
         Assert.assertEquals( components[0].getColor(), ChatColor.RED );
@@ -94,7 +94,7 @@ public class ComponentsTest
     @Test
     public void testBuilderFormatRetention()
     {
-        BaseComponent[] noneRetention = new ComponentBuilder( "Hello " ).color( ChatColor.RED )
+        AbstractBaseComponent[] noneRetention = new ComponentBuilder( "Hello " ).color( ChatColor.RED )
                 .append( "World", ComponentBuilder.FormatRetention.NONE ).create();
 
         Assert.assertEquals( noneRetention[0].getColor(), ChatColor.RED );
@@ -102,7 +102,7 @@ public class ComponentsTest
 
         HoverEvent testEvent = new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( "test" ).create() );
 
-        BaseComponent[] formattingRetention = new ComponentBuilder( "Hello " ).color( ChatColor.RED )
+        AbstractBaseComponent[] formattingRetention = new ComponentBuilder( "Hello " ).color( ChatColor.RED )
                 .event( testEvent ).append( "World", ComponentBuilder.FormatRetention.FORMATTING ).create();
 
         Assert.assertEquals( formattingRetention[0].getColor(), ChatColor.RED );
@@ -112,7 +112,7 @@ public class ComponentsTest
 
         ClickEvent testClickEvent = new ClickEvent( ClickEvent.Action.OPEN_URL, "http://www.example.com" );
 
-        BaseComponent[] eventRetention = new ComponentBuilder( "Hello " ).color( ChatColor.RED )
+        AbstractBaseComponent[] eventRetention = new ComponentBuilder( "Hello " ).color( ChatColor.RED )
                 .event( testEvent ).event(testClickEvent).append("World", ComponentBuilder.FormatRetention.EVENTS).create();
 
         Assert.assertEquals( eventRetention[0].getColor(), ChatColor.RED );

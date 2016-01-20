@@ -13,11 +13,11 @@ import lombok.ToString;
 @Setter
 @ToString(exclude = "parent")
 @NoArgsConstructor
-public abstract class BaseComponent
+public abstract class AbstractBaseComponent
 {
 
     @Setter(AccessLevel.NONE)
-    BaseComponent parent;
+    AbstractBaseComponent parent;
 
     /**
      * The color of this component and any child components (unless overridden)
@@ -53,7 +53,7 @@ public abstract class BaseComponent
      * Appended components that inherit this component's formatting and events
      */
     @Getter
-    private List<BaseComponent> extra;
+    private List<AbstractBaseComponent> extra;
 
     /**
      * The action to preform when this component (and child components) are
@@ -68,7 +68,7 @@ public abstract class BaseComponent
     @Getter
     private HoverEvent hoverEvent;
 
-    BaseComponent(BaseComponent old)
+    AbstractBaseComponent(AbstractBaseComponent old)
     {
         setColor( old.getColorRaw() );
         setBold( old.isBoldRaw() );
@@ -80,7 +80,7 @@ public abstract class BaseComponent
         setHoverEvent( old.getHoverEvent() );
         if ( old.getExtra() != null )
         {
-            for ( BaseComponent component : old.getExtra() )
+            for ( AbstractBaseComponent component : old.getExtra() )
             {
                 addExtra( component.duplicate() );
             }
@@ -92,7 +92,7 @@ public abstract class BaseComponent
      *
      * @return The duplicate of this BaseComponent
      */
-    public abstract BaseComponent duplicate();
+    public abstract AbstractBaseComponent duplicate();
 
     /**
      * Converts the components to a string that uses the old formatting codes
@@ -101,10 +101,10 @@ public abstract class BaseComponent
      * @param components the components to convert
      * @return the string in the old format
      */
-    public static String toLegacyText(BaseComponent... components)
+    public static String toLegacyText(AbstractBaseComponent... components)
     {
         StringBuilder builder = new StringBuilder();
-        for ( BaseComponent msg : components )
+        for ( AbstractBaseComponent msg : components )
         {
             builder.append( msg.toLegacyText() );
         }
@@ -117,10 +117,10 @@ public abstract class BaseComponent
      * @param components the components to convert
      * @return the string as plain text
      */
-    public static String toPlainText(BaseComponent... components)
+    public static String toPlainText(AbstractBaseComponent... components)
     {
         StringBuilder builder = new StringBuilder();
-        for ( BaseComponent msg : components )
+        for ( AbstractBaseComponent msg : components )
         {
             builder.append( msg.toPlainText() );
         }
@@ -293,9 +293,9 @@ public abstract class BaseComponent
         return obfuscated;
     }
 
-    public void setExtra(List<BaseComponent> components)
+    public void setExtra(List<AbstractBaseComponent> components)
     {
-        for ( BaseComponent component : components )
+        for ( AbstractBaseComponent component : components )
         {
             component.parent = this;
         }
@@ -319,11 +319,11 @@ public abstract class BaseComponent
      *
      * @param component the component to append
      */
-    public void addExtra(BaseComponent component)
+    public void addExtra(AbstractBaseComponent component)
     {
         if ( extra == null )
         {
-            extra = new ArrayList<BaseComponent>();
+            extra = new ArrayList<AbstractBaseComponent>();
         }
         component.parent = this;
         extra.add( component );
@@ -358,7 +358,7 @@ public abstract class BaseComponent
     {
         if ( extra != null )
         {
-            for ( BaseComponent e : extra )
+            for ( AbstractBaseComponent e : extra )
             {
                 e.toPlainText( builder );
             }
@@ -382,7 +382,7 @@ public abstract class BaseComponent
     {
         if ( extra != null )
         {
-            for ( BaseComponent e : extra )
+            for ( AbstractBaseComponent e : extra )
             {
                 e.toLegacyText( builder );
             }

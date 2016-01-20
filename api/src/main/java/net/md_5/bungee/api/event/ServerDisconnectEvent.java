@@ -7,13 +7,13 @@ import lombok.NonNull;
 import lombok.ToString;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.plugin.Event;
+import net.md_5.bungee.api.plugin.AbstractEvent;
 
 @Data
 @AllArgsConstructor
 @ToString(callSuper = false)
 @EqualsAndHashCode(callSuper = false)
-public class ServerDisconnectEvent extends Event
+public class ServerDisconnectEvent extends AbstractEvent
 {
 
     /**
