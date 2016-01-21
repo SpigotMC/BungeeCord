@@ -2,10 +2,10 @@ package net.md_5.bungee.module.cmd.alert;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.AbstractProxyServer;
+import net.md_5.bungee.api.plugin.AbstractCommand;
 
-public class CommandAlert extends Command
+public class CommandAlert extends AbstractCommand
 {
 
     public CommandAlert()
@@ -28,7 +28,7 @@ public class CommandAlert extends Command
                 args[0] = args[0].substring( 2, args[0].length() );
             } else
             {
-                builder.append( ProxyServer.getInstance().getTranslation( "alert" ) );
+                builder.append( AbstractProxyServer.getInstance().getTranslation( "alert" ) );
             }
 
             for ( String s : args )
@@ -39,7 +39,7 @@ public class CommandAlert extends Command
 
             String message = builder.substring( 0, builder.length() - 1 );
 
-            ProxyServer.getInstance().broadcast( message );
+            AbstractProxyServer.getInstance().broadcast( message );
         }
     }
 }

@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TextComponent extends BaseComponent
+public class TextComponent extends AbstractBaseComponent
 {
 
     private static final Pattern url = Pattern.compile( "^(?:(https?)://)?([-\\w_\\.]{2,}\\.[a-z]{2,4})(/\\S*)?$" );
@@ -28,9 +28,9 @@ public class TextComponent extends BaseComponent
      * @param message the text to convert
      * @return the components needed to print the message to the client
      */
-    public static BaseComponent[] fromLegacyText(String message)
+    public static AbstractBaseComponent[] fromLegacyText(String message)
     {
-        ArrayList<BaseComponent> components = new ArrayList<BaseComponent>();
+        ArrayList<AbstractBaseComponent> components = new ArrayList<AbstractBaseComponent>();
         StringBuilder builder = new StringBuilder();
         TextComponent component = new TextComponent();
         Matcher matcher = url.matcher( message );
@@ -127,7 +127,7 @@ public class TextComponent extends BaseComponent
             components.add( new TextComponent( "" ) );
         }
 
-        return components.toArray( new BaseComponent[ components.size() ] );
+        return components.toArray( new AbstractBaseComponent[ components.size() ] );
     }
 
     /**
@@ -153,10 +153,10 @@ public class TextComponent extends BaseComponent
      *
      * @param extras the extras to set
      */
-    public TextComponent(BaseComponent... extras)
+    public TextComponent(AbstractBaseComponent... extras)
     {
         setText( "" );
-        setExtra( new ArrayList<BaseComponent>( Arrays.asList( extras ) ) );
+        setExtra( new ArrayList<AbstractBaseComponent>( Arrays.asList( extras ) ) );
     }
 
     /**
@@ -165,7 +165,7 @@ public class TextComponent extends BaseComponent
      * @return the duplicate of this TextComponent.
      */
     @Override
-    public BaseComponent duplicate()
+    public AbstractBaseComponent duplicate()
     {
         return new TextComponent( this );
     }

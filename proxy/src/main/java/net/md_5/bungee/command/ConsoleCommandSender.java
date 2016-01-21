@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.Collections;
 import lombok.Getter;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.AbstractProxyServer;
+import net.md_5.bungee.api.chat.AbstractBaseComponent;
 
 /**
  * Command sender representing the proxy console.
@@ -23,7 +23,7 @@ public class ConsoleCommandSender implements CommandSender
     @Override
     public void sendMessage(String message)
     {
-        ProxyServer.getInstance().getLogger().info( message );
+        AbstractProxyServer.getInstance().getLogger().info( message );
     }
 
     @Override
@@ -36,13 +36,13 @@ public class ConsoleCommandSender implements CommandSender
     }
 
     @Override
-    public void sendMessage(BaseComponent... message)
+    public void sendMessage(AbstractBaseComponent... message)
     {
-        sendMessage( BaseComponent.toLegacyText( message ) );
+        sendMessage( AbstractBaseComponent.toLegacyText( message ) );
     }
 
     @Override
-    public void sendMessage(BaseComponent message)
+    public void sendMessage(AbstractBaseComponent message)
     {
         sendMessage( message.toLegacyText() );
     }

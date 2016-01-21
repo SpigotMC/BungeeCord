@@ -25,9 +25,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 import net.md_5.bungee.api.Title;
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.AbstractBaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -36,14 +36,14 @@ import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.InitialHandler;
-import net.md_5.bungee.entitymap.EntityMap;
+import net.md_5.bungee.entitymap.AbstractEntityMap;
 import net.md_5.bungee.forge.ForgeClientHandler;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.forge.ForgeServerHandler;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PipelineUtils;
-import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.AbstractDefinedPacket;
 import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.PacketWrapper;
@@ -56,7 +56,7 @@ import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.tab.ServerUnique;
-import net.md_5.bungee.tab.TabList;
+import net.md_5.bungee.tab.AbstractTabList;
 import net.md_5.bungee.util.CaseInsensitiveSet;
 
 @RequiredArgsConstructor
@@ -65,7 +65,7 @@ public final class UserConnection implements ProxiedPlayer
 
     /*========================================================================*/
     @NonNull
-    private final ProxyServer bungee;
+    private final AbstractProxyServer bungee;
     @NonNull
     private final ChannelWrapper ch;
     @Getter
@@ -96,7 +96,7 @@ public final class UserConnection implements ProxiedPlayer
     @Setter
     private ServerInfo reconnectServer;
     @Getter
-    private TabList tabListHandler;
+    private AbstractTabList tabListHandler;
     @Getter
     @Setter
     private int gamemode;
@@ -120,7 +120,7 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     private String displayName;
     @Getter
-    private EntityMap entityRewrite;
+    private AbstractEntityMap entityRewrite;
     private Locale locale;
     /*========================================================================*/
     @Getter
@@ -133,7 +133,7 @@ public final class UserConnection implements ProxiedPlayer
     private final Unsafe unsafe = new Unsafe()
     {
         @Override
-        public void sendPacket(DefinedPacket packet)
+        public void sendPacket(AbstractDefinedPacket packet)
         {
             ch.write( packet );
         }
@@ -141,7 +141,7 @@ public final class UserConnection implements ProxiedPlayer
 
     public void init()
     {
-        this.entityRewrite = EntityMap.getEntityMap( getPendingConnection().getVersion() );
+        this.entityRewrite = AbstractEntityMap.getEntityMap( getPendingConnection().getVersion() );
 
         this.displayName = name;
 
@@ -269,7 +269,7 @@ public final class UserConnection implements ProxiedPlayer
                     future.channel().close();
                     pendingConnects.remove( target );
 
-                    ServerInfo def = ProxyServer.getInstance().getServers().get( getPendingConnection().getListener().getFallbackServer() );
+                    ServerInfo def = AbstractProxyServer.getInstance().getServers().get( getPendingConnection().getListener().getFallbackServer() );
                     if ( retry && target != def && ( getServer() == null || def != getServer().getInfo() ) )
                     {
                         sendMessage( bungee.getTranslation( "fallback_lobby" ) );
@@ -308,24 +308,24 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public void disconnect(BaseComponent... reason)
+    public void disconnect(AbstractBaseComponent... reason)
     {
         disconnect0( reason );
     }
 
     @Override
-    public void disconnect(BaseComponent reason)
+    public void disconnect(AbstractBaseComponent reason)
     {
         disconnect0( reason );
     }
 
-    public void disconnect0(final BaseComponent... reason)
+    public void disconnect0(final AbstractBaseComponent... reason)
     {
         if ( !ch.isClosed() )
         {
             bungee.getLogger().log( Level.INFO, "[{0}] disconnected with: {1}", new Object[]
             {
-                getName(), BaseComponent.toLegacyText( reason )
+                getName(), AbstractBaseComponent.toLegacyText( reason )
             } );
 
             // Why do we have to delay this you might ask? Well the simple reason is MOJANG.
@@ -374,13 +374,13 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public void sendMessage(BaseComponent... message)
+    public void sendMessage(AbstractBaseComponent... message)
     {
         sendMessage( ChatMessageType.CHAT, message );
     }
 
     @Override
-    public void sendMessage(BaseComponent message)
+    public void sendMessage(AbstractBaseComponent message)
     {
         sendMessage( ChatMessageType.CHAT, message );
     }
@@ -391,7 +391,7 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public void sendMessage(ChatMessageType position, BaseComponent... message)
+    public void sendMessage(ChatMessageType position, AbstractBaseComponent... message)
     {
         // Action bar doesn't display the new JSON formattings, legacy works - send it using this for now
         if ( position == ChatMessageType.ACTION_BAR && pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
@@ -404,7 +404,7 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public void sendMessage(ChatMessageType position, BaseComponent message)
+    public void sendMessage(ChatMessageType position, AbstractBaseComponent message)
     {
         // Action bar doesn't display the new JSON formattings, legacy works - send it using this for now
         if ( position == ChatMessageType.ACTION_BAR && pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
@@ -542,7 +542,7 @@ public final class UserConnection implements ProxiedPlayer
     private static final String EMPTY_TEXT = ComponentSerializer.toString( new TextComponent( "" ) );
 
     @Override
-    public void setTabHeader(BaseComponent header, BaseComponent footer)
+    public void setTabHeader(AbstractBaseComponent header, AbstractBaseComponent footer)
     {
         if ( pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
         {
@@ -554,7 +554,7 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public void setTabHeader(BaseComponent[] header, BaseComponent[] footer)
+    public void setTabHeader(AbstractBaseComponent[] header, AbstractBaseComponent[] footer)
     {
         if ( pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
         {
@@ -569,7 +569,7 @@ public final class UserConnection implements ProxiedPlayer
     public void resetTabHeader()
     {
         // Mojang did not add a way to remove the header / footer completely, we can only set it to empty
-        setTabHeader( (BaseComponent) null, null );
+        setTabHeader( (AbstractBaseComponent) null, null );
     }
 
     @Override

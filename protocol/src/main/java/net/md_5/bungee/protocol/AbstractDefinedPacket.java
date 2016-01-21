@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-public abstract class DefinedPacket
+public abstract class AbstractDefinedPacket
 {
 
     public static void writeString(String s, ByteBuf buf)

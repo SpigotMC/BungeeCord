@@ -1,6 +1,6 @@
 package net.md_5.bungee.api;
 
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.AbstractBaseComponent;
 import net.md_5.bungee.api.plugin.PluginManager;
 import com.google.common.base.Preconditions;
 import java.io.File;
@@ -16,11 +16,11 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.scheduler.TaskScheduler;
 
-public abstract class ProxyServer
+public abstract class AbstractProxyServer
 {
 
     @Getter
-    private static ProxyServer instance;
+    private static AbstractProxyServer instance;
 
     /**
      * Sets the proxy instance. This method may only be called once per an
@@ -28,11 +28,11 @@ public abstract class ProxyServer
      *
      * @param instance the new instance to set
      */
-    public static void setInstance(ProxyServer instance)
+    public static void setInstance(AbstractProxyServer instance)
     {
         Preconditions.checkNotNull( instance, "instance" );
-        Preconditions.checkArgument( ProxyServer.instance == null, "Instance already set" );
-        ProxyServer.instance = instance;
+        Preconditions.checkArgument( AbstractProxyServer.instance == null, "Instance already set" );
+        AbstractProxyServer.instance = instance;
     }
 
     /**
@@ -257,14 +257,14 @@ public abstract class ProxyServer
      *
      * @param message the message to broadcast
      */
-    public abstract void broadcast(BaseComponent... message);
+    public abstract void broadcast(AbstractBaseComponent... message);
 
     /**
      * Send the specified message to the console and all connected players.
      *
      * @param message the message to broadcast
      */
-    public abstract void broadcast(BaseComponent message);
+    public abstract void broadcast(AbstractBaseComponent message);
 
     /**
      * Gets the commands which are disabled and will not be run on this proxy.

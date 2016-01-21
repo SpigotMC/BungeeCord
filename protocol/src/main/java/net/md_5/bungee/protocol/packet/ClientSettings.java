@@ -1,6 +1,6 @@
 package net.md_5.bungee.protocol.packet;
 
-import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.AbstractDefinedPacket;
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +13,7 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class ClientSettings extends DefinedPacket
+public class ClientSettings extends AbstractDefinedPacket
 {
 
     private String locale;

@@ -6,10 +6,10 @@ import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.AbstractBaseComponent;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.netty.ChannelWrapper;
-import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.AbstractDefinedPacket;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
 @RequiredArgsConstructor
@@ -29,7 +29,7 @@ public class ServerConnection implements Server
     private final Unsafe unsafe = new Unsafe()
     {
         @Override
-        public void sendPacket(DefinedPacket packet)
+        public void sendPacket(AbstractDefinedPacket packet)
         {
             ch.write( packet );
         }
@@ -48,7 +48,7 @@ public class ServerConnection implements Server
     }
 
     @Override
-    public void disconnect(BaseComponent... reason)
+    public void disconnect(AbstractBaseComponent... reason)
     {
         Preconditions.checkArgument( reason.length == 0, "Server cannot have disconnect reason" );
 
@@ -66,7 +66,7 @@ public class ServerConnection implements Server
     }
 
     @Override
-    public void disconnect(BaseComponent reason)
+    public void disconnect(AbstractBaseComponent reason)
     {
         disconnect();
     }

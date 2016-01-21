@@ -8,7 +8,7 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
-import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.AbstractDefinedPacket;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
 public class ForgeUtils
@@ -42,10 +42,10 @@ public class ForgeUtils
         if ( discriminator == 2 ) // ModList
         {
             ByteBuf buffer = payload.slice();
-            int modCount = DefinedPacket.readVarInt( buffer, 2 );
+            int modCount = AbstractDefinedPacket.readVarInt( buffer, 2 );
             for ( int i = 0; i < modCount; i++ )
             {
-                modTags.put( DefinedPacket.readString( buffer ), DefinedPacket.readString( buffer ) );
+                modTags.put( AbstractDefinedPacket.readString( buffer ), AbstractDefinedPacket.readString( buffer ) );
             }
         }
         return modTags;

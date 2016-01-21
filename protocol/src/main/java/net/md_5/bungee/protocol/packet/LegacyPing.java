@@ -6,12 +6,12 @@ import lombok.RequiredArgsConstructor;
 
 import io.netty.buffer.ByteBuf;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
-import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.AbstractDefinedPacket;
 
 @Data
 @RequiredArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class LegacyPing extends DefinedPacket
+public class LegacyPing extends AbstractDefinedPacket
 {
 
     private final boolean v1_5;

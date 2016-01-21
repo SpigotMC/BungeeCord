@@ -13,7 +13,7 @@ import javax.imageio.ImageIO;
 import lombok.Getter;
 import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ProxyConfig;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -60,7 +60,7 @@ public class Configuration implements ProxyConfig
 
     public void load()
     {
-        ConfigurationAdapter adapter = ProxyServer.getInstance().getConfigurationAdapter();
+        ConfigurationAdapter adapter = AbstractProxyServer.getInstance().getConfigurationAdapter();
         adapter.load();
 
         File fav = new File( "server-icon.png" );
@@ -71,7 +71,7 @@ public class Configuration implements ProxyConfig
                 favicon = Favicon.create( ImageIO.read( fav ) );
             } catch ( IOException | IllegalArgumentException ex )
             {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load server icon", ex );
+                AbstractProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load server icon", ex );
             }
         }
 
@@ -121,7 +121,7 @@ public class Configuration implements ProxyConfig
             {
                 if ( !servers.containsKey( server ) )
                 {
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "Forced host server {0} is not defined", server );
+                    AbstractProxyServer.getInstance().getLogger().log( Level.WARNING, "Forced host server {0} is not defined", server );
                 }
             }
         }

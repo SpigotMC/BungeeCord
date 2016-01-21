@@ -8,7 +8,7 @@ import net.md_5.bungee.connection.LoginResult;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 
 @RequiredArgsConstructor
-public abstract class TabList
+public abstract class AbstractTabList
 {
 
     protected final ProxiedPlayer player;

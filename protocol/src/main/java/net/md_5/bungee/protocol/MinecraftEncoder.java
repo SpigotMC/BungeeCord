@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Setter;
 
 @AllArgsConstructor
-public class MinecraftEncoder extends MessageToByteEncoder<DefinedPacket>
+public class MinecraftEncoder extends MessageToByteEncoder<AbstractDefinedPacket>
 {
 
     @Setter
@@ -17,10 +17,10 @@ public class MinecraftEncoder extends MessageToByteEncoder<DefinedPacket>
     private int protocolVersion;
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, DefinedPacket msg, ByteBuf out) throws Exception
+    protected void encode(ChannelHandlerContext ctx, AbstractDefinedPacket msg, ByteBuf out) throws Exception
     {
         Protocol.DirectionData prot = ( server ) ? protocol.TO_CLIENT : protocol.TO_SERVER;
-        DefinedPacket.writeVarInt( prot.getId( msg.getClass() ), out );
+        AbstractDefinedPacket.writeVarInt( prot.getId( msg.getClass() ), out );
         msg.write( out, prot.getDirection(), protocolVersion );
     }
 }

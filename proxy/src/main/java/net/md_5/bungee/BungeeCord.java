@@ -11,8 +11,7 @@ import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.module.ModuleManager;
-import com.google.common.io.ByteStreams;
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.AbstractBaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.log.BungeeLogger;
@@ -52,14 +51,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jline.UnsupportedTerminal;
+
 import jline.console.ConsoleReader;
-import jline.internal.Log;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 import net.md_5.bungee.api.ReconnectHandler;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
@@ -73,7 +71,7 @@ import net.md_5.bungee.conf.YamlConfig;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.log.LoggingOutputStream;
 import net.md_5.bungee.netty.PipelineUtils;
-import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.AbstractDefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
@@ -85,7 +83,7 @@ import org.fusesource.jansi.AnsiConsole;
 /**
  * Main BungeeCord proxy class.
  */
-public class BungeeCord extends ProxyServer
+public class BungeeCord extends AbstractProxyServer
 {
 
     /**
@@ -162,7 +160,7 @@ public class BungeeCord extends ProxyServer
 
     public static BungeeCord getInstance()
     {
-        return (BungeeCord) ProxyServer.getInstance();
+        return (BungeeCord) AbstractProxyServer.getInstance();
     }
 
     @SuppressFBWarnings("DM_DEFAULT_ENCODING")
@@ -425,7 +423,7 @@ public class BungeeCord extends ProxyServer
      *
      * @param packet the packet to send
      */
-    public void broadcast(DefinedPacket packet)
+    public void broadcast(AbstractDefinedPacket packet)
     {
         connectionLock.readLock().lock();
         try
@@ -600,14 +598,14 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public void broadcast(BaseComponent... message)
+    public void broadcast(AbstractBaseComponent... message)
     {
-        getConsole().sendMessage( BaseComponent.toLegacyText( message ) );
+        getConsole().sendMessage( AbstractBaseComponent.toLegacyText( message ) );
         broadcast( new Chat( ComponentSerializer.toString( message ) ) );
     }
 
     @Override
-    public void broadcast(BaseComponent message)
+    public void broadcast(AbstractBaseComponent message)
     {
         getConsole().sendMessage( message.toLegacyText() );
         broadcast( new Chat( ComponentSerializer.toString( message ) ) );

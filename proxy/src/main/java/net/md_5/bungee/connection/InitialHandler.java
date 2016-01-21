@@ -6,7 +6,6 @@ import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -20,9 +19,9 @@ import net.md_5.bungee.*;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.Favicon;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 import net.md_5.bungee.api.ServerPing;
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.AbstractBaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -35,11 +34,11 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.http.HttpClient;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.ChannelWrapper;
-import net.md_5.bungee.netty.PacketHandler;
+import net.md_5.bungee.netty.AbstractPacketHandler;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.netty.cipher.CipherDecoder;
 import net.md_5.bungee.netty.cipher.CipherEncoder;
-import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.AbstractDefinedPacket;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
@@ -61,10 +60,10 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
 
 @RequiredArgsConstructor
-public class InitialHandler extends PacketHandler implements PendingConnection
+public class InitialHandler extends AbstractPacketHandler implements PendingConnection
 {
 
-    private final ProxyServer bungee;
+    private final AbstractProxyServer bungee;
     private ChannelWrapper ch;
     @Getter
     private final ListenerInfo listener;
@@ -79,7 +78,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private final Unsafe unsafe = new Unsafe()
     {
         @Override
-        public void sendPacket(DefinedPacket packet)
+        public void sendPacket(AbstractDefinedPacket packet)
         {
             ch.write( packet );
         }
@@ -522,7 +521,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void disconnect(final BaseComponent... reason)
+    public void disconnect(final AbstractBaseComponent... reason)
     {
         if ( !ch.isClosed() )
         {
@@ -548,9 +547,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void disconnect(BaseComponent reason)
+    public void disconnect(AbstractBaseComponent reason)
     {
-        disconnect( new BaseComponent[]
+        disconnect( new AbstractBaseComponent[]
         {
             reason
         } );

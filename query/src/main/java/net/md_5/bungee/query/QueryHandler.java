@@ -13,7 +13,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
@@ -21,7 +21,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
 {
 
-    private final ProxyServer bungee;
+    private final AbstractProxyServer bungee;
     private final ListenerInfo listener;
     /*========================================================================*/
     private final Random random = new Random();

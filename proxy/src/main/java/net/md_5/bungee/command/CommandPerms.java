@@ -5,10 +5,10 @@ import java.util.Set;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.AbstractProxyServer;
+import net.md_5.bungee.api.plugin.AbstractCommand;
 
-public class CommandPerms extends Command
+public class CommandPerms extends AbstractCommand
 {
 
     public CommandPerms()
@@ -22,7 +22,7 @@ public class CommandPerms extends Command
         Set<String> permissions = new HashSet<>();
         for ( String group : sender.getGroups() )
         {
-            permissions.addAll( ProxyServer.getInstance().getConfigurationAdapter().getPermissions( group ) );
+            permissions.addAll( AbstractProxyServer.getInstance().getConfigurationAdapter().getPermissions( group ) );
         }
         sender.sendMessage( ChatColor.GOLD + "You have the following groups: " + Util.csv( sender.getGroups() ) );
 

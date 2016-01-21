@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.util.CaseInsensitiveMap;
@@ -43,7 +43,7 @@ public class YamlReconnectHandler extends AbstractReconnectHandler
         } catch ( Exception ex )
         {
             file.renameTo( new File( "locations.yml.old" ) );
-            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load reconnect locations, resetting them" );
+            AbstractProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load reconnect locations, resetting them" );
         }
 
         if ( data == null )
@@ -59,7 +59,7 @@ public class YamlReconnectHandler extends AbstractReconnectHandler
         lock.readLock().lock();
         try
         {
-            server = ProxyServer.getInstance().getServerInfo( data.get( key( player ) ) );
+            server = AbstractProxyServer.getInstance().getServerInfo( data.get( key( player ) ) );
         } finally
         {
             lock.readLock().unlock();
@@ -104,7 +104,7 @@ public class YamlReconnectHandler extends AbstractReconnectHandler
             yaml.dump( copy, wr );
         } catch ( IOException ex )
         {
-            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not save reconnect locations", ex );
+            AbstractProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not save reconnect locations", ex );
         }
     }
 

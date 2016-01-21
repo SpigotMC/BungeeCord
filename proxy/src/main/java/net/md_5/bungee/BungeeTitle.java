@@ -1,10 +1,10 @@
 package net.md_5.bungee;
 
 import net.md_5.bungee.api.Title;
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.AbstractBaseComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.chat.ComponentSerializer;
-import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.AbstractDefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Title.Action;
 
@@ -29,7 +29,7 @@ public class BungeeTitle implements Title
     }
 
     @Override
-    public Title title(BaseComponent text)
+    public Title title(AbstractBaseComponent text)
     {
         if ( title == null )
         {
@@ -41,7 +41,7 @@ public class BungeeTitle implements Title
     }
 
     @Override
-    public Title title(BaseComponent... text)
+    public Title title(AbstractBaseComponent... text)
     {
         if ( title == null )
         {
@@ -53,7 +53,7 @@ public class BungeeTitle implements Title
     }
 
     @Override
-    public Title subTitle(BaseComponent text)
+    public Title subTitle(AbstractBaseComponent text)
     {
         if ( subtitle == null )
         {
@@ -65,7 +65,7 @@ public class BungeeTitle implements Title
     }
 
     @Override
-    public Title subTitle(BaseComponent... text)
+    public Title subTitle(AbstractBaseComponent... text)
     {
         if ( subtitle == null )
         {
@@ -141,7 +141,7 @@ public class BungeeTitle implements Title
         return this;
     }
 
-    private static void sendPacket(ProxiedPlayer player, DefinedPacket packet)
+    private static void sendPacket(ProxiedPlayer player, AbstractDefinedPacket packet)
     {
         if ( packet != null )
         {

@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.EqualsAndHashCode;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.plugin.Event;
+import net.md_5.bungee.api.plugin.AbstractEvent;
 
 /**
  * Called when somebody reloads BungeeCord
@@ -12,7 +12,7 @@ import net.md_5.bungee.api.plugin.Event;
 @Getter
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class ProxyReloadEvent extends Event
+public class ProxyReloadEvent extends AbstractEvent
 {
 
     /**

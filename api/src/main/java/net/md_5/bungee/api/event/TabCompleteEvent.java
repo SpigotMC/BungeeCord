@@ -13,7 +13,7 @@ import net.md_5.bungee.api.plugin.Cancellable;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class TabCompleteEvent extends TargetedEvent implements Cancellable
+public class TabCompleteEvent extends AbstractTargetedEvent implements Cancellable
 {
 
     /**

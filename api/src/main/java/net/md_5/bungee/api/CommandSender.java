@@ -1,6 +1,6 @@
 package net.md_5.bungee.api;
 
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.AbstractBaseComponent;
 
 import java.util.Collection;
 
@@ -36,14 +36,14 @@ public interface CommandSender
      *
      * @param message the message to send
      */
-    public void sendMessage(BaseComponent... message);
+    public void sendMessage(AbstractBaseComponent... message);
 
     /**
      * Send a message to this sender.
      *
      * @param message the message to send
      */
-    public void sendMessage(BaseComponent message);
+    public void sendMessage(AbstractBaseComponent message);
 
     /**
      * Get all groups this user is part of. This returns an unmodifiable

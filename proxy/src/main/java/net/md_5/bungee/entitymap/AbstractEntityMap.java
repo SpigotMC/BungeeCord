@@ -4,14 +4,14 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.AbstractDefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 /**
  * Class to rewrite integers within packets.
  */
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public abstract class EntityMap
+public abstract class AbstractEntityMap
 {
 
     private final boolean[] clientboundInts = new boolean[ 256 ];
@@ -21,7 +21,7 @@ public abstract class EntityMap
     private final boolean[] serverboundVarInts = new boolean[ 256 ];
 
     // Returns the correct entity map for the protocol version
-    public static EntityMap getEntityMap(int version)
+    public static AbstractEntityMap getEntityMap(int version)
     {
         switch ( version )
         {
@@ -84,14 +84,14 @@ public abstract class EntityMap
     protected static void rewriteVarInt(ByteBuf packet, int oldId, int newId, int offset)
     {
         // Need to rewrite the packet because VarInts are variable length
-        int readId = DefinedPacket.readVarInt( packet );
+        int readId = AbstractDefinedPacket.readVarInt( packet );
         int readIdLength = packet.readerIndex() - offset;
         if ( readId == oldId || readId == newId )
         {
             ByteBuf data = packet.slice().copy();
             packet.readerIndex( offset );
             packet.writerIndex( offset );
-            DefinedPacket.writeVarInt( readId == oldId ? newId : oldId, packet );
+            AbstractDefinedPacket.writeVarInt( readId == oldId ? newId : oldId, packet );
             packet.writeBytes( data );
             data.release();
         }
@@ -101,7 +101,7 @@ public abstract class EntityMap
     private static void rewrite(ByteBuf packet, int oldId, int newId, boolean[] ints, boolean[] varints)
     {
         int readerIndex = packet.readerIndex();
-        int packetId = DefinedPacket.readVarInt( packet );
+        int packetId = AbstractDefinedPacket.readVarInt( packet );
         int packetIdLength = packet.readerIndex() - readerIndex;
 
         if ( ints[ packetId ] )

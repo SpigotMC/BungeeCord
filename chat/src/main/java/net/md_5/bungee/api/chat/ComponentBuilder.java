@@ -26,7 +26,7 @@ public class ComponentBuilder
 {
 
     private TextComponent current;
-    private final List<BaseComponent> parts = new ArrayList<BaseComponent>();
+    private final List<AbstractBaseComponent> parts = new ArrayList<AbstractBaseComponent>();
 
     /**
      * Creates a ComponentBuilder from the other given ComponentBuilder to clone
@@ -37,7 +37,7 @@ public class ComponentBuilder
     public ComponentBuilder(ComponentBuilder original)
     {
         current = new TextComponent( original.current );
-        for ( BaseComponent baseComponent : original.parts )
+        for ( AbstractBaseComponent baseComponent : original.parts )
         {
             parts.add( baseComponent.duplicate() );
         }
@@ -198,7 +198,7 @@ public class ComponentBuilder
      */
     public ComponentBuilder retain(FormatRetention retention)
     {
-        BaseComponent previous = current;
+        AbstractBaseComponent previous = current;
 
         switch ( retention )
         {
@@ -227,10 +227,10 @@ public class ComponentBuilder
      *
      * @return the created components
      */
-    public BaseComponent[] create()
+    public AbstractBaseComponent[] create()
     {
         parts.add( current );
-        return parts.toArray( new BaseComponent[ parts.size() ] );
+        return parts.toArray( new AbstractBaseComponent[ parts.size() ] );
     }
 
     public static enum FormatRetention

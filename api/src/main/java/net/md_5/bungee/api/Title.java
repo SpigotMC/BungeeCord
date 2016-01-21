@@ -1,6 +1,6 @@
 package net.md_5.bungee.api;
 
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.AbstractBaseComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 /**
@@ -11,7 +11,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
  * affected by a previous one.
  * <p>
  * You can create a new configuration by calling
- * {@link ProxyServer#createTitle()}.
+ * {@link AbstractProxyServer#createTitle()}.
  */
 public interface Title
 {
@@ -22,7 +22,7 @@ public interface Title
      * @param text The text to use as the title.
      * @return This title configuration.
      */
-    public Title title(BaseComponent text);
+    public Title title(AbstractBaseComponent text);
 
     /**
      * Set the title to send to the player.
@@ -30,7 +30,7 @@ public interface Title
      * @param text The text to use as the title.
      * @return This title configuration.
      */
-    public Title title(BaseComponent... text);
+    public Title title(AbstractBaseComponent... text);
 
     /**
      * Set the subtitle to send to the player.
@@ -38,7 +38,7 @@ public interface Title
      * @param text The text to use as the subtitle.
      * @return This title configuration.
      */
-    public Title subTitle(BaseComponent text);
+    public Title subTitle(AbstractBaseComponent text);
 
     /**
      * Set the subtitle to send to the player.
@@ -46,7 +46,7 @@ public interface Title
      * @param text The text to use as the subtitle.
      * @return This title configuration.
      */
-    public Title subTitle(BaseComponent... text);
+    public Title subTitle(AbstractBaseComponent... text);
 
     /**
      * Set the duration in ticks of the fade in effect of the title. Once this

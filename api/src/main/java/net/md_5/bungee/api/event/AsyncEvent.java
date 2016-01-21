@@ -10,7 +10,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import net.md_5.bungee.api.Callback;
-import net.md_5.bungee.api.plugin.Event;
+import net.md_5.bungee.api.plugin.AbstractEvent;
 import net.md_5.bungee.api.plugin.Plugin;
 
 /**
@@ -21,7 +21,7 @@ import net.md_5.bungee.api.plugin.Plugin;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class AsyncEvent<T> extends Event
+public class AsyncEvent<T> extends AbstractEvent
 {
 
     private final Callback<T> done;

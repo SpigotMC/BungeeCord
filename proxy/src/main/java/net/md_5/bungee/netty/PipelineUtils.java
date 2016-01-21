@@ -28,7 +28,7 @@ import net.md_5.bungee.BungeeServerInfo;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.connection.InitialHandler;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.protocol.KickStringWriter;
 import net.md_5.bungee.protocol.LegacyDecoder;
@@ -58,10 +58,10 @@ public class PipelineUtils
 
             BASE.initChannel( ch );
             ch.pipeline().addBefore( FRAME_DECODER, LEGACY_DECODER, new LegacyDecoder() );
-            ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
-            ch.pipeline().addAfter( FRAME_PREPENDER, PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
+            ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true, AbstractProxyServer.getInstance().getProtocolVersion() ) );
+            ch.pipeline().addAfter( FRAME_PREPENDER, PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, true, AbstractProxyServer.getInstance().getProtocolVersion() ) );
             ch.pipeline().addBefore( FRAME_PREPENDER, LEGACY_KICKER, new KickStringWriter() );
-            ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( ProxyServer.getInstance(), ch.attr( LISTENER ).get() ) );
+            ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( AbstractProxyServer.getInstance(), ch.attr( LISTENER ).get() ) );
         }
     };
     public static final Base BASE = new Base();
@@ -83,14 +83,14 @@ public class PipelineUtils
     {
         if ( !PlatformDependent.isWindows() && Boolean.parseBoolean( System.getProperty( "bungee.epoll", "true" ) ) )
         {
-            ProxyServer.getInstance().getLogger().info( "Not on Windows, attempting to use enhanced EpollEventLoop" );
+            AbstractProxyServer.getInstance().getLogger().info( "Not on Windows, attempting to use enhanced EpollEventLoop" );
 
             if ( epoll = Epoll.isAvailable() )
             {
-                ProxyServer.getInstance().getLogger().info( "Epoll is working, utilising it!" );
+                AbstractProxyServer.getInstance().getLogger().info( "Epoll is working, utilising it!" );
             } else
             {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Epoll is not working, falling back to NIO: {0}", Util.exception( Epoll.unavailabilityCause() ) );
+                AbstractProxyServer.getInstance().getLogger().log( Level.WARNING, "Epoll is not working, falling back to NIO: {0}", Util.exception( Epoll.unavailabilityCause() ) );
             }
         }
     }

@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.event.EventBus;
 import net.md_5.bungee.event.EventHandler;
@@ -44,18 +44,18 @@ public class PluginManager
 
     private static final Pattern argsSplit = Pattern.compile( " " );
     /*========================================================================*/
-    private final ProxyServer proxy;
+    private final AbstractProxyServer proxy;
     /*========================================================================*/
     private final Yaml yaml;
     private final EventBus eventBus;
     private final Map<String, Plugin> plugins = new LinkedHashMap<>();
-    private final Map<String, Command> commandMap = new HashMap<>();
+    private final Map<String, AbstractCommand> commandMap = new HashMap<>();
     private Map<String, PluginDescription> toLoad = new HashMap<>();
-    private final Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
+    private final Multimap<Plugin, AbstractCommand> commandsByPlugin = ArrayListMultimap.create();
     private final Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
 
     @SuppressWarnings("unchecked")
-    public PluginManager(ProxyServer proxy)
+    public PluginManager(AbstractProxyServer proxy)
     {
         this.proxy = proxy;
 
@@ -75,7 +75,7 @@ public class PluginManager
      * @param plugin the plugin owning this command
      * @param command the command to register
      */
-    public void registerCommand(Plugin plugin, Command command)
+    public void registerCommand(Plugin plugin, AbstractCommand command)
     {
         commandMap.put( command.getName().toLowerCase(), command );
         for ( String alias : command.getAliases() )
@@ -90,7 +90,7 @@ public class PluginManager
      *
      * @param command the command to unregister
      */
-    public void unregisterCommand(Command command)
+    public void unregisterCommand(AbstractCommand command)
     {
         while ( commandMap.values().remove( command ) );
         commandsByPlugin.values().remove( command );
@@ -103,9 +103,9 @@ public class PluginManager
      */
     public void unregisterCommands(Plugin plugin)
     {
-        for ( Iterator<Command> it = commandsByPlugin.get( plugin ).iterator(); it.hasNext(); )
+        for (Iterator<AbstractCommand> it = commandsByPlugin.get( plugin ).iterator(); it.hasNext(); )
         {
-            Command command = it.next();
+            AbstractCommand command = it.next();
             while ( commandMap.values().remove( command ) );
             it.remove();
         }
@@ -138,7 +138,7 @@ public class PluginManager
         {
             return false;
         }
-        Command command = commandMap.get( commandName );
+        AbstractCommand command = commandMap.get( commandName );
         if ( command == null )
         {
             return false;
@@ -177,7 +177,7 @@ public class PluginManager
         } catch ( Exception ex )
         {
             sender.sendMessage( ChatColor.RED + "An internal error occurred whilst executing this command, please check the console log for details." );
-            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Error in dispatching command", ex );
+            AbstractProxyServer.getInstance().getLogger().log( Level.WARNING, "Error in dispatching command", ex );
         }
         return true;
     }
@@ -211,7 +211,7 @@ public class PluginManager
             PluginDescription plugin = entry.getValue();
             if ( !enablePlugin( pluginStatuses, new Stack<PluginDescription>(), plugin ) )
             {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Failed to enable {0}", entry.getKey() );
+                AbstractProxyServer.getInstance().getLogger().log( Level.WARNING, "Failed to enable {0}", entry.getKey() );
             }
         }
         toLoad.clear();
@@ -225,13 +225,13 @@ public class PluginManager
             try
             {
                 plugin.onEnable();
-                ProxyServer.getInstance().getLogger().log( Level.INFO, "Enabled plugin {0} version {1} by {2}", new Object[]
+                AbstractProxyServer.getInstance().getLogger().log( Level.INFO, "Enabled plugin {0} version {1} by {2}", new Object[]
                 {
                     plugin.getDescription().getName(), plugin.getDescription().getVersion(), plugin.getDescription().getAuthor()
                 } );
             } catch ( Throwable t )
             {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Exception encountered when loading plugin: " + plugin.getDescription().getName(), t );
+                AbstractProxyServer.getInstance().getLogger().log( Level.WARNING, "Exception encountered when loading plugin: " + plugin.getDescription().getName(), t );
             }
         }
     }
@@ -267,7 +267,7 @@ public class PluginManager
                         dependencyGraph.append( element.getName() ).append( " -> " );
                     }
                     dependencyGraph.append( plugin.getName() ).append( " -> " ).append( dependName );
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "Circular dependency detected: {0}", dependencyGraph );
+                    AbstractProxyServer.getInstance().getLogger().log( Level.WARNING, "Circular dependency detected: {0}", dependencyGraph );
                     status = false;
                 } else
                 {
@@ -279,7 +279,7 @@ public class PluginManager
 
             if ( dependStatus == Boolean.FALSE && plugin.getDepends().contains( dependName ) ) // only fail if this wasn't a soft dependency
             {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} (required by {1}) is unavailable", new Object[]
+                AbstractProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} (required by {1}) is unavailable", new Object[]
                 {
                     String.valueOf( dependName ), plugin.getName()
                 } );
@@ -307,7 +307,7 @@ public class PluginManager
                 clazz.init( proxy, plugin );
                 plugins.put( plugin.getName(), clazz );
                 clazz.onLoad();
-                ProxyServer.getInstance().getLogger().log( Level.INFO, "Loaded plugin {0} version {1} by {2}", new Object[]
+                AbstractProxyServer.getInstance().getLogger().log( Level.INFO, "Loaded plugin {0} version {1} by {2}", new Object[]
                 {
                     plugin.getName(), plugin.getVersion(), plugin.getAuthor()
                 } );
@@ -352,7 +352,7 @@ public class PluginManager
                     }
                 } catch ( Exception ex )
                 {
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load plugin from file " + file, ex );
+                    AbstractProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load plugin from file " + file, ex );
                 }
             }
         }
@@ -366,7 +366,7 @@ public class PluginManager
      * @param event the event to call
      * @return the called event
      */
-    public <T extends Event> T callEvent(T event)
+    public <T extends AbstractEvent> T callEvent(T event)
     {
         Preconditions.checkNotNull( event, "event" );
 
@@ -377,7 +377,7 @@ public class PluginManager
         long elapsed = start - System.nanoTime();
         if ( elapsed > 250000 )
         {
-            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Event {0} took more {1}ns to process!", new Object[]
+            AbstractProxyServer.getInstance().getLogger().log( Level.WARNING, "Event {0} took more {1}ns to process!", new Object[]
             {
                 event, elapsed
             } );

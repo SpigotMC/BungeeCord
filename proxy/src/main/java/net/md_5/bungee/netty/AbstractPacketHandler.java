@@ -2,7 +2,7 @@ package net.md_5.bungee.netty;
 
 import net.md_5.bungee.protocol.PacketWrapper;
 
-public abstract class PacketHandler extends net.md_5.bungee.protocol.AbstractPacketHandler
+public abstract class AbstractPacketHandler extends net.md_5.bungee.protocol.AbstractPacketHandler
 {
 
     @Override

@@ -9,7 +9,7 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.AbstractProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
@@ -26,8 +26,8 @@ import net.md_5.bungee.forge.ForgeServerHandler;
 import net.md_5.bungee.forge.ForgeUtils;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
-import net.md_5.bungee.netty.PacketHandler;
-import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.netty.AbstractPacketHandler;
+import net.md_5.bungee.protocol.AbstractDefinedPacket;
 import net.md_5.bungee.protocol.MinecraftOutput;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
@@ -42,10 +42,10 @@ import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.SetCompression;
 
 @RequiredArgsConstructor
-public class ServerConnector extends PacketHandler
+public class ServerConnector extends AbstractPacketHandler
 {
 
-    private final ProxyServer bungee;
+    private final AbstractProxyServer bungee;
     private ChannelWrapper ch;
     private final UserConnection user;
     private final BungeeServerInfo target;
@@ -157,7 +157,7 @@ public class ServerConnector extends PacketHandler
         bungee.getPluginManager().callEvent( event );
 
         ch.write( BungeeCord.getInstance().registerChannels() );
-        Queue<DefinedPacket> packetQueue = target.getPacketQueue();
+        Queue<AbstractDefinedPacket> packetQueue = target.getPacketQueue();
         synchronized ( packetQueue )
         {
             while ( !packetQueue.isEmpty() )
@@ -196,12 +196,12 @@ public class ServerConnector extends PacketHandler
             if ( user.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_8 )
             {
                 MinecraftOutput out = new MinecraftOutput();
-                out.writeStringUTF8WithoutLengthHeaderBecauseDinnerboneStuffedUpTheMCBrandPacket( ProxyServer.getInstance().getName() + " (" + ProxyServer.getInstance().getVersion() + ")" );
+                out.writeStringUTF8WithoutLengthHeaderBecauseDinnerboneStuffedUpTheMCBrandPacket( AbstractProxyServer.getInstance().getName() + " (" + AbstractProxyServer.getInstance().getVersion() + ")" );
                 user.unsafe().sendPacket( new PluginMessage( "MC|Brand", out.toArray(), handshakeHandler.isServerForge() ) );
             } else
             {
                 ByteBuf brand = ByteBufAllocator.DEFAULT.heapBuffer();
-                DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")", brand );
+                AbstractDefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")", brand );
                 user.unsafe().sendPacket( new PluginMessage( "MC|Brand", brand.array().clone(), handshakeHandler.isServerForge() ) );
                 brand.release();
             }

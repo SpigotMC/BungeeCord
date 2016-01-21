@@ -8,17 +8,17 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class ConfigurationProvider
+public abstract class AbstractConfigurationProvider
 {
 
-    private static final Map<Class<? extends ConfigurationProvider>, ConfigurationProvider> providers = new HashMap<>();
+    private static final Map<Class<? extends AbstractConfigurationProvider>, AbstractConfigurationProvider> providers = new HashMap<>();
 
     static
     {
         providers.put( YamlConfiguration.class, new YamlConfiguration() );
     }
 
-    public static ConfigurationProvider getProvider(Class<? extends ConfigurationProvider> provider)
+    public static AbstractConfigurationProvider getProvider(Class<? extends AbstractConfigurationProvider> provider)
     {
         return providers.get( provider );
     }

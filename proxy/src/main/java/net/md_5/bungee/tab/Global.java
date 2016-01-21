@@ -11,7 +11,7 @@ import net.md_5.bungee.protocol.packet.PlayerListItem;
 
 import java.util.Collection;
 
-public class Global extends TabList
+public class Global extends AbstractTabList
 {
 
     private boolean sentPing;

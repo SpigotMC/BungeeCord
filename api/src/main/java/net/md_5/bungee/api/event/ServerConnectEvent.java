@@ -7,7 +7,7 @@ import lombok.ToString;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Cancellable;
-import net.md_5.bungee.api.plugin.Event;
+import net.md_5.bungee.api.plugin.AbstractEvent;
 
 /**
  * Called when deciding to connect to a server. At the time when this event is
@@ -18,7 +18,7 @@ import net.md_5.bungee.api.plugin.Event;
 @Data
 @ToString(callSuper = false)
 @EqualsAndHashCode(callSuper = false)
-public class ServerConnectEvent extends Event implements Cancellable
+public class ServerConnectEvent extends AbstractEvent implements Cancellable
 {
 
     /**
