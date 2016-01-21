@@ -5,7 +5,7 @@ import gnu.trove.strategy.HashingStrategy;
 class CaseInsensitiveHashingStrategy implements HashingStrategy
 {
 
-    static final CaseInsensitiveHashingStrategy INSTANCE = new CaseInsensitiveHashingStrategy();
+	/* default */ static final CaseInsensitiveHashingStrategy INSTANCE = new CaseInsensitiveHashingStrategy();
 
     @Override
     public int computeHashCode(Object object)
