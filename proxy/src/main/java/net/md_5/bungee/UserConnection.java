@@ -33,6 +33,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
+import net.md_5.bungee.api.event.ServerConnectFailedEvent;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.InitialHandler;
@@ -253,6 +254,8 @@ public final class UserConnection implements ProxiedPlayer
                 ch.pipeline().get( HandlerBoss.class ).setHandler( new ServerConnector( bungee, UserConnection.this, target ) );
             }
         };
+        final ProxiedPlayer playerConnect = this;
+
         ChannelFutureListener listener = new ChannelFutureListener()
         {
             @Override
@@ -281,7 +284,12 @@ public final class UserConnection implements ProxiedPlayer
                             disconnect( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
                         } else
                         {
-                            sendMessage( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
+                            ServerConnectFailedEvent event = new ServerConnectFailedEvent( playerConnect, target, future.cause() );
+                            bungee.getPluginManager().callEvent( event );
+
+                            if ( event.isInformUser() ) {
+                                sendMessage(bungee.getTranslation("fallback_kick", future.cause().getClass().getName()));
+                            }
                         }
                     }
                 }
