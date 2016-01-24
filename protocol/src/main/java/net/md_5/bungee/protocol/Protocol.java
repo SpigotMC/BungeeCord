@@ -120,25 +120,17 @@ public enum Protocol
         private final Class<? extends DefinedPacket>[] packetClasses = new Class[ MAX_PACKET_ID ];
         private final Constructor<? extends DefinedPacket>[] packetConstructors = new Constructor[ MAX_PACKET_ID ];
 
-        public boolean hasPacket(int id)
-        {
-            return id < MAX_PACKET_ID && packetConstructors[id] != null;
-        }
-
         public final DefinedPacket createPacket(int id)
         {
             if ( id > MAX_PACKET_ID )
             {
                 throw new BadPacketException( "Packet with id " + id + " outside of range " );
             }
-            if ( packetConstructors[id] == null )
-            {
-                throw new BadPacketException( "No packet with id " + id );
-            }
 
+            Constructor<? extends DefinedPacket> constructor = packetConstructors[id];
             try
             {
-                return packetConstructors[id].newInstance();
+                return ( constructor == null ) ? null : constructor.newInstance();
             } catch ( ReflectiveOperationException ex )
             {
                 throw new BadPacketException( "Could not construct packet with id " + id, ex );
