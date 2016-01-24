@@ -37,7 +37,7 @@ class EntityMap_1_7_6 extends EntityMap_1_7_2
                     if ( profile != null && profile.getProperties() != null
                             && profile.getProperties().length >= 1 )
                     {
-                        ByteBuf rest = packet.slice().copy();
+                        ByteBuf rest = packet.copy();
                         packet.readerIndex( readerIndex );
                         packet.writerIndex( readerIndex + packetIdLength + idLength );
                         DefinedPacket.writeString( player.getUniqueId().toString(), packet );
