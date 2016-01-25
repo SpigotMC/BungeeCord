@@ -2,12 +2,15 @@ package net.md_5.bungee.entitymap;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 /**
  * Class to rewrite integers within packets.
  */
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public abstract class EntityMap
 {
 
@@ -17,21 +20,17 @@ public abstract class EntityMap
     private final boolean[] serverboundInts = new boolean[ 256 ];
     private final boolean[] serverboundVarInts = new boolean[ 256 ];
 
-    EntityMap()
-    {
-    }
-
     // Returns the correct entity map for the protocol version
     public static EntityMap getEntityMap(int version)
     {
         switch ( version )
         {
             case ProtocolConstants.MINECRAFT_1_7_2:
-                return new EntityMap_1_7_2();
+                return EntityMap_1_7_2.INSTANCE;
             case ProtocolConstants.MINECRAFT_1_7_6:
-                return new EntityMap_1_7_6();
+                return EntityMap_1_7_6.INSTANCE;
             case ProtocolConstants.MINECRAFT_1_8:
-                return new EntityMap_1_8();
+                return EntityMap_1_8.INSTANCE;
         }
         throw new RuntimeException( "Version " + version + " has no entity map" );
     }
@@ -89,7 +88,7 @@ public abstract class EntityMap
         int readIdLength = packet.readerIndex() - offset;
         if ( readId == oldId || readId == newId )
         {
-            ByteBuf data = packet.slice().copy();
+            ByteBuf data = packet.copy();
             packet.readerIndex( offset );
             packet.writerIndex( offset );
             DefinedPacket.writeVarInt( readId == oldId ? newId : oldId, packet );

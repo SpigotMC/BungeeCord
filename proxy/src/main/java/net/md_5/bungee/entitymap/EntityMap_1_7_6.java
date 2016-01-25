@@ -10,6 +10,8 @@ import net.md_5.bungee.protocol.DefinedPacket;
 class EntityMap_1_7_6 extends EntityMap_1_7_2
 {
 
+    static final EntityMap_1_7_6 INSTANCE = new EntityMap_1_7_6();
+
     @Override
     @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
     public void rewriteClientbound(ByteBuf packet, int oldId, int newId)
@@ -35,7 +37,7 @@ class EntityMap_1_7_6 extends EntityMap_1_7_2
                     if ( profile != null && profile.getProperties() != null
                             && profile.getProperties().length >= 1 )
                     {
-                        ByteBuf rest = packet.slice().copy();
+                        ByteBuf rest = packet.copy();
                         packet.readerIndex( readerIndex );
                         packet.writerIndex( readerIndex + packetIdLength + idLength );
                         DefinedPacket.writeString( player.getUniqueId().toString(), packet );

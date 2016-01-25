@@ -58,6 +58,7 @@ import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PingPacket;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
+import net.md_5.bungee.util.BoundedArrayList;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -73,7 +74,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private LoginRequest loginRequest;
     private EncryptionRequest request;
     @Getter
-    private final List<PluginMessage> registerMessages = new ArrayList<>();
+    private final List<PluginMessage> registerMessages = new BoundedArrayList<>(128);
     private State thisState = State.HANDSHAKE;
     private final Unsafe unsafe = new Unsafe()
     {
@@ -122,7 +123,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         // TODO: Unregister?
         if ( pluginMessage.getTag().equals( "REGISTER" ) )
         {
-            Preconditions.checkState( registerMessages.size() < 128, "Too many channels registered" );
             registerMessages.add( pluginMessage );
         }
     }

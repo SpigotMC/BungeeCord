@@ -12,6 +12,8 @@ import java.util.UUID;
 class EntityMap_1_8 extends EntityMap
 {
 
+    static final EntityMap_1_8 INSTANCE = new EntityMap_1_8();
+
     EntityMap_1_8()
     {
         addRewrite( 0x04, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Equipment
@@ -161,7 +163,7 @@ class EntityMap_1_8 extends EntityMap
         int packetId = DefinedPacket.readVarInt( packet );
         int packetIdLength = packet.readerIndex() - readerIndex;
 
-        if ( packetId == 0x18 /* Spectate */ && !BungeeCord.getInstance().getConfig().isIpForward())
+        if ( packetId == 0x18 /* Spectate */ && !BungeeCord.getInstance().getConfig().isIpForward() )
         {
             UUID uuid = DefinedPacket.readUUID( packet );
             ProxiedPlayer player;

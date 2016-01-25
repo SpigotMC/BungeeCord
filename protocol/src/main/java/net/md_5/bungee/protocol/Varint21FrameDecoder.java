@@ -40,11 +40,8 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
                     return;
                 } else
                 {
-                    // TODO: Really should be a slice!
-                    ByteBuf dst = ctx.alloc().directBuffer( length );
-                    in.readBytes( dst );
-
-                    out.add( dst );
+                    out.add( in.slice( in.readerIndex(), length ).retain() );
+                    in.skipBytes( length );
                     return;
                 }
             }
