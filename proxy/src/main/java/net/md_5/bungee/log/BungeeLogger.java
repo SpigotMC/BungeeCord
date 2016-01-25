@@ -49,7 +49,7 @@ public class BungeeLogger extends Logger
         dispatcher.queue( record );
     }
 
-    void doLog(LogRecord record)
+    /* default */ void doLog(LogRecord record)
     {
         super.log( record );
     }
