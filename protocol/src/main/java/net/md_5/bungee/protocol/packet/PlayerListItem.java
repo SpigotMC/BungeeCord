@@ -25,7 +25,8 @@ public class PlayerListItem extends DefinedPacket
         if ( protocolVersion < ProtocolConstants.MINECRAFT_1_8 )
         {
             items = new Item[ 1 ];
-            Item item = items[ 0 ] = new Item();
+            Item item = new Item();
+            items[ 0 ] = item;
             item.displayName = item.username = readString( buf );
             action = !buf.readBoolean() ? Action.REMOVE_PLAYER : Action.ADD_PLAYER;
             item.ping = buf.readShort();
@@ -35,7 +36,8 @@ public class PlayerListItem extends DefinedPacket
             items = new Item[ DefinedPacket.readVarInt( buf ) ];
             for ( int i = 0; i < items.length; i++ )
             {
-                Item item = items[ i ] = new Item();
+                Item item = new Item();
+                items[ i ] = item;
                 item.setUuid( DefinedPacket.readUUID( buf ) );
                 switch ( action )
                 {

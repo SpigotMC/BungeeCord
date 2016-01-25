@@ -26,7 +26,8 @@ public class TabCompleteRequest extends DefinedPacket
         cursor = readString( buf );
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_8 )
         {
-            if ( hasPositon = buf.readBoolean() )
+        	hasPositon = buf.readBoolean();
+            if ( hasPositon ) 
             {
                 position = buf.readLong();
             }
