@@ -101,18 +101,17 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>com.lukegb.mojo</groupId>
-                <artifactId>gitdescribe-maven-plugin</artifactId>
-                <version>1.3</version> <!-- There is 2.0, but it seems broken -->
+                <groupId>net.md-5</groupId>
+                <artifactId>scriptus</artifactId>
+                <version>0.3.1</version>
                 <configuration>
-                    <outputPrefix>git:${project.name}:${project.version}:</outputPrefix>
-                    <outputPostfix>:${build.number}</outputPostfix>
+                    <format>git:${project.name}:${project.version}:%s:${build.number}</format>
                 </configuration>
                 <executions>
                     <execution>
                         <phase>initialize</phase>
                         <goals>
-                            <goal>gitdescribe</goal>
+                            <goal>describe</goal>
                         </goals>
                     </execution>
                 </executions>
