@@ -18,12 +18,12 @@ public class ConciseFormatter extends Formatter
     {
         StringBuilder formatted = new StringBuilder();
 
-        formatted.append( date.format( record.getMillis() ) );
-        formatted.append( " [" );
-        formatted.append( record.getLevel().getLocalizedName() );
-        formatted.append( "] " );
-        formatted.append( formatMessage( record ) );
-        formatted.append( '\n' );
+        formatted.append(date.format(record.getMillis()))
+            .append(" [")
+            .append(record.getLevel().getLocalizedName())
+            .append("] ")
+            .append(formatMessage(record))
+            .append('\n');
         if ( record.getThrown() != null )
         {
             StringWriter writer = new StringWriter();
