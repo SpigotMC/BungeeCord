@@ -17,7 +17,6 @@ public class ChannelWrapper
 {
 
     private final Channel ch;
-    @Getter
     private volatile boolean closed;
 
     public ChannelWrapper(ChannelHandlerContext ctx)
@@ -39,7 +38,7 @@ public class ChannelWrapper
 
     public void write(Object packet)
     {
-        if ( !closed )
+        if ( !isClosed() )
         {
             if ( packet instanceof PacketWrapper )
             {
@@ -54,7 +53,7 @@ public class ChannelWrapper
 
     public void close()
     {
-        if ( !closed )
+        if ( !isClosed() )
         {
             closed = true;
             ch.flush();
@@ -64,11 +63,15 @@ public class ChannelWrapper
 
     public void close(Object packet)
     {
-        if ( !closed )
+        if ( !isClosed() )
         {
             closed = true;
             ch.writeAndFlush( packet ).addListeners(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE, ChannelFutureListener.CLOSE);
         }
+    }
+
+    public boolean isClosed() {
+        return closed || !ch.isActive();
     }
 
     public void addBefore(String baseName, String name, ChannelHandler handler)
