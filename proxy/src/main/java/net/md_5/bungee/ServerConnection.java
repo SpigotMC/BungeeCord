@@ -78,6 +78,12 @@ public class ServerConnection implements Server
     }
 
     @Override
+    public boolean isConnected()
+    {
+        return !ch.isClosed();
+    }
+
+    @Override
     public Unsafe unsafe()
     {
         return unsafe;

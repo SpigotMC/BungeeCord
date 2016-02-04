@@ -274,15 +274,12 @@ public final class UserConnection implements ProxiedPlayer
                     {
                         sendMessage( bungee.getTranslation( "fallback_lobby" ) );
                         connect( def, null, false );
+                    } else if ( dimensionChange )
+                    {
+                        disconnect( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
                     } else
                     {
-                        if ( dimensionChange )
-                        {
-                            disconnect( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
-                        } else
-                        {
-                            sendMessage( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
-                        }
+                        sendMessage( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
                     }
                 }
             }
@@ -577,5 +574,11 @@ public final class UserConnection implements ProxiedPlayer
             unsafe.sendPacket( new SetCompression( compressionThreshold ) );
             ch.setCompressionThreshold( compressionThreshold );
         }
+    }
+
+    @Override
+    public boolean isConnected()
+    {
+        return !ch.isClosed();
     }
 }

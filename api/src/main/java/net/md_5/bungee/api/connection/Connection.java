@@ -52,6 +52,14 @@ public interface Connection
     void disconnect(BaseComponent reason);
 
     /**
+     * Gets whether this connection is currently open, ie: not disconnected, and
+     * able to send / receive data.
+     *
+     * @return current connection status
+     */
+    boolean isConnected();
+
+    /**
      * Get the unsafe methods of this class.
      *
      * @return the unsafe method interface
