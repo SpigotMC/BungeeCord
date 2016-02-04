@@ -102,7 +102,7 @@ public class BungeeCord extends ProxyServer
      * Localization bundle.
      */
     public ResourceBundle bundle;
-    public EventLoopGroup eventLoops, workerEventLoop;
+    public EventLoopGroup bossEventLoop, workerEventLoop;
     /**
      * locations.yml save thread.
      */
@@ -236,7 +236,7 @@ public class BungeeCord extends ProxyServer
             ResourceLeakDetector.setLevel( ResourceLeakDetector.Level.DISABLED ); // Eats performance
         }
 
-        eventLoops = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Boss IO Thread #%1$d" ).build() );
+        bossEventLoop = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Boss IO Thread #%1$d" ).build() );
         workerEventLoop = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Worker IO Thread #%1$d" ).build() );
 
         File moduleDirectory = new File( "modules" );
@@ -300,7 +300,7 @@ public class BungeeCord extends ProxyServer
                     .childHandler( PipelineUtils.SERVER_CHILD )
                     .childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 1024 * 1024 * 10)
                     .childOption(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, 1024 * 1024 * 1)
-                    .group( eventLoops, workerEventLoop )
+                    .group( bossEventLoop, workerEventLoop )
                     .localAddress( info.getHost() )
                     .bind().addListener( listener );
 
@@ -321,7 +321,7 @@ public class BungeeCord extends ProxyServer
                         }
                     }
                 };
-                new RemoteQuery( this, info ).start( PipelineUtils.getDatagramChannel(), new InetSocketAddress( info.getHost().getAddress(), info.getQueryPort() ), eventLoops, bindListener );
+                new RemoteQuery( this, info ).start( PipelineUtils.getDatagramChannel(), new InetSocketAddress( info.getHost().getAddress(), info.getQueryPort() ), workerEventLoop, bindListener );
             }
         }
     }
@@ -377,11 +377,12 @@ public class BungeeCord extends ProxyServer
                 }
 
                 getLogger().info( "Closing IO threads" );
+                bossEventLoop.shutdownGracefully();
                 workerEventLoop.shutdownGracefully();
-                eventLoops.shutdownGracefully();
                 try
                 {
-                    eventLoops.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS );
+                    bossEventLoop.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS );
+                    workerEventLoop.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS );
                 } catch ( InterruptedException ex )
                 {
                 }
