@@ -14,6 +14,8 @@ import javax.crypto.SecretKey;
 
 import com.google.gson.Gson;
 import java.util.concurrent.TimeUnit;
+
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.*;
@@ -99,10 +101,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Getter
     private String extraDataInHandshake = "";
 
+    @Getter
+    @AllArgsConstructor
     private enum State
     {
 
-        HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, FINISHED;
+        HANDSHAKE(false), STATUS(false), PING(false), USERNAME(true), ENCRYPT(true), FINISHED(true);
+
+        private final boolean kickPacket;
     }
 
     @Override
@@ -523,25 +529,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( !ch.isClosed() )
         {
-            // Why do we have to delay this you might ask? Well the simple reason is MOJANG.
-            // Despite many a bug report posted, ever since the 1.7 protocol rewrite, the client STILL has a race condition upon switching protocols.
-            // As such, despite the protocol switch packets already having been sent, there is the possibility of a client side exception
-            // To help combat this we will wait half a second before actually sending the disconnected packet so that whoever is on the other
-            // end has a somewhat better chance of receiving the proper packet.
-            ch.getHandle().eventLoop().schedule( new Runnable()
+            if ( thisState.isKickPacket() )
             {
-
-                @Override
-                public void run()
-                {
-                    if ( thisState != State.STATUS && thisState != State.PING )
-                    {
-                        ch.close( new Kick( ComponentSerializer.toString( reason ) ) );
-                    } else {
-                        ch.close();
-                    }
-                }
-            }, 500, TimeUnit.MILLISECONDS );
+                ch.close( new Kick( ComponentSerializer.toString( reason ) ) );
+            } else {
+                ch.close();
+            }
         }
     }
 
