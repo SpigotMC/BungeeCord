@@ -218,8 +218,9 @@ public class YamlConfig implements ConfigurationAdapter
 
             boolean query = get( "query_enabled", false, val );
             int queryPort = get( "query_port", 25577, val );
-
-            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, fallbackServer, forceDefault, forced, value.toString(), setLocalAddress, pingPassthrough, queryPort, query );
+            String worldName = get( "query_world_name", "BungeeCord_Proxy", val );
+            
+            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, fallbackServer, forceDefault, forced, value.toString(), setLocalAddress, pingPassthrough, queryPort, query, worldName );
             ret.add( info );
         }
 
