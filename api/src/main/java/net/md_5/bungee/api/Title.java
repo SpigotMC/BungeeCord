@@ -13,8 +13,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
  * You can create a new configuration by calling
  * {@link ProxyServer#createTitle()}.
  */
-public interface Title
-{
+public interface Title {
 
     /**
      * Set the title to send to the player.
@@ -22,7 +21,7 @@ public interface Title
      * @param text The text to use as the title.
      * @return This title configuration.
      */
-    public Title title(BaseComponent text);
+    Title title(BaseComponent text);
 
     /**
      * Set the title to send to the player.
@@ -30,7 +29,7 @@ public interface Title
      * @param text The text to use as the title.
      * @return This title configuration.
      */
-    public Title title(BaseComponent... text);
+    Title title(BaseComponent... text);
 
     /**
      * Set the subtitle to send to the player.
@@ -38,7 +37,7 @@ public interface Title
      * @param text The text to use as the subtitle.
      * @return This title configuration.
      */
-    public Title subTitle(BaseComponent text);
+    Title subTitle(BaseComponent text);
 
     /**
      * Set the subtitle to send to the player.
@@ -46,7 +45,7 @@ public interface Title
      * @param text The text to use as the subtitle.
      * @return This title configuration.
      */
-    public Title subTitle(BaseComponent... text);
+    Title subTitle(BaseComponent... text);
 
     /**
      * Set the duration in ticks of the fade in effect of the title. Once this
@@ -57,7 +56,7 @@ public interface Title
      * @param ticks The amount of ticks (1/20 second) for the fade in effect.
      * @return This title configuration.
      */
-    public Title fadeIn(int ticks);
+    Title fadeIn(int ticks);
 
     /**
      * Set the duration in ticks how long the title should stay on the screen.
@@ -68,7 +67,7 @@ public interface Title
      * @param ticks The amount of ticks (1/20 second) for the fade in effect.
      * @return This title configuration.
      */
-    public Title stay(int ticks);
+    Title stay(int ticks);
 
     /**
      * Set the duration in ticks of the fade out effect of the title. The
@@ -77,7 +76,7 @@ public interface Title
      * @param ticks The amount of ticks (1/20 second) for the fade out effect.
      * @return This title configuration.
      */
-    public Title fadeOut(int ticks);
+    Title fadeOut(int ticks);
 
     /**
      * Remove the currently displayed title from the player's screen. This will
@@ -85,7 +84,7 @@ public interface Title
      *
      * @return This title configuration.
      */
-    public Title clear();
+    Title clear();
 
     /**
      * Remove the currently displayed title from the player's screen and set the
@@ -93,7 +92,7 @@ public interface Title
      *
      * @return This title configuration.
      */
-    public Title reset();
+    Title reset();
 
     /**
      * Send this title configuration to the specified player. This is the same
@@ -102,5 +101,5 @@ public interface Title
      * @param player The player to send the title to.
      * @return This title configuration.
      */
-    public Title send(ProxiedPlayer player);
+    Title send(ProxiedPlayer player);
 }

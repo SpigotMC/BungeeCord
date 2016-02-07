@@ -10,8 +10,8 @@ import com.google.gson.GsonBuilder;
 import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.Title;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.module.ModuleManager;
-import com.google.common.io.ByteStreams;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -52,9 +52,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jline.UnsupportedTerminal;
 import jline.console.ConsoleReader;
-import jline.internal.Log;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
@@ -377,7 +375,7 @@ public class BungeeCord extends ProxyServer
                 try
                 {
                     eventLoops.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS );
-                } catch ( InterruptedException ex )
+                } catch ( InterruptedException ignored)
                 {
                 }
 
@@ -459,7 +457,7 @@ public class BungeeCord extends ProxyServer
         try
         {
             translation = MessageFormat.format( bundle.getString( name ), args );
-        } catch ( MissingResourceException ex )
+        } catch ( MissingResourceException ignored)
         {
         }
         return translation;
@@ -602,14 +600,14 @@ public class BungeeCord extends ProxyServer
     @Override
     public void broadcast(BaseComponent... message)
     {
-        getConsole().sendMessage( BaseComponent.toLegacyText( message ) );
+        getConsole().sendMessage( new ComponentBuilder( BaseComponent.toLegacyText( message ) ).create() );
         broadcast( new Chat( ComponentSerializer.toString( message ) ) );
     }
 
     @Override
     public void broadcast(BaseComponent message)
     {
-        getConsole().sendMessage( message.toLegacyText() );
+        getConsole().sendMessage( new ComponentBuilder( message.toLegacyText() ).create() );
         broadcast( new Chat( ComponentSerializer.toString( message ) ) );
     }
 
@@ -666,7 +664,7 @@ public class BungeeCord extends ProxyServer
             @Override
             public boolean apply(ProxiedPlayer input)
             {
-                return ( input == null ) ? false : input.getName().toLowerCase().startsWith( partialName.toLowerCase() );
+                return input != null && input.getName().toLowerCase().startsWith(partialName.toLowerCase());
             }
         } ) );
     }

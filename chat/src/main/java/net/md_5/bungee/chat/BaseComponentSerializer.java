@@ -47,7 +47,7 @@ public class BaseComponentSerializer
         }
         if ( object.has( "extra" ) )
         {
-            component.setExtra( Arrays.<BaseComponent>asList( context.<BaseComponent[]>deserialize( object.get( "extra" ), BaseComponent[].class ) ) );
+            component.setExtra( Arrays.asList( context.<BaseComponent[]>deserialize( object.get( "extra" ), BaseComponent[].class ) ) );
         }
 
         //Events
@@ -69,7 +69,7 @@ public class BaseComponentSerializer
             {
                 res = new BaseComponent[]
                 {
-                    context.<BaseComponent>deserialize( event.get( "value" ), BaseComponent.class )
+                    context.deserialize( event.get( "value" ), BaseComponent.class )
                 };
             }
             component.setHoverEvent( new HoverEvent( HoverEvent.Action.valueOf( event.get( "action" ).getAsString().toUpperCase() ), res ) );

@@ -15,5 +15,5 @@ public interface Callback<V>
      * @param result the result of the computation
      * @param error the error(s) that occurred, if any
      */
-    public void done(V result, Throwable error);
+    void done(V result, Throwable error);
 }

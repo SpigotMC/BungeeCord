@@ -55,7 +55,7 @@ public class ColouredWriter extends Handler
             console.print( ConsoleReader.RESET_LINE + s + Ansi.ansi().reset().toString() );
             console.drawLine();
             console.flush();
-        } catch ( IOException ex )
+        } catch ( IOException ignored)
         {
         }
     }

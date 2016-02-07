@@ -12,12 +12,12 @@ public interface Cancellable
      *
      * @return the cancelled state of this event
      */
-    public boolean isCancelled();
+    boolean isCancelled();
 
     /**
      * Sets the cancelled state of this event.
      *
      * @param cancel the state to set
      */
-    public void setCancelled(boolean cancel);
+    void setCancelled(boolean cancel);
 }

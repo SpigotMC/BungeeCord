@@ -3,9 +3,10 @@ package net.md_5.bungee.http;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.handler.codec.http.HttpClientCodec;
-import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLEngine;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class HttpInitializer extends ChannelInitializer<Channel>
         ch.pipeline().addLast( "timeout", new ReadTimeoutHandler( HttpClient.TIMEOUT, TimeUnit.MILLISECONDS ) );
         if ( ssl )
         {
-            SSLEngine engine = SslContext.newClientContext().newEngine( ch.alloc(), host, port );
+            SSLEngine engine = SslContextBuilder.forClient().sslProvider( null ).build().newEngine( ch.alloc(), host, port );
 
             ch.pipeline().addLast( "ssl", new SslHandler( engine ) );
         }

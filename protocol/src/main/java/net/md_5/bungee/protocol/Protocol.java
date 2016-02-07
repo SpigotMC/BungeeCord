@@ -111,6 +111,7 @@ public enum Protocol
     public final DirectionData TO_CLIENT = new DirectionData( ProtocolConstants.Direction.TO_CLIENT );
 
     @RequiredArgsConstructor
+    @SuppressWarnings("unchecked")
     public class DirectionData
     {
 

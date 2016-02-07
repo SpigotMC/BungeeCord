@@ -8,5 +8,6 @@ import net.md_5.bungee.jni.zlib.NativeZlib;
 public class CompressFactory
 {
 
+    @SuppressWarnings("unchecked")
     public static final NativeCode<BungeeZlib> zlib = new NativeCode( "native-compress", JavaZlib.class, NativeZlib.class );
 }

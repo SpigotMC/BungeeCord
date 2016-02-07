@@ -63,6 +63,7 @@ public class BungeeServerInfo implements ServerInfo
     }
 
     @Synchronized("players")
+    @SuppressWarnings("unchecked")
     @Override
     public Collection<ProxiedPlayer> getPlayers()
     {

@@ -9,6 +9,7 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.ServerConnection;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.ServerDisconnectEvent;
 import net.md_5.bungee.api.event.TabCompleteResponseEvent;
@@ -291,6 +292,7 @@ public class DownstreamBridge extends PacketHandler
                 in.readFully( data );
 
                 // Prepare new data to send
+                assert out != null;
                 out.writeUTF( channel );
                 out.writeShort( data.length );
                 out.write( data );
@@ -299,31 +301,32 @@ public class DownstreamBridge extends PacketHandler
                 // Null out stream, important as we don't want to send to ourselves
                 out = null;
 
-                if ( target.equals( "ALL" ) )
-                {
-                    for ( ServerInfo server : bungee.getServers().values() )
-                    {
-                        if ( server != con.getServer().getInfo() )
+                switch (target) {
+                    case "ALL":
+                        for (ServerInfo server : bungee.getServers().values())
                         {
-                            server.sendData( "BungeeCord", payload );
+                            if (server != con.getServer().getInfo())
+                            {
+                                server.sendData("BungeeCord", payload);
+                            }
                         }
-                    }
-                } else if ( target.equals( "ONLINE" ) )
-                {
-                    for ( ServerInfo server : bungee.getServers().values() )
-                    {
-                        if ( server != con.getServer().getInfo() )
+                        break;
+                    case "ONLINE":
+                        for (ServerInfo server : bungee.getServers().values())
                         {
-                            server.sendData( "BungeeCord", payload, false );
+                            if (server != con.getServer().getInfo())
+                            {
+                                server.sendData("BungeeCord", payload, false);
+                            }
                         }
-                    }
-                } else
-                {
-                    ServerInfo server = bungee.getServerInfo( target );
-                    if ( server != null )
-                    {
-                        server.sendData( "BungeeCord", payload );
-                    }
+                        break;
+                    default:
+                        ServerInfo server = bungee.getServerInfo(target);
+                        if (server != null)
+                        {
+                            server.sendData("BungeeCord", payload);
+                        }
+                        break;
                 }
             }
             if ( subChannel.equals( "Connect" ) )
@@ -348,6 +351,7 @@ public class DownstreamBridge extends PacketHandler
             }
             if ( subChannel.equals( "IP" ) )
             {
+                assert out != null;
                 out.writeUTF( "IP" );
                 out.writeUTF( con.getAddress().getHostString() );
                 out.writeInt( con.getAddress().getPort() );
@@ -355,6 +359,7 @@ public class DownstreamBridge extends PacketHandler
             if ( subChannel.equals( "PlayerCount" ) )
             {
                 String target = in.readUTF();
+                assert out != null;
                 out.writeUTF( "PlayerCount" );
                 if ( target.equals( "ALL" ) )
                 {
@@ -373,6 +378,7 @@ public class DownstreamBridge extends PacketHandler
             if ( subChannel.equals( "PlayerList" ) )
             {
                 String target = in.readUTF();
+                assert out != null;
                 out.writeUTF( "PlayerList" );
                 if ( target.equals( "ALL" ) )
                 {
@@ -390,6 +396,7 @@ public class DownstreamBridge extends PacketHandler
             }
             if ( subChannel.equals( "GetServers" ) )
             {
+                assert out != null;
                 out.writeUTF( "GetServers" );
                 out.writeUTF( Util.csv( bungee.getServers().keySet() ) );
             }
@@ -398,16 +405,18 @@ public class DownstreamBridge extends PacketHandler
                 ProxiedPlayer target = bungee.getPlayer( in.readUTF() );
                 if ( target != null )
                 {
-                    target.sendMessage( in.readUTF() );
+                    target.sendMessage( new ComponentBuilder( in.readUTF() ).create() );
                 }
             }
             if ( subChannel.equals( "GetServer" ) )
             {
+                assert out != null;
                 out.writeUTF( "GetServer" );
                 out.writeUTF( server.getInfo().getName() );
             }
             if ( subChannel.equals( "UUID" ) )
             {
+                assert out != null;
                 out.writeUTF( "UUID" );
                 out.writeUTF( con.getUUID() );
             }
@@ -416,6 +425,7 @@ public class DownstreamBridge extends PacketHandler
                 ProxiedPlayer player = bungee.getPlayer( in.readUTF() );
                 if ( player != null )
                 {
+                    assert out != null;
                     out.writeUTF( "UUIDOther" );
                     out.writeUTF( player.getName() );
                     out.writeUTF( player.getUUID() );
@@ -426,6 +436,7 @@ public class DownstreamBridge extends PacketHandler
                 ServerInfo info = bungee.getServerInfo( in.readUTF() );
                 if ( info != null )
                 {
+                    assert out != null;
                     out.writeUTF( "ServerIP" );
                     out.writeUTF( info.getName() );
                     out.writeUTF( info.getAddress().getAddress().getHostAddress() );

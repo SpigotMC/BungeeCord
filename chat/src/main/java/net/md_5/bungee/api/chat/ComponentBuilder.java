@@ -233,7 +233,7 @@ public class ComponentBuilder
         return parts.toArray( new BaseComponent[ parts.size() ] );
     }
 
-    public static enum FormatRetention
+    public enum FormatRetention
     {
 
         /**

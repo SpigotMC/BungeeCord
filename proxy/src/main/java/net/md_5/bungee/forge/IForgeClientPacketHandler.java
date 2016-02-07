@@ -18,7 +18,7 @@ public interface IForgeClientPacketHandler<S>
      * @param con The {@link UserConnection} to send packets to.
      * @return The state to transition to.
      */
-    public S handle(PluginMessage message, UserConnection con);
+    S handle(PluginMessage message, UserConnection con);
 
     /**
      * Sends any {@link PluginMessage} packets.
@@ -27,5 +27,5 @@ public interface IForgeClientPacketHandler<S>
      * @param con The {@link UserConnection} to set data.
      * @return The state to transition to.
      */
-    public S send(PluginMessage message, UserConnection con);
+    S send(PluginMessage message, UserConnection con);
 }

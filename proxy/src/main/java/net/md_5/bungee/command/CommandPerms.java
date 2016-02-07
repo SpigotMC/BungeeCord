@@ -6,6 +6,7 @@ import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.plugin.Command;
 
 public class CommandPerms extends Command
@@ -24,11 +25,11 @@ public class CommandPerms extends Command
         {
             permissions.addAll( ProxyServer.getInstance().getConfigurationAdapter().getPermissions( group ) );
         }
-        sender.sendMessage( ChatColor.GOLD + "You have the following groups: " + Util.csv( sender.getGroups() ) );
+        sender.sendMessage( new ComponentBuilder( "You have the following groups: " + Util.csv( sender.getGroups() ) ).color( ChatColor.GOLD ).create() );
 
         for ( String permission : permissions )
         {
-            sender.sendMessage( ChatColor.BLUE + "- " + permission );
+            sender.sendMessage( new ComponentBuilder( "- " + permission ).color( ChatColor.BLUE ).create() );
         }
     }
 }
