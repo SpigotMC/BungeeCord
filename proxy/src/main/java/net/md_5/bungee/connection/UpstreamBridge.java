@@ -134,15 +134,15 @@ public class UpstreamBridge extends PacketHandler
         TabCompleteEvent tabCompleteEvent = new TabCompleteEvent( con, con.getServer(), tabComplete.getCursor(), suggestions );
         bungee.getPluginManager().callEvent( tabCompleteEvent );
 
+        if ( tabCompleteEvent.isCancelled() )
+        {
+            throw CancelSendSignal.INSTANCE;
+        }
+
         List<String> results = tabCompleteEvent.getSuggestions();
         if ( !results.isEmpty() )
         {
             con.unsafe().sendPacket( new TabCompleteResponse( results ) );
-            throw CancelSendSignal.INSTANCE;
-        }
-
-        if ( tabCompleteEvent.isCancelled() )
-        {
             throw CancelSendSignal.INSTANCE;
         }
     }
