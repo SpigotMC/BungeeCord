@@ -122,9 +122,26 @@ public class PluginManager
      * @param sender the sender executing the command
      * @param commandLine the complete command line including command name and
      * arguments
+     * @param tabResults an non-mull mutable {@code List for tab completion}, {@code null} for command execution
      * @return whether the command was handled
      */
     public boolean dispatchCommand(CommandSender sender, String commandLine, List<String> tabResults)
+    {
+        return dispatchCommand(sender, commandLine, tabResults, false);
+    }
+
+    /**
+     * Execute a command if it is registered, else return false.
+     *
+     * @param sender the sender executing the command
+     * @param commandLine the complete command line including command name and
+     * arguments
+     * @param tabResults an non-mull mutable {@code List for tab completion}, {@code null} for command execution
+     * @param throwOnFailure whether or not to throw an {@link CommandExecutionException} if the command executed throws
+     *                       an exception
+     * @return whether the command was handled
+     */
+    public boolean dispatchCommand(CommandSender sender, String commandLine, List<String> tabResults, boolean throwOnFailure)
     {
         String[] split = argsSplit.split( commandLine, -1 );
         // Check for chat that only contains " "
@@ -176,8 +193,14 @@ public class PluginManager
             }
         } catch ( Exception ex )
         {
-            sender.sendMessage( ChatColor.RED + "An internal error occurred whilst executing this command, please check the console log for details." );
-            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Error in dispatching command", ex );
+            if ( throwOnFailure )
+            {
+                throw new CommandExecutionException(ex);
+            } else
+            {
+                sender.sendMessage( ChatColor.RED + "An internal error occurred whilst executing this command, please check the console log for details." );
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Error in dispatching command", ex );
+            }
         }
         return true;
     }
