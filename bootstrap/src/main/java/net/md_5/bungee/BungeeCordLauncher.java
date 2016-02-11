@@ -6,10 +6,13 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.plugin.CommandExecutionException;
 import net.md_5.bungee.command.ConsoleCommandSender;
 
 public class BungeeCordLauncher
@@ -59,9 +62,15 @@ public class BungeeCordLauncher
             String line;
             while ( bungee.isRunning && ( line = bungee.getConsoleReader().readLine( ">" ) ) != null )
             {
-                if ( !bungee.getPluginManager().dispatchCommand( ConsoleCommandSender.getInstance(), line ) )
+                try
                 {
-                    bungee.getConsole().sendMessage( ChatColor.RED + "Command not found" );
+                    if ( !bungee.getPluginManager().dispatchCommand( ConsoleCommandSender.getInstance(), line ) )
+                    {
+                        bungee.getConsole().sendMessage(ChatColor.RED + "Command not found");
+                    }
+                } catch ( CommandExecutionException e )
+                {
+                    bungee.getLogger().log( Level.WARNING, "Error in dispatching command", e );
                 }
             }
         }

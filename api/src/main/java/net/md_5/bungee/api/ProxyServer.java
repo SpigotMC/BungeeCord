@@ -107,7 +107,7 @@ public abstract class ProxyServer
     /**
      * Get the {@link PluginManager} associated with loading plugins and
      * dispatching events. It is recommended that implementations use the
-     * provided PluginManager class.
+     * provided PluginManagerImpl class.
      *
      * @return the plugin manager
      */

@@ -11,7 +11,6 @@ import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.module.ModuleManager;
-import com.google.common.io.ByteStreams;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -52,9 +51,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jline.UnsupportedTerminal;
+
 import jline.console.ConsoleReader;
-import jline.internal.Log;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
@@ -66,7 +64,7 @@ import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
-import net.md_5.bungee.api.plugin.PluginManager;
+import net.md_5.bungee.api.plugin.PluginManagerImpl;
 import net.md_5.bungee.command.*;
 import net.md_5.bungee.compress.CompressFactory;
 import net.md_5.bungee.conf.YamlConfig;
@@ -122,7 +120,7 @@ public class BungeeCord extends ProxyServer
      * Plugin manager.
      */
     @Getter
-    public final PluginManager pluginManager = new PluginManager( this );
+    public final PluginManagerImpl pluginManager = new PluginManagerImpl( this );
     @Getter
     @Setter
     private ReconnectHandler reconnectHandler;
