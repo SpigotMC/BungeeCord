@@ -2,6 +2,7 @@ package net.md_5.bungee.api.config;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
@@ -9,6 +10,7 @@ import lombok.Data;
  * multiple listeners on different ports.
  */
 @Data
+@AllArgsConstructor
 public class ListenerInfo
 {
 
@@ -31,7 +33,7 @@ public class ListenerInfo
     /**
      * Name of the server which users will be taken to by default.
      */
-    private final String defaultServer;
+    private String defaultServer;
     /**
      * Name of the server which users will be taken when current server goes
      * down.
