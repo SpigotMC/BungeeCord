@@ -328,7 +328,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         // We can just check by UUID here as names are based on UUID
         if ( !isOnlineMode() && bungee.getPlayer( getUniqueId() ) != null )
         {
-            disconnect( bungee.getTranslation( "already_connected" ) );
+            disconnect( bungee.getTranslation( "already_connected_proxy" ) );
             return;
         }
 
@@ -424,14 +424,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             if ( oldName != null )
             {
                 // TODO See #1218
-                oldName.disconnect( bungee.getTranslation( "already_connected" ) );
+                oldName.disconnect( bungee.getTranslation( "already_connected_proxy" ) );
             }
             // And then also for their old UUID
             ProxiedPlayer oldID = bungee.getPlayer( getUniqueId() );
             if ( oldID != null )
             {
                 // TODO See #1218
-                oldID.disconnect( bungee.getTranslation( "already_connected" ) );
+                oldID.disconnect( bungee.getTranslation( "already_connected_proxy" ) );
             }
         } else
         {
@@ -440,7 +440,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             if ( oldName != null )
             {
                 // TODO See #1218
-                disconnect( bungee.getTranslation( "already_connected" ) );
+                disconnect( bungee.getTranslation( "already_connected_proxy" ) );
                 return;
             }
 
