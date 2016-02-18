@@ -207,6 +207,7 @@ public class ServerConnector extends PacketHandler
             }
         } else
         {
+            user.getServer().setObsolete( true );
             user.getTabListHandler().onServerChange();
 
             Scoreboard serverScoreboard = user.getServerSentScoreboard();
@@ -226,7 +227,6 @@ public class ServerConnector extends PacketHandler
             user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getDifficulty(), login.getGameMode(), login.getLevelType() ) );
 
             // Remove from old servers
-            user.getServer().setObsolete( true );
             user.getServer().disconnect( "Quitting" );
         }
 

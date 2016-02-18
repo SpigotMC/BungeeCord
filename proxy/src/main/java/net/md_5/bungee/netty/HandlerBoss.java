@@ -66,10 +66,10 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
         if ( handler != null )
         {
             PacketWrapper packet = (PacketWrapper) msg;
-            boolean sendPacket = true;
+            boolean sendPacket = handler.shouldHandle( packet );
             try
             {
-                if ( packet.packet != null )
+                if ( sendPacket && packet.packet != null )
                 {
                     try
                     {

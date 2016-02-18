@@ -90,13 +90,16 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
+    public boolean shouldHandle(PacketWrapper packet) throws Exception
+    {
+        return !server.isObsolete();
+    }
+
+    @Override
     public void handle(PacketWrapper packet) throws Exception
     {
-        if ( !server.isObsolete() )
-        {
-            con.getEntityRewrite().rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId() );
-            con.sendPacket( packet );
-        }
+        con.getEntityRewrite().rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId() );
+        con.sendPacket( packet );
     }
 
     @Override
@@ -451,7 +454,7 @@ public class DownstreamBridge extends PacketHandler
                     con.getServer().sendData( "BungeeCord", b );
                 }
             }
-            
+
             throw CancelSendSignal.INSTANCE;
         }
     }
