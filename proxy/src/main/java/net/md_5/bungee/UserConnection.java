@@ -79,7 +79,7 @@ public final class UserConnection implements ProxiedPlayer
     private ServerConnection server;
     @Getter
     @Setter
-    private boolean dimensionChange = true;
+    private int dimension = 0;
     @Getter
     private final Collection<ServerInfo> pendingConnects = new HashSet<>();
     /*========================================================================*/
@@ -204,16 +204,8 @@ public final class UserConnection implements ProxiedPlayer
         connect( target, callback, false );
     }
 
-    void sendDimensionSwitch()
-    {
-        dimensionChange = true;
-        unsafe().sendPacket( PacketConstants.DIM1_SWITCH );
-        unsafe().sendPacket( PacketConstants.DIM2_SWITCH );
-    }
-
     public void connectNow(ServerInfo target)
     {
-        sendDimensionSwitch();
         connect( target );
     }
 
