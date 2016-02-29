@@ -154,15 +154,15 @@ public final class UserConnection implements ProxiedPlayer
 
         switch ( getPendingConnection().getListener().getTabListType() )
         {
-        case "GLOBAL":
-            tabListHandler = new Global( this );
-            break;
-        case "SERVER":
-            tabListHandler = new ServerUnique( this );
-            break;
-        default:
-            tabListHandler = new GlobalPing( this );
-            break;
+            case "GLOBAL":
+                tabListHandler = new Global( this );
+                break;
+            case "SERVER":
+                tabListHandler = new ServerUnique( this );
+                break;
+            default:
+                tabListHandler = new GlobalPing( this );
+                break;
         }
 
         Collection<String> g = bungee.getConfigurationAdapter().getGroups( name );
@@ -192,7 +192,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void setDisplayName(String name)
     {
-        Preconditions.checkNotNull(name, "displayName");
+        Preconditions.checkNotNull( name, "displayName" );
         Preconditions.checkArgument( name.length() <= 16, "Display name cannot be longer than 16 characters" );
         displayName = name;
     }
@@ -272,17 +272,18 @@ public final class UserConnection implements ProxiedPlayer
                 if ( !future.isSuccess() )
                 {
                     future.channel().close();
-                    pendingConnects.remove(target);
+                    pendingConnects.remove( target );
 
                     lastServerJoined++;
                     String serverName = "";
                     List<String> servers = getPendingConnection().getListener().getServerPriority();
-                    if ( lastServerJoined < servers.size() ) {
+                    if ( lastServerJoined < servers.size() )
+                    {
                         serverName = servers.get( lastServerJoined );
                     }
 
                     ServerInfo def = ProxyServer.getInstance().getServers().get( serverName );
-                    if ( retry && target != def && ( getServer() == null || def != getServer().getInfo() ) )
+                    if ( retry && def != null && target != def && ( getServer() == null || def != getServer().getInfo() ) )
                     {
                         sendMessage( bungee.getTranslation( "fallback_lobby" ) );
                         connect( def, null, false );
@@ -293,7 +294,8 @@ public final class UserConnection implements ProxiedPlayer
                     {
                         sendMessage( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
                     }
-                } else {
+                } else
+                {
                     lastServerJoined = 0;
                 }
             }
@@ -590,7 +592,7 @@ public final class UserConnection implements ProxiedPlayer
 
     public void setCompressionThreshold(int compressionThreshold)
     {
-        if ( ch.getHandle().isActive() && this.compressionThreshold == -1 && getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
+        if ( ch.getHandle().isActive() && this.compressionThreshold == -1 )
         {
             this.compressionThreshold = compressionThreshold;
             unsafe.sendPacket( new SetCompression( compressionThreshold ) );

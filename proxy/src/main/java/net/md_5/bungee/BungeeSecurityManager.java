@@ -1,7 +1,11 @@
 package net.md_5.bungee;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.security.AccessControlException;
 import java.security.Permission;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.scheduler.GroupedThreadFactory;
@@ -10,6 +14,7 @@ public class BungeeSecurityManager extends SecurityManager
 {
 
     private static final boolean ENFORCE = false;
+    private final Set<String> seen = new HashSet<>();
 
     private void checkRestricted(String text)
     {
@@ -18,33 +23,25 @@ public class BungeeSecurityManager extends SecurityManager
         {
             ClassLoader loader = context[i].getClassLoader();
 
-            // Bungee can do everything
-            if ( loader == ClassLoader.getSystemClassLoader() )
+            // Bungee / system can do everything
+            if ( loader == ClassLoader.getSystemClassLoader() || loader == null )
             {
                 break;
             }
 
-            // Allow external packages from the system class loader to create threads.
-            if ( loader == null )
+            AccessControlException ex = new AccessControlException( "Plugin violation: " + text );
+            if ( ENFORCE )
             {
-                if ( !context[i].getName().startsWith( "java" ) )
-                {
-                    break;
-                }
+                throw ex;
             }
 
-            // Everyone but system can't do anything
-            if ( loader != null )
+            StringWriter stack = new StringWriter();
+            ex.printStackTrace( new PrintWriter( stack ) );
+            if ( seen.add( stack.toString() ) )
             {
-                AccessControlException ex = new AccessControlException( "Plugin violation: " + text );
-                if ( ENFORCE )
-                {
-                    throw ex;
-                }
-
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "Plugin performed restricted action, please inform them to use proper API methods: " + text, ex );
-                break;
             }
+            break;
         }
     }
 

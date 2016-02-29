@@ -51,7 +51,7 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
                         if ( !DIRECT_WARNING )
                         {
                             DIRECT_WARNING = true;
-                            System.err.println( "Netty is not using direct IO buffers." );
+                            System.out.println( "Netty is not using direct IO buffers." );
                         }
 
                         // See https://github.com/SpigotMC/BungeeCord/issues/1717

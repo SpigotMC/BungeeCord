@@ -198,6 +198,7 @@ public class DownstreamBridge extends PacketHandler
                 t.setSuffix( team.getSuffix() );
                 t.setFriendlyFire( team.getFriendlyFire() );
                 t.setNameTagVisibility( team.getNameTagVisibility() );
+                t.setCollisionRule( team.getCollisionRule() );
                 t.setColor( team.getColor() );
             }
             if ( team.getPlayers() != null )
@@ -467,7 +468,6 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(SetCompression setCompression) throws Exception
     {
-        con.setCompressionThreshold( setCompression.getThreshold() );
         server.getCh().setCompressionThreshold( setCompression.getThreshold() );
     }
 
