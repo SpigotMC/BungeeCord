@@ -7,12 +7,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import lombok.RequiredArgsConstructor;
@@ -126,6 +128,34 @@ public class YamlConfig implements ConfigurationAdapter
         }
     }
 
+    @SuppressWarnings("unchecked")
+    private void set(String path, Object val, Map submap)
+    {
+        int index = path.indexOf( '.' );
+        if ( index == -1 )
+        {
+            if ( val == null )
+            {
+                submap.remove( path );
+            } else
+            {
+                submap.put( path, val );
+            }
+            save();
+        } else
+        {
+            String first = path.substring( 0, index );
+            String second = path.substring( index + 1, path.length() );
+            Map sub = (Map) submap.get( first );
+            if ( sub == null )
+            {
+                sub = new LinkedHashMap();
+                submap.put( first, sub );
+            }
+            set( second, val, sub );
+        }
+    }
+
     private void save()
     {
         try
@@ -200,8 +230,6 @@ public class YamlConfig implements ConfigurationAdapter
             motd = ChatColor.translateAlternateColorCodes( '&', motd );
 
             int maxPlayers = get( "max_players", 1, val );
-            String defaultServer = get( "default_server", "lobby", val );
-            String fallbackServer = get( "fallback_server", defaultServer, val );
             boolean forceDefault = get( "force_default_server", false, val );
             String host = get( "host", "0.0.0.0:25577", val );
             int tabListSize = get( "tab_size", 60, val );
@@ -219,7 +247,31 @@ public class YamlConfig implements ConfigurationAdapter
             boolean query = get( "query_enabled", false, val );
             int queryPort = get( "query_port", 25577, val );
 
-            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, defaultServer, fallbackServer, forceDefault, forced, value.toString(), setLocalAddress, pingPassthrough, queryPort, query );
+            List<String> serverPriority = new ArrayList<>( get( "priorities", Collections.EMPTY_LIST, val ) );
+
+            // Default server list migration
+            // TODO: Remove from submap
+            String defaultServer = get( "default_server", null, val );
+            String fallbackServer = get( "fallback_server", null, val );
+            if ( defaultServer != null )
+            {
+                serverPriority.add( defaultServer );
+                set( "default_server", null, val );
+            }
+            if ( fallbackServer != null )
+            {
+                serverPriority.add( fallbackServer );
+                set( "fallback_server", null, val );
+            }
+
+            // Add defaults if required
+            if ( serverPriority.isEmpty() )
+            {
+                serverPriority.add( "lobby" );
+            }
+            set( "priorities", serverPriority, val );
+
+            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, serverPriority, forceDefault, forced, value.toString(), setLocalAddress, pingPassthrough, queryPort, query );
             ret.add( info );
         }
 
