@@ -14,6 +14,7 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -55,6 +56,8 @@ import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.SetCompression;
+import net.md_5.bungee.tab.Global;
+import net.md_5.bungee.tab.GlobalPing;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
 import net.md_5.bungee.util.CaseInsensitiveSet;
@@ -102,6 +105,10 @@ public final class UserConnection implements ProxiedPlayer
     private int gamemode;
     @Getter
     private int compressionThreshold = -1;
+    // Used for trying multiple servers in order
+    @Getter
+    @Setter
+    private int lastServerJoined = 0;
     /*========================================================================*/
     private final Collection<String> groups = new CaseInsensitiveSet();
     private final Collection<String> permissions = new CaseInsensitiveSet();
@@ -145,20 +152,18 @@ public final class UserConnection implements ProxiedPlayer
 
         this.displayName = name;
 
-        // Blame Mojang for this one
-        /*switch ( getPendingConnection().getListener().getTabListType() )
-         {
-         case "GLOBAL":
-         tabListHandler = new Global( this );
-         break;
-         case "SERVER":
-         tabListHandler = new ServerUnique( this );
-         break;
-         default:
-         tabListHandler = new GlobalPing( this );
-         break;
-         }*/
-        tabListHandler = new ServerUnique( this );
+        switch ( getPendingConnection().getListener().getTabListType() )
+        {
+        case "GLOBAL":
+            tabListHandler = new Global( this );
+            break;
+        case "SERVER":
+            tabListHandler = new ServerUnique( this );
+            break;
+        default:
+            tabListHandler = new GlobalPing( this );
+            break;
+        }
 
         Collection<String> g = bungee.getConfigurationAdapter().getGroups( name );
         g.addAll( bungee.getConfigurationAdapter().getGroups( getUniqueId().toString() ) );
@@ -187,7 +192,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void setDisplayName(String name)
     {
-        Preconditions.checkNotNull( name, "displayName" );
+        Preconditions.checkNotNull(name, "displayName");
         Preconditions.checkArgument( name.length() <= 16, "Display name cannot be longer than 16 characters" );
         displayName = name;
     }
@@ -267,9 +272,16 @@ public final class UserConnection implements ProxiedPlayer
                 if ( !future.isSuccess() )
                 {
                     future.channel().close();
-                    pendingConnects.remove( target );
+                    pendingConnects.remove(target);
 
-                    ServerInfo def = ProxyServer.getInstance().getServers().get( getPendingConnection().getListener().getFallbackServer() );
+                    lastServerJoined++;
+                    String serverName = "";
+                    List<String> servers = getPendingConnection().getListener().getServerPriority();
+                    if ( lastServerJoined < servers.size() ) {
+                        serverName = servers.get( lastServerJoined );
+                    }
+
+                    ServerInfo def = ProxyServer.getInstance().getServers().get( serverName );
                     if ( retry && target != def && ( getServer() == null || def != getServer().getInfo() ) )
                     {
                         sendMessage( bungee.getTranslation( "fallback_lobby" ) );
@@ -281,6 +293,8 @@ public final class UserConnection implements ProxiedPlayer
                     {
                         sendMessage( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
                     }
+                } else {
+                    lastServerJoined = 0;
                 }
             }
         };
