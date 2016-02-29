@@ -229,28 +229,13 @@ public class DownstreamBridge extends PacketHandler
 
         if ( pluginMessage.getTag().equals( "MC|Brand" ) )
         {
-            if ( con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
-            {
-                try
-                {
-                    ByteBuf brand = Unpooled.wrappedBuffer( pluginMessage.getData() );
-                    String serverBrand = DefinedPacket.readString( brand );
-                    brand.release();
-                    brand = ByteBufAllocator.DEFAULT.heapBuffer();
-                    DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand, brand );
-                    pluginMessage.setData( brand.array().clone() );
-                    brand.release();
-                } catch ( Exception ignored )
-                {
-                    // TODO: Remove this
-                    // Older spigot protocol builds sent the brand incorrectly
-                    return;
-                }
-            } else
-            {
-                String serverBrand = new String( pluginMessage.getData(), "UTF-8" );
-                pluginMessage.setData( ( bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand ).getBytes( "UTF-8" ) );
-            }
+            ByteBuf brand = Unpooled.wrappedBuffer( pluginMessage.getData() );
+            String serverBrand = DefinedPacket.readString( brand );
+            brand.release();
+            brand = ByteBufAllocator.DEFAULT.heapBuffer();
+            DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand, brand );
+            pluginMessage.setData( brand.array().clone() );
+            brand.release();
             // changes in the packet are ignored so we need to send it manually
             con.unsafe().sendPacket( pluginMessage );
             throw CancelSendSignal.INSTANCE;

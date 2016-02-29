@@ -22,29 +22,15 @@ public class EncryptionResponse extends DefinedPacket
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_8 )
-        {
-            sharedSecret = readArrayLegacy( buf );
-            verifyToken = readArrayLegacy( buf );
-        } else
-        {
-            sharedSecret = readArray( buf );
-            verifyToken = readArray( buf );
-        }
+        sharedSecret = readArray( buf );
+        verifyToken = readArray( buf );
     }
 
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_8 )
-        {
-            writeArrayLegacy( sharedSecret, buf, false );
-            writeArrayLegacy( verifyToken, buf, false );
-        } else
-        {
-            writeArray( sharedSecret, buf );
-            writeArray( verifyToken, buf );
-        }
+        writeArray( sharedSecret, buf );
+        writeArray( verifyToken, buf );
     }
 
     @Override
