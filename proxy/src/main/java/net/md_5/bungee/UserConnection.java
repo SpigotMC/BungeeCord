@@ -14,9 +14,11 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -106,9 +108,8 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     private int compressionThreshold = -1;
     // Used for trying multiple servers in order
-    @Getter
     @Setter
-    private int lastServerJoined = 0;
+    private Queue<String> serverJoinQueue;
     /*========================================================================*/
     private final Collection<String> groups = new CaseInsensitiveSet();
     private final Collection<String> permissions = new CaseInsensitiveSet();
@@ -222,6 +223,26 @@ public final class UserConnection implements ProxiedPlayer
         connect( target );
     }
 
+    public ServerInfo updateAndGetNextServer(ServerInfo currentTarget)
+    {
+        if ( serverJoinQueue == null )
+        {
+            serverJoinQueue = new LinkedList<>( getPendingConnection().getListener().getServerPriority() );
+        }
+
+        ServerInfo next = null;
+        while ( !serverJoinQueue.isEmpty() )
+        {
+            ServerInfo candidate = ProxyServer.getInstance().getServerInfo( serverJoinQueue.remove() );
+            if ( !Objects.equal( currentTarget, candidate ) )
+            {
+                next = candidate;
+            }
+        }
+
+        return next;
+    }
+
     public void connect(ServerInfo info, final Callback<Boolean> callback, final boolean retry)
     {
         Preconditions.checkNotNull( info, "info" );
@@ -274,16 +295,8 @@ public final class UserConnection implements ProxiedPlayer
                     future.channel().close();
                     pendingConnects.remove( target );
 
-                    lastServerJoined++;
-                    String serverName = "";
-                    List<String> servers = getPendingConnection().getListener().getServerPriority();
-                    if ( lastServerJoined < servers.size() )
-                    {
-                        serverName = servers.get( lastServerJoined );
-                    }
-
-                    ServerInfo def = ProxyServer.getInstance().getServers().get( serverName );
-                    if ( retry && def != null && target != def && ( getServer() == null || def != getServer().getInfo() ) )
+                    ServerInfo def = updateAndGetNextServer( target );
+                    if ( retry && def != null && ( getServer() == null || def != getServer().getInfo() ) )
                     {
                         sendMessage( bungee.getTranslation( "fallback_lobby" ) );
                         connect( def, null, false );
@@ -294,9 +307,6 @@ public final class UserConnection implements ProxiedPlayer
                     {
                         sendMessage( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
                     }
-                } else
-                {
-                    lastServerJoined = 0;
                 }
             }
         };

@@ -240,6 +240,7 @@ public class ServerConnector extends PacketHandler
         // TODO: Move this to the connected() method of DownstreamBridge
         target.addPlayer( user );
         user.getPendingConnects().remove( target );
+        user.setServerJoinQueue( null );
         user.setDimensionChange( false );
 
         user.setServer( server );
@@ -261,18 +262,7 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(Kick kick) throws Exception
     {
-        user.setLastServerJoined( user.getLastServerJoined() + 1 );
-        String serverName = "";
-        List<String> servers = user.getPendingConnection().getListener().getServerPriority();
-        if ( user.getLastServerJoined() < servers.size() )
-        {
-            serverName = servers.get( user.getLastServerJoined() );
-        }
-        ServerInfo def = ProxyServer.getInstance().getServers().get( serverName );
-        if ( Objects.equal( target, def ) )
-        {
-            def = null;
-        }
+        ServerInfo def = user.updateAndGetNextServer( target );
         ServerKickEvent event = new ServerKickEvent( user, target, ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTING );
         if ( event.getKickReason().toLowerCase().contains( "outdated" ) && def != null )
         {
