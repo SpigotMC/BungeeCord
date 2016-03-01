@@ -12,6 +12,8 @@ import java.util.UUID;
 class EntityMap_1_8 extends EntityMap
 {
 
+    static final EntityMap_1_8 INSTANCE = new EntityMap_1_8();
+
     EntityMap_1_8()
     {
         addRewrite( 0x04, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Equipment
@@ -95,28 +97,12 @@ class EntityMap_1_8 extends EntityMap
                 packet.skipBytes( 14 );
                 int position = packet.readerIndex();
                 int readId = packet.readInt();
-                int changedId = -1;
                 if ( readId == oldId )
                 {
                     packet.setInt( position, newId );
-                    changedId = newId;
                 } else if ( readId == newId )
                 {
                     packet.setInt( position, oldId );
-                    changedId = oldId;
-                }
-                if ( changedId != -1 )
-                {
-                    if ( changedId == 0 && readId != 0 )
-                    { // Trim off the extra data
-                        packet.readerIndex( readerIndex );
-                        packet.writerIndex( packet.readableBytes() - 6 );
-                    } else if ( changedId != 0 && readId == 0 )
-                    { // Add on the extra data
-                        packet.readerIndex( readerIndex );
-                        packet.capacity( packet.readableBytes() + 6 );
-                        packet.writerIndex( packet.readableBytes() + 6 );
-                    }
                 }
             }
         } else if ( packetId == 0x0C /* Spawn Player */ )
@@ -161,7 +147,7 @@ class EntityMap_1_8 extends EntityMap
         int packetId = DefinedPacket.readVarInt( packet );
         int packetIdLength = packet.readerIndex() - readerIndex;
 
-        if ( packetId == 0x18 /* Spectate */ && !BungeeCord.getInstance().getConfig().isIpForward())
+        if ( packetId == 0x18 /* Spectate */ && !BungeeCord.getInstance().getConfig().isIpForward() )
         {
             UUID uuid = DefinedPacket.readUUID( packet );
             ProxiedPlayer player;

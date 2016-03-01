@@ -157,6 +157,18 @@ public class ComponentBuilder
     }
 
     /**
+     * Sets the insertion text for the current part.
+     *
+     * @param insertion the insertion text
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder insertion(String insertion)
+    {
+        current.setInsertion( insertion );
+        return this;
+    }
+
+    /**
      * Sets the click event for the current part.
      *
      * @param clickEvent the click event
@@ -210,6 +222,7 @@ public class ComponentBuilder
                 break;
             case EVENTS:
                 current = new TextComponent( current.getText() );
+                current.setInsertion( previous.getInsertion() );
                 current.setClickEvent( previous.getClickEvent() );
                 current.setHoverEvent( previous.getHoverEvent() );
                 break;

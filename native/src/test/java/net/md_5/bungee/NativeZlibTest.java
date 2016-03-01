@@ -20,7 +20,11 @@ public class NativeZlibTest
     @Test
     public void doTest() throws DataFormatException
     {
-        test( factory.newInstance() );
+        if ( NativeCode.isSupported() )
+        {
+            Assert.assertTrue( "Native code failed to load!", factory.load() );
+            test( factory.newInstance() );
+        }
         test( new JavaZlib() );
     }
 

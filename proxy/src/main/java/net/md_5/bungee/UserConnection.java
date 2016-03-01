@@ -14,8 +14,11 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -55,6 +58,8 @@ import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.SetCompression;
+import net.md_5.bungee.tab.Global;
+import net.md_5.bungee.tab.GlobalPing;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
 import net.md_5.bungee.util.CaseInsensitiveSet;
@@ -102,6 +107,9 @@ public final class UserConnection implements ProxiedPlayer
     private int gamemode;
     @Getter
     private int compressionThreshold = -1;
+    // Used for trying multiple servers in order
+    @Setter
+    private Queue<String> serverJoinQueue;
     /*========================================================================*/
     private final Collection<String> groups = new CaseInsensitiveSet();
     private final Collection<String> permissions = new CaseInsensitiveSet();
@@ -145,20 +153,18 @@ public final class UserConnection implements ProxiedPlayer
 
         this.displayName = name;
 
-        // Blame Mojang for this one
-        /*switch ( getPendingConnection().getListener().getTabListType() )
-         {
-         case "GLOBAL":
-         tabListHandler = new Global( this );
-         break;
-         case "SERVER":
-         tabListHandler = new ServerUnique( this );
-         break;
-         default:
-         tabListHandler = new GlobalPing( this );
-         break;
-         }*/
-        tabListHandler = new ServerUnique( this );
+        switch ( getPendingConnection().getListener().getTabListType() )
+        {
+            case "GLOBAL":
+                tabListHandler = new Global( this );
+                break;
+            case "SERVER":
+                tabListHandler = new ServerUnique( this );
+                break;
+            default:
+                tabListHandler = new GlobalPing( this );
+                break;
+        }
 
         Collection<String> g = bungee.getConfigurationAdapter().getGroups( name );
         g.addAll( bungee.getConfigurationAdapter().getGroups( getUniqueId().toString() ) );
@@ -217,6 +223,26 @@ public final class UserConnection implements ProxiedPlayer
         connect( target );
     }
 
+    public ServerInfo updateAndGetNextServer(ServerInfo currentTarget)
+    {
+        if ( serverJoinQueue == null )
+        {
+            serverJoinQueue = new LinkedList<>( getPendingConnection().getListener().getServerPriority() );
+        }
+
+        ServerInfo next = null;
+        while ( !serverJoinQueue.isEmpty() )
+        {
+            ServerInfo candidate = ProxyServer.getInstance().getServerInfo( serverJoinQueue.remove() );
+            if ( !Objects.equal( currentTarget, candidate ) )
+            {
+                next = candidate;
+            }
+        }
+
+        return next;
+    }
+
     public void connect(ServerInfo info, final Callback<Boolean> callback, final boolean retry)
     {
         Preconditions.checkNotNull( info, "info" );
@@ -269,20 +295,17 @@ public final class UserConnection implements ProxiedPlayer
                     future.channel().close();
                     pendingConnects.remove( target );
 
-                    ServerInfo def = ProxyServer.getInstance().getServers().get( getPendingConnection().getListener().getFallbackServer() );
-                    if ( retry && target != def && ( getServer() == null || def != getServer().getInfo() ) )
+                    ServerInfo def = updateAndGetNextServer( target );
+                    if ( retry && def != null && ( getServer() == null || def != getServer().getInfo() ) )
                     {
                         sendMessage( bungee.getTranslation( "fallback_lobby" ) );
                         connect( def, null, false );
+                    } else if ( dimensionChange )
+                    {
+                        disconnect( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
                     } else
                     {
-                        if ( dimensionChange )
-                        {
-                            disconnect( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
-                        } else
-                        {
-                            sendMessage( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
-                        }
+                        sendMessage( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
                     }
                 }
             }
@@ -394,7 +417,7 @@ public final class UserConnection implements ProxiedPlayer
     public void sendMessage(ChatMessageType position, BaseComponent... message)
     {
         // Action bar doesn't display the new JSON formattings, legacy works - send it using this for now
-        if ( position == ChatMessageType.ACTION_BAR && pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
+        if ( position == ChatMessageType.ACTION_BAR )
         {
             sendMessage( position, ComponentSerializer.toString( new TextComponent( TextComponent.toLegacyText( message ) ) ) );
         } else
@@ -407,7 +430,7 @@ public final class UserConnection implements ProxiedPlayer
     public void sendMessage(ChatMessageType position, BaseComponent message)
     {
         // Action bar doesn't display the new JSON formattings, legacy works - send it using this for now
-        if ( position == ChatMessageType.ACTION_BAR && pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
+        if ( position == ChatMessageType.ACTION_BAR )
         {
             sendMessage( position, ComponentSerializer.toString( new TextComponent( TextComponent.toLegacyText( message ) ) ) );
         } else
@@ -544,25 +567,19 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void setTabHeader(BaseComponent header, BaseComponent footer)
     {
-        if ( pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
-        {
-            unsafe().sendPacket( new PlayerListHeaderFooter(
-                    ( header != null ) ? ComponentSerializer.toString( header ) : EMPTY_TEXT,
-                    ( footer != null ) ? ComponentSerializer.toString( footer ) : EMPTY_TEXT
-            ) );
-        }
+        unsafe().sendPacket( new PlayerListHeaderFooter(
+                ( header != null ) ? ComponentSerializer.toString( header ) : EMPTY_TEXT,
+                ( footer != null ) ? ComponentSerializer.toString( footer ) : EMPTY_TEXT
+        ) );
     }
 
     @Override
     public void setTabHeader(BaseComponent[] header, BaseComponent[] footer)
     {
-        if ( pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
-        {
-            unsafe().sendPacket( new PlayerListHeaderFooter(
-                    ( header != null ) ? ComponentSerializer.toString( header ) : EMPTY_TEXT,
-                    ( footer != null ) ? ComponentSerializer.toString( footer ) : EMPTY_TEXT
-            ) );
-        }
+        unsafe().sendPacket( new PlayerListHeaderFooter(
+                ( header != null ) ? ComponentSerializer.toString( header ) : EMPTY_TEXT,
+                ( footer != null ) ? ComponentSerializer.toString( footer ) : EMPTY_TEXT
+        ) );
     }
 
     @Override
@@ -585,11 +602,17 @@ public final class UserConnection implements ProxiedPlayer
 
     public void setCompressionThreshold(int compressionThreshold)
     {
-        if ( ch.getHandle().isActive() && this.compressionThreshold == -1 && getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
+        if ( ch.getHandle().isActive() && this.compressionThreshold == -1 )
         {
             this.compressionThreshold = compressionThreshold;
             unsafe.sendPacket( new SetCompression( compressionThreshold ) );
             ch.setCompressionThreshold( compressionThreshold );
         }
+    }
+
+    @Override
+    public boolean isConnected()
+    {
+        return !ch.isClosed();
     }
 }

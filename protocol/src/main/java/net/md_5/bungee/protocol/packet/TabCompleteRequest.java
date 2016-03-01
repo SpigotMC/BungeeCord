@@ -17,6 +17,7 @@ public class TabCompleteRequest extends DefinedPacket
 {
 
     private String cursor;
+    private boolean assumeCommand;
     private boolean hasPositon;
     private long position;
 
@@ -24,12 +25,14 @@ public class TabCompleteRequest extends DefinedPacket
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         cursor = readString( buf );
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_8 )
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
         {
-            if ( hasPositon = buf.readBoolean() )
-            {
-                position = buf.readLong();
-            }
+            assumeCommand = buf.readBoolean();
+        }
+
+        if ( hasPositon = buf.readBoolean() )
+        {
+            position = buf.readLong();
         }
     }
 
@@ -37,13 +40,15 @@ public class TabCompleteRequest extends DefinedPacket
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         writeString( cursor, buf );
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_8 )
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
         {
-            buf.writeBoolean( hasPositon );
-            if ( hasPositon )
-            {
-                buf.writeLong( position );
-            }
+            buf.writeBoolean( assumeCommand );
+        }
+
+        buf.writeBoolean( hasPositon );
+        if ( hasPositon )
+        {
+            buf.writeLong( position );
         }
     }
 

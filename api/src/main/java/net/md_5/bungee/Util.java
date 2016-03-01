@@ -2,6 +2,8 @@ package net.md_5.bungee;
 
 import com.google.common.base.Joiner;
 import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.UUID;
 
 /**
@@ -10,7 +12,7 @@ import java.util.UUID;
 public class Util
 {
 
-    private static final int DEFAULT_PORT = 25565;
+    public static final int DEFAULT_PORT = 25565;
 
     /**
      * Method to transform human readable addresses into usable address objects.
@@ -20,13 +22,16 @@ public class Util
      */
     public static InetSocketAddress getAddr(String hostline)
     {
-        String[] split = hostline.split( ":" );
-        int port = DEFAULT_PORT;
-        if ( split.length > 1 )
+        URI uri;
+        try
         {
-            port = Integer.parseInt( split[1] );
+            uri = new URI( "tcp://" + hostline );
+        } catch ( URISyntaxException ex )
+        {
+            throw new IllegalArgumentException( "Bad hostline", ex );
         }
-        return new InetSocketAddress( split[0], port );
+
+        return new InetSocketAddress( uri.getHost(), ( uri.getPort() ) == -1 ? DEFAULT_PORT : uri.getPort() );
     }
 
     /**

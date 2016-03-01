@@ -20,7 +20,7 @@ public class MinecraftEncoder extends MessageToByteEncoder<DefinedPacket>
     protected void encode(ChannelHandlerContext ctx, DefinedPacket msg, ByteBuf out) throws Exception
     {
         Protocol.DirectionData prot = ( server ) ? protocol.TO_CLIENT : protocol.TO_SERVER;
-        DefinedPacket.writeVarInt( prot.getId( msg.getClass() ), out );
+        DefinedPacket.writeVarInt( prot.getId( msg.getClass(), protocolVersion ), out );
         msg.write( out, prot.getDirection(), protocolVersion );
     }
 }

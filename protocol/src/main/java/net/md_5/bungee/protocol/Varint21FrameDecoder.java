@@ -11,6 +11,8 @@ import java.util.List;
 public class Varint21FrameDecoder extends ByteToMessageDecoder
 {
 
+    private static boolean DIRECT_WARNING;
+
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
     {
@@ -40,11 +42,23 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
                     return;
                 } else
                 {
-                    // TODO: Really should be a slice!
-                    ByteBuf dst = ctx.alloc().directBuffer( length );
-                    in.readBytes( dst );
+                    if ( in.hasMemoryAddress() )
+                    {
+                        out.add( in.slice( in.readerIndex(), length ).retain() );
+                        in.skipBytes( length );
+                    } else
+                    {
+                        if ( !DIRECT_WARNING )
+                        {
+                            DIRECT_WARNING = true;
+                            System.out.println( "Netty is not using direct IO buffers." );
+                        }
 
-                    out.add( dst );
+                        // See https://github.com/SpigotMC/BungeeCord/issues/1717
+                        ByteBuf dst = ctx.alloc().directBuffer( length );
+                        in.readBytes( dst );
+                        out.add( dst );
+                    }
                     return;
                 }
             }

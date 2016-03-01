@@ -4,6 +4,8 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+
+import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import lombok.Getter;
@@ -28,7 +30,6 @@ import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.MinecraftOutput;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
@@ -52,6 +53,7 @@ public class ServerConnector extends PacketHandler
     private State thisState = State.LOGIN_SUCCESS;
     @Getter
     private ForgeServerHandler handshakeHandler;
+    private boolean obsolete;
 
     private enum State
     {
@@ -62,6 +64,11 @@ public class ServerConnector extends PacketHandler
     @Override
     public void exception(Throwable t) throws Exception
     {
+        if ( obsolete )
+        {
+            return;
+        }
+
         String message = "Exception Connecting:" + Util.exception( t );
         if ( user.getServer() == null )
         {
@@ -91,8 +98,7 @@ public class ServerConnector extends PacketHandler
                 newHost += "\00" + BungeeCord.getInstance().gson.toJson( profile.getProperties() );
             }
             copiedHandshake.setHost( newHost );
-        }
-        else if ( !user.getExtraDataInHandshake().isEmpty() )
+        } else if ( !user.getExtraDataInHandshake().isEmpty() )
         {
             // Only restore the extra data if IP forwarding is off. 
             // TODO: Add support for this data with IP forwarding.
@@ -143,7 +149,6 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(SetCompression setCompression) throws Exception
     {
-        user.setCompressionThreshold( setCompression.getThreshold() );
         ch.setCompressionThreshold( setCompression.getThreshold() );
     }
 
@@ -193,20 +198,13 @@ public class ServerConnector extends PacketHandler
 
             user.unsafe().sendPacket( modLogin );
 
-            if ( user.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_8 )
-            {
-                MinecraftOutput out = new MinecraftOutput();
-                out.writeStringUTF8WithoutLengthHeaderBecauseDinnerboneStuffedUpTheMCBrandPacket( ProxyServer.getInstance().getName() + " (" + ProxyServer.getInstance().getVersion() + ")" );
-                user.unsafe().sendPacket( new PluginMessage( "MC|Brand", out.toArray(), handshakeHandler.isServerForge() ) );
-            } else
-            {
-                ByteBuf brand = ByteBufAllocator.DEFAULT.heapBuffer();
-                DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")", brand );
-                user.unsafe().sendPacket( new PluginMessage( "MC|Brand", brand.array().clone(), handshakeHandler.isServerForge() ) );
-                brand.release();
-            }
+            ByteBuf brand = ByteBufAllocator.DEFAULT.heapBuffer();
+            DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")", brand );
+            user.unsafe().sendPacket( new PluginMessage( "MC|Brand", brand.array().clone(), handshakeHandler.isServerForge() ) );
+            brand.release();
         } else
         {
+            user.getServer().setObsolete( true );
             user.getTabListHandler().onServerChange();
 
             Scoreboard serverScoreboard = user.getServerSentScoreboard();
@@ -226,7 +224,6 @@ public class ServerConnector extends PacketHandler
             user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getDifficulty(), login.getGameMode(), login.getLevelType() ) );
 
             // Remove from old servers
-            user.getServer().setObsolete( true );
             user.getServer().disconnect( "Quitting" );
         }
 
@@ -243,6 +240,7 @@ public class ServerConnector extends PacketHandler
         // TODO: Move this to the connected() method of DownstreamBridge
         target.addPlayer( user );
         user.getPendingConnects().remove( target );
+        user.setServerJoinQueue( null );
         user.setDimensionChange( false );
 
         user.setServer( server );
@@ -264,14 +262,17 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(Kick kick) throws Exception
     {
-        ServerInfo def = bungee.getServerInfo( user.getPendingConnection().getListener().getFallbackServer() );
-        if ( Objects.equal( target, def ) )
+        ServerInfo def = user.updateAndGetNextServer( target );
+        ServerKickEvent event = new ServerKickEvent( user, target, ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTING );
+        if ( event.getKickReason().toLowerCase().contains( "outdated" ) && def != null )
         {
-            def = null;
+            // Pre cancel the event if we are going to try another server
+            event.setCancelled( true );
         }
-        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( user, target, ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTING ) );
+        bungee.getPluginManager().callEvent( event );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
+            obsolete = true;
             user.connect( event.getCancelServer() );
             throw CancelSendSignal.INSTANCE;
         }
@@ -323,11 +324,6 @@ public class ServerConnector extends PacketHandler
         if ( pluginMessage.getTag().equals( ForgeConstants.FML_HANDSHAKE_TAG ) || pluginMessage.getTag().equals( ForgeConstants.FORGE_REGISTER ) )
         {
             this.handshakeHandler.handle( pluginMessage );
-            if ( user.getForgeClientHandler().checkUserOutdated() )
-            {
-                ch.close();
-                user.getPendingConnects().remove( target );
-            }
 
             // We send the message as part of the handler, so don't send it here.
             throw CancelSendSignal.INSTANCE;

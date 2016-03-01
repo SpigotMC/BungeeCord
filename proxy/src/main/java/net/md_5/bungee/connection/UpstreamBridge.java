@@ -74,10 +74,7 @@ public class UpstreamBridge extends PacketHandler
             } );
             for ( ProxiedPlayer player : con.getServer().getInfo().getPlayers() )
             {
-                if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
-                {
-                    player.unsafe().sendPacket( packet );
-                }
+                player.unsafe().sendPacket( packet );
             }
             con.getServer().disconnect( "Quitting" );
         }
@@ -134,15 +131,15 @@ public class UpstreamBridge extends PacketHandler
         TabCompleteEvent tabCompleteEvent = new TabCompleteEvent( con, con.getServer(), tabComplete.getCursor(), suggestions );
         bungee.getPluginManager().callEvent( tabCompleteEvent );
 
+        if ( tabCompleteEvent.isCancelled() )
+        {
+            throw CancelSendSignal.INSTANCE;
+        }
+
         List<String> results = tabCompleteEvent.getSuggestions();
         if ( !results.isEmpty() )
         {
             con.unsafe().sendPacket( new TabCompleteResponse( results ) );
-            throw CancelSendSignal.INSTANCE;
-        }
-
-        if ( tabCompleteEvent.isCancelled() )
-        {
             throw CancelSendSignal.INSTANCE;
         }
     }

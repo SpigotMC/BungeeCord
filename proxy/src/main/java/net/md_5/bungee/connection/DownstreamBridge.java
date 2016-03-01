@@ -90,13 +90,16 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
+    public boolean shouldHandle(PacketWrapper packet) throws Exception
+    {
+        return !server.isObsolete();
+    }
+
+    @Override
     public void handle(PacketWrapper packet) throws Exception
     {
-        if ( !server.isObsolete() )
-        {
-            con.getEntityRewrite().rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId() );
-            con.sendPacket( packet );
-        }
+        con.getEntityRewrite().rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId() );
+        con.sendPacket( packet );
     }
 
     @Override
@@ -195,6 +198,7 @@ public class DownstreamBridge extends PacketHandler
                 t.setSuffix( team.getSuffix() );
                 t.setFriendlyFire( team.getFriendlyFire() );
                 t.setNameTagVisibility( team.getNameTagVisibility() );
+                t.setCollisionRule( team.getCollisionRule() );
                 t.setColor( team.getColor() );
             }
             if ( team.getPlayers() != null )
@@ -226,28 +230,13 @@ public class DownstreamBridge extends PacketHandler
 
         if ( pluginMessage.getTag().equals( "MC|Brand" ) )
         {
-            if ( con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
-            {
-                try
-                {
-                    ByteBuf brand = Unpooled.wrappedBuffer( pluginMessage.getData() );
-                    String serverBrand = DefinedPacket.readString( brand );
-                    brand.release();
-                    brand = ByteBufAllocator.DEFAULT.heapBuffer();
-                    DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand, brand );
-                    pluginMessage.setData( brand.array().clone() );
-                    brand.release();
-                } catch ( Exception ignored )
-                {
-                    // TODO: Remove this
-                    // Older spigot protocol builds sent the brand incorrectly
-                    return;
-                }
-            } else
-            {
-                String serverBrand = new String( pluginMessage.getData(), "UTF-8" );
-                pluginMessage.setData( ( bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand ).getBytes( "UTF-8" ) );
-            }
+            ByteBuf brand = Unpooled.wrappedBuffer( pluginMessage.getData() );
+            String serverBrand = DefinedPacket.readString( brand );
+            brand.release();
+            brand = ByteBufAllocator.DEFAULT.heapBuffer();
+            DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand, brand );
+            pluginMessage.setData( brand.array().clone() );
+            brand.release();
             // changes in the packet are ignored so we need to send it manually
             con.unsafe().sendPacket( pluginMessage );
             throw CancelSendSignal.INSTANCE;
@@ -451,7 +440,7 @@ public class DownstreamBridge extends PacketHandler
                     con.getServer().sendData( "BungeeCord", b );
                 }
             }
-            
+
             throw CancelSendSignal.INSTANCE;
         }
     }
@@ -479,7 +468,6 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(SetCompression setCompression) throws Exception
     {
-        con.setCompressionThreshold( setCompression.getThreshold() );
         server.getCh().setCompressionThreshold( setCompression.getThreshold() );
     }
 
