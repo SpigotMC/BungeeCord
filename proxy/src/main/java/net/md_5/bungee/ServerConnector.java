@@ -1,13 +1,12 @@
 package net.md_5.bungee;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 
-import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
@@ -31,7 +30,7 @@ import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
-import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.Kick;
@@ -217,6 +216,11 @@ public class ServerConnector extends PacketHandler
                 user.unsafe().sendPacket( new net.md_5.bungee.protocol.packet.Team( team.getName() ) );
             }
             serverScoreboard.clear();
+
+            for ( UUID bossbar : user.getSentBossBars() )
+            {
+                user.unsafe().sendPacket( new net.md_5.bungee.protocol.packet.BossBar( bossbar, BossBar.Action.REMOVE ) );
+            }
 
             user.sendDimensionSwitch();
 

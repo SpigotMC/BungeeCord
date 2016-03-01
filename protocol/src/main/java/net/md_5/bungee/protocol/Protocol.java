@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
@@ -58,6 +59,7 @@ public enum Protocol
                     TO_CLIENT.registerPacket( 0x01, 0x23, Login.class );
                     TO_CLIENT.registerPacket( 0x02, 0x0F, Chat.class );
                     TO_CLIENT.registerPacket( 0x07, 0x33, Respawn.class );
+                    TO_CLIENT.registerPacket( 0x0C, 0x0C, BossBar.class );
                     TO_CLIENT.registerPacket( 0x38, 0x2D, PlayerListItem.class ); // PlayerInfo
                     TO_CLIENT.registerPacket( 0x3A, 0x0E, TabCompleteResponse.class );
                     TO_CLIENT.registerPacket( 0x3B, 0x3F, ScoreboardObjective.class );

@@ -29,7 +29,7 @@ import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
-import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
@@ -482,6 +482,20 @@ public class DownstreamBridge extends PacketHandler
         }
 
         throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void handle(BossBar bossBar)
+    {
+        switch ( bossBar.getAction() )
+        {
+            case ADD:
+                con.getSentBossBars().add( bossBar.getUuid() );
+                break;
+            case REMOVE:
+                con.getSentBossBars().remove( bossBar.getUuid() );
+                break;
+        }
     }
 
     @Override
