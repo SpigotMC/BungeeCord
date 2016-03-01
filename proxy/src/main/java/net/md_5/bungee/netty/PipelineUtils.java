@@ -128,6 +128,7 @@ public class PipelineUtils
             {
                 // IP_TOS is not supported (Windows XP / Windows Server 2003)
             }
+            ch.config().setOption( ChannelOption.TCP_NODELAY, true );
             ch.config().setAllocator( PooledByteBufAllocator.DEFAULT );
 
             ch.pipeline().addLast( TIMEOUT_HANDLER, new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
