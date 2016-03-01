@@ -416,8 +416,8 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendMessage(ChatMessageType position, BaseComponent... message)
     {
-        // Action bar doesn't display the new JSON formattings, legacy works - send it using this for now
-        if ( position == ChatMessageType.ACTION_BAR )
+        // Action bar on 1.8 doesn't display the new JSON formattings, legacy works - send it using this for now
+        if ( position == ChatMessageType.ACTION_BAR && getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_8 )
         {
             sendMessage( position, ComponentSerializer.toString( new TextComponent( TextComponent.toLegacyText( message ) ) ) );
         } else
@@ -429,8 +429,8 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendMessage(ChatMessageType position, BaseComponent message)
     {
-        // Action bar doesn't display the new JSON formattings, legacy works - send it using this for now
-        if ( position == ChatMessageType.ACTION_BAR )
+        // Action bar on 1.8 doesn't display the new JSON formattings, legacy works - send it using this for now
+        if ( position == ChatMessageType.ACTION_BAR && getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_8 )
         {
             sendMessage( position, ComponentSerializer.toString( new TextComponent( TextComponent.toLegacyText( message ) ) ) );
         } else
