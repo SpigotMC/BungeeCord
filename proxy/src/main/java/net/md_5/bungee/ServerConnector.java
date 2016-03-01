@@ -53,6 +53,7 @@ public class ServerConnector extends PacketHandler
     private State thisState = State.LOGIN_SUCCESS;
     @Getter
     private ForgeServerHandler handshakeHandler;
+    private boolean obsolete;
 
     private enum State
     {
@@ -63,6 +64,11 @@ public class ServerConnector extends PacketHandler
     @Override
     public void exception(Throwable t) throws Exception
     {
+        if ( obsolete )
+        {
+            return;
+        }
+
         String message = "Exception Connecting:" + Util.exception( t );
         if ( user.getServer() == null )
         {
@@ -92,8 +98,7 @@ public class ServerConnector extends PacketHandler
                 newHost += "\00" + BungeeCord.getInstance().gson.toJson( profile.getProperties() );
             }
             copiedHandshake.setHost( newHost );
-        }
-        else if ( !user.getExtraDataInHandshake().isEmpty() )
+        } else if ( !user.getExtraDataInHandshake().isEmpty() )
         {
             // Only restore the extra data if IP forwarding is off. 
             // TODO: Add support for this data with IP forwarding.
@@ -256,10 +261,11 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(Kick kick) throws Exception
     {
-        user.setLastServerJoined(user.getLastServerJoined() + 1);
+        user.setLastServerJoined( user.getLastServerJoined() + 1 );
         String serverName = "";
         List<String> servers = user.getPendingConnection().getListener().getServerPriority();
-        if ( user.getLastServerJoined() < servers.size() ) {
+        if ( user.getLastServerJoined() < servers.size() )
+        {
             serverName = servers.get( user.getLastServerJoined() );
         }
         ServerInfo def = ProxyServer.getInstance().getServers().get( serverName );
@@ -267,7 +273,7 @@ public class ServerConnector extends PacketHandler
         {
             def = null;
         }
-        ServerKickEvent event = new ServerKickEvent(user, target, ComponentSerializer.parse(kick.getMessage()), def, ServerKickEvent.State.CONNECTING);
+        ServerKickEvent event = new ServerKickEvent( user, target, ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTING );
         if ( event.getKickReason().toLowerCase().contains( "outdated" ) && def != null )
         {
             // Pre cancel the event if we are going to try another server
@@ -276,6 +282,7 @@ public class ServerConnector extends PacketHandler
         bungee.getPluginManager().callEvent( event );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
+            obsolete = true;
             user.connect( event.getCancelServer() );
             throw CancelSendSignal.INSTANCE;
         }
