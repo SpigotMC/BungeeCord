@@ -5,8 +5,11 @@ import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.Util;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 /**
  * Represents the standard list data returned by opening a server in the
@@ -73,7 +76,8 @@ public class ServerPing
             return uniqueId.toString().replaceAll( "-", "" );
         }
     }
-    private String description;
+
+    private BaseComponent description;
     private Favicon favicon;
 
     @Data
@@ -100,7 +104,13 @@ public class ServerPing
     @Deprecated
     public ServerPing(Protocol version, Players players, String description, String favicon)
     {
-        this( version, players, description, favicon == null ? null : Favicon.create( favicon ) );
+        this( version, players, new TextComponent( TextComponent.fromLegacyText(description) ), favicon == null ? null : Favicon.create( favicon ) );
+    }
+
+    @Deprecated
+    public ServerPing(Protocol version, Players players, String description, Favicon favicon)
+    {
+        this( version, players, new TextComponent( TextComponent.fromLegacyText(description) ), favicon );
     }
 
     @Deprecated
@@ -123,5 +133,19 @@ public class ServerPing
     public void setFavicon(Favicon favicon)
     {
         this.favicon = favicon;
+    }
+
+    @Deprecated
+    public void setDescription(String description) {
+        this.description = new TextComponent( TextComponent.fromLegacyText( description ) );
+    }
+
+    @Deprecated
+    public String getDescription() {
+        return BaseComponent.toLegacyText( description );
+    }
+
+    public BaseComponent getDescriptionComponent() {
+        return description;
     }
 }

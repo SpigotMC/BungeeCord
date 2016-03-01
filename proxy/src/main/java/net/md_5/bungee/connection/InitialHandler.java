@@ -142,7 +142,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         final boolean v1_5 = ping.isV1_5();
 
         ServerPing legacy = new ServerPing( new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), bungee.getProtocolVersion() ),
-                new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ), listener.getMotd(), (Favicon) null );
+                new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
+                new TextComponent( TextComponent.fromLegacyText( listener.getMotd() ) ), (Favicon) null );
 
         Callback<ProxyPingEvent> callback = new Callback<ProxyPingEvent>()
         {
