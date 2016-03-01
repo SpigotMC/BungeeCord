@@ -221,6 +221,7 @@ public class ServerConnector extends PacketHandler
             {
                 user.unsafe().sendPacket( new net.md_5.bungee.protocol.packet.BossBar( bossbar, BossBar.Action.REMOVE ) );
             }
+            user.getSentBossBars().clear();
 
             user.sendDimensionSwitch();
 
