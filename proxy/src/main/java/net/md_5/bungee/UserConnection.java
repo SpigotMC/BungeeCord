@@ -153,6 +153,7 @@ public final class UserConnection implements ProxiedPlayer
 
         this.displayName = name;
 
+        /*
         switch ( getPendingConnection().getListener().getTabListType() )
         {
             case "GLOBAL":
@@ -165,6 +166,8 @@ public final class UserConnection implements ProxiedPlayer
                 tabListHandler = new GlobalPing( this );
                 break;
         }
+         */
+        tabListHandler = new ServerUnique( this );
 
         Collection<String> g = bungee.getConfigurationAdapter().getGroups( name );
         g.addAll( bungee.getConfigurationAdapter().getGroups( getUniqueId().toString() ) );
