@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
@@ -58,6 +59,7 @@ public enum Protocol
                     TO_CLIENT.registerPacket( 0x01, 0x23, Login.class );
                     TO_CLIENT.registerPacket( 0x02, 0x0F, Chat.class );
                     TO_CLIENT.registerPacket( 0x07, 0x33, Respawn.class );
+                    TO_CLIENT.registerPacket( 0x0C, 0x0C, BossBar.class, true );
                     TO_CLIENT.registerPacket( 0x38, 0x2D, PlayerListItem.class ); // PlayerInfo
                     TO_CLIENT.registerPacket( 0x3A, 0x0E, TabCompleteResponse.class );
                     TO_CLIENT.registerPacket( 0x3B, 0x3F, ScoreboardObjective.class );
@@ -166,6 +168,12 @@ public enum Protocol
 
         protected final void registerPacket(int id, int newId, Class<? extends DefinedPacket> packetClass)
         {
+            registerPacket( id, newId, packetClass, false );
+
+        }
+
+        protected final void registerPacket(int id, int newId, Class<? extends DefinedPacket> packetClass, boolean newOnly)
+        {
             try
             {
                 packetConstructors[id] = packetClass.getDeclaredConstructor();
@@ -176,8 +184,12 @@ public enum Protocol
             packetClasses[id] = packetClass;
             packetMap.put( packetClass, id );
 
-            packetRemap.get( ProtocolConstants.MINECRAFT_1_8 ).put( id, id );
-            packetRemapInv.get( ProtocolConstants.MINECRAFT_1_8 ).put( id, id );
+            if ( !newOnly )
+            {
+                packetRemap.get( ProtocolConstants.MINECRAFT_1_8 ).put( id, id );
+                packetRemapInv.get( ProtocolConstants.MINECRAFT_1_8 ).put( id, id );
+            }
+
             packetRemap.get( ProtocolConstants.MINECRAFT_1_9 ).put( newId, id );
             packetRemapInv.get( ProtocolConstants.MINECRAFT_1_9 ).put( id, newId );
         }

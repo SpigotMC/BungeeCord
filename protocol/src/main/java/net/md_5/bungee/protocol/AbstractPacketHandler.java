@@ -1,5 +1,6 @@
 package net.md_5.bungee.protocol;
 
+import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.ClientStatus;
@@ -141,6 +142,10 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(SetCompression setCompression) throws Exception
+    {
+    }
+
+    public void handle(BossBar bossBar) throws Exception
     {
     }
 }
