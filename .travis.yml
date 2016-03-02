@@ -4,5 +4,10 @@ jdk:
   - openjdk7
   - oraclejdk7
   - oraclejdk8
+branches:
+  only:
+    - master
 notifications:
   email: false
+install:
+  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dbuild.number=$TRAVIS_BUILD_NUMBER -B -V
