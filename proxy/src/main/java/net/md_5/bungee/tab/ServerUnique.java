@@ -12,6 +12,7 @@ public class ServerUnique extends TabList
 {
 
     private final Collection<UUID> uuids = new HashSet<>();
+    private final Collection<String> usernames = new HashSet<>(); // Support for <=1.7.9
 
     public ServerUnique(ProxiedPlayer player)
     {
@@ -25,10 +26,22 @@ public class ServerUnique extends TabList
         {
             if ( playerListItem.getAction() == PlayerListItem.Action.ADD_PLAYER )
             {
-                uuids.add( item.getUuid() );
+                if ( item.getUuid() != null )
+                {
+                    uuids.add( item.getUuid() );
+                } else
+                {
+                    usernames.add( item.getUsername() );
+                }
             } else if ( playerListItem.getAction() == PlayerListItem.Action.REMOVE_PLAYER )
             {
-                uuids.remove( item.getUuid() );
+                if ( item.getUuid() != null )
+                {
+                    uuids.remove( item.getUuid() );
+                } else
+                {
+                    usernames.remove( item.getUsername() );
+                }
             }
         }
         player.unsafe().sendPacket( playerListItem );
@@ -45,16 +58,40 @@ public class ServerUnique extends TabList
     {
         PlayerListItem packet = new PlayerListItem();
         packet.setAction( PlayerListItem.Action.REMOVE_PLAYER );
-        PlayerListItem.Item[] items = new PlayerListItem.Item[ uuids.size() ];
+        PlayerListItem.Item[] items = new PlayerListItem.Item[ uuids.size() + usernames.size() ];
         int i = 0;
         for ( UUID uuid : uuids )
         {
             PlayerListItem.Item item = items[i++] = new PlayerListItem.Item();
             item.setUuid( uuid );
         }
+        for ( String username : usernames )
+        {
+            PlayerListItem.Item item = items[i++] = new PlayerListItem.Item();
+            item.setUsername( username );
+            item.setDisplayName( username );
+        }
         packet.setItems( items );
-        player.unsafe().sendPacket( packet );
+        if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
+        {
+            player.unsafe().sendPacket( packet );
+        } else
+        {
+            // Split up the packet
+            for ( PlayerListItem.Item item : packet.getItems() )
+            {
+                PlayerListItem p2 = new PlayerListItem();
+                p2.setAction( packet.getAction() );
+
+                p2.setItems( new PlayerListItem.Item[]
+                {
+                    item
+                } );
+                player.unsafe().sendPacket( p2 );
+            }
+        }
         uuids.clear();
+        usernames.clear();
     }
 
     @Override

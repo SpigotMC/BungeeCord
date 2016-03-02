@@ -4,6 +4,7 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.chat.ComponentSerializer;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 
 public class GlobalPing extends Global
@@ -29,7 +30,7 @@ public class GlobalPing extends Global
             PlayerListItem.Item item = new PlayerListItem.Item();
             item.setUuid( player.getUniqueId() );
             item.setUsername( player.getName() );
-            item.setDisplayName( ComponentSerializer.toString( TextComponent.fromLegacyText( player.getDisplayName() ) ) );
+            item.setDisplayName( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 ? ComponentSerializer.toString( TextComponent.fromLegacyText( player.getDisplayName() ) ) : player.getDisplayName() );
             item.setPing( player.getPing() );
             packet.setItems( new PlayerListItem.Item[]
             {

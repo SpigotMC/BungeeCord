@@ -1,4 +1,4 @@
-BungeeCord for 1.7.10/1.8/1.9
+BungeeCord for 1.7/1.8/1.9
 ==========
 This is a fork of md_5's BungeeCord  
 https://www.spigotmc.org/threads/1-8-1-9-bungeecord.392/

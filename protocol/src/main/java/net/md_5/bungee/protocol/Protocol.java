@@ -67,6 +67,7 @@ public enum Protocol
                     TO_CLIENT.registerPacket( 0x3F, 0x18, PluginMessage.class );
                     TO_CLIENT.registerPacket( 0x40, 0x1A, Kick.class );
                     TO_CLIENT.registerPacket( 0x45, 0x45, Title.class );
+                    TO_CLIENT.registerPacket( 0x46, 0x46, SetCompression.class );
                     TO_CLIENT.registerPacket( 0x47, 0x48, PlayerListHeaderFooter.class );
 
                     TO_SERVER.registerPacket( 0x00, 0x0B, KeepAlive.class );
@@ -105,6 +106,8 @@ public enum Protocol
     /*========================================================================*/
     public static final int MAX_PACKET_ID = 0xFF;
     public static List<Integer> supportedVersions = Arrays.asList(
+            ProtocolConstants.MINECRAFT_1_7_2,
+            ProtocolConstants.MINECRAFT_1_7_6,
             ProtocolConstants.MINECRAFT_1_8,
             ProtocolConstants.MINECRAFT_1_9
     );
@@ -127,6 +130,10 @@ public enum Protocol
 
         
         {
+            packetRemap.put( ProtocolConstants.MINECRAFT_1_7_2, new TIntIntHashMap() );
+            packetRemapInv.put( ProtocolConstants.MINECRAFT_1_7_2, new TIntIntHashMap() );
+            packetRemap.put( ProtocolConstants.MINECRAFT_1_7_6, new TIntIntHashMap() );
+            packetRemapInv.put( ProtocolConstants.MINECRAFT_1_7_6, new TIntIntHashMap() );
             packetRemap.put( ProtocolConstants.MINECRAFT_1_8, new TIntIntHashMap() );
             packetRemapInv.put( ProtocolConstants.MINECRAFT_1_8, new TIntIntHashMap() );
             packetRemap.put(ProtocolConstants.MINECRAFT_1_9, new TIntIntHashMap() );
@@ -176,6 +183,10 @@ public enum Protocol
             packetClasses[id] = packetClass;
             packetMap.put( packetClass, id );
 
+            packetRemap.get( ProtocolConstants.MINECRAFT_1_7_2 ).put( id, id );
+            packetRemapInv.get( ProtocolConstants.MINECRAFT_1_7_2 ).put( id, id );
+            packetRemap.get( ProtocolConstants.MINECRAFT_1_7_6 ).put( id, id );
+            packetRemapInv.get( ProtocolConstants.MINECRAFT_1_7_6 ).put( id, id );
             packetRemap.get( ProtocolConstants.MINECRAFT_1_8 ).put( id, id );
             packetRemapInv.get( ProtocolConstants.MINECRAFT_1_8 ).put( id, id );
             packetRemap.get( ProtocolConstants.MINECRAFT_1_9 ).put( newId, id );
