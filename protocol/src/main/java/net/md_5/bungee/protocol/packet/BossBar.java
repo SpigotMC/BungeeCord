@@ -17,14 +17,14 @@ public class BossBar extends DefinedPacket
 {
 
     private UUID uuid;
-    private Action action;
+    private int action;
     private String title;
     private float health;
-    private Color color;
-    private Division division;
+    private int color;
+    private int division;
     private byte flags;
 
-    public BossBar(UUID uuid, Action action)
+    public BossBar(UUID uuid, int action)
     {
         this.uuid = uuid;
         this.action = action;
@@ -34,28 +34,33 @@ public class BossBar extends DefinedPacket
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         uuid = readUUID( buf );
-        action = Action.values()[readVarInt( buf )];
+        action = readVarInt( buf );
 
         switch ( action )
         {
-            case ADD:
+            // Add
+            case 0:
                 title = readString( buf );
                 health = buf.readFloat();
-                color = Color.values()[readVarInt( buf )];
-                division = Division.values()[readVarInt( buf )];
+                color = readVarInt( buf );
+                division = readVarInt( buf );
                 flags = buf.readByte();
                 break;
-            case HEATLH:
+            // Health
+            case 2:
                 health = buf.readFloat();
                 break;
-            case TITLE:
+            // Title
+            case 3:
                 title = readString( buf );
                 break;
-            case STYLE:
-                color = Color.values()[readVarInt( buf )];
-                division = Division.values()[readVarInt( buf )];
+            // Style
+            case 4:
+                color = readVarInt( buf );
+                division = readVarInt( buf );
                 break;
-            case FLAGS:
+            // Flags
+            case 5:
                 flags = buf.readByte();
                 break;
         }
@@ -65,28 +70,33 @@ public class BossBar extends DefinedPacket
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         writeUUID( uuid, buf );
-        writeVarInt( action.ordinal(), buf );
+        writeVarInt( action, buf );
 
         switch ( action )
         {
-            case ADD:
+            // Add
+            case 0:
                 writeString( title, buf );
                 buf.writeFloat( health );
-                writeVarInt( color.ordinal(), buf );
-                writeVarInt( division.ordinal(), buf );
+                writeVarInt( color, buf );
+                writeVarInt( division, buf );
                 buf.writeByte( flags );
                 break;
-            case HEATLH:
+            // Health
+            case 2:
                 buf.writeFloat( health );
                 break;
-            case TITLE:
+            // Title
+            case 3:
                 writeString( title, buf );
                 break;
-            case STYLE:
-                writeVarInt( color.ordinal(), buf );
-                writeVarInt( division.ordinal(), buf );
+            // Style
+            case 4:
+                writeVarInt( color, buf );
+                writeVarInt( division, buf );
                 break;
-            case FLAGS:
+            // Flags
+            case 5:
                 buf.writeByte( flags );
                 break;
         }
@@ -96,37 +106,5 @@ public class BossBar extends DefinedPacket
     public void handle(AbstractPacketHandler handler) throws Exception
     {
         handler.handle( this );
-    }
-
-    public static enum Division
-    {
-        NONE,
-        SIX,
-        TEN,
-        TWELVE,
-        TWENTY;
-    }
-
-    public static enum Action
-    {
-
-        ADD,
-        REMOVE,
-        HEATLH,
-        TITLE,
-        STYLE,
-        FLAGS;
-    }
-
-    public static enum Color
-    {
-
-        PINK,
-        BLUE,
-        RED,
-        GREEN,
-        YELLOW,
-        PURPLE,
-        WHITE;
     }
 }

@@ -219,7 +219,8 @@ public class ServerConnector extends PacketHandler
 
             for ( UUID bossbar : user.getSentBossBars() )
             {
-                user.unsafe().sendPacket( new net.md_5.bungee.protocol.packet.BossBar( bossbar, BossBar.Action.REMOVE ) );
+                // Send remove bossbar packet
+                user.unsafe().sendPacket( new net.md_5.bungee.protocol.packet.BossBar( bossbar, 1 ) );
             }
             user.getSentBossBars().clear();
 

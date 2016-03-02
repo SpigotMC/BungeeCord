@@ -489,10 +489,12 @@ public class DownstreamBridge extends PacketHandler
     {
         switch ( bossBar.getAction() )
         {
-            case ADD:
+            // Handle add bossbar
+            case 0:
                 con.getSentBossBars().add( bossBar.getUuid() );
                 break;
-            case REMOVE:
+            // Handle remove bossbar
+            case 1:
                 con.getSentBossBars().remove( bossBar.getUuid() );
                 break;
         }
