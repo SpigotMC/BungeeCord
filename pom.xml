@@ -37,6 +37,9 @@
         <developer>
             <id>Zartec</id>
         </developer>
+        <developer>
+            <id>ghac</id>
+        </developer>
     </developers>
 
     <modules>
