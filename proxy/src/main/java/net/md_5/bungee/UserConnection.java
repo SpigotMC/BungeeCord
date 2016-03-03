@@ -243,6 +243,7 @@ public final class UserConnection implements ProxiedPlayer
             if ( !Objects.equal( currentTarget, candidate ) )
             {
                 next = candidate;
+                break;
             }
         }
 
