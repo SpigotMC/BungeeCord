@@ -191,20 +191,20 @@ public enum Protocol
             packetClasses[id] = packetClass;
             packetMap.put( packetClass, id );
 
-            packetRemap.get( ProtocolConstants.MINECRAFT_1_7_2 ).put( id, id );
-            packetRemapInv.get( ProtocolConstants.MINECRAFT_1_7_2 ).put( id, id );
-            packetRemap.get( ProtocolConstants.MINECRAFT_1_7_6 ).put( id, id );
-            packetRemapInv.get( ProtocolConstants.MINECRAFT_1_7_6 ).put( id, id );
             if ( !newOnly )
             {
+                packetRemap.get( ProtocolConstants.MINECRAFT_1_7_2 ).put( id, id );
+                packetRemapInv.get( ProtocolConstants.MINECRAFT_1_7_2 ).put( id, id );
+                packetRemap.get( ProtocolConstants.MINECRAFT_1_7_6 ).put( id, id );
+                packetRemapInv.get( ProtocolConstants.MINECRAFT_1_7_6 ).put( id, id );
                 packetRemap.get( ProtocolConstants.MINECRAFT_1_8 ).put( id, id );
                 packetRemapInv.get( ProtocolConstants.MINECRAFT_1_8 ).put( id, id );
             }
 
             if( !oldOnly )
             {
-	            packetRemap.get( ProtocolConstants.MINECRAFT_1_9 ).put( newId, id );
-	            packetRemapInv.get( ProtocolConstants.MINECRAFT_1_9 ).put( id, newId );
+                packetRemap.get( ProtocolConstants.MINECRAFT_1_9 ).put( newId, id );
+                packetRemapInv.get( ProtocolConstants.MINECRAFT_1_9 ).put( id, newId );
             }
         }
 

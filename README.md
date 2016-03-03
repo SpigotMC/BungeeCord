@@ -1,7 +1,7 @@
 
 BungeeCord for 1.7/1.8/1.9
 ==========
-[![Build Status](https://travis-ci.org/hexagonmc/BungeeCord.svg?branch=master)](https://travis-ci.org/hexagonmc/BungeeCord)
+[![Build Status](https://travis-ci.org/HexagonMC/BungeeCord.svg?branch=master)](https://travis-ci.org/HexagonMC/BungeeCord)
 
 This is a fork of md_5's BungeeCord  
 https://www.spigotmc.org/threads/1-8-1-9-bungeecord.392/
