@@ -5,12 +5,21 @@ jdk:
   - oraclejdk7
   - oraclejdk8
 branches:
-  only:
-    - master
+  except:
+    - /^v[0-9]*/
 notifications:
   email: false
 install:
   - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dbuild.number=$TRAVIS_BUILD_NUMBER -B -V
+after_success:
+  # CREATE GIT TAG
+  - git config --global user.email "builds@travis-ci.com"
+  - git config --global user.name "Travis CI"
+  - export GIT_TAG=v$TRAVIS_BUILD_NUMBER
+  - echo -n $GIT_TAG > VERSION
+  - git commit -m "Set build VERSION number" VERSION
+  - git tag $GIT_TAG -a -m "Generated tag from TravisCI build $TRAVIS_BUILD_NUMBER"
+  - git push --quiet https://$GITHUBKEY@github.com/dev-confidence/example-backend-api $GIT_TAG > /dev/null 2>&1
 deploy:
   provider: releases
   skip_cleanup: true
