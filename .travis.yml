@@ -30,4 +30,4 @@ deploy:
     - module/*/target/*.jar
   file_glob: true
   on:
-    tags: true
+    branch: master
