@@ -67,7 +67,7 @@ public enum Protocol
                     TO_CLIENT.registerPacket( 0x3F, 0x18, PluginMessage.class );
                     TO_CLIENT.registerPacket( 0x40, 0x1A, Kick.class );
                     TO_CLIENT.registerPacket( 0x45, 0x45, Title.class );
-                    TO_CLIENT.registerPacket( 0x46, 0x46, SetCompression.class );
+                    TO_CLIENT.registerPacket( 0x46, 0x46, SetCompression.class, false );
                     TO_CLIENT.registerPacket( 0x47, 0x48, PlayerListHeaderFooter.class );
 
                     TO_SERVER.registerPacket( 0x00, 0x0B, KeepAlive.class );
@@ -173,6 +173,11 @@ public enum Protocol
 
         protected final void registerPacket(int id, int newId, Class<? extends DefinedPacket> packetClass)
         {
+        	registerPacket( id, newId, packetClass, true );
+        }
+        
+        protected final void registerPacket(int id, int newId, Class<? extends DefinedPacket> packetClass, boolean also19)
+        {
             try
             {
                 packetConstructors[id] = packetClass.getDeclaredConstructor();
@@ -189,8 +194,11 @@ public enum Protocol
             packetRemapInv.get( ProtocolConstants.MINECRAFT_1_7_6 ).put( id, id );
             packetRemap.get( ProtocolConstants.MINECRAFT_1_8 ).put( id, id );
             packetRemapInv.get( ProtocolConstants.MINECRAFT_1_8 ).put( id, id );
-            packetRemap.get( ProtocolConstants.MINECRAFT_1_9 ).put( newId, id );
-            packetRemapInv.get( ProtocolConstants.MINECRAFT_1_9 ).put( id, newId );
+            if( also19 )
+            {
+                packetRemap.get( ProtocolConstants.MINECRAFT_1_9 ).put( newId, id );
+                packetRemapInv.get( ProtocolConstants.MINECRAFT_1_9 ).put( id, newId );
+            }
         }
 
         protected final void unregisterPacket(int id)
