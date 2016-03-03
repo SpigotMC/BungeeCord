@@ -21,5 +21,4 @@ deploy:
     - module/*/target/*.jar
   file_glob: true
   on:
-    repo: hexagonmc/BungeeCord
     tags: true
