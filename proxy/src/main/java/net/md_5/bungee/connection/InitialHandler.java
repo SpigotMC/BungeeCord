@@ -494,9 +494,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             }
                             if ( server == null )
                             {
-                                if (postLoginEvent.getTarget() == null) {
+                                if (postLoginEvent.getTarget() == null)
+                                {
                                     server = bungee.getServerInfo( listener.getDefaultServer() );
-                                } else {
+                                } else
+                                {
                                     server = postLoginEvent.getTarget();
                                 }
                             }

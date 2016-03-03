@@ -21,11 +21,6 @@ public class PostLoginEvent extends Event
      * The player involved with this event.
      */
     private final ProxiedPlayer player;
-    private ServerInfo joinTarget = null;
+    private ServerInfo target = null;
 
-    public void setTarget(ServerInfo serverInfo) {
-        joinTarget = serverInfo;
-    }
-
-    public ServerInfo getTarget() { return joinTarget; }
 }
