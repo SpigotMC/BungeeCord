@@ -11,6 +11,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.util.internal.PlatformDependent;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -124,6 +125,8 @@ public final class UserConnection implements ProxiedPlayer
     private ClientSettings settings;
     @Getter
     private final Scoreboard serverSentScoreboard = new Scoreboard();
+    @Getter
+    private final Collection<UUID> sentBossBars = new HashSet<>();
     /*========================================================================*/
     @Getter
     private String displayName;
