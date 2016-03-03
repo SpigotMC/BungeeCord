@@ -22,3 +22,4 @@ deploy:
   file_glob: true
   on:
     repo: hexagonmc/BungeeCord
+    tags: true
