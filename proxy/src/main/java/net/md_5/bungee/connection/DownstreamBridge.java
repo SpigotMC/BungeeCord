@@ -29,6 +29,7 @@ import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
@@ -230,13 +231,20 @@ public class DownstreamBridge extends PacketHandler
 
         if ( pluginMessage.getTag().equals( "MC|Brand" ) )
         {
-            ByteBuf brand = Unpooled.wrappedBuffer( pluginMessage.getData() );
-            String serverBrand = DefinedPacket.readString( brand );
-            brand.release();
-            brand = ByteBufAllocator.DEFAULT.heapBuffer();
-            DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand, brand );
-            pluginMessage.setData( brand.array().clone() );
-            brand.release();
+            if ( con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
+            {
+                ByteBuf brand = Unpooled.wrappedBuffer( pluginMessage.getData() );
+                String serverBrand = DefinedPacket.readString( brand );
+                brand.release();
+                brand = ByteBufAllocator.DEFAULT.heapBuffer();
+                DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand, brand );
+                pluginMessage.setData( brand.array().clone() );
+                brand.release();
+            } else
+            {
+                String serverBrand = new String( pluginMessage.getData(), "UTF-8" );
+                pluginMessage.setData( ( bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand ).getBytes( "UTF-8" ) );
+            }
             // changes in the packet are ignored so we need to send it manually
             con.unsafe().sendPacket( pluginMessage );
             throw CancelSendSignal.INSTANCE;

@@ -243,6 +243,7 @@ public final class UserConnection implements ProxiedPlayer
             if ( !Objects.equal( currentTarget, candidate ) )
             {
                 next = candidate;
+                break;
             }
         }
 
@@ -423,7 +424,7 @@ public final class UserConnection implements ProxiedPlayer
     public void sendMessage(ChatMessageType position, BaseComponent... message)
     {
         // Action bar on 1.8 doesn't display the new JSON formattings, legacy works - send it using this for now
-        if ( position == ChatMessageType.ACTION_BAR && getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_8 )
+        if ( position == ChatMessageType.ACTION_BAR && pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8  && getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_8 )
         {
             sendMessage( position, ComponentSerializer.toString( new TextComponent( TextComponent.toLegacyText( message ) ) ) );
         } else
@@ -436,7 +437,7 @@ public final class UserConnection implements ProxiedPlayer
     public void sendMessage(ChatMessageType position, BaseComponent message)
     {
         // Action bar on 1.8 doesn't display the new JSON formattings, legacy works - send it using this for now
-        if ( position == ChatMessageType.ACTION_BAR && getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_8 )
+        if ( position == ChatMessageType.ACTION_BAR && pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8  && getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_8 )
         {
             sendMessage( position, ComponentSerializer.toString( new TextComponent( TextComponent.toLegacyText( message ) ) ) );
         } else
@@ -573,19 +574,25 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void setTabHeader(BaseComponent header, BaseComponent footer)
     {
-        unsafe().sendPacket( new PlayerListHeaderFooter(
-                ( header != null ) ? ComponentSerializer.toString( header ) : EMPTY_TEXT,
-                ( footer != null ) ? ComponentSerializer.toString( footer ) : EMPTY_TEXT
-        ) );
+        if ( pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
+        {
+            unsafe().sendPacket( new PlayerListHeaderFooter(
+                    ( header != null ) ? ComponentSerializer.toString( header ) : EMPTY_TEXT,
+                    ( footer != null ) ? ComponentSerializer.toString( footer ) : EMPTY_TEXT
+            ) );
+        }
     }
 
     @Override
     public void setTabHeader(BaseComponent[] header, BaseComponent[] footer)
     {
-        unsafe().sendPacket( new PlayerListHeaderFooter(
-                ( header != null ) ? ComponentSerializer.toString( header ) : EMPTY_TEXT,
-                ( footer != null ) ? ComponentSerializer.toString( footer ) : EMPTY_TEXT
-        ) );
+        if ( pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
+        {
+            unsafe().sendPacket( new PlayerListHeaderFooter(
+                    ( header != null ) ? ComponentSerializer.toString( header ) : EMPTY_TEXT,
+                    ( footer != null ) ? ComponentSerializer.toString( footer ) : EMPTY_TEXT
+            ) );
+        }
     }
 
     @Override
@@ -608,7 +615,7 @@ public final class UserConnection implements ProxiedPlayer
 
     public void setCompressionThreshold(int compressionThreshold)
     {
-        if ( ch.getHandle().isActive() && this.compressionThreshold == -1 )
+        if ( ch.getHandle().isActive() && this.compressionThreshold == -1 && getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
         {
             this.compressionThreshold = compressionThreshold;
             unsafe.sendPacket( new SetCompression( compressionThreshold ) );

@@ -38,7 +38,7 @@ public class Global extends TabList
             PlayerListItem.Item item = new PlayerListItem.Item();
             item.setUuid( player.getUniqueId() );
             item.setUsername( player.getName() );
-            item.setDisplayName( ComponentSerializer.toString( TextComponent.fromLegacyText( player.getDisplayName() ) ) );
+            item.setDisplayName( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 ? ComponentSerializer.toString( TextComponent.fromLegacyText( player.getDisplayName() ) ) : player.getDisplayName() );
             item.setPing( player.getPing() );
             packet.setItems( new PlayerListItem.Item[]
             {
@@ -68,7 +68,7 @@ public class Global extends TabList
             PlayerListItem.Item item = items[i++] = new PlayerListItem.Item();
             item.setUuid( p.getUniqueId() );
             item.setUsername( p.getName() );
-            item.setDisplayName( ComponentSerializer.toString( TextComponent.fromLegacyText( p.getDisplayName() ) ) );
+            item.setDisplayName( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 ? ComponentSerializer.toString( TextComponent.fromLegacyText( p.getDisplayName() ) ) : p.getDisplayName() );
             LoginResult loginResult = ( (UserConnection) p ).getPendingConnection().getLoginProfile();
             if ( loginResult != null )
             {
@@ -90,13 +90,30 @@ public class Global extends TabList
             item.setGamemode( ( (UserConnection) p ).getGamemode() );
             item.setPing( p.getPing() );
         }
-        player.unsafe().sendPacket( playerListItem );
+        if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
+        {
+            player.unsafe().sendPacket( playerListItem );
+        } else
+        {
+            // Split up the packet
+            for ( PlayerListItem.Item item : playerListItem.getItems() )
+            {
+                PlayerListItem packet = new PlayerListItem();
+                packet.setAction( playerListItem.getAction() );
+
+                packet.setItems( new PlayerListItem.Item[]
+                {
+                    item
+                } );
+                player.unsafe().sendPacket( packet );
+            }
+        }
         PlayerListItem packet = new PlayerListItem();
         packet.setAction( PlayerListItem.Action.ADD_PLAYER );
         PlayerListItem.Item item = new PlayerListItem.Item();
         item.setUuid( player.getUniqueId() );
         item.setUsername( player.getName() );
-        item.setDisplayName( ComponentSerializer.toString( TextComponent.fromLegacyText( player.getDisplayName() ) ) );
+        item.setDisplayName( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 ? ComponentSerializer.toString( TextComponent.fromLegacyText( player.getDisplayName() ) ) : player.getDisplayName() );
         LoginResult loginResult = ( (UserConnection) player ).getPendingConnection().getLoginProfile();
         if ( loginResult != null )
         {

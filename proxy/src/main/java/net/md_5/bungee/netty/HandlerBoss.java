@@ -104,6 +104,8 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                 {
                     handler, cause.getCause().getMessage()
                 } );
+
+                cause.printStackTrace();
             } else if ( cause instanceof IOException )
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - IOException: {1}", new Object[]
