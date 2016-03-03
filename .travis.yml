@@ -29,3 +29,6 @@ deploy:
   file_glob: true
   on:
     branch: master
+cache:
+  directories:
+  - $HOME/.m2
