@@ -69,7 +69,7 @@ public enum Protocol
                     TO_CLIENT.registerPacket( 0x3F, 0x18, PluginMessage.class );
                     TO_CLIENT.registerPacket( 0x40, 0x1A, Kick.class );
                     TO_CLIENT.registerPacket( 0x45, 0x45, Title.class );
-                    TO_CLIENT.registerPacket( 0x46, 0x46, SetCompression.class, false );
+                    TO_CLIENT.registerPacket( 0x46, 0x46, SetCompression.class, true );
                     TO_CLIENT.registerPacket( 0x47, 0x48, PlayerListHeaderFooter.class );
 
                     TO_SERVER.registerPacket( 0x00, 0x0B, KeepAlive.class );
