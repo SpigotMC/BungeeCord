@@ -483,7 +483,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             ch.setProtocol( Protocol.GAME );
 
                             ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
-                            PostLoginEvent postLoginEvent = bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
                             ServerInfo server;
                             if ( bungee.getReconnectHandler() != null )
                             {
@@ -492,17 +491,20 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             {
                                 server = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
                             }
+
                             if ( server == null )
                             {
-                                if (postLoginEvent.getTarget() == null)
-                                {
-                                    server = bungee.getServerInfo( listener.getDefaultServer() );
-                                } else
-                                {
-                                    server = postLoginEvent.getTarget();
-                                }
+                                server = bungee.getServerInfo( listener.getDefaultServer() );
                             }
 
+                            PostLoginEvent postLoginEvent = new PostLoginEvent( userCon );
+                            postLoginEvent.setTarget(server);
+                            postLoginEvent = bungee.getPluginManager().callEvent( postLoginEvent  );
+
+                            if (postLoginEvent.getTarget() != null)
+                            {
+                                server = postLoginEvent.getTarget();
+                            }
                             userCon.connect( server, null, true );
 
                             thisState = State.FINISHED;
