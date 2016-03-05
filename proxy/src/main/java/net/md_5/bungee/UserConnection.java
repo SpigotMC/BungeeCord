@@ -200,7 +200,6 @@ public final class UserConnection implements ProxiedPlayer
     public void setDisplayName(String name)
     {
         Preconditions.checkNotNull( name, "displayName" );
-        Preconditions.checkArgument( name.length() <= 16, "Display name cannot be longer than 16 characters" );
         displayName = name;
     }
 
