@@ -33,119 +33,148 @@ import net.md_5.bungee.protocol.packet.Title;
 public abstract class AbstractPacketHandler
 {
 
-    public void handle(LegacyPing ping) throws Exception
+    public boolean handle(LegacyPing ping) throws Exception
     {
+    	return false;
     }
 
-    public void handle(TabCompleteResponse tabResponse) throws Exception
+    public boolean handle(TabCompleteResponse tabResponse) throws Exception
     {
+    	return false;
     }
 
-    public void handle(PingPacket ping) throws Exception
+    public boolean handle(PingPacket ping) throws Exception
     {
+    	return false;
     }
 
-    public void handle(StatusRequest statusRequest) throws Exception
+    public boolean handle(StatusRequest statusRequest) throws Exception
     {
+    	return false;
     }
 
-    public void handle(StatusResponse statusResponse) throws Exception
+    public boolean handle(StatusResponse statusResponse) throws Exception
     {
+    	return false;
     }
 
-    public void handle(Handshake handshake) throws Exception
+    public boolean handle(Handshake handshake) throws Exception
     {
+    	return false;
     }
 
-    public void handle(KeepAlive keepAlive) throws Exception
+    public boolean handle(KeepAlive keepAlive) throws Exception
     {
+    	return false;
     }
 
-    public void handle(Login login) throws Exception
+    public boolean handle(Login login) throws Exception
     {
+    	return false;
     }
 
-    public void handle(Chat chat) throws Exception
+    public boolean handle(Chat chat) throws Exception
     {
+    	return false;
     }
 
-    public void handle(Respawn respawn) throws Exception
+    public boolean handle(Respawn respawn) throws Exception
     {
+    	return false;
     }
 
-    public void handle(LoginRequest loginRequest) throws Exception
+    public boolean handle(LoginRequest loginRequest) throws Exception
     {
+    	return false;
     }
 
-    public void handle(ClientSettings settings) throws Exception
+    public boolean handle(ClientSettings settings) throws Exception
     {
+    	return false;
     }
 
-    public void handle(ClientStatus clientStatus) throws Exception
+    public boolean handle(ClientStatus clientStatus) throws Exception
     {
+    	return false;
     }
 
-    public void handle(PlayerListItem playerListItem) throws Exception
+    public boolean handle(PlayerListItem playerListItem) throws Exception
     {
+    	return false;
     }
 
-    public void handle(PlayerListHeaderFooter playerListHeaderFooter) throws Exception
+    public boolean handle(PlayerListHeaderFooter playerListHeaderFooter) throws Exception
     {
+    	return false;
     }
 
-    public void handle(TabCompleteRequest tabComplete) throws Exception
+    public boolean handle(TabCompleteRequest tabComplete) throws Exception
     {
+    	return false;
     }
 
-    public void handle(ScoreboardObjective scoreboardObjective) throws Exception
+    public boolean handle(ScoreboardObjective scoreboardObjective) throws Exception
     {
+    	return false;
     }
 
-    public void handle(ScoreboardScore scoreboardScore) throws Exception
+    public boolean handle(ScoreboardScore scoreboardScore) throws Exception
     {
+    	return false;
     }
 
-    public void handle(EncryptionRequest encryptionRequest) throws Exception
+    public boolean handle(EncryptionRequest encryptionRequest) throws Exception
     {
+    	return false;
     }
 
-    public void handle(ScoreboardDisplay displayScoreboard) throws Exception
+    public boolean handle(ScoreboardDisplay displayScoreboard) throws Exception
     {
+    	return false;
     }
 
-    public void handle(Team team) throws Exception
+    public boolean handle(Team team) throws Exception
     {
+    	return false;
     }
 
-    public void handle(Title title) throws Exception
+    public boolean handle(Title title) throws Exception
     {
+    	return false;
     }
 
-    public void handle(PluginMessage pluginMessage) throws Exception
+    public boolean handle(PluginMessage pluginMessage) throws Exception
     {
+    	return false;
     }
 
-    public void handle(Kick kick) throws Exception
+    public boolean handle(Kick kick) throws Exception
     {
+    	return false;
     }
 
-    public void handle(EncryptionResponse encryptionResponse) throws Exception
+    public boolean handle(EncryptionResponse encryptionResponse) throws Exception
     {
+    	return false;
     }
 
-    public void handle(LoginSuccess loginSuccess) throws Exception
+    public boolean handle(LoginSuccess loginSuccess) throws Exception
     {
+    	return false;
     }
 
-    public void handle(LegacyHandshake legacyHandshake) throws Exception
+    public boolean handle(LegacyHandshake legacyHandshake) throws Exception
     {
+    	return false;
     }
 
-    public void handle(SetCompression setCompression) throws Exception
+    public boolean handle(SetCompression setCompression) throws Exception
     {
+    	return false;
     }
 
-    public void handle(BossBar bossBar) throws Exception
+    public boolean handle(BossBar bossBar) throws Exception
     {
+    	return false;
     }
 }

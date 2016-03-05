@@ -176,7 +176,7 @@ public abstract class DefinedPacket
         write( buf );
     }
 
-    public abstract void handle(AbstractPacketHandler handler) throws Exception;
+    public abstract boolean handle(AbstractPacketHandler handler) throws Exception;
 
     @Override
     public abstract boolean equals(Object obj);

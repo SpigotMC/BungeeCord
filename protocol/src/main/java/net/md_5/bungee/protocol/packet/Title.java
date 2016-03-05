@@ -62,9 +62,9 @@ public class Title extends DefinedPacket
     }
 
     @Override
-    public void handle(AbstractPacketHandler handler) throws Exception
+    public boolean handle(AbstractPacketHandler handler) throws Exception
     {
-        handler.handle( this );
+        return handler.handle( this );
     }
 
     public static enum Action
