@@ -3,10 +3,13 @@ package net.md_5.bungee.connection;
 import com.google.common.base.Objects;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+
 import java.io.DataInput;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
+import io.netty.buffer.UnpooledByteBufAllocator;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -238,7 +241,7 @@ public class DownstreamBridge extends PacketHandler
             ByteBuf brand = Unpooled.wrappedBuffer( pluginMessage.getData() );
             String serverBrand = DefinedPacket.readString( brand );
             brand.release();
-            brand = ByteBufAllocator.DEFAULT.heapBuffer();
+            brand = UnpooledByteBufAllocator.DEFAULT.heapBuffer(256);
             DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand, brand );
             pluginMessage.setData( brand.array().clone() );
             brand.release();

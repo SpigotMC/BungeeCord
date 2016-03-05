@@ -1,12 +1,15 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.UnpooledByteBufAllocator;
 
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
@@ -197,7 +200,7 @@ public class ServerConnector extends PacketHandler
 
             user.unsafe().sendPacket( modLogin );
 
-            ByteBuf brand = ByteBufAllocator.DEFAULT.heapBuffer();
+            ByteBuf brand = UnpooledByteBufAllocator.DEFAULT.heapBuffer(256);
             DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")", brand );
             user.unsafe().sendPacket( new PluginMessage( "MC|Brand", brand.array().clone(), handshakeHandler.isServerForge() ) );
             brand.release();
