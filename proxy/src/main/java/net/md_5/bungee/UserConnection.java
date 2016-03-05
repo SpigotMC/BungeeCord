@@ -216,7 +216,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void connect(ServerInfo target, Callback<Boolean> callback)
     {
-        connect( target, callback, true );
+        connect( target, callback, false );
     }
 
     void sendDimensionSwitch()
