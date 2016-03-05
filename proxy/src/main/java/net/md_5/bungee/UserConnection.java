@@ -200,6 +200,10 @@ public final class UserConnection implements ProxiedPlayer
     public void setDisplayName(String name)
     {
         Preconditions.checkNotNull( name, "displayName" );
+        if( pendingConnection.getVersion() <= ProtocolConstants.MINECRAFT_1_7_6 )
+        {
+            Preconditions.checkArgument( name.length() <= 16, "Display name cannot be longer than 16 characters" );
+        }
         displayName = name;
     }
 
