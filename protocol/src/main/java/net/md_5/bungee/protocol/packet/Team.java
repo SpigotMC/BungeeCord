@@ -97,8 +97,8 @@ public class Team extends DefinedPacket
     }
 
     @Override
-    public boolean handle(AbstractPacketHandler handler) throws Exception
+    public void handle(AbstractPacketHandler handler) throws Exception
     {
-        return handler.handle( this );
+        handler.handle( this );
     }
 }

@@ -118,27 +118,25 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public boolean handle(PluginMessage pluginMessage) throws Exception
+    public void handle(PluginMessage pluginMessage) throws Exception
     {
         // TODO: Unregister?
         if ( pluginMessage.getTag().equals( "REGISTER" ) )
         {
             registerMessages.add( pluginMessage );
         }
-        return false;
     }
 
     @Override
-    public boolean handle(LegacyHandshake legacyHandshake) throws Exception
+    public void handle(LegacyHandshake legacyHandshake) throws Exception
     {
         this.legacy = true;
         ch.getHandle().writeAndFlush( bungee.getTranslation( "outdated_client" ) );
         ch.close();
-        return false;
     }
 
     @Override
-    public boolean handle(LegacyPing ping) throws Exception
+    public void handle(LegacyPing ping) throws Exception
     {
         this.legacy = true;
         final boolean v1_5 = ping.isV1_5();
@@ -182,7 +180,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         };
 
         bungee.getPluginManager().callEvent( new ProxyPingEvent( this, legacy, callback ) );
-        return false;
     }
 
     private static String getFirstLine(String str)
@@ -192,7 +189,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public boolean handle(StatusRequest statusRequest) throws Exception
+    public void handle(StatusRequest statusRequest) throws Exception
     {
         Preconditions.checkState( thisState == State.STATUS, "Not expecting STATUS" );
 
@@ -240,20 +237,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         thisState = State.PING;
-        return false;
     }
 
     @Override
-    public boolean handle(PingPacket ping) throws Exception
+    public void handle(PingPacket ping) throws Exception
     {
         Preconditions.checkState( thisState == State.PING, "Not expecting PING" );
         unsafe.sendPacket( ping );
         disconnect( "" );
-        return false;
     }
 
     @Override
-    public boolean handle(Handshake handshake) throws Exception
+    public void handle(Handshake handshake) throws Exception
     {
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
         this.handshake = handshake;
@@ -297,11 +292,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             default:
                 throw new IllegalArgumentException( "Cannot request protocol " + handshake.getRequestedProtocol() );
         }
-        return false;
     }
 
     @Override
-    public boolean handle(LoginRequest loginRequest) throws Exception
+    public void handle(LoginRequest loginRequest) throws Exception
     {
         Preconditions.checkState( thisState == State.USERNAME, "Not expecting USERNAME" );
         this.loginRequest = loginRequest;
@@ -309,26 +303,26 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         if ( !Protocol.supportedVersions.contains( handshake.getProtocolVersion() ) )
         {
             disconnect( bungee.getTranslation( "outdated_server" ) );
-            return false;
+            return;
         }
 
         if ( getName().contains( "." ) )
         {
             disconnect( bungee.getTranslation( "name_invalid" ) );
-            return false;
+            return;
         }
 
         if ( getName().length() > 16 )
         {
             disconnect( bungee.getTranslation( "name_too_long" ) );
-            return false;
+            return;
         }
 
         int limit = BungeeCord.getInstance().config.getPlayerLimit();
         if ( limit > 0 && bungee.getOnlineCount() > limit )
         {
             disconnect( bungee.getTranslation( "proxy_full" ) );
-            return false;
+            return;
         }
 
         // If offline mode and they are already on, don't allow connect
@@ -336,7 +330,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         if ( !isOnlineMode() && bungee.getPlayer( getUniqueId() ) != null )
         {
             disconnect( bungee.getTranslation( "already_connected_proxy" ) );
-            return false;
+            return;
         }
 
         Callback<PreLoginEvent> callback = new Callback<PreLoginEvent>()
@@ -367,11 +361,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         // fire pre login event
         bungee.getPluginManager().callEvent( new PreLoginEvent( InitialHandler.this, callback ) );
-        return false;
     }
 
     @Override
-    public boolean handle(final EncryptionResponse encryptResponse) throws Exception
+    public void handle(final EncryptionResponse encryptResponse) throws Exception
     {
         Preconditions.checkState( thisState == State.ENCRYPT, "Not expecting ENCRYPT" );
 
@@ -420,7 +413,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         };
 
         HttpClient.get( authURL, ch.getHandle().eventLoop(), handler );
-        return false;
     }
 
     private void finish()

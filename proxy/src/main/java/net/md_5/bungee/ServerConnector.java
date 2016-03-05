@@ -119,7 +119,7 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
-    public boolean handle(LoginSuccess loginSuccess) throws Exception
+    public void handle(LoginSuccess loginSuccess) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not expecting LOGIN_SUCCESS" );
         ch.setProtocol( Protocol.GAME );
@@ -144,18 +144,17 @@ public class ServerConnector extends PacketHandler
             user.getForgeClientHandler().resetHandshake();
         }
 
-        return true;
+        loginSuccess.cancelSend(true);
     }
 
     @Override
-    public boolean handle(SetCompression setCompression) throws Exception
+    public void handle(SetCompression setCompression) throws Exception
     {
         ch.setCompressionThreshold( setCompression.getThreshold() );
-        return false;
     }
 
     @Override
-    public boolean handle(Login login) throws Exception
+    public void handle(Login login) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
@@ -242,7 +241,7 @@ public class ServerConnector extends PacketHandler
             server.disconnect( "Quitting" );
             // Silly server admins see stack trace and die
             bungee.getLogger().warning( "No client connected for pending server!" );
-            return false;
+            return;
         }
 
         // Add to new server
@@ -258,18 +257,17 @@ public class ServerConnector extends PacketHandler
         bungee.getPluginManager().callEvent( new ServerSwitchEvent( user ) );
 
         thisState = State.FINISHED;
-
-        return true;
+        login.cancelSend(true);
     }
 
     @Override
-    public boolean handle(EncryptionRequest encryptionRequest) throws Exception
+    public void handle(EncryptionRequest encryptionRequest) throws Exception
     {
         throw new RuntimeException( "Server is online mode!" );
     }
 
     @Override
-    public boolean handle(Kick kick) throws Exception
+    public void handle(Kick kick) throws Exception
     {
         ServerInfo def = user.updateAndGetNextServer( target );
         ServerKickEvent event = new ServerKickEvent( user, target, ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTING );
@@ -283,7 +281,8 @@ public class ServerConnector extends PacketHandler
         {
             obsolete = true;
             user.connect( event.getCancelServer() );
-            return true;
+            kick.cancelSend(true);
+            return;
         }
 
         String message = bungee.getTranslation( "connect_kick", target.getName(), event.getKickReason() );
@@ -294,12 +293,11 @@ public class ServerConnector extends PacketHandler
         {
             user.sendMessage( message );
         }
-
-        return true;
+        kick.cancelSend(true);
     }
 
     @Override
-    public boolean handle(PluginMessage pluginMessage) throws Exception
+    public void handle(PluginMessage pluginMessage) throws Exception
     {
         if ( pluginMessage.getTag().equals( ForgeConstants.FML_REGISTER ) )
         {
@@ -335,14 +333,14 @@ public class ServerConnector extends PacketHandler
             this.handshakeHandler.handle( pluginMessage );
 
             // We send the message as part of the handler, so don't send it here.
-            return true;
+            pluginMessage.cancelSend(true);
+            return;
         } else
         {
             // We have to forward these to the user, especially with Forge as stuff might break
             // This includes any REGISTER messages we intercepted earlier.
             user.unsafe().sendPacket( pluginMessage );
         }
-        return false;
     }
 
     @Override

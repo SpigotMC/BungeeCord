@@ -3,7 +3,6 @@ package net.md_5.bungee.protocol.packet;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
 import io.netty.buffer.ByteBuf;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
@@ -62,9 +61,9 @@ public class Title extends DefinedPacket
     }
 
     @Override
-    public boolean handle(AbstractPacketHandler handler) throws Exception
+    public void handle(AbstractPacketHandler handler) throws Exception
     {
-        return handler.handle( this );
+        handler.handle( this );
     }
 
     public static enum Action

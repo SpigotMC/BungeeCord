@@ -51,12 +51,11 @@ public class PingHandler extends PacketHandler
 
     @Override
     @SuppressFBWarnings("UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
-    public boolean handle(StatusResponse statusResponse) throws Exception
+    public void handle(StatusResponse statusResponse) throws Exception
     {
         Gson gson = BungeeCord.getInstance().gson;
         callback.done( gson.fromJson( statusResponse.getResponse(), ServerPing.class ), null );
         channel.close();
-        return false;
     }
 
     @Override

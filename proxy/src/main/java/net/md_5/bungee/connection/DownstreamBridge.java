@@ -106,22 +106,21 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public boolean handle(KeepAlive alive) throws Exception
+    public void handle(KeepAlive alive) throws Exception
     {
         con.setSentPingId( alive.getRandomId() );
         con.setSentPingTime( System.currentTimeMillis() );
-        return false;
     }
 
     @Override
-    public boolean handle(PlayerListItem playerList) throws Exception
+    public void handle(PlayerListItem playerList) throws Exception
     {
         con.getTabListHandler().onUpdate( TabList.rewrite( playerList ) );
-        return true; // Always throw because of profile rewriting
+        playerList.cancelSend(true); // Always throw because of profile rewriting
     }
 
     @Override
-    public boolean handle(ScoreboardObjective objective) throws Exception
+    public void handle(ScoreboardObjective objective) throws Exception
     {
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
         switch ( objective.getAction() )
@@ -142,11 +141,10 @@ public class DownstreamBridge extends PacketHandler
             default:
                 throw new IllegalArgumentException( "Unknown objective action: " + objective.getAction() );
         }
-        return false;
     }
 
     @Override
-    public boolean handle(ScoreboardScore score) throws Exception
+    public void handle(ScoreboardScore score) throws Exception
     {
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
         switch ( score.getAction() )
@@ -162,27 +160,25 @@ public class DownstreamBridge extends PacketHandler
             default:
                 throw new IllegalArgumentException( "Unknown scoreboard action: " + score.getAction() );
         }
-        return false;
     }
 
     @Override
-    public boolean handle(ScoreboardDisplay displayScoreboard) throws Exception
+    public void handle(ScoreboardDisplay displayScoreboard) throws Exception
     {
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
         serverScoreboard.setName( displayScoreboard.getName() );
         serverScoreboard.setPosition( Position.values()[displayScoreboard.getPosition()] );
-        return false;
     }
 
     @Override
-    public boolean handle(net.md_5.bungee.protocol.packet.Team team) throws Exception
+    public void handle(net.md_5.bungee.protocol.packet.Team team) throws Exception
     {
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
         // Remove team and move on
         if ( team.getMode() == 1 )
         {
             serverScoreboard.removeTeam( team.getName() );
-            return false;
+            return;
         }
 
         // Create or get old team
@@ -222,18 +218,18 @@ public class DownstreamBridge extends PacketHandler
                 }
             }
         }
-        return false;
     }
 
     @Override
-    public boolean handle(PluginMessage pluginMessage) throws Exception
+    public void handle(PluginMessage pluginMessage) throws Exception
     {
         DataInput in = pluginMessage.getStream();
         PluginMessageEvent event = new PluginMessageEvent( con.getServer(), con, pluginMessage.getTag(), pluginMessage.getData().clone() );
 
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
-            return true;
+        	pluginMessage.cancelSend(true);
+            return;
         }
 
         if ( pluginMessage.getTag().equals( "MC|Brand" ) )
@@ -247,7 +243,8 @@ public class DownstreamBridge extends PacketHandler
             brand.release();
             // changes in the packet are ignored so we need to send it manually
             con.unsafe().sendPacket( pluginMessage );
-            return true;
+        	pluginMessage.cancelSend(true);
+            return;
         }
 
         if ( pluginMessage.getTag().equals( "BungeeCord" ) )
@@ -449,13 +446,12 @@ public class DownstreamBridge extends PacketHandler
                 }
             }
 
-            return true;
+        	pluginMessage.cancelSend(true);
         }
-        return false;
     }
 
     @Override
-    public boolean handle(Kick kick) throws Exception
+    public void handle(Kick kick) throws Exception
     {
         ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getFallbackServer() );
         if ( Objects.equal( server.getInfo(), def ) )
@@ -471,18 +467,17 @@ public class DownstreamBridge extends PacketHandler
             con.disconnect0( event.getKickReasonComponent() ); // TODO: Prefix our own stuff.
         }
         server.setObsolete( true );
-        return true;
+        kick.cancelSend(true);
     }
 
     @Override
-    public boolean handle(SetCompression setCompression) throws Exception
+    public void handle(SetCompression setCompression) throws Exception
     {
         server.getCh().setCompressionThreshold( setCompression.getThreshold() );
-        return false;
     }
 
     @Override
-    public boolean handle(TabCompleteResponse tabCompleteResponse) throws Exception
+    public void handle(TabCompleteResponse tabCompleteResponse) throws Exception
     {
         TabCompleteResponseEvent tabCompleteResponseEvent = new TabCompleteResponseEvent( con.getServer(), con, tabCompleteResponse.getCommands() );
 
@@ -491,11 +486,11 @@ public class DownstreamBridge extends PacketHandler
             con.unsafe().sendPacket( tabCompleteResponse );
         }
 
-        return true;
+        tabCompleteResponse.cancelSend(true);
     }
 
     @Override
-    public boolean handle(BossBar bossBar)
+    public void handle(BossBar bossBar)
     {
         switch ( bossBar.getAction() )
         {
@@ -508,7 +503,6 @@ public class DownstreamBridge extends PacketHandler
                 con.getSentBossBars().remove( bossBar.getUuid() );
                 break;
         }
-        return false;
     }
 
     @Override
