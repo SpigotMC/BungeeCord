@@ -1,12 +1,15 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.UnpooledByteBufAllocator;
 
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
@@ -19,7 +22,6 @@ import net.md_5.bungee.api.score.Objective;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.api.score.Team;
 import net.md_5.bungee.chat.ComponentSerializer;
-import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.connection.LoginResult;
 import net.md_5.bungee.forge.ForgeConstants;
@@ -142,7 +144,7 @@ public class ServerConnector extends PacketHandler
             user.getForgeClientHandler().resetHandshake();
         }
 
-        throw CancelSendSignal.INSTANCE;
+        loginSuccess.cancelSend(true);
     }
 
     @Override
@@ -197,7 +199,7 @@ public class ServerConnector extends PacketHandler
 
             user.unsafe().sendPacket( modLogin );
 
-            ByteBuf brand = ByteBufAllocator.DEFAULT.heapBuffer();
+            ByteBuf brand = UnpooledByteBufAllocator.DEFAULT.heapBuffer(256);
             DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")", brand );
             user.unsafe().sendPacket( new PluginMessage( "MC|Brand", brand.array().clone(), handshakeHandler.isServerForge() ) );
             brand.release();
@@ -255,8 +257,7 @@ public class ServerConnector extends PacketHandler
         bungee.getPluginManager().callEvent( new ServerSwitchEvent( user ) );
 
         thisState = State.FINISHED;
-
-        throw CancelSendSignal.INSTANCE;
+        login.cancelSend(true);
     }
 
     @Override
@@ -280,7 +281,8 @@ public class ServerConnector extends PacketHandler
         {
             obsolete = true;
             user.connect( event.getCancelServer() );
-            throw CancelSendSignal.INSTANCE;
+            kick.cancelSend(true);
+            return;
         }
 
         String message = bungee.getTranslation( "connect_kick", target.getName(), event.getKickReason() );
@@ -291,8 +293,7 @@ public class ServerConnector extends PacketHandler
         {
             user.sendMessage( message );
         }
-
-        throw CancelSendSignal.INSTANCE;
+        kick.cancelSend(true);
     }
 
     @Override
@@ -332,7 +333,8 @@ public class ServerConnector extends PacketHandler
             this.handshakeHandler.handle( pluginMessage );
 
             // We send the message as part of the handler, so don't send it here.
-            throw CancelSendSignal.INSTANCE;
+            pluginMessage.cancelSend(true);
+            return;
         } else
         {
             // We have to forward these to the user, especially with Forge as stuff might break

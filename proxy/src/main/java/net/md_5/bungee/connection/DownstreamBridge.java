@@ -3,10 +3,13 @@ package net.md_5.bungee.connection;
 import com.google.common.base.Objects;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+
 import java.io.DataInput;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
+import io.netty.buffer.UnpooledByteBufAllocator;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -113,7 +116,7 @@ public class DownstreamBridge extends PacketHandler
     public void handle(PlayerListItem playerList) throws Exception
     {
         con.getTabListHandler().onUpdate( TabList.rewrite( playerList ) );
-        throw CancelSendSignal.INSTANCE; // Always throw because of profile rewriting
+        playerList.cancelSend(true); // Always throw because of profile rewriting
     }
 
     @Override
@@ -225,7 +228,8 @@ public class DownstreamBridge extends PacketHandler
 
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
-            throw CancelSendSignal.INSTANCE;
+        	pluginMessage.cancelSend(true);
+            return;
         }
 
         if ( pluginMessage.getTag().equals( "MC|Brand" ) )
@@ -233,13 +237,14 @@ public class DownstreamBridge extends PacketHandler
             ByteBuf brand = Unpooled.wrappedBuffer( pluginMessage.getData() );
             String serverBrand = DefinedPacket.readString( brand );
             brand.release();
-            brand = ByteBufAllocator.DEFAULT.heapBuffer();
+            brand = UnpooledByteBufAllocator.DEFAULT.heapBuffer(256);
             DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand, brand );
             pluginMessage.setData( brand.array().clone() );
             brand.release();
             // changes in the packet are ignored so we need to send it manually
             con.unsafe().sendPacket( pluginMessage );
-            throw CancelSendSignal.INSTANCE;
+        	pluginMessage.cancelSend(true);
+            return;
         }
 
         if ( pluginMessage.getTag().equals( "BungeeCord" ) )
@@ -441,7 +446,7 @@ public class DownstreamBridge extends PacketHandler
                 }
             }
 
-            throw CancelSendSignal.INSTANCE;
+        	pluginMessage.cancelSend(true);
         }
     }
 
@@ -462,7 +467,7 @@ public class DownstreamBridge extends PacketHandler
             con.disconnect0( event.getKickReasonComponent() ); // TODO: Prefix our own stuff.
         }
         server.setObsolete( true );
-        throw CancelSendSignal.INSTANCE;
+        kick.cancelSend(true);
     }
 
     @Override
@@ -481,7 +486,7 @@ public class DownstreamBridge extends PacketHandler
             con.unsafe().sendPacket( tabCompleteResponse );
         }
 
-        throw CancelSendSignal.INSTANCE;
+        tabCompleteResponse.cancelSend(true);
     }
 
     @Override

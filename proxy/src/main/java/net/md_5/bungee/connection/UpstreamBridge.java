@@ -115,7 +115,7 @@ public class UpstreamBridge extends PacketHandler
                 con.getServer().unsafe().sendPacket( chat );
             }
         }
-        throw CancelSendSignal.INSTANCE;
+        chat.cancelSend(true);
     }
 
     @Override
@@ -133,14 +133,16 @@ public class UpstreamBridge extends PacketHandler
 
         if ( tabCompleteEvent.isCancelled() )
         {
-            throw CancelSendSignal.INSTANCE;
+        	tabComplete.cancelSend(true);
+            return;
         }
 
         List<String> results = tabCompleteEvent.getSuggestions();
         if ( !results.isEmpty() )
         {
             con.unsafe().sendPacket( new TabCompleteResponse( results ) );
-            throw CancelSendSignal.INSTANCE;
+            tabComplete.cancelSend(true);
+            return;
         }
     }
 
@@ -155,12 +157,14 @@ public class UpstreamBridge extends PacketHandler
     {
         if ( pluginMessage.getTag().equals( "BungeeCord" ) )
         {
-            throw CancelSendSignal.INSTANCE;
+        	pluginMessage.cancelSend(true);
+            return;
         }
         // Hack around Forge race conditions
         if ( pluginMessage.getTag().equals( "FML" ) && pluginMessage.getStream().readUnsignedByte() == 1 )
         {
-            throw CancelSendSignal.INSTANCE;
+        	pluginMessage.cancelSend(true);
+            return;
         }
 
         // We handle forge handshake messages if forge support is enabled.
@@ -168,20 +172,23 @@ public class UpstreamBridge extends PacketHandler
         {
             // Let our forge client handler deal with this packet.
             con.getForgeClientHandler().handle( pluginMessage );
-            throw CancelSendSignal.INSTANCE;
+        	pluginMessage.cancelSend(true);
+            return;
         }
 
         if ( con.getServer() != null && !con.getServer().isForgeServer() && pluginMessage.getData().length > Short.MAX_VALUE )
         {
             // Drop the packet if the server is not a Forge server and the message was > 32kiB (as suggested by @jk-5)
             // Do this AFTER the mod list, so we get that even if the intial server isn't modded.
-            throw CancelSendSignal.INSTANCE;
+        	pluginMessage.cancelSend(true);
+            return;
         }
 
         PluginMessageEvent event = new PluginMessageEvent( con, con.getServer(), pluginMessage.getTag(), pluginMessage.getData().clone() );
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
-            throw CancelSendSignal.INSTANCE;
+        	pluginMessage.cancelSend(true);
+            return;
         }
 
         // TODO: Unregister as well?

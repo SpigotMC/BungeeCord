@@ -1,18 +1,25 @@
 package net.md_5.bungee.protocol;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+
 import java.util.ArrayList;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
-
 import java.util.UUID;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
+import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
 
 @RequiredArgsConstructor
 public abstract class DefinedPacket
 {
 
+    @Accessors(fluent=true) @Getter @Setter protected boolean cancelSend = false;
+	
     public static void writeString(String s, ByteBuf buf)
     {
         Preconditions.checkArgument( s.length() <= Short.MAX_VALUE, "Cannot send string longer than Short.MAX_VALUE (got %s characters)", s.length() );

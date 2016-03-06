@@ -9,7 +9,6 @@ import io.netty.handler.codec.DecoderException;
 import java.io.IOException;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.connection.PingHandler;
 import net.md_5.bungee.protocol.BadPacketException;
@@ -66,22 +65,15 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
         if ( handler != null )
         {
             PacketWrapper packet = (PacketWrapper) msg;
-            boolean sendPacket = handler.shouldHandle( packet );
             try
             {
-                if ( sendPacket && packet.packet != null )
+                if ( handler.shouldHandle( packet ) && packet.packet != null )
                 {
-                    try
-                    {
-                        packet.packet.handle( handler );
-                    } catch ( CancelSendSignal ex )
-                    {
-                        sendPacket = false;
-                    }
+                    packet.packet.handle( handler );
                 }
-                if ( sendPacket )
+                if ( !packet.packet.cancelSend() )
                 {
-                    handler.handle( packet );
+                	handler.handle( packet );
                 }
             } finally
             {
