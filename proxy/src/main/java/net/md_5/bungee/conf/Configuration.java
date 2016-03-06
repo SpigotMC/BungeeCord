@@ -115,8 +115,11 @@ public class Configuration implements ProxyConfig
 
         for ( ListenerInfo listener : listeners )
         {
-            Preconditions.checkArgument( servers.containsKey( listener.getDefaultServer() ), "Default server %s is not defined", listener.getDefaultServer() );
-            Preconditions.checkArgument( servers.containsKey( listener.getFallbackServer() ), "Fallback server %s is not defined", listener.getFallbackServer() );
+            for ( int i = 0; i < listener.getServerPriority().size(); i++ )
+            {
+                String server = listener.getServerPriority().get( i );
+                Preconditions.checkArgument( servers.containsKey( server ), "Server %s (priority %s) is not defined", server, i );
+            }
             for ( String server : listener.getForcedHosts().values() )
             {
                 if ( !servers.containsKey( server ) )
