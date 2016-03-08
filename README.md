@@ -17,3 +17,7 @@ Installation & Usage
 For and in depth guide to the installation and usage of BungeeCord you should check the current primary download location. The current link is provided below for your convenience.
 
 <http://www.spigotmc.org/threads/bungeecord.392/>
+
+If you already know how to install BungeeCord and are looking for the latest version, a link to the jenkins page is below.
+
+http://ci.md-5.net/job/BungeeCord/
