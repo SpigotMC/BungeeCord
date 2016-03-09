@@ -12,7 +12,10 @@ public class PluginLogger extends Logger
     {
         super( plugin.getClass().getCanonicalName(), null );
         pluginName = "[" + plugin.getDescription().getName() + "] ";
-        setParent( plugin.getProxy().getLogger() );
+        if ( plugin.getProxy() != null ) // null during testing
+        {
+            setParent( plugin.getProxy().getLogger() );
+        }
     }
 
     @Override
