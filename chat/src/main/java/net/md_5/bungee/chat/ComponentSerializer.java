@@ -39,17 +39,12 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
 
     public static String toString(BaseComponent component)
     {
-        // 1.9 Requires the first component to not be a plain string which can
-        // happen if a text component has no formatting. This optimization is
-        // still useful when nested more so we just manually wrap everything in
-        // an extra text component.
-        return "{\"text\":\"\", \"extra\": [" + gson.toJson( component ) + "]}";
+        return gson.toJson( component );
     }
 
     public static String toString(BaseComponent... components)
     {
-        // See above
-        return "{\"text\":\"\", \"extra\": [" + gson.toJson( new TextComponent( components ) ) + "]}";
+        return gson.toJson( new TextComponent( components ) );
     }
 
     @Override
