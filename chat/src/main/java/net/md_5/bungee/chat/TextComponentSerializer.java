@@ -5,7 +5,6 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -31,12 +30,11 @@ public class TextComponentSerializer extends BaseComponentSerializer implements 
     public JsonElement serialize(TextComponent src, Type typeOfSrc, JsonSerializationContext context)
     {
         List<BaseComponent> extra = src.getExtra();
-        if ( !src.hasFormatting() && ( extra == null || extra.isEmpty() ) )
-        {
-            return new JsonPrimitive( src.getText() );
-        }
         JsonObject object = new JsonObject();
-        serialize( object, src, context );
+        if ( src.hasFormatting() || ( extra != null && !extra.isEmpty() ) )
+        {
+            serialize( object, src, context );
+        }
         object.addProperty( "text", src.getText() );
         return object;
     }
