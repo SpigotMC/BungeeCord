@@ -99,6 +99,7 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
         <plugins>
             <plugin>
                 <groupId>net.md-5</groupId>
@@ -148,5 +149,6 @@
                 <version>2.7</version>
             </plugin>
         </plugins>
+        </pluginManagement>
     </build>
 </project>
