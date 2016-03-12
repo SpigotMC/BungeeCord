@@ -347,6 +347,9 @@ public class PluginManager
                     try ( InputStream in = jar.getInputStream( pdf ) )
                     {
                         PluginDescription desc = yaml.loadAs( in, PluginDescription.class );
+                        Preconditions.checkNotNull( desc.getName(), "Plugin from %s has no name", file );
+                        Preconditions.checkNotNull( desc.getMain(), "Plugin from %s has no main", file );
+
                         desc.setFile( file );
                         toLoad.put( desc.getName(), desc );
                     }
