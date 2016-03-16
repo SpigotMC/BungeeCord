@@ -24,8 +24,8 @@ public class EncryptionRequest extends DefinedPacket
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         serverId = readString( buf );
-        publicKey = readArray( buf );
-        verifyToken = readArray( buf );
+        publicKey = readArray( buf, 128 );
+        verifyToken = readArray( buf, 128 );
     }
 
     @Override

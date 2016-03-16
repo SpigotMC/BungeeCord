@@ -108,7 +108,8 @@ public enum Protocol
     public static final int MAX_PACKET_ID = 0xFF;
     public static List<Integer> supportedVersions = Arrays.asList(
             ProtocolConstants.MINECRAFT_1_8,
-            ProtocolConstants.MINECRAFT_1_9
+            ProtocolConstants.MINECRAFT_1_9,
+            ProtocolConstants.MINECRAFT_1_9_1
     );
     /*========================================================================*/
     public final DirectionData TO_SERVER = new DirectionData( ProtocolConstants.Direction.TO_SERVER );
@@ -131,8 +132,10 @@ public enum Protocol
         {
             packetRemap.put( ProtocolConstants.MINECRAFT_1_8, new TIntIntHashMap() );
             packetRemapInv.put( ProtocolConstants.MINECRAFT_1_8, new TIntIntHashMap() );
-            packetRemap.put(ProtocolConstants.MINECRAFT_1_9, new TIntIntHashMap() );
-            packetRemapInv.put(ProtocolConstants.MINECRAFT_1_9, new TIntIntHashMap() );
+            packetRemap.put( ProtocolConstants.MINECRAFT_1_9, new TIntIntHashMap() );
+            packetRemapInv.put( ProtocolConstants.MINECRAFT_1_9, new TIntIntHashMap() );
+            packetRemap.put( ProtocolConstants.MINECRAFT_1_9_1, packetRemap.get( ProtocolConstants.MINECRAFT_1_9 ) );
+            packetRemapInv.put( ProtocolConstants.MINECRAFT_1_9_1, packetRemapInv.get( ProtocolConstants.MINECRAFT_1_9 ) );
         }
 
         public final DefinedPacket createPacket(int id, int protocol)
