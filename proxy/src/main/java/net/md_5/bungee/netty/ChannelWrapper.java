@@ -1,5 +1,6 @@
 package net.md_5.bungee.netty;
 
+import io.netty.channel.ChannelFutureListener;
 import net.md_5.bungee.compress.PacketCompressor;
 import net.md_5.bungee.compress.PacketDecompressor;
 import net.md_5.bungee.protocol.PacketWrapper;
@@ -16,7 +17,6 @@ public class ChannelWrapper
 {
 
     private final Channel ch;
-    @Getter
     private volatile boolean closed;
 
     public ChannelWrapper(ChannelHandlerContext ctx)
@@ -38,28 +38,40 @@ public class ChannelWrapper
 
     public void write(Object packet)
     {
-        if ( !closed )
+        if ( !isClosed() )
         {
             if ( packet instanceof PacketWrapper )
             {
                 ( (PacketWrapper) packet ).setReleased( true );
-                ch.write( ( (PacketWrapper) packet ).buf, ch.voidPromise() );
+                ch.writeAndFlush( ( (PacketWrapper) packet ).buf ).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
             } else
             {
-                ch.write( packet, ch.voidPromise() );
+                ch.writeAndFlush( packet ).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
             }
-            ch.flush();
         }
     }
 
     public void close()
     {
-        if ( !closed )
+        if ( !isClosed() )
         {
             closed = true;
             ch.flush();
             ch.close();
         }
+    }
+
+    public void close(Object packet)
+    {
+        if ( !isClosed() )
+        {
+            closed = true;
+            ch.writeAndFlush( packet ).addListeners(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE, ChannelFutureListener.CLOSE);
+        }
+    }
+
+    public boolean isClosed() {
+        return closed || !ch.isActive();
     }
 
     public void addBefore(String baseName, String name, ChannelHandler handler)
