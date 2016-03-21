@@ -1,11 +1,13 @@
 package net.md_5.bungee.query;
 
+import java.util.Calendar;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.AddressedEnvelope;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 import java.nio.ByteOrder;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -111,8 +113,9 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
                 data.put( "version", bungee.getGameVersion() );
                 data.put( "plugins", "" );
                 // End Extra Info
-                data.put( "map", "BungeeCord_Proxy" );
-                data.put( "numplayers", Integer.toString( bungee.getOnlineCount() ) );
+                data.put( "map", "BungeeCord" );
+                //data.put( "numplayers", Integer.toString( bungee.getOnlineCount() ) );
+                data.put( "numplayers", Integer.toString( getFakePlayerNumber() )  );
                 data.put( "maxplayers", Integer.toString( listener.getMaxPlayers() ) );
                 data.put( "hostport", Integer.toString( listener.getHost().getPort() ) );
                 data.put( "hostip", listener.getHost().getHostString() );
@@ -131,6 +134,12 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
                 {
                     writeString( out, p.getName() );
                 }
+                //writeString( out, "Mr_ludek" );
+               // for(int x = 0; x < getFakePlayerNumber(); x++){
+                	
+                //}
+                writePlayers(getFakePlayerNumber(), out);
+                
                 out.writeByte( 0x00 ); // Null
             } else
             {
@@ -140,5 +149,35 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
         }
 
         ctx.writeAndFlush( response );
+    }
+
+    public void writePlayers(int x, ByteBuf out){
+		if(x>0){x--; writeString( out, "Brunn");}
+		if(x>0){x--; writeString( out, "KippHD");}
+		if(x>0){x--; writeString( out, "ScoorvoDaktyl");}
+		if(x>0){x--; writeString( out, "kaczyg");}
+		if(x>0){x--; writeString( out, "Yngeborg");}
+		if(x>0){x--; writeString( out, "rav_kr");}
+		if(x>0){x--; writeString( out, "amici");}
+		if(x>0){x--; writeString( out, "bykkkk");}
+		if(x>0){x--; writeString( out, "IGUS2");}
+		if(x>0){x--; writeString( out, "MrDarkPotato");}
+		if(x>0){x--; writeString( out, "Karen");}
+		if(x>0){x--; writeString( out, "Gorexxx");}
+		if(x>0){x--; writeString( out, "KORCZYN");}
+    }
+
+    public int getFakePlayerNumber(){
+        int playerNumber;
+
+        Calendar cal = Calendar.getInstance();
+        double t = cal.get(Calendar.HOUR_OF_DAY);
+        
+        double godz_max = 16;
+        double x = Math.abs(godz_max-t-12)*Math.PI/24;
+        x = Math.sin(x);
+        x = x<0?0:x*15;
+        playerNumber = (int) Math.round(x);
+        return playerNumber;
     }
 }

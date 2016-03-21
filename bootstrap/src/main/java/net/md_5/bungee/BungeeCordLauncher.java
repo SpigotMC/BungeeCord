@@ -52,6 +52,7 @@ public class BungeeCordLauncher
         BungeeCord bungee = new BungeeCord();
         ProxyServer.setInstance( bungee );
         bungee.getLogger().info( "Enabled BungeeCord version " + bungee.getVersion() );
+        bungee.getLogger().info( "Mod by rav_kr");
         bungee.start();
 
         if ( !options.has( "noconsole" ) )
