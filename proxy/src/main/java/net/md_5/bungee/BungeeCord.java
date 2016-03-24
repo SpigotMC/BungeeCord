@@ -34,6 +34,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.util.ResourceLeakDetector;
 import net.md_5.bungee.conf.Configuration;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
@@ -46,6 +47,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -104,7 +106,8 @@ public class BungeeCord extends ProxyServer
     /**
      * Localization bundle.
      */
-    public ResourceBundle bundle;
+    private ResourceBundle baseBundle;
+    private ResourceBundle customBundle;
     public EventLoopGroup eventLoops;
     /**
      * locations.yml save thread.
@@ -179,10 +182,18 @@ public class BungeeCord extends ProxyServer
 
         try
         {
-            bundle = ResourceBundle.getBundle( "messages" );
+            baseBundle = ResourceBundle.getBundle( "messages" );
         } catch ( MissingResourceException ex )
         {
-            bundle = ResourceBundle.getBundle( "messages", Locale.ENGLISH );
+            baseBundle = ResourceBundle.getBundle( "messages", Locale.ENGLISH );
+        }
+        File file = new File( "messages.properties" );
+        if ( file.isFile() )
+        {
+            try ( FileReader rd = new FileReader( file ) )
+            {
+                customBundle = new PropertyResourceBundle( rd );
+            }
         }
 
         // This is a workaround for quite possibly the weirdest bug I have ever encountered in my life!
@@ -462,7 +473,7 @@ public class BungeeCord extends ProxyServer
         String translation = "<translation '" + name + "' missing>";
         try
         {
-            translation = MessageFormat.format( bundle.getString( name ), args );
+            translation = MessageFormat.format( customBundle != null && customBundle.containsKey( name ) ? customBundle.getString( name ) : baseBundle.getString( name ), args );
         } catch ( MissingResourceException ex )
         {
         }
@@ -582,7 +593,7 @@ public class BungeeCord extends ProxyServer
     @Override
     public String getGameVersion()
     {
-        return Joiner.on(", ").join(ProtocolConstants.SUPPORTED_VERSIONS);
+        return Joiner.on( ", " ).join( ProtocolConstants.SUPPORTED_VERSIONS );
     }
 
     @Override
