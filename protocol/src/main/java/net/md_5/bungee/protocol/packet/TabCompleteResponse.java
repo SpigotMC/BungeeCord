@@ -18,6 +18,10 @@ public class TabCompleteResponse extends DefinedPacket
 
     private List<String> commands;
 
+	{
+		maxArraySize = 4096; /* client bound packet */
+	}
+
     @Override
     public void read(ByteBuf buf)
     {

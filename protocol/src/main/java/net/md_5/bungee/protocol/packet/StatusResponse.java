@@ -17,6 +17,10 @@ public class StatusResponse extends DefinedPacket
 
     private String response;
 
+	{
+		this.maxStringLength = 32768;
+	}
+
     @Override
     public void read(ByteBuf buf)
     {

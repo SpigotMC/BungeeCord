@@ -19,6 +19,10 @@ public class Chat extends DefinedPacket
     private String message;
     private byte position;
 
+	{
+		this.maxStringLength = 8192;
+	}
+
     public Chat(String message)
     {
         this( message, (byte) 0 );

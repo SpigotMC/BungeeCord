@@ -19,6 +19,10 @@ public class PlayerListItem extends DefinedPacket
     private Action action;
     private Item[] items;
 
+	{
+		maxArraySize = 1024; /* client-bound packet, no need for strict sizes */
+	}
+
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {

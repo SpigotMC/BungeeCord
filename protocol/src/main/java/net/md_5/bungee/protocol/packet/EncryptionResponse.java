@@ -19,6 +19,10 @@ public class EncryptionResponse extends DefinedPacket
     private byte[] sharedSecret;
     private byte[] verifyToken;
 
+	{
+		maxBufferSize = 8192;
+	}
+
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {

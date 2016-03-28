@@ -13,9 +13,13 @@ import java.util.UUID;
 public abstract class DefinedPacket
 {
 
+	protected int maxArraySize = 64;
+	protected int maxBufferSize = 4096;
+	protected int maxStringLength = 4096;
+
     public static void writeString(String s, ByteBuf buf)
     {
-        Preconditions.checkArgument( s.length() <= Short.MAX_VALUE, "Cannot send string longer than Short.MAX_VALUE (got %s characters)", s.length() );
+        Preconditions.checkArgument( s.length() <= Short.MAX_VALUE, "Cannot send string longer than Short.MAX_VALUE (got %s characters)", maxStringLength, s.length() );
 
         byte[] b = s.getBytes( Charsets.UTF_8 );
         writeVarInt( b.length, buf );
@@ -25,7 +29,7 @@ public abstract class DefinedPacket
     public static String readString(ByteBuf buf)
     {
         int len = readVarInt( buf );
-        Preconditions.checkArgument( len <= Short.MAX_VALUE, "Cannot receive string longer than Short.MAX_VALUE (got %s characters)", len );
+        Preconditions.checkArgument( len <= maxStringLength, "Cannot receive string longer than %d (got %s characters)", maxStringLength, len );
 
         byte[] b = new byte[ len ];
         buf.readBytes( b );
@@ -41,7 +45,9 @@ public abstract class DefinedPacket
 
     public static byte[] readArray(ByteBuf buf)
     {
-        byte[] ret = new byte[ readVarInt( buf ) ];
+		int len = readVarInt( buf );
+		Preconditions.checkArgument( len < maxBufferSize, "Cannot receive buffer longer than %d (got %d length)", maxBufferSize, len );
+        byte[] ret = new byte[ len ];
         buf.readBytes( ret );
         return ret;
     }
@@ -57,7 +63,8 @@ public abstract class DefinedPacket
 
     public static List<String> readStringArray(ByteBuf buf)
     {
-        int len = readVarInt( buf );
+		int len = readVarInt( buf );
+		Preconditions.checkArgument( len < maxArraySize, "Cannot receive array longer than %d (got %d length)", maxArraySize, len );
         List<String> ret = new ArrayList<>( len );
         for ( int i = 0; i < len; i++ )
         {
