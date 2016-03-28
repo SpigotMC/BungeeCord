@@ -19,10 +19,6 @@ public class PlayerListItem extends DefinedPacket
     private Action action;
     private Item[] items;
 
-	{
-		maxArraySize = 1024; /* client-bound packet, no need for strict sizes */
-	}
-
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
@@ -35,17 +31,17 @@ public class PlayerListItem extends DefinedPacket
             switch ( action )
             {
                 case ADD_PLAYER:
-                    item.username = DefinedPacket.readString( buf );
+                    item.username = readString( buf );
                     item.properties = new String[ DefinedPacket.readVarInt( buf ) ][];
                     for ( int j = 0; j < item.properties.length; j++ )
                     {
-                        String name = DefinedPacket.readString( buf );
-                        String value = DefinedPacket.readString( buf );
+                        String name = readString( buf );
+                        String value = readString( buf );
                         if ( buf.readBoolean() )
                         {
                             item.properties[ j] = new String[]
                             {
-                                name, value, DefinedPacket.readString( buf )
+                                name, value, readString( buf )
                             };
                         } else
                         {
@@ -59,7 +55,7 @@ public class PlayerListItem extends DefinedPacket
                     item.ping = DefinedPacket.readVarInt( buf );
                     if ( buf.readBoolean() )
                     {
-                        item.displayName = DefinedPacket.readString( buf );
+                        item.displayName = readString( buf );
                     }
                     break;
                 case UPDATE_GAMEMODE:
@@ -71,7 +67,7 @@ public class PlayerListItem extends DefinedPacket
                 case UPDATE_DISPLAY_NAME:
                     if ( buf.readBoolean() )
                     {
-                        item.displayName = DefinedPacket.readString( buf );
+                        item.displayName = readString( buf );
                     }
             }
         }

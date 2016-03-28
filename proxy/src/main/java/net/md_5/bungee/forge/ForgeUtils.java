@@ -45,7 +45,7 @@ public class ForgeUtils
             int modCount = DefinedPacket.readVarInt( buffer, 2 );
             for ( int i = 0; i < modCount; i++ )
             {
-                modTags.put( DefinedPacket.readString( buffer ), DefinedPacket.readString( buffer ) );
+                modTags.put( DefinedPacket.readString( buffer, 2048 ), DefinedPacket.readString( buffer, 2048 ) );
             }
         }
         return modTags;

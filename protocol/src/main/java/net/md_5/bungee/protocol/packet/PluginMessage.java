@@ -29,7 +29,7 @@ public class PluginMessage extends DefinedPacket
     private boolean allowExtendedPacket = false;
 
 	{
-		this.maxBufferSize = 262144 /* 256K message maximum -- should be plenty for any single packet */
+		this.maxBufferSize = 262144; /* 256K message maximum -- should be plenty for any single packet */
 	}
 	
     @Override

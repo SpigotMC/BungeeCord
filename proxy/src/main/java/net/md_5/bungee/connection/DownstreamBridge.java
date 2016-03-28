@@ -231,7 +231,7 @@ public class DownstreamBridge extends PacketHandler
         if ( pluginMessage.getTag().equals( "MC|Brand" ) )
         {
             ByteBuf brand = Unpooled.wrappedBuffer( pluginMessage.getData() );
-            String serverBrand = DefinedPacket.readString( brand );
+            String serverBrand = DefinedPacket.readString( brand, 4096 );
             brand.release();
             brand = ByteBufAllocator.DEFAULT.heapBuffer();
             DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand, brand );

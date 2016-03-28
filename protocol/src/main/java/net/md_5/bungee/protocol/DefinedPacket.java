@@ -19,17 +19,22 @@ public abstract class DefinedPacket
 
     public static void writeString(String s, ByteBuf buf)
     {
-        Preconditions.checkArgument( s.length() <= Short.MAX_VALUE, "Cannot send string longer than Short.MAX_VALUE (got %s characters)", maxStringLength, s.length() );
+        Preconditions.checkArgument( s.length() <= Short.MAX_VALUE, "Cannot send string longer than Short.MAX_VALUE (got %s characters)", s.length() );
 
         byte[] b = s.getBytes( Charsets.UTF_8 );
         writeVarInt( b.length, buf );
         buf.writeBytes( b );
     }
 
-    public static String readString(ByteBuf buf)
+	public String readString(ByteBuf buf)
+	{
+		return readString( buf, maxStringLength );
+	}
+
+    public static String readString(ByteBuf buf, int max)
     {
         int len = readVarInt( buf );
-        Preconditions.checkArgument( len <= maxStringLength, "Cannot receive string longer than %d (got %s characters)", maxStringLength, len );
+        Preconditions.checkArgument( len <= max, "Cannot receive string longer than %d (got %s characters)", max, len );
 
         byte[] b = new byte[ len ];
         buf.readBytes( b );
@@ -43,10 +48,15 @@ public abstract class DefinedPacket
         buf.writeBytes( b );
     }
 
-    public static byte[] readArray(ByteBuf buf)
+	public byte[] readArray(ByteBuf buf)
+	{
+		return readArray( buf, maxArraySize );
+	}
+
+    public static byte[] readArray(ByteBuf buf, int max)
     {
 		int len = readVarInt( buf );
-		Preconditions.checkArgument( len < maxBufferSize, "Cannot receive buffer longer than %d (got %d length)", maxBufferSize, len );
+		Preconditions.checkArgument( len <= max, "Cannot receive buffer longer than %d (got %d length)", len, max );
         byte[] ret = new byte[ len ];
         buf.readBytes( ret );
         return ret;
@@ -61,14 +71,19 @@ public abstract class DefinedPacket
         }
     }
 
-    public static List<String> readStringArray(ByteBuf buf)
+	public List<String> readStringArray(ByteBuf buf)
+	{
+		return readStringArray( buf, maxArraySize, maxStringLength );
+	}
+
+    public static List<String> readStringArray(ByteBuf buf, int maxArray, int maxString)
     {
 		int len = readVarInt( buf );
-		Preconditions.checkArgument( len < maxArraySize, "Cannot receive array longer than %d (got %d length)", maxArraySize, len );
+		Preconditions.checkArgument( len <= maxArray, "Cannot receive array longer than %d (got %d length)", maxArray, len );
         List<String> ret = new ArrayList<>( len );
         for ( int i = 0; i < len; i++ )
         {
-            ret.add( readString( buf ) );
+            ret.add( readString( buf, maxString ) );
         }
         return ret;
     }
