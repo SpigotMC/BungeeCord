@@ -22,8 +22,8 @@ public class EncryptionResponse extends DefinedPacket
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        sharedSecret = readArray( buf );
-        verifyToken = readArray( buf );
+        sharedSecret = readArray( buf, 256 );
+        verifyToken = readArray( buf, 256 );
     }
 
     @Override
