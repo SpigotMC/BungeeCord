@@ -35,13 +35,21 @@ public abstract class DefinedPacket
 
     public static void writeArray(byte[] b, ByteBuf buf)
     {
+        Preconditions.checkArgument( b.length <= Short.MAX_VALUE, "Cannot send byte array longer than Short.MAX_VALUE (got %s bytes)", b.length );
         writeVarInt( b.length, buf );
         buf.writeBytes( b );
     }
 
     public static byte[] readArray(ByteBuf buf)
     {
-        byte[] ret = new byte[ readVarInt( buf ) ];
+        return readArray( buf, Short.MAX_VALUE );
+    }
+
+    public static byte[] readArray(ByteBuf buf, int limit)
+    {
+        int len = readVarInt( buf );
+        Preconditions.checkArgument( len <= limit, "Cannot receive byte array longer than %d (got %s bytes)", limit, len );
+        byte[] ret = new byte[ len ];
         buf.readBytes( ret );
         return ret;
     }
@@ -78,6 +86,7 @@ public abstract class DefinedPacket
 
     public static void writeStringArray(List<String> s, ByteBuf buf)
     {
+        Preconditions.checkArgument( s.size() <= 64, "Cannot send string array longer than 64 (got %s strings)", s.size() );
         writeVarInt( s.size(), buf );
         for ( String str : s )
         {
@@ -88,6 +97,7 @@ public abstract class DefinedPacket
     public static List<String> readStringArray(ByteBuf buf)
     {
         int len = readVarInt( buf );
+        Preconditions.checkArgument( len <= 64, "Cannot receive string array longer than 64 (got %s strings)", len );
         List<String> ret = new ArrayList<>( len );
         for ( int i = 0; i < len; i++ )
         {
