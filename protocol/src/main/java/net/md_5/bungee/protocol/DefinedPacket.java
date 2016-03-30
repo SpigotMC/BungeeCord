@@ -86,7 +86,6 @@ public abstract class DefinedPacket
 
     public static void writeStringArray(List<String> s, ByteBuf buf)
     {
-        Preconditions.checkArgument( s.size() <= 64, "Cannot send string array longer than 64 (got %s strings)", s.size() );
         writeVarInt( s.size(), buf );
         for ( String str : s )
         {
@@ -97,7 +96,6 @@ public abstract class DefinedPacket
     public static List<String> readStringArray(ByteBuf buf)
     {
         int len = readVarInt( buf );
-        Preconditions.checkArgument( len <= 64, "Cannot receive string array longer than 64 (got %s strings)", len );
         List<String> ret = new ArrayList<>( len );
         for ( int i = 0; i < len; i++ )
         {
