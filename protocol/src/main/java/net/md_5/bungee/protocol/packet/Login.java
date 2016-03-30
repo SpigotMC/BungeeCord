@@ -29,7 +29,13 @@ public class Login extends DefinedPacket
     {
         entityId = buf.readInt();
         gameMode = buf.readUnsignedByte();
-        dimension = buf.readByte();
+        if ( protocolVersion > ProtocolConstants.MINECRAFT_1_9 )
+        {
+            dimension = buf.readInt();
+        } else
+        {
+            dimension = buf.readByte();
+        }
         difficulty = buf.readUnsignedByte();
         maxPlayers = buf.readUnsignedByte();
         levelType = readString( buf );
@@ -44,7 +50,13 @@ public class Login extends DefinedPacket
     {
         buf.writeInt( entityId );
         buf.writeByte( gameMode );
-        buf.writeByte( dimension );
+        if ( protocolVersion > ProtocolConstants.MINECRAFT_1_9 )
+        {
+            buf.writeInt( dimension );
+        } else
+        {
+            buf.writeByte( dimension );
+        }
         buf.writeByte( difficulty );
         buf.writeByte( maxPlayers );
         writeString( levelType, buf );
