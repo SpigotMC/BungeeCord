@@ -42,7 +42,7 @@ public abstract class DefinedPacket
 
     public static byte[] readArray(ByteBuf buf)
     {
-        return readArray( buf, Short.MAX_VALUE );
+        return readArray( buf, buf.readableBytes() );
     }
 
     public static byte[] readArray(ByteBuf buf, int limit)
