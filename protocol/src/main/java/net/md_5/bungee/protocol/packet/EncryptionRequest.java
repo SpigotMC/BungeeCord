@@ -30,8 +30,8 @@ public class EncryptionRequest extends DefinedPacket
             verifyToken = readArrayLegacy( buf );
         } else
         {
-            publicKey = readArray( buf, 128 );
-            verifyToken = readArray( buf, 128 );
+            publicKey = readArray( buf );
+            verifyToken = readArray( buf );
         }
     }
 

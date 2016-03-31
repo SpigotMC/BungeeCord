@@ -42,13 +42,13 @@ public abstract class DefinedPacket
 
     public static byte[] readArray(ByteBuf buf)
     {
-        return readArray( buf, Short.MAX_VALUE );
+        return readArray( buf, buf.readableBytes() );
     }
 
     public static byte[] readArray(ByteBuf buf, int limit)
     {
         int len = readVarInt( buf );
-        Preconditions.checkArgument( len <= limit, "Cannot receive byte array longer than %d (got %s bytes)", limit, len );
+        Preconditions.checkArgument( len <= limit, "Cannot receive byte array longer than %s (got %s bytes)", limit, len );
         byte[] ret = new byte[ len ];
         buf.readBytes( ret );
         return ret;
