@@ -13,6 +13,7 @@ import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.connection.PingHandler;
 import net.md_5.bungee.protocol.BadPacketException;
+import net.md_5.bungee.protocol.OverflowPacketException;
 
 /**
  * This class is a primitive wrapper for {@link PacketHandler} instances tied to
@@ -101,6 +102,12 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
             } else if ( cause instanceof DecoderException && cause.getCause() instanceof BadPacketException )
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - bad packet ID, are mods in use!? {1}", new Object[]
+                {
+                    handler, cause.getCause().getMessage()
+                } );
+            } else if ( cause instanceof DecoderException && cause.getCause() instanceof OverflowPacketException )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - overflow in packet detected! {1}", new Object[]
                 {
                     handler, cause.getCause().getMessage()
                 } );
