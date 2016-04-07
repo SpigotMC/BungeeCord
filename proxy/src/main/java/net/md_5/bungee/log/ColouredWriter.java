@@ -8,6 +8,7 @@ import java.util.logging.LogRecord;
 import jline.console.ConsoleReader;
 import net.md_5.bungee.api.ChatColor;
 import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.Ansi.Erase;
 
 public class ColouredWriter extends Handler
 {
@@ -52,7 +53,7 @@ public class ColouredWriter extends Handler
         }
         try
         {
-            console.print( ConsoleReader.RESET_LINE + s + Ansi.ansi().reset().toString() );
+            console.print( Ansi.ansi().eraseLine(Erase.ALL).toString() + ConsoleReader.RESET_LINE + s + Ansi.ansi().reset().toString() );
             console.drawLine();
             console.flush();
         } catch ( IOException ex )
