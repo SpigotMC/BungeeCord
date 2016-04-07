@@ -40,6 +40,7 @@ import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.netty.cipher.CipherDecoder;
 import net.md_5.bungee.netty.cipher.CipherEncoder;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
@@ -98,6 +99,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private boolean legacy;
     @Getter
     private String extraDataInHandshake = "";
+    private boolean disconnecting = false;
+
+    @Override
+    public boolean shouldHandle(PacketWrapper packet) throws Exception
+    {
+        return !disconnecting;
+    }
 
     private enum State
     {
@@ -213,7 +221,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     @Override
                     public void done(ProxyPingEvent pingResult, Throwable error)
                     {
-                        BungeeCord.getInstance().getConnectionThrottle().unthrottle( getAddress().getAddress() );
                         Gson gson = BungeeCord.getInstance().gson;
                         unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
                     }
@@ -254,6 +261,20 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         this.handshake = handshake;
         ch.setVersion( handshake.getProtocolVersion() );
 
+        if ( handshake.getRequestedProtocol() == 2 && BungeeCord.getInstance().getConnectionThrottle().throttle( ( ( InetSocketAddress ) ch.getHandle().remoteAddress() ).getAddress() ) )
+        {
+            if ( BungeeCord.getInstance().getConfig().isLogThrottled() )
+            {
+                bungee.getLogger().log( Level.INFO, "{0} throttled", this );
+            }
+            // setting thisState to username to stop possible code execution on repeated handshakes
+            thisState = State.USERNAME;
+            // setting protocol to login so we can send the kick message which is actually supported by the minecraft client after it sent the handshake
+            ch.setProtocol( Protocol.LOGIN );
+            disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( BungeeCord.getInstance().getConfig().getThrottle() ) ) );
+            return;
+        }
+
         // Starting with FML 1.8, a "\0FML\0" token is appended to the handshake. This interferes
         // with Bungee's IP forwarding, so we detect it, and remove it from the host string, for now.
         // We know FML appends \00FML\00. However, we need to also consider that other systems might
@@ -285,9 +306,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 ch.setProtocol( Protocol.STATUS );
                 break;
             case 2:
+                // Login
                 thisState = State.USERNAME;
                 ch.setProtocol( Protocol.LOGIN );
-                // Login
                 break;
             default:
                 throw new IllegalArgumentException( "Cannot request protocol " + handshake.getRequestedProtocol() );
@@ -519,8 +540,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void disconnect(final BaseComponent... reason)
     {
-        if ( !ch.isClosed() )
+        if ( !disconnecting || !ch.isClosed() )
         {
+            disconnecting = true;
             // Why do we have to delay this you might ask? Well the simple reason is MOJANG.
             // Despite many a bug report posted, ever since the 1.7 protocol rewrite, the client STILL has a race condition upon switching protocols.
             // As such, despite the protocol switch packets already having been sent, there is the possibility of a client side exception

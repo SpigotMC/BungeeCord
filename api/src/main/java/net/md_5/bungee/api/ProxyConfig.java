@@ -46,6 +46,11 @@ public interface ProxyConfig
     boolean isLogCommands();
 
     /**
+     * Whether we log throttled join attempts
+     */
+    boolean isLogThrottled();
+
+    /**
      * Returns the player max.
      */
     int getPlayerLimit();
