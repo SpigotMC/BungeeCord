@@ -263,10 +263,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         if ( handshake.getRequestedProtocol() == 2 && BungeeCord.getInstance().getConnectionThrottle().throttle( ( ( InetSocketAddress ) ch.getHandle().remoteAddress() ).getAddress() ) )
         {
-            if ( BungeeCord.getInstance().getConfig().isLogThrottled() )
-            {
-                bungee.getLogger().log( Level.INFO, "{0} throttled", this );
-            }
             // setting thisState to username to stop possible code execution on repeated handshakes
             thisState = State.USERNAME;
             // setting protocol to login so we can send the kick message which is actually supported by the minecraft client after it sent the handshake
