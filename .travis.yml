@@ -7,6 +7,11 @@ branches:
     - /^v[0-9]*/
 notifications:
   email: false
+  irc:
+    channels:
+    - "irc.spi.gt#hexagonmc"
+    use_notice: true
+    skip_join: true
 install:
   - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dbuild.number=$TRAVIS_BUILD_NUMBER -B -V
 after_success:
