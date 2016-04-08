@@ -4,18 +4,22 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 public class ConnectionThrottle
 {
 
     private final int throttleTime;
-    private final Cache<InetAddress, Long> throttle = CacheBuilder.newBuilder()
-            .concurrencyLevel( Runtime.getRuntime().availableProcessors() )
-            .initialCapacity( 100 )
-            .expireAfterAccess( throttleTime, TimeUnit.MILLISECONDS )
-            .build();
+    private final Cache<InetAddress, Long> throttle;
+
+    public ConnectionThrottle(int throttleTime)
+    {
+        this.throttleTime = throttleTime;
+        throttle = CacheBuilder.newBuilder()
+                .concurrencyLevel( Runtime.getRuntime().availableProcessors() )
+                .initialCapacity( 100 )
+                .expireAfterAccess( throttleTime, TimeUnit.MILLISECONDS )
+                .build();
+    }
 
     public void unthrottle(InetAddress address)
     {
