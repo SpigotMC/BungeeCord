@@ -261,16 +261,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         this.handshake = handshake;
         ch.setVersion( handshake.getProtocolVersion() );
 
-        if ( handshake.getRequestedProtocol() == 2 && BungeeCord.getInstance().getConnectionThrottle().throttle( ( ( InetSocketAddress ) ch.getHandle().remoteAddress() ).getAddress() ) )
-        {
-            // setting thisState to username to stop possible code execution on repeated handshakes
-            thisState = State.USERNAME;
-            // setting protocol to login so we can send the kick message which is actually supported by the minecraft client after it sent the handshake
-            ch.setProtocol( Protocol.LOGIN );
-            disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( BungeeCord.getInstance().getConfig().getThrottle() ) ) );
-            return;
-        }
-
         // Starting with FML 1.8, a "\0FML\0" token is appended to the handshake. This interferes
         // with Bungee's IP forwarding, so we detect it, and remove it from the host string, for now.
         // We know FML appends \00FML\00. However, we need to also consider that other systems might
@@ -305,6 +295,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 // Login
                 thisState = State.USERNAME;
                 ch.setProtocol( Protocol.LOGIN );
+                if ( BungeeCord.getInstance().getConnectionThrottle().throttle( ( ( InetSocketAddress ) ch.getHandle().remoteAddress() ).getAddress() ) )
+                {
+                    disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( BungeeCord.getInstance().getConfig().getThrottle() ) ) );
+                    return;
+                }
                 break;
             default:
                 throw new IllegalArgumentException( "Cannot request protocol " + handshake.getRequestedProtocol() );
