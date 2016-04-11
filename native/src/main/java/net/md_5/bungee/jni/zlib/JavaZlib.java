@@ -64,7 +64,7 @@ public class JavaZlib implements BungeeZlib
         {
             inflater.setInput( inData );
 
-            while ( !inflater.finished() )
+            while ( !inflater.finished() && inflater.getTotalIn() < inData.length )
             {
                 int count = inflater.inflate( buffer );
                 out.writeBytes( buffer, 0, count );
