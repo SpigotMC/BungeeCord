@@ -44,7 +44,7 @@ public class NativeZlib implements BungeeZlib
         out.memoryAddress();
         Preconditions.checkState( ctx != 0, "Invalid pointer to compress!" );
 
-        while ( !nativeCompress.finished )
+        while ( !nativeCompress.finished && ( compress || in.isReadable() ) )
         {
             out.ensureWritable( 8192 );
 
