@@ -1,12 +1,8 @@
 package net.md_5.bungee.config;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.AccessLevel;
@@ -17,6 +13,8 @@ import org.yaml.snakeyaml.Yaml;
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class YamlConfiguration extends ConfigurationProvider
 {
+
+    private final Charset UTF8 = StandardCharsets.UTF_8;
 
     private final ThreadLocal<Yaml> yaml = new ThreadLocal<Yaml>()
     {
@@ -32,7 +30,7 @@ public class YamlConfiguration extends ConfigurationProvider
     @Override
     public void save(Configuration config, File file) throws IOException
     {
-        try ( FileWriter writer = new FileWriter( file ) )
+        try ( OutputStreamWriter writer = new OutputStreamWriter( new FileOutputStream( file ), UTF8 ) )
         {
             save( config, writer );
         }
@@ -53,7 +51,7 @@ public class YamlConfiguration extends ConfigurationProvider
     @Override
     public Configuration load(File file, Configuration defaults) throws IOException
     {
-        try ( FileReader reader = new FileReader( file ) )
+        try ( InputStreamReader reader = new InputStreamReader( new FileInputStream( file ), UTF8 ) )
         {
             return load( reader, defaults );
         }
