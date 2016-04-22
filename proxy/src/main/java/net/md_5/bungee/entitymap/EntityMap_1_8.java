@@ -90,28 +90,34 @@ class EntityMap_1_8 extends EntityMap
         {
 
             DefinedPacket.readVarInt( packet );
-            int type = packet.readUnsignedByte();
+            int idLength = packet.readerIndex() - readerIndex - packetIdLength;
 
-            if ( type == 60 || type == 90 ) {
-                packet.skipBytes(14);
-                int position = packet.readerIndex();
-                int readId = packet.readInt();
+            int type = packet.getByte( readerIndex + packetIdLength + idLength );
+
+            if ( type == 60 || type == 90 )
+            {
+                int readId = packet.getInt( packetIdLength + idLength + 15 );
                 int changedId = -1;
-                if (readId == oldId) {
-                    packet.setInt(position, newId);
+                if ( readId == oldId )
+                {
+                    packet.setInt( packetIdLength + idLength + 15, newId );
                     changedId = newId;
-                } else if (readId == newId) {
-                    packet.setInt(position, oldId);
-                    changedId = oldId;
+                } else if ( readId == newId )
+                {
+                    packet.setInt( packetIdLength + idLength + 15, oldId );
+                    changedId = newId;
                 }
-                if (changedId != -1) {
-                    if (changedId == 0 && readId != 0) { // Trim off the extra data
-                        packet.readerIndex(readerIndex);
-                        packet.writerIndex(packet.readableBytes() - 6);
-                    } else if (changedId != 0 && readId == 0) { // Add on the extra data
-                        packet.readerIndex(readerIndex);
-                        packet.capacity(packet.readableBytes() + 6);
-                        packet.writerIndex(packet.readableBytes() + 6);
+                if ( changedId != -1 )
+                {
+                    if ( changedId == 0 && readId != 0 )
+                    { // Trim off the extra data
+                        packet.readerIndex( readerIndex );
+                        packet.writerIndex( packet.readableBytes() - 6 );
+                    } else if ( changedId != 0 && readId == 0 )
+                    { // Add on the extra data
+                        packet.readerIndex( readerIndex );
+                        packet.capacity( packet.readableBytes() + 6 );
+                        packet.writerIndex( packet.readableBytes() + 6 );
                     }
                 }
             }
