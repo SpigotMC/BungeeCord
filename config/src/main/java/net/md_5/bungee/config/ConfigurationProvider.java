@@ -22,8 +22,8 @@ public abstract class ConfigurationProvider
     {
         return providers.get( provider );
     }
-    /*------------------------------------------------------------------------*/
 
+    /*------------------------------------------------------------------------*/
     public abstract void save(Configuration config, File file) throws IOException;
 
     public abstract void save(Configuration config, Writer writer);

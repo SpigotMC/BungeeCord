@@ -13,7 +13,7 @@ public class ConnectionThrottle
 
     public ConnectionThrottle(int throttleTime)
     {
-        this.throttleTime = throttleTime;        
+        this.throttleTime = throttleTime;
         this.throttle = CacheBuilder.newBuilder()
                 .concurrencyLevel( Runtime.getRuntime().availableProcessors() )
                 .initialCapacity( 100 )

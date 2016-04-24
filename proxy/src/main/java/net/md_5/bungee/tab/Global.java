@@ -75,11 +75,11 @@ public class Global extends TabList
                 String[][] props = new String[ loginResult.getProperties().length ][];
                 for ( int j = 0; j < props.length; j++ )
                 {
-                    props[ j ] = new String[]
+                    props[j] = new String[]
                     {
-                        loginResult.getProperties()[ j ].getName(),
-                        loginResult.getProperties()[ j ].getValue(),
-                        loginResult.getProperties()[ j ].getSignature()
+                        loginResult.getProperties()[j].getName(),
+                        loginResult.getProperties()[j].getValue(),
+                        loginResult.getProperties()[j].getSignature()
                     };
                 }
                 item.setProperties( props );
@@ -103,11 +103,11 @@ public class Global extends TabList
             String[][] props = new String[ loginResult.getProperties().length ][];
             for ( int j = 0; j < props.length; j++ )
             {
-                props[ j ] = new String[]
+                props[j] = new String[]
                 {
-                    loginResult.getProperties()[ j ].getName(),
-                    loginResult.getProperties()[ j ].getValue(),
-                    loginResult.getProperties()[ j ].getSignature()
+                    loginResult.getProperties()[j].getName(),
+                    loginResult.getProperties()[j].getValue(),
+                    loginResult.getProperties()[j].getSignature()
                 };
             }
             item.setProperties( props );

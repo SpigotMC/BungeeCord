@@ -12,6 +12,7 @@ import java.util.UUID;
 
 class EntityMap_1_9 extends EntityMap
 {
+
     static final EntityMap_1_9 INSTANCE = new EntityMap_1_9();
 
     EntityMap_1_9()

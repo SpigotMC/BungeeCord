@@ -22,11 +22,11 @@ public class PlayerListItem extends DefinedPacket
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        action = Action.values()[ DefinedPacket.readVarInt( buf )];
+        action = Action.values()[DefinedPacket.readVarInt( buf )];
         items = new Item[ DefinedPacket.readVarInt( buf ) ];
         for ( int i = 0; i < items.length; i++ )
         {
-            Item item = items[ i ] = new Item();
+            Item item = items[i] = new Item();
             item.setUuid( DefinedPacket.readUUID( buf ) );
             switch ( action )
             {
@@ -39,13 +39,13 @@ public class PlayerListItem extends DefinedPacket
                         String value = DefinedPacket.readString( buf );
                         if ( buf.readBoolean() )
                         {
-                            item.properties[ j] = new String[]
+                            item.properties[j] = new String[]
                             {
                                 name, value, DefinedPacket.readString( buf )
                             };
                         } else
                         {
-                            item.properties[ j ] = new String[]
+                            item.properties[j] = new String[]
                             {
                                 name, value
                             };
@@ -88,12 +88,12 @@ public class PlayerListItem extends DefinedPacket
                     DefinedPacket.writeVarInt( item.properties.length, buf );
                     for ( String[] prop : item.properties )
                     {
-                        DefinedPacket.writeString( prop[ 0], buf );
-                        DefinedPacket.writeString( prop[ 1], buf );
+                        DefinedPacket.writeString( prop[0], buf );
+                        DefinedPacket.writeString( prop[1], buf );
                         if ( prop.length >= 3 )
                         {
                             buf.writeBoolean( true );
-                            DefinedPacket.writeString( prop[ 2], buf );
+                            DefinedPacket.writeString( prop[2], buf );
                         } else
                         {
                             buf.writeBoolean( false );

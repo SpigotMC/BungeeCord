@@ -33,7 +33,7 @@ public class PluginMessage extends DefinedPacket
     {
         tag = readString( buf );
         int maxSize = direction == ProtocolConstants.Direction.TO_SERVER ? Short.MAX_VALUE : 0x100000;
-        Preconditions.checkArgument(buf.readableBytes() < maxSize);
+        Preconditions.checkArgument( buf.readableBytes() < maxSize );
         data = new byte[ buf.readableBytes() ];
         buf.readBytes( data );
     }

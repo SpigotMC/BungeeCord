@@ -41,11 +41,11 @@ public abstract class TabList
                     String[][] props = new String[ loginResult.getProperties().length ][];
                     for ( int i = 0; i < props.length; i++ )
                     {
-                        props[ i ] = new String[]
+                        props[i] = new String[]
                         {
-                            loginResult.getProperties()[ i ].getName(),
-                            loginResult.getProperties()[ i ].getValue(),
-                            loginResult.getProperties()[ i ].getSignature()
+                            loginResult.getProperties()[i].getName(),
+                            loginResult.getProperties()[i].getValue(),
+                            loginResult.getProperties()[i].getSignature()
                         };
                     }
                     item.setProperties( props );

@@ -250,11 +250,13 @@ public class ComponentBuilder
     {
 
         /**
-         * Specify that we do not want to retain anything from the previous component.
+         * Specify that we do not want to retain anything from the previous
+         * component.
          */
         NONE,
         /**
-         * Specify that we want the formatting retained from the previous component.
+         * Specify that we want the formatting retained from the previous
+         * component.
          */
         FORMATTING,
         /**
@@ -262,7 +264,8 @@ public class ComponentBuilder
          */
         EVENTS,
         /**
-         * Specify that we want to retain everything from the previous component.
+         * Specify that we want to retain everything from the previous
+         * component.
          */
         ALL
     }
