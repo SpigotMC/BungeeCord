@@ -296,7 +296,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 thisState = State.USERNAME;
                 ch.setProtocol( Protocol.LOGIN );
 
-                if ( bungee.getConnectionThrottle().throttle( ( (InetSocketAddress) ch.getHandle().remoteAddress() ).getAddress() ) )
+                if ( bungee.getConnectionThrottle() != null && bungee.getConnectionThrottle().throttle( getAddress().getAddress() ) )
                 {
                     disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( bungee.getConfig().getThrottle() ) ) );
                 }

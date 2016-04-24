@@ -270,7 +270,10 @@ public class BungeeCord extends ProxyServer
 
         pluginManager.enablePlugins();
 
-        connectionThrottle = new ConnectionThrottle( config.getThrottle() );
+        if ( config.getThrottle() > 0 )
+        {
+            connectionThrottle = new ConnectionThrottle( config.getThrottle() );
+        }
         startListeners();
 
         saveThread.scheduleAtFixedRate( new TimerTask()
