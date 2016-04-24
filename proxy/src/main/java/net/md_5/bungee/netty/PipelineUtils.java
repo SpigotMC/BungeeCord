@@ -49,13 +49,6 @@ public class PipelineUtils
         @Override
         protected void initChannel(Channel ch) throws Exception
         {
-            if ( BungeeCord.getInstance().getConnectionThrottle().throttle( ( (InetSocketAddress) ch.remoteAddress() ).getAddress() ) )
-            {
-                // TODO: Better throttle - we can't throttle this way if we want to maintain 1.7 compat!
-                // ch.close();
-                // return;
-            }
-
             BASE.initChannel( ch );
             ch.pipeline().addBefore( FRAME_DECODER, LEGACY_DECODER, new LegacyDecoder() );
             ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
