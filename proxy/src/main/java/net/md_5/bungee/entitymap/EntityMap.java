@@ -45,20 +45,17 @@ public abstract class EntityMap
         {
             if ( varint )
             {
-                clientboundVarInts[ id ] = true;
+                clientboundVarInts[id] = true;
             } else
             {
-                clientboundInts[ id ] = true;
+                clientboundInts[id] = true;
             }
+        } else if ( varint )
+        {
+            serverboundVarInts[id] = true;
         } else
         {
-            if ( varint )
-            {
-                serverboundVarInts[ id ] = true;
-            } else
-            {
-                serverboundInts[ id ] = true;
-            }
+            serverboundInts[id] = true;
         }
     }
 

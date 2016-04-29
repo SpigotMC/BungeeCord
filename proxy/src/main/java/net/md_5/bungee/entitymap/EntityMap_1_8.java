@@ -70,7 +70,7 @@ class EntityMap_1_8 extends EntityMap
             int[] ids = new int[ count ];
             for ( int i = 0; i < count; i++ )
             {
-                ids[ i ] = DefinedPacket.readVarInt( packet );
+                ids[i] = DefinedPacket.readVarInt( packet );
             }
             packet.readerIndex( readerIndex + packetIdLength );
             packet.writerIndex( readerIndex + packetIdLength );
@@ -97,12 +97,23 @@ class EntityMap_1_8 extends EntityMap
                 packet.skipBytes( 14 );
                 int position = packet.readerIndex();
                 int readId = packet.readInt();
+                int changedId = readId;
+
                 if ( readId == oldId )
                 {
-                    packet.setInt( position, newId );
+                    packet.setInt( position, changedId = newId );
                 } else if ( readId == newId )
                 {
-                    packet.setInt( position, oldId );
+                    packet.setInt( position, changedId = oldId );
+                }
+
+                if ( readId > 0 && changedId <= 0 )
+                {
+                    packet.writerIndex( packet.writerIndex() - 6 );
+                } else if ( changedId > 0 && readId <= 0 )
+                {
+                    packet.ensureWritable( 6 );
+                    packet.writerIndex( packet.writerIndex() + 6 );
                 }
             }
         } else if ( packetId == 0x0C /* Spawn Player */ )

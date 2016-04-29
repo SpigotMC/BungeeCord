@@ -5,7 +5,8 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class BoundedArrayListTest {
+public class BoundedArrayListTest
+{
 
     @Test
     public void testGoodAdd() throws Exception
@@ -63,7 +64,7 @@ public class BoundedArrayListTest {
     @Test(expected = IllegalStateException.class)
     public void testBadAddAll() throws Exception
     {
-        BoundedArrayList<Object> list = new BoundedArrayList<>(0);
+        BoundedArrayList<Object> list = new BoundedArrayList<>( 0 );
         list.addAll( ImmutableList.of( new Object() ) );
     }
 

@@ -62,7 +62,7 @@ public class ClientSettings extends DefinedPacket
         buf.writeByte( skinParts );
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
         {
-            DefinedPacket.writeVarInt(mainHand, buf);
+            DefinedPacket.writeVarInt( mainHand, buf );
         }
     }
 

@@ -4,7 +4,6 @@ import java.util.Map;
 import net.md_5.bungee.ServerConnector;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.forge.ForgeLogger.LogDirection;
-import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
 /**
@@ -25,22 +24,22 @@ enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientH
      * Requires: {@link UserConnection}.
      */
     START
-            {
-                @Override
-                public ForgeClientHandshakeState handle(PluginMessage message, UserConnection con)
-                {
-                    ForgeLogger.logClient( LogDirection.RECEIVED, this.name(), message );
-                    con.unsafe().sendPacket( message );
-                    con.getForgeClientHandler().setState( HELLO );
-                    return HELLO;
-                }
+    {
+        @Override
+        public ForgeClientHandshakeState handle(PluginMessage message, UserConnection con)
+        {
+            ForgeLogger.logClient( LogDirection.RECEIVED, this.name(), message );
+            con.unsafe().sendPacket( message );
+            con.getForgeClientHandler().setState( HELLO );
+            return HELLO;
+        }
 
-                @Override
-                public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
-                {
-                    return HELLO;
-                }
-            },
+        @Override
+        public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
+        {
+            return HELLO;
+        }
+    },
     /**
      * Waiting to receive a client HELLO and the mod list. Upon receiving the
      * mod list, return the mod list of the server.
@@ -54,157 +53,157 @@ enum ForgeClientHandshakeState implements IForgeClientPacketHandler<ForgeClientH
      * {@link PluginMessage}, {@link UserConnection}, {@link ServerConnector}
      */
     HELLO
+    {
+        @Override
+        public ForgeClientHandshakeState handle(PluginMessage message, UserConnection con)
+        {
+            ForgeLogger.logClient( LogDirection.RECEIVED, this.name(), message );
+            // Server Hello.
+            if ( message.getData()[0] == 0 )
             {
-                @Override
-                public ForgeClientHandshakeState handle(PluginMessage message, UserConnection con)
-                {
-                    ForgeLogger.logClient( LogDirection.RECEIVED, this.name(), message );
-                    // Server Hello.
-                    if ( message.getData()[0] == 0 )
-                    {
-                        con.unsafe().sendPacket( message );
-                    }
+                con.unsafe().sendPacket( message );
+            }
 
-                    return this;
+            return this;
+        }
+
+        @Override
+        public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
+        {
+            // Client Hello.
+            if ( message.getData()[0] == 1 )
+            {
+                return this;
+            }
+
+            // Mod list.
+            if ( message.getData()[0] == 2 )
+            {
+                if ( con.getForgeClientHandler().getClientModList() == null )
+                {
+                    // This is the first Forge connection - so get the mods now.
+                    // Once we've done it, no point doing it again.
+                    Map<String, String> clientModList = ForgeUtils.readModList( message );
+                    con.getForgeClientHandler().setClientModList( clientModList );
                 }
 
-                @Override
-                public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
-                {
-                    // Client Hello.
-                    if ( message.getData()[0] == 1 )
-                    {
-                        return this;
-                    }
+                return WAITINGSERVERDATA;
+            }
 
-                    // Mod list.
-                    if ( message.getData()[0] == 2 )
-                    {
-                        if ( con.getForgeClientHandler().getClientModList() == null )
-                        {
-                            // This is the first Forge connection - so get the mods now.
-                            // Once we've done it, no point doing it again.
-                            Map<String, String> clientModList = ForgeUtils.readModList( message );
-                            con.getForgeClientHandler().setClientModList( clientModList );
-                        }
+            return this;
+        }
 
-                        return WAITINGSERVERDATA;
-                    }
-
-                    return this;
-                }
-
-            },
+    },
     WAITINGSERVERDATA
+    {
+
+        @Override
+        public ForgeClientHandshakeState handle(PluginMessage message, UserConnection con)
+        {
+            ForgeLogger.logClient( ForgeLogger.LogDirection.RECEIVED, this.name(), message );
+            // Mod list.
+            if ( message.getData()[0] == 2 )
             {
+                con.unsafe().sendPacket( message );
+            }
 
-                @Override
-                public ForgeClientHandshakeState handle(PluginMessage message, UserConnection con)
-                {
-                    ForgeLogger.logClient( ForgeLogger.LogDirection.RECEIVED, this.name(), message );
-                    // Mod list.
-                    if ( message.getData()[0] == 2 )
-                    {
-                        con.unsafe().sendPacket( message );
-                    }
+            return this;
+        }
 
-                    return this;
-                }
-
-                @Override
-                public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
-                {
-                    // ACK
-                    return WAITINGSERVERCOMPLETE;
-                }
-            },
+        @Override
+        public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
+        {
+            // ACK
+            return WAITINGSERVERCOMPLETE;
+        }
+    },
     WAITINGSERVERCOMPLETE
+    {
+
+        @Override
+        public ForgeClientHandshakeState handle(PluginMessage message, UserConnection con)
+        {
+            ForgeLogger.logClient( ForgeLogger.LogDirection.RECEIVED, this.name(), message );
+            // Mod ID's.
+            if ( message.getData()[0] == 3 )
             {
+                con.unsafe().sendPacket( message );
+                return this;
+            }
 
-                @Override
-                public ForgeClientHandshakeState handle(PluginMessage message, UserConnection con)
-                {
-                    ForgeLogger.logClient( ForgeLogger.LogDirection.RECEIVED, this.name(), message );
-                    // Mod ID's.
-                    if ( message.getData()[0] == 3 )
-                    {
-                        con.unsafe().sendPacket( message );
-                        return this;
-                    }
+            con.unsafe().sendPacket( message ); // pass everything else
+            return this;
+        }
 
-                    con.unsafe().sendPacket( message ); // pass everything else
-                    return this;
-                }
-
-                @Override
-                public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
-                {
-                    // Send ACK.
-                    return PENDINGCOMPLETE;
-                }
-            },
+        @Override
+        public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
+        {
+            // Send ACK.
+            return PENDINGCOMPLETE;
+        }
+    },
     PENDINGCOMPLETE
+    {
+
+        @Override
+        public ForgeClientHandshakeState handle(PluginMessage message, UserConnection con)
+        {
+            // Ack.
+            if ( message.getData()[0] == -1 )
             {
+                ForgeLogger.logClient( ForgeLogger.LogDirection.RECEIVED, this.name(), message );
+                con.unsafe().sendPacket( message );
+            }
 
-                @Override
-                public ForgeClientHandshakeState handle(PluginMessage message, UserConnection con)
-                {
-                    // Ack.
-                    if ( message.getData()[0] == -1 )
-                    {
-                        ForgeLogger.logClient( ForgeLogger.LogDirection.RECEIVED, this.name(), message );
-                        con.unsafe().sendPacket( message );
-                    }
+            return this;
+        }
 
-                    return this;
-                }
-
-                @Override
-                public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
-                {
-                    // Send an ACK
-                    return COMPLETE;
-                }
-            },
+        @Override
+        public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
+        {
+            // Send an ACK
+            return COMPLETE;
+        }
+    },
     COMPLETE
+    {
+
+        @Override
+        public ForgeClientHandshakeState handle(PluginMessage message, UserConnection con)
+        {
+            // Ack.
+            if ( message.getData()[0] == -1 )
             {
+                ForgeLogger.logClient( ForgeLogger.LogDirection.RECEIVED, this.name(), message );
+                con.unsafe().sendPacket( message );
+            }
 
-                @Override
-                public ForgeClientHandshakeState handle(PluginMessage message, UserConnection con)
-                {
-                    // Ack.
-                    if ( message.getData()[0] == -1 )
-                    {
-                        ForgeLogger.logClient( ForgeLogger.LogDirection.RECEIVED, this.name(), message );
-                        con.unsafe().sendPacket( message );
-                    }
+            return this;
+        }
 
-                    return this;
-                }
-
-                @Override
-                public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
-                {
-                    return DONE;
-                }
-            },
+        @Override
+        public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
+        {
+            return DONE;
+        }
+    },
     /**
      * Handshake has been completed. Ignores any future handshake packets.
      */
     DONE
-            {
+    {
 
-                @Override
-                public ForgeClientHandshakeState handle(PluginMessage message, UserConnection con)
-                {
-                    ForgeLogger.logClient( ForgeLogger.LogDirection.RECEIVED, this.name(), message );
-                    return this;
-                }
+        @Override
+        public ForgeClientHandshakeState handle(PluginMessage message, UserConnection con)
+        {
+            ForgeLogger.logClient( ForgeLogger.LogDirection.RECEIVED, this.name(), message );
+            return this;
+        }
 
-                @Override
-                public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
-                {
-                    return this;
-                }
-            }
+        @Override
+        public ForgeClientHandshakeState send(PluginMessage message, UserConnection con)
+        {
+            return this;
+        }
+    }
 }

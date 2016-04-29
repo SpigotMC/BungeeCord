@@ -176,8 +176,8 @@
                                     <action>
                                         <execute>
                                             <runOnIncremental>false</runOnIncremental>
-                                        </execute >
-                                     </action>
+                                        </execute>
+                                    </action>
                                 </pluginExecution>
                             </pluginExecutions>
                         </lifecycleMappingMetadata>
