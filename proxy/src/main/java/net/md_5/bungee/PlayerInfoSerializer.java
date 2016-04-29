@@ -14,7 +14,6 @@ import java.util.UUID;
 
 public class PlayerInfoSerializer implements JsonSerializer<ServerPing.PlayerInfo>, JsonDeserializer<ServerPing.PlayerInfo>
 {
-<<<<<<< HEAD
     private final int protocol;
 
     public PlayerInfoSerializer(int protocol)
@@ -22,9 +21,6 @@ public class PlayerInfoSerializer implements JsonSerializer<ServerPing.PlayerInf
         this.protocol = protocol;
     }
     
-=======
-
->>>>>>> 80b3135a93f0e23489cc19086e31feb12ff51798
     @Override
     public ServerPing.PlayerInfo deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
