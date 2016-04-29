@@ -140,7 +140,8 @@ public class TranslatableComponent extends BaseComponent
         try
         {
             trans = locales.getString( translate );
-        } catch ( MissingResourceException e ) {
+        } catch ( MissingResourceException ex )
+        {
             trans = translate;
         }
 
@@ -184,7 +185,8 @@ public class TranslatableComponent extends BaseComponent
         try
         {
             trans = locales.getString( translate );
-        } catch ( MissingResourceException e ) {
+        } catch ( MissingResourceException e )
+        {
             trans = translate;
         }
 

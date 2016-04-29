@@ -48,13 +48,13 @@ public class PlayerListItem extends DefinedPacket
                             String value = DefinedPacket.readString( buf );
                             if ( buf.readBoolean() )
                             {
-                                item.properties[ j] = new String[]
+                                item.properties[j] = new String[]
                                 {
                                     name, value, DefinedPacket.readString( buf )
                                 };
                             } else
                             {
-                                item.properties[ j ] = new String[]
+                                item.properties[j] = new String[]
                                 {
                                     name, value
                                 };

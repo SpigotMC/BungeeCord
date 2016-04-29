@@ -84,8 +84,8 @@ public class ComponentsTest
     @Test
     public void testBuilderReset()
     {
-        BaseComponent[] components = new ComponentBuilder( "Hello " ).color(ChatColor.RED)
-                .append("World").reset().create();
+        BaseComponent[] components = new ComponentBuilder( "Hello " ).color( ChatColor.RED )
+                .append( "World" ).reset().create();
 
         Assert.assertEquals( components[0].getColor(), ChatColor.RED );
         Assert.assertEquals( components[1].getColor(), ChatColor.WHITE );
@@ -113,7 +113,7 @@ public class ComponentsTest
         ClickEvent testClickEvent = new ClickEvent( ClickEvent.Action.OPEN_URL, "http://www.example.com" );
 
         BaseComponent[] eventRetention = new ComponentBuilder( "Hello " ).color( ChatColor.RED )
-                .event( testEvent ).event(testClickEvent).append("World", ComponentBuilder.FormatRetention.EVENTS).create();
+                .event( testEvent ).event( testClickEvent ).append( "World", ComponentBuilder.FormatRetention.EVENTS ).create();
 
         Assert.assertEquals( eventRetention[0].getColor(), ChatColor.RED );
         Assert.assertEquals( eventRetention[0].getHoverEvent(), testEvent );

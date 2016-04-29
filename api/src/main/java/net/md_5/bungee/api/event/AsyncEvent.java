@@ -73,7 +73,8 @@ public class AsyncEvent<T> extends Event
             {
                 done.done( (T) this, null );
             }
-        } else {
+        } else
+        {
             latch.decrementAndGet();
         }
     }

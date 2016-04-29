@@ -25,9 +25,6 @@ public class ThrottleTest
         Assert.assertFalse( "Address should not be throttled", throttle.throttle( address ) );
         Assert.assertTrue( "Address should be throttled", throttle.throttle( address ) );
 
-        throttle.unthrottle( address );
-        Assert.assertFalse( "Address should not be throttled", throttle.throttle( address ) );
-
         Thread.sleep( 15 );
         Assert.assertFalse( "Address should not be throttled", throttle.throttle( address ) );
     }

@@ -44,67 +44,67 @@ public enum Protocol
 
     // Undef
     HANDSHAKE
-            {
+    {
 
-                {
-                    TO_SERVER.registerPacket( 0x00, Handshake.class );
-                }
-            },
+        {
+            TO_SERVER.registerPacket( 0x00, Handshake.class );
+        }
+    },
     // 0
     GAME
-            {
+    {
 
-                {
-                    TO_CLIENT.registerPacket( 0x00, 0x1F, KeepAlive.class );
-                    TO_CLIENT.registerPacket( 0x01, 0x23, Login.class );
-                    TO_CLIENT.registerPacket( 0x02, 0x0F, Chat.class );
-                    TO_CLIENT.registerPacket( 0x07, 0x33, Respawn.class );
-                    TO_CLIENT.registerPacket( 0x0C, 0x0C, BossBar.class, true, false );
-                    TO_CLIENT.registerPacket( 0x38, 0x2D, PlayerListItem.class ); // PlayerInfo
-                    TO_CLIENT.registerPacket( 0x3A, 0x0E, TabCompleteResponse.class );
-                    TO_CLIENT.registerPacket( 0x3B, 0x3F, ScoreboardObjective.class );
-                    TO_CLIENT.registerPacket( 0x3C, 0x42, ScoreboardScore.class );
-                    TO_CLIENT.registerPacket( 0x3D, 0x38, ScoreboardDisplay.class );
-                    TO_CLIENT.registerPacket( 0x3E, 0x41, Team.class );
-                    TO_CLIENT.registerPacket( 0x3F, 0x18, PluginMessage.class );
-                    TO_CLIENT.registerPacket( 0x40, 0x1A, Kick.class );
-                    TO_CLIENT.registerPacket( 0x45, 0x45, Title.class );
-                    TO_CLIENT.registerPacket( 0x46, 0x46, SetCompression.class, false , true );
-                    TO_CLIENT.registerPacket( 0x47, 0x48, PlayerListHeaderFooter.class );
+    	 {
+            TO_CLIENT.registerPacket( 0x00, 0x1F, KeepAlive.class );
+            TO_CLIENT.registerPacket( 0x01, 0x23, Login.class );
+            TO_CLIENT.registerPacket( 0x02, 0x0F, Chat.class );
+            TO_CLIENT.registerPacket( 0x07, 0x33, Respawn.class );
+            TO_CLIENT.registerPacket( 0x0C, 0x0C, BossBar.class, true, false );
+            TO_CLIENT.registerPacket( 0x38, 0x2D, PlayerListItem.class ); // PlayerInfo
+            TO_CLIENT.registerPacket( 0x3A, 0x0E, TabCompleteResponse.class );
+            TO_CLIENT.registerPacket( 0x3B, 0x3F, ScoreboardObjective.class );
+            TO_CLIENT.registerPacket( 0x3C, 0x42, ScoreboardScore.class );
+            TO_CLIENT.registerPacket( 0x3D, 0x38, ScoreboardDisplay.class );
+            TO_CLIENT.registerPacket( 0x3E, 0x41, Team.class );
+            TO_CLIENT.registerPacket( 0x3F, 0x18, PluginMessage.class );
+            TO_CLIENT.registerPacket( 0x40, 0x1A, Kick.class );
+            TO_CLIENT.registerPacket( 0x45, 0x45, Title.class );
+            TO_CLIENT.registerPacket( 0x46, 0x46, SetCompression.class, false , true );
+            TO_CLIENT.registerPacket( 0x47, 0x48, PlayerListHeaderFooter.class );
 
-                    TO_SERVER.registerPacket( 0x00, 0x0B, KeepAlive.class );
-                    TO_SERVER.registerPacket( 0x01, 0x02, Chat.class );
-                    TO_SERVER.registerPacket( 0x14, 0x01, TabCompleteRequest.class );
-                    TO_SERVER.registerPacket( 0x15, 0x04, ClientSettings.class );
-                    TO_SERVER.registerPacket( 0x17, 0x09, PluginMessage.class );
-                }
-            },
+            TO_SERVER.registerPacket( 0x00, 0x0B, KeepAlive.class );
+            TO_SERVER.registerPacket( 0x01, 0x02, Chat.class );
+            TO_SERVER.registerPacket( 0x14, 0x01, TabCompleteRequest.class );
+            TO_SERVER.registerPacket( 0x15, 0x04, ClientSettings.class );
+            TO_SERVER.registerPacket( 0x17, 0x09, PluginMessage.class );
+    	 }
+    },
     // 1
     STATUS
-            {
+    {
 
-                {
-                    TO_CLIENT.registerPacket( 0x00, StatusResponse.class );
-                    TO_CLIENT.registerPacket( 0x01, PingPacket.class );
+        {
+            TO_CLIENT.registerPacket( 0x00, StatusResponse.class );
+            TO_CLIENT.registerPacket( 0x01, PingPacket.class );
 
-                    TO_SERVER.registerPacket( 0x00, StatusRequest.class );
-                    TO_SERVER.registerPacket( 0x01, PingPacket.class );
-                }
-            },
+            TO_SERVER.registerPacket( 0x00, StatusRequest.class );
+            TO_SERVER.registerPacket( 0x01, PingPacket.class );
+        }
+    },
     //2
     LOGIN
-            {
+    {
 
-                {
-                    TO_CLIENT.registerPacket( 0x00, Kick.class );
-                    TO_CLIENT.registerPacket( 0x01, EncryptionRequest.class );
-                    TO_CLIENT.registerPacket( 0x02, LoginSuccess.class );
-                    TO_CLIENT.registerPacket( 0x03, SetCompression.class );
+        {
+            TO_CLIENT.registerPacket( 0x00, Kick.class );
+            TO_CLIENT.registerPacket( 0x01, EncryptionRequest.class );
+            TO_CLIENT.registerPacket( 0x02, LoginSuccess.class );
+            TO_CLIENT.registerPacket( 0x03, SetCompression.class );
 
-                    TO_SERVER.registerPacket( 0x00, LoginRequest.class );
-                    TO_SERVER.registerPacket( 0x01, EncryptionResponse.class );
-                }
-            };
+            TO_SERVER.registerPacket( 0x00, LoginRequest.class );
+            TO_SERVER.registerPacket( 0x01, EncryptionResponse.class );
+        }
+    };
     /*========================================================================*/
     public static final int MAX_PACKET_ID = 0xFF;
     public static List<Integer> supportedVersions = Arrays.asList(
@@ -132,7 +132,6 @@ public enum Protocol
         private final TIntObjectMap<TIntIntMap> packetRemap = new TIntObjectHashMap<>();
         private final TIntObjectMap<TIntIntMap> packetRemapInv = new TIntObjectHashMap<>();
 
-        
         {
             packetRemap.put( ProtocolConstants.MINECRAFT_1_7_2, new TIntIntHashMap() );
             packetRemapInv.put( ProtocolConstants.MINECRAFT_1_7_2, new TIntIntHashMap() );
