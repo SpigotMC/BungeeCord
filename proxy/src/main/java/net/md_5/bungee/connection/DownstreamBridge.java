@@ -58,15 +58,16 @@ public class DownstreamBridge extends PacketHandler
             return;
         }
 
-        ServerInfo def = bungee.getServerInfo( con.getPendingConnection().getListener().getFallbackServer() );
-        if ( server.getInfo() != def )
+        ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
+        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), TextComponent.fromLegacyText( bungee.getTranslation( "server_went_down" ) ), def, ServerKickEvent.State.CONNECTED ) );
+        if ( event.isCancelled() && event.getCancelServer() != null )
         {
             server.setObsolete( true );
-            con.connectNow( def );
-            con.sendMessage( bungee.getTranslation( "server_went_down" ) );
-        } else
+            con.connectNow( event.getCancelServer() );
+        }
+        else
         {
-            con.disconnect( Util.exception( t ) );
+            con.disconnect0( event.getKickReasonComponent() );
         }
     }
 
@@ -82,7 +83,17 @@ public class DownstreamBridge extends PacketHandler
 
         if ( !server.isObsolete() )
         {
-            con.disconnect( bungee.getTranslation( "lost_connection" ) );
+            ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
+            ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), TextComponent.fromLegacyText( bungee.getTranslation( "lost_connection" ) ), def, ServerKickEvent.State.CONNECTED ) );
+            if ( event.isCancelled() && event.getCancelServer() != null )
+            {
+                server.setObsolete( true );
+                con.connectNow( event.getCancelServer() );
+            }
+            else
+            {
+                con.disconnect0( event.getKickReasonComponent() );
+            }
         }
 
         ServerDisconnectEvent serverDisconnectEvent = new ServerDisconnectEvent( con, server.getInfo() );
