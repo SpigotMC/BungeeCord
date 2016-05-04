@@ -59,7 +59,7 @@ public class DownstreamBridge extends PacketHandler
         }
 
         ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
-        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), TextComponent.fromLegacyText( bungee.getTranslation( "server_went_down" ) ), def, ServerKickEvent.State.CONNECTED ) );
+        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), TextComponent.fromLegacyText( bungee.getTranslation( "server_went_down" ) ), def, ServerKickEvent.State.CONNECTED, ServerKickEvent.Cause.EXCEPTION ) );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
             server.setObsolete( true );
@@ -84,7 +84,7 @@ public class DownstreamBridge extends PacketHandler
         if ( !server.isObsolete() )
         {
             ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
-            ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), TextComponent.fromLegacyText( bungee.getTranslation( "lost_connection" ) ), def, ServerKickEvent.State.CONNECTED ) );
+            ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), TextComponent.fromLegacyText( bungee.getTranslation( "lost_connection" ) ), def, ServerKickEvent.State.CONNECTED, ServerKickEvent.Cause.LOST_CONNECTION ) );
             if ( event.isCancelled() && event.getCancelServer() != null )
             {
                 server.setObsolete( true );
@@ -464,7 +464,7 @@ public class DownstreamBridge extends PacketHandler
         {
             def = null;
         }
-        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTED ) );
+        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTED, ServerKickEvent.Cause.SERVER ) );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
             con.connectNow( event.getCancelServer() );
