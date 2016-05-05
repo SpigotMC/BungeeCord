@@ -256,6 +256,11 @@ public final class UserConnection implements ProxiedPlayer
         ServerConnectEvent event = new ServerConnectEvent( this, info );
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
+            if ( callback != null )
+            {
+                callback.done( false, null );
+            }
+            
             return;
         }
 
