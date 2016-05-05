@@ -256,6 +256,10 @@ public final class UserConnection implements ProxiedPlayer
         ServerConnectEvent event = new ServerConnectEvent( this, info );
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
+            if ( callback != null )
+            {
+                callback.done( false, null );
+            }
             return;
         }
 
@@ -263,11 +267,21 @@ public final class UserConnection implements ProxiedPlayer
 
         if ( getServer() != null && Objects.equal( getServer().getInfo(), target ) )
         {
+            if ( callback != null )
+            {
+                callback.done( false, null );
+            }
+
             sendMessage( bungee.getTranslation( "already_connected" ) );
             return;
         }
         if ( pendingConnects.contains( target ) )
         {
+            if ( callback != null )
+            {
+                callback.done( false, null );
+            }
+
             sendMessage( bungee.getTranslation( "already_connecting" ) );
             return;
         }
