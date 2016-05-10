@@ -110,7 +110,8 @@ public enum Protocol
             ProtocolConstants.MINECRAFT_1_8,
             ProtocolConstants.MINECRAFT_1_9,
             ProtocolConstants.MINECRAFT_1_9_1,
-            ProtocolConstants.MINECRAFT_1_9_2
+            ProtocolConstants.MINECRAFT_1_9_2,
+            ProtocolConstants.MINECRAFT_1_9_3
     );
     /*========================================================================*/
     public final DirectionData TO_SERVER = new DirectionData( ProtocolConstants.Direction.TO_SERVER );
@@ -138,6 +139,8 @@ public enum Protocol
             packetRemapInv.put( ProtocolConstants.MINECRAFT_1_9_1, packetRemapInv.get( ProtocolConstants.MINECRAFT_1_9 ) );
             packetRemap.put( ProtocolConstants.MINECRAFT_1_9_2, packetRemap.get( ProtocolConstants.MINECRAFT_1_9 ) );
             packetRemapInv.put( ProtocolConstants.MINECRAFT_1_9_2, packetRemapInv.get( ProtocolConstants.MINECRAFT_1_9 ) );
+            packetRemap.put( ProtocolConstants.MINECRAFT_1_9_3, new TIntIntHashMap()  );
+            packetRemapInv.put( ProtocolConstants.MINECRAFT_1_9_3, new TIntIntHashMap()  );
         }
 
         public final DefinedPacket createPacket(int id, int protocol)
@@ -197,6 +200,13 @@ public enum Protocol
 
             packetRemap.get( ProtocolConstants.MINECRAFT_1_9 ).put( newId, id );
             packetRemapInv.get( ProtocolConstants.MINECRAFT_1_9 ).put( id, newId );
+            // Handle Player Header and Footer for 1.9.3
+            if(newId == 0x48)
+            {
+                newId = 0x47;
+            }
+            packetRemap.get( ProtocolConstants.MINECRAFT_1_9_3).put( newId, id );
+            packetRemapInv.get( ProtocolConstants.MINECRAFT_1_9_3).put( id, newId );
         }
 
         protected final void unregisterPacket(int id)
