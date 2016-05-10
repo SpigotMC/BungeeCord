@@ -1,7 +1,6 @@
 package net.md_5.bungee.protocol;
 
-import java.util.Arrays;
-import java.util.List;
+import com.google.common.collect.ImmutableList;
 
 public class ProtocolConstants
 {
@@ -11,11 +10,12 @@ public class ProtocolConstants
     public static final int MINECRAFT_1_9_1 = 108;
     public static final int MINECRAFT_1_9_2 = 109;
     public static final int MINECRAFT_1_9_4 = 110;
-    public static final List<String> SUPPORTED_VERSIONS = Arrays.asList(
+    public static final ImmutableList<String> SUPPORTED_VERSIONS = ImmutableList.of(
             "1.8.x",
             "1.9.x"
     );
-    public static final List<Integer> SUPPORTED_VERSION_IDS = Arrays.asList(ProtocolConstants.MINECRAFT_1_8,
+    public static final ImmutableList<Integer> SUPPORTED_VERSION_IDS = ImmutableList.of(
+            ProtocolConstants.MINECRAFT_1_8,
             ProtocolConstants.MINECRAFT_1_9,
             ProtocolConstants.MINECRAFT_1_9_1,
             ProtocolConstants.MINECRAFT_1_9_2,
