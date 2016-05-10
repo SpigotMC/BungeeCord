@@ -111,7 +111,7 @@ public enum Protocol
             ProtocolConstants.MINECRAFT_1_9,
             ProtocolConstants.MINECRAFT_1_9_1,
             ProtocolConstants.MINECRAFT_1_9_2,
-            ProtocolConstants.MINECRAFT_1_9_3_PRE2
+            ProtocolConstants.MINECRAFT_1_9_3
     );
     /*========================================================================*/
     public final DirectionData TO_SERVER = new DirectionData( ProtocolConstants.Direction.TO_SERVER );
@@ -139,8 +139,8 @@ public enum Protocol
             packetRemapInv.put( ProtocolConstants.MINECRAFT_1_9_1, packetRemapInv.get( ProtocolConstants.MINECRAFT_1_9 ) );
             packetRemap.put( ProtocolConstants.MINECRAFT_1_9_2, packetRemap.get( ProtocolConstants.MINECRAFT_1_9 ) );
             packetRemapInv.put( ProtocolConstants.MINECRAFT_1_9_2, packetRemapInv.get( ProtocolConstants.MINECRAFT_1_9 ) );
-            packetRemap.put( ProtocolConstants.MINECRAFT_1_9_3_PRE2, new TIntIntHashMap()  );
-            packetRemapInv.put( ProtocolConstants.MINECRAFT_1_9_3_PRE2, new TIntIntHashMap()  );
+            packetRemap.put( ProtocolConstants.MINECRAFT_1_9_3, new TIntIntHashMap()  );
+            packetRemapInv.put( ProtocolConstants.MINECRAFT_1_9_3, new TIntIntHashMap()  );
         }
 
         public final DefinedPacket createPacket(int id, int protocol)
@@ -205,8 +205,8 @@ public enum Protocol
             {
                 newId = 0x47;
             }
-            packetRemap.get( ProtocolConstants.MINECRAFT_1_9_3_PRE2 ).put( newId, id );
-            packetRemapInv.get( ProtocolConstants.MINECRAFT_1_9_3_PRE2 ).put( id, newId );
+            packetRemap.get( ProtocolConstants.MINECRAFT_1_9_3).put( newId, id );
+            packetRemapInv.get( ProtocolConstants.MINECRAFT_1_9_3).put( id, newId );
         }
 
         protected final void unregisterPacket(int id)
