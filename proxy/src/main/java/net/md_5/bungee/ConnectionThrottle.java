@@ -8,25 +8,22 @@ import java.util.concurrent.TimeUnit;
 public class ConnectionThrottle
 {
 
-    private final int throttleTime;
-    private final Cache<InetAddress, Long> throttle;
+    private final Cache<InetAddress, Boolean> throttle;
 
     public ConnectionThrottle(int throttleTime)
     {
-        this.throttleTime = throttleTime;
         this.throttle = CacheBuilder.newBuilder()
                 .concurrencyLevel( Runtime.getRuntime().availableProcessors() )
                 .initialCapacity( 100 )
-                .expireAfterAccess( throttleTime, TimeUnit.MILLISECONDS )
+                .expireAfterWrite( throttleTime, TimeUnit.MILLISECONDS )
                 .build();
     }
 
     public boolean throttle(InetAddress address)
     {
-        Long value = throttle.getIfPresent( address );
-        long currentTime = System.currentTimeMillis();
+        boolean isThrottled = throttle.getIfPresent( address ) != null;
+        throttle.put( address, true );
 
-        throttle.put( address, currentTime );
-        return value != null && currentTime - value < throttleTime;
+        return isThrottled;
     }
 }
