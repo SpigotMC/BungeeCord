@@ -293,6 +293,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 thisState = State.USERNAME;
                 ch.setProtocol( Protocol.LOGIN );
 
+                if ( !ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) )
+                {
+                    disconnect( bungee.getTranslation( "outdated_server" ) );
+                    return;
+                }
+
                 if ( bungee.getConnectionThrottle() != null && bungee.getConnectionThrottle().throttle( getAddress().getAddress() ) )
                 {
                     disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( bungee.getConfig().getThrottle() ) ) );
@@ -308,12 +314,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.USERNAME, "Not expecting USERNAME" );
         this.loginRequest = loginRequest;
-
-        if ( !ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) )
-        {
-            disconnect( bungee.getTranslation( "outdated_server" ) );
-            return;
-        }
 
         if ( getName().contains( "." ) )
         {
