@@ -6,6 +6,7 @@ import com.google.common.base.Preconditions;
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -199,6 +200,13 @@ public abstract class ProxyServer
      */
     @Deprecated
     public abstract int getProtocolVersion();
+
+    /**
+     * Get the Minecraft Protocol Versions supported by this proxy.
+     *
+     * @return the Minecraft protocol ids list
+     */
+    public abstract List<Integer> getSupportedProtocols();
 
     /**
      * Factory method to construct an implementation specific server info

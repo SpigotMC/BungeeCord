@@ -43,6 +43,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -581,6 +582,12 @@ public class BungeeCord extends ProxyServer
     public PluginMessage registerChannels()
     {
         return new PluginMessage( "REGISTER", Util.format( pluginChannels, "\00" ).getBytes( Charsets.UTF_8 ), false );
+    }
+
+    @Override
+    public List<Integer> getSupportedProtocols()
+    {
+        return ProtocolConstants.SUPPORTED_VERSION_IDS;
     }
 
     @Override
