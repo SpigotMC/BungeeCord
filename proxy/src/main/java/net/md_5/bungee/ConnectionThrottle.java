@@ -21,7 +21,7 @@ public class ConnectionThrottle
 
     public boolean throttle(InetAddress address)
     {
-        boolean isThrottled = throttle.getIfPresent( address );
+        boolean isThrottled = throttle.getIfPresent( address ) != null;
         throttle.put( address, true );
 
         return isThrottled;
