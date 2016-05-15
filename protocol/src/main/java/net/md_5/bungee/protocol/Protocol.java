@@ -282,7 +282,7 @@ public enum Protocol
         private ProtocolData getProtocolData(int version)
         {
             ProtocolData protocol = protocols.get( version );
-            if ( protocol == null && ( protocolPhase == Protocol.HANDSHAKE || protocolPhase == Protocol.STATUS ) )
+            if ( protocol == null && ( protocolPhase != Protocol.GAME ) )
             {
                 protocol = Iterables.getFirst( protocols.valueCollection(), null );
             }
