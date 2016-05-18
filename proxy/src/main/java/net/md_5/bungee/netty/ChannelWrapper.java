@@ -1,12 +1,10 @@
 package net.md_5.bungee.netty;
 
+import io.netty.channel.*;
 import net.md_5.bungee.netty.compress.PacketCompressor;
 import net.md_5.bungee.netty.compress.PacketDecompressor;
 import net.md_5.bungee.protocol.PacketWrapper;
 import com.google.common.base.Preconditions;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelHandlerContext;
 import lombok.Getter;
 import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
@@ -16,7 +14,6 @@ public class ChannelWrapper
 {
 
     private final Channel ch;
-    @Getter
     private volatile boolean closed;
 
     public ChannelWrapper(ChannelHandlerContext ctx)
@@ -38,7 +35,7 @@ public class ChannelWrapper
 
     public void write(Object packet)
     {
-        if ( !closed )
+        if ( !isClosed() )
         {
             if ( packet instanceof PacketWrapper )
             {
@@ -54,12 +51,26 @@ public class ChannelWrapper
 
     public void close()
     {
-        if ( !closed )
+        if ( !isClosed() )
         {
             closed = true;
             ch.flush();
             ch.close();
         }
+    }
+
+    public void close(Object packet)
+    {
+        if ( !isClosed() )
+        {
+            closed = true;
+            ch.writeAndFlush( packet ).addListener( ChannelFutureListener.CLOSE );
+        }
+    }
+
+    public boolean isClosed()
+    {
+        return closed || !ch.isActive();
     }
 
     public void addBefore(String baseName, String name, ChannelHandler handler)
