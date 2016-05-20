@@ -608,7 +608,7 @@ public final class UserConnection implements ProxiedPlayer
 
     public void setCompressionThreshold(int compressionThreshold)
     {
-        if ( ch.getHandle().isActive() && this.compressionThreshold == -1 )
+        if ( !ch.isClosed() && this.compressionThreshold == -1 )
         {
             this.compressionThreshold = compressionThreshold;
             unsafe.sendPacket( new SetCompression( compressionThreshold ) );

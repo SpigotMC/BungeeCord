@@ -474,12 +474,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     return;
                 }
 
-                ch.getHandle().eventLoop().execute( new Runnable()
+                Runnable nettyPostCall = new Runnable()
                 {
                     @Override
                     public void run()
                     {
-                        if ( ch.getHandle().isActive() )
+                        if ( !ch.isClosed() )
                         {
                             UserConnection userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
                             userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
@@ -508,7 +508,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             thisState = State.FINISHED;
                         }
                     }
-                } );
+                };
+
+                if ( ch.getHandle().eventLoop().inEventLoop() ) {
+                    nettyPostCall.run();
+                } else {
+                    ch.getHandle().eventLoop().execute( nettyPostCall );
+                };
             }
         };
 
