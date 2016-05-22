@@ -28,13 +28,13 @@ public class ThrottleTest
         Assert.assertFalse( "Address should not be throttled", throttle.throttle( address ) );
         Assert.assertTrue( "Address should be throttled", throttle.throttle( address ) );
         
-        ticker.advance(6, TimeUnit.MILLISECONDS);
+        ticker.advance( 6, TimeUnit.MILLISECONDS );
         Assert.assertTrue( "Address should be throttled", throttle.throttle( address ) );
         
-        ticker.advance(6, TimeUnit.MILLISECONDS);
+        ticker.advance( 6, TimeUnit.MILLISECONDS );
         Assert.assertTrue( "Address should be throttled again", throttle.throttle( address ) );
 
-        ticker.advance(11, TimeUnit.MILLISECONDS);
+        ticker.advance( 11, TimeUnit.MILLISECONDS );
         Assert.assertFalse( "Address should not be throttled anymore", throttle.throttle( address ) );
     }
 }
