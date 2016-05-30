@@ -258,7 +258,8 @@ public enum Protocol
             ));
             linkedProtocols.put( ProtocolConstants.MINECRAFT_1_9, Arrays.asList(ProtocolConstants.MINECRAFT_1_9_1,
                 ProtocolConstants.MINECRAFT_1_9_2,
-                ProtocolConstants.MINECRAFT_1_9_4
+                ProtocolConstants.MINECRAFT_1_9_4,
+                ProtocolConstants.MINECRAFT_16w21b
             ));
         }
 
