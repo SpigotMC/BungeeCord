@@ -15,7 +15,7 @@ class EntityMap_16w21b extends EntityMap
 
     static final EntityMap_16w21b INSTANCE = new EntityMap_16w21b();
 
-    EntityMap_1_9_4()
+    EntityMap_16w21b()
     {
         addRewrite( 0x00, ProtocolConstants.Direction.TO_CLIENT, true ); // Spawn Object : PacketPlayOutSpawnEntity
         addRewrite( 0x01, ProtocolConstants.Direction.TO_CLIENT, true ); // Spawn Experience Orb : PacketPlayOutSpawnEntityExperienceOrb
