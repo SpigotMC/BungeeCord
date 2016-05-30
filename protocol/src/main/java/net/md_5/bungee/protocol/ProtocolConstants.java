@@ -14,7 +14,7 @@ public class ProtocolConstants
     public static final int MINECRAFT_16w21b = 203;
     public static final List<String> SUPPORTED_VERSIONS = Arrays.asList(
             "1.8.x",
-            "1.9.x"
+            "1.9.x",
             "16w21b"
     );
     public static final List<Integer> SUPPORTED_VERSION_IDS = Arrays.asList(ProtocolConstants.MINECRAFT_1_8,
