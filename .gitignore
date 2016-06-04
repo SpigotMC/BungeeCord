@@ -6,6 +6,7 @@
 # netbeans
 nbproject/
 nbactions.xml
+.metadata/
 
 # we use maven!
 build.xml

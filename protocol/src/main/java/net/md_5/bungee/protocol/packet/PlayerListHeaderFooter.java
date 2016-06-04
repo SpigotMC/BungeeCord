@@ -23,8 +23,16 @@ public class PlayerListHeaderFooter extends DefinedPacket
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        header = readString( buf );
-        footer = readString( buf );
+        try {
+            header = readString( buf );
+        }
+        catch(Exception e){
+        }
+        try {        
+            footer = readString( buf );
+        }
+        catch(Exception e){
+        }
     }
 
     @Override
