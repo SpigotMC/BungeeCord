@@ -377,7 +377,7 @@ public class PluginManager
         eventBus.post( event );
         event.postCall();
 
-        long elapsed = start - System.nanoTime();
+        long elapsed = System.nanoTime() - start;
         if ( elapsed > 250000 )
         {
             ProxyServer.getInstance().getLogger().log( Level.WARNING, "Event {0} took more {1}ns to process!", new Object[]
