@@ -23,6 +23,7 @@ public class BungeeCordLauncher
         OptionParser parser = new OptionParser();
         parser.allowsUnrecognizedOptions();
         parser.acceptsAll( Arrays.asList( "v", "version" ) );
+        parser.acceptsAll( Arrays.asList( "c","command"));
         parser.acceptsAll( Arrays.asList( "noconsole" ) );
 
         OptionSet options = parser.parse( args );
@@ -32,6 +33,7 @@ public class BungeeCordLauncher
             System.out.println( Bootstrap.class.getPackage().getImplementationVersion() );
             return;
         }
+
 
         if ( BungeeCord.class.getPackage().getSpecificationVersion() != null && System.getProperty( "IReallyKnowWhatIAmDoingISwear" ) == null )
         {
@@ -53,6 +55,14 @@ public class BungeeCordLauncher
         ProxyServer.setInstance( bungee );
         bungee.getLogger().info( "Enabled BungeeCord version " + bungee.getVersion() );
         bungee.start();
+
+        if (options.has("command"))
+        {
+            String command = args[1];
+            if (!bungee.getPluginManager().dispatchCommand(ConsoleCommandSender.getInstance(), command)) {
+                bungee.getConsole().sendMessage(ChatColor.RED + "Command not found");
+            }
+        }
 
         if ( !options.has( "noconsole" ) )
         {
