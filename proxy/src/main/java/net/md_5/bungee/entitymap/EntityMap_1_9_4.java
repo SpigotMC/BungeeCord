@@ -61,6 +61,8 @@ class EntityMap_1_9_4 extends EntityMap
         switch ( packetId )
         {
             case 0x3A /* Attach Entity : PacketPlayOutAttachEntity */:
+                rewriteInt( packet, oldId, newId, readerIndex + packetIdLength + 4 );
+                break;
             case 0x48 /* Collect Item : PacketPlayOutCollect */:
                 DefinedPacket.readVarInt( packet );
                 rewriteVarInt( packet, oldId, newId, packet.readerIndex() );
