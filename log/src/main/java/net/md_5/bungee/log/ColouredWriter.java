@@ -79,5 +79,4 @@ public class ColouredWriter extends Handler
     public void close() throws SecurityException
     {
     }
-
 }

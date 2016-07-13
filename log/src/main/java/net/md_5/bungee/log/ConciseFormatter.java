@@ -24,6 +24,7 @@ public class ConciseFormatter extends Formatter
         formatted.append( "] " );
         formatted.append( formatMessage( record ) );
         formatted.append( '\n' );
+
         if ( record.getThrown() != null )
         {
             StringWriter writer = new StringWriter();
