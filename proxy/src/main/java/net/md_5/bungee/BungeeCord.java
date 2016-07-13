@@ -22,7 +22,6 @@ import io.netty.util.ResourceLeakDetector;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -76,8 +75,6 @@ import net.md_5.bungee.compress.CompressFactory;
 import net.md_5.bungee.conf.Configuration;
 import net.md_5.bungee.conf.YamlConfig;
 import net.md_5.bungee.forge.ForgeConstants;
-import net.md_5.bungee.log.BungeeLogger;
-import net.md_5.bungee.log.LoggingOutputStream;
 import net.md_5.bungee.module.ModuleManager;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.DefinedPacket;
@@ -87,7 +84,6 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import net.md_5.bungee.util.CaseInsensitiveMap;
-import org.fusesource.jansi.AnsiConsole;
 
 /**
  * Main BungeeCord proxy class.
@@ -175,7 +171,7 @@ public class BungeeCord extends ProxyServer
     }
 
     @SuppressFBWarnings("DM_DEFAULT_ENCODING")
-    public BungeeCord() throws IOException
+    public BungeeCord(final ConsoleReader reader) throws IOException
     {
         // Java uses ! to indicate a resource inside of a jar/zip/other container. Running Bungee from within a directory that has a ! will cause this to muck up.
         Preconditions.checkState( new File( "." ).getAbsolutePath().indexOf( '!' ) == -1, "Cannot use BungeeCord in directory with ! in path." );
@@ -198,23 +194,9 @@ public class BungeeCord extends ProxyServer
             }
         }
 
-        // This is a workaround for quite possibly the weirdest bug I have ever encountered in my life!
-        // When jansi attempts to extract its natives, by default it tries to extract a specific version,
-        // using the loading class's implementation version. Normally this works completely fine,
-        // however when on Windows certain characters such as - and : can trigger special behaviour.
-        // Furthermore this behaviour only occurs in specific combinations due to the parsing done by jansi.
-        // For example test-test works fine, but test-test-test does not! In order to avoid this all together but
-        // still keep our versions the same as they were, we set the override property to the essentially garbage version
-        // BungeeCord. This version is only used when extracting the libraries to their temp folder.
-        System.setProperty( "library.jansi.version", "BungeeCord" );
+        consoleReader = reader;
 
-        AnsiConsole.systemInstall();
-        consoleReader = new ConsoleReader();
-        consoleReader.setExpandEvents( false );
-
-        logger = new BungeeLogger( "BungeeCord", "proxy.log", consoleReader );
-        System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
-        System.setOut( new PrintStream( new LoggingOutputStream( logger, Level.INFO ), true ) );
+        logger = Logger.getLogger("BungeeCord");
 
         if ( !Boolean.getBoolean( "net.md_5.bungee.native.disable" ) )
         {

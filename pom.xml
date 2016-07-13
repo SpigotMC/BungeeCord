@@ -66,6 +66,7 @@
 
     <properties>
         <build.number>unknown</build.number>
+        <log4j.version>2.8.2</log4j.version>
         <netty.version>4.1.12.Final</netty.version>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
@@ -89,6 +90,12 @@
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>findbugs</artifactId>
             <version>3.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
