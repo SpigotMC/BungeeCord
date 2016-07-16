@@ -223,7 +223,7 @@ public class DownstreamBridge extends PacketHandler
                 brand.release();
                 brand = ByteBufAllocator.DEFAULT.heapBuffer();
                 DefinedPacket.writeString(bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand, brand);
-                pluginMessage.setData(brand.array().clone());
+                pluginMessage.setData(DefinedPacket.readArray( brand ));
                 brand.release();
             }
             else

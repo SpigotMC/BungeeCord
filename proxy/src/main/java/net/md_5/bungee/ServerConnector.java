@@ -180,10 +180,11 @@ public class ServerConnector extends PacketHandler
             user.setServerEntityId(login.getEntityId());
             
             // Set tab list size, this sucks balls, TODO: what shall we do about packet mutability
-            Login modLogin = new Login(login.getEntityId(), login.getGameMode(), (byte) login.getDimension(), login.getDifficulty(), (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.isReducedDebugInfo());
-            
-            user.unsafe().sendPacket(modLogin);
-            
+            Login modLogin = new Login( login.getEntityId(), login.getGameMode(), (byte) login.getDimension(), login.getDifficulty(),
+                    (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.isReducedDebugInfo() );
+
+            user.unsafe().sendPacket( modLogin );
+
             if (user.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_8)
             {
                 MinecraftOutput out = new MinecraftOutput();
@@ -194,7 +195,7 @@ public class ServerConnector extends PacketHandler
             {
                 ByteBuf brand = ByteBufAllocator.DEFAULT.heapBuffer();
                 DefinedPacket.writeString(bungee.getName() + " (" + bungee.getVersion() + ")", brand);
-                user.unsafe().sendPacket(new PluginMessage("MC|Brand", brand.array().clone(), handshakeHandler.isServerForge()));
+                user.unsafe().sendPacket(new PluginMessage("MC|Brand", DefinedPacket.readArray( brand ), handshakeHandler.isServerForge()));
                 brand.release();
             }
         }
