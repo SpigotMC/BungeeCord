@@ -145,9 +145,9 @@ public class Configuration implements ProxyConfig
         return favicon;
     }
 
-	@Override
-	public String getCustomServerName()
-	{
-	    return customServerName;
-	}
+    @Override
+    public String getCustomServerName()
+    {
+        return customServerName;
+    }
 }
