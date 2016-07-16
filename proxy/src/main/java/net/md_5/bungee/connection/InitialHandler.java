@@ -295,7 +295,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
                 if ( !ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) )
                 {
-                    disconnect( bungee.getTranslation( "outdated_server" ) );
+                    if ( handshake.getProtocolVersion() > bungee.getProtocolVersion() )
+                    {
+                        disconnect( bungee.getTranslation( "outdated_server" ) );
+                    } else
+                    {
+                        disconnect( bungee.getTranslation( "outdated_client" ) );
+                    }
                     return;
                 }
 
