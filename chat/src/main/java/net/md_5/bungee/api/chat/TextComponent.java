@@ -133,7 +133,7 @@ public class TextComponent extends BaseComponent
     /**
      * The text of the component that will be displayed to the client
      */
-    private String text;
+    private String text = "";
 
     /**
      * Creates a TextComponent with formatting and text from the passed
