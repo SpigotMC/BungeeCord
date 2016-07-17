@@ -11,7 +11,7 @@ import net.md_5.bungee.api.plugin.Cancellable;
  */
 @Data
 @ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, of = { "cancelled", "tag" })
 public class PluginMessageEvent extends TargetedEvent implements Cancellable
 {
 
