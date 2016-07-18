@@ -14,7 +14,6 @@ import java.util.regex.Pattern;
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
 public class TextComponent extends BaseComponent
 {
 
@@ -134,6 +133,14 @@ public class TextComponent extends BaseComponent
      * The text of the component that will be displayed to the client
      */
     private String text;
+
+    /**
+     * Creates a TextComponent with blank text.
+     */
+    public TextComponent()
+    {
+        this.text = "";
+    }
 
     /**
      * Creates a TextComponent with formatting and text from the passed

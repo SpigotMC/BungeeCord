@@ -10,7 +10,7 @@ import net.md_5.bungee.api.plugin.Cancellable;
  * Event called when a plugin message is sent to the client or server.
  */
 @Data
-@ToString(callSuper = true)
+@ToString(callSuper = true, exclude = "data")
 @EqualsAndHashCode(callSuper = true)
 public class PluginMessageEvent extends TargetedEvent implements Cancellable
 {
