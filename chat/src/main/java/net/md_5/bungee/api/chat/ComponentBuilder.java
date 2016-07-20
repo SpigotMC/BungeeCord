@@ -242,8 +242,9 @@ public class ComponentBuilder
      */
     public BaseComponent[] create()
     {
-        parts.add( current );
-        return parts.toArray( new BaseComponent[ parts.size() ] );
+        BaseComponent[] result = parts.toArray( new BaseComponent[ parts.size() + 1 ] );
+        result[parts.size()] = current;
+        return result;
     }
 
     public static enum FormatRetention
