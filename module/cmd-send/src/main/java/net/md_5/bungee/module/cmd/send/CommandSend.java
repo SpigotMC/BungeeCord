@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
@@ -82,8 +83,8 @@ public class CommandSend extends Command implements TabExecutor
     {
         if ( player.getServer() != null && !player.getServer().getInfo().equals( target ) )
         {
-            player.connect( target );
-            player.sendMessage( ChatColor.GOLD + "Summoned to " + target.getName() + " by " + sender.getName() );
+            player.connect( target ); 
+            player.sendMessage( TextComponent.fromLegacyText( ProxyServer.getInstance().getTranslation( "server_summon" , target.getName(), sender.getName() ) ) );
         }
     }
 
