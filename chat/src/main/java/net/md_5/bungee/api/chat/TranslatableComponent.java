@@ -3,15 +3,18 @@ package net.md_5.bungee.api.chat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 import net.md_5.bungee.api.ChatColor;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import lombok.ToString;
 
+@Accessors(chain = true)
 @Getter
 @Setter
 @ToString
@@ -96,14 +99,17 @@ public class TranslatableComponent extends BaseComponent
      * any previously set substitutions
      *
      * @param components the components to substitute
+     *
+     * @return this TranslatableComponent
      */
-    public void setWith(List<BaseComponent> components)
+    public TranslatableComponent setWith(List<BaseComponent> components)
     {
         for ( BaseComponent component : components )
         {
             component.parent = this;
         }
         with = components;
+        return this;
     }
 
     /**
@@ -111,10 +117,12 @@ public class TranslatableComponent extends BaseComponent
      * component's formatting
      *
      * @param text the text to substitute
+     *
+     * @return this TranslatableComponent
      */
-    public void addWith(String text)
+    public TranslatableComponent addWith(String text)
     {
-        addWith( new TextComponent( text ) );
+        return addWith( new TextComponent( text ) );
     }
 
     /**
@@ -122,8 +130,10 @@ public class TranslatableComponent extends BaseComponent
      * this component's formatting
      *
      * @param component the component to substitute
+     *
+     * @return this TranslatableComponent
      */
-    public void addWith(BaseComponent component)
+    public TranslatableComponent addWith(BaseComponent component)
     {
         if ( with == null )
         {
@@ -131,6 +141,7 @@ public class TranslatableComponent extends BaseComponent
         }
         component.parent = this;
         with.add( component );
+        return this;
     }
 
     @Override
