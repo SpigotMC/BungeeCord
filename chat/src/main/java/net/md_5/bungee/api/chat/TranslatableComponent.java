@@ -89,9 +89,84 @@ public class TranslatableComponent extends BaseComponent
      * @return the duplicate of this TranslatableComponent.
      */
     @Override
-    public BaseComponent duplicate()
+    public TranslatableComponent duplicate()
     {
         return new TranslatableComponent( this );
+    }
+
+    @Override
+    public TranslatableComponent setColor(ChatColor color) {
+        super.setColor( color );
+        return this;
+    }
+
+    @Override
+    public TranslatableComponent setBold(Boolean bold) {
+        super.setBold( bold );
+        return this;
+    }
+
+    @Override
+    public TranslatableComponent setItalic(Boolean italic) {
+        super.setItalic( italic );
+        return this;
+    }
+
+    @Override
+    public TranslatableComponent setUnderlined(Boolean underlined) {
+        super.setUnderlined( underlined );
+        return this;
+    }
+
+    @Override
+    public TranslatableComponent setStrikethrough(Boolean strikethrough) {
+        super.setStrikethrough( strikethrough );
+        return this;
+    }
+
+    @Override
+    public TranslatableComponent setObfuscated(Boolean obfuscated) {
+        super.setObfuscated( obfuscated );
+        return this;
+    }
+
+    @Override
+    public TranslatableComponent setInsertion(String insertion) {
+        super.setInsertion( insertion );
+        return this;
+    }
+
+    @Override
+    public TranslatableComponent setExtra(List<BaseComponent> components)
+    {
+        super.setExtra( components );
+        return this;
+    }
+
+    @Override
+    public TranslatableComponent addExtra(String text)
+    {
+        super.addExtra( text );
+        return this;
+    }
+
+    @Override
+    public TranslatableComponent addExtra(BaseComponent component)
+    {
+        super.addExtra( component );
+        return this;
+    }
+
+    @Override
+    public TranslatableComponent setClickEvent(ClickEvent clickEvent) {
+        super.setClickEvent( clickEvent );
+        return this;
+    }
+
+    @Override
+    public TranslatableComponent setHoverEvent(HoverEvent hoverEvent) {
+        super.setHoverEvent( hoverEvent );
+        return this;
     }
 
     /**
