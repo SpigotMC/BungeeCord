@@ -1,12 +1,10 @@
 package net.md_5.bungee.api.chat;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @Getter
 @ToString
-@RequiredArgsConstructor
 final public class HoverEvent
 {
 
@@ -20,5 +18,30 @@ final public class HoverEvent
         SHOW_ACHIEVEMENT,
         SHOW_ITEM,
         SHOW_ENTITY
+    }
+
+    /**
+     * Creates a HoverEvent with the passed action and value
+     *
+     * @param action the action
+     * @param value the value
+     */
+    @java.beans.ConstructorProperties({"action", "value"})
+    public HoverEvent(Action action, BaseComponent[] value)
+    {
+        this.action = action;
+        this.value = value;
+    }
+
+    /**
+     * Creates a HoverEvent with the passed action and value
+     *
+     * @param action the action
+     * @param value the value
+     */
+    @java.beans.ConstructorProperties({"action", "value"})
+    public HoverEvent(Action action, BaseComponent value)
+    {
+        this( action, new BaseComponent[] { value } );
     }
 }
