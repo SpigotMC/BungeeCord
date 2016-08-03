@@ -190,6 +190,7 @@ public class UpstreamBridge extends PacketHandler
         // TODO: Unregister as well?
         if ( pluginMessage.getTag().equals( "REGISTER" ) )
         {
+            Preconditions.checkState( con.getPendingConnection().getRegisterMessages().size() < 128, "Too many channels registered" );
             con.getPendingConnection().getRegisterMessages().add( pluginMessage );
         }
     }
