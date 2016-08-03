@@ -152,11 +152,14 @@ public class BungeeTitle implements Title
     @Override
     public Title send(ProxiedPlayer player)
     {
-        sendPacket( player, clear );
-        sendPacket( player, reset );
-        sendPacket( player, times );
-        sendPacket( player, subtitle );
-        sendPacket( player, title );
+        if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
+        {
+            sendPacket( player, clear );
+            sendPacket( player, reset );
+            sendPacket( player, times );
+            sendPacket( player, subtitle );
+            sendPacket( player, title );
+        }
         return this;
     }
 }

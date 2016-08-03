@@ -79,4 +79,9 @@ public interface ProxyConfig
      * The favicon used for the server ping list.
      */
     Favicon getFaviconObject();
+    
+    /**
+     * The server name for the server ping list.
+     */
+    String getCustomServerName();
 }
