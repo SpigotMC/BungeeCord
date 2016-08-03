@@ -81,13 +81,16 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
+    public boolean shouldHandle(PacketWrapper packet) throws Exception
+    {
+        return con.getServer() != null;
+    }
+
+    @Override
     public void handle(PacketWrapper packet) throws Exception
     {
         con.getEntityRewrite().rewriteServerbound( packet.buf, con.getClientEntityId(), con.getServerEntityId() );
-        if ( con.getServer() != null )
-        {
-            con.getServer().getCh().write( packet );
-        }
+        con.getServer().getCh().write( packet );
     }
 
     @Override
