@@ -83,7 +83,7 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
     {
-        return con.getServer() != null;
+        return con.getServer() != null || packet.packet instanceof PluginMessage;
     }
 
     @Override
