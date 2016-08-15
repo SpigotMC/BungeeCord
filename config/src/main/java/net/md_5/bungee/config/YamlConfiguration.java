@@ -13,6 +13,10 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.nodes.Node;
+import org.yaml.snakeyaml.representer.Represent;
+import org.yaml.snakeyaml.representer.Representer;
 
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class YamlConfiguration extends ConfigurationProvider
@@ -23,9 +27,24 @@ public class YamlConfiguration extends ConfigurationProvider
         @Override
         protected Yaml initialValue()
         {
+            Representer representer = new Representer()
+            {
+                {
+                    representers.put( Configuration.class, new Represent()
+                    {
+                        @Override
+                        public Node representData(Object data)
+                        {
+                            return represent( ( (Configuration) data ).self );
+                        }
+                    } );
+                }
+            };
+
             DumperOptions options = new DumperOptions();
             options.setDefaultFlowStyle( DumperOptions.FlowStyle.BLOCK );
-            return new Yaml( options );
+
+            return new Yaml( new Constructor(), representer, options );
         }
     };
 

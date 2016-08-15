@@ -10,7 +10,7 @@ import org.junit.Test;
 public class YamlConfigurationTest
 {
 
-    private String document = ""
+    private static final String TEST_DOCUMENT = ""
             + "receipt:     Oz-Ware Purchase Invoice\n"
             + "date:        2012-08-06\n"
             + "customer:\n"
@@ -43,11 +43,17 @@ public class YamlConfigurationTest
             + "    Road to the Emerald City.\n"
             + "    Pay no attention to the\n"
             + "    man behind the curtain.";
+    private static final String NUMBER_TEST = ""
+            + "someKey:\n"
+            + "    1: 1\n"
+            + "    2: 2\n"
+            + "    3: 3\n"
+            + "    4: 4";
 
     @Test
     public void testConfig() throws Exception
     {
-        Configuration conf = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( document );
+        Configuration conf = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( TEST_DOCUMENT );
         testSection( conf );
 
         StringWriter sw = new StringWriter();
@@ -77,5 +83,24 @@ public class YamlConfigurationTest
         conf.set( "receipt", null );
         Assert.assertEquals( null, conf.get( "receipt" ) );
         Assert.assertEquals( "foo", conf.get( "receipt", "foo" ) );
+
+        Configuration newSection = conf.getSection( "new.section" );
+        newSection.set( "value", "foo" );
+        Assert.assertEquals( "foo", conf.get( "new.section.value" ) );
+
+        conf.set( "other.new.section", "bar" );
+        Assert.assertEquals( "bar", conf.get( "other.new.section" ) );
+    }
+
+    @Test
+    public void testNumberedKeys()
+    {
+        Configuration conf = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( NUMBER_TEST );
+
+        Configuration section = conf.getSection( "someKey" );
+        for ( String key : section.getKeys() )
+        {
+            // empty
+        }
     }
 }
