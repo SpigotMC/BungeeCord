@@ -32,7 +32,7 @@ public final class Configuration
 
         for ( Map.Entry<?, ?> entry : map.entrySet() )
         {
-            String key = entry.getKey().toString();
+            String key = ( entry.getKey() == null ) ? "null" : entry.getKey().toString();
 
             if ( entry.getValue() instanceof Map )
             {

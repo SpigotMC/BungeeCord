@@ -49,6 +49,10 @@ public class YamlConfigurationTest
             + "    2: 2\n"
             + "    3: 3\n"
             + "    4: 4";
+    private static final String NULL_TEST = ""
+            + "null:\n"
+            + "    null: object\n"
+            + "    object: null\n";
 
     @Test
     public void testConfig() throws Exception
@@ -102,5 +106,17 @@ public class YamlConfigurationTest
         {
             // empty
         }
+    }
+
+    @Test
+    public void testNull()
+    {
+        Configuration conf = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( NULL_TEST );
+
+        Assert.assertEquals( "object", conf.get( "null.null" ) );
+        Assert.assertEquals( "object", conf.getSection( "null" ).get( "null" ) );
+
+        Assert.assertEquals( null, conf.get( "null.object" ) );
+        Assert.assertEquals( "", conf.getString( "null.object" ) );
     }
 }
