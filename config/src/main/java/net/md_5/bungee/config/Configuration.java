@@ -91,6 +91,11 @@ public final class Configuration
         return ( val != null ) ? (T) val : def;
     }
 
+    public boolean contains(String path)
+    {
+        return get( path, null ) != null;
+    }
+
     public Object get(String path)
     {
         return get( path, getDefault( path ) );

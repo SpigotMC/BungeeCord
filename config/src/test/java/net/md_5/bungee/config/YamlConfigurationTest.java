@@ -94,6 +94,12 @@ public class YamlConfigurationTest
 
         conf.set( "other.new.section", "bar" );
         Assert.assertEquals( "bar", conf.get( "other.new.section" ) );
+
+        Assert.assertTrue( conf.contains( "customer.given" ) );
+        Assert.assertTrue( customer.contains( "given" ) );
+
+        Assert.assertFalse( conf.contains( "customer.foo" ) );
+        Assert.assertFalse( customer.contains( "foo" ) );
     }
 
     @Test
