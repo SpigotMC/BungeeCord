@@ -48,6 +48,14 @@ public abstract class DefinedPacket
         buf.writeBytes( b );
     }
 
+    public static byte[] toArray(ByteBuf buf)
+    {
+        byte[] ret = new byte[ buf.readableBytes() ];
+        buf.readBytes( ret );
+
+        return ret;
+    }
+
     public static byte[] readArray(ByteBuf buf)
     {
         return readArray( buf, buf.readableBytes() );
