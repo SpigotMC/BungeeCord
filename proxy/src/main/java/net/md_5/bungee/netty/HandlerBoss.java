@@ -111,11 +111,11 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                 {
                     handler, cause.getCause().getMessage()
                 } );
-            } else if ( cause instanceof IOException )
+            } else if ( cause instanceof IOException || ( cause instanceof IllegalStateException && handler instanceof InitialHandler ) )
             {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - IOException: {1}", new Object[]
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - {1}: {2}", new Object[]
                 {
-                    handler, cause.getMessage()
+                    handler, cause.getClass().getSimpleName(), cause.getMessage()
                 } );
             } else
             {
