@@ -84,4 +84,9 @@ public interface ProxyConfig
      * The server name for the server ping list.
      */
     String getCustomServerName();
+    
+    /**
+     * Whether the server should handle packets before the player has connected to a server
+     */
+    boolean getAlwaysHandlePackets();
 }
