@@ -4,6 +4,7 @@ package net.md_5.bungee.connection;
 import java.io.DataInput;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
@@ -221,6 +222,9 @@ public class DownstreamBridge extends PacketHandler
                 ByteBuf brand = Unpooled.wrappedBuffer(pluginMessage.getData());
                 String serverBrand = DefinedPacket.readString(brand);
                 brand.release();
+
+                Preconditions.checkState( !serverBrand.contains( bungee.getName() ), "Cannot connect proxy to itself!" );
+
                 brand = ByteBufAllocator.DEFAULT.heapBuffer();
                 DefinedPacket.writeString(bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand, brand);
                 pluginMessage.setData(DefinedPacket.readArray( brand ));
@@ -229,6 +233,9 @@ public class DownstreamBridge extends PacketHandler
             else
             {
                 String serverBrand = new String(pluginMessage.getData(), "UTF-8");
+
+                Preconditions.checkState( !serverBrand.contains( bungee.getName() ), "Cannot connect proxy to itself!" );
+
                 pluginMessage.setData((bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand).getBytes("UTF-8"));
             }
             // changes in the packet are ignored so we need to send it manually

@@ -193,9 +193,9 @@ public class ServerConnector extends PacketHandler
             }
             else
             {
-                ByteBuf brand = ByteBufAllocator.DEFAULT.heapBuffer();
-                DefinedPacket.writeString(bungee.getName() + " (" + bungee.getVersion() + ")", brand);
-                user.unsafe().sendPacket(new PluginMessage("MC|Brand", DefinedPacket.readArray( brand ), handshakeHandler.isServerForge()));
+            	ByteBuf brand = ByteBufAllocator.DEFAULT.heapBuffer();
+            	DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")", brand );
+            	user.unsafe().sendPacket( new PluginMessage( "MC|Brand", DefinedPacket.toArray( brand ), handshakeHandler.isServerForge() ) );
                 brand.release();
             }
         }

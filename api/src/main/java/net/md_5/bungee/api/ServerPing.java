@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -16,6 +17,7 @@ import net.md_5.bungee.api.chat.TextComponent;
  * Minecraft client server list, or hitting it with a packet 0xFE.
  */
 @Data
+@ToString(exclude = "favicon")
 @NoArgsConstructor
 @AllArgsConstructor
 public class ServerPing
