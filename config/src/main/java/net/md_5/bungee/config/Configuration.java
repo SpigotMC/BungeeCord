@@ -108,6 +108,11 @@ public final class Configuration
 
     public void set(String path, Object value)
     {
+        if ( value instanceof Map )
+        {
+            value = new Configuration( (Map) value, ( defaults == null ) ? null : defaults.getSection( path ) );
+        }
+
         Configuration section = getSectionFor( path );
         if ( section == this )
         {

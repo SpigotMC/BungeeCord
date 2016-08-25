@@ -2,6 +2,7 @@ package net.md_5.bungee.config;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.junit.Assert;
@@ -124,5 +125,19 @@ public class YamlConfigurationTest
 
         Assert.assertEquals( null, conf.get( "null.object" ) );
         Assert.assertEquals( "", conf.getString( "null.object" ) );
+    }
+
+    @Test
+    public void testMapAddition()
+    {
+        Configuration conf = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( TEST_DOCUMENT );
+
+        conf.set( "addition", Collections.singletonMap( "foo", "bar" ) );
+
+        // Order matters
+        Assert.assertEquals( "bar", conf.getSection( "addition" ).getString( "foo" ) );
+        Assert.assertEquals( "bar", conf.getString( "addition.foo" ) );
+
+        Assert.assertTrue( conf.get( "addition" ) instanceof Configuration );
     }
 }
