@@ -33,7 +33,10 @@ import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.MinecraftOutput;
 import net.md_5.bungee.protocol.Protocol;
+<<<<<<< HEAD
 import net.md_5.bungee.protocol.ProtocolConstants;
+=======
+>>>>>>> 5c809c24990ec06ecdb0ee6550d4d10595ed9323
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.Kick;
@@ -163,15 +166,21 @@ public class ServerConnector extends PacketHandler
             while (!packetQueue.isEmpty())
                 ch.write(packetQueue.poll());
         }
-        
-        for (PluginMessage message : user.getPendingConnection().getRegisterMessages())
-            ch.write(message);
-        
-        if (user.getSettings() != null)
-            ch.write(user.getSettings());
-        
-        if (user.getForgeClientHandler().getClientModList() == null && !user.getForgeClientHandler().isHandshakeComplete())
+
+        for ( PluginMessage message : user.getPendingConnection().getRelayMessages() )
+        {
+            ch.write( message );
+        }
+
+        if ( user.getSettings() != null )
+        {
+            ch.write( user.getSettings() );
+        }
+
+        if ( user.getForgeClientHandler().getClientModList() == null && !user.getForgeClientHandler().isHandshakeComplete() ) // Vanilla
+        {
             user.getForgeClientHandler().setHandshakeComplete();
+        }
         
         if (user.getServer() == null)
         {
