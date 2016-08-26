@@ -14,6 +14,7 @@ import com.google.gson.Gson;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import net.md_5.bungee.*;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatColor;
@@ -73,6 +74,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private EncryptionRequest request;
     @Getter
     private final List<PluginMessage> registerMessages = new BoundedArrayList<>( 128 );
+    @Getter
+    @Setter
+    private PluginMessage mcBrandMessage;
     private State thisState = State.HANDSHAKE;
     private final Unsafe unsafe = new Unsafe()
     {
@@ -129,6 +133,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         if ( pluginMessage.getTag().equals( "REGISTER" ) )
         {
             registerMessages.add( pluginMessage );
+        }
+
+        if ( pluginMessage.getTag().equals( "MC|Brand" ))
+        {
+            setMcBrandMessage( pluginMessage );
         }
     }
 
