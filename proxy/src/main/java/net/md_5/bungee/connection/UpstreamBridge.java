@@ -195,6 +195,11 @@ public class UpstreamBridge extends PacketHandler
         {
             con.getPendingConnection().getRegisterMessages().add( pluginMessage );
         }
+
+        if ( pluginMessage.getTag().equals( "MC|Brand" ))
+        {
+            con.getPendingConnection().setMcBrandMessage( pluginMessage );
+        }
     }
 
     @Override

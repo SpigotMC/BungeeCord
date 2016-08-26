@@ -175,6 +175,11 @@ public class ServerConnector extends PacketHandler
             ch.write( message );
         }
 
+        if ( user.getPendingConnection().getMcBrandMessage() != null )
+        {
+            ch.write( user.getPendingConnection().getMcBrandMessage() );
+        }
+
         if ( user.getSettings() != null )
         {
             ch.write( user.getSettings() );
