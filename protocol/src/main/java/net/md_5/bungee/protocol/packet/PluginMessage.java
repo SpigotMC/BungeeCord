@@ -1,6 +1,7 @@
 package net.md_5.bungee.protocol.packet;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import net.md_5.bungee.protocol.DefinedPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -22,6 +23,15 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 public class PluginMessage extends DefinedPacket
 {
 
+    public static final Predicate<PluginMessage> SHOULD_RELAY = new Predicate<PluginMessage>()
+    {
+        @Override
+        public boolean apply(PluginMessage input)
+        {
+            return input.getTag().equals( "REGISTER" ) || input.getTag().equals( "MC|Brand" );
+        }
+    };
+    //
     private String tag;
     private byte[] data;
 
