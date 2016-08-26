@@ -163,15 +163,21 @@ public class ServerConnector extends PacketHandler
             while (!packetQueue.isEmpty())
                 ch.write(packetQueue.poll());
         }
-        
-        for (PluginMessage message : user.getPendingConnection().getRegisterMessages())
-            ch.write(message);
-        
-        if (user.getSettings() != null)
-            ch.write(user.getSettings());
-        
-        if (user.getForgeClientHandler().getClientModList() == null && !user.getForgeClientHandler().isHandshakeComplete())
+
+        for ( PluginMessage message : user.getPendingConnection().getRelayMessages() )
+        {
+            ch.write( message );
+        }
+
+        if ( user.getSettings() != null )
+        {
+            ch.write( user.getSettings() );
+        }
+
+        if ( user.getForgeClientHandler().getClientModList() == null && !user.getForgeClientHandler().isHandshakeComplete() ) // Vanilla
+        {
             user.getForgeClientHandler().setHandshakeComplete();
+        }
         
         if (user.getServer() == null)
         {
