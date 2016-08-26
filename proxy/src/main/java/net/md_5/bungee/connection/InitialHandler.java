@@ -72,7 +72,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private LoginRequest loginRequest;
     private EncryptionRequest request;
     @Getter
-    private final List<PluginMessage> registerMessages = new BoundedArrayList<>( 128 );
+    private final List<PluginMessage> relayMessages = new BoundedArrayList<>( 128 );
     private State thisState = State.HANDSHAKE;
     private final Unsafe unsafe = new Unsafe()
     {
@@ -126,9 +126,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(PluginMessage pluginMessage) throws Exception
     {
         // TODO: Unregister?
-        if ( pluginMessage.getTag().equals( "REGISTER" ) )
+        if ( PluginMessage.SHOULD_RELAY.apply( pluginMessage ) )
         {
-            registerMessages.add( pluginMessage );
+            relayMessages.add( pluginMessage );
         }
     }
 
