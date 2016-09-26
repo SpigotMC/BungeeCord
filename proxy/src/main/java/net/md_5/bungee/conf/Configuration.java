@@ -11,6 +11,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import javax.imageio.ImageIO;
 import lombok.Getter;
+import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ProxyConfig;
 import net.md_5.bungee.api.ProxyServer;
@@ -57,6 +58,14 @@ public class Configuration implements ProxyConfig
     private boolean ipForward;
     private Favicon favicon;
     private int compressionThreshold = 256;
+    /**
+     * The connection timeout when a player joins a server.
+     * */
+    private int serverConnectionTimeout = 5000;
+    /**
+     * The timeout of server pinging.
+     * */
+    private int serverPingTimeout = 5000;
 
     public void load()
     {
@@ -84,6 +93,9 @@ public class Configuration implements ProxyConfig
         throttle = adapter.getInt( "connection_throttle", throttle );
         ipForward = adapter.getBoolean( "ip_forward", ipForward );
         compressionThreshold = adapter.getInt( "network_compression_threshold", compressionThreshold );
+        // Just simple config loading... TODO: Check and limit the loaded value, avoiding server connection issues.
+        serverConnectionTimeout = adapter.getInt( "server_connection_timeout" , serverConnectionTimeout );
+        serverConnectionTimeout = adapter.getInt( "server_ping_timeout" , serverPingTimeout );
 
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
 

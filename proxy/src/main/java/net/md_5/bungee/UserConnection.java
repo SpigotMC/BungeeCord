@@ -334,7 +334,7 @@ public final class UserConnection implements ProxiedPlayer
                 .channel( PipelineUtils.getChannel() )
                 .group( ch.getHandle().eventLoop() )
                 .handler( initializer )
-                .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000 ) // TODO: Configurable
+                .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, BungeeCord.getInstance().config.getServerConnectionTimeout() )
                 .remoteAddress( target.getAddress() );
         // Windows is bugged, multi homed users will just have to live with random connecting IPs
         if ( getPendingConnection().getListener().isSetLocalAddress() && !PlatformDependent.isWindows() )
