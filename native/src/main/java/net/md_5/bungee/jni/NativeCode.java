@@ -39,8 +39,7 @@ public final class NativeCode<T>
     {
         if ( !loaded && isSupported() )
         {
-            String fullName = "bungeecord-" + name;
-
+            String fullName = "bungeecord-" + name + "_"+getArchPrefix();
             try
             {
                 System.loadLibrary( fullName );
@@ -51,7 +50,7 @@ public final class NativeCode<T>
 
             if ( !loaded )
             {
-                try ( InputStream soFile = BungeeCipher.class.getClassLoader().getResourceAsStream( name + ".so" ) )
+                try ( InputStream soFile = BungeeCipher.class.getClassLoader().getResourceAsStream( name + "_" + getArchPrefix() + ".so" ) )
                 {
                     // Else we will create and copy it to a temp file
                     File temp = File.createTempFile( fullName, ".so" );
@@ -80,6 +79,17 @@ public final class NativeCode<T>
 
     public static boolean isSupported()
     {
-        return "Linux".equals( System.getProperty( "os.name" ) ) && "amd64".equals( System.getProperty( "os.arch" ) );
+        return "Linux".equals( System.getProperty( "os.name" ) ) && getArchPrefix() != null;
+    }
+
+    private static String getArchPrefix(){
+        switch (System.getProperty( "os.arch" )){
+            case "i386":
+                return "x32";
+            case "amd64":
+                return "x64";
+            default:
+                return null;
+        }
     }
 }
