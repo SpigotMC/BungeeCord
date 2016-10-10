@@ -7,7 +7,7 @@ BungeeCord is a sophisticated proxy and API designed mainly to teleport players 
 
 Information
 -----------
-BungeeCord is maintained by [SpigotMC](https://www.spigotmc.org/) and has it's own [discussion thread](https://www.spigotmc.org/go/bungeecord) with plenty of helpful information and links.
+BungeeCord is maintained by [SpigotMC](https://www.spigotmc.org/) and has its own [discussion thread](https://www.spigotmc.org/go/bungeecord) with plenty of helpful information and links.
 
 Source
 ------
