@@ -136,8 +136,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(LegacyHandshake legacyHandshake) throws Exception
     {
         this.legacy = true;
-        ch.getHandle().writeAndFlush( bungee.getTranslation( "outdated_client" ) );
-        ch.close();
+        ch.close( bungee.getTranslation( "outdated_client" ) );
     }
 
     @Override
@@ -179,8 +178,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             + '\u00a7' + legacy.getPlayers().getMax();
                 }
 
-                ch.getHandle().writeAndFlush( kickMessage );
-                ch.close();
+                ch.close( kickMessage );
             }
         };
 
@@ -219,7 +217,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     public void done(ProxyPingEvent pingResult, Throwable error)
                     {
                         Gson gson = BungeeCord.getInstance().gson;
-                        unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
+                        ch.write( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
                     }
                 };
 
@@ -247,8 +245,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(PingPacket ping) throws Exception
     {
         Preconditions.checkState( thisState == State.PING, "Not expecting PING" );
-        unsafe.sendPacket( ping );
-        disconnect( "" );
+        ch.close( ping );
     }
 
     @Override
@@ -483,12 +480,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     return;
                 }
 
-                ch.getHandle().eventLoop().execute( new Runnable()
+                Runnable nettyPostCall = new Runnable()
                 {
                     @Override
                     public void run()
                     {
-                        if ( ch.getHandle().isActive() )
+                        if ( !ch.isClosed() )
                         {
                             UserConnection userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
                             userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
@@ -517,7 +514,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             thisState = State.FINISHED;
                         }
                     }
-                } );
+                };
+
+                if ( ch.getHandle().eventLoop().inEventLoop() ) {
+                    nettyPostCall.run();
+                } else {
+                    ch.getHandle().eventLoop().execute( nettyPostCall );
+                };
             }
         };
 
@@ -537,24 +540,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         if ( !disconnecting || !ch.isClosed() )
         {
             disconnecting = true;
-            // Why do we have to delay this you might ask? Well the simple reason is MOJANG.
-            // Despite many a bug report posted, ever since the 1.7 protocol rewrite, the client STILL has a race condition upon switching protocols.
-            // As such, despite the protocol switch packets already having been sent, there is the possibility of a client side exception
-            // To help combat this we will wait half a second before actually sending the disconnected packet so that whoever is on the other
-            // end has a somewhat better chance of receiving the proper packet.
-            ch.getHandle().eventLoop().schedule( new Runnable()
-            {
 
-                @Override
-                public void run()
-                {
-                    if ( thisState != State.STATUS && thisState != State.PING )
-                    {
-                        unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
-                    }
-                    ch.close();
-                }
-            }, 500, TimeUnit.MILLISECONDS );
+            if ( thisState != State.STATUS && thisState != State.PING )
+            {
+                ch.close( new Kick( ComponentSerializer.toString( reason ) ) );
+            } else
+            {
+                ch.close();
+            }
         }
     }
 

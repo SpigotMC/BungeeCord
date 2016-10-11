@@ -1,4 +1,4 @@
-package net.md_5.bungee.compress;
+package net.md_5.bungee.netty.compress;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;

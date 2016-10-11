@@ -1,4 +1,4 @@
-package net.md_5.bungee.compress;
+package net.md_5.bungee.netty.compress;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

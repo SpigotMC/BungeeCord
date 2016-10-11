@@ -1,4 +1,4 @@
-package net.md_5.bungee.compress;
+package net.md_5.bungee.netty.compress;
 
 import net.md_5.bungee.jni.NativeCode;
 import net.md_5.bungee.jni.zlib.BungeeZlib;
