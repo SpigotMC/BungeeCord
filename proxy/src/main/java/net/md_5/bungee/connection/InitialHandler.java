@@ -25,8 +25,11 @@ import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.LoginCancelledEvent;
 import net.md_5.bungee.api.event.LoginEvent;
+import net.md_5.bungee.api.event.PlayerHandshakeEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
+import net.md_5.bungee.api.event.PreLoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.http.HttpClient;
@@ -45,8 +48,6 @@ import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.api.AbstractReconnectHandler;
-import net.md_5.bungee.api.event.PlayerHandshakeEvent;
-import net.md_5.bungee.api.event.PreLoginEvent;
 import net.md_5.bungee.jni.cipher.BungeeCipher;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.LegacyHandshake;
@@ -107,7 +108,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private enum State
     {
 
-        HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, FINISHED;
+        HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, FINISHING, FINISHED
     }
 
     @Override
@@ -468,6 +469,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             uniqueId = offlineId;
         }
 
+        // From now on the client is done with the login, just bungee side work left to do
+        thisState = State.FINISHING;
+
         Callback<LoginEvent> complete = new Callback<LoginEvent>()
         {
             @Override
@@ -521,7 +525,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             }
         };
 
-        // fire login event
+        // fire login event, from here on a disconnect will lead to a LoginCancelledEvent
         bungee.getPluginManager().callEvent( new LoginEvent( InitialHandler.this, complete ) );
     }
 
@@ -555,6 +559,15 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     ch.close();
                 }
             }, 500, TimeUnit.MILLISECONDS );
+        }
+    }
+
+    @Override
+    public void disconnected(ChannelWrapper channel) throws Exception
+    {
+        if ( thisState == State.FINISHING )
+        {
+            bungee.getPluginManager().callEvent( new LoginCancelledEvent(InitialHandler.this) );
         }
     }
 
