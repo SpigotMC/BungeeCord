@@ -4,12 +4,14 @@ import com.google.common.base.Preconditions;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.TabCompleteEvent;
+import net.md_5.bungee.api.plugin.CommandExecutionException;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.PacketWrapper;
@@ -21,6 +23,8 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 
@@ -115,9 +119,16 @@ public class UpstreamBridge extends PacketHandler
         if ( !bungee.getPluginManager().callEvent( chatEvent ).isCancelled() )
         {
             chat.setMessage( chatEvent.getMessage() );
-            if ( !chatEvent.isCommand() || !bungee.getPluginManager().dispatchCommand( con, chat.getMessage().substring( 1 ) ) )
+            try
             {
-                con.getServer().unsafe().sendPacket( chat );
+                if ( !chatEvent.isCommand() || !bungee.getPluginManager().dispatchCommand( con, chat.getMessage().substring( 1 ), null, true ) )
+                {
+                    con.getServer().unsafe().sendPacket( chat );
+                }
+            } catch ( CommandExecutionException ex )
+            {
+                con.sendMessage( ChatColor.RED + "An internal error occurred whilst executing this command, please check the console log for details." );
+                bungee.getLogger().log( Level.WARNING, "Error in dispatching command", ex );
             }
         }
         throw CancelSendSignal.INSTANCE;
@@ -130,7 +141,14 @@ public class UpstreamBridge extends PacketHandler
 
         if ( tabComplete.getCursor().startsWith( "/" ) )
         {
-            bungee.getPluginManager().dispatchCommand( con, tabComplete.getCursor().substring( 1 ), suggestions );
+            try
+            {
+                bungee.getPluginManager().dispatchCommand( con, tabComplete.getCursor().substring( 1 ), suggestions, true );
+            } catch ( CommandExecutionException ex )
+            {
+                // Just log a message.
+                bungee.getLogger().log( Level.WARNING, "Exception whilst filling tab complete", ex );
+            }
         }
 
         TabCompleteEvent tabCompleteEvent = new TabCompleteEvent( con, con.getServer(), tabComplete.getCursor(), suggestions );

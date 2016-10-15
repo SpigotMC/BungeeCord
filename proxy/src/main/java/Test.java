@@ -2,7 +2,10 @@
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.plugin.CommandExecutionException;
 import net.md_5.bungee.command.ConsoleCommandSender;
+
+import java.util.logging.Level;
 
 /*
  * To change this template, choose Tools | Templates
@@ -25,12 +28,15 @@ public class Test
         while ( bungee.isRunning )
         {
             String line = bungee.getConsoleReader().readLine( ">" );
-            if ( line != null )
+            try
             {
-                if ( !bungee.getPluginManager().dispatchCommand( ConsoleCommandSender.getInstance(), line ) )
+                if ( !bungee.getPluginManager().dispatchCommand( ConsoleCommandSender.getInstance(), line, null, true ) )
                 {
-                    bungee.getConsole().sendMessage( ChatColor.RED + "Command not found" );
+                    bungee.getConsole().sendMessage(ChatColor.RED + "Command not found");
                 }
+            } catch ( CommandExecutionException ex )
+            {
+                bungee.getLogger().log( Level.WARNING, "Error in dispatching command", ex );
             }
         }
     }
