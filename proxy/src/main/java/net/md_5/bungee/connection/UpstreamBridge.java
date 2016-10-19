@@ -43,7 +43,6 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void exception(Throwable t) throws Exception
     {
-        con.getServer().setObsolete( true );
         con.disconnect( Util.exception( t ) );
     }
 

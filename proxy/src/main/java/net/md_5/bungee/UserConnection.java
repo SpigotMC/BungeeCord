@@ -140,6 +140,7 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     @Setter
     private ForgeServerHandler forgeServerHandler;
+    private boolean disconnecting;
     /*========================================================================*/
     private final Unsafe unsafe = new Unsafe()
     {
@@ -364,8 +365,9 @@ public final class UserConnection implements ProxiedPlayer
 
     public void disconnect0(final BaseComponent... reason)
     {
-        if ( !ch.isClosed() )
+        if ( !disconnecting && !ch.isClosed() )
         {
+            disconnecting = true;
             bungee.getLogger().log( Level.INFO, "[{0}] disconnected with: {1}", new Object[]
             {
                 getName(), BaseComponent.toLegacyText( reason )
@@ -389,6 +391,7 @@ public final class UserConnection implements ProxiedPlayer
 
             if ( server != null )
             {
+                server.setObsolete( true );
                 server.disconnect( "Quitting" );
             }
         }
