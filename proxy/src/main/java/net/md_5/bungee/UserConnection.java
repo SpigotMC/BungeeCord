@@ -364,8 +364,9 @@ public final class UserConnection implements ProxiedPlayer
 
     public void disconnect0(final BaseComponent... reason)
     {
-        if ( !ch.isClosed() )
+        if ( !ch.isClosing() && !ch.isClosed() )
         {
+            ch.setClosing( true );
             bungee.getLogger().log( Level.INFO, "[{0}] disconnected with: {1}", new Object[]
             {
                 getName(), BaseComponent.toLegacyText( reason )
@@ -389,6 +390,7 @@ public final class UserConnection implements ProxiedPlayer
 
             if ( server != null )
             {
+                server.setObsolete( true );
                 server.disconnect( "Quitting" );
             }
         }
