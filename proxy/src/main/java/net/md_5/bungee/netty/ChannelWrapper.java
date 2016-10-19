@@ -1,5 +1,6 @@
 package net.md_5.bungee.netty;
 
+import lombok.Setter;
 import net.md_5.bungee.compress.PacketCompressor;
 import net.md_5.bungee.compress.PacketDecompressor;
 import net.md_5.bungee.protocol.PacketWrapper;
@@ -18,6 +19,9 @@ public class ChannelWrapper
     private final Channel ch;
     @Getter
     private volatile boolean closed;
+    @Getter
+    @Setter
+    private volatile boolean closing;
 
     public ChannelWrapper(ChannelHandlerContext ctx)
     {

@@ -96,12 +96,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private boolean legacy;
     @Getter
     private String extraDataInHandshake = "";
-    private boolean disconnecting;
 
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
     {
-        return !disconnecting;
+        return !ch.isClosing();
     }
 
     private enum State
@@ -534,9 +533,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void disconnect(final BaseComponent... reason)
     {
-        if ( !disconnecting || !ch.isClosed() )
+        if ( !ch.isClosing() || !ch.isClosed() )
         {
-            disconnecting = true;
+            ch.setClosing( true );
             // Why do we have to delay this you might ask? Well the simple reason is MOJANG.
             // Despite many a bug report posted, ever since the 1.7 protocol rewrite, the client STILL has a race condition upon switching protocols.
             // As such, despite the protocol switch packets already having been sent, there is the possibility of a client side exception
