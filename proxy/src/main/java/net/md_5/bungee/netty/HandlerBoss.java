@@ -1,11 +1,10 @@
 package net.md_5.bungee.netty;
 
-import net.md_5.bungee.protocol.PacketWrapper;
 import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.timeout.ReadTimeoutException;
 import io.netty.handler.codec.DecoderException;
+import io.netty.handler.timeout.ReadTimeoutException;
 import java.io.IOException;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
@@ -14,6 +13,7 @@ import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.connection.PingHandler;
 import net.md_5.bungee.protocol.BadPacketException;
 import net.md_5.bungee.protocol.OverflowPacketException;
+import net.md_5.bungee.protocol.PacketWrapper;
 
 /**
  * This class is a primitive wrapper for {@link PacketHandler} instances tied to

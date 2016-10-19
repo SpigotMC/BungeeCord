@@ -3,9 +3,9 @@ package net.md_5.bungee.netty.cipher;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.jni.cipher.BungeeCipher;
-import java.util.List;
 
 @RequiredArgsConstructor
 public class CipherDecoder extends MessageToMessageDecoder<ByteBuf>

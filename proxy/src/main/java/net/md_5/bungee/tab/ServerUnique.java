@@ -3,9 +3,7 @@ package net.md_5.bungee.tab;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.UUID;
-
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 
 public class ServerUnique extends TabList
