@@ -11,17 +11,14 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.util.internal.PlatformDependent;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import lombok.Getter;
 import lombok.NonNull;
@@ -59,8 +56,6 @@ import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.SetCompression;
-import net.md_5.bungee.tab.Global;
-import net.md_5.bungee.tab.GlobalPing;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
 import net.md_5.bungee.util.CaseInsensitiveSet;
@@ -364,31 +359,26 @@ public final class UserConnection implements ProxiedPlayer
 
     public void disconnect0(final BaseComponent... reason)
     {
-        if ( !ch.isClosed() )
+        if ( !ch.isClosing() )
         {
             bungee.getLogger().log( Level.INFO, "[{0}] disconnected with: {1}", new Object[]
             {
                 getName(), BaseComponent.toLegacyText( reason )
             } );
 
-            // Why do we have to delay this you might ask? Well the simple reason is MOJANG.
-            // Despite many a bug report posted, ever since the 1.7 protocol rewrite, the client STILL has a race condition upon switching protocols.
-            // As such, despite the protocol switch packets already having been sent, there is the possibility of a client side exception
-            // To help combat this we will wait half a second before actually sending the disconnected packet so that whoever is on the other
-            // end has a somewhat better chance of receiving the proper packet.
-            ch.getHandle().eventLoop().schedule( new Runnable()
+            ch.delayedClose( new Runnable()
             {
 
                 @Override
                 public void run()
                 {
                     unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
-                    ch.close();
                 }
-            }, 500, TimeUnit.MILLISECONDS );
+            } );
 
             if ( server != null )
             {
+                server.setObsolete( true );
                 server.disconnect( "Quitting" );
             }
         }
