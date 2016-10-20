@@ -1,6 +1,5 @@
 package net.md_5.bungee;
 
-
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;

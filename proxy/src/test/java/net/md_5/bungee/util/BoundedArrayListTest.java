@@ -3,8 +3,6 @@ package net.md_5.bungee.util;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 public class BoundedArrayListTest
 {
 
