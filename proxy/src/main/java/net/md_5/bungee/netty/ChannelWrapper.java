@@ -1,15 +1,16 @@
 package net.md_5.bungee.netty;
 
-import net.md_5.bungee.compress.PacketCompressor;
-import net.md_5.bungee.compress.PacketDecompressor;
-import net.md_5.bungee.protocol.PacketWrapper;
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
+import java.util.concurrent.TimeUnit;
 import lombok.Getter;
+import net.md_5.bungee.compress.PacketCompressor;
+import net.md_5.bungee.compress.PacketDecompressor;
 import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 
 public class ChannelWrapper
@@ -18,6 +19,8 @@ public class ChannelWrapper
     private final Channel ch;
     @Getter
     private volatile boolean closed;
+    @Getter
+    private volatile boolean closing;
 
     public ChannelWrapper(ChannelHandlerContext ctx)
     {
@@ -56,9 +59,38 @@ public class ChannelWrapper
     {
         if ( !closed )
         {
-            closed = true;
+            closed = closing = true;
             ch.flush();
             ch.close();
+        }
+    }
+
+    public void delayedClose(final Runnable runnable)
+    {
+        Preconditions.checkArgument( runnable != null, "runnable" );
+
+        if ( !closing )
+        {
+            closing = true;
+
+            // Minecraft client can take some time to switch protocols.
+            // Sending the wrong disconnect packet whilst a protocol switch is in progress will crash it.
+            // Delay 500ms to ensure that the protocol switch (if any) has definitely taken place.
+            ch.eventLoop().schedule( new Runnable()
+            {
+
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        runnable.run();
+                    } finally
+                    {
+                        ChannelWrapper.this.close();
+                    }
+                }
+            }, 500, TimeUnit.MILLISECONDS );
         }
     }
 
