@@ -55,6 +55,7 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
@@ -78,6 +79,9 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     @Setter
     private ServerConnection server;
+    @Getter
+    @Setter
+    private int dimension;
     @Getter
     @Setter
     private boolean dimensionChange = true;
@@ -210,17 +214,10 @@ public final class UserConnection implements ProxiedPlayer
         connect( target, callback, false );
     }
 
-    void sendDimensionSwitch()
-    {
-        dimensionChange = true;
-        unsafe().sendPacket( PacketConstants.DIM1_SWITCH );
-        unsafe().sendPacket( PacketConstants.DIM2_SWITCH );
-    }
-
     public void connectNow(ServerInfo target)
     {
-        sendDimensionSwitch();
-        connect( target );
+        dimensionChange = true;
+        connect(target);
     }
 
     public ServerInfo updateAndGetNextServer(ServerInfo currentTarget)
