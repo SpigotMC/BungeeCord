@@ -25,6 +25,7 @@ import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PingPacket;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
+import net.md_5.bungee.protocol.packet.PlayerPositionLook;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
@@ -132,6 +133,11 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9_4, 0x47 ),
                     map( ProtocolConstants.MINECRAFT_1_10, 0x47 )
             );
+            TO_CLIENT.registerPacket(
+                    PlayerPositionLook.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x08 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x2E )
+            );
 
             TO_SERVER.registerPacket(
                     KeepAlive.class,
@@ -158,6 +164,11 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_8, 0x17 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x09 )
             );
+            /*TO_SERVER.registerPacket(
+                    PlayerPositionLook.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x06 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x0D )
+            );*/
         }
     },
     // 1
