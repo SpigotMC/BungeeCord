@@ -199,6 +199,8 @@ public class ServerConnector extends PacketHandler
             DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")", brand );
             user.unsafe().sendPacket( new PluginMessage( "MC|Brand", DefinedPacket.toArray( brand ), handshakeHandler.isServerForge() ) );
             brand.release();
+
+            user.setDimension( login.getDimension() );
         } else
         {
             user.getServer().setObsolete( true );
