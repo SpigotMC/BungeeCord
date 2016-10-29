@@ -33,6 +33,7 @@ import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
+import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
@@ -502,6 +503,12 @@ public class DownstreamBridge extends PacketHandler
                 con.getSentBossBars().remove( bossBar.getUuid() );
                 break;
         }
+    }
+
+    @Override
+    public void handle(Respawn respawn)
+    {
+        con.setDimension( respawn.getDimension() );
     }
 
     @Override
