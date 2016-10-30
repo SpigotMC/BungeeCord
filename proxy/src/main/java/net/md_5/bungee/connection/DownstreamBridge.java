@@ -509,6 +509,11 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(Respawn respawn)
     {
+        if ( respawn.getDimension() != con.getDimension() )
+        {
+            con.setDimensionChange( true );
+        }
+
         con.setDimension( respawn.getDimension() );
     }
 

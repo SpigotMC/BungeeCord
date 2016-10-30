@@ -216,7 +216,6 @@ public final class UserConnection implements ProxiedPlayer
 
     public void connectNow(ServerInfo target)
     {
-        dimensionChange = true;
         connect(target);
     }
 
