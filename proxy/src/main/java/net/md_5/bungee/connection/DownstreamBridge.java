@@ -39,6 +39,7 @@ import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
@@ -480,6 +481,12 @@ public class DownstreamBridge extends PacketHandler
         }
     }
     
+    @Override
+    public void handle(Respawn respawn)
+    {
+        con.setDimension( respawn.getDimension() );
+    }
+
     @Override
     public String toString()
     {

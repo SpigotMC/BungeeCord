@@ -214,6 +214,8 @@ public class ServerConnector extends PacketHandler
             	user.unsafe().sendPacket( new PluginMessage( "MC|Brand", DefinedPacket.toArray( brand ), handshakeHandler.isServerForge() ) );
                 brand.release();
             }
+            
+            user.setDimension( login.getDimension() );
         }
         else
         {
@@ -231,12 +233,17 @@ public class ServerConnector extends PacketHandler
                 // Send remove bossbar packet
                 user.unsafe().sendPacket(new net.md_5.bungee.protocol.packet.BossBar(bossbar, 1));
             user.getSentBossBars().clear();
-            
-            user.sendDimensionSwitch();
-            
-            user.setServerEntityId(login.getEntityId());
-            user.unsafe().sendPacket(new Respawn(login.getDimension(), login.getDifficulty(), login.getGameMode(), login.getLevelType()));
-            
+
+            user.setDimensionChange( true );
+            if ( login.getDimension() == user.getDimension() )
+            {
+                user.unsafe().sendPacket( new Respawn( ( login.getDimension() >= 0 ? -1 : 0 ), login.getDifficulty(), login.getGameMode(), login.getLevelType() ) );
+            }
+
+            user.setServerEntityId( login.getEntityId() );
+            user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getDifficulty(), login.getGameMode(), login.getLevelType() ) );
+            user.setDimension( login.getDimension() );
+
             // Remove from old servers
             user.getServer().disconnect("Quitting");
         }
