@@ -1,5 +1,6 @@
 package net.md_5.bungee;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Arrays;
@@ -28,6 +29,7 @@ public class NativeZlibTest
         test( new JavaZlib() );
     }
 
+    @SuppressFBWarnings("DMI_RANDOM_USED_ONLY_ONCE")
     private void test(BungeeZlib zlib) throws DataFormatException
     {
         System.out.println( "Testing: " + zlib );

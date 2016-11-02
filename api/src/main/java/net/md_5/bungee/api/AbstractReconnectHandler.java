@@ -17,7 +17,7 @@ public abstract class AbstractReconnectHandler implements ReconnectHandler
             server = getStoredServer( player );
             if ( server == null )
             {
-                server = ProxyServer.getInstance().getServerInfo( player.getPendingConnection().getListener().getDefaultServer() );
+                server = ProxyServer.getInstance().getServerInfo( player.getPendingConnection().getListener().getServerPriority().get(0) );
             }
 
             Preconditions.checkState( server != null, "Default server not defined" );
@@ -26,6 +26,11 @@ public abstract class AbstractReconnectHandler implements ReconnectHandler
         return server;
     }
 
+    /**
+     * Returns the info for the forced host if its configured else it returns the default host.
+     * @param con then PendingConnection.
+     * @return ServerInfo for the forced host or the default...if not configured
+     */
     public static ServerInfo getForcedHost(PendingConnection con)
     {
         if ( con.getVirtualHost() == null )
@@ -37,7 +42,7 @@ public abstract class AbstractReconnectHandler implements ReconnectHandler
 
         if ( forced == null && con.getListener().isForceDefault() )
         {
-            forced = con.getListener().getDefaultServer();
+            forced = con.getListener().getServerPriority().get(0); //the default host
         }
         return ProxyServer.getInstance().getServerInfo( forced );
     }

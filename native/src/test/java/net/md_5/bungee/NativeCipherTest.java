@@ -1,5 +1,6 @@
 package net.md_5.bungee;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.md_5.bungee.jni.cipher.NativeCipher;
 import net.md_5.bungee.jni.cipher.JavaCipher;
 import net.md_5.bungee.jni.cipher.BungeeCipher;
@@ -108,6 +109,7 @@ public class NativeCipherTest
         System.out.println( "This cipher works correctly!" );
     }
 
+    @SuppressFBWarnings("DMI_RANDOM_USED_ONLY_ONCE")
     public void testBenchmark(BungeeCipher cipher) throws Exception
     {
         // Create input buf

@@ -10,7 +10,6 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <groupId>net.md-5</groupId>
     <artifactId>bungeecord-event</artifactId>
     <version>1.10-SNAPSHOT</version>
     <packaging>jar</packaging>

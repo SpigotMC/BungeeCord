@@ -22,9 +22,7 @@ public class BungeeCordLauncher
 
         OptionParser parser = new OptionParser();
         parser.allowsUnrecognizedOptions();
-        parser.acceptsAll( Arrays.asList( "v", "version" ) );
-        parser.acceptsAll( Arrays.asList( "noconsole" ) );
-
+        parser.acceptsAll( Arrays.asList( "v", "version", "noconsole" ) );
         OptionSet options = parser.parse( args );
 
         if ( options.has( "version" ) )
