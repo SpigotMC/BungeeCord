@@ -12,7 +12,6 @@ import jline.console.ConsoleReader;
 public class BungeeLogger extends Logger
 {
 
-    private final Formatter formatter = new ConciseFormatter();
     private final LogDispatcher dispatcher = new LogDispatcher( this );
 
     @SuppressWarnings(
@@ -28,12 +27,13 @@ public class BungeeLogger extends Logger
         try
         {
             FileHandler fileHandler = new FileHandler( filePattern, 1 << 24, 8, true );
-            fileHandler.setFormatter( formatter );
+            Formatter formatter = new ConciseFormatter();
+            fileHandler.setFormatter(formatter);
             addHandler( fileHandler );
 
             ColouredWriter consoleHandler = new ColouredWriter( reader );
             consoleHandler.setLevel( Level.INFO );
-            consoleHandler.setFormatter( formatter );
+            consoleHandler.setFormatter(formatter);
             addHandler( consoleHandler );
         } catch ( IOException ex )
         {

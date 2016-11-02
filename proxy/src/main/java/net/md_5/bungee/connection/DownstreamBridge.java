@@ -502,6 +502,9 @@ public class DownstreamBridge extends PacketHandler
             case 1:
                 con.getSentBossBars().remove( bossBar.getUuid() );
                 break;
+            default:
+                //make it clear we dont handle any other cases here.
+                break;
         }
     }
 

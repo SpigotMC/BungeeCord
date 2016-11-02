@@ -78,7 +78,7 @@ public class Plugin
      * Called by the loader to initialize the fields in this plugin.
      *
      * @param description the description that describes this plugin
-     * @param jarfile this plugins jar or container
+     * @param proxy the proxy server.
      */
     final void init(ProxyServer proxy, PluginDescription description)
     {

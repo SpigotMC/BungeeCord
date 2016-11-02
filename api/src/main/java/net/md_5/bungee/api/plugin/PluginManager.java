@@ -236,6 +236,13 @@ public class PluginManager
         }
     }
 
+    /**
+     *
+     * @param pluginStatuses the plugin status's
+     * @param dependStack the stack of dependencies
+     * @param plugin the plugin
+     * @return {code True} if the plugin is enabled. and false if it fails
+     */
     private boolean enablePlugin(Map<PluginDescription, Boolean> pluginStatuses, Stack<PluginDescription> dependStack, PluginDescription plugin)
     {
         if ( pluginStatuses.containsKey( plugin ) )
@@ -276,8 +283,8 @@ public class PluginManager
                     dependStack.pop();
                 }
             }
-
-            if ( dependStatus == Boolean.FALSE && plugin.getDepends().contains( dependName ) ) // only fail if this wasn't a soft dependency
+            //if dependstatus is false meaning the plugin failed to enable ..we check it for hard dependency
+            if ( !dependStatus && plugin.getDepends().contains( dependName ) ) // only fail if this wasn't a soft dependency
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} (required by {1}) is unavailable", new Object[]
                 {
