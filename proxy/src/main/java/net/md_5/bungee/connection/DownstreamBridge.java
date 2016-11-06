@@ -62,9 +62,9 @@ public class DownstreamBridge extends PacketHandler
         if (server.isObsolete())
             // do not perform any actions if the user has already moved
             return;
-        
-        ServerInfo def = bungee.getServerInfo(con.getPendingConnection().getListener().getFallbackServer());
-        if (server.getInfo() != def)
+
+        ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
+        if ( def != null )
         {
             server.setObsolete(true);
             con.connectNow(def);
@@ -436,15 +436,16 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(Kick kick) throws Exception
     {
-        ServerInfo def = bungee.getServerInfo(con.getPendingConnection().getListener().getFallbackServer());
-        if (Objects.equal(server.getInfo(), def))
-            def = null;
-        ServerKickEvent event = bungee.getPluginManager().callEvent(new ServerKickEvent(con, server.getInfo(), ComponentSerializer.parse(kick.getMessage()), def, ServerKickEvent.State.CONNECTED));
-        if (event.isCancelled() && event.getCancelServer() != null)
-            con.connectNow(event.getCancelServer());
-        else
-            con.disconnect0(event.getKickReasonComponent()); // TODO: Prefix our own stuff.
-        server.setObsolete(true);
+        ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
+        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTED ) );
+        if ( event.isCancelled() && event.getCancelServer() != null )
+        {
+            con.connectNow( event.getCancelServer() );
+        } else
+        {
+            con.disconnect0( event.getKickReasonComponent() ); // TODO: Prefix our own stuff.
+        }
+        server.setObsolete( true );
         throw CancelSendSignal.INSTANCE;
     }
     
