@@ -28,11 +28,19 @@ public class Title extends DefinedPacket
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        action = Action.values()[readVarInt( buf )];
+        int index = readVarInt(buf);
+
+        // If we're working on 1.10 or lower, increment the value of the index so we pull out the correct value.
+        if (ProtocolConstants.MINECRAFT_1_10 >= protocolVersion && index <= 2) {
+            index++;
+        }
+
+        action = Action.values()[index];
         switch ( action )
         {
             case TITLE:
             case SUBTITLE:
+            case ACTIONBAR:
                 text = readString( buf );
                 break;
             case TIMES:
@@ -46,11 +54,19 @@ public class Title extends DefinedPacket
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        writeVarInt( action.ordinal(), buf );
-        switch ( action )
+        int index = readVarInt(buf);
+
+        // If we're working on 1.10 or lower, increment the value of the index so we pull out the correct value.
+        if (ProtocolConstants.MINECRAFT_1_10 >= protocolVersion && index <= 2) {
+            index++;
+        }
+
+        action = Action.values()[index];
+        switch (action)
         {
             case TITLE:
             case SUBTITLE:
+            case ACTIONBAR:
                 writeString( text, buf );
                 break;
             case TIMES:
@@ -72,6 +88,7 @@ public class Title extends DefinedPacket
 
         TITLE,
         SUBTITLE,
+        ACTIONBAR,
         TIMES,
         CLEAR,
         RESET
