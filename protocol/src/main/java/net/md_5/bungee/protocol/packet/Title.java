@@ -14,7 +14,7 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @EqualsAndHashCode(callSuper = false)
 public class Title extends DefinedPacket
 {
-
+    
     private Action action;
 
     // TITLE & SUBTITLE
@@ -24,11 +24,11 @@ public class Title extends DefinedPacket
     private int fadeIn;
     private int stay;
     private int fadeOut;
-
+    
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        action = Action.values()[readVarInt( buf )];
+        action = intToAction( readVarInt( buf ), protocolVersion );
         switch ( action )
         {
             case TITLE:
@@ -42,11 +42,11 @@ public class Title extends DefinedPacket
                 break;
         }
     }
-
+    
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        writeVarInt( action.ordinal(), buf );
+        writeVarInt( actionToInt( action, protocolVersion ), buf );
         switch ( action )
         {
             case TITLE:
@@ -60,16 +60,38 @@ public class Title extends DefinedPacket
                 break;
         }
     }
-
+    
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {
         handler.handle( this );
     }
-
+    
+    private int actionToInt(Action action, int protocolVersion)
+    {
+        int index = action.ordinal();
+        
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_11 && index >= 2 )
+        {
+            index++;
+        }
+        
+        return index;
+    }
+    
+    private Action intToAction(int index, int protocolVersion)
+    {
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_11 && index >= 2 )
+        {
+            index++;
+        }
+        
+        return Action.values()[index];
+    }
+    
     public static enum Action
     {
-
+        
         TITLE,
         SUBTITLE,
         TIMES,
