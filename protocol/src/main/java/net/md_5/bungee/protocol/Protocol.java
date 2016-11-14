@@ -6,37 +6,13 @@ import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.protocol.packet.*;
+
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.List;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.protocol.packet.BossBar;
-import net.md_5.bungee.protocol.packet.Chat;
-import net.md_5.bungee.protocol.packet.ClientSettings;
-import net.md_5.bungee.protocol.packet.EncryptionRequest;
-import net.md_5.bungee.protocol.packet.EncryptionResponse;
-import net.md_5.bungee.protocol.packet.Handshake;
-import net.md_5.bungee.protocol.packet.KeepAlive;
-import net.md_5.bungee.protocol.packet.Kick;
-import net.md_5.bungee.protocol.packet.Login;
-import net.md_5.bungee.protocol.packet.LoginRequest;
-import net.md_5.bungee.protocol.packet.LoginSuccess;
-import net.md_5.bungee.protocol.packet.PingPacket;
-import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
-import net.md_5.bungee.protocol.packet.PlayerListItem;
-import net.md_5.bungee.protocol.packet.PluginMessage;
-import net.md_5.bungee.protocol.packet.Respawn;
-import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
-import net.md_5.bungee.protocol.packet.ScoreboardObjective;
-import net.md_5.bungee.protocol.packet.ScoreboardScore;
-import net.md_5.bungee.protocol.packet.SetCompression;
-import net.md_5.bungee.protocol.packet.StatusRequest;
-import net.md_5.bungee.protocol.packet.StatusResponse;
-import net.md_5.bungee.protocol.packet.TabCompleteRequest;
-import net.md_5.bungee.protocol.packet.TabCompleteResponse;
-import net.md_5.bungee.protocol.packet.Team;
-import net.md_5.bungee.protocol.packet.Title;
 
 public enum Protocol
 {
@@ -130,7 +106,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_8, 0x47 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x48 ),
                     map( ProtocolConstants.MINECRAFT_1_9_4, 0x47 ),
-                    map( ProtocolConstants.MINECRAFT_1_10, 0x47 )
+                    map( ProtocolConstants.MINECRAFT_1_10, 0x47 ),
+                    map( ProtocolConstants.MINECRAFT_1_11, 0x47 )
             );
 
             TO_SERVER.registerPacket(
