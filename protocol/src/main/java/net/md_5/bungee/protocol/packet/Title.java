@@ -55,7 +55,7 @@ public class Title extends DefinedPacket
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        int index = readVarInt( buf );
+        int index = action.ordinal();
 
         // If we're working on 1.10 or lower, increment the value of the index so we pull out the correct value.
         if ( protocolVersion <= ProtocolConstants.MINECRAFT_1_10 && index <= 2 )
@@ -63,7 +63,7 @@ public class Title extends DefinedPacket
             index++;
         }
 
-        action = Action.values()[index];
+        writeVarInt( index, buf );
         switch ( action )
         {
             case TITLE:
