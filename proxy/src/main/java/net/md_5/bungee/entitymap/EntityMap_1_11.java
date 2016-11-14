@@ -65,7 +65,15 @@ class EntityMap_1_11 extends EntityMap
                 break;
             case 0x48 /* Collect Item : PacketPlayOutCollect */:
                 DefinedPacket.readVarInt( packet );
-                rewriteVarInt( packet, oldId, newId, packet.readerIndex() );
+                jumpIndex = packet.readerIndex();
+                int collectorEntityId = DefinedPacket.readVarInt( packet );
+                int pickupItemCount = DefinedPacket.readVarInt( packet );
+                if ( collectorEntityId == oldId || collectorEntityId == newId ) {
+                    packet.readerIndex( jumpIndex );
+                    packet.writerIndex( jumpIndex );
+                    DefinedPacket.writeVarInt( collectorEntityId == oldId ? newId : oldId, packet );
+                    DefinedPacket.writeVarInt( pickupItemCount, packet );
+                }
                 break;
             case 0x40 /* Attach Entity : PacketPlayOutMount */:
                 DefinedPacket.readVarInt( packet );
