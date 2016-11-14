@@ -261,7 +261,8 @@ public enum Protocol
                     ProtocolConstants.MINECRAFT_1_9_1,
                     ProtocolConstants.MINECRAFT_1_9_2,
                     ProtocolConstants.MINECRAFT_1_9_4,
-                    ProtocolConstants.MINECRAFT_1_10
+                    ProtocolConstants.MINECRAFT_1_10,
+                    ProtocolConstants.MINECRAFT_1_11
             ) );
         }
 

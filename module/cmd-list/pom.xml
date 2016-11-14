@@ -6,13 +6,13 @@
     <parent>
         <groupId>net.md-5</groupId>
         <artifactId>bungeecord-module</artifactId>
-        <version>1.10-SNAPSHOT</version>
+        <version>1.11-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-module-cmd-list</artifactId>
-    <version>1.10-SNAPSHOT</version>
+    <version>1.11-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>cmd_list</name>

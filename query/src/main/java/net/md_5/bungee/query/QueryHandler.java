@@ -1,17 +1,19 @@
 package net.md_5.bungee.query;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.AddressedEnvelope;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
-import java.nio.ByteOrder;
-import java.util.HashMap;
+import java.net.InetAddress;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
@@ -25,11 +27,11 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
     private final ListenerInfo listener;
     /*========================================================================*/
     private final Random random = new Random();
-    private final Map<Integer, Long> sessions = new HashMap<>();
+    private final Cache<InetAddress, QuerySession> sessions = CacheBuilder.newBuilder().expireAfterWrite( 30, TimeUnit.SECONDS).build();
 
     private void writeShort(ByteBuf buf, int s)
     {
-        buf.order( ByteOrder.LITTLE_ENDIAN ).writeShort( s );
+        buf.writeShortLE( s );
     }
 
     private void writeNumber(ByteBuf buf, int i)
@@ -68,7 +70,7 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
             out.writeInt( sessionId );
 
             int challengeToken = random.nextInt();
-            sessions.put( challengeToken, System.currentTimeMillis() );
+            sessions.put( msg.sender().getAddress(), new QuerySession( challengeToken, System.currentTimeMillis() ) );
 
             writeNumber( out, challengeToken );
         }
@@ -76,8 +78,8 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
         if ( type == 0x00 )
         {
             int challengeToken = in.readInt();
-            Long session = sessions.get( challengeToken );
-            if ( session == null || System.currentTimeMillis() - session > TimeUnit.SECONDS.toMillis( 30 ) )
+            QuerySession session = sessions.getIfPresent( msg.sender().getAddress() );
+            if ( session == null || session.getToken() != challengeToken )
             {
                 throw new IllegalStateException( "No session!" );
             }
@@ -146,5 +148,13 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
     {
         bungee.getLogger().log( Level.WARNING, "Error whilst handling query packet from " + ctx.channel().remoteAddress(), cause );
+    }
+
+    @Data
+    private static class QuerySession
+    {
+
+        private final int token;
+        private final long time;
     }
 }
