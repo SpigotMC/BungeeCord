@@ -10,7 +10,6 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import lombok.Getter;
@@ -66,7 +65,7 @@ public class BungeeServerInfo implements ServerInfo
     @Override
     public Collection<ProxiedPlayer> getPlayers()
     {
-        return Collections.unmodifiableCollection( new HashSet( players ) );
+        return Collections.unmodifiableCollection( players );
     }
 
     @Override

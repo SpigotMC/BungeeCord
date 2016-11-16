@@ -160,12 +160,9 @@ public class ServerConnector extends PacketHandler
 
         ch.write( BungeeCord.getInstance().registerChannels() );
         Queue<DefinedPacket> packetQueue = target.getPacketQueue();
-        synchronized ( packetQueue )
+        while ( !packetQueue.isEmpty() )
         {
-            while ( !packetQueue.isEmpty() )
-            {
-                ch.write( packetQueue.poll() );
-            }
+            ch.write( packetQueue.poll() );
         }
 
         for ( PluginMessage message : user.getPendingConnection().getRelayMessages() )
