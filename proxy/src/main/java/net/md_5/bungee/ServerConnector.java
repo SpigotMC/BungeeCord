@@ -224,7 +224,6 @@ public class ServerConnector extends PacketHandler
             }
             user.getSentBossBars().clear();
 
-            user.setDimensionChange( true );
             if ( login.getDimension() == user.getDimension() )
             {
                 user.unsafe().sendPacket( new Respawn( ( login.getDimension() >= 0 ? -1 : 0 ), login.getDifficulty(), login.getGameMode(), login.getLevelType() ) );
@@ -252,7 +251,6 @@ public class ServerConnector extends PacketHandler
         target.addPlayer( user );
         user.getPendingConnects().remove( target );
         user.setServerJoinQueue( null );
-        user.setDimensionChange( false );
 
         user.setServer( server );
         ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user, server ) );
