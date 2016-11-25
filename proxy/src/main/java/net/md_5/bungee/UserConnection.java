@@ -221,7 +221,7 @@ public final class UserConnection implements ProxiedPlayer
     public void connectNow(ServerInfo target)
     {
         dimensionChange = true;
-        connect(target);
+        connect( target );
     }
 
     public ServerInfo updateAndGetNextServer(ServerInfo currentTarget)
@@ -255,6 +255,11 @@ public final class UserConnection implements ProxiedPlayer
             if ( callback != null )
             {
                 callback.done( false, null );
+            }
+
+            if ( getServer() == null && !ch.isClosing() )
+            {
+                throw new IllegalStateException("Cancelled ServerConnectEvent with no server or disconnect.");
             }
             return;
         }
