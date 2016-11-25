@@ -252,6 +252,7 @@ public final class UserConnection implements ProxiedPlayer
             {
                 callback.done( false, null );
             }
+            Preconditions.checkState( getServer() != null || ch.isClosing(), "Cancelled ServerConnectEvent with no server or disconnect." );
             return;
         }
 
