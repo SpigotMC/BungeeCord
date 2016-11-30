@@ -1,9 +1,13 @@
 package net.md_5.bungee.api.event;
 
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Setter;
 import lombok.ToString;
 import net.md_5.bungee.api.Callback;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.plugin.Cancellable;
 
@@ -23,7 +27,8 @@ public class LoginEvent extends AsyncEvent<LoginEvent> implements Cancellable
     /**
      * Message to use when kicking if this event is canceled.
      */
-    private String cancelReason;
+    @Setter(AccessLevel.NONE)
+    private BaseComponent[] cancelReasonComponent;
     /**
      * Connection attempting to login.
      */
@@ -33,5 +38,21 @@ public class LoginEvent extends AsyncEvent<LoginEvent> implements Cancellable
     {
         super( done );
         this.connection = connection;
+    }
+
+    @Deprecated
+    public String getCancelReason()
+    {
+        return BaseComponent.toLegacyText( cancelReasonComponent );
+    }
+
+    @Deprecated
+    public void setCancelReason(String reason)
+    {
+        cancelReasonComponent = TextComponent.fromLegacyText( reason );
+    }
+
+    public void setCancelReasonComponent(BaseComponent... reason) {
+        cancelReasonComponent = reason;
     }
 }
