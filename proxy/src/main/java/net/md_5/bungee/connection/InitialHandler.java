@@ -360,7 +360,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             {
                 if ( result.isCancelled() )
                 {
-                    disconnect( result.getCancelReason() );
+                    disconnect( result.getCancelReasonComponents() );
                     return;
                 }
                 if ( ch.isClosed() )
@@ -479,7 +479,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             {
                 if ( result.isCancelled() )
                 {
-                    disconnect( result.getCancelReason() );
+                    disconnect( result.getCancelReasonComponents() );
                     return;
                 }
                 if ( ch.isClosed() )

@@ -4,6 +4,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import net.md_5.bungee.api.Callback;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.plugin.Cancellable;
 
@@ -13,7 +15,7 @@ import net.md_5.bungee.api.plugin.Cancellable;
 @Data
 @ToString(callSuper = false)
 @EqualsAndHashCode(callSuper = false)
-public class LoginEvent extends AsyncEvent<LoginEvent> implements Cancellable
+public class LoginEvent extends AsyncEvent<LoginEvent> implements Cancellable, LoginCancellable
 {
 
     /**
@@ -23,7 +25,7 @@ public class LoginEvent extends AsyncEvent<LoginEvent> implements Cancellable
     /**
      * Message to use when kicking if this event is canceled.
      */
-    private String cancelReason;
+    private BaseComponent[] cancelReason;
     /**
      * Connection attempting to login.
      */
@@ -33,5 +35,35 @@ public class LoginEvent extends AsyncEvent<LoginEvent> implements Cancellable
     {
         super( done );
         this.connection = connection;
+    }
+
+    /**
+     * @deprecated Use #setCancelReason(BaseComponent...) instead.
+     */
+    @Deprecated
+    public void setCancelReason(String cancelReason)
+    {
+        setCancelReason( TextComponent.fromLegacyText( cancelReason ) );
+    }
+
+    @Override
+    public void setCancelReason(BaseComponent... components)
+    {
+        this.cancelReason = components;
+    }
+
+    /**
+     * @deprecated Use #getCancelReasonComponents instead.
+     */
+    @Deprecated
+    public String getCancelReason()
+    {
+        return BaseComponent.toLegacyText( getCancelReasonComponents() );
+    }
+
+    @Override
+    public BaseComponent[] getCancelReasonComponents()
+    {
+        return cancelReason;
     }
 }
