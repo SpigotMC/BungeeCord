@@ -80,6 +80,6 @@ public final class NativeCode<T>
 
     public static boolean isSupported()
     {
-        return "Linux".equals( System.getProperty( "os.name" ) ) && "amd64".equals( System.getProperty( "os.arch" ) ) && Boolean.parseBoolean( System.getProperty( "bungee.native", "true" ) );
+        return "Linux".equals( System.getProperty( "os.name" ) ) && "amd64".equals( System.getProperty( "os.arch" ) );
     }
 }
