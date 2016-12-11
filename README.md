@@ -1,20 +1,16 @@
-BungeeCord
+
+BungeeCord for 1.7/1.8/1.9/1.10/1.11
 ==========
-Layer 7 proxy designed to link Minecraft servers.
---------------------------------------------------
+[![Build Status](https://travis-ci.org/HexagonMC/BungeeCord.svg?branch=master)](https://travis-ci.org/HexagonMC/BungeeCord)
 
-BungeeCord is a sophisticated proxy and API designed mainly to teleport players between multiple Minecraft servers. It is the latest incarnation of similar software written by the author from 2011-present.
+This is a fork of md_5's BungeeCord  
+https://www.spigotmc.org/threads/1-8-1-9-bungeecord.392/
 
-Information
------------
-BungeeCord is maintained by [SpigotMC](https://www.spigotmc.org/) and has its own [discussion thread](https://www.spigotmc.org/go/bungeecord) with plenty of helpful information and links.
+This version reimplements Minecraft 1.7.10 and basic 1.7.10 Forge support.
 
-Source
-------
-Source code is currently available on [GitHub](https://www.spigotmc.org/go/bungeecord-git).
+This version is maintained by https://hexagonmc.eu
 
-Binaries
---------
-Precompiled binaries are available for end users on [Jenkins](https://www.spigotmc.org/go/bungeecord-dl).
-
-(c) 2012-2016 SpigotMC Pty. Ltd.
+###Releases can be downloaded here: [Releases](https://github.com/HexagonMC/BungeeCord/releases)
+```
+Modules are automatically downloaded from the releases page.
+```

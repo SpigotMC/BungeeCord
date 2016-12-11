@@ -1,8 +1,40 @@
 sudo: false
 language: java
 jdk:
-  - openjdk7
-  - oraclejdk7
   - oraclejdk8
+branches:
+  except:
+    - /^v[0-9]*/
 notifications:
   email: false
+  irc:
+    channels:
+    - "irc.spi.gt#hexagonmc"
+    use_notice: true
+    skip_join: true
+install:
+  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dbuild.number=$TRAVIS_BUILD_NUMBER -B -V
+after_success:
+  # CREATE GIT TAG
+  - git config --global user.email "builds@travis-ci.com"
+  - git config --global user.name "Travis CI"
+  - export GIT_TAG=v$TRAVIS_BUILD_NUMBER
+  - echo -n $GIT_TAG > VERSION
+  - git commit -m "Set build VERSION number" VERSION
+  - git tag $GIT_TAG -a -m "Generated tag from TravisCI build $TRAVIS_BUILD_NUMBER"
+  - git push --quiet https://$GITHUBKEY@github.com/dev-confidence/example-backend-api $GIT_TAG > /dev/null 2>&1
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: ljpg29wmo0yPs+qXBVj1vHnY4WPXB1hNMDnHMxhXbPRhK5l9kCqJWy4YjJ6BbEb4keU5dMmt+cyB+Njr3IomJMoupVu0Osut/SNz4g0UZFTYYJQjvrurdmGxoh9E7xmc6Pcly+Pw99RSpqK+yD8SDDepTleHDv/8pC0d4Z5NZIJ9JJUeY2in1RXpStj7rJtmSN5XWFpWBGpHElFQqaSDfh62zn3bvb7J9oVA+NtBDXgpY1Km1Q76Evt4PuijOgdWx4rcNpi7UOd6XurkYuo4/igBEUE8HQSEIqgC0jxJg0gxtLbymPvW4sPXmEPhZwIUvoYFjX0DvlIqU8hbr/2CPtcHiKqnqTU92wgFFnf3Xvn2mdoCrgHDOcSA2JWsR70077bPzv+llNHN17mDlGE7vIiv54jNBkJpem8OBgDNIU2lDnhwZQr3ifZJ0ydhdhkYK7Kp1lAZtEZwbqs6cetlwLiuBH6wd3dErBduPQNLnl22qdhQQJFBXPkj+vHBAt9uSB3irWWME0XsR6G9OpzDYoO64vkkHnz1k7VK37ud2pe7yKYuUr+MUbyBnzycbKOhYRufPkMv8RJIbRH6lChRrZOamqbZTa1FFYsemgcJ9NG990tE0zJHw0G3vU+emxPY35UPIMZrSbzQ8mCOlwKfhAtubZRNe+V0ohJFvVx/dhI=
+  file:
+    - bootstrap/target/BungeeCord.jar
+    - module/*/target/*.jar
+  file_glob: true
+  on:
+    branch: master
+cache:
+  directories:
+  - $HOME/.m2
+  
