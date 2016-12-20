@@ -320,7 +320,7 @@ public final class UserConnection implements ProxiedPlayer
                     if ( retry && def != null && ( getServer() == null || def != getServer().getInfo() ) )
                     {
                         sendMessage( bungee.getTranslation( "fallback_lobby" ) );
-                        connect( def, null, false );
+                        connect( def, null, true );
                     } else if ( dimensionChange )
                     {
                         disconnect( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
@@ -624,7 +624,7 @@ public final class UserConnection implements ProxiedPlayer
 
     public void setCompressionThreshold(int compressionThreshold)
     {
-        if ( ch.getHandle().isActive() && this.compressionThreshold == -1 && getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
+        if ( ch.getHandle().isActive() && this.compressionThreshold == -1 && getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 && compressionThreshold >= 0 )
         {
             this.compressionThreshold = compressionThreshold;
             unsafe.sendPacket( new SetCompression( compressionThreshold ) );
