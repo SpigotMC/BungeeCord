@@ -40,6 +40,7 @@ public abstract class EntityMap
             case ProtocolConstants.MINECRAFT_1_10:
                 return EntityMap_1_10.INSTANCE;
             case ProtocolConstants.MINECRAFT_1_11:
+            case ProtocolConstants.MINECRAFT_1_11_1:
                 return EntityMap_1_11.INSTANCE;
         }
         throw new RuntimeException( "Version " + version + " has no entity map" );
