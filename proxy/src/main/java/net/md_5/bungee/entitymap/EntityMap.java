@@ -1,7 +1,11 @@
 package net.md_5.bungee.entitymap;
 
+import com.flowpowered.nbt.stream.NBTInputStream;
+import com.google.common.base.Throwables;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
+import java.io.IOException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.DefinedPacket;
@@ -99,6 +103,91 @@ public abstract class EntityMap
             packet.writeBytes( data );
             data.release();
         }
+    }
+
+    protected static void rewriteMetaVarInt(ByteBuf packet, int oldId, int newId, int metaIndex)
+    {
+        int readerIndex = packet.readerIndex();
+
+        short index;
+        while ( ( index = packet.readUnsignedByte() ) != 0xFF )
+        {
+            int type = DefinedPacket.readVarInt( packet );
+
+            switch ( type )
+            {
+                case 0:
+                    packet.skipBytes( 1 ); // byte
+                    break;
+                case 1:
+                    if ( index == metaIndex )
+                    {
+                        int position = packet.readerIndex();
+                        rewriteVarInt( packet, oldId, newId, position );
+                        packet.readerIndex( position );
+                    }
+                    DefinedPacket.readVarInt( packet );
+                    break;
+                case 2:
+                    packet.skipBytes( 4 ); // float
+                    break;
+                case 3:
+                case 4:
+                    DefinedPacket.readString( packet );
+                    break;
+                case 5:
+                    if ( packet.readShort() != -1 )
+                    {
+                        packet.skipBytes( 3 ); // byte, short
+
+                        int position = packet.readerIndex();
+                        if ( packet.readByte() != 0 )
+                        {
+                            packet.readerIndex( position );
+
+                            try
+                            {
+                                new NBTInputStream( new ByteBufInputStream( packet ), false ).readTag();
+                            } catch ( IOException ex )
+                            {
+                                throw Throwables.propagate( ex );
+                            }
+                        }
+                    }
+                    break;
+                case 6:
+                    packet.skipBytes( 1 ); // boolean
+                    break;
+                case 7:
+                    packet.skipBytes( 12 ); // float, float, float
+                    break;
+                case 8:
+                    packet.readLong();
+                    break;
+                case 9:
+                    if ( packet.readBoolean() )
+                    {
+                        packet.skipBytes( 8 ); // long
+                    }
+                    break;
+                case 10:
+                    DefinedPacket.readVarInt( packet );
+                    break;
+                case 11:
+                    if ( packet.readBoolean() )
+                    {
+                        packet.skipBytes( 16 ); // long, long
+                    }
+                    break;
+                case 12:
+                    DefinedPacket.readVarInt( packet );
+                    break;
+                default:
+                    throw new IllegalArgumentException( "Unknown meta type " + type );
+            }
+        }
+
+        packet.readerIndex( readerIndex );
     }
 
     // Handles simple packets

@@ -147,6 +147,10 @@ class EntityMap_1_11 extends EntityMap
                     rewriteInt( packet, oldId, newId, packet.readerIndex() );
                 }
                 break;
+            case 0x39 /* EntityMetadata : PacketPlayOutEntityMetadata */:
+                DefinedPacket.readVarInt( packet ); // Entity ID
+                rewriteMetaVarInt( packet, oldId, newId, 7 ); // fireworks (et al)
+                break;
         }
         packet.readerIndex( readerIndex );
     }
