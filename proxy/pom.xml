@@ -20,6 +20,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.flowpowered</groupId>
+            <artifactId>flow-nbt</artifactId>
+            <version>1.0.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec-http</artifactId>
             <version>${netty.version}</version>
