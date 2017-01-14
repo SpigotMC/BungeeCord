@@ -17,10 +17,8 @@ public class ChannelWrapper
 {
 
     private final Channel ch;
-    @Getter
+
     private volatile boolean closed;
-    @Getter
-    private volatile boolean closing;
 
     public ChannelWrapper(ChannelHandlerContext ctx)
     {
@@ -39,9 +37,13 @@ public class ChannelWrapper
         ch.pipeline().get( MinecraftEncoder.class ).setProtocolVersion( protocol );
     }
 
+    public boolean isClosed() {
+        return closed || !ch.isActive();
+    }
+
     public void write(Object packet)
     {
-        if ( !closed )
+        if ( !isClosed() )
         {
             if ( packet instanceof PacketWrapper )
             {
@@ -57,40 +59,27 @@ public class ChannelWrapper
 
     public void close()
     {
-        if ( !closed )
+        if ( !isClosed() )
         {
-            closed = closing = true;
+            closed = true;
             ch.flush();
             ch.close();
         }
     }
 
-    public void delayedClose(final Runnable runnable)
-    {
-        Preconditions.checkArgument( runnable != null, "runnable" );
+    public void close(Object packet) {
+        if (!isClosed()) {
+            closed = true;
+            ch.writeAndFlush(packet).addListeners(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE, ChannelFutureListener.CLOSE);
 
-        if ( !closing )
-        {
-            closing = true;
-
-            // Minecraft client can take some time to switch protocols.
-            // Sending the wrong disconnect packet whilst a protocol switch is in progress will crash it.
-            // Delay 500ms to ensure that the protocol switch (if any) has definitely taken place.
-            ch.eventLoop().schedule( new Runnable()
-            {
-
+            ch.eventLoop().schedule(new Runnable() {
                 @Override
-                public void run()
-                {
-                    try
-                    {
-                        runnable.run();
-                    } finally
-                    {
-                        ChannelWrapper.this.close();
+                public void run() {
+                    if (ch.isOpen()) {
+                        ch.close();
                     }
                 }
-            }, 500, TimeUnit.MILLISECONDS );
+            }, 10, TimeUnit.SECONDS);
         }
     }
 
