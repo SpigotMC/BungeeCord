@@ -253,7 +253,7 @@ public final class UserConnection implements ProxiedPlayer
                 callback.done( false, null );
             }
 
-            if ( getServer() == null && !ch.isClosing() )
+            if ( getServer() == null && !ch.isClosed() )
             {
                 throw new IllegalStateException("Cancelled ServerConnectEvent with no server or disconnect.");
             }
@@ -361,22 +361,14 @@ public final class UserConnection implements ProxiedPlayer
 
     public void disconnect0(final BaseComponent... reason)
     {
-        if ( !ch.isClosing() )
+        if ( !ch.isClosed() )
         {
             bungee.getLogger().log( Level.INFO, "[{0}] disconnected with: {1}", new Object[]
             {
                 getName(), BaseComponent.toLegacyText( reason )
             } );
 
-            ch.delayedClose( new Runnable()
-            {
-
-                @Override
-                public void run()
-                {
-                    unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
-                }
-            } );
+            ch.close( new Kick( ComponentSerializer.toString( reason ) ) );
 
             if ( server != null )
             {
@@ -614,7 +606,7 @@ public final class UserConnection implements ProxiedPlayer
 
     public void setCompressionThreshold(int compressionThreshold)
     {
-        if ( ch.getHandle().isActive() && this.compressionThreshold == -1 && compressionThreshold >= 0 )
+        if ( !ch.isClosed() && this.compressionThreshold == -1 && compressionThreshold >= 0 )
         {
             this.compressionThreshold = compressionThreshold;
             unsafe.sendPacket( new SetCompression( compressionThreshold ) );
