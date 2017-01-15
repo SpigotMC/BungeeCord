@@ -52,17 +52,7 @@ public class ServerConnection implements Server
     {
         Preconditions.checkArgument( reason.length == 0, "Server cannot have disconnect reason" );
 
-        if ( !ch.isClosed() )
-        {
-            ch.getHandle().eventLoop().schedule( new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    ch.getHandle().close();
-                }
-            }, 100, TimeUnit.MILLISECONDS );
-        }
+        ch.delayedClose( null );
     }
 
     @Override
