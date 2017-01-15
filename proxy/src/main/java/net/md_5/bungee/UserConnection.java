@@ -372,15 +372,7 @@ public final class UserConnection implements ProxiedPlayer
                 getName(), BaseComponent.toLegacyText( reason )
             } );
 
-            ch.delayedClose( new Runnable()
-            {
-
-                @Override
-                public void run()
-                {
-                    unsafe().sendPacket( new Kick( ComponentSerializer.toString( reason ) ) );
-                }
-            } );
+            ch.delayedClose( new Kick( ComponentSerializer.toString( reason ) ) );
 
             if ( server != null )
             {
@@ -624,7 +616,7 @@ public final class UserConnection implements ProxiedPlayer
 
     public void setCompressionThreshold(int compressionThreshold)
     {
-        if ( ch.getHandle().isActive() && this.compressionThreshold == -1 && getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 && compressionThreshold >= 0 )
+        if ( !ch.isClosing() && this.compressionThreshold == -1 && getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 && compressionThreshold >= 0 )
         {
             this.compressionThreshold = compressionThreshold;
             unsafe.sendPacket( new SetCompression( compressionThreshold ) );
