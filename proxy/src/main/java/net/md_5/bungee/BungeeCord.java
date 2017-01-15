@@ -391,6 +391,13 @@ public class BungeeCord extends ProxyServer
                     connectionLock.readLock().unlock();
                 }
 
+                try
+                {
+                    Thread.sleep( 500 );
+                } catch ( InterruptedException ex )
+                {
+                }
+
                 getLogger().info( "Closing IO threads" );
                 eventLoops.shutdownGracefully();
                 try

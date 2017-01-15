@@ -75,7 +75,7 @@ public class ChannelWrapper
 
             // Minecraft client can take some time to switch protocols.
             // Sending the wrong disconnect packet whilst a protocol switch is in progress will crash it.
-            // Delay 500ms to ensure that the protocol switch (if any) has definitely taken place.
+            // Delay 250ms to ensure that the protocol switch (if any) has definitely taken place.
             ch.eventLoop().schedule( new Runnable()
             {
 
@@ -90,7 +90,7 @@ public class ChannelWrapper
                         ChannelWrapper.this.close();
                     }
                 }
-            }, 500, TimeUnit.MILLISECONDS );
+            }, 250, TimeUnit.MILLISECONDS );
         }
     }
 
