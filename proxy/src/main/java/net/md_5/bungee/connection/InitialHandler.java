@@ -421,7 +421,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                         finish();
                         return;
                     }
-                    disconnect( "Not authenticated with Minecraft.net" );
+                    disconnect( bungee.getTranslation( "offline_mode_player" ) );
                 } else
                 {
                     disconnect( bungee.getTranslation( "mojang_fail" ) );
