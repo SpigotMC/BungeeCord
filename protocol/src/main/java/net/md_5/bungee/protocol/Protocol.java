@@ -21,6 +21,7 @@ import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.LoginRequest;
+import net.md_5.bungee.protocol.packet.TeleportConfirm;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PingPacket;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
@@ -134,7 +135,10 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_11, 0x47 ),
                     map( ProtocolConstants.MINECRAFT_1_11_1, 0x47 )
             );
-
+            TO_SERVER.registerPacket(
+                    TeleportConfirm.class,
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x00 )
+            );
             TO_SERVER.registerPacket(
                     KeepAlive.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x00 ),

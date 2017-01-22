@@ -183,8 +183,9 @@ public class ServerConnector extends PacketHandler
             user.getForgeClientHandler().setHandshakeComplete();
         }
 
-        if ( user.getServer() == null )
-        {
+        if (!user.serverr) {
+            
+            user.serverr = true;
             // Once again, first connection
             user.setClientEntityId( login.getEntityId() );
             user.setServerEntityId( login.getEntityId() );
@@ -203,7 +204,9 @@ public class ServerConnector extends PacketHandler
             user.setDimension( login.getDimension() );
         } else
         {
-            user.getServer().setObsolete( true );
+            if (user.getServer() != null) {
+                user.getServer().setObsolete(true);
+            }
             user.getTabListHandler().onServerChange();
 
             Scoreboard serverScoreboard = user.getServerSentScoreboard();
@@ -235,7 +238,9 @@ public class ServerConnector extends PacketHandler
             user.setDimension( login.getDimension() );
 
             // Remove from old servers
-            user.getServer().disconnect( "Quitting" );
+            if (this.user.getServer() != null) {
+                this.user.getServer().disconnect("Quitting");
+            }
         }
 
         // TODO: Fix this?

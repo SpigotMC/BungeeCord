@@ -62,7 +62,8 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
-
+import ru.leymooo.bungee.connection.CaptchaBridge;
+import ru.leymooo.config.CaptchaConfig;
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
 {
@@ -502,6 +503,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
                             ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
                             bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
+                            boolean captcha = !CaptchaConfig.isWhite(InitialHandler.this.getAddress().getAddress().getHostAddress());
+                            if (captcha) {
+                                ((HandlerBoss) InitialHandler.this.ch.getHandle().pipeline().get(HandlerBoss.class)).setHandler(new CaptchaBridge(userCon));
+                             } else {
                             ServerInfo server;
                             if ( bungee.getReconnectHandler() != null )
                             {
@@ -516,7 +521,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             }
 
                             userCon.connect( server, null, true );
-
+                            }
                             thisState = State.FINISHED;
                         }
                     }
