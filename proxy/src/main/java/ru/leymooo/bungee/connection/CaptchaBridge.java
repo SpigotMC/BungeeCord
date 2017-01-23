@@ -3,11 +3,7 @@ package ru.leymooo.bungee.connection;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -21,8 +17,6 @@ import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
-import net.md_5.bungee.api.plugin.PluginDescription;
-import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.connection.UpstreamBridge;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
@@ -31,11 +25,12 @@ import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
+import net.md_5.bungee.protocol.packet.ConfirmTransaction;
 import net.md_5.bungee.protocol.packet.KeepAlive;
+import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.TeleportConfirm;
 import ru.leymooo.config.CaptchaConfig;
 import ru.leymooo.ycore.Connection;
-import ru.leymooo.bungee.connection.CaptchaGenerator;
 
 import com.google.common.base.Preconditions;
 
@@ -48,6 +43,10 @@ public class CaptchaBridge extends PacketHandler {
     private final long joinTime = System.currentTimeMillis();
     private int retrys = 3;
     private boolean tpconfirm = false;
+    private boolean mcbrand = false;
+    private boolean alive = false;
+    private boolean transaction = false;
+    private int aliveid;
     //Captcha settings
     private static final Random random = new Random();
     private static int teleportId;
@@ -126,8 +125,14 @@ public class CaptchaBridge extends PacketHandler {
             this.write(channel, Connection.playerPosition, protocol, id3);
             this.write(channel, Connection.setSlot, protocol, 47);
         }
-
-        this.write(channel, Connection.playerPosition, protocol, id3);
+        aliveid = random.nextInt(999);
+        if (protocol > 47) {
+            this.write(channel, Connection.transaction, protocol, 17);
+            this.write(channel, new KeepAlive(aliveid), protocol, 31);
+        } else {
+            this.write(channel, Connection.transaction, protocol, 50);
+            this.write(channel, new KeepAlive(aliveid), protocol, 0);
+        }
         this.resetCaptcha();
         BungeeCord.getInstance().getLogger().info("[" + this.con.getName() + "] <-> CaptchaBridge has connected");
         CaptchaBridge.connections.put(this.con, this);
@@ -159,23 +164,6 @@ public class CaptchaBridge extends PacketHandler {
         BungeeCord.getInstance().getPluginManager().callEvent(new PlayerDisconnectEvent(this.con));
         BungeeCord.getInstance().removeConnection( this.con );
     }
-    public void handle(TeleportConfirm confirm) throws Exception {
-        if (settings == false) {
-            this.con.disconnect("§cСкорее всего вы бот :(");
-            return;
-        }
-        if (confirm.getTeleportId() == teleportId) {
-            tpconfirm = true;
-        } else {
-            this.con.disconnect("§cСкорее всего вы бот :(");
-        }
-    }
-    public void handle(KeepAlive alive) throws Exception {
-        if (alive.getRandomId() == this.con.getSentPingId()) {
-            int newPing = (int) (System.currentTimeMillis() - this.con.getSentPingTime());
-            this.con.setPing(newPing);
-        }
-    }
 
     private void resetCaptcha() {
         int protocol = this.con.getPendingConnection().getHandshake().getProtocolVersion();
@@ -190,7 +178,35 @@ public class CaptchaBridge extends PacketHandler {
     private static int getRandomCaptcha() {
         return random.nextInt(strings.size());
     }
-
+    public void handle(ConfirmTransaction transaction) {
+        System.out.print("1");
+        this.transaction = true;
+    }
+    public void handle(PluginMessage message) {
+        System.out.print("2");
+        if (message.getTag().equals("MC|Brand")) {
+            mcbrand = true;
+        }
+    }
+    public void handle(TeleportConfirm confirm) throws Exception {
+        System.out.print("3");
+        if (confirm.getTeleportId() == teleportId) {
+            tpconfirm = true;
+        } else {
+            this.con.disconnect("§cСкорее всего вы бот :(");
+        }
+    }
+    public void handle(KeepAlive alive) throws Exception {
+        System.out.print("4");
+        if (alive.getRandomId() == aliveid ) {
+            this.alive = true;
+        }
+    }
+    public void handle(ClientSettings settings) throws Exception {
+        System.out.print("5");
+        this.settings = true;
+        this.con.setSettings(settings);
+    }
     public void handle(Chat chat) throws Exception {
         Preconditions.checkArgument(chat.getMessage().length() <= 100, "Chat message too long");
         if (!chat.getMessage().equalsIgnoreCase(String.valueOf(this.captcha))) {
@@ -215,10 +231,6 @@ public class CaptchaBridge extends PacketHandler {
         CaptchaBridge.connections.remove(this.con);
     }
 
-    public void handle(ClientSettings settings) throws Exception {
-        this.settings = true;
-        this.con.setSettings(settings);
-    }
 
     public String toString() {
         return "[" + this.con.getName() + "] <-> CaptchaBridge ";
@@ -240,16 +252,15 @@ public class CaptchaBridge extends PacketHandler {
                         CaptchaBridge b;
                         while (iterator.hasNext()) {
                             b = (CaptchaBridge) iterator.next();
+                            b.getCon().sendMessage(CaptchaBridge.ENTER_CAPTCHA);
                             if (curr - b.getJoinTime() >= (long) CaptchaConfig.timeout) {
                                 b.getCon().disconnect(CaptchaBridge.TIMEOUT);
                                 iterator.remove();
                             } else {
-                                if (curr - b.getJoinTime() >= 750) {
-                                    if (b.settings == false || b.tpconfirm == false) {
+                                if (curr - b.getJoinTime() >= 1500) {
+                                    if (b.settings == false || b.tpconfirm == false || b.mcbrand == false || b.alive == false || b.transaction == false) {
                                         b.getCon().disconnect("§cСкорее всего вы бот :(");
                                         iterator.remove();
-                                    } else {
-                                        b.getCon().sendMessage(CaptchaBridge.ENTER_CAPTCHA);
                                     }
                                 }
                             }

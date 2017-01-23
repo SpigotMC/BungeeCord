@@ -26,6 +26,7 @@ import net.md_5.bungee.protocol.packet.LegacyPing;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PingPacket;
+import net.md_5.bungee.protocol.packet.ConfirmTransaction;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
@@ -35,6 +36,9 @@ public abstract class AbstractPacketHandler
 {
 
     public void handle(LegacyPing ping) throws Exception
+    {
+    }
+    public void handle(ConfirmTransaction transaction) throws Exception
     {
     }
     public void handle(TeleportConfirm tp) throws Exception

@@ -27,6 +27,7 @@ import net.md_5.bungee.protocol.packet.PingPacket;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.ConfirmTransaction;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
@@ -62,6 +63,11 @@ public enum Protocol
                     KeepAlive.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x00 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x1F )
+            );
+            TO_CLIENT.registerPacket(
+                    ConfirmTransaction.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x32 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x11 )
             );
             TO_CLIENT.registerPacket(
                     Login.class,
@@ -134,6 +140,11 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_10, 0x47 ),
                     map( ProtocolConstants.MINECRAFT_1_11, 0x47 ),
                     map( ProtocolConstants.MINECRAFT_1_11_1, 0x47 )
+            );
+            TO_SERVER.registerPacket(
+                    ConfirmTransaction.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x0F ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x05 )
             );
             TO_SERVER.registerPacket(
                     TeleportConfirm.class,
