@@ -179,17 +179,14 @@ public class CaptchaBridge extends PacketHandler {
         return random.nextInt(strings.size());
     }
     public void handle(ConfirmTransaction transaction) {
-        System.out.print("1");
         this.transaction = true;
     }
     public void handle(PluginMessage message) {
-        System.out.print("2");
         if (message.getTag().equals("MC|Brand")) {
             mcbrand = true;
         }
     }
     public void handle(TeleportConfirm confirm) throws Exception {
-        System.out.print("3");
         if (confirm.getTeleportId() == teleportId) {
             tpconfirm = true;
         } else {
@@ -197,13 +194,11 @@ public class CaptchaBridge extends PacketHandler {
         }
     }
     public void handle(KeepAlive alive) throws Exception {
-        System.out.print("4");
         if (alive.getRandomId() == aliveid ) {
             this.alive = true;
         }
     }
     public void handle(ClientSettings settings) throws Exception {
-        System.out.print("5");
         this.settings = true;
         this.con.setSettings(settings);
     }
@@ -242,7 +237,7 @@ public class CaptchaBridge extends PacketHandler {
                 while (true) {
                     if (!Thread.interrupted()) {
                         try {
-                            Thread.sleep(1000L);
+                            Thread.sleep(3000L);
                         } catch (InterruptedException interruptedexception) {
                             interruptedexception.printStackTrace();
                         }
@@ -257,7 +252,7 @@ public class CaptchaBridge extends PacketHandler {
                                 b.getCon().disconnect(CaptchaBridge.TIMEOUT);
                                 iterator.remove();
                             } else {
-                                if (curr - b.getJoinTime() >= 1500) {
+                                if (curr - b.getJoinTime() >= 3000) {
                                     if (b.settings == false || b.tpconfirm == false || b.mcbrand == false || b.alive == false || b.transaction == false) {
                                         b.getCon().disconnect("§cСкорее всего вы бот :(");
                                         iterator.remove();
