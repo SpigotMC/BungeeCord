@@ -15,58 +15,66 @@ import nl.captcha.noise.CurvedLineNoiseProducer;
 import nl.captcha.text.producer.DefaultTextProducer;
 
 import org.bukkit.map.CraftMapCanvas;
-import org.bukkit.map.MapPalette;
 
 import ru.leymooo.ycore.Connection;
-import ru.leymooo.bungee.connection.CaptchaBridge;
 
 public class CaptchaGenerator {
 
-    public static int max = 999;
     private AtomicInteger count = new AtomicInteger();
 
-    public void generate(int threads, int max) throws Exception {
-        CaptchaGenerator.max = max;
-        BungeeCord.getInstance().getLogger().info("§cГенерирую капчу");
-        long start = System.currentTimeMillis();
-        for (int in = 0; in < max; in++) {
-            //cache for captcha answers
-            CaptchaBridge.strings.add(String.valueOf(in));
-        }
-        int all = CaptchaBridge.strings.size();
+    public void generate(final int threads, final int max) throws Exception {
+        (new Thread(new Runnable() {
 
-        this.count.set(0);
-        Connection.maps1_8 = new ByteBuf[all];
-        Connection.maps1_9 = new ByteBuf[all];
-        ExecutorService executor = Executors.newFixedThreadPool(threads);
-
-        int i;
-
-        for (i = 0; i < all;i++) {
-            final int i2 = Integer.valueOf(i);
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    generateMap(i2);
+            @SuppressWarnings("deprecation")
+            @Override
+            public void run() {
+                BungeeCord.getInstance().getLogger().info("§cГенерирую капчу");
+                long start = System.currentTimeMillis();
+                CaptchaBridge.strings.clear();
+                for (int in = 0; in < max; in++) {
+                    //cache for captcha answers
+                    CaptchaBridge.strings.add(String.valueOf(in));
                 }
-            });
-        }
+                int all = CaptchaBridge.strings.size();
 
-        while ((i = this.count.get()) != all) {
-            try {
-                System.out.println(i + " из " + all + " [" + (int) ((double) i / (double) all * 100.0D) + " %]");
-                Thread.sleep(1000L);
-            } catch (InterruptedException interruptedexception) {
-                return;
-            }
-        }
+                count.set(0);
+                Connection.maps1_8 = new ByteBuf[all];
+                Connection.maps1_9 = new ByteBuf[all];
+                ExecutorService executor = Executors.newFixedThreadPool(threads);
+                int i;
+                for (i = 0; i < all;i++) {
+                    final int i2 = Integer.valueOf(i);
+                    executor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            generateMap(i2);
+                        }
+                    });
+                }
 
-        executor.shutdown();
-        System.out.println("Капча сгенерирована за (" + (System.currentTimeMillis() - start) + " мс)");
-        start = System.currentTimeMillis();
-        System.gc();
-        System.out.println("Память очищена за (" + (System.currentTimeMillis() - start) + " мс)");
+                while ((i = count.get()) != all) {
+                    System.out.println(i + " из " + all + " [" + (int) ((double) i / (double) all * 100.0D) + " %]");
+                    try {
+                        Thread.sleep(1000l);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                executor.shutdown();
+                System.out.println("Капча сгенерирована за (" + (System.currentTimeMillis() - start) + " мс)");
+                start = System.currentTimeMillis();
+                System.gc();
+                System.out.println("Память очищена за (" + (System.currentTimeMillis() - start) + " мс)");
+                CaptchaBridge.captchaGenerating = false;
+                CaptchaBridge.resetAllCaptcha();
+                Thread.currentThread().stop();
+                Thread.currentThread().interrupt();
+            }                
+
+        })).start();
     }
+
 
     public void generateMap(int i) {
         this.count.incrementAndGet();

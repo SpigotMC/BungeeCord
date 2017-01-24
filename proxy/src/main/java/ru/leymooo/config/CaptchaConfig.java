@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
+import ru.leymooo.bungee.connection.CaptchaBridge;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
@@ -24,6 +25,7 @@ public class CaptchaConfig {
     }
 
     public static boolean isWhite(String ip) {
+        if (CaptchaBridge.underAttack) return false;
         return CaptchaConfig.ips.contains(ip);
     }
 
