@@ -296,7 +296,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 // Login
                 thisState = State.USERNAME;
                 ch.setProtocol( Protocol.LOGIN );
-
+                if (CaptchaBridge.bannedips.contains(this.getAddress().getAddress().getHostAddress())) 
+                {
+                    disconnect( "§cНа сервер ведётся бот атака. Зайдите через §a5 §cминут!" );
+                    return;
+                }
                 if ( !ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) )
                 {
                     if ( handshake.getProtocolVersion() > bungee.getProtocolVersion() )

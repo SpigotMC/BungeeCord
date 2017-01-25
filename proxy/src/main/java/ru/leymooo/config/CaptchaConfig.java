@@ -26,7 +26,11 @@ public class CaptchaConfig {
 
     public static boolean isWhite(String ip) {
         if (CaptchaBridge.underAttack) return false;
-        return CaptchaConfig.ips.contains(ip);
+        if (CaptchaConfig.ips.contains(ip)) {
+            CaptchaBridge.a.incrementAndGet();
+            return true;
+        }
+        return false;
     }
 
     private void loadConfig() {
