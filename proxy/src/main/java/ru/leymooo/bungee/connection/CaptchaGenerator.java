@@ -13,9 +13,11 @@ import nl.captcha.Captcha;
 import nl.captcha.gimpy.FishEyeGimpyRenderer;
 import nl.captcha.noise.CurvedLineNoiseProducer;
 import nl.captcha.text.producer.DefaultTextProducer;
+import nl.captcha.text.producer.NumbersAnswerProducer;
 
 import org.bukkit.map.CraftMapCanvas;
 
+import ru.leymooo.config.CaptchaConfig;
 import ru.leymooo.ycore.Connection;
 
 public class CaptchaGenerator {
@@ -23,75 +25,106 @@ public class CaptchaGenerator {
     private AtomicInteger count = new AtomicInteger();
 
     public void generate(final int threads, final int max) throws Exception {
-        (new Thread(new Runnable() {
-
-            @SuppressWarnings("deprecation")
-            @Override
-            public void run() {
-                BungeeCord.getInstance().getLogger().info("§cГенерирую капчу");
-                long start = System.currentTimeMillis();
-                CaptchaBridge.strings.clear();
-                for (int in = 0; in < max; in++) {
-                    //cache for captcha answers
-                    CaptchaBridge.strings.add(String.valueOf(in));
+        BungeeCord.getInstance().getLogger().info("§cГенерирую капчу(1/2)");
+        long start = System.currentTimeMillis();
+        for (int in = 0; in < max; in++) {
+            //cache for captcha answers
+            CaptchaBridge.strings.add(String.valueOf(in));
+            CaptchaBridge.strings_attack.add(String.valueOf(in));
+        }
+        int all = CaptchaBridge.strings.size();
+        count.set(0);
+        Connection.maps1_8 = new ByteBuf[all];
+        Connection.maps1_9 = new ByteBuf[all];
+        Connection.maps1_8_attack = new ByteBuf[all];
+        Connection.maps1_9_attack = new ByteBuf[all];
+        ExecutorService executor = Executors.newFixedThreadPool(threads);
+        int i;
+        for (i = 0; i < all;i++) {
+            final int i2 = Integer.valueOf(i);
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    generateMap(i2, false);
                 }
-                int all = CaptchaBridge.strings.size();
+            });
+        }
 
-                count.set(0);
-                Connection.maps1_8 = new ByteBuf[all];
-                Connection.maps1_9 = new ByteBuf[all];
-                ExecutorService executor = Executors.newFixedThreadPool(threads);
-                int i;
-                for (i = 0; i < all;i++) {
-                    final int i2 = Integer.valueOf(i);
-                    executor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            generateMap(i2);
-                        }
-                    });
+        while ((i = count.get()) != all) {
+            System.out.println(i + " из " + all + " [" + (int) ((double) i / (double) all * 100.0D) + " %]");
+            try {
+                Thread.sleep(1000l);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        BungeeCord.getInstance().getLogger().info("§cГенерирую капчу(2/2)");
+        count.set(0);
+        for (i = 0; i < all;i++) {
+            final int i2 = Integer.valueOf(i);
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    generateMap(i2, true);
                 }
-
-                while ((i = count.get()) != all) {
-                    System.out.println(i + " из " + all + " [" + (int) ((double) i / (double) all * 100.0D) + " %]");
-                    try {
-                        Thread.sleep(1000l);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                executor.shutdown();
-                System.out.println("Капча сгенерирована за (" + (System.currentTimeMillis() - start) + " мс)");
-                start = System.currentTimeMillis();
-                System.gc();
-                System.out.println("Память очищена за (" + (System.currentTimeMillis() - start) + " мс)");
-                CaptchaBridge.captchaGenerating = false;
-                CaptchaBridge.resetAllCaptcha();
-                Thread.currentThread().stop();
-                Thread.currentThread().interrupt();
-            }                
-
-        })).start();
+            });
+        }
+        while ((i = count.get()) != all) {
+            System.out.println(i + " из " + all + " [" + (int) ((double) i / (double) all * 100.0D) + " %]");
+            try {
+                Thread.sleep(1000l);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        executor.shutdown();
+        System.out.println("Капча сгенерирована за (" + (System.currentTimeMillis() - start) + " мс)");
+        start = System.currentTimeMillis();
+        System.gc();
+        System.out.println("Память очищена за (" + (System.currentTimeMillis() - start) + " мс)");
     }
 
 
-    public void generateMap(int i) {
+    public void generateMap(int i, boolean attack) {
         this.count.incrementAndGet();
         CraftMapCanvas map = new CraftMapCanvas();
-        Captcha cap = new Captcha.Builder(128, 128)
-        .addText(new DefaultTextProducer())
-        .gimp(new FishEyeGimpyRenderer())
-        .addNoise(new CurvedLineNoiseProducer(Color.GREEN, 3))
-        .addNoise(new CurvedLineNoiseProducer(Color.GREEN, 3))
-        .addNoise(new CurvedLineNoiseProducer(Color.GREEN, 3))
-        .build();
-        map.drawImage(0, 0,cap.getImage());
-        CaptchaBridge.strings.set(i, cap.getAnswer());
+        if (CaptchaConfig.numbers) {
+            Captcha cap = new Captcha.Builder(128, 128)
+            .addText(new NumbersAnswerProducer())
+            .gimp(new FishEyeGimpyRenderer())
+            .addNoise(new CurvedLineNoiseProducer(Color.GREEN, 3))
+            .addNoise(new CurvedLineNoiseProducer(Color.GREEN, 3))
+            .addNoise(new CurvedLineNoiseProducer(Color.GREEN, 3))
+            .build();
+            map.drawImage(0, 0,cap.getImage());
+            if (attack) { 
+                CaptchaBridge.strings_attack.set(i, cap.getAnswer());
+            } else {
+                CaptchaBridge.strings.set(i, cap.getAnswer());
+            }
+        } else {
+            Captcha cap = new Captcha.Builder(128, 128)
+            .addText(new DefaultTextProducer())
+            .gimp(new FishEyeGimpyRenderer())
+            .addNoise(new CurvedLineNoiseProducer(Color.GREEN, 3))
+            .addNoise(new CurvedLineNoiseProducer(Color.GREEN, 3))
+            .addNoise(new CurvedLineNoiseProducer(Color.GREEN, 3))
+            .build();
+            map.drawImage(0, 0,cap.getImage());
+            if (attack) { 
+                CaptchaBridge.strings_attack.set(i, cap.getAnswer());
+            } else {
+                CaptchaBridge.strings.set(i, cap.getAnswer());
+            }        }
         try {
             MapDataPacket ex = new MapDataPacket(0, (byte) 0, MapDataPacket.Type.IMAGE, map.getMapData());
-            Connection.maps1_8[i] = Connection.getBytes(ex, 52, 47);
-            Connection.maps1_9[i] = Connection.getBytes(ex, 36, 107);
+            if (!attack) {
+                Connection.maps1_8[i] = Connection.getBytes(ex, 52, 47);
+                Connection.maps1_9[i] = Connection.getBytes(ex, 36, 107);
+            } else {
+                Connection.maps1_8_attack[i] = Connection.getBytes(ex, 52, 47);
+                Connection.maps1_9_attack[i] = Connection.getBytes(ex, 36, 107);
+            }
         } catch (Exception exception) {
             exception.printStackTrace();
             System.out.println("Ошибка генерации картинок, сообщите разработчику - vk.com/leymooo_s");

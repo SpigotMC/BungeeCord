@@ -14,12 +14,13 @@ public class CaptchaConfig {
 
     private static Set<String> ips = new HashSet<String>();
     public int threads;
-    public static String messageTimeout;
-    public static String messageEnter;
-    public static String messageInvalid;
-    public static int maxCaptcha;
-    public static int timeout;
-
+    public String messageTimeout;
+    public String messageEnter;
+    public String messageInvalid;
+    public int maxCaptcha;
+    public int timeout;
+    public int maxConnects;
+    public static boolean numbers;
     public CaptchaConfig() {
         this.loadConfig();
     }
@@ -43,12 +44,14 @@ public class CaptchaConfig {
                 file.createNewFile();
                 config = new Configuration();
                 config.set("Image-Generation-Threads", Integer.valueOf(4));
-                config.set("Log-Join", Boolean.valueOf(true));
                 config.set("Timeout", Integer.valueOf(15000));
                 config.set("Message-Timeout", "[§cCaptcha§f] Вы слишком долго вводили капчу");
                 config.set("Message-Enter", "[§cCaptcha§f] Введите номер с картинки в чат, чтобы пройти проверку. Открыть чат кнопкой \"T\" (английская)");
                 config.set("Message-Invalid", "[§cCaptcha§f] Неверная капча, у вас осталось §e%d§f попытк%s");
                 config.set("Max-Captchas", Integer.valueOf(1500));
+                //
+                config.set("Use-only-numbers", Boolean.valueOf(false));
+                config.set("Max-connections-per-3-sec", Integer.valueOf(100));
                 ConfigurationProvider.getProvider(YamlConfiguration.class).save(config, file);
                 BungeeCord.getInstance().getLogger().warning("§c[CAPTCHA] §eЯ создал конфиг. Редактируй §a\'CaptchaConfig.yml\'§e!");
                 BungeeCord.getInstance().getLogger().warning("§c[CAPTCHA] §bЗапуск через 5 сек'");
@@ -62,14 +65,21 @@ public class CaptchaConfig {
                 config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(file);
             } else {
                 config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(file);
+                if (!config.contains("Use-only-numbers")) {
+                    config.set("Use-only-numbers", Boolean.valueOf(false));
+                    config.set("Max-connections-per-3-sec", Integer.valueOf(100));
+                    ConfigurationProvider.getProvider(YamlConfiguration.class).save(config, file);
+                }
             }
 
-            this.threads = config.getInt("Image-Generation-Threads");
-            CaptchaConfig.timeout = config.getInt("Timeout");
-            CaptchaConfig.messageTimeout = config.getString("Message-Timeout");
-            CaptchaConfig.messageEnter = config.getString("Message-Enter");
-            CaptchaConfig.messageInvalid = config.getString("Message-Invalid");
-            CaptchaConfig.maxCaptcha = config.getInt("Max-Captchas", 1500);
+            this.threads = config.getInt("Image-Generation-Threads",4);
+            CaptchaConfig.numbers = config.getBoolean("Use-only-numbers", false);
+            timeout = config.getInt("Timeout", 15000);
+            messageTimeout = config.getString("Message-Timeout");
+            messageEnter = config.getString("Message-Enter");
+            messageInvalid = config.getString("Message-Invalid");
+            maxCaptcha = config.getInt("Max-Captchas", 1500);
+            maxConnects = config.getInt("Max-connections-per-3-sec", 100);
         } catch (Exception exception) {
             exception.printStackTrace();
         }

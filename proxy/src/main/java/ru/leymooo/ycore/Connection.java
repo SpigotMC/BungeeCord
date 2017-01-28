@@ -2,6 +2,7 @@ package ru.leymooo.ycore;
 
 import java.util.Random;
 
+import ru.leymooo.bungee.connection.CaptchaBridge;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import net.md_5.bungee.protocol.DefinedPacket;
@@ -18,6 +19,8 @@ public class Connection {
 
     public static ByteBuf[] maps1_8;
     public static ByteBuf[] maps1_9;
+    public static ByteBuf[] maps1_8_attack;
+    public static ByteBuf[] maps1_9_attack;
     public static final Login login = new Login(-1, (short) 0, 0, (short) 0, (short) 100, "flat", false);
     public static final SpawnPosition spawnPosition = new SpawnPosition(5, 60, 5);
     public static final ConfirmTransaction transaction = new ConfirmTransaction((byte)0, (short)1, false);
@@ -27,7 +30,11 @@ public class Connection {
     public static final PlayerAbilities abilities1_9 = new PlayerAbilities((byte) 6, 0.0F, 0.0F);
 
     public static ByteBuf getCaptcha(int captcha, int protocol) {
-        return protocol > 47 ? Connection.maps1_9[captcha] : Connection.maps1_8[captcha];
+        if (CaptchaBridge.underAttack) {
+            return protocol > 47 ? Connection.maps1_9_attack[captcha] : Connection.maps1_8_attack[captcha];
+        } else {
+            return protocol > 47 ? Connection.maps1_9[captcha] : Connection.maps1_8[captcha];
+        }
     }
     public static int getTeleportId() {
         return playerPosition.getTeleportId();

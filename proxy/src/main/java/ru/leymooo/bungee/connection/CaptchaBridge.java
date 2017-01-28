@@ -50,14 +50,11 @@ public class CaptchaBridge extends PacketHandler {
     private boolean needReset = true;
     //Captcha settings
     public static boolean underAttack = false;
-    public static boolean captchaGenerating = false;
     public static HashSet<String> bannedips = new HashSet<String>();
     private static final Random random = new Random();
     private static int teleportId;
     public static ArrayList<String> strings = new ArrayList<String>();
-    private static String TIMEOUT;
-    private static String ENTER_CAPTCHA;
-    private static String INVALID;
+    public static ArrayList<String> strings_attack = new ArrayList<String>();
     private static Map<UserConnection, CaptchaBridge> connections = new ConcurrentHashMap<UserConnection, CaptchaBridge>();
     private static CaptchaConfig sql;
     public static AtomicInteger a = new AtomicInteger();
@@ -66,14 +63,10 @@ public class CaptchaBridge extends PacketHandler {
 
     public static void init() {
         CaptchaBridge.sql = new CaptchaConfig();
-        CaptchaBridge.TIMEOUT = CaptchaConfig.messageTimeout;
-        CaptchaBridge.ENTER_CAPTCHA = CaptchaConfig.messageEnter;
-        CaptchaBridge.INVALID = CaptchaConfig.messageInvalid;
         teleportId = Connection.getTeleportId();
-        CaptchaBridge.captchaGenerating = true;
         try {
             CaptchaGenerator captchagenerator = new CaptchaGenerator();
-            captchagenerator.generate(CaptchaBridge.sql.threads, CaptchaConfig.maxCaptcha);
+            captchagenerator.generate(CaptchaBridge.sql.threads, sql.maxCaptcha);
         } catch (Exception exception) {
             System.out.println("Exception while generate maps");
             exception.printStackTrace();
@@ -89,19 +82,19 @@ public class CaptchaBridge extends PacketHandler {
             public void run() {
                 try {
                     CaptchaBridge.underAttack = true;
-                    CaptchaBridge.init();
+                    resetAllCaptcha();
                     Thread.sleep(1000*60*5);
                     CaptchaBridge.underAttack = false;
                     CaptchaBridge.bannedips.clear();
-                    CaptchaBridge.init();
                     CaptchaBridge.a.set(0);
+                    resetAllCaptcha();
                 } catch (InterruptedException interruptedexception) {
                     interruptedexception.printStackTrace();
                 }
             }
         })).start();
     }
-    public static void resetAllCaptcha() {
+    private static void resetAllCaptcha() {
         Iterator<CaptchaBridge> iterator = CaptchaBridge.connections.values().iterator();
         CaptchaBridge b;
         while (iterator.hasNext()) {
@@ -129,7 +122,7 @@ public class CaptchaBridge extends PacketHandler {
 
     private void connected() {
         ip = this.con.getAddress().getAddress().getHostAddress();
-        if (!underAttack && System.currentTimeMillis() - start > 1000*60*3 && a.getAndIncrement() > 60) {
+        if (!underAttack && System.currentTimeMillis() - start > 1000*60*3 && a.getAndIncrement() > sql.maxConnects) {
             CaptchaBridge.underAttack = true;
             if ((t!=null && t.isAlive())==false) { 
                 CaptchaBridge.AttackDetected();
@@ -167,7 +160,7 @@ public class CaptchaBridge extends PacketHandler {
             this.write(channel, Connection.transaction, protocol, 50);
             this.write(channel, new KeepAlive(aliveid), protocol, 0);
         }
-        if (captchaGenerating == false && underAttack == false) {
+        if (!underAttack) {
             needReset = false;
             this.resetCaptcha();
         }
@@ -208,13 +201,13 @@ public class CaptchaBridge extends PacketHandler {
         Channel channel = this.con.getCh().getHandle();
 
         this.captchaId = getRandomCaptcha();
-        this.captcha = strings.get(captchaId);
+        this.captcha = underAttack ?strings_attack.get(captchaId):strings.get(captchaId);
         this.write(channel, Connection.getCaptcha(this.captchaId, protocol));
         channel.flush();
     }
 
     private static int getRandomCaptcha() {
-        return random.nextInt(strings.size());
+        return underAttack ? random.nextInt(strings_attack.size()):random.nextInt(strings.size());
     }
     public void handle(ConfirmTransaction transaction) {
         this.transaction = true;
@@ -241,8 +234,7 @@ public class CaptchaBridge extends PacketHandler {
         this.con.setSettings(settings);
     }
     public void handle(Chat chat) throws Exception {
-        if (captchaGenerating) return;
-        String msg = chat.getMessage();
+        String msg = chat.getMessage().toLowerCase();
         if (msg.length() >= 5) {
             if (--this.retrys == 0) {
                 if (underAttack) bannedips.add(ip);
@@ -256,7 +248,7 @@ public class CaptchaBridge extends PacketHandler {
                 if (underAttack) bannedips.add(ip);
             } else {
                 this.resetCaptcha();
-                this.con.sendMessage(String.format(CaptchaBridge.INVALID, new Object[] { Integer.valueOf(this.retrys), this.retrys == 1 ? "а" : "и"}));
+                this.con.sendMessage(String.format(sql.messageInvalid, new Object[] { Integer.valueOf(this.retrys), this.retrys == 1 ? "а" : "и"}));
             }
         } else {
             this.finish();
@@ -293,33 +285,21 @@ public class CaptchaBridge extends PacketHandler {
                         CaptchaBridge b;
                         while (iterator.hasNext()) {
                             b = (CaptchaBridge) iterator.next();
-                            if (captchaGenerating) {
-                                b.setJoinTime();
-                                if (underAttack) {
-                                    b.getCon().sendMessage("§aГенерирую капчу... Пожалуйста подождите!\n§eПожалуйста! §cНе выходите с сервера, иначе вы будете заблокированы на §a5 §cминут!");
-                                } else {
-                                    b.getCon().sendMessage("§aГенерирую капчу... Пожалуйста подождите!");
-                                }
-                                continue;
-
-                            }
-                            b.getCon().sendMessage(CaptchaBridge.ENTER_CAPTCHA);
-                            if (curr - b.getJoinTime() >= (long) CaptchaConfig.timeout) {
-                                b.getCon().disconnect(CaptchaBridge.TIMEOUT);
+                            b.getCon().sendMessage(sql.messageEnter);
+                            if (curr - b.getJoinTime() >= (long) sql.timeout) {
+                                b.getCon().disconnect(sql.messageInvalid);
                                 if (underAttack) bannedips.add(b.ip);
                                 iterator.remove();
                             } else {
-                                if (curr - b.getJoinTime() >= 3000) {
-                                    if (underAttack)  {
-                                        if (b.settings == false || b.tpconfirm == false || b.mcbrand == false || b.alive == false || b.transaction == false) {
-                                            b.getCon().disconnect("§cСкорее всего вы бот :(");
-                                            if (underAttack) bannedips.add(b.ip);
-                                            iterator.remove();
-                                        } else if (b.needReset) {
-                                            b.setJoinTime();
-                                            b.resetCaptcha();
-                                            b.needReset = false;
-                                        }
+                                if (underAttack && curr - b.getJoinTime() >= 3000) {
+                                    if (b.settings == false || b.tpconfirm == false || b.mcbrand == false || b.alive == false || b.transaction == false) {
+                                        b.getCon().disconnect("§cСкорее всего вы бот :(");
+                                        if (underAttack) bannedips.add(b.ip);
+                                        iterator.remove();
+                                    } else if (b.needReset) {
+                                        b.setJoinTime();
+                                        b.resetCaptcha();
+                                        b.needReset = false;
                                     }
                                 }
                             }
