@@ -287,7 +287,7 @@ public class CaptchaBridge extends PacketHandler {
                             b = (CaptchaBridge) iterator.next();
                             b.getCon().sendMessage(sql.messageEnter);
                             if (curr - b.getJoinTime() >= (long) sql.timeout) {
-                                b.getCon().disconnect(sql.messageInvalid);
+                                b.getCon().disconnect(sql.messageTimeout);
                                 if (underAttack) bannedips.add(b.ip);
                                 iterator.remove();
                             } else {
