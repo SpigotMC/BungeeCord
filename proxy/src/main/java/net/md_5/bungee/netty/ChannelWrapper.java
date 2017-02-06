@@ -57,6 +57,11 @@ public class ChannelWrapper
         }
     }
 
+    public void markClosed()
+    {
+        closed = closing = true;
+    }
+
     public void close()
     {
         close( null );
