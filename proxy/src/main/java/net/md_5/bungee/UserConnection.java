@@ -548,6 +548,36 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
+    public byte getViewDistance()
+    {
+        return ( settings != null ) ? settings.getViewDistance() : 10;
+    }
+
+    @Override
+    public int getChatFlags()
+    {
+        return ( settings != null ) ? settings.getChatFlags() : 0;
+    }
+
+    @Override
+    public boolean isChatColors()
+    {
+        return ( settings != null ) ? settings.getChatColours() : true;
+    }
+
+    @Override
+    public byte getSkinParts()
+    {
+        return ( settings != null ) ? settings.getChatColours() : 0x00111111;
+    }
+
+    @Override
+    public int getMainHand()
+    {
+        return ( settings != null ) ? settings.getChatColours() : 1;
+    }
+
+    @Override
     public boolean isForgeUser()
     {
         return forgeClientHandler.isForgeUser();
