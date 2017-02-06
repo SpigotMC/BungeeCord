@@ -568,7 +568,8 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public byte getSkinParts()
     {
-        return ( settings != null ) ? settings.getSkinParts() : 0x00111111;
+        // 63 or 0x3F is represented in bits as 00111111. This will default to show all skin.
+        return ( settings != null ) ? settings.getSkinParts() : (byte) 63;
     }
 
     @Override
