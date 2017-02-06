@@ -562,19 +562,19 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public boolean isChatColors()
     {
-        return ( settings != null ) ? settings.getChatColours() : true;
+        return ( settings != null ) ? settings.isChatColors() : true;
     }
 
     @Override
     public byte getSkinParts()
     {
-        return ( settings != null ) ? settings.getChatColours() : 0x00111111;
+        return ( settings != null ) ? settings.getSkinParts() : 0x00111111;
     }
 
     @Override
     public int getMainHand()
     {
-        return ( settings != null ) ? settings.getChatColours() : 1;
+        return ( settings != null ) ? settings.getMainHand() : 1;
     }
 
     @Override
