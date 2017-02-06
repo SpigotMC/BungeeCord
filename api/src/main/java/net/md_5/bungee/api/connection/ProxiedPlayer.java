@@ -143,6 +143,57 @@ public interface ProxiedPlayer extends Connection, CommandSender
     Locale getLocale();
 
     /**
+     * Gets this player's view distance.
+     *
+     * @return the view distance
+     */
+    byte getViewDistance();
+
+    /**
+     * Gets this player's chat flags.
+     *
+     * 0: Chat set to "Shown"
+     * 1: Chat set to "Commands only"
+     * 2: Chat disabled
+     *
+     * @return the chat flags
+     */
+    int getChatFlags();
+
+    /**
+     * Gets if this player has chat colors enabled or disabled.
+     *
+     * @return if chat colors are enabled
+     */
+    boolean isChatColors();
+
+    /**
+     * Gets this player's skin settings.
+     *
+     * Bitmask, displayed Skin Parts flags:
+     * 
+     * Bit 0 (0x01): Cape enabled
+     * Bit 1 (0x02): Jacket enabled
+     * Bit 2 (0x04): Left Sleeve enabled
+     * Bit 3 (0x08): Right Sleeve enabled
+     * Bit 4 (0x10): Left Pants Leg enabled
+     * Bit 5 (0x20): Right Pants Leg enabled
+     * Bit 6 (0x40): Hat enabled
+     * The most significant bit (bit 7, 0x80) appears to be unused.
+     *
+     * @return the players skin setting
+     */
+    byte getSkinParts();
+
+    /**
+    * Gets this player's main hand setting.
+    * Value of 0 means Left. Value of 1 means Right.
+    *
+    * @return main hand setting
+    */
+    int getMainHand();
+
+    /**
      * Set the header and footer displayed in the tab player list.
      *
      * @param header The header for the tab player list, null to clear it.
