@@ -52,6 +52,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     {
         if ( handler != null )
         {
+            channel.markClosed();
             handler.disconnected( channel );
 
             if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
