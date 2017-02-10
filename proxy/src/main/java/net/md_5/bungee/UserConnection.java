@@ -31,11 +31,13 @@ import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.config.SkinConfiguration;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.chat.ComponentSerializer;
+import net.md_5.bungee.conf.PlayerSkinConfiguration;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.entitymap.EntityMap;
 import net.md_5.bungee.forge.ForgeClientHandler;
@@ -554,28 +556,41 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public int getChatFlags()
+    public ProxiedPlayer.ChatMode getChatMode()
     {
-        return ( settings != null ) ? settings.getChatFlags() : 0;
+        if( settings == null )
+        {
+            return ProxiedPlayer.ChatMode.SHOWN;
+        }
+        
+        switch ( settings.getChatFlags() )
+        {
+            default:
+            case 0:
+                return ProxiedPlayer.ChatMode.SHOWN;
+            case 1:
+                return ProxiedPlayer.ChatMode.COMMANDS_ONLY;
+            case 2:
+                return ProxiedPlayer.ChatMode.HIDDEN;
+        }
     }
 
     @Override
-    public boolean isChatColors()
+    public boolean hasChatColors()
     {
         return ( settings != null ) ? settings.isChatColors() : true;
     }
 
     @Override
-    public byte getSkinParts()
+    public SkinConfiguration getSkinParts()
     {
-        // 63 or 0x3F is represented in bits as 00111111. This will default to show all skin.
-        return ( settings != null ) ? settings.getSkinParts() : (byte) 63;
+        return ( settings != null ) ? new PlayerSkinConfiguration(settings.getSkinParts()) : PlayerSkinConfiguration.SKIN_SHOW_ALL;
     }
 
     @Override
-    public int getMainHand()
+    public ProxiedPlayer.MainHand getMainHand()
     {
-        return ( settings != null ) ? settings.getMainHand() : 1;
+        return ( settings != null && settings.getMainHand() == 1 ) ? ProxiedPlayer.MainHand.RIGHT : ProxiedPlayer.MainHand.LEFT;
     }
 
     @Override

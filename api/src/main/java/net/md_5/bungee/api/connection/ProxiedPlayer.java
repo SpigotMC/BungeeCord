@@ -9,6 +9,7 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.config.SkinConfiguration;
 
 /**
  * Represents a player who's connection is being connected to somewhere else,
@@ -16,6 +17,23 @@ import net.md_5.bungee.api.config.ServerInfo;
  */
 public interface ProxiedPlayer extends Connection, CommandSender
 {
+
+    public enum ChatMode
+    {
+    
+        SHOWN,
+        COMMANDS_ONLY,
+        HIDDEN
+    
+    }
+
+    public enum MainHand
+    {
+    
+        LEFT,
+        RIGHT
+    
+    }
 
     /**
      * Gets this player's display name.
@@ -150,48 +168,35 @@ public interface ProxiedPlayer extends Connection, CommandSender
     byte getViewDistance();
 
     /**
-     * Gets this player's chat flags.
-     *
-     * 0: Chat set to "Shown"
-     * 1: Chat set to "Commands only"
-     * 2: Chat disabled
+     * Gets this player's chat mode.
      *
      * @return the chat flags
+     * @see ProxiedPlayer.ChatMode
      */
-    int getChatFlags();
+    ChatMode getChatMode();
 
     /**
      * Gets if this player has chat colors enabled or disabled.
      *
      * @return if chat colors are enabled
      */
-    boolean isChatColors();
+    boolean hasChatColors();
 
     /**
      * Gets this player's skin settings.
      *
-     * Bitmask, displayed Skin Parts flags:
-     * 
-     * Bit 0 (0x01): Cape enabled
-     * Bit 1 (0x02): Jacket enabled
-     * Bit 2 (0x04): Left Sleeve enabled
-     * Bit 3 (0x08): Right Sleeve enabled
-     * Bit 4 (0x10): Left Pants Leg enabled
-     * Bit 5 (0x20): Right Pants Leg enabled
-     * Bit 6 (0x40): Hat enabled
-     * The most significant bit (bit 7, 0x80) appears to be unused.
-     *
      * @return the players skin setting
+     * @see SkinConfiguration
      */
-    byte getSkinParts();
+    SkinConfiguration getSkinParts();
 
     /**
     * Gets this player's main hand setting.
-    * Value of 0 means Left. Value of 1 means Right.
     *
     * @return main hand setting
+    * @see ProxiedPlayer.ChatMode
     */
-    int getMainHand();
+    MainHand getMainHand();
 
     /**
      * Set the header and footer displayed in the tab player list.
