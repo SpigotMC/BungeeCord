@@ -51,10 +51,15 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception
     {
+        if (msg.sender() == null|| ctx.channel().remoteAddress() == null) {
+            ctx.close();
+            return;
+        }
         ByteBuf in = msg.content();
         if ( in.readUnsignedByte() != 0xFE || in.readUnsignedByte() != 0xFD )
         {
             bungee.getLogger().log( Level.WARNING, "Query - Incorrect magic!: {0}", msg.sender() );
+            ctx.close();
             return;
         }
 
@@ -81,7 +86,10 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
             QuerySession session = sessions.getIfPresent( msg.sender().getAddress() );
             if ( session == null || session.getToken() != challengeToken )
             {
-                throw new IllegalStateException( "No session!" );
+                bungee.getLogger().log( Level.WARNING, "Query - No session!" );
+                ctx.close();
+                return;
+               // throw new IllegalStateException( "No session!" );
             }
 
             out.writeByte( 0x00 );
@@ -137,7 +145,10 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
             } else
             {
                 // Error!
-                throw new IllegalStateException( "Invalid data request packet" );
+                bungee.getLogger().log( Level.WARNING, "Query - Invalid data request packet" );
+                ctx.close();
+                return;
+                //throw new IllegalStateException( "Invalid data request packet" );
             }
         }
 
@@ -146,7 +157,8 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
-    {
+    {   
+        ctx.close();
         bungee.getLogger().log( Level.WARNING, "Error whilst handling query packet from " + ctx.channel().remoteAddress(), cause );
     }
 
