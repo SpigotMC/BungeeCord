@@ -515,6 +515,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             userCon.connect( server, null, true );
 
                             thisState = State.FINISHED;
+                        } else {
+                            bungee.getPluginManager().callEvent( new PlayerDisconnectEvent( userCon ) );
                         }
                     }
                 } );
