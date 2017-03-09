@@ -11,7 +11,8 @@ final public class HoverEvent
     private final Action action;
     private final BaseComponent[] value;
 
-    public HoverEvent(Action action, BaseComponent... value) {
+    public HoverEvent(Action action, BaseComponent... value)
+    {
         this.action = action;
         this.value = value;
     }
