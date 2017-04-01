@@ -504,14 +504,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
                             unsafe.sendPacket( new LoginSuccess( getUniqueId().toString(), getName() ) ); // With dashes in between
                             ch.setProtocol( Protocol.GAME );
-
-                            ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
-                            bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
                             boolean captcha = !CaptchaConfig.isWhite(InitialHandler.this.getAddress().getAddress().getHostAddress());
                             if (captcha) {
                                 ((HandlerBoss) InitialHandler.this.ch.getHandle().pipeline().get(HandlerBoss.class)).setHandler(new CaptchaBridge(userCon));
                              } else {
                             ServerInfo server;
+                            ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
+                            bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
                             if ( bungee.getReconnectHandler() != null )
                             {
                                 server = bungee.getReconnectHandler().getServer( userCon );

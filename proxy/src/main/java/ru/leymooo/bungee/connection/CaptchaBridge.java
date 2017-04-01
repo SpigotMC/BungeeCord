@@ -221,7 +221,7 @@ public class CaptchaBridge extends PacketHandler {
         if (confirm.getTeleportId() == teleportId) {
             tpconfirm = true;
         } else {
-            this.con.disconnect("§cСкорее всего вы бот :(");
+            this.con.disconnect(sql.kickBot);
         }
     }
     public void handle(KeepAlive alive) throws Exception {
@@ -238,13 +238,13 @@ public class CaptchaBridge extends PacketHandler {
         if (msg.length() >= 5) {
             if (--this.retrys == 0) {
                 if (underAttack) bannedips.add(ip);
-                this.con.disconnect("[§cCaptcha§f] Неверная капча");
+                this.con.disconnect(sql.wrongCaptcha);
             }
             return;
         }
         if (!msg.equalsIgnoreCase(String.valueOf(this.captcha))) {
             if (--this.retrys == 0) {
-                this.con.disconnect("[§cCaptcha§f] Неверная капча");
+                this.con.disconnect(sql.wrongCaptcha);
                 if (underAttack) bannedips.add(ip);
             } else {
                 this.resetCaptcha();
@@ -293,7 +293,7 @@ public class CaptchaBridge extends PacketHandler {
                             } else {
                                 if (underAttack && curr - b.getJoinTime() >= 3000) {
                                     if (b.settings == false || b.tpconfirm == false || b.mcbrand == false || b.alive == false || b.transaction == false) {
-                                        b.getCon().disconnect("§cСкорее всего вы бот :(");
+                                        b.getCon().disconnect(sql.kickBot);
                                         if (underAttack) bannedips.add(b.ip);
                                         iterator.remove();
                                     } else if (b.needReset) {

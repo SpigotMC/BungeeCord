@@ -14,6 +14,8 @@ public class CaptchaConfig {
 
     private static Set<String> ips = new HashSet<String>();
     public int threads;
+    public String wrongCaptcha;
+    public String kickBot;
     public String messageTimeout;
     public String messageEnter;
     public String messageInvalid;
@@ -43,6 +45,8 @@ public class CaptchaConfig {
             if (!file.exists()) {
                 file.createNewFile();
                 config = new Configuration();
+                config.set("Wrong-Captcha", "[§cCaptcha§f] Вы ввели неверную капчу");
+                config.set("Bot-kick", "[§cCaptcha§f] §cСкорее всего вы бот :(");
                 config.set("Image-Generation-Threads", Integer.valueOf(4));
                 config.set("Timeout", Integer.valueOf(15000));
                 config.set("Message-Timeout", "[§cCaptcha§f] Вы слишком долго вводили капчу");
@@ -70,8 +74,14 @@ public class CaptchaConfig {
                     config.set("Max-connections-per-3-sec", Integer.valueOf(100));
                     ConfigurationProvider.getProvider(YamlConfiguration.class).save(config, file);
                 }
+                if (!config.contains("Wrong-Captcha")) {
+                    config.set("Wrong-Captcha", "[§cCaptcha§f] Вы ввели неверную капчу");
+                    config.set("Bot-kick", "[§cCaptcha§f] §cСкорее всего вы бот :(");
+                    ConfigurationProvider.getProvider(YamlConfiguration.class).save(config, file);
+                }
             }
-
+            this.kickBot = config.getString("Bot-kick");
+            this.wrongCaptcha = config.getString("Wrong-Captcha");
             this.threads = config.getInt("Image-Generation-Threads",4);
             CaptchaConfig.numbers = config.getBoolean("Use-only-numbers", false);
             timeout = config.getInt("Timeout", 15000);
