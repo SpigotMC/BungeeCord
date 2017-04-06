@@ -3,9 +3,8 @@ package net.md_5.bungee.api.config;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
-import lombok.AccessLevel;
+
 import lombok.Data;
-import lombok.Getter;
 
 /**
  * Class representing the configuration of a server listener. Used for allowing
