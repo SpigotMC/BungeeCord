@@ -62,6 +62,7 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
+import ru.leymooo.bungee.connection.StaticMethods;
 import ru.leymooo.bungee.connection.CaptchaBridge;
 import ru.leymooo.config.CaptchaConfig;
 @RequiredArgsConstructor
@@ -296,7 +297,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 // Login
                 thisState = State.USERNAME;
                 ch.setProtocol( Protocol.LOGIN );
-                if (CaptchaBridge.bannedips.contains(this.getAddress().getAddress().getHostAddress())) 
+                if (StaticMethods.bannedips.contains(this.getAddress().getAddress().getHostAddress())) 
                 {
                     disconnect( "§cНа сервер ведётся бот атака. Зайдите через §a5 §cминут!" );
                     return;

@@ -33,7 +33,7 @@ public class DefaultWordRenderer implements WordRenderer {
         DEFAULT_COLORS.add(Color.WHITE);
         DEFAULT_COLORS.add(Color.PINK);
         DEFAULT_COLORS.add(Color.BLACK);
-        DEFAULT_FONTS.add(new Font("Arial", Font.BOLD, 59));
+        DEFAULT_FONTS.add(new Font(Font.DIALOG, Font.BOLD, (System.getProperty("os.name").toLowerCase().indexOf("win") >= 0) == true ? 65:56));
     }
 
     private final List<Color> _colors = new ArrayList<Color>();
@@ -68,12 +68,15 @@ public class DefaultWordRenderer implements WordRenderer {
     public void render(final String word, BufferedImage image) {
         Graphics2D g = image.createGraphics();
 
-        RenderingHints hints = new RenderingHints(
-                RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-        hints.add(new RenderingHints(RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_QUALITY));
-        g.setRenderingHints(hints);
+        g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+        g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
         FontRenderContext frc = g.getFontRenderContext();
         int xBaseline = (int) Math.round(image.getWidth() * XOFFSET);
@@ -88,7 +91,6 @@ public class DefaultWordRenderer implements WordRenderer {
             int choiceFont = RAND.nextInt(_fonts.size());
             Font font = _fonts.get(choiceFont);
             g.setFont(font);
-
             GlyphVector gv = font.createGlyphVector(frc, chars);
             g.drawChars(chars, 0, chars.length, xBaseline, yBaseline);
 

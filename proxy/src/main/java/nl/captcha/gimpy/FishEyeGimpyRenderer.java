@@ -36,6 +36,7 @@ public class FishEyeGimpyRenderer implements GimpyRenderer {
         int vspace = width / (vstripes + 1);
 
         Graphics2D graph = (Graphics2D) image.getGraphics();
+        
         // Draw the horizontal stripes
         for (int i = hspace; i < height; i = i + hspace) {
             graph.setColor(_hColor);

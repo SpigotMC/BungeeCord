@@ -12,12 +12,10 @@ import net.md_5.bungee.protocol.packet.extra.MapDataPacket;
 import nl.captcha.Captcha;
 import nl.captcha.gimpy.FishEyeGimpyRenderer;
 import nl.captcha.noise.CurvedLineNoiseProducer;
-import nl.captcha.text.producer.DefaultTextProducer;
 import nl.captcha.text.producer.NumbersAnswerProducer;
 
 import org.bukkit.map.CraftMapCanvas;
 
-import ru.leymooo.config.CaptchaConfig;
 import ru.leymooo.ycore.Connection;
 
 public class CaptchaGenerator {
@@ -29,10 +27,10 @@ public class CaptchaGenerator {
         long start = System.currentTimeMillis();
         for (int in = 0; in < max; in++) {
             //cache for captcha answers
-            CaptchaBridge.strings.add(String.valueOf(in));
-            CaptchaBridge.strings_attack.add(String.valueOf(in));
+            StaticMethods.strings.add(String.valueOf(in));
+            StaticMethods.strings_attack.add(String.valueOf(in));
         }
-        int all = CaptchaBridge.strings.size();
+        int all =  StaticMethods.strings.size();
         count.set(0);
         Connection.maps1_8 = new ByteBuf[all];
         Connection.maps1_9 = new ByteBuf[all];
@@ -88,36 +86,21 @@ public class CaptchaGenerator {
     public void generateMap(int i, boolean attack) {
         this.count.incrementAndGet();
         CraftMapCanvas map = new CraftMapCanvas();
-        if (CaptchaConfig.numbers) {
-            Captcha cap = new Captcha.Builder(128, 128)
-            .addText(new NumbersAnswerProducer())
-            .gimp(new FishEyeGimpyRenderer())
-            .addNoise(new CurvedLineNoiseProducer(Color.GREEN, 3))
-            .addNoise(new CurvedLineNoiseProducer(Color.GREEN, 3))
-            .addNoise(new CurvedLineNoiseProducer(Color.GREEN, 3))
-            .build();
-            map.drawImage(0, 0,cap.getImage());
-            if (attack) { 
-                CaptchaBridge.strings_attack.set(i, cap.getAnswer());
-            } else {
-                CaptchaBridge.strings.set(i, cap.getAnswer());
-            }
+        Captcha cap = new Captcha.Builder(128, 128)
+        .addText(new NumbersAnswerProducer())
+        .gimp(new FishEyeGimpyRenderer())
+        .addNoise(new CurvedLineNoiseProducer(Color.GREEN, 3))
+        .addNoise(new CurvedLineNoiseProducer(Color.GREEN, 3))
+        .addNoise(new CurvedLineNoiseProducer(Color.GREEN, 3))
+        .build();
+        map.drawImage(0, 0,cap.getImage());
+        if (attack) { 
+            StaticMethods.strings_attack.set(i, cap.getAnswer());
         } else {
-            Captcha cap = new Captcha.Builder(128, 128)
-            .addText(new DefaultTextProducer())
-            .gimp(new FishEyeGimpyRenderer())
-            .addNoise(new CurvedLineNoiseProducer(Color.GREEN, 3))
-            .addNoise(new CurvedLineNoiseProducer(Color.GREEN, 3))
-            .addNoise(new CurvedLineNoiseProducer(Color.GREEN, 3))
-            .build();
-            map.drawImage(0, 0,cap.getImage());
-            if (attack) { 
-                CaptchaBridge.strings_attack.set(i, cap.getAnswer());
-            } else {
-                CaptchaBridge.strings.set(i, cap.getAnswer());
-            }        }
+            StaticMethods.strings.set(i, cap.getAnswer());
+        } 
+        MapDataPacket ex = new MapDataPacket(0, (byte) 0, MapDataPacket.Type.IMAGE, map.getMapData());
         try {
-            MapDataPacket ex = new MapDataPacket(0, (byte) 0, MapDataPacket.Type.IMAGE, map.getMapData());
             if (!attack) {
                 Connection.maps1_8[i] = Connection.getBytes(ex, 52, 47);
                 Connection.maps1_9[i] = Connection.getBytes(ex, 36, 107);
