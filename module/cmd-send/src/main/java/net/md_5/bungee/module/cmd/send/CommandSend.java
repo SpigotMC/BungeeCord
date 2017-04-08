@@ -77,16 +77,6 @@ public class CommandSend extends Command implements TabExecutor
         }
         sender.sendMessage( ChatColor.GREEN + "Successfully summoned player(s)" );
     }
-
-    private void summon(ProxiedPlayer player, ServerInfo target, CommandSender sender)
-    {
-        if ( player.getServer() != null && !player.getServer().getInfo().equals( target ) )
-        {
-            player.connect( target );
-            player.sendMessage( ChatColor.GOLD + "Summoned to " + target.getName() + " by " + sender.getName() );
-        }
-    }
-
     @Override
     public Iterable<String> onTabComplete(CommandSender sender, String[] args)
     {
