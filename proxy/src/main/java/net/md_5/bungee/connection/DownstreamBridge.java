@@ -458,6 +458,9 @@ public class DownstreamBridge extends PacketHandler
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
             con.connectNow( event.getCancelServer() );
+        } else if (event.getKickReason().equalsIgnoreCase("fallback"))
+        {
+            con.connectNow(def);
         } else
         {
             con.disconnect0( event.getKickReasonComponent() ); // TODO: Prefix our own stuff.
