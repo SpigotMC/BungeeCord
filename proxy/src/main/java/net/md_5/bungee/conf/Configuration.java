@@ -57,6 +57,7 @@ public class Configuration implements ProxyConfig
     private boolean ipForward;
     private Favicon favicon;
     private int compressionThreshold = 256;
+    private String pluginUpdateFolderFileName = "update";
 
     public void load()
     {
@@ -84,6 +85,7 @@ public class Configuration implements ProxyConfig
         throttle = adapter.getInt( "connection_throttle", throttle );
         ipForward = adapter.getBoolean( "ip_forward", ipForward );
         compressionThreshold = adapter.getInt( "network_compression_threshold", compressionThreshold );
+        pluginUpdateFolderFileName = adapter.getString( "plugin_update_folder", pluginUpdateFolderFileName );
 
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
 

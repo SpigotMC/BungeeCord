@@ -5,6 +5,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.eventbus.Subscribe;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -23,6 +24,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
+
+import com.google.common.io.Files;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -321,6 +324,27 @@ public class PluginManager
         return status;
     }
 
+    private void checkUpdate( File file )
+    {
+        File updateDirectory = proxy.getUpdateFolderFile();
+        if ( updateDirectory == null || !updateDirectory.isDirectory() )
+        {
+            return;
+        }
+
+        File updateFile = new File( updateDirectory, file.getName() );
+        if ( updateFile.isFile() )
+        {
+            try
+            {
+                Files.move( updateFile, file );
+            } catch ( IOException ex )
+            {
+                ex.printStackTrace();
+            }
+        }
+    }
+
     /**
      * Load all plugins from the specified folder.
      *
@@ -333,6 +357,8 @@ public class PluginManager
 
         for ( File file : folder.listFiles() )
         {
+            checkUpdate(file);
+
             if ( file.isFile() && file.getName().endsWith( ".jar" ) )
             {
                 try ( JarFile jar = new JarFile( file ) )
