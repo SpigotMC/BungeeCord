@@ -14,6 +14,10 @@ public class ForgeConstants
     public static final String FML_HANDSHAKE_TAG = "FML|HS";
     public static final String FML_REGISTER = "REGISTER";
 
+    // Game profile key
+    public static final String FML_LOGIN_PROFILE = "forgeClient";
+    public static final String EXTRA_DATA = "extraData";
+
     /**
      * The FML 1.8 handshake token.
      */
