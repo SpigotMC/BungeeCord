@@ -22,7 +22,7 @@ public class CaptchaGenerator {
     private final GCage localGCage = new GCage();
     private int min;
     public void generate(final int threads, final int max, int min) throws Exception {
-        BungeeCord.getInstance().getLogger().info("§cГенерирую капчу(1/2)");
+        BungeeCord.getInstance().getLogger().info("§cГенерирую капчу");
         long start = System.currentTimeMillis();
         int all = max - min + 1;
         this.min = min;
