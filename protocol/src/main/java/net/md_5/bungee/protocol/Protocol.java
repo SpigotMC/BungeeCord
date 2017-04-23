@@ -28,6 +28,7 @@ import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.ConfirmTransaction;
+import net.md_5.bungee.protocol.packet.PlayerLook;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
@@ -140,6 +141,11 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_10, 0x47 ),
                     map( ProtocolConstants.MINECRAFT_1_11, 0x47 ),
                     map( ProtocolConstants.MINECRAFT_1_11_1, 0x47 )
+            );
+            TO_SERVER.registerPacket(
+                    PlayerLook.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x05 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x0E )
             );
             TO_SERVER.registerPacket(
                     ConfirmTransaction.class,

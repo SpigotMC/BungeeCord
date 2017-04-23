@@ -19,14 +19,14 @@ import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.ConfirmTransaction;
 import net.md_5.bungee.protocol.packet.KeepAlive;
+import net.md_5.bungee.protocol.packet.PlayerLook;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.TeleportConfirm;
 import ru.leymooo.ycore.Connection;
 
 public class CaptchaBridge extends PacketHandler {
     public final UserConnection con;
-    public String captcha = null;
-    public int captchaId = 0;
+    public int captcha;
     public boolean settings = false;
     public long joinTime = System.currentTimeMillis();
     public int retrys = 3;
@@ -36,8 +36,7 @@ public class CaptchaBridge extends PacketHandler {
     public boolean transaction = false;
     public int aliveid;
     public String ip;
-    public boolean needReset = true;
-    
+
     public static void init() {
         StaticMethods.init();
     }
@@ -57,18 +56,11 @@ public class CaptchaBridge extends PacketHandler {
     }
     public CaptchaBridge(UserConnection connection) {
         this.con = connection;
-        StaticMethods.a.incrementAndGet();
         this.connected();
     }
 
     public void connected() {
         ip = this.con.getAddress().getAddress().getHostAddress();
-        if (!StaticMethods.underAttack && System.currentTimeMillis() - StaticMethods.start > 1000*60*3 && StaticMethods.a.getAndIncrement() > StaticMethods.sql.maxConnects) {
-            StaticMethods.underAttack = true;
-            if ((StaticMethods.t!=null && StaticMethods.t.isAlive())==false) { 
-                StaticMethods.AttackDetected();
-            }
-        }
         Channel channel = this.con.getCh().getHandle();
         int protocol = this.con.getPendingConnection().getHandshake().getProtocolVersion();
         this.con.setClientEntityId(-1);
@@ -101,11 +93,8 @@ public class CaptchaBridge extends PacketHandler {
             this.write(channel, Connection.transaction, protocol, 50);
             this.write(channel, new KeepAlive(aliveid), protocol, 0);
         }
-        if (!StaticMethods.underAttack) {
-            needReset = false;
-            this.resetCaptcha();
-        }
-        StaticMethods.title.send(this.con);
+
+        this.resetCaptcha();
         BungeeCord.getInstance().getLogger().info("[" + this.con.getName() + "] <-> CaptchaBridge has connected");
         StaticMethods.connections.put(this.con, this);
     }
@@ -132,24 +121,26 @@ public class CaptchaBridge extends PacketHandler {
     }
 
     public void disconnected(ChannelWrapper channel) throws Exception {
-        if (StaticMethods.underAttack) StaticMethods.bannedips.add(ip);
         StaticMethods.connections.remove(this.con);
         BungeeCord.getInstance().getPluginManager().callEvent(new PlayerDisconnectEvent(this.con));
         BungeeCord.getInstance().removeConnection( this.con );
     }
 
-    public void resetCaptcha() {
+    private void resetCaptcha() {
         int protocol = this.con.getPendingConnection().getHandshake().getProtocolVersion();
         Channel channel = this.con.getCh().getHandle();
 
-        this.captchaId = StaticMethods.getRandomCaptcha();
-        this.captcha = StaticMethods.underAttack ?StaticMethods.strings_attack.get(captchaId):StaticMethods.strings.get(captchaId);
-        this.write(channel, Connection.getCaptcha(this.captchaId, protocol));
+        this.captcha = StaticMethods.getRandomCaptcha();
+        this.write(channel, Connection.getCaptcha(this.captcha, protocol));
         channel.flush();
     }
 
     public void handle(ConfirmTransaction transaction) {
         this.transaction = true;
+    }
+    public void handle(PlayerLook look) {
+        int protocol = this.con.getPendingConnection().getHandshake().getProtocolVersion();
+        this.write(this.con.getCh().getHandle(), Connection.playerPosition, protocol, protocol == 47 ? 8:46);
     }
     public void handle(PluginMessage message) {
         if (message.getTag().equals("MC|Brand")) {
@@ -174,7 +165,6 @@ public class CaptchaBridge extends PacketHandler {
         String msg = chat.getMessage().toLowerCase();
         if (msg.length() >= 5 || !msg.equalsIgnoreCase(String.valueOf(this.captcha))) {
             if (--this.retrys == 0) {
-                if (StaticMethods.underAttack) StaticMethods.bannedips.add(ip);
                 this.con.disconnect(StaticMethods.sql.wrongCaptcha);
             } else {
                 this.resetCaptcha();
@@ -187,7 +177,6 @@ public class CaptchaBridge extends PacketHandler {
 
     @SuppressWarnings("deprecation")
     public void finish() {
-        StaticMethods.titleClear.send(this.con);
         this.con.serverr = true;
         ((HandlerBoss) this.con.getCh().getHandle().pipeline().get(HandlerBoss.class)).setHandler(new UpstreamBridge(ProxyServer.getInstance(), this.con));
         ProxyServer.getInstance().getPluginManager().callEvent(new PostLoginEvent(this.con));

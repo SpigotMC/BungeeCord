@@ -31,11 +31,15 @@ import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.Title;
+import net.md_5.bungee.protocol.packet.PlayerLook;
 
 public abstract class AbstractPacketHandler
 {
 
     public void handle(LegacyPing ping) throws Exception
+    {
+    }
+    public void handle(PlayerLook playerlook) throws Exception
     {
     }
     public void handle(ConfirmTransaction transaction) throws Exception
