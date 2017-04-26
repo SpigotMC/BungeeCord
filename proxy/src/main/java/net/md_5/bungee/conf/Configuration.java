@@ -57,6 +57,10 @@ public class Configuration implements ProxyConfig
     private boolean ipForward;
     private Favicon favicon;
     private int compressionThreshold = 256;
+    /**
+     * Should reconnecthandler ignore connection hostname.
+     */
+    private boolean reconnectIgnoreHost = false;
 
     public void load()
     {
@@ -84,6 +88,7 @@ public class Configuration implements ProxyConfig
         throttle = adapter.getInt( "connection_throttle", throttle );
         ipForward = adapter.getBoolean( "ip_forward", ipForward );
         compressionThreshold = adapter.getInt( "network_compression_threshold", compressionThreshold );
+        reconnectIgnoreHost = adapter.getBoolean( "reconnectIgnoreHost", reconnectIgnoreHost );
 
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
 

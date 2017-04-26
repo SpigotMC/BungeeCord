@@ -79,4 +79,9 @@ public interface ProxyConfig
      * The favicon used for the server ping list.
      */
     Favicon getFaviconObject();
+
+    /**
+     * Should reconnecthandler ignore connection hostname.
+     */
+    boolean getReconnectIgnoreHost();
 }
