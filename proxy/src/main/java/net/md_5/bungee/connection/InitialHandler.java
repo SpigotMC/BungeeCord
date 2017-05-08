@@ -92,6 +92,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private boolean onlineMode = BungeeCord.getInstance().config.isOnlineMode();
     @Getter
     private InetSocketAddress virtualHost;
+    private String name;
     @Getter
     private UUID uniqueId;
     @Getter
@@ -419,6 +420,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     if ( obj != null && obj.getId() != null )
                     {
                         loginProfile = obj;
+                        name = obj.getName();
                         uniqueId = Util.getUUID( obj.getId() );
                         finish();
                         return;
@@ -560,7 +562,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public String getName()
     {
-        return ( loginRequest == null ) ? null : loginRequest.getData();
+        return (name != null ) ? name : ( loginRequest == null ) ? null : loginRequest.getData();
     }
 
     @Override

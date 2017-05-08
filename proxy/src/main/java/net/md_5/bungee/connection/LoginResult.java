@@ -9,6 +9,7 @@ public class LoginResult
 {
 
     private String id;
+    private String name;
     private Property[] properties;
 
     @Data
