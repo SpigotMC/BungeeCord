@@ -46,6 +46,8 @@ public abstract class EntityMap
             case ProtocolConstants.MINECRAFT_1_11:
             case ProtocolConstants.MINECRAFT_1_11_1:
                 return EntityMap_1_11.INSTANCE;
+            case ProtocolConstants.MINECRAFT_1_12:
+                return EntityMap_1_12.INSTANCE;
         }
         throw new RuntimeException( "Version " + version + " has no entity map" );
     }
@@ -185,6 +187,15 @@ public abstract class EntityMap
                     break;
                 case 12:
                     DefinedPacket.readVarInt( packet );
+                    break;
+                case 13:
+                    try
+                    {
+                        new NBTInputStream( new ByteBufInputStream( packet ), false ).readTag();
+                    } catch ( IOException ex )
+                    {
+                        throw Throwables.propagate( ex );
+                    }
                     break;
                 default:
                     throw new IllegalArgumentException( "Unknown meta type " + type );
