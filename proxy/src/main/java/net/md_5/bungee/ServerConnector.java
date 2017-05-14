@@ -99,7 +99,7 @@ public class ServerConnector extends PacketHandler
             LoginResult profile = user.getPendingConnection().getLoginProfile();
             if (profile != null && profile.getProperties() != null && profile.getProperties().length > 0)
             {
-                newHost += "\00" + BungeeCord.getInstance().gson.toJson(profile.getProperties());
+                properties = profile.getProperties();
             }
 
             if ( user.getForgeClientHandler().isFmlTokenInHandshake() )
