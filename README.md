@@ -1,5 +1,5 @@
 
-BungeeCord for 1.7/1.8/1.9/1.10/1.11
+BungeeCord for 1.7/1.8/1.9/1.10/1.11/1.12
 ==========
 [![Build Status](https://travis-ci.org/HexagonMC/BungeeCord.svg?branch=master)](https://travis-ci.org/HexagonMC/BungeeCord)
 
