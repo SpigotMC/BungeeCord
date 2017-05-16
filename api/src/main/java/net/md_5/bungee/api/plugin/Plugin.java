@@ -1,12 +1,18 @@
 package net.md_5.bungee.api.plugin;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.io.File;
 import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import lombok.Getter;
+
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.scheduler.GroupedThreadFactory;
@@ -97,10 +103,18 @@ public class Plugin
         if ( service == null )
         {
             String name = ( getDescription() == null ) ? "unknown" : getDescription().getName();
-            service = Executors.newCachedThreadPool( new ThreadFactoryBuilder().setNameFormat( name + " Pool Thread #%1$d" )
+            service = newCachedThreadPool( new ThreadFactoryBuilder().setNameFormat( name + " Pool Thread #%1$d" )
                     .setThreadFactory( new GroupedThreadFactory( this, name ) ).build() );
         }
         return service;
     }
+
+    public static ExecutorService newCachedThreadPool(ThreadFactory threadFactory) {
+        return new ThreadPoolExecutor(2, Integer.MAX_VALUE,
+                                      120L, TimeUnit.SECONDS,
+                                      new SynchronousQueue<Runnable>(),
+                                      threadFactory);
+    }
+ 
     //
 }
