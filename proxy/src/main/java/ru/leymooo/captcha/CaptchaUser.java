@@ -25,7 +25,7 @@ public class CaptchaUser
     private String captchaAnswer;
     private int retries = 3;
     //========================================================================
-    private static final Login loginPacket = new Login( -1, (short) 0, 0, (short) 0, (short) 100, "flat", false );
+    private static final Login loginPacket = new Login( -1, (short) 0, 1, (short) 0, (short) 100, "flat", false );
     private static final SpawnPosition spawnPositionPacket = new SpawnPosition( 5, 60, 5 );
     private static final SetSlot setSlotPacket = new SetSlot( 0, 36, 358, 0 );
     private static final ChunkPacket chunkPacket = new ChunkPacket( 0, 0 );

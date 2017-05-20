@@ -65,6 +65,7 @@ import net.md_5.bungee.util.CaseInsensitiveSet;
 public final class UserConnection implements ProxiedPlayer
 {
     //Бля. Нахуя эта параша нужна( Объясните ктонибудь
+    //Уже не надо. Руслан объяснил.
     public boolean serverr; //captcha
     /*========================================================================*/
     @NonNull
