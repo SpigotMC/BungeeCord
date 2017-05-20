@@ -73,7 +73,7 @@ public class CaptchaUser
         int transactionId = protocol > 47 ? 0x11 : 0x32;
         this.write( channel, this.getPr().getPt().getTransactionPacket(), protocol, transactionId );
 
-        int entityEffectId = protocol > 47 ? ( protocol > 316 ? 0x4E : 0x4B ) : 0x1D;
+        int entityEffectId = protocol > 47 ? ( protocol > 109 ? (protocol > 316 ? 0x4E : 0x4B) : 0x4C ) : 0x1D;
         this.write( channel, entityEffectPacket, protocol, entityEffectId );
 
         this.getAndSendCaptcha();

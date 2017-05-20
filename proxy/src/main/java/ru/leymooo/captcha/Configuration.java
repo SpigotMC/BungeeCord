@@ -90,7 +90,7 @@ public class Configuration
         }
         if ( mySqlEnabled && !capthcaAfterReJoin )
         {
-            this.mysql = new MySql( config.getString( "mysql.host" ), config.getString( "mysql.username" ), config.getString( "mysql.password" ), config.getString( "mysql.database" ) );
+            this.mysql = new MySql( config.getString( "mysql.host" ), config.getString( "mysql.username" ), config.getString( "mysql.password" ), config.getString( "mysql.database" ), config.getString( "mysql.port", "3306" ) );
         }
         this.startThread();
     }

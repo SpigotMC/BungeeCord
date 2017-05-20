@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -21,56 +23,70 @@ public class MySql
     private String database;
     private String user;
     private String password;
+    private String port;
     private final Object sosok;
 
-    public MySql(String host, String user, String password, String database)
+    public MySql(String host, String user, String password, String database, String port)
     {
         this.sosok = new Object();
         this.host = host;
         this.user = user;
         this.password = password;
         this.database = database;
+        this.port = port;
         this.executor = Executors.newSingleThreadExecutor();
-        this.execute(
-                "CREATE TABLE IF NOT EXISTS `Whitelist_new`"
-                + " ("
-                + "`Name` VARCHAR(24) AUTO_INCREMENT PRIMARY KEY NOT NULL UNIQUE,"
-                + "`Ip` VARCHAR(16) NOT NULL"
-                + ")"
-        );
+        try
+        {
+            this.connect();
+            MySql.this.getConnection().createStatement().executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS `Whitelist_new` ("
+                    + "`Name` VARCHAR(16) NOT NULL PRIMARY KEY UNIQUE,"
+                    + "`Ip` VARCHAR(16) NOT NULL);"
+            );
+        } catch ( SQLException ex )
+        {
+            ex.printStackTrace();
+        }
+
         ( new Thread( new Runnable()
         {
             @Override
             public void run()
             {
-                Statement statement = null;
-                int i = 0;
                 try
                 {
-                    statement = getConnection().createStatement();
-                    ResultSet rs = statement.executeQuery( "SELECT * FROM `Whitelist_new`;" );
-                    while ( rs.next() )
+                    Thread.sleep( 500l );
+                    Statement statement = null;
+                    int i = 0;
+                    try
                     {
-                        Configuration.getInstance().addUserToMap( rs.getString( "Name" ), rs.getString( "Ip" ) );
-                        i++;
-                    }
-                    rs.close();
-                } catch ( SQLException ex )
-                {
-                    ex.printStackTrace();
-                } finally
-                {
-                    if ( statement != null )
+                        statement = getConnection().createStatement();
+                        ResultSet rs = statement.executeQuery( "SELECT * FROM `Whitelist_new`;" );
+                        while ( rs.next() )
+                        {
+                            Configuration.getInstance().addUserToMap( rs.getString( "Name" ), rs.getString( "Ip" ) );
+                            i++;
+                        }
+                        rs.close();
+                    } catch ( SQLException ex )
                     {
-                        try
+                        ex.printStackTrace();
+                    } finally
+                    {
+                        if ( statement != null )
                         {
-                            statement.close();
-                        } catch ( SQLException ex )
-                        {
+                            try
+                            {
+                                statement.close();
+                            } catch ( SQLException ex )
+                            {
+                            }
                         }
                     }
+                    System.out.println( "[Captcha] Загружено " + i + " адресов" );
+                } catch ( InterruptedException ex )
+                {
                 }
-                System.out.println( "[Captcha] Загружено " + i + " адресов" );
             }
 
         }, "Captcha SqlStorage" ) ).start();
@@ -91,7 +107,7 @@ public class MySql
 
     public void addAddress(String name, String ip)
     {
-        this.execute( "INSERT INTO `Whitelist_new` (`Name`,`Ip`) VALUES ('" + name + "','" + ip + "') ON DUPLICATE KEY UPDATE `Ip`=`Ip`;" );
+        this.execute( "INSERT INTO `Whitelist_new` (`Name`,`Ip`) VALUES ('" + name + "','" + ip + "') ON DUPLICATE KEY UPDATE `Ip`='"+ip+"';" );
     }
 
     private void close() throws SQLException
@@ -118,7 +134,7 @@ public class MySql
             System.out.println( "[SQL] Connect to " + this.host );
             long start = System.currentTimeMillis();
 
-            this.connection = DriverManager.getConnection( "JDBC:mysql://" + this.host + ":3306/" + this.database, this.user, this.password );
+            this.connection = DriverManager.getConnection( "JDBC:mysql://" + this.host + ":"+this.port+"/" + this.database, this.user, this.password );
             System.out.println( "[SQL] Connected [" + ( System.currentTimeMillis() - start ) + " ms]" );
         }
     }
@@ -139,6 +155,7 @@ public class MySql
                         statment.close();
                     } catch ( SQLException e )
                     {
+                        e.printStackTrace();
                     } finally
                     {
                         if ( statment != null && !statment.isClosed() )
