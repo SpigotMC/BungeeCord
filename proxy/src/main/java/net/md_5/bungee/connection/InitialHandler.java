@@ -63,8 +63,9 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
-import ru.leymooo.bungee.connection.CaptchaBridge;
-import ru.leymooo.config.CaptchaConfig;
+import ru.leymooo.captcha.Configuration;
+import ru.leymooo.captcha.PacketReciever;
+
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
 {
@@ -151,8 +152,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         this.legacy = true;
         final boolean v1_5 = ping.isV1_5();
-
-        ServerPing legacy = new ServerPing( new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), bungee.getProtocolVersion() ),
+        ServerPing legacy = new ServerPing( new ServerPing.Protocol( bungee.getName() + " 1.8-1.12 by vk.com/Leymooo_s", bungee.getProtocolVersion() ),
                 new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
                 new TextComponent( TextComponent.fromLegacyText( listener.getMotd() ) ), (Favicon) null );
 
@@ -240,7 +240,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             int protocol = ( ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
             pingBack.done( new ServerPing(
-                    new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), protocol ),
+                    new ServerPing.Protocol( bungee.getName() + " 1.8-1.12 by vk.com/Leymooo_s", protocol ),
                     new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
                     motd, BungeeCord.getInstance().config.getFaviconObject() ),
                     null );
@@ -298,6 +298,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 // Login
                 thisState = State.USERNAME;
                 ch.setProtocol( Protocol.LOGIN );
+
                 if ( !ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) )
                 {
                     if ( handshake.getProtocolVersion() > bungee.getProtocolVersion() )
@@ -503,28 +504,32 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
                             unsafe.sendPacket( new LoginSuccess( getUniqueId().toString(), getName() ) ); // With dashes in between
                             ch.setProtocol( Protocol.GAME );
-                            boolean captcha = !CaptchaConfig.isWhite(InitialHandler.this.getAddress().getAddress().getHostAddress());
-                            if (captcha) {
-                                ((HandlerBoss) InitialHandler.this.ch.getHandle().pipeline().get(HandlerBoss.class)).setHandler(new CaptchaBridge(userCon));
-                             } else {
-                            ServerInfo server;
-                            ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
-                            bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
-                            if ( bungee.getReconnectHandler() != null )
+                            //captcha start
+                            if ( Configuration.getInstance().needCapthca( userCon.getName(), userCon.getAddress().getAddress().getHostAddress() ) )
                             {
-                                server = bungee.getReconnectHandler().getServer( userCon );
+                                ((HandlerBoss)ch.getHandle().pipeline().get( HandlerBoss.class )).setHandler( new PacketReciever( Configuration.getInstance(), userCon ) );
                             } else
                             {
-                                server = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
-                            }
-                            if ( server == null )
-                            {
-                                server = bungee.getServerInfo( listener.getDefaultServer() );
-                            }
+                                ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
+                                bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
+                                //captcha end
+                                ServerInfo server;
+                                if ( bungee.getReconnectHandler() != null )
+                                {
+                                    server = bungee.getReconnectHandler().getServer( userCon );
+                                } else
+                                {
+                                    server = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
+                                }
+                                if ( server == null )
+                                {
+                                    server = bungee.getServerInfo( listener.getDefaultServer() );
+                                }
 
-                            userCon.connect( server, null, true );
+                                userCon.connect( server, null, true );
                             }
                             thisState = State.FINISHED;
+
                         }
                     }
                 } );

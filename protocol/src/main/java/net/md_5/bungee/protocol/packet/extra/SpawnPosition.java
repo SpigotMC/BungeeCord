@@ -7,93 +7,112 @@ import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 public class SpawnPosition
-extends DefinedPacket {
+        extends DefinedPacket
+{
+
     private int x;
     private int y;
     private int z;
 
     @Override
-    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion) {
-        if (protocolVersion >= 47) {
-            buf.writeLong(this.x<<38| this.y<<26| this.z);
-        } else {
-            buf.writeInt(this.x);
-            buf.writeInt(this.y);
-            buf.writeInt(this.z);
-        }
+    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
+    {
+        //buf.writeLong(this.x<<38| this.y<<26| this.z);
+        buf.writeLong( 1378416066565L );
     }
 
     @Override
-    public void handle(AbstractPacketHandler handler) throws Exception {
+    public void handle(AbstractPacketHandler handler) throws Exception
+    {
         throw new UnsupportedOperationException();
     }
 
-    public int getX() {
+    public int getX()
+    {
         return this.x;
     }
 
-    public int getY() {
+    public int getY()
+    {
         return this.y;
     }
 
-    public int getZ() {
+    public int getZ()
+    {
         return this.z;
     }
 
-    public void setX(int x) {
+    public void setX(int x)
+    {
         this.x = x;
     }
 
-    public void setY(int y) {
+    public void setY(int y)
+    {
         this.y = y;
     }
 
-    public void setZ(int z) {
+    public void setZ(int z)
+    {
         this.z = z;
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "SpawnPosition(x=" + this.getX() + ", y=" + this.getY() + ", z=" + this.getZ() + ")";
     }
 
-    @ConstructorProperties(value={"x", "y", "z"})
-    public SpawnPosition(int x, int y, int z) {
+    @ConstructorProperties(value =
+    {
+        "x", "y", "z"
+    })
+    public SpawnPosition(int x, int y, int z)
+    {
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (o == this) {
+    public boolean equals(Object o)
+    {
+        if ( o == this )
+        {
             return true;
         }
-        if (!(o instanceof SpawnPosition)) {
+        if ( !( o instanceof SpawnPosition ) )
+        {
             return false;
         }
-        SpawnPosition other = (SpawnPosition)o;
-        if (!other.canEqual(this)) {
+        SpawnPosition other = (SpawnPosition) o;
+        if ( !other.canEqual( this ) )
+        {
             return false;
         }
-        if (this.getX() != other.getX()) {
+        if ( this.getX() != other.getX() )
+        {
             return false;
         }
-        if (this.getY() != other.getY()) {
+        if ( this.getY() != other.getY() )
+        {
             return false;
         }
-        if (this.getZ() != other.getZ()) {
+        if ( this.getZ() != other.getZ() )
+        {
             return false;
         }
         return true;
     }
 
-    protected boolean canEqual(Object other) {
+    protected boolean canEqual(Object other)
+    {
         return other instanceof SpawnPosition;
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         int result = 1;
         result = result * 59 + this.getX();
         result = result * 59 + this.getY();

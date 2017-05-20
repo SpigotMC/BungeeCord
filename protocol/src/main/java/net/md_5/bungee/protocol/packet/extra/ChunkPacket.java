@@ -20,11 +20,16 @@ public class ChunkPacket extends DefinedPacket {
         Arrays.fill(this.data, (byte) 18);
     }
 
+    @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int version) {
         buf.writeInt(this.x);
         buf.writeInt(this.z);
         buf.writeBoolean(true);
-        DefinedPacket.writeVarInt(0, buf);
+        if (version > 47) {
+            DefinedPacket.writeVarInt(0, buf);
+        } else {
+            buf.writeShort( 0 );
+        }
         DefinedPacket.writeVarInt(256, buf);
         buf.writeBytes(this.data);
         if (version >= 110) {
@@ -32,6 +37,7 @@ public class ChunkPacket extends DefinedPacket {
         }
     }
 
+    @Override
     public void handle(AbstractPacketHandler handler) throws Exception {}
 
     public int getX() {
@@ -58,6 +64,7 @@ public class ChunkPacket extends DefinedPacket {
         this.data = data;
     }
 
+    @Override
     public String toString() {
         return "ChunkPacket(x=" + this.getX() + ", z=" + this.getZ() + ", data=" + Arrays.toString(this.getData()) + ")";
     }
@@ -69,6 +76,7 @@ public class ChunkPacket extends DefinedPacket {
         this.data = data;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (o == this) {
             return true;
@@ -85,6 +93,7 @@ public class ChunkPacket extends DefinedPacket {
         return other instanceof ChunkPacket;
     }
 
+    @Override
     public int hashCode() {
         byte result = 1;
         int result1 = result * 59 + this.getX();

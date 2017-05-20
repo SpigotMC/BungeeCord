@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
+import net.md_5.bungee.protocol.packet.ConfirmTransaction;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.Handshake;
@@ -21,14 +22,12 @@ import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.LoginRequest;
-import net.md_5.bungee.protocol.packet.TeleportConfirm;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PingPacket;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
-import net.md_5.bungee.protocol.packet.PluginMessage;
-import net.md_5.bungee.protocol.packet.ConfirmTransaction;
 import net.md_5.bungee.protocol.packet.PlayerLook;
+import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
@@ -39,6 +38,7 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.Team;
+import net.md_5.bungee.protocol.packet.TeleportConfirm;
 import net.md_5.bungee.protocol.packet.Title;
 
 public enum Protocol
@@ -61,15 +61,15 @@ public enum Protocol
 
         {
             TO_CLIENT.registerPacket(
+                    ConfirmTransaction.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x32 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x11 )
+            );
+            TO_CLIENT.registerPacket(
                     KeepAlive.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x00 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x1F ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x1F )
-            );
-            TO_CLIENT.registerPacket(
-                    ConfirmTransaction.class,
-                    map( ProtocolConstants.MINECRAFT_1_8, 0x32 ),
-                    map( ProtocolConstants.MINECRAFT_1_9, 0x11 )
             );
             TO_CLIENT.registerPacket(
                     Login.class,
@@ -81,7 +81,7 @@ public enum Protocol
                     Chat.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x02 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x0F ),
-                    map( ProtocolConstants.MINECRAFT_1_12, 0x0F )
+                    map( ProtocolConstants.MINECRAFT_1_12, 0xF )
             );
             TO_CLIENT.registerPacket(
                     Respawn.class,
@@ -157,16 +157,20 @@ public enum Protocol
             TO_SERVER.registerPacket(
                     PlayerLook.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x05 ),
-                    map( ProtocolConstants.MINECRAFT_1_9, 0x0E )
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x0E ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x10 )
             );
             TO_SERVER.registerPacket(
                     ConfirmTransaction.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x0F ),
-                    map( ProtocolConstants.MINECRAFT_1_9, 0x05 )
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x05 ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x06 )
             );
             TO_SERVER.registerPacket(
                     TeleportConfirm.class,
-                    map( ProtocolConstants.MINECRAFT_1_9, 0x00 )
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x00 ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x00 )
+
             );
             TO_SERVER.registerPacket(
                     KeepAlive.class,

@@ -64,8 +64,8 @@ import net.md_5.bungee.util.CaseInsensitiveSet;
 @RequiredArgsConstructor
 public final class UserConnection implements ProxiedPlayer
 {
-     public boolean serverr = false;
-
+    //Бля. Нахуя эта параша нужна( Объясните ктонибудь
+    public boolean serverr; //captcha
     /*========================================================================*/
     @NonNull
     private final ProxyServer bungee;
@@ -149,7 +149,11 @@ public final class UserConnection implements ProxiedPlayer
             ch.write( packet );
         }
     };
-
+    //captcha start
+    public ChannelWrapper getCh() {
+        return ch;
+    }
+    //captcha end
     public void init()
     {
         this.entityRewrite = EntityMap.getEntityMap( getPendingConnection().getVersion() );
@@ -184,10 +188,7 @@ public final class UserConnection implements ProxiedPlayer
         // Set whether the connection has a 1.8 FML marker in the handshake.
         forgeClientHandler.setFmlTokenInHandshake( this.getPendingConnection().getExtraDataInHandshake().contains( ForgeConstants.FML_HANDSHAKE_TOKEN ) );
     }
-    public ChannelWrapper getCh()
-    {
-        return ch;
-    }
+
     public void sendPacket(PacketWrapper packet)
     {
         ch.write( packet );

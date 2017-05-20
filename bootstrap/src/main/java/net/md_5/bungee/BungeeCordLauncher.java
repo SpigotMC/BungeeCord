@@ -41,11 +41,11 @@ public class BungeeCordLauncher
             deadline.add( Calendar.WEEK_OF_YEAR, -4 );
             if ( buildDate.before( deadline.getTime() ) )
             {
-                System.err.println( "*** Warning, this build is outdated ***" );
-                System.err.println( "*** Please download a new build from http://ci.md-5.net/job/BungeeCord ***" );
-                System.err.println( "*** You will get NO support regarding this build ***" );
-                System.err.println( "*** Server will start in 10 seconds ***" );
-                Thread.sleep( TimeUnit.SECONDS.toMillis( 10 ) );
+                System.err.println( "*** Ну тут короче предупреждение, что банджа устарела ***" );
+                System.err.println( "*** Скорее всего это так, а может и нет ***" );
+                System.err.println( "*** Ищите новый билд у меня в сборке, если он конечно есть ***" );
+                System.err.println( "*** Стартуем через 3 секунды ***" );
+                Thread.sleep( TimeUnit.SECONDS.toMillis( 3 ) );
             }
         }
 

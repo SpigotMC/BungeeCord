@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package com.github.cage.image;
+
+import ru.leymooo.captcha.Configuration;
+
 /**
  * Class to represent used effect configuration by {@link Painter}.
  * 
@@ -30,7 +33,7 @@ public class EffectConfig {
 	 * Constructor.
 	 */
 	public EffectConfig() {
-		this(true, true, true, true, null);
+		this(Configuration.getInstance().isRipple(), Configuration.getInstance().isBlur(), Configuration.getInstance().isOutline(), Configuration.getInstance().isRotate(), null);
 	}
 
 	/**

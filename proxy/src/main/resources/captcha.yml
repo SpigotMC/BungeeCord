@@ -1,0 +1,31 @@
+wrong-captcha-kick: '&cВы ввели 3 раза неверную капчу'
+timeout-kick: '&cВы слишком долго вводили капчу'
+bot-kick: '&cСкорее всего вы бот. Если это не так то напишите &evk.com/ID'
+enter-captcha: '&cВведите номер с картинки в чат'
+wrong-captcha: '&cНеверная капча. &aУ вас осталось §e%d§f попытк%s'
+#Количество потоков для генерации картинок
+image-generation-threads: 4
+#Через сколько секунд кикнуть игрока, если он не ввёл капчу
+max-enter-time: 15
+#Во время этого режима нужно постоянно вводить капчу при заходе
+under-attack-time: 120
+#После перезахода нужно опять вводить капчу
+always-captcha-enter: false
+#0 - old
+#1 - new
+#2 - random
+captcha-generator: 0
+max-captchas: 1500
+#only for old
+captcha-generator-settings:
+  ripple: true
+  blur: true
+  outline: false
+  rotate: true
+mysql:
+  enabled: false
+  host: example.com
+  username: root
+  password: example
+  database: example
+config-version: 0

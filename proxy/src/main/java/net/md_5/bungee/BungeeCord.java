@@ -88,7 +88,8 @@ import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.fusesource.jansi.AnsiConsole;
-import ru.leymooo.bungee.connection.CaptchaBridge;
+import ru.leymooo.captcha.CaptchaGenerator;
+
 /**
  * Main BungeeCord proxy class.
  */
@@ -251,13 +252,11 @@ public class BungeeCord extends ProxyServer
         {
             ResourceLeakDetector.setLevel( ResourceLeakDetector.Level.DISABLED ); // Eats performance
         }
-        try {
-            CaptchaBridge.init();
-        } catch (Exception exception) {
-            System.out.println("Ошибка инициализации #0, сообщите разработчику - vk.com/leymooo_s");
-            System.exit(0);
-            return;
-        }
+        //captcha start
+        System.out.print("Captcha Hooked");
+        new ru.leymooo.captcha.Configuration();
+        new CaptchaGenerator();
+        //capthca end
         eventLoops = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
 
         File moduleDirectory = new File( "modules" );
@@ -476,7 +475,7 @@ public class BungeeCord extends ProxyServer
     @Override
     public String getName()
     {
-        return "BungeeCord";
+        return "BungeeCaptcha";
     }
 
     @Override
