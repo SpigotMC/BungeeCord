@@ -37,7 +37,7 @@ public class ProtocolTester
     {
         this.pr = pr;
         this.keepAlivePacket = new KeepAlive( this.pr.getRandom().nextInt( 9999 ) );
-        this.playerPositionPacket = new PlayerPositionRotation( 5.0D, 500.0D, 5.0D, 90.0F, 54.2F, this.pr.getRandom().nextInt( 9999 ) );
+        this.playerPositionPacket = new PlayerPositionRotation( 5.0D, 50.0D, 5.0D, 90.0F, 54.2F, this.pr.getRandom().nextInt( 9999 ) );
     }
 
     public boolean isBot()

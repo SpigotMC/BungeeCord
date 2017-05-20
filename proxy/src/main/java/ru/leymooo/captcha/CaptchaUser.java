@@ -9,6 +9,7 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.extra.ChunkPacket;
+import net.md_5.bungee.protocol.packet.extra.EntityEffect;
 import net.md_5.bungee.protocol.packet.extra.PlayerAbilities;
 import net.md_5.bungee.protocol.packet.extra.SetSlot;
 import net.md_5.bungee.protocol.packet.extra.SpawnPosition;
@@ -30,6 +31,7 @@ public class CaptchaUser
     private static final SetSlot setSlotPacket = new SetSlot( 0, 36, 358, 0 );
     private static final ChunkPacket chunkPacket = new ChunkPacket( 0, 0 );
     private static final PlayerAbilities abilitiesPacket = new PlayerAbilities( (byte) 6, 0.0F, 0.0F );
+    private static final EntityEffect entityEffectPacket = new EntityEffect();
     //========================================================================
 
     public CaptchaUser(PacketReciever pr)
@@ -71,6 +73,9 @@ public class CaptchaUser
         int transactionId = protocol > 47 ? 0x11 : 0x32;
         this.write( channel, this.getPr().getPt().getTransactionPacket(), protocol, transactionId );
 
+        int entityEffectId = protocol > 47 ? ( protocol > 316 ? 0x4E : 0x4B ) : 0x1D;
+        this.write( channel, entityEffectPacket, protocol, entityEffectId );
+
         this.getAndSendCaptcha();
     }
 
@@ -101,7 +106,7 @@ public class CaptchaUser
 
     public void captchaEnter(Chat chat)
     {
-        String msg = chat.getMessage().replace( "/", "");
+        String msg = chat.getMessage().replace( "/", "" );
         if ( getPr().getPt().isBot() || msg.length() >= 5 || !getCaptchaAnswer().equalsIgnoreCase( msg ) )
         {
             if ( --this.retries == 0 )
