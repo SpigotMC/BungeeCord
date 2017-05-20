@@ -9,6 +9,10 @@ image-generation-threads: 4
 max-enter-time: 15
 #Во время этого режима нужно постоянно вводить капчу при заходе
 under-attack-time: 120
+#  -1    - Ад(Nether)
+#   0    - Обычный мир
+#   1    - Эдн(the end)
+world-type: 1
 #После перезахода нужно опять вводить капчу
 always-captcha-enter: false
 #0 - old

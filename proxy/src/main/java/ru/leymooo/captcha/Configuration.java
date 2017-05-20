@@ -48,6 +48,8 @@ public class Configuration
     private boolean capthcaAfterReJoin = false;
     private boolean mySqlEnabled = false;
     @Getter
+    private int worldType;
+    @Getter
     private int mode = 0;
     @Getter
     private int threads = 4;
@@ -165,6 +167,7 @@ public class Configuration
         this.timeout = config.getInt( "max-enter-time" ) * 1000;
         this.underAttackTime = config.getInt( "under-attack-time" ) * 1000;
         this.threads = config.getInt( "image-generation-threads" );
+        this.worldType = config.getInt( "world-type" );
     }
 
     private net.md_5.bungee.config.Configuration checkFileAndGiveConfig() throws IOException

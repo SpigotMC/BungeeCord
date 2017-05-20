@@ -48,7 +48,7 @@ public class MySql
                 try
                 {
                     statement = getConnection().createStatement();
-                    ResultSet rs = statement.executeQuery( "SELECT * FROM `Whitelist`;" );
+                    ResultSet rs = statement.executeQuery( "SELECT * FROM `Whitelist_new`;" );
                     while ( rs.next() )
                     {
                         Configuration.getInstance().addUserToMap( rs.getString( "Name" ), rs.getString( "Ip" ) );
@@ -91,7 +91,7 @@ public class MySql
 
     public void addAddress(String name, String ip)
     {
-        this.execute( "INSERT INTO `Whitelist` (`Name`,`Ip`) VALUES ('" + name + "','" + ip + "') ON DUPLICATE KEY UPDATE `Ip`=`Ip`;" );
+        this.execute( "INSERT INTO `Whitelist_new` (`Name`,`Ip`) VALUES ('" + name + "','" + ip + "') ON DUPLICATE KEY UPDATE `Ip`=`Ip`;" );
     }
 
     private void close() throws SQLException
