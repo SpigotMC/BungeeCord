@@ -1,6 +1,5 @@
 package ru.leymooo.captcha;
 
-import io.netty.channel.Channel;
 import java.util.Random;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,11 +15,12 @@ import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
-import net.md_5.bungee.protocol.packet.ConfirmTransaction;
+import net.md_5.bungee.protocol.packet.extra.ConfirmTransaction;
 import net.md_5.bungee.protocol.packet.KeepAlive;
-import net.md_5.bungee.protocol.packet.PlayerLook;
+import net.md_5.bungee.protocol.packet.extra.PlayerLook;
 import net.md_5.bungee.protocol.packet.PluginMessage;
-import net.md_5.bungee.protocol.packet.TeleportConfirm;
+import net.md_5.bungee.protocol.packet.extra.PlayerPositionRotation;
+import net.md_5.bungee.protocol.packet.extra.TeleportConfirm;
 
 /**
  *
@@ -62,17 +62,16 @@ public class PacketReciever extends PacketHandler
     @Override
     public void handle(ConfirmTransaction transaction) throws Exception
     {
-        getPt().setTransaction( true );
+        if ( transaction.isAccepted() && ( transaction.getAction() == getPt().getTransactionPacket().getAction() ) )
+        {
+            getPt().setTransaction( true );
+        }
     }
 
     @Override
     public void handle(PlayerLook look) throws Exception
     {
-        Channel channel = this.getConnection().getCh().getHandle();
-        int protocol = this.getConnection().getPendingConnection().getHandshake().getProtocolVersion();
-        int positionId = protocol > 47 ? 0x2E : 8;
-        this.user.write( channel, this.getPt().getPlayerPositionPacket(), protocol, positionId );
-        channel.flush();
+        connection.unsafe().sendPacket( this.getPt().getPlayerPositionPacket() );
     }
 
     @Override
@@ -106,6 +105,16 @@ public class PacketReciever extends PacketHandler
         if ( tp.getTeleportId() == getPt().getPlayerPositionPacket().getTeleportId() )
         {
             getPt().setTpconfirm( true );
+        }
+    }
+
+    @Override
+    public void handle(PlayerPositionRotation posRot) throws Exception
+    {
+        PlayerPositionRotation pos = getPt().getPlayerPositionPacket();
+        if ( !getPt().isPosRot() && pos.getX() == posRot.getX() && pos.getY() == posRot.getY() && pos.getZ() == posRot.getZ() && pos.getYaw() == posRot.getYaw() && pos.getPitch() == posRot.getPitch() && pos.isOnGround() == posRot.isOnGround() )
+        {
+            this.getPt().setPosRot( true );
         }
     }
 

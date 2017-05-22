@@ -4,8 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import lombok.Getter;
 import lombok.Setter;
-import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.UserConnection;
+import net.md_5.bungee.api.connection.Connection;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.extra.ChunkPacket;
@@ -21,17 +21,15 @@ public class CaptchaUser
     @Setter
     private PacketReciever pr;
     @Getter
-    private String ip;
-    @Getter
     private String captchaAnswer;
     private int retries = 3;
     //========================================================================
     private static final Login loginPacket = new Login( -1, (short) 0, Configuration.getInstance().getWorldType(), (short) 0, (short) 100, "flat", false );
     private static final SpawnPosition spawnPositionPacket = new SpawnPosition( 5, 60, 5 );
     private static final SetSlot setSlotPacket = new SetSlot( 0, 36, 358, 0 );
-    private static final ChunkPacket chunkPacket = new ChunkPacket( 0, 0 );
+    private static final ChunkPacket chunkPacket = new ChunkPacket( 0, 0, new byte[ 256 ] );
     private static final PlayerAbilities abilitiesPacket = new PlayerAbilities( (byte) 6, 0.0F, 0.0F );
-    private static final EntityEffect entityEffectPacket = new EntityEffect();
+    private static final EntityEffect entityEffectPacket = new EntityEffect( -1, (byte) 16, (byte) 2, 30 * 20, (byte) 0x01 );
     //========================================================================
 
     public CaptchaUser(PacketReciever pr)
@@ -41,40 +39,24 @@ public class CaptchaUser
 
     public void sendJoinPackets()
     {
-        ip = this.getPr().getConnection().getAddress().getAddress().getHostAddress();
-        Channel channel = this.getPr().getConnection().getCh().getHandle();
-        int protocol = this.getPr().getConnection().getPendingConnection().getHandshake().getProtocolVersion();
-        this.getPr().getConnection().setClientEntityId( -1 );
+        UserConnection con = this.getPr().getConnection();
+        Connection.Unsafe unsafe = con.unsafe();
+        con.setClientEntityId( -1 );
 
-        int loginId = protocol > 47 ? 0x23 : 1;
-        this.write( channel, loginPacket, protocol, loginId );
-        //НЕ НАВИЖУ ЭТИ ПАКЕТЫ!!!!!!!!!
-        int spawnId = protocol > 47 ? ( protocol > 316 ? 0x45 : 0x43 ) : 5;
-        this.write( channel, spawnPositionPacket, protocol, spawnId );
+        unsafe.sendPacket( loginPacket );
+        unsafe.sendPacket( spawnPositionPacket );
+        unsafe.sendPacket( abilitiesPacket );
+        unsafe.sendPacket( this.getPr().getPt().getPlayerPositionPacket() );
+        unsafe.sendPacket( chunkPacket );
+        unsafe.sendPacket( setSlotPacket );
+        unsafe.sendPacket( this.getPr().getPt().getKeepAlivePacket() );
+        unsafe.sendPacket( this.getPr().getPt().getTransactionPacket() );
+        unsafe.sendPacket( entityEffectPacket );
 
-        int abilitiesId = protocol > 47 ? 0x2B : 57;
-        this.write( channel, abilitiesPacket, protocol, abilitiesId );
-
-        int positionId = protocol > 47 ? 0x2E : 8;
-        this.write( channel, this.getPr().getPt().getPlayerPositionPacket(), protocol, positionId );
-
-        int chunkId = protocol > 47 ? 0x20 : 33;
-        this.write( channel, chunkPacket, protocol, chunkId );
-
-        int slotId = protocol > 47 ? 0x16 : 47;
-        this.write( channel, setSlotPacket, protocol, slotId );
-
-        int keepAliveId = protocol > 47 ? 0x1F : 0;
-        this.write( channel, this.getPr().getPt().getKeepAlivePacket(), protocol, keepAliveId );
-        if ( protocol <= 47 )
+        if ( con.getPendingConnection().getHandshake().getProtocolVersion() <= 47 )
         {
-            this.getPr().getPt().setTpconfirm( true );
+            getPr().getPt().setTpconfirm( true );
         }
-        int transactionId = protocol > 47 ? 0x11 : 0x32;
-        this.write( channel, this.getPr().getPt().getTransactionPacket(), protocol, transactionId );
-
-        int entityEffectId = protocol > 47 ? ( protocol > 109 ? (protocol > 316 ? 0x4E : 0x4B) : 0x4C ) : 0x1D;
-        this.write( channel, entityEffectPacket, protocol, entityEffectId );
 
         this.getAndSendCaptcha();
     }
@@ -86,15 +68,6 @@ public class CaptchaUser
         this.captchaAnswer = (String) captcha[0];
         this.write( channel, (ByteBuf) captcha[1] );
         channel.flush();
-    }
-
-    public void write(Channel channel, DefinedPacket packet, int protocol, int id)
-    {
-        ByteBuf buf = channel.alloc().buffer();
-
-        DefinedPacket.writeVarInt( id, buf );
-        packet.write( buf, ProtocolConstants.Direction.TO_CLIENT, protocol );
-        channel.write( buf );
     }
 
     private void write(Channel channel, ByteBuf buf)

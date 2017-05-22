@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
-import net.md_5.bungee.protocol.packet.ConfirmTransaction;
+import net.md_5.bungee.protocol.packet.extra.ConfirmTransaction;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.Handshake;
@@ -26,7 +26,7 @@ import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PingPacket;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
-import net.md_5.bungee.protocol.packet.PlayerLook;
+import net.md_5.bungee.protocol.packet.extra.PlayerLook;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
@@ -38,8 +38,14 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.Team;
-import net.md_5.bungee.protocol.packet.TeleportConfirm;
+import net.md_5.bungee.protocol.packet.extra.TeleportConfirm;
 import net.md_5.bungee.protocol.packet.Title;
+import net.md_5.bungee.protocol.packet.extra.ChunkPacket;
+import net.md_5.bungee.protocol.packet.extra.EntityEffect;
+import net.md_5.bungee.protocol.packet.extra.PlayerAbilities;
+import net.md_5.bungee.protocol.packet.extra.PlayerPositionRotation;
+import net.md_5.bungee.protocol.packet.extra.SetSlot;
+import net.md_5.bungee.protocol.packet.extra.SpawnPosition;
 
 public enum Protocol
 {
@@ -63,7 +69,45 @@ public enum Protocol
             TO_CLIENT.registerPacket(
                     ConfirmTransaction.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x32 ),
-                    map( ProtocolConstants.MINECRAFT_1_9, 0x11 )
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x11 ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x11 )
+            );
+            TO_CLIENT.registerPacket(
+                    SpawnPosition.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x05 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x43 ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x45 )
+            );
+            TO_CLIENT.registerPacket(
+                    PlayerAbilities.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x39 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x2B ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x2B )
+            );
+            TO_CLIENT.registerPacket(
+                    PlayerPositionRotation.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x08 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x2E ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x2E )
+            );
+            TO_CLIENT.registerPacket(
+                    ChunkPacket.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x21 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x20 ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x20 )
+            );
+            TO_CLIENT.registerPacket(
+                    SetSlot.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x2F ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x16 ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x16 )
+            );
+            TO_CLIENT.registerPacket(
+                    EntityEffect.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x1D ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x4C ),
+                    map( ProtocolConstants.MINECRAFT_1_9_4, 0x4B ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x4E )
             );
             TO_CLIENT.registerPacket(
                     KeepAlive.class,
@@ -171,6 +215,12 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x00 ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x00 )
 
+            );
+            TO_SERVER.registerPacket(
+                    PlayerPositionRotation.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x06 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x0D ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x0F )
             );
             TO_SERVER.registerPacket(
                     KeepAlive.class,

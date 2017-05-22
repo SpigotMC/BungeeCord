@@ -8,7 +8,6 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import jdk.nashorn.internal.ir.Symbol;
 import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;

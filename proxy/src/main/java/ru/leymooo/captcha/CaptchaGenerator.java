@@ -56,7 +56,7 @@ public class CaptchaGenerator
         }
 
         int generatorMode = Configuration.getInstance().getMode();
-        int rnd = 0;
+        int rndG;
         for ( int i = 0; i < max; i++ )
         {
             if ( generatorMode == 0 )
@@ -69,8 +69,8 @@ public class CaptchaGenerator
                 generateNew( String.valueOf( randomInt( 4 ) ), i );
                 continue;
             }
-            rnd = this.rnd.nextInt( 2 );
-            if ( rnd == 0 )
+            rndG = this.rnd.nextInt( 2 );
+            if ( rndG == 0 )
             {
                 generateOld( String.valueOf( randomInt( 3 ) ), i );
             } else
@@ -78,7 +78,7 @@ public class CaptchaGenerator
                 generateNew( String.valueOf( randomInt( 4 ) ), i );
             }
         }
-        while ( progress.get()  != max )
+        while ( progress.get() != max )
         {
             System.out.println( progress.get() + " из " + max + " [" + (int) ( (double) progress.get() / (double) max * 100.0D ) + " %]" );
             try
@@ -139,7 +139,7 @@ public class CaptchaGenerator
 
     private void saveMap(CraftMapCanvas map, int i)
     {
-        MapDataPacket ex = new MapDataPacket( 0, (byte) 0, MapDataPacket.Type.IMAGE, map.getMapData() );
+        MapDataPacket ex = new MapDataPacket( 0, (byte) 0, map.getMapData() );
         try
         {
             maps1_8[i] = getBytes( ex, 52, 47 );

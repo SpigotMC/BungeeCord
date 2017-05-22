@@ -1,105 +1,51 @@
 package net.md_5.bungee.protocol.packet.extra;
 
 import io.netty.buffer.ByteBuf;
-import java.beans.ConstructorProperties;
 import java.util.Arrays;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
-public class ChunkPacket extends DefinedPacket {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
+public class ChunkPacket extends DefinedPacket
+{
 
     int x;
     int z;
     byte[] data;
 
-    public ChunkPacket(int x, int z) {
-        this.x = x;
-        this.z = z;
-        this.data = new byte[256];
-        Arrays.fill(this.data, (byte) 18);
-    }
-
     @Override
-    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int version) {
-        buf.writeInt(this.x);
-        buf.writeInt(this.z);
-        buf.writeBoolean(true);
-        if (version > 47) {
-            DefinedPacket.writeVarInt(0, buf);
-        } else {
+    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int version)
+    {
+        buf.writeInt( this.x );
+        buf.writeInt( this.z );
+        buf.writeBoolean( true );
+        if ( version > 47 )
+        {
+            DefinedPacket.writeVarInt( 0, buf );
+        } else
+        {
             buf.writeShort( 0 );
         }
-        DefinedPacket.writeVarInt(256, buf);
-        buf.writeBytes(this.data);
-        if (version >= 110) {
-            DefinedPacket.writeVarInt(0, buf);
+        DefinedPacket.writeVarInt( 256, buf );
+        Arrays.fill( this.data, (byte) 18 );
+        buf.writeBytes( this.data );
+        if ( version >= 110 )
+        {
+            DefinedPacket.writeVarInt( 0, buf );
         }
     }
 
     @Override
-    public void handle(AbstractPacketHandler handler) throws Exception {}
-
-    public int getX() {
-        return this.x;
+    public void handle(AbstractPacketHandler handler) throws Exception
+    {
     }
 
-    public int getZ() {
-        return this.z;
-    }
-
-    public byte[] getData() {
-        return this.data;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public void setZ(int z) {
-        this.z = z;
-    }
-
-    public void setData(byte[] data) {
-        this.data = data;
-    }
-
-    @Override
-    public String toString() {
-        return "ChunkPacket(x=" + this.getX() + ", z=" + this.getZ() + ", data=" + Arrays.toString(this.getData()) + ")";
-    }
-
-    @ConstructorProperties({ "x", "z", "data"})
-    public ChunkPacket(int x, int z, byte[] data) {
-        this.x = x;
-        this.z = z;
-        this.data = data;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == this) {
-            return true;
-        } else if (!(o instanceof ChunkPacket)) {
-            return false;
-        } else {
-            ChunkPacket other = (ChunkPacket) o;
-
-            return !other.canEqual(this) ? false : (this.getX() != other.getX() ? false : (this.getZ() != other.getZ() ? false : Arrays.equals(this.getData(), other.getData())));
-        }
-    }
-
-    protected boolean canEqual(Object other) {
-        return other instanceof ChunkPacket;
-    }
-
-    @Override
-    public int hashCode() {
-        byte result = 1;
-        int result1 = result * 59 + this.getX();
-
-        result1 = result1 * 59 + this.getZ();
-        result1 = result1 * 59 + Arrays.hashCode(this.getData());
-        return result1;
-    }
 }

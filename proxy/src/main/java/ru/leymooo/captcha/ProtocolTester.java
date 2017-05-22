@@ -2,7 +2,7 @@ package ru.leymooo.captcha;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.md_5.bungee.protocol.packet.ConfirmTransaction;
+import net.md_5.bungee.protocol.packet.extra.ConfirmTransaction;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.extra.PlayerPositionRotation;
 
@@ -14,19 +14,21 @@ public class ProtocolTester
 {
 
     @Setter
-    public boolean settings = false;
+    private boolean settings = false;
     @Setter
-    public boolean tpconfirm = false;
+    private boolean tpconfirm = false;
     @Setter
-    public boolean mcbrand = false;
+    private boolean mcbrand = false;
     @Setter
-    public boolean alive = false;
+    private boolean alive = false;
     @Setter
-    public boolean transaction = false;
+    private boolean transaction = false;
+    @Setter @Getter
+    private boolean posRot = false;
     @Setter
     private PacketReciever pr;
     @Getter
-    private final ConfirmTransaction transactionPacket = new ConfirmTransaction( (byte) 0, (short) 1, false );
+    private final ConfirmTransaction transactionPacket = new ConfirmTransaction( (byte) 0, (short) this.pr.getRandom().nextInt( Short.MAX_VALUE ), false );
     @Getter
     private final KeepAlive keepAlivePacket;
     @Getter
@@ -37,12 +39,12 @@ public class ProtocolTester
     {
         this.pr = pr;
         this.keepAlivePacket = new KeepAlive( this.pr.getRandom().nextInt( 9999 ) );
-        this.playerPositionPacket = new PlayerPositionRotation( 5.0D, 50.0D, 5.0D, 90.0F, 54.2F, this.pr.getRandom().nextInt( 9999 ) );
+        this.playerPositionPacket = new PlayerPositionRotation( 5.0D, 50.0D, 5.0D, 90.0F, 54.2F, this.pr.getRandom().nextInt( 9999 ), false );
     }
 
     public boolean isBot()
     {
-        return ( System.currentTimeMillis() - pr.getJoinTime() >= 4000 ) && !( settings && tpconfirm && mcbrand && alive && transaction );
+        return ( System.currentTimeMillis() - pr.getJoinTime() >= 4000 ) && !( settings && tpconfirm && mcbrand && alive && transaction && posRot );
     }
 
 }

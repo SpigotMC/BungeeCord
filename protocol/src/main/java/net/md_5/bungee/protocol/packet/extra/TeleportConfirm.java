@@ -13,23 +13,19 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class SpawnPosition extends DefinedPacket
+public class TeleportConfirm extends DefinedPacket
 {
 
-    private int x;
-    private int y;
-    private int z;
+    int TeleportId;
 
     @Override
-    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
+    public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        buf.writeLong( ( this.x & 67108863L ) << 38L | ( this.y & 4095L ) << 26L | ( this.z & 67108863L ) << 0 );
+        TeleportId = DefinedPacket.readVarInt( buf );
     }
 
-    @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {
-        throw new UnsupportedOperationException();
+        handler.handle( this );
     }
-
 }

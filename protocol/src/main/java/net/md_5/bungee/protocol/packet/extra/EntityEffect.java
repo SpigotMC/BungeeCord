@@ -1,14 +1,20 @@
 package net.md_5.bungee.protocol.packet.extra;
 
 import io.netty.buffer.ByteBuf;
-import java.beans.ConstructorProperties;
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-@Getter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 public class EntityEffect
 extends DefinedPacket {
+    
     private int entId;
     private byte effId;
     private byte lvl;
@@ -28,23 +34,4 @@ extends DefinedPacket {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public String toString() {
-        return "EntityEffect()";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return true;
-    }
-
-    protected boolean canEqual(Object other) {
-        return other instanceof EntityEffect;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = 1;
-        return result;
-    }
 }

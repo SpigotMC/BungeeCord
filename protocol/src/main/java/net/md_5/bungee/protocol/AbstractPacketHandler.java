@@ -6,7 +6,7 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.ClientStatus;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.Chat;
-import net.md_5.bungee.protocol.packet.ConfirmTransaction;
+import net.md_5.bungee.protocol.packet.extra.ConfirmTransaction;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
@@ -26,12 +26,13 @@ import net.md_5.bungee.protocol.packet.LegacyPing;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PingPacket;
-import net.md_5.bungee.protocol.packet.PlayerLook;
+import net.md_5.bungee.protocol.packet.extra.PlayerLook;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
-import net.md_5.bungee.protocol.packet.TeleportConfirm;
+import net.md_5.bungee.protocol.packet.extra.TeleportConfirm;
 import net.md_5.bungee.protocol.packet.Title;
+import net.md_5.bungee.protocol.packet.extra.PlayerPositionRotation;
 
 public abstract class AbstractPacketHandler
 {
@@ -52,6 +53,10 @@ public abstract class AbstractPacketHandler
     {
     }
 
+    public void handle(PlayerPositionRotation posRot) throws Exception
+    {
+    }
+    
     public void handle(TabCompleteResponse tabResponse) throws Exception
     {
     }
