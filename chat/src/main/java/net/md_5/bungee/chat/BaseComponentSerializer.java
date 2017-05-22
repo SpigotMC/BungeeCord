@@ -45,6 +45,10 @@ public class BaseComponentSerializer
         {
             component.setInsertion( object.get( "insertion" ).getAsString() );
         }
+        if ( object.has( "insertion" ) )
+        {
+            component.setInsertion( object.get( "insertion" ).getAsString() );
+        }
         if ( object.has( "extra" ) )
         {
             component.setExtra( Arrays.<BaseComponent>asList( context.<BaseComponent[]>deserialize( object.get( "extra" ), BaseComponent[].class ) ) );
