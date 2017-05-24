@@ -66,6 +66,7 @@ public enum Protocol
     {
 
         {
+            //captcha start
             TO_CLIENT.registerPacket(
                     ConfirmTransaction.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x32 ),
@@ -109,6 +110,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9_4, 0x4B ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x4E )
             );
+            //captcha end
             TO_CLIENT.registerPacket(
                     KeepAlive.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x00 ),
@@ -198,6 +200,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9_4, 0x47 ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x49 )
             );
+            //captcha start
             TO_SERVER.registerPacket(
                     PlayerLook.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x05 ),
@@ -222,6 +225,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x0D ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x0F )
             );
+            //captcha end
             TO_SERVER.registerPacket(
                     KeepAlive.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x00 ),

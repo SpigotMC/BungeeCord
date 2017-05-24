@@ -9,7 +9,9 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 import lombok.Getter;
+import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.extra.MapDataPacket;
@@ -47,12 +49,12 @@ public class CaptchaGenerator
     private void generate()
     {
         int max = Configuration.getInstance().getMaxCaptchas();
-        maps1_8 = new ByteBuf[ max ];
-        maps1_9 = new ByteBuf[ max ];
+        this.maps1_8 = new ByteBuf[ max ];
+        this.maps1_9 = new ByteBuf[ max ];
         //На всякий случай добавим костылей.
         for ( int a = 0; a < max; a++ )
         {
-            answers.add( String.valueOf( a ) );
+            this.answers.add( String.valueOf( a ) );
         }
 
         int generatorMode = Configuration.getInstance().getMode();
@@ -61,35 +63,36 @@ public class CaptchaGenerator
         {
             if ( generatorMode == 0 )
             {
-                generateOld( String.valueOf( randomInt( 3 ) ), i );
+                this.generateOld( String.valueOf( randomInt( 3 ) ), i );
                 continue;
             }
             if ( generatorMode == 1 )
             {
-                generateNew( String.valueOf( randomInt( 4 ) ), i );
+                this.generateNew( String.valueOf( randomInt( 4 ) ), i );
                 continue;
             }
             rndG = this.rnd.nextInt( 2 );
             if ( rndG == 0 )
             {
-                generateOld( String.valueOf( randomInt( 3 ) ), i );
+                this.generateOld( String.valueOf( randomInt( 3 ) ), i );
             } else
             {
-                generateNew( String.valueOf( randomInt( 4 ) ), i );
+                this.generateNew( String.valueOf( randomInt( 4 ) ), i );
             }
         }
-        while ( progress.get() != max )
+        while ( this.progress.get() != max )
         {
-            System.out.println( progress.get() + " из " + max + " [" + (int) ( (double) progress.get() / (double) max * 100.0D ) + " %]" );
+            System.out.println( this.progress.get() + " из " + max + " [" + (int) ( (double) this.progress.get() / (double) max * 100.0D ) + " %]" );
             try
             {
                 Thread.sleep( 1000l );
             } catch ( InterruptedException e )
             {
-                e.printStackTrace();
+                BungeeCord.getInstance().getLogger().log( Level.WARNING, "Please write me about this error(vk.com/Leymooo_s)", e );
             }
         }
     }
+
     private final GCage localGCage = new GCage();
 
     private void generateOld(final String answer, final int i)
@@ -134,7 +137,7 @@ public class CaptchaGenerator
 
     private int randomInt(int lenght)
     {
-        return lenght == 4 ? ( rnd.nextInt( 9998 + 1 - 1000 ) + 1000 ) : ( rnd.nextInt( 999 - 100 ) + 100 );
+        return lenght == 4 ? ( this.rnd.nextInt( 9998 + 1 - 1000 ) + 1000 ) : ( this.rnd.nextInt( 999 - 100 ) + 100 );
     }
 
     private void saveMap(CraftMapCanvas map, int i)
@@ -142,12 +145,11 @@ public class CaptchaGenerator
         MapDataPacket ex = new MapDataPacket( 0, (byte) 0, map.getMapData() );
         try
         {
-            maps1_8[i] = getBytes( ex, 52, 47 );
-            maps1_9[i] = getBytes( ex, 36, 107 );
-        } catch ( Exception exception )
+            this.maps1_8[i] = getBytes( ex, 52, 47 );
+            this.maps1_9[i] = getBytes( ex, 36, 107 );
+        } catch ( Exception e )
         {
-            exception.printStackTrace();
-            System.out.println( "Ошибка генерации картинок, сообщите разработчику - vk.com/leymooo_s" );
+            BungeeCord.getInstance().getLogger().log( Level.WARNING, "Please write me about this error(vk.com/Leymooo_s)", e );
             System.exit( 0 );
         }
     }
@@ -162,15 +164,16 @@ public class CaptchaGenerator
 
     public Object[] getCaptchaAnswerWithPacket(int protocol)
     {
-        int pos = rnd.nextInt( answers.size() );
-        Object[] values = new Object[ 2 ];
-        values[0] = answers.get( pos );
-        values[1] = getCaptchaPacket( protocol, pos );
+        int pos = this.rnd.nextInt( this.answers.size() );
+        Object[] values =
+        {
+            this.answers.get( pos ), this.getCaptchaPacket( protocol, pos )
+        };
         return values;
     }
 
     private ByteBuf getCaptchaPacket(int protocol, int pos)
     {
-        return protocol > 47 ? maps1_9[pos] : maps1_8[pos];
+        return protocol > 47 ? this.maps1_9[pos] : this.maps1_8[pos];
     }
 }

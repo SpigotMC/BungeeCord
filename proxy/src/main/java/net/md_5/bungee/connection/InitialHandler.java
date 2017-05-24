@@ -64,7 +64,7 @@ import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
 import ru.leymooo.captcha.Configuration;
-import ru.leymooo.captcha.PacketReciever;
+import ru.leymooo.captcha.CaptchaConnector;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -491,7 +491,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     return;
                 }
 
-                ch.getHandle().eventLoop().execute( new Runnable()
+                ch.getHandle().eventLoop().execute(new Runnable()
                 {
                     @Override
                     public void run()
@@ -507,7 +507,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             //captcha start
                             if ( Configuration.getInstance().needCapthca( userCon.getName(), userCon.getAddress().getAddress().getHostAddress() ) )
                             {
-                                ((HandlerBoss)ch.getHandle().pipeline().get( HandlerBoss.class )).setHandler( new PacketReciever( Configuration.getInstance(), userCon ) );
+                                ((HandlerBoss)ch.getHandle().pipeline().get( HandlerBoss.class )).setHandler(new CaptchaConnector( userCon ) );
                             } else
                             {
                                 ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );

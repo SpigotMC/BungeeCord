@@ -2,27 +2,30 @@ package ru.leymooo.captcha;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
+import java.util.Random;
 import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.connection.Connection;
 import net.md_5.bungee.protocol.packet.Chat;
+import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.extra.ChunkPacket;
+import net.md_5.bungee.protocol.packet.extra.ConfirmTransaction;
 import net.md_5.bungee.protocol.packet.extra.EntityEffect;
 import net.md_5.bungee.protocol.packet.extra.PlayerAbilities;
+import net.md_5.bungee.protocol.packet.extra.PlayerPositionRotation;
 import net.md_5.bungee.protocol.packet.extra.SetSlot;
 import net.md_5.bungee.protocol.packet.extra.SpawnPosition;
 
-public class CaptchaUser
+public class FakeServer
 {
 
-    @Getter
     @Setter
-    private PacketReciever pr;
-    @Getter
+    private CaptchaConnector reciever;
     private String captchaAnswer;
     private int retries = 3;
+    private static Random random = new Random();
     //========================================================================
     private static final Login loginPacket = new Login( -1, (short) 0, Configuration.getInstance().getWorldType(), (short) 0, (short) 100, "flat", false );
     private static final SpawnPosition spawnPositionPacket = new SpawnPosition( 5, 60, 5 );
@@ -31,31 +34,38 @@ public class CaptchaUser
     private static final PlayerAbilities abilitiesPacket = new PlayerAbilities( (byte) 6, 0.0F, 0.0F );
     private static final EntityEffect entityEffectPacket = new EntityEffect( -1, (byte) 16, (byte) 2, 30 * 20, (byte) 0x01 );
     //========================================================================
+    @Getter
+    private final ConfirmTransaction transactionPacket = new ConfirmTransaction( (byte) 0, (short) random.nextInt( Short.MAX_VALUE ), false );
+    @Getter
+    private final KeepAlive keepAlivePacket = new KeepAlive( random.nextInt( 9999 ) );
+    @Getter
+    private final PlayerPositionRotation playerPositionPacket = new PlayerPositionRotation( 5.0D, 50.0D, 5.0D, 90.0F, 54.2F, random.nextInt( 9999 ), false );
+    //========================================================================
 
-    public CaptchaUser(PacketReciever pr)
+    public FakeServer(CaptchaConnector pr)
     {
-        this.pr = pr;
+        this.reciever = pr;
     }
 
     public void sendJoinPackets()
     {
-        UserConnection con = this.getPr().getConnection();
+        UserConnection con = this.reciever.getUserConnection();
         Connection.Unsafe unsafe = con.unsafe();
         con.setClientEntityId( -1 );
 
         unsafe.sendPacket( loginPacket );
         unsafe.sendPacket( spawnPositionPacket );
         unsafe.sendPacket( abilitiesPacket );
-        unsafe.sendPacket( this.getPr().getPt().getPlayerPositionPacket() );
+        unsafe.sendPacket( playerPositionPacket );
         unsafe.sendPacket( chunkPacket );
         unsafe.sendPacket( setSlotPacket );
-        unsafe.sendPacket( this.getPr().getPt().getKeepAlivePacket() );
-        unsafe.sendPacket( this.getPr().getPt().getTransactionPacket() );
+        unsafe.sendPacket( keepAlivePacket );
+        unsafe.sendPacket( transactionPacket );
         unsafe.sendPacket( entityEffectPacket );
 
         if ( con.getPendingConnection().getHandshake().getProtocolVersion() <= 47 )
         {
-            getPr().getPt().setTpconfirm( true );
+            this.reciever.setTpconfirm( true );
         }
 
         this.getAndSendCaptcha();
@@ -63,50 +73,38 @@ public class CaptchaUser
 
     public void getAndSendCaptcha()
     {
-        Object[] captcha = CaptchaGenerator.getInstance().getCaptchaAnswerWithPacket( getPr().getConnection().getPendingConnection().getHandshake().getProtocolVersion() );
-        Channel channel = this.getPr().getConnection().getCh().getHandle();
+
+        Object[] captcha = CaptchaGenerator.getInstance().getCaptchaAnswerWithPacket( this.reciever.getUserConnection().getPendingConnection().getHandshake().getProtocolVersion() );
+        Channel channel = this.reciever.getUserConnection().getCh().getHandle();
         this.captchaAnswer = (String) captcha[0];
-        this.write( channel, (ByteBuf) captcha[1] );
+        channel.write( ( (ByteBuf) captcha[1] ).copy() );
         channel.flush();
-    }
-
-    private void write(Channel channel, ByteBuf buf)
-    {
-        ByteBuf buffer = buf.copy();
-
-        channel.write( buffer );
     }
 
     public void captchaEnter(Chat chat)
     {
         String msg = chat.getMessage().replace( "/", "" );
-        if ( getPr().getPt().isBot() || msg.length() >= 5 || !getCaptchaAnswer().equalsIgnoreCase( msg ) )
+        if ( this.reciever.isBot() || msg.length() >= 5 || !this.captchaAnswer.equalsIgnoreCase( msg ) )
         {
             if ( --this.retries == 0 )
             {
-                if ( getPr().getPt().isBot() )
-                {
-                    kick( Configuration.getInstance().getBotKick() );
-                } else
-                {
-                    kick( Configuration.getInstance().getWrongCaptchaKick() );
-                }
+                kick( this.reciever.isBot() ? Configuration.getInstance().getBotKick() : Configuration.getInstance().getWrongCaptchaKick() );
                 return;
             }
-            getPr().getConnection().sendMessage( String.format( Configuration.getInstance().getWrongCaptcha(), this.retries, this.retries == 1 ? "а" : "и" ) );
+            this.reciever.getUserConnection().sendMessage( String.format( Configuration.getInstance().getWrongCaptcha(), this.retries, this.retries == 1 ? "а" : "и" ) );
             this.getAndSendCaptcha();
             return;
         }
-        this.getPr().finish();
+        this.reciever.finish();
     }
 
     public void enterCapthca()
     {
-        getPr().getConnection().sendMessage( Configuration.getInstance().getEnterCaptcha() );
+        this.reciever.getUserConnection().sendMessage( Configuration.getInstance().getEnterCaptcha() );
     }
 
     public void kick(String reason)
     {
-        this.getPr().getConnection().disconnect( reason );
+        this.reciever.getUserConnection().disconnect( reason );
     }
 }

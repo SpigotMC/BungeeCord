@@ -36,7 +36,7 @@ public class MySql
         try
         {
             this.connect();
-            MySql.this.getConnection().createStatement().executeUpdate(
+            this.getConnection().createStatement().executeUpdate(
                     "CREATE TABLE IF NOT EXISTS `Whitelist_new` ("
                     + "`Name` VARCHAR(16) NOT NULL PRIMARY KEY UNIQUE,"
                     + "`Ip` VARCHAR(16) NOT NULL);"
@@ -126,7 +126,6 @@ public class MySql
                 }
             } catch ( Exception exception )
             {
-                ;
             }
 
             System.out.println( "[SQL] Connect to " + this.host );
@@ -145,7 +144,7 @@ public class MySql
             {
                 try
                 {
-                    Statement statment = MySql.this.getConnection().createStatement();
+                    Statement statment = getConnection().createStatement();
 
                     try
                     {

@@ -8,8 +8,10 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 import lombok.Getter;
 import lombok.Setter;
+import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
@@ -61,7 +63,7 @@ public class Configuration
     private MySql mysql = null;
     private final HashMap<String, String> users = new HashMap<>();
     @Getter
-    private final Set<PacketReciever> connectedUsersSet = Sets.newConcurrentHashSet();
+    private final Set<CaptchaConnector> connectedUsersSet = Sets.newConcurrentHashSet();
     //=========Такая реализация скорее всего лучше, чем использование thread======//
     private double attactStartTime = 0;
     private double lastBotAttackCheck = System.currentTimeMillis();
@@ -77,14 +79,7 @@ public class Configuration
             this.load( config );
         } catch ( IOException e )
         {
-            e.printStackTrace();
-            System.out.println( "vk.com/leymooo_s" );
-            try
-            {
-                Thread.sleep( 3000L );
-            } catch ( InterruptedException ex )
-            {
-            }
+            BungeeCord.getInstance().getLogger().log( Level.WARNING, "Please write me about this error(vk.com/Leymooo_s)", e);
             System.exit( 0 );
         }
         if ( mySqlEnabled && !capthcaAfterReJoin )
@@ -101,16 +96,16 @@ public class Configuration
 
     public void addUserToMap(String name, String ip)
     {
-        users.put( name.toLowerCase(), ip );
+        this.users.put( name.toLowerCase(), ip );
     }
 
     public void saveIp(String name, String ip)
     {
-        if ( capthcaAfterReJoin )
+        if ( this.capthcaAfterReJoin )
         {
             return;
         }
-        if ( mySqlEnabled )
+        if ( this.mySqlEnabled )
         {
             this.mysql.addAddress( name.toLowerCase(), ip );
         }
@@ -124,22 +119,22 @@ public class Configuration
             return true;
         }
         //Проверяем включён ли режим 'под атакой'
-        if ( System.currentTimeMillis() - attactStartTime < underAttackTime )
+        if ( System.currentTimeMillis() - this.attactStartTime < this.underAttackTime )
         {
             return true;
         }
         //Проверяем что не прошло 5 секунд после последней проверки на бот атаку и проверяем есть ли бот атака.
-        if ( ( System.currentTimeMillis() - lastBotAttackCheck <= 5000 ) && botCounter.incrementAndGet() >= 130 )
+        if ( ( System.currentTimeMillis() - this.lastBotAttackCheck <= 5000 ) && this.botCounter.incrementAndGet() >= 130 )
         {
-            attactStartTime = System.currentTimeMillis();
-            lastBotAttackCheck = System.currentTimeMillis();
+            this.attactStartTime = System.currentTimeMillis();
+            this.lastBotAttackCheck = System.currentTimeMillis();
             return true;
         }
-        botCounter.incrementAndGet();
-        if ( System.currentTimeMillis() - lastBotAttackCheck >= 5000 )
+        this.botCounter.incrementAndGet();
+        if ( System.currentTimeMillis() - this.lastBotAttackCheck >= 5000 )
         {
-            lastBotAttackCheck = System.currentTimeMillis();
-            botCounter.set( 0 );
+            this.lastBotAttackCheck = System.currentTimeMillis();
+            this.botCounter.set( 0 );
         }
         if ( !this.users.containsKey( name.toLowerCase() ) )
         {
@@ -196,23 +191,23 @@ public class Configuration
                     } catch ( InterruptedException ex )
                     {
                     }
-                    for ( PacketReciever user : getConnectedUsersSet() )
+                    for ( CaptchaConnector connector : getConnectedUsersSet() )
                     {
-                        if (user.getPt() == null) {
-                            getConnectedUsersSet().remove( user );
+                        if (connector.getUserConnection() == null) {
+                            getConnectedUsersSet().remove( connector );
                             continue;
                         }
-                        if ( user.getPt().isBot() )
+                        if ( connector.isBot() )
                         {
-                            user.getUser().kick( Configuration.getInstance().getBotKick() );
+                            connector.getUserServer().kick( getBotKick() );
                             continue;
                         }
-                        if ( System.currentTimeMillis() - user.getJoinTime() >= Configuration.getInstance().getTimeout() )
+                        if ( System.currentTimeMillis() - connector.getJoinTime() >= getTimeout() )
                         {
-                            user.getUser().kick( Configuration.getInstance().getTimeOutKick() );
+                            connector.getUserServer().kick( getTimeOutKick() );
                             continue;
                         }
-                        user.getUser().enterCapthca();
+                        connector.getUserServer().enterCapthca();
                     }
                 }
             }
