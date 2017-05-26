@@ -48,8 +48,8 @@ public class PlayerPositionRotation extends DefinedPacket
         this.yaw = buf.readFloat();
         this.pitch = buf.readFloat();
         this.onGround = buf.readBoolean();
+        buf.skipBytes( buf.readableBytes() );
     }
-
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {

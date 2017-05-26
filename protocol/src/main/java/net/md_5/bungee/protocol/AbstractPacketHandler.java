@@ -40,11 +40,12 @@ public abstract class AbstractPacketHandler
     public void handle(LegacyPing ping) throws Exception
     {
     }
-
+    
+    //capthca statrt
     public void handle(ConfirmTransaction transaction) throws Exception
     {
     }
-
+    
     public void handle(PlayerLook look) throws Exception
     {
     }
@@ -52,11 +53,12 @@ public abstract class AbstractPacketHandler
     public void handle(TeleportConfirm confirm) throws Exception
     {
     }
-
+    
     public void handle(PlayerPositionRotation posRot) throws Exception
     {
     }
     
+    //captcha end
     public void handle(TabCompleteResponse tabResponse) throws Exception
     {
     }

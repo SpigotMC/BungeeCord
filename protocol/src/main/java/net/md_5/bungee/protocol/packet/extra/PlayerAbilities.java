@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
@@ -20,13 +21,21 @@ public class PlayerAbilities extends DefinedPacket
     float field;
 
     @Override
-    public void write(ByteBuf buf)
+    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         buf.writeByte( this.flags );
         buf.writeFloat( this.speed );
         buf.writeFloat( this.field );
     }
 
+    @Override
+    public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
+    {
+        this.flags = buf.readByte();
+        this.speed = buf.readFloat();
+        this.field = buf.readFloat();
+    }
+    
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {

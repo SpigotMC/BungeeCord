@@ -33,8 +33,13 @@ public class SetSlot extends DefinedPacket
     }
 
     @Override
+    public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
+    {
+        buf.skipBytes( buf.readableBytes() );
+    }
+
+    @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {
-        throw new UnsupportedOperationException();
     }
 }

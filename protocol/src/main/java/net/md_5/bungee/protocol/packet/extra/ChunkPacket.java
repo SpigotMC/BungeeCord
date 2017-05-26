@@ -42,7 +42,15 @@ public class ChunkPacket extends DefinedPacket
             DefinedPacket.writeVarInt( 0, buf );
         }
     }
-
+    //Что за параша. Хули банджа заставляет меня читать этот пакет, если он 
+    //направляется только в строну клиента. ААААААААААААААААААААА
+    //Но да ладно, закостылим. Думаю не сломается ничего(
+    @Override
+    public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
+    {
+        buf.skipBytes( buf.readableBytes() );
+    }
+    
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {

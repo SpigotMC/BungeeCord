@@ -42,6 +42,7 @@ public class CaptchaConnector extends PacketHandler
     private boolean alive = false;
     private boolean transaction = false;
     private boolean posRot = false;
+    private boolean abilities = false;
     //====================================================================
 
     public CaptchaConnector(UserConnection con)
@@ -57,7 +58,6 @@ public class CaptchaConnector extends PacketHandler
     {
         this.userServer.captchaEnter( chat );
     }
-
     @Override
     public void handle(ConfirmTransaction transaction) throws Exception
     {

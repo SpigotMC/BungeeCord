@@ -24,6 +24,7 @@ public class TeleportConfirm extends DefinedPacket
         TeleportId = DefinedPacket.readVarInt( buf );
     }
 
+    @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {
         handler.handle( this );
