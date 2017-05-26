@@ -35,7 +35,7 @@ public class PlayerAbilities extends DefinedPacket
         this.speed = buf.readFloat();
         this.field = buf.readFloat();
     }
-    
+
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {

@@ -1,6 +1,5 @@
 package net.md_5.bungee.protocol.packet.extra;
 
-
 import io.netty.buffer.ByteBuf;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;

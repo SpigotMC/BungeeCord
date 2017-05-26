@@ -185,7 +185,6 @@ public abstract class DefinedPacket
 
     public void read(ByteBuf buf)
     {
-        System.out.println( getClass() );
         throw new UnsupportedOperationException( "Packet must implement read method" );
     }
 

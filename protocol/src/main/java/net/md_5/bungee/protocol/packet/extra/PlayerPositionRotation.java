@@ -50,6 +50,7 @@ public class PlayerPositionRotation extends DefinedPacket
         this.onGround = buf.readBoolean();
         buf.skipBytes( buf.readableBytes() );
     }
+
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {
