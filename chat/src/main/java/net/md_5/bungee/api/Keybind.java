@@ -51,7 +51,12 @@ public enum Keybind
     SCREENSHOT( "key.screenshot", "F2" ),
     SMOOTH_CAMERA( "key.smoothCamera", "" ),
     FULLSCREEN( "key.fullscreen", "F11" ),
-    TOGGLE_PERSPECTIVE( "key.togglePerspective", "F5" );
+    TOGGLE_PERSPECTIVE( "key.togglePerspective", "F5" ),
+
+    /**
+     * A special value indicating a custom internal value.
+     */
+    CUSTOM( "", "" );
 
     private static final Map<String, Keybind> BY_VALUE = new HashMap<>();
     /**

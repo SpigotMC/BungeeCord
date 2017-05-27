@@ -8,7 +8,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import net.md_5.bungee.api.Keybind;
 import net.md_5.bungee.api.chat.KeybindComponent;
 
 import java.lang.reflect.Type;
@@ -22,7 +21,7 @@ public class KeybindComponentSerializer extends BaseComponentSerializer implemen
         KeybindComponent component = new KeybindComponent();
         JsonObject object = json.getAsJsonObject();
         deserialize( object, component, context );
-        component.setKeybind( Keybind.getByValue( object.get( "keybind" ).getAsString() ) );
+        component.setKeybindValue( object.get( "keybind" ).getAsString() );
         return component;
     }
 
@@ -31,7 +30,7 @@ public class KeybindComponentSerializer extends BaseComponentSerializer implemen
     {
         JsonObject object = new JsonObject();
         serialize( object, src, context );
-        object.addProperty( "keybind", src.getKeybind().getValue() );
+        object.addProperty( "keybind", src.getKeybindValue() );
         return object;
     }
 }

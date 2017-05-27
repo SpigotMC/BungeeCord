@@ -14,10 +14,10 @@ public class KeybindComponent extends BaseComponent
 {
 
     /**
-     * The keybind to use. Will be replaced with the actual key the client is
-     * using.
+     * The internal keybind value to use. Will be replaced with the actual key
+     * the client is using.
      */
-    private Keybind keybind;
+    private String keybindValue;
 
     /**
      * Creates a keybind component from the original to clone it.
@@ -27,17 +27,27 @@ public class KeybindComponent extends BaseComponent
     public KeybindComponent(KeybindComponent original)
     {
         super( original );
-        setKeybind( original.getKeybind() );
+        setKeybindValue( original.getKeybindValue() );
     }
 
     /**
-     * Creates a keybind component with the passed keybind
+     * Creates a keybind component with the passed keybind.
      *
      * @param keybind the keybind
      */
     public KeybindComponent(Keybind keybind)
     {
-    	setKeybind( keybind );
+        setKeybind( keybind );
+    }
+
+    /**
+     * Creates a keybind component with the passed internal keybind value.
+     *
+     * @param keybindValue the keybind internal value
+     */
+    public KeybindComponent(String keybindValue)
+    {
+        setKeybindValue( keybindValue );
     }
 
     /**
@@ -51,10 +61,30 @@ public class KeybindComponent extends BaseComponent
         return new KeybindComponent( this );
     }
 
+    /**
+     * Returns the keybind for the internal keybind value or Keybind.CUSTOM if
+     * there is no keybind for the internal keybind value.
+     *
+     * @return the keybind for the interbal keybind value
+     */
+    public Keybind getKeybind() {
+        Keybind keybind = Keybind.getByValue( keybindValue );
+        return keybind == null ? Keybind.CUSTOM : keybind;
+    }
+
+    /**
+     * Sets the keykind to use.
+     *
+     * @param keybind the keybind
+     */
+    public void setKeybind(Keybind keybind) {
+        keybindValue = keybind.getValue();
+    }
+
     @Override
     protected void toPlainText(StringBuilder builder)
     {
-        builder.append( keybind.getDefaultKey() );
+        builder.append( getKeybind().getDefaultKey() );
         super.toPlainText( builder );
     }
 
@@ -82,7 +112,7 @@ public class KeybindComponent extends BaseComponent
         {
             builder.append( ChatColor.MAGIC );
         }
-        builder.append( keybind.getDefaultKey() );
+        builder.append( getKeybind().getDefaultKey() );
 
         super.toLegacyText( builder );
     }
@@ -90,6 +120,6 @@ public class KeybindComponent extends BaseComponent
     @Override
     public String toString()
     {
-        return String.format( "KeybindComponent{keybind=%s, %s}", keybind, super.toString() );
+        return String.format( "KeybindComponent{keybindValue=%s, %s}", keybindValue, super.toString() );
     }
 }
