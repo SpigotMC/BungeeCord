@@ -33,4 +33,5 @@ mysql:
   username: root
   password: example
   database: example
+debug: false
 config-version: 0

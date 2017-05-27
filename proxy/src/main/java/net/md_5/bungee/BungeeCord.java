@@ -516,7 +516,11 @@ public class BungeeCord extends ProxyServer
     {
         return connections.size();
     }
-
+    @Override
+    public int getOnlineCountWithCapthcaConnects()
+    {
+        return connections.size() + ru.leymooo.captcha.Configuration.getInstance().getConnectedUsersSet().size();
+    }
     @Override
     public ProxiedPlayer getPlayer(String name)
     {

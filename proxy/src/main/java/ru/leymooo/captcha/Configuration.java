@@ -47,6 +47,8 @@ public class Configuration
     private boolean underAttack = false;
     @Getter
     private boolean capthcaAfterReJoin = false;
+    @Getter
+    private boolean debug = false;
     private boolean mySqlEnabled = false;
     @Getter
     private int worldType;
@@ -156,6 +158,7 @@ public class Configuration
         this.blur = config.getBoolean( "captcha-generator-settings.blur" );
         this.outline = config.getBoolean( "captcha-generator-settings.outline" );
         this.rotate = config.getBoolean( "captcha-generator-settings.rotate" );
+        this.debug = config.getBoolean( "debug", false );
         this.maxCaptchas = config.getInt( "max-captchas" );
         this.mode = config.getInt( "captcha-generator" );
         this.timeout = config.getInt( "max-enter-time" ) * 1000;
@@ -187,7 +190,7 @@ public class Configuration
                 {
                     try
                     {
-                        Thread.sleep( 1000L );
+                        Thread.sleep( 2000L );
                     } catch ( InterruptedException ex )
                     {
                     }
