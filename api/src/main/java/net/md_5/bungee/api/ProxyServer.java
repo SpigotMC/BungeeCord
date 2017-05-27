@@ -243,7 +243,8 @@ public abstract class ProxyServer
      * @return the current number of connected players
      */
     public abstract int getOnlineCount();
-    public abstract int getOnlineCountWithCapthcaConnects();
+    
+    /*capthca*/public abstract int getOnlineCountWithCapthcaConnects();
 
     /**
      * Send the specified message to the console and all connected players.

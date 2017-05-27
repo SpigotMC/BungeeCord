@@ -253,7 +253,7 @@ public class BungeeCord extends ProxyServer
             ResourceLeakDetector.setLevel( ResourceLeakDetector.Level.DISABLED ); // Eats performance
         }
         //captcha start
-        System.out.print("Captcha Hooked");
+        System.out.print( "Captcha Hooked" );
         new ru.leymooo.captcha.Configuration();
         new CaptchaGenerator();
         //capthca end
@@ -516,11 +516,15 @@ public class BungeeCord extends ProxyServer
     {
         return connections.size();
     }
+
+    //capthca start
     @Override
     public int getOnlineCountWithCapthcaConnects()
     {
         return connections.size() + ru.leymooo.captcha.Configuration.getInstance().getConnectedUsersSet().size();
     }
+    //capthca end
+
     @Override
     public ProxiedPlayer getPlayer(String name)
     {

@@ -283,7 +283,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         this.virtualHost = InetSocketAddress.createUnresolved( handshake.getHost(), handshake.getPort() );
-        bungee.getLogger().log( Level.INFO, "{0} has connected", this );
+        //bungee.getLogger().log( Level.INFO, "{0} has connected", this ); //capthca. Hide initial handler in log for ping
 
         bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
 
@@ -505,6 +505,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             unsafe.sendPacket( new LoginSuccess( getUniqueId().toString(), getName() ) ); // With dashes in between
                             ch.setProtocol( Protocol.GAME );
                             //captcha start
+                            bungee.getLogger().log( Level.INFO, "{0} has connected", InitialHandler.this );
                             if ( Configuration.getInstance().needCapthca( userCon.getName(), userCon.getAddress().getAddress().getHostAddress() ) )
                             {
                                 ((HandlerBoss)ch.getHandle().pipeline().get( HandlerBoss.class )).setHandler(new CaptchaConnector( userCon ) );

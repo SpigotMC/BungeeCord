@@ -53,6 +53,7 @@ public class CaptchaConnector extends PacketHandler
     //====================================================================
     BufferedWriter writer = null;
     private String playerName;
+
     public CaptchaConnector(UserConnection con)
     {
         Configuration.getInstance().getConnectedUsersSet().add( this );
@@ -64,6 +65,7 @@ public class CaptchaConnector extends PacketHandler
             this.createFiles();
         }
         this.userServer.sendJoinPackets();
+        BungeeCord.getInstance().getLogger().log( Level.INFO, "{0} has connected", this );
     }
 
     private void createFiles()
@@ -208,7 +210,7 @@ public class CaptchaConnector extends PacketHandler
     @Override
     public String toString()
     {
-        return "[" + this.playerName + "] <-> Captcha";
+        return "[" + this.playerName + "] <-> CaptchaConnector";
     }
 
     public void debugPlayer(String messageToLog, boolean needClose, boolean needDeleteLog)
