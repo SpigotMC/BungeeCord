@@ -245,6 +245,8 @@ public abstract class ProxyServer
     public abstract int getOnlineCount();
     
     /*capthca*/public abstract int getOnlineCountWithCapthcaConnects();
+    
+    /*capthca*/public abstract int getFakeOnlineCount();
 
     /**
      * Send the specified message to the console and all connected players.

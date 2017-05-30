@@ -15,6 +15,7 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
+import ru.leymooo.fakeonline.FakeOnline;
 
 /**
  *
@@ -22,7 +23,7 @@ import net.md_5.bungee.config.YamlConfiguration;
  */
 public class Configuration
 {
-
+    
     private static Configuration conf;
     @Getter
     private String wrongCaptchaKick = "wrong-captcha-kick";
@@ -49,6 +50,8 @@ public class Configuration
     private boolean capthcaAfterReJoin = false;
     @Getter
     private boolean debug = false;
+    @Getter
+    private boolean fakeOnline = false;
     private boolean mySqlEnabled = false;
     @Getter
     private int worldType;
@@ -70,7 +73,7 @@ public class Configuration
     private double attactStartTime = 0;
     private double lastBotAttackCheck = System.currentTimeMillis();
     private AtomicInteger botCounter = new AtomicInteger();
-
+    
     public Configuration()
     {
         conf = this;
@@ -81,7 +84,7 @@ public class Configuration
             this.load( config );
         } catch ( IOException e )
         {
-            BungeeCord.getInstance().getLogger().log( Level.WARNING, "Please write me about this error(vk.com/Leymooo_s)", e);
+            BungeeCord.getInstance().getLogger().log( Level.WARNING, "Please write me about this error(vk.com/Leymooo_s)", e );
             System.exit( 0 );
         }
         if ( mySqlEnabled && !capthcaAfterReJoin )
@@ -90,17 +93,17 @@ public class Configuration
         }
         this.startThread();
     }
-
+    
     public static Configuration getInstance()
     {
         return conf;
     }
-
+    
     public void addUserToMap(String name, String ip)
     {
         this.users.put( name.toLowerCase(), ip );
     }
-
+    
     public void saveIp(String name, String ip)
     {
         if ( this.capthcaAfterReJoin )
@@ -113,7 +116,7 @@ public class Configuration
         }
         this.addUserToMap( name, ip );
     }
-
+    
     public boolean needCapthca(String name, String ip)
     {
         if ( this.capthcaAfterReJoin )
@@ -144,7 +147,7 @@ public class Configuration
         }
         return !this.users.get( name.toLowerCase() ).equalsIgnoreCase( ip );
     }
-
+    
     private void load(net.md_5.bungee.config.Configuration config)
     {
         this.wrongCaptchaKick = ChatColor.translateAlternateColorCodes( '&', config.getString( wrongCaptchaKick ) );
@@ -165,8 +168,9 @@ public class Configuration
         this.underAttackTime = config.getInt( "under-attack-time" ) * 1000;
         this.threads = config.getInt( "image-generation-threads" );
         this.worldType = config.getInt( "world-type" );
+        new FakeOnline( config.getBoolean( "fake-online.enabled" ), config.getSection( "fake-online.booster" ) );
     }
-
+    
     private net.md_5.bungee.config.Configuration checkFileAndGiveConfig() throws IOException
     {
         File file = new File( "captcha.yml" );
@@ -178,7 +182,7 @@ public class Configuration
         Files.copy( in, file.toPath() );
         return ConfigurationProvider.getProvider( YamlConfiguration.class ).load( file );
     }
-
+    
     private void startThread()
     {
         ( new Thread( new Runnable()
@@ -196,7 +200,8 @@ public class Configuration
                     }
                     for ( CaptchaConnector connector : getConnectedUsersSet() )
                     {
-                        if (connector.getUserConnection() == null) {
+                        if ( connector.getUserConnection() == null )
+                        {
                             getConnectedUsersSet().remove( connector );
                             continue;
                         }

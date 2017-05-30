@@ -1,6 +1,5 @@
 package ru.leymooo.captcha;
 
-import java.awt.print.Book;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -224,7 +223,7 @@ public class CaptchaConnector extends PacketHandler
             if ( messageToLog != null )
             {
                 Date date = new Date();
-                SimpleDateFormat sdf = new SimpleDateFormat( "MM/dd/yyyy H:MM:SS " );
+                SimpleDateFormat sdf = new SimpleDateFormat( "MM/dd/yyyy HH:mm:ss " );
                 String formattedDate = "[" + sdf.format( date ) + "] ";
                 this.writer.write( formattedDate.concat( messageToLog ).concat( System.getProperty( "line.separator" ) ) );
             }

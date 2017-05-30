@@ -70,6 +70,7 @@ import net.md_5.bungee.command.CommandBungee;
 import net.md_5.bungee.command.CommandEnd;
 import net.md_5.bungee.command.CommandIP;
 import net.md_5.bungee.command.CommandPerms;
+import net.md_5.bungee.command.CommandPlayerLimit;
 import net.md_5.bungee.command.CommandReload;
 import net.md_5.bungee.command.ConsoleCommandSender;
 import net.md_5.bungee.compress.CompressFactory;
@@ -89,6 +90,7 @@ import net.md_5.bungee.scheduler.BungeeScheduler;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.fusesource.jansi.AnsiConsole;
 import ru.leymooo.captcha.CaptchaGenerator;
+import ru.leymooo.fakeonline.FakeOnline;
 
 /**
  * Main BungeeCord proxy class.
@@ -166,6 +168,7 @@ public class BungeeCord extends ProxyServer
         getPluginManager().registerCommand( null, new CommandIP() );
         getPluginManager().registerCommand( null, new CommandBungee() );
         getPluginManager().registerCommand( null, new CommandPerms() );
+        getPluginManager().registerCommand( null, new CommandPlayerLimit() );
 
         registerChannel( "BungeeCord" );
     }
@@ -522,6 +525,12 @@ public class BungeeCord extends ProxyServer
     public int getOnlineCountWithCapthcaConnects()
     {
         return connections.size() + ru.leymooo.captcha.Configuration.getInstance().getConnectedUsersSet().size();
+    }
+    
+    @Override
+    public int getFakeOnlineCount()
+    {
+        return FakeOnline.getInstance().getFakeOnline();
     }
     //capthca end
 

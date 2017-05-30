@@ -65,6 +65,7 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
 import ru.leymooo.captcha.Configuration;
 import ru.leymooo.captcha.CaptchaConnector;
+import ru.leymooo.fakeonline.FakeOnline;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -152,8 +153,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         this.legacy = true;
         final boolean v1_5 = ping.isV1_5();
-        ServerPing legacy = new ServerPing( new ServerPing.Protocol( bungee.getName() + " 1.8-1.12 by vk.com/Leymooo_s", bungee.getProtocolVersion() ),
-                new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
+        ServerPing legacy = new ServerPing( new ServerPing.Protocol( bungee.getName() + " 1.8-1.12 by vk.com/Leymooo_s", bungee.getProtocolVersion() ), //captcha
+                new ServerPing.Players( listener.getMaxPlayers(), bungee.getFakeOnlineCount(), null ), //captcha
                 new TextComponent( TextComponent.fromLegacyText( listener.getMotd() ) ), (Favicon) null );
 
         Callback<ProxyPingEvent> callback = new Callback<ProxyPingEvent>()
@@ -225,6 +226,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     public void done(ProxyPingEvent pingResult, Throwable error)
                     {
                         Gson gson = BungeeCord.getInstance().gson;
+                        //captcha fake online start
+                        ServerPing ping = pingResult.getResponse();
+                        ServerPing.Players players = ping.getPlayers();
+                        players.setOnline( bungee.getFakeOnlineCount() );
+                        ping.setPlayers( players );
+                        //captcha fake online end
                         unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
                     }
                 };
@@ -240,8 +247,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             int protocol = ( ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
             pingBack.done( new ServerPing(
-                    new ServerPing.Protocol( bungee.getName() + " 1.8-1.12 by vk.com/Leymooo_s", protocol ),
-                    new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
+                    new ServerPing.Protocol( bungee.getName() + " 1.8-1.12 by vk.com/Leymooo_s", protocol ), //captcha
+                    new ServerPing.Players( listener.getMaxPlayers(), bungee.getFakeOnlineCount(), null ), //captcha
                     motd, BungeeCord.getInstance().config.getFaviconObject() ),
                     null );
         }
@@ -491,7 +498,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     return;
                 }
 
-                ch.getHandle().eventLoop().execute(new Runnable()
+                ch.getHandle().eventLoop().execute( new Runnable()
                 {
                     @Override
                     public void run()
@@ -508,7 +515,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             bungee.getLogger().log( Level.INFO, "{0} has connected", InitialHandler.this );
                             if ( Configuration.getInstance().needCapthca( userCon.getName(), userCon.getAddress().getAddress().getHostAddress() ) )
                             {
-                                ((HandlerBoss)ch.getHandle().pipeline().get( HandlerBoss.class )).setHandler(new CaptchaConnector( userCon ) );
+                                ( (HandlerBoss) ch.getHandle().pipeline().get( HandlerBoss.class ) ).setHandler( new CaptchaConnector( userCon ) );
                             } else
                             {
                                 ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
@@ -571,7 +578,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public String getName()
     {
-        return (name != null ) ? name : ( loginRequest == null ) ? null : loginRequest.getData();
+        return ( name != null ) ? name : ( loginRequest == null ) ? null : loginRequest.getData();
     }
 
     @Override

@@ -33,5 +33,18 @@ mysql:
   username: root
   password: example
   database: example
+fake-online:
+  enabled: false
+  #ФЕЙК ОНЛАЙН ПОКАЗЫВАЕТСЯ ТОЛЬКО В QUERY И ПРИ ПИНГЕ СЕРВЕРА
+  #НА ПЛАГИНЫ ОН НЕ ВЛИЯЕТ. ТОЛЬКО НА ТЕ ЧТО ИСПОЛЬЗУЮТ 'ProxyPingEvent'
+  booster:
+    #от 0 до 30; Буст онлайна на 50%
+    0;30: 1.5
+    #от 31 до 60; Буст онлайна на 40%
+    31;60: 1.4
+    #от 61 до 100; Буст онлайна на 30%
+    61;100: 1.3
+    #любой другой онлайн, которого нет выше
+    default: 1.25
 debug: false
 config-version: 0
