@@ -80,4 +80,12 @@ public interface ServerInfo
      * @param callback the callback to call when the count has been retrieved.
      */
     void ping(Callback<ServerPing> callback);
+
+    /**
+     * Asynchronously gets the current player count on this server.
+     *
+     * @param callback the callback to call when the count has been retrieved.
+     * @param timeout the maximum connection time to the pinged server.
+     */
+    void ping(Callback<ServerPing> callback, int timeout);
 }
