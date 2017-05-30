@@ -21,7 +21,7 @@ public class KeybindComponentSerializer extends BaseComponentSerializer implemen
         KeybindComponent component = new KeybindComponent();
         JsonObject object = json.getAsJsonObject();
         deserialize( object, component, context );
-        component.setKeybindValue( object.get( "keybind" ).getAsString() );
+        component.setKeybind( object.get( "keybind" ).getAsString() );
         return component;
     }
 
@@ -30,7 +30,7 @@ public class KeybindComponentSerializer extends BaseComponentSerializer implemen
     {
         JsonObject object = new JsonObject();
         serialize( object, src, context );
-        object.addProperty( "keybind", src.getKeybindValue() );
+        object.addProperty( "keybind", src.getKeybind() );
         return object;
     }
 }
