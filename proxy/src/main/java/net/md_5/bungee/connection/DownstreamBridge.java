@@ -10,6 +10,7 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.ServerConnection;
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.ServerDisconnectEvent;
 import net.md_5.bungee.api.event.TabCompleteResponseEvent;
@@ -435,6 +436,25 @@ public class DownstreamBridge extends PacketHandler
                     player.disconnect( new TextComponent( kickReason ) );
                 }
             }
+            if ( subChannel.equals( "DispatchCommand" ) )
+            {
+                String senderName = in.readUTF();
+
+                CommandSender target;
+                if ( senderName.equalsIgnoreCase( "CONSOLE" ) )
+                {
+                    target = ProxyServer.getInstance().getConsole();
+                } else
+                {
+                    target = bungee.getPlayer( senderName );
+                }
+
+                if ( target != null )
+                {
+                    ProxyServer.getInstance().getPluginManager().dispatchCommand( target, in.readUTF() );
+                }
+            }
+
 
             // Check we haven't set out to null, and we have written data, if so reply back back along the BungeeCord channel
             if ( out != null )
