@@ -156,7 +156,7 @@ public class BungeeCord extends ProxyServer
     @Getter
     private ConnectionThrottle connectionThrottle;
     private final ModuleManager moduleManager = new ModuleManager();
-
+	private final String name = "BungeeCord";
     
     {
         // TODO: Proper fallback when we interface the manager
@@ -470,7 +470,7 @@ public class BungeeCord extends ProxyServer
     @Override
     public String getName()
     {
-        return "BungeeCord";
+        return name;
     }
 
     @Override
