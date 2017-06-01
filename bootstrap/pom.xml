@@ -34,8 +34,7 @@
         <dependency>
             <groupId>net.sf.jopt-simple</groupId>
             <artifactId>jopt-simple</artifactId>
-            <version>4.8</version>
-            <scope>compile</scope>
+            <version>5.0.2</version>
         </dependency>
     </dependencies>
 
