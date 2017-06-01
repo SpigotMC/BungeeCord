@@ -509,7 +509,14 @@ public class BungeeCord extends ProxyServer
     @Override
     public int getOnlineCount()
     {
-        return connections.size();
+        connectionLock.readLock().lock();
+        try
+        {
+            return connections.size();
+        } finally
+        {
+            connectionLock.readLock().unlock();
+        }
     }
 
     @Override
@@ -580,7 +587,7 @@ public class BungeeCord extends ProxyServer
     @Synchronized("pluginChannels")
     public Collection<String> getChannels()
     {
-        return Collections.unmodifiableCollection( pluginChannels );
+        return Collections.unmodifiableCollection( new HashSet<>( pluginChannels ) );
     }
 
     public PluginMessage registerChannels()
