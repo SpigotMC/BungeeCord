@@ -38,7 +38,7 @@ public class BungeeCordLauncher
             Date buildDate = new SimpleDateFormat( "yyyyMMdd" ).parse( BungeeCord.class.getPackage().getSpecificationVersion() );
 
             Calendar deadline = Calendar.getInstance();
-            deadline.add( Calendar.WEEK_OF_YEAR, -4 );
+            deadline.add( Calendar.WEEK_OF_YEAR, -8 );
             if ( buildDate.before( deadline.getTime() ) )
             {
                 System.err.println( "*** Warning, this build is outdated ***" );
