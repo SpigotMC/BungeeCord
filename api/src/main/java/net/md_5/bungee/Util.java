@@ -9,11 +9,15 @@ import java.util.UUID;
 /**
  * Series of utility classes to perform various operations.
  */
-public class Util
+public final class Util
 {
 
     public static final int DEFAULT_PORT = 25565;
 
+    private Util()
+    {
+        throw new InstantiationError( "Must not instantiate this class" );
+    }
     /**
      * Method to transform human readable addresses into usable address objects.
      *

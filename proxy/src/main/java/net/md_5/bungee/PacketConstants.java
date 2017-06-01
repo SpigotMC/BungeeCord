@@ -4,7 +4,7 @@ import net.md_5.bungee.protocol.packet.ClientStatus;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Respawn;
 
-public class PacketConstants
+public final class PacketConstants
 {
 
     public static final Respawn DIM1_SWITCH = new Respawn( (byte) 1, (byte) 0, (byte) 0, "default" );
@@ -15,4 +15,10 @@ public class PacketConstants
         0, 0, 0, 0, 0, 2
     }, false );
     public static final PluginMessage I_AM_BUNGEE = new PluginMessage( "BungeeCord", new byte[ 0 ], false );
+
+    private PacketConstants()
+    {
+        throw new InstantiationError( "Must not instantiate this class" );
+    }
+
 }

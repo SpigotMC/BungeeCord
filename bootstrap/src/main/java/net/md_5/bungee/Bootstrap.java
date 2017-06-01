@@ -1,7 +1,11 @@
 package net.md_5.bungee;
 
-public class Bootstrap
+public final class Bootstrap
 {
+    private Bootstrap()
+    {
+        throw new InstantiationError( "Must not instantiate this class" );
+    }
 
     public static void main(String[] args) throws Exception
     {
