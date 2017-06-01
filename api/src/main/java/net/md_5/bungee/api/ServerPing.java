@@ -148,6 +148,10 @@ public class ServerPing
     {
         return BaseComponent.toLegacyText( description );
     }
+    
+    public void setDescriptionComponent(BaseComponent description) {
+        this.description = description;
+    }
 
     public void setDescriptionComponent(BaseComponent description)
     {
