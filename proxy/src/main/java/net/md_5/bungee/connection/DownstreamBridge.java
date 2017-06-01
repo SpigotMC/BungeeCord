@@ -264,12 +264,11 @@ public class DownstreamBridge extends PacketHandler
                     in.readFully( data );
 
                     // Prepare new data to send
-                    out.writeUTF( channel );
                     out.writeShort( data.length );
                     out.write( data );
                     byte[] payload = out.toByteArray();
 
-                    target.getServer().sendData( "BungeeCord", payload );
+                    target.getServer().sendData( channel, payload );
                 }
 
                 // Null out stream, important as we don't want to send to ourselves
@@ -285,7 +284,6 @@ public class DownstreamBridge extends PacketHandler
                 in.readFully( data );
 
                 // Prepare new data to send
-                out.writeUTF( channel );
                 out.writeShort( data.length );
                 out.write( data );
                 byte[] payload = out.toByteArray();
@@ -299,7 +297,7 @@ public class DownstreamBridge extends PacketHandler
                     {
                         if ( server != con.getServer().getInfo() )
                         {
-                            server.sendData( "BungeeCord", payload );
+                            server.sendData( channel, payload );
                         }
                     }
                 } else if ( target.equals( "ONLINE" ) )
@@ -308,7 +306,7 @@ public class DownstreamBridge extends PacketHandler
                     {
                         if ( server != con.getServer().getInfo() )
                         {
-                            server.sendData( "BungeeCord", payload, false );
+                            server.sendData( channel, payload, false );
                         }
                     }
                 } else
@@ -316,7 +314,7 @@ public class DownstreamBridge extends PacketHandler
                     ServerInfo server = bungee.getServerInfo( target );
                     if ( server != null )
                     {
-                        server.sendData( "BungeeCord", payload );
+                        server.sendData( channel, payload );
                     }
                 }
             }
