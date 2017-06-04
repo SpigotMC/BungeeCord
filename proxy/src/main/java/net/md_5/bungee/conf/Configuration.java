@@ -1,6 +1,7 @@
 package net.md_5.bungee.conf;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import gnu.trove.map.TMap;
 import java.io.File;
 import java.io.IOException;
@@ -128,6 +129,17 @@ public class Configuration implements ProxyConfig
                 {
                     ProxyServer.getInstance().getLogger().log( Level.WARNING, "Forced host server {0} is not defined", server );
                 }
+            }
+        }
+
+        if ( listeners.size() == 1 )
+        {
+            ListenerInfo info = Iterables.getOnlyElement( listeners );
+            byte[] address = info.getHost().getAddress().getAddress();
+            // check for IPv4 != 0.0.0.0
+            if ( address.length == 4 && !Arrays.equals( address, new byte[ 4 ] ) )
+            {
+                ProxyServer.getInstance().getLogger().warning( "Not listening on 0.0.0.0, this might prevent you from joining! Set your listener address from " + info.getHost().getAddress() + " to 0.0.0.0 if you have any problems." );
             }
         }
     }
