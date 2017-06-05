@@ -46,5 +46,4 @@ fake-online:
     61;100: 1.3
     #любой другой онлайн, которого нет выше
     default: 1.25
-debug: false
 config-version: 0

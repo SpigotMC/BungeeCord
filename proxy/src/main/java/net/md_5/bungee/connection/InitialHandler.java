@@ -4,7 +4,6 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import java.math.BigInteger;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
@@ -65,7 +64,6 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
 import ru.leymooo.captcha.Configuration;
 import ru.leymooo.captcha.CaptchaConnector;
-import ru.leymooo.fakeonline.FakeOnline;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection

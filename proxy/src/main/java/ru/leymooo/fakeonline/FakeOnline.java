@@ -39,11 +39,6 @@ public class FakeOnline
         this.defaultValue = section.getFloat( "default", defaultValue );
     }
 
-    public FakeOnline()
-    {
-        this( false, null );
-    }
-
     public int getFakeOnline()
     {
         int online = BungeeCord.getInstance().getOnlineCount();
