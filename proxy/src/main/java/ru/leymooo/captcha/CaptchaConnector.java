@@ -1,14 +1,12 @@
 package ru.leymooo.captcha;
 
 import java.io.BufferedWriter;
-import java.util.Arrays;
 import java.util.logging.Level;
 import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
