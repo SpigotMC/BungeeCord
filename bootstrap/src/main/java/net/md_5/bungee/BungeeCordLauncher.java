@@ -20,6 +20,12 @@ public class BungeeCordLauncher
         Security.setProperty( "networkaddress.cache.ttl", "30" );
         Security.setProperty( "networkaddress.cache.negative.ttl", "10" );
 
+        // TODO: remove .default for netty 5!
+        if ( System.getProperty( "io.netty.recycler.maxCapacity.default" ) == null )
+        {
+            System.setProperty( "io.netty.recycler.maxCapacity.default", "50000" );
+        }
+
         OptionParser parser = new OptionParser();
         parser.allowsUnrecognizedOptions();
         parser.acceptsAll( Arrays.asList( "v", "version" ) );
