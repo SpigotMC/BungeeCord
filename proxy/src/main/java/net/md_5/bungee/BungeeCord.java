@@ -603,7 +603,7 @@ public class BungeeCord extends ProxyServer
     @Override
     public String getGameVersion()
     {
-        return Joiner.on( ", " ).join( ProtocolConstants.SUPPORTED_VERSIONS );
+        return ProtocolConstants.SUPPORTED_VERSIONS.get( 0 ) + "-" + ProtocolConstants.SUPPORTED_VERSIONS.get( ProtocolConstants.SUPPORTED_VERSIONS.size() - 1 );
     }
 
     @Override
