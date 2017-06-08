@@ -2,15 +2,17 @@ package net.md_5.bungee.api.chat;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Accessors(chain = true)
 @Getter
 @Setter
 @AllArgsConstructor
@@ -172,9 +174,84 @@ public class TextComponent extends BaseComponent
      * @return the duplicate of this TextComponent.
      */
     @Override
-    public BaseComponent duplicate()
+    public TextComponent duplicate()
     {
         return new TextComponent( this );
+    }
+
+    @Override
+    public TextComponent setColor(ChatColor color) {
+        super.setColor( color );
+        return this;
+    }
+
+    @Override
+    public TextComponent setBold(Boolean bold) {
+        super.setBold( bold );
+        return this;
+    }
+
+    @Override
+    public TextComponent setItalic(Boolean italic) {
+        super.setItalic( italic );
+        return this;
+    }
+
+    @Override
+    public TextComponent setUnderlined(Boolean underlined) {
+        super.setUnderlined( underlined );
+        return this;
+    }
+
+    @Override
+    public TextComponent setStrikethrough(Boolean strikethrough) {
+        super.setStrikethrough( strikethrough );
+        return this;
+    }
+
+    @Override
+    public TextComponent setObfuscated(Boolean obfuscated) {
+        super.setObfuscated( obfuscated );
+        return this;
+    }
+
+    @Override
+    public TextComponent setInsertion(String insertion) {
+        super.setInsertion( insertion );
+        return this;
+    }
+
+    @Override
+    public TextComponent setExtra(List<BaseComponent> components)
+    {
+        super.setExtra( components );
+        return this;
+    }
+
+    @Override
+    public TextComponent addExtra(String text)
+    {
+        super.addExtra( text );
+        return this;
+    }
+
+    @Override
+    public TextComponent addExtra(BaseComponent component)
+    {
+        super.addExtra( component );
+        return this;
+    }
+
+    @Override
+    public TextComponent setClickEvent(ClickEvent clickEvent) {
+        super.setClickEvent( clickEvent );
+        return this;
+    }
+
+    @Override
+    public TextComponent setHoverEvent(HoverEvent hoverEvent) {
+        super.setHoverEvent( hoverEvent );
+        return this;
     }
 
     @Override

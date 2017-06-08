@@ -4,12 +4,14 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.ArrayList;
 import java.util.List;
 import lombok.ToString;
 
+@Accessors(chain = true)
 @Setter
 @ToString(exclude = "parent")
 @NoArgsConstructor
@@ -300,13 +302,19 @@ public abstract class BaseComponent
         return obfuscated;
     }
 
-    public void setExtra(List<BaseComponent> components)
+    /**
+     * Appended components that inherit this component's formatting and events
+     *
+     * @param components the components
+     */
+    public BaseComponent setExtra(List<BaseComponent> components)
     {
         for ( BaseComponent component : components )
         {
             component.parent = this;
         }
         extra = components;
+        return this;
     }
 
     /**
@@ -315,9 +323,9 @@ public abstract class BaseComponent
      *
      * @param text the text to append
      */
-    public void addExtra(String text)
+    public BaseComponent addExtra(String text)
     {
-        addExtra( new TextComponent( text ) );
+        return addExtra( new TextComponent( text ) );
     }
 
     /**
@@ -326,7 +334,7 @@ public abstract class BaseComponent
      *
      * @param component the component to append
      */
-    public void addExtra(BaseComponent component)
+    public BaseComponent addExtra(BaseComponent component)
     {
         if ( extra == null )
         {
@@ -334,6 +342,7 @@ public abstract class BaseComponent
         }
         component.parent = this;
         extra.add( component );
+        return this;
     }
 
     /**
