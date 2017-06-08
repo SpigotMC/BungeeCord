@@ -15,6 +15,6 @@ public class CommandBungee extends Command
     @Override
     public void execute(CommandSender sender, String[] args)
     {
-        sender.sendMessage( ChatColor.BLUE + "This server is running BungeeCaptcha version 1.8-1.12 by Leymooo(vk.com/Leymooo_s" );
+        sender.sendMessage( ChatColor.BLUE + "This server is running BungeeCaptcha version 1.8-1.12 by Leymooo(vk.com/Leymooo_s)" ); //captcha
     }
 }

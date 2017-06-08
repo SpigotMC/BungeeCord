@@ -23,7 +23,7 @@ import ru.leymooo.fakeonline.FakeOnline;
  */
 public class Configuration
 {
-    
+
     private static Configuration conf;
     @Getter
     private String wrongCaptchaKick = "wrong-captcha-kick";
@@ -48,10 +48,6 @@ public class Configuration
     private boolean underAttack = false;
     @Getter
     private boolean capthcaAfterReJoin = false;
-    @Getter
-    private boolean debug = false;
-    @Getter
-    private boolean fakeOnline = false;
     private boolean mySqlEnabled = false;
     @Getter
     private int worldType;
@@ -73,7 +69,7 @@ public class Configuration
     private double attactStartTime = 0;
     private double lastBotAttackCheck = System.currentTimeMillis();
     private AtomicInteger botCounter = new AtomicInteger();
-    
+
     public Configuration()
     {
         conf = this;
@@ -93,17 +89,17 @@ public class Configuration
         }
         this.startThread();
     }
-    
+
     public static Configuration getInstance()
     {
         return conf;
     }
-    
+
     public void addUserToMap(String name, String ip)
     {
         this.users.put( name.toLowerCase(), ip );
     }
-    
+
     public void saveIp(String name, String ip)
     {
         if ( this.capthcaAfterReJoin )
@@ -116,7 +112,7 @@ public class Configuration
         }
         this.addUserToMap( name, ip );
     }
-    
+
     public boolean needCapthca(String name, String ip)
     {
         if ( this.capthcaAfterReJoin )
@@ -147,7 +143,7 @@ public class Configuration
         }
         return !this.users.get( name.toLowerCase() ).equalsIgnoreCase( ip );
     }
-    
+
     private void load(net.md_5.bungee.config.Configuration config)
     {
         this.wrongCaptchaKick = ChatColor.translateAlternateColorCodes( '&', config.getString( wrongCaptchaKick ) );
@@ -161,7 +157,6 @@ public class Configuration
         this.blur = config.getBoolean( "captcha-generator-settings.blur" );
         this.outline = config.getBoolean( "captcha-generator-settings.outline" );
         this.rotate = config.getBoolean( "captcha-generator-settings.rotate" );
-        this.debug = config.getBoolean( "debug", false );
         this.maxCaptchas = config.getInt( "max-captchas" );
         this.mode = config.getInt( "captcha-generator" );
         this.timeout = config.getInt( "max-enter-time" ) * 1000;
@@ -170,7 +165,7 @@ public class Configuration
         this.worldType = config.getInt( "world-type" );
         new FakeOnline( config.getBoolean( "fake-online.enabled" ), config.getSection( "fake-online.booster" ) );
     }
-    
+
     private net.md_5.bungee.config.Configuration checkFileAndGiveConfig() throws IOException
     {
         File file = new File( "captcha.yml" );
@@ -182,7 +177,7 @@ public class Configuration
         Files.copy( in, file.toPath() );
         return ConfigurationProvider.getProvider( YamlConfiguration.class ).load( file );
     }
-    
+
     private void startThread()
     {
         ( new Thread( new Runnable()
@@ -205,15 +200,20 @@ public class Configuration
                             getConnectedUsersSet().remove( connector );
                             continue;
                         }
-                        if ( connector.isBot() )
+                        double onlineTime = System.currentTimeMillis() - connector.getJoinTime();
+                        if ( ( onlineTime >= 6000 ) && connector.isBot() )
                         {
                             connector.getUserServer().kick( getBotKick() );
                             continue;
                         }
-                        if ( System.currentTimeMillis() - connector.getJoinTime() >= getTimeout() )
+                        if ( onlineTime >= getTimeout() )
                         {
                             connector.getUserServer().kick( getTimeOutKick() );
                             continue;
+                        }
+                        if ( !connector.isBot() )
+                        {
+                            connector.sendProgressBar();
                         }
                         connector.getUserServer().enterCapthca();
                     }

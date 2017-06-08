@@ -55,31 +55,22 @@ public class FakeServer
         con.setClientEntityId( -1 );
 
         unsafe.sendPacket( loginPacket );
-        this.reciever.debugPlayer( "Sended: ".concat( loginPacket.toString() ), false, false );
 
         unsafe.sendPacket( spawnPositionPacket );
-        this.reciever.debugPlayer( "Sended: ".concat( spawnPositionPacket.toString() ), false, false );
 
         unsafe.sendPacket( abilitiesPacket );
-        this.reciever.debugPlayer( "Sended: ".concat( abilitiesPacket.toString() ), false, false );
 
         unsafe.sendPacket( playerPositionPacket );
-        this.reciever.debugPlayer( "Sended: ".concat( playerPositionPacket.toString() ), false, false );
 
         unsafe.sendPacket( chunkPacket );
-        this.reciever.debugPlayer( "Sended: ".concat( chunkPacket.toString() ), false, false );
 
         unsafe.sendPacket( setSlotPacket );
-        this.reciever.debugPlayer( "Sended: ".concat( setSlotPacket.toString() ), false, false );
 
         unsafe.sendPacket( keepAlivePacket );
-        this.reciever.debugPlayer( "Sended: ".concat( keepAlivePacket.toString() ), false, false );
 
         unsafe.sendPacket( transactionPacket );
-        this.reciever.debugPlayer( "Sended: ".concat( transactionPacket.toString() ), false, false );
 
         unsafe.sendPacket( entityEffectPacket );
-        this.reciever.debugPlayer( "Sended: ".concat( entityEffectPacket.toString() ), false, false );
 
         if ( con.getPendingConnection().getHandshake().getProtocolVersion() <= 47 )
         {
@@ -97,8 +88,6 @@ public class FakeServer
         this.captchaAnswer = (String) captcha[0];
         channel.write( ( (ByteBuf) captcha[1] ).copy() );
         channel.flush();
-        this.reciever.debugPlayer( "Sended capthca map packet. Answer is ".concat( this.captchaAnswer ), false, false );
-
     }
 
     public void captchaEnter(Chat chat)
@@ -125,7 +114,6 @@ public class FakeServer
 
     public void kick(String reason)
     {
-        this.reciever.debugPlayer( "Disconnected with: ".concat( reason ), false, false );
         this.reciever.getUserConnection().disconnect( reason );
     }
 }
