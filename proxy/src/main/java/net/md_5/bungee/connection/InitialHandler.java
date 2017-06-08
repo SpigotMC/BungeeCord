@@ -578,6 +578,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
+    public boolean isOnline(){
+        return !ch.isClosed();
+    }
+
+    @Override
     public Unsafe unsafe()
     {
         return unsafe;
