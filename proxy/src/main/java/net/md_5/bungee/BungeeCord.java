@@ -276,6 +276,7 @@ public class BungeeCord extends ProxyServer
         {
             connectionThrottle = new ConnectionThrottle( config.getThrottle() );
         }
+
         startListeners();
 
         saveThread.scheduleAtFixedRate( new TimerTask()
