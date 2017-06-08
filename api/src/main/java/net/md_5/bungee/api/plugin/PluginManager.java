@@ -54,7 +54,6 @@ public class PluginManager
     private final Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
     private final Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
 
-    @SuppressWarnings("unchecked")
     public PluginManager(ProxyServer proxy)
     {
         this.proxy = proxy;
@@ -295,12 +294,11 @@ public class PluginManager
         // do actual loading
         if ( status )
         {
-            try
-            {
-                URLClassLoader loader = new PluginClassloader( new URL[]
+            try (URLClassLoader loader = new PluginClassloader( new URL[]
                 {
                     plugin.getFile().toURI().toURL()
-                } );
+                } ))
+            {
                 Class<?> main = loader.loadClass( plugin.getMain() );
                 Plugin clazz = (Plugin) main.getDeclaredConstructor().newInstance();
 

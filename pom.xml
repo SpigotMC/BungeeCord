@@ -9,18 +9,18 @@
         <version>9</version>
     </parent>
 
-    <groupId>net.md-5</groupId>
+    <groupId>eu.letsmine</groupId>
     <artifactId>bungeecord-parent</artifactId>
     <version>1.12-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>BungeeCord-Parent</name>
     <description>Parent project for all BungeeCord modules.</description>
-    <url>https://github.com/SpigotMC/BungeeCord</url>
+    <url>https://github.com/Letsmine/BungeeCord</url>
     <inceptionYear>2012</inceptionYear>
     <organization>
-        <name>SpigotMC</name>
-        <url>https://github.com/SpigotMC</url>
+        <name>Letsmine</name>
+        <url>https://github.com/Letsmine</url>
     </organization>
     <licenses>
         <license>
@@ -33,6 +33,9 @@
     <developers>
         <developer>
             <id>md_5</id>
+        </developer>
+        <developer>
+            <id>KleinCrafter</id>
         </developer>
     </developers>
 
@@ -57,18 +60,14 @@
     </scm>
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/SpigotMC/BungeeCord/issues</url>
+        <url>https://github.com/Letsmine/BungeeCord/issues</url>
     </issueManagement>
-    <ciManagement>
-        <system>jenkins</system>
-        <url>http://ci.md-5.net/job/BungeeCord</url>
-    </ciManagement>
 
     <properties>
         <build.number>unknown</build.number>
         <netty.version>4.1.9.Final</netty.version>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 

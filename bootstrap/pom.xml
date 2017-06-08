@@ -4,29 +4,29 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>net.md-5</groupId>
+        <groupId>eu.letsmine</groupId>
         <artifactId>bungeecord-parent</artifactId>
         <version>1.12-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <groupId>net.md-5</groupId>
+    <groupId>eu.letsmine</groupId>
     <artifactId>bungeecord-bootstrap</artifactId>
     <version>1.12-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>BungeeCord-Bootstrap</name>
-    <description>Java 1.6 loader for BungeeCord</description>
+    <description>Java 1.8 loader for BungeeCord</description>
 
     <properties>
-        <maven.compiler.source>1.6</maven.compiler.source>
-        <maven.compiler.target>1.6</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>net.md-5</groupId>
+            <groupId>eu.letsmine</groupId>
             <artifactId>bungeecord-proxy</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>

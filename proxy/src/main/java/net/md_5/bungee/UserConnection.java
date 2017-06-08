@@ -55,7 +55,6 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
-import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
@@ -299,7 +298,6 @@ public final class UserConnection implements ProxiedPlayer
         ChannelFutureListener listener = new ChannelFutureListener()
         {
             @Override
-            @SuppressWarnings("ThrowableResultIgnored")
             public void operationComplete(ChannelFuture future) throws Exception
             {
                 if ( callback != null )

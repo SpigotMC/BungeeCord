@@ -2,7 +2,6 @@ package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
 import java.net.InetSocketAddress;
-import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

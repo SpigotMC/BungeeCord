@@ -4,13 +4,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>net.md-5</groupId>
+        <groupId>eu.letsmine</groupId>
         <artifactId>bungeecord-parent</artifactId>
         <version>1.12-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <groupId>net.md-5</groupId>
+    <groupId>eu.letsmine</groupId>
     <artifactId>bungeecord-api</artifactId>
     <version>1.12-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -20,25 +20,25 @@
 
     <dependencies>
         <dependency>
-            <groupId>net.md-5</groupId>
+            <groupId>eu.letsmine</groupId>
             <artifactId>bungeecord-chat</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>net.md-5</groupId>
+            <groupId>eu.letsmine</groupId>
             <artifactId>bungeecord-config</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>net.md-5</groupId>
+            <groupId>eu.letsmine</groupId>
             <artifactId>bungeecord-event</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>net.md-5</groupId>
+            <groupId>eu.letsmine</groupId>
             <artifactId>bungeecord-protocol</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>

@@ -15,10 +15,6 @@ public class BungeeLogger extends Logger
     private final Formatter formatter = new ConciseFormatter();
     private final LogDispatcher dispatcher = new LogDispatcher( this );
 
-    @SuppressWarnings(
-            {
-                "CallToPrintStackTrace", "CallToThreadStartDuringObjectConstruction"
-            })
     @SuppressFBWarnings("SC_START_IN_CTOR")
     public BungeeLogger(String loggerName, String filePattern, ConsoleReader reader)
     {
