@@ -146,6 +146,12 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9_4, 0x47 ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x49 )
             );
+            TO_CLIENT.registerPacket(
+                    SetCompression.class,
+                    map( ProtocolConstants.MINECRAFT_1_7_2, 0x46 , false ),
+                    map( ProtocolConstants.MINECRAFT_1_7_6, 0x46 , false ),
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x46 , false )
+            );
 
             TO_SERVER.registerPacket(
                     KeepAlive.class,
@@ -287,10 +293,14 @@ public enum Protocol
     private static class ProtocolMapping {
         private final int protocolVersion;
         private final int packetID;
+        private final boolean inherit;
     }
     // Helper method
     private static ProtocolMapping map(int protocol, int id) {
-        return new ProtocolMapping(protocol, id);
+        return map(protocol, id, true);
+    }
+    private static ProtocolMapping map(int protocol, int id, boolean inherit) {
+        return new ProtocolMapping(protocol, id, inherit);
     }
 
     @RequiredArgsConstructor
@@ -307,7 +317,11 @@ public enum Protocol
         }
         private final TIntObjectMap<List<Integer>> linkedProtocols = new TIntObjectHashMap<>();
         {
+            linkedProtocols.put( ProtocolConstants.MINECRAFT_1_7_2, Arrays.asList(
+                    ProtocolConstants.MINECRAFT_1_7_6
+            ));
             linkedProtocols.put( ProtocolConstants.MINECRAFT_1_8, Arrays.asList(
+                    ProtocolConstants.MINECRAFT_1_7_2,
                     ProtocolConstants.MINECRAFT_1_9,
                     ProtocolConstants.MINECRAFT_1_12
             ) );
@@ -369,20 +383,23 @@ public enum Protocol
                     data.packetMap.put( packetClass, mapping.packetID );
                     data.packetConstructors[mapping.packetID] = constructor;
 
-                    List<Integer> links = linkedProtocols.get( mapping.protocolVersion );
-                    if ( links != null )
+                    if (mapping.inherit)
                     {
-                        links: for ( int link : links )
+                        List<Integer> links = linkedProtocols.get( mapping.protocolVersion );
+                        if ( links != null )
                         {
-                            // Check for manual mappings
-                            for ( ProtocolMapping m : mappings )
+                            links: for ( int link : links )
                             {
-                                if ( m == mapping ) continue;
-                                if ( m.protocolVersion == link ) continue links;
-                                List<Integer> innerLinks = linkedProtocols.get( m.protocolVersion );
-                                if ( innerLinks != null && innerLinks.contains( link ) ) continue links;
+                                // Check for manual mappings
+                                for ( ProtocolMapping m : mappings )
+                                {
+                                    if ( m == mapping ) continue;
+                                    if ( m.protocolVersion == link ) continue links;
+                                    List<Integer> innerLinks = linkedProtocols.get( m.protocolVersion );
+                                    if ( innerLinks != null && innerLinks.contains( link ) ) continue links;
+                                }
+                                registerPacket( packetClass, map( link, mapping.packetID ) );
                             }
-                            registerPacket( packetClass, map( link, mapping.packetID ) );
                         }
                     }
                 }

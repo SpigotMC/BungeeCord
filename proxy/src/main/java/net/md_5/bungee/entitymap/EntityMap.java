@@ -29,6 +29,10 @@ public abstract class EntityMap
     {
         switch ( version )
         {
+            case ProtocolConstants.MINECRAFT_1_7_2:
+                return EntityMap_1_7_2.INSTANCE;
+            case ProtocolConstants.MINECRAFT_1_7_6:
+                return EntityMap_1_7_6.INSTANCE;
             case ProtocolConstants.MINECRAFT_1_8:
                 return EntityMap_1_8.INSTANCE;
             case ProtocolConstants.MINECRAFT_1_9:
@@ -208,12 +212,14 @@ public abstract class EntityMap
         int packetId = DefinedPacket.readVarInt( packet );
         int packetIdLength = packet.readerIndex() - readerIndex;
 
-        if ( ints[packetId] )
-        {
-            rewriteInt( packet, oldId, newId, readerIndex + packetIdLength );
-        } else if ( varints[packetId] )
-        {
-            rewriteVarInt( packet, oldId, newId, readerIndex + packetIdLength );
+        if(packetId>=0) {
+            if ( ints[ packetId ] )
+            {
+                rewriteInt( packet, oldId, newId, readerIndex + packetIdLength );
+            } else if ( varints[ packetId ] )
+            {
+                rewriteVarInt( packet, oldId, newId, readerIndex + packetIdLength );
+            }
         }
         packet.readerIndex( readerIndex );
     }

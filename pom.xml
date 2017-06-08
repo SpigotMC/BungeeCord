@@ -16,7 +16,7 @@
 
     <name>BungeeCord-Parent</name>
     <description>Parent project for all BungeeCord modules.</description>
-    <url>https://github.com/SpigotMC/BungeeCord</url>
+    <url>https://github.com/HexagonMC/BungeeCord</url>
     <inceptionYear>2012</inceptionYear>
     <organization>
         <name>SpigotMC</name>
@@ -33,6 +33,12 @@
     <developers>
         <developer>
             <id>md_5</id>
+        </developer>
+        <developer>
+            <id>Zartec</id>
+        </developer>
+        <developer>
+            <id>ghac</id>
         </developer>
     </developers>
 
@@ -51,17 +57,17 @@
     </modules>
 
     <scm>
-        <connection>scm:git:git@github.com:SpigotMC/BungeeCord.git</connection>
-        <developerConnection>scm:git:git@github.com:SpigotMC/BungeeCord.git</developerConnection>
-        <url>git@github.com:SpigotMC/BungeeCord.git</url>
+        <connection>scm:git:git@github.com:HexagonMC/BungeeCord.git</connection>
+        <developerConnection>scm:git:git@github.com:HexagonMC/BungeeCord.git</developerConnection>
+        <url>git@github.com:HexagonMC/BungeeCord.git</url>
     </scm>
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/SpigotMC/BungeeCord/issues</url>
+        <url>https://github.com/HexagonMC/BungeeCord/issues</url>
     </issueManagement>
     <ciManagement>
-        <system>jenkins</system>
-        <url>http://ci.md-5.net/job/BungeeCord</url>
+        <system>travis-ci</system>
+        <url>https://travis-ci.org/HexagonMC/BungeeCord</url>
     </ciManagement>
 
     <properties>
