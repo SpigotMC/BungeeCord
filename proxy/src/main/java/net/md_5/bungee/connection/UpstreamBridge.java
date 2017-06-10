@@ -6,6 +6,7 @@ import java.util.List;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
+import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
@@ -69,9 +70,9 @@ public class UpstreamBridge extends PacketHandler
             PlayerListItem.Item item = new PlayerListItem.Item();
             item.setUuid( con.getUniqueId() );
             packet.setItems( new PlayerListItem.Item[]
-            {
-                item
-            } );
+                    {
+                            item
+                    } );
             for ( ProxiedPlayer player : con.getServer().getInfo().getPlayers() )
             {
                 player.unsafe().sendPacket( packet );
@@ -108,20 +109,29 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(Chat chat) throws Exception
+    public void handle(final Chat chat) throws Exception
     {
         int maxLength = ( con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_11 ) ? 256 : 100;
         Preconditions.checkArgument( chat.getMessage().length() <= maxLength, "Chat message too long" ); // Mojang limit, check on updates
 
-        ChatEvent chatEvent = new ChatEvent( con, con.getServer(), chat.getMessage() );
-        if ( !bungee.getPluginManager().callEvent( chatEvent ).isCancelled() )
+        Callback<ChatEvent> complete = new Callback<ChatEvent>()
         {
-            chat.setMessage( chatEvent.getMessage() );
-            if ( !chatEvent.isCommand() || !bungee.getPluginManager().dispatchCommand( con, chat.getMessage().substring( 1 ) ) )
+            @Override
+            public void done(ChatEvent result, Throwable error)
             {
-                con.getServer().unsafe().sendPacket( chat );
+                if(!result.isCancelled()) {
+                    chat.setMessage( result.getMessage() );
+                    if( !result.isCommand() || !bungee.getPluginManager().dispatchCommand( con, chat.getMessage().substring( 1 ) ) ) {
+                        if(con.getServer() == null || con.getServer().getCh() == null) {
+                            return;
+                        }
+                        con.getServer().unsafe().sendPacket( chat );
+                    }
+                }
             }
-        }
+        };
+
+        bungee.getPluginManager().callEvent( new ChatEvent( con, con.getServer(), chat.getMessage(), complete ) );
         throw CancelSendSignal.INSTANCE;
     }
 
