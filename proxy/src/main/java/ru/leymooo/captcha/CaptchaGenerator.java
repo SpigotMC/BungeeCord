@@ -91,6 +91,7 @@ public class CaptchaGenerator
                 BungeeCord.getInstance().getLogger().log( Level.WARNING, "Please write me about this error(vk.com/Leymooo_s)", e );
             }
         }
+        executor.shutdown();
     }
 
     private final GCage localGCage = new GCage();

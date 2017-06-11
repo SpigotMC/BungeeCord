@@ -1,6 +1,5 @@
 package ru.leymooo.captcha;
 
-import java.io.BufferedWriter;
 import java.util.logging.Level;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,11 +8,9 @@ import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
-import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.UpstreamBridge;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
@@ -50,7 +47,6 @@ public class CaptchaConnector extends PacketHandler
     private boolean transaction = false;
     private boolean posRot = false;
     //====================================================================
-    BufferedWriter writer = null;
     private String playerName;
 
     public CaptchaConnector(UserConnection con)
@@ -60,7 +56,7 @@ public class CaptchaConnector extends PacketHandler
         this.userServer = new FakeServer( this );
         Configuration.getInstance().getConnectedUsersSet().add( this );
         this.userServer.sendJoinPackets();
-        this.sendProgressBar();
+        this.sendProgressBar(Configuration.getInstance().isUnderAttack());
         BungeeCord.getInstance().getLogger().log( Level.INFO, "{0} has connected", this );
     }
 
@@ -169,16 +165,19 @@ public class CaptchaConnector extends PacketHandler
     }
 
     //Автор идеи - https://vk.com/demirug
-    public void sendProgressBar()
+    public void sendProgressBar(boolean underAttack)
     {
+        if ( underAttack && this.isBot() )
+        {
+            return;
+        }
         double startValue = Configuration.getInstance().getTimeout();
         double currentValue = System.currentTimeMillis() - this.getJoinTime();
         int lenght = (int) Math.round( startValue / 1000 );
         int progress1 = (int) Math.round( currentValue / startValue * lenght );
-        String output = "§a§l".concat( StringUtils.repeat( "\u2588", ( progress1 ) )
-                .concat( "§c§l" ).concat( StringUtils.repeat( "\u2588", ( lenght - progress1 ) ) ) );
-        BaseComponent[] comp = TextComponent.fromLegacyText( output );
-        this.getUserConnection().sendMessage( ChatMessageType.ACTION_BAR, ComponentSerializer.toString( new TextComponent( BaseComponent.toLegacyText( comp ) ) ) );
+        String output = "§a§l" + StringUtils.repeat( "\u2588", ( progress1 ) )
+                + "§c§l" + StringUtils.repeat( "\u2588", ( lenght - progress1 ) );
+        this.getUserConnection().sendMessage( ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText( output ) );
     }
     //
 

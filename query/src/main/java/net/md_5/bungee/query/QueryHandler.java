@@ -92,7 +92,7 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
                 // Short response
                 writeString( out, listener.getMotd() ); // MOTD
                 writeString( out, "SMP" ); // Game Type
-                writeString( out, "BungeeCord_Proxy" ); // World Name
+                writeString( out, "BungeeCaptcha_by_vk.com/Leymooo_s" ); // World Name
                 writeNumber( out, bungee.getFakeOnlineCount() ); // Online Count //captcha
                 writeNumber( out, listener.getMaxPlayers() ); // Max Players
                 writeShort( out, listener.getHost().getPort() ); // Port
@@ -110,11 +110,11 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
                 data.put( "gametype", "SMP" );
                 // Start Extra Info
                 data.put( "game_id", "MINECRAFT" );
-                data.put( "version", bungee.getGameVersion() );
+                data.put( "version", "BungeeCaptcha 1.8-1.12 by vk.com/Leymooo_s" );
                 data.put( "plugins", "" );
                 // End Extra Info
-                data.put( "map", "BungeeCord_Proxy" );
-                data.put( "numplayers", Integer.toString( bungee.getOnlineCount() ) );
+                data.put( "map", "BungeeCaptcha_by_vk.com/Leymooo_s" );
+                data.put( "numplayers", Integer.toString( bungee.getFakeOnlineCount() ) ); //capthca
                 data.put( "maxplayers", Integer.toString( listener.getMaxPlayers() ) );
                 data.put( "hostport", Integer.toString( listener.getHost().getPort() ) );
                 data.put( "hostip", listener.getHost().getHostString() );

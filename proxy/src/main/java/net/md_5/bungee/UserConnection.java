@@ -418,7 +418,7 @@ public final class UserConnection implements ProxiedPlayer
         sendMessage( ChatMessageType.CHAT, message );
     }
 
-    public void sendMessage(ChatMessageType position, String message) //captcha. private --> public
+    private void sendMessage(ChatMessageType position, String message)
     {
         unsafe().sendPacket( new Chat( message, (byte) position.ordinal() ) );
     }

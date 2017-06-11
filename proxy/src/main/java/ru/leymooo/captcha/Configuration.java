@@ -44,9 +44,6 @@ public class Configuration
     @Getter
     private boolean rotate = true;
     @Getter
-    @Setter
-    private boolean underAttack = false;
-    @Getter
     private boolean capthcaAfterReJoin = false;
     private boolean mySqlEnabled = false;
     @Getter
@@ -66,7 +63,7 @@ public class Configuration
     @Getter
     private final Set<CaptchaConnector> connectedUsersSet = Sets.newConcurrentHashSet();
     //=========Такая реализация скорее всего лучше, чем использование thread======//
-    private double attactStartTime = 0;
+    private double attackStartTime = 0;
     private double lastBotAttackCheck = System.currentTimeMillis();
     private AtomicInteger botCounter = new AtomicInteger();
 
@@ -113,30 +110,41 @@ public class Configuration
         this.addUserToMap( name, ip );
     }
 
+    public boolean isUnderAttack()
+    {
+        //Проверяем включён ли режим 'под атакой'
+        if ( System.currentTimeMillis() - this.attackStartTime < this.underAttackTime )
+        {
+            return true;
+        }
+        //Проверяем что не прошло 6.5 секунд после последней проверки на бот атаку и проверяем есть ли бот атака.
+        if ( ( System.currentTimeMillis() - this.lastBotAttackCheck <= 6500 ) && this.botCounter.incrementAndGet() >= 205 )
+        {
+            this.attackStartTime = System.currentTimeMillis();
+            this.lastBotAttackCheck = System.currentTimeMillis();
+            return true;
+        }
+        if ( System.currentTimeMillis() - this.lastBotAttackCheck >= 6500 )
+        {
+            this.lastBotAttackCheck = System.currentTimeMillis();
+            this.botCounter.set( 0 );
+        }
+        return false;
+    }
+
     public boolean needCapthca(String name, String ip)
     {
         if ( this.capthcaAfterReJoin )
         {
             return true;
         }
-        //Проверяем включён ли режим 'под атакой'
-        if ( System.currentTimeMillis() - this.attactStartTime < this.underAttackTime )
+        if ( isUnderAttack() )
         {
             return true;
         }
-        //Проверяем что не прошло 5 секунд после последней проверки на бот атаку и проверяем есть ли бот атака.
-        if ( ( System.currentTimeMillis() - this.lastBotAttackCheck <= 5000 ) && this.botCounter.incrementAndGet() >= 130 )
-        {
-            this.attactStartTime = System.currentTimeMillis();
-            this.lastBotAttackCheck = System.currentTimeMillis();
-            return true;
-        }
+
         this.botCounter.incrementAndGet();
-        if ( System.currentTimeMillis() - this.lastBotAttackCheck >= 5000 )
-        {
-            this.lastBotAttackCheck = System.currentTimeMillis();
-            this.botCounter.set( 0 );
-        }
+
         if ( !this.users.containsKey( name.toLowerCase() ) )
         {
             return true;
@@ -201,7 +209,7 @@ public class Configuration
                             continue;
                         }
                         double onlineTime = System.currentTimeMillis() - connector.getJoinTime();
-                        if ( ( onlineTime >= 6000 ) && connector.isBot() )
+                        if ( ( onlineTime >= 6000 ) && connector.isBot() && isUnderAttack() )
                         {
                             connector.getUserServer().kick( getBotKick() );
                             continue;
@@ -211,11 +219,8 @@ public class Configuration
                             connector.getUserServer().kick( getTimeOutKick() );
                             continue;
                         }
-                        if ( !connector.isBot() )
-                        {
-                            connector.sendProgressBar();
-                        }
-                        connector.getUserServer().enterCapthca();
+                        connector.sendProgressBar(isUnderAttack());
+                        connector.getUserServer().sendEnterCapthcaMsg();
                     }
                 }
             }

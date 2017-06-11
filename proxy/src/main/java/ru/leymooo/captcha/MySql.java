@@ -105,7 +105,7 @@ public class MySql
 
     public void addAddress(String name, String ip)
     {
-        this.execute( "INSERT INTO `Whitelist_new` (`Name`,`Ip`) VALUES ('" + name + "','" + ip + "') ON DUPLICATE KEY UPDATE `Ip`='"+ip+"';" );
+        this.execute( "INSERT INTO `Whitelist_new` (`Name`,`Ip`) VALUES ('" + name + "','" + ip + "') ON DUPLICATE KEY UPDATE `Ip`='" + ip + "';" );
     }
 
     private void close() throws SQLException
@@ -131,10 +131,11 @@ public class MySql
             System.out.println( "[SQL] Connect to " + this.host );
             long start = System.currentTimeMillis();
 
-            this.connection = DriverManager.getConnection( "JDBC:mysql://" + this.host + ":"+this.port+"/" + this.database, this.user, this.password );
+            this.connection = DriverManager.getConnection( "JDBC:mysql://" + this.host + ":" + this.port + "/" + this.database, this.user, this.password );
             System.out.println( "[SQL] Connected [" + ( System.currentTimeMillis() - start ) + " ms]" );
         }
     }
+    int tries = 0;
 
     private void execute(final String sql)
     {
@@ -167,7 +168,15 @@ public class MySql
                     }
                 } catch ( SQLException sqlexception )
                 {
-                    sqlexception.printStackTrace();
+                    if ( tries >= 2 )
+                    {
+                        tries = 0;
+                        sqlexception.printStackTrace();
+                    } else
+                    {
+                        tries = tries + 1;
+                        execute( sql );
+                    }
                 }
 
             }

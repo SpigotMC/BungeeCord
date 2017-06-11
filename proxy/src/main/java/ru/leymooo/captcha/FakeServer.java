@@ -55,21 +55,13 @@ public class FakeServer
         con.setClientEntityId( -1 );
 
         unsafe.sendPacket( loginPacket );
-
         unsafe.sendPacket( spawnPositionPacket );
-
         unsafe.sendPacket( abilitiesPacket );
-
         unsafe.sendPacket( playerPositionPacket );
-
         unsafe.sendPacket( chunkPacket );
-
         unsafe.sendPacket( setSlotPacket );
-
         unsafe.sendPacket( keepAlivePacket );
-
         unsafe.sendPacket( transactionPacket );
-
         unsafe.sendPacket( entityEffectPacket );
 
         if ( con.getPendingConnection().getHandshake().getProtocolVersion() <= 47 )
@@ -93,7 +85,7 @@ public class FakeServer
     public void captchaEnter(Chat chat)
     {
         String msg = chat.getMessage().replace( "/", "" );
-        if ( this.reciever.isBot() || msg.length() >= 5 || !this.captchaAnswer.equalsIgnoreCase( msg ) )
+        if ( (Configuration.getInstance().isUnderAttack() && this.reciever.isBot()) || msg.length() >= 5 || !this.captchaAnswer.equalsIgnoreCase( msg ) )
         {
             if ( --this.retries == 0 )
             {
@@ -107,7 +99,7 @@ public class FakeServer
         this.reciever.finish();
     }
 
-    public void enterCapthca()
+    public void sendEnterCapthcaMsg()
     {
         this.reciever.getUserConnection().sendMessage( Configuration.getInstance().getEnterCaptcha() );
     }
