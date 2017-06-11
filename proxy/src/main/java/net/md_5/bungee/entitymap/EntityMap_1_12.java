@@ -24,14 +24,14 @@ class EntityMap_1_12 extends EntityMap
         addRewrite( 0x05, ProtocolConstants.Direction.TO_CLIENT, true ); // Spawn Player : PacketPlayOutNamedEntitySpawn
         addRewrite( 0x06, ProtocolConstants.Direction.TO_CLIENT, true ); // Animation : PacketPlayOutAnimation
         addRewrite( 0x08, ProtocolConstants.Direction.TO_CLIENT, true ); // Block Break Animation : PacketPlayOutBlockBreakAnimation
-        addRewrite( 0x1C, ProtocolConstants.Direction.TO_CLIENT, false ); // Entity Status : PacketPlayOutEntityStatus
+        addRewrite( 0x1B, ProtocolConstants.Direction.TO_CLIENT, false ); // Entity Status : PacketPlayOutEntityStatus
+        addRewrite( 0x25, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity : PacketPlayOutEntity
         addRewrite( 0x26, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Relative Move : PacketPlayOutRelEntityMove
         addRewrite( 0x27, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Look and Relative Move : PacketPlayOutRelEntityMoveLook
         addRewrite( 0x28, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Look : PacketPlayOutEntityLook
-        addRewrite( 0x29, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity : PacketPlayOutEntity
-        addRewrite( 0x30, ProtocolConstants.Direction.TO_CLIENT, true ); // Use bed : PacketPlayOutBed
-        addRewrite( 0x33, ProtocolConstants.Direction.TO_CLIENT, true ); // Remove Entity Effect : PacketPlayOutRemoveEntityEffect
-        addRewrite( 0x36, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Head Look : PacketPlayOutEntityHeadRotation
+        addRewrite( 0x2F, ProtocolConstants.Direction.TO_CLIENT, true ); // Use bed : PacketPlayOutBed
+        addRewrite( 0x32, ProtocolConstants.Direction.TO_CLIENT, true ); // Remove Entity Effect : PacketPlayOutRemoveEntityEffect
+        addRewrite( 0x35, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Head Look : PacketPlayOutEntityHeadRotation
         addRewrite( 0x38, ProtocolConstants.Direction.TO_CLIENT, true ); // Camera : PacketPlayOutCamera
         addRewrite( 0x3B, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Metadata : PacketPlayOutEntityMetadata
         addRewrite( 0x3C, ProtocolConstants.Direction.TO_CLIENT, false ); // Attach Entity : PacketPlayOutAttachEntity
@@ -40,8 +40,8 @@ class EntityMap_1_12 extends EntityMap
         addRewrite( 0x42, ProtocolConstants.Direction.TO_CLIENT, true ); // Set Passengers : PacketPlayOutMount
         addRewrite( 0x4A, ProtocolConstants.Direction.TO_CLIENT, true ); // Collect Item : PacketPlayOutCollect
         addRewrite( 0x4B, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Teleport : PacketPlayOutEntityTeleport
-        addRewrite( 0x4C, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Properties : PacketPlayOutUpdateAttributes
-        addRewrite( 0x4D, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Effect : PacketPlayOutEntityEffect
+        addRewrite( 0x4D, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Properties : PacketPlayOutUpdateAttributes
+        addRewrite( 0x4E, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Effect : PacketPlayOutEntityEffect
 
         addRewrite( 0x0B, ProtocolConstants.Direction.TO_SERVER, true ); // Use Entity : PacketPlayInUseEntity
         addRewrite( 0x15, ProtocolConstants.Direction.TO_SERVER, true ); // Entity Action : PacketPlayInEntityAction
@@ -71,7 +71,7 @@ class EntityMap_1_12 extends EntityMap
                 DefinedPacket.readVarInt( packet );
                 jumpIndex = packet.readerIndex();
             // Fall through on purpose to int array of IDs
-            case 0x32 /* Destroy Entities : PacketPlayOutEntityDestroy */:
+            case 0x31 /* Destroy Entities : PacketPlayOutEntityDestroy */:
                 int count = DefinedPacket.readVarInt( packet );
                 int[] ids = new int[ count ];
                 for ( int i = 0; i < count; i++ )
@@ -132,7 +132,7 @@ class EntityMap_1_12 extends EntityMap
                     packet.writerIndex( previous );
                 }
                 break;
-            case 0x2D /* Combat Event : PacketPlayOutCombatEvent */:
+            case 0x2C /* Combat Event : PacketPlayOutCombatEvent */:
                 int event = packet.readUnsignedByte();
                 if ( event == 1 /* End Combat*/ )
                 {
@@ -164,7 +164,7 @@ class EntityMap_1_12 extends EntityMap
         int packetId = DefinedPacket.readVarInt( packet );
         int packetIdLength = packet.readerIndex() - readerIndex;
 
-        if ( packetId == 0x1D /* Spectate : PacketPlayInSpectate */ && !BungeeCord.getInstance().getConfig().isIpForward() )
+        if ( packetId == 0x1E /* Spectate : PacketPlayInSpectate */ && !BungeeCord.getInstance().getConfig().isIpForward() )
         {
             UUID uuid = DefinedPacket.readUUID( packet );
             ProxiedPlayer player;
