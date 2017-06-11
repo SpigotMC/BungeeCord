@@ -259,7 +259,7 @@ public class BungeeCord extends ProxyServer
         System.out.print( "Captcha Hooked" );
         new ru.leymooo.captcha.Configuration();
         new CaptchaGenerator();
-        //capthca end
+        //captcha end
         eventLoops = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
 
         File moduleDirectory = new File( "modules" );
@@ -520,7 +520,7 @@ public class BungeeCord extends ProxyServer
         return connections.size();
     }
 
-    //capthca start
+    //captcha start
     @Override
     public int getOnlineCountWithCapthcaConnects()
     {
@@ -532,7 +532,7 @@ public class BungeeCord extends ProxyServer
     {
         return FakeOnline.getInstance().getFakeOnline();
     }
-    //capthca end
+    //captcha end
 
     @Override
     public ProxiedPlayer getPlayer(String name)

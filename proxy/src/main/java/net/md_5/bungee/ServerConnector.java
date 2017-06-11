@@ -204,7 +204,7 @@ public class ServerConnector extends PacketHandler
             user.setDimension( login.getDimension() );
         } else
         {
-            //capthca start
+            //captcha start
             if (user.getServer() != null) {
                 user.getServer().setObsolete(true);
             }

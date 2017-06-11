@@ -41,7 +41,7 @@ public abstract class AbstractPacketHandler
     {
     }
     
-    //capthca statrt
+    //captcha statrt
     public void handle(ConfirmTransaction transaction) throws Exception
     {
     }

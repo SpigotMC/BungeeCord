@@ -114,7 +114,7 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
                 data.put( "plugins", "" );
                 // End Extra Info
                 data.put( "map", "BungeeCaptcha_by_vk.com/Leymooo_s" );
-                data.put( "numplayers", Integer.toString( bungee.getFakeOnlineCount() ) ); //capthca
+                data.put( "numplayers", Integer.toString( bungee.getFakeOnlineCount() ) ); //captcha
                 data.put( "maxplayers", Integer.toString( listener.getMaxPlayers() ) );
                 data.put( "hostport", Integer.toString( listener.getHost().getPort() ) );
                 data.put( "hostip", listener.getHost().getHostString() );

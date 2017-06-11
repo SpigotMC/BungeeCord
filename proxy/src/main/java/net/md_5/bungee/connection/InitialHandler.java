@@ -288,7 +288,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         this.virtualHost = InetSocketAddress.createUnresolved( handshake.getHost(), handshake.getPort() );
-        //bungee.getLogger().log( Level.INFO, "{0} has connected", this ); //capthca. Hide initial handler in log for ping
+        //bungee.getLogger().log( Level.INFO, "{0} has connected", this ); //captcha. Hide initial handler in log for ping
 
         bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
 
