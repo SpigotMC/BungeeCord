@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
 
 /**
  *
- * @author Скорее всего Yooxa)
+ * @author Jampire
  */
 public class MySql
 {
@@ -22,11 +22,9 @@ public class MySql
     private String user;
     private String password;
     private String port;
-    private final Object sosok;
 
     public MySql(String host, String user, String password, String database, String port)
     {
-        this.sosok = new Object();
         this.host = host;
         this.user = user;
         this.password = password;
@@ -36,150 +34,71 @@ public class MySql
         try
         {
             this.connect();
-            this.getConnection().createStatement().executeUpdate(
-                    "CREATE TABLE IF NOT EXISTS `Whitelist_new` ("
-                    + "`Name` VARCHAR(16) NOT NULL PRIMARY KEY UNIQUE,"
-                    + "`Ip` VARCHAR(16) NOT NULL);"
-            );
+            try ( Statement st = this.getConnection().createStatement() )
+            {
+                st.executeUpdate( "CREATE TABLE IF NOT EXISTS `Whitelist_new` (`Name` VARCHAR(16) NOT NULL, `Ip` VARCHAR(16) NOT NULL, PRIMARY KEY (`player`), UNIQUE KEY (`ip`));" );
+                st.close();
+            }
+            try ( Statement statement = this.getConnection().createStatement() )
+            {
+                ResultSet rs = statement.executeQuery( "SELECT * FROM `Whitelist_new`;" );
+                while ( rs.next() )
+                {
+                    Configuration.getInstance().addUserToMap( rs.getString( "player" ), rs.getString( "ip" ) );
+                }
+                System.out.println( "[Captcha] Белый список капчи успешно загружен." );
+                statement.close();
+            }
         } catch ( SQLException ex )
         {
             ex.printStackTrace();
         }
-
-        ( new Thread( new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                try
-                {
-                    Thread.sleep( 500l );
-                    Statement statement = null;
-                    int i = 0;
-                    try
-                    {
-                        statement = getConnection().createStatement();
-                        ResultSet rs = statement.executeQuery( "SELECT * FROM `Whitelist_new`;" );
-                        while ( rs.next() )
-                        {
-                            Configuration.getInstance().addUserToMap( rs.getString( "Name" ), rs.getString( "Ip" ) );
-                            i++;
-                        }
-                        rs.close();
-                    } catch ( SQLException ex )
-                    {
-                        ex.printStackTrace();
-                    } finally
-                    {
-                        if ( statement != null )
-                        {
-                            try
-                            {
-                                statement.close();
-                            } catch ( SQLException ex )
-                            {
-                            }
-                        }
-                    }
-                    System.out.println( "[Captcha] Загружено " + i + " адресов" );
-                } catch ( InterruptedException ex )
-                {
-                }
-            }
-
-        }, "Captcha SqlStorage" ) ).start();
     }
 
     private Connection getConnection() throws SQLException
     {
-        synchronized ( this.sosok )
+        if ( this.connection == null || this.connection.isClosed() )
         {
-            if ( this.connection == null || this.connection.isClosed() )
-            {
-                this.connect();
-            }
-
-            return this.connection;
+            this.connect();
         }
+        return this.connection;
     }
 
-    public void addAddress(String name, String ip)
+    public void addAddress(final String name, final String ip)
     {
-        this.execute( "INSERT INTO `Whitelist_new` (`Name`,`Ip`) VALUES ('" + name + "','" + ip + "') ON DUPLICATE KEY UPDATE `Ip`='" + ip + "';" );
-    }
-
-    private void close() throws SQLException
-    {
-        this.connection.close();
-        this.executor.shutdownNow();
+        this.executor.execute( new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                try ( Statement statment = getConnection().createStatement() )
+                {
+                    statment.executeUpdate( "INSERT INTO `Whitelist_new` (`Name`,`Ip`) VALUES ('" + name + "','" + ip + "') ON DUPLICATE KEY UPDATE `Ip`='" + ip + "';" );
+                    statment.close();
+                } catch ( SQLException e )
+                {
+                    e.printStackTrace();
+                }
+            }
+        } );
     }
 
     private void connect() throws SQLException
     {
-        synchronized ( this.sosok )
+        try
         {
-            try
+            if ( this.connection != null )
             {
-                if ( this.connection != null )
-                {
-                    this.connection.close();
-                }
-            } catch ( Exception exception )
-            {
+                this.connection.close();
             }
-
-            System.out.println( "[SQL] Connect to " + this.host );
-            long start = System.currentTimeMillis();
-
-            this.connection = DriverManager.getConnection( "JDBC:mysql://" + this.host + ":" + this.port + "/" + this.database, this.user, this.password );
-            System.out.println( "[SQL] Connected [" + ( System.currentTimeMillis() - start ) + " ms]" );
+        } catch ( Exception ignored )
+        {
         }
-    }
-    int tries = 0;
 
-    private void execute(final String sql)
-    {
-        this.executor.execute( new Runnable()
-        {
-            public void run()
-            {
-                try
-                {
-                    Statement statment = getConnection().createStatement();
+        System.out.println( "[SQL] Connect to " + this.host );
+        long start = System.currentTimeMillis();
 
-                    try
-                    {
-                        statment.executeUpdate( sql );
-                        statment.close();
-                    } catch ( SQLException e )
-                    {
-                        e.printStackTrace();
-                    } finally
-                    {
-                        if ( statment != null && !statment.isClosed() )
-                        {
-                            try
-                            {
-                                statment.close();
-                            } catch ( SQLException e )
-                            {
-                            }
-                        }
-                    }
-                } catch ( SQLException sqlexception )
-                {
-                    if ( tries >= 2 )
-                    {
-                        tries = 0;
-                        sqlexception.printStackTrace();
-                    } else
-                    {
-                        tries = tries + 1;
-                        execute( sql );
-                    }
-                }
-
-            }
-        } );
+        this.connection = DriverManager.getConnection( "JDBC:mysql://" + this.host + ":" + this.port + "/" + this.database, this.user, this.password );
+        System.out.println( "[SQL] Connected [" + ( System.currentTimeMillis() - start ) + " ms]" );
     }
 }

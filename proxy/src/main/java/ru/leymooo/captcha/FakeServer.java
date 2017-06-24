@@ -2,7 +2,7 @@ package ru.leymooo.captcha;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.UserConnection;
@@ -25,7 +25,6 @@ public class FakeServer
     private CaptchaConnector reciever;
     private String captchaAnswer;
     private int retries = 3;
-    private static Random random = new Random();
     //========================================================================
     private static final Login loginPacket = new Login( -1, (short) 0, Configuration.getInstance().getWorldType(), (short) 0, (short) 100, "flat", false );
     private static final SpawnPosition spawnPositionPacket = new SpawnPosition( 5, 60, 5 );
@@ -35,11 +34,11 @@ public class FakeServer
     private static final EntityEffect entityEffectPacket = new EntityEffect( -1, (byte) 16, (byte) 2, 30 * 20, (byte) 0x01 );
     //========================================================================
     @Getter
-    private final ConfirmTransaction transactionPacket = new ConfirmTransaction( (byte) 0, (short) random.nextInt( Short.MAX_VALUE ), false );
+    private final ConfirmTransaction transactionPacket = new ConfirmTransaction( (byte) 0, (short) ThreadLocalRandom.current().nextInt( Short.MAX_VALUE ), false );
     @Getter
-    private final KeepAlive keepAlivePacket = new KeepAlive( random.nextInt( 9999 ) );
+    private final KeepAlive keepAlivePacket = new KeepAlive( ThreadLocalRandom.current().nextInt( 9999 ) );
     @Getter
-    private final PlayerPositionRotation playerPositionPacket = new PlayerPositionRotation( 5.0D, 50.0D, 5.0D, 90.0F, 54.2F, random.nextInt( 9999 ), false );
+    private final PlayerPositionRotation playerPositionPacket = new PlayerPositionRotation( 5.0D, 50.0D, 5.0D, 90.0F, 54.2F, ThreadLocalRandom.current().nextInt( 9999 ), false );
     //========================================================================
 
     public FakeServer(CaptchaConnector pr)

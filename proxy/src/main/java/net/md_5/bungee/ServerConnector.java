@@ -101,7 +101,6 @@ public class ServerConnector extends PacketHandler
             // TODO: Add support for this data with IP forwarding.
             copiedHandshake.setHost( copiedHandshake.getHost() + user.getExtraDataInHandshake() );
         }
-
         channel.write( copiedHandshake );
 
         channel.setProtocol( Protocol.LOGIN );

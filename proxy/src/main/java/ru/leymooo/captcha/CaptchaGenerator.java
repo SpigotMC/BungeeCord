@@ -5,9 +5,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import lombok.Getter;
@@ -30,7 +30,6 @@ public class CaptchaGenerator
 {
 
     //map cache
-    private Random rnd = new Random();
     private ByteBuf[] maps1_8;
     private ByteBuf[] maps1_9;
     @Getter
@@ -71,7 +70,7 @@ public class CaptchaGenerator
                 this.generateNew( String.valueOf( randomInt( 4 ) ), i );
                 continue;
             }
-            rndG = this.rnd.nextInt( 2 );
+            rndG = ThreadLocalRandom.current().nextInt( 2 );
             if ( rndG == 0 )
             {
                 this.generateOld( String.valueOf( randomInt( 3 ) ), i );
@@ -138,7 +137,7 @@ public class CaptchaGenerator
 
     private int randomInt(int lenght)
     {
-        return lenght == 4 ? ( this.rnd.nextInt( 9998 + 1 - 1000 ) + 1000 ) : ( this.rnd.nextInt( 999 - 100 ) + 100 );
+        return lenght == 4 ? ( ThreadLocalRandom.current().nextInt( 9998 + 1 - 1000 ) + 1000 ) : ( ThreadLocalRandom.current().nextInt( 999 - 100 ) + 100 );
     }
 
     private void saveMap(CraftMapCanvas map, int i)
@@ -165,7 +164,7 @@ public class CaptchaGenerator
 
     public Object[] getCaptchaAnswerWithPacket(int protocol)
     {
-        int pos = this.rnd.nextInt( this.answers.size() );
+        int pos = ThreadLocalRandom.current().nextInt( this.answers.size() );
         Object[] values =
         {
             this.answers.get( pos ), this.getCaptchaPacket( protocol, pos )

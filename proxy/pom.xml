@@ -17,11 +17,11 @@
 
     <name>BungeeCord-Proxy</name>
     <description>Proxy component of the Elastic Portal Suite</description>
-
+    
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
-
+     
     <dependencies>
         <dependency>
             <groupId>com.flowpowered</groupId>

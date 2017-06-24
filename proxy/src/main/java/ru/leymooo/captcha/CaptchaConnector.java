@@ -175,8 +175,8 @@ public class CaptchaConnector extends PacketHandler
         double currentValue = System.currentTimeMillis() - this.getJoinTime();
         int lenght = (int) Math.round( startValue / 1000 );
         int progress1 = (int) Math.round( currentValue / startValue * lenght );
-        String output = "§a§l" + StringUtils.repeat( "\u2588", ( progress1 ) )
-                + "§c§l" + StringUtils.repeat( "\u2588", ( lenght - progress1 ) );
+        String output = "§c§l" + StringUtils.repeat( "\u2588", ( progress1 ) )
+                + "§a§l" + StringUtils.repeat( "\u2588", ( lenght - progress1 ) );
         this.getUserConnection().sendMessage( ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText( output ) );
     }
     //
