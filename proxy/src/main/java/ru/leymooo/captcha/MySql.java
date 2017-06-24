@@ -36,7 +36,7 @@ public class MySql
             this.connect();
             try ( Statement st = this.getConnection().createStatement() )
             {
-                st.executeUpdate( "CREATE TABLE IF NOT EXISTS `Whitelist_new` (`Name` VARCHAR(16) NOT NULL, `Ip` VARCHAR(16) NOT NULL, PRIMARY KEY (`player`), UNIQUE KEY (`ip`));" );
+                st.executeUpdate( "CREATE TABLE IF NOT EXISTS `Whitelist_new` (`Name` VARCHAR(16) NOT NULL PRIMARY KEY UNIQUE, `Ip` VARCHAR(16) NOT NULL);" );
                 st.close();
             }
             try ( Statement statement = this.getConnection().createStatement() )
@@ -44,7 +44,7 @@ public class MySql
                 ResultSet rs = statement.executeQuery( "SELECT * FROM `Whitelist_new`;" );
                 while ( rs.next() )
                 {
-                    Configuration.getInstance().addUserToMap( rs.getString( "player" ), rs.getString( "ip" ) );
+                    Configuration.getInstance().addUserToMap( rs.getString( "Name" ), rs.getString( "Ip" ) );
                 }
                 System.out.println( "[Captcha] Белый список капчи успешно загружен." );
                 statement.close();
