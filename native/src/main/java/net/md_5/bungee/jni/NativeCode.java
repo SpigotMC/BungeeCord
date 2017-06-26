@@ -51,26 +51,37 @@ public final class NativeCode<T>
 
             if ( !loaded )
             {
-                try ( InputStream soFile = BungeeCipher.class.getClassLoader().getResourceAsStream( name + ".so" ) )
+                String unsatisfiedLinkError = null;
+                for ( String version : new String[]{ "1.1", "1.0.0", "" } ) // Hardcoded, but seem better than scanning jar content
                 {
-                    // Else we will create and copy it to a temp file
-                    File temp = File.createTempFile( fullName, ".so" );
-                    // Don't leave cruft on filesystem
-                    temp.deleteOnExit();
-
-                    try ( OutputStream outputStream = new FileOutputStream( temp ) )
+                    String fileName = name + ".so" + ( !version.isEmpty() ? "." + version : "" );
+                    try ( InputStream soFile = BungeeCipher.class.getClassLoader().getResourceAsStream( fileName ) )
                     {
-                        ByteStreams.copy( soFile, outputStream );
-                    }
+                        if ( soFile == null ) continue;
 
-                    System.load( temp.getPath() );
-                    loaded = true;
-                } catch ( IOException ex )
+                        // Else we will create and copy it to a temp file
+                        File temp = File.createTempFile( fullName, ".so" );
+                        // Don't leave cruft on filesystem
+                        temp.deleteOnExit();
+
+                        try ( OutputStream outputStream = new FileOutputStream( temp ) )
+                        {
+                            ByteStreams.copy( soFile, outputStream );
+                        }
+
+                        System.load( temp.getPath() );
+                        loaded = true;
+                    } catch ( IOException ex )
+                    {
+                        // Can't write to tmp?
+                    } catch ( UnsatisfiedLinkError ex )
+                    {
+                        unsatisfiedLinkError = "Could not load native library: " + ex.getMessage();
+                    }
+                }
+                if ( !loaded && unsatisfiedLinkError != null )
                 {
-                    // Can't write to tmp?
-                } catch ( UnsatisfiedLinkError ex )
-                {
-                    System.out.println( "Could not load native library: " + ex.getMessage() );
+                    System.out.println( unsatisfiedLinkError );
                 }
             }
         }
