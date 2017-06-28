@@ -7,6 +7,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Random;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
@@ -28,14 +29,20 @@ public class NativeCipherTest
     //
     private static final NativeCode<BungeeCipher> factory = new NativeCode( "native-cipher", JavaCipher.class, NativeCipher.class );
 
+    @BeforeClass
+    public static void initializeCipher() throws Exception
+    {
+        if ( NativeCode.isSupported() )
+        {
+            Assert.assertTrue( "Native cipher failed to load!", factory.load() );
+        }
+    }
+
     @Test
     public void testOpenSSL() throws Exception
     {
         if ( NativeCode.isSupported() )
         {
-            boolean loaded = factory.load();
-            Assert.assertTrue( "Native cipher failed to load!", loaded );
-
             NativeCipher cipher = new NativeCipher();
             System.out.println( "Testing OpenSSL cipher..." );
             testACipher( cipher );
@@ -47,11 +54,7 @@ public class NativeCipherTest
     {
         if ( NativeCode.isSupported() )
         {
-            boolean loaded = factory.load();
-            Assert.assertTrue( "Native cipher failed to load!", loaded );
-
             NativeCipher cipher = new NativeCipher();
-
             System.out.println( "Benchmarking OpenSSL cipher..." );
             testBenchmark( cipher );
         }
