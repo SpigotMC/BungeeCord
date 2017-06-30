@@ -4,8 +4,10 @@ import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.DecoderException;
+import io.netty.handler.codec.haproxy.HAProxyMessage;
 import io.netty.handler.timeout.ReadTimeoutException;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.connection.CancelSendSignal;
@@ -65,6 +67,20 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
     {
+        if ( msg instanceof HAProxyMessage )
+        {
+            HAProxyMessage proxy = (HAProxyMessage) msg;
+            InetSocketAddress newAddress = new InetSocketAddress( proxy.sourceAddress(), proxy.sourcePort() );
+
+            ProxyServer.getInstance().getLogger().log( Level.FINE, "Set remote address via PROXY {0} -> {1}", new Object[]
+            {
+                channel.getRemoteAddress(), newAddress
+            } );
+
+            channel.setRemoteAddress( newAddress );
+            return;
+        }
+
         if ( handler != null )
         {
             PacketWrapper packet = (PacketWrapper) msg;
