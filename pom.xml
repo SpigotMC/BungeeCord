@@ -120,7 +120,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <version>1.13</version>
+                <version>1.15</version>
                 <executions>
                     <execution>
                         <phase>process-classes</phase>
@@ -130,15 +130,10 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <ignores>
-                        <ignore>java.lang.ClassLoader</ignore>
-                        <ignore>java.lang.Throwable</ignore>
-                        <ignore>java.util.Locale</ignore>
-                    </ignores>
                     <signature>
                         <groupId>org.codehaus.mojo.signature</groupId>
-                        <artifactId>java16</artifactId>
-                        <version>1.1</version>
+                        <artifactId>java17</artifactId>
+                        <version>1.0</version>
                     </signature>
                 </configuration>
             </plugin>
