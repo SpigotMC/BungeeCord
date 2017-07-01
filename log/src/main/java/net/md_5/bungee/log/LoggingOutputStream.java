@@ -3,9 +3,9 @@ package net.md_5.bungee.log;
 import com.google.common.base.Charsets;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
 
 @RequiredArgsConstructor
 public class LoggingOutputStream extends ByteArrayOutputStream
@@ -23,7 +23,7 @@ public class LoggingOutputStream extends ByteArrayOutputStream
         super.reset();
         if ( !contents.isEmpty() && !contents.equals( separator ) )
         {
-            logger.logp( level, "", "", contents );
+            logger.log( level, contents );
         }
     }
 }
