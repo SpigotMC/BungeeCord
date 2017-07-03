@@ -588,7 +588,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public InetSocketAddress getAddress()
     {
-        return ch.getRemoteAddress();
+        return (InetSocketAddress) ch.getHandle().remoteAddress();
     }
 
     @Override

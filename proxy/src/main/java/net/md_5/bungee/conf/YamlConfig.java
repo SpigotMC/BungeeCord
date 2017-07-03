@@ -247,7 +247,6 @@ public class YamlConfig implements ConfigurationAdapter
             boolean query = get( "query_enabled", false, val );
             int queryPort = get( "query_port", 25577, val );
 
-            boolean proxyProtocol = get( "proxy_protocol", false, val );
             List<String> serverPriority = new ArrayList<>( get( "priorities", Collections.EMPTY_LIST, val ) );
 
             // Default server list migration
@@ -272,7 +271,7 @@ public class YamlConfig implements ConfigurationAdapter
             }
             set( "priorities", serverPriority, val );
 
-            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, serverPriority, forceDefault, forced, value.toString(), setLocalAddress, pingPassthrough, queryPort, query, proxyProtocol );
+            ListenerInfo info = new ListenerInfo( address, motd, maxPlayers, tabListSize, serverPriority, forceDefault, forced, value.toString(), setLocalAddress, pingPassthrough, queryPort, query );
             ret.add( info );
         }
 

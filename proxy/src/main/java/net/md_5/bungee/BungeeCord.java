@@ -231,7 +231,7 @@ public class BungeeCord extends ProxyServer
             }
             if ( CompressFactory.zlib.load() )
             {
-                logger.info( "Using zlib based native compressor." );
+                logger.info( "Using zlib based native compressor" );
             } else
             {
                 logger.info( "Using standard Java compressor." );

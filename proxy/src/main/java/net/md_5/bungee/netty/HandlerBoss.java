@@ -70,12 +70,12 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
         {
             HAProxyMessage proxy = (HAProxyMessage) msg;
             InetSocketAddress newAddress = new InetSocketAddress( proxy.sourceAddress(), proxy.sourcePort() );
-
+            
             ProxyServer.getInstance().getLogger().log( Level.FINE, "Set remote address via PROXY {0} -> {1}", new Object[]
             {
                 channel.getRemoteAddress(), newAddress
             } );
-
+            
             channel.setRemoteAddress( newAddress );
             return;
         }
