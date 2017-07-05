@@ -225,10 +225,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     {
                         Gson gson = BungeeCord.getInstance().gson;
                         //captcha fake online start
-                        ServerPing ping = pingResult.getResponse();
-                        ServerPing.Players players = ping.getPlayers();
-                        players.setOnline( bungee.getFakeOnlineCount() );
-                        ping.setPlayers( players );
+                        if ( !Configuration.getInstance().isRedisBungee() )
+                        {
+                            ServerPing ping = pingResult.getResponse();
+                            ServerPing.Players players = ping.getPlayers();
+                            players.setOnline( bungee.getFakeOnlineCount() );
+                            ping.setPlayers( players );
+                        }
                         //captcha fake online end
                         unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
                     }

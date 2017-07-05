@@ -16,7 +16,7 @@ public class FakeOnline
     private static FakeOnline instance;
     @Getter
     private final HashMap<Range, Float> booster = new HashMap<Range, Float>();
-    
+
     private boolean enabled;
     private float defaultValue = 1.0f;
 
@@ -42,7 +42,7 @@ public class FakeOnline
     public int getFakeOnline()
     {
         int online = BungeeCord.getInstance().getOnlineCount();
-        if ( !enabled )
+        if ( !enabled || ru.leymooo.captcha.Configuration.getInstance().isRedisBungee() )
         {
             return online;
         }

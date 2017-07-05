@@ -62,6 +62,9 @@ public class Configuration
     private final HashMap<String, String> users = new HashMap<>();
     @Getter
     private final Set<CaptchaConnector> connectedUsersSet = Sets.newConcurrentHashSet();
+    @Getter
+    @Setter
+    private boolean redisBungee = false;
     //=========Такая реализация скорее всего лучше, чем использование thread======//
     private double attackStartTime = 0;
     private double lastBotAttackCheck = System.currentTimeMillis();
@@ -219,7 +222,7 @@ public class Configuration
                             connector.getUserServer().kick( getTimeOutKick() );
                             continue;
                         }
-                        connector.sendProgressBar(isUnderAttack());
+                        connector.sendProgressBar( isUnderAttack() );
                         connector.getUserServer().sendEnterCapthcaMsg();
                     }
                 }

@@ -279,7 +279,7 @@ public class BungeeCord extends ProxyServer
         isRunning = true;
 
         pluginManager.enablePlugins();
-
+        ru.leymooo.captcha.Configuration.getInstance().setRedisBungee( pluginManager.getPlugin( "RedisBungee" ) != null);
         if ( config.getThrottle() > 0 )
         {
             connectionThrottle = new ConnectionThrottle( config.getThrottle() );
