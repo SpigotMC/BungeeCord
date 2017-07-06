@@ -1,129 +1,117 @@
 package net.md_5.bungee;
 
+import com.google.common.base.Charsets;
+import com.google.gson.JsonObject;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.util.TimerTask;
+import java.util.zip.GZIPOutputStream;
+import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ProxyServer;
 
+@RequiredArgsConstructor
 public class Metrics extends TimerTask
 {
 
-    /**
-     * The current revision number
-     */
-    private final static int REVISION = 5;
-    /**
-     * The base url of the metrics domain
-     */
-    private static final String BASE_URL = "http://mcstats.org";
-    /**
-     * The url used to report a server's status
-     */
-    private static final String REPORT_URL = "/report/%s";
-    /**
-     * Interval of time to ping (in minutes)
-     */
-    final static int PING_INTERVAL = 10;
-    boolean firstPost = true;
+    private final ProxyServer proxy;
+    private final String uuid;
+    private boolean ping;
 
     @Override
     public void run()
     {
         try
         {
-            // We use the inverse of firstPost because if it is the first time we are posting,
-            // it is not a interval ping, so it evaluates to FALSE
-            // Each time thereafter it will evaluate to TRUE, i.e PING!
-            postPlugin( !firstPost );
-
-            // After the first post we set firstPost to false
-            // Each post thereafter will be a ping
-            firstPost = false;
+            post();
+            ping = true;
         } catch ( IOException ex )
         {
-            // ProxyServer.getInstance().getLogger().info( "[Metrics] " + ex.getMessage() );
+            ProxyServer.getInstance().getLogger().info( "[Metrics] " + ex.getMessage() );
         }
     }
 
-    /**
-     * Generic method that posts a plugin to the metrics website
-     */
-    private void postPlugin(boolean isPing) throws IOException
+    private void post() throws IOException
     {
-        // Construct the post data
-        final StringBuilder data = new StringBuilder();
-        data.append( encode( "guid" ) ).append( '=' ).append( encode( BungeeCord.getInstance().config.getUuid() ) );
-        encodeDataPair( data, "version", ProxyServer.getInstance().getVersion() );
-        encodeDataPair( data, "server", "0" );
-        encodeDataPair( data, "players", Integer.toString( ProxyServer.getInstance().getOnlineCount() ) );
-        encodeDataPair( data, "revision", String.valueOf( REVISION ) );
+        // Data holder
+        JsonObject data = new JsonObject();
 
-        // If we're pinging, append it
-        if ( isPing )
+        // Standard metrics
+        data.addProperty( "guid", uuid );
+        data.addProperty( "plugin_version", proxy.getVersion() );
+        data.addProperty( "server_version", "0" );
+        data.addProperty( "players_online", proxy.getOnlineCount() );
+
+        // Extended metrics
+        data.addProperty( "osname", System.getProperty( "os.name" ) );
+        data.addProperty( "osarch", System.getProperty( "os.arch" ) );
+        data.addProperty( "osversion", System.getProperty( "os.version" ) );
+        data.addProperty( "cores", Runtime.getRuntime().availableProcessors() );
+        data.addProperty( "auth_mode", ( proxy.getConfig().isOnlineMode() ) ? 1 : 0 );
+        data.addProperty( "java_version", System.getProperty( "java.version" ) );
+
+        // Ping is every subsequent update
+        data.addProperty( "ping", ping );
+
+        // GZIP the data to be nice to the metrics servers or something
+        ByteArrayOutputStream b = new ByteArrayOutputStream();
+        try ( GZIPOutputStream gzip = new GZIPOutputStream( b ) )
         {
-            encodeDataPair( data, "ping", "true" );
+            gzip.write( data.toString().getBytes( Charsets.UTF_8 ) );
+        }
+        byte[] compressed = b.toByteArray();
+
+        // Open up a connection
+        URLConnection con = new URL( "http://report.mcstats.org/plugin/BungeeCord" ).openConnection();
+
+        // Set all the connection properties
+        con.addRequestProperty( "User-Agent", "MCStats/7" );
+        con.addRequestProperty( "Content-Type", "application/json" );
+        con.addRequestProperty( "Content-Encoding", "gzip" );
+        con.addRequestProperty( "Content-Length", Integer.toString( compressed.length ) );
+        con.addRequestProperty( "Connection", "close" );
+
+        // We need to be able to write out our data
+        con.setDoOutput( true );
+
+        // Write the data and then close the stream
+        try ( OutputStream os = con.getOutputStream() )
+        {
+            os.write( compressed );
         }
 
-        // Create the url
-        URL url = new URL( BASE_URL + String.format( REPORT_URL, encode( "BungeeCord" ) ) );
-
-        // Connect to the website
-        URLConnection connection;
-
-        connection = url.openConnection();
-
-        connection.setDoOutput( true );
-        final BufferedReader reader;
-        final String response;
-        try ( OutputStreamWriter writer = new OutputStreamWriter( connection.getOutputStream() ) )
+        // Read in a single response line
+        try ( BufferedReader br = new BufferedReader( new InputStreamReader( con.getInputStream() ) ) )
         {
-            writer.write( data.toString() );
-            writer.flush();
-            reader = new BufferedReader( new InputStreamReader( connection.getInputStream() ) );
-            response = reader.readLine();
+            String line = br.readLine();
+            // Server terminated connection or sent weird reply
+            if ( line == null )
+            {
+                throw new IOException( "Did not receive response code" );
+            }
+
+            // Had to dig in the backend source for these values
+            System.out.println( line );
+            switch ( line )
+            {
+                case "0":
+                case "1":
+                    // 0 is OK, 1 is first OK this half hour
+                    break;
+                case "2":
+                    // For some reason metrics wants us to make a new UUID
+                    throw new IOException( "Invalid metrics UUID, please remove stats_uuid from config.yml and restart" );
+                case "7":
+                    // Damn, we did something wrong
+                    // Format of this is 7,message
+                    throw new IOException( ( line.length() > 2 ) ? line.substring( 2, line.length() ) : "Unknown error" );
+                default:
+                    throw new IOException( "Unknown response code " + line );
+            }
         }
-        reader.close();
-
-        if ( response == null || response.startsWith( "ERR" ) )
-        {
-            throw new IOException( response ); //Throw the exception
-        }
-    }
-
-    /**
-     * <p>
-     * Encode a key/value data pair to be used in a HTTP post request. This
-     * INCLUDES a & so the first key/value pair MUST be included manually,
-     * e.g:</p>
-     * <code>
-     * StringBuffer data = new StringBuffer();
-     * data.append(encode("guid")).append('=').append(encode(guid));
-     * encodeDataPair(data, "version", description.getVersion());
-     * </code>
-     *
-     * @param buffer the StringBuilder to append the data pair onto
-     * @param key the key value
-     * @param value the value
-     */
-    private static void encodeDataPair(final StringBuilder buffer, final String key, final String value) throws UnsupportedEncodingException
-    {
-        buffer.append( '&' ).append( encode( key ) ).append( '=' ).append( encode( value ) );
-    }
-
-    /**
-     * Encode text as UTF-8
-     *
-     * @param text the text to encode
-     * @return the encoded text, as UTF-8
-     */
-    private static String encode(final String text) throws UnsupportedEncodingException
-    {
-        return URLEncoder.encode( text, "UTF-8" );
     }
 }

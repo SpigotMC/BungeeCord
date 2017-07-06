@@ -289,7 +289,7 @@ public class BungeeCord extends ProxyServer
                 }
             }
         }, 0, TimeUnit.MINUTES.toMillis( 5 ) );
-        metricsThread.scheduleAtFixedRate( new Metrics(), 0, TimeUnit.MINUTES.toMillis( Metrics.PING_INTERVAL ) );
+        metricsThread.scheduleAtFixedRate( new Metrics( this, config.getUuid() ), 0, TimeUnit.MINUTES.toMillis( 15 ) );
     }
 
     public void startListeners()
