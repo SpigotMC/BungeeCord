@@ -578,7 +578,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public boolean hasChatColors()
     {
-        return ( settings != null ) ? settings.isChatColors() : true;
+        return ( settings != null ) ? settings.isChatColours() : true;
     }
 
     @Override
