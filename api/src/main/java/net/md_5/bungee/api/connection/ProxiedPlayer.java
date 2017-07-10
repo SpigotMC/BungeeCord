@@ -18,11 +18,23 @@ import net.md_5.bungee.api.config.ServerInfo;
 public interface ProxiedPlayer extends Connection, CommandSender
 {
 
+    /**
+     * Represents the player's chat state.
+     */
     public enum ChatMode
     {
-    
+
+        /**
+         * The player will see all chat.
+         */
         SHOWN,
+        /**
+         * The player will only see everything except messages marked as chat.
+         */
         COMMANDS_ONLY,
+        /**
+         * The chat is completely disabled, the player won't see anything.
+         */
         HIDDEN
     
     }
