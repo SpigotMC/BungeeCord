@@ -562,7 +562,7 @@ public final class UserConnection implements ProxiedPlayer
         {
             return ProxiedPlayer.ChatMode.SHOWN;
         }
-        
+
         switch ( settings.getChatFlags() )
         {
             default:
@@ -584,7 +584,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public SkinConfiguration getSkinParts()
     {
-        return ( settings != null ) ? new PlayerSkinConfiguration(settings.getSkinParts()) : PlayerSkinConfiguration.SKIN_SHOW_ALL;
+        return ( settings != null ) ? new PlayerSkinConfiguration( settings.getSkinParts() ) : PlayerSkinConfiguration.SKIN_SHOW_ALL;
     }
 
     @Override
