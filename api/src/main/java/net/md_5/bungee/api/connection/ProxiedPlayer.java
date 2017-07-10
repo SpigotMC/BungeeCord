@@ -6,10 +6,10 @@ import java.util.UUID;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.SkinConfiguration;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.config.SkinConfiguration;
 
 /**
  * Represents a player who's connection is being connected to somewhere else,

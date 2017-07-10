@@ -2,7 +2,7 @@ package net.md_5.bungee;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import net.md_5.bungee.api.config.SkinConfiguration;
+import net.md_5.bungee.api.SkinConfiguration;
 
 /*
  * Bitmask, displayed Skin Parts flags:
