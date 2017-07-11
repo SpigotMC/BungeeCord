@@ -5,8 +5,10 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
+import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
+import lombok.Setter;
 import net.md_5.bungee.compress.PacketCompressor;
 import net.md_5.bungee.compress.PacketDecompressor;
 import net.md_5.bungee.protocol.MinecraftDecoder;
@@ -20,6 +22,9 @@ public class ChannelWrapper
 
     private final Channel ch;
     @Getter
+    @Setter
+    private InetSocketAddress remoteAddress;
+    @Getter
     private volatile boolean closed;
     @Getter
     private volatile boolean closing;
@@ -27,6 +32,7 @@ public class ChannelWrapper
     public ChannelWrapper(ChannelHandlerContext ctx)
     {
         this.ch = ctx.channel();
+        this.remoteAddress = (InetSocketAddress) this.ch.remoteAddress();
     }
 
     public void setProtocol(Protocol protocol)

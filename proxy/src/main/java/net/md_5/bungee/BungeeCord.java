@@ -220,17 +220,17 @@ public class BungeeCord extends ProxyServer
         {
             if ( EncryptionUtil.nativeFactory.load() )
             {
-                logger.info( "Using OpenSSL based native cipher." );
+                logger.info( "Using mbed TLS based native cipher." );
             } else
             {
-                logger.info( "Using standard Java JCE cipher. To enable the OpenSSL based native cipher, please make sure you are using 64 bit Ubuntu or Debian with libssl installed." );
+                logger.info( "Using standard Java JCE cipher." );
             }
             if ( CompressFactory.zlib.load() )
             {
-                logger.info( "Using native code compressor" );
+                logger.info( "Using zlib based native compressor." );
             } else
             {
-                logger.info( "Using standard Java compressor. To enable zero copy compression, run on 64 bit Linux" );
+                logger.info( "Using standard Java compressor." );
             }
         }
     }
@@ -296,6 +296,11 @@ public class BungeeCord extends ProxyServer
     {
         for ( final ListenerInfo info : config.getListeners() )
         {
+            if ( info.isProxyProtocol() )
+            {
+                getLogger().log( Level.WARNING, "Using PROXY protocol for listener {0}, please ensure this listener is adequately firewalled.", info.getHost() );
+            }
+
             ChannelFutureListener listener = new ChannelFutureListener()
             {
                 @Override

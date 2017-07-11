@@ -3,15 +3,15 @@ package net.md_5.bungee.api.config;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
-import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 
 /**
  * Class representing the configuration of a server listener. Used for allowing
  * multiple listeners on different ports.
  */
 @Data
+@AllArgsConstructor
 public class ListenerInfo
 {
 
@@ -67,6 +67,16 @@ public class ListenerInfo
      * Whether to enable udp query.
      */
     private final boolean queryEnabled;
+    /**
+     * Whether to support HAProxy PROXY protocol.
+     */
+    private final boolean proxyProtocol;
+
+    @Deprecated
+    public ListenerInfo(InetSocketAddress host, String motd, int maxPlayers, int tabListSize, List<String> serverPriority, boolean forceDefault, Map<String, String> forcedHosts, String tabListType, boolean setLocalAddress, boolean pingPassthrough, int queryPort, boolean queryEnabled)
+    {
+        this( host, motd, maxPlayers, tabListSize, serverPriority, forceDefault, forcedHosts, tabListType, setLocalAddress, pingPassthrough, queryPort, queryEnabled, false );
+    }
 
     /**
      * Gets the highest priority server to join.
