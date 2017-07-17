@@ -558,7 +558,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public ProxiedPlayer.ChatMode getChatMode()
     {
-        if( settings == null )
+        if ( settings == null )
         {
             return ProxiedPlayer.ChatMode.SHOWN;
         }
@@ -578,7 +578,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public boolean hasChatColors()
     {
-        return ( settings != null ) ? settings.isChatColours() : true;
+        return settings == null || settings.isChatColours();
     }
 
     @Override
