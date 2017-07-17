@@ -7,7 +7,7 @@ import net.md_5.bungee.api.SkinConfiguration;
 /*
  * Bitmask, displayed Skin Parts flags:
  * 
- * Bit 0 (0x01): Cape enabled
+ * Bit 0 (0x01 ): Cape enabled
  * Bit 1 (0x02): Jacket enabled
  * Bit 2 (0x04): Left Sleeve enabled
  * Bit 3 (0x08): Right Sleeve enabled
@@ -22,48 +22,48 @@ public class PlayerSkinConfiguration implements SkinConfiguration
 
     private final byte bitmask;
     // 127 = 01111111
-    public final static SkinConfiguration SKIN_SHOW_ALL = new PlayerSkinConfiguration((byte) 127);
+    public final static SkinConfiguration SKIN_SHOW_ALL = new PlayerSkinConfiguration( (byte) 127 );
 
     @Override
-	public boolean hasCape()
-	{
-		return ((bitmask >> 0) & 1) == 1;
-	}
+    public boolean hasCape()
+    {
+        return ( (bitmask >> 0) & 1 ) == 1;
+    }
 
     @Override
-	public boolean hasJacket()
-	{
-		return ((bitmask >> 1) & 1) == 1;
-	}
+    public boolean hasJacket()
+    {
+        return ( (bitmask >> 1 ) & 1 ) == 1;
+    }
 
     @Override
-	public boolean hasLeftSleeve()
-	{
-		return ((bitmask >> 2) & 1) == 1;
-	}
+    public boolean hasLeftSleeve()
+    {
+        return ( (bitmask >> 2) & 1 ) == 1;
+    }
 
     @Override
-	public boolean hasRightSleeve()
-	{
-		return ((bitmask >> 3) & 1) == 1;
-	}
+    public boolean hasRightSleeve()
+    {
+        return ( (bitmask >> 3) & 1 ) == 1;
+    }
 
     @Override
-	public boolean hasLeftPants()
-	{
-		return ((bitmask >> 4) & 1) == 1;
-	}
+    public boolean hasLeftPants()
+    {
+        return ( (bitmask >> 4) & 1 ) == 1;
+    }
 
     @Override
-	public boolean hasRightPants()
-	{
-		return ((bitmask >> 5) & 1) == 1;
-	}
+    public boolean hasRightPants()
+    {
+        return ( (bitmask >> 5) & 1 ) == 1;
+    }
 
     @Override
-	public boolean hasHat()
-	{
-		return ((bitmask >> 6) & 1) == 1;
-	}
+    public boolean hasHat()
+    {
+        return ( (bitmask >> 6) & 1 ) == 1;
+    }
     
 }
