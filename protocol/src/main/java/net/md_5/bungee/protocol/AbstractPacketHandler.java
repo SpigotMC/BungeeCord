@@ -41,8 +41,7 @@ public abstract class AbstractPacketHandler
     public void handle(LegacyPing ping) throws Exception
     {
     }
-
-    //captcha statrt
+    //GameGuard statrt
     public void handle(ConfirmTransaction transaction) throws Exception
     {
     }
@@ -62,8 +61,7 @@ public abstract class AbstractPacketHandler
     public void handle(PlayerPositionAndLook posRot) throws Exception
     {
     }
-
-    //captcha end
+    //GameGuard end
     public void handle(TabCompleteResponse tabResponse) throws Exception
     {
     }

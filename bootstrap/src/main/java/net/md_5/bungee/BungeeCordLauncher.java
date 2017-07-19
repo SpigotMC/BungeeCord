@@ -42,7 +42,7 @@ public class BungeeCordLauncher
             if ( buildDate.before( deadline.getTime() ) )
             {
                 //GameGuard start
-                System.err.println( "*** ВНИМАНИЕ! Билд устарен ***" );
+                System.err.println( "*** ВНИМАНИЕ! Билд устарел ***" );
                 System.err.println( "*** Поищите новую версию где то на рубаките ***" );
                 System.err.println( "*** или у меня на стене (vk.com/Leymooo_s) ***" );
                 System.err.println( "*** Возможно, что новой версии нету. ***" );

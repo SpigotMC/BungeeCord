@@ -257,7 +257,7 @@ public class BungeeCord extends ProxyServer
 
         bossEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Boss IO Thread #%1$d" ).build() ); //GameGuard
         workerEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Worker IO Thread #%1$d" ).build() ); //GameGuard
- 
+
         new Config(); //GameGuard
         File moduleDirectory = new File( "modules" );
         moduleManager.load( this, moduleDirectory );
@@ -528,6 +528,12 @@ public class BungeeCord extends ProxyServer
     public int getOnlineCount()
     {
         return connections.size();
+    }
+
+    @Override
+    public int getOnlineCountWithGG()
+    {
+        return connections.size() + Config.getConfig().getConnectedUsersSet().size();
     }
 
     @Override

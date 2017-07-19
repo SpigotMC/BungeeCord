@@ -154,7 +154,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         final boolean v1_5 = ping.isV1_5();
 
         ServerPing legacy = new ServerPing( new ServerPing.Protocol( "BungeeGameGuard 1.8-1.12 by vk.com/Leymooo_s", bungee.getProtocolVersion() ), //GameGuard
-                new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
+                new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCountWithGG(), null ), //GameGuard
                 new TextComponent( TextComponent.fromLegacyText( listener.getMotd() ) ), (Favicon) null );
 
         Callback<ProxyPingEvent> callback = new Callback<ProxyPingEvent>()
@@ -242,7 +242,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             int protocol = ( ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
             pingBack.done( new ServerPing(
                     new ServerPing.Protocol( "BungeeGameGuard 1.8-1.12 by vk.com/Leymooo_s", protocol ), //GameGuard
-                    new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
+                    new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCountWithGG(), null ), //GameGuard
                     motd, BungeeCord.getInstance().config.getFaviconObject() ),
                     null );
         }
@@ -347,7 +347,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         int limit = BungeeCord.getInstance().config.getPlayerLimit();
-        if ( limit > 0 && bungee.getOnlineCount() > limit )
+        if ( limit > 0 && bungee.getOnlineCountWithGG() > limit )//GameGuard
         {
             disconnect( bungee.getTranslation( "proxy_full" ) );
             return;
