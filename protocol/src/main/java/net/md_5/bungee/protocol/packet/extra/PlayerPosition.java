@@ -13,35 +13,27 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class EntityEffect
-        extends DefinedPacket
+public class PlayerPosition extends DefinedPacket
 {
 
-    private int entId;
-    private byte effId;
-    private byte lvl;
-    private int duration;
-    private byte fa;
-
-    @Override
-    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
-    {
-        writeVarInt( entId, buf );
-        buf.writeByte( effId );
-        buf.writeByte( lvl );
-        writeVarInt( duration, buf );
-        buf.writeByte( fa );
-    }
+    private double x;
+    private double y;
+    private double z;
+    private boolean onGround;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
+        this.x = buf.readDouble();
+        this.y = buf.readDouble();
+        this.z = buf.readDouble();
+        this.onGround = buf.readBoolean();
         buf.skipBytes( buf.readableBytes() );
     }
 
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {
+        handler.handle( this );
     }
-
 }

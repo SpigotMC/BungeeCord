@@ -62,8 +62,9 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
-import ru.leymooo.captcha.Configuration;
-import ru.leymooo.captcha.CaptchaConnector;
+import ru.leymooo.gameguard.Config;
+import ru.leymooo.gameguard.GGConnector;
+import ru.leymooo.gameguard.Utils;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -151,8 +152,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         this.legacy = true;
         final boolean v1_5 = ping.isV1_5();
-        ServerPing legacy = new ServerPing( new ServerPing.Protocol( bungee.getName() + " 1.8-1.12 by vk.com/Leymooo_s", bungee.getProtocolVersion() ), //captcha
-                new ServerPing.Players( listener.getMaxPlayers(), bungee.getFakeOnlineCount(), null ), //captcha
+
+        ServerPing legacy = new ServerPing( new ServerPing.Protocol( "BungeeGameGuard 1.8-1.12 by vk.com/Leymooo_s", bungee.getProtocolVersion() ), //GameGuard
+                new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
                 new TextComponent( TextComponent.fromLegacyText( listener.getMotd() ) ), (Favicon) null );
 
         Callback<ProxyPingEvent> callback = new Callback<ProxyPingEvent>()
@@ -224,15 +226,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     public void done(ProxyPingEvent pingResult, Throwable error)
                     {
                         Gson gson = BungeeCord.getInstance().gson;
-                        //captcha fake online start
-                        if ( !Configuration.getInstance().isRedisBungee() )
-                        {
-                            ServerPing ping = pingResult.getResponse();
-                            ServerPing.Players players = ping.getPlayers();
-                            players.setOnline( bungee.getFakeOnlineCount() );
-                            ping.setPlayers( players );
-                        }
-                        //captcha fake online end
                         unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
                     }
                 };
@@ -248,8 +241,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             int protocol = ( ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
             pingBack.done( new ServerPing(
-                    new ServerPing.Protocol( bungee.getName() + " 1.8-1.12 by vk.com/Leymooo_s", protocol ), //captcha
-                    new ServerPing.Players( listener.getMaxPlayers(), bungee.getFakeOnlineCount(), null ), //captcha
+                    new ServerPing.Protocol( "BungeeGameGuard 1.8-1.12 by vk.com/Leymooo_s", protocol ), //GameGuard
+                    new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
                     motd, BungeeCord.getInstance().config.getFaviconObject() ),
                     null );
         }
@@ -268,6 +261,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(Handshake handshake) throws Exception
     {
+
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
         this.handshake = handshake;
         ch.setVersion( handshake.getProtocolVersion() );
@@ -291,10 +285,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         this.virtualHost = InetSocketAddress.createUnresolved( handshake.getHost(), handshake.getPort() );
-        //bungee.getLogger().log( Level.INFO, "{0} has connected", this ); //captcha. Hide initial handler in log for ping
 
         bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
-
+        //GameGuard Я тут гдето убрал строку которая выводить InitialHandler has connected
         switch ( handshake.getRequestedProtocol() )
         {
             case 1:
@@ -318,7 +311,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     }
                     return;
                 }
-
+                //gameguard start
+                if ( Utils.isManyChecks( getAddress().getAddress().getHostAddress(), false ) )
+                {
+                    disconnect( Config.getConfig().getError0() );
+                    return;
+                }
+                //gameguard end
                 if ( bungee.getConnectionThrottle() != null && bungee.getConnectionThrottle().throttle( getAddress().getAddress() ) )
                 {
                     disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( bungee.getConfig().getThrottle() ) ) );
@@ -348,7 +347,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         int limit = BungeeCord.getInstance().config.getPlayerLimit();
-        if ( limit > 0 && bungee.getOnlineCountWithCapthcaConnects() > limit )
+        if ( limit > 0 && bungee.getOnlineCount() > limit )
         {
             disconnect( bungee.getTranslation( "proxy_full" ) );
             return;
@@ -506,22 +505,22 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     {
                         if ( !ch.isClosing() )
                         {
+                            bungee.getLogger().log( Level.INFO, "{0} has connected", InitialHandler.this ); //GameGuard
+
                             UserConnection userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
                             userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
                             userCon.init();
 
                             unsafe.sendPacket( new LoginSuccess( getUniqueId().toString(), getName() ) ); // With dashes in between
                             ch.setProtocol( Protocol.GAME );
-                            //captcha start
-                            bungee.getLogger().log( Level.INFO, "{0} has connected", InitialHandler.this );
-                            if ( Configuration.getInstance().needCapthca( userCon.getName(), userCon.getAddress().getAddress().getHostAddress() ) )
+                            if ( Config.getConfig().needCheck( getName(), getAddress().getAddress().getHostAddress() ) ) //GameGuard
                             {
-                                ( (HandlerBoss) ch.getHandle().pipeline().get( HandlerBoss.class ) ).setHandler( new CaptchaConnector( userCon ) );
+                                ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new GGConnector( userCon ) ); //GameGuard
                             } else
                             {
-                                ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
-                                bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
-                                //captcha end
+                                ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) ); //GameGuard
+
+                                bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) ); //GameGuard
                                 ServerInfo server;
                                 if ( bungee.getReconnectHandler() != null )
                                 {
@@ -538,7 +537,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                                 userCon.connect( server, null, true );
                             }
                             thisState = State.FINISHED;
-
                         }
                     }
                 } );

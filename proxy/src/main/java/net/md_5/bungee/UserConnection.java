@@ -64,14 +64,13 @@ import net.md_5.bungee.util.CaseInsensitiveSet;
 @RequiredArgsConstructor
 public final class UserConnection implements ProxiedPlayer
 {
-    //Бля. Нахуя эта параша нужна( Объясните ктонибудь
-    //Уже не надо. Руслан объяснил.
-    public boolean serverr; //captcha
+    public boolean serverr; //GameGuard
     /*========================================================================*/
     @NonNull
     private final ProxyServer bungee;
     @NonNull
-    private final ChannelWrapper ch;
+    @Getter //GameGuard
+    private final ChannelWrapper ch; 
     @Getter
     @NonNull
     private final String name;
@@ -150,11 +149,7 @@ public final class UserConnection implements ProxiedPlayer
             ch.write( packet );
         }
     };
-    //captcha start
-    public ChannelWrapper getCh() {
-        return ch;
-    }
-    //captcha end
+
     public void init()
     {
         this.entityRewrite = EntityMap.getEntityMap( getPendingConnection().getVersion() );

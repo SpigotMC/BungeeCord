@@ -70,9 +70,9 @@ import net.md_5.bungee.command.CommandBungee;
 import net.md_5.bungee.command.CommandEnd;
 import net.md_5.bungee.command.CommandIP;
 import net.md_5.bungee.command.CommandPerms;
-import net.md_5.bungee.command.CommandPlayerLimit;
 import net.md_5.bungee.command.CommandReload;
 import net.md_5.bungee.command.ConsoleCommandSender;
+import net.md_5.bungee.command.GameGuardCommand;
 import net.md_5.bungee.compress.CompressFactory;
 import net.md_5.bungee.conf.Configuration;
 import net.md_5.bungee.conf.YamlConfig;
@@ -89,8 +89,7 @@ import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.fusesource.jansi.AnsiConsole;
-import ru.leymooo.captcha.CaptchaGenerator;
-import ru.leymooo.fakeonline.FakeOnline;
+import ru.leymooo.gameguard.Config;
 
 /**
  * Main BungeeCord proxy class.
@@ -112,7 +111,7 @@ public class BungeeCord extends ProxyServer
      */
     private ResourceBundle baseBundle;
     private ResourceBundle customBundle;
-    public EventLoopGroup eventLoops;
+    public EventLoopGroup bossEventLoopGroup, workerEventLoopGroup; //GameGuard
     /**
      * locations.yml save thread.
      */
@@ -168,7 +167,7 @@ public class BungeeCord extends ProxyServer
         getPluginManager().registerCommand( null, new CommandIP() );
         getPluginManager().registerCommand( null, new CommandBungee() );
         getPluginManager().registerCommand( null, new CommandPerms() );
-        getPluginManager().registerCommand( null, new CommandPlayerLimit() );
+        getPluginManager().registerCommand( null, new GameGuardCommand() ); //GameGuard
 
         registerChannel( "BungeeCord" );
     }
@@ -255,13 +254,11 @@ public class BungeeCord extends ProxyServer
         {
             ResourceLeakDetector.setLevel( ResourceLeakDetector.Level.DISABLED ); // Eats performance
         }
-        //captcha start
-        System.out.print( "Captcha Hooked" );
-        new ru.leymooo.captcha.Configuration();
-        new CaptchaGenerator();
-        //captcha end
-        eventLoops = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
 
+        bossEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Boss IO Thread #%1$d" ).build() ); //GameGuard
+        workerEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Worker IO Thread #%1$d" ).build() ); //GameGuard
+ 
+        new Config(); //GameGuard
         File moduleDirectory = new File( "modules" );
         moduleManager.load( this, moduleDirectory );
         pluginManager.detectPlugins( moduleDirectory );
@@ -279,7 +276,7 @@ public class BungeeCord extends ProxyServer
         isRunning = true;
 
         pluginManager.enablePlugins();
-        ru.leymooo.captcha.Configuration.getInstance().setRedisBungee( pluginManager.getPlugin( "RedisBungee" ) != null);
+
         if ( config.getThrottle() > 0 )
         {
             connectionThrottle = new ConnectionThrottle( config.getThrottle() );
@@ -327,11 +324,11 @@ public class BungeeCord extends ProxyServer
             new ServerBootstrap()
                     .channel( PipelineUtils.getServerChannel() )
                     .option( ChannelOption.SO_REUSEADDR, true ) // TODO: Move this elsewhere!
-                    .childOption( ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 1024 * 1024 * 10 )
-                    .childOption( ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, 1024 * 1024 * 1 )
+                    .childOption( ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 1024 * 1024 * 10 ) //GameGuard
+                    .childOption( ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, 1024 * 1024 * 1 ) //GameGuard
                     .childAttr( PipelineUtils.LISTENER, info )
                     .childHandler( PipelineUtils.SERVER_CHILD )
-                    .group( eventLoops )
+                    .group( bossEventLoopGroup, workerEventLoopGroup ) //GameGuard
                     .localAddress( info.getHost() )
                     .bind().addListener( listener );
 
@@ -352,7 +349,7 @@ public class BungeeCord extends ProxyServer
                         }
                     }
                 };
-                new RemoteQuery( this, info ).start( PipelineUtils.getDatagramChannel(), new InetSocketAddress( info.getHost().getAddress(), info.getQueryPort() ), eventLoops, bindListener );
+                new RemoteQuery( this, info ).start( PipelineUtils.getDatagramChannel(), new InetSocketAddress( info.getHost().getAddress(), info.getQueryPort() ), workerEventLoopGroup, bindListener ); //GameGuard
             }
         }
     }
@@ -415,12 +412,18 @@ public class BungeeCord extends ProxyServer
                 }
 
                 getLogger().info( "Closing IO threads" );
-                eventLoops.shutdownGracefully();
-                try
+                bossEventLoopGroup.shutdownGracefully(); //GameGuard
+                workerEventLoopGroup.shutdownGracefully(); //GameGuard
+                while ( true ) //GameGuard
                 {
-                    eventLoops.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS );
-                } catch ( InterruptedException ex )
-                {
+                    try
+                    {
+                        bossEventLoopGroup.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS ); //GameGuard
+                        workerEventLoopGroup.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS ); //GameGuard
+                        break;
+                    } catch ( InterruptedException ignored )
+                    {
+                    }
                 }
 
                 if ( reconnectHandler != null )
@@ -485,7 +488,7 @@ public class BungeeCord extends ProxyServer
     @Override
     public String getName()
     {
-        return "BungeeCaptcha";
+        return "BungeeGameGuard"; //GameGuard
     }
 
     @Override
@@ -526,20 +529,6 @@ public class BungeeCord extends ProxyServer
     {
         return connections.size();
     }
-
-    //captcha start
-    @Override
-    public int getOnlineCountWithCapthcaConnects()
-    {
-        return connections.size() + ru.leymooo.captcha.Configuration.getInstance().getConnectedUsersSet().size();
-    }
-    
-    @Override
-    public int getFakeOnlineCount()
-    {
-        return FakeOnline.getInstance().getFakeOnline();
-    }
-    //captcha end
 
     @Override
     public ProxiedPlayer getPlayer(String name)

@@ -49,6 +49,7 @@ public class PipelineUtils
         @Override
         protected void initChannel(Channel ch) throws Exception
         {
+
             ListenerInfo listener = ch.attr( LISTENER ).get();
 
             BASE.initChannel( ch );
@@ -56,6 +57,11 @@ public class PipelineUtils
             ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
             ch.pipeline().addAfter( FRAME_PREPENDER, PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
             ch.pipeline().addBefore( FRAME_PREPENDER, LEGACY_KICKER, new KickStringWriter() );
+            if ( ConnectionDropper.needDrop( ch.remoteAddress() ) ) //GameGuard
+            {
+                ch.close(); //GameGuard
+                return; //GameGuard
+            }
             ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( BungeeCord.getInstance(), listener ) );
 
             if ( listener.isProxyProtocol() )
@@ -128,6 +134,7 @@ public class PipelineUtils
             {
                 // IP_TOS is not supported (Windows XP / Windows Server 2003)
             }
+            ch.config().setOption( ChannelOption.TCP_NODELAY, true ); //GameGuard
             ch.config().setAllocator( PooledByteBufAllocator.DEFAULT );
 
             ch.pipeline().addLast( TIMEOUT_HANDLER, new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );

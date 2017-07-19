@@ -41,17 +41,20 @@ public class BungeeCordLauncher
             deadline.add( Calendar.WEEK_OF_YEAR, -4 );
             if ( buildDate.before( deadline.getTime() ) )
             {
-                System.err.println( "*** Ну тут короче предупреждение, что банджа устарела ***" );
-                System.err.println( "*** Скорее всего это так, а может и нет ***" );
-                System.err.println( "*** Ищите новый билд у меня в сборке, если он конечно есть ***" );
+                //GameGuard start
+                System.err.println( "*** ВНИМАНИЕ! Билд устарен ***" );
+                System.err.println( "*** Поищите новую версию где то на рубаките ***" );
+                System.err.println( "*** или у меня на стене (vk.com/Leymooo_s) ***" );
+                System.err.println( "*** Возможно, что новой версии нету. ***" );
                 System.err.println( "*** Стартуем через 3 секунды ***" );
                 Thread.sleep( TimeUnit.SECONDS.toMillis( 3 ) );
+                //GameGuard end
             }
         }
 
         BungeeCord bungee = new BungeeCord();
         ProxyServer.setInstance( bungee );
-        bungee.getLogger().info( "Enabled BungeeCord version " + bungee.getVersion() );
+        bungee.getLogger().info( "Включаю BungeCord GameGuard от vk.com/Leymooo_s" );//GameGuard
         bungee.start();
 
         if ( !options.has( "noconsole" ) )
@@ -61,7 +64,7 @@ public class BungeeCordLauncher
             {
                 if ( !bungee.getPluginManager().dispatchCommand( ConsoleCommandSender.getInstance(), line ) )
                 {
-                    bungee.getConsole().sendMessage( ChatColor.RED + "Command not found" );
+                    bungee.getConsole().sendMessage( ChatColor.RED + "Команда не найдена :(" ); //GameGuard
                 }
             }
         }

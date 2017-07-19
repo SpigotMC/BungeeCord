@@ -32,7 +32,7 @@ public class ChunkPacket extends DefinedPacket
             DefinedPacket.writeVarInt( 0, buf );
         } else
         {
-            buf.writeShort( 0 );
+            buf.writeShort( 1 );
         }
         DefinedPacket.writeVarInt( 256, buf );
         Arrays.fill( this.data, (byte) 18 );
@@ -43,9 +43,6 @@ public class ChunkPacket extends DefinedPacket
         }
     }
 
-    //Что за параша. Хули банджа заставляет меня читать этот пакет, если он 
-    //направляется только в строну клиента. ААААААААААААААААААААА
-    //Но да ладно, закостылим. Думаю не сломается ничего(
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {

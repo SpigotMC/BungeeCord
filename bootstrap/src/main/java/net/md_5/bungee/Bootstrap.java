@@ -5,10 +5,10 @@ public class Bootstrap
 
     public static void main(String[] args) throws Exception
     {
-        if ( Float.parseFloat( System.getProperty( "java.class.version" ) ) < 51.0 )
+        if ( Float.parseFloat( System.getProperty( "java.class.version" ) ) < 52.0 ) //GameGuard
         {
-            System.err.println( "*** ERROR *** BungeeCord requires Java 7 or above to function! Please download and install it!" );
-            System.out.println( "You can check your Java version with the command: java -version" );
+            System.err.println( "*** ОШИБОЧКА *** ГеймГуарду нужнжа Java 8. Установите её, что бы запустить сервер!" );//GameGuard
+            System.out.println( "Проверить версию: java -version" );//GameGuard
             return;
         }
 

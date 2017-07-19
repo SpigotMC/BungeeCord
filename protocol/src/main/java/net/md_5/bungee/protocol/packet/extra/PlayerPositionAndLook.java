@@ -13,7 +13,7 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class PlayerPositionRotation extends DefinedPacket
+public class PlayerPositionAndLook extends DefinedPacket
 {
 
     private double x;
@@ -32,10 +32,10 @@ public class PlayerPositionRotation extends DefinedPacket
         buf.writeDouble( this.z );
         buf.writeFloat( this.yaw );
         buf.writeFloat( this.pitch );
-        buf.writeByte( 0 );
+        buf.writeByte( 0x00 );
         if ( protocolVersion >= 107 )
         {
-            PlayerPositionRotation.writeVarInt( teleportId, buf );
+            PlayerPositionAndLook.writeVarInt( teleportId, buf );
         }
     }
 

@@ -13,27 +13,27 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class PlayerAbilities extends DefinedPacket
+public class SetExp extends DefinedPacket
 {
 
-    byte flags;
-    float speed;
-    float field;
+    float expBar;
+    int level;
+    int totalExp;
 
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        buf.writeByte( this.flags );
-        buf.writeFloat( this.speed );
-        buf.writeFloat( this.field );
+        buf.writeFloat( this.expBar );
+        DefinedPacket.writeVarInt( level, buf );
+        DefinedPacket.writeVarInt( totalExp, buf );
     }
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        this.flags = buf.readByte();
-        this.speed = buf.readFloat();
-        this.field = buf.readFloat();
+        this.expBar = buf.readFloat();
+        this.level = DefinedPacket.readVarInt( buf );
+        this.totalExp = DefinedPacket.readVarInt( buf );
     }
 
     @Override

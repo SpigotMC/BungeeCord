@@ -1,4 +1,4 @@
-package ru.leymooo.captcha;
+package ru.leymooo.gameguard;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -36,17 +36,17 @@ public class MySql
             this.connect();
             try ( Statement st = this.getConnection().createStatement() )
             {
-                st.executeUpdate( "CREATE TABLE IF NOT EXISTS `Whitelist_new` (`Name` VARCHAR(16) NOT NULL PRIMARY KEY UNIQUE, `Ip` VARCHAR(16) NOT NULL);" );
+                st.executeUpdate( "CREATE TABLE IF NOT EXISTS `Players` (`player` VARCHAR(16) NOT NULL PRIMARY KEY UNIQUE, `ip` VARCHAR(16) NOT NULL);" );
                 st.close();
             }
             try ( Statement statement = this.getConnection().createStatement() )
             {
-                ResultSet rs = statement.executeQuery( "SELECT * FROM `Whitelist_new`;" );
+                ResultSet rs = statement.executeQuery( "SELECT * FROM `Players`;" );
                 while ( rs.next() )
                 {
-                    Configuration.getInstance().addUserToMap( rs.getString( "Name" ), rs.getString( "Ip" ) );
+                    Config.getConfig().addUserToMap( rs.getString( "player" ), rs.getString( "ip" ) );
                 }
-                System.out.println( "[Captcha] Белый список капчи успешно загружен." );
+                System.out.println( "[GameGuard] Белый список игроков успешно загружен." );
                 statement.close();
             }
         } catch ( SQLException ex )
@@ -73,7 +73,7 @@ public class MySql
             {
                 try ( Statement statment = getConnection().createStatement() )
                 {
-                    statment.executeUpdate( "INSERT INTO `Whitelist_new` (`Name`,`Ip`) VALUES ('" + name + "','" + ip + "') ON DUPLICATE KEY UPDATE `Ip`='" + ip + "';" );
+                    statment.executeUpdate( "INSERT INTO `Players` (`player`,`ip`) VALUES ('" + name + "','" + ip + "') ON DUPLICATE KEY UPDATE `ip`='" + ip + "';" );
                     statment.close();
                 } catch ( SQLException e )
                 {

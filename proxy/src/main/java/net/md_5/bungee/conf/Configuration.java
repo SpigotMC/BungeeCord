@@ -11,7 +11,6 @@ import java.util.UUID;
 import java.util.logging.Level;
 import javax.imageio.ImageIO;
 import lombok.Getter;
-import lombok.Setter;
 import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ProxyConfig;
 import net.md_5.bungee.api.ProxyServer;
@@ -52,7 +51,7 @@ public class Configuration implements ProxyConfig
      * Whether we log proxy commands to the proxy log
      */
     private boolean logCommands;
-    @Setter private int playerLimit = -1; //capthca
+    private int playerLimit = -1;
     private Collection<String> disabledCommands;
     private int throttle = 4000;
     private boolean ipForward;

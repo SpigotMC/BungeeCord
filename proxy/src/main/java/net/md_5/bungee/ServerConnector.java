@@ -101,6 +101,7 @@ public class ServerConnector extends PacketHandler
             // TODO: Add support for this data with IP forwarding.
             copiedHandshake.setHost( copiedHandshake.getHost() + user.getExtraDataInHandshake() );
         }
+
         channel.write( copiedHandshake );
 
         channel.setProtocol( Protocol.LOGIN );
@@ -181,10 +182,10 @@ public class ServerConnector extends PacketHandler
         {
             user.getForgeClientHandler().setHandshakeComplete();
         }
-        //captcha start
-        if (!user.serverr) {
-            user.serverr = true;
-            //captcha end
+
+        if ( !user.serverr ) //GameGuard
+        {
+            user.serverr = true; //GameGuard
             // Once again, first connection
             user.setClientEntityId( login.getEntityId() );
             user.setServerEntityId( login.getEntityId() );
@@ -203,11 +204,10 @@ public class ServerConnector extends PacketHandler
             user.setDimension( login.getDimension() );
         } else
         {
-            //captcha start
-            if (user.getServer() != null) {
-                user.getServer().setObsolete(true);
+            if ( user.getServer() != null ) //GameGuard
+            {
+                user.getServer().setObsolete( true ); //GameGuard
             }
-            //captcha end
             user.getTabListHandler().onServerChange();
 
             Scoreboard serverScoreboard = user.getServerSentScoreboard();
@@ -239,11 +239,10 @@ public class ServerConnector extends PacketHandler
             user.setDimension( login.getDimension() );
 
             // Remove from old servers
-            //captcha start
-            if (this.user.getServer() != null) {
-                this.user.getServer().disconnect("Quitting");
+            if ( this.user.getServer() != null ) //GameGuard
+            {
+                this.user.getServer().disconnect( "Quitting" ); //GameGuard
             }
-            //captcha end
         }
 
         // TODO: Fix this?

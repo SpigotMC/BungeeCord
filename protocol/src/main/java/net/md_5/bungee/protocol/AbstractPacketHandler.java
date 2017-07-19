@@ -32,7 +32,8 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.extra.TeleportConfirm;
 import net.md_5.bungee.protocol.packet.Title;
-import net.md_5.bungee.protocol.packet.extra.PlayerPositionRotation;
+import net.md_5.bungee.protocol.packet.extra.PlayerPosition;
+import net.md_5.bungee.protocol.packet.extra.PlayerPositionAndLook;
 
 public abstract class AbstractPacketHandler
 {
@@ -40,12 +41,16 @@ public abstract class AbstractPacketHandler
     public void handle(LegacyPing ping) throws Exception
     {
     }
-    
+
     //captcha statrt
     public void handle(ConfirmTransaction transaction) throws Exception
     {
     }
-    
+
+    public void handle(PlayerPosition pos) throws Exception
+    {
+    }
+
     public void handle(PlayerLook look) throws Exception
     {
     }
@@ -53,11 +58,11 @@ public abstract class AbstractPacketHandler
     public void handle(TeleportConfirm confirm) throws Exception
     {
     }
-    
-    public void handle(PlayerPositionRotation posRot) throws Exception
+
+    public void handle(PlayerPositionAndLook posRot) throws Exception
     {
     }
-    
+
     //captcha end
     public void handle(TabCompleteResponse tabResponse) throws Exception
     {
