@@ -32,8 +32,10 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.extra.TeleportConfirm;
 import net.md_5.bungee.protocol.packet.Title;
+import net.md_5.bungee.protocol.packet.extra.Player;
 import net.md_5.bungee.protocol.packet.extra.PlayerPosition;
 import net.md_5.bungee.protocol.packet.extra.PlayerPositionAndLook;
+import net.md_5.bungee.protocol.packet.extra.PlayerTryUseItemOnBlock;
 
 public abstract class AbstractPacketHandler
 {
@@ -41,8 +43,13 @@ public abstract class AbstractPacketHandler
     public void handle(LegacyPing ping) throws Exception
     {
     }
+
     //GameGuard statrt
     public void handle(ConfirmTransaction transaction) throws Exception
+    {
+    }
+
+    public void handle(Player player) throws Exception
     {
     }
 
@@ -59,6 +66,10 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(PlayerPositionAndLook posRot) throws Exception
+    {
+    }
+
+    public void handle(PlayerTryUseItemOnBlock blockClick) throws Exception
     {
     }
     //GameGuard end

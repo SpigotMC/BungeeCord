@@ -1,4 +1,4 @@
-package ru.leymooo.gameguard;
+package ru.leymooo.gameguard.utils;
 
 import com.maxmind.geoip.LookupService;
 import static com.maxmind.geoip.LookupService.GEOIP_MEMORY_CACHE;
@@ -30,20 +30,16 @@ public class GeoIpUtils
             = "[LICENSE] This product uses data from the GeoLite API created by MaxMind, available at http://www.maxmind.com";
     private static final String GEOIP_URL
             = "http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz";
-    private static final ExecutorService executor = Executors.newFixedThreadPool( 4 );
 
     private final HashSet<String> countryAuto;
     private final HashSet<String> countryPermanent;
 
-    private static final Pattern LOCAL_ADDRESS_PATTERN
-            = Pattern.compile( "(^127\\.)|(^(0)?10\\.)|(^172\\.(0)?1[6-9]\\.)|(^172\\.(0)?2[0-9]\\.)"
-                    + "|(^172\\.(0)?3[0-1]\\.)|(^169\\.254\\.)|(^192\\.168\\.)" );
     private LookupService lookupService;
     private Thread downloadTask;
 
     private final File dataFile;
 
-    GeoIpUtils(File dataFolder, List<String> auto, List<String> permanent)
+    public GeoIpUtils(File dataFolder, List<String> auto, List<String> permanent)
     {
         this.dataFile = new File( dataFolder, "GeoIP.dat" );
         this.countryAuto = new HashSet<>( auto );
@@ -142,22 +138,11 @@ public class GeoIpUtils
      */
     public String getCountryCode(String ip)
     {
-        if ( !LOCAL_ADDRESS_PATTERN.matcher( ip ).find() && isDataAvailable() )
+        if ( isDataAvailable() )
         {
             return lookupService.getCountry( ip ).getCode();
         }
         return "--";
-    }
-
-    public void getAndSetCountryCode(GGConnector con)
-    {
-        executor.execute( () ->
-        {
-            if ( con.isConnected() )
-            {
-                con.setCountry( this.getCountryCode( con.getConnection().getAddress().getAddress().getHostAddress() ) );
-            }
-        } );
     }
 
     public boolean isAllowed(String code, boolean permanent)
@@ -165,8 +150,4 @@ public class GeoIpUtils
         return ( countryAuto.contains( code ) || code.equals( "--" ) ) || ( permanent && countryPermanent.contains( code ) );
     }
 
-    public boolean isAllowedPermanent(String code)
-    {
-        return isAllowed( code, true );
-    }
 }

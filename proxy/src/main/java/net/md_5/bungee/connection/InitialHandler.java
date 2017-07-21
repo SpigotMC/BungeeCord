@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import java.math.BigInteger;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
@@ -64,7 +65,9 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
 import ru.leymooo.gameguard.Config;
 import ru.leymooo.gameguard.GGConnector;
-import ru.leymooo.gameguard.Utils;
+import ru.leymooo.gameguard.utils.GeoIpUtils;
+import ru.leymooo.gameguard.utils.Proxy;
+import ru.leymooo.gameguard.utils.Utils;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -153,7 +156,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         this.legacy = true;
         final boolean v1_5 = ping.isV1_5();
 
-        ServerPing legacy = new ServerPing( new ServerPing.Protocol( "BungeeGameGuard 1.8-1.12 by vk.com/Leymooo_s", bungee.getProtocolVersion() ), //GameGuard
+        ServerPing legacy = new ServerPing( new ServerPing.Protocol( "GG 1.8-1.12 by vk.com Leymooo_s", bungee.getProtocolVersion() ), //GameGuard
                 new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCountWithGG(), null ), //GameGuard
                 new TextComponent( TextComponent.fromLegacyText( listener.getMotd() ) ), (Favicon) null );
 
@@ -241,7 +244,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             int protocol = ( ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
             pingBack.done( new ServerPing(
-                    new ServerPing.Protocol( "BungeeGameGuard 1.8-1.12 by vk.com/Leymooo_s", protocol ), //GameGuard
+                    new ServerPing.Protocol( "GG 1.8-1.12 by vk.com Leymooo_s", protocol ), //GameGuard
                     new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCountWithGG(), null ), //GameGuard
                     motd, BungeeCord.getInstance().config.getFaviconObject() ),
                     null );
@@ -312,13 +315,25 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     return;
                 }
                 //gameguard start
-                if ( Utils.isManyChecks( getAddress().getAddress().getHostAddress(), false ) )
+                Config config = Config.getConfig();
+                GeoIpUtils geo = config.getGeoUtils();
+                Proxy pr = config.getProxy();
+                InetAddress address = getAddress().getAddress();
+                if ( ( config.isUnderAttack() && config.isForceKick() )
+                        && ( !geo.isAllowed( geo.getCountryCode( address.getHostAddress() ), false )
+                        || pr.isProxy( address.getHostAddress() ) ) )
                 {
-                    disconnect( Config.getConfig().getError0() );
+                    disconnect( pr.isProxy( address.getHostAddress() ) ? config.getErrorProxy() : config.getErrorConutry() );
                     return;
                 }
+                if ( Utils.isManyChecks( getAddress().getAddress().getHostAddress(), false ) )
+                {
+                    disconnect( Config.getConfig().getErrorManyChecks() );
+                    return;
+                }
+
                 //gameguard end
-                if ( bungee.getConnectionThrottle() != null && bungee.getConnectionThrottle().throttle( getAddress().getAddress() ) )
+                if ( bungee.getConnectionThrottle() != null && bungee.getConnectionThrottle().throttle( address ) )
                 {
                     disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( bungee.getConfig().getThrottle() ) ) );
                 }

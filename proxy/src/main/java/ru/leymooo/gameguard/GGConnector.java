@@ -1,9 +1,13 @@
 package ru.leymooo.gameguard;
 
+import ru.leymooo.gameguard.utils.ButtonUtils;
+import ru.leymooo.gameguard.utils.Utils;
 import io.netty.channel.Channel;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,14 +26,19 @@ import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.extra.ChunkPacket;
+import net.md_5.bungee.protocol.packet.extra.MultiBlockChange.Block;
+import net.md_5.bungee.protocol.packet.extra.Player;
+import net.md_5.bungee.protocol.packet.extra.PlayerLook;
 import net.md_5.bungee.protocol.packet.extra.PlayerPosition;
 import net.md_5.bungee.protocol.packet.extra.PlayerPositionAndLook;
+import net.md_5.bungee.protocol.packet.extra.PlayerTryUseItemOnBlock;
 import net.md_5.bungee.protocol.packet.extra.SetExp;
 import net.md_5.bungee.protocol.packet.extra.SetSlot;
 import net.md_5.bungee.protocol.packet.extra.SpawnPosition;
 import net.md_5.bungee.protocol.packet.extra.TeleportConfirm;
 import net.md_5.bungee.protocol.packet.extra.TimeUpdate;
 import net.md_5.bungee.protocol.packet.extra.UpdateHeath;
+import ru.leymooo.gameguard.utils.Utils.CheckState;
 
 /**
  *
@@ -38,7 +47,7 @@ import net.md_5.bungee.protocol.packet.extra.UpdateHeath;
 @Data
 @EqualsAndHashCode(callSuper = false, exclude =
 {
-    "connection", "wrongLocation", "channel", "lastPacketCheck", "packetsPerSec", "playerPositionAndLook", "recieved", "globalTick", "localTick", "lastY", "sus", "country", "setSlotPacket", "healthPacket", "posLook", "setExpPacket"
+    "buttons", "location", "state", "connection", "wrongLocations", "channel", "lastPacketCheck", "packets", "playerPositionAndLook", "recieved", "globalTick", "localTick", "setSlotPacket", "healthPacket", "posLook", "setExpPacket"
 })
 public class GGConnector extends PacketHandler
 {
@@ -48,26 +57,26 @@ public class GGConnector extends PacketHandler
     private Channel channel;
     private long joinTime = System.currentTimeMillis();
     private long lastPacketCheck = System.currentTimeMillis();
-    private int packetsPerSec = 0;
+    private AtomicInteger packets;
     private boolean playerPositionAndLook = false;
     private boolean recieved = false;
     private int globalTick = 0;
     private int localTick = 0;
-    private int wrongLocation = 0;
-    private double lastY = 300;
-    private boolean sus;
-    private String country = "--";
+    private int wrongLocations = 0;
     private String name;
-
+    private Location location;
+    private CheckState state = CheckState.POSITION;
+    private HashMap<Location, Block> buttons;
     //=====================================
-    private SetSlot setSlotPacket = new SetSlot( 0, 36, 57, 0 );
-    private UpdateHeath healthPacket = new UpdateHeath( 1, 1, 0 );
-    private SetExp setExpPacket = new SetExp( 0.0f, 1, 1 );
+    private SetSlot setSlotPacket;
+    private UpdateHeath healthPacket;
+    private SetExp setExpPacket;
     private PlayerPositionAndLook posLook = null;
-    private static DefinedPacket loginPacket = new Login( -1, (short) 0, 0, (short) 0, (short) 100, "flat", true ),
+    private static DefinedPacket loginPacket = new Login( -1, (short) 2, 0, (short) 0, (short) 100, "flat", true ),
             spawnPositionPacket = new SpawnPosition( 1, 60, 1 ),
             playerPosAndLook = new PlayerPositionAndLook( 1.00, 300, 1.00, 1f, 1f, 1, false ),
-            timeUpdate = new TimeUpdate( 1, 12000 ),
+            timeUpdate = new TimeUpdate( 1, 1000 ),
+            healthUpdate = new UpdateHeath( 1, 1, 0 ),
             chat = new Chat( ComponentSerializer.toString( TextComponent.fromLegacyText( Config.getConfig().getCheck() ) ), (byte) ChatMessageType.CHAT.ordinal() );
     private static List<ChunkPacket> chunkPackets = Arrays.asList(
             new ChunkPacket( 0, 0, new byte[ 256 ] ), new ChunkPacket( -1, 0, new byte[ 256 ] ), new ChunkPacket( 0, 1, new byte[ 256 ] ),
@@ -87,19 +96,24 @@ public class GGConnector extends PacketHandler
         Config.getConfig().getBotCounter().incrementAndGet();
         Config.getConfig().isUnderAttack();
         Config.getConfig().getConnectedUsersSet().add( this );
-        Config.getConfig().getGeoUtils().getAndSetCountryCode( this );
     }
 
     @Override
     public void disconnected(ChannelWrapper channel) throws Exception
     {
+        this.disconnected();
+    }
+
+    private void disconnected()
+    {
         Config.getConfig().getConnectedUsersSet().remove( this );
-        if ( !isSus() )
+        if ( state != CheckState.SUS )
         {
             Config.getConfig().getProxy().addProxyForce( getConnection().getAddress().getAddress().getHostAddress() );
         }
         this.setConnection( null );
         this.setChannel( null );
+        this.setLocation( null );
     }
 
     private void sendFakeServerPackets()
@@ -109,30 +123,70 @@ public class GGConnector extends PacketHandler
         chunkPackets.forEach( chunkPacket -> this.write( chunkPacket ) );
         this.write( playerPosAndLook );
         this.write( timeUpdate );
-        this.write( healthPacket );
+        this.write( healthUpdate );
         this.write( chat );
         this.getChannel().flush();
     }
 
-    private void write(Object packet)
+    public void write(Object packet)
     {
         this.getChannel().write( packet, this.getChannel().voidPromise() );
     }
 
     @Override
+    public void handle(PlayerTryUseItemOnBlock blockClick) throws Exception
+    {
+        if ( state == CheckState.BUTTON )
+        {
+            Location loc = Location.LocationFromLong( blockClick.getLocation() );
+            Block block = buttons.get( loc );
+            if ( block == null )
+            {
+                return;
+            }
+            if ( block.getBlockData() == 5 )
+            {
+                if ( Utils.canUseButton( getLocation(), loc ) )
+                {
+                    state = CheckState.SUS;
+                    finish();
+                    return;
+                }
+                getConnection().disconnect( Config.getConfig().getErrorCantUse() );
+                state = CheckState.FAILED;
+                return;
+            }
+            getConnection().disconnect( Config.getConfig().getErrorWrongButton() );
+            state = CheckState.FAILED;
+        }
+    }
+
+    @Override
+    public void handle(Player player) throws Exception
+    {
+        if ( getLocation() != null && state != CheckState.FAILED )
+        {
+            getLocation().handlePosition( player );
+        }
+    }
+
+    @Override
+    public void handle(PlayerLook look) throws Exception
+    {
+        if ( getLocation() != null && state != CheckState.FAILED )
+        {
+            getLocation().handlePosition( look );
+        }
+    }
+
+    @Override
     public void handle(PlayerPosition pos) throws Exception
     {
-        this.handlePosition( pos.getY() );
-    }
-
-    private double getFallSpeed()
-    {
-        return formatDouble( Math.abs( ( Math.pow( 0.98, localTick ) - 1 ) * 3.92 ) );
-    }
-
-    private double formatDouble(double d)
-    {
-        return Math.floor( d * 100 ) / 100;
+        if ( getLocation() != null && state != CheckState.FAILED )
+        {
+            getLocation().handlePosition( pos );
+            this.handleY( getLocation() );
+        }
     }
 
     @Override
@@ -145,69 +199,54 @@ public class GGConnector extends PacketHandler
     }
 
     @Override
-    public void handle(PlayerPositionAndLook posRot)
+    public void handle(PlayerPositionAndLook posRot
+    )
     {
+        if ( getLocation() == null )
+        {
+            setLocation( new Location( 0, 300, 0, 0, 0, false, 0 ) );
+            return;
+        }
+        getLocation().handlePosition( posRot );
         if ( this.getPosLook() != null && isRecieved() )
         {
             PlayerPositionAndLook pos = getPosLook();
-            //Костыль для 1.8
-            boolean failed = false;
-            if ( !( pos.getX() == posRot.getX() && pos.getY() == posRot.getY() && pos.getZ() == posRot.getZ() && pos.getYaw() == posRot.getYaw() && pos.getPitch() == posRot.getPitch() && pos.isOnGround() == posRot.isOnGround() ) )
-            {
-                failed = true;
-                if ( getConnection().getPendingConnection().getHandshake().getProtocolVersion() != 47 )
-                {
-                    this.setLastY( 9999 );
-                    localTick++;
-                    return; //У нас бот. Портим ему на всяких случай счетчик.
-                }
-            }
-            if ( !failed )
+            if ( pos.equals( posRot ) )
             {
                 setPosLook( null );
                 setRecieved( false );
-                lastY = posRot.getY();
                 localTick = 0;
                 return;
+            } else if ( getConnection().getPendingConnection().getHandshake().getProtocolVersion() != 47 )
+            {
+                this.state = CheckState.FAILED;
             }
         }
-        if ( !this.isPlayerPositionAndLook() )
-        {
-            this.setPlayerPositionAndLook( true );
-            return;
-        }
-        handlePosition( posRot.getY() );
+        handleY( getLocation() );
     }
 
-    private void handlePosition(double y)
+    private void handleY(Location loc)
     {
-        if ( isSus() )
+        if ( state != CheckState.POSITION || Utils.checkPps( this ) || getLocation() == null )
         {
             return;
         }
-        if ( checkPps() )
+        double formatedFallSpeed = Utils.formatDouble( loc.getLastY() - loc.getY() );
+        boolean isTrue = formatedFallSpeed == Utils.getFallSpeed( localTick );
+        if ( !isTrue && wrongLocations++ >= 5 )
         {
-            this.setSus( true );
-            this.getConnection().disconnect( Config.getConfig().getError3() );
+            state = CheckState.FAILED;
             return;
         }
-        double formatedFallSpeed = formatDouble( lastY - y );
-        if ( formatedFallSpeed != getFallSpeed() )
+        if ( globalTick == 60 && isTrue )
         {
-            wrongLocation++;
-        }
-
-        if ( globalTick == 60 && formatedFallSpeed == getFallSpeed() )
-        {
-            this.getConnection().sendMessage( Config.getConfig().getCheckSus() );
-            this.setSus( true );
-            finish();
+            this.state = CheckState.BUTTON;
+            ThreadLocalRandom random = ThreadLocalRandom.current();
+            ButtonUtils.pasteSchemAndTeleportPlayer( random.nextInt( -3000, 3000 ), random.nextInt( 50, 122 ), random.nextInt( -3000, 3000 ), this );
             return;
         }
-        lastY = y;
-        this.sendSlotPacket();
-        this.sendHealthAndExpPacket();
-        this.sendPosLokPacket( formatedFallSpeed == getFallSpeed() );
+        Utils.sendPackets( this );
+        this.sendPosLokPacket( isTrue );
         localTick++;
         globalTick++;
     }
@@ -218,46 +257,8 @@ public class GGConnector extends PacketHandler
         if ( r.nextInt( 100 ) < 6 && globalTick < 50 && send && Config.getConfig().isUnderAttack() )
         {
             this.setPosLook( new PlayerPositionAndLook( r.nextInt( -7, 7 ), r.nextInt( 200, 600 ), r.nextInt( -7, 7 ), 1, 1, 2, false ) );
+            setRecieved( getConnection().getPendingConnection().getHandshake().getProtocolVersion() == 47 );
             this.getChannel().writeAndFlush( this.getPosLook() );
-            if ( getConnection().getPendingConnection().getHandshake().getProtocolVersion() == 47 )
-            {
-                setRecieved( true );
-            }
-        }
-    }
-
-    private boolean checkPps()
-    {
-        this.setPacketsPerSec( getPacketsPerSec() + 1 );
-        if ( System.currentTimeMillis() - getLastPacketCheck() <= 125 )
-        {
-            return getPacketsPerSec() >= 14;
-        } else
-        {
-            setPacketsPerSec( 0 );
-            setLastPacketCheck( System.currentTimeMillis() );
-            return false;
-        }
-    }
-
-    private void sendSlotPacket()
-    {
-        if ( globalTick >= 9 && globalTick <= 21 && globalTick % 2 != 0 )
-        {
-            this.getSetSlotPacket().setSlot( this.getSetSlotPacket().getSlot() + 1 );
-            this.getChannel().writeAndFlush( this.getSetSlotPacket(), this.getChannel().voidPromise() );
-        }
-    }
-
-    private void sendHealthAndExpPacket()
-    {
-        if ( globalTick % 3 == 0 && globalTick <= 63 )
-        {
-            this.getHealthPacket().setFood( this.getHealthPacket().getFood() + 1 );
-            this.getHealthPacket().setHealth( this.getHealthPacket().getHealth() + 1 );
-            this.write( this.getHealthPacket() );
-            this.getSetExpPacket().setExpBar( this.getSetExpPacket().getExpBar() + 0.052f );
-            this.getChannel().writeAndFlush( this.getSetExpPacket() );
         }
     }
 
@@ -268,29 +269,17 @@ public class GGConnector extends PacketHandler
 
     private void finish()
     {
+        if ( Utils.disconnect( this ) )
+        {
+            return;
+        }
         Config config = Config.getConfig();
-        if ( ( config.isUnderAttack() || config.isPermanent() ) && ( !config.getGeoUtils().isAllowed( country, config.isPermanent() ) || config.getProxy().isProxy( getConnection().getAddress().getAddress().getHostAddress() ) ) )
-        {
-            getConnection().disconnect( !config.getGeoUtils().isAllowed( country, config.isPermanent() ) ? config.getError2_1() : config.getError2() );
-            return;
-        }
-        if ( wrongLocation >= 5 )
-        {
-            getConnection().disconnect( config.getError1() );
-            return;
-        }
         config.saveIp( name, getConnection().getAddress().getAddress().getHostAddress() );
         getConnection().serverr = true;
         ( (HandlerBoss) this.getChannel().pipeline().get( HandlerBoss.class ) ).setHandler( new UpstreamBridge( ProxyServer.getInstance(), this.getConnection() ) );
         ProxyServer.getInstance().getPluginManager().callEvent( new PostLoginEvent( this.getConnection() ) );
         this.getConnection().connect( ProxyServer.getInstance().getServerInfo( this.getConnection().getPendingConnection().getListener().getDefaultServer() ), null, true );
-        try
-        {
-            disconnected( getConnection().getCh() );
-        } catch ( Exception e )
-        {
-            BungeeCord.getInstance().getLogger().log( Level.WARNING, "vk.com/Leymooo_s", e );
-        }
+        this.disconnected();
 
     }
 

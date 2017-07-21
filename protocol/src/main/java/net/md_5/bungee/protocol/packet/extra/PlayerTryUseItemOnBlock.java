@@ -11,39 +11,24 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class SetSlot extends DefinedPacket
+public class PlayerTryUseItemOnBlock extends DefinedPacket
 {
 
-    private int windowId;
-    private int slot;
-    private int count;
-    private int item;
-    private int data;
-
-    @Override
-    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
-    {
-        buf.writeByte( this.windowId );
-        buf.writeShort( this.slot );
-        buf.writeShort( this.item );
-        if ( this.item != -1 )
-        {
-            buf.writeByte( this.count );
-            buf.writeShort( this.data );
-            buf.writeByte( 0 );
-        }
-    }
+    private long location;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
+        location = buf.readLong();
+        //Да ну нафиг. Я ебал считывать этот пакет полностью.
+        //Слишком он сложный.
         buf.skipBytes( buf.readableBytes() );
     }
 
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {
+        handler.handle( this );
     }
 }

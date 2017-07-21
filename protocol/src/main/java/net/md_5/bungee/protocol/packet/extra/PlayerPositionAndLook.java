@@ -12,7 +12,10 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = false, exclude =
+{
+    "onGround", "teleportId"
+})
 public class PlayerPositionAndLook extends DefinedPacket
 {
 

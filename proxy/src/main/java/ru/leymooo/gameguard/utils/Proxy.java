@@ -1,4 +1,4 @@
-package ru.leymooo.gameguard;
+package ru.leymooo.gameguard.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 import net.md_5.bungee.BungeeCord;
+import ru.leymooo.gameguard.Config;
 
 /**
  *
@@ -108,7 +109,7 @@ public class Proxy
     private void validateAndAddProxy(String line, boolean addToFile) throws IOException
     {
         String proxy = line.contains( ":" ) ? line.split( ":" )[0].trim() : line.trim();
-        if ( IPADDRESS_PATTERN.matcher( proxy ).matches() && Config.getConfig().getGeoUtils().isAllowedPermanent( Config.getConfig().getGeoUtils().getCountryCode( proxy ) ) )
+        if ( IPADDRESS_PATTERN.matcher( proxy ).matches() && Config.getConfig().getGeoUtils().isAllowed( Config.getConfig().getGeoUtils().getCountryCode( proxy ), true ) )
         {
             if ( !PROXIES.contains( proxy ) )
             {

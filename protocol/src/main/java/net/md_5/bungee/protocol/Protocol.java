@@ -41,9 +41,12 @@ import net.md_5.bungee.protocol.packet.Team;
 import net.md_5.bungee.protocol.packet.extra.TeleportConfirm;
 import net.md_5.bungee.protocol.packet.Title;
 import net.md_5.bungee.protocol.packet.extra.ChunkPacket;
+import net.md_5.bungee.protocol.packet.extra.MultiBlockChange;
+import net.md_5.bungee.protocol.packet.extra.Player;
 import net.md_5.bungee.protocol.packet.extra.UpdateHeath;
 import net.md_5.bungee.protocol.packet.extra.PlayerPosition;
 import net.md_5.bungee.protocol.packet.extra.PlayerPositionAndLook;
+import net.md_5.bungee.protocol.packet.extra.PlayerTryUseItemOnBlock;
 import net.md_5.bungee.protocol.packet.extra.SetExp;
 import net.md_5.bungee.protocol.packet.extra.SetSlot;
 import net.md_5.bungee.protocol.packet.extra.SpawnPosition;
@@ -113,7 +116,12 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x16 ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x16 )
             );
-            //GameGuard end
+            TO_CLIENT.registerPacket(
+                    MultiBlockChange.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x22 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x10 ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x10 )
+            ); //GameGuard end
             TO_CLIENT.registerPacket(
                     KeepAlive.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x00 ),
@@ -221,15 +229,29 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x00 ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x00 )
             );
-            TO_SERVER.registerPacket( PlayerPositionAndLook.class,
+            TO_SERVER.registerPacket(
+                    PlayerPositionAndLook.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x06 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x0D ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x0F )
             );
-            TO_SERVER.registerPacket( PlayerPosition.class,
+            TO_SERVER.registerPacket(
+                    PlayerPosition.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x04 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x0C ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x0E )
+            );
+            TO_SERVER.registerPacket(
+                    Player.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x03 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x0F ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x0D )
+            );
+            TO_SERVER.registerPacket(
+                    PlayerTryUseItemOnBlock.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x08 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x1C ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x1F )
             );
             //GameGuard end
             TO_SERVER.registerPacket(

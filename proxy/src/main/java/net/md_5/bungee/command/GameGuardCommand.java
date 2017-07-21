@@ -8,8 +8,8 @@ import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
 import ru.leymooo.gameguard.Config;
-import ru.leymooo.gameguard.Proxy;
-import ru.leymooo.gameguard.Utils;
+import ru.leymooo.gameguard.utils.Proxy;
+import ru.leymooo.gameguard.utils.Utils;
 
 public class GameGuardCommand extends Command
 {

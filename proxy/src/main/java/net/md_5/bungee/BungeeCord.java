@@ -1,7 +1,6 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -89,6 +88,7 @@ import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.fusesource.jansi.AnsiConsole;
+import ru.leymooo.gameguard.utils.ButtonUtils;
 import ru.leymooo.gameguard.Config;
 
 /**
@@ -259,6 +259,7 @@ public class BungeeCord extends ProxyServer
         workerEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Worker IO Thread #%1$d" ).build() ); //GameGuard
 
         new Config(); //GameGuard
+        new ButtonUtils();
         File moduleDirectory = new File( "modules" );
         moduleManager.load( this, moduleDirectory );
         pluginManager.detectPlugins( moduleDirectory );
@@ -268,7 +269,6 @@ public class BungeeCord extends ProxyServer
 
         pluginManager.loadPlugins();
         config.load();
-
         registerChannel( ForgeConstants.FML_TAG );
         registerChannel( ForgeConstants.FML_HANDSHAKE_TAG );
         registerChannel( ForgeConstants.FORGE_REGISTER );
