@@ -254,7 +254,7 @@ public class GGConnector extends PacketHandler
     private void sendPosLokPacket(boolean send)
     {
         ThreadLocalRandom r = ThreadLocalRandom.current();
-        if ( r.nextInt( 100 ) < 6 && globalTick < 50 && send && Config.getConfig().isUnderAttack() )
+        if ( r.nextInt( 100 ) < 6 && globalTick < 50 && send && Config.getConfig().isUnderAttack() && getPosLook() == null );
         {
             this.setPosLook( new PlayerPositionAndLook( r.nextInt( -7, 7 ), r.nextInt( 200, 600 ), r.nextInt( -7, 7 ), 1, 1, 2, false ) );
             setRecieved( getConnection().getPendingConnection().getHandshake().getProtocolVersion() == 47 );
