@@ -111,6 +111,7 @@ public class Utils
                 connector.setState( CheckState.FAILED );
                 return true;
             }
+            return false;
         }
         packets.set( 0 );
         connector.setLastPacketCheck( System.currentTimeMillis() );
