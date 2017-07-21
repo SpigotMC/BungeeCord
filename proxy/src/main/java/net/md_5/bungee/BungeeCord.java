@@ -488,7 +488,7 @@ public class BungeeCord extends ProxyServer
     @Override
     public String getName()
     {
-        return "BungeeGameGuard"; //GameGuard
+        return "GG"; //GameGuard
     }
 
     @Override
