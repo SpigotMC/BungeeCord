@@ -135,6 +135,7 @@ public class Config
         if ( ( System.currentTimeMillis() - this.lastBotAttackCheck <= 60000 ) && this.botCounter.get() >= this.maxChecksPer1min )
         {
             this.attackStartTime = System.currentTimeMillis();
+            this.lastBotAttackCheck += 61000;
             return true;
         }
         if ( System.currentTimeMillis() - this.lastBotAttackCheck >= 60000 )
@@ -232,7 +233,7 @@ public class Config
                     {
                     }
                     long currTime = System.currentTimeMillis();
-                    lastBotAttackCheck = Config.getConfig().getConnectedUsersSet().size() >= ( maxChecksPer1min / 3.65 ) && !isUnderAttack()
+                    lastBotAttackCheck = Config.getConfig().getConnectedUsersSet().size() >= ( maxChecksPer1min / 4 ) && !isUnderAttack()
                             ? currTime : lastBotAttackCheck;
                     for ( GGConnector connector : Config.getConfig().getConnectedUsersSet() )
                     {

@@ -315,25 +315,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     return;
                 }
                 //gameguard start
-                Config config = Config.getConfig();
-                GeoIpUtils geo = config.getGeoUtils();
-                Proxy pr = config.getProxy();
-                InetAddress address = getAddress().getAddress();
-                if ( ( config.isUnderAttack() && config.isForceKick() )
-                        && ( !geo.isAllowed( geo.getCountryCode( address.getHostAddress() ), false )
-                        || pr.isProxy( address.getHostAddress() ) ) )
-                {
-                    disconnect( pr.isProxy( address.getHostAddress() ) ? config.getErrorProxy() : config.getErrorConutry() );
-                    return;
-                }
                 if ( Utils.isManyChecks( getAddress().getAddress().getHostAddress(), false ) )
                 {
                     disconnect( Config.getConfig().getErrorManyChecks() );
                     return;
                 }
-
                 //gameguard end
-                if ( bungee.getConnectionThrottle() != null && bungee.getConnectionThrottle().throttle( address ) )
+                if ( bungee.getConnectionThrottle() != null && bungee.getConnectionThrottle().throttle( getAddress().getAddress() ) )
                 {
                     disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( bungee.getConfig().getThrottle() ) ) );
                 }
@@ -361,6 +349,20 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             return;
         }
 
+        //gameguard start
+        Config config = Config.getConfig();
+        GeoIpUtils geo = config.getGeoUtils();
+        InetAddress address = getAddress().getAddress();
+        boolean proxy = config.getProxy().isProxy( address.getHostAddress() );
+        if ( ( config.isUnderAttack() && config.isForceKick() && config.needCheck( getName(), address.getHostAddress() ) ) )
+        {
+            if ( !geo.isAllowed( geo.getCountryCode( address.getHostAddress() ), false ) || proxy )
+            {
+                disconnect( proxy ? config.getErrorProxy() : config.getErrorConutry() );
+                return;
+            }
+        }
+        //gameguard end
         int limit = BungeeCord.getInstance().config.getPlayerLimit();
         if ( limit > 0 && bungee.getOnlineCountWithGG() > limit )//GameGuard
         {

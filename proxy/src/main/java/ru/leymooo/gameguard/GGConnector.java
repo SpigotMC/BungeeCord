@@ -199,8 +199,7 @@ public class GGConnector extends PacketHandler
     }
 
     @Override
-    public void handle(PlayerPositionAndLook posRot
-    )
+    public void handle(PlayerPositionAndLook posRot)
     {
         if ( getLocation() == null )
         {
@@ -240,9 +239,15 @@ public class GGConnector extends PacketHandler
         }
         if ( globalTick == 60 && isTrue )
         {
-            this.state = CheckState.BUTTON;
-            ThreadLocalRandom random = ThreadLocalRandom.current();
-            ButtonUtils.pasteSchemAndTeleportPlayer( random.nextInt( -3000, 3000 ), random.nextInt( 50, 122 ), random.nextInt( -3000, 3000 ), this );
+            if ( Config.getConfig().isUnderAttack() && ButtonUtils.getSchematic() != null)
+            {
+                this.state = CheckState.BUTTON;
+                ThreadLocalRandom random = ThreadLocalRandom.current();
+                ButtonUtils.pasteSchemAndTeleportPlayer( random.nextInt( -3000, 3000 ), random.nextInt( 50, 122 ), random.nextInt( -3000, 3000 ), this );
+                return;
+            }
+            this.state = CheckState.SUS;
+            finish();
             return;
         }
         Utils.sendPackets( this );
@@ -269,11 +274,12 @@ public class GGConnector extends PacketHandler
 
     private void finish()
     {
+        Config config = Config.getConfig();
+        getConnection().sendMessage( config.getCheckSus() );
         if ( Utils.disconnect( this ) )
         {
             return;
         }
-        Config config = Config.getConfig();
         config.saveIp( name, getConnection().getAddress().getAddress().getHostAddress() );
         getConnection().serverr = true;
         ( (HandlerBoss) this.getChannel().pipeline().get( HandlerBoss.class ) ).setHandler( new UpstreamBridge( ProxyServer.getInstance(), this.getConnection() ) );

@@ -1,11 +1,19 @@
 package net.md_5.bungee;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.security.Security;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.md_5.bungee.api.ChatColor;
@@ -14,6 +22,8 @@ import net.md_5.bungee.command.ConsoleCommandSender;
 
 public class BungeeCordLauncher
 {
+
+    private static int VERSION = 11;
 
     public static void main(String[] args) throws Exception
     {
@@ -32,25 +42,18 @@ public class BungeeCordLauncher
             System.out.println( Bootstrap.class.getPackage().getImplementationVersion() );
             return;
         }
-
-        if ( BungeeCord.class.getPackage().getSpecificationVersion() != null && System.getProperty( "IReallyKnowWhatIAmDoingISwear" ) == null )
+        //GameGuard start
+        if ( System.getProperty( "IReallyKnowWhatIAmDoingISwear" ) == null && checkUpdate() )
         {
-            Date buildDate = new SimpleDateFormat( "yyyyMMdd" ).parse( BungeeCord.class.getPackage().getSpecificationVersion() );
 
-            Calendar deadline = Calendar.getInstance();
-            deadline.add( Calendar.WEEK_OF_YEAR, -4 );
-            if ( buildDate.before( deadline.getTime() ) )
-            {
-                //GameGuard start
-                System.err.println( "*** ВНИМАНИЕ! Билд устарел ***" );
-                System.err.println( "*** Поищите новую версию где то на рубаките ***" );
-                System.err.println( "*** или у меня на стене (vk.com/Leymooo_s) ***" );
-                System.err.println( "*** Возможно, что новой версии нету. ***" );
-                System.err.println( "*** Стартуем через 3 секунды ***" );
-                Thread.sleep( TimeUnit.SECONDS.toMillis( 3 ) );
-                //GameGuard end
-            }
+            System.err.println( "*** ВНИМАНИЕ! Найдена новая версия***" );
+            System.err.println( "*** Новая версия тут: ***" );
+            System.err.println( "*** http://www.rubukkit.org/threads/137038/ ***" );
+            System.err.println( "*** Рекомендую обновиться. ***" );
+            System.err.println( "*** Запуск через 6 секунд ***" );
+            Thread.sleep( TimeUnit.SECONDS.toMillis( 6 ) );
         }
+        //GameGuard end
 
         BungeeCord bungee = new BungeeCord();
         ProxyServer.setInstance( bungee );
@@ -68,5 +71,27 @@ public class BungeeCordLauncher
                 }
             }
         }
+    }
+
+    private static boolean checkUpdate()
+    {
+        try
+        {
+            System.out.println( "[GameGuard] Проверяю наличее обновлений" );
+            //Да да. В главном потоке)
+            URL url = new URL( "http://151.80.108.152/gg-version.txt" );
+            URLConnection conn = url.openConnection();
+            conn.setConnectTimeout( 3000 );
+            conn.connect();
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader( conn.getInputStream() ) );
+            int version = Integer.parseInt( in.readLine() );
+            in.close();
+            return version != VERSION;
+        } catch ( IOException | NumberFormatException ex )
+        {
+            System.err.println( "[GameGuard] Не могу проверить обновление" );
+        }
+        return false;
     }
 }

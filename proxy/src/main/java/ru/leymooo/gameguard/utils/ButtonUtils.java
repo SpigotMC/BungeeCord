@@ -1,16 +1,15 @@
 package ru.leymooo.gameguard.utils;
 
 import io.netty.channel.Channel;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
+import lombok.Getter;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.protocol.packet.extra.ChunkPacket;
 import net.md_5.bungee.protocol.packet.extra.MultiBlockChange;
@@ -28,13 +27,14 @@ import ru.leymooo.gameguard.schematic.Schematic;
 public class ButtonUtils
 {
 
+    @Getter
     private static Schematic schematic;
 
     public ButtonUtils()
     {
         try
         {
-                InputStream in = getClass().getClassLoader().getResourceAsStream( ( "gg-do-not-edit.schematic" ) );
+            InputStream in = getClass().getClassLoader().getResourceAsStream( ( "gg-do-not-edit.schematic" ) );
             schematic = Schematic.loadSchematic( in );
         } catch ( IOException ex )
         {

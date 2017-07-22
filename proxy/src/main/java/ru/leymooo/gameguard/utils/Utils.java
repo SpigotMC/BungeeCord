@@ -46,10 +46,10 @@ public class Utils
         String ip = connection.getAddress().getAddress().getHostAddress();
         Config config = Config.getConfig();
         GeoIpUtils geo = config.getGeoUtils();
-        Proxy proxy = config.getProxy();
-        if ( ( config.isUnderAttack() || config.isPermanent() ) && ( !geo.isAllowed( geo.getCountryCode( ip ), config.isPermanent() ) || proxy.isProxy( ip ) ) )
+        boolean proxy = config.getProxy().isProxy( ip );
+        if ( ( config.isUnderAttack() || config.isPermanent() ) && ( !geo.isAllowed( geo.getCountryCode( ip ), config.isPermanent() ) || proxy ) )
         {
-            connection.disconnect( proxy.isProxy( ip ) ? config.getErrorProxy() : config.getErrorConutry() );
+            connection.disconnect( proxy ? config.getErrorProxy() : config.getErrorConutry() );
             return true;
         }
         return false;
