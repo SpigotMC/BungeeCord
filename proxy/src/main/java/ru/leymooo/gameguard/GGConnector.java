@@ -100,7 +100,7 @@ public class GGConnector extends PacketHandler
         this.channel = this.connection.getCh().getHandle();
         this.name = this.connection.getName();
         BungeeCord.getInstance().getLogger().log( Level.INFO, "{0} has connected", toString() );
-        Utils.isManyChecks( this.connection.getAddress().getAddress().getHostAddress(), true );
+        Utils.isManyChecks( this.connection.getAddress().getAddress().getHostAddress(), true, false );
         this.connection.setClientEntityId( -1 );
         this.sendFakeServerPackets();
         Config.getConfig().getBotCounter().incrementAndGet();
@@ -117,7 +117,7 @@ public class GGConnector extends PacketHandler
     private void disconnected()
     {
         Config.getConfig().getConnectedUsersSet().remove( this );
-        if ( state != CheckState.SUS )
+        if ( state != CheckState.SUS && Utils.isManyChecks( this.connection.getAddress().getAddress().getHostAddress(), false, true ) )
         {
             Config.getConfig().getProxy().addProxyForce( getConnection().getAddress().getAddress().getHostAddress() );
         }

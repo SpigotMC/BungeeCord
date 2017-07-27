@@ -315,7 +315,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     return;
                 }
                 //gameguard start
-                if ( Utils.isManyChecks( getAddress().getAddress().getHostAddress(), false ) )
+                if ( Utils.isManyChecks( getAddress().getAddress().getHostAddress(), false, false ) )
                 {
                     disconnect( Config.getConfig().getErrorManyChecks() );
                     return;

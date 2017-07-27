@@ -25,13 +25,17 @@ public class Utils
             .expireAfterWrite( 10, TimeUnit.MINUTES )
             .build();
 
-    public static boolean isManyChecks(String ip, boolean add)
+    public static boolean isManyChecks(String ip, boolean add, boolean check)
     {
         Integer conns = connections.getIfPresent( ip );
         if ( conns != null && conns >= 3 )
         {
             Config.getConfig().getProxy().addProxyForce( ip );
             return true;
+        }
+        if ( check )
+        {
+            return conns >= 2;
         }
         if ( add )
         {
