@@ -352,11 +352,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         //gameguard start
         Config config = Config.getConfig();
         GeoIpUtils geo = config.getGeoUtils();
-        InetAddress address = getAddress().getAddress();
-        boolean proxy = config.getProxy().isProxy( address.getHostAddress() );
-        if ( ( config.isUnderAttack() && config.isForceKick() && config.needCheck( getName(), address.getHostAddress() ) ) )
+        String address = getAddress().getAddress().getHostAddress();
+        boolean proxy = config.getProxy().isProxy( address );
+        if ( ( config.isUnderAttack() && config.isForceKick() && config.needCheck( getName(), address ) ) )
         {
-            if ( !geo.isAllowed( geo.getCountryCode( address.getHostAddress() ), false ) || proxy )
+            if ( proxy || !geo.isAllowed( geo.getCountryCode( address ), false ) )
             {
                 disconnect( proxy ? config.getErrorProxy() : config.getErrorConutry() );
                 return;

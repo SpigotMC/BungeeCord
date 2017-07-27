@@ -47,9 +47,20 @@ public class Utils
         Config config = Config.getConfig();
         GeoIpUtils geo = config.getGeoUtils();
         boolean proxy = config.getProxy().isProxy( ip );
-        if ( ( config.isUnderAttack() || config.isPermanent() ) && ( !geo.isAllowed( geo.getCountryCode( ip ), config.isPermanent() ) || proxy ) )
+        if ( !config.isProtectionEnabled() )
+        {
+            return false;
+        }
+        if ( proxy || !geo.isAllowed( geo.getCountryCode( ip ), config.isPermanent() ) )
         {
             connection.disconnect( proxy ? config.getErrorProxy() : config.getErrorConutry() );
+            return true;
+        }
+        if ( !( connector.isClientSettings() && connector.isConfirmTransaction()
+                && connector.isKeepAlive() && connector.isPluginMessage()
+                && connector.getPosLook() == null && connector.getConfirmPacket() == null && connector.getKeepAlivePacket() == null ) )
+        {
+            connection.disconnect( config.getErrorBot() );
             return true;
         }
         return false;
@@ -68,13 +79,13 @@ public class Utils
     public static void sendPackets(GGConnector connector)
     {
         int globalTick = connector.getGlobalTick();
-        if ( globalTick >= 7 && globalTick <= 51 && globalTick % 7 == 0 )
+        if ( globalTick >= 7 && globalTick <= 63 && globalTick % 9 == 0 )
         {
             SetSlot slotPacket = connector.getSetSlotPacket();
             slotPacket.setSlot( slotPacket.getSlot() + 1 );
             connector.write( slotPacket );
         }
-        if ( globalTick % 3 == 0 && globalTick <= 63 )
+        if ( globalTick % 4 == 0 && globalTick <= 72 )
         {
             UpdateHeath healthPacket = connector.getHealthPacket();
             SetExp expPacket = connector.getSetExpPacket();
@@ -88,7 +99,7 @@ public class Utils
             }
             healthPacket.setHealth( healthPacket.getHealth() + 1 );
             healthPacket.setFood( healthPacket.getFood() + 1 );
-            expPacket.setExpBar( expPacket.getExpBar() + 0.0495f < 1 ? expPacket.getExpBar() + 0.0495f : 1 );
+            expPacket.setExpBar( expPacket.getExpBar() + 0.0524f < 1 ? expPacket.getExpBar() + 0.0524f : 1 );
             connector.write( healthPacket );
             connector.write( expPacket );
         }
@@ -103,9 +114,9 @@ public class Utils
             packets = new AtomicInteger();
             connector.setPackets( packets );
         }
-        if ( System.currentTimeMillis() - connector.getLastPacketCheck() <= 100 )
+        if ( System.currentTimeMillis() - connector.getLastPacketCheck() <= 1000 )
         {
-            if ( packets.incrementAndGet() >= 16 )
+            if ( packets.incrementAndGet() >= 30 )
             {
                 connector.getConnection().disconnect( Config.getConfig().getErrorPackets() );
                 connector.setState( CheckState.FAILED );
@@ -120,12 +131,11 @@ public class Utils
 
     public static boolean canUseButton(Location playerLoc, Location blockLoc)
     {
-
         Vector toBlock = blockLoc.toVector().subtract( playerLoc.clone().add( 0, 1.62, 0, 0, 0 ).toVector() );
         Vector direction = playerLoc.getDirection();
         double distance = playerLoc.distance( blockLoc );
         double dot = toBlock.normalize().dot( direction );
-        return ( 0.4 < dot && dot <= 1 ) && ( distance <= 4.8 && distance > 1.5 ) && playerLoc.isOnGround() && playerLoc.getY() == blockLoc.getY() - 1;
+        return ( 0.35 < dot && dot <= 1 ) && ( distance <= 4.95 && distance > 1.5 ) && playerLoc.isOnGround() && playerLoc.getY() == blockLoc.getY() - 1;
     }
 
     public static enum CheckState

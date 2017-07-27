@@ -34,8 +34,7 @@ public class ChunkPacket extends DefinedPacket
         {
             buf.writeShort( 1 );
         }
-        DefinedPacket.writeVarInt( 256, buf );
-        Arrays.fill( this.data, (byte) 18 );
+        DefinedPacket.writeVarInt( data.length, buf );
         buf.writeBytes( this.data );
         if ( version >= 110 )
         {

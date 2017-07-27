@@ -1,5 +1,7 @@
 package ru.leymooo.gameguard;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import ru.leymooo.gameguard.utils.ButtonUtils;
 import ru.leymooo.gameguard.utils.Utils;
 import io.netty.channel.Channel;
@@ -24,8 +26,12 @@ import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Chat;
+import net.md_5.bungee.protocol.packet.ClientSettings;
+import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Login;
+import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.extra.ChunkPacket;
+import net.md_5.bungee.protocol.packet.extra.ConfirmTransaction;
 import net.md_5.bungee.protocol.packet.extra.MultiBlockChange.Block;
 import net.md_5.bungee.protocol.packet.extra.Player;
 import net.md_5.bungee.protocol.packet.extra.PlayerLook;
@@ -47,7 +53,7 @@ import ru.leymooo.gameguard.utils.Utils.CheckState;
 @Data
 @EqualsAndHashCode(callSuper = false, exclude =
 {
-    "buttons", "location", "state", "connection", "wrongLocations", "channel", "lastPacketCheck", "packets", "playerPositionAndLook", "recieved", "globalTick", "localTick", "setSlotPacket", "healthPacket", "posLook", "setExpPacket"
+    "confirmPacket", "keepAlivePacket", "clientSettings", "keepAlive", "confirmTransaction", "pluginMessage", "buttons", "location", "state", "connection", "wrongLocations", "channel", "lastPacketCheck", "packets", "recieved", "globalTick", "localTick", "setSlotPacket", "healthPacket", "posLook", "setExpPacket"
 })
 public class GGConnector extends PacketHandler
 {
@@ -58,7 +64,6 @@ public class GGConnector extends PacketHandler
     private long joinTime = System.currentTimeMillis();
     private long lastPacketCheck = System.currentTimeMillis();
     private AtomicInteger packets;
-    private boolean playerPositionAndLook = false;
     private boolean recieved = false;
     private int globalTick = 0;
     private int localTick = 0;
@@ -67,22 +72,27 @@ public class GGConnector extends PacketHandler
     private Location location;
     private CheckState state = CheckState.POSITION;
     private HashMap<Location, Block> buttons;
-    //=====================================
+    //==========Кометические пакеты==============
     private SetSlot setSlotPacket;
     private UpdateHeath healthPacket;
     private SetExp setExpPacket;
+    //=====Пакеты для проверки протокола=========
     private PlayerPositionAndLook posLook = null;
+    private ConfirmTransaction confirmPacket = null;
+    private KeepAlive keepAlivePacket = null;
+    private boolean clientSettings, keepAlive, confirmTransaction, pluginMessage;
+    //==========Статические пакеты===============
     private static DefinedPacket loginPacket = new Login( -1, (short) 2, 0, (short) 0, (short) 100, "flat", true ),
             spawnPositionPacket = new SpawnPosition( 1, 60, 1 ),
-            playerPosAndLook = new PlayerPositionAndLook( 1.00, 300, 1.00, 1f, 1f, 1, false ),
+            playerPosAndLook = new PlayerPositionAndLook( 1.00, 450, 1.00, 1f, 1f, 1, false ),
             timeUpdate = new TimeUpdate( 1, 1000 ),
             healthUpdate = new UpdateHeath( 1, 1, 0 ),
             chat = new Chat( ComponentSerializer.toString( TextComponent.fromLegacyText( Config.getConfig().getCheck() ) ), (byte) ChatMessageType.CHAT.ordinal() );
     private static List<ChunkPacket> chunkPackets = Arrays.asList(
             new ChunkPacket( 0, 0, new byte[ 256 ] ), new ChunkPacket( -1, 0, new byte[ 256 ] ), new ChunkPacket( 0, 1, new byte[ 256 ] ),
             new ChunkPacket( -1, 1, new byte[ 256 ] ), new ChunkPacket( 0, -1, new byte[ 256 ] ), new ChunkPacket( -1, -1, new byte[ 256 ] ),
-            new ChunkPacket( 1, 1, new byte[ 256 ] ), new ChunkPacket( 1, -1, new byte[ 256 ] ), new ChunkPacket( 1, 0, new byte[ 256 ] ) );
-    //=====================================
+            new ChunkPacket( 1, 1, new byte[ 256 ] ), new ChunkPacket( 1, -1, new byte[ 256 ] ), new ChunkPacket( 1, 0, new byte[ 256 ] ), new ChunkPacket( 2, 1, new byte[ 255 ] ) );
+    //===========================================
 
     public GGConnector(UserConnection connection)
     {
@@ -161,6 +171,50 @@ public class GGConnector extends PacketHandler
         }
     }
 
+    //=======================================
+    @Override
+    public void handle(ConfirmTransaction transaction) throws Exception
+    {
+        if ( getConfirmPacket() != null )
+        {
+            this.setConfirmTransaction( transaction.getWindow() == 0 && transaction.isAccepted() && transaction.getAction() == getConfirmPacket().getAction() );
+            this.setConfirmPacket( null );
+        }
+    }
+
+    @Override
+    public void handle(PluginMessage pluginMessage) throws Exception
+    {
+        if ( "MC|Brand".equals( pluginMessage.getTag() ) )
+        {
+            ByteBuf buf = Unpooled.wrappedBuffer( pluginMessage.getData() );
+            String brand = DefinedPacket.readString( buf );
+            buf.release();
+            if ( brand != null && ( brand.contains( "fml" ) || brand.contains( "forge" ) || brand.equals( "vanilla" ) ) )
+            {
+                setPluginMessage( true );
+            }
+        }
+    }
+
+    @Override
+    public void handle(KeepAlive packet) throws Exception
+    {
+        if ( getKeepAlivePacket() != null )
+        {
+            setKeepAlive( getKeepAlivePacket().getRandomId() == packet.getRandomId() );
+            setKeepAlivePacket( null );
+        }
+    }
+
+    @Override
+    public void handle(ClientSettings settings) throws Exception
+    {
+        getConnection().setSettings( settings );
+        setClientSettings( true );
+    }
+    //=======================================
+
     @Override
     public void handle(Player player) throws Exception
     {
@@ -237,9 +291,9 @@ public class GGConnector extends PacketHandler
             state = CheckState.FAILED;
             return;
         }
-        if ( globalTick == 60 && isTrue )
+        if ( globalTick == 75 && isTrue )
         {
-            if ( Config.getConfig().isUnderAttack() && ButtonUtils.getSchematic() != null)
+            if ( Config.getConfig().isUnderAttack() && ButtonUtils.getSchematic() != null )
             {
                 this.state = CheckState.BUTTON;
                 ThreadLocalRandom random = ThreadLocalRandom.current();
@@ -251,19 +305,32 @@ public class GGConnector extends PacketHandler
             return;
         }
         Utils.sendPackets( this );
-        this.sendPosLokPacket( isTrue );
+        this.sendCheckPackets( isTrue, false );
         localTick++;
         globalTick++;
     }
 
-    private void sendPosLokPacket(boolean send)
+    public void sendCheckPackets(boolean send, boolean force)
     {
-        ThreadLocalRandom r = ThreadLocalRandom.current();
-        if ( r.nextInt( 100 ) < 6 && globalTick < 50 && send && Config.getConfig().isUnderAttack() && getPosLook() == null )
+        if ( globalTick < 5 || globalTick > 60 || !send || !Config.getConfig().isProtectionEnabled() || state != CheckState.POSITION )
         {
-            this.setPosLook( new PlayerPositionAndLook( r.nextInt( -7, 7 ), r.nextInt( 200, 600 ), r.nextInt( -7, 7 ), 1, 1, 2, false ) );
-            setRecieved( getConnection().getPendingConnection().getHandshake().getProtocolVersion() == 47 );
-            this.getChannel().writeAndFlush( this.getPosLook() );
+            return;
+        }
+        ThreadLocalRandom r = ThreadLocalRandom.current();
+        if ( ( r.nextInt( 100 ) < 10 || force ) )
+        {
+            if ( getPosLook() == null )
+            {
+                this.setPosLook( new PlayerPositionAndLook( r.nextInt( -7, 7 ), r.nextInt( 200, 600 ), r.nextInt( -7, 7 ), 1, 1, 2, false ) );
+                setRecieved( getConnection().getPendingConnection().getHandshake().getProtocolVersion() == 47 );
+                this.write( getPosLook() );
+            }
+            if ( getConfirmPacket() == null )
+            {
+                this.setConfirmPacket( new ConfirmTransaction( (byte) 0, r.nextInt( 32767 ), false ) );
+                this.write( getConfirmPacket() );
+            }
+            this.channel.flush();
         }
     }
 
@@ -288,7 +355,7 @@ public class GGConnector extends PacketHandler
         this.disconnected();
 
     }
-
+    
     @Override
     public String toString()
     {

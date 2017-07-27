@@ -1,19 +1,15 @@
 package ru.leymooo.gameguard.schematic;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.GZIPInputStream;
 import net.md_5.bungee.protocol.packet.extra.MultiBlockChange.Block;
 import org.jnbt.ByteArrayTag;
 import org.jnbt.CompoundTag;
 import org.jnbt.NBTInputStream;
 import org.jnbt.ShortTag;
-import org.jnbt.StringTag;
 import org.jnbt.Tag;
 
 /*

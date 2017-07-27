@@ -67,10 +67,8 @@ public class MySql
 
     public void addAddress(final String name, final String ip)
     {
-        this.executor.execute( new Runnable()
+        this.executor.execute( () ->
         {
-            @Override
-            public void run()
             {
                 try ( Statement statment = getConnection().createStatement() )
                 {

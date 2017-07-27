@@ -17,7 +17,7 @@ public class ConfirmTransaction extends DefinedPacket
 {
 
     byte window;
-    short action;
+    int action;
     boolean accepted;
 
     @Override

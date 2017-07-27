@@ -11,6 +11,7 @@ import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import lombok.Data;
@@ -20,6 +21,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
+import net.md_5.bungee.protocol.packet.KeepAlive;
 
 /**
  *
@@ -62,6 +64,7 @@ public class Config
 
     public Config()
     {
+        this.startThread();
         config = this;
         try
         {
@@ -87,7 +90,6 @@ public class Config
         {
             this.mysql = new MySql( this.mainConfig.getString( "mysql.host" ), this.mainConfig.getString( "mysql.username" ), this.mainConfig.getString( "mysql.password" ), this.mainConfig.getString( "mysql.database" ), this.mainConfig.getString( "mysql.port", "3306" ) );
         }
-        this.startThread();
     }
 
     public void addUserToMap(String name, String ip)
@@ -124,6 +126,11 @@ public class Config
                 this.addUserToMap( name.toLowerCase(), this.userData.getString( name ) );
             }
         }
+    }
+
+    public boolean isProtectionEnabled()
+    {
+        return isPermanent() || isUnderAttack();
     }
 
     public boolean isUnderAttack()
@@ -201,7 +208,7 @@ public class Config
                     BungeeCord.getInstance().getLogger().info( "§cВНИМАНИЕ! §aСтрарый конфиг сохранён под именем - §bgameguard-old.yml§a." );
                     BungeeCord.getInstance().getLogger().info( "§cВНИМАНИЕ! §aЕсли вы чтото изменяли то, не забудьте изменить заного." );
                     BungeeCord.getInstance().getLogger().info( "§aЗапуск через §c10 §aсекунд." );
-                    Thread.sleep( 10000l );
+                    Thread.sleep( 10000L );
                     return;
                 }
                 throw new InterruptedException();
@@ -219,39 +226,46 @@ public class Config
         {
             t.interrupt();
         }
-        ( t = new Thread( new Runnable()
+        final ThreadLocalRandom random = ThreadLocalRandom.current();
+        ( t = new Thread( () ->
         {
-            @Override
-            public void run()
+            while ( true )
             {
-                while ( true )
+                try
                 {
-                    try
+                    Thread.sleep( 2000L );
+                } catch ( InterruptedException ex )
+                {
+                }
+                long currTime = System.currentTimeMillis();
+                lastBotAttackCheck = Config.getConfig().getConnectedUsersSet().size() >= ( maxChecksPer1min / 4 ) && !isUnderAttack()
+                        ? currTime : lastBotAttackCheck;
+                for ( GGConnector connector : Config.getConfig().getConnectedUsersSet() )
+                {
+                    if ( connector.isConnected() )
                     {
-                        Thread.sleep( 2000L );
-                    } catch ( InterruptedException ex )
-                    {
-                    }
-                    long currTime = System.currentTimeMillis();
-                    lastBotAttackCheck = Config.getConfig().getConnectedUsersSet().size() >= ( maxChecksPer1min / 4 ) && !isUnderAttack()
-                            ? currTime : lastBotAttackCheck;
-                    for ( GGConnector connector : Config.getConfig().getConnectedUsersSet() )
-                    {
-                        if ( connector.isConnected() )
+                        Utils.CheckState state = connector.getState();
+                        connector.getConnection().sendMessages( state == Utils.CheckState.BUTTON ? check2 : check );
+                        long diff = currTime - connector.getJoinTime();
+                        if ( ( diff >= 10000 && state == Utils.CheckState.POSITION )
+                                || ( connector.getState() == Utils.CheckState.FAILED )
+                                || ( diff >= 30000 && state == Utils.CheckState.BUTTON ) )
                         {
-                            Utils.CheckState state = connector.getState();
-                            connector.getConnection().sendMessages( state == Utils.CheckState.BUTTON ? check2 : check );
-                            long diff = currTime - connector.getJoinTime();
-                            if ( ( diff >= 9000 && state == Utils.CheckState.POSITION )
-                                    || ( connector.getState() == Utils.CheckState.FAILED )
-                                    || ( diff >= 30000 && state == Utils.CheckState.BUTTON ) )
+                            connector.getConnection().disconnect( errorBot );
+                            continue;
+                        }
+                        if ( connector.getGlobalTick() > 5 && connector.getGlobalTick() < 60 )
+                        {
+                            if ( connector.getKeepAlivePacket() == null )
                             {
-                                connector.getConnection().disconnect( errorBot );
+                                connector.setKeepAlivePacket( new KeepAlive( random.nextInt( Integer.MAX_VALUE ) ) );
+                                connector.getConnection().unsafe().sendPacket( connector.getKeepAlivePacket() );
                             }
+                            connector.sendCheckPackets( true, true );
                         }
                     }
                 }
             }
-        }, "Captcha Thread" ) ).start();
+        }, "GameGuard thread" ) ).start();
     }
 }
