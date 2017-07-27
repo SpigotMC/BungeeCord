@@ -72,7 +72,7 @@ public class GGConnector extends PacketHandler
     private Location location;
     private CheckState state = CheckState.POSITION;
     private HashMap<Location, Block> buttons;
-    //==========Кометические пакеты==============
+    //==========Косметические пакеты==============
     private SetSlot setSlotPacket;
     private UpdateHeath healthPacket;
     private SetExp setExpPacket;
@@ -91,7 +91,7 @@ public class GGConnector extends PacketHandler
     private static List<ChunkPacket> chunkPackets = Arrays.asList(
             new ChunkPacket( 0, 0, new byte[ 256 ] ), new ChunkPacket( -1, 0, new byte[ 256 ] ), new ChunkPacket( 0, 1, new byte[ 256 ] ),
             new ChunkPacket( -1, 1, new byte[ 256 ] ), new ChunkPacket( 0, -1, new byte[ 256 ] ), new ChunkPacket( -1, -1, new byte[ 256 ] ),
-            new ChunkPacket( 1, 1, new byte[ 256 ] ), new ChunkPacket( 1, -1, new byte[ 256 ] ), new ChunkPacket( 1, 0, new byte[ 256 ] ), new ChunkPacket( 2, 1, new byte[ 255 ] ) );
+            new ChunkPacket( 1, 1, new byte[ 256 ] ), new ChunkPacket( 1, -1, new byte[ 256 ] ), new ChunkPacket( 1, 0, new byte[ 256 ] ) );
     //===========================================
 
     public GGConnector(UserConnection connection)
@@ -355,7 +355,7 @@ public class GGConnector extends PacketHandler
         this.disconnected();
 
     }
-    
+
     @Override
     public String toString()
     {

@@ -22,7 +22,7 @@ force-kick-bots-on-join-if-attack-detected: true
 #Так что 20-30 достаточно. Если у вас ооочень большой онлайн то можно и 35-45 поставить.
 max-checks-per-1-min: 30
 #Как долго будут действовать лимиты; В секундах.
-protection-time: 80
+protection-time: 100
 #https://dev.maxmind.com/geoip/legacy/codes/iso3166/
 #Страны которые могут входить на сервер пока включена автоматическая защита.
 allowed-countries-auto: 
