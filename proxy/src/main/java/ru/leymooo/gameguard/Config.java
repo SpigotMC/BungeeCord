@@ -142,7 +142,7 @@ public class Config
         if ( ( System.currentTimeMillis() - this.lastBotAttackCheck <= 60000 ) && this.botCounter.get() >= this.maxChecksPer1min )
         {
             this.attackStartTime = System.currentTimeMillis();
-            this.lastBotAttackCheck += 61000;
+            this.lastBotAttackCheck -= 61000;
             return true;
         }
         if ( System.currentTimeMillis() - this.lastBotAttackCheck >= 60000 )
