@@ -22,5 +22,5 @@ public class Objective
     /**
      * Type; integer or hearts
      */
-    private final String type;
+    private String type;
 }
