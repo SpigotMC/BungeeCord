@@ -1,4 +1,4 @@
-package ru.leymooo.gameguard.utils;
+package ru.leymooo.botfilter.utils;
 
 import io.netty.channel.Channel;
 import java.io.IOException;
@@ -16,9 +16,9 @@ import net.md_5.bungee.protocol.packet.extra.MultiBlockChange;
 import net.md_5.bungee.protocol.packet.extra.MultiBlockChange.Block;
 import net.md_5.bungee.protocol.packet.extra.PlayerPositionAndLook;
 import net.md_5.bungee.protocol.packet.extra.SetSlot;
-import ru.leymooo.gameguard.GGConnector;
-import ru.leymooo.gameguard.Location;
-import ru.leymooo.gameguard.schematic.Schematic;
+import ru.leymooo.botfilter.BFConnector;
+import ru.leymooo.botfilter.Location;
+import ru.leymooo.botfilter.schematic.Schematic;
 
 /**
  *
@@ -42,7 +42,7 @@ public class ButtonUtils
         }
     }
 
-    public static void pasteSchemAndTeleportPlayer(int x, int y, int z, GGConnector connector)
+    public static void pasteSchemAndTeleportPlayer(int x, int y, int z, BFConnector connector)
     {
         Channel channel = connector.getChannel();
         HashMap<String, MultiBlockChange> packets = new HashMap<>();

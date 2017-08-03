@@ -183,9 +183,9 @@ public class ServerConnector extends PacketHandler
             user.getForgeClientHandler().setHandshakeComplete();
         }
 
-        if ( !user.serverr ) //GameGuard
+        if ( !user.serverr ) //BotFilter
         {
-            user.serverr = true; //GameGuard
+            user.serverr = true; //BotFilter
             // Once again, first connection
             user.setClientEntityId( login.getEntityId() );
             user.setServerEntityId( login.getEntityId() );
@@ -204,9 +204,9 @@ public class ServerConnector extends PacketHandler
             user.setDimension( login.getDimension() );
         } else
         {
-            if ( user.getServer() != null ) //GameGuard
+            if ( user.getServer() != null ) //BotFilter
             {
-                user.getServer().setObsolete( true ); //GameGuard
+                user.getServer().setObsolete( true ); //BotFilter
             }
             user.getTabListHandler().onServerChange();
 
@@ -239,9 +239,9 @@ public class ServerConnector extends PacketHandler
             user.setDimension( login.getDimension() );
 
             // Remove from old servers
-            if ( this.user.getServer() != null ) //GameGuard
+            if ( this.user.getServer() != null ) //BotFilter
             {
-                this.user.getServer().disconnect( "Quitting" ); //GameGuard
+                this.user.getServer().disconnect( "Quitting" ); //BotFilter
             }
         }
 

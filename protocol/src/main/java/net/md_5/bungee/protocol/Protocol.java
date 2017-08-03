@@ -71,7 +71,7 @@ public enum Protocol
     {
 
         {
-            //GameGuard start
+            //BotFilter start
             TO_CLIENT.registerPacket(
                     ConfirmTransaction.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x32 ),
@@ -82,27 +82,32 @@ public enum Protocol
                     SpawnPosition.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x05 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x43 ),
-                    map( ProtocolConstants.MINECRAFT_1_12, 0x45 )
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x45 ),
+                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x46 )
             );
             TO_CLIENT.registerPacket( UpdateHeath.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x06 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x3E ),
-                    map( ProtocolConstants.MINECRAFT_1_12, 0x40 )
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x40 ),
+                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x41 )
             );
             TO_CLIENT.registerPacket( SetExp.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x1F ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x3D ),
-                    map( ProtocolConstants.MINECRAFT_1_12, 0x3F )
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x3F ),
+                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x40 )
             );
             TO_CLIENT.registerPacket( TimeUpdate.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x03 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x44 ),
-                    map( ProtocolConstants.MINECRAFT_1_12, 0x46 )
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x46 ),
+                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x47 )
             );
             TO_CLIENT.registerPacket( PlayerPositionAndLook.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x08 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x2E ),
-                    map( ProtocolConstants.MINECRAFT_1_12, 0x2E )
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x2E ),
+                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x2F )
             );
             TO_CLIENT.registerPacket(
                     ChunkPacket.class,
@@ -121,7 +126,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_8, 0x22 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x10 ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x10 )
-            ); //GameGuard end
+            ); //BotFilter end
             TO_CLIENT.registerPacket(
                     KeepAlive.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x00 ),
@@ -219,18 +224,20 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12, 0x49 ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x4A )
             );
-            //GameGuard  start
+            //BotFilter  start
             TO_SERVER.registerPacket(
                     PlayerLook.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x05 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x0E ),
-                    map( ProtocolConstants.MINECRAFT_1_12, 0x10 )
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x10 ),
+                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x0F )
             );
             TO_SERVER.registerPacket(
                     ConfirmTransaction.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x0F ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x05 ),
-                    map( ProtocolConstants.MINECRAFT_1_12, 0x06 )
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x06 ),
+                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x05 )
             );
             TO_SERVER.registerPacket(
                     TeleportConfirm.class,
@@ -241,19 +248,22 @@ public enum Protocol
                     PlayerPositionAndLook.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x06 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x0D ),
-                    map( ProtocolConstants.MINECRAFT_1_12, 0x0F )
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x0F ),
+                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x0E )
             );
             TO_SERVER.registerPacket(
                     PlayerPosition.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x04 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x0C ),
-                    map( ProtocolConstants.MINECRAFT_1_12, 0x0E )
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x0E ),
+                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x0D )
             );
             TO_SERVER.registerPacket(
                     Player.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x03 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x0F ),
-                    map( ProtocolConstants.MINECRAFT_1_12, 0x0D )
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x0D ),
+                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x0C )
             );
             TO_SERVER.registerPacket(
                     PlayerTryUseItemOnBlock.class,
@@ -261,7 +271,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x1C ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x1F )
             );
-            //GameGuard end
+            //BotFilter end
             TO_SERVER.registerPacket(
                     KeepAlive.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x00 ),

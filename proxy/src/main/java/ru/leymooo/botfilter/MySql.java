@@ -1,4 +1,4 @@
-package ru.leymooo.gameguard;
+package ru.leymooo.botfilter;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import ru.leymooo.gameguard.Config;
+import ru.leymooo.botfilter.Config;
 
 /**
  *
@@ -47,7 +47,7 @@ public class MySql
                 {
                     Config.getConfig().addUserToMap( rs.getString( "player" ), rs.getString( "ip" ) );
                 }
-                System.out.println( "[GameGuard] Белый список игроков успешно загружен." );
+                System.out.println( "[BotFilter] Белый список игроков успешно загружен." );
                 statement.close();
             }
         } catch ( SQLException ex )

@@ -63,11 +63,11 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
-import ru.leymooo.gameguard.Config;
-import ru.leymooo.gameguard.GGConnector;
-import ru.leymooo.gameguard.utils.GeoIpUtils;
-import ru.leymooo.gameguard.utils.Proxy;
-import ru.leymooo.gameguard.utils.Utils;
+import ru.leymooo.botfilter.Config;
+import ru.leymooo.botfilter.BFConnector;
+import ru.leymooo.botfilter.utils.GeoIpUtils;
+import ru.leymooo.botfilter.utils.Proxy;
+import ru.leymooo.botfilter.utils.Utils;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -156,8 +156,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         this.legacy = true;
         final boolean v1_5 = ping.isV1_5();
 
-        ServerPing legacy = new ServerPing( new ServerPing.Protocol( "GG 1.8-1.12 by vk.com Leymooo_s", bungee.getProtocolVersion() ), //GameGuard
-                new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCountWithGG(), null ), //GameGuard
+        ServerPing legacy = new ServerPing( new ServerPing.Protocol( "BotFilter 1.8-1.12 by vk.com Leymooo_s", bungee.getProtocolVersion() ), //BotFilter
+                new ServerPing.Players( listener.getMaxPlayers(), bungee.getFakeOnlineCountWithGG(), null ), //BotFilter
                 new TextComponent( TextComponent.fromLegacyText( listener.getMotd() ) ), (Favicon) null );
 
         Callback<ProxyPingEvent> callback = new Callback<ProxyPingEvent>()
@@ -244,8 +244,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             int protocol = ( ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
             pingBack.done( new ServerPing(
-                    new ServerPing.Protocol( "GG 1.8-1.12 by vk.com Leymooo_s", protocol ), //GameGuard
-                    new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCountWithGG(), null ), //GameGuard
+                    new ServerPing.Protocol( "BotFilter 1.8-1.12 by vk.com Leymooo_s", protocol ), //BotFilter
+                    new ServerPing.Players( listener.getMaxPlayers(), bungee.getFakeOnlineCountWithGG(), null ), //BotFilter
                     motd, BungeeCord.getInstance().config.getFaviconObject() ),
                     null );
         }
@@ -290,7 +290,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         this.virtualHost = InetSocketAddress.createUnresolved( handshake.getHost(), handshake.getPort() );
 
         bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
-        //GameGuard Я тут гдето убрал строку которая выводить InitialHandler has connected
+        //BotFilter Я тут гдето убрал строку которая выводить InitialHandler has connected
         switch ( handshake.getRequestedProtocol() )
         {
             case 1:
@@ -314,13 +314,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     }
                     return;
                 }
-                //gameguard start
+                //BotFilter start
                 if ( Utils.isManyChecks( getAddress().getAddress().getHostAddress(), false, false ) )
                 {
                     disconnect( Config.getConfig().getErrorManyChecks() );
                     return;
                 }
-                //gameguard end
+                //BotFilter end
                 if ( bungee.getConnectionThrottle() != null && bungee.getConnectionThrottle().throttle( getAddress().getAddress() ) )
                 {
                     disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( bungee.getConfig().getThrottle() ) ) );
@@ -349,7 +349,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             return;
         }
 
-        //gameguard start
+        //BotFilter start
         Config config = Config.getConfig();
         GeoIpUtils geo = config.getGeoUtils();
         String address = getAddress().getAddress().getHostAddress();
@@ -362,9 +362,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 return;
             }
         }
-        //gameguard end
+        //BotFilter end
         int limit = BungeeCord.getInstance().config.getPlayerLimit();
-        if ( limit > 0 && bungee.getOnlineCountWithGG() > limit )//GameGuard
+        if ( limit > 0 && bungee.getOnlineCountWithGG() > limit )//BotFilter
         {
             disconnect( bungee.getTranslation( "proxy_full" ) );
             return;
@@ -515,14 +515,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     return;
                 }
 
-                ch.getHandle().eventLoop().execute( new Runnable()
+                ch.getHandle().eventLoop().execute(new Runnable()
                 {
                     @Override
                     public void run()
                     {
                         if ( !ch.isClosing() )
                         {
-                            bungee.getLogger().log( Level.INFO, "{0} has connected", InitialHandler.this ); //GameGuard
+                            bungee.getLogger().log( Level.INFO, "{0} has connected", InitialHandler.this ); //BotFilter
 
                             UserConnection userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
                             userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
@@ -530,14 +530,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
                             unsafe.sendPacket( new LoginSuccess( getUniqueId().toString(), getName() ) ); // With dashes in between
                             ch.setProtocol( Protocol.GAME );
-                            if ( Config.getConfig().needCheck( getName(), getAddress().getAddress().getHostAddress() ) ) //GameGuard
+                            if ( Config.getConfig().needCheck( getName(), getAddress().getAddress().getHostAddress() ) ) //BotFilter
                             {
-                                ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new GGConnector( userCon ) ); //GameGuard
+                                ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler(new BFConnector( userCon ) ); //BotFilter
                             } else
                             {
-                                ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) ); //GameGuard
+                                ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) ); //BotFilter
 
-                                bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) ); //GameGuard
+                                bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) ); //BotFilter
                                 ServerInfo server;
                                 if ( bungee.getReconnectHandler() != null )
                                 {

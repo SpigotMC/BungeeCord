@@ -1,7 +1,7 @@
-package ru.leymooo.gameguard;
+package ru.leymooo.botfilter;
 
-import ru.leymooo.gameguard.utils.NumberConversions;
-import ru.leymooo.gameguard.utils.Vector;
+import ru.leymooo.botfilter.utils.NumberConversions;
+import ru.leymooo.botfilter.utils.Vector;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

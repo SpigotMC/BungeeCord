@@ -1,4 +1,4 @@
-package ru.leymooo.gameguard.utils;
+package ru.leymooo.botfilter.utils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -8,9 +8,9 @@ import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.protocol.packet.extra.SetExp;
 import net.md_5.bungee.protocol.packet.extra.SetSlot;
 import net.md_5.bungee.protocol.packet.extra.UpdateHeath;
-import ru.leymooo.gameguard.Config;
-import ru.leymooo.gameguard.GGConnector;
-import ru.leymooo.gameguard.Location;
+import ru.leymooo.botfilter.Config;
+import ru.leymooo.botfilter.BFConnector;
+import ru.leymooo.botfilter.Location;
 
 /**
  *
@@ -44,7 +44,7 @@ public class Utils
         return false;
     }
 
-    public static boolean disconnect(GGConnector connector)
+    public static boolean disconnect(BFConnector connector)
     {
         UserConnection connection = connector.getConnection();
         String ip = connection.getAddress().getAddress().getHostAddress();
@@ -60,9 +60,8 @@ public class Utils
             connection.disconnect( proxy ? config.getErrorProxy() : config.getErrorConutry() );
             return true;
         }
-        if ( !( connector.isClientSettings() && connector.isConfirmTransaction()
-                && connector.isKeepAlive() && connector.isPluginMessage()
-                && connector.getPosLook() == null && connector.getConfirmPacket() == null && connector.getKeepAlivePacket() == null ) )
+        if ( !( connector.isClientSettings() && connector.isPluginMessage()
+                && connector.getChecks() != null && connector.getChecks().isEmpty() ) )
         {
             connection.disconnect( config.getErrorBot() );
             return true;
@@ -80,7 +79,7 @@ public class Utils
         return Math.floor( d * 100 ) / 100;
     }
 
-    public static void sendPackets(GGConnector connector)
+    public static void sendPackets(BFConnector connector)
     {
         int globalTick = connector.getGlobalTick();
         if ( globalTick >= 7 && globalTick <= 63 && globalTick % 9 == 0 )
@@ -99,7 +98,7 @@ public class Utils
                 expPacket = new SetExp( 0.0f, 1, 1 );
                 connector.setHealthPacket( healthPacket );
                 connector.setSetExpPacket( expPacket );
-                connector.setSetSlotPacket( new SetSlot( 0, 36, 1, 57, 0 ) );
+                connector.setSetSlotPacket( new SetSlot( 0, 36, 1, 133, 0 ) );
             }
             healthPacket.setHealth( healthPacket.getHealth() + 1 );
             healthPacket.setFood( healthPacket.getFood() + 1 );
@@ -110,17 +109,16 @@ public class Utils
         connector.getChannel().flush();
     }
 
-    public static boolean checkPps(GGConnector connector)
+    public static boolean checkPps(BFConnector connector)
     {
-        AtomicInteger packets = connector.getPackets();
+        AtomicInteger packets = connector.getPps();
         if ( packets == null )
         {
-            packets = new AtomicInteger();
-            connector.setPackets( packets );
+            connector.setPps( packets = new AtomicInteger() );
         }
         if ( System.currentTimeMillis() - connector.getLastPacketCheck() <= 1000 )
         {
-            if ( packets.incrementAndGet() >= 30 )
+            if ( packets.incrementAndGet() >= 50 )
             {
                 connector.getConnection().disconnect( Config.getConfig().getErrorPackets() );
                 connector.setState( CheckState.FAILED );

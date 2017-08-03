@@ -23,7 +23,7 @@ import net.md_5.bungee.command.ConsoleCommandSender;
 public class BungeeCordLauncher
 {
 
-    private static int VERSION = 14;
+    private static int VERSION = 15;
 
     public static void main(String[] args) throws Exception
     {
@@ -42,7 +42,7 @@ public class BungeeCordLauncher
             System.out.println( Bootstrap.class.getPackage().getImplementationVersion() );
             return;
         }
-        //GameGuard start
+        //BotFilter start
         if ( System.getProperty( "IReallyKnowWhatIAmDoingISwear" ) == null && checkUpdate() )
         {
 
@@ -53,11 +53,11 @@ public class BungeeCordLauncher
             System.err.println( "*** Запуск через 6 секунд ***" );
             Thread.sleep( TimeUnit.SECONDS.toMillis( 6 ) );
         }
-        //GameGuard end
+        //BotFilter end
 
         BungeeCord bungee = new BungeeCord();
         ProxyServer.setInstance( bungee );
-        bungee.getLogger().info( "Включаю BungeCord GameGuard от vk.com/Leymooo_s" );//GameGuard
+        bungee.getLogger().info( "Включаю BungeCord BotFilter 1.8-1.12.1 от vk.com/Leymooo_s" );//BotFilter
         bungee.start();
 
         if ( !options.has( "noconsole" ) )
@@ -67,7 +67,7 @@ public class BungeeCordLauncher
             {
                 if ( !bungee.getPluginManager().dispatchCommand( ConsoleCommandSender.getInstance(), line ) )
                 {
-                    bungee.getConsole().sendMessage( ChatColor.RED + "Команда не найдена :(" ); //GameGuard
+                    bungee.getConsole().sendMessage( ChatColor.RED + "Команда не найдена :(" ); //BotFilter
                 }
             }
         }
@@ -77,7 +77,7 @@ public class BungeeCordLauncher
     {
         try
         {
-            System.out.println( "[GameGuard] Проверяю наличее обновлений" );
+            System.out.println( "[BotFilter] Проверяю наличее обновлений" );
             //Да да. В главном потоке)
             URL url = new URL( "http://151.80.108.152/gg-version.txt" );
             URLConnection conn = url.openConnection();
@@ -90,7 +90,7 @@ public class BungeeCordLauncher
             return version != VERSION;
         } catch ( IOException | NumberFormatException ex )
         {
-            System.err.println( "[GameGuard] Не могу проверить обновление" );
+            System.err.println( "[BotFilter] Не могу проверить обновление" );
         }
         return false;
     }

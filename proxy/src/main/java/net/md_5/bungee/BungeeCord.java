@@ -71,7 +71,7 @@ import net.md_5.bungee.command.CommandIP;
 import net.md_5.bungee.command.CommandPerms;
 import net.md_5.bungee.command.CommandReload;
 import net.md_5.bungee.command.ConsoleCommandSender;
-import net.md_5.bungee.command.GameGuardCommand;
+import net.md_5.bungee.command.BotFilterCommand;
 import net.md_5.bungee.compress.CompressFactory;
 import net.md_5.bungee.conf.Configuration;
 import net.md_5.bungee.conf.YamlConfig;
@@ -88,8 +88,9 @@ import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.fusesource.jansi.AnsiConsole;
-import ru.leymooo.gameguard.utils.ButtonUtils;
-import ru.leymooo.gameguard.Config;
+import ru.leymooo.fakeonline.FakeOnline;
+import ru.leymooo.botfilter.utils.ButtonUtils;
+import ru.leymooo.botfilter.Config;
 
 /**
  * Main BungeeCord proxy class.
@@ -111,7 +112,7 @@ public class BungeeCord extends ProxyServer
      */
     private ResourceBundle baseBundle;
     private ResourceBundle customBundle;
-    public EventLoopGroup bossEventLoopGroup, workerEventLoopGroup; //GameGuard
+    public EventLoopGroup bossEventLoopGroup, workerEventLoopGroup; //BotFilter
     /**
      * locations.yml save thread.
      */
@@ -167,7 +168,7 @@ public class BungeeCord extends ProxyServer
         getPluginManager().registerCommand( null, new CommandIP() );
         getPluginManager().registerCommand( null, new CommandBungee() );
         getPluginManager().registerCommand( null, new CommandPerms() );
-        getPluginManager().registerCommand( null, new GameGuardCommand() ); //GameGuard
+        getPluginManager().registerCommand( null, new BotFilterCommand() ); //BotFilter
 
         registerChannel( "BungeeCord" );
     }
@@ -255,10 +256,10 @@ public class BungeeCord extends ProxyServer
             ResourceLeakDetector.setLevel( ResourceLeakDetector.Level.DISABLED ); // Eats performance
         }
 
-        bossEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Boss IO Thread #%1$d" ).build() ); //GameGuard
-        workerEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Worker IO Thread #%1$d" ).build() ); //GameGuard
+        bossEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Boss IO Thread #%1$d" ).build() ); //BotFilter
+        workerEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Worker IO Thread #%1$d" ).build() ); //BotFilter
 
-        new Config(); //GameGuard
+        new Config(); //BotFilter
         new ButtonUtils();
         File moduleDirectory = new File( "modules" );
         moduleManager.load( this, moduleDirectory );
@@ -324,11 +325,11 @@ public class BungeeCord extends ProxyServer
             new ServerBootstrap()
                     .channel( PipelineUtils.getServerChannel() )
                     .option( ChannelOption.SO_REUSEADDR, true ) // TODO: Move this elsewhere!
-                    .childOption( ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 1024 * 1024 * 10 ) //GameGuard
-                    .childOption( ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, 1024 * 1024 * 1 ) //GameGuard
+                    .childOption( ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 1024 * 1024 * 10 ) //BotFilter
+                    .childOption( ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, 1024 * 1024 * 1 ) //BotFilter
                     .childAttr( PipelineUtils.LISTENER, info )
                     .childHandler( PipelineUtils.SERVER_CHILD )
-                    .group( bossEventLoopGroup, workerEventLoopGroup ) //GameGuard
+                    .group( bossEventLoopGroup, workerEventLoopGroup ) //BotFilter
                     .localAddress( info.getHost() )
                     .bind().addListener( listener );
 
@@ -349,7 +350,7 @@ public class BungeeCord extends ProxyServer
                         }
                     }
                 };
-                new RemoteQuery( this, info ).start( PipelineUtils.getDatagramChannel(), new InetSocketAddress( info.getHost().getAddress(), info.getQueryPort() ), workerEventLoopGroup, bindListener ); //GameGuard
+                new RemoteQuery( this, info ).start( PipelineUtils.getDatagramChannel(), new InetSocketAddress( info.getHost().getAddress(), info.getQueryPort() ), workerEventLoopGroup, bindListener ); //BotFilter
             }
         }
     }
@@ -412,14 +413,14 @@ public class BungeeCord extends ProxyServer
                 }
 
                 getLogger().info( "Closing IO threads" );
-                bossEventLoopGroup.shutdownGracefully(); //GameGuard
-                workerEventLoopGroup.shutdownGracefully(); //GameGuard
-                while ( true ) //GameGuard
+                bossEventLoopGroup.shutdownGracefully(); //BotFilter
+                workerEventLoopGroup.shutdownGracefully(); //BotFilter
+                while ( true ) //BotFilter
                 {
                     try
                     {
-                        bossEventLoopGroup.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS ); //GameGuard
-                        workerEventLoopGroup.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS ); //GameGuard
+                        bossEventLoopGroup.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS ); //BotFilter
+                        workerEventLoopGroup.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS ); //BotFilter
                         break;
                     } catch ( InterruptedException ignored )
                     {
@@ -488,7 +489,7 @@ public class BungeeCord extends ProxyServer
     @Override
     public String getName()
     {
-        return "GG"; //GameGuard
+        return "BotFilter"; //BotFilter
     }
 
     @Override
@@ -534,6 +535,12 @@ public class BungeeCord extends ProxyServer
     public int getOnlineCountWithGG()
     {
         return connections.size() + Config.getConfig().getConnectedUsersSet().size();
+    }
+
+    @Override
+    public int getFakeOnlineCountWithGG()
+    {
+        return FakeOnline.getInstance().getFakeOnline() + Config.getConfig().getConnectedUsersSet().size();
     }
 
     @Override

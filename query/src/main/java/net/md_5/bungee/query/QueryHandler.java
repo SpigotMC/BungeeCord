@@ -92,8 +92,8 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
                 // Short response
                 writeString( out, listener.getMotd() ); // MOTD
                 writeString( out, "SMP" ); // Game Type
-                writeString( out, "GG_by_vk.com/Leymooo_s" ); // World Name //GameGuard
-                writeNumber( out, bungee.getOnlineCountWithGG()); // Online Count//GameGuard
+                writeString( out, "BotFilter_by_vk.com/Leymooo_s" ); // World Name //BotFilter
+                writeNumber( out, bungee.getFakeOnlineCountWithGG()); // Online Count//BotFilter
                 writeNumber( out, listener.getMaxPlayers() ); // Max Players
                 writeShort( out, listener.getHost().getPort() ); // Port
                 writeString( out, listener.getHost().getHostString() ); // IP
@@ -110,11 +110,11 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
                 data.put( "gametype", "SMP" );
                 // Start Extra Info
                 data.put( "game_id", "MINECRAFT" );
-                data.put( "version", "GG 1.8-1.12 by vk.com Leymooo_s" ); //GameGuard
+                data.put( "version", "BotFilter 1.8-1.12 by vk.com Leymooo_s" ); //BotFilter
                 data.put( "plugins", "" );
                 // End Extra Info
-                data.put( "map", "GG_by_vk.com/Leymooo_s" ); //GameGuard
-                data.put( "numplayers", Integer.toString( bungee.getOnlineCountWithGG()) ); //GameGuard
+                data.put( "map", "BotFilter_by_vk.com/Leymooo_s" ); //BotFilter
+                data.put( "numplayers", Integer.toString( bungee.getFakeOnlineCountWithGG()) ); //BotFilter
                 data.put( "maxplayers", Integer.toString( listener.getMaxPlayers() ) );
                 data.put( "hostport", Integer.toString( listener.getHost().getPort() ) );
                 data.put( "hostip", listener.getHost().getHostString() );

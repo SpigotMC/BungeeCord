@@ -44,7 +44,7 @@ public abstract class AbstractPacketHandler
     {
     }
 
-    //GameGuard statrt
+    //BotFilter statrt
     public void handle(ConfirmTransaction transaction) throws Exception
     {
     }
@@ -72,7 +72,7 @@ public abstract class AbstractPacketHandler
     public void handle(PlayerTryUseItemOnBlock blockClick) throws Exception
     {
     }
-    //GameGuard end
+    //BotFilter end
     public void handle(TabCompleteResponse tabResponse) throws Exception
     {
     }

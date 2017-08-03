@@ -1,13 +1,12 @@
-package ru.leymooo.gameguard;
+package ru.leymooo.botfilter;
 
-import ru.leymooo.gameguard.utils.GeoIpUtils;
-import ru.leymooo.gameguard.utils.Utils;
-import ru.leymooo.gameguard.utils.Proxy;
+import ru.leymooo.botfilter.utils.GeoIpUtils;
+import ru.leymooo.botfilter.utils.Utils;
+import ru.leymooo.botfilter.utils.Proxy;
 import com.google.common.collect.Sets;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Set;
@@ -22,6 +21,7 @@ import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
 import net.md_5.bungee.protocol.packet.KeepAlive;
+import ru.leymooo.fakeonline.FakeOnline;
 
 /**
  *
@@ -47,15 +47,18 @@ public class Config
     private boolean mySqlEnabled = false;
     private boolean permanent = false;
     private boolean forceKick = true;
+    private boolean buttonNormal = true;
+    private boolean buttonPermanent = true;
+    private boolean buttonOnAttack = true;
     private int maxChecksPer1min = 30;
     private int protectionTime = 120000;
     private MySql mysql = null;
     private GeoIpUtils geoUtils;
     private final HashMap<String, String> users = new HashMap<>();
-    private final Set<GGConnector> connectedUsersSet = Sets.newConcurrentHashSet();
+    private final Set<BFConnector> connectedUsersSet = Sets.newConcurrentHashSet();
     private Configuration userData;
     private Configuration mainConfig;
-    private File dataFile = new File( "GameGuard", "users.yml" );
+    private File dataFile = new File( "BotFilter", "users.yml" );
     private double attackStartTime = 0;
     private double lastBotAttackCheck = System.currentTimeMillis();
     private AtomicInteger botCounter = new AtomicInteger();
@@ -158,10 +161,15 @@ public class Config
         return !( this.users.containsKey( name.toLowerCase() ) && this.users.get( name.toLowerCase() ).equalsIgnoreCase( ip ) );
     }
 
+    public boolean needButtonCheck()
+    {
+        return buttonNormal || ( buttonPermanent && isPermanent() ) || ( buttonOnAttack && isUnderAttack() );
+    }
+
     private void load(Configuration config)
     {
-        this.geoUtils = new GeoIpUtils( new File( "GameGuard" ), config.getStringList( "allowed-countries-auto" ), config.getStringList( "allowed-countries-permanent" ) );
-        this.proxy = new Proxy( new File( "GameGuard" ) );
+        this.geoUtils = new GeoIpUtils( new File( "BotFilter" ), config.getStringList( "allowed-countries-auto" ), config.getStringList( "allowed-countries-permanent" ) );
+        this.proxy = new Proxy( new File( "BotFilter" ) );
         this.check = ChatColor.translateAlternateColorCodes( '&', config.getString( check ) );
         this.check2 = ChatColor.translateAlternateColorCodes( '&', config.getString( check2 ) );
         this.checkSus = ChatColor.translateAlternateColorCodes( '&', config.getString( checkSus ) );
@@ -177,35 +185,39 @@ public class Config
         this.maxChecksPer1min = config.getInt( "max-checks-per-1-min" );
         this.protectionTime = config.getInt( "protection-time" ) * 1000;
         this.forceKick = config.getBoolean( "force-kick-bots-on-join-if-attack-detected" );
+        this.buttonNormal = config.getBoolean( "button-check.on-normal-mode" );
+        this.buttonOnAttack = config.getBoolean( "button-check.on-bot-attack" );
+        this.buttonPermanent = config.getBoolean( "button-check.on-permanent-protection" );
+        new FakeOnline( config.getBoolean( "fake-online.enabled" ), config.getSection( "fake-online.booster" ) );
     }
 
     private Configuration checkFileAndGiveConfig() throws IOException
     {
-        File dataFolder = new File( "GameGuard" );
+        File dataFolder = new File( "BotFilter" );
         dataFolder.mkdir();
-        File file = new File( dataFolder, "gameguard.yml" );
+        File file = new File( dataFolder, "config.yml" );
         if ( file.exists() )
         {
             return ConfigurationProvider.getProvider( YamlConfiguration.class ).load( file );
         }
-        InputStream in = getClass().getClassLoader().getResourceAsStream( ( "gameguard.yml" ) );
+        InputStream in = getClass().getClassLoader().getResourceAsStream( ( "config.yml" ) );
         Files.copy( in, file.toPath() );
         return ConfigurationProvider.getProvider( YamlConfiguration.class ).load( file );
     }
 
     private void checkAndUpdateConfig()
     {
-        if ( mainConfig.getInt( "config-version" ) != 1 )
+        if ( mainConfig.getInt( "config-version" ) != 2 )
         {
-            File configFile = new File( "GameGuard", "gameguard.yml" );
+            File configFile = new File( "BotFilter", "config.yml" );
             try
             {
-                if ( configFile.renameTo( new File( "GameGuard", "gameguard-old.yml" ) ) )
+                if ( configFile.renameTo( new File( "BotFilter", "config-old.yml" ) ) )
                 {
 
                     this.mainConfig = checkFileAndGiveConfig();
                     BungeeCord.getInstance().getLogger().info( "§cВНИМАНИЕ! §aБыл создан новый конфиг." );
-                    BungeeCord.getInstance().getLogger().info( "§cВНИМАНИЕ! §aСтрарый конфиг сохранён под именем - §bgameguard-old.yml§a." );
+                    BungeeCord.getInstance().getLogger().info( "§cВНИМАНИЕ! §aСтрарый конфиг сохранён под именем - §bconfig-old.yml§a." );
                     BungeeCord.getInstance().getLogger().info( "§cВНИМАНИЕ! §aЕсли вы чтото изменяли то, не забудьте изменить заного." );
                     BungeeCord.getInstance().getLogger().info( "§aЗапуск через §c10 §aсекунд." );
                     Thread.sleep( 10000L );
@@ -240,32 +252,46 @@ public class Config
                 long currTime = System.currentTimeMillis();
                 lastBotAttackCheck = Config.getConfig().getConnectedUsersSet().size() >= ( maxChecksPer1min / 4 ) && !isUnderAttack()
                         ? currTime : lastBotAttackCheck;
-                for ( GGConnector connector : Config.getConfig().getConnectedUsersSet() )
+                for ( BFConnector connector : Config.getConfig().getConnectedUsersSet() )
                 {
                     if ( connector.isConnected() )
                     {
                         Utils.CheckState state = connector.getState();
                         connector.getConnection().sendMessages( state == Utils.CheckState.BUTTON ? check2 : check );
-                        long diff = currTime - connector.getJoinTime();
-                        if ( ( diff >= 10000 && state == Utils.CheckState.POSITION )
-                                || ( connector.getState() == Utils.CheckState.FAILED )
-                                || ( diff >= 30000 && state == Utils.CheckState.BUTTON ) )
+                        switch ( connector.getState() )
                         {
-                            connector.getConnection().disconnect( errorBot );
-                            continue;
+                            case FAILED:
+                                connector.getConnection().disconnect( errorBot );
+                                continue;
+                            case BUTTON:
+                                long buttonTime = System.currentTimeMillis() - connector.getButtonCheckStart();
+                                if ( buttonTime >= 15000 )
+                                {
+                                    connector.getConnection().disconnect( errorBot );
+                                    continue;
+                                }
+                                break;
+                            case POSITION:
+                                long posTime = System.currentTimeMillis() - connector.getJoinTime();
+                                if ( posTime >= 15000 )
+                                {
+                                    connector.getConnection().disconnect( errorBot );
+                                    continue;
+                                }
+                                break;
+                            default:
+                                continue;
                         }
                         if ( connector.getGlobalTick() > 5 && connector.getGlobalTick() < 60 )
                         {
-                            if ( connector.getKeepAlivePacket() == null )
-                            {
-                                connector.setKeepAlivePacket( new KeepAlive( random.nextInt( Integer.MAX_VALUE ) ) );
-                                connector.getConnection().unsafe().sendPacket( connector.getKeepAlivePacket() );
-                            }
+                            KeepAlive alive = new KeepAlive( random.nextInt( Integer.MAX_VALUE ) );
+                            connector.addOrRemove( alive.getRandomId(), false );
+                            connector.getConnection().unsafe().sendPacket( alive );
                             connector.sendCheckPackets( true, true );
                         }
                     }
                 }
             }
-        }, "GameGuard thread" ) ).start();
+        }, "BotFilter thread" ) ).start();
     }
 }

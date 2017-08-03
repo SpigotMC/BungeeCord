@@ -1,4 +1,4 @@
-package ru.leymooo.gameguard.utils;
+package ru.leymooo.botfilter.utils;
 
 import com.maxmind.geoip.LookupService;
 import static com.maxmind.geoip.LookupService.GEOIP_MEMORY_CACHE;

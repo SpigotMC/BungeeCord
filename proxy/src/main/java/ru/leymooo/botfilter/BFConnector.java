@@ -1,12 +1,13 @@
-package ru.leymooo.gameguard;
+package ru.leymooo.botfilter;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import ru.leymooo.gameguard.utils.ButtonUtils;
-import ru.leymooo.gameguard.utils.Utils;
+import ru.leymooo.botfilter.utils.ButtonUtils;
+import ru.leymooo.botfilter.utils.Utils;
 import io.netty.channel.Channel;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -44,7 +45,7 @@ import net.md_5.bungee.protocol.packet.extra.SpawnPosition;
 import net.md_5.bungee.protocol.packet.extra.TeleportConfirm;
 import net.md_5.bungee.protocol.packet.extra.TimeUpdate;
 import net.md_5.bungee.protocol.packet.extra.UpdateHeath;
-import ru.leymooo.gameguard.utils.Utils.CheckState;
+import ru.leymooo.botfilter.utils.Utils.CheckState;
 
 /**
  *
@@ -53,17 +54,18 @@ import ru.leymooo.gameguard.utils.Utils.CheckState;
 @Data
 @EqualsAndHashCode(callSuper = false, exclude =
 {
-    "confirmPacket", "keepAlivePacket", "clientSettings", "keepAlive", "confirmTransaction", "pluginMessage", "buttons", "location", "state", "connection", "wrongLocations", "channel", "lastPacketCheck", "packets", "recieved", "globalTick", "localTick", "setSlotPacket", "healthPacket", "posLook", "setExpPacket"
+    "checks", "buttonCheckStart", "pps", "clientSettings", "pluginMessage", "buttons", "location", "state", "connection", "wrongLocations", "channel", "lastPacketCheck", "recieved", "globalTick", "localTick", "setSlotPacket", "healthPacket", "setExpPacket"
 })
-public class GGConnector extends PacketHandler
+public class BFConnector extends PacketHandler
 {
 
     /* Добро пожаловать в гору говнокода и костылей */
     private UserConnection connection;
     private Channel channel;
     private long joinTime = System.currentTimeMillis();
+    private long buttonCheckStart = 0;
     private long lastPacketCheck = System.currentTimeMillis();
-    private AtomicInteger packets;
+    private AtomicInteger pps;
     private boolean recieved = false;
     private int globalTick = 0;
     private int localTick = 0;
@@ -72,17 +74,13 @@ public class GGConnector extends PacketHandler
     private Location location;
     private CheckState state = CheckState.POSITION;
     private HashMap<Location, Block> buttons;
-    //==========Косметические пакеты==============
+    private HashSet<Object> checks;
     private SetSlot setSlotPacket;
     private UpdateHeath healthPacket;
     private SetExp setExpPacket;
-    //=====Пакеты для проверки протокола=========
-    private PlayerPositionAndLook posLook = null;
-    private ConfirmTransaction confirmPacket = null;
-    private KeepAlive keepAlivePacket = null;
-    private boolean clientSettings, keepAlive, confirmTransaction, pluginMessage;
+    private boolean clientSettings, pluginMessage;
     //==========Статические пакеты===============
-    private static DefinedPacket loginPacket = new Login( -1, (short) 2, 0, (short) 0, (short) 100, "flat", true ),
+    private static DefinedPacket loginPacket = new Login( -1, (short) 2, 1, (short) 0, (short) 100, "flat", true ),
             spawnPositionPacket = new SpawnPosition( 1, 60, 1 ),
             playerPosAndLook = new PlayerPositionAndLook( 1.00, 450, 1.00, 1f, 1f, 1, false ),
             timeUpdate = new TimeUpdate( 1, 1000 ),
@@ -94,7 +92,7 @@ public class GGConnector extends PacketHandler
             new ChunkPacket( 1, 1, new byte[ 256 ] ), new ChunkPacket( 1, -1, new byte[ 256 ] ), new ChunkPacket( 1, 0, new byte[ 256 ] ) );
     //===========================================
 
-    public GGConnector(UserConnection connection)
+    public BFConnector(UserConnection connection)
     {
         this.connection = connection;
         this.channel = this.connection.getCh().getHandle();
@@ -124,6 +122,11 @@ public class GGConnector extends PacketHandler
         this.setConnection( null );
         this.setChannel( null );
         this.setLocation( null );
+        if ( this.getChecks() != null )
+        {
+            this.getChecks().clear();
+            this.setChecks( null );
+        }
     }
 
     private void sendFakeServerPackets()
@@ -175,10 +178,9 @@ public class GGConnector extends PacketHandler
     @Override
     public void handle(ConfirmTransaction transaction) throws Exception
     {
-        if ( getConfirmPacket() != null )
+        if ( transaction.getWindow() == 0 && transaction.isAccepted() )
         {
-            this.setConfirmTransaction( transaction.getWindow() == 0 && transaction.isAccepted() && transaction.getAction() == getConfirmPacket().getAction() );
-            this.setConfirmPacket( null );
+            addOrRemove( transaction.getAction(), true );
         }
     }
 
@@ -200,11 +202,7 @@ public class GGConnector extends PacketHandler
     @Override
     public void handle(KeepAlive packet) throws Exception
     {
-        if ( getKeepAlivePacket() != null )
-        {
-            setKeepAlive( getKeepAlivePacket().getRandomId() == packet.getRandomId() );
-            setKeepAlivePacket( null );
-        }
+        addOrRemove( packet.getRandomId(), true );
     }
 
     @Override
@@ -246,7 +244,7 @@ public class GGConnector extends PacketHandler
     @Override
     public void handle(TeleportConfirm conf) throws Exception
     {
-        if ( this.getPosLook() != null && this.getPosLook().getTeleportId() == conf.getTeleportId() )
+        if ( getChecks() != null && getChecks().remove( conf.getTeleportId() ) )
         {
             this.recieved = true;
         }
@@ -261,19 +259,14 @@ public class GGConnector extends PacketHandler
             return;
         }
         getLocation().handlePosition( posRot );
-        if ( this.getPosLook() != null && isRecieved() )
+        if ( isRecieved() && getChecks().remove( posRot ) )
         {
-            PlayerPositionAndLook pos = getPosLook();
-            if ( pos.equals( posRot ) )
-            {
-                setPosLook( null );
-                setRecieved( false );
-                localTick = 0;
-                return;
-            } else if ( getConnection().getPendingConnection().getHandshake().getProtocolVersion() != 47 )
-            {
-                this.state = CheckState.FAILED;
-            }
+            setRecieved( getConnection().getPendingConnection().getHandshake().getProtocolVersion() == 47 );
+            localTick = 0;
+            return;
+        } else if ( isRecieved() && getConnection().getPendingConnection().getHandshake().getProtocolVersion() != 47 )
+        {
+            this.state = CheckState.FAILED;
         }
         handleY( getLocation() );
     }
@@ -293,11 +286,12 @@ public class GGConnector extends PacketHandler
         }
         if ( globalTick == 75 && isTrue )
         {
-            if ( Config.getConfig().isUnderAttack() && ButtonUtils.getSchematic() != null )
+            if ( Config.getConfig().needButtonCheck() && ButtonUtils.getSchematic() != null )
             {
+                this.setButtonCheckStart( System.currentTimeMillis() );
                 this.state = CheckState.BUTTON;
                 ThreadLocalRandom random = ThreadLocalRandom.current();
-                ButtonUtils.pasteSchemAndTeleportPlayer( random.nextInt( -3000, 3000 ), random.nextInt( 50, 122 ), random.nextInt( -3000, 3000 ), this );
+                ButtonUtils.pasteSchemAndTeleportPlayer( random.nextInt( -50000, 50000 ), random.nextInt( 50, 122 ), random.nextInt( -50000, 50000 ), this );
                 return;
             }
             this.state = CheckState.SUS;
@@ -317,26 +311,42 @@ public class GGConnector extends PacketHandler
             return;
         }
         ThreadLocalRandom r = ThreadLocalRandom.current();
-        if ( ( r.nextInt( 100 ) < 10 || force ) )
+        if ( ( r.nextInt( 100 ) < 10 ) || force )
         {
-            if ( getPosLook() == null )
+            PlayerPositionAndLook posLook = new PlayerPositionAndLook( r.nextInt( -7, 7 ), r.nextInt( 200, 600 ), r.nextInt( -7, 7 ), 1, 1, r.nextInt( Integer.MAX_VALUE ), false );
+            ConfirmTransaction confTr = new ConfirmTransaction( (byte) 0, r.nextInt( 32767 ), false );
+            if ( getConnection().getPendingConnection().getHandshake().getProtocolVersion() != 47 )
             {
-                this.setPosLook( new PlayerPositionAndLook( r.nextInt( -7, 7 ), r.nextInt( 200, 600 ), r.nextInt( -7, 7 ), 1, 1, 2, false ) );
-                setRecieved( getConnection().getPendingConnection().getHandshake().getProtocolVersion() == 47 );
-                this.write( getPosLook() );
-            }
-            if ( getConfirmPacket() == null )
+                this.addOrRemove( posLook.getTeleportId(), false );
+            } else
             {
-                this.setConfirmPacket( new ConfirmTransaction( (byte) 0, r.nextInt( 32767 ), false ) );
-                this.write( getConfirmPacket() );
+                setRecieved( true );
             }
-            this.channel.flush();
+            this.addOrRemove( confTr.getAction(), false );
+            this.addOrRemove( posLook, false );
+            this.write( posLook );
+            this.channel.writeAndFlush( confTr );
         }
     }
 
     public boolean isConnected()
     {
         return getChannel() != null && getChannel().isActive() && getConnection() != null && getConnection().isConnected();
+    }
+
+    public void addOrRemove(Object obj, boolean remove)
+    {
+        if ( getChecks() == null )
+        {
+            setChecks( new HashSet<>() );
+        }
+        if ( remove )
+        {
+            getChecks().remove( obj );
+        } else
+        {
+            getChecks().add( obj );
+        }
     }
 
     private void finish()
@@ -359,7 +369,7 @@ public class GGConnector extends PacketHandler
     @Override
     public String toString()
     {
-        return "[" + getName() + "] <-> GGConnector";
+        return "[" + getName() + "] <-> BFConnector";
     }
 
 }

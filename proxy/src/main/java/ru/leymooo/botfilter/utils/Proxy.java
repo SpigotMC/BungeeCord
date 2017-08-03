@@ -1,4 +1,4 @@
-package ru.leymooo.gameguard.utils;
+package ru.leymooo.botfilter.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,7 +14,7 @@ import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 import net.md_5.bungee.BungeeCord;
-import ru.leymooo.gameguard.Config;
+import ru.leymooo.botfilter.Config;
 
 /**
  *
@@ -52,10 +52,10 @@ public class Proxy
                 Thread.sleep( 1000L );
                 if ( tries == 10 )
                 {
-                    System.out.println( "[GameGuard] Не удалось скачать GeoIp. Продолжаем без неё." );
+                    System.out.println( "[BotFilter] Не удалось скачать GeoIp. Продолжаем без неё." );
                     break;
                 }
-                System.out.println( "[GameGuard] Ждём пока скачается GeoIp дата база." );
+                System.out.println( "[BotFilter] Ждём пока скачается GeoIp дата база." );
                 tries++;
             } catch ( InterruptedException ex )
             {

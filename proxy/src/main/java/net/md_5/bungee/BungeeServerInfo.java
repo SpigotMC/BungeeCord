@@ -142,7 +142,7 @@ public class BungeeServerInfo implements ServerInfo
         };
         new Bootstrap()
                 .channel( PipelineUtils.getChannel() )
-                .group( BungeeCord.getInstance().workerEventLoopGroup ) //GameGuard
+                .group( BungeeCord.getInstance().workerEventLoopGroup ) //BotFilter
                 .handler( PipelineUtils.BASE )
                 .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000 ) // TODO: Configurable
                 .remoteAddress( getAddress() )

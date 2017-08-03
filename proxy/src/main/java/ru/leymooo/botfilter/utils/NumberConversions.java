@@ -1,4 +1,4 @@
-package ru.leymooo.gameguard.utils;
+package ru.leymooo.botfilter.utils;
 
 /**
  * Utils for casting number types to other number types

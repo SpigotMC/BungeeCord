@@ -1,4 +1,4 @@
-package ru.leymooo.gameguard.schematic;
+package ru.leymooo.botfilter.schematic;
 
 import java.io.IOException;
 import java.io.InputStream;

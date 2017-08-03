@@ -57,10 +57,10 @@ public class PipelineUtils
             ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
             ch.pipeline().addAfter( FRAME_PREPENDER, PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
             ch.pipeline().addBefore( FRAME_PREPENDER, LEGACY_KICKER, new KickStringWriter() );
-            if ( ConnectionDropper.needDrop( ch.remoteAddress() ) ) //GameGuard
+            if ( ConnectionDropper.needDrop( ch.remoteAddress() ) ) //BotFilter
             {
-                ch.close(); //GameGuard
-                return; //GameGuard
+                ch.close(); //BotFilter
+                return; //BotFilter
             }
             ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( BungeeCord.getInstance(), listener ) );
 
@@ -134,7 +134,7 @@ public class PipelineUtils
             {
                 // IP_TOS is not supported (Windows XP / Windows Server 2003)
             }
-            ch.config().setOption( ChannelOption.TCP_NODELAY, true ); //GameGuard
+            ch.config().setOption( ChannelOption.TCP_NODELAY, true ); //BotFilter
             ch.config().setAllocator( PooledByteBufAllocator.DEFAULT );
 
             ch.pipeline().addLast( TIMEOUT_HANDLER, new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );

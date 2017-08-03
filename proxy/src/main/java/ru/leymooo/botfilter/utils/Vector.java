@@ -1,6 +1,6 @@
-package ru.leymooo.gameguard.utils;
+package ru.leymooo.botfilter.utils;
 
-import ru.leymooo.gameguard.utils.NumberConversions;
+import ru.leymooo.botfilter.utils.NumberConversions;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;

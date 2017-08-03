@@ -64,12 +64,12 @@ import net.md_5.bungee.util.CaseInsensitiveSet;
 @RequiredArgsConstructor
 public final class UserConnection implements ProxiedPlayer
 {
-    public boolean serverr; //GameGuard
+    public boolean serverr; //BotFilter
     /*========================================================================*/
     @NonNull
     private final ProxyServer bungee;
     @NonNull
-    @Getter //GameGuard
+    @Getter //BotFilter
     private final ChannelWrapper ch; 
     @Getter
     @NonNull

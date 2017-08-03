@@ -7,16 +7,16 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
-import ru.leymooo.gameguard.Config;
-import ru.leymooo.gameguard.utils.Proxy;
-import ru.leymooo.gameguard.utils.Utils;
+import ru.leymooo.botfilter.Config;
+import ru.leymooo.botfilter.utils.Proxy;
+import ru.leymooo.botfilter.utils.Utils;
 
-public class GameGuardCommand extends Command
+public class BotFilterCommand extends Command
 {
 
-    public GameGuardCommand()
+    public BotFilterCommand()
     {
-        super( "gg", null, "gameguard" );
+        super( "botfilter", null, "bf", "antibot", "gg" );
     }
     private boolean permanent = false;
 
@@ -30,11 +30,11 @@ public class GameGuardCommand extends Command
         }
         if ( args.length == 0 )
         {
-            sender.sendMessage( "§r--------------- §bGameGuard §r-----------------" );
-            sender.sendMessage( "§r> §lgameguard reload §a[config,proxy]" );
-            sender.sendMessage( "§r> §lgameguard stat §6- §aПоказать статистику" );
-            sender.sendMessage( "§r> §lgameguard mode §a[auto, permanent] " );
-            sender.sendMessage( "§r--------------- §bGameGuard §r-----------------" );
+            sender.sendMessage( "§r--------------- §bBotFilter §r-----------------" );
+            sender.sendMessage( "§r> §lbotfilter reload §a[config,proxy]" );
+            sender.sendMessage( "§r> §lbotfilter stat §6- §aПоказать статистику" );
+            sender.sendMessage( "§r> §lbotfilter mode §a[auto, permanent] " );
+            sender.sendMessage( "§r--------------- §bBotFilter §r-----------------" );
             return;
         }
         if ( args[0].equalsIgnoreCase( "reload" ) )
@@ -51,7 +51,8 @@ public class GameGuardCommand extends Command
                 sender.sendMessage( "§aКоманда выполнена" );
             } else if ( args[1].equalsIgnoreCase( "proxy" ) )
             {
-                Config.getConfig().setProxy( new Proxy( new File( "GameGuard" ) ) );
+                Config.getConfig().setProxy( new Proxy( new File( "BotFilter" ) ) );
+                Utils.connections.invalidateAll();
                 sender.sendMessage( "§aКоманда выполнена" );
             }
         }
@@ -65,18 +66,18 @@ public class GameGuardCommand extends Command
             if ( args[1].equals( "auto" ) )
             {
                 this.permanent = false;
-                sender.sendMessage( "§c§lВнимание! §aПосле написания §6gameguard mode confirm §aв конфиге пропадут подсказки!" );
+                sender.sendMessage( "§c§lВнимание! §aПосле написания §6botfilter mode confirm §aв конфиге пропадут подсказки!" );
             } else if ( args[1].equalsIgnoreCase( "permanent" ) )
             {
                 this.permanent = true;
-                sender.sendMessage( "§c§lВнимание! §aПосле написания §6gameguard mode confirm §aв конфиге пропадут подсказки!" );
+                sender.sendMessage( "§c§lВнимание! §aПосле написания §6botfilter mode confirm §aв конфиге пропадут подсказки!" );
             } else if ( args[1].equalsIgnoreCase( "confirm" ) )
             {
                 try
                 {
                     Config.getConfig().getMainConfig().set( "permanent-protection", permanent );
                     Config.getConfig().setPermanent( permanent );
-                    ConfigurationProvider.getProvider( YamlConfiguration.class ).save( Config.getConfig().getMainConfig(), new File( "GameGuard", "gameguard.yml" ) );
+                    ConfigurationProvider.getProvider( YamlConfiguration.class ).save( Config.getConfig().getMainConfig(), new File( "BotFilter", "config.yml" ) );
                     sender.sendMessage( "§aКоманда выполнена" );
                 } catch ( IOException ex )
                 {
@@ -93,11 +94,11 @@ public class GameGuardCommand extends Command
 
     private void sendStat(CommandSender sender)
     {
-        sender.sendMessage( "§r--------------- §bGameGuard -----------------" );
+        sender.sendMessage( "§r--------------- §bBotFilter -----------------" );
         sender.sendMessage( "§r> §lОбнаружена атака: " + ( Config.getConfig().isUnderAttack() ? "§cДа" : "§aНет" ) );
         sender.sendMessage( "§r> §lРежим работы: " + ( Config.getConfig().isPermanent() ? "§aПостоянный" : "§aАвтоматический" ) );
         sender.sendMessage( "§r> §lБотов на проверке: " + Config.getConfig().getConnectedUsersSet().size() );
         sender.sendMessage( "§r> §lПрошло проверку: " + Config.getConfig().getUsers().size() );
-        sender.sendMessage( "§r--------------- §bGameGuard -----------------" );
+        sender.sendMessage( "§r--------------- §bBotFilter -----------------" );
     }
 }
