@@ -1,13 +1,13 @@
-msg-check: "&b&lAntiBot&7>> &fОжидайте завершения проверки..."
-msg-check-2: "&b&lAntiBot&7>> &fНажимите на кнопку с &aЗЕЛЁНОЙ&f шерстью."
-msg-check-sus: "&b&lAntiBot&7>> &aПроверка пройдена"
-error-many-checks: "&b&lAntiBot&7>> &cОчень много проверок с одного IP адресса. Попробуйте зайти через 10 минут&7>> &4ERROR #0" 
-error-not-a-player: "&b&lAntiBot&7>> &cСкорее всего вы не игрок &a(Если вы используете читы, выключите их) &7>> &4ERROR #1"
-error-wrong-button: "&b&lAntiBot&7>> &cВы нажали на неверную кнопку&7>> &4ERROR #5"
-error-proxy-detected: "&b&lAntiBot&7>> &cВаше соединение признано нелегитимным&7>> &4ERROR #2"
-error-many-pos-packets: "&b&lAntiBot&7>> &cВы посылаете очень много пакетов&7>> &4ERROR #3"
-error-cannot-use-button : "&b&lAntiBot&7>> &cНеправильная позиция&7>> &4ERROR #6"
-error-country-not-allowed: "&b&lAntiBot&7>> &cВаше соединение признано нелегитимным&7>> &4ERROR #4"
+msg-check: "&b&lBot&d&lFilter&7>> &fОжидайте завершения проверки..."
+msg-check-2: "&b&lBot&d&lFilter&7>> &fНажимите на кнопку с &aЗЕЛЁНОЙ&f шерстью."
+msg-check-sus: "&b&lBot&d&lFilter&7>> &aПроверка пройдена"
+error-many-checks: "&b&lBot&d&lFilter&7>> &cОчень много проверок с одного IP адресса. Попробуйте зайти через 10 минут&7>> &4ERROR #0" 
+error-not-a-player: "&b&lBot&d&lFilter&7>> &cСкорее всего вы не игрок &a(Если вы используете читы, выключите их) &7>> &4ERROR #1"
+error-wrong-button: "&b&lBot&d&lFilter&7>> &cВы нажали на неверную кнопку&7>> &4ERROR #5"
+error-proxy-detected: "&b&lBot&d&lFilter&7>> &cВаше соединение признано нелегитимным&7>> &4ERROR #2"
+error-many-pos-packets: "&b&lBot&d&lFilter&7>> &cВы посылаете очень много пакетов&7>> &4ERROR #3"
+error-cannot-use-button : "&b&lBot&d&lFilter&7>> &cНеправильная позиция&7>> &4ERROR #6"
+error-country-not-allowed: "&b&lBot&d&lFilter&7>> &cВаше соединение признано нелегитимным&7>> &4ERROR #4"
 #Включить ли постоянную защиту? 
 #Если true, то будет включены проверки на прокси.
 #И на GEO локации.
@@ -22,7 +22,7 @@ force-kick-bots-on-join-if-attack-detected: true
 #Так что 20-30 достаточно. Если у вас ооочень большой онлайн то можно и 35-45 поставить.
 #онлайна до 150 - 20
 #онлайна от 150 до 250 - 30
-#250-450 - 40
+#250-450 - 35-40
 #выше 45
 max-checks-per-1-min: 25
 #Как долго будут действовать лимиты; В секундах.
