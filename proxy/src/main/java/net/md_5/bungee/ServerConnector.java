@@ -221,6 +221,10 @@ public class ServerConnector extends PacketHandler
             {
                 user.unsafe().sendPacket( new ScoreboardScore( score.getItemName(), (byte) 1, score.getScoreName(), score.getValue() ) );
             }
+            for ( Team team : serverScoreboard.getTeams() )
+            {
+                user.unsafe().sendPacket( new net.md_5.bungee.protocol.packet.Team( team.getName() ) );
+            }
             serverScoreboard.clear();
 
             for ( UUID bossbar : user.getSentBossBars() )
