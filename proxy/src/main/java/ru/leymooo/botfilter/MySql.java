@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import ru.leymooo.botfilter.Config;
+import net.md_5.bungee.config.Configuration;
 
 /**
  *
@@ -23,14 +23,15 @@ public class MySql
     private String user;
     private String password;
     private String port;
+    private static Thread syncThread;
 
-    public MySql(String host, String user, String password, String database, String port)
+    public MySql(Configuration section)
     {
-        this.host = host;
-        this.user = user;
-        this.password = password;
-        this.database = database;
-        this.port = port;
+        this.host = section.getString( "host" );
+        this.user = section.getString( "username" );
+        this.password = section.getString( "password" );
+        this.database = section.getString( "database" );
+        this.port = section.getString( "port" );
         this.executor = Executors.newSingleThreadExecutor();
         try
         {
@@ -38,21 +39,22 @@ public class MySql
             try ( Statement st = this.getConnection().createStatement() )
             {
                 st.executeUpdate( "CREATE TABLE IF NOT EXISTS `Players` (`player` VARCHAR(16) NOT NULL PRIMARY KEY UNIQUE, `ip` VARCHAR(16) NOT NULL);" );
-                st.close();
             }
-            try ( Statement statement = this.getConnection().createStatement() )
+            try ( Statement statement = this.getConnection().createStatement(); ResultSet rs = statement.executeQuery( "SELECT * FROM `Players`;" ) )
             {
-                ResultSet rs = statement.executeQuery( "SELECT * FROM `Players`;" );
                 while ( rs.next() )
                 {
-                    Config.getConfig().addUserToMap( rs.getString( "player" ), rs.getString( "ip" ) );
+                    Config.getConfig().addUserToMap( rs.getString( "player" ).toLowerCase(), rs.getString( "ip" ) );
                 }
                 System.out.println( "[BotFilter] Белый список игроков успешно загружен." );
-                statement.close();
             }
         } catch ( SQLException ex )
         {
             ex.printStackTrace();
+        }
+        if ( section.getBoolean( "multibungee.enabled" ) )
+        {
+            syncThread( section.getInt( "multibungee.sync-time", 10 ) );
         }
     }
 
@@ -73,7 +75,6 @@ public class MySql
                 try ( Statement statment = getConnection().createStatement() )
                 {
                     statment.executeUpdate( "INSERT INTO `Players` (`player`,`ip`) VALUES ('" + name + "','" + ip + "') ON DUPLICATE KEY UPDATE `ip`='" + ip + "';" );
-                    statment.close();
                 } catch ( SQLException e )
                 {
                     e.printStackTrace();
@@ -90,7 +91,7 @@ public class MySql
             {
                 this.connection.close();
             }
-        } catch ( Exception ignored )
+        } catch ( SQLException ignored )
         {
         }
 
@@ -99,5 +100,41 @@ public class MySql
 
         this.connection = DriverManager.getConnection( "JDBC:mysql://" + this.host + ":" + this.port + "/" + this.database, this.user, this.password );
         System.out.println( "[SQL] Connected [" + ( System.currentTimeMillis() - start ) + " ms]" );
+    }
+
+    private void syncThread(int syncTime)
+    {
+        stopSyncThread();
+        ( syncThread = new Thread( () ->
+        {
+            while ( !Thread.interrupted() )
+            {
+                try
+                {
+                    Thread.sleep( syncTime * 1000 );
+                    try ( Statement statement = this.getConnection().createStatement(); ResultSet rs = statement.executeQuery( "SELECT * FROM `Players`;" ) )
+                    {
+                        while ( rs.next() )
+                        {
+                            Config.getConfig().addUserToMap( rs.getString( "player" ).toLowerCase(), rs.getString( "ip" ) );
+                        }
+                    }
+                } catch ( InterruptedException ex )
+                {
+                    return;
+                } catch ( SQLException ex )
+                {
+                    ex.printStackTrace();
+                }
+            }
+        }, "DataBase sync" ) ).start();
+    }
+
+    public static void stopSyncThread()
+    {
+        if ( syncThread != null && syncThread.isAlive() )
+        {
+            syncThread.interrupt();
+        }
     }
 }

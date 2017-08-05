@@ -7,6 +7,7 @@ error-wrong-button: "&b&lBot&d&lFilter&7>> &cВы нажали на неверн
 error-proxy-detected: "&b&lBot&d&lFilter&7>> &cВаше соединение признано нелегитимным&7>> &4ERROR #2"
 error-many-pos-packets: "&b&lBot&d&lFilter&7>> &cВы посылаете очень много пакетов&7>> &4ERROR #3"
 error-cannot-use-button : "&b&lBot&d&lFilter&7>> &cНеправильная позиция&7>> &4ERROR #6"
+error-button-not-pressed: "&b&lBot&d&lFilter&7>> &cВы не успели нажать на кнопку &7>> &4ERROR #7"
 error-country-not-allowed: "&b&lBot&d&lFilter&7>> &cВаше соединение признано нелегитимным&7>> &4ERROR #4"
 #Включить ли постоянную защиту? 
 #Если true, то будет включены проверки на прокси.
@@ -58,6 +59,13 @@ mysql:
   username: root
   password: example
   database: botfilter
+  #Для redis и прочих штук, которые позволяют использовать две и более бандж.
+  #На прокси не работает.
+  multibungee:
+    enabled: false
+    #Как часто синхронизировать аккаунты. В секундах
+    #Слишком часто лучше не делать
+    sync-time: 10
 fake-online:
   enabled: false
   #ФЕЙК ОНЛАЙН ПОКАЗЫВАЕТСЯ ТОЛЬКО В QUERY И ПРИ ПИНГЕ СЕРВЕРА
@@ -73,4 +81,4 @@ fake-online:
     61;100: 1.3
     #любой другой онлайн, которого нет выше
     default: 1.25
-config-version: 2
+config-version: 3

@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Setter;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.ChatMessageType;
@@ -84,8 +85,8 @@ public class BFConnector extends PacketHandler
             spawnPositionPacket = new SpawnPosition( 1, 60, 1 ),
             playerPosAndLook = new PlayerPositionAndLook( 1.00, 450, 1.00, 1f, 1f, 1, false ),
             timeUpdate = new TimeUpdate( 1, 1000 ),
-            healthUpdate = new UpdateHeath( 1, 1, 0 ),
-            chat = new Chat( ComponentSerializer.toString( TextComponent.fromLegacyText( Config.getConfig().getCheck() ) ), (byte) ChatMessageType.CHAT.ordinal() );
+            healthUpdate = new UpdateHeath( 1, 1, 0 );
+    public static Chat chat;
     private static List<ChunkPacket> chunkPackets = Arrays.asList(
             new ChunkPacket( 0, 0, new byte[ 256 ] ), new ChunkPacket( -1, 0, new byte[ 256 ] ), new ChunkPacket( 0, 1, new byte[ 256 ] ),
             new ChunkPacket( -1, 1, new byte[ 256 ] ), new ChunkPacket( 0, -1, new byte[ 256 ] ), new ChunkPacket( -1, -1, new byte[ 256 ] ),

@@ -8,6 +8,7 @@ import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
 import ru.leymooo.botfilter.Config;
+import ru.leymooo.botfilter.MySql;
 import ru.leymooo.botfilter.utils.Proxy;
 import ru.leymooo.botfilter.utils.Utils;
 
@@ -46,6 +47,7 @@ public class BotFilterCommand extends Command
             }
             if ( args[1].equals( "config" ) )
             {
+                MySql.stopSyncThread();
                 new Config();
                 Utils.connections.invalidateAll();
                 sender.sendMessage( "§aКоманда выполнена" );

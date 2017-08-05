@@ -17,9 +17,13 @@ import lombok.Data;
 import lombok.Getter;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
+import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import ru.leymooo.fakeonline.FakeOnline;
 
@@ -44,6 +48,7 @@ public class Config
     private String errorPackets = "error-many-pos-packets";
     private String errorWrongButton = "error-wrong-button";
     private String errorCantUse = "error-cannot-use-button";
+    private String errorNotPressed = "error-button-not-pressed";
     private boolean mySqlEnabled = false;
     private boolean permanent = false;
     private boolean forceKick = true;
@@ -91,13 +96,19 @@ public class Config
         }
         if ( this.mySqlEnabled )
         {
-            this.mysql = new MySql( this.mainConfig.getString( "mysql.host" ), this.mainConfig.getString( "mysql.username" ), this.mainConfig.getString( "mysql.password" ), this.mainConfig.getString( "mysql.database" ), this.mainConfig.getString( "mysql.port", "3306" ) );
+            this.mysql = new MySql( this.mainConfig.getSection( "mysql" ) );
         }
     }
 
     public void addUserToMap(String name, String ip)
     {
-        this.users.put( name.toLowerCase(), ip );
+        if ( this.users.containsKey( name ) )
+        {
+            this.users.replace( name, ip );
+        } else
+        {
+            this.users.put( name, ip );
+        }
     }
 
     public void saveIp(String name, String ip)
@@ -106,7 +117,7 @@ public class Config
         {
             this.mysql.addAddress( name.toLowerCase(), ip );
         }
-        this.addUserToMap( name, ip );
+        this.addUserToMap( name.toLowerCase(), ip );
         if ( this.userData != null )
         {
             this.userData.set( name.toLowerCase(), ip );
@@ -180,6 +191,7 @@ public class Config
         this.errorPackets = ChatColor.translateAlternateColorCodes( '&', config.getString( errorPackets ) );
         this.errorWrongButton = ChatColor.translateAlternateColorCodes( '&', config.getString( errorWrongButton ) );
         this.errorCantUse = ChatColor.translateAlternateColorCodes( '&', config.getString( errorCantUse ) );
+        this.errorNotPressed = ChatColor.translateAlternateColorCodes( '&', config.getString( errorNotPressed ) );
         this.mySqlEnabled = config.getBoolean( "mysql.enabled" );
         this.permanent = config.getBoolean( "permanent-protection" );
         this.maxChecksPer1min = config.getInt( "max-checks-per-1-min" );
@@ -189,6 +201,7 @@ public class Config
         this.buttonOnAttack = config.getBoolean( "button-check.on-bot-attack" );
         this.buttonPermanent = config.getBoolean( "button-check.on-permanent-protection" );
         new FakeOnline( config.getBoolean( "fake-online.enabled" ), config.getSection( "fake-online.booster" ) );
+        BFConnector.chat = new Chat( ComponentSerializer.toString( TextComponent.fromLegacyText( getCheck() ) ), (byte) ChatMessageType.CHAT.ordinal() );
     }
 
     private Configuration checkFileAndGiveConfig() throws IOException
@@ -207,12 +220,17 @@ public class Config
 
     private void checkAndUpdateConfig()
     {
-        if ( mainConfig.getInt( "config-version" ) != 2 )
+        if ( mainConfig.getInt( "config-version" ) != 3 )
         {
             File configFile = new File( "BotFilter", "config.yml" );
             try
             {
-                if ( configFile.renameTo( new File( "BotFilter", "config-old.yml" ) ) )
+                File oldFile = new File( "BotFilter", "config-old.yml" );
+                if ( oldFile.exists() )
+                {
+                    oldFile.delete();
+                }
+                if ( configFile.renameTo( oldFile ) )
                 {
 
                     this.mainConfig = checkFileAndGiveConfig();
@@ -241,13 +259,14 @@ public class Config
         final ThreadLocalRandom random = ThreadLocalRandom.current();
         ( t = new Thread( () ->
         {
-            while ( true )
+            while ( !Thread.interrupted() )
             {
                 try
                 {
                     Thread.sleep( 2000L );
                 } catch ( InterruptedException ex )
                 {
+                    return;
                 }
                 long currTime = System.currentTimeMillis();
                 lastBotAttackCheck = Config.getConfig().getConnectedUsersSet().size() >= ( maxChecksPer1min / 4 ) && !isUnderAttack()
@@ -267,7 +286,7 @@ public class Config
                                 long buttonTime = System.currentTimeMillis() - connector.getButtonCheckStart();
                                 if ( buttonTime >= 15000 )
                                 {
-                                    connector.getConnection().disconnect( errorBot );
+                                    connector.getConnection().disconnect( errorNotPressed );
                                     continue;
                                 }
                                 break;
@@ -282,13 +301,11 @@ public class Config
                             default:
                                 continue;
                         }
-                        if ( connector.getGlobalTick() > 5 && connector.getGlobalTick() < 60 )
-                        {
-                            KeepAlive alive = new KeepAlive( random.nextInt( Integer.MAX_VALUE ) );
-                            connector.addOrRemove( alive.getRandomId(), false );
-                            connector.getConnection().unsafe().sendPacket( alive );
-                            connector.sendCheckPackets( true, true );
-                        }
+
+                        KeepAlive alive = new KeepAlive( random.nextInt( Integer.MAX_VALUE ) );
+                        connector.addOrRemove( alive.getRandomId(), false );
+                        connector.getConnection().unsafe().sendPacket( alive );
+                        connector.sendCheckPackets( true, true );
                     }
                 }
             }
