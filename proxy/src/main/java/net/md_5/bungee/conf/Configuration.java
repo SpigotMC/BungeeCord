@@ -85,7 +85,7 @@ public class Configuration implements ProxyConfig
         throttle = adapter.getInt( "connection_throttle", throttle );
         ipForward = adapter.getBoolean( "ip_forward", ipForward );
         compressionThreshold = adapter.getInt( "network_compression_threshold", compressionThreshold );
-        preventProxyConnections = adapter.getBoolean( "prevent_proxy_connections", preventProxyConnections);
+        preventProxyConnections = adapter.getBoolean( "prevent_proxy_connections", preventProxyConnections );
 
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
 
