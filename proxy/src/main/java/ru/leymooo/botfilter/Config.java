@@ -213,7 +213,7 @@ public class Config
         {
             return ConfigurationProvider.getProvider( YamlConfiguration.class ).load( file );
         }
-        InputStream in = getClass().getClassLoader().getResourceAsStream( ( "config.yml" ) );
+        InputStream in = getClass().getClassLoader().getResourceAsStream( ( "bfconfig.yml" ) );
         Files.copy( in, file.toPath() );
         return ConfigurationProvider.getProvider( YamlConfiguration.class ).load( file );
     }

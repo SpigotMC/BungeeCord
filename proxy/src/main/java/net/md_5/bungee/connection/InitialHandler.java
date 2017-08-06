@@ -515,7 +515,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     return;
                 }
 
-                ch.getHandle().eventLoop().execute(new Runnable()
+                ch.getHandle().eventLoop().execute( new Runnable()
                 {
                     @Override
                     public void run()
@@ -532,7 +532,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             ch.setProtocol( Protocol.GAME );
                             if ( Config.getConfig().needCheck( getName(), getAddress().getAddress().getHostAddress() ) ) //BotFilter
                             {
-                                ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler(new BFConnector( userCon ) ); //BotFilter
+                                ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new BFConnector( userCon ) ); //BotFilter
                             } else
                             {
                                 ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) ); //BotFilter
