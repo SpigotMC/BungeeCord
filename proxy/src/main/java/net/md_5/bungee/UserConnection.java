@@ -256,7 +256,7 @@ public final class UserConnection implements ProxiedPlayer
 
             if ( getServer() == null && !ch.isClosing() )
             {
-                throw new IllegalStateException("Cancelled ServerConnectEvent with no server or disconnect.");
+                throw new IllegalStateException( "Cancelled ServerConnectEvent with no server or disconnect." );
             }
             return;
         }
