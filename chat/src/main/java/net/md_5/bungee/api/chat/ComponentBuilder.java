@@ -27,7 +27,7 @@ import java.util.List;
 public class ComponentBuilder
 {
 
-    private TextComponent current;
+    private BaseComponent current;
     private final List<BaseComponent> parts = new ArrayList<BaseComponent>();
 
     /**
@@ -82,8 +82,7 @@ public class ComponentBuilder
         parts.add( current );
         Collections.addAll( parts, components );
 
-        BaseComponent last = components[ components.length - 1 ];
-        current = ( last instanceof TextComponent ) ? (TextComponent) last : new TextComponent( last );
+        current = components[ components.length - 1 ];
 
         retain( retention );
         return this;
@@ -113,8 +112,9 @@ public class ComponentBuilder
     {
         parts.add( current );
 
-        current = new TextComponent( current );
-        current.setText( text );
+        TextComponent component = new TextComponent( current );
+        component.setText( text );
+        current = component;
         retain( retention );
 
         return this;
@@ -251,13 +251,29 @@ public class ComponentBuilder
         switch ( retention )
         {
             case NONE:
-                current = new TextComponent( current.getText() );
+                if ( current instanceof TextComponent )
+                {
+                    current = new TextComponent( ( (TextComponent) current ).getText() );
+                } else if ( current instanceof TranslatableComponent )
+                {
+                    TranslatableComponent oldComponent = (TranslatableComponent) current;
+                    current = new TranslatableComponent( oldComponent.getTranslate(), oldComponent.getWith() );
+                }
+
                 break;
             case ALL:
                 // No changes are required
                 break;
             case EVENTS:
-                current = new TextComponent( current.getText() );
+                if ( current instanceof TextComponent )
+                {
+                    current = new TextComponent( ( (TextComponent) current ).getText() );
+                } else if ( current instanceof TranslatableComponent )
+                {
+                    TranslatableComponent oldComponent = (TranslatableComponent) current;
+                    current = new TranslatableComponent( oldComponent.getTranslate(), oldComponent.getWith() );
+                }
+
                 current.setInsertion( previous.getInsertion() );
                 current.setClickEvent( previous.getClickEvent() );
                 current.setHoverEvent( previous.getHoverEvent() );
