@@ -2,6 +2,8 @@ package net.md_5.bungee.api.chat;
 
 import com.google.common.base.Preconditions;
 import net.md_5.bungee.api.ChatColor;
+
+import javax.xml.soap.Text;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -62,7 +64,7 @@ public class ComponentBuilder
      * @param components the components to append
      * @return this ComponentBuilder for chaining
      */
-    public ComponentBuilder append( BaseComponent[] components )
+    public ComponentBuilder append(BaseComponent[] components)
     {
         return append( components, FormatRetention.ALL );
     }
@@ -75,7 +77,7 @@ public class ComponentBuilder
      * @param retention the formatting to retain
      * @return this ComponentBuilder for chaining
      */
-    public ComponentBuilder append( BaseComponent[] components, FormatRetention retention )
+    public ComponentBuilder append(BaseComponent[] components, FormatRetention retention)
     {
         Preconditions.checkArgument( components.length != 0, "No components to append" );
 
@@ -112,9 +114,14 @@ public class ComponentBuilder
     {
         parts.add( current );
 
-        TextComponent component = new TextComponent( current );
-        component.setText( text );
-        current = component;
+        if ( current instanceof TextComponent )
+        {
+            current = new TextComponent( current );
+            ((TextComponent) current).setText( text );
+        } else if ( current instanceof TranslatableComponent )
+        {
+            current = new TextComponent( text );
+        }
         retain( retention );
 
         return this;
