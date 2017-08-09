@@ -1,7 +1,9 @@
 package net.md_5.bungee.api.chat;
 
+import com.google.common.base.Preconditions;
 import net.md_5.bungee.api.ChatColor;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -51,6 +53,40 @@ public class ComponentBuilder
     public ComponentBuilder(String text)
     {
         current = new TextComponent( text );
+    }
+
+    /**
+     * Appends the components to the builder and makes it the current target for
+     * formatting. The text will have all the formatting from the previous part.
+     *
+     * @param components the components to append
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder append( BaseComponent[] components )
+    {
+        return append( components, FormatRetention.ALL );
+    }
+
+    /**
+     * Appends the components to the builder and makes it the current target for
+     * formatting. You can specify the amount of formatting retained.
+     *
+     * @param components the components to append
+     * @param retention the formatting to retain
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder append( BaseComponent[] components, FormatRetention retention )
+    {
+        Preconditions.checkArgument( components.length != 0, "No components to append" );
+
+        parts.add( current );
+        Collections.addAll( parts, components );
+
+        BaseComponent last = components[ components.length - 1 ];
+        current = ( last instanceof TextComponent ) ? (TextComponent) last : new TextComponent( last );
+
+        retain( retention );
+        return this;
     }
 
     /**
