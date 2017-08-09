@@ -160,7 +160,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             @Override
             public void done(ProxyPingEvent result, Throwable error)
             {
-                if ( ch.isClosed() )
+                if ( ch.isClosing() )
                 {
                     return;
                 }
@@ -363,7 +363,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     disconnect( result.getCancelReasonComponents() );
                     return;
                 }
-                if ( ch.isClosed() )
+                if ( ch.isClosing() )
                 {
                     return;
                 }
@@ -484,7 +484,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     disconnect( result.getCancelReasonComponents() );
                     return;
                 }
-                if ( ch.isClosed() )
+                if ( ch.isClosing() )
                 {
                     return;
                 }
