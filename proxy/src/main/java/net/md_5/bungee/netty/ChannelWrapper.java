@@ -24,9 +24,6 @@ public class ChannelWrapper
     @Getter
     @Setter
     private InetSocketAddress remoteAddress;
-    @Getter
-    private volatile boolean closed;
-    @Getter
     private volatile boolean closing;
 
     public ChannelWrapper(ChannelHandlerContext ctx)
@@ -49,23 +46,32 @@ public class ChannelWrapper
 
     public void write(Object packet)
     {
-        if ( !closed )
+        if ( !isClosed() )
         {
             if ( packet instanceof PacketWrapper )
             {
                 ( (PacketWrapper) packet ).setReleased( true );
-                ch.write( ( (PacketWrapper) packet ).buf, ch.voidPromise() );
+                ch.writeAndFlush( ( (PacketWrapper) packet ).buf, ch.voidPromise() );
             } else
             {
-                ch.write( packet, ch.voidPromise() );
+                ch.writeAndFlush( packet, ch.voidPromise() );
             }
-            ch.flush();
         }
+    }
+
+    public boolean isClosing()
+    {
+        return closing || !ch.isActive();
+    }
+
+    public boolean isClosed()
+    {
+        return !ch.isActive();
     }
 
     public void markClosed()
     {
-        closed = closing = true;
+        closing = true;
     }
 
     public void close()
@@ -73,28 +79,19 @@ public class ChannelWrapper
         close( null );
     }
 
-    public void close(Object packet)
+    public void close(final Object packet)
     {
-        if ( !closed )
+        if ( !isClosed() )
         {
-            closed = closing = true;
-
-            if ( packet != null && ch.isActive() )
+            if ( packet != null )
             {
                 ch.writeAndFlush( packet ).addListeners( ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE, ChannelFutureListener.CLOSE );
-                ch.eventLoop().schedule( new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        ch.close();
-                    }
-                }, 250, TimeUnit.MILLISECONDS );
             } else
             {
                 ch.flush();
-                ch.close();
             }
+            closing = true;
+            ch.close();
         }
     }
 
