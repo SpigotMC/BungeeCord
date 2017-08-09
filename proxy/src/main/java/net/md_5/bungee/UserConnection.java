@@ -589,7 +589,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public ProxiedPlayer.MainHand getMainHand()
     {
-        return ( settings != null && settings.getMainHand() == 1 ) ? ProxiedPlayer.MainHand.RIGHT : ProxiedPlayer.MainHand.LEFT;
+        return ( settings == null || settings.getMainHand() == 1 ) ? ProxiedPlayer.MainHand.RIGHT : ProxiedPlayer.MainHand.LEFT;
     }
 
     @Override
