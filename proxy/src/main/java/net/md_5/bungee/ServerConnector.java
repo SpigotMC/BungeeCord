@@ -18,6 +18,7 @@ import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.score.Objective;
+import net.md_5.bungee.api.score.Score;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.api.score.Team;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -42,6 +43,7 @@ import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
+import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.SetCompression;
 
 
@@ -251,9 +253,15 @@ public class ServerConnector extends PacketHandler
             user.getTabListHandler().onServerChange();
             
             Scoreboard serverScoreboard = user.getServerSentScoreboard();
-            for (Objective objective : serverScoreboard.getObjectives())
-                user.unsafe().sendPacket(new ScoreboardObjective(objective.getName(), objective.getValue(), "integer", (byte) 1)); // TODO:
-            for (Team team : serverScoreboard.getTeams())
+            for ( Objective objective : serverScoreboard.getObjectives() )
+            {
+                user.unsafe().sendPacket( new ScoreboardObjective( objective.getName(), objective.getValue(), objective.getType(), (byte) 1 ) );
+            }
+            for ( Score score : serverScoreboard.getScores() )
+            {
+                user.unsafe().sendPacket( new ScoreboardScore( score.getItemName(), (byte) 1, score.getScoreName(), score.getValue() ) );
+            }
+            for ( Team team : serverScoreboard.getTeams() )
                 user.unsafe().sendPacket(new net.md_5.bungee.protocol.packet.Team(team.getName()));
             serverScoreboard.clear();
             
