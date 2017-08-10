@@ -27,7 +27,7 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
     private final ListenerInfo listener;
     /*========================================================================*/
     private final Random random = new Random();
-    private final Cache<InetAddress, QuerySession> sessions = CacheBuilder.newBuilder().expireAfterWrite( 30, TimeUnit.SECONDS).build();
+    private final Cache<InetAddress, QuerySession> sessions = CacheBuilder.newBuilder().expireAfterWrite( 30, TimeUnit.SECONDS ).build();
 
     private void writeShort(ByteBuf buf, int s)
     {
@@ -124,7 +124,7 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
                     writeString( out, entry.getKey() );
                     writeString( out, entry.getValue() );
                 }
-                out.writeByte( 0x00 ); // Null                
+                out.writeByte( 0x00 ); // Null
 
                 // Padding
                 writeString( out, "\01player_\00" );
