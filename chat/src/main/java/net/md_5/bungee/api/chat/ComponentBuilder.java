@@ -3,7 +3,6 @@ package net.md_5.bungee.api.chat;
 import com.google.common.base.Preconditions;
 import net.md_5.bungee.api.ChatColor;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -79,12 +78,14 @@ public class ComponentBuilder
     {
         Preconditions.checkArgument( components.length != 0, "No components to append" );
 
-        parts.add( current );
-        Collections.addAll( parts, components );
+        for ( BaseComponent component : components )
+        {
+            parts.add( current );
 
-        current = components[ components.length - 1 ];
+            current = component.duplicate();
+            retain( retention );
+        }
 
-        retain( retention );
         return this;
     }
 
@@ -112,7 +113,7 @@ public class ComponentBuilder
     {
         parts.add( current );
 
-        current = new TextComponent( current );
+        current = new TextComponent( (TextComponent) current );
         ((TextComponent) current).setText( text );
         retain( retention );
 
