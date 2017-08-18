@@ -118,7 +118,7 @@ public class Utils
         }
         if ( System.currentTimeMillis() - connector.getLastPacketCheck() <= 1000 )
         {
-            if ( packets.incrementAndGet() >= 50 )
+            if ( packets.incrementAndGet() >= 55 )
             {
                 connector.getConnection().disconnect( Config.getConfig().getErrorPackets() );
                 connector.setState( CheckState.FAILED );

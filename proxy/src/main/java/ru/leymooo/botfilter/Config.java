@@ -263,7 +263,7 @@ public class Config
             {
                 try
                 {
-                    Thread.sleep( 2000L );
+                    Thread.sleep( 1300L );
                 } catch ( InterruptedException ex )
                 {
                     return;
@@ -292,7 +292,7 @@ public class Config
                                 break;
                             case POSITION:
                                 long posTime = System.currentTimeMillis() - connector.getJoinTime();
-                                if ( posTime >= 15000 )
+                                if ( posTime >= 20000 )
                                 {
                                     connector.getConnection().disconnect( errorBot );
                                     continue;

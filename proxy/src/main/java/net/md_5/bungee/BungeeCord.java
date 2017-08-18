@@ -17,6 +17,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.WriteBufferWaterMark;
 import io.netty.util.ResourceLeakDetector;
 import java.io.File;
 import java.io.FileReader;
@@ -325,8 +326,6 @@ public class BungeeCord extends ProxyServer
             new ServerBootstrap()
                     .channel( PipelineUtils.getServerChannel() )
                     .option( ChannelOption.SO_REUSEADDR, true ) // TODO: Move this elsewhere!
-                    .childOption( ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 1024 * 1024 * 10 ) //BotFilter
-                    .childOption( ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, 1024 * 1024 * 1 ) //BotFilter
                     .childAttr( PipelineUtils.LISTENER, info )
                     .childHandler( PipelineUtils.SERVER_CHILD )
                     .group( bossEventLoopGroup, workerEventLoopGroup ) //BotFilter
