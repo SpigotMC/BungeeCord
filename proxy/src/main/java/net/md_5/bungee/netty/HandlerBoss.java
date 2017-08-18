@@ -65,6 +65,15 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     }
 
     @Override
+    public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception
+    {
+        if ( handler != null )
+        {
+            handler.writabilityChanged( channel );
+        }
+    }
+
+    @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
     {
         if ( msg instanceof HAProxyMessage )
