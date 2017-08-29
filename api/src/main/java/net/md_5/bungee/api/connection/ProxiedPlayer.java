@@ -6,6 +6,7 @@ import java.util.UUID;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.SkinConfiguration;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -16,6 +17,34 @@ import net.md_5.bungee.api.config.ServerInfo;
  */
 public interface ProxiedPlayer extends Connection, CommandSender
 {
+
+    /**
+     * Represents the player's chat state.
+     */
+    public enum ChatMode
+    {
+
+        /**
+         * The player will see all chat.
+         */
+        SHOWN,
+        /**
+         * The player will only see everything except messages marked as chat.
+         */
+        COMMANDS_ONLY,
+        /**
+         * The chat is completely disabled, the player won't see anything.
+         */
+        HIDDEN;
+
+    }
+
+    public enum MainHand
+    {
+
+        LEFT,
+        RIGHT;
+    }
 
     /**
      * Gets this player's display name.
@@ -141,6 +170,41 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @return the locale
      */
     Locale getLocale();
+
+    /**
+     * Gets this player's view distance.
+     *
+     * @return the view distance, or a reasonable default
+     */
+    byte getViewDistance();
+
+    /**
+     * Gets this player's chat mode.
+     *
+     * @return the chat flags set, or a reasonable default
+     */
+    ChatMode getChatMode();
+
+    /**
+     * Gets if this player has chat colors enabled or disabled.
+     *
+     * @return if chat colors are enabled
+     */
+    boolean hasChatColors();
+
+    /**
+     * Gets this player's skin settings.
+     *
+     * @return the players skin setting
+     */
+    SkinConfiguration getSkinParts();
+
+    /**
+     * Gets this player's main hand setting.
+     *
+     * @return main hand setting
+     */
+    MainHand getMainHand();
 
     /**
      * Set the header and footer displayed in the tab player list.
