@@ -116,8 +116,8 @@ public class PipelineUtils
         return epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
     }
 
-    private static final int LOW_MARK = Integer.getInteger( "net.md_5.bungee.high_mark", 2 << 18 ); // 0.5 mb
-    private static final int HIGH_MARK = Integer.getInteger( "net.md_5.bungee.low_mark", 2 << 20 ); // 2 mb
+    private static final int LOW_MARK = Integer.getInteger( "net.md_5.bungee.low_mark", 2 << 18 ); // 0.5 mb
+    private static final int HIGH_MARK = Integer.getInteger( "net.md_5.bungee.high_mark", 2 << 20 ); // 2 mb
     private static final WriteBufferWaterMark MARK = new WriteBufferWaterMark( LOW_MARK, HIGH_MARK );
 
     public final static class Base extends ChannelInitializer<Channel>
