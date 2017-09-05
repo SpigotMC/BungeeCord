@@ -39,6 +39,7 @@ import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Login;
+import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Respawn;
@@ -135,8 +136,8 @@ public class ServerConnector extends PacketHandler
         channel.write(copiedHandshake);
         
         channel.setProtocol(Protocol.LOGIN);
-        channel.write(user.getPendingConnection().getLoginRequest());
-    }
+        channel.write(new LoginRequest(user.getName()));
+}
     
     @Override
     public void disconnected(ChannelWrapper channel) throws Exception
