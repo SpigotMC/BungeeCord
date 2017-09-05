@@ -7,6 +7,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
+import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollDatagramChannel;
 import io.netty.channel.epoll.EpollEventLoopGroup;
@@ -115,6 +116,10 @@ public class PipelineUtils
         return epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
     }
 
+    private static final int LOW_MARK = Integer.getInteger( "net.md_5.bungee.low_mark", 2 << 18 ); // 0.5 mb
+    private static final int HIGH_MARK = Integer.getInteger( "net.md_5.bungee.high_mark", 2 << 20 ); // 2 mb
+    private static final WriteBufferWaterMark MARK = new WriteBufferWaterMark( LOW_MARK, HIGH_MARK );
+
     public final static class Base extends ChannelInitializer<Channel>
     {
 
@@ -129,6 +134,7 @@ public class PipelineUtils
                 // IP_TOS is not supported (Windows XP / Windows Server 2003)
             }
             ch.config().setAllocator( PooledByteBufAllocator.DEFAULT );
+            ch.config().setWriteBufferWaterMark( MARK );
 
             ch.pipeline().addLast( TIMEOUT_HANDLER, new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
             ch.pipeline().addLast( FRAME_DECODER, new Varint21FrameDecoder() );
