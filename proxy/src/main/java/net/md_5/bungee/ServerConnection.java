@@ -24,6 +24,12 @@ public class ServerConnection implements Server
     @Setter
     private boolean isObsolete;
     @Getter
+    @Setter
+    private boolean isCrashed = false;
+    @Getter
+    @Setter
+    private boolean isStopped = false;
+    @Getter
     private final boolean forgeServer = false;
 
     private final Unsafe unsafe = new Unsafe()

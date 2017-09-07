@@ -63,6 +63,7 @@ public class DownstreamBridge extends PacketHandler
         if ( def != null )
         {
             server.setObsolete( true );
+            server.setCrashed( true );
             con.connectNow( def );
             con.sendMessage( bungee.getTranslation( "server_went_down" ) );
         } else
@@ -81,12 +82,20 @@ public class DownstreamBridge extends PacketHandler
             bungee.getReconnectHandler().setServer( con );
         }
 
+        // We assume the disconnect comes from a server-switch
+        ServerDisconnectEvent.DisconnectReason reason = ServerDisconnectEvent.DisconnectReason.SERVER_SWITCH;
         if ( !server.isObsolete() )
         {
             con.disconnect( bungee.getTranslation( "lost_connection" ) );
+            // When the server is not set obsolete, we assume the connection has been lost
+            reason = ServerDisconnectEvent.DisconnectReason.CONNECTION_LOST;
         }
-
-        ServerDisconnectEvent serverDisconnectEvent = new ServerDisconnectEvent( con, server.getInfo() );
+        if( server.isCrashed() )
+        {
+            // When the server is marked as crashed, we can set the DisconnectReason to CONNECTION_CLOSED
+            reason = ServerDisconnectEvent.DisconnectReason.CONNECTION_CLOSED;
+        }
+        ServerDisconnectEvent serverDisconnectEvent = new ServerDisconnectEvent( con, server.getInfo(), reason );
         bungee.getPluginManager().callEvent( serverDisconnectEvent );
     }
 

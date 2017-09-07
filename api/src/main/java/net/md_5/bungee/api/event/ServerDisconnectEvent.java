@@ -26,4 +26,14 @@ public class ServerDisconnectEvent extends Event
      */
     @NonNull
     private final ServerInfo target;
+
+    @NonNull
+    private final DisconnectReason disconnectReason;
+
+    public enum DisconnectReason {
+        CONNECTION_CLOSED,
+        CONNECTION_LOST,
+        SERVER_STOPPED,
+        SERVER_SWITCH
+    }
 }
