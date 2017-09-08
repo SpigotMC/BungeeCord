@@ -10,6 +10,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -69,6 +71,7 @@ public class Config
     private AtomicInteger botCounter = new AtomicInteger();
     private Proxy proxy;
     private static Thread t;
+    ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public Config()
     {
@@ -121,13 +124,16 @@ public class Config
         if ( this.userData != null )
         {
             this.userData.set( name.toLowerCase(), ip );
-            try
+            executor.execute( () ->
             {
-                ConfigurationProvider.getProvider( YamlConfiguration.class ).save( this.userData, this.dataFile );
-            } catch ( IOException e )
-            {
-                BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not save user file", e );
-            }
+                try
+                {
+                    ConfigurationProvider.getProvider( YamlConfiguration.class ).save( this.userData, this.dataFile );
+                } catch ( IOException e )
+                {
+                    BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not save user file", e );
+                }
+            } );
         }
     }
 
