@@ -134,7 +134,10 @@ public class BFConnector extends PacketHandler
     {
         this.write( loginPacket );
         this.write( spawnPositionPacket );
-        chunkPackets.forEach( chunkPacket -> this.write( chunkPacket ) );
+        for ( ChunkPacket chunk : chunkPackets )
+        {
+            this.write( chunk );
+        }
         this.write( playerPosAndLook );
         this.write( timeUpdate );
         this.write( healthUpdate );

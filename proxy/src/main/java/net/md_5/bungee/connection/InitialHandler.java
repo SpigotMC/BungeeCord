@@ -348,12 +348,19 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             return;
         }
 
+        int limit = BungeeCord.getInstance().config.getPlayerLimit();
+        if ( limit > 0 && bungee.getOnlineCountWithGG() > limit )//BotFilter
+        {
+            disconnect( bungee.getTranslation( "proxy_full" ) );
+            return;
+        }
+
         //BotFilter start
         Config config = Config.getConfig();
         GeoIpUtils geo = config.getGeoUtils();
-        String address = getAddress().getAddress().getHostAddress();
-        boolean proxy = config.getProxy().isProxy( address );
-        if ( ( config.isUnderAttack() && config.isForceKick() && config.needCheck( getName(), address ) ) )
+        InetAddress address = getAddress().getAddress();
+        boolean proxy = config.getProxy().isProxy( address.getHostAddress() );
+        if ( ( config.isUnderAttack() && config.isForceKick() && config.needCheck( getName(), address.getHostAddress() ) ) )
         {
             if ( proxy || !geo.isAllowed( geo.getCountryCode( address ), false ) )
             {
@@ -362,13 +369,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             }
         }
         //BotFilter end
-        int limit = BungeeCord.getInstance().config.getPlayerLimit();
-        if ( limit > 0 && bungee.getOnlineCountWithGG() > limit )//BotFilter
-        {
-            disconnect( bungee.getTranslation( "proxy_full" ) );
-            return;
-        }
-
+        
         // If offline mode and they are already on, don't allow connect
         // We can just check by UUID here as names are based on UUID
         if ( !isOnlineMode() && bungee.getPlayer( getUniqueId() ) != null )

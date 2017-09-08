@@ -21,7 +21,8 @@ public class Utils
 
     //Дропаем конекты, если за 10 минут их было больше трёх.
     public static Cache<String, Integer> connections = CacheBuilder.newBuilder()
-            .initialCapacity( 40 )
+            .concurrencyLevel( Runtime.getRuntime().availableProcessors() )
+            .initialCapacity( 100 )
             .expireAfterWrite( 10, TimeUnit.MINUTES )
             .build();
 
@@ -55,7 +56,7 @@ public class Utils
         {
             return false;
         }
-        if ( proxy || !geo.isAllowed( geo.getCountryCode( ip ), config.isPermanent() ) )
+        if ( proxy || !geo.isAllowed( geo.getCountryCode( connector.getConnection().getAddress().getAddress() ), config.isPermanent() ) )
         {
             connection.disconnect( proxy ? config.getErrorProxy() : config.getErrorConutry() );
             return true;

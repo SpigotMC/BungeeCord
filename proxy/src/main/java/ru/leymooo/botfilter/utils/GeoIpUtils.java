@@ -1,23 +1,26 @@
 package ru.leymooo.botfilter.utils;
 
-import com.maxmind.geoip.LookupService;
-import static com.maxmind.geoip.LookupService.GEOIP_MEMORY_CACHE;
+import com.maxmind.db.CHMCache;
+import com.maxmind.geoip2.DatabaseReader;
+import com.maxmind.geoip2.exception.GeoIp2Exception;
+import com.maxmind.geoip2.model.CountryResponse;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
+import java.util.logging.Logger;
 import net.md_5.bungee.BungeeCord;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
 /**
  *
@@ -29,19 +32,19 @@ public class GeoIpUtils
     private static final String LICENSE
             = "[LICENSE] This product uses data from the GeoLite API created by MaxMind, available at http://www.maxmind.com";
     private static final String GEOIP_URL
-            = "http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz";
+            = "http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz";
 
     private final HashSet<String> countryAuto;
     private final HashSet<String> countryPermanent;
 
-    private LookupService lookupService;
+    private DatabaseReader reader;
     private Thread downloadTask;
 
     private final File dataFile;
 
     public GeoIpUtils(File dataFolder, List<String> auto, List<String> permanent)
     {
-        this.dataFile = new File( dataFolder, "GeoIP.dat" );
+        this.dataFile = new File( dataFolder, "GeoIP.mmdb" );
         this.countryAuto = new HashSet<>( auto );
         this.countryPermanent = new HashSet<>( permanent );
         // Fires download of recent data or the initialization of the look up service
@@ -60,7 +63,7 @@ public class GeoIpUtils
         {
             return false;
         }
-        if ( lookupService != null )
+        if ( reader != null )
         {
             return true;
         }
@@ -72,14 +75,13 @@ public class GeoIpUtils
             {
                 try
                 {
-                    lookupService = new LookupService( dataFile, GEOIP_MEMORY_CACHE );
-                    BungeeCord.getInstance().getLogger().info( LICENSE );
-                    return true;
-                } catch ( IOException e )
+                    reader = new DatabaseReader.Builder( dataFile ).withCache( new CHMCache() ).build();
+                } catch ( IOException ex )
                 {
-                    BungeeCord.getInstance().getLogger().log( Level.WARNING, "Failed to load GeoLiteAPI database", e );
-                    return false;
+                    BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not setup GeoLiteAPI database", ex );
                 }
+                BungeeCord.getInstance().getLogger().info( LICENSE );
+                return true;
             } else
             {
                 dataFile.delete();
@@ -107,21 +109,11 @@ public class GeoIpUtils
                 URLConnection conn = downloadUrl.openConnection();
                 conn.setConnectTimeout( 10000 );
                 conn.connect();
-                InputStream input = conn.getInputStream();
-                if ( conn.getURL().toString().endsWith( ".gz" ) )
+                try ( InputStream input = conn.getInputStream() )
                 {
-                    input = new GZIPInputStream( input );
+                    extractTarGZ( input );
                 }
-                OutputStream output = new FileOutputStream( dataFile );
-                byte[] buffer = new byte[ 2048 ];
-                int length = input.read( buffer );
-                while ( length >= 0 )
-                {
-                    output.write( buffer, 0, length );
-                    length = input.read( buffer );
-                }
-                output.close();
-                input.close();
+                reader = new DatabaseReader.Builder( dataFile ).withCache( new CHMCache() ).build();
             } catch ( IOException e )
             {
                 BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not download GeoLiteAPI database", e );
@@ -136,18 +128,52 @@ public class GeoIpUtils
      *
      * @return two-character ISO 3166-1 alpha code for the country.
      */
-    public String getCountryCode(String ip)
+    public String getCountryCode(InetAddress ip)
     {
         if ( isDataAvailable() )
         {
-            return lookupService.getCountry( ip ).getCode();
+            CountryResponse response = null;
+            try
+            {
+                response = reader.country( ip );
+            } catch ( IOException | GeoIp2Exception | NullPointerException ex )
+            {
+            }
+            return response == null ? "--" : response.getCountry().getIsoCode();
         }
         return "--";
     }
 
     public boolean isAllowed(String code, boolean permanent)
     {
-        return ( countryAuto.contains( code ) || code.equals( "--" ) ) || ( permanent && countryPermanent.contains( code ) );
+        return ( countryAuto.contains( code ) ) || ( permanent && countryPermanent.contains( code ) );
     }
 
+    public void extractTarGZ(InputStream in) throws IOException
+    {
+
+        try ( GzipCompressorInputStream gzipIn = new GzipCompressorInputStream( in ); TarArchiveInputStream tarIn = new TarArchiveInputStream( gzipIn ) )
+        {
+            TarArchiveEntry entry;
+
+            while ( ( entry = (TarArchiveEntry) tarIn.getNextEntry() ) != null )
+            {
+                if ( entry.getName().endsWith( "mmdb" ) )
+                {
+                    int count;
+                    byte data[] = new byte[ 2048 ];
+                    FileOutputStream fos = new FileOutputStream( dataFile, false );
+                    try ( BufferedOutputStream dest = new BufferedOutputStream( fos, 2048 ) )
+                    {
+                        while ( ( count = tarIn.read( data, 0, 2048 ) ) != -1 )
+                        {
+                            dest.write( data, 0, count );
+                        }
+                        dest.close();
+                        fos.close();
+                    }
+                }
+            }
+        }
+    }
 }

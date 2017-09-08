@@ -3,6 +3,7 @@ package net.md_5.bungee.protocol;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
+import java.net.InetSocketAddress;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
@@ -30,8 +31,15 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
             DefinedPacket packet = prot.createPacket( packetId, protocolVersion );
             if ( packet != null )
             {
-                packet.read( in, prot.getDirection(), protocolVersion );
-
+                try
+                {
+                    packet.read( in, prot.getDirection(), protocolVersion );
+                } catch ( Exception e )
+                {
+                    ctx.close();
+                    System.out.println( "["+((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress()+"] Wrong packet: " + packet.getClass() + ", id: " + packetId + ", exeption: " + e);
+                    return;
+                }
                 if ( in.isReadable() )
                 {
                     throw new BadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot );

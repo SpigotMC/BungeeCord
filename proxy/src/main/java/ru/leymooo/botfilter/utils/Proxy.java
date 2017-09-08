@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -109,7 +110,7 @@ public class Proxy
     private void validateAndAddProxy(String line, boolean addToFile) throws IOException
     {
         String proxy = line.contains( ":" ) ? line.split( ":" )[0].trim() : line.trim();
-        if ( IPADDRESS_PATTERN.matcher( proxy ).matches() && Config.getConfig().getGeoUtils().isAllowed( Config.getConfig().getGeoUtils().getCountryCode( proxy ), true ) )
+        if ( IPADDRESS_PATTERN.matcher( proxy ).matches() && Config.getConfig().getGeoUtils().isAllowed( Config.getConfig().getGeoUtils().getCountryCode( InetAddress.getByName( proxy )), true ) )
         {
             if ( !PROXIES.contains( proxy ) )
             {
