@@ -25,10 +25,7 @@ public class ServerConnection implements Server
     private boolean isObsolete;
     @Getter
     @Setter
-    private boolean isCrashed = false;
-    @Getter
-    @Setter
-    private boolean isStopped;
+    private boolean isCrashed;
     @Getter
     private final boolean forgeServer = false;
 
