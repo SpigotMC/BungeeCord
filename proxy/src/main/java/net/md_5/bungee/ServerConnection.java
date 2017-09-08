@@ -28,7 +28,7 @@ public class ServerConnection implements Server
     private boolean isCrashed = false;
     @Getter
     @Setter
-    private boolean isStopped = false;
+    private boolean isStopped;
     @Getter
     private final boolean forgeServer = false;
 
