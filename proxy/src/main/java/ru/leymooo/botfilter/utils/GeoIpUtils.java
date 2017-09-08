@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.md_5.bungee.BungeeCord;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -79,6 +78,7 @@ public class GeoIpUtils
                 } catch ( IOException ex )
                 {
                     BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not setup GeoLiteAPI database", ex );
+                    return false;
                 }
                 BungeeCord.getInstance().getLogger().info( LICENSE );
                 return true;
@@ -130,7 +130,7 @@ public class GeoIpUtils
      */
     public String getCountryCode(InetAddress ip)
     {
-        if ( isDataAvailable() )
+        if ( reader != null )
         {
             CountryResponse response = null;
             try
@@ -141,12 +141,12 @@ public class GeoIpUtils
             }
             return response == null ? "--" : response.getCountry().getIsoCode();
         }
-        return "--";
+        return "N/A";
     }
 
     public boolean isAllowed(String code, boolean permanent)
     {
-        return ( countryAuto.contains( code ) ) || ( permanent && countryPermanent.contains( code ) );
+        return ( code.equals( "N/A" ) ) || ( countryAuto.contains( code ) ) || ( permanent && countryPermanent.contains( code ) );
     }
 
     public void extractTarGZ(InputStream in) throws IOException

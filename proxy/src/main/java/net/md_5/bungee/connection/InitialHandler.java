@@ -358,11 +358,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         //BotFilter start
         Config config = Config.getConfig();
         GeoIpUtils geo = config.getGeoUtils();
-        InetAddress address = getAddress().getAddress();
-        boolean proxy = config.getProxy().isProxy( address.getHostAddress() );
-        if ( ( config.isUnderAttack() && config.isForceKick() && config.needCheck( getName(), address.getHostAddress() ) ) )
+        String address = getAddress().getAddress().getHostAddress();
+        boolean proxy = config.getProxy().isProxy( address );
+        if ( ( config.isUnderAttack() && config.isForceKick() && config.needCheck( getName(), address ) ) )
         {
-            if ( proxy || !geo.isAllowed( geo.getCountryCode( address ), false ) )
+            if ( proxy || !geo.isAllowed( geo.getCountryCode( getAddress().getAddress() ), false ) )
             {
                 disconnect( proxy ? config.getErrorProxy() : config.getErrorConutry() );
                 return;
