@@ -1,6 +1,7 @@
 package net.md_5.bungee.connection;
 
 import com.google.common.base.Preconditions;
+import io.netty.channel.Channel;
 import java.util.ArrayList;
 import java.util.List;
 import net.md_5.bungee.BungeeCord;
@@ -77,6 +78,22 @@ public class UpstreamBridge extends PacketHandler
                 player.unsafe().sendPacket( packet );
             }
             con.getServer().disconnect( "Quitting" );
+        }
+    }
+
+    @Override
+    public void writabilityChanged(ChannelWrapper channel) throws Exception
+    {
+        if ( con.getServer() != null )
+        {
+            Channel server = con.getServer().getCh().getHandle();
+            if ( channel.getHandle().isWritable() )
+            {
+                server.config().setAutoRead( true );
+            } else
+            {
+                server.config().setAutoRead( false );
+            }
         }
     }
 

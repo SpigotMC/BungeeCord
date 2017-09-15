@@ -1,8 +1,6 @@
 package net.md_5.bungee.api.chat;
 
-import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 
 public class TranslatableComponentTest

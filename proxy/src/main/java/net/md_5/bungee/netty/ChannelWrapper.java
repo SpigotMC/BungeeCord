@@ -54,12 +54,11 @@ public class ChannelWrapper
             if ( packet instanceof PacketWrapper )
             {
                 ( (PacketWrapper) packet ).setReleased( true );
-                ch.write( ( (PacketWrapper) packet ).buf, ch.voidPromise() );
+                ch.writeAndFlush( ( (PacketWrapper) packet ).buf, ch.voidPromise() );
             } else
             {
-                ch.write( packet, ch.voidPromise() );
+                ch.writeAndFlush( packet, ch.voidPromise() );
             }
-            ch.flush();
         }
     }
 
