@@ -37,7 +37,7 @@ public class ComponentBuilder
      */
     public ComponentBuilder(ComponentBuilder original)
     {
-        current = new TextComponent( original.current );
+        current = original.current.duplicate();
         for ( BaseComponent baseComponent : original.parts )
         {
             parts.add( baseComponent.duplicate() );
@@ -251,29 +251,13 @@ public class ComponentBuilder
         switch ( retention )
         {
             case NONE:
-                if ( current instanceof TextComponent )
-                {
-                    current = new TextComponent( ( (TextComponent) current ).getText() );
-                } else if ( current instanceof TranslatableComponent )
-                {
-                    TranslatableComponent oldComponent = (TranslatableComponent) current;
-                    current = new TranslatableComponent( oldComponent.getTranslate(), oldComponent.getWith() );
-                }
-
+                current = current.duplicateWithoutFormatting();
                 break;
             case ALL:
                 // No changes are required
                 break;
             case EVENTS:
-                if ( current instanceof TextComponent )
-                {
-                    current = new TextComponent( ( (TextComponent) current ).getText() );
-                } else if ( current instanceof TranslatableComponent )
-                {
-                    TranslatableComponent oldComponent = (TranslatableComponent) current;
-                    current = new TranslatableComponent( oldComponent.getTranslate(), oldComponent.getWith() );
-                }
-
+                current = current.duplicateWithoutFormatting();
                 current.setInsertion( previous.getInsertion() );
                 current.setClickEvent( previous.getClickEvent() );
                 current.setHoverEvent( previous.getHoverEvent() );
