@@ -113,8 +113,9 @@ public class ComponentBuilder
     {
         parts.add( current );
 
-        current = new TextComponent( (TextComponent) current );
-        ( (TextComponent) current ).setText( text );
+        BaseComponent old = current;
+        current = new TextComponent( text );
+        current.copyFormatting( old );
         retain( retention );
 
         return this;

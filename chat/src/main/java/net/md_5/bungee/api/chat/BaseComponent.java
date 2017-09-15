@@ -76,20 +76,25 @@ public abstract class BaseComponent
 
     BaseComponent(BaseComponent old)
     {
-        setColor( old.getColorRaw() );
-        setBold( old.isBoldRaw() );
-        setItalic( old.isItalicRaw() );
-        setUnderlined( old.isUnderlinedRaw() );
-        setStrikethrough( old.isStrikethroughRaw() );
-        setObfuscated( old.isObfuscatedRaw() );
-        setInsertion( old.getInsertion() );
-        setClickEvent( old.getClickEvent() );
-        setHoverEvent( old.getHoverEvent() );
-        if ( old.getExtra() != null )
+        copyFormatting( old );
+    }
+
+    public void copyFormatting( BaseComponent component )
+    {
+        setColor( component.getColorRaw() );
+        setBold( component.isBoldRaw() );
+        setItalic( component.isItalicRaw() );
+        setUnderlined( component.isUnderlinedRaw() );
+        setStrikethrough( component.isStrikethroughRaw() );
+        setObfuscated( component.isObfuscatedRaw() );
+        setInsertion( component.getInsertion() );
+        setClickEvent( component.getClickEvent() );
+        setHoverEvent( component.getHoverEvent() );
+        if ( component.getExtra() != null )
         {
-            for ( BaseComponent component : old.getExtra() )
+            for ( BaseComponent extra : component.getExtra() )
             {
-                addExtra( component.duplicate() );
+                addExtra( extra.duplicate() );
             }
         }
     }
