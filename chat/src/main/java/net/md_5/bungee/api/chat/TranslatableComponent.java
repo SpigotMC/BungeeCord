@@ -66,18 +66,21 @@ public class TranslatableComponent extends BaseComponent
     public TranslatableComponent(String translate, Object... with)
     {
         setTranslate( translate );
-        List<BaseComponent> temp = new ArrayList<BaseComponent>();
-        for ( Object w : with )
+        if ( with != null && with.length != 0 )
         {
-            if ( w instanceof String )
+            List<BaseComponent> temp = new ArrayList<BaseComponent>();
+            for ( Object w : with )
             {
-                temp.add( new TextComponent( (String) w ) );
-            } else
-            {
-                temp.add( (BaseComponent) w );
+                if ( w instanceof String )
+                {
+                    temp.add( new TextComponent( (String) w ) );
+                } else
+                {
+                    temp.add( (BaseComponent) w );
+                }
             }
+            setWith( temp );
         }
-        setWith( temp );
     }
 
     /**
@@ -89,6 +92,12 @@ public class TranslatableComponent extends BaseComponent
     public BaseComponent duplicate()
     {
         return new TranslatableComponent( this );
+    }
+
+    @Override
+    public BaseComponent duplicateWithoutFormatting()
+    {
+        return new TranslatableComponent( this.translate, this.with );
     }
 
     /**
