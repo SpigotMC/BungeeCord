@@ -464,8 +464,7 @@ public enum Protocol
                     ProtocolConstants.MINECRAFT_1_12_1
             ) );
             linkedProtocols.put( ProtocolConstants.MINECRAFT_1_12_1, Arrays.asList(
-                    ProtocolConstants.MINECRAFT_1_12_2,
-                    ProtocolConstants.MINECRAFT_1_12_2PR
+                    ProtocolConstants.MINECRAFT_1_12_2
             ) );
         }
 

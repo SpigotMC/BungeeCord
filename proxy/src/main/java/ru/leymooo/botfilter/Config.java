@@ -38,6 +38,8 @@ public class Config
 {
 
     /* Добро пожаловать в гору говнокода и костылей */
+    //TODO: Функция для отключения показа онлайна из фильтра.
+    //TODO: Скачивание проксей.
     @Getter
     private static Config config;
     private String check = "msg-check";
@@ -308,7 +310,7 @@ public class Config
                                 continue;
                         }
 
-                        KeepAlive alive = new KeepAlive( random.nextInt( Integer.MAX_VALUE ) );
+                        KeepAlive alive = new KeepAlive( (long) random.nextInt( Integer.MAX_VALUE ) );
                         connector.addOrRemove( alive.getRandomId(), false );
                         connector.getConnection().unsafe().sendPacket( alive );
                         connector.sendCheckPackets( true, true );
