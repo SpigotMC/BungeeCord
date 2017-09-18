@@ -57,7 +57,7 @@ public class BungeeCordLauncher
 
         BungeeCord bungee = new BungeeCord();
         ProxyServer.setInstance( bungee );
-        bungee.getLogger().info( "Включаю BungeCord BotFilter 1.8-1.12.1 от vk.com/Leymooo_s" );//BotFilter
+        bungee.getLogger().info( "Включаю BungeCord BotFilter 1.8-1.12.2 от vk.com/Leymooo_s" );//BotFilter
         bungee.start();
 
         if ( !options.has( "noconsole" ) )

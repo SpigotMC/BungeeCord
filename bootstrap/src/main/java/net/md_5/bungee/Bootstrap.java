@@ -7,7 +7,7 @@ public class Bootstrap
     {
         if ( Float.parseFloat( System.getProperty( "java.class.version" ) ) < 52.0 ) //BotFilter
         {
-            System.err.println( "*** ОШИБОЧКА *** ГеймГуарду нужнжа Java 8. Установите её, что бы запустить сервер!" );//BotFilter
+            System.err.println( "*** ОШИБОЧКА *** БотФильтеру нужнжа Java 8. Установите её, что бы запустить сервер!" );//BotFilter
             System.out.println( "Проверить версию: java -version" );//BotFilter
             return;
         }

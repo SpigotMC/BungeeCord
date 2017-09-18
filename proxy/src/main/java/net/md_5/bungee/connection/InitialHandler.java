@@ -156,7 +156,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         this.legacy = true;
         final boolean v1_5 = ping.isV1_5();
 
-        ServerPing legacy = new ServerPing( new ServerPing.Protocol( "BotFilter 1.8-1.12.1 by vk.com Leymooo_s", bungee.getProtocolVersion() ), //BotFilter
+        ServerPing legacy = new ServerPing( new ServerPing.Protocol( "BotFilter 1.8-1.12.2 by vk.com Leymooo_s", bungee.getProtocolVersion() ), //BotFilter
                 new ServerPing.Players( listener.getMaxPlayers(), bungee.getFakeOnlineCountWithGG(), null ), //BotFilter
                 new TextComponent( TextComponent.fromLegacyText( listener.getMotd() ) ), (Favicon) null );
 
@@ -243,7 +243,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             int protocol = ( ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
             pingBack.done( new ServerPing(
-                    new ServerPing.Protocol( "BotFilter 1.8-1.12.1 by vk.com Leymooo_s", protocol ), //BotFilter
+                    new ServerPing.Protocol( "BotFilter 1.8-1.12.2 by vk.com Leymooo_s", protocol ), //BotFilter
                     new ServerPing.Players( listener.getMaxPlayers(), bungee.getFakeOnlineCountWithGG(), null ), //BotFilter
                     motd, BungeeCord.getInstance().config.getFaviconObject() ),
                     null );
