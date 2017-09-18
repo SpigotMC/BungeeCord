@@ -16,12 +16,15 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 public class KeepAlive extends DefinedPacket
 {
 
-    private int randomId;
+    private long randomId;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_8 )
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_12_2 )
+        {
+            randomId = buf.readLong();
+        } else if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_8 )
         {
             randomId = readVarInt( buf );
         } else
@@ -33,12 +36,15 @@ public class KeepAlive extends DefinedPacket
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_8 )
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_12_2 )
         {
-            writeVarInt( randomId, buf );
+            buf.writeLong( randomId );
+        } else if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_8 )
+        {
+            writeVarInt( (int) randomId, buf );
         } else
         {
-            buf.writeInt( randomId );
+            buf.writeInt( (int) randomId );
         }
     }
 
