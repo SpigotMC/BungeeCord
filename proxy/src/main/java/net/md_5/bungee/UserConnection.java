@@ -92,6 +92,9 @@ public final class UserConnection implements ProxiedPlayer
     /*========================================================================*/
     @Getter
     @Setter
+    private long sentPingId;
+    @Getter
+    @Setter
     private long sentPingTime;
     @Getter
     @Setter

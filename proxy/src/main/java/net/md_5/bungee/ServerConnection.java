@@ -25,12 +25,6 @@ public class ServerConnection implements Server
     private boolean isObsolete;
     @Getter
     private final boolean forgeServer = false;
-    @Getter
-    @Setter
-    private boolean pingFailed;
-    @Getter
-    @Setter
-    private long sentPingId;
 
     private final Unsafe unsafe = new Unsafe()
     {
