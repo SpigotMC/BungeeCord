@@ -23,7 +23,7 @@ import net.md_5.bungee.command.ConsoleCommandSender;
 public class BungeeCordLauncher
 {
 
-    private static int VERSION = 192;
+    private static int VERSION = 193;
 
     public static void main(String[] args) throws Exception
     {

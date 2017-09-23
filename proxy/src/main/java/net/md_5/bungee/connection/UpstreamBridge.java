@@ -122,6 +122,8 @@ public class UpstreamBridge extends PacketHandler
             con.getTabListHandler().onPingChange( newPing );
             con.setPing( newPing );
         }
+
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override
