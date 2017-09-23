@@ -27,9 +27,6 @@ public class ServerConnection implements Server
     private final boolean forgeServer = false;
     @Getter
     @Setter
-    private boolean pingFailed;
-    @Getter
-    @Setter
     private long sentPingId = -1;
 
     private final Unsafe unsafe = new Unsafe()
