@@ -30,7 +30,7 @@ public class ServerConnection implements Server
     private boolean pingFailed;
     @Getter
     @Setter
-    private long sentPingId;
+    private long sentPingId = -1;
 
     private final Unsafe unsafe = new Unsafe()
     {
