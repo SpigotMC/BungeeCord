@@ -116,11 +116,22 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(KeepAlive alive) throws Exception
     {
-        if ( alive.getRandomId() == con.getSentPingId() )
+        if ( alive.getRandomId() == con.getServer().getSentPingId() )
         {
             int newPing = (int) ( System.currentTimeMillis() - con.getSentPingTime() );
             con.getTabListHandler().onPingChange( newPing );
             con.setPing( newPing );
+        } else
+        {
+            if ( con.getServer().getSentPingId() != 0 && !con.getServer().isPingFailed() )
+            {
+                alive.setRandomId( con.getServer().getSentPingId() );
+                con.getServer().unsafe().sendPacket( alive );
+
+                con.getServer().setPingFailed( true );
+            }
+
+            throw CancelSendSignal.INSTANCE;
         }
 
         throw CancelSendSignal.INSTANCE;
