@@ -123,15 +123,6 @@ public class UpstreamBridge extends PacketHandler
             con.setPing( newPing );
         } else
         {
-            if ( con.getServer().getSentPingId() != -1 && !con.getServer().isPingFailed() )
-            {
-                alive.setRandomId( con.getServer().getSentPingId() );
-                con.getServer().unsafe().sendPacket( alive );
-
-                con.getServer().setPingFailed( true );
-                con.getServer().setSentPingId( -1 );
-            }
-
             throw CancelSendSignal.INSTANCE;
         }
     }
