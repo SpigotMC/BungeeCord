@@ -108,6 +108,9 @@ public class DownstreamBridge extends PacketHandler
     {
         con.setSentPingId( alive.getRandomId() );
         con.setSentPingTime( System.currentTimeMillis() );
+
+        // Acknowledge ping
+        server.unsafe().sendPacket( alive );
     }
 
     @Override
