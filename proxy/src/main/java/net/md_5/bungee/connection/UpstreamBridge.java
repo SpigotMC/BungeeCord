@@ -129,6 +129,7 @@ public class UpstreamBridge extends PacketHandler
                 con.getServer().unsafe().sendPacket( alive );
 
                 con.getServer().setPingFailed( true );
+                con.getServer().setSentPingId( -1 );
             }
 
             throw CancelSendSignal.INSTANCE;
