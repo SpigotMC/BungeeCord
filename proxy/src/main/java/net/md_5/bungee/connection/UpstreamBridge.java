@@ -121,6 +121,8 @@ public class UpstreamBridge extends PacketHandler
             int newPing = (int) ( System.currentTimeMillis() - con.getSentPingTime() );
             con.getTabListHandler().onPingChange( newPing );
             con.setPing( newPing );
+            //reset id
+            con.getServer().setSentPingId( -1);
         } else
         {
             throw CancelSendSignal.INSTANCE;
