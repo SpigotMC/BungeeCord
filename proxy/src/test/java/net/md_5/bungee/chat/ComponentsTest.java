@@ -14,6 +14,32 @@ public class ComponentsTest
 {
 
     @Test
+    public void testBuilderClone()
+    {
+        ComponentBuilder builder = new ComponentBuilder("Hel").color(ChatColor.RED).append("lo").color(ChatColor.DARK_RED);
+        ComponentBuilder cloned = new ComponentBuilder( builder );
+
+        Assert.assertEquals( TextComponent.toLegacyText( builder.create() ), TextComponent.toLegacyText( cloned.create() ) );
+    }
+
+    @Test
+    public void testBuilderAppend()
+    {
+        ClickEvent clickEvent = new ClickEvent( ClickEvent.Action.RUN_COMMAND, "/help " );
+        HoverEvent hoverEvent = new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( "Hello world" ).create() );
+
+        ComponentBuilder builder = new ComponentBuilder( "Hello " ).color( ChatColor.YELLOW );
+        builder.append( new ComponentBuilder( "world!" ).color( ChatColor.GREEN ).event( hoverEvent ).event( clickEvent ).create() );
+
+        BaseComponent[] components = builder.create();
+
+        Assert.assertEquals( components[1].getHoverEvent(), hoverEvent );
+        Assert.assertEquals( components[1].getClickEvent(), clickEvent );
+        Assert.assertEquals( "Hello world!", BaseComponent.toPlainText( components ) );
+        Assert.assertEquals( ChatColor.YELLOW + "Hello " + ChatColor.GREEN + "world!", BaseComponent.toLegacyText( components ) );
+    }
+
+    @Test
     public void testBasicComponent()
     {
         TextComponent textComponent = new TextComponent( "Hello world" );

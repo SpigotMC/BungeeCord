@@ -1,6 +1,5 @@
 package net.md_5.bungee.connection;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -107,7 +106,7 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(KeepAlive alive) throws Exception
     {
-        con.setSentPingId( alive.getRandomId() );
+        server.setSentPingId( alive.getRandomId() );
         con.setSentPingTime( System.currentTimeMillis() );
     }
 
@@ -135,6 +134,7 @@ public class DownstreamBridge extends PacketHandler
                 if ( oldObjective != null )
                 {
                     oldObjective.setValue( objective.getValue() );
+                    oldObjective.setType( objective.getType() );
                 }
                 break;
             default:
@@ -210,7 +210,7 @@ public class DownstreamBridge extends PacketHandler
                     if ( team.getMode() == 0 || team.getMode() == 3 )
                     {
                         t.addPlayer( s );
-                    } else
+                    } else if ( team.getMode() == 4 )
                     {
                         t.removePlayer( s );
                     }

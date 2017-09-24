@@ -11,7 +11,7 @@
 
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-parent</artifactId>
-    <version>1.11-SNAPSHOT</version>
+    <version>1.12-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>BungeeCord-Parent</name>
@@ -66,7 +66,7 @@
 
     <properties>
         <build.number>unknown</build.number>
-        <netty.version>4.1.6.Final</netty.version>
+        <netty.version>4.1.15.Final</netty.version>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -82,19 +82,19 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>18.0</version>
+            <version>20.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
-            <artifactId>findbugs</artifactId>
-            <version>3.0.0</version>
+            <artifactId>findbugs-annotations</artifactId>
+            <version>3.0.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.14.8</version>
+            <version>1.16.16</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -120,7 +120,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <version>1.13</version>
+                <version>1.15</version>
                 <executions>
                     <execution>
                         <phase>process-classes</phase>
@@ -130,15 +130,10 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <ignores>
-                        <ignore>java.lang.ClassLoader</ignore>
-                        <ignore>java.lang.Throwable</ignore>
-                        <ignore>java.util.Locale</ignore>
-                    </ignores>
                     <signature>
                         <groupId>org.codehaus.mojo.signature</groupId>
-                        <artifactId>java16</artifactId>
-                        <version>1.1</version>
+                        <artifactId>java17</artifactId>
+                        <version>1.0</version>
                     </signature>
                 </configuration>
             </plugin>

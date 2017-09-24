@@ -1,6 +1,7 @@
 package net.md_5.bungee.connection;
 
 import com.google.common.base.Preconditions;
+import io.netty.channel.Channel;
 import java.util.ArrayList;
 import java.util.List;
 import net.md_5.bungee.BungeeCord;
@@ -81,6 +82,22 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
+    public void writabilityChanged(ChannelWrapper channel) throws Exception
+    {
+        if ( con.getServer() != null )
+        {
+            Channel server = con.getServer().getCh().getHandle();
+            if ( channel.getHandle().isWritable() )
+            {
+                server.config().setAutoRead( true );
+            } else
+            {
+                server.config().setAutoRead( false );
+            }
+        }
+    }
+
+    @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
     {
         return con.getServer() != null || packet.packet instanceof PluginMessage;
@@ -99,11 +116,14 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(KeepAlive alive) throws Exception
     {
-        if ( alive.getRandomId() == con.getSentPingId() )
+        if ( alive.getRandomId() == con.getServer().getSentPingId() )
         {
             int newPing = (int) ( System.currentTimeMillis() - con.getSentPingTime() );
             con.getTabListHandler().onPingChange( newPing );
             con.setPing( newPing );
+        } else
+        {
+            throw CancelSendSignal.INSTANCE;
         }
     }
 

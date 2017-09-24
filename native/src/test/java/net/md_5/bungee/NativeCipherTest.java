@@ -29,7 +29,7 @@ public class NativeCipherTest
     private static final NativeCode<BungeeCipher> factory = new NativeCode( "native-cipher", JavaCipher.class, NativeCipher.class );
 
     @Test
-    public void testOpenSSL() throws Exception
+    public void testNative() throws Exception
     {
         if ( NativeCode.isSupported() )
         {
@@ -37,13 +37,13 @@ public class NativeCipherTest
             Assert.assertTrue( "Native cipher failed to load!", loaded );
 
             NativeCipher cipher = new NativeCipher();
-            System.out.println( "Testing OpenSSL cipher..." );
+            System.out.println( "Testing native cipher..." );
             testACipher( cipher );
         }
     }
 
     @Test
-    public void testOpenSSLBenchmark() throws Exception
+    public void testNativeBenchmark() throws Exception
     {
         if ( NativeCode.isSupported() )
         {
@@ -52,7 +52,7 @@ public class NativeCipherTest
 
             NativeCipher cipher = new NativeCipher();
 
-            System.out.println( "Benchmarking OpenSSL cipher..." );
+            System.out.println( "Benchmarking native cipher..." );
             testBenchmark( cipher );
         }
     }

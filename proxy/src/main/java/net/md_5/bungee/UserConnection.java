@@ -27,6 +27,7 @@ import lombok.Setter;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.SkinConfiguration;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -88,9 +89,6 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     private final Collection<ServerInfo> pendingConnects = new HashSet<>();
     /*========================================================================*/
-    @Getter
-    @Setter
-    private int sentPingId;
     @Getter
     @Setter
     private long sentPingTime;
@@ -255,7 +253,7 @@ public final class UserConnection implements ProxiedPlayer
 
             if ( getServer() == null && !ch.isClosing() )
             {
-                throw new IllegalStateException("Cancelled ServerConnectEvent with no server or disconnect.");
+                throw new IllegalStateException( "Cancelled ServerConnectEvent with no server or disconnect." );
             }
             return;
         }
@@ -420,8 +418,8 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendMessage(ChatMessageType position, BaseComponent... message)
     {
-        // Action bar on 1.8 doesn't display the new JSON formattings, legacy works - send it using this for now
-        if ( position == ChatMessageType.ACTION_BAR && getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_8 )
+        // Action bar doesn't display the new JSON formattings, legacy works - send it using this for now
+        if ( position == ChatMessageType.ACTION_BAR )
         {
             sendMessage( position, ComponentSerializer.toString( new TextComponent( BaseComponent.toLegacyText( message ) ) ) );
         } else
@@ -433,8 +431,8 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendMessage(ChatMessageType position, BaseComponent message)
     {
-        // Action bar on 1.8 doesn't display the new JSON formattings, legacy works - send it using this for now
-        if ( position == ChatMessageType.ACTION_BAR && getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_8 )
+        // Action bar doesn't display the new JSON formattings, legacy works - send it using this for now
+        if ( position == ChatMessageType.ACTION_BAR )
         {
             sendMessage( position, ComponentSerializer.toString( new TextComponent( BaseComponent.toLegacyText( message ) ) ) );
         } else
@@ -452,7 +450,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public InetSocketAddress getAddress()
     {
-        return (InetSocketAddress) ch.getHandle().remoteAddress();
+        return ch.getRemoteAddress();
     }
 
     @Override
@@ -545,6 +543,50 @@ public final class UserConnection implements ProxiedPlayer
     public Locale getLocale()
     {
         return ( locale == null && settings != null ) ? locale = Locale.forLanguageTag( settings.getLocale().replaceAll( "_", "-" ) ) : locale;
+    }
+
+    @Override
+    public byte getViewDistance()
+    {
+        return ( settings != null ) ? settings.getViewDistance() : 10;
+    }
+
+    @Override
+    public ProxiedPlayer.ChatMode getChatMode()
+    {
+        if ( settings == null )
+        {
+            return ProxiedPlayer.ChatMode.SHOWN;
+        }
+
+        switch ( settings.getChatFlags() )
+        {
+            default:
+            case 0:
+                return ProxiedPlayer.ChatMode.SHOWN;
+            case 1:
+                return ProxiedPlayer.ChatMode.COMMANDS_ONLY;
+            case 2:
+                return ProxiedPlayer.ChatMode.HIDDEN;
+        }
+    }
+
+    @Override
+    public boolean hasChatColors()
+    {
+        return settings == null || settings.isChatColours();
+    }
+
+    @Override
+    public SkinConfiguration getSkinParts()
+    {
+        return ( settings != null ) ? new PlayerSkinConfiguration( settings.getSkinParts() ) : PlayerSkinConfiguration.SKIN_SHOW_ALL;
+    }
+
+    @Override
+    public ProxiedPlayer.MainHand getMainHand()
+    {
+        return ( settings == null || settings.getMainHand() == 1 ) ? ProxiedPlayer.MainHand.RIGHT : ProxiedPlayer.MainHand.LEFT;
     }
 
     @Override

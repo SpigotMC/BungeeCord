@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.chat;
 
+import com.google.common.base.Preconditions;
 import net.md_5.bungee.api.ChatColor;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ import java.util.List;
 public class ComponentBuilder
 {
 
-    private TextComponent current;
+    private BaseComponent current;
     private final List<BaseComponent> parts = new ArrayList<BaseComponent>();
 
     /**
@@ -36,7 +37,7 @@ public class ComponentBuilder
      */
     public ComponentBuilder(ComponentBuilder original)
     {
-        current = new TextComponent( original.current );
+        current = original.current.duplicate();
         for ( BaseComponent baseComponent : original.parts )
         {
             parts.add( baseComponent.duplicate() );
@@ -51,6 +52,41 @@ public class ComponentBuilder
     public ComponentBuilder(String text)
     {
         current = new TextComponent( text );
+    }
+
+    /**
+     * Appends the components to the builder and makes it the current target for
+     * formatting. The text will have all the formatting from the previous part.
+     *
+     * @param components the components to append
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder append(BaseComponent[] components)
+    {
+        return append( components, FormatRetention.ALL );
+    }
+
+    /**
+     * Appends the components to the builder and makes it the current target for
+     * formatting. You can specify the amount of formatting retained.
+     *
+     * @param components the components to append
+     * @param retention the formatting to retain
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder append(BaseComponent[] components, FormatRetention retention)
+    {
+        Preconditions.checkArgument( components.length != 0, "No components to append" );
+
+        for ( BaseComponent component : components )
+        {
+            parts.add( current );
+
+            current = component.duplicate();
+            retain( retention );
+        }
+
+        return this;
     }
 
     /**
@@ -77,8 +113,9 @@ public class ComponentBuilder
     {
         parts.add( current );
 
-        current = new TextComponent( current );
-        current.setText( text );
+        BaseComponent old = current;
+        current = new TextComponent( text );
+        current.copyFormatting( old );
         retain( retention );
 
         return this;
@@ -215,13 +252,13 @@ public class ComponentBuilder
         switch ( retention )
         {
             case NONE:
-                current = new TextComponent( current.getText() );
+                current = current.duplicateWithoutFormatting();
                 break;
             case ALL:
                 // No changes are required
                 break;
             case EVENTS:
-                current = new TextComponent( current.getText() );
+                current = current.duplicateWithoutFormatting();
                 current.setInsertion( previous.getInsertion() );
                 current.setClickEvent( previous.getClickEvent() );
                 current.setHoverEvent( previous.getHoverEvent() );
