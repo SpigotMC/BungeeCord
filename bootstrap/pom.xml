@@ -52,7 +52,7 @@
                         <manifestEntries>
                             <Main-Class>net.md_5.bungee.Bootstrap</Main-Class> 
                             <Implementation-Version>${describe}</Implementation-Version>
-                            <Specification-Version>${maven.build.timestamp}</Specification-Version>
+                            <Specification-Version>${build.number}</Specification-Version>
                         </manifestEntries>
                     </archive>
                 </configuration>

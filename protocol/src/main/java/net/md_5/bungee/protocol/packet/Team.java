@@ -50,16 +50,19 @@ public class Team extends DefinedPacket
             prefix = readString( buf );
             suffix = readString( buf );
             friendlyFire = buf.readByte();
-            nameTagVisibility = readString( buf );
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_8 )
             {
-                collisionRule = readString( buf );
+                nameTagVisibility = readString( buf );
+                if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
+                {
+                    collisionRule = readString(buf);
+                }
+                color = buf.readByte();
             }
-            color = buf.readByte();
         }
         if ( mode == 0 || mode == 3 || mode == 4 )
         {
-            int len = readVarInt( buf );
+            int len = ( protocolVersion >= ProtocolConstants.MINECRAFT_1_8 ) ? readVarInt( buf ) : buf.readShort();
             players = new String[ len ];
             for ( int i = 0; i < len; i++ )
             {
@@ -79,16 +82,25 @@ public class Team extends DefinedPacket
             writeString( prefix, buf );
             writeString( suffix, buf );
             buf.writeByte( friendlyFire );
-            writeString( nameTagVisibility, buf );
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_8 )
             {
-                writeString( collisionRule, buf );
+                writeString( nameTagVisibility, buf );
+                if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
+                {
+                    writeString( collisionRule, buf);
+                }
+                buf.writeByte( color );
             }
-            buf.writeByte( color );
         }
         if ( mode == 0 || mode == 3 || mode == 4 )
         {
-            writeVarInt( players.length, buf );
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_8 )
+            {
+                writeVarInt( players.length, buf );
+            } else
+            {
+                buf.writeShort( players.length );
+            }
             for ( String player : players )
             {
                 writeString( player, buf );

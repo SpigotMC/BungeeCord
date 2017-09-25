@@ -5,6 +5,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Title.Action;
 
 public class BungeeTitle implements Title
@@ -151,11 +152,14 @@ public class BungeeTitle implements Title
     @Override
     public Title send(ProxiedPlayer player)
     {
-        sendPacket( player, clear );
-        sendPacket( player, reset );
-        sendPacket( player, times );
-        sendPacket( player, subtitle );
-        sendPacket( player, title );
+        if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
+        {
+            sendPacket( player, clear );
+            sendPacket( player, reset );
+            sendPacket( player, times );
+            sendPacket( player, subtitle );
+            sendPacket( player, title );
+        }
         return this;
     }
 }
