@@ -104,8 +104,8 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(KeepAlive alive) throws Exception
     {
-        con.setSentPingId(alive.getRandomId());
-        con.setSentPingTime(System.currentTimeMillis());
+        server.setSentPingId( alive.getRandomId() );
+        con.setSentPingTime( System.currentTimeMillis() );
     }
     
     @Override
