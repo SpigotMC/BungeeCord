@@ -1,20 +1,11 @@
-BungeeCord
+BungeeCord with build in AntiBot protection. (Russian lang)
 ==========
-Layer 7 proxy designed to link Minecraft servers.
---------------------------------------------------
 
-BungeeCord is a sophisticated proxy and API designed mainly to teleport players between multiple Minecraft servers. It is the latest incarnation of similar software written by the author from 2011-present.
-
-Information
------------
-BungeeCord is maintained by [SpigotMC](https://www.spigotmc.org/) and has its own [discussion thread](https://www.spigotmc.org/go/bungeecord) with plenty of helpful information and links.
-
-Source
-------
-Source code is currently available on [GitHub](https://www.spigotmc.org/go/bungeecord-git).
-
-Binaries
+Video
 --------
-Precompiled binaries are available for end users on [Jenkins](https://www.spigotmc.org/go/bungeecord-dl).
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/RtAx9o29xO4/3.jpg)](http://www.youtube.com/watch?v=RtAx9o29xO4)
 
-(c) 2012-2017 SpigotMC Pty. Ltd.
+
+Download
+--------
+You can download this protection on [RuBukkit](http://www.rubukkit.org/threads/137038/) or on [Yandex Disk](https://yadi.sk/d/QrSeJWeU3LAq4p)
