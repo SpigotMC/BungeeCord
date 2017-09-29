@@ -376,7 +376,7 @@ public class BFConnector extends PacketHandler
     {
         Config config = Config.getConfig();
         //Даем на всякий случай время клиенту ответить на пакеты. 750мс.)
-        if ( config.isProtectionEnabled() && state == CheckState.POSITION && !checks.isEmpty() && globalTick <= 74 )
+        if ( config.isProtectionEnabled() && state == CheckState.SUS && buttonCheckStart == 0 && !checks.isEmpty() && globalTick <= 74 )
         {
             return;
         }

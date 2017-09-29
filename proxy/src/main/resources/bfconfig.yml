@@ -28,6 +28,8 @@ force-kick-bots-on-join-if-attack-detected: true
 max-checks-per-1-min: 25
 #Как долго будут действовать лимиты; В секундах.
 protection-time: 70
+#Показывать ли игроков/ботов в списке игроков при пинге сервера которые находятся на фильтре? 
+show-filter-online: true
 #Настройки проверки нажатии на кнопку.
 button-check:
   #Включить ли проверку с помощью кнопки если не обноружена атака?
@@ -52,8 +54,6 @@ allowed-countries-auto:
 allowed-countries-permanent:
   - 'KG'
   - 'AZ'
-#Показывать ли игроков/ботов в списке игроков при пинге сервера? 
-show-filter-online: true
 mysql:
   enabled: false
   host: localhost
@@ -86,8 +86,8 @@ fake-online:
 proxy:
   #включить ли скачивание проксей.
   enabled: true
-  #поддерживются списки где на странице только прокси.
-  #скачиваться будут только те прокси, страные который включены в списки выше
+  #поддерживются списки, где на странице только прокси.
+  #скачиваться будут только те прокси, страны которых включены в списки выше
   download-list:
   - https://lists.blocklist.de/lists/all.txt
   - http://www.ciarmy.com/list/ci-badguys.txt
