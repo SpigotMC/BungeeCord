@@ -32,6 +32,7 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.extra.TeleportConfirm;
 import net.md_5.bungee.protocol.packet.Title;
+import net.md_5.bungee.protocol.packet.extra.Animation;
 import net.md_5.bungee.protocol.packet.extra.Player;
 import net.md_5.bungee.protocol.packet.extra.PlayerPosition;
 import net.md_5.bungee.protocol.packet.extra.PlayerPositionAndLook;
@@ -72,7 +73,12 @@ public abstract class AbstractPacketHandler
     public void handle(PlayerTryUseItemOnBlock blockClick) throws Exception
     {
     }
+
+    public void handle(Animation anim)
+    {
+    }
     //BotFilter end
+
     public void handle(TabCompleteResponse tabResponse) throws Exception
     {
     }

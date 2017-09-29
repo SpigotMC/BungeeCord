@@ -40,6 +40,7 @@ import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.Team;
 import net.md_5.bungee.protocol.packet.extra.TeleportConfirm;
 import net.md_5.bungee.protocol.packet.Title;
+import net.md_5.bungee.protocol.packet.extra.Animation;
 import net.md_5.bungee.protocol.packet.extra.ChunkPacket;
 import net.md_5.bungee.protocol.packet.extra.MultiBlockChange;
 import net.md_5.bungee.protocol.packet.extra.Player;
@@ -126,7 +127,14 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_8, 0x22 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x10 ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x10 )
-            ); //BotFilter end
+            );
+            TO_CLIENT.registerPacket(
+                    Animation.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x0B ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x06 ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x06 )
+            );
+            //BotFilter end
             TO_CLIENT.registerPacket(
                     KeepAlive.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x00 ),
@@ -270,6 +278,12 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_8, 0x08 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x1C ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x1F )
+            );
+            TO_SERVER.registerPacket(
+                    Animation.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x0A ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x1A ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x1D )
             );
             //BotFilter end
             TO_SERVER.registerPacket(

@@ -5,6 +5,7 @@ import io.netty.buffer.Unpooled;
 import ru.leymooo.botfilter.utils.ButtonUtils;
 import ru.leymooo.botfilter.utils.Utils;
 import io.netty.channel.Channel;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,14 +15,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Setter;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
-import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.PostLoginEvent;
-import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.UpstreamBridge;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
@@ -32,6 +29,7 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.extra.Animation;
 import net.md_5.bungee.protocol.packet.extra.ChunkPacket;
 import net.md_5.bungee.protocol.packet.extra.ConfirmTransaction;
 import net.md_5.bungee.protocol.packet.extra.MultiBlockChange.Block;
@@ -55,7 +53,7 @@ import ru.leymooo.botfilter.utils.Utils.CheckState;
 @Data
 @EqualsAndHashCode(callSuper = false, exclude =
 {
-    "checks", "buttonCheckStart", "pps", "clientSettings", "pluginMessage", "buttons", "location", "state", "connection", "wrongLocations", "channel", "lastPacketCheck", "recieved", "globalTick", "localTick", "setSlotPacket", "healthPacket", "setExpPacket"
+    "lastMessageSent", "checks", "buttonCheckStart", "pps", "clientSettings", "pluginMessage", "buttons", "location", "state", "connection", "wrongLocations", "channel", "lastPacketCheck", "recieved", "globalTick", "localTick", "setSlotPacket", "healthPacket", "setExpPacket"
 })
 public class BFConnector extends PacketHandler
 {
@@ -65,6 +63,7 @@ public class BFConnector extends PacketHandler
     private Channel channel;
     private long joinTime = System.currentTimeMillis();
     private long buttonCheckStart = 0;
+    private long lastMessageSent = System.currentTimeMillis();
     private long lastPacketCheck = System.currentTimeMillis();
     private AtomicInteger pps;
     private boolean recieved = false;
@@ -75,13 +74,13 @@ public class BFConnector extends PacketHandler
     private Location location;
     private CheckState state = CheckState.POSITION;
     private HashMap<Location, Block> buttons;
-    private HashSet<Object> checks;
-    private SetSlot setSlotPacket;
-    private UpdateHeath healthPacket;
-    private SetExp setExpPacket;
+    private ArrayList<Object> checks;
+    private SetSlot setSlotPacket = new SetSlot( 0, 36, 1, 35, 0 );
+    private UpdateHeath healthPacket = new UpdateHeath( 1, 1, 2 );
+    private SetExp setExpPacket = new SetExp( 0.0f, 1, 1 );
     private boolean clientSettings, pluginMessage;
     //==========Статические пакеты===============
-    private static DefinedPacket loginPacket = new Login( -1, (short) 2, 1, (short) 0, (short) 100, "flat", true ),
+    private static DefinedPacket loginPacket = new Login( -1, (short) 2, 0, (short) 0, (short) 100, "flat", true ),
             spawnPositionPacket = new SpawnPosition( 1, 60, 1 ),
             playerPosAndLook = new PlayerPositionAndLook( 1.00, 450, 1.00, 1f, 1f, 1, false ),
             timeUpdate = new TimeUpdate( 1, 1000 ),
@@ -180,6 +179,12 @@ public class BFConnector extends PacketHandler
 
     //=======================================
     @Override
+    public void handle(Animation anim)
+    {
+        addOrRemove( anim, true );
+    }
+
+    @Override
     public void handle(ConfirmTransaction transaction) throws Exception
     {
         if ( transaction.getWindow() == 0 && transaction.isAccepted() )
@@ -248,7 +253,7 @@ public class BFConnector extends PacketHandler
     @Override
     public void handle(TeleportConfirm conf) throws Exception
     {
-        if ( getChecks() != null && getChecks().remove( conf.getTeleportId() ) )
+        if ( getChecks() != null && getChecks().remove( (Object) conf.getTeleportId() ) )
         {
             this.recieved = true;
         }
@@ -259,7 +264,7 @@ public class BFConnector extends PacketHandler
     {
         if ( getLocation() == null )
         {
-            setLocation( new Location( 0, 300, 0, 0, 0, false, 0 ) );
+            setLocation( new Location( 0, 450, 0, 0, 0, false, 0 ) );
             return;
         }
         getLocation().handlePosition( posRot );
@@ -277,18 +282,25 @@ public class BFConnector extends PacketHandler
 
     private void handleY(Location loc)
     {
-        if ( state != CheckState.POSITION || Utils.checkPps( this ) || getLocation() == null )
+        if ( state == CheckState.FAILED || state == CheckState.BUTTON || Utils.checkPps( this ) || getLocation() == null )
         {
             return;
         }
-        double formatedFallSpeed = Utils.formatDouble( loc.getLastY() - loc.getY() );
-        boolean isTrue = formatedFallSpeed == Utils.getFallSpeed( localTick );
-        if ( !isTrue && wrongLocations++ >= 5 )
+        boolean isTrue = true;
+        //на всякий случай дропнем это если проверка уже была пройдена.
+        if ( state != CheckState.SUS )
         {
-            state = CheckState.FAILED;
-            return;
+            double formatedFallSpeed = Utils.formatDouble( loc.getLastY() - loc.getY() );
+            isTrue = formatedFallSpeed == Utils.getFallSpeed( localTick );
+            if ( !isTrue )
+            {
+                state = CheckState.FAILED;
+                return;
+            }
         }
-        if ( globalTick == 75 && isTrue )
+        localTick++;
+        globalTick++;
+        if ( globalTick - 1 >= 59 && isTrue )
         {
             if ( Config.getConfig().needButtonCheck() && ButtonUtils.getSchematic() != null )
             {
@@ -304,18 +316,16 @@ public class BFConnector extends PacketHandler
         }
         Utils.sendPackets( this );
         this.sendCheckPackets( isTrue, false );
-        localTick++;
-        globalTick++;
     }
 
     public void sendCheckPackets(boolean send, boolean force)
     {
-        if ( globalTick < 5 || globalTick > 60 || !send || !Config.getConfig().isProtectionEnabled() || state != CheckState.POSITION )
+        if ( globalTick < 5 || globalTick > 49 || !send || !Config.getConfig().isProtectionEnabled() || state != CheckState.POSITION )
         {
             return;
         }
         ThreadLocalRandom r = ThreadLocalRandom.current();
-        if ( ( r.nextInt( 100 ) < 10 ) || force )
+        if ( ( r.nextInt( 100 ) < 15 ) || force )
         {
             PlayerPositionAndLook posLook = new PlayerPositionAndLook( r.nextInt( -7, 7 ), r.nextInt( 200, 600 ), r.nextInt( -7, 7 ), 1, 1, r.nextInt( Integer.MAX_VALUE ), false );
             ConfirmTransaction confTr = new ConfirmTransaction( (byte) 0, r.nextInt( 32767 ), false );
@@ -342,7 +352,7 @@ public class BFConnector extends PacketHandler
     {
         if ( getChecks() == null )
         {
-            setChecks( new HashSet<>() );
+            setChecks( new ArrayList<>() );
         }
         if ( remove )
         {
@@ -353,9 +363,23 @@ public class BFConnector extends PacketHandler
         }
     }
 
+    public void sendCheckMessage(String message)
+    {
+        if ( System.currentTimeMillis() - lastMessageSent >= 1300 )
+        {
+            this.connection.sendMessage( message );
+            lastMessageSent = System.currentTimeMillis();
+        }
+    }
+
     private void finish()
     {
         Config config = Config.getConfig();
+        //Даем на всякий случай время клиенту ответить на пакеты. 750мс.)
+        if ( config.isProtectionEnabled() && state == CheckState.POSITION && !checks.isEmpty() && globalTick <= 74 )
+        {
+            return;
+        }
         getConnection().sendMessage( config.getCheckSus() );
         if ( Utils.disconnect( this ) )
         {

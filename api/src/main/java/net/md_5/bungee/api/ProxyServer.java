@@ -245,7 +245,7 @@ public abstract class ProxyServer
     public abstract int getOnlineCount();
     public abstract int getOnlineCountWithGG();
     public abstract int getFakeOnlineCountWithGG();
-
+    public abstract int getOnlineCountAuto();
     /**
      * Send the specified message to the console and all connected players.
      *

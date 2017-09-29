@@ -59,6 +59,7 @@ public class Config
     private boolean buttonNormal = true;
     private boolean buttonPermanent = true;
     private boolean buttonOnAttack = true;
+    private boolean onlineFromFilter = true;
     private int maxChecksPer1min = 30;
     private int protectionTime = 120000;
     private MySql mysql = null;
@@ -188,7 +189,7 @@ public class Config
     private void load(Configuration config)
     {
         this.geoUtils = new GeoIpUtils( new File( "BotFilter" ), config.getStringList( "allowed-countries-auto" ), config.getStringList( "allowed-countries-permanent" ) );
-        this.proxy = new Proxy( new File( "BotFilter" ) );
+        this.proxy = new Proxy( new File( "BotFilter" ), config.getSection( "proxy" ) );
         this.check = ChatColor.translateAlternateColorCodes( '&', config.getString( check ) );
         this.check2 = ChatColor.translateAlternateColorCodes( '&', config.getString( check2 ) );
         this.checkSus = ChatColor.translateAlternateColorCodes( '&', config.getString( checkSus ) );
@@ -208,6 +209,7 @@ public class Config
         this.buttonNormal = config.getBoolean( "button-check.on-normal-mode" );
         this.buttonOnAttack = config.getBoolean( "button-check.on-bot-attack" );
         this.buttonPermanent = config.getBoolean( "button-check.on-permanent-protection" );
+        this.onlineFromFilter = config.getBoolean( "show-filter-online" );
         new FakeOnline( config.getBoolean( "fake-online.enabled" ), config.getSection( "fake-online.booster" ) );
         BFConnector.chat = new Chat( ComponentSerializer.toString( TextComponent.fromLegacyText( getCheck() ) ), (byte) ChatMessageType.CHAT.ordinal() );
     }
@@ -228,7 +230,7 @@ public class Config
 
     private void checkAndUpdateConfig()
     {
-        if ( mainConfig.getInt( "config-version" ) != 3 )
+        if ( mainConfig.getInt( "config-version" ) != 4 )
         {
             File configFile = new File( "BotFilter", "config.yml" );
             try
@@ -271,7 +273,7 @@ public class Config
             {
                 try
                 {
-                    Thread.sleep( 1300L );
+                    Thread.sleep( 700L );
                 } catch ( InterruptedException ex )
                 {
                     return;
@@ -284,7 +286,7 @@ public class Config
                     if ( connector.isConnected() )
                     {
                         Utils.CheckState state = connector.getState();
-                        connector.getConnection().sendMessages( state == Utils.CheckState.BUTTON ? check2 : check );
+                        connector.sendCheckMessage( state == Utils.CheckState.BUTTON ? check2 : check );
                         switch ( connector.getState() )
                         {
                             case FAILED:
@@ -305,15 +307,12 @@ public class Config
                                     connector.getConnection().disconnect( errorBot );
                                     continue;
                                 }
+                                KeepAlive alive = new KeepAlive( (long) random.nextInt( Integer.MAX_VALUE ) );
+                                connector.addOrRemove( alive.getRandomId(), false );
+                                connector.getConnection().unsafe().sendPacket( alive );
+                                connector.sendCheckPackets( true, true );
                                 break;
-                            default:
-                                continue;
                         }
-
-                        KeepAlive alive = new KeepAlive( (long) random.nextInt( Integer.MAX_VALUE ) );
-                        connector.addOrRemove( alive.getRandomId(), false );
-                        connector.getConnection().unsafe().sendPacket( alive );
-                        connector.sendCheckPackets( true, true );
                     }
                 }
             }

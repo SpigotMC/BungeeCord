@@ -52,6 +52,8 @@ allowed-countries-auto:
 allowed-countries-permanent:
   - 'KG'
   - 'AZ'
+#Показывать ли игроков/ботов в списке игроков при пинге сервера? 
+show-filter-online: true
 mysql:
   enabled: false
   host: localhost
@@ -81,4 +83,27 @@ fake-online:
     61;100: 1.3
     #любой другой онлайн, которого нет выше
     default: 1.25
-config-version: 3
+proxy:
+  #включить ли скачивание проксей.
+  enabled: true
+  #поддерживются списки где на странице только прокси.
+  #скачиваться будут только те прокси, страные который включены в списки выше
+  download-list:
+  - https://lists.blocklist.de/lists/all.txt
+  - http://www.ciarmy.com/list/ci-badguys.txt
+  - http://danger.rulez.sk/projects/bruteforceblocker/blist.php
+  - http://myip.ms/files/blacklist/csf/latest_blacklist.txt
+  - http://tjfmc.de/DeathBot/SSlproxies.txt
+  - http://tjfmc.de/DeathBot/Socks4.txt
+  - http://tjfmc.de/DeathBot/Socks5.txt
+  - http://151.80.108.152/proxy.txt
+  blogspot-proxy:
+  #- url;regex   - default regex: href=\'(.*?)\'
+  - http://socksproxylist24.blogspot.com/
+  - http://www.vipsocks24.net/
+  - http://www.socks24.org/
+  - http://www.live-socks.net/
+  - http://www.proxyserverlist24.top/
+  - http://www.sslproxies24.top/
+  - http://proxy-daily.com/;href=\"(.*?)\"
+config-version: 4

@@ -49,13 +49,12 @@ public class ButtonUtils
         List<Block> blocks = Schematic.pasteSchematic( x, y, z, schematic );
         HashMap<Location, Block> buttons = new HashMap<>();
         channel.write( new PlayerPositionAndLook( x + 2.5, y + 5, z + 8.5, -90, -18f, 0, false ), channel.voidPromise() );
-        SetSlot slot = connector.getSetSlotPacket();
-        slot.setItem( -1 );
+        channel.write( connector.getSetSlotPacket().resetItemData() );
         for ( int i = 0; i < 7; i++ )
         {
-            channel.write( slot, channel.voidPromise() );
-            slot.setSlot( slot.getSlot() - 1 );
+            channel.write( connector.getSetSlotPacket().resetSlot() );
         }
+        channel.write( connector.getSetExpPacket().reset() );
         for ( Block b : blocks )
         {
             int chunkX = b.getBlockX() >> 4;

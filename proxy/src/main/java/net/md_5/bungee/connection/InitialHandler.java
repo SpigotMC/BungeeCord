@@ -156,8 +156,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         this.legacy = true;
         final boolean v1_5 = ping.isV1_5();
 
-        ServerPing legacy = new ServerPing( new ServerPing.Protocol( "BotFilter 1.8-1.12.2 by vk.com Leymooo_s", bungee.getProtocolVersion() ), //BotFilter
-                new ServerPing.Players( listener.getMaxPlayers(), bungee.getFakeOnlineCountWithGG(), null ), //BotFilter
+        ServerPing legacy = new ServerPing( new ServerPing.Protocol( "BotFilter " + bungee.getGameVersion() + " by vk.com Leymooo_s", bungee.getProtocolVersion() ), //BotFilter
+                new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCountAuto(), null ), //BotFilter
                 new TextComponent( TextComponent.fromLegacyText( listener.getMotd() ) ), (Favicon) null );
 
         Callback<ProxyPingEvent> callback = new Callback<ProxyPingEvent>()
@@ -243,8 +243,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             int protocol = ( ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
             pingBack.done( new ServerPing(
-                    new ServerPing.Protocol( "BotFilter 1.8-1.12.2 by vk.com Leymooo_s", protocol ), //BotFilter
-                    new ServerPing.Players( listener.getMaxPlayers(), bungee.getFakeOnlineCountWithGG(), null ), //BotFilter
+                    new ServerPing.Protocol( "BotFilter " + bungee.getGameVersion() + " by vk.com Leymooo_s", protocol ), //BotFilter
+                    new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCountAuto(), null ), //BotFilter
                     motd, BungeeCord.getInstance().config.getFaviconObject() ),
                     null );
         }
@@ -369,7 +369,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             }
         }
         //BotFilter end
-        
+
         // If offline mode and they are already on, don't allow connect
         // We can just check by UUID here as names are based on UUID
         if ( !isOnlineMode() && bungee.getPlayer( getUniqueId() ) != null )

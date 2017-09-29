@@ -1,6 +1,7 @@
 package net.md_5.bungee.protocol.packet.extra;
 
 import io.netty.buffer.ByteBuf;
+import java.util.concurrent.ThreadLocalRandom;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -45,5 +46,25 @@ public class SetSlot extends DefinedPacket
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {
+    }
+
+    public SetSlot updateSlotAndData()
+    {
+        this.slot++;
+        this.data = ThreadLocalRandom.current().nextInt( 0, 15 );
+        return this;
+    }
+
+    public SetSlot resetSlot()
+    {
+        this.slot--;
+        return this;
+    }
+
+    public SetSlot resetItemData()
+    {
+        this.data = 0;
+        this.item = -1;
+        return this;
     }
 }

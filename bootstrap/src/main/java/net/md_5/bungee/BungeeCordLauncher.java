@@ -23,7 +23,7 @@ import net.md_5.bungee.command.ConsoleCommandSender;
 public class BungeeCordLauncher
 {
 
-    private static int VERSION = 193;
+    private static int VERSION = 20;
 
     public static void main(String[] args) throws Exception
     {
@@ -50,14 +50,14 @@ public class BungeeCordLauncher
             System.err.println( "*** Новая версия тут: ***" );
             System.err.println( "*** http://www.rubukkit.org/threads/137038/ ***" );
             System.err.println( "*** Рекомендую обновиться. ***" );
-            System.err.println( "*** Запуск через 6 секунд ***" );
-            Thread.sleep( TimeUnit.SECONDS.toMillis( 6 ) );
+            System.err.println( "*** Запуск через 5 секунд ***" );
+            Thread.sleep( TimeUnit.SECONDS.toMillis( 5 ) );
         }
         //BotFilter end
 
         BungeeCord bungee = new BungeeCord();
         ProxyServer.setInstance( bungee );
-        bungee.getLogger().info( "Включаю BungeCord BotFilter 1.8-1.12.2 от vk.com/Leymooo_s" );//BotFilter
+        bungee.getLogger().info( "Включаю BungeCord BotFilter " + bungee.getGameVersion() + " от vk.com/Leymooo_s" );//BotFilter
         bungee.start();
 
         if ( !options.has( "noconsole" ) )
@@ -81,13 +81,12 @@ public class BungeeCordLauncher
             //Да да. В главном потоке)
             URL url = new URL( "http://151.80.108.152/gg-version.txt" );
             URLConnection conn = url.openConnection();
-            conn.setConnectTimeout( 3000 );
-            conn.connect();
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader( conn.getInputStream() ) );
-            int version = Integer.parseInt( in.readLine() );
-            in.close();
-            return version != VERSION;
+            conn.setConnectTimeout( 1500 );
+            try ( BufferedReader in = new BufferedReader(
+                    new InputStreamReader( conn.getInputStream() ) ) )
+            {
+                return Integer.parseInt( in.readLine() ) != VERSION;
+            }
         } catch ( IOException | NumberFormatException ex )
         {
             System.err.println( "[BotFilter] Не могу проверить обновление" );

@@ -2,9 +2,11 @@ package ru.leymooo.botfilter.utils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.md_5.bungee.UserConnection;
+import net.md_5.bungee.protocol.packet.extra.Animation;
 import net.md_5.bungee.protocol.packet.extra.SetExp;
 import net.md_5.bungee.protocol.packet.extra.SetSlot;
 import net.md_5.bungee.protocol.packet.extra.UpdateHeath;
@@ -19,7 +21,9 @@ import ru.leymooo.botfilter.Location;
 public class Utils
 {
 
-    //Дропаем конекты, если за 10 минут их было больше трёх.
+    private static Animation DAMAGE_PACKET = new Animation( -1, 1 );
+    private static Animation SWING_PACKET = new Animation( -1, 0 );
+
     public static Cache<String, Integer> connections = CacheBuilder.newBuilder()
             .concurrencyLevel( Runtime.getRuntime().availableProcessors() )
             .initialCapacity( 100 )
@@ -83,30 +87,19 @@ public class Utils
     public static void sendPackets(BFConnector connector)
     {
         int globalTick = connector.getGlobalTick();
-        if ( globalTick >= 7 && globalTick <= 63 && globalTick % 9 == 0 )
+        if ( globalTick >= 7 && globalTick <= 50 && globalTick % 6 == 0 )
         {
-            SetSlot slotPacket = connector.getSetSlotPacket();
-            slotPacket.setSlot( slotPacket.getSlot() + 1 );
-            connector.write( slotPacket );
+            connector.write( connector.getSetSlotPacket().updateSlotAndData() );
         }
-        if ( globalTick % 4 == 0 && globalTick <= 72 )
+        UpdateHeath healthPacket = connector.getHealthPacket();
+        if ( healthPacket.getHealth() == 20 )
         {
-            UpdateHeath healthPacket = connector.getHealthPacket();
-            SetExp expPacket = connector.getSetExpPacket();
-            if ( healthPacket == null )
-            {
-                healthPacket = new UpdateHeath( 1, 1, 0 );
-                expPacket = new SetExp( 0.0f, 1, 1 );
-                connector.setHealthPacket( healthPacket );
-                connector.setSetExpPacket( expPacket );
-                connector.setSetSlotPacket( new SetSlot( 0, 36, 1, 133, 0 ) );
-            }
-            healthPacket.setHealth( healthPacket.getHealth() + 1 );
-            healthPacket.setFood( healthPacket.getFood() + 1 );
-            expPacket.setExpBar( expPacket.getExpBar() + 0.0524f < 1 ? expPacket.getExpBar() + 0.0524f : 1 );
-            connector.write( healthPacket );
-            connector.write( expPacket );
+            connector.write( SWING_PACKET );
+            connector.addOrRemove( SWING_PACKET, false );
+            connector.write( DAMAGE_PACKET );
         }
+        connector.write( connector.getSetExpPacket().increase() );
+        connector.write( healthPacket.increase() );
         connector.getChannel().flush();
     }
 

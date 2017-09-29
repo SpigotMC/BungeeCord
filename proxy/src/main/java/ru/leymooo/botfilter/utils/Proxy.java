@@ -4,33 +4,38 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Scanner;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.config.Configuration;
 import ru.leymooo.botfilter.Config;
 
-/**
- *
- * @author AuthMeReloaded Team
- */
 public class Proxy
 {
 
     /* Добро пожаловать в гору говнокода и костылей */
-    private static final String PROXY_URL
-            = "http://151.80.108.152/proxy.txt";
-    //private static final ExecutorService executor = Executors.newFixedThreadPool( 4 );
-
     public HashSet<String> PROXIES = new HashSet<>();
+    public HashSet<String> DOWNLOADED_URLS = new HashSet<>();
 
+    //Для парса с сайтов
+    private static final Pattern PARSE_IPPATTERN = Pattern.compile( "((\\d+\\.+){2,}\\d+)" );
+    //Для проверки что спарсили
     private static final Pattern IPADDRESS_PATTERN
             = Pattern.compile( "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
                     + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
@@ -38,11 +43,20 @@ public class Proxy
                     + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$" );
     private Thread downloadTask;
 
-    private final File dataFile;
-    private final File dataFileAuto;
+    private File dataFile;
+    private File dataFileAuto;
 
-    public Proxy(File dataFolder)
+    private boolean enabled = true;
+    private final Configuration proxySection;
+
+    public Proxy(File dataFolder, Configuration section)
     {
+        this.proxySection = section;
+        if ( !section.getBoolean( "enabled" ) )
+        {
+            this.enabled = false;
+            return;
+        }
         this.dataFile = new File( dataFolder, "proxy.txt" );
         this.dataFileAuto = new File( dataFolder, "proxyAutoDetected.txt" );
         int tries = 0;
@@ -97,7 +111,7 @@ public class Proxy
                     }
                 } catch ( IOException ex )
                 {
-                    BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not save proxy list", ex );
+                    BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not save proxy to list", ex );
                 }
             } );
         } catch ( IOException ex )
@@ -110,7 +124,8 @@ public class Proxy
     private void validateAndAddProxy(String line, boolean addToFile) throws IOException
     {
         String proxy = line.contains( ":" ) ? line.split( ":" )[0].trim() : line.trim();
-        if ( IPADDRESS_PATTERN.matcher( proxy ).matches() && Config.getConfig().getGeoUtils().isAllowed( Config.getConfig().getGeoUtils().getCountryCode( InetAddress.getByName( proxy )), true ) )
+
+        if ( IPADDRESS_PATTERN.matcher( proxy ).matches() && Config.getConfig().getGeoUtils().isAllowed( Config.getConfig().getGeoUtils().getCountryCode( InetAddress.getByName( proxy ) ), true ) )
         {
             if ( !PROXIES.contains( proxy ) )
             {
@@ -125,6 +140,10 @@ public class Proxy
 
     public void addProxyForce(String proxy)
     {
+        if ( !enabled )
+        {
+            return;
+        }
         if ( !isProxy( proxy ) )
         {
             PROXIES.add( proxy );
@@ -142,27 +161,101 @@ public class Proxy
     {
         return new Thread( () ->
         {
-            try
+            List<String> urls = proxySection.getStringList( "download-list" );
+            for ( String site : urls )
             {
-                URL url = new URL( PROXY_URL );
-                BufferedReader in = new BufferedReader(
-                        new InputStreamReader( url.openStream() ) );
-                String inputLine;
-                while ( ( inputLine = in.readLine() ) != null )
+                try
                 {
-                    validateAndAddProxy( inputLine, true );
+                    getProxyFromPage( site );
+                } catch ( IOException e )
+                {
+                    BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not download proxy list from " + site, e );
                 }
-                in.close();
-            } catch ( IOException e )
+            }
+            urls = proxySection.getStringList( "blogspot-proxy" );
+            for ( String site : urls )
             {
-                BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not download proxy list", e );
+                String[] regexSplitted = site.split( ";" );
+                String regex = regexSplitted.length == 2 ? regexSplitted[1] : "href=\'(.*?)\'";
+                List<String> list = getHRefs( regexSplitted[0], regex );
+                for ( String pages : list )
+                {
+                    if ( pages.contains( "/20" ) && !pages.contains( "#" ) )
+                    {
+                        try
+                        {
+                            getProxyFromPage( pages );
+                        } catch ( IOException ex )
+                        {
+                            BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not download proxy list from " + site, ex );
+                        }
+                    }
+                }
             }
         } );
     }
 
+    private void getProxyFromPage(String page) throws IOException
+    {
+        if ( DOWNLOADED_URLS.contains( page ) )
+        {
+            return;
+        }
+        DOWNLOADED_URLS.add( page );
+        URL url = new URL( page );
+        URLConnection conn = url.openConnection();
+        conn.setConnectTimeout( 3000 );
+        try ( BufferedReader in = new BufferedReader( new InputStreamReader( conn.getInputStream() ) ) )
+        {
+            String inputLine;
+            while ( ( inputLine = in.readLine() ) != null )
+            {
+                Matcher matcher = PARSE_IPPATTERN.matcher( inputLine );
+                while ( matcher.find() )
+                {
+                    validateAndAddProxy( matcher.group(), true );
+                }
+            }
+        }
+    }
+
     public boolean isProxy(String ip)
     {
+        if ( !enabled )
+        {
+            return false;
+        }
         return PROXIES.contains( ip );
+    }
+
+    /* AntiBot-ultra code*/
+    public List<String> getHRefs(String url1, String regexPattern)
+    {
+        List<String> list = new ArrayList<>();
+        try
+        {
+            StringBuilder sb = new StringBuilder();
+            Pattern pattern = Pattern.compile( regexPattern, Pattern.DOTALL );
+            URL url = new URL( url1 );
+            URLConnection conn = url.openConnection();
+            conn.setConnectTimeout( 3000 );
+            try ( Scanner s = new Scanner( conn.getInputStream() ) )
+            {
+                while ( s.hasNext() )
+                {
+                    sb.append( s.nextLine() );
+                }
+                Matcher matcher = pattern.matcher( sb.toString() );
+                while ( matcher.find() )
+                {
+                    list.add( matcher.group( 1 ) );
+                }
+            }
+        } catch ( IOException ex )
+        {
+            BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not get HRefts from " + url1, ex );
+        }
+        return list;
     }
 
 }

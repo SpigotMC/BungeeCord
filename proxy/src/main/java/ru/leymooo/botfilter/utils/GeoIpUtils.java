@@ -23,7 +23,7 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
 /**
  *
- * @author AuthMeReloaded Team
+ * @author AuthMeReloaded Team, Leymooo
  */
 public class GeoIpUtils
 {
@@ -146,12 +146,11 @@ public class GeoIpUtils
 
     public boolean isAllowed(String code, boolean permanent)
     {
-        return (  "N/A".equals( code ) ) || ( countryAuto.contains( code ) ) || ( permanent && countryPermanent.contains( code ) );
+        return ( "N/A".equals( code ) ) || ( countryAuto.contains( code ) ) || ( permanent && countryPermanent.contains( code ) );
     }
 
     public void extractTarGZ(InputStream in) throws IOException
     {
-
         try ( GzipCompressorInputStream gzipIn = new GzipCompressorInputStream( in ); TarArchiveInputStream tarIn = new TarArchiveInputStream( gzipIn ) )
         {
             TarArchiveEntry entry;

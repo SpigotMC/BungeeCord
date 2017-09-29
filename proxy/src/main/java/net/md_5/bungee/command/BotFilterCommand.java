@@ -7,6 +7,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
+import oracle.jrockit.jfr.tools.ConCatRepository;
 import ru.leymooo.botfilter.Config;
 import ru.leymooo.botfilter.MySql;
 import ru.leymooo.botfilter.utils.Proxy;
@@ -40,23 +41,10 @@ public class BotFilterCommand extends Command
         }
         if ( args[0].equalsIgnoreCase( "reload" ) )
         {
-            if ( args.length == 1 )
-            {
-                sender.sendMessage( "§cconfig §aили §cproxy" );
-                return;
-            }
-            if ( args[1].equals( "config" ) )
-            {
-                MySql.stopSyncThread();
-                new Config();
-                Utils.connections.invalidateAll();
-                sender.sendMessage( "§aКоманда выполнена" );
-            } else if ( args[1].equalsIgnoreCase( "proxy" ) )
-            {
-                Config.getConfig().setProxy( new Proxy( new File( "BotFilter" ) ) );
-                Utils.connections.invalidateAll();
-                sender.sendMessage( "§aКоманда выполнена" );
-            }
+            MySql.stopSyncThread();
+            new Config();
+            Utils.connections.invalidateAll();
+            sender.sendMessage( "§aКоманда выполнена" );
         }
         if ( args[0].equalsIgnoreCase( "mode" ) )
         {

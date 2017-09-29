@@ -17,7 +17,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.WriteBufferWaterMark;
 import io.netty.util.ResourceLeakDetector;
 import java.io.File;
 import java.io.FileReader;
@@ -540,6 +539,12 @@ public class BungeeCord extends ProxyServer
     public int getFakeOnlineCountWithGG()
     {
         return FakeOnline.getInstance().getFakeOnline() + Config.getConfig().getConnectedUsersSet().size();
+    }
+
+    @Override
+    public int getOnlineCountAuto()
+    {
+        return getFakeOnlineCountWithGG() - ( Config.getConfig().isOnlineFromFilter() ? 0 : Config.getConfig().getConnectedUsersSet().size() );
     }
 
     @Override

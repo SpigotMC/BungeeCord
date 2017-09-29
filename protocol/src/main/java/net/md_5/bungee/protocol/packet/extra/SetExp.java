@@ -36,6 +36,22 @@ public class SetExp extends DefinedPacket
         this.totalExp = DefinedPacket.readVarInt( buf );
     }
 
+    public SetExp reset()
+    {
+        this.expBar = 0;
+        this.level = 0;
+        this.totalExp = 0;
+        return this;
+    }
+
+    public SetExp increase()
+    {
+        this.expBar = expBar + 0.01695f < 1 ? expBar + 0.01695f : 1;
+        this.level++;
+        this.totalExp++;
+        return this;
+    }
+
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {

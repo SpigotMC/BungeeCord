@@ -36,6 +36,24 @@ public class UpdateHeath extends DefinedPacket
         this.foodSaturation = buf.readFloat();
     }
 
+    private void reset()
+    {
+        this.health = 0;
+        this.food = 0;
+        this.foodSaturation = 2;
+    }
+
+    public UpdateHeath increase()
+    {
+        if ( health == 20 )
+        {
+            reset();
+        }
+        this.health++;
+        this.food++;
+        return this;
+    }
+
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {
