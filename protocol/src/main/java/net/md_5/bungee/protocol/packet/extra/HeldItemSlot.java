@@ -15,33 +15,45 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @EqualsAndHashCode(callSuper = false)
 public class HeldItemSlot extends DefinedPacket
 {
-    
+
     int slot;
-    
+
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        buf.writeByte( slot );
+        if ( direction == ProtocolConstants.Direction.TO_CLIENT )
+        {
+            buf.writeByte( slot );
+        } else
+        {
+            buf.writeShort( slot );
+        }
     }
-    
+
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        slot = buf.readShort();
+        if ( direction == ProtocolConstants.Direction.TO_SERVER )
+        {
+            slot = buf.readShort();
+        } else
+        {
+            slot = buf.readByte();
+        }
     }
-    
+
     public HeldItemSlot increase()
     {
         slot++;
         return this;
     }
-    
+
     public HeldItemSlot reset()
     {
         slot = 0;
         return this;
     }
-    
+
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {

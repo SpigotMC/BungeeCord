@@ -65,7 +65,7 @@ public class Config
     private Proxy proxy;
     private static Thread t;
     ExecutorService executor = Executors.newSingleThreadExecutor();
-
+//Добавить фигню чтобы юзеры удалялись
     public Config()
     {
         this.startThread();
