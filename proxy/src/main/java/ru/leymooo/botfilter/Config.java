@@ -18,15 +18,20 @@ import java.util.logging.Level;
 import lombok.Data;
 import lombok.Getter;
 import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.BungeeTitle;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.chat.BaseComponentSerializer;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.KeepAlive;
+import net.md_5.bungee.protocol.packet.extra.TimeUpdate;
+import ru.leymooo.botfilter.utils.ServerPingUtils;
 import ru.leymooo.fakeonline.FakeOnline;
 
 /**
@@ -38,39 +43,24 @@ public class Config
 {
 
     /* Добро пожаловать в гору говнокода и костылей */
-    //TODO: Функция для отключения показа онлайна из фильтра.
-    //TODO: Скачивание проксей.
+    //TODO: Дописать проверку по пингу сервера
     @Getter
     private static Config config;
-    private String check = "msg-check";
-    private String check2 = "msg-check-2";
-    private String checkSus = "msg-check-sus";
-    private String errorManyChecks = "error-many-checks";
-    private String errorBot = "error-not-a-player";
-    private String errorProxy = "error-proxy-detected";
-    private String errorConutry = "error-country-not-allowed";
-    private String errorPackets = "error-many-pos-packets";
-    private String errorWrongButton = "error-wrong-button";
-    private String errorCantUse = "error-cannot-use-button";
-    private String errorNotPressed = "error-button-not-pressed";
-    private boolean mySqlEnabled = false;
-    private boolean permanent = false;
-    private boolean forceKick = true;
-    private boolean buttonNormal = true;
-    private boolean buttonPermanent = true;
-    private boolean buttonOnAttack = true;
-    private boolean onlineFromFilter = true;
-    private int maxChecksPer1min = 30;
-    private int protectionTime = 120000;
+    private String check = "msg-check", check2 = "msg-check-2", checkSus = "msg-check-sus", errorManyChecks = "error-many-checks",
+            errorBot = "error-not-a-player", errorProxy = "error-proxy-detected", errorConutry = "error-country-not-allowed",
+            errorPackets = "error-many-pos-packets", errorWrongButton = "error-wrong-button", errorCantUse = "error-cannot-use-button",
+            errorNotPressed = "error-button-not-pressed", actionBar = "action-bar", bigPing = "error-ping-is-too-big";
+    private boolean mySqlEnabled = false, permanent = false, forceKick = true,
+            buttonNormal = true, buttonPermanent = true, buttonOnAttack = true,
+            onlineFromFilter = true;
+    private int maxChecksPer1min = 30, protectionTime = 120000, maxPing = -1;
     private MySql mysql = null;
     private GeoIpUtils geoUtils;
     private final HashMap<String, String> users = new HashMap<>();
     private final Set<BFConnector> connectedUsersSet = Sets.newConcurrentHashSet();
-    private Configuration userData;
-    private Configuration mainConfig;
+    private Configuration userData, mainConfig;
     private File dataFile = new File( "BotFilter", "users.yml" );
-    private double attackStartTime = 0;
-    private double lastBotAttackCheck = System.currentTimeMillis();
+    private double attackStartTime = 0, lastBotAttackCheck = System.currentTimeMillis();
     private AtomicInteger botCounter = new AtomicInteger();
     private Proxy proxy;
     private static Thread t;
@@ -201,17 +191,33 @@ public class Config
         this.errorWrongButton = ChatColor.translateAlternateColorCodes( '&', config.getString( errorWrongButton ) );
         this.errorCantUse = ChatColor.translateAlternateColorCodes( '&', config.getString( errorCantUse ) );
         this.errorNotPressed = ChatColor.translateAlternateColorCodes( '&', config.getString( errorNotPressed ) );
+        this.actionBar = ChatColor.translateAlternateColorCodes( '&', config.getString( actionBar ) );
+        this.bigPing = ChatColor.translateAlternateColorCodes( '&', config.getString( bigPing ) );
         this.mySqlEnabled = config.getBoolean( "mysql.enabled" );
         this.permanent = config.getBoolean( "permanent-protection" );
         this.maxChecksPer1min = config.getInt( "max-checks-per-1-min" );
         this.protectionTime = config.getInt( "protection-time" ) * 1000;
+        this.maxPing = config.getInt( "kick-if-ping-more-than" );
         this.forceKick = config.getBoolean( "force-kick-bots-on-join-if-attack-detected" );
         this.buttonNormal = config.getBoolean( "button-check.on-normal-mode" );
         this.buttonOnAttack = config.getBoolean( "button-check.on-bot-attack" );
         this.buttonPermanent = config.getBoolean( "button-check.on-permanent-protection" );
         this.onlineFromFilter = config.getBoolean( "show-filter-online" );
         new FakeOnline( config.getBoolean( "fake-online.enabled" ), config.getSection( "fake-online.booster" ) );
+        new ServerPingUtils( config.getSection( "server-ping-check" ) );
         BFConnector.chat = new Chat( ComponentSerializer.toString( TextComponent.fromLegacyText( getCheck() ) ), (byte) ChatMessageType.CHAT.ordinal() );
+        BFConnector.timeUpdate = new TimeUpdate( 1, config.getInt( "world-time" ) );
+        String[] checkTitle = ChatColor.translateAlternateColorCodes( '&', config.getString( "msg-check-title" ) ).split( ";" );
+        BFConnector.checkTitle = new BungeeTitle().title( TextComponent.fromLegacyText( checkTitle[0] ) )
+                .subTitle( TextComponent.fromLegacyText( checkTitle[1] ) ).fadeIn( 5 ).fadeOut( 1 ).stay( 320 /*16 сек*/ );
+
+        String[] checkTitleSus = ChatColor.translateAlternateColorCodes( '&', config.getString( "msg-check-title-sus" ) ).split( ";" );
+        BFConnector.susCheckTitle = new BungeeTitle().title( TextComponent.fromLegacyText( checkTitleSus[0] ) )
+                .subTitle( TextComponent.fromLegacyText( checkTitleSus[1] ) ).fadeIn( 10 ).fadeOut( 10 ).stay( 25 );
+
+        String[] checkTitleButton = ChatColor.translateAlternateColorCodes( '&', config.getString( "msg-press-button-title" ) ).split( ";" );
+        BFConnector.buttonCheckTitle = new BungeeTitle().title( TextComponent.fromLegacyText( checkTitleButton[0] ) )
+                .subTitle( TextComponent.fromLegacyText( checkTitleButton[1] ) ).fadeIn( 5 ).fadeOut( 10 ).stay( 60 );
     }
 
     private Configuration checkFileAndGiveConfig() throws IOException
@@ -230,7 +236,7 @@ public class Config
 
     private void checkAndUpdateConfig()
     {
-        if ( mainConfig.getInt( "config-version" ) != 4 )
+        if ( mainConfig.getInt( "config-version" ) != 5 )
         {
             File configFile = new File( "BotFilter", "config.yml" );
             try
@@ -266,7 +272,6 @@ public class Config
         {
             t.interrupt();
         }
-        final ThreadLocalRandom random = ThreadLocalRandom.current();
         ( t = new Thread( () ->
         {
             while ( !Thread.interrupted() )
@@ -287,17 +292,17 @@ public class Config
                     {
                         Utils.CheckState state = connector.getState();
                         connector.sendCheckMessage( state == Utils.CheckState.BUTTON ? check2 : check );
-                        switch ( connector.getState() )
+                        connector.sendKeepAlive();
+                        switch ( state )
                         {
                             case FAILED:
                                 connector.getConnection().disconnect( errorBot );
-                                continue;
+                                break;
                             case BUTTON:
                                 long buttonTime = System.currentTimeMillis() - connector.getButtonCheckStart();
                                 if ( buttonTime >= 15000 )
                                 {
                                     connector.getConnection().disconnect( errorNotPressed );
-                                    continue;
                                 }
                                 break;
                             case POSITION:
@@ -307,10 +312,7 @@ public class Config
                                     connector.getConnection().disconnect( errorBot );
                                     continue;
                                 }
-                                KeepAlive alive = new KeepAlive( (long) random.nextInt( Integer.MAX_VALUE ) );
-                                connector.addOrRemove( alive.getRandomId(), false );
-                                connector.getConnection().unsafe().sendPacket( alive );
-                                connector.sendCheckPackets( true, true );
+                                connector.sendCheckPackets( true );
                                 break;
                         }
                     }

@@ -271,7 +271,6 @@ public class DownstreamBridge extends PacketHandler
 
                     target.getServer().sendData( "BungeeCord", payload );
                 }
-
                 // Null out stream, important as we don't want to send to ourselves
                 out = null;
             }

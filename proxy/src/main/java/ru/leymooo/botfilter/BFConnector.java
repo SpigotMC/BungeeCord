@@ -8,7 +8,6 @@ import io.netty.channel.Channel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -17,14 +16,16 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
+import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.Title;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.connection.UpstreamBridge;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Login;
@@ -32,6 +33,7 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.extra.Animation;
 import net.md_5.bungee.protocol.packet.extra.ChunkPacket;
 import net.md_5.bungee.protocol.packet.extra.ConfirmTransaction;
+import net.md_5.bungee.protocol.packet.extra.HeldItemSlot;
 import net.md_5.bungee.protocol.packet.extra.MultiBlockChange.Block;
 import net.md_5.bungee.protocol.packet.extra.Player;
 import net.md_5.bungee.protocol.packet.extra.PlayerLook;
@@ -42,7 +44,6 @@ import net.md_5.bungee.protocol.packet.extra.SetExp;
 import net.md_5.bungee.protocol.packet.extra.SetSlot;
 import net.md_5.bungee.protocol.packet.extra.SpawnPosition;
 import net.md_5.bungee.protocol.packet.extra.TeleportConfirm;
-import net.md_5.bungee.protocol.packet.extra.TimeUpdate;
 import net.md_5.bungee.protocol.packet.extra.UpdateHeath;
 import ru.leymooo.botfilter.utils.Utils.CheckState;
 
@@ -51,9 +52,9 @@ import ru.leymooo.botfilter.utils.Utils.CheckState;
  * @author Leymooo
  */
 @Data
-@EqualsAndHashCode(callSuper = false, exclude =
+@EqualsAndHashCode(callSuper = false, of =
 {
-    "lastMessageSent", "checks", "buttonCheckStart", "pps", "clientSettings", "pluginMessage", "buttons", "location", "state", "connection", "wrongLocations", "channel", "lastPacketCheck", "recieved", "globalTick", "localTick", "setSlotPacket", "healthPacket", "setExpPacket"
+    "name", "joinTime", "joinTimeNano"
 })
 public class BFConnector extends PacketHandler
 {
@@ -61,35 +62,33 @@ public class BFConnector extends PacketHandler
     /* Добро пожаловать в гору говнокода и костылей */
     private UserConnection connection;
     private Channel channel;
-    private long joinTime = System.currentTimeMillis();
-    private long buttonCheckStart = 0;
-    private long lastMessageSent = System.currentTimeMillis();
-    private long lastPacketCheck = System.currentTimeMillis();
+    private long joinTime = System.currentTimeMillis(), joinTimeNano = System.nanoTime(), lastMessageSent = System.currentTimeMillis(),
+            buttonCheckStart = 0, lastPpsCheck, lastKeepAliveId = 0, lastKeepAliveSentTime = 0, ping = 0, globalPing = 0;
     private AtomicInteger pps;
     private boolean recieved = false;
-    private int globalTick = 0;
-    private int localTick = 0;
-    private int wrongLocations = 0;
+    private int globalTick = 0, localTick = 0, wrongLocations = 0, pingChecks = 0;
     private String name;
     private Location location;
     private CheckState state = CheckState.POSITION;
     private HashMap<Location, Block> buttons;
     private ArrayList<Object> checks;
+    private HeldItemSlot heldItemSlot = new HeldItemSlot( 1 );
     private SetSlot setSlotPacket = new SetSlot( 0, 36, 1, 35, 0 );
     private UpdateHeath healthPacket = new UpdateHeath( 1, 1, 2 );
     private SetExp setExpPacket = new SetExp( 0.0f, 1, 1 );
     private boolean clientSettings, pluginMessage;
     //==========Статические пакеты===============
-    private static DefinedPacket loginPacket = new Login( -1, (short) 2, 0, (short) 0, (short) 100, "flat", true ),
+    public static DefinedPacket loginPacket = new Login( -1, (short) 2, 0, (short) 0, (short) 100, "flat", true ),
             spawnPositionPacket = new SpawnPosition( 1, 60, 1 ),
             playerPosAndLook = new PlayerPositionAndLook( 1.00, 450, 1.00, 1f, 1f, 1, false ),
-            timeUpdate = new TimeUpdate( 1, 1000 ),
-            healthUpdate = new UpdateHeath( 1, 1, 0 );
-    public static Chat chat;
+            healthUpdate = new UpdateHeath( 1, 1, 0 ),
+            timeUpdate,
+            chat;
+    public static Title checkTitle, susCheckTitle, buttonCheckTitle;
     private static List<ChunkPacket> chunkPackets = Arrays.asList(
             new ChunkPacket( 0, 0, new byte[ 256 ] ), new ChunkPacket( -1, 0, new byte[ 256 ] ), new ChunkPacket( 0, 1, new byte[ 256 ] ),
             new ChunkPacket( -1, 1, new byte[ 256 ] ), new ChunkPacket( 0, -1, new byte[ 256 ] ), new ChunkPacket( -1, -1, new byte[ 256 ] ),
-            new ChunkPacket( 1, 1, new byte[ 256 ] ), new ChunkPacket( 1, -1, new byte[ 256 ] ), new ChunkPacket( 1, 0, new byte[ 256 ] ) );
+            new ChunkPacket( 1, 1, new byte[ 256 ] ), new ChunkPacket( 1, -1, new byte[ 256 ] ), new ChunkPacket( 1, 0, new byte[ 256 ] ), new ChunkPacket( 2, 0, new byte[ 255 ]/*crash chunk*/ ) );
     //===========================================
 
     public BFConnector(UserConnection connection)
@@ -141,7 +140,9 @@ public class BFConnector extends PacketHandler
         this.write( timeUpdate );
         this.write( healthUpdate );
         this.write( chat );
-        this.getChannel().flush();
+        this.write( heldItemSlot );
+        checkTitle.send( connection ); //flush используется в титлах
+        sendKeepAlive();
     }
 
     public void write(Object packet)
@@ -212,6 +213,18 @@ public class BFConnector extends PacketHandler
     public void handle(KeepAlive packet) throws Exception
     {
         addOrRemove( packet.getRandomId(), true );
+        if ( packet.getRandomId() == getLastKeepAliveId() )
+        {
+            this.setPing( System.currentTimeMillis() - getLastKeepAliveSentTime() );
+            this.setLastKeepAliveId( 0 );
+            this.setLastKeepAliveSentTime( 0 );
+            if ( pingChecks != 0 )
+            {
+                globalPing += getPing(); //Игнорируем первый пинг, т.к обычно он самый высокий и не правильный.
+            }
+            ++pingChecks;
+            this.sendCheckMessage( "" );
+        }
     }
 
     @Override
@@ -220,8 +233,14 @@ public class BFConnector extends PacketHandler
         getConnection().setSettings( settings );
         setClientSettings( true );
     }
-    //=======================================
 
+    @Override
+    public void handle(HeldItemSlot heldSlot) throws Exception
+    {
+        addOrRemove( heldSlot.getSlot(), true );
+    }
+
+    //=======================================
     @Override
     public void handle(Player player) throws Exception
     {
@@ -291,8 +310,7 @@ public class BFConnector extends PacketHandler
         if ( state != CheckState.SUS )
         {
             double formatedFallSpeed = Utils.formatDouble( loc.getLastY() - loc.getY() );
-            isTrue = formatedFallSpeed == Utils.getFallSpeed( localTick );
-            if ( !isTrue )
+            if ( formatedFallSpeed != Utils.getFallSpeed( localTick ) )
             {
                 state = CheckState.FAILED;
                 return;
@@ -300,10 +318,11 @@ public class BFConnector extends PacketHandler
         }
         localTick++;
         globalTick++;
-        if ( globalTick - 1 >= 59 && isTrue )
+        if ( ( globalTick - 1 ) >= 59 && isTrue )
         {
             if ( Config.getConfig().needButtonCheck() && ButtonUtils.getSchematic() != null )
             {
+                buttonCheckTitle.send( connection );
                 this.setButtonCheckStart( System.currentTimeMillis() );
                 this.state = CheckState.BUTTON;
                 ThreadLocalRandom random = ThreadLocalRandom.current();
@@ -315,12 +334,12 @@ public class BFConnector extends PacketHandler
             return;
         }
         Utils.sendPackets( this );
-        this.sendCheckPackets( isTrue, false );
+        this.sendCheckPackets( false );
     }
 
-    public void sendCheckPackets(boolean send, boolean force)
+    public void sendCheckPackets(boolean force)
     {
-        if ( globalTick < 5 || globalTick > 49 || !send || !Config.getConfig().isProtectionEnabled() || state != CheckState.POSITION )
+        if ( globalTick < 2 || globalTick > 55 || !Config.getConfig().isProtectionEnabled() || state != CheckState.POSITION )
         {
             return;
         }
@@ -341,6 +360,19 @@ public class BFConnector extends PacketHandler
             this.write( posLook );
             this.channel.writeAndFlush( confTr );
         }
+    }
+
+    public void sendKeepAlive()
+    {
+        if ( this.getLastKeepAliveId() != 0 )
+        {
+            return;
+        }
+        KeepAlive alive = new KeepAlive( ThreadLocalRandom.current().nextLong( Integer.MAX_VALUE ) );
+        this.addOrRemove( alive.getRandomId(), false );
+        this.setLastKeepAliveId( alive.getRandomId() );
+        this.setLastKeepAliveSentTime( System.currentTimeMillis() );
+        this.getChannel().writeAndFlush( alive, getChannel().voidPromise() );
     }
 
     public boolean isConnected()
@@ -365,18 +397,25 @@ public class BFConnector extends PacketHandler
 
     public void sendCheckMessage(String message)
     {
-        if ( System.currentTimeMillis() - lastMessageSent >= 1300 )
+        if ( ( System.currentTimeMillis() - lastMessageSent >= 1300 ) && !message.isEmpty() )
         {
             this.connection.sendMessage( message );
             lastMessageSent = System.currentTimeMillis();
         }
+        if ( this.ping != 0 )
+        {
+            this.connection.sendMessage( ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText( Config.getConfig().getActionBar()
+                    .replace( "%ping%", this.getPing() + "" ).replace( "%online%", Config.getConfig().getConnectedUsersSet().size() + "" ) ) );
+        }
+
     }
 
     private void finish()
     {
+        susCheckTitle.send( connection );
         Config config = Config.getConfig();
-        //Даем на всякий случай время клиенту ответить на пакеты. 750мс.)
-        if ( config.isProtectionEnabled() && state == CheckState.SUS && buttonCheckStart == 0 && !checks.isEmpty() && globalTick <= 74 )
+        //Даем на всякий случай время клиенту ответить на пакеты. 400 мс.
+        if ( config.isProtectionEnabled() && state == CheckState.SUS && buttonCheckStart == 0 && !checks.isEmpty() && globalTick <= 67 )
         {
             return;
         }

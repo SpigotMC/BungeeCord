@@ -33,6 +33,7 @@ import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.extra.TeleportConfirm;
 import net.md_5.bungee.protocol.packet.Title;
 import net.md_5.bungee.protocol.packet.extra.Animation;
+import net.md_5.bungee.protocol.packet.extra.HeldItemSlot;
 import net.md_5.bungee.protocol.packet.extra.Player;
 import net.md_5.bungee.protocol.packet.extra.PlayerPosition;
 import net.md_5.bungee.protocol.packet.extra.PlayerPositionAndLook;
@@ -46,6 +47,10 @@ public abstract class AbstractPacketHandler
     }
 
     //BotFilter statrt
+    public void handle(HeldItemSlot heldSlot) throws Exception
+    {
+    }
+
     public void handle(ConfirmTransaction transaction) throws Exception
     {
     }

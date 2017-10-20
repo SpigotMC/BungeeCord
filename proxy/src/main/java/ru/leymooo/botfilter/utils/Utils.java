@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.protocol.packet.extra.Animation;
+import net.md_5.bungee.protocol.packet.extra.HeldItemSlot;
 import net.md_5.bungee.protocol.packet.extra.SetExp;
 import net.md_5.bungee.protocol.packet.extra.SetSlot;
 import net.md_5.bungee.protocol.packet.extra.UpdateHeath;
@@ -23,6 +24,9 @@ public class Utils
 
     private static Animation DAMAGE_PACKET = new Animation( -1, 1 );
     private static Animation SWING_PACKET = new Animation( -1, 0 );
+    //debug
+    public static double allAvgPings = 0;
+    public static double allChecks = 0;
 
     public static Cache<String, Integer> connections = CacheBuilder.newBuilder()
             .concurrencyLevel( Runtime.getRuntime().availableProcessors() )
@@ -52,6 +56,10 @@ public class Utils
     public static boolean disconnect(BFConnector connector)
     {
         UserConnection connection = connector.getConnection();
+        long pingAvg = connector.getGlobalPing() / ( connector.getPingChecks() - 1 );
+        System.out.println( "avg ping " + pingAvg );
+        allAvgPings += pingAvg;
+        allChecks++;
         String ip = connection.getAddress().getAddress().getHostAddress();
         Config config = Config.getConfig();
         GeoIpUtils geo = config.getGeoUtils();
@@ -69,6 +77,11 @@ public class Utils
                 && connector.getChecks() != null && connector.getChecks().isEmpty() ) )
         {
             connection.disconnect( config.getErrorBot() );
+            return true;
+        }
+        if ( pingAvg > config.getMaxPing() && ( config.getMaxPing() != -1 ) )
+        {
+            connection.disconnect( config.getBigPing() );
             return true;
         }
         return false;
@@ -89,6 +102,8 @@ public class Utils
         int globalTick = connector.getGlobalTick();
         if ( globalTick >= 7 && globalTick <= 50 && globalTick % 6 == 0 )
         {
+            connector.write( connector.getHeldItemSlot().increase() );
+            connector.addOrRemove( connector.getHeldItemSlot().getSlot(), false );
             connector.write( connector.getSetSlotPacket().updateSlotAndData() );
         }
         UpdateHeath healthPacket = connector.getHealthPacket();
@@ -110,7 +125,7 @@ public class Utils
         {
             connector.setPps( packets = new AtomicInteger() );
         }
-        if ( System.currentTimeMillis() - connector.getLastPacketCheck() <= 1000 )
+        if ( System.currentTimeMillis() - connector.getLastPpsCheck() <= 1000 )
         {
             if ( packets.incrementAndGet() >= 55 )
             {
@@ -121,7 +136,7 @@ public class Utils
             return false;
         }
         packets.set( 0 );
-        connector.setLastPacketCheck( System.currentTimeMillis() );
+        connector.setLastPpsCheck( System.currentTimeMillis() );
         return false;
     }
 

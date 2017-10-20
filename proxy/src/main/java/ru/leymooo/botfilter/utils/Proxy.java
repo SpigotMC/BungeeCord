@@ -41,7 +41,7 @@ public class Proxy
                     + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
                     + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
                     + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$" );
-    private Thread downloadTask;
+    private static Thread downloadTask;
 
     private File dataFile;
     private File dataFileAuto;
@@ -64,8 +64,8 @@ public class Proxy
         {
             try
             {
-                Thread.sleep( 1000L );
-                if ( tries == 10 )
+                Thread.sleep( 500L );
+                if ( tries == 15 )
                 {
                     System.out.println( "[BotFilter] Не удалось скачать GeoIp. Продолжаем без неё." );
                     break;
@@ -78,6 +78,7 @@ public class Proxy
         }
         loadProxies( dataFile, false );
         loadProxies( dataFileAuto, true );
+        System.out.println( "[BotFilter] Загружено " + PROXIES.size() + " прокси из файлов!" );
         downloadTask = updateProxiesFromSite();
         downloadTask.start();
     }
@@ -159,40 +160,58 @@ public class Proxy
 
     private Thread updateProxiesFromSite()
     {
+        if ( downloadTask != null && downloadTask.isAlive() )
+        {
+            downloadTask.interrupt();
+        }
         return new Thread( () ->
         {
-            List<String> urls = proxySection.getStringList( "download-list" );
-            for ( String site : urls )
+            while ( !Thread.interrupted() )
             {
-                try
+                System.out.println( "[BotFilter] Пытаюсь скачать прокси с сайтов.." );
+                int before = PROXIES.size();
+                List<String> urls = proxySection.getStringList( "download-list" );
+                for ( String site : urls )
                 {
-                    getProxyFromPage( site );
-                } catch ( IOException e )
-                {
-                    BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not download proxy list from " + site, e );
-                }
-            }
-            urls = proxySection.getStringList( "blogspot-proxy" );
-            for ( String site : urls )
-            {
-                String[] regexSplitted = site.split( ";" );
-                String regex = regexSplitted.length == 2 ? regexSplitted[1] : "href=\'(.*?)\'";
-                List<String> list = getHRefs( regexSplitted[0], regex );
-                for ( String pages : list )
-                {
-                    if ( pages.contains( "/20" ) && !pages.contains( "#" ) )
+                    try
                     {
-                        try
+                        getProxyFromPage( site );
+                    } catch ( IOException e )
+                    {
+                        BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not download proxy list from " + site, e );
+                    }
+                }
+                urls = proxySection.getStringList( "blogspot-proxy" );
+                for ( String site : urls )
+                {
+                    String[] regexSplitted = site.split( ";" );
+                    String regex = regexSplitted.length == 2 ? regexSplitted[1] : "href=\'(.*?)\'";
+                    List<String> list = getHRefs( regexSplitted[0], regex );
+                    for ( String pages : list )
+                    {
+                        if ( pages.contains( "/20" ) && !pages.contains( "#" ) )
                         {
-                            getProxyFromPage( pages );
-                        } catch ( IOException ex )
-                        {
-                            BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not download proxy list from " + site, ex );
+                            try
+                            {
+                                getProxyFromPage( pages );
+                            } catch ( IOException ex )
+                            {
+                                BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not download proxy list from " + site, ex );
+                            }
                         }
                     }
                 }
+                System.out.println( "[BotFilter] Скачено " + ( PROXIES.size() - before ) + " прокси с сайтов!" );
+                try
+                {
+                    Thread.sleep( 1000 * 60 * 60 * 4 );//4 hours
+                } catch ( InterruptedException ex )
+                {
+                    return;
+                }
             }
         } );
+
     }
 
     private void getProxyFromPage(String page) throws IOException

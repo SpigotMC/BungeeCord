@@ -67,6 +67,7 @@ import ru.leymooo.botfilter.Config;
 import ru.leymooo.botfilter.BFConnector;
 import ru.leymooo.botfilter.utils.GeoIpUtils;
 import ru.leymooo.botfilter.utils.Proxy;
+import ru.leymooo.botfilter.utils.ServerPingUtils;
 import ru.leymooo.botfilter.utils.Utils;
 
 @RequiredArgsConstructor
@@ -296,6 +297,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 // Ping
                 thisState = State.STATUS;
                 ch.setProtocol( Protocol.STATUS );
+                ServerPingUtils.getInstance().add( getAddress().getAddress() );
                 break;
             case 2:
                 // Login
@@ -357,12 +359,19 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         //BotFilter start
         Config config = Config.getConfig();
-        GeoIpUtils geo = config.getGeoUtils();
-        String address = getAddress().getAddress().getHostAddress();
-        boolean proxy = config.getProxy().isProxy( address );
-        if ( ( config.isUnderAttack() && config.isForceKick() && config.needCheck( getName(), address ) ) )
+        InetAddress address = getAddress().getAddress();
+        boolean needCheck = config.needCheck( getName(), address.getHostAddress() );
+        if ( needCheck && ServerPingUtils.getInstance().needKick( address ) )
         {
-            if ( proxy || !geo.isAllowed( geo.getCountryCode( getAddress().getAddress() ), false ) )
+            disconnect( ServerPingUtils.getInstance().getMessage() );
+            return;
+        }
+
+        GeoIpUtils geo = config.getGeoUtils();
+        boolean proxy = config.getProxy().isProxy( address.getHostAddress() );
+        if ( config.isProtectionEnabled() && config.isForceKick() && needCheck )
+        {
+            if ( proxy || !geo.isAllowed( geo.getCountryCode( address ), false ) )
             {
                 disconnect( proxy ? config.getErrorProxy() : config.getErrorConutry() );
                 return;

@@ -91,6 +91,7 @@ import org.fusesource.jansi.AnsiConsole;
 import ru.leymooo.fakeonline.FakeOnline;
 import ru.leymooo.botfilter.utils.ButtonUtils;
 import ru.leymooo.botfilter.Config;
+import ru.leymooo.botfilter.utils.Utils;
 
 /**
  * Main BungeeCord proxy class.
@@ -378,6 +379,7 @@ public class BungeeCord extends ProxyServer
     @Override
     public void stop(final String reason)
     {
+        System.out.println( "average ping is " + ( Utils.allAvgPings / Utils.allChecks ) ); //debug
         new Thread( "Shutdown Thread" )
         {
             @Override

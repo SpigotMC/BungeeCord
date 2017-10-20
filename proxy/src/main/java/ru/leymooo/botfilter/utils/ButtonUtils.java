@@ -54,6 +54,7 @@ public class ButtonUtils
         {
             channel.write( connector.getSetSlotPacket().resetSlot() );
         }
+        channel.write( connector.getHeldItemSlot().reset() );
         channel.write( connector.getSetExpPacket().reset() );
         for ( Block b : blocks )
         {

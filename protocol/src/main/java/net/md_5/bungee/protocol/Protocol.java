@@ -42,6 +42,7 @@ import net.md_5.bungee.protocol.packet.extra.TeleportConfirm;
 import net.md_5.bungee.protocol.packet.Title;
 import net.md_5.bungee.protocol.packet.extra.Animation;
 import net.md_5.bungee.protocol.packet.extra.ChunkPacket;
+import net.md_5.bungee.protocol.packet.extra.HeldItemSlot;
 import net.md_5.bungee.protocol.packet.extra.MultiBlockChange;
 import net.md_5.bungee.protocol.packet.extra.Player;
 import net.md_5.bungee.protocol.packet.extra.UpdateHeath;
@@ -73,6 +74,13 @@ public enum Protocol
 
         {
             //BotFilter start
+            TO_CLIENT.registerPacket(
+                    HeldItemSlot.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x09 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x37 ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x39 ),
+                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x3A )
+            );
             TO_CLIENT.registerPacket(
                     ConfirmTransaction.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x32 ),
@@ -233,6 +241,12 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x4A )
             );
             //BotFilter  start
+            TO_SERVER.registerPacket(
+                    HeldItemSlot.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x09 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x17 ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x1A )
+            );
             TO_SERVER.registerPacket(
                     PlayerLook.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x05 ),
