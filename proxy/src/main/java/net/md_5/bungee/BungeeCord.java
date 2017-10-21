@@ -379,7 +379,6 @@ public class BungeeCord extends ProxyServer
     @Override
     public void stop(final String reason)
     {
-        System.out.println( "average ping is " + ( Utils.allAvgPings / Utils.allChecks ) ); //debug
         new Thread( "Shutdown Thread" )
         {
             @Override

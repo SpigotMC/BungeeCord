@@ -37,7 +37,7 @@ public class Sql
 
     public Sql(Configuration section)
     {
-        this.mysql = section.getBoolean( "mysql" );
+        this.mysql = "mysql".equalsIgnoreCase( section.getString( "type") );
         this.purgeTime = section.getInt( "purge-time" );
         this.executor = Executors.newSingleThreadExecutor();
         if ( mysql )
@@ -58,7 +58,7 @@ public class Sql
             this.connect();
             try ( Statement st = this.getConnection().createStatement() )
             {
-                st.executeUpdate( "CREATE TABLE IF NOT EXISTS `Players` (`player` VARCHAR(16) NOT NULL PRIMARY KEY UNIQUE, `ip` VARCHAR(16) NOT NULL, `check-time` TIMESTAMP NOT NULL DEFAULT '0');" );
+                st.executeUpdate( "CREATE TABLE IF NOT EXISTS `Players` (`player` VARCHAR(16) NOT NULL PRIMARY KEY UNIQUE, `ip` VARCHAR(16) NOT NULL, `check-time` BIGINT NOT NULL DEFAULT '0');" );
                 this.addCheckTimeColumn( st );
                 this.clearUserData( st );
                 try ( ResultSet rs = st.executeQuery( "SELECT * FROM `Players`;" ) )
@@ -200,7 +200,7 @@ public class Sql
     {
         if ( isColumnMissing( connection.getMetaData(), "check-time" ) )
         {
-            st.executeUpdate( "ALTER TABLE `Players` ADD COLUMN `check-time` TIMESTAMP NOT NULL DEFAULT '0';" );
+            st.executeUpdate( "ALTER TABLE `Players` ADD COLUMN `check-time` BIGINT NOT NULL DEFAULT '0';" );
             long currentTimestamp = System.currentTimeMillis();
             st.executeUpdate( "UPDATE `Players` SET `check-time` = " + currentTimestamp + ";" );
         }

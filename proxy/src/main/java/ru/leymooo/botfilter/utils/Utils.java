@@ -20,9 +20,6 @@ public class Utils
 
     private static Animation DAMAGE_PACKET = new Animation( -1, 1 );
     private static Animation SWING_PACKET = new Animation( -1, 0 );
-    //debug
-    public static double allAvgPings = 0;
-    public static double allChecks = 0;
 
     public static Cache<String, Integer> connections = CacheBuilder.newBuilder()
             .concurrencyLevel( Runtime.getRuntime().availableProcessors() )
@@ -52,10 +49,7 @@ public class Utils
     public static boolean disconnect(BFConnector connector)
     {
         UserConnection connection = connector.getConnection();
-        long pingAvg = connector.getGlobalPing() / ( connector.getPingChecks() - 1 );
-        System.out.println( "avg ping " + pingAvg );
-        allAvgPings += pingAvg;
-        allChecks++;
+        long pingAvg = connector.getGlobalPing() / ( connector.getPingChecks() - 2 );
         String ip = connection.getAddress().getAddress().getHostAddress();
         Config config = Config.getConfig();
         GeoIpUtils geo = config.getGeoUtils();

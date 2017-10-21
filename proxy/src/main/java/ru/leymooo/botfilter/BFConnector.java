@@ -218,9 +218,9 @@ public class BFConnector extends PacketHandler
             this.setPing( System.currentTimeMillis() - getLastKeepAliveSentTime() );
             this.setLastKeepAliveId( 0 );
             this.setLastKeepAliveSentTime( 0 );
-            if ( pingChecks != 0 )
+            if ( pingChecks > 1 )
             {
-                globalPing += getPing(); //Игнорируем первый пинг, т.к обычно он самый высокий и не правильный.
+                globalPing += getPing(); //Игнорируем первые два пинга. Они самые не точные
             }
             ++pingChecks;
             this.sendCheckMessage( "" );
