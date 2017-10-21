@@ -1,7 +1,6 @@
 package net.md_5.bungee.connection;
 
 import com.google.common.base.Preconditions;
-import io.netty.channel.Channel;
 import java.util.ArrayList;
 import java.util.List;
 import net.md_5.bungee.BungeeCord;

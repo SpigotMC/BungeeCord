@@ -66,7 +66,6 @@ import net.md_5.bungee.util.BoundedArrayList;
 import ru.leymooo.botfilter.Config;
 import ru.leymooo.botfilter.BFConnector;
 import ru.leymooo.botfilter.utils.GeoIpUtils;
-import ru.leymooo.botfilter.utils.Proxy;
 import ru.leymooo.botfilter.utils.ServerPingUtils;
 import ru.leymooo.botfilter.utils.Utils;
 
@@ -361,12 +360,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Config config = Config.getConfig();
         InetAddress address = getAddress().getAddress();
         boolean needCheck = config.needCheck( getName(), address.getHostAddress() );
-        if ( needCheck && ServerPingUtils.getInstance().needKick( address ) )
+        ServerPingUtils pingUtils = ServerPingUtils.getInstance();
+        if ( needCheck && pingUtils.needKickAndRemove( address ) )
         {
-            disconnect( ServerPingUtils.getInstance().getMessage() );
+            disconnect( pingUtils.getMessage() );
             return;
         }
-
         GeoIpUtils geo = config.getGeoUtils();
         boolean proxy = config.getProxy().isProxy( address.getHostAddress() );
         if ( config.isProtectionEnabled() && config.isForceKick() && needCheck )

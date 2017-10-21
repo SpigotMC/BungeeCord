@@ -15,7 +15,6 @@ import net.md_5.bungee.protocol.packet.extra.ChunkPacket;
 import net.md_5.bungee.protocol.packet.extra.MultiBlockChange;
 import net.md_5.bungee.protocol.packet.extra.MultiBlockChange.Block;
 import net.md_5.bungee.protocol.packet.extra.PlayerPositionAndLook;
-import net.md_5.bungee.protocol.packet.extra.SetSlot;
 import ru.leymooo.botfilter.BFConnector;
 import ru.leymooo.botfilter.Location;
 import ru.leymooo.botfilter.schematic.Schematic;

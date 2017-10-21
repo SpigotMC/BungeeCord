@@ -7,10 +7,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
-import oracle.jrockit.jfr.tools.ConCatRepository;
 import ru.leymooo.botfilter.Config;
-import ru.leymooo.botfilter.MySql;
-import ru.leymooo.botfilter.utils.Proxy;
 import ru.leymooo.botfilter.utils.Utils;
 
 public class BotFilterCommand extends Command
@@ -41,7 +38,7 @@ public class BotFilterCommand extends Command
         }
         if ( args[0].equalsIgnoreCase( "reload" ) )
         {
-            MySql.stopSyncThread();
+            Config.getConfig().getSql().close();
             new Config();
             Utils.connections.invalidateAll();
             sender.sendMessage( "§aКоманда выполнена" );

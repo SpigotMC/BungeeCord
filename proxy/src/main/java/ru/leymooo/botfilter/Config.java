@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import lombok.Data;
@@ -21,15 +20,12 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.BungeeTitle;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.chat.BaseComponentSerializer;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
 import net.md_5.bungee.protocol.packet.Chat;
-import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.extra.TimeUpdate;
 import ru.leymooo.botfilter.utils.ServerPingUtils;
 import ru.leymooo.fakeonline.FakeOnline;
@@ -43,57 +39,42 @@ public class Config
 {
 
     /* Добро пожаловать в гору говнокода и костылей */
-    //TODO: Дописать проверку по пингу сервера
     @Getter
     private static Config config;
     private String check = "msg-check", check2 = "msg-check-2", checkSus = "msg-check-sus", errorManyChecks = "error-many-checks",
             errorBot = "error-not-a-player", errorProxy = "error-proxy-detected", errorConutry = "error-country-not-allowed",
             errorPackets = "error-many-pos-packets", errorWrongButton = "error-wrong-button", errorCantUse = "error-cannot-use-button",
             errorNotPressed = "error-button-not-pressed", actionBar = "action-bar", bigPing = "error-ping-is-too-big";
-    private boolean mySqlEnabled = false, permanent = false, forceKick = true,
-            buttonNormal = true, buttonPermanent = true, buttonOnAttack = true,
-            onlineFromFilter = true;
+    private boolean permanent = false, forceKick = true, buttonNormal = true,
+            buttonPermanent = true, buttonOnAttack = true, onlineFromFilter = true;
     private int maxChecksPer1min = 30, protectionTime = 120000, maxPing = -1;
-    private MySql mysql = null;
+    private Sql sql = null;
     private GeoIpUtils geoUtils;
     private final HashMap<String, String> users = new HashMap<>();
     private final Set<BFConnector> connectedUsersSet = Sets.newConcurrentHashSet();
-    private Configuration userData, mainConfig;
-    private File dataFile = new File( "BotFilter", "users.yml" );
+    private Configuration mainConfig;
     private double attackStartTime = 0, lastBotAttackCheck = System.currentTimeMillis();
     private AtomicInteger botCounter = new AtomicInteger();
     private Proxy proxy;
     private static Thread t;
     ExecutorService executor = Executors.newSingleThreadExecutor();
-//Добавить фигню чтобы юзеры удалялись
+
     public Config()
     {
-        this.startThread();
         config = this;
         try
         {
             this.mainConfig = checkFileAndGiveConfig();
             this.checkAndUpdateConfig();
             this.load( this.mainConfig );
-
-            if ( !this.mySqlEnabled )
-            {
-                if ( !this.dataFile.exists() )
-                {
-                    this.dataFile.createNewFile();
-                }
-                this.userData = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( this.dataFile );
-                loadUsers();
-            }
+            this.sql = new Sql( this.mainConfig.getSection( "database" ) );
+            this.sql.mergeFromYml();
         } catch ( IOException e )
         {
             BungeeCord.getInstance().getLogger().log( Level.WARNING, "Please write me about this error(vk.com/Leymooo_s)", e );
             System.exit( 0 );
         }
-        if ( this.mySqlEnabled )
-        {
-            this.mysql = new MySql( this.mainConfig.getSection( "mysql" ) );
-        }
+        this.startThread();
     }
 
     public void addUserToMap(String name, String ip)
@@ -109,36 +90,8 @@ public class Config
 
     public void saveIp(String name, String ip)
     {
-        if ( this.mySqlEnabled )
-        {
-            this.mysql.addAddress( name.toLowerCase(), ip );
-        }
+        this.sql.addAddress( name.toLowerCase(), ip );
         this.addUserToMap( name.toLowerCase(), ip );
-        if ( this.userData != null )
-        {
-            this.userData.set( name.toLowerCase(), ip );
-            executor.execute( () ->
-            {
-                try
-                {
-                    ConfigurationProvider.getProvider( YamlConfiguration.class ).save( this.userData, this.dataFile );
-                } catch ( IOException e )
-                {
-                    BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not save user file", e );
-                }
-            } );
-        }
-    }
-
-    private void loadUsers()
-    {
-        if ( this.userData != null )
-        {
-            for ( String name : this.userData.getKeys() )
-            {
-                this.addUserToMap( name.toLowerCase(), this.userData.getString( name ) );
-            }
-        }
     }
 
     public boolean isProtectionEnabled()
@@ -193,7 +146,6 @@ public class Config
         this.errorNotPressed = ChatColor.translateAlternateColorCodes( '&', config.getString( errorNotPressed ) );
         this.actionBar = ChatColor.translateAlternateColorCodes( '&', config.getString( actionBar ) );
         this.bigPing = ChatColor.translateAlternateColorCodes( '&', config.getString( bigPing ) );
-        this.mySqlEnabled = config.getBoolean( "mysql.enabled" );
         this.permanent = config.getBoolean( "permanent-protection" );
         this.maxChecksPer1min = config.getInt( "max-checks-per-1-min" );
         this.protectionTime = config.getInt( "protection-time" ) * 1000;

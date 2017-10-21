@@ -2,14 +2,10 @@ package ru.leymooo.botfilter.utils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.protocol.packet.extra.Animation;
-import net.md_5.bungee.protocol.packet.extra.HeldItemSlot;
-import net.md_5.bungee.protocol.packet.extra.SetExp;
-import net.md_5.bungee.protocol.packet.extra.SetSlot;
 import net.md_5.bungee.protocol.packet.extra.UpdateHeath;
 import ru.leymooo.botfilter.Config;
 import ru.leymooo.botfilter.BFConnector;

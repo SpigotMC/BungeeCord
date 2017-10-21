@@ -4,7 +4,6 @@ import java.util.HashMap;
 import lombok.Getter;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.config.Configuration;
-import ru.leymooo.botfilter.Config;
 
 /**
  *

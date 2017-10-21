@@ -42,9 +42,18 @@ public class ServerPingUtils
                 .build();
     }
 
-    public boolean needKick(InetAddress address)
+    public boolean needKickAndRemove(InetAddress address)
     {
-        return !( pingList == null || !needCheck() ) && pingList.getIfPresent( address ) == null;
+        if ( pingList == null || !needCheck() )
+        {
+            return false;
+        }
+        boolean present = pingList.getIfPresent( address ) == null;
+        if ( !present )
+        {
+            pingList.invalidate( address );
+        }
+        return present;
     }
 
     public void add(InetAddress address)
