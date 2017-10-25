@@ -33,7 +33,6 @@ public class ServerDisconnectEvent extends Event
     public enum DisconnectReason {
         CONNECTION_CLOSED,
         CONNECTION_LOST,
-        SERVER_STOPPED,
         SERVER_SWITCH
     }
 }
