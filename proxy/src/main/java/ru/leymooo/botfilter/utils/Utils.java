@@ -49,7 +49,7 @@ public class Utils
     public static boolean disconnect(BFConnector connector)
     {
         UserConnection connection = connector.getConnection();
-        long pingAvg = connector.getGlobalPing() / ( connector.getPingChecks() - 2 );
+        long pingAvg = connector.getGlobalPing() / ( connector.getPing() == 0 ? 1 : connector.getPing() );
         String ip = connection.getAddress().getAddress().getHostAddress();
         Config config = Config.getConfig();
         GeoIpUtils geo = config.getGeoUtils();
@@ -69,7 +69,8 @@ public class Utils
             connection.disconnect( config.getErrorBot() );
             return true;
         }
-        if ( pingAvg > config.getMaxPing() && ( config.getMaxPing() != -1 ) )
+        //                                     Ну хотябы 2 раза клиент то должен должен ответить на пинг.
+        if ( ( pingAvg > config.getMaxPing() || connector.getPingChecks() <= 1 ) && ( config.getMaxPing() != -1 ) )
         {
             connection.disconnect( config.getBigPing() );
             return true;

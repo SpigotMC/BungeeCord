@@ -7,6 +7,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
+import net.md_5.bungee.protocol.packet.Handshake;
 
 @AllArgsConstructor
 public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
@@ -31,14 +32,20 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
             DefinedPacket packet = prot.createPacket( packetId, protocolVersion );
             if ( packet != null )
             {
-                try
+                if ( packet instanceof Handshake )
+                {
+                    try
+                    {
+                        packet.read( in, prot.getDirection(), protocolVersion );
+                    } catch ( IndexOutOfBoundsException e )
+                    {
+                        ctx.close();
+                        System.out.println( "[" + ( (InetSocketAddress) ctx.channel().remoteAddress() ).getAddress().getHostAddress() + "] sent wrong Handshake packet. Junk??)" );
+                        return;
+                    }
+                } else
                 {
                     packet.read( in, prot.getDirection(), protocolVersion );
-                } catch ( Exception e )
-                {
-                    ctx.close();
-                    System.out.println( "["+((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress()+"] Wrong packet: " + packet.getClass() + ", id: " + packetId + ", exeption: " + e);
-                    return;
                 }
                 if ( in.isReadable() )
                 {

@@ -20,6 +20,7 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.connection.UpstreamBridge;
 import net.md_5.bungee.netty.ChannelWrapper;
@@ -62,8 +63,8 @@ public class BFConnector extends PacketHandler
     /* Добро пожаловать в гору говнокода и костылей */
     private UserConnection connection;
     private Channel channel;
-    private long joinTime = System.currentTimeMillis(), joinTimeNano = System.nanoTime(), lastMessageSent = System.currentTimeMillis(),
-            buttonCheckStart = 0, lastPpsCheck, lastKeepAliveId = 0, lastKeepAliveSentTime = 0, ping = 0, globalPing = 0;
+    private long joinTime = System.currentTimeMillis(), joinTimeNano = System.nanoTime(), lastMessageSent = joinTime,
+            buttonCheckStart = 0, lastPpsCheck, lastKeepAliveId = 0, lastKeepAliveSentTime = joinTime - 500, ping = -1, globalPing = 0;
     private AtomicInteger pps;
     private boolean recieved = false;
     private int globalTick = 0, localTick = 0, wrongLocations = 0, pingChecks = 0;
@@ -108,6 +109,7 @@ public class BFConnector extends PacketHandler
     @Override
     public void disconnected(ChannelWrapper channel) throws Exception
     {
+        BungeeCord.getInstance().getPluginManager().callEvent( new PlayerDisconnectEvent( connection ) );
         this.disconnected();
     }
 
@@ -142,7 +144,7 @@ public class BFConnector extends PacketHandler
         this.write( chat );
         this.write( heldItemSlot );
         checkTitle.send( connection ); //flush используется в титлах
-        sendKeepAlive();
+        trySendKeepAlive();
     }
 
     public void write(Object packet)
@@ -216,14 +218,12 @@ public class BFConnector extends PacketHandler
         if ( packet.getRandomId() == getLastKeepAliveId() )
         {
             this.setPing( System.currentTimeMillis() - getLastKeepAliveSentTime() );
+            this.connection.setPing( (int) getPing() );
             this.setLastKeepAliveId( 0 );
-            this.setLastKeepAliveSentTime( 0 );
-            if ( pingChecks > 1 )
-            {
-                globalPing += getPing(); //Игнорируем первые два пинга. Они самые не точные
-            }
+            globalPing += getPing();
             ++pingChecks;
             this.sendCheckMessage( "" );
+            this.trySendKeepAlive();
         }
     }
 
@@ -334,6 +334,7 @@ public class BFConnector extends PacketHandler
             return;
         }
         Utils.sendPackets( this );
+        this.trySendKeepAlive();
         this.sendCheckPackets( false );
     }
 
@@ -362,9 +363,9 @@ public class BFConnector extends PacketHandler
         }
     }
 
-    public void sendKeepAlive()
+    public void trySendKeepAlive()
     {
-        if ( this.getLastKeepAliveId() != 0 )
+        if ( this.state == CheckState.SUS || this.getLastKeepAliveId() != 0 || ( ( System.currentTimeMillis() - this.lastKeepAliveSentTime ) < 250 ) )
         {
             return;
         }
@@ -402,7 +403,7 @@ public class BFConnector extends PacketHandler
             this.connection.sendMessage( message );
             lastMessageSent = System.currentTimeMillis();
         }
-        if ( this.ping != 0 )
+        if ( this.ping != -1 )
         {
             this.connection.sendMessage( ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText( Config.getConfig().getActionBar()
                     .replace( "%ping%", this.getPing() + "" ).replace( "%online%", Config.getConfig().getConnectedUsersSet().size() + "" ) ) );
@@ -430,7 +431,6 @@ public class BFConnector extends PacketHandler
         ProxyServer.getInstance().getPluginManager().callEvent( new PostLoginEvent( this.getConnection() ) );
         this.getConnection().connect( ProxyServer.getInstance().getServerInfo( this.getConnection().getPendingConnection().getListener().getDefaultServer() ), null, true );
         this.disconnected();
-
     }
 
     @Override

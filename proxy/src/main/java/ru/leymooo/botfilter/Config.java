@@ -244,7 +244,7 @@ public class Config
                     {
                         Utils.CheckState state = connector.getState();
                         connector.sendCheckMessage( state == Utils.CheckState.BUTTON ? check2 : check );
-                        connector.sendKeepAlive();
+                        connector.trySendKeepAlive();
                         switch ( state )
                         {
                             case FAILED:
