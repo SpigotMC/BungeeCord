@@ -31,10 +31,6 @@ public class CommandServer extends Command implements TabExecutor
     @Override
     public void execute(CommandSender sender, String[] args)
     {
-        if ( !( sender instanceof ProxiedPlayer ) )
-        {
-            return;
-        }
         ProxiedPlayer player = (ProxiedPlayer) sender;
         Map<String, ServerInfo> servers = ProxyServer.getInstance().getServers();
         if ( args.length == 0 )
@@ -59,8 +55,11 @@ public class CommandServer extends Command implements TabExecutor
                 }
             }
             player.sendMessage( serverList );
-        } else
-        {
+        } else {
+            if ( !( sender instanceof ProxiedPlayer ) )
+            {
+               return;
+            }
             ServerInfo server = servers.get( args[0] );
             if ( server == null )
             {
