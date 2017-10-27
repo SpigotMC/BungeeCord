@@ -16,6 +16,13 @@ public interface Server extends Connection
     public ServerInfo getInfo();
 
     /**
+     * Returns the crashed information about this server.
+     *
+     * @return true if the server is crashed, else false
+     */
+    public boolean isCrashed();
+
+    /**
      * Send data by any available means to this server.
      *
      * @param channel the channel to send this data via
