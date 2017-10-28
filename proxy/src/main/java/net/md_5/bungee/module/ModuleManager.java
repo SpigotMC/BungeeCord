@@ -63,10 +63,10 @@ public class ModuleManager
 
         if ( config == null )
         {
-            config = new CaseInsensitiveMap();
+            config = new CaseInsensitiveMap<>();
         } else
         {
-            config = new CaseInsensitiveMap( config );
+            config = new CaseInsensitiveMap<>( config );
         }
         // End yaml
 
