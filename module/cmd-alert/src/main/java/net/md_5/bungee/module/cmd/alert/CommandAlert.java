@@ -3,6 +3,7 @@ package net.md_5.bungee.module.cmd.alert;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Command;
 
 public class CommandAlert extends Command
@@ -39,7 +40,7 @@ public class CommandAlert extends Command
 
             String message = builder.substring( 0, builder.length() - 1 );
 
-            ProxyServer.getInstance().broadcast( message );
+            ProxyServer.getInstance().broadcast( TextComponent.fromLegacyText( message ) );
         }
     }
 }

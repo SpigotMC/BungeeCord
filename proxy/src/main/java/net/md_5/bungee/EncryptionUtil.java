@@ -31,7 +31,7 @@ public class EncryptionUtil
     public static final KeyPair keys;
     @Getter
     private static final SecretKey secret = new SecretKeySpec( new byte[ 16 ], "AES" );
-    public static final NativeCode<BungeeCipher> nativeFactory = new NativeCode( "native-cipher", JavaCipher.class, NativeCipher.class );
+    public static final NativeCode<BungeeCipher> nativeFactory = new NativeCode<>( "native-cipher", JavaCipher.class, NativeCipher.class );
 
     static
     {

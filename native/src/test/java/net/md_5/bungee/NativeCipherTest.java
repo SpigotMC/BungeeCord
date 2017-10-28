@@ -26,7 +26,7 @@ public class NativeCipherTest
     private final SecretKey secret = new SecretKeySpec( new byte[ 16 ], "AES" );
     private static final int BENCHMARK_COUNT = 4096;
     //
-    private static final NativeCode<BungeeCipher> factory = new NativeCode( "native-cipher", JavaCipher.class, NativeCipher.class );
+    private static final NativeCode<BungeeCipher> factory = new NativeCode<>( "native-cipher", JavaCipher.class, NativeCipher.class );
 
     @Test
     public void testNative() throws Exception

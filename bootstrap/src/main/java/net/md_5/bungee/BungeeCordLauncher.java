@@ -18,6 +18,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.command.ConsoleCommandSender;
 
 public class BungeeCordLauncher
@@ -67,7 +68,7 @@ public class BungeeCordLauncher
             {
                 if ( !bungee.getPluginManager().dispatchCommand( ConsoleCommandSender.getInstance(), line ) )
                 {
-                    bungee.getConsole().sendMessage( ChatColor.RED + "Команда не найдена :(" ); //BotFilter
+                    bungee.getConsole().sendMessage( new ComponentBuilder( "Команда не найдена :(" ).color( ChatColor.RED ).create() ); //BotFilter
                 }
             }
         }
