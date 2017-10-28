@@ -3,12 +3,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>9</version>
-    </parent>
-
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-parent</artifactId>
     <version>1.12-SNAPSHOT</version>
@@ -70,6 +64,13 @@
         <url>https://travis-ci.org/HexagonMC/BungeeCord</url>
     </ciManagement>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>sonatype-nexus-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <properties>
         <build.number>unknown</build.number>
         <netty.version>4.1.15.Final</netty.version>
@@ -126,7 +127,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <version>1.15</version>
+                <version>1.16</version>
                 <executions>
                     <execution>
                         <phase>process-classes</phase>
@@ -142,12 +143,6 @@
                         <version>1.0</version>
                     </signature>
                 </configuration>
-            </plugin>
-            <!-- OSS Parent 9 uses 2.7, 2.10+ is broken anyway -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.7</version>
             </plugin>
         </plugins>
         <pluginManagement>
