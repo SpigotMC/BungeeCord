@@ -8,12 +8,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.Data;
 import lombok.Getter;
 import net.md_5.bungee.BungeeCord;
@@ -58,7 +60,8 @@ public class Config
     private Proxy proxy;
     private static Thread t;
     ExecutorService executor = Executors.newSingleThreadExecutor();
-
+    private static final Logger logger = BungeeCord.getInstance().getLogger();
+    
     public Config()
     {
         config = this;
@@ -68,10 +71,17 @@ public class Config
             this.checkAndUpdateConfig();
             this.load( this.mainConfig );
             this.sql = new Sql( this.mainConfig.getSection( "database" ) );
+            try
+            {
+                this.sql.loadUserData();
+            } catch ( SQLException | ClassNotFoundException ex )
+            {
+                logger.log( Level.WARNING, "Не могу загрузить пользователей", ex );
+            }
             this.sql.mergeFromYml();
         } catch ( IOException e )
         {
-            BungeeCord.getInstance().getLogger().log( Level.WARNING, "Please write me about this error(vk.com/Leymooo_s)", e );
+            logger.log( Level.WARNING, "Please write me about this error(vk.com/Leymooo_s)", e );
             System.exit( 0 );
         }
         this.startThread();
@@ -202,17 +212,17 @@ public class Config
                 {
 
                     this.mainConfig = checkFileAndGiveConfig();
-                    BungeeCord.getInstance().getLogger().info( "§cВНИМАНИЕ! §aБыл создан новый конфиг." );
-                    BungeeCord.getInstance().getLogger().info( "§cВНИМАНИЕ! §aСтрарый конфиг сохранён под именем - §bconfig-old.yml§a." );
-                    BungeeCord.getInstance().getLogger().info( "§cВНИМАНИЕ! §aЕсли вы чтото изменяли то, не забудьте изменить заного." );
-                    BungeeCord.getInstance().getLogger().info( "§aЗапуск через §c10 §aсекунд." );
+                    logger.info( "§cВНИМАНИЕ! §aБыл создан новый конфиг." );
+                    logger.info( "§cВНИМАНИЕ! §aСтрарый конфиг сохранён под именем - §bconfig-old.yml§a." );
+                    logger.info( "§cВНИМАНИЕ! §aЕсли вы чтото изменяли то, не забудьте изменить заного." );
+                    logger.info( "§aЗапуск через §c10 §aсекунд." );
                     Thread.sleep( 10000L );
                     return;
                 }
                 throw new InterruptedException();
             } catch ( IOException | InterruptedException e )
             {
-                BungeeCord.getInstance().getLogger().log( Level.WARNING, "Не могу создать новый конфиг. Удалите конфиг вручную.", e );
+                logger.log( Level.WARNING, "Не могу создать новый конфиг. Удалите конфиг вручную.", e );
                 System.exit( 0 );
             }
         }

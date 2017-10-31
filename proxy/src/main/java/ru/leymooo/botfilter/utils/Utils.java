@@ -49,7 +49,7 @@ public class Utils
     public static boolean disconnect(BFConnector connector)
     {
         UserConnection connection = connector.getConnection();
-        long pingAvg = connector.getGlobalPing() / ( connector.getPing() == 0 ? 1 : connector.getPing() );
+        long pingAvg = connector.getGlobalPing() / ( connector.getPingChecks()== 0 ? 1 : connector.getPingChecks() );
         String ip = connection.getAddress().getAddress().getHostAddress();
         Config config = Config.getConfig();
         GeoIpUtils geo = config.getGeoUtils();

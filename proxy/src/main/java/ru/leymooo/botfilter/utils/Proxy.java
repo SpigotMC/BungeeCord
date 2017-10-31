@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.md_5.bungee.BungeeCord;
@@ -46,6 +47,8 @@ public class Proxy
     private boolean enabled = true;
     private final Configuration proxySection;
 
+    private static final Logger logger = BungeeCord.getInstance().getLogger();
+
     public Proxy(File dataFolder, Configuration section)
     {
         this.proxySection = section;
@@ -64,10 +67,10 @@ public class Proxy
                 Thread.sleep( 500L );
                 if ( tries == 15 )
                 {
-                    System.out.println( "[BotFilter] Не удалось скачать GeoIp. Продолжаем без неё." );
+                    logger.log( Level.INFO, "[BotFilter] Не удалось скачать GeoIp. Продолжаем без неё." );
                     break;
                 }
-                System.out.println( "[BotFilter] Ждём пока скачается GeoIp дата база." );
+                logger.log( Level.INFO, "[BotFilter] Ждём пока скачается GeoIp дата база." );
                 tries++;
             } catch ( InterruptedException ex )
             {
@@ -75,7 +78,7 @@ public class Proxy
         }
         loadProxies( dataFile, false );
         loadProxies( dataFileAuto, true );
-        System.out.println( "[BotFilter] Загружено " + PROXIES.size() + " прокси из файлов!" );
+        logger.log( Level.INFO, "[BotFilter] Загружено {0} прокси из файлов!", PROXIES.size() );
         downloadTask = updateProxiesFromSite();
         downloadTask.start();
     }
@@ -89,7 +92,7 @@ public class Proxy
                 f.createNewFile();
             } catch ( IOException e )
             {
-                BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not create proxy file", e );
+                logger.log( Level.WARNING, "Could not create proxy file", e );
             }
             return;
         }
@@ -109,12 +112,12 @@ public class Proxy
                     }
                 } catch ( IOException ex )
                 {
-                    BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not save proxy to list", ex );
+                    logger.log( Level.WARNING, "Could not save proxy to list", ex );
                 }
             } );
         } catch ( IOException ex )
         {
-            BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not read proxy list", ex );
+            logger.log( Level.WARNING, "Could not read proxy list", ex );
 
         }
     }
@@ -150,7 +153,7 @@ public class Proxy
                 Files.write( Paths.get( dataFileAuto.getPath() ), Arrays.asList( proxy ), Charset.forName( "UTF-8" ), StandardOpenOption.APPEND, StandardOpenOption.CREATE );
             } catch ( IOException ex )
             {
-                BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not save proxy to file", ex );
+                logger.log( Level.WARNING, "Could not save proxy to file", ex );
             }
         }
     }
@@ -165,7 +168,7 @@ public class Proxy
         {
             while ( !Thread.interrupted() )
             {
-                System.out.println( "[BotFilter] Пытаюсь скачать прокси с сайтов.." );
+                logger.log( Level.INFO, "[BotFilter] Пытаюсь скачать прокси с сайтов.." );
                 int before = PROXIES.size();
                 List<String> urls = proxySection.getStringList( "download-list" );
                 for ( String site : urls )
@@ -175,7 +178,7 @@ public class Proxy
                         getProxyFromPage( site );
                     } catch ( IOException e )
                     {
-                        BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not download proxy list from " + site, e );
+                        logger.log( Level.WARNING, "Could not download proxy list from " + site, e );
                     }
                 }
                 urls = proxySection.getStringList( "blogspot-proxy" );
@@ -193,12 +196,12 @@ public class Proxy
                                 getProxyFromPage( pages );
                             } catch ( IOException ex )
                             {
-                                BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not download proxy list from " + site, ex );
+                                logger.log( Level.WARNING, "Could not download proxy list from " + site, ex );
                             }
                         }
                     }
                 }
-                System.out.println( "[BotFilter] Скачено " + ( PROXIES.size() - before ) + " прокси с сайтов!" );
+                logger.log( Level.INFO, "[BotFilter] Скачано {0} прокси с сайтов!", ( PROXIES.size() - before ) );
                 try
                 {
                     Thread.sleep( 1000 * 60 * 60 * 4 );//4 hours
@@ -269,7 +272,7 @@ public class Proxy
             }
         } catch ( IOException ex )
         {
-            BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not get HRefts from " + url1, ex );
+            logger.log( Level.WARNING, "Could not get HRefts from " + url1, ex );
         }
         return list;
     }

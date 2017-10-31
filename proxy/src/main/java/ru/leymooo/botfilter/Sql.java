@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
@@ -33,11 +34,12 @@ public class Sql
     private String user;
     private String password;
     private String port;
-    private Thread syncThread;
+    private Thread syncThread, refreshThread;
+    private static final Logger logger = BungeeCord.getInstance().getLogger();
 
     public Sql(Configuration section)
     {
-        this.mysql = "mysql".equalsIgnoreCase( section.getString( "type") );
+        this.mysql = "mysql".equalsIgnoreCase( section.getString( "type" ) );
         this.purgeTime = section.getInt( "purge-time" );
         this.executor = Executors.newSingleThreadExecutor();
         if ( mysql )
@@ -50,35 +52,41 @@ public class Sql
             this.port = section.getString( "port" );
             if ( section.getBoolean( "multibungee.enabled" ) )
             {
-                syncThread( section.getInt( "multibungee.sync-time", 10 ) );
+                startSyncThread( section.getInt( "multibungee.sync-time", 10 ) );
             }
         }
         try
         {
             this.connect();
-            try ( Statement st = this.getConnection().createStatement() )
-            {
-                st.executeUpdate( "CREATE TABLE IF NOT EXISTS `Players` (`player` VARCHAR(16) NOT NULL PRIMARY KEY UNIQUE, `ip` VARCHAR(16) NOT NULL, `check-time` BIGINT NOT NULL DEFAULT '0');" );
-                this.addCheckTimeColumn( st );
-                this.clearUserData( st );
-                try ( ResultSet rs = st.executeQuery( "SELECT * FROM `Players`;" ) )
-                {
-                    int i = 0;
-                    while ( rs.next() )
-                    {
-                        Config.getConfig().addUserToMap( rs.getString( "player" ).toLowerCase(), rs.getString( "ip" ) );
-                        i++;
-                    }
-                    System.out.println( "[BotFilter] Белый список игроков успешно загружен (" + i + ")" );
-                }
-            }
         } catch ( SQLException | ClassNotFoundException ex )
         {
-            ex.printStackTrace();
+            logger.log( Level.WARNING, "Не могу подкоючиться к базе данных", ex );
+        }
+        startRefreshThread();
+    }
+
+    public void loadUserData() throws SQLException, ClassNotFoundException
+    {
+        try ( Statement st = this.getConnection().createStatement() )
+        {
+            st.executeUpdate( "CREATE TABLE IF NOT EXISTS `Players` (`player` VARCHAR(16) NOT NULL PRIMARY KEY UNIQUE, `ip` VARCHAR(16) NOT NULL, `check-time` BIGINT NOT NULL DEFAULT '0');" );
+            this.addCheckTimeColumn( st );
+            this.clearUserData( st );
+            Config.getConfig().getUsers().clear();
+            try ( ResultSet rs = st.executeQuery( "SELECT * FROM `Players`;" ) )
+            {
+                int i = 0;
+                while ( rs.next() )
+                {
+                    Config.getConfig().addUserToMap( rs.getString( "player" ).toLowerCase(), rs.getString( "ip" ) );
+                    i++;
+                }
+                logger.log( Level.INFO, "[BotFilter] Белый список игроков успешно загружен ({0})", i );
+            }
         }
     }
 
-    public void close()
+    public void fullClose()
     {
         try
         {
@@ -86,11 +94,12 @@ public class Sql
             {
                 this.executor.shutdownNow();
                 this.stopSyncThread();
+                this.stopRefreshThread();
                 this.connection.close();
             }
         } catch ( SQLException ex )
         {
-            ex.printStackTrace();
+            logger.log( Level.WARNING, "Не могу закрыть подключение к базе данных", ex );
         }
     }
 
@@ -118,9 +127,9 @@ public class Sql
                             : "INSERT OR REPLACE INTO `Players` (`player`,`ip`,`check-time`)"
                             + " VALUES ('" + name + "','" + ip + "','" + currTime + "')";
                     statment.executeUpdate( update );
-                } catch ( SQLException | ClassNotFoundException e )
+                } catch ( SQLException | ClassNotFoundException ex )
                 {
-                    e.printStackTrace();
+                    logger.log( Level.WARNING, "Не могу выполнить запрос к базе данных", ex );
                 }
             }
         } );
@@ -134,12 +143,12 @@ public class Sql
             {
                 this.connection.close();
             }
-        } catch ( SQLException ignored )
+        } catch ( SQLException ex )
         {
-            ignored.printStackTrace();
+            logger.log( Level.WARNING, "Не могу закрыть подключение к базе данных", ex );
         }
 
-        System.out.println( "[SQL] Connect to " + ( this.host == null ? "sqlite" : this.host ) );
+        logger.log( Level.INFO, "[SQL] Connect to {0}", ( this.host == null ? "sqlite" : this.host ) );
         long start = System.currentTimeMillis();
         if ( this.mysql )
         {
@@ -149,10 +158,10 @@ public class Sql
             Class.forName( "org.sqlite.JDBC" );
             this.connection = DriverManager.getConnection( "JDBC:sqlite:BotFilter/users.db" );
         }
-        System.out.println( "[SQL] Connected [" + ( System.currentTimeMillis() - start ) + " ms]" );
+        logger.log( Level.INFO, "[SQL] Connected [{0} ms]", System.currentTimeMillis() - start );
     }
 
-    private void syncThread(int syncTime)
+    private void startSyncThread(int syncTime)
     {
         stopSyncThread();
         ( syncThread = new Thread( () ->
@@ -174,7 +183,7 @@ public class Sql
                     return;
                 } catch ( SQLException | ClassNotFoundException ex )
                 {
-                    ex.printStackTrace();
+                    logger.log( Level.WARNING, "Не могу синхронизировать аккаунты", ex );
                 }
             }
         }, "DataBase sync" ) ).start();
@@ -185,6 +194,36 @@ public class Sql
         if ( syncThread != null && syncThread.isAlive() )
         {
             syncThread.interrupt();
+        }
+    }
+
+    private void startRefreshThread()
+    {
+        stopRefreshThread();
+        ( refreshThread = new Thread( () ->
+        {
+            while ( !Thread.interrupted() )
+            {
+                try
+                {
+                    Thread.sleep( 60 * 1000 * 60 * 12 ); //12 hours
+                    this.loadUserData();
+                } catch ( InterruptedException ex )
+                {
+                    return;
+                } catch ( SQLException | ClassNotFoundException ex )
+                {
+                    logger.log( Level.WARNING, "Не могу загрузить аккаунты", ex );
+                }
+            }
+        }, "UserData refresh thread" ) ).start();
+    }
+
+    private void stopRefreshThread()
+    {
+        if ( refreshThread != null && refreshThread.isAlive() )
+        {
+            refreshThread.interrupt();
         }
     }
 
@@ -212,7 +251,7 @@ public class Sql
         calendar.add( Calendar.DATE, -purgeTime );
         long until = calendar.getTimeInMillis();
         int updatedRows = st.executeUpdate( "DELETE FROM `Players` WHERE `check-time` < " + until + ";" );
-        System.out.println( "[BotFilter] Очищено " + updatedRows + " аккаунтов" );
+        logger.log( Level.INFO, "[BotFilter] Очищено {0} аккаунтов", updatedRows );
     }
 
     public void mergeFromYml()
@@ -230,11 +269,11 @@ public class Sql
                     Config.getConfig().saveIp( name, yaml.getString( name ) );
                     i++;
                 }
-                System.out.println( "Перенесено " + i + " аккаунтов из yml хранилища в датабазу" );
+                logger.log( Level.INFO, "Перенесено {0} аккаунтов из yml хранилища в датабазу", i );
                 userFile.renameTo( new File( "BotFilter", "users.backup" ) );
             } catch ( IOException ex )
             {
-                BungeeCord.getInstance().getLogger().log( Level.WARNING, "Не могу загрузить users.yml", ex );
+                logger.log( Level.WARNING, "Не могу загрузить users.yml", ex );
             }
         }
     }
