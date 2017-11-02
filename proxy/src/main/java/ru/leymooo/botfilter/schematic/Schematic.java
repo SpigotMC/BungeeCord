@@ -1,16 +1,17 @@
 package ru.leymooo.botfilter.schematic;
 
+import com.flowpowered.nbt.ByteArrayTag;
+import com.flowpowered.nbt.CompoundMap;
+import com.flowpowered.nbt.CompoundTag;
+import com.flowpowered.nbt.ShortTag;
+import com.flowpowered.nbt.Tag;
+import com.flowpowered.nbt.stream.NBTInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import net.md_5.bungee.protocol.packet.extra.MultiBlockChange.Block;
-import org.jnbt.ByteArrayTag;
-import org.jnbt.CompoundTag;
-import org.jnbt.NBTInputStream;
-import org.jnbt.ShortTag;
-import org.jnbt.Tag;
+
 
 /*
 *
@@ -128,7 +129,7 @@ public class Schematic
             throw new IllegalArgumentException( "Tag \"Schematic\" does not exist or is not first" );
         }
 
-        Map<String, Tag> schematic = schematicTag.getValue();
+        CompoundMap schematic = schematicTag.getValue();
         if ( !schematic.containsKey( "Blocks" ) )
         {
             throw new IllegalArgumentException( "Schematic file is missing a \"Blocks\" tag" );
@@ -168,7 +169,7 @@ public class Schematic
                 }
             }
         }
-
+        nbtStream.close();
         return new Schematic( blocks, blockData, width, length, height );
     }
 
@@ -182,7 +183,7 @@ public class Schematic
      * @throws DataException if the tag does not exist or the tag is not of the
      * expected type
      */
-    private static <T extends Tag> T getChildTag(Map<String, Tag> items, String key, Class<T> expected) throws IllegalArgumentException
+    private static <T extends Tag> T getChildTag(CompoundMap items, String key, Class<T> expected) throws IllegalArgumentException
     {
         if ( !items.containsKey( key ) )
         {
