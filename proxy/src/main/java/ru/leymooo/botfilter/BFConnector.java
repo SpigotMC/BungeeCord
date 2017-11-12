@@ -79,7 +79,7 @@ public class BFConnector extends PacketHandler
     private SetExp setExpPacket = new SetExp( 0.0f, 1, 1 );
     private boolean clientSettings, pluginMessage;
     //==========Статические пакеты===============
-    public static DefinedPacket loginPacket = new Login( -1, (short) 2, 0, (short) 0, (short) 100, "flat", true ),
+    public static DefinedPacket loginPacket = new Login( -1, (short) 2, 0, (short) 0, (short) 100, "flat", false ),
             spawnPositionPacket = new SpawnPosition( 1, 60, 1 ),
             playerPosAndLook = new PlayerPositionAndLook( 1.00, 450, 1.00, 1f, 1f, 1, false ),
             healthUpdate = new UpdateHeath( 1, 1, 0 ),
