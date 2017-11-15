@@ -178,7 +178,11 @@ public class Proxy
                         getProxyFromPage( site );
                     } catch ( IOException e )
                     {
-                        logger.log( Level.WARNING, "Could not download proxy list from " + site, e );
+                        logger.log( Level.WARNING, "Не могу скачать прокси с сайта {0}. Причина: {1}", new Object[]
+                        {
+                            site, e.getMessage()
+                        } );
+                        logger.log( Level.WARNING, "Скачиваю прокси со следующего сайта!" );
                     }
                 }
                 urls = proxySection.getStringList( "blogspot-proxy" );
@@ -194,9 +198,13 @@ public class Proxy
                             try
                             {
                                 getProxyFromPage( pages );
-                            } catch ( IOException ex )
+                            } catch ( IOException e )
                             {
-                                logger.log( Level.WARNING, "Could not download proxy list from " + site, ex );
+                                logger.log( Level.WARNING, "Не могу скачать прокси с сайта {0}. Причина: {1}", new Object[]
+                                {
+                                    site, e.getMessage()
+                                } );
+                                logger.log( Level.WARNING, "Скачиваю прокси со следующего сайта!" );
                             }
                         }
                     }
@@ -270,9 +278,13 @@ public class Proxy
                     list.add( matcher.group( 1 ) );
                 }
             }
-        } catch ( IOException ex )
+        } catch ( IOException e )
         {
-            logger.log( Level.WARNING, "Could not get HRefts from " + url1, ex );
+            logger.log( Level.WARNING, "Не могу скачать прокси с сайта {0}. Причина: {1}", new Object[]
+            {
+                url1, e.getMessage()
+            } );
+            logger.log( Level.WARNING, "Скачиваю прокси со следующего сайта!" );
         }
         return list;
     }

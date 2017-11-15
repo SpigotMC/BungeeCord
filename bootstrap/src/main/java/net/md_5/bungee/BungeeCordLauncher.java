@@ -3,17 +3,12 @@ package net.md_5.bungee;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.Security;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.md_5.bungee.api.ChatColor;
@@ -24,7 +19,7 @@ import net.md_5.bungee.command.ConsoleCommandSender;
 public class BungeeCordLauncher
 {
 
-    private static int VERSION = 212;
+    private static int VERSION = 22;
 
     public static void main(String[] args) throws Exception
     {
@@ -58,7 +53,7 @@ public class BungeeCordLauncher
 
         BungeeCord bungee = new BungeeCord();
         ProxyServer.setInstance( bungee );
-        bungee.getLogger().info( "Включаю BungeCord BotFilter " + bungee.getGameVersion() + " от vk.com/Leymooo_s" );//BotFilter
+        bungee.getLogger().log( Level.WARNING, "Включаю BungeCord BotFilter {0} от vk.com/Leymooo_s", bungee.getGameVersion() );//BotFilter
         bungee.start();
 
         if ( !options.has( "noconsole" ) )
