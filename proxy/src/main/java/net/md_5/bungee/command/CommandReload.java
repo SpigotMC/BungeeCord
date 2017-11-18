@@ -18,6 +18,7 @@ public class CommandReload extends Command
     public void execute(CommandSender sender, String[] args)
     {
         BungeeCord.getInstance().config.load();
+        BungeeCord.getInstance().reloadMessages();
         BungeeCord.getInstance().stopListeners();
         BungeeCord.getInstance().startListeners();
         BungeeCord.getInstance().getPluginManager().callEvent( new ProxyReloadEvent( sender ) );

@@ -195,14 +195,7 @@ public class BungeeCord extends ProxyServer
         {
             baseBundle = ResourceBundle.getBundle( "messages", Locale.ENGLISH );
         }
-        File file = new File( "messages.properties" );
-        if ( file.isFile() )
-        {
-            try ( FileReader rd = new FileReader( file ) )
-            {
-                customBundle = new PropertyResourceBundle( rd );
-            }
-        }
+        reloadMessages();
 
         // This is a workaround for quite possibly the weirdest bug I have ever encountered in my life!
         // When jansi attempts to extract its natives, by default it tries to extract a specific version,
@@ -488,6 +481,21 @@ public class BungeeCord extends ProxyServer
     public String getVersion()
     {
         return ( BungeeCord.class.getPackage().getImplementationVersion() == null ) ? "unknown" : BungeeCord.class.getPackage().getImplementationVersion();
+    }
+
+    public void reloadMessages()
+    {
+        File file = new File( "messages.properties" );
+        if ( file.isFile() )
+        {
+            try ( FileReader rd = new FileReader( file ) )
+            {
+                customBundle = new PropertyResourceBundle( rd );
+            } catch ( IOException ex )
+            {
+                getLogger().log( Level.SEVERE, "Could not load custom messages.properties", ex );
+            }
+        }
     }
 
     @Override
