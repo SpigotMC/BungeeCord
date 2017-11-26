@@ -39,6 +39,7 @@ public class BotFilterCommand extends Command
         if ( args[0].equalsIgnoreCase( "reload" ) )
         {
             Config.getConfig().getSql().fullClose();
+            Config.getConfig().getGeoUtils().close();
             new Config();
             Utils.connections.invalidateAll();
             sender.sendMessage( "§aКоманда выполнена" );

@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.md_5.bungee.BungeeCord;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -25,6 +26,7 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
  *
  * @author AuthMeReloaded Team, Leymooo
  */
+//TODO: Thread safe usage
 public class GeoIpUtils
 {
 
@@ -172,6 +174,20 @@ public class GeoIpUtils
                         fos.close();
                     }
                 }
+            }
+        }
+    }
+
+    public void close()
+    {
+        if ( this.reader != null )
+        {
+            try
+            {
+                reader.close();
+            } catch ( IOException ex )
+            {
+                //Думаю можно и проигнорить
             }
         }
     }
