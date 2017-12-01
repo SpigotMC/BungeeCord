@@ -153,20 +153,6 @@ public final class UserConnection implements ProxiedPlayer
 
         this.displayName = name;
 
-        /*
-        switch ( getPendingConnection().getListener().getTabListType() )
-        {
-            case "GLOBAL":
-                tabListHandler = new Global( this );
-                break;
-            case "SERVER":
-                tabListHandler = new ServerUnique( this );
-                break;
-            default:
-                tabListHandler = new GlobalPing( this );
-                break;
-        }
-         */
         tabListHandler = new ServerUnique( this );
 
         Collection<String> g = bungee.getConfigurationAdapter().getGroups( name );
