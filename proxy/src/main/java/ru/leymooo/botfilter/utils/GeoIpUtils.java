@@ -115,7 +115,7 @@ public class GeoIpUtils
                 {
                     extractTarGZ( input );
                 }
-                reader = new DatabaseReader.Builder( dataFile ).withCache( new CHMCache() ).build();
+                reader = new DatabaseReader.Builder( dataFile ).withCache( new CHMCache( 4096 * 2 ) ).build();
             } catch ( IOException e )
             {
                 BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not download GeoLiteAPI database", e );
@@ -132,7 +132,7 @@ public class GeoIpUtils
      */
     public String getCountryCode(InetAddress ip)
     {
-        if ( reader != null && !isLocal( ip ))
+        if ( reader != null && !isLocal( ip ) )
         {
             CountryResponse response = null;
             try
@@ -146,10 +146,11 @@ public class GeoIpUtils
         return "N/A";
     }
 
-    private boolean isLocal(InetAddress addr) {
+    private boolean isLocal(InetAddress addr)
+    {
         return addr.isAnyLocalAddress() || addr.isLoopbackAddress();
     }
-    
+
     public boolean isAllowed(String code, boolean permanent)
     {
         return ( "N/A".equals( code ) ) || ( countryAuto.contains( code ) ) || ( permanent && countryPermanent.contains( code ) );
