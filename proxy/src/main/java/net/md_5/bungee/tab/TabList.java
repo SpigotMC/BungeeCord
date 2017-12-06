@@ -36,7 +36,7 @@ public abstract class TabList
             {
                 item.setUuid( player.getUniqueId() );
                 LoginResult loginResult = player.getPendingConnection().getLoginProfile();
-                if ( loginResult != null )
+                if ( loginResult != null && loginResult.getProperties() != null )
                 {
                     String[][] props = new String[ loginResult.getProperties().length ][];
                     for ( int i = 0; i < props.length; i++ )

@@ -223,7 +223,7 @@ public class DownstreamBridge extends PacketHandler
     public void handle(PluginMessage pluginMessage) throws Exception
     {
         DataInput in = pluginMessage.getStream();
-        PluginMessageEvent event = new PluginMessageEvent( con.getServer(), con, pluginMessage.getTag(), pluginMessage.getData().clone() );
+        PluginMessageEvent event = new PluginMessageEvent( server, con, pluginMessage.getTag(), pluginMessage.getData().clone() );
 
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
@@ -296,7 +296,7 @@ public class DownstreamBridge extends PacketHandler
                 {
                     for ( ServerInfo server : bungee.getServers().values() )
                     {
-                        if ( server != con.getServer().getInfo() )
+                        if ( server != this.server.getInfo() )
                         {
                             server.sendData( "BungeeCord", payload );
                         }
@@ -305,7 +305,7 @@ public class DownstreamBridge extends PacketHandler
                 {
                     for ( ServerInfo server : bungee.getServers().values() )
                     {
-                        if ( server != con.getServer().getInfo() )
+                        if ( server != this.server.getInfo() )
                         {
                             server.sendData( "BungeeCord", payload, false );
                         }
@@ -441,7 +441,7 @@ public class DownstreamBridge extends PacketHandler
                 byte[] b = out.toByteArray();
                 if ( b.length != 0 )
                 {
-                    con.getServer().sendData( "BungeeCord", b );
+                    server.sendData( "BungeeCord", b );
                 }
             }
 
@@ -474,7 +474,7 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(TabCompleteResponse tabCompleteResponse) throws Exception
     {
-        TabCompleteResponseEvent tabCompleteResponseEvent = new TabCompleteResponseEvent( con.getServer(), con, tabCompleteResponse.getCommands() );
+        TabCompleteResponseEvent tabCompleteResponseEvent = new TabCompleteResponseEvent( server, con, tabCompleteResponse.getCommands() );
 
         if ( !bungee.getPluginManager().callEvent( tabCompleteResponseEvent ).isCancelled() )
         {
