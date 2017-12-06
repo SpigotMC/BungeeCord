@@ -26,7 +26,7 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
  *
  * @author AuthMeReloaded Team, Leymooo
  */
-//TODO: Thread safe usage
+//1300000 айпишек отрабатывает за 6 секунд.
 public class GeoIpUtils
 {
 
@@ -76,7 +76,7 @@ public class GeoIpUtils
             {
                 try
                 {
-                    reader = new DatabaseReader.Builder( dataFile ).withCache( new CHMCache() ).build();
+                    reader = new DatabaseReader.Builder( dataFile ).withCache( new CHMCache( 4096 * 2 ) ).build();
                 } catch ( IOException ex )
                 {
                     BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not setup GeoLiteAPI database", ex );
@@ -132,7 +132,7 @@ public class GeoIpUtils
      */
     public String getCountryCode(InetAddress ip)
     {
-        if ( reader != null )
+        if ( reader != null && !isLocal( ip ))
         {
             CountryResponse response = null;
             try
@@ -146,6 +146,10 @@ public class GeoIpUtils
         return "N/A";
     }
 
+    private boolean isLocal(InetAddress addr) {
+        return addr.isAnyLocalAddress() || addr.isLoopbackAddress();
+    }
+    
     public boolean isAllowed(String code, boolean permanent)
     {
         return ( "N/A".equals( code ) ) || ( countryAuto.contains( code ) ) || ( permanent && countryPermanent.contains( code ) );
