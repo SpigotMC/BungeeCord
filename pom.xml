@@ -67,7 +67,7 @@
 
     <properties>
         <build.number>unknown</build.number>
-        <netty.version>4.1.17.Final</netty.version>
+        <netty.version>4.1.18.Final</netty.version>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
