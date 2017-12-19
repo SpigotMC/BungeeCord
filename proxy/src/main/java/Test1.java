@@ -11,15 +11,6 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ProxyServer;
 import org.apache.commons.compress.utils.Lists;
 import ru.leymooo.botfilter.utils.GeoIpUtils;
-
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-/**
- *
- * @author michael
- */
 public class Test1
 {
 
@@ -53,5 +44,4 @@ public class Test1
         }
         System.out.println( "Time is " + ( System.currentTimeMillis() - start ) );
     }
-
 }

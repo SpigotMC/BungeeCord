@@ -76,7 +76,7 @@ public class GeoIpUtils
             {
                 try
                 {
-                    reader = new DatabaseReader.Builder( dataFile ).withCache( new CHMCache( 4096 * 2 ) ).build();
+                    reader = new DatabaseReader.Builder( dataFile ).withCache( new CHMCache( 4096 * 4 ) ).build();
                 } catch ( IOException ex )
                 {
                     BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not setup GeoLiteAPI database", ex );
@@ -115,7 +115,7 @@ public class GeoIpUtils
                 {
                     extractTarGZ( input );
                 }
-                reader = new DatabaseReader.Builder( dataFile ).withCache( new CHMCache( 4096 * 2 ) ).build();
+                reader = new DatabaseReader.Builder( dataFile ).withCache( new CHMCache( 4096 * 4 ) ).build();
             } catch ( IOException e )
             {
                 BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not download GeoLiteAPI database", e );
