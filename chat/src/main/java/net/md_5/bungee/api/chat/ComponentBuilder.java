@@ -23,7 +23,7 @@ import java.util.List;
  * part's formatting
  * </p>
  */
-public class ComponentBuilder
+public final class ComponentBuilder
 {
 
     private BaseComponent current;

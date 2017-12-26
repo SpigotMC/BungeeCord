@@ -10,7 +10,7 @@ import net.md_5.bungee.api.ChatColor;
 @Setter
 @ToString
 @NoArgsConstructor
-public class KeybindComponent extends BaseComponent
+public final class KeybindComponent extends BaseComponent
 {
 
     /**

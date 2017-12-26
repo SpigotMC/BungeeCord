@@ -16,7 +16,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @NoArgsConstructor
-public class TranslatableComponent extends BaseComponent
+public final class TranslatableComponent extends BaseComponent
 {
 
     private final ResourceBundle locales = ResourceBundle.getBundle( "mojang-translations/en_US" );
