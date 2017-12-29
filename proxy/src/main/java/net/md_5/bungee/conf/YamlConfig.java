@@ -27,6 +27,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.error.YAMLException;
 
 public class YamlConfig implements ConfigurationAdapter
 {
@@ -41,7 +42,7 @@ public class YamlConfig implements ConfigurationAdapter
         GLOBAL(), GLOBAL_PING(), SERVER();
     }
     private final Yaml yaml;
-    private Map config;
+    private Map<String, Object> config;
     private final File file = new File( "config.yml" );
 
     public YamlConfig()
@@ -60,15 +61,21 @@ public class YamlConfig implements ConfigurationAdapter
 
             try ( InputStream is = new FileInputStream( file ) )
             {
-                config = (Map) yaml.load( is );
+                try
+                {
+                    config = (Map) yaml.load( is );
+                } catch ( YAMLException ex )
+                {
+                    throw new RuntimeException( "Invalid configuration encountered - this is a configuration error and NOT a bug! Please attempt to fix the error or see https://www.spigotmc.org/ for help.", ex );
+                }
             }
 
             if ( config == null )
             {
-                config = new CaseInsensitiveMap();
+                config = new CaseInsensitiveMap<>();
             } else
             {
-                config = new CaseInsensitiveMap( config );
+                config = new CaseInsensitiveMap<>( config );
             }
         } catch ( IOException ex )
         {

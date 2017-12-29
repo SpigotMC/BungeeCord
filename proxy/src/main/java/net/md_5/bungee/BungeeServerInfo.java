@@ -66,7 +66,7 @@ public class BungeeServerInfo implements ServerInfo
     @Override
     public Collection<ProxiedPlayer> getPlayers()
     {
-        return Collections.unmodifiableCollection( new HashSet( players ) );
+        return Collections.unmodifiableCollection( new HashSet<>( players ) );
     }
 
     @Override
