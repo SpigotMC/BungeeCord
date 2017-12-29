@@ -7,7 +7,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @RequiredArgsConstructor
-public final class HoverEvent
+final public class HoverEvent
 {
 
     private final Action action;
