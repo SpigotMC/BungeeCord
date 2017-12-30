@@ -5,10 +5,12 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.eventbus.Subscribe;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -335,6 +337,8 @@ public class PluginManager
         {
             if ( file.isFile() && file.getName().endsWith( ".jar" ) )
             {
+                checkForPluginUpdate( folder, file );
+
                 try ( JarFile jar = new JarFile( file ) )
                 {
                     JarEntry pdf = jar.getJarEntry( "bungee.yml" );
@@ -427,6 +431,30 @@ public class PluginManager
         {
             eventBus.unregister( it.next() );
             it.remove();
+        }
+    }
+
+    // Checks for plugin updates from plugin folder and performs update
+    private void checkForPluginUpdate(File pluginsFolder, File pluginFile)
+    {
+        File updateFolder = new File( pluginsFolder, "update" );
+        if ( !updateFolder.isDirectory() )
+        {
+            return;
+        }
+
+        File pluginUpdateFile = new File( updateFolder, pluginFile.getName() );
+        if ( pluginUpdateFile.isFile() )
+        {
+            try
+            {
+                Files.copy( pluginUpdateFile.toPath(), pluginFile.toPath() );
+            }
+            catch ( IOException ex )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Failed to update plugin " + pluginFile, ex );
+            }
+            pluginUpdateFile.delete();
         }
     }
 }
