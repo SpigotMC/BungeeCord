@@ -56,7 +56,7 @@ public final class Configuration
         Object section = self.get( root );
         if ( section == null )
         {
-            section = new Configuration( ( defaults == null ) ? null : defaults.getSection( path ) );
+            section = new Configuration( ( defaults == null ) ? null : defaults.getSection( root ) );
             self.put( root, section );
         }
 
