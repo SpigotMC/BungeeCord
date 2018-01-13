@@ -1,4 +1,4 @@
-BungeeCord with build in AntiBot protection. (Russian lang)
+BungeeCord with built in AntiBot protection. (Russian lang)
 ==========
 
 Video
