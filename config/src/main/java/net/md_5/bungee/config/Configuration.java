@@ -30,7 +30,7 @@ public final class Configuration
         this.self = new LinkedHashMap<>();
         this.defaults = defaults;
 
-        for ( Map.Entry<?, ?> entry : map.entry() )
+        for ( Map.Entry<?, ?> entry : map.entrySet() )
         {
             String key = ( entry.getKey() == null ) ? "null" : entry.getKey().toString();
 
