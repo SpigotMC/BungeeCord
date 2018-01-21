@@ -92,7 +92,6 @@ import org.fusesource.jansi.AnsiConsole;
 import ru.leymooo.fakeonline.FakeOnline;
 import ru.leymooo.botfilter.utils.ButtonUtils;
 import ru.leymooo.botfilter.Config;
-import ru.leymooo.botfilter.utils.Utils;
 
 /**
  * Main BungeeCord proxy class.

@@ -103,6 +103,7 @@ public class BFConnector extends PacketHandler
         this.sendFakeServerPackets();
         Config.getConfig().getBotCounter().incrementAndGet();
         Config.getConfig().isUnderAttack();
+        Config.getConfig().checkThreadAndRecover();
         Config.getConfig().getConnectedUsersSet().add( this );
     }
 
@@ -403,10 +404,13 @@ public class BFConnector extends PacketHandler
             this.connection.sendMessage( message );
             lastMessageSent = System.currentTimeMillis();
         }
-        if ( this.ping != -1 )
+        if ( this.ping != -1 && this.connection != null )
         {
-            this.connection.sendMessage( ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText( Config.getConfig().getActionBar()
-                    .replace( "%ping%", this.getPing() + "" ).replace( "%online%", Config.getConfig().getConnectedUsersSet().size() + "" ) ) );
+            this.connection.sendMessage(
+                    ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(
+                            Config.getConfig().getActionBar()
+                                    .replace( "%ping%", String.valueOf( this.getPing() ) )
+                                    .replace( "%online%", String.valueOf( Config.getConfig().getConnectedUsersSet().size() ) ) ) );
         }
 
     }

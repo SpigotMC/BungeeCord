@@ -26,11 +26,11 @@ import ru.leymooo.botfilter.Config;
 
 public class Proxy
 {
-
+    
     /* Добро пожаловать в гору говнокода и костылей */
     public HashSet<String> PROXIES = new HashSet<>();
     public HashSet<String> DOWNLOADED_URLS = new HashSet<>();
-
+    
     //Для парса с сайтов
     private static final Pattern PARSE_IPPATTERN = Pattern.compile( "((\\d+\\.+){2,}\\d+)" );
     //Для проверки что спарсили
@@ -40,15 +40,15 @@ public class Proxy
                     + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
                     + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$" );
     private static Thread downloadTask;
-
+    
     private File dataFile;
     private File dataFileAuto;
-
+    
     private boolean enabled = true;
     private final Configuration proxySection;
-
+    
     private static final Logger logger = BungeeCord.getInstance().getLogger();
-
+    
     public Proxy(File dataFolder, Configuration section)
     {
         this.proxySection = section;
@@ -64,7 +64,7 @@ public class Proxy
         {
             try
             {
-                Thread.sleep( 500L );
+                Thread.sleep( 1000L );
                 if ( tries == 15 )
                 {
                     logger.log( Level.INFO, "[BotFilter] Не удалось скачать GeoIp. Продолжаем без неё." );
@@ -82,7 +82,7 @@ public class Proxy
         downloadTask = updateProxiesFromSite();
         downloadTask.start();
     }
-
+    
     private void loadProxies(File f, boolean force)
     {
         if ( !f.exists() )
@@ -96,7 +96,7 @@ public class Proxy
             }
             return;
         }
-
+        
         try
         {
             Files.lines( Paths.get( f.getPath() ) ).forEach( line ->
@@ -118,14 +118,14 @@ public class Proxy
         } catch ( IOException ex )
         {
             logger.log( Level.WARNING, "Could not read proxy list", ex );
-
+            
         }
     }
-
+    
     private void validateAndAddProxy(String line, boolean addToFile) throws IOException
     {
         String proxy = line.contains( ":" ) ? line.split( ":" )[0].trim() : line.trim();
-
+        
         if ( IPADDRESS_PATTERN.matcher( proxy ).matches() && Config.getConfig().getGeoUtils().isAllowed( Config.getConfig().getGeoUtils().getCountryCode( InetAddress.getByName( proxy ) ), true ) )
         {
             if ( !PROXIES.contains( proxy ) )
@@ -138,7 +138,7 @@ public class Proxy
             }
         }
     }
-
+    
     public void addProxyForce(String proxy)
     {
         if ( !enabled )
@@ -157,7 +157,7 @@ public class Proxy
             }
         }
     }
-
+    
     private Thread updateProxiesFromSite()
     {
         if ( downloadTask != null && downloadTask.isAlive() )
@@ -168,60 +168,70 @@ public class Proxy
         {
             while ( !Thread.interrupted() )
             {
-                logger.log( Level.INFO, "[BotFilter] Пытаюсь скачать прокси с сайтов.." );
-                int before = PROXIES.size();
-                List<String> urls = proxySection.getStringList( "download-list" );
-                for ( String site : urls )
+                if ( Config.getConfig().getGeoUtils().isAvailable() )
                 {
-                    try
+                    logger.log( Level.INFO, "[BotFilter] Пытаюсь скачать прокси с сайтов.." );
+                    int before = PROXIES.size();
+                    List<String> urls = proxySection.getStringList( "download-list" );
+                    for ( String site : urls )
                     {
-                        getProxyFromPage( site );
-                    } catch ( IOException e )
-                    {
-                        logger.log( Level.WARNING, "Не могу скачать прокси с сайта {0}. Причина: {1}", new Object[]
+                        try
                         {
-                            site, e.getMessage()
-                        } );
-                        logger.log( Level.WARNING, "Скачиваю прокси со следующего сайта!" );
+                            getProxyFromPage( site );
+                        } catch ( IOException e )
+                        {
+                            logger.log( Level.WARNING, "Не могу скачать прокси с сайта {0}. Причина: {1}", new Object[]
+                            {
+                                site, e.getMessage()
+                            } );
+                            logger.log( Level.WARNING, "Скачиваю прокси со следующего сайта!" );
+                        }
                     }
-                }
-                urls = proxySection.getStringList( "blogspot-proxy" );
-                for ( String site : urls )
-                {
-                    String[] regexSplitted = site.split( ";" );
-                    String regex = regexSplitted.length == 2 ? regexSplitted[1] : "href=\'(.*?)\'";
-                    List<String> list = getHRefs( regexSplitted[0], regex );
-                    for ( String pages : list )
+                    urls = proxySection.getStringList( "blogspot-proxy" );
+                    for ( String site : urls )
                     {
-                        if ( pages.contains( "/20" ) && !pages.contains( "#" ) )
+                        String[] regexSplitted = site.split( ";" );
+                        String regex = regexSplitted.length == 2 ? regexSplitted[1] : "href=\'(.*?)\'";
+                        List<String> list = getHRefs( regexSplitted[0], regex );
+                        for ( String pages : list )
                         {
-                            try
+                            if ( pages.contains( "/20" ) && !pages.contains( "#" ) )
                             {
-                                getProxyFromPage( pages );
-                            } catch ( IOException e )
-                            {
-                                logger.log( Level.WARNING, "Не могу скачать прокси с сайта {0}. Причина: {1}", new Object[]
+                                try
                                 {
-                                    site, e.getMessage()
-                                } );
-                                logger.log( Level.WARNING, "Скачиваю прокси со следующего сайта!" );
+                                    getProxyFromPage( pages );
+                                } catch ( IOException e )
+                                {
+                                    logger.log( Level.WARNING, "Не могу скачать прокси с сайта {0}. Причина: {1}", new Object[]
+                                    {
+                                        site, e.getMessage()
+                                    } );
+                                    logger.log( Level.WARNING, "Скачиваю прокси со следующего сайта!" );
+                                }
                             }
                         }
                     }
+                    logger.log( Level.INFO, "[BotFilter] Скачано {0} прокси с сайтов!", ( PROXIES.size() - before ) );
+                } else
+                {
+                    logger.log( Level.WARNING, "[BotFilter] Не могу скачать прокси. GeoIp недоступен" );
                 }
-                logger.log( Level.INFO, "[BotFilter] Скачано {0} прокси с сайтов!", ( PROXIES.size() - before ) );
                 try
                 {
                     Thread.sleep( 1000 * 60 * 60 * 4 );//4 hours
+                    if (!Config.getConfig().getGeoUtils().isAvailable()) {
+                        logger.log( Level.INFO, "[BotFilter] Пытаюсь скачать GeoIp" );
+                        Config.getConfig().getGeoUtils().createDownloadTask().run();
+                    }
                 } catch ( InterruptedException ex )
                 {
                     return;
                 }
             }
         } );
-
+        
     }
-
+    
     private void getProxyFromPage(String page) throws IOException
     {
         if ( DOWNLOADED_URLS.contains( page ) )
@@ -245,7 +255,7 @@ public class Proxy
             }
         }
     }
-
+    
     public boolean isProxy(String ip)
     {
         if ( !enabled )
@@ -254,7 +264,7 @@ public class Proxy
         }
         return PROXIES.contains( ip );
     }
-
+    
     /* AntiBot-ultra code*/
     public List<String> getHRefs(String url1, String regexPattern)
     {
@@ -288,5 +298,5 @@ public class Proxy
         }
         return list;
     }
-
+    
 }

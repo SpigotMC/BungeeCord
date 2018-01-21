@@ -6,10 +6,10 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Set;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ProxyServer;
-import org.apache.commons.compress.utils.Lists;
 import ru.leymooo.botfilter.utils.GeoIpUtils;
 public class Test1
 {
@@ -20,7 +20,7 @@ public class Test1
         ProxyServer.setInstance( bungee );
         File dataFolder = new File( "test" );
         dataFolder.mkdir();
-        GeoIpUtils geo = new GeoIpUtils( dataFolder, Lists.newArrayList(), Lists.newArrayList() );
+        GeoIpUtils geo = new GeoIpUtils( dataFolder, new ArrayList(), new ArrayList() );
         Set<String> ips = Sets.newHashSet();
 
         URL url = new URL( "http://151.80.108.152/proxy.txt" );

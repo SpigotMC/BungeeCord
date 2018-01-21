@@ -61,7 +61,7 @@ public class Config
     private static Thread t;
     ExecutorService executor = Executors.newSingleThreadExecutor();
     private static final Logger logger = BungeeCord.getInstance().getLogger();
-    
+
     public Config()
     {
         config = this;
@@ -169,17 +169,18 @@ public class Config
         new ServerPingUtils( config.getSection( "server-ping-check" ) );
         BFConnector.chat = new Chat( ComponentSerializer.toString( TextComponent.fromLegacyText( getCheck() ) ), (byte) ChatMessageType.CHAT.ordinal() );
         BFConnector.timeUpdate = new TimeUpdate( 1, config.getInt( "world-time" ) );
+        
         String[] checkTitle = ChatColor.translateAlternateColorCodes( '&', config.getString( "msg-check-title" ) ).split( ";" );
         BFConnector.checkTitle = new BungeeTitle().title( TextComponent.fromLegacyText( checkTitle[0] ) )
-                .subTitle( TextComponent.fromLegacyText( checkTitle[1] ) ).fadeIn( 5 ).fadeOut( 1 ).stay( 320 /*16 сек*/ );
+                .subTitle( TextComponent.fromLegacyText( checkTitle.length == 2 ? checkTitle[1] : "" ) ).fadeIn( 5 ).fadeOut( 1 ).stay( 320 /*16 сек*/ );
 
         String[] checkTitleSus = ChatColor.translateAlternateColorCodes( '&', config.getString( "msg-check-title-sus" ) ).split( ";" );
         BFConnector.susCheckTitle = new BungeeTitle().title( TextComponent.fromLegacyText( checkTitleSus[0] ) )
-                .subTitle( TextComponent.fromLegacyText( checkTitleSus[1] ) ).fadeIn( 10 ).fadeOut( 10 ).stay( 25 );
+                .subTitle( TextComponent.fromLegacyText( checkTitleSus.length == 2 ? checkTitleSus[1] : "" ) ).fadeIn( 10 ).fadeOut( 10 ).stay( 25 );
 
         String[] checkTitleButton = ChatColor.translateAlternateColorCodes( '&', config.getString( "msg-press-button-title" ) ).split( ";" );
         BFConnector.buttonCheckTitle = new BungeeTitle().title( TextComponent.fromLegacyText( checkTitleButton[0] ) )
-                .subTitle( TextComponent.fromLegacyText( checkTitleButton[1] ) ).fadeIn( 5 ).fadeOut( 10 ).stay( 60 );
+                .subTitle( TextComponent.fromLegacyText( checkTitleButton.length == 2 ? checkTitleButton[1] : ""  ) ).fadeIn( 5 ).fadeOut( 10 ).stay( 60 );
     }
 
     private Configuration checkFileAndGiveConfig() throws IOException
@@ -230,10 +231,11 @@ public class Config
 
     private void startThread()
     {
-        if ( t != null && t.isAlive() )
+        if ( !isDeath() )
         {
             t.interrupt();
         }
+
         ( t = new Thread( () ->
         {
             while ( !Thread.interrupted() )
@@ -281,5 +283,20 @@ public class Config
                 }
             }
         }, "BotFilter thread" ) ).start();
+    }
+
+    private boolean isDeath()
+    {
+        return t == null || !t.isAlive();
+    }
+
+    public void checkThreadAndRecover()
+    {
+        if ( isDeath() )
+        {
+            BungeeCord.getInstance().getLogger().log( Level.WARNING, "[BotFilter] По какойто причине был остановлен один из основных потоков"
+                    + ". Востанавливаю. Просьба найти ошибку и отправить её в тему на рубакките!" );
+            startThread();
+        }
     }
 }

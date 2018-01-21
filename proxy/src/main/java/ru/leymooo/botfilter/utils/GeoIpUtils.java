@@ -1,5 +1,7 @@
 package ru.leymooo.botfilter.utils;
 
+import com.ice.tar.TarEntry;
+import com.ice.tar.TarInputStream;
 import com.maxmind.db.CHMCache;
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
@@ -16,11 +18,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
 import net.md_5.bungee.BungeeCord;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
 /**
  *
@@ -90,7 +89,7 @@ public class GeoIpUtils
             }
         }
         // Ok, let's try to download the data file!
-        downloadTask = createDownloadTask();
+        downloadTask = new Thread( createDownloadTask() );
         downloadTask.start();
         return false;
     }
@@ -101,16 +100,15 @@ public class GeoIpUtils
      *
      * @return the generated download thread
      */
-    private Thread createDownloadTask()
+    public Runnable createDownloadTask()
     {
-        return new Thread( () ->
+        return () ->
         {
             try
             {
                 URL downloadUrl = new URL( GEOIP_URL );
                 URLConnection conn = downloadUrl.openConnection();
                 conn.setConnectTimeout( 10000 );
-                conn.connect();
                 try ( InputStream input = conn.getInputStream() )
                 {
                     extractTarGZ( input );
@@ -120,7 +118,7 @@ public class GeoIpUtils
             {
                 BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not download GeoLiteAPI database", e );
             }
-        } );
+        };
     }
 
     /**
@@ -158,29 +156,33 @@ public class GeoIpUtils
 
     public void extractTarGZ(InputStream in) throws IOException
     {
-        try ( GzipCompressorInputStream gzipIn = new GzipCompressorInputStream( in ); TarArchiveInputStream tarIn = new TarArchiveInputStream( gzipIn ) )
-        {
-            TarArchiveEntry entry;
 
-            while ( ( entry = (TarArchiveEntry) tarIn.getNextEntry() ) != null )
+        try ( GZIPInputStream gzipIn = new GZIPInputStream( in ); TarInputStream tarIn = new TarInputStream( gzipIn ) )
+        {
+            TarEntry entry;
+
+            while ( ( entry = (TarEntry) tarIn.getNextEntry() ) != null )
             {
                 if ( entry.getName().endsWith( "mmdb" ) )
                 {
                     int count;
-                    byte data[] = new byte[ 2048 ];
-                    FileOutputStream fos = new FileOutputStream( dataFile, false );
-                    try ( BufferedOutputStream dest = new BufferedOutputStream( fos, 2048 ) )
+                    byte data[] = new byte[ 4096 ];
+                    try ( FileOutputStream fos = new FileOutputStream( dataFile, false );
+                            BufferedOutputStream dest = new BufferedOutputStream( fos, 4096 ) )
                     {
-                        while ( ( count = tarIn.read( data, 0, 2048 ) ) != -1 )
+                        while ( ( count = tarIn.read( data, 0, 4096 ) ) != -1 )
                         {
                             dest.write( data, 0, count );
                         }
-                        dest.close();
-                        fos.close();
                     }
                 }
             }
         }
+    }
+
+    public boolean isAvailable()
+    {
+        return this.reader != null;
     }
 
     public void close()
