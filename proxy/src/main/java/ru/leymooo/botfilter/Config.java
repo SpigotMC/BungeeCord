@@ -169,7 +169,7 @@ public class Config
         new ServerPingUtils( config.getSection( "server-ping-check" ) );
         BFConnector.chat = new Chat( ComponentSerializer.toString( TextComponent.fromLegacyText( getCheck() ) ), (byte) ChatMessageType.CHAT.ordinal() );
         BFConnector.timeUpdate = new TimeUpdate( 1, config.getInt( "world-time" ) );
-        
+
         String[] checkTitle = ChatColor.translateAlternateColorCodes( '&', config.getString( "msg-check-title" ) ).split( ";" );
         BFConnector.checkTitle = new BungeeTitle().title( TextComponent.fromLegacyText( checkTitle[0] ) )
                 .subTitle( TextComponent.fromLegacyText( checkTitle.length == 2 ? checkTitle[1] : "" ) ).fadeIn( 5 ).fadeOut( 1 ).stay( 320 /*16 сек*/ );
@@ -180,7 +180,7 @@ public class Config
 
         String[] checkTitleButton = ChatColor.translateAlternateColorCodes( '&', config.getString( "msg-press-button-title" ) ).split( ";" );
         BFConnector.buttonCheckTitle = new BungeeTitle().title( TextComponent.fromLegacyText( checkTitleButton[0] ) )
-                .subTitle( TextComponent.fromLegacyText( checkTitleButton.length == 2 ? checkTitleButton[1] : ""  ) ).fadeIn( 5 ).fadeOut( 10 ).stay( 60 );
+                .subTitle( TextComponent.fromLegacyText( checkTitleButton.length == 2 ? checkTitleButton[1] : "" ) ).fadeIn( 5 ).fadeOut( 10 ).stay( 60 );
     }
 
     private Configuration checkFileAndGiveConfig() throws IOException

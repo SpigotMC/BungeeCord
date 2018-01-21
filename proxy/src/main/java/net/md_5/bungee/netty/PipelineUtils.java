@@ -134,7 +134,6 @@ public class PipelineUtils
             {
                 // IP_TOS is not supported (Windows XP / Windows Server 2003)
             }
-            ch.config().setOption( ChannelOption.SO_LINGER, 0);
             ch.config().setOption( ChannelOption.TCP_NODELAY, true ); //BotFilter
             ch.config().setAllocator( PooledByteBufAllocator.DEFAULT );
             ch.config().setWriteBufferWaterMark( MARK );
