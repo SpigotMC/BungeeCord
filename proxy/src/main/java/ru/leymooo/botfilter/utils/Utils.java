@@ -9,6 +9,7 @@ import net.md_5.bungee.protocol.packet.extra.Animation;
 import net.md_5.bungee.protocol.packet.extra.UpdateHeath;
 import ru.leymooo.botfilter.Config;
 import ru.leymooo.botfilter.BFConnector;
+import ru.leymooo.botfilter.CheckState;
 import ru.leymooo.botfilter.Location;
 
 /**
@@ -49,7 +50,7 @@ public class Utils
     public static boolean disconnect(BFConnector connector)
     {
         UserConnection connection = connector.getConnection();
-        long pingAvg = connector.getGlobalPing() / ( connector.getPingChecks()== 0 ? 1 : connector.getPingChecks() );
+        long pingAvg = connector.getGlobalPing() / ( connector.getPingChecks() == 0 ? 1 : connector.getPingChecks() );
         String ip = connection.getAddress().getAddress().getHostAddress();
         Config config = Config.getConfig();
         GeoIpUtils geo = config.getGeoUtils();
@@ -118,7 +119,7 @@ public class Utils
         }
         if ( System.currentTimeMillis() - connector.getLastPpsCheck() <= 1000 )
         {
-            if ( packets.incrementAndGet() >= 55 )
+            if ( packets.incrementAndGet() >= 56 )
             {
                 connector.getConnection().disconnect( Config.getConfig().getErrorPackets() );
                 connector.setState( CheckState.FAILED );
@@ -140,11 +141,4 @@ public class Utils
         return ( 0.35 < dot && dot <= 1 ) && ( distance <= 4.95 && distance > 1.5 ) && playerLoc.isOnGround() && playerLoc.getY() == blockLoc.getY() - 1;
     }
 
-    public static enum CheckState
-    {
-        POSITION,
-        BUTTON,
-        SUS,
-        FAILED;
-    }
 }

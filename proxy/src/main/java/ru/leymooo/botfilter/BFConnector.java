@@ -46,7 +46,7 @@ import net.md_5.bungee.protocol.packet.extra.SetSlot;
 import net.md_5.bungee.protocol.packet.extra.SpawnPosition;
 import net.md_5.bungee.protocol.packet.extra.TeleportConfirm;
 import net.md_5.bungee.protocol.packet.extra.UpdateHeath;
-import ru.leymooo.botfilter.utils.Utils.CheckState;
+import ru.leymooo.botfilter.event.BotFilterCheckFinishEvent;
 
 /**
  *
@@ -110,7 +110,10 @@ public class BFConnector extends PacketHandler
     @Override
     public void disconnected(ChannelWrapper channel) throws Exception
     {
-        BungeeCord.getInstance().getPluginManager().callEvent( new PlayerDisconnectEvent( connection ) );
+        if ( Config.isCallPlayerDisconnectEvent() )
+        {
+            BungeeCord.getInstance().getPluginManager().callEvent( new PlayerDisconnectEvent( connection ) );
+        }
         this.disconnected();
     }
 
@@ -121,9 +124,13 @@ public class BFConnector extends PacketHandler
         {
             Config.getConfig().getProxy().addProxyForce( getConnection().getAddress().getAddress().getHostAddress() );
         }
-        this.setConnection( null );
+        if ( state != CheckState.SUS )
+        {
+            BungeeCord.getInstance().getPluginManager().callEvent( new BotFilterCheckFinishEvent( connection, state ) );
+        }
         this.setChannel( null );
         this.setLocation( null );
+        this.setConnection( null );
         if ( this.getChecks() != null )
         {
             this.getChecks().clear();
@@ -420,6 +427,7 @@ public class BFConnector extends PacketHandler
         susCheckTitle.send( connection );
         Config config = Config.getConfig();
         //Даем на всякий случай время клиенту ответить на пакеты. 400 мс.
+        //Хотя это хуйня какаято, но лень дебажить. TCP всётаки.
         if ( config.isProtectionEnabled() && state == CheckState.SUS && buttonCheckStart == 0 && !checks.isEmpty() && globalTick <= 67 )
         {
             return;
@@ -431,9 +439,8 @@ public class BFConnector extends PacketHandler
         }
         config.saveIp( name, getConnection().getAddress().getAddress().getHostAddress() );
         getConnection().serverr = true;
-        ( (HandlerBoss) this.getChannel().pipeline().get( HandlerBoss.class ) ).setHandler( new UpstreamBridge( ProxyServer.getInstance(), this.getConnection() ) );
-        ProxyServer.getInstance().getPluginManager().callEvent( new PostLoginEvent( this.getConnection() ) );
-        this.getConnection().connect( ProxyServer.getInstance().getServerInfo( this.getConnection().getPendingConnection().getListener().getDefaultServer() ), null, true );
+        BungeeCord.getInstance().getPluginManager().callEvent( new BotFilterCheckFinishEvent( connection, state ) );
+        this.connection.getPendingConnection().finishLogin( connection );
         this.disconnected();
     }
 

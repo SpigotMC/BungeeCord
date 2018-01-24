@@ -16,8 +16,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.BungeeTitle;
 import net.md_5.bungee.api.ChatColor;
@@ -59,6 +61,12 @@ public class Config
     private AtomicInteger botCounter = new AtomicInteger();
     private Proxy proxy;
     private static Thread t;
+    /**
+     * You can disable PlayerDisconnectEvent when check was not successful
+     */
+    @Getter
+    @Setter
+    private static boolean callPlayerDisconnectEvent = true;
     ExecutorService executor = Executors.newSingleThreadExecutor();
     private static final Logger logger = BungeeCord.getInstance().getLogger();
 
@@ -254,8 +262,8 @@ public class Config
                 {
                     if ( connector.isConnected() )
                     {
-                        Utils.CheckState state = connector.getState();
-                        connector.sendCheckMessage( state == Utils.CheckState.BUTTON ? check2 : check );
+                        CheckState state = connector.getState();
+                        connector.sendCheckMessage( state == CheckState.BUTTON ? check2 : check );
                         connector.trySendKeepAlive();
                         switch ( state )
                         {
