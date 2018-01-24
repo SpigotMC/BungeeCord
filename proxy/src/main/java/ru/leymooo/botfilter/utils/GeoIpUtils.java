@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.zip.GZIPInputStream;
+import lombok.Getter;
 import net.md_5.bungee.BungeeCord;
 
 /**
@@ -37,6 +38,9 @@ public class GeoIpUtils
     private final HashSet<String> countryAuto;
     private final HashSet<String> countryPermanent;
 
+    @Getter
+    private boolean downloading;
+    
     private DatabaseReader reader;
     private Thread downloadTask;
 
@@ -70,7 +74,7 @@ public class GeoIpUtils
 
         if ( dataFile.exists() )
         {
-            boolean dataIsOld = ( System.currentTimeMillis() - dataFile.lastModified() ) > TimeUnit.DAYS.toMillis( 7 );
+            boolean dataIsOld = ( System.currentTimeMillis() - dataFile.lastModified() ) > TimeUnit.DAYS.toMillis( 14 );
             if ( !dataIsOld )
             {
                 try
@@ -78,7 +82,9 @@ public class GeoIpUtils
                     reader = new DatabaseReader.Builder( dataFile ).withCache( new CHMCache( 4096 * 4 ) ).build();
                 } catch ( IOException ex )
                 {
-                    BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not setup GeoLiteAPI database", ex );
+                    BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not setup GeoLiteAPI database. Trying to redownload file", ex );
+                    dataFile.delete();
+                    isDataAvailable();
                     return false;
                 }
                 BungeeCord.getInstance().getLogger().info( LICENSE );
@@ -106,9 +112,10 @@ public class GeoIpUtils
         {
             try
             {
+                downloading = true;
                 URL downloadUrl = new URL( GEOIP_URL );
                 URLConnection conn = downloadUrl.openConnection();
-                conn.setConnectTimeout( 10000 );
+                conn.setConnectTimeout( 30000 );
                 try ( InputStream input = conn.getInputStream() )
                 {
                     extractTarGZ( input );
@@ -117,6 +124,8 @@ public class GeoIpUtils
             } catch ( IOException e )
             {
                 BungeeCord.getInstance().getLogger().log( Level.WARNING, "Could not download GeoLiteAPI database", e );
+            } finally {
+                downloading = false;
             }
         };
     }

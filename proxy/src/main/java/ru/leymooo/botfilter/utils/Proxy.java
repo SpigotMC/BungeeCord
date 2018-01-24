@@ -59,22 +59,19 @@ public class Proxy
         }
         this.dataFile = new File( dataFolder, "proxy.txt" );
         this.dataFileAuto = new File( dataFolder, "proxyAutoDetected.txt" );
-        int tries = 0;
-        while ( Config.getConfig().getGeoUtils().isDataAvailable() == false )
+        while ( Config.getConfig().getGeoUtils().isDownloading() )
         {
             try
             {
                 Thread.sleep( 1000L );
-                if ( tries == 15 )
-                {
-                    logger.log( Level.INFO, "[BotFilter] Не удалось скачать GeoIp. Продолжаем без неё." );
-                    break;
-                }
                 logger.log( Level.INFO, "[BotFilter] Ждём пока скачается GeoIp дата база." );
-                tries++;
             } catch ( InterruptedException ex )
             {
             }
+        }
+        if ( !Config.getConfig().getGeoUtils().isAvailable() )
+        {
+            logger.log( Level.INFO, "[BotFilter] Не удалось скачать GeoIp. Продолжаем без неё." );
         }
         loadProxies( dataFile, false );
         loadProxies( dataFileAuto, true );
