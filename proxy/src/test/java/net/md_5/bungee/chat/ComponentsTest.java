@@ -16,7 +16,7 @@ public class ComponentsTest
     @Test
     public void testBuilderClone()
     {
-        ComponentBuilder builder = new ComponentBuilder("Hel").color(ChatColor.RED).append("lo").color(ChatColor.DARK_RED);
+        ComponentBuilder builder = new ComponentBuilder( "Hel" ).color( ChatColor.RED ).append( "lo" ).color( ChatColor.DARK_RED );
         ComponentBuilder cloned = new ComponentBuilder( builder );
 
         Assert.assertEquals( TextComponent.toLegacyText( builder.create() ), TextComponent.toLegacyText( cloned.create() ) );

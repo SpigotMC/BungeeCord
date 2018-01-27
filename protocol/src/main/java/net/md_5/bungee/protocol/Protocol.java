@@ -251,8 +251,8 @@ public enum Protocol
     /*========================================================================*/
     public static final int MAX_PACKET_ID = 0xFF;
     /*========================================================================*/
-    public final DirectionData TO_SERVER = new DirectionData(this, ProtocolConstants.Direction.TO_SERVER );
-    public final DirectionData TO_CLIENT = new DirectionData(this, ProtocolConstants.Direction.TO_CLIENT );
+    public final DirectionData TO_SERVER = new DirectionData( this, ProtocolConstants.Direction.TO_SERVER );
+    public final DirectionData TO_CLIENT = new DirectionData( this, ProtocolConstants.Direction.TO_CLIENT );
 
     public static void main(String[] args)
     {
@@ -289,7 +289,8 @@ public enum Protocol
     }
 
     @RequiredArgsConstructor
-    private static class ProtocolData {
+    private static class ProtocolData
+    {
 
         private final int protocolVersion;
         private final TObjectIntMap<Class<? extends DefinedPacket>> packetMap = new TObjectIntHashMap<>( MAX_PACKET_ID );
@@ -297,13 +298,17 @@ public enum Protocol
     }
 
     @RequiredArgsConstructor
-    private static class ProtocolMapping {
+    private static class ProtocolMapping
+    {
+
         private final int protocolVersion;
         private final int packetID;
     }
+
     // Helper method
-    private static ProtocolMapping map(int protocol, int id) {
-        return new ProtocolMapping(protocol, id);
+    private static ProtocolMapping map(int protocol, int id)
+    {
+        return new ProtocolMapping( protocol, id );
     }
 
     @RequiredArgsConstructor
@@ -337,7 +342,7 @@ public enum Protocol
             linkedProtocols.put( ProtocolConstants.MINECRAFT_1_12, Arrays.asList(
                     ProtocolConstants.MINECRAFT_1_12_1
             ) );
-               linkedProtocols.put( ProtocolConstants.MINECRAFT_1_12_1, Arrays.asList(
+            linkedProtocols.put( ProtocolConstants.MINECRAFT_1_12_1, Arrays.asList(
                     ProtocolConstants.MINECRAFT_1_12_2
             ) );
         }
@@ -358,7 +363,7 @@ public enum Protocol
         public final DefinedPacket createPacket(int id, int version)
         {
             ProtocolData protocolData = getProtocolData( version );
-            if (protocolData == null)
+            if ( protocolData == null )
             {
                 throw new BadPacketException( "Unsupported protocol version" );
             }
@@ -377,7 +382,7 @@ public enum Protocol
             }
         }
 
-        protected final void registerPacket(Class<? extends DefinedPacket> packetClass, ProtocolMapping ...mappings)
+        protected final void registerPacket(Class<? extends DefinedPacket> packetClass, ProtocolMapping... mappings)
         {
             try
             {
@@ -415,7 +420,7 @@ public enum Protocol
         {
 
             ProtocolData protocolData = getProtocolData( version );
-            if (protocolData == null)
+            if ( protocolData == null )
             {
                 throw new BadPacketException( "Unsupported protocol version" );
             }
