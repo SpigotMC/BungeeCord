@@ -56,11 +56,16 @@ public interface PendingConnection extends Connection
 
     /**
      * Set the connection's uuid
+     *
+     * @param uuid connection UUID
      */
     void setUniqueId(UUID uuid);
 
     /**
      * Get this connection's online mode.
+     * <br>
+     * See {@link #setOnlineMode(boolean)} for a description of how this option
+     * works.
      *
      * @return the online mode
      */
@@ -68,6 +73,12 @@ public interface PendingConnection extends Connection
 
     /**
      * Set this connection's online mode.
+     * <br>
+     * May be called only during the PlayerHandshakeEvent to set the online mode
+     * configuration setting for this connection only (i.e. whether or not the
+     * client will be treated as if it is connecting to an online mode server).
+     *
+     * @param onlineMode status
      */
     void setOnlineMode(boolean onlineMode);
 
