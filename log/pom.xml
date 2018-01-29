@@ -4,13 +4,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>net.md-5</groupId>
+        <groupId>net.madgamble</groupId>
         <artifactId>bungeecord-parent</artifactId>
         <version>1.12-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <groupId>net.md-5</groupId>
+    <groupId>net.madgamble</groupId>
     <artifactId>bungeecord-log</artifactId>
     <version>1.12-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -26,7 +26,7 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>net.md-5</groupId>
+            <groupId>net.madgamble</groupId>
             <artifactId>bungeecord-chat</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>

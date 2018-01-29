@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>net.md-5</groupId>
+    <groupId>net.madgamble</groupId>
     <artifactId>bungeecord-parent</artifactId>
     <version>1.12-SNAPSHOT</version>
     <packaging>pom</packaging>
