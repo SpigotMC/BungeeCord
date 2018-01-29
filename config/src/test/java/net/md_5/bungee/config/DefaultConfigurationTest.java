@@ -5,6 +5,7 @@ import org.junit.Test;
 
 public class DefaultConfigurationTest
 {
+
     @Test
     public void testDefaultValues()
     {

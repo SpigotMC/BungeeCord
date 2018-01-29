@@ -79,7 +79,7 @@ public abstract class BaseComponent
         copyFormatting( old );
     }
 
-    public void copyFormatting( BaseComponent component )
+    public void copyFormatting(BaseComponent component)
     {
         setColor( component.getColorRaw() );
         setBold( component.isBoldRaw() );

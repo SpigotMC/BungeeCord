@@ -39,7 +39,10 @@ public class TextComponent extends BaseComponent
             char c = message.charAt( i );
             if ( c == ChatColor.COLOR_CHAR )
             {
-                i++;
+                if ( ++i >= message.length() )
+                {
+                    break;
+                }
                 c = message.charAt( i );
                 if ( c >= 'A' && c <= 'Z' )
                 {
