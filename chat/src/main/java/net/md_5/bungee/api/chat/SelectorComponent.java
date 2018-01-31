@@ -4,13 +4,19 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+/**
+ * This component processes a target selector into a pre-formatted set of discovered names.<br>
+ * Multiple targets may be obtained, and with commas seperating each one and a final "and" for the last target.
+ * The resulting format cannot be overwritten. This includes all styling from team prefixes, insertions, click events, and hover events.<br>
+ * A bug (MC-53673) currently prevents full usage within hover events.
+ */
 @Getter
 @ToString
 @RequiredArgsConstructor
 public final class SelectorComponent extends BaseComponent
 {
     /**
-     * A string containing a selector (@p, @a, @r, @e, or @s) and, optionally, selector arguments.
+     * An entity target selector (@p, @a, @r, @e, or @s) and, optionally, selector arguments (e.g. @e[r=10,type=Creeper]).
      */
     private final String selector;
 

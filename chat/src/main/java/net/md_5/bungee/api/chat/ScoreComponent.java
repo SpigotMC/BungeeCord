@@ -6,6 +6,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * This component displays the score based on a player score on the scoreboard.<br>
+ * The <b>name</b> is the name of the player stored on the scoreboard, which may be a "fake" player.
+ * It can also be a target selector that <b>must</b> resolve to 1 target, and may target non-player entities.<br>
+ * With a book, /tellraw, or /title, using the wildcard '*' in the place of a name or target selector will cause all
+ * players to see their own score in the specified objective.<br>
+ * <b>Signs cannot use the wildcard ('*')</b><br>
+ *
+ * As of 1.12.2, a bug ( MC-56373 ) prevents full usage within hover events.
+ */
 @Getter
 @ToString
 @AllArgsConstructor
@@ -14,11 +24,7 @@ public final class ScoreComponent extends BaseComponent
 {
 
     /**
-     * The name of the player whose score should be displayed. Selectors can be used (such as "@p"),
-     * though BungeeCord does not guarantee the state of said entity or the validity of the selector. <br>
-     * The wildcard '*' can be used to show the reader's own score.
-     * (i.e. in a tellraw command to everyone, '*' will show each player their own score in the given objective)<br>
-     * BungeeCord makes no guarantees about using wildcards or selectors in this component.
+     * The name of the player whose score should be displayed.
      */
     private final String name;
 
