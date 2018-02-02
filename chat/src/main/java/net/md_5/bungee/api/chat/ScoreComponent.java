@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.annotation.Nullable;
-
 /**
  * This component displays the score based on a player score on the scoreboard.<br>
  * The <b>name</b> is the name of the player stored on the scoreboard, which may be a "fake" player.
@@ -37,7 +35,6 @@ public final class ScoreComponent extends BaseComponent
     /**
      * The optional value to use instead of the one present in the Scoreboard.
      */
-    @Nullable
     private String value = "";
 
     /**
