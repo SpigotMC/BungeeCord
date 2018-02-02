@@ -2,9 +2,10 @@ package net.md_5.bungee.api.chat;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
+import javax.annotation.Nullable;
 
 /**
  * This component displays the score based on a player score on the scoreboard.<br>
@@ -12,32 +13,46 @@ import lombok.ToString;
  * It can also be a target selector that <b>must</b> resolve to 1 target, and may target non-player entities.<br>
  * With a book, /tellraw, or /title, using the wildcard '*' in the place of a name or target selector will cause all
  * players to see their own score in the specified objective.<br>
- * <b>Signs cannot use the wildcard ('*')</b><br>
- *
+ * <b>Signs cannot use the '*' wildcard</b><br>
+ * These values are filled in by the server-side implementation.<br>
  * As of 1.12.2, a bug ( MC-56373 ) prevents full usage within hover events.
  */
 @Getter
+@Setter
 @ToString
 @AllArgsConstructor
-@RequiredArgsConstructor
 public final class ScoreComponent extends BaseComponent
 {
 
     /**
-     * The name of the player whose score should be displayed.
+     * The name of the entity whose score should be displayed.
      */
-    private final String name;
+    private String name;
 
     /**
      * The internal name of the objective the score is attached to.
      */
-    private final String objective;
+    private String objective;
 
     /**
-     * The optional value to use instead of the one present in the Scoreboard.<br>
+     * The optional value to use instead of the one present in the Scoreboard.
      */
-    @Setter
+    @Nullable
     private String value = "";
+
+    /**
+     * Creates a new score component with the specified name and objective.<br>
+     * If not specifically set, value will default to an empty string; signifying that the scoreboard value should
+     * take precedence. If not null, nor empty, {@code value} will override any value found in the scoreboard.<br>
+     * The value defaults to an empty string.
+     * @param name the name of the entity, or an entity selector, whose score should be displayed
+     * @param objective the internal name of the objective the entity's score is attached to
+     */
+    public ScoreComponent(String name, String objective)
+    {
+        setName( name );
+        setObjective( objective );
+    }
 
     /**
      * Creates a score component from the original to clone it.
@@ -47,9 +62,9 @@ public final class ScoreComponent extends BaseComponent
     public ScoreComponent(ScoreComponent original)
     {
         super( original );
-        this.name = original.getName();
-        this.objective = original.getObjective();
-        this.value = original.getValue();
+        setName( original.getName() );
+        setObjective( original.getObjective() );
+        setValue( original.getValue() );
     }
 
     @Override
@@ -64,8 +79,10 @@ public final class ScoreComponent extends BaseComponent
         return new ScoreComponent( this.name, this.objective, this.value );
     }
 
+    @Override
     protected void toLegacyText(StringBuilder builder)
     {
-        builder.append(this.value);
+        builder.append( this.value );
+        super.toLegacyText( builder );
     }
 }

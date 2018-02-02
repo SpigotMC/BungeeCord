@@ -24,9 +24,9 @@ public class ScoreComponentSerializer extends BaseComponentSerializer implements
         String name = json.get( "name" ).getAsString();
         String objective = json.get( "objective" ).getAsString();
         ScoreComponent component = new ScoreComponent( name, objective );
-        if( json.has("value") )
+        if( json.has("value" ) && !json.get( "value" ).getAsString().isEmpty() )
         {
-            component.setValue( json.get("value").getAsString() );
+            component.setValue( json.get( "value" ).getAsString() );
         }
         deserialize( json, component, context );
         return component;

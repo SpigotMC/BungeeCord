@@ -69,7 +69,7 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
         {
             return context.deserialize( json, KeybindComponent.class );
         }
-        if( object.has( "score") )
+        if( object.has( "score" ) )
         {
             return context.deserialize( json, ScoreComponent.class );
         }

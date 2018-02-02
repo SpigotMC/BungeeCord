@@ -19,7 +19,7 @@ public class SelectorComponentSerializer extends BaseComponentSerializer impleme
     {
         JsonObject object = element.getAsJsonObject();
         SelectorComponent component = new SelectorComponent( object.get( "selector" ).getAsString() );
-        deserialize(object, component, context);
+        deserialize( object, component, context );
         return component;
     }
 
@@ -27,8 +27,8 @@ public class SelectorComponentSerializer extends BaseComponentSerializer impleme
     public JsonElement serialize(SelectorComponent component, Type type, JsonSerializationContext context)
     {
         JsonObject object = new JsonObject();
-        serialize(object, component, context);
-        object.addProperty("selector", component.getSelector());
+        serialize( object, component, context );
+        object.addProperty( "selector", component.getSelector() );
         return object;
     }
 }
