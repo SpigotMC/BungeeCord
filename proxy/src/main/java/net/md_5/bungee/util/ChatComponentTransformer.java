@@ -11,8 +11,8 @@ import java.util.regex.Pattern;
 
 /**
  * This class transforms chat components by attempting to replace transformable fields with the appropriate value.<br>
- * ScoreComponents are transformed by replacing their {@link ScoreComponent#getName()}} into the matching entity's name.
- * As well as replacing the {@link ScoreComponent#getValue()} with the matching value in the {@link net.md_5.bungee.api.score.Scoreboard}
+ * ScoreComponents are transformed by replacing their {@link ScoreComponent#getName()}} into the matching entity's name
+ * as well as replacing the {@link ScoreComponent#getValue()} with the matching value in the {@link net.md_5.bungee.api.score.Scoreboard}
  * if and only if the {@link ScoreComponent#getValue()} is not present.
  */
 public final class ChatComponentTransformer
@@ -31,7 +31,7 @@ public final class ChatComponentTransformer
      */
     public BaseComponent transform(BaseComponent component, Scoreboard scoreboard, ProxiedPlayer player)
     {
-        if(component instanceof ScoreComponent)
+        if( component instanceof ScoreComponent )
         {
             return transformScoreComponent( (ScoreComponent) component, scoreboard, player );
         }
