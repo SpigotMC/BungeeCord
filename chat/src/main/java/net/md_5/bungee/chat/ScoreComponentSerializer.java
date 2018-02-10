@@ -40,10 +40,7 @@ public class ScoreComponentSerializer extends BaseComponentSerializer implements
         JsonObject json = new JsonObject();
         json.addProperty( "name", component.getName() );
         json.addProperty( "objective", component.getObjective() );
-        if( component.getValue() != null && !component.getValue().isEmpty() )
-        {
-            json.addProperty( "value", component.getValue() );
-        }
+        json.addProperty( "value", component.getValue() );
         root.add( "score", json );
         return root;
     }
