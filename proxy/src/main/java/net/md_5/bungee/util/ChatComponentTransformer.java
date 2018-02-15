@@ -41,7 +41,7 @@ public final class ChatComponentTransformer
      * @return the transformed component, or an array containing a single empty TextComponent if the components are null or empty
      * @throws IllegalArgumentException if an entity selector pattern is present
      */
-    public BaseComponent[] transform(Scoreboard scoreboard, ProxiedPlayer player, BaseComponent... component)
+    public BaseComponent[] transform(ProxiedPlayer player, BaseComponent... component)
     {
         if( component == null || component.length < 1 )
         {
@@ -52,20 +52,15 @@ public final class ChatComponentTransformer
         {
             if( root.getExtra() != null && !root.getExtra().isEmpty() )
             {
-                List<BaseComponent> list = Lists.newArrayList( transform( scoreboard, player, root.getExtra().toArray( new BaseComponent[]{} ) ) );
+                List<BaseComponent> list = Lists.newArrayList( transform( player, root.getExtra().toArray( new BaseComponent[root.getExtra().size()] ) ) );
                 root.setExtra( list );
             }
-            transformComponent(scoreboard, player, root);
+            if( root instanceof ScoreComponent )
+            {
+                transformScoreComponent( player,  ( ScoreComponent ) root );
+            }
         }
         return component;
-    }
-
-    private void transformComponent(Scoreboard scoreboard, ProxiedPlayer player, BaseComponent component)
-    {
-        if( component instanceof ScoreComponent )
-        {
-            transformScoreComponent( scoreboard, player, (ScoreComponent) component );
-        }
     }
 
     /**
@@ -75,7 +70,7 @@ public final class ChatComponentTransformer
      * @param scoreboard the scoreboard to retrieve scores from
      * @param player the player to use for the component's name
      */
-    private void transformScoreComponent(Scoreboard scoreboard, ProxiedPlayer player, ScoreComponent component)
+    private void transformScoreComponent(ProxiedPlayer player, ScoreComponent component)
     {
         Preconditions.checkArgument( !isSelectorPattern( component.getName() ), "Cannot transform entity selector patterns" );
 
@@ -90,9 +85,9 @@ public final class ChatComponentTransformer
             component.setName( player.getName() );
         }
 
-        if( scoreboard.getObjective( component.getObjective() ) != null )
+        if( player.getScoreboard().getObjective( component.getObjective() ) != null )
         {
-            Score score = scoreboard.getScore( component.getName() );
+            Score score = player.getScoreboard().getScore( component.getName() );
             if ( score != null )
             {
                 component.setValue( Integer.toString( score.getValue() ) );
