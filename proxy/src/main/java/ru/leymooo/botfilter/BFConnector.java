@@ -17,14 +17,10 @@ import lombok.EqualsAndHashCode;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
-import net.md_5.bungee.api.event.PostLoginEvent;
-import net.md_5.bungee.connection.UpstreamBridge;
 import net.md_5.bungee.netty.ChannelWrapper;
-import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.ClientSettings;
@@ -110,11 +106,14 @@ public class BFConnector extends PacketHandler
     @Override
     public void disconnected(ChannelWrapper channel) throws Exception
     {
-        if ( finished || Config.isCallPlayerDisconnectEvent())
+        if ( finished || Config.isCallPlayerDisconnectEvent() )
         {
             BungeeCord.getInstance().getPluginManager().callEvent( new PlayerDisconnectEvent( connection ) );
         }
-        this.disconnected();
+        if ( !finished )
+        {
+            this.disconnected();
+        }
     }
 
     private void disconnected()
