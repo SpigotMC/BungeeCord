@@ -77,7 +77,7 @@ public class BFConnector extends PacketHandler
     private SetSlot setSlotPacket = new SetSlot( 0, 36, 1, 35, 0 );
     private UpdateHeath healthPacket = new UpdateHeath( 1, 1, 2 );
     private SetExp setExpPacket = new SetExp( 0.0f, 1, 1 );
-    private boolean clientSettings, pluginMessage;
+    private boolean clientSettings, pluginMessage, finished;
     //==========Статические пакеты===============
     public static DefinedPacket loginPacket = new Login( -1, (short) 2, 0, (short) 0, (short) 100, "flat", false ),
             spawnPositionPacket = new SpawnPosition( 1, 60, 1 ),
@@ -110,7 +110,7 @@ public class BFConnector extends PacketHandler
     @Override
     public void disconnected(ChannelWrapper channel) throws Exception
     {
-        if ( Config.isCallPlayerDisconnectEvent() )
+        if ( finished || Config.isCallPlayerDisconnectEvent())
         {
             BungeeCord.getInstance().getPluginManager().callEvent( new PlayerDisconnectEvent( connection ) );
         }
@@ -130,7 +130,6 @@ public class BFConnector extends PacketHandler
         }
         this.setChannel( null );
         this.setLocation( null );
-        this.setConnection( null );
         if ( this.getChecks() != null )
         {
             this.getChecks().clear();
@@ -440,6 +439,7 @@ public class BFConnector extends PacketHandler
         config.saveIp( name, getConnection().getAddress().getAddress().getHostAddress() );
         getConnection().serverr = true;
         BungeeCord.getInstance().getPluginManager().callEvent( new BotFilterCheckFinishEvent( connection, state ) );
+        finished = true;
         this.connection.getPendingConnection().finishLogin( connection );
         this.disconnected();
     }

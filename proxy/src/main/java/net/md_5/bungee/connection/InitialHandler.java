@@ -544,41 +544,47 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 {
                     return;
                 }
-
-                ch.getHandle().eventLoop().execute( new Runnable()
+                if ( ch.getHandle().eventLoop().inEventLoop() )
                 {
-                    @Override
-                    public void run()
+                    finnalyFinishLogin( userCon );
+                } else
+                {
+                    ch.getHandle().eventLoop().execute( () ->
                     {
                         if ( !ch.isClosing() )
                         {
-
-                            ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) ); //BotFilter
-
-                            bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) ); //BotFilter
-
-                            ServerInfo server;
-                            if ( bungee.getReconnectHandler() != null )
-                            {
-                                server = bungee.getReconnectHandler().getServer( userCon );
-                            } else
-                            {
-                                server = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
-                            }
-                            if ( server == null )
-                            {
-                                server = bungee.getServerInfo( listener.getDefaultServer() );
-                            }
-                            userCon.connect( server, null, true );
-                            thisState = State.FINISHED;
+                            finnalyFinishLogin( userCon );
                         }
-                    }
-                } );
+                    } );
+                }
             }
         };
 
         // fire login event
         bungee.getPluginManager().callEvent( new LoginEvent( InitialHandler.this, complete ) );
+    }
+
+    private void finnalyFinishLogin(UserConnection userCon)
+    {
+        
+        ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) ); //BotFilter
+
+        bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) ); //BotFilter
+
+        ServerInfo server;
+        if ( bungee.getReconnectHandler() != null )
+        {
+            server = bungee.getReconnectHandler().getServer( userCon );
+        } else
+        {
+            server = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
+        }
+        if ( server == null )
+        {
+            server = bungee.getServerInfo( listener.getDefaultServer() );
+        }
+        userCon.connect( server, null, true );
+        thisState = State.FINISHED;
     }
 
     private void callCheckEvent(UserConnection userCon)
@@ -597,25 +603,25 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 {
                     return;
                 }
-
-                ch.getHandle().eventLoop().execute( new Runnable()
+                if ( ch.getHandle().eventLoop().inEventLoop() )
                 {
-                    @Override
-                    public void run()
+                    ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new BFConnector( userCon ) );
+                } else
+                {
+                    ch.getHandle().eventLoop().execute( () ->
                     {
                         if ( !ch.isClosing() )
                         {
                             ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new BFConnector( userCon ) );
                         }
-                    }
-                } );
+                    } );
+                }
             }
         };
 
         // fire login event
         bungee.getPluginManager().callEvent( new BotFilterCheckStartingEvent( userCon, complete ) );
     }
-
     //BotFilter end
     @Override
     public void disconnect(String reason)
