@@ -38,7 +38,6 @@ import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.InitialHandler;
-import net.md_5.bungee.entitymap.EntityMap;
 import net.md_5.bungee.forge.ForgeClientHandler;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.forge.ForgeServerHandler;
@@ -82,9 +81,6 @@ public final class UserConnection implements ProxiedPlayer
     private ServerConnection server;
     @Getter
     @Setter
-    private int dimension;
-    @Getter
-    @Setter
     private boolean dimensionChange = true;
     @Getter
     private final Collection<ServerInfo> pendingConnects = new HashSet<>();
@@ -113,12 +109,6 @@ public final class UserConnection implements ProxiedPlayer
     private final Collection<String> permissions = new CaseInsensitiveSet();
     /*========================================================================*/
     @Getter
-    @Setter
-    private int clientEntityId;
-    @Getter
-    @Setter
-    private int serverEntityId;
-    @Getter
     private ClientSettings settings;
     @Getter
     private final Scoreboard serverSentScoreboard = new Scoreboard();
@@ -127,8 +117,6 @@ public final class UserConnection implements ProxiedPlayer
     /*========================================================================*/
     @Getter
     private String displayName;
-    @Getter
-    private EntityMap entityRewrite;
     private Locale locale;
     /*========================================================================*/
     @Getter
@@ -149,8 +137,6 @@ public final class UserConnection implements ProxiedPlayer
 
     public void init()
     {
-        this.entityRewrite = EntityMap.getEntityMap( getPendingConnection().getVersion() );
-
         this.displayName = name;
 
         tabListHandler = new ServerUnique( this );
