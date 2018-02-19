@@ -55,6 +55,9 @@ import net.md_5.bungee.api.ReconnectHandler;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.KeybindComponent;
+import net.md_5.bungee.api.chat.ScoreComponent;
+import net.md_5.bungee.api.chat.SelectorComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
@@ -64,6 +67,9 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.chat.ComponentSerializer;
+import net.md_5.bungee.chat.KeybindComponentSerializer;
+import net.md_5.bungee.chat.ScoreComponentSerializer;
+import net.md_5.bungee.chat.SelectorComponentSerializer;
 import net.md_5.bungee.chat.TextComponentSerializer;
 import net.md_5.bungee.chat.TranslatableComponentSerializer;
 import net.md_5.bungee.command.CommandBungee;
@@ -152,6 +158,9 @@ public class BungeeCord extends ProxyServer
             .registerTypeAdapter( BaseComponent.class, new ComponentSerializer() )
             .registerTypeAdapter( TextComponent.class, new TextComponentSerializer() )
             .registerTypeAdapter( TranslatableComponent.class, new TranslatableComponentSerializer() )
+            .registerTypeAdapter( KeybindComponent.class, new KeybindComponentSerializer() )
+            .registerTypeAdapter( ScoreComponent.class, new ScoreComponentSerializer() )
+            .registerTypeAdapter( SelectorComponent.class, new SelectorComponentSerializer() )
             .registerTypeAdapter( ServerPing.PlayerInfo.class, new PlayerInfoSerializer() )
             .registerTypeAdapter( Favicon.class, Favicon.getFaviconTypeAdapter() ).create();
     @Getter
