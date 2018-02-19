@@ -11,6 +11,7 @@ import net.md_5.bungee.api.chat.HoverEvent;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Locale;
 
 public class BaseComponentSerializer
 {
@@ -19,7 +20,7 @@ public class BaseComponentSerializer
     {
         if ( object.has( "color" ) )
         {
-            component.setColor( ChatColor.valueOf( object.get( "color" ).getAsString().toUpperCase() ) );
+            component.setColor( ChatColor.valueOf( object.get( "color" ).getAsString().toUpperCase( Locale.ROOT ) ) );
         }
         if ( object.has( "bold" ) )
         {
@@ -55,7 +56,7 @@ public class BaseComponentSerializer
         {
             JsonObject event = object.getAsJsonObject( "clickEvent" );
             component.setClickEvent( new ClickEvent(
-                    ClickEvent.Action.valueOf( event.get( "action" ).getAsString().toUpperCase() ),
+                    ClickEvent.Action.valueOf( event.get( "action" ).getAsString().toUpperCase( Locale.ROOT ) ),
                     event.get( "value" ).getAsString() ) );
         }
         if ( object.has( "hoverEvent" ) )
@@ -72,7 +73,7 @@ public class BaseComponentSerializer
                     context.<BaseComponent>deserialize( event.get( "value" ), BaseComponent.class )
                 };
             }
-            component.setHoverEvent( new HoverEvent( HoverEvent.Action.valueOf( event.get( "action" ).getAsString().toUpperCase() ), res ) );
+            component.setHoverEvent( new HoverEvent( HoverEvent.Action.valueOf( event.get( "action" ).getAsString().toUpperCase( Locale.ROOT ) ), res ) );
         }
     }
 
@@ -126,14 +127,14 @@ public class BaseComponentSerializer
             if ( component.getClickEvent() != null )
             {
                 JsonObject clickEvent = new JsonObject();
-                clickEvent.addProperty( "action", component.getClickEvent().getAction().toString().toLowerCase() );
+                clickEvent.addProperty( "action", component.getClickEvent().getAction().toString().toLowerCase( Locale.ROOT ) );
                 clickEvent.addProperty( "value", component.getClickEvent().getValue() );
                 object.add( "clickEvent", clickEvent );
             }
             if ( component.getHoverEvent() != null )
             {
                 JsonObject hoverEvent = new JsonObject();
-                hoverEvent.addProperty( "action", component.getHoverEvent().getAction().toString().toLowerCase() );
+                hoverEvent.addProperty( "action", component.getHoverEvent().getAction().toString().toLowerCase( Locale.ROOT ) );
                 hoverEvent.add( "value", context.serialize( component.getHoverEvent().getValue() ) );
                 object.add( "hoverEvent", hoverEvent );
             }

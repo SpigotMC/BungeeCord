@@ -55,6 +55,9 @@ import net.md_5.bungee.api.ReconnectHandler;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.KeybindComponent;
+import net.md_5.bungee.api.chat.ScoreComponent;
+import net.md_5.bungee.api.chat.SelectorComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
@@ -64,6 +67,9 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.chat.ComponentSerializer;
+import net.md_5.bungee.chat.KeybindComponentSerializer;
+import net.md_5.bungee.chat.ScoreComponentSerializer;
+import net.md_5.bungee.chat.SelectorComponentSerializer;
 import net.md_5.bungee.chat.TextComponentSerializer;
 import net.md_5.bungee.chat.TranslatableComponentSerializer;
 import net.md_5.bungee.command.CommandBungee;
@@ -71,6 +77,7 @@ import net.md_5.bungee.command.CommandEnd;
 import net.md_5.bungee.command.CommandIP;
 import net.md_5.bungee.command.CommandPerms;
 import net.md_5.bungee.command.CommandReload;
+import net.md_5.bungee.command.ConsoleCommandCompleter;
 import net.md_5.bungee.command.ConsoleCommandSender;
 import net.md_5.bungee.compress.CompressFactory;
 import net.md_5.bungee.conf.Configuration;
@@ -151,12 +158,18 @@ public class BungeeCord extends ProxyServer
             .registerTypeAdapter( BaseComponent.class, new ComponentSerializer() )
             .registerTypeAdapter( TextComponent.class, new TextComponentSerializer() )
             .registerTypeAdapter( TranslatableComponent.class, new TranslatableComponentSerializer() )
+            .registerTypeAdapter( KeybindComponent.class, new KeybindComponentSerializer() )
+            .registerTypeAdapter( ScoreComponent.class, new ScoreComponentSerializer() )
+            .registerTypeAdapter( SelectorComponent.class, new SelectorComponentSerializer() )
             .registerTypeAdapter( ServerPing.PlayerInfo.class, new PlayerInfoSerializer( ProtocolConstants.MINECRAFT_1_7_6 ) )
             .registerTypeAdapter( Favicon.class, Favicon.getFaviconTypeAdapter() ).create();
     public final Gson gsonLegacy = new GsonBuilder()
             .registerTypeAdapter( BaseComponent.class, new ComponentSerializer() )
             .registerTypeAdapter( TextComponent.class, new TextComponentSerializer() )
             .registerTypeAdapter( TranslatableComponent.class, new TranslatableComponentSerializer() )
+            .registerTypeAdapter( KeybindComponent.class, new KeybindComponentSerializer() )
+            .registerTypeAdapter( ScoreComponent.class, new ScoreComponentSerializer() )
+            .registerTypeAdapter( SelectorComponent.class, new SelectorComponentSerializer() )
             .registerTypeAdapter( ServerPing.PlayerInfo.class, new PlayerInfoSerializer( ProtocolConstants.MINECRAFT_1_7_2 ) )
             .registerTypeAdapter( Favicon.class, Favicon.getFaviconTypeAdapter() ).create();
     @Getter
@@ -210,6 +223,7 @@ public class BungeeCord extends ProxyServer
         AnsiConsole.systemInstall();
         consoleReader = new ConsoleReader();
         consoleReader.setExpandEvents( false );
+        consoleReader.addCompleter( new ConsoleCommandCompleter( this ) );
 
         logger = new BungeeLogger( "BungeeCord", "proxy.log", consoleReader );
         System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
