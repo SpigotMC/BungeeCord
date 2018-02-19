@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 @Getter
 @Setter
 @AllArgsConstructor
-public class TextComponent extends BaseComponent
+public final class TextComponent extends BaseComponent
 {
 
     private static final Pattern url = Pattern.compile( "^(?:(https?)://)?([-\\w_\\.]{2,}\\.[a-z]{2,4})(/\\S*)?$" );
@@ -39,7 +39,10 @@ public class TextComponent extends BaseComponent
             char c = message.charAt( i );
             if ( c == ChatColor.COLOR_CHAR )
             {
-                i++;
+                if ( ++i >= message.length() )
+                {
+                    break;
+                }
                 c = message.charAt( i );
                 if ( c >= 'A' && c <= 'Z' )
                 {

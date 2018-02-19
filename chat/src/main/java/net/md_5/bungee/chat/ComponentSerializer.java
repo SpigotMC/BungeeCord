@@ -9,6 +9,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.KeybindComponent;
+import net.md_5.bungee.api.chat.ScoreComponent;
+import net.md_5.bungee.api.chat.SelectorComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 
@@ -23,6 +25,8 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
             registerTypeAdapter( TextComponent.class, new TextComponentSerializer() ).
             registerTypeAdapter( TranslatableComponent.class, new TranslatableComponentSerializer() ).
             registerTypeAdapter( KeybindComponent.class, new KeybindComponentSerializer() ).
+            registerTypeAdapter( ScoreComponent.class, new ScoreComponentSerializer() ).
+            registerTypeAdapter( SelectorComponent.class, new SelectorComponentSerializer() ).
             create();
 
     public final static ThreadLocal<HashSet<BaseComponent>> serializedComponents = new ThreadLocal<HashSet<BaseComponent>>();
@@ -64,6 +68,14 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
         if ( object.has( "keybind" ) )
         {
             return context.deserialize( json, KeybindComponent.class );
+        }
+        if ( object.has( "score" ) )
+        {
+            return context.deserialize( json, ScoreComponent.class );
+        }
+        if ( object.has( "selector" ) )
+        {
+            return context.deserialize( json, SelectorComponent.class );
         }
         return context.deserialize( json, TextComponent.class );
     }

@@ -1,10 +1,10 @@
 package net.md_5.bungee.config;
 
-import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -56,7 +56,7 @@ public final class Configuration
         Object section = self.get( root );
         if ( section == null )
         {
-            section = new Configuration( ( defaults == null ) ? null : defaults.getSection( path ) );
+            section = new Configuration( ( defaults == null ) ? null : defaults.getSection( root ) );
             self.put( root, section );
         }
 
@@ -143,7 +143,7 @@ public final class Configuration
      */
     public Collection<String> getKeys()
     {
-        return Sets.newLinkedHashSet( self.keySet() );
+        return new LinkedHashSet<>( self.keySet() );
     }
 
     /*------------------------------------------------------------------------*/

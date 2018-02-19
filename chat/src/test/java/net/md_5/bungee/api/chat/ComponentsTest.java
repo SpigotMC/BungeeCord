@@ -1,12 +1,7 @@
-package net.md_5.bungee.chat;
+package net.md_5.bungee.api.chat;
 
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.TranslatableComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -16,7 +11,7 @@ public class ComponentsTest
     @Test
     public void testBuilderClone()
     {
-        ComponentBuilder builder = new ComponentBuilder("Hel").color(ChatColor.RED).append("lo").color(ChatColor.DARK_RED);
+        ComponentBuilder builder = new ComponentBuilder( "Hel" ).color( ChatColor.RED ).append( "lo" ).color( ChatColor.DARK_RED );
         ComponentBuilder cloned = new ComponentBuilder( builder );
 
         Assert.assertEquals( TextComponent.toLegacyText( builder.create() ), TextComponent.toLegacyText( cloned.create() ) );
@@ -195,5 +190,35 @@ public class ComponentsTest
         c.addExtra( a );
         a.addExtra( b );
         ComponentSerializer.toString( a );
+    }
+
+    @Test
+    public void testInvalidColorCodes()
+    {
+        StringBuilder allInvalidColorCodes = new StringBuilder();
+
+        // collect all invalid color codes (e.g. §z, §g, ...)
+        for ( char alphChar : "0123456789abcdefghijklmnopqrstuvwxyz".toCharArray() )
+        {
+            if ( ChatColor.ALL_CODES.indexOf( alphChar ) == -1 )
+            {
+                allInvalidColorCodes.append( ChatColor.COLOR_CHAR );
+                allInvalidColorCodes.append( alphChar );
+            }
+        }
+
+        // last char is a single '§'
+        allInvalidColorCodes.append( ChatColor.COLOR_CHAR );
+
+        String invalidColorCodesLegacyText = fromAndToLegacyText( allInvalidColorCodes.toString() );
+        String emptyLegacyText = fromAndToLegacyText( "" );
+
+        // all invalid color codes and the trailing '§' should be ignored
+        Assert.assertEquals( emptyLegacyText, invalidColorCodesLegacyText );
+    }
+
+    private String fromAndToLegacyText(String legacyText)
+    {
+        return BaseComponent.toLegacyText( TextComponent.fromLegacyText( legacyText ) );
     }
 }
