@@ -9,12 +9,48 @@ public class ComponentsTest
 {
 
     @Test
+    public void testComponentFormatRetention()
+    {
+        TextComponent first = new TextComponent( "Hello" );
+        first.setBold( true );
+        first.setColor( ChatColor.RED );
+        first.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, "test" ) );
+        first.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( "Test" ).create() ) );
+
+        TextComponent second = new TextComponent( " world" );
+        second.copyFormatting( first, ComponentBuilder.FormatRetention.ALL, true );
+        Assert.assertEquals( first.isBold(), second.isBold() );
+        Assert.assertEquals( first.getColor(), second.getColor() );
+        Assert.assertEquals( first.getClickEvent(), second.getClickEvent() );
+        Assert.assertEquals( first.getHoverEvent(), second.getHoverEvent() );
+    }
+
+    @Test
     public void testBuilderClone()
     {
         ComponentBuilder builder = new ComponentBuilder( "Hel" ).color( ChatColor.RED ).append( "lo" ).color( ChatColor.DARK_RED );
         ComponentBuilder cloned = new ComponentBuilder( builder );
 
         Assert.assertEquals( TextComponent.toLegacyText( builder.create() ), TextComponent.toLegacyText( cloned.create() ) );
+    }
+
+    @Test
+    public void testBuilderAppendMixedComponents()
+    {
+        ComponentBuilder builder = new ComponentBuilder( "Hello " );
+        TextComponent textComponent = new TextComponent( "world " );
+        TranslatableComponent translatableComponent = new TranslatableComponent( "item.swordGold.name" );
+        builder.append( new BaseComponent[] { // array based BaseComponent append
+            textComponent,
+            translatableComponent
+        } );
+        ScoreComponent scoreComponent = new ScoreComponent( "myscore", "myobjective" );
+        builder.append( scoreComponent ); // non array based BaseComponent append
+        BaseComponent[] components = builder.create();
+        Assert.assertEquals( "Hello ", components[0].toPlainText() );
+        Assert.assertEquals( textComponent.toPlainText(), components[1].toPlainText() );
+        Assert.assertEquals( translatableComponent.toPlainText(), components[2].toPlainText() );
+        Assert.assertEquals( scoreComponent.toPlainText(), components[3].toPlainText() );
     }
 
     @Test
