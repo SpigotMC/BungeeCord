@@ -78,8 +78,9 @@ public final class ComponentBuilder
     {
         parts.add( current );
 
+        BaseComponent previous = current;
         current = component.duplicate();
-        retain( retention );
+        current.copyFormatting( previous, retention );
         return this;
     }
 
@@ -111,8 +112,9 @@ public final class ComponentBuilder
         {
             parts.add( current );
 
+            BaseComponent previous = current;
             current = component.duplicate();
-            retain( retention );
+            current.copyFormatting( previous, retention );
         }
 
         return this;
