@@ -8,6 +8,9 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author Felix 'SasukeKawaii' Klauke <info@felix-klauke.de>
+ */
 public abstract class ConfigurationProvider
 {
 
@@ -16,6 +19,7 @@ public abstract class ConfigurationProvider
     static
     {
         providers.put( YamlConfiguration.class, new YamlConfiguration() );
+        providers.put( JsonConfiguration.class, new JsonConfiguration() );
     }
 
     public static ConfigurationProvider getProvider(Class<? extends ConfigurationProvider> provider)
