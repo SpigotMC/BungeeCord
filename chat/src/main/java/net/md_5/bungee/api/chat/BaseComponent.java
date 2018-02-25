@@ -9,6 +9,7 @@ import net.md_5.bungee.api.ChatColor;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.ToString;
+import net.md_5.bungee.api.chat.ComponentBuilder.FormatRetention;
 
 @Setter
 @ToString(exclude = "parent")
@@ -62,13 +63,13 @@ public abstract class BaseComponent
     private List<BaseComponent> extra;
 
     /**
-     * The action to preform when this component (and child components) are
+     * The action to perform when this component (and child components) are
      * clicked
      */
     @Getter
     private ClickEvent clickEvent;
     /**
-     * The action to preform when this component (and child components) are
+     * The action to perform when this component (and child components) are
      * hovered over
      */
     @Getter
@@ -76,26 +77,73 @@ public abstract class BaseComponent
 
     BaseComponent(BaseComponent old)
     {
-        copyFormatting( old );
-    }
+        copyFormatting( old, FormatRetention.ALL );
 
-    public void copyFormatting(BaseComponent component)
-    {
-        setColor( component.getColorRaw() );
-        setBold( component.isBoldRaw() );
-        setItalic( component.isItalicRaw() );
-        setUnderlined( component.isUnderlinedRaw() );
-        setStrikethrough( component.isStrikethroughRaw() );
-        setObfuscated( component.isObfuscatedRaw() );
-        setInsertion( component.getInsertion() );
-        setClickEvent( component.getClickEvent() );
-        setHoverEvent( component.getHoverEvent() );
-        if ( component.getExtra() != null )
+        if ( old.getExtra() != null )
         {
-            for ( BaseComponent extra : component.getExtra() )
+            for ( BaseComponent extra : old.getExtra() )
             {
                 addExtra( extra.duplicate() );
             }
+        }
+    }
+
+    /**
+    * Copies the formatting of another BaseComponent with every format style.
+    *
+    * @param component the component to copy from
+    */
+    public void copyFormatting(BaseComponent component)
+    {
+        copyFormatting( component, FormatRetention.ALL );
+    }
+
+    /**
+    * Copies the formatting of another BaseComponent with a specified format style.
+    *
+    * @param component the component to copy from
+    * @param retention the formatting to copy
+    */
+    public void copyFormatting(BaseComponent component, FormatRetention retention)
+    {
+        if ( retention == FormatRetention.EVENTS || retention == FormatRetention.ALL )
+        {
+            setClickEvent( component.getClickEvent() );
+            setHoverEvent( component.getHoverEvent() );
+        }
+        if ( retention == FormatRetention.FORMATTING || retention == FormatRetention.ALL )
+        {
+            setColor( component.getColorRaw() );
+            setBold( component.isBoldRaw() );
+            setItalic( component.isItalicRaw() );
+            setUnderlined( component.isUnderlinedRaw() );
+            setStrikethrough( component.isStrikethroughRaw() );
+            setObfuscated( component.isObfuscatedRaw() );
+            setInsertion( component.getInsertion() );
+        }
+    }
+
+    /**
+     * Retains only the specified formatting. Text is not modified.
+     *
+     * @param retention the formatting to retain
+     */
+    public void retain(FormatRetention retention)
+    {
+        if ( retention == FormatRetention.FORMATTING || retention == FormatRetention.NONE )
+        {
+            setClickEvent( null );
+            setHoverEvent( null );
+        }
+        if ( retention == FormatRetention.EVENTS || retention == FormatRetention.NONE )
+        {
+            setColor( null );
+            setBold( null );
+            setItalic( null );
+            setUnderlined( null );
+            setStrikethrough( null );
+            setObfuscated( null );
+            setInsertion( null );
         }
     }
 
@@ -110,8 +158,15 @@ public abstract class BaseComponent
      * Clones the BaseComponent without formatting and returns the clone.
      *
      * @return The duplicate of this BaseComponent
+     * @deprecated API use discouraged, use traditional duplicate
      */
-    public abstract BaseComponent duplicateWithoutFormatting();
+    @Deprecated
+    public BaseComponent duplicateWithoutFormatting()
+    {
+        BaseComponent component = duplicate();
+        component.retain( FormatRetention.NONE );
+        return component;
+    }
 
     /**
      * Converts the components to a string that uses the old formatting codes

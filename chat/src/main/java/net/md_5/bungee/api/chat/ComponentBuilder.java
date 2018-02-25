@@ -54,6 +54,35 @@ public final class ComponentBuilder
         current = new TextComponent( text );
     }
 
+     /**
+     * Appends the component to the builder and makes it the current target for
+     * formatting. The text will have all the formatting from the previous part.
+     *
+     * @param components the components to append
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder append(BaseComponent component)
+    {
+        return append( component, FormatRetention.ALL );
+    }
+
+    /**
+     * Appends the component to the builder and makes it the current target for
+     * formatting. You can specify the amount of formatting retained.
+     *
+     * @param component the component to append
+     * @param retention the formatting to retain
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder append(BaseComponent component, FormatRetention retention)
+    {
+        parts.add( current );
+
+        current = component.duplicate();
+        retain( retention );
+        return this;
+    }
+
     /**
      * Appends the components to the builder and makes it the current target for
      * formatting. The text will have all the formatting from the previous part.
@@ -115,8 +144,7 @@ public final class ComponentBuilder
 
         BaseComponent old = current;
         current = new TextComponent( text );
-        current.copyFormatting( old );
-        retain( retention );
+        current.copyFormatting( old, retention );
 
         return this;
     }
@@ -247,27 +275,7 @@ public final class ComponentBuilder
      */
     public ComponentBuilder retain(FormatRetention retention)
     {
-        BaseComponent previous = current;
-
-        switch ( retention )
-        {
-            case NONE:
-                current = current.duplicateWithoutFormatting();
-                break;
-            case ALL:
-                // No changes are required
-                break;
-            case EVENTS:
-                current = current.duplicateWithoutFormatting();
-                current.setInsertion( previous.getInsertion() );
-                current.setClickEvent( previous.getClickEvent() );
-                current.setHoverEvent( previous.getHoverEvent() );
-                break;
-            case FORMATTING:
-                current.setClickEvent( null );
-                current.setHoverEvent( null );
-                break;
-        }
+        current.retain( retention );
         return this;
     }
 
