@@ -55,10 +55,10 @@ public final class ComponentBuilder
     }
 
      /**
-     * Appends the component to the builder and makes it the current target for
+     * Appends a component to the builder and makes it the current target for
      * formatting. The text will have all the formatting from the previous part.
      *
-     * @param components the components to append
+     * @param component the component to append
      * @return this ComponentBuilder for chaining
      */
     public ComponentBuilder append(BaseComponent component)
@@ -67,7 +67,7 @@ public final class ComponentBuilder
     }
 
     /**
-     * Appends the component to the builder and makes it the current target for
+     * Appends a component to the builder and makes it the current target for
      * formatting. You can specify the amount of formatting retained.
      *
      * @param component the component to append
