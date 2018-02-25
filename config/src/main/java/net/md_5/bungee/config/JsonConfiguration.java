@@ -9,9 +9,6 @@ import java.io.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * @author Felix 'SasukeKawaii' Klauke <info@felix-klauke.de>
- */
 public class JsonConfiguration extends ConfigurationProvider {
 
     /**

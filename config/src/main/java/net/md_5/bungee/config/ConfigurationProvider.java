@@ -8,9 +8,6 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author Felix 'SasukeKawaii' Klauke <info@felix-klauke.de>
- */
 public abstract class ConfigurationProvider
 {
 

@@ -11,9 +11,6 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-/**
- * @author Felix 'SasukeKawaii' Klauke <info@felix-klauke.de>
- */
 public class JsonConfigurationTest {
 
     private static final ConfigurationProvider CONFIGURATION_PROVIDER = ConfigurationProvider.getProvider(JsonConfiguration.class);
