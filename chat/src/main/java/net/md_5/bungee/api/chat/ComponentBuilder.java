@@ -80,7 +80,7 @@ public final class ComponentBuilder
 
         BaseComponent previous = current;
         current = component.duplicate();
-        current.copyFormatting( previous, retention );
+        current.copyFormatting( previous, retention, false );
         return this;
     }
 
@@ -114,7 +114,7 @@ public final class ComponentBuilder
 
             BaseComponent previous = current;
             current = component.duplicate();
-            current.copyFormatting( previous, retention );
+            current.copyFormatting( previous, retention, false );
         }
 
         return this;
@@ -146,7 +146,7 @@ public final class ComponentBuilder
 
         BaseComponent old = current;
         current = new TextComponent( text );
-        current.copyFormatting( old, retention );
+        current.copyFormatting( old, retention, false );
 
         return this;
     }

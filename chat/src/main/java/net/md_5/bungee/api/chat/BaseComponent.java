@@ -77,7 +77,7 @@ public abstract class BaseComponent
 
     BaseComponent(BaseComponent old)
     {
-        copyFormatting( old, FormatRetention.ALL );
+        copyFormatting( old, FormatRetention.ALL, true );
 
         if ( old.getExtra() != null )
         {
@@ -92,10 +92,11 @@ public abstract class BaseComponent
     * Copies the formatting of another BaseComponent with every format style.
     *
     * @param component the component to copy from
+    * @param replace if already defined formats should be replaced by the new component
     */
-    public void copyFormatting(BaseComponent component)
+    public void copyFormatting(BaseComponent component, boolean replace)
     {
-        copyFormatting( component, FormatRetention.ALL );
+        copyFormatting( component, FormatRetention.ALL, replace );
     }
 
     /**
@@ -103,23 +104,51 @@ public abstract class BaseComponent
     *
     * @param component the component to copy from
     * @param retention the formatting to copy
+    * @param replace if already defined formats should be replaced by the new component
     */
-    public void copyFormatting(BaseComponent component, FormatRetention retention)
+    public void copyFormatting(BaseComponent component, FormatRetention retention, boolean replace)
     {
         if ( retention == FormatRetention.EVENTS || retention == FormatRetention.ALL )
         {
-            setClickEvent( component.getClickEvent() );
-            setHoverEvent( component.getHoverEvent() );
+            if ( replace || clickEvent == null )
+            {
+                setClickEvent( component.getClickEvent() );
+            }
+            if ( replace || hoverEvent == null )
+            {
+                setHoverEvent( component.getHoverEvent() );
+            }
         }
         if ( retention == FormatRetention.FORMATTING || retention == FormatRetention.ALL )
         {
-            setColor( component.getColorRaw() );
-            setBold( component.isBoldRaw() );
-            setItalic( component.isItalicRaw() );
-            setUnderlined( component.isUnderlinedRaw() );
-            setStrikethrough( component.isStrikethroughRaw() );
-            setObfuscated( component.isObfuscatedRaw() );
-            setInsertion( component.getInsertion() );
+            if ( replace || color == null )
+            {
+                setColor( component.getColorRaw() );
+            }
+            if ( replace || bold == null )
+            {
+                setBold( component.isBoldRaw() );
+            }
+            if ( replace || italic == null )
+            {
+                setItalic( component.isItalicRaw() );
+            }
+            if ( replace || underlined == null )
+            {
+                setUnderlined( component.isUnderlinedRaw() );
+            }
+            if ( replace || strikethrough == null )
+            {
+                setStrikethrough( component.isStrikethroughRaw() );
+            }
+            if ( replace || obfuscated == null )
+            {
+                setObfuscated( component.isObfuscatedRaw() );
+            }
+            if ( replace || insertion == null )
+            {
+                setInsertion( component.getInsertion() );
+            }
         }
     }
 
