@@ -89,9 +89,9 @@ import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.fusesource.jansi.AnsiConsole;
+import ru.leymooo.botfilter.BotFilter;
+import ru.leymooo.botfilter.config.Settings;
 import ru.leymooo.fakeonline.FakeOnline;
-import ru.leymooo.botfilter.utils.ButtonUtils;
-import ru.leymooo.botfilter.Config;
 
 /**
  * Main BungeeCord proxy class.
@@ -160,6 +160,9 @@ public class BungeeCord extends ProxyServer
     @Getter
     private ConnectionThrottle connectionThrottle;
     private final ModuleManager moduleManager = new ModuleManager();
+
+    @Getter
+    private String customBungeeName; //BotFilter
 
     
     {
@@ -251,11 +254,14 @@ public class BungeeCord extends ProxyServer
             ResourceLeakDetector.setLevel( ResourceLeakDetector.Level.DISABLED ); // Eats performance
         }
 
+        String property = System.getProperty( "bungeeName" ); // BotFilter
+        customBungeeName = ( property == null ? getName() : property ) + " " + getGameVersion(); // BotFilter
+
+        new BotFilter(); //Hook BotFilter into Bungee
+
         bossEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Boss IO Thread #%1$d" ).build() ); //BotFilter
         workerEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Worker IO Thread #%1$d" ).build() ); //BotFilter
 
-        new Config(); //BotFilter
-        new ButtonUtils();
         File moduleDirectory = new File( "modules" );
         moduleManager.load( this, moduleDirectory );
         pluginManager.detectPlugins( moduleDirectory );
@@ -540,21 +546,18 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public int getOnlineCountWithGG()
+    public int getOnlineCountBF(boolean fake)
     {
-        return connections.size() + Config.getConfig().getConnectedUsersSet().size();
-    }
-
-    @Override
-    public int getFakeOnlineCountWithGG()
-    {
-        return FakeOnline.getInstance().getFakeOnline() + Config.getConfig().getConnectedUsersSet().size();
-    }
-
-    @Override
-    public int getOnlineCountAuto()
-    {
-        return getFakeOnlineCountWithGG() - ( Config.getConfig().isOnlineFromFilter() ? 0 : Config.getConfig().getConnectedUsersSet().size() );
+        int online = connections.size();
+        if ( Settings.IMP.SHOW_ONLINE )
+        {
+            online += BotFilter.getInstance().getOnlineOnFilter();
+        }
+        if ( fake )
+        {
+            //TODO: Handle fake online
+        }
+        return online;
     }
 
     @Override

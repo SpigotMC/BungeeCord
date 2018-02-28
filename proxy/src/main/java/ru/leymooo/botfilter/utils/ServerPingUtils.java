@@ -7,7 +7,8 @@ import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.config.Configuration;
-import ru.leymooo.botfilter.Config;
+import ru.leymooo.botfilter.BotFilter;
+import ru.leymooo.botfilter.config.Settings;
 
 /**
  *
@@ -16,40 +17,22 @@ import ru.leymooo.botfilter.Config;
 public class ServerPingUtils
 {
 
-    @Getter
-    private static ServerPingUtils instance;
-    private boolean onNormal, onPerm, onAttack;
-    @Getter
     private Cache<InetAddress, Boolean> pingList;
-    @Getter
-    private String message;
+    private boolean enabled = Settings.IMP.SERVER_PING_CHECK.MODE != 2;
 
-    public ServerPingUtils(Configuration section)
+    public ServerPingUtils()
     {
-        instance = this;
-        this.onNormal = section.getBoolean( "on-normal-mode" );
-        this.onAttack = section.getBoolean( "on-bot-attack" );
-        this.onPerm = section.getBoolean( "on-permanent-protection" );
-        if ( !( onAttack || onPerm || onNormal ) )
-        {
-            return;
-        }
-        this.message = ChatColor.translateAlternateColorCodes( '&', section.getString( "kick-message" ) );
         pingList = CacheBuilder.newBuilder()
                 .concurrencyLevel( 2 )
                 .initialCapacity( 40 )
-                .expireAfterWrite( section.getInt( "time" ), TimeUnit.SECONDS )
+                .expireAfterWrite( Settings.IMP.SERVER_PING_CHECK.CACHE_TIME, TimeUnit.SECONDS )
                 .build();
     }
 
-    public boolean needKickAndRemove(InetAddress address)
+    public boolean needKickOrRemove(InetAddress address)
     {
-        if ( pingList == null || !needCheck() )
-        {
-            return false;
-        }
         boolean present = pingList.getIfPresent( address ) == null;
-        if ( !present )
+        if ( !present ) //Убрираем из мапы есть уже есть в ней.
         {
             pingList.invalidate( address );
         }
@@ -58,16 +41,15 @@ public class ServerPingUtils
 
     public void add(InetAddress address)
     {
-        if ( pingList != null )
+        if ( enabled )
         {
             pingList.put( address, true );
         }
     }
 
-    private boolean needCheck()
+    public boolean needCheck()
     {
-        Config conf = Config.getConfig();
-        return onNormal || ( onPerm && conf.isPermanent() ) || ( onAttack && conf.isUnderAttack() );
+        return enabled && ( Settings.IMP.SERVER_PING_CHECK.MODE == 0 || BotFilter.getInstance().isUnderAttack() );
     }
 
 }

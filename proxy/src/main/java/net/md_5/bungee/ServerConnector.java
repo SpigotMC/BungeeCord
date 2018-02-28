@@ -186,9 +186,9 @@ public class ServerConnector extends PacketHandler
             user.getForgeClientHandler().setHandshakeComplete();
         }
 
-        if ( !user.serverr ) //BotFilter
+        if ( user.isNeedLogin() ) //BotFilter
         {
-            user.serverr = true; //BotFilter
+            user.setNeedLogin( false ); //BotFilter
             // Once again, first connection
             user.setClientEntityId( login.getEntityId() );
             user.setServerEntityId( login.getEntityId() );

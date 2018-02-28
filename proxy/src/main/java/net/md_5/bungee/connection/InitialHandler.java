@@ -4,7 +4,6 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import java.math.BigInteger;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
@@ -32,7 +31,6 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.Connection.Unsafe;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import ru.leymooo.botfilter.event.BotFilterCheckStartingEvent;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.PlayerHandshakeEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
@@ -64,11 +62,13 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
-import ru.leymooo.botfilter.Config;
-import ru.leymooo.botfilter.BFConnector;
-import ru.leymooo.botfilter.utils.GeoIpUtils;
+import ru.leymooo.botfilter.BotFilter;
+import ru.leymooo.botfilter.Connector;
+import ru.leymooo.botfilter.caching.PacketUtil;
+import ru.leymooo.botfilter.caching.PacketUtil.KickType;
+import ru.leymooo.botfilter.config.Settings;
+import ru.leymooo.botfilter.utils.ManyChecksUtils;
 import ru.leymooo.botfilter.utils.ServerPingUtils;
-import ru.leymooo.botfilter.utils.Utils;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -157,8 +157,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         this.legacy = true;
         final boolean v1_5 = ping.isV1_5();
 
-        ServerPing legacy = new ServerPing( new ServerPing.Protocol( "BotFilter " + bungee.getGameVersion() + " by vk.com Leymooo_s", bungee.getProtocolVersion() ), //BotFilter
-                new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCountAuto(), null ), //BotFilter
+        ServerPing legacy = new ServerPing( new ServerPing.Protocol( bungee.getCustomBungeeName(), bungee.getProtocolVersion() ), //BotFilter
+                new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCountBF( true ), null ), //BotFilter
                 new TextComponent( TextComponent.fromLegacyText( listener.getMotd() ) ), (Favicon) null );
 
         Callback<ProxyPingEvent> callback = new Callback<ProxyPingEvent>()
@@ -244,8 +244,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             int protocol = ( ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
             pingBack.done( new ServerPing(
-                    new ServerPing.Protocol( "BotFilter " + bungee.getGameVersion() + " by vk.com Leymooo_s", protocol ), //BotFilter
-                    new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCountAuto(), null ), //BotFilter
+                    new ServerPing.Protocol( bungee.getCustomBungeeName(), protocol ), //BotFilter
+                    new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCountBF( true ), null ), //BotFilter
                     motd, BungeeCord.getInstance().config.getFaviconObject() ),
                     null );
         }
@@ -290,14 +290,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         this.virtualHost = InetSocketAddress.createUnresolved( handshake.getHost(), handshake.getPort() );
 
         bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
-        //BotFilter Я тут гдето убрал строку которая выводить InitialHandler has connected
+        //BotFilter Я тут гдето убрал строку которая выводит InitialHandler has connected
         switch ( handshake.getRequestedProtocol() )
         {
             case 1:
                 // Ping
                 thisState = State.STATUS;
                 ch.setProtocol( Protocol.STATUS );
-                ServerPingUtils.getInstance().add( getAddress().getAddress() );
+                BotFilter.getInstance().getServerPingUtils().add( getAddress().getAddress() );
                 break;
             case 2:
                 // Login
@@ -316,15 +316,26 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     return;
                 }
                 //BotFilter start
-                if ( Utils.isManyChecks( getAddress().getAddress().getHostAddress(), false, false ) )
+                if ( ManyChecksUtils.isManyChecks( getAddress().getAddress() ) )
                 {
-                    disconnect( Config.getConfig().getErrorManyChecks() );
+                    PacketUtil.kickPlayer( KickType.MANYCHECKS, Protocol.LOGIN, ch, getVersion() );
+                    bungee.getLogger().log( Level.INFO, "[{0}] disconnected: Too many checks in 10 min", getAddress().getAddress().getHostAddress() );
+                    return;
+                }
+
+                ServerPingUtils ping = BotFilter.getInstance().getServerPingUtils();
+                if ( ping.needCheck() && ping.needKickOrRemove( getAddress().getAddress() ) )
+                {
+                    disconnect( Settings.IMP.SERVER_PING_CHECK.KICK_MESSAGE );
+                    bungee.getLogger().log( Level.INFO, "[{0}] disconnected: The player did not ping the server", getAddress().getAddress().getHostAddress() );
                     return;
                 }
                 //BotFilter end
+
                 if ( bungee.getConnectionThrottle() != null && bungee.getConnectionThrottle().throttle( getAddress().getAddress() ) )
                 {
-                    disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( bungee.getConfig().getThrottle() ) ) );
+                    PacketUtil.kickPlayer( KickType.THROTTLE, Protocol.LOGIN, ch, getVersion() );
+                    bungee.getLogger().log( Level.INFO, "[{0}] disconnected: Connection is throttled", getAddress().getAddress().getHostAddress() );
                 }
                 break;
             default:
@@ -351,31 +362,19 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         int limit = BungeeCord.getInstance().config.getPlayerLimit();
-        if ( limit > 0 && bungee.getOnlineCountWithGG() > limit )//BotFilter
+        if ( limit > 0 && bungee.getOnlineCountBF( false ) > limit )//BotFilter
         {
             disconnect( bungee.getTranslation( "proxy_full" ) );
             return;
         }
 
         //BotFilter start
-        Config config = Config.getConfig();
-        InetAddress address = getAddress().getAddress();
-        boolean needCheck = config.needCheck( getName(), address.getHostAddress() );
-        ServerPingUtils pingUtils = ServerPingUtils.getInstance();
-        if ( needCheck && pingUtils.needKickAndRemove( address ) )
+        KickType kickType = BotFilter.getInstance().checkIpAddress( getAddress().getAddress() );
+        if ( kickType != null )
         {
-            disconnect( pingUtils.getMessage() );
-            return;
-        }
-        GeoIpUtils geo = config.getGeoUtils();
-        boolean proxy = config.getProxy().isProxy( address.getHostAddress() );
-        if ( config.isProtectionEnabled() && config.isForceKick() && needCheck )
-        {
-            if ( proxy || !geo.isAllowed( geo.getCountryCode( address ), false ) )
-            {
-                disconnect( proxy ? config.getErrorProxy() : config.getErrorConutry() );
-                return;
-            }
+            PacketUtil.kickPlayer( KickType.MANYCHECKS, Protocol.LOGIN, ch, getVersion() );
+            bungee.getLogger().log( Level.INFO, "[{0}] disconnected: ".concat( ( kickType == KickType.COUNTRY ? "Country is not allowed" : "Proxy detected" ) ),
+                    getAddress().getAddress().getHostAddress() );
         }
         //BotFilter end
 
@@ -503,6 +502,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         }
 
+        //BotFilter start
+        if ( BotFilter.getInstance().isOnChecking( getName() ) )
+        {
+            disconnect( bungee.getTranslation( "already_connected_proxy" ) );
+            return;
+        }
+        //BotFilter end
         offlineId = java.util.UUID.nameUUIDFromBytes( ( "OfflinePlayer:" + getName() ).getBytes( Charsets.UTF_8 ) );
         if ( uniqueId == null )
         {
@@ -519,9 +525,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         ch.setProtocol( Protocol.GAME );
 
-        if ( Config.getConfig().needCheck( getName(), getAddress().getAddress().getHostAddress() ) )
+        if ( BotFilter.getInstance().needCheck( getName(), getAddress().getAddress() ) )
         {
-            callCheckEvent( userCon );
+            ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new Connector( userCon ) );
         } else
         {
             finishLogin( userCon );
@@ -544,79 +550,49 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 {
                     return;
                 }
-
-                ch.getHandle().eventLoop().execute( new Runnable()
+                if ( ch.getHandle().eventLoop().inEventLoop() )
                 {
-                    @Override
-                    public void run()
+                    finnalyFinishLogin( userCon );
+                } else
+                {
+                    ch.getHandle().eventLoop().execute( () ->
                     {
                         if ( !ch.isClosing() )
                         {
-
-                            ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) ); //BotFilter
-
-                            bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) ); //BotFilter
-
-                            ServerInfo server;
-                            if ( bungee.getReconnectHandler() != null )
-                            {
-                                server = bungee.getReconnectHandler().getServer( userCon );
-                            } else
-                            {
-                                server = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
-                            }
-                            if ( server == null )
-                            {
-                                server = bungee.getServerInfo( listener.getDefaultServer() );
-                            }
-                            userCon.connect( server, null, true );
-                            thisState = State.FINISHED;
+                            finnalyFinishLogin( userCon );
                         }
-                    }
-                } );
+                    } );
+                }
             }
         };
-
         // fire login event
         bungee.getPluginManager().callEvent( new LoginEvent( InitialHandler.this, complete ) );
     }
 
-    private void callCheckEvent(UserConnection userCon)
+    private void finnalyFinishLogin(UserConnection userCon)
     {
-        Callback<BotFilterCheckStartingEvent> complete = new Callback<BotFilterCheckStartingEvent>()
+
+        ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) ); //BotFilter
+
+        bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) ); //BotFilter
+
+        ServerInfo server;
+        if ( bungee.getReconnectHandler() != null )
         {
-            @Override
-            public void done(BotFilterCheckStartingEvent result, Throwable error)
-            {
-                if ( result.isCancelled() )
-                {
-                    disconnect( result.getCancelReasonComponents() );
-                    return;
-                }
-                if ( ch.isClosed() )
-                {
-                    return;
-                }
-
-                ch.getHandle().eventLoop().execute( new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        if ( !ch.isClosing() )
-                        {
-                            ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new BFConnector( userCon ) );
-                        }
-                    }
-                } );
-            }
-        };
-
-        // fire login event
-        bungee.getPluginManager().callEvent( new BotFilterCheckStartingEvent( userCon, complete ) );
+            server = bungee.getReconnectHandler().getServer( userCon );
+        } else
+        {
+            server = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
+        }
+        if ( server == null )
+        {
+            server = bungee.getServerInfo( listener.getDefaultServer() );
+        }
+        userCon.connect( server, null, true );
+        thisState = State.FINISHED;
     }
-
     //BotFilter end
+
     @Override
     public void disconnect(String reason)
     {

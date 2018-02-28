@@ -25,6 +25,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.md_5.bungee.api.Callback;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.SkinConfiguration;
@@ -63,13 +64,16 @@ import net.md_5.bungee.util.CaseInsensitiveSet;
 @RequiredArgsConstructor
 public final class UserConnection implements ProxiedPlayer
 {
-    public boolean serverr; //BotFilter
+
+    @Getter
+    @Setter
+    private boolean needLogin = true; //BotFilter
     /*========================================================================*/
     @NonNull
     private final ProxyServer bungee;
     @NonNull
     @Getter //BotFilter
-    private final ChannelWrapper ch; 
+    private final ChannelWrapper ch;
     @Getter
     @NonNull
     private final String name;

@@ -105,6 +105,11 @@
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.21.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.javolution</groupId>
+            <artifactId>javolution-core-java</artifactId>
+            <version>6.0.0</version>
+        </dependency>
 
     </dependencies>
 

@@ -16,6 +16,7 @@ import net.md_5.bungee.connection.PingHandler;
 import net.md_5.bungee.protocol.BadPacketException;
 import net.md_5.bungee.protocol.OverflowPacketException;
 import net.md_5.bungee.protocol.PacketWrapper;
+import ru.leymooo.botfilter.Connector;
 
 /**
  * This class is a primitive wrapper for {@link PacketHandler} instances tied to
@@ -31,6 +32,10 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     public void setHandler(PacketHandler handler)
     {
         Preconditions.checkArgument( handler != null, "handler" );
+        if ( this.handler != null )
+        { //BotFilter start
+            this.handler.handlerChanged();
+        } // END
         this.handler = handler;
     }
 

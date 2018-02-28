@@ -6,7 +6,7 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.ClientStatus;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.Chat;
-import net.md_5.bungee.protocol.packet.extra.ConfirmTransaction;
+import ru.leymooo.botfilter.packets.ConfirmTransaction;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
@@ -26,18 +26,18 @@ import net.md_5.bungee.protocol.packet.LegacyPing;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PingPacket;
-import net.md_5.bungee.protocol.packet.extra.PlayerLook;
+import ru.leymooo.botfilter.packets.PlayerLook;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
-import net.md_5.bungee.protocol.packet.extra.TeleportConfirm;
+import ru.leymooo.botfilter.packets.TeleportConfirm;
 import net.md_5.bungee.protocol.packet.Title;
-import net.md_5.bungee.protocol.packet.extra.Animation;
-import net.md_5.bungee.protocol.packet.extra.HeldItemSlot;
-import net.md_5.bungee.protocol.packet.extra.Player;
-import net.md_5.bungee.protocol.packet.extra.PlayerPosition;
-import net.md_5.bungee.protocol.packet.extra.PlayerPositionAndLook;
-import net.md_5.bungee.protocol.packet.extra.PlayerTryUseItemOnBlock;
+import ru.leymooo.botfilter.packets.Animation;
+import ru.leymooo.botfilter.packets.ChunkPacket;
+import ru.leymooo.botfilter.packets.HeldItemSlot;
+import ru.leymooo.botfilter.packets.Player;
+import ru.leymooo.botfilter.packets.PlayerPosition;
+import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
 
 public abstract class AbstractPacketHandler
 {
@@ -75,11 +75,11 @@ public abstract class AbstractPacketHandler
     {
     }
 
-    public void handle(PlayerTryUseItemOnBlock blockClick) throws Exception
+    public void handle(Animation anim)
     {
     }
 
-    public void handle(Animation anim)
+    public void handle(ChunkPacket chunk)
     {
     }
     //BotFilter end

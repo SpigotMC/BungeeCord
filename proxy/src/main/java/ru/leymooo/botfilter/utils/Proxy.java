@@ -8,293 +8,153 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javolution.util.FastSet;
+import lombok.Getter;
 import net.md_5.bungee.BungeeCord;
-import net.md_5.bungee.config.Configuration;
-import ru.leymooo.botfilter.Config;
+import ru.leymooo.botfilter.BotFilter;
+import ru.leymooo.botfilter.config.Settings;
 
+/**
+ *
+ * @author Leymooo
+ */
 public class Proxy
 {
 
-    /* Добро пожаловать в гору говнокода и костылей */
-    public HashSet<String> PROXIES = new HashSet<>();
-    public HashSet<String> DOWNLOADED_URLS = new HashSet<>();
+    @Getter
+    private boolean enabled = Settings.IMP.GEO_IP.MODE != 2 && Settings.IMP.PROXY.MODE != 2;
 
-    //Для парса с сайтов
-    private static final Pattern PARSE_IPPATTERN = Pattern.compile( "((\\d+\\.+){2,}\\d+)" );
-    //Для проверки что спарсили
+    private final Logger logger = BungeeCord.getInstance().getLogger();
+
+    private FastSet<String> proxies = new FastSet<>();
+
+    private Path proxyFile;
+    private Path proxyFailedFile;
     private static final Pattern IPADDRESS_PATTERN
-            = Pattern.compile( "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+            = Pattern.compile( "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
                     + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
                     + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
-                    + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$" );
-    private static Thread downloadTask;
+                    + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])" );
 
-    private File dataFile;
-    private File dataFileAuto;
+    private Thread downloadThread;
 
-    private boolean enabled = true;
-    private final Configuration proxySection;
-
-    private static final Logger logger = BungeeCord.getInstance().getLogger();
-
-    public Proxy(File dataFolder, Configuration section)
+    public Proxy()
     {
-        this.proxySection = section;
-        if ( !section.getBoolean( "enabled" ) )
+        if ( enabled && ( enabled = BotFilter.getInstance().getGeoIp().isAvailable() ) )
         {
-            this.enabled = false;
-            return;
+            loadProxyFromFile( proxyFile = Paths.get( "BotFilter" + File.separatorChar + "proxy.txt" ) );
+            loadProxyFromFile( proxyFailedFile = Paths.get( "BotFilter" + File.separatorChar + "proxy-failed.txt" ) );
+            logger.log( Level.INFO, "[BotFilter] Загружено {0} прокси из файлов.", proxies.size() );
+            downloadProxyFromSites();
         }
-        this.dataFile = new File( dataFolder, "proxy.txt" );
-        this.dataFileAuto = new File( dataFolder, "proxyAutoDetected.txt" );
-        while ( Config.getConfig().getGeoUtils().isDownloading() )
-        {
-            try
-            {
-                Thread.sleep( 1000L );
-                logger.log( Level.INFO, "[BotFilter] Ждём пока скачается GeoIp дата база." );
-            } catch ( InterruptedException ex )
-            {
-            }
-        }
-        if ( !Config.getConfig().getGeoUtils().isAvailable() )
-        {
-            logger.log( Level.INFO, "[BotFilter] Не удалось скачать GeoIp. Продолжаем без неё." );
-        }
-        loadProxies( dataFile, false );
-        loadProxies( dataFileAuto, true );
-        logger.log( Level.INFO, "[BotFilter] Загружено {0} прокси из файлов!", PROXIES.size() );
-        downloadTask = updateProxiesFromSite();
-        downloadTask.start();
     }
 
-    private void loadProxies(File f, boolean force)
+    public boolean isProxy(InetAddress address)
     {
-        if ( !f.exists() )
+        return proxies.contains( address.getHostAddress() );
+    }
+
+    public void addIp(String ip)
+    {
+        if ( !proxies.contains( ip ) )
         {
+            proxies.add( ip );
             try
             {
-                f.createNewFile();
-            } catch ( IOException e )
+                Files.write( proxyFailedFile, Arrays.asList( ip ), Charset.forName( "UTF-8" ), StandardOpenOption.APPEND, StandardOpenOption.CREATE );
+            } catch ( IOException ex )
             {
-                logger.log( Level.WARNING, "Could not create proxy file", e );
+                logger.log( Level.WARNING, "[BotFilter] Не могу записать прокси в файл", ex );
             }
-            return;
-        }
 
+        }
+    }
+
+    private void loadProxyFromFile(Path file)
+    {
         try
         {
-            Files.lines( Paths.get( f.getPath() ) ).forEach( line ->
+            File rfile = file.toFile();
+            if ( !rfile.exists() )
+            {
+                rfile.createNewFile();
+            }
+            try ( Stream<String> lines = Files.lines( file, StandardCharsets.UTF_8 ) )
+            {
+                proxies.addAll( lines.collect( Collectors.toSet() ) );
+            }
+        } catch ( IOException ex )
+        {
+            logger.log( Level.WARNING, "[BotFilter] Could not load proxies from file", ex );
+        }
+    }
+
+    private void downloadProxyFromSites()
+    {
+        ( downloadThread = new Thread( () ->
+        {
+            int downloaded = 0;
+            for ( String site : Settings.IMP.PROXY.PROXY_SITES )
             {
                 try
                 {
-                    if ( force )
+                    URL downloadUrl = new URL( site );
+                    URLConnection conn = downloadUrl.openConnection();
+                    conn.setConnectTimeout( 35000 );
+                    try ( BufferedReader in = new BufferedReader( new InputStreamReader( conn.getInputStream() ) ) )
                     {
-                        PROXIES.add( line );
-                    } else
-                    {
-                        validateAndAddProxy( line, false );
+                        String inputLine;
+                        while ( ( inputLine = in.readLine() ) != null && !Thread.interrupted() )
+                        {
+                            Matcher matcher = IPADDRESS_PATTERN.matcher( inputLine );
+                            HashSet<String> dproxies = new HashSet<>();
+                            while ( matcher.find() && !Thread.interrupted() )
+                            {
+                                String proxy = matcher.group( 0 );
+                                if ( BotFilter.getInstance().getGeoIp().isAllowed( IPUtils.getAddress( matcher.group( 0 ) ) ) && !proxies.contains( proxy ) )
+                                {
+                                    dproxies.add( proxy );
+                                    proxies.add( proxy );
+                                    downloaded++;
+                                }
+                            }
+                            Files.write( proxyFile, dproxies, Charset.forName( "UTF-8" ), StandardOpenOption.APPEND );
+
+                        }
                     }
                 } catch ( IOException ex )
                 {
-                    logger.log( Level.WARNING, "Could not save proxy to list", ex );
+                    logger.log( Level.WARNING, "[BotFilter] Could not download proxies from " + site, ex );
                 }
-            } );
-        } catch ( IOException ex )
-        {
-            logger.log( Level.WARNING, "Could not read proxy list", ex );
-
-        }
-    }
-
-    private void validateAndAddProxy(String line, boolean addToFile) throws IOException
-    {
-        String proxy = line.contains( ":" ) ? line.split( ":" )[0].trim() : line.trim();
-
-        if ( IPADDRESS_PATTERN.matcher( proxy ).matches() && Config.getConfig().getGeoUtils().isAllowed( Config.getConfig().getGeoUtils().getCountryCode( InetAddress.getByName( proxy ) ), true ) )
-        {
-            if ( !PROXIES.contains( proxy ) )
-            {
-                PROXIES.add( proxy );
-                if ( addToFile )
+                if ( Thread.interrupted() )
                 {
-                    Files.write( Paths.get( dataFile.getPath() ), Arrays.asList( proxy ), Charset.forName( "UTF-8" ), StandardOpenOption.APPEND );
-                }
-            }
-        }
-    }
-
-    public void addProxyForce(String proxy)
-    {
-        if ( !enabled )
-        {
-            return;
-        }
-        if ( !isProxy( proxy ) )
-        {
-            PROXIES.add( proxy );
-            try
-            {
-                Files.write( Paths.get( dataFileAuto.getPath() ), Arrays.asList( proxy ), Charset.forName( "UTF-8" ), StandardOpenOption.APPEND, StandardOpenOption.CREATE );
-            } catch ( IOException ex )
-            {
-                logger.log( Level.WARNING, "Could not save proxy to file", ex );
-            }
-        }
-    }
-
-    private Thread updateProxiesFromSite()
-    {
-        if ( downloadTask != null && downloadTask.isAlive() )
-        {
-            downloadTask.interrupt();
-        }
-        return new Thread( () ->
-        {
-            while ( !Thread.interrupted() )
-            {
-                if ( Config.getConfig().getGeoUtils().isAvailable() )
-                {
-                    logger.log( Level.INFO, "[BotFilter] Пытаюсь скачать прокси с сайтов.." );
-                    int before = PROXIES.size();
-                    List<String> urls = proxySection.getStringList( "download-list" );
-                    for ( String site : urls )
-                    {
-                        try
-                        {
-                            getProxyFromPage( site );
-                        } catch ( IOException e )
-                        {
-                            logger.log( Level.WARNING, "Не могу скачать прокси с сайта {0}. Причина: {1}", new Object[]
-                            {
-                                site, e.getMessage()
-                            } );
-                            logger.log( Level.WARNING, "Скачиваю прокси со следующего сайта!" );
-                        }
-                    }
-                    urls = proxySection.getStringList( "blogspot-proxy" );
-                    for ( String site : urls )
-                    {
-                        String[] regexSplitted = site.split( ";" );
-                        String regex = regexSplitted.length == 2 ? regexSplitted[1] : "href=\'(.*?)\'";
-                        List<String> list = getHRefs( regexSplitted[0], regex );
-                        for ( String pages : list )
-                        {
-                            if ( pages.contains( "/20" ) && !pages.contains( "#" ) )
-                            {
-                                try
-                                {
-                                    getProxyFromPage( pages );
-                                } catch ( IOException e )
-                                {
-                                    logger.log( Level.WARNING, "Не могу скачать прокси с сайта {0}. Причина: {1}", new Object[]
-                                    {
-                                        site, e.getMessage()
-                                    } );
-                                    logger.log( Level.WARNING, "Скачиваю прокси со следующего сайта!" );
-                                }
-                            }
-                        }
-                    }
-                    logger.log( Level.INFO, "[BotFilter] Скачано {0} прокси с сайтов!", ( PROXIES.size() - before ) );
-                } else
-                {
-                    logger.log( Level.WARNING, "[BotFilter] Не могу скачать прокси. GeoIp недоступен" );
-                }
-                try
-                {
-                    Thread.sleep( 1000 * 60 * 60 * 4 );//4 hours
-                    if ( !Config.getConfig().getGeoUtils().isAvailable() )
-                    {
-                        logger.log( Level.INFO, "[BotFilter] Пытаюсь скачать GeoIp" );
-                        Config.getConfig().getGeoUtils().createDownloadTask().run();
-                    }
-                } catch ( InterruptedException ex )
-                {
+                    logger.log( Level.WARNING, "[BotFilter] Процесс скачивания прокси был прерван" );
                     return;
                 }
             }
-        } );
-
+            logger.log( Level.INFO, "[BotFilter] Downloaded {0} proxies", downloaded );
+        }, "Proxy download thread" ) ).start();
     }
 
-    private void getProxyFromPage(String page) throws IOException
+    public void close()
     {
-        if ( DOWNLOADED_URLS.contains( page ) )
+        if ( downloadThread != null && downloadThread.isAlive() )
         {
-            return;
+            downloadThread.interrupt();
         }
-        DOWNLOADED_URLS.add( page );
-        URL url = new URL( page );
-        URLConnection conn = url.openConnection();
-        conn.setConnectTimeout( 3000 );
-        try ( BufferedReader in = new BufferedReader( new InputStreamReader( conn.getInputStream() ) ) )
-        {
-            String inputLine;
-            while ( ( inputLine = in.readLine() ) != null )
-            {
-                Matcher matcher = PARSE_IPPATTERN.matcher( inputLine );
-                while ( matcher.find() )
-                {
-                    validateAndAddProxy( matcher.group(), true );
-                }
-            }
-        }
+        proxies.clear();
     }
-
-    public boolean isProxy(String ip)
-    {
-        if ( !enabled )
-        {
-            return false;
-        }
-        return PROXIES.contains( ip );
-    }
-
-    /* AntiBot-ultra code*/
-    public List<String> getHRefs(String url1, String regexPattern)
-    {
-        List<String> list = new ArrayList<>();
-        try
-        {
-            StringBuilder sb = new StringBuilder();
-            Pattern pattern = Pattern.compile( regexPattern, Pattern.DOTALL );
-            URL url = new URL( url1 );
-            URLConnection conn = url.openConnection();
-            conn.setConnectTimeout( 3000 );
-            try ( Scanner s = new Scanner( conn.getInputStream() ) )
-            {
-                while ( s.hasNext() )
-                {
-                    sb.append( s.nextLine() );
-                }
-                Matcher matcher = pattern.matcher( sb.toString() );
-                while ( matcher.find() )
-                {
-                    list.add( matcher.group( 1 ) );
-                }
-            }
-        } catch ( IOException e )
-        {
-            logger.log( Level.WARNING, "Не могу скачать прокси с сайта {0}. Причина: {1}", new Object[]
-            {
-                url1, e.getMessage()
-            } );
-            logger.log( Level.WARNING, "Скачиваю прокси со следующего сайта!" );
-        }
-        return list;
-    }
-
 }
