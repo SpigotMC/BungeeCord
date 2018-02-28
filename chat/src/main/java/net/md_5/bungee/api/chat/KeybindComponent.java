@@ -35,7 +35,7 @@ public final class KeybindComponent extends BaseComponent
      * Creates a keybind component with the passed internal keybind value.
      *
      * @param keybind the keybind value
-     * @see Keybind
+     * @see Keybinds
      */
     public KeybindComponent(String keybind)
     {
