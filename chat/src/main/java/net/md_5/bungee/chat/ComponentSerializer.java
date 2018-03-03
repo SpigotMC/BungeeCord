@@ -50,7 +50,13 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
 
     public static String toString(BaseComponent... components)
     {
-        return gson.toJson( new TextComponent( components ) );
+        if ( components.length == 1 )
+        {
+           return gson.toJson( components[ 0 ] );
+        } else
+        {
+            return gson.toJson( new TextComponent( components ) );
+        }
     }
 
     @Override
