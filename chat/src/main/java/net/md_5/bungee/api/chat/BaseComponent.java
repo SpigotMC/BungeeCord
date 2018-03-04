@@ -89,8 +89,8 @@ public abstract class BaseComponent
     }
 
     /**
-     * Copies the events and formatting of a BaseComponent without replacing
-     * already set formatting.
+     * Copies the events and formatting of a BaseComponent.
+     * Already set formatting will be replaced.
      *
      * @param component the component to copy from
      */
@@ -116,7 +116,7 @@ public abstract class BaseComponent
      *
      * @param component the component to copy from
      * @param retention the formatting to copy
-     * @param replace if already defined formats should be replaced by the new
+     * @param replace if already set formatting should be replaced by the new
      * component
      */
     public void copyFormatting(BaseComponent component, FormatRetention retention, boolean replace)
