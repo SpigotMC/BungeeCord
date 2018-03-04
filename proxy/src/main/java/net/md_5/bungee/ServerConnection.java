@@ -15,6 +15,7 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 @RequiredArgsConstructor
 public class ServerConnection implements Server
 {
+    private static final BaseComponent[] EMPTY_ARRAY = new BaseComponent[0];
 
     @Getter
     private final ChannelWrapper ch;
@@ -48,6 +49,11 @@ public class ServerConnection implements Server
     public void disconnect(String reason)
     {
         disconnect();
+    }
+    
+    private void disconnect()
+    {
+        disconnect( EMPTY_ARRAY );
     }
 
     @Override
