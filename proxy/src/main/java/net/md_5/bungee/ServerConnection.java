@@ -77,6 +77,12 @@ public class ServerConnection implements Server
     }
 
     @Override
+    public boolean isDisconnecting()
+    {
+        return ch.isClosing();
+    }
+
+    @Override
     public Unsafe unsafe()
     {
         return unsafe;

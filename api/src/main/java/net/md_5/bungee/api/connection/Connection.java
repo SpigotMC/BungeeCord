@@ -60,6 +60,13 @@ public interface Connection
     boolean isConnected();
 
     /**
+     * Checks if the user is about to be disconnected by client
+     *
+     * @return true if disconnecting or disconnected
+     */
+    boolean isDisconnecting();
+
+    /**
      * Get the unsafe methods of this class.
      *
      * @return the unsafe method interface
