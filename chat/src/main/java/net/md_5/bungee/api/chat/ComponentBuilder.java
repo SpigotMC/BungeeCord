@@ -54,9 +54,10 @@ public final class ComponentBuilder
         current = new TextComponent( text );
     }
 
-     /**
+    /**
      * Appends a component to the builder and makes it the current target for
-     * formatting. The text will have all the formatting from the previous part.
+     * formatting. The component will have all the formatting from previous
+     * part.
      *
      * @param component the component to append
      * @return this ComponentBuilder for chaining
@@ -68,7 +69,8 @@ public final class ComponentBuilder
 
     /**
      * Appends a component to the builder and makes it the current target for
-     * formatting. You can specify the amount of formatting retained.
+     * formatting. You can specify the amount of formatting retained from
+     * previous part.
      *
      * @param component the component to append
      * @param retention the formatting to retain
@@ -85,8 +87,9 @@ public final class ComponentBuilder
     }
 
     /**
-     * Appends the components to the builder and makes it the current target for
-     * formatting. The text will have all the formatting from the previous part.
+     * Appends the components to the builder and makes the last element the
+     * current target for formatting. The components will have all the
+     * formatting from previous part.
      *
      * @param components the components to append
      * @return this ComponentBuilder for chaining
@@ -97,8 +100,9 @@ public final class ComponentBuilder
     }
 
     /**
-     * Appends the components to the builder and makes it the current target for
-     * formatting. You can specify the amount of formatting retained.
+     * Appends the components to the builder and makes the last element the
+     * current target for formatting. You can specify the amount of formatting
+     * retained from previous part.
      *
      * @param components the components to append
      * @param retention the formatting to retain
@@ -122,7 +126,7 @@ public final class ComponentBuilder
 
     /**
      * Appends the text to the builder and makes it the current target for
-     * formatting. The text will have all the formatting from the previous part.
+     * formatting. The text will have all the formatting from previous part.
      *
      * @param text the text to append
      * @return this ComponentBuilder for chaining
@@ -134,7 +138,8 @@ public final class ComponentBuilder
 
     /**
      * Appends the text to the builder and makes it the current target for
-     * formatting. You can specify the amount of formatting retained.
+     * formatting. You can specify the amount of formatting retained from
+     * previous part.
      *
      * @param text the text to append
      * @param retention the formatting to retain

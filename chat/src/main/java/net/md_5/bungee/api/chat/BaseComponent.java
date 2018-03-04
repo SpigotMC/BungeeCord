@@ -89,36 +89,36 @@ public abstract class BaseComponent
     }
 
     /**
-     * Copies the formatting of another BaseComponent with every format style
-     * without replacing already formatted components.
+     * Copies the events and formatting of a BaseComponent without replacing
+     * already set formatting.
      *
      * @param component the component to copy from
-     * @param replace if already defined formats should be replaced by the new
-     * component
      */
     public void copyFormatting(BaseComponent component)
     {
-        copyFormatting( component, FormatRetention.ALL, false );
+        copyFormatting( component, FormatRetention.ALL, true );
     }
 
     /**
-    * Copies the formatting of another BaseComponent with every format style.
-    *
-    * @param component the component to copy from
-    * @param replace if already defined formats should be replaced by the new component
-    */
+     * Copies the events and formatting of a BaseComponent.
+     *
+     * @param component the component to copy from
+     * @param replace if already set formatting should be replaced by the new
+     * component
+     */
     public void copyFormatting(BaseComponent component, boolean replace)
     {
         copyFormatting( component, FormatRetention.ALL, replace );
     }
 
     /**
-    * Copies the formatting of another BaseComponent with a specified format style.
-    *
-    * @param component the component to copy from
-    * @param retention the formatting to copy
-    * @param replace if already defined formats should be replaced by the new component
-    */
+     * Copies the specified formatting of a BaseComponent.
+     *
+     * @param component the component to copy from
+     * @param retention the formatting to copy
+     * @param replace if already defined formats should be replaced by the new
+     * component
+     */
     public void copyFormatting(BaseComponent component, FormatRetention retention, boolean replace)
     {
         if ( retention == FormatRetention.EVENTS || retention == FormatRetention.ALL )
@@ -166,7 +166,7 @@ public abstract class BaseComponent
     }
 
     /**
-     * Retains only the specified formatting. Text is not modified.
+     * Retains only the specified formatting.
      *
      * @param retention the formatting to retain
      */
