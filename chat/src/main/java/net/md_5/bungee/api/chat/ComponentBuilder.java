@@ -55,6 +55,16 @@ public final class ComponentBuilder
     }
 
     /**
+     * Creates a ComponentBuilder with the given component as the first part.
+     *
+     * @param component the first component element
+     */
+    public ComponentBuilder(BaseComponent component)
+    {
+        current = component.duplicate();
+    }
+
+    /**
      * Appends a component to the builder and makes it the current target for
      * formatting. The component will have all the formatting from previous
      * part.
