@@ -11,10 +11,13 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.netty.PipelineUtils;
+import net.md_5.bungee.netty.UpstreamChannelWrapper;
 import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.Handshake;
+import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 
@@ -25,12 +28,13 @@ public class PingHandler extends PacketHandler
     private final ServerInfo target;
     private final Callback<ServerPing> callback;
     private final int protocol;
-    private ChannelWrapper channel;
+    // TODO PAIL: channel -> ch - consistency with other PacketHandlers?
+    private UpstreamChannelWrapper channel;
 
     @Override
     public void connected(ChannelWrapper channel) throws Exception
     {
-        this.channel = channel;
+        this.channel = (UpstreamChannelWrapper) channel;
         MinecraftEncoder encoder = new MinecraftEncoder( Protocol.HANDSHAKE, false, protocol );
 
         channel.getHandle().pipeline().addAfter( PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder( Protocol.STATUS, false, ProxyServer.getInstance().getProtocolVersion() ) );

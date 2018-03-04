@@ -11,8 +11,10 @@ import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.connection.CancelSendSignal;
+import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.connection.PingHandler;
+import net.md_5.bungee.connection.UpstreamBridge;
 import net.md_5.bungee.protocol.BadPacketException;
 import net.md_5.bungee.protocol.OverflowPacketException;
 import net.md_5.bungee.protocol.PacketWrapper;
@@ -30,7 +32,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
 
     public void setHandler(PacketHandler handler)
     {
-        Preconditions.checkArgument( handler != null, "handler" );
+        Preconditions.checkNotNull( handler, "handler" );
         this.handler = handler;
     }
 
@@ -39,7 +41,17 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     {
         if ( handler != null )
         {
-            channel = new ChannelWrapper( ctx );
+            if ( handler instanceof DownstreamBridge || handler instanceof InitialHandler )
+            {
+                channel = new DownstreamChannelWrapper( ctx );
+            } else if ( handler instanceof UpstreamBridge || handler instanceof PingHandler )
+            {
+                channel = new UpstreamChannelWrapper( ctx );
+            } else
+            {
+                throw new IllegalArgumentException( handler.toString() );
+            }
+
             handler.connected( channel );
 
             if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )

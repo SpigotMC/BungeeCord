@@ -28,6 +28,7 @@ import net.md_5.bungee.forge.ForgeUtils;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PacketHandler;
+import net.md_5.bungee.netty.DownstreamChannelWrapper;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
@@ -47,7 +48,7 @@ public class ServerConnector extends PacketHandler
 {
 
     private final ProxyServer bungee;
-    private ChannelWrapper ch;
+    private DownstreamChannelWrapper ch;
     private final UserConnection user;
     private final BungeeServerInfo target;
     private State thisState = State.LOGIN_SUCCESS;
@@ -82,7 +83,7 @@ public class ServerConnector extends PacketHandler
     @Override
     public void connected(ChannelWrapper channel) throws Exception
     {
-        this.ch = channel;
+        this.ch = (DownstreamChannelWrapper) channel;
 
         this.handshakeHandler = new ForgeServerHandler( user, ch, target );
         Handshake originalHandshake = user.getPendingConnection().getHandshake();
