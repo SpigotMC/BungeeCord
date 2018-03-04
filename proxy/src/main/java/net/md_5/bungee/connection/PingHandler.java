@@ -13,6 +13,7 @@ import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.StatusRequest;
@@ -46,6 +47,12 @@ public class PingHandler extends PacketHandler
     public void exception(Throwable t) throws Exception
     {
         callback.done( null, t );
+    }
+
+    @Override
+    public boolean shouldHandle(PacketWrapper packet) throws Exception
+    {
+        return !channel.isClosed();
     }
 
     @Override
