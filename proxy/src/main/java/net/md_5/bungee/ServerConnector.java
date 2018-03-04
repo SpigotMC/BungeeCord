@@ -100,7 +100,7 @@ public class ServerConnector extends PacketHandler
             copiedHandshake.setHost( newHost );
         } else if ( !user.getExtraDataInHandshake().isEmpty() )
         {
-            // Only restore the extra data if IP forwarding is off. 
+            // Only restore the extra data if IP forwarding is off.
             // TODO: Add support for this data with IP forwarding.
             copiedHandshake.setHost( copiedHandshake.getHost() + user.getExtraDataInHandshake() );
         }
@@ -249,14 +249,6 @@ public class ServerConnector extends PacketHandler
             // Remove from old servers
             user.getServer().disconnect( "Quitting" );
         }
-
-
-        // Add to new server
-        // TODO: Move this to the connected() method of DownstreamBridge
-        target.addPlayer( user );
-        user.getPendingConnects().remove( target );
-        user.setServerJoinQueue( null );
-        user.setDimensionChange( false );
 
         user.setServer( server );
         ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user, server ) );

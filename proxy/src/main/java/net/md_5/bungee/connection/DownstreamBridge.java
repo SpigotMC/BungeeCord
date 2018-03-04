@@ -72,6 +72,15 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
+    public void connected(ChannelWrapper channel) throws Exception
+    {
+        server.getInfo().addPlayer( con );
+        con.getPendingConnects().remove( server.getInfo() );
+        con.setServerJoinQueue( null );
+        con.setDimensionChange( false );
+    }
+
+    @Override
     public void disconnected(ChannelWrapper channel) throws Exception
     {
         // We lost connection to the server
