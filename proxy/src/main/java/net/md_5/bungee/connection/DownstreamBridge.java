@@ -512,4 +512,9 @@ public class DownstreamBridge extends PacketHandler
     {
         return "[" + con.getName() + "] <-> DownstreamBridge <-> [" + server.getInfo().getName() + "]";
     }
+
+    public String getName()
+    {
+        return con.getName();
+    }
 }
