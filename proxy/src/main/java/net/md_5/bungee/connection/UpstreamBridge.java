@@ -59,24 +59,6 @@ public class UpstreamBridge extends PacketHandler
 
         if ( con.getServer() != null )
         {
-            // Manually remove from everyone's tab list
-            // since the packet from the server arrives
-            // too late
-            // TODO: This should only done with server_unique
-            //       tab list (which is the only one supported
-            //       currently)
-            PlayerListItem packet = new PlayerListItem();
-            packet.setAction( PlayerListItem.Action.REMOVE_PLAYER );
-            PlayerListItem.Item item = new PlayerListItem.Item();
-            item.setUuid( con.getUniqueId() );
-            packet.setItems( new PlayerListItem.Item[]
-            {
-                item
-            } );
-            for ( ProxiedPlayer player : con.getServer().getInfo().getPlayers() )
-            {
-                player.unsafe().sendPacket( packet );
-            }
             con.getServer().disconnect( "Quitting" );
         }
     }

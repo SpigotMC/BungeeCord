@@ -64,6 +64,20 @@ public class ServerUnique extends TabList
     @Override
     public void onDisconnect()
     {
-
+        // Manually remove from everyone's tab list
+        // since the packet from the server arrives
+        // too late
+        PlayerListItem packet = new PlayerListItem();
+        packet.setAction( PlayerListItem.Action.REMOVE_PLAYER );
+        PlayerListItem.Item item = new PlayerListItem.Item();
+        item.setUuid( player.getUniqueId() );
+        packet.setItems( new PlayerListItem.Item[]
+        {
+            item
+        } );
+        for ( ProxiedPlayer player1 : player.getServer().getInfo().getPlayers() )
+        {
+            player1.unsafe().sendPacket( packet );
+        }
     }
 }
