@@ -83,12 +83,6 @@ public final class ScoreComponent extends BaseComponent
     }
 
     @Override
-    public ScoreComponent duplicateWithoutFormatting()
-    {
-        return new ScoreComponent( this.name, this.objective, this.value );
-    }
-
-    @Override
     protected void toLegacyText(StringBuilder builder)
     {
         builder.append( this.value );
