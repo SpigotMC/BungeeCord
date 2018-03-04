@@ -28,7 +28,6 @@ public class PingHandler extends PacketHandler
     private final ServerInfo target;
     private final Callback<ServerPing> callback;
     private final int protocol;
-    // TODO PAIL: channel -> ch - consistency with other PacketHandlers?
     private UpstreamChannelWrapper channel;
 
     @Override
@@ -50,6 +49,12 @@ public class PingHandler extends PacketHandler
     public void exception(Throwable t) throws Exception
     {
         callback.done( null, t );
+    }
+
+    @Override
+    public boolean shouldHandle(PacketWrapper packet) throws Exception
+    {
+        return !channel.isClosed();
     }
 
     @Override
