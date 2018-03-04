@@ -181,12 +181,6 @@ public final class TextComponent extends BaseComponent
     }
 
     @Override
-    public BaseComponent duplicateWithoutFormatting()
-    {
-        return new TextComponent( this.text );
-    }
-
-    @Override
     protected void toPlainText(StringBuilder builder)
     {
         builder.append( text );

@@ -49,12 +49,6 @@ public final class SelectorComponent extends BaseComponent
     }
 
     @Override
-    public SelectorComponent duplicateWithoutFormatting()
-    {
-        return new SelectorComponent( this.selector );
-    }
-
-    @Override
     protected void toLegacyText(StringBuilder builder)
     {
         builder.append( this.selector );
