@@ -89,6 +89,19 @@ public abstract class BaseComponent
     }
 
     /**
+     * Copies the formatting of another BaseComponent with every format style
+     * without replacing already formatted components.
+     *
+     * @param component the component to copy from
+     * @param replace if already defined formats should be replaced by the new
+     * component
+     */
+    public void copyFormatting(BaseComponent component)
+    {
+        copyFormatting( component, FormatRetention.ALL, false );
+    }
+
+    /**
     * Copies the formatting of another BaseComponent with every format style.
     *
     * @param component the component to copy from
