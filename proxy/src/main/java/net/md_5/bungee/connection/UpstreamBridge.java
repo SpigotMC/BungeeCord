@@ -12,6 +12,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.api.event.SettingsChangedEvent;
 import net.md_5.bungee.api.event.TabCompleteEvent;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.netty.ChannelWrapper;
@@ -175,6 +176,9 @@ public class UpstreamBridge extends PacketHandler
     public void handle(ClientSettings settings) throws Exception
     {
         con.setSettings( settings );
+
+        SettingsChangedEvent settingsEvent = new SettingsChangedEvent( con );
+        bungee.getPluginManager().callEvent( settingsEvent );
     }
 
     @Override
