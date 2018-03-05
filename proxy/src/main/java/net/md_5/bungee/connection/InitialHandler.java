@@ -343,10 +343,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             validName = Util.testUsername( getName() );
         } else
         {
-            validName = getName().contains( "." );
+            validName = !getName().contains( "." );
         }
 
-        if ( validName )
+        if ( !validName )
         {
             disconnect( bungee.getTranslation( "name_invalid" ) );
             return;
