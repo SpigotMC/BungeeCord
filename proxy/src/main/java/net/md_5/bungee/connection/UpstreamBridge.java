@@ -13,6 +13,7 @@ import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.SettingsChangedEvent;
+import net.md_5.bungee.api.event.ResourcePackRequestEvent;
 import net.md_5.bungee.api.event.TabCompleteEvent;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.netty.ChannelWrapper;
@@ -24,6 +25,7 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.ResourcePackRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 
@@ -144,6 +146,28 @@ public class UpstreamBridge extends PacketHandler
             }
         }
         throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void handle(ResourcePackRequest resourcePackRequest) throws Exception
+    {
+        ResourcePackRequestEvent requestEvent = new ResourcePackRequestEvent(
+                con, resourcePackRequest.getHash(), resourcePackRequest.getUrl()
+        );
+
+        // If two servers use the same resource pack, avoid sending the duplicate packet to client on server switch
+        if ( con.getResourcePackHash() != null && resourcePackRequest.getHash().equals( con.getResourcePackHash() ) )
+        {
+            requestEvent.setCancelled( true );
+        }
+
+        if ( bungee.getPluginManager().callEvent( requestEvent ).isCancelled() )
+        {
+            throw CancelSendSignal.INSTANCE;
+        } else
+        {
+            con.setRequestedResourcePackHash( resourcePackRequest.getHash() );
+        }
     }
 
     @Override

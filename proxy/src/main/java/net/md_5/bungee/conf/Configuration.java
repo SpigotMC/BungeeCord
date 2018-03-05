@@ -51,6 +51,8 @@ public class Configuration implements ProxyConfig
      * Whether we log proxy commands to the proxy log
      */
     private boolean logCommands;
+    private String resourcePack = "";
+    private String resourcePackHash = "";
     private int playerLimit = -1;
     private Collection<String> disabledCommands;
     private int throttle = 4000;
@@ -86,6 +88,8 @@ public class Configuration implements ProxyConfig
         ipForward = adapter.getBoolean( "ip_forward", ipForward );
         compressionThreshold = adapter.getInt( "network_compression_threshold", compressionThreshold );
         preventProxyConnections = adapter.getBoolean( "prevent_proxy_connections", preventProxyConnections );
+        resourcePack = adapter.getString( "resource_pack", resourcePack );
+        resourcePackHash = adapter.getString( "resource_pack_sha1", resourcePackHash );
 
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
 

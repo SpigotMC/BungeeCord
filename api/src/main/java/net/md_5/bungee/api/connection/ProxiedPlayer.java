@@ -238,6 +238,37 @@ public interface ProxiedPlayer extends Connection, CommandSender
     void sendTitle(Title title);
 
     /**
+     * Sends a resource pack to this player.
+     *
+     * @param url the url of resource pack
+     * @param hash the resource pack hash
+     * @throws IllegalArgumentException if hash is longer than 40 characters
+     */
+    void sendResourcePack(String url, String hash) throws IllegalArgumentException;
+
+    /**
+     * Gets the player's currently loaded resource pack hash.
+     *
+     * @return resource pack hash
+     */
+    String getResourcePackHash();
+
+    /**
+     * Gets the currently requested resource pack hash that is waiting for
+     * approval from ResourcePackResponse.
+     *
+     * @return currently requested resource pack hash
+     */
+    String getRequestedResourcePackHash();
+
+    /**
+     * Returns if the client has a successfuly loaded resource pack.
+     *
+     * @return true if has resource pack
+     */
+    boolean hasResourcePack();
+
+    /**
      * Gets whether this player is using a FML client.
      * <p>
      * This method is only reliable if BungeeCord links Minecraft 1.8 servers

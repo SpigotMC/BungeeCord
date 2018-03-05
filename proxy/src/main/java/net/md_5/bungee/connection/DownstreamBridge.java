@@ -18,6 +18,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.api.event.ResourcePackResponseEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.score.Objective;
 import net.md_5.bungee.api.score.Position;
@@ -38,6 +39,7 @@ import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Kick;
+import net.md_5.bungee.protocol.packet.ResourcePackResponse;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.tab.TabList;
@@ -470,6 +472,19 @@ public class DownstreamBridge extends PacketHandler
     public void handle(SetCompression setCompression) throws Exception
     {
         server.getCh().setCompressionThreshold( setCompression.getThreshold() );
+    }
+
+    @Override
+    public void handle(ResourcePackResponse resourcePackResponse) throws Exception
+    {
+        if ( resourcePackResponse.getResult() == ResourcePackResponseEvent.Response.SUCCESSFULLY_LOADED.ordinal() )
+        {
+            con.setResourcePackHash( con.getRequestedResourcePackHash() );
+            con.setRequestedResourcePackHash( null );
+        }
+
+        ResourcePackResponseEvent.Response response = ResourcePackResponseEvent.Response.values()[resourcePackResponse.getResult()];
+        bungee.getPluginManager().callEvent( new ResourcePackResponseEvent( con, response, resourcePackResponse.getHash() ) );
     }
 
     @Override
