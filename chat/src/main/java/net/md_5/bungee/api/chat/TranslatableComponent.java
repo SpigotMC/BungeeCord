@@ -94,12 +94,6 @@ public final class TranslatableComponent extends BaseComponent
         return new TranslatableComponent( this );
     }
 
-    @Override
-    public BaseComponent duplicateWithoutFormatting()
-    {
-        return new TranslatableComponent( this.translate, this.with );
-    }
-
     /**
      * Sets the translation substitutions to be used in this component. Removes
      * any previously set substitutions
