@@ -5,6 +5,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * Series of utility classes to perform various operations.
@@ -12,6 +13,8 @@ import java.util.UUID;
 public class Util
 {
 
+    private static final Pattern VALID_USERNAME_REGEX = Pattern
+            .compile( "^[a-zA-Z0-9-_]{1,16}$" );
     public static final int DEFAULT_PORT = 25565;
 
     /**
@@ -79,5 +82,16 @@ public class Util
     public static UUID getUUID(String uuid)
     {
         return UUID.fromString( uuid.substring( 0, 8 ) + "-" + uuid.substring( 8, 12 ) + "-" + uuid.substring( 12, 16 ) + "-" + uuid.substring( 16, 20 ) + "-" + uuid.substring( 20, 32 ) );
+    }
+
+    /**
+     * Returns if the a username is valid for a Minecraft account
+     *
+     * @param name the name to test
+     * @return true if username is valid
+     */
+    public static boolean testUsername(String name)
+    {
+        return VALID_USERNAME_REGEX.matcher( name ).matches();
     }
 }

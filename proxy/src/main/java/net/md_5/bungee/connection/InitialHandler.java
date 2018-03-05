@@ -325,15 +325,21 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( thisState == State.USERNAME, "Not expecting USERNAME" );
         this.loginRequest = loginRequest;
 
-        if ( getName().contains( "." ) )
+        if ( getName().length() == 0 )
         {
-            disconnect( bungee.getTranslation( "name_invalid" ) );
+            disconnect( bungee.getTranslation( "name_empty" ) );
             return;
         }
 
         if ( getName().length() > 16 )
         {
             disconnect( bungee.getTranslation( "name_too_long" ) );
+            return;
+        }
+
+        if ( !Util.testUsername( getName() ) )
+        {
+            disconnect( bungee.getTranslation( "name_invalid" ) );
             return;
         }
 
