@@ -337,7 +337,16 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             return;
         }
 
-        if ( !Util.testUsername( getName() ) )
+        boolean validName;
+        if ( isOnlineMode() || BungeeCord.getInstance().config.isStrictOfflineNameValidate() )
+        {
+            validName = Util.testUsername( getName() );
+        } else
+        {
+            validName = getName().contains( "." );
+        }
+
+        if ( validName )
         {
             disconnect( bungee.getTranslation( "name_invalid" ) );
             return;
