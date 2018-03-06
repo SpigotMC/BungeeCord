@@ -34,11 +34,19 @@ public class ServerConnectEvent extends Event implements Cancellable
      * Cancelled state.
      */
     private boolean cancelled;
+    private final Reason reason;
 
+    @Deprecated
     public ServerConnectEvent(ProxiedPlayer player, ServerInfo target)
+    {
+        this( player, target, Reason.UNKNOWN );
+    }
+
+    public ServerConnectEvent(ProxiedPlayer player, ServerInfo target, Reason reason)
     {
         this.player = player;
         this.target = target;
+        this.reason = reason;
     }
 
     public enum Reason
