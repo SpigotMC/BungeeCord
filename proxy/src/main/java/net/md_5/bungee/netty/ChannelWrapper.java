@@ -2,7 +2,6 @@ package net.md_5.bungee.netty;
 
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import java.net.InetSocketAddress;
@@ -15,19 +14,18 @@ import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
-import net.md_5.bungee.protocol.packet.Kick;
 
-public class ChannelWrapper
+public abstract class ChannelWrapper
 {
 
-    private final Channel ch;
+    protected final Channel ch;
     @Getter
     @Setter
-    private InetSocketAddress remoteAddress;
+    protected InetSocketAddress remoteAddress;
     @Getter
-    private volatile boolean closed;
+    protected volatile boolean closed;
     @Getter
-    private volatile boolean closing;
+    protected volatile boolean closing;
 
     public ChannelWrapper(ChannelHandlerContext ctx)
     {
@@ -62,42 +60,31 @@ public class ChannelWrapper
         }
     }
 
+    /**
+     * Marks the closed dirty flag to true.
+     */
     public void markClosed()
     {
         closed = closing = true;
     }
 
-    public void close()
+    protected void closeChannel()
     {
-        close( null );
+        ch.close();
     }
 
-    public void close(Object packet)
+    public void close()
     {
         if ( !closed )
         {
             closed = closing = true;
 
-            if ( packet != null && ch.isActive() )
-            {
-                ch.writeAndFlush( packet ).addListeners( ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE, ChannelFutureListener.CLOSE );
-                ch.eventLoop().schedule( new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        ch.close();
-                    }
-                }, 250, TimeUnit.MILLISECONDS );
-            } else
-            {
-                ch.flush();
-                ch.close();
-            }
+            ch.flush();
+            closeChannel();
         }
     }
 
-    public void delayedClose(final Kick kick)
+    public void delayedClose()
     {
         if ( !closing )
         {
@@ -112,7 +99,7 @@ public class ChannelWrapper
                 @Override
                 public void run()
                 {
-                    close( kick );
+                    closeChannel();
                 }
             }, 250, TimeUnit.MILLISECONDS );
         }

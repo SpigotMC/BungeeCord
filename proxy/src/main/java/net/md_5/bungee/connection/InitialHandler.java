@@ -41,6 +41,8 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.http.HttpClient;
 import net.md_5.bungee.jni.cipher.BungeeCipher;
 import net.md_5.bungee.netty.ChannelWrapper;
+import net.md_5.bungee.netty.DownstreamChannelWrapper;
+import net.md_5.bungee.netty.UpstreamChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.netty.PipelineUtils;
@@ -69,7 +71,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 {
 
     private final BungeeCord bungee;
-    private ChannelWrapper ch;
+    private DownstreamChannelWrapper ch;
     @Getter
     private final ListenerInfo listener;
     @Getter
@@ -119,7 +121,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void connected(ChannelWrapper channel) throws Exception
     {
-        this.ch = channel;
+        this.ch = (DownstreamChannelWrapper) channel;
     }
 
     @Override
@@ -142,7 +144,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(LegacyHandshake legacyHandshake) throws Exception
     {
         this.legacy = true;
-        ch.close( bungee.getTranslation( "outdated_client" ) );
+        ch.close( new Kick( bungee.getTranslation( "outdated_client" ) ) );
     }
 
     @Override
@@ -184,7 +186,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             + '\u00a7' + legacy.getPlayers().getMax();
                 }
 
-                ch.close( kickMessage );
+                ch.close( new Kick( kickMessage ) );
             }
         };
 
