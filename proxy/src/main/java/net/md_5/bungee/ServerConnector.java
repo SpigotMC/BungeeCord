@@ -277,7 +277,7 @@ public class ServerConnector extends PacketHandler
             event.setCancelled( true );
         }
         bungee.getPluginManager().callEvent( event );
-        if ( event.isCancelled() && event.getCancelServer() != null )
+        if ( event.isCancelled() && event.getCancelServer() != null && !event.getCancelServer().equals( target ) )
         {
             obsolete = true;
             user.connect( event.getCancelServer() );

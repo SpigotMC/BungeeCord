@@ -464,7 +464,7 @@ public class DownstreamBridge extends PacketHandler
     {
         ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
         ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTED ) );
-        if ( event.isCancelled() && event.getCancelServer() != null )
+        if ( event.isCancelled() && event.getCancelServer() != null && !event.getCancelServer().equals( server.getInfo() ) )
         {
             con.connectNow( event.getCancelServer() );
         } else
