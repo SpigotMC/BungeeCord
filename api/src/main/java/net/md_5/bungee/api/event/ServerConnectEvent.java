@@ -40,4 +40,38 @@ public class ServerConnectEvent extends Event implements Cancellable
         this.player = player;
         this.target = target;
     }
+
+    public enum Reason
+    {
+
+        /**
+         * Redirection to lobby server due to being unable to connect to
+         * original server
+         */
+        LOBBY_FALLBACK,
+        /**
+         * Execution of a command
+         */
+        COMMAND,
+        /**
+         * Redirecting to another server when kicked from original server.
+         */
+        KICK_REDIRECT,
+        /**
+         * Plugin message request.
+         */
+        PLUGIN_MESSAGE,
+        /**
+         * Initial proxy connect.
+         */
+        JOIN_PROXY,
+        /**
+         * Plugin initiated connect.
+         */
+        PLUGIN,
+        /**
+         * Unknown cause.
+         */
+        UNKNOWN
+    }
 }

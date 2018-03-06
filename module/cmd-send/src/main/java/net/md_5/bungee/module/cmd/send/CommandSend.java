@@ -12,6 +12,7 @@ import net.md_5.bungee.api.plugin.TabExecutor;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import net.md_5.bungee.api.event.ServerConnectEvent;
 
 public class CommandSend extends Command implements TabExecutor
 {
@@ -82,7 +83,7 @@ public class CommandSend extends Command implements TabExecutor
     {
         if ( player.getServer() != null && !player.getServer().getInfo().equals( target ) )
         {
-            player.connect( target );
+            player.connect( target, ServerConnectEvent.Reason.COMMAND );
             player.sendMessage( ChatColor.GOLD + "Summoned to " + target.getName() + " by " + sender.getName() );
         }
     }
