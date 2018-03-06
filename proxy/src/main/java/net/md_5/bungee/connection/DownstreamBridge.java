@@ -460,6 +460,10 @@ public class DownstreamBridge extends PacketHandler
             con.connectNow( event.getCancelServer() );
         } else
         {
+            BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected with: {1}", new Object[]
+            {
+                con.getName(), event.getKickReason()
+            } );
             con.disconnect0( event.getKickReasonComponent() ); // TODO: Prefix our own stuff.
         }
         server.setObsolete( true );
