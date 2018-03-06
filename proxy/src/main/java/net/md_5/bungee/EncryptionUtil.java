@@ -7,9 +7,9 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
-import java.util.Random;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -27,7 +27,7 @@ import net.md_5.bungee.protocol.packet.EncryptionRequest;
 public class EncryptionUtil
 {
 
-    private static final Random random = new Random();
+    private static final SecureRandom random = new SecureRandom();
     public static final KeyPair keys;
     @Getter
     private static final SecretKey secret = new SecretKeySpec( new byte[ 16 ], "AES" );
