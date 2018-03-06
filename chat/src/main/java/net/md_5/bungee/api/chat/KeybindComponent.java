@@ -49,12 +49,6 @@ public final class KeybindComponent extends BaseComponent
     }
 
     @Override
-    public BaseComponent duplicateWithoutFormatting()
-    {
-        return new KeybindComponent( keybind );
-    }
-
-    @Override
     protected void toPlainText(StringBuilder builder)
     {
         builder.append( getKeybind() );
