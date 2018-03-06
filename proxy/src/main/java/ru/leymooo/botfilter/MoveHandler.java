@@ -1,12 +1,10 @@
 package ru.leymooo.botfilter;
 
-import lombok.Getter;
-import lombok.Setter;
 import net.md_5.bungee.netty.PacketHandler;
 import ru.leymooo.botfilter.packets.Player;
-import ru.leymooo.botfilter.packets.PlayerLook;
 import ru.leymooo.botfilter.packets.PlayerPosition;
 import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
+import ru.leymooo.botfilter.packets.TeleportConfirm;
 
 /**
  *
@@ -16,16 +14,16 @@ public class MoveHandler extends PacketHandler
 {
 
     public double x = 0;
-    public double y = -1;
+    public double y = 0;
     public double z = 0;
     public boolean onGround = false;
 
     public int teleportId = -1;
 
-    public int waitingTeleportId = -1;
+    public int waitingTeleportId = 9876;
 
-    public double lastY = -1;
-    public int ticks = 1;
+    public double lastY = 0;
+    public int ticks = 0;
 
     @Override
     public String toString()
@@ -52,11 +50,30 @@ public class MoveHandler extends PacketHandler
     @Override
     public void handle(PlayerPositionAndLook posRot) throws Exception
     {
+        if ( ( (Connector) this ).version == 47 && posRot.getX() == 7 && posRot.getY() == 450 && posRot.getZ() == 7 )
+        {
+            ticks = 0;
+            y = -1;
+            lastY = -1;
+            waitingTeleportId = -1;
+        }
         x = posRot.getX();
         lastY = y;
         y = posRot.getY();
         z = posRot.getZ();
         onMove();
+    }
+
+    @Override
+    public void handle(TeleportConfirm confirm) throws Exception
+    {
+        if ( confirm.getTeleportId() == waitingTeleportId )
+        {
+            ticks = 0;
+            y = -1;
+            lastY = -1;
+            waitingTeleportId = -1;
+        }
     }
 
     public void onMove()

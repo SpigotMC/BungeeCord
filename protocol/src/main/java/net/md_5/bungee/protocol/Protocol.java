@@ -44,6 +44,7 @@ import ru.leymooo.botfilter.packets.Animation;
 import ru.leymooo.botfilter.packets.ChunkPacket;
 import ru.leymooo.botfilter.packets.HeldItemSlot;
 import ru.leymooo.botfilter.packets.Player;
+import ru.leymooo.botfilter.packets.PlayerAbilities;
 import ru.leymooo.botfilter.packets.UpdateHeath;
 import ru.leymooo.botfilter.packets.PlayerPosition;
 import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
@@ -340,6 +341,19 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x17 ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x1A )
             );
+            TO_CLIENT.registerPacket(
+                    PlayerAbilities.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x39 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x2B ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x2B ),
+                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x2C )
+            );
+            TO_CLIENT.registerPacket(
+                    KeepAlive.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x00 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x1F ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x1F )
+            );
             TO_SERVER.registerPacket(
                     PlayerLook.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x05 ),
@@ -385,6 +399,20 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_8, 0x0A ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x1A ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x1D )
+            );
+            TO_SERVER.registerPacket(
+                    KeepAlive.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x00 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x0B ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x0C ),
+                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x0B )
+            );
+            TO_SERVER.registerPacket(
+                    Chat.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x01 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x02 ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x03 ),
+                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x02 )
             );
         }
     };

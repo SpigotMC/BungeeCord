@@ -27,26 +27,26 @@ import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 
 public class UpstreamBridge extends PacketHandler
 {
-    
+
     private final ProxyServer bungee;
     private final UserConnection con;
-    
+
     public UpstreamBridge(ProxyServer bungee, UserConnection con)
     {
         this.bungee = bungee;
         this.con = con;
-        
+
         BungeeCord.getInstance().addConnection( con );
         con.getTabListHandler().onConnect();
         con.unsafe().sendPacket( BungeeCord.getInstance().registerChannels() );
     }
-    
+
     @Override
     public void exception(Throwable t) throws Exception
     {
         con.disconnect( Util.exception( t ) );
     }
-    
+
     @Override
     public void disconnected(ChannelWrapper channel) throws Exception
     {
@@ -55,7 +55,7 @@ public class UpstreamBridge extends PacketHandler
         bungee.getPluginManager().callEvent( event );
         con.getTabListHandler().onDisconnect();
         BungeeCord.getInstance().removeConnection( con );
-        
+
         if ( con.getServer() != null )
         {
             // Manually remove from everyone's tab list
@@ -79,7 +79,7 @@ public class UpstreamBridge extends PacketHandler
             con.getServer().disconnect( "Quitting" );
         }
     }
-    
+
     @Override
     public void writabilityChanged(ChannelWrapper channel) throws Exception
     {
@@ -88,13 +88,13 @@ public class UpstreamBridge extends PacketHandler
             con.getServer().getCh().getHandle().config().setAutoRead( channel.getHandle().isWritable() );
         }
     }
-    
+
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
     {
         return con.getServer() != null || packet.packet instanceof PluginMessage;
     }
-    
+
     @Override
     public void handle(PacketWrapper packet) throws Exception
     {
@@ -104,7 +104,7 @@ public class UpstreamBridge extends PacketHandler
             con.getServer().getCh().write( packet );
         }
     }
-    
+
     @Override
     public void handle(KeepAlive alive) throws Exception
     {
@@ -118,7 +118,7 @@ public class UpstreamBridge extends PacketHandler
             throw CancelSendSignal.INSTANCE;
         }
     }
-    
+
     @Override
     public void handle(Chat chat) throws Exception
     {
@@ -136,25 +136,25 @@ public class UpstreamBridge extends PacketHandler
         }
         throw CancelSendSignal.INSTANCE;
     }
-    
+
     @Override
     public void handle(TabCompleteRequest tabComplete) throws Exception
     {
         List<String> suggestions = new ArrayList<>();
-        
+
         if ( tabComplete.getCursor().startsWith( "/" ) )
         {
             bungee.getPluginManager().dispatchCommand( con, tabComplete.getCursor().substring( 1 ), suggestions );
         }
-        
+
         TabCompleteEvent tabCompleteEvent = new TabCompleteEvent( con, con.getServer(), tabComplete.getCursor(), suggestions );
         bungee.getPluginManager().callEvent( tabCompleteEvent );
-        
+
         if ( tabCompleteEvent.isCancelled() )
         {
             throw CancelSendSignal.INSTANCE;
         }
-        
+
         List<String> results = tabCompleteEvent.getSuggestions();
         if ( !results.isEmpty() )
         {
@@ -162,13 +162,13 @@ public class UpstreamBridge extends PacketHandler
             throw CancelSendSignal.INSTANCE;
         }
     }
-    
+
     @Override
     public void handle(ClientSettings settings) throws Exception
     {
         con.setSettings( settings );
     }
-    
+
     @Override
     public void handle(PluginMessage pluginMessage) throws Exception
     {
@@ -189,14 +189,14 @@ public class UpstreamBridge extends PacketHandler
             con.getForgeClientHandler().handle( pluginMessage );
             throw CancelSendSignal.INSTANCE;
         }
-        
+
         if ( con.getServer() != null && !con.getServer().isForgeServer() && pluginMessage.getData().length > Short.MAX_VALUE )
         {
             // Drop the packet if the server is not a Forge server and the message was > 32kiB (as suggested by @jk-5)
             // Do this AFTER the mod list, so we get that even if the intial server isn't modded.
             throw CancelSendSignal.INSTANCE;
         }
-        
+
         PluginMessageEvent event = new PluginMessageEvent( con, con.getServer(), pluginMessage.getTag(), pluginMessage.getData().clone() );
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
@@ -209,7 +209,7 @@ public class UpstreamBridge extends PacketHandler
             con.getPendingConnection().getRelayMessages().add( pluginMessage );
         }
     }
-    
+
     @Override
     public String toString()
     {

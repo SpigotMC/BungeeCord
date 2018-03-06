@@ -1,9 +1,9 @@
 package ru.leymooo.botfilter;
 
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.packet.KeepAlive;
 import ru.leymooo.botfilter.caching.PacketUtil;
 import ru.leymooo.botfilter.caching.PacketUtil.KickType;
 import ru.leymooo.botfilter.config.Settings;
@@ -30,10 +30,8 @@ public class BotFilterThread
                     {
                         if ( !connector.isConnected() )
                         {
-                            System.out.println( "this" );
                             continue;
                         }
-                        System.out.println( "this1" );
                         BotFilter.CheckState state = connector.state;
                         switch ( state )
                         {
@@ -45,13 +43,15 @@ public class BotFilterThread
                                 {
                                     connector.state = BotFilter.CheckState.FAILED;
                                     PacketUtil.kickPlayer( KickType.NOTPLAYER, Protocol.GAME, connector.channelWrapper, connector.version );
+                                    continue;
                                 } else if ( state == BotFilter.CheckState.ONLY_POSITION || state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED )
                                 {
-                                    connector.channelWrapper.getHandle().writeAndFlush( PacketUtil.checkMessage.get( connector.version ) );
+                                    connector.channelWrapper.getHandle().write( PacketUtil.checkMessage.get( connector.version ) );
                                 } else
                                 {
-                                    connector.channelWrapper.getHandle().writeAndFlush( PacketUtil.captchaCheckMessage.get( connector.version ) );
+                                    connector.channelWrapper.getHandle().write( PacketUtil.captchaCheckMessage.get( connector.version ) );
                                 }
+                                connector.sendPing();
                         }
                     }
                 } catch ( Exception e )

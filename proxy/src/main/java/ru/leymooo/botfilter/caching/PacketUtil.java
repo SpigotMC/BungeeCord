@@ -16,6 +16,7 @@ import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
+import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Login;
 import ru.leymooo.botfilter.packets.ChunkPacket;
@@ -24,6 +25,7 @@ import ru.leymooo.botfilter.packets.SpawnPosition;
 import ru.leymooo.botfilter.packets.TimeUpdate;
 import ru.leymooo.botfilter.packets.UpdateHeath;
 import ru.leymooo.botfilter.config.Settings;
+import ru.leymooo.botfilter.packets.PlayerAbilities;
 
 /**
  *
@@ -32,8 +34,7 @@ import ru.leymooo.botfilter.config.Settings;
 public class PacketUtil
 {
 
-    @Getter
-    private static HashMap<Class<? extends DefinedPacket>, CachedPacket> singlePackets = new HashMap<>();
+    public static HashMap<Class<? extends DefinedPacket>, CachedPacket> singlePackets = new HashMap<>();
     private static HashMap<KickType, CachedPacket> kickMessagesGame = new HashMap<KickType, CachedPacket>();
     private static HashMap<KickType, CachedPacket> kickMessagesLogin = new HashMap<KickType, CachedPacket>();
 
@@ -72,9 +73,9 @@ public class PacketUtil
         DefinedPacket[] packets =
         {
             new Login( -1, (short) 2, 0, (short) 0, (short) 100, "flat", false ),
-            new SpawnPosition( 1, 60, 1 ), new PlayerPositionAndLook( 7.00, 450, 7.00, 1f, 1f, 1, false ),
-            new UpdateHeath( 1, 1, 0 ), new TimeUpdate( 1, Settings.IMP.WORLD_TIME ),
-            new ChunkPacket( 0, 0, new byte[ 256 ], false )
+            new SpawnPosition( 1, 60, 1 ), new PlayerPositionAndLook( 7.00, 450, 7.00, 1f, 1f, 9876, false ),
+            new TimeUpdate( 1, Settings.IMP.WORLD_TIME ), new KeepAlive( 9876 ),
+            new ChunkPacket( 0, 0, new byte[ 63 ], false ), new PlayerAbilities( (byte) 6, 0f, 0f )
         };
 
         for ( DefinedPacket packet : packets )
@@ -123,7 +124,6 @@ public class PacketUtil
         channel.write( singlePackets.get( SpawnPosition.class ).get( version ), channel.voidPromise() );
         channel.write( singlePackets.get( ChunkPacket.class ).get( version ), channel.voidPromise() );
         channel.write( singlePackets.get( TimeUpdate.class ).get( version ), channel.voidPromise() );
-        channel.write( singlePackets.get( PlayerPositionAndLook.class ).get( version ), channel.voidPromise() );
         channel.write( singlePackets.get( PlayerPositionAndLook.class ).get( version ), channel.voidPromise() );
         channel.flush();
     }

@@ -170,9 +170,10 @@ public class BotFilter
      * Проверяет можно ли подключиться с айпи аддресса
      *
      * @param address Айпи аддресс для проверки
+     * @param ping Пинг игрока, -1 если нету
      * @return DisconnectReason
      */
-    public KickType checkIpAddress(InetAddress address)
+    public KickType checkIpAddress(InetAddress address, int ping)
     {
         int mode = isUnderAttack() ? 1 : 0;
         if ( proxy.isEnabled() && ( Settings.IMP.PROXY.MODE == 0 || Settings.IMP.PROXY.MODE == mode ) && proxy.isProxy( address ) )
@@ -182,6 +183,10 @@ public class BotFilter
         if ( geoIp.isEnabled() && ( Settings.IMP.GEO_IP.MODE == 0 || Settings.IMP.GEO_IP.MODE == mode ) && !geoIp.isAllowed( address ) )
         {
             return KickType.COUNTRY;
+        }
+        if ( ping != -1 && Settings.IMP.PING_CHECK.MODE != 2 && ( Settings.IMP.PING_CHECK.MODE == 0 || Settings.IMP.PING_CHECK.MODE == mode ) && ping >= Settings.IMP.PING_CHECK.MAX_PING )
+        {
+            return KickType.PING;
         }
         return null;
     }

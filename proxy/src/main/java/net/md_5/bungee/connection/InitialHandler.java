@@ -369,7 +369,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         //BotFilter start
-        KickType kickType = BotFilter.getInstance().checkIpAddress( getAddress().getAddress() );
+        KickType kickType = BotFilter.getInstance().checkIpAddress( getAddress().getAddress(), -1 );
         if ( kickType != null )
         {
             PacketUtil.kickPlayer( KickType.MANYCHECKS, Protocol.LOGIN, ch, getVersion() );
