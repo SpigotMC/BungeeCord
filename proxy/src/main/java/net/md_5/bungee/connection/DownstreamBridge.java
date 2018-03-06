@@ -36,6 +36,7 @@ import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
+import net.md_5.bungee.protocol.packet.PositionLook;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.SetCompression;
@@ -100,6 +101,12 @@ public class DownstreamBridge extends PacketHandler
     {
         con.getEntityRewrite().rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId() );
         con.sendPacket( packet );
+    }
+
+    @Override
+    public void handle(PositionLook positionLook)
+    {
+        con.setDimensionChange( false );
     }
 
     @Override
@@ -504,6 +511,11 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(Respawn respawn)
     {
+        if ( respawn.getDimension() != con.getDimension() )
+        {
+            con.setDimensionChange( true );
+        }
+
         con.setDimension( respawn.getDimension() );
     }
 

@@ -236,6 +236,7 @@ public class ServerConnector extends PacketHandler
             user.setDimensionChange( true );
             if ( login.getDimension() == user.getDimension() )
             {
+                // dimensionChange update to Bungee.
                 user.unsafe().sendPacket( new Respawn( ( login.getDimension() >= 0 ? -1 : 0 ), login.getDifficulty(), login.getGameMode(), login.getLevelType() ) );
             }
 
