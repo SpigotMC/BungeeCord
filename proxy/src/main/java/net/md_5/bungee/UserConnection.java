@@ -86,7 +86,10 @@ public final class UserConnection implements ProxiedPlayer
     private int dimension;
     @Getter
     @Setter
-    private boolean dimensionChange = true;
+    private boolean dimensionChange;
+    @Getter
+    @Setter
+    private BaseComponent[] lastKickReason;
     @Getter
     private final Collection<ServerInfo> pendingConnects = new HashSet<>();
     /*========================================================================*/
@@ -199,12 +202,6 @@ public final class UserConnection implements ProxiedPlayer
         connect( target, callback, false );
     }
 
-    public void connectNow(ServerInfo target)
-    {
-        dimensionChange = true;
-        connect( target );
-    }
-
     public ServerInfo updateAndGetNextServer(ServerInfo currentTarget)
     {
         if ( serverJoinQueue == null )
@@ -240,6 +237,8 @@ public final class UserConnection implements ProxiedPlayer
 
             if ( getServer() == null && !ch.isClosing() )
             {
+                tryKickPhase();
+
                 throw new IllegalStateException( "Cancelled ServerConnectEvent with no server or disconnect." );
             }
             return;
@@ -254,9 +253,13 @@ public final class UserConnection implements ProxiedPlayer
                 callback.done( false, null );
             }
 
-            sendMessage( bungee.getTranslation( "already_connected" ) );
+            if ( !tryKickPhase() )
+            {
+                sendMessage( bungee.getTranslation( "already_connected" ) );
+            }
             return;
         }
+
         if ( pendingConnects.contains( target ) )
         {
             if ( callback != null )
@@ -264,7 +267,10 @@ public final class UserConnection implements ProxiedPlayer
                 callback.done( false, null );
             }
 
-            sendMessage( bungee.getTranslation( "already_connecting" ) );
+            if ( !tryKickPhase() )
+            {
+                sendMessage( bungee.getTranslation( "already_connecting" ) );
+            }
             return;
         }
 
@@ -302,10 +308,10 @@ public final class UserConnection implements ProxiedPlayer
                     {
                         sendMessage( bungee.getTranslation( "fallback_lobby" ) );
                         connect( def, null, true );
-                    } else if ( dimensionChange )
+                    } else if ( isDimensionChange() )
                     {
                         disconnect( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
-                    } else
+                    } else if ( !tryKickPhase() )
                     {
                         sendMessage( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
                     }
@@ -318,12 +324,29 @@ public final class UserConnection implements ProxiedPlayer
                 .handler( initializer )
                 .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000 ) // TODO: Configurable
                 .remoteAddress( target.getAddress() );
+
         // Windows is bugged, multi homed users will just have to live with random connecting IPs
         if ( getPendingConnection().getListener().isSetLocalAddress() && !PlatformDependent.isWindows() )
         {
             b.localAddress( getPendingConnection().getListener().getHost().getHostString(), 0 );
         }
         b.connect().addListener( listener );
+    }
+
+    private boolean tryKickPhase()
+    {
+        if ( lastKickReason != null )
+        {
+            disconnect( lastKickReason );
+            return true;
+        } else if ( server != null && server.isObsolete() )
+        {
+            disconnect( bungee.getTranslation( "server_went_down_no_reconnect" ) );
+            return true;
+        } else
+        {
+            return false;
+        }
     }
 
     @Override

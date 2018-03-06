@@ -100,7 +100,7 @@ public class ServerConnector extends PacketHandler
             copiedHandshake.setHost( newHost );
         } else if ( !user.getExtraDataInHandshake().isEmpty() )
         {
-            // Only restore the extra data if IP forwarding is off. 
+            // Only restore the extra data if IP forwarding is off.
             // TODO: Add support for this data with IP forwarding.
             copiedHandshake.setHost( copiedHandshake.getHost() + user.getExtraDataInHandshake() );
         }
@@ -192,6 +192,8 @@ public class ServerConnector extends PacketHandler
             user.setClientEntityId( login.getEntityId() );
             user.setServerEntityId( login.getEntityId() );
 
+            user.setDimensionChange( true );
+
             // Set tab list size, this sucks balls, TODO: what shall we do about packet mutability
             Login modLogin = new Login( login.getEntityId(), login.getGameMode(), (byte) login.getDimension(), login.getDifficulty(),
                     (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.isReducedDebugInfo() );
@@ -259,6 +261,7 @@ public class ServerConnector extends PacketHandler
         target.addPlayer( user );
         user.getPendingConnects().remove( target );
         user.setServerJoinQueue( null );
+        user.setLastKickReason( null );
         user.setDimensionChange( false );
 
         user.setServer( server );
@@ -290,6 +293,7 @@ public class ServerConnector extends PacketHandler
         bungee.getPluginManager().callEvent( event );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
+            user.setLastKickReason( event.getKickReasonComponent() );
             obsolete = true;
             user.connect( event.getCancelServer() );
             throw CancelSendSignal.INSTANCE;
