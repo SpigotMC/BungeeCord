@@ -2,7 +2,7 @@ package net.md_5.bungee.netty;
 
 import io.netty.channel.ChannelHandlerContext;
 
-// CLIENT_BOUND
+// CLIENT -> SERVER
 public class UpstreamChannelWrapper extends ChannelWrapper
 {
 

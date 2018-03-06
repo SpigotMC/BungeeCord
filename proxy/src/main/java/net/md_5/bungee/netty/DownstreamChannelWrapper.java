@@ -10,7 +10,7 @@ import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.protocol.packet.Kick;
 
-// SERVER_BOUND
+// SERVER -> CLIENT
 public class DownstreamChannelWrapper extends ChannelWrapper
 {
 

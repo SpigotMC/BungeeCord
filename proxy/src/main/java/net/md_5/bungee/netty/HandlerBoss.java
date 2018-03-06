@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import lombok.Getter;
+import net.md_5.bungee.ServerConnector;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
@@ -46,7 +47,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
             if ( handler instanceof DownstreamBridge || handler instanceof InitialHandler )
             {
                 channel = new DownstreamChannelWrapper( ctx );
-            } else if ( handler instanceof UpstreamBridge || handler instanceof PingHandler )
+            } else if ( handler instanceof UpstreamBridge || handler instanceof PingHandler || handler instanceof ServerConnector )
             {
                 channel = new UpstreamChannelWrapper( ctx );
             } else
