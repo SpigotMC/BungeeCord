@@ -18,7 +18,6 @@ import net.md_5.bungee.protocol.Protocol;
 public abstract class ChannelWrapper
 {
 
-    @Getter
     protected final Channel ch;
     @Getter
     @Setter
@@ -76,7 +75,7 @@ public abstract class ChannelWrapper
 
     public void close()
     {
-        if ( !closed ) // -> ch.isActive?
+        if ( !closed )
         {
             closed = closing = true;
 
@@ -87,7 +86,7 @@ public abstract class ChannelWrapper
 
     public void delayedClose()
     {
-        if ( !closing ) // -> !ch.isActive?
+        if ( !closing )
         {
             closing = true;
 

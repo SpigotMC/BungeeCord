@@ -19,20 +19,20 @@ public class DownstreamChannelWrapper extends ChannelWrapper
         super( ctx );
     }
 
-    public void closeChannel(Kick kick)
+    protected void closeChannel(Kick kick)
     {
         super.closeChannel();
     }
 
     public void close(final Kick kick)
     {
-        // Use #close() instead.
-        Preconditions.checkNotNull( kick, "Kick cannot be null" );
+        Preconditions.checkNotNull( kick, "Kick cannot be null" ); // Kick required, use close() instead
 
-        if ( !closed ) // -> ch.isActive?
+        if ( !closed )
         {
             closed = closing = true;
 
+            // Send kick packet to client
             ch.writeAndFlush( kick ).addListeners( ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE, ChannelFutureListener.CLOSE );
 
             // Log the kick message to console
@@ -43,18 +43,17 @@ public class DownstreamChannelWrapper extends ChannelWrapper
                 userConName = ( (InitialHandler) handler ).getName();
             } else if ( handler instanceof DownstreamBridge )
             {
-                DownstreamBridge downstream = (DownstreamBridge) handler;
                 userConName = ( (DownstreamBridge) handler ).getName();
             }
             if ( userConName != null )
             {
-                InitialHandler bridge = (InitialHandler) handler;
                 ProxyServer.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected with: {1}", new Object[]
                 {
                     userConName, kick.getMessage()
                 } );
             }
 
+            // Now that the client has been kicked, close this channel with a delay
             ch.eventLoop().schedule( new Runnable()
             {
                 @Override
