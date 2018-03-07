@@ -51,6 +51,11 @@ public class Configuration implements ProxyConfig
      * Whether we log proxy commands to the proxy log
      */
     private boolean logCommands;
+    /**
+     * If invalid names are strictly tested for invalid characters on offline
+     * mode.
+     */
+    private boolean strictOfflineNameValidate = false;
     private int playerLimit = -1;
     private Collection<String> disabledCommands;
     private int throttle = 4000;
@@ -88,7 +93,8 @@ public class Configuration implements ProxyConfig
         preventProxyConnections = adapter.getBoolean( "prevent_proxy_connections", preventProxyConnections );
 
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
-
+        strictOfflineNameValidate = adapter.getBoolean( "strict_offline_name_validate", strictOfflineNameValidate )
+        
         Preconditions.checkArgument( listeners != null && !listeners.isEmpty(), "No listeners defined." );
 
         Map<String, ServerInfo> newServers = adapter.getServers();
