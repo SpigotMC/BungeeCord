@@ -27,12 +27,14 @@ public class Settings extends Config
     @Create
     public MESSAGES MESSGAGES;
 
+    @Comment("Не используйте '\\n', используйте %nl%")
     public static class MESSAGES
     {
 
         public String PREFIX = "&b&lBot&d&lFilter ";
         public String CHECKING = "%prefix%>> &aИдёт проверка, ожидайте...";
         public String CHECKING_CAPTCHA = "%prefix%&7>> &aВведите номер с картинки в чат";
+        public String CHECKING_CAPTCHA_WRONG = "%prefix%&7>> &cВы ввели капчу неправильно, пожалуйста попробуйте ещё раз. У вас %s %s";
         public String SUCCESSFULLY = "%prefix%&7>> &aПроверка пройдена, приятной игры";
         public String KICK_MANY_CHECKS = "%prefix%%nl%%nl%&cС вашего айпи замечена подозрительная активность%nl%%nl%&6Повторите попытку через 10 минут";
         public String KICK_NOT_PLAYER = "%prefix%%nl%%nl%&cВы не прошли проверку, возможно вы бот%nl%&7&oЕсли это не так, пожалуйста повторите попытку";
@@ -63,10 +65,6 @@ public class Settings extends Config
     @Comment("Сколько времени есть у игрока чтобы пройти защиту. В миллисекундах. 1 сек = 1000")
     public int TIME_OUT = 12000;
 
-    @Ignore
-    public BungeeTitle CHECKING;
-    public BungeeTitle SUCCESSFULLY;
-
     @Create
     public GEO_IP GEO_IP;
 
@@ -96,7 +94,7 @@ public class Settings extends Config
     @Create
     public PING_CHECK PING_CHECK;
 
-    @Comment("Включить или отключить проверку на выскокий пинг")
+    @Comment("Включить или отключить проверку на высокий пинг")
     public static class PING_CHECK
     {
 
@@ -129,18 +127,24 @@ public class Settings extends Config
         public int MODE = 1;
         @Comment("В течении какого времени можно заходить на сервер после получения мотд сервера")
         public int CACHE_TIME = 12;
-        public String KICK_MESSAGE = "|-\n"
-                + "    &cВы были кикнуты! Не используйте прямое подключение\n"
-                + "    \n"
-                + "    &bДля того чтобы зайти на сервер:\n"
-                + "    \n"
-                + "    &71) &rДобавте сервер в &lсписок серверов.\n"
-                + "    &lНаш айпи &8>> &b&lIP\n"
-                + "    \n"
-                + "    &72) &rОбновите список серверов. \n"
-                + "    &oЧтобы его обновить нажмите кнопку &c&lОбновить &r&oили &c&lRefresh\n"
-                + "    \n"
-                + "    &73) &rПодождите &c1-3&r секунды и заходите!";
+        public List<String> KICK_MESSAGE = new ArrayList()
+        {
+            {
+                add( "%nl%" );
+                add( "&cВы были кикнуты! Не используйте прямое подключение" );
+                add( "%nl%" );
+                add( "&bДля того чтобы зайти на сервер:" );
+                add( "%nl%" );
+                add( "&71) &rДобавте сервер в &lсписок серверов." );
+                add( "&lНаш айпи &8>> &b&lIP" );
+                add( "%nl%" );
+                add( "&72) &rОбновите список серверов. " );
+                add( "&oЧтобы его обновить нажмите кнопку &c&lОбновить &r&oили &c&lRefresh" );
+                add( "%nl%" );
+                add( "&73) &rПодождите &c1-3&r секунды и заходите!" );
+
+            }
+        };
     }
 
     @Create
@@ -163,7 +167,7 @@ public class Settings extends Config
                     "Откуда качать прокси",
                     "Указывать ссылки, где прокси идут сплошным текстом"
                 })
-        public List<String> PROXY_SITES = Arrays.asList( "http://fallback.funtime.su/proxy.txt" );
+        public List<String> PROXY_SITES = Arrays.asList( "http://botfilter.funtime.su/proxy.txt" );
     }
 
     @Create
@@ -172,16 +176,15 @@ public class Settings extends Config
     @Comment(
             {
                 "Настройка как именно будет работать защита",
-                "0 - Только проверка на падение",
-                "1 - Только проверка с помошью капчи",
-                "2 - Проверка на падение + капча",
-                "3 - Проверка на падение, если провалилась, то капча"
+                "0 - Только проверка с помошью капчи",
+                "1 - Проверка на падение + капча",
+                "2 - Проверка на падение, если провалилась, то капча"
             })
     public static class PROTECTION
     {
 
-        public int NORMAL = 3;
-        public int ON_ATTACK = 2;
+        public int NORMAL = 2;
+        public int ON_ATTACK = 1;
         /*
         @Comment(
                 {

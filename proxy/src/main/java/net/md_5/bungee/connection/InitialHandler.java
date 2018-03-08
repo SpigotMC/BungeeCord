@@ -64,8 +64,8 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
 import ru.leymooo.botfilter.BotFilter;
 import ru.leymooo.botfilter.Connector;
-import ru.leymooo.botfilter.caching.PacketUtil;
-import ru.leymooo.botfilter.caching.PacketUtil.KickType;
+import ru.leymooo.botfilter.caching.PacketUtils;
+import ru.leymooo.botfilter.caching.PacketUtils.KickType;
 import ru.leymooo.botfilter.config.Settings;
 import ru.leymooo.botfilter.utils.ManyChecksUtils;
 import ru.leymooo.botfilter.utils.ServerPingUtils;
@@ -318,7 +318,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 //BotFilter start
                 if ( ManyChecksUtils.isManyChecks( getAddress().getAddress() ) )
                 {
-                    PacketUtil.kickPlayer( KickType.MANYCHECKS, Protocol.LOGIN, ch, getVersion() );
+                    PacketUtils.kickPlayer( KickType.MANYCHECKS, Protocol.LOGIN, ch, getVersion() );
                     bungee.getLogger().log( Level.INFO, "[{0}] disconnected: Too many checks in 10 min", getAddress().getAddress().getHostAddress() );
                     return;
                 }
@@ -326,7 +326,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 ServerPingUtils ping = BotFilter.getInstance().getServerPingUtils();
                 if ( ping.needCheck() && ping.needKickOrRemove( getAddress().getAddress() ) )
                 {
-                    disconnect( Settings.IMP.SERVER_PING_CHECK.KICK_MESSAGE );
+                    PacketUtils.kickPlayer( KickType.PING, Protocol.LOGIN, ch, getVersion() );
                     bungee.getLogger().log( Level.INFO, "[{0}] disconnected: The player did not ping the server", getAddress().getAddress().getHostAddress() );
                     return;
                 }
@@ -334,7 +334,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
                 if ( bungee.getConnectionThrottle() != null && bungee.getConnectionThrottle().throttle( getAddress().getAddress() ) )
                 {
-                    PacketUtil.kickPlayer( KickType.THROTTLE, Protocol.LOGIN, ch, getVersion() );
+                    PacketUtils.kickPlayer( KickType.THROTTLE, Protocol.LOGIN, ch, getVersion() );
                     bungee.getLogger().log( Level.INFO, "[{0}] disconnected: Connection is throttled", getAddress().getAddress().getHostAddress() );
                 }
                 break;
@@ -372,7 +372,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         KickType kickType = BotFilter.getInstance().checkIpAddress( getAddress().getAddress(), -1 );
         if ( kickType != null )
         {
-            PacketUtil.kickPlayer( KickType.MANYCHECKS, Protocol.LOGIN, ch, getVersion() );
+            PacketUtils.kickPlayer( KickType.MANYCHECKS, Protocol.LOGIN, ch, getVersion() );
             bungee.getLogger().log( Level.INFO, "[{0}] disconnected: ".concat( ( kickType == KickType.COUNTRY ? "Country is not allowed" : "Proxy detected" ) ),
                     getAddress().getAddress().getHostAddress() );
         }
@@ -514,7 +514,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             uniqueId = offlineId;
         }
-        //BotFiler start
         UserConnection userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
         userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
         userCon.init();
@@ -524,7 +523,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         unsafe.sendPacket( new LoginSuccess( getUniqueId().toString(), getName() ) ); // With dashes in between
 
         ch.setProtocol( Protocol.GAME );
-
+        
+        //BotFiler start
         if ( BotFilter.getInstance().needCheck( getName(), getAddress().getAddress() ) )
         {
             ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new Connector( userCon ) );

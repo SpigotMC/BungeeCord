@@ -263,10 +263,11 @@ public class BungeeCord extends ProxyServer
             ResourceLeakDetector.setLevel( ResourceLeakDetector.Level.DISABLED ); // Eats performance
         }
 
-        String property = System.getProperty( "bungeeName" ); // BotFilter
-        customBungeeName = ( property == null ? getName() : property ) + " " + getGameVersion(); // BotFilter
+        String nameProperty = System.getProperty( "bungeeName" ); // BotFilter
+        customBungeeName = ( nameProperty == null ? getName() : nameProperty ) + " " + getGameVersion(); // BotFilter
 
         new BotFilter(); //Hook BotFilter into Bungee
+        new FakeOnline(); //Init fake online
 
         bossEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Boss IO Thread #%1$d" ).build() ); //BotFilter
         workerEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Worker IO Thread #%1$d" ).build() ); //BotFilter
@@ -558,14 +559,15 @@ public class BungeeCord extends ProxyServer
     public int getOnlineCountBF(boolean fake)
     {
         int online = connections.size();
+        if ( fake )
+        {
+            online = FakeOnline.getInstance().getFakeOnline( online );
+        }
         if ( Settings.IMP.SHOW_ONLINE )
         {
             online += BotFilter.getInstance().getOnlineOnFilter();
         }
-        if ( fake )
-        {
-            //TODO: Handle fake online
-        }
+
         return online;
     }
 

@@ -1,4 +1,4 @@
-package ru.leymooo.botfilter.packets;
+package ru.leymooo.botfilter.packets.unused;
 
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
@@ -13,20 +13,21 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class PlayerLook extends DefinedPacket
+public class HeldItemSlot extends DefinedPacket
 {
 
-    private float yaw;
-    private float pitch;
-    private boolean onGround;
+    int slot;
+
+    @Override
+    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
+    {
+        buf.writeByte( slot );
+    }
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        this.yaw = buf.readFloat();
-        this.pitch = buf.readFloat();
-        this.onGround = buf.readBoolean();
-        buf.skipBytes( buf.readableBytes() );
+        slot = buf.readShort();
     }
 
     @Override
@@ -34,5 +35,4 @@ public class PlayerLook extends DefinedPacket
     {
         handler.handle( this );
     }
-
 }

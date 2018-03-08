@@ -1,4 +1,4 @@
-package ru.leymooo.botfilter.packets;
+package ru.leymooo.botfilter.packets.unused;
 
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
@@ -13,26 +13,23 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class HeldItemSlot extends DefinedPacket
+public class SetExp extends DefinedPacket
 {
 
-    int slot;
+    float expBar;
+    int level;
+    int totalExp;
 
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        buf.writeByte( slot );
-    }
-
-    @Override
-    public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
-    {
-        slot = buf.readShort();
+        buf.writeFloat( this.expBar );
+        DefinedPacket.writeVarInt( level, buf );
+        DefinedPacket.writeVarInt( totalExp, buf );
     }
 
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {
-        handler.handle( this );
     }
 }

@@ -36,7 +36,7 @@ public class PlayerPositionAndLook extends DefinedPacket
         buf.writeFloat( this.yaw );
         buf.writeFloat( this.pitch );
         buf.writeByte( 0x00 );
-        if ( protocolVersion >= 107 )
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
         {
             PlayerPositionAndLook.writeVarInt( teleportId, buf );
         }

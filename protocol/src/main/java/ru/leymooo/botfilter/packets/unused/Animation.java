@@ -1,4 +1,4 @@
-package ru.leymooo.botfilter.packets;
+package ru.leymooo.botfilter.packets.unused;
 
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
@@ -13,23 +13,32 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class SetExp extends DefinedPacket
+public class Animation extends DefinedPacket
 {
 
-    float expBar;
-    int level;
-    int totalExp;
+    private int entId = -1;
+    private int animId = 0;
+
+    @Override
+    public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
+    {
+        if ( protocolVersion != ProtocolConstants.MINECRAFT_1_8 ) //no packet data
+        {
+            animId = Animation.readVarInt( buf );
+        }
+    }
 
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        buf.writeFloat( this.expBar );
-        DefinedPacket.writeVarInt( level, buf );
-        DefinedPacket.writeVarInt( totalExp, buf );
+        Animation.writeVarInt( entId, buf );
+        buf.writeByte( animId );
     }
 
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {
+        handler.handle( this );
     }
+
 }

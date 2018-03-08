@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
-import ru.leymooo.botfilter.packets.ConfirmTransaction;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.Handshake;
@@ -26,7 +25,6 @@ import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PingPacket;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
-import ru.leymooo.botfilter.packets.PlayerLook;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
@@ -40,15 +38,11 @@ import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.Team;
 import ru.leymooo.botfilter.packets.TeleportConfirm;
 import net.md_5.bungee.protocol.packet.Title;
-import ru.leymooo.botfilter.packets.Animation;
 import ru.leymooo.botfilter.packets.ChunkPacket;
-import ru.leymooo.botfilter.packets.HeldItemSlot;
 import ru.leymooo.botfilter.packets.Player;
 import ru.leymooo.botfilter.packets.PlayerAbilities;
-import ru.leymooo.botfilter.packets.UpdateHeath;
 import ru.leymooo.botfilter.packets.PlayerPosition;
 import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
-import ru.leymooo.botfilter.packets.SetExp;
 import ru.leymooo.botfilter.packets.SetSlot;
 import ru.leymooo.botfilter.packets.SpawnPosition;
 import ru.leymooo.botfilter.packets.TimeUpdate;
@@ -273,6 +267,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x23 ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x23 )
             );
+            /*
             TO_CLIENT.registerPacket(
                     HeldItemSlot.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x09 ),
@@ -286,6 +281,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x11 ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x11 )
             );
+             */
             TO_CLIENT.registerPacket(
                     SpawnPosition.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x05 ),
@@ -293,6 +289,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12, 0x45 ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x46 )
             );
+            /*
             TO_CLIENT.registerPacket( UpdateHeath.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x06 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x3E ),
@@ -305,6 +302,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12, 0x3F ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x40 )
             );
+             */
             TO_CLIENT.registerPacket( TimeUpdate.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x03 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x44 ),
@@ -329,6 +327,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x16 ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x16 )
             );
+            /*
             TO_CLIENT.registerPacket(
                     Animation.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x0B ),
@@ -341,6 +340,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x17 ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x1A )
             );
+             */
             TO_CLIENT.registerPacket(
                     PlayerAbilities.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x39 ),
@@ -354,6 +354,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x1F ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x1F )
             );
+            /*
             TO_SERVER.registerPacket(
                     PlayerLook.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x05 ),
@@ -361,6 +362,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12, 0x10 ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x0F )
             );
+            
             TO_SERVER.registerPacket(
                     ConfirmTransaction.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x0F ),
@@ -368,6 +370,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12, 0x06 ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x05 )
             );
+             */
             TO_SERVER.registerPacket(
                     TeleportConfirm.class,
                     map( ProtocolConstants.MINECRAFT_1_9, 0x00 ),
@@ -394,12 +397,14 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12, 0x0D ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x0C )
             );
+            /*
             TO_SERVER.registerPacket(
                     Animation.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x0A ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x1A ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x1D )
             );
+             */
             TO_SERVER.registerPacket(
                     KeepAlive.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x00 ),

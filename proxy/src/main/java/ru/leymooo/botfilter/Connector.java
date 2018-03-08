@@ -1,18 +1,20 @@
 package ru.leymooo.botfilter;
 
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import lombok.EqualsAndHashCode;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import ru.leymooo.botfilter.BotFilter.CheckState;
-import ru.leymooo.botfilter.caching.PacketUtil;
-import ru.leymooo.botfilter.caching.PacketUtil.KickType;
-import ru.leymooo.botfilter.config.Settings;
+import ru.leymooo.botfilter.caching.PacketUtils;
+import ru.leymooo.botfilter.caching.PacketUtils.KickType;
 import ru.leymooo.botfilter.packets.PlayerAbilities;
 import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
+import ru.leymooo.botfilter.packets.SetSlot;
 import ru.leymooo.botfilter.utils.ManyChecksUtils;
 
 /**
@@ -26,7 +28,7 @@ import ru.leymooo.botfilter.utils.ManyChecksUtils;
 public class Connector extends MoveHandler
 {
 
-    private static long TOTAL_TICKS = 60;
+    private static long TOTAL_TICKS = 100;
     private static long TOTAL_TIME = ( TOTAL_TICKS * 50 ) - 100; //TICKS * 50MS
 
     private UserConnection userConnection;
@@ -34,11 +36,13 @@ public class Connector extends MoveHandler
     private String name;
 
     public int version;
-    private int aticks = 0, sentPings = 0;
-    public long joinTime = System.currentTimeMillis(), lastSend = 0, totalping = 0;
+    private int aticks = 0, sentPings = 0, captchaAnswer, attemps = 3;
+    public long joinTime = System.currentTimeMillis(), lastSend = 0, totalping = 9999;
 
-    public CheckState state = CheckState.CAPTCHA_ON_POSITION_FAILED;//BotFilter.getInstance().getCurrentCheckState();
+    public CheckState state = BotFilter.getInstance().getCurrentCheckState();
     public ChannelWrapper channelWrapper;
+
+    private ThreadLocalRandom random = ThreadLocalRandom.current();
 
     public Connector(UserConnection userConnection)
     {
@@ -48,13 +52,16 @@ public class Connector extends MoveHandler
         this.version = userConnection.getPendingConnection().getVersion();
         channelWrapper.setDecoderProtocol( Protocol.BotFilter );
         ManyChecksUtils.IncreaseOrAdd( channelWrapper.getRemoteAddress().getAddress() );
-        PacketUtil.spawnPlayer( channelWrapper.getHandle(), userConnection.getPendingConnection().getVersion() );
-        if ( state == CheckState.ONLY_POSITION || state == CheckState.CAPTCHA_ON_POSITION_FAILED )
+        if ( state == CheckState.CAPTCHA_ON_POSITION_FAILED )
         {
-            channelWrapper.getHandle().write( PacketUtil.checkMessage.get( version ) );
+            PacketUtils.spawnPlayer( channelWrapper.getHandle(), userConnection.getPendingConnection().getVersion(), false );
+            channelWrapper.getHandle().write( PacketUtils.checkMessage.get( version ) );
+            channelWrapper.getHandle().flush();
         } else
         {
-            channelWrapper.getHandle().write( PacketUtil.captchaCheckMessage.get( version ) );
+            PacketUtils.spawnPlayer( channelWrapper.getHandle(), userConnection.getPendingConnection().getVersion(), state == CheckState.ONLY_CAPTCHA );
+            channelWrapper.getHandle().write( PacketUtils.captchaCheckMessage.get( version ) );
+            sendCaptcha();
         }
         sendPing();
         BotFilter.getInstance().addConnection( this );
@@ -84,19 +91,19 @@ public class Connector extends MoveHandler
 
     public void completeCheck()
     {
-        if ( System.currentTimeMillis() - joinTime < TOTAL_TIME )
+        if ( state == CheckState.CAPTCHA_ON_POSITION_FAILED && System.currentTimeMillis() - joinTime < TOTAL_TIME )
         {
             state = CheckState.FAILED;
-            PacketUtil.kickPlayer( PacketUtil.KickType.NOTPLAYER, Protocol.GAME, channelWrapper, version );
+            PacketUtils.kickPlayer( PacketUtils.KickType.NOTPLAYER, Protocol.GAME, channelWrapper, version );
             BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Too fast check passed", name );
             return;
         }
 
         KickType type = BotFilter.getInstance().checkIpAddress( channelWrapper.getRemoteAddress().getAddress(),
-                (int) totalping / lastSend == 0 ? sentPings : sentPings - 1 );
+                (int) ( totalping / ( lastSend == 0 ? sentPings : sentPings - 1 ) ) );
         if ( type != null )
         {
-            PacketUtil.kickPlayer( type, Protocol.GAME, channelWrapper, version );
+            PacketUtils.kickPlayer( type, Protocol.GAME, channelWrapper, version );
             BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: {1}", new Object[]
             {
                 name, ( type == KickType.PROXY ? "Proxy detected" : type == KickType.COUNTRY ? "Country is not allowed" : "Big ping" )
@@ -104,7 +111,7 @@ public class Connector extends MoveHandler
             return;
         }
 
-        channelWrapper.getHandle().writeAndFlush( PacketUtil.checkSus.get( version ) );
+        channelWrapper.getHandle().writeAndFlush( PacketUtils.checkSus.get( version ) );
         BotFilter.getInstance().saveUser( getName(), channelWrapper.getRemoteAddress().getAddress() );
         BotFilter.getInstance().removeConnection( null, this );
         userConnection.setNeedLogin( false );
@@ -115,26 +122,30 @@ public class Connector extends MoveHandler
     @Override
     public void onMove()
     {
-        if ( lastY == -1 || state == CheckState.FAILED || state == CheckState.SUCCESSFULLY )
+        if ( lastY == -1 || state == CheckState.FAILED || state == CheckState.SUCCESSFULLY || onGround )
         {
             return;
         }
-        if ( state == CheckState.ONLY_CAPTCHA && lastY != y && waitingTeleportId == -1 )
+        if ( state == CheckState.ONLY_CAPTCHA )
         {
-            resetPosition( true );
+            if ( lastY != y && waitingTeleportId == -1 )
+            {
+                resetPosition( true );
+            }
             return;
         }
         if ( formatDouble( lastY - y ) != getSpeed( ticks ) )
         {
-            if ( state == CheckState.CAPTCHA_ON_POSITION_FAILED && true == false ) //TODO: CAPTCHA
+            if ( state == CheckState.CAPTCHA_ON_POSITION_FAILED )
             {
                 state = CheckState.ONLY_CAPTCHA;
                 joinTime = System.currentTimeMillis();
                 resetPosition( true );
+                sendCaptcha();
             } else
             {
                 state = CheckState.FAILED;
-                PacketUtil.kickPlayer( PacketUtil.KickType.NOTPLAYER, Protocol.GAME, channelWrapper, userConnection.getPendingConnection().getVersion() );
+                PacketUtils.kickPlayer( PacketUtils.KickType.NOTPLAYER, Protocol.GAME, channelWrapper, userConnection.getPendingConnection().getVersion() );
                 BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Failed position check", name );
                 disconnected( false );
             }
@@ -157,10 +168,40 @@ public class Connector extends MoveHandler
     {
         if ( disableFall )
         {
-            channelWrapper.getHandle().write( PacketUtil.singlePackets.get( PlayerAbilities.class ).get( version ) );
+            channelWrapper.getHandle().write( PacketUtils.singlePackets.get( PlayerAbilities.class ).get( version ) );
         }
         waitingTeleportId = 9876;
-        channelWrapper.getHandle().writeAndFlush( PacketUtil.singlePackets.get( PlayerPositionAndLook.class ).get( version ) );
+        channelWrapper.getHandle().writeAndFlush( PacketUtils.singlePackets.get( PlayerPositionAndLook.class ).get( version ) );
+    }
+
+    @Override
+    public void handle(Chat chat) throws Exception
+    {
+        String message = chat.getMessage();
+        if ( message.length() > 256 )
+        {
+            PacketUtils.kickPlayer( KickType.NOTPLAYER, Protocol.GAME, channelWrapper, version );
+            BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Too long message", name );
+            return;
+        }
+        if ( message.length() > 4 )
+        {
+            --attemps;
+            channelWrapper.getHandle().write( PacketUtils.captchaFailedMessage[attemps - 1].get( version ) );
+            sendCaptcha();
+        } else if ( message.replace( "/", "" ).equals( String.valueOf( captchaAnswer ) ) )
+        {
+            completeCheck();
+        } else if ( --attemps != 0 )
+        {
+            channelWrapper.getHandle().write( PacketUtils.captchaFailedMessage[attemps - 1].get( version ) );
+            sendCaptcha();
+        } else
+        {
+            state = CheckState.FAILED;
+            PacketUtils.kickPlayer( KickType.NOTPLAYER, Protocol.GAME, channelWrapper, version );
+            BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Failed captcha check", name );
+        }
     }
 
     @Override
@@ -171,11 +212,17 @@ public class Connector extends MoveHandler
             if ( lastSend == 0 )
             {
                 state = CheckState.FAILED;
-                PacketUtil.kickPlayer( KickType.NOTPLAYER, Protocol.GAME, channelWrapper, version );
+                PacketUtils.kickPlayer( KickType.NOTPLAYER, Protocol.GAME, channelWrapper, version );
                 BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Tried send fake ping", name );
                 return;
             }
-            totalping = +( System.currentTimeMillis() - lastSend );
+            if ( totalping == 9999 )
+            {
+                totalping = ( System.currentTimeMillis() - lastSend );
+            } else
+            {
+                totalping = +( System.currentTimeMillis() - lastSend );
+            }
             lastSend = 0;
         }
     }
@@ -186,8 +233,15 @@ public class Connector extends MoveHandler
         {
             lastSend = System.currentTimeMillis();
             sentPings++;
-            channelWrapper.getHandle().writeAndFlush( PacketUtil.singlePackets.get( KeepAlive.class ).get( version ) );
+            channelWrapper.getHandle().writeAndFlush( PacketUtils.singlePackets.get( KeepAlive.class ).get( version ) );
         }
+    }
+
+    private void sendCaptcha()
+    {
+        captchaAnswer = random.nextInt( 100, 999 );
+        channelWrapper.getHandle().write( PacketUtils.singlePackets.get( SetSlot.class ).get( version ) );
+        channelWrapper.getHandle().writeAndFlush( PacketUtils.captchas.get( version, captchaAnswer ) );
     }
 
     public String getName()

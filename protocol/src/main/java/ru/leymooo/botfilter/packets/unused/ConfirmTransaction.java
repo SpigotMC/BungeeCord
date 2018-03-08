@@ -1,4 +1,4 @@
-package ru.leymooo.botfilter.packets;
+package ru.leymooo.botfilter.packets.unused;
 
 import io.netty.buffer.ByteBuf;
 import net.md_5.bungee.protocol.AbstractPacketHandler;

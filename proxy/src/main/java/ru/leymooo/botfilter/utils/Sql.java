@@ -1,4 +1,4 @@
-package ru.leymooo.botfilter;
+package ru.leymooo.botfilter.utils;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.sql.Connection;
@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.md_5.bungee.BungeeCord;
+import ru.leymooo.botfilter.BotFilter;
 import ru.leymooo.botfilter.utils.IPUtils;
 import ru.leymooo.botfilter.config.Settings;
 import ru.leymooo.botfilter.config.Settings.SQL;
@@ -104,7 +105,7 @@ public class Sql
             final long timestamp = System.currentTimeMillis();
             String sql = "SELECT `Name` FROM `Users` where `Name` = '" + name + "';";
             try ( Statement statament = connection.createStatement();
-                    ResultSet set = statament.executeQuery(sql) )
+                    ResultSet set = statament.executeQuery( sql ) )
             {
                 if ( !set.next() )
                 {
@@ -112,7 +113,7 @@ public class Sql
                     statament.executeUpdate( sql );
                 } else
                 {
-                    sql = "UPDATE `Users` SET `Ip` = '" + ip + "', `LastCheck` = '" + timestamp + "');";
+                    sql = "UPDATE `Users` SET `Ip` = '" + ip + "', `LastCheck` = '" + timestamp + "' where `Name` = '" + name + "';";
                     statament.executeUpdate( sql );
                 }
             } catch ( SQLException ex )

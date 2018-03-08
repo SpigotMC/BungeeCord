@@ -4,8 +4,8 @@ import java.util.logging.Level;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.KeepAlive;
-import ru.leymooo.botfilter.caching.PacketUtil;
-import ru.leymooo.botfilter.caching.PacketUtil.KickType;
+import ru.leymooo.botfilter.caching.PacketUtils;
+import ru.leymooo.botfilter.caching.PacketUtils.KickType;
 import ru.leymooo.botfilter.config.Settings;
 
 /**
@@ -42,14 +42,14 @@ public class BotFilterThread
                                 if ( ( currTime - connector.joinTime ) >= Settings.IMP.TIME_OUT )
                                 {
                                     connector.state = BotFilter.CheckState.FAILED;
-                                    PacketUtil.kickPlayer( KickType.NOTPLAYER, Protocol.GAME, connector.channelWrapper, connector.version );
+                                    PacketUtils.kickPlayer( KickType.NOTPLAYER, Protocol.GAME, connector.channelWrapper, connector.version );
                                     continue;
-                                } else if ( state == BotFilter.CheckState.ONLY_POSITION || state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED )
+                                } else if ( state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED )
                                 {
-                                    connector.channelWrapper.getHandle().writeAndFlush( PacketUtil.checkMessage.get( connector.version ) );
+                                    connector.channelWrapper.getHandle().writeAndFlush(PacketUtils.checkMessage.get( connector.version ) );
                                 } else
                                 {
-                                    connector.channelWrapper.getHandle().writeAndFlush( PacketUtil.captchaCheckMessage.get( connector.version ) );
+                                    connector.channelWrapper.getHandle().writeAndFlush(PacketUtils.captchaCheckMessage.get( connector.version ) );
                                 }
                                 connector.sendPing();
                         }

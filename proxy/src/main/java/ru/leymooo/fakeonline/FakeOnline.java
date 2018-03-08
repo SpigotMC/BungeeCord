@@ -1,9 +1,8 @@
 package ru.leymooo.fakeonline;
 
-import java.util.HashMap;
+import java.util.logging.Level;
 import lombok.Getter;
 import net.md_5.bungee.BungeeCord;
-import net.md_5.bungee.config.Configuration;
 
 /**
  *
@@ -14,46 +13,31 @@ public class FakeOnline
 
     @Getter
     private static FakeOnline instance;
-    @Getter
-    private final HashMap<Range, Float> booster = new HashMap<Range, Float>();
+    private boolean enabled = false;
+    private float multiple = 1.0f;
 
-    private boolean enabled;
-    private float defaultValue = 1.0f;
-
-    public FakeOnline(boolean enabled, Configuration section)
+    public FakeOnline()
     {
         instance = this;
-        this.enabled = enabled;
-        if ( !this.enabled )
+        String boost = System.getProperty( "onlineBooster" );
+        if ( boost == null )
         {
             return;
         }
-        for ( String boost : section.getKeys() )
+        try
         {
-            if ( !boost.equals( "default" ) )
-            {
-                String[] boostArgs = boost.split( ";" );
-                booster.put( new Range( Integer.valueOf( boostArgs[0] ), Integer.valueOf( boostArgs[1] ) ), section.getFloat( boost ) );
-            }
+            multiple = Float.parseFloat( boost );
+        } catch ( NumberFormatException e )
+        {
+            BungeeCord.getInstance().getLogger().log( Level.WARNING, "[BotFilter] Не могу активировать фейк онлайн: {0}", e.getMessage() );
+            return;
         }
-        this.defaultValue = section.getFloat( "default", defaultValue );
+        enabled = true;
     }
 
-    public int getFakeOnline()
+    public int getFakeOnline(int online)
     {
-        int online = BungeeCord.getInstance().getOnlineCount();
-        if ( !enabled )
-        {
-            return online;
-        }
-        for ( Range range : booster.keySet() )
-        {
-            if ( range.isBetween( online ) )
-            {
-                return Math.round( online * booster.get( range ) );
-            }
-        }
-        return Math.round( online * defaultValue );
+        return enabled ? Math.round( online * multiple ) : online;
     }
 
 }

@@ -44,6 +44,7 @@ public class MoveHandler extends PacketHandler
         lastY = y;
         y = pos.getY();
         z = pos.getZ();
+        onGround = pos.isOnGround();
         onMove();
     }
 
@@ -61,6 +62,7 @@ public class MoveHandler extends PacketHandler
         lastY = y;
         y = posRot.getY();
         z = posRot.getZ();
+        onGround = posRot.isOnGround();
         onMove();
     }
 

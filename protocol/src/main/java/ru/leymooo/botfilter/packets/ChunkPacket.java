@@ -30,7 +30,7 @@ public class ChunkPacket extends DefinedPacket
     {
         buf.writeInt( this.x );
         buf.writeInt( this.z );
-        if ( version > 47 )
+        if ( version > ProtocolConstants.MINECRAFT_1_8 )
         {
             buf.writeBoolean( true );
             DefinedPacket.writeVarInt( 0, buf );
@@ -41,7 +41,7 @@ public class ChunkPacket extends DefinedPacket
         }
         DefinedPacket.writeVarInt( data.length, buf );
         buf.writeBytes( this.data );
-        if ( version >= 110 )
+        if ( version >= ProtocolConstants.MINECRAFT_1_9_4 )
         {
             DefinedPacket.writeVarInt( 0, buf );
         }

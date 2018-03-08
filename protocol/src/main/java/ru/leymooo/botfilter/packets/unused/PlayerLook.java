@@ -1,4 +1,4 @@
-package ru.leymooo.botfilter.packets;
+package ru.leymooo.botfilter.packets.unused;
 
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
@@ -13,23 +13,26 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class UpdateHeath extends DefinedPacket
+public class PlayerLook extends DefinedPacket
 {
 
-    float health;
-    int food;
-    float foodSaturation;
+    private float yaw;
+    private float pitch;
+    private boolean onGround;
 
     @Override
-    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
+    public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        buf.writeFloat( this.health );
-        DefinedPacket.writeVarInt( food, buf );
-        buf.writeFloat( this.foodSaturation );
+        this.yaw = buf.readFloat();
+        this.pitch = buf.readFloat();
+        this.onGround = buf.readBoolean();
+        buf.skipBytes( buf.readableBytes() );
     }
 
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {
+        handler.handle( this );
     }
+
 }

@@ -1,13 +1,16 @@
 package ru.leymooo.botfilter;
 
+import ru.leymooo.botfilter.utils.Sql;
 import java.io.File;
 import java.net.InetAddress;
 import javolution.util.FastMap;
 import lombok.Getter;
+import ru.leymooo.botfilter.caching.CachedCaptcha;
 import ru.leymooo.botfilter.utils.GeoIp;
 import ru.leymooo.botfilter.utils.Proxy;
-import ru.leymooo.botfilter.caching.PacketUtil;
-import ru.leymooo.botfilter.caching.PacketUtil.KickType;
+import ru.leymooo.botfilter.caching.PacketUtils;
+import ru.leymooo.botfilter.caching.PacketUtils.KickType;
+import ru.leymooo.botfilter.captcha.CaptchaGeneration;
 import ru.leymooo.botfilter.config.Settings;
 import ru.leymooo.botfilter.utils.ServerPingUtils;
 
@@ -36,15 +39,21 @@ public class BotFilter
 
     private int botCounter = 0;
     private long lastAttack = 0, lastCheck = System.currentTimeMillis();
-    private CheckState normalState = getCheckState( Settings.IMP.PROTECTION.NORMAL );
-    private CheckState attackState = getCheckState( Settings.IMP.PROTECTION.ON_ATTACK );
+    private CheckState normalState;
+    private CheckState attackState;
 
     public BotFilter()
     {
+        if ( !CachedCaptcha.generated )
+        {
+            new CaptchaGeneration();
+        }
         BotFilterThread.stop();
         instance = this;
         Settings.IMP.reload( new File( "BotFilter", "config.yml" ) );
-        PacketUtil.init();
+        normalState = getCheckState( Settings.IMP.PROTECTION.NORMAL );
+        attackState = getCheckState( Settings.IMP.PROTECTION.ON_ATTACK );
+        PacketUtils.init();
         sql = new Sql();
         geoIp = new GeoIp();
         proxy = new Proxy();
@@ -201,21 +210,18 @@ public class BotFilter
         switch ( mode )
         {
             case 0:
-                return CheckState.ONLY_POSITION;
-            case 1:
                 return CheckState.ONLY_CAPTCHA;
-            case 2:
+            case 1:
                 return CheckState.CAPTCHA_POSITION;
-            case 3:
+            case 2:
                 return CheckState.CAPTCHA_ON_POSITION_FAILED;
             default:
-                return CheckState.ONLY_POSITION;
+                return CheckState.CAPTCHA_ON_POSITION_FAILED;
         }
     }
 
     public static enum CheckState
     {
-        ONLY_POSITION,
         ONLY_CAPTCHA,
         CAPTCHA_POSITION,
         CAPTCHA_ON_POSITION_FAILED,

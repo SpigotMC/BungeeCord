@@ -19,8 +19,8 @@ public class SetSlot extends DefinedPacket
 
     private int windowId;
     private int slot;
-    private int count;
     private int item;
+    private int count;
     private int data;
 
     @Override
@@ -36,7 +36,6 @@ public class SetSlot extends DefinedPacket
             buf.writeByte( 0 );
         }
     }
-
 
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception
