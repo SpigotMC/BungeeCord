@@ -148,7 +148,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(LegacyHandshake legacyHandshake) throws Exception
     {
         this.legacy = true;
-        ch.close( bungee.getTranslation( "outdated_client" ) );
+        ch.close( bungee.getTranslation( "outdated_client", bungee.getGameVersion() ) );
     }
 
     @Override
@@ -308,10 +308,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 {
                     if ( handshake.getProtocolVersion() > bungee.getProtocolVersion() )
                     {
-                        disconnect( bungee.getTranslation( "outdated_server" ) );
+                        disconnect( bungee.getTranslation( "outdated_server", bungee.getGameVersion() ) );
                     } else
                     {
-                        disconnect( bungee.getTranslation( "outdated_client" ) );
+                        disconnect( bungee.getTranslation( "outdated_client", bungee.getGameVersion() ) );
                     }
                     return;
                 }
