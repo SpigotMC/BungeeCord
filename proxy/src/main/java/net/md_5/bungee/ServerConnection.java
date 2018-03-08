@@ -55,13 +55,18 @@ public class ServerConnection implements Server
     {
         Preconditions.checkArgument( reason.length == 0, "Server cannot have disconnect reason" );
 
-        ch.delayedClose( null );
+        disconnect();
     }
 
     @Override
     public void disconnect(BaseComponent reason)
     {
         disconnect();
+    }
+
+    public void disconnect()
+    {
+        ch.delayedClose( null );
     }
 
     @Override
