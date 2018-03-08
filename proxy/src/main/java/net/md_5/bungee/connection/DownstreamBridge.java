@@ -15,6 +15,7 @@ import net.md_5.bungee.api.event.TabCompleteResponseEvent;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PluginMessageEvent;
@@ -458,12 +459,15 @@ public class DownstreamBridge extends PacketHandler
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
             con.connectNow( event.getCancelServer() );
+            server.setObsolete( true );
+            throw CancelSendSignal.INSTANCE;
         } else
         {
-            con.disconnect0( event.getKickReasonComponent() ); // TODO: Prefix our own stuff.
+            String reason = BaseComponent.toLegacyText( event.getKickReasonComponent() ); // TODO: Prefix our own stuff.
+            kick.setMessage( reason );
+            con.disconnect0( false, event.getKickReasonComponent() ); // Required to close channels and log message
         }
         server.setObsolete( true );
-        throw CancelSendSignal.INSTANCE;
     }
 
     @Override

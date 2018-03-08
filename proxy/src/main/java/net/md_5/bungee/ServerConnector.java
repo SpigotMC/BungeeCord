@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
@@ -100,7 +101,7 @@ public class ServerConnector extends PacketHandler
             copiedHandshake.setHost( newHost );
         } else if ( !user.getExtraDataInHandshake().isEmpty() )
         {
-            // Only restore the extra data if IP forwarding is off. 
+            // Only restore the extra data if IP forwarding is off.
             // TODO: Add support for this data with IP forwarding.
             copiedHandshake.setHost( copiedHandshake.getHost() + user.getExtraDataInHandshake() );
         }
@@ -298,13 +299,13 @@ public class ServerConnector extends PacketHandler
         String message = bungee.getTranslation( "connect_kick", target.getName(), event.getKickReason() );
         if ( user.isDimensionChange() )
         {
-            user.disconnect( message );
+            kick.setMessage( message );
+            user.disconnect0( false, TextComponent.fromLegacyText( message ) ); // Required to close channels and log message
         } else
         {
             user.sendMessage( message );
+            throw CancelSendSignal.INSTANCE;
         }
-
-        throw CancelSendSignal.INSTANCE;
     }
 
     @Override
