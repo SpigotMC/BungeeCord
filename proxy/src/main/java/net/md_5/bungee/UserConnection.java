@@ -358,12 +358,12 @@ public final class UserConnection implements ProxiedPlayer
                 getName(), BaseComponent.toLegacyText( reason )
             } );
 
-            ch.delayedClose( ( kick ) ? new Kick( ComponentSerializer.toString( reason ) ) : null );
+            ch.close( ( kick ) ? new Kick( ComponentSerializer.toString( reason ) ) : null );
 
             if ( server != null )
             {
                 server.setObsolete( true );
-                server.disconnect( "Quitting" );
+                server.getHandle().close( null );
             }
         }
     }
