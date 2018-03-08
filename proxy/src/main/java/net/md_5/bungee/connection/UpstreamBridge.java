@@ -78,6 +78,7 @@ public class UpstreamBridge extends PacketHandler
                 player.unsafe().sendPacket( packet );
             }
             con.getServer().disconnect( "Quitting" );
+            con.setServer( null );
         }
     }
 
