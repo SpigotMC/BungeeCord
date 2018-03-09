@@ -43,6 +43,7 @@ public class BotFilterCommand extends Command
         sender.sendMessage( "§r> §lОбнаружена атака: " + ( BotFilter.getInstance().isUnderAttack() ? "§cДа" : "§aНет" ) );
         sender.sendMessage( "§r> §lБотов на проверке: " + BotFilter.getInstance().connectedUsersSet.size() );
         sender.sendMessage( "§r> §lПрошло проверку: " + BotFilter.getInstance().userCache.size() );
+        sender.sendMessage( "§r> §lСкачать BotFilter: http://www.rubukkit.org/threads/137038/" );
         sender.sendMessage( "§r--------------- §bBotFilter -----------------" );
     }
 }

@@ -84,7 +84,7 @@ public class PacketUtils
 
         DefinedPacket[] packets =
         {
-            new Login( -1, (short) 2, 0, (short) 0, (short) 100, "flat", false ),
+            new Login( -1, (short) 2, 0, (short) 0, (short) 100, "flat", true ),
             new SpawnPosition( 1, 60, 1 ), new PlayerPositionAndLook( 7.00, 450, 7.00, -5f, 48f, 9876, false ),
             new TimeUpdate( 1, Settings.IMP.WORLD_TIME ), new KeepAlive( 9876 ),
             new ChunkPacket( 0, 0, new byte[ 63 ], false ), new PlayerAbilities( (byte) 6, 0f, 0f ),
