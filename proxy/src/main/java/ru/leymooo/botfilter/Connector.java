@@ -91,7 +91,7 @@ public class Connector extends MoveHandler
 
     public void completeCheck()
     {
-        if ( System.currentTimeMillis() - joinTime < TOTAL_TIME )
+        if ( System.currentTimeMillis() - joinTime < TOTAL_TIME && state != CheckState.ONLY_CAPTCHA )
         {
             if ( state == CheckState.CAPTCHA_POSITION && aticks < TOTAL_TICKS )
             {

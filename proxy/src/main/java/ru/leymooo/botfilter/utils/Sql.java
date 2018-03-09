@@ -38,7 +38,7 @@ public class Sql
             if ( Settings.IMP.SQL.STORAGE_TYPE.equalsIgnoreCase( "mysql" ) )
             {
                 SQL s = Settings.IMP.SQL;
-                connectToDatabase( s.DATABASE + "JDBC:mysql://" + s.HOSTNAME + ":" + s.PORT + "/", s.USER, s.PASSWORD );
+                connectToDatabase( "JDBC:mysql://" + s.HOSTNAME + ":" + s.PORT + "/" + s.DATABASE, s.USER, s.PASSWORD );
             } else
             {
                 Class.forName( "org.sqlite.JDBC" );
@@ -63,7 +63,7 @@ public class Sql
     {
         String sql = "CREATE TABLE IF NOT EXISTS `Users` ("
                 + "`Name` VARCHAR(16) NOT NULL PRIMARY KEY UNIQUE,"
-                + "`Ip` VARCHAR(12) NOT NULL,"
+                + "`Ip` VARCHAR(16) NOT NULL,"
                 + "`LastCheck` BIGINT NOT NULL);";
 
         try ( PreparedStatement statement = connection.prepareStatement( sql ) )
