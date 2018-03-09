@@ -211,10 +211,16 @@ public final class UserConnection implements ProxiedPlayer
         connect( target, callback, false, reason );
     }
 
+    @Deprecated
     public void connectNow(ServerInfo target)
     {
+        connectNow( target, ServerConnectEvent.Reason.UNKNOWN );
+    }
+
+    public void connectNow(ServerInfo target, ServerConnectEvent.Reason reason)
+    {
         dimensionChange = true;
-        connect( target );
+        connect( target, reason );
     }
 
     public ServerInfo updateAndGetNextServer(ServerInfo currentTarget)

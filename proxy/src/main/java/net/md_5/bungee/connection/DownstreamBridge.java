@@ -64,7 +64,7 @@ public class DownstreamBridge extends PacketHandler
         if ( def != null )
         {
             server.setObsolete( true );
-            con.connectNow( def );
+            con.connectNow( def, ServerConnectEvent.Reason.SERVER_DOWN_REDIRECT );
             con.sendMessage( bungee.getTranslation( "server_went_down" ) );
         } else
         {
@@ -458,7 +458,7 @@ public class DownstreamBridge extends PacketHandler
         ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTED ) );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
-            con.connectNow( event.getCancelServer() );
+            con.connectNow( event.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT );
         } else
         {
             con.disconnect0( event.getKickReasonComponent() ); // TODO: Prefix our own stuff.

@@ -62,9 +62,19 @@ public class ServerConnectEvent extends Event implements Cancellable
          */
         COMMAND,
         /**
+         * Redirecting to another server when client loses connection to server
+         * due to an exception.
+         */
+        SERVER_DOWN_REDIRECT,
+        /**
          * Redirecting to another server when kicked from original server.
          */
         KICK_REDIRECT,
+        /**
+         * Redirecting to another server when kicked from server during the
+         * handshake.
+         */
+        KICK_REDIRECT_HANDSHAKE,
         /**
          * Plugin message request.
          */

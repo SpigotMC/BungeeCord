@@ -101,7 +101,7 @@ public class ServerConnector extends PacketHandler
             copiedHandshake.setHost( newHost );
         } else if ( !user.getExtraDataInHandshake().isEmpty() )
         {
-            // Only restore the extra data if IP forwarding is off. 
+            // Only restore the extra data if IP forwarding is off.
             // TODO: Add support for this data with IP forwarding.
             copiedHandshake.setHost( copiedHandshake.getHost() + user.getExtraDataInHandshake() );
         }
@@ -292,7 +292,7 @@ public class ServerConnector extends PacketHandler
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
             obsolete = true;
-            user.connect( event.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT );
+            user.connect( event.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT_HANDSHAKE );
             throw CancelSendSignal.INSTANCE;
         }
 
