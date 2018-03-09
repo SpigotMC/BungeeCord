@@ -1,10 +1,18 @@
 package ru.leymooo.botfilter;
 
+import java.io.BufferedReader;
 import ru.leymooo.botfilter.utils.Sql;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javolution.util.FastMap;
 import lombok.Getter;
+import net.md_5.bungee.BungeeCord;
 import ru.leymooo.botfilter.caching.CachedCaptcha;
 import ru.leymooo.botfilter.utils.GeoIp;
 import ru.leymooo.botfilter.utils.Proxy;
@@ -12,6 +20,7 @@ import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.caching.PacketUtils.KickType;
 import ru.leymooo.botfilter.captcha.CaptchaGeneration;
 import ru.leymooo.botfilter.config.Settings;
+import ru.leymooo.botfilter.utils.ManyChecksUtils;
 import ru.leymooo.botfilter.utils.ServerPingUtils;
 
 /**
@@ -27,7 +36,7 @@ public class BotFilter
 
     protected final FastMap<String, Connector> connectedUsersSet = new FastMap<>();
     //UserName, Ip
-    private final FastMap<String, String> userCache = new FastMap<>();
+    protected final FastMap<String, String> userCache = new FastMap<>();
 
     private Sql sql;
     @Getter
@@ -42,23 +51,48 @@ public class BotFilter
     private CheckState normalState;
     private CheckState attackState;
 
-    public BotFilter()
+    @Getter
+    private static final Logger logger = BungeeCord.getInstance().getLogger();
+
+    public BotFilter(boolean startup)
     {
+        instance = this;
+        Settings.IMP.reload( new File( "BotFilter", "config.yml" ) );
+        checkForUpdates( startup );
         if ( !CachedCaptcha.generated )
         {
             new CaptchaGeneration();
         }
-        BotFilterThread.stop();
-        instance = this;
-        Settings.IMP.reload( new File( "BotFilter", "config.yml" ) );
         normalState = getCheckState( Settings.IMP.PROTECTION.NORMAL );
         attackState = getCheckState( Settings.IMP.PROTECTION.ON_ATTACK );
         PacketUtils.init();
         sql = new Sql();
-        geoIp = new GeoIp();
+        geoIp = new GeoIp( startup );
         proxy = new Proxy();
         serverPingUtils = new ServerPingUtils();
         BotFilterThread.start();
+    }
+
+    public void disable()
+    {
+        BotFilterThread.stop();
+        for ( Connector connector : connectedUsersSet.values() )
+        {
+            if ( connector.userConnection != null )
+            {
+                connector.userConnection.disconnect( "§c[BotFilter] §aПерезагрузка фильтра" );
+            }
+            connector.state = CheckState.FAILED;
+        }
+        connectedUsersSet.clear();
+        proxy.close();
+        proxy = null;
+        geoIp.close();
+        geoIp = null;
+        sql.close();
+        sql = null;
+        ManyChecksUtils.clear();
+        serverPingUtils.clear();
     }
 
     /**
@@ -220,8 +254,40 @@ public class BotFilter
         }
     }
 
+    private void checkForUpdates(boolean startup)
+    {
+        try
+        {
+            logger.log( Level.INFO, "[BotFilter] Проверяю наличее обновлений" );
+            URL url = new URL( "http://botfilter.funtime.su/version.txt" );
+            URLConnection conn = url.openConnection();
+            conn.setConnectTimeout( 1200 );
+            try ( BufferedReader in = new BufferedReader(
+                    new InputStreamReader( conn.getInputStream() ) ) )
+            {
+                if ( !in.readLine().trim().equalsIgnoreCase( Settings.IMP.BOT_FILTER_VERSION ) )
+                {
+
+                    logger.log( Level.INFO, "§c[BotFilter] §aНайдена новая версия!" );
+                    logger.log( Level.INFO, "§c[BotFilter] §aПожалуйста обновитесь!" );
+                    if ( startup )
+                    {
+                        Thread.sleep( 3000l );
+                    }
+                } else
+                {
+                    logger.log( Level.INFO, "[BotFilter] Обновлений не найдено!" );
+                }
+            }
+        } catch ( IOException | InterruptedException ex )
+        {
+            logger.log( Level.WARNING, "[BotFilter] Не могу проверить обновление", ex );
+        }
+    }
+
     public static enum CheckState
     {
+        ONLY_POSITION,
         ONLY_CAPTCHA,
         CAPTCHA_POSITION,
         CAPTCHA_ON_POSITION_FAILED,

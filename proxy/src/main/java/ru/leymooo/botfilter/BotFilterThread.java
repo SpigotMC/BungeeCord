@@ -21,7 +21,7 @@ public class BotFilterThread
     {
         ( thread = new Thread( () ->
         {
-            while ( !Thread.interrupted() && sleep() )
+            while ( !Thread.currentThread().isInterrupted() && sleep() )
             {
                 try
                 {
@@ -43,13 +43,16 @@ public class BotFilterThread
                                 {
                                     connector.state = BotFilter.CheckState.FAILED;
                                     PacketUtils.kickPlayer( KickType.NOTPLAYER, Protocol.GAME, connector.channelWrapper, connector.version );
+                                    BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: "
+                                            .concat( connector.state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED
+                                                    ? "Too long fall check" : "Captcha not entered" ), connector.name );
                                     continue;
-                                } else if ( state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED )
+                                } else if ( state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED || state == BotFilter.CheckState.ONLY_POSITION )
                                 {
-                                    connector.channelWrapper.getHandle().writeAndFlush(PacketUtils.checkMessage.get( connector.version ) );
+                                    connector.channelWrapper.getHandle().writeAndFlush( PacketUtils.checkMessage.get( connector.version ) );
                                 } else
                                 {
-                                    connector.channelWrapper.getHandle().writeAndFlush(PacketUtils.captchaCheckMessage.get( connector.version ) );
+                                    connector.channelWrapper.getHandle().writeAndFlush( PacketUtils.captchaCheckMessage.get( connector.version ) );
                                 }
                                 connector.sendPing();
                         }

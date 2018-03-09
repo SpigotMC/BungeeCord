@@ -19,8 +19,6 @@ import net.md_5.bungee.command.ConsoleCommandSender;
 public class BungeeCordLauncher
 {
 
-    private static int VERSION = 2231;
-
     public static void main(String[] args) throws Exception
     {
         Security.setProperty( "networkaddress.cache.ttl", "30" );
@@ -38,18 +36,6 @@ public class BungeeCordLauncher
             System.out.println( Bootstrap.class.getPackage().getImplementationVersion() );
             return;
         }
-        //BotFilter start
-        if ( System.getProperty( "IReallyKnowWhatIAmDoingISwear" ) == null && checkUpdate() )
-        {
-
-            System.err.println( "*** ВНИМАНИЕ! Найдена новая версия***" );
-            System.err.println( "*** Новая версия тут: ***" );
-            System.err.println( "*** http://www.rubukkit.org/threads/137038/ ***" );
-            System.err.println( "*** Рекомендую обновиться. ***" );
-            System.err.println( "*** Запуск через 5 секунд ***" );
-            Thread.sleep( TimeUnit.SECONDS.toMillis( 5 ) );
-        }
-        //BotFilter end
 
         BungeeCord bungee = new BungeeCord();
         ProxyServer.setInstance( bungee );
@@ -67,26 +53,5 @@ public class BungeeCordLauncher
                 }
             }
         }
-    }
-
-    private static boolean checkUpdate()
-    {
-        try
-        {
-            System.out.println( "[BotFilter] Проверяю наличее обновлений" );
-            //Да да. В главном потоке)
-            URL url = new URL( "http://151.80.108.152/gg-version.txt" );
-            URLConnection conn = url.openConnection();
-            conn.setConnectTimeout( 1500 );
-            try ( BufferedReader in = new BufferedReader(
-                    new InputStreamReader( conn.getInputStream() ) ) )
-            {
-                return Integer.parseInt( in.readLine() ) != VERSION;
-            }
-        } catch ( IOException | NumberFormatException ex )
-        {
-            System.err.println( "[BotFilter] Не могу проверить обновление" );
-        }
-        return false;
     }
 }

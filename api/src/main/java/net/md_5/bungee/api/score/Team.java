@@ -1,8 +1,8 @@
 package net.md_5.bungee.api.score;
 
+import io.github.waterfallmc.waterfall.utils.LowMemorySet;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import lombok.Data;
 import lombok.NonNull;
@@ -20,7 +20,7 @@ public class Team
     private String nameTagVisibility;
     private String collisionRule;
     private byte color;
-    private Set<String> players = new HashSet<>();
+    private Set<String> players = LowMemorySet.create(); //WaterFall backport
 
     public Collection<String> getPlayers()
     {
@@ -29,7 +29,7 @@ public class Team
 
     public void addPlayer(String name)
     {
-        players.add( name );
+        players.add(name.intern()); //WaterFall backport
     }
 
     public void removePlayer(String name)

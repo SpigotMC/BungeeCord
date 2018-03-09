@@ -1,9 +1,6 @@
 package ru.leymooo.botfilter.caching;
 
-import gnu.trove.map.TIntObjectMap;
-import gnu.trove.map.hash.TIntObjectHashMap;
 import io.netty.buffer.ByteBuf;
-import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import ru.leymooo.botfilter.packets.MapDataPacket;
 
@@ -14,8 +11,8 @@ import ru.leymooo.botfilter.packets.MapDataPacket;
 public class CachedCaptcha
 {
 
-    private TIntObjectMap<ByteBuf> byteBuf18 = new TIntObjectHashMap<>( 889 );
-    private TIntObjectMap<ByteBuf> byteBuf19 = new TIntObjectHashMap<>( 899 );
+    private ByteBuf[] byteBuf18 = new ByteBuf[ 900 ];
+    private ByteBuf[] byteBuf19 = new ByteBuf[ 900 ];
 
     private int PACKETID_18 = 52;
     private int PACKETID_19 = 36;
@@ -24,27 +21,24 @@ public class CachedCaptcha
 
     public void createCaptchaPacket(MapDataPacket map, int answer)
     {
-
-        byteBuf18.put( answer, PacketUtils.createPacket( map, PACKETID_18, ProtocolConstants.MINECRAFT_1_8 ) );
-        byteBuf19.put( answer, PacketUtils.createPacket( map, PACKETID_19, ProtocolConstants.MINECRAFT_1_9 ) );
+        byteBuf18[answer - 100] = PacketUtils.createPacket( map, PACKETID_18, ProtocolConstants.MINECRAFT_1_8 );
+        byteBuf19[answer - 100] = PacketUtils.createPacket( map, PACKETID_19, ProtocolConstants.MINECRAFT_1_9 );
     }
 
     public ByteBuf get(int version, int captcha)
     {
-        return version == ProtocolConstants.MINECRAFT_1_8 ? byteBuf18.get( captcha ).copy() : byteBuf19.get( captcha ).copy();
+        return version == ProtocolConstants.MINECRAFT_1_8 ? byteBuf18[captcha - 100].copy() : byteBuf19[captcha - 100].copy();
     }
 
     public void release()
     {
-        for ( ByteBuf buf : byteBuf18.valueCollection() )
+        for ( ByteBuf buf : byteBuf18 )
         {
             buf.release();
         }
-        byteBuf18.clear();
-        for ( ByteBuf buf : byteBuf19.valueCollection() )
+        for ( ByteBuf buf : byteBuf19 )
         {
             buf.release();
         }
-        byteBuf19.clear();
     }
 }

@@ -57,7 +57,7 @@ public class PipelineUtils
             ch.pipeline().addBefore( FRAME_DECODER, LEGACY_DECODER, new LegacyDecoder() );
             ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
             ch.pipeline().addAfter( FRAME_PREPENDER, PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
-            ch.pipeline().addBefore( FRAME_PREPENDER, LEGACY_KICKER, new KickStringWriter() );
+            ch.pipeline().addBefore( FRAME_PREPENDER, LEGACY_KICKER, PipelineUtils.KICK_STRING_WRITER );  //BotFilter //WaterFall backport
             ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( BungeeCord.getInstance(), listener ) );
 
             if ( listener.isProxyProtocol() )
@@ -78,7 +78,8 @@ public class PipelineUtils
     public static final String FRAME_PREPENDER = "frame-prepender";
     public static final String LEGACY_DECODER = "legacy-decoder";
     public static final String LEGACY_KICKER = "legacy-kick";
-
+    private static final KickStringWriter KICK_STRING_WRITER = new KickStringWriter(); //BotFilter //WaterFall backport
+    
     private static boolean epoll;
 
     static
@@ -134,7 +135,7 @@ public class PipelineUtils
             {
                 // IP_TOS is not supported (Windows XP / Windows Server 2003)
             }
-            ch.config().setOption( ChannelOption.TCP_NODELAY, true ); //BotFilter
+            ch.config().setOption( ChannelOption.TCP_NODELAY, true ); //BotFilter //WaterFall backport
             ch.config().setAllocator( PooledByteBufAllocator.DEFAULT );
             ch.config().setWriteBufferWaterMark( MARK );
 

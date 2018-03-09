@@ -33,7 +33,7 @@ public class Sql
     {
         try
         {
-            logger.info( "[BotFilter] Connecting to database..." );
+            logger.info( "[BotFilter] Подключаюсь к датабазе..." );
             long start = System.currentTimeMillis();
             if ( Settings.IMP.SQL.STORAGE_TYPE.equalsIgnoreCase( "mysql" ) )
             {
@@ -44,7 +44,7 @@ public class Sql
                 Class.forName( "org.sqlite.JDBC" );
                 connectToDatabase( "JDBC:sqlite:BotFilter/database.db", null, null );
             }
-            logger.log( Level.INFO, "[BotFilter] Connected ({0} ms)", System.currentTimeMillis() - start );
+            logger.log( Level.INFO, "[BotFilter] Подключено ({0} мс)", System.currentTimeMillis() - start );
             createTable();
             clearOldUsers();
             loadUsers();

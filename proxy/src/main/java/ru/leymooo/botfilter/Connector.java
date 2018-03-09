@@ -31,9 +31,9 @@ public class Connector extends MoveHandler
     private static long TOTAL_TICKS = 100;
     private static long TOTAL_TIME = ( TOTAL_TICKS * 50 ) - 100; //TICKS * 50MS
 
-    private UserConnection userConnection;
+    public UserConnection userConnection;
 
-    private String name;
+    public String name;
 
     public int version;
     private int aticks = 0, sentPings = 0, captchaAnswer, attemps = 3;
@@ -91,11 +91,18 @@ public class Connector extends MoveHandler
 
     public void completeCheck()
     {
-        if ( state == CheckState.CAPTCHA_ON_POSITION_FAILED && System.currentTimeMillis() - joinTime < TOTAL_TIME )
+        if ( System.currentTimeMillis() - joinTime < TOTAL_TIME )
         {
-            state = CheckState.FAILED;
-            PacketUtils.kickPlayer( PacketUtils.KickType.NOTPLAYER, Protocol.GAME, channelWrapper, version );
-            BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Too fast check passed", name );
+            if ( state == CheckState.CAPTCHA_POSITION && aticks < TOTAL_TICKS )
+            {
+                channelWrapper.getHandle().writeAndFlush( PacketUtils.resetSlot.get( version ) );
+                state = CheckState.ONLY_POSITION;
+            } else
+            {
+                state = CheckState.FAILED;
+                PacketUtils.kickPlayer( PacketUtils.KickType.NOTPLAYER, Protocol.GAME, channelWrapper, version );
+                BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Too fast check passed", name );
+            }
             return;
         }
 
@@ -147,16 +154,15 @@ public class Connector extends MoveHandler
                 state = CheckState.FAILED;
                 PacketUtils.kickPlayer( PacketUtils.KickType.NOTPLAYER, Protocol.GAME, channelWrapper, userConnection.getPendingConnection().getVersion() );
                 BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Failed position check", name );
-                disconnected( false );
             }
             return;
         }
-        if ( y <= 25 && state == CheckState.CAPTCHA_POSITION )
+        if ( y <= 60 && state == CheckState.CAPTCHA_POSITION )
         {
             resetPosition( false );
         }
         ticks++;
-        if ( aticks == TOTAL_TICKS && state != CheckState.CAPTCHA_POSITION )
+        if ( aticks >= TOTAL_TICKS && state != CheckState.CAPTCHA_POSITION )
         {
             completeCheck();
             return;
@@ -229,7 +235,7 @@ public class Connector extends MoveHandler
 
     public void sendPing()
     {
-        if ( this.lastSend == 0 )
+        if ( this.lastSend == 0 && !( state == CheckState.FAILED || state == CheckState.SUCCESSFULLY ) )
         {
             lastSend = System.currentTimeMillis();
             sentPings++;

@@ -32,7 +32,7 @@ public class ServerPingUtils
     public boolean needKickOrRemove(InetAddress address)
     {
         boolean present = pingList.getIfPresent( address ) == null;
-        if ( !present ) //Убрираем из мапы есть уже есть в ней.
+        if ( !present ) //Убрираем из мапы если есть уже есть в ней.
         {
             pingList.invalidate( address );
         }
@@ -50,6 +50,11 @@ public class ServerPingUtils
     public boolean needCheck()
     {
         return enabled && ( Settings.IMP.SERVER_PING_CHECK.MODE == 0 || BotFilter.getInstance().isUnderAttack() );
+    }
+
+    public void clear()
+    {
+        pingList.invalidateAll();
     }
 
 }

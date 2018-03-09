@@ -9,6 +9,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.logging.Level;
 import net.md_5.bungee.BungeeCord;
+import ru.leymooo.botfilter.caching.CachedCaptcha;
 import ru.leymooo.botfilter.captcha.generator.map.MapPalette;
 import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.captcha.generator.map.CraftMapCanvas;
@@ -64,6 +65,7 @@ public class CaptchaGeneration
                 return;
             }
         }
+        CachedCaptcha.generated = true;
         BungeeCord.getInstance().getLogger().log( Level.INFO, "[BotFilter] Капча сгенерированна за {0} мс", System.currentTimeMillis() - start );
     }
 }

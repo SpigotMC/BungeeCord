@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import net.md_5.bungee.BungeeTitle;
 
 public class Settings extends Config
 {
@@ -22,7 +21,7 @@ public class Settings extends Config
     @Final
     public int CONFIG_VERSION = 1;
     @Final
-    public double BOT_FILTER_VERSION = 3.0;
+    public String BOT_FILTER_VERSION = "3.0";
 
     @Create
     public MESSAGES MESSGAGES;
@@ -131,15 +130,21 @@ public class Settings extends Config
         {
             {
                 add( "%nl%" );
+                add( "%nl%" );
                 add( "&cВы были кикнуты! Не используйте прямое подключение" );
+                add( "%nl%" );
                 add( "%nl%" );
                 add( "&bДля того чтобы зайти на сервер:" );
                 add( "%nl%" );
                 add( "&71) &rДобавте сервер в &lсписок серверов." );
+                add( "%nl%" );
                 add( "&lНаш айпи &8>> &b&lIP" );
                 add( "%nl%" );
+                add( "%nl%" );
                 add( "&72) &rОбновите список серверов. " );
+                add( "%nl%" );
                 add( "&oЧтобы его обновить нажмите кнопку &c&lОбновить &r&oили &c&lRefresh" );
+                add( "%nl%" );
                 add( "%nl%" );
                 add( "&73) &rПодождите &c1-3&r секунды и заходите!" );
 

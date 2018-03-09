@@ -78,7 +78,7 @@ import net.md_5.bungee.command.CommandPerms;
 import net.md_5.bungee.command.CommandReload;
 import net.md_5.bungee.command.ConsoleCommandCompleter;
 import net.md_5.bungee.command.ConsoleCommandSender;
-import net.md_5.bungee.command.BotFilterCommand;
+import ru.leymooo.botfilter.BotFilterCommand;
 import net.md_5.bungee.compress.CompressFactory;
 import net.md_5.bungee.conf.Configuration;
 import net.md_5.bungee.conf.YamlConfig;
@@ -266,11 +266,11 @@ public class BungeeCord extends ProxyServer
         String nameProperty = System.getProperty( "bungeeName" ); // BotFilter
         customBungeeName = ( nameProperty == null ? getName() : nameProperty ) + " " + getGameVersion(); // BotFilter
 
-        new BotFilter(); //Hook BotFilter into Bungee
+        new BotFilter( true ); //Hook BotFilter into Bungee
         new FakeOnline(); //Init fake online
 
-        bossEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Boss IO Thread #%1$d" ).build() ); //BotFilter
-        workerEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Worker IO Thread #%1$d" ).build() ); //BotFilter
+        bossEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Boss IO Thread #%1$d" ).build() ); //BotFilter //WaterFall backport
+        workerEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Worker IO Thread #%1$d" ).build() );//BotFilter //WaterFall backport
 
         File moduleDirectory = new File( "modules" );
         moduleManager.load( this, moduleDirectory );
@@ -338,7 +338,7 @@ public class BungeeCord extends ProxyServer
                     .option( ChannelOption.SO_REUSEADDR, true ) // TODO: Move this elsewhere!
                     .childAttr( PipelineUtils.LISTENER, info )
                     .childHandler( PipelineUtils.SERVER_CHILD )
-                    .group( bossEventLoopGroup, workerEventLoopGroup ) //BotFilter
+                    .group( bossEventLoopGroup, workerEventLoopGroup ) //BotFilter //WaterFall backport
                     .localAddress( info.getHost() )
                     .bind().addListener( listener );
 
@@ -359,7 +359,7 @@ public class BungeeCord extends ProxyServer
                         }
                     }
                 };
-                new RemoteQuery( this, info ).start( PipelineUtils.getDatagramChannel(), new InetSocketAddress( info.getHost().getAddress(), info.getQueryPort() ), workerEventLoopGroup, bindListener ); //BotFilter
+                new RemoteQuery( this, info ).start( PipelineUtils.getDatagramChannel(), new InetSocketAddress( info.getHost().getAddress(), info.getQueryPort() ), workerEventLoopGroup, bindListener ); //BotFilter //WaterFall backport
             }
         }
     }
@@ -450,14 +450,14 @@ public class BungeeCord extends ProxyServer
                 }
 
                 getLogger().info( "Closing IO threads" );
-                bossEventLoopGroup.shutdownGracefully(); //BotFilter
-                workerEventLoopGroup.shutdownGracefully(); //BotFilter
-                while ( true ) //BotFilter
+                bossEventLoopGroup.shutdownGracefully(); //BotFilter //WaterFall backport
+                workerEventLoopGroup.shutdownGracefully(); //BotFilter //WaterFall backport
+                while ( true ) //BotFilter //WaterFall backport
                 {
                     try
                     {
-                        bossEventLoopGroup.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS ); //BotFilter
-                        workerEventLoopGroup.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS ); //BotFilter
+                        bossEventLoopGroup.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS );//BotFilter //WaterFall backport
+                        workerEventLoopGroup.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS ); //BotFilter //WaterFall backport 
                         break;
                     } catch ( InterruptedException ignored )
                     {

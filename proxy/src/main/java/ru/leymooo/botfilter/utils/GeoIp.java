@@ -20,6 +20,7 @@ import java.util.zip.GZIPInputStream;
 import javolution.util.FastMap;
 import lombok.Getter;
 import net.md_5.bungee.BungeeCord;
+import ru.leymooo.botfilter.BotFilter;
 import ru.leymooo.botfilter.config.Settings;
 
 /**
@@ -33,21 +34,19 @@ public class GeoIp
 
     private final HashSet<String> countries = new HashSet<>();
     private final FastMap<InetAddress, String> cached = new FastMap<>();
-    private final Logger logger = BungeeCord.getInstance().getLogger();
+    private final Logger logger = BotFilter.getLogger();
 
     @Getter
     private boolean enabled = Settings.IMP.GEO_IP.MODE != 2;
-    @Getter
-    private boolean downloading = false;
 
     private DatabaseReader reader;
 
-    public GeoIp()
+    public GeoIp(boolean startup)
     {
         if ( enabled )
         {
             countries.addAll( Settings.IMP.GEO_IP.ALLOWED_COUNTRIES );
-            setupDataBase( false );
+            setupDataBase( startup );
         }
     }
 
@@ -79,10 +78,10 @@ public class GeoIp
         return reader != null;
     }
 
-    private void setupDataBase(boolean isReload)
+    private void setupDataBase(boolean startup)
     {
         File file = new File( "BotFilter", "GeoIP.mmdb" );
-        if ( !file.exists() || ( !isReload && ( System.currentTimeMillis() - file.lastModified() ) > TimeUnit.DAYS.toMillis( 14 ) ) )
+        if ( !file.exists() || ( startup && ( System.currentTimeMillis() - file.lastModified() ) > TimeUnit.DAYS.toMillis( 14 ) ) )
         {
             file.delete();
             downloadDataBase( file );
@@ -91,24 +90,18 @@ public class GeoIp
             try
             {
                 reader = new DatabaseReader.Builder( file ).withCache( new CHMCache( 4096 * 4 ) ).build();
-                logger.info( "[LICENSE] This product uses data from the GeoLite2 API created by MaxMind, available at http://www.maxmind.com" );
             } catch ( IOException ex )
             {
-                logger.log( Level.WARNING, "[BotFilter] Could not setup database", ex );
+                logger.log( Level.WARNING, "[BotFilter] На могу подключиться к GeoLite2 датабазе. Перекачиваю", ex );
                 file.delete();
-                setupDataBase( false );
+                setupDataBase( true );
             }
         }
     }
 
     private void downloadDataBase(final File out)
     {
-        if ( downloading )
-        {
-            return;
-        }
-        downloading = true;
-        logger.log( Level.INFO, "[BotFilter] Downloading GeoLite2 DataBase" );
+        logger.log( Level.INFO, "[BotFilter] Скачиваю GeoLite2 датабазу" );
         long start = System.currentTimeMillis();
         try
         {
@@ -138,16 +131,13 @@ public class GeoIp
                     throw new IOException( "File type is not supported " );
                 }
             }
-            setupDataBase( false );
+            setupDataBase( true );
         } catch ( Exception ex )
         {
-            logger.log( Level.WARNING, "[BotFilter] Could not download database", ex );
+            logger.log( Level.WARNING, "[BotFilter] Не могу скачать GeoLite2 датабазу", ex );
             return;
-        } finally
-        {
-            downloading = false;
         }
-        logger.log( Level.INFO, "[BotFilter] GeoLite2 DataBase downloaded({0})", System.currentTimeMillis() - start );
+        logger.log( Level.INFO, "[BotFilter] GeoLite2 загружена ({0}мс)", System.currentTimeMillis() - start );
     }
 
     private void saveToFile(InputStream stream, File out) throws IOException
@@ -162,7 +152,7 @@ public class GeoIp
                 {
                     fis.close();
                     out.delete();
-                    logger.log( Level.WARNING, "[BotFilter] GeoIp download was failed. Removing file" );
+                    logger.log( Level.WARNING, "[BotFilter] Не удалось скачать GeoLite2 датабазу. Удаляю недокачанный файл." );
                     return;
                 }
                 fis.write( buffer, 0, count );

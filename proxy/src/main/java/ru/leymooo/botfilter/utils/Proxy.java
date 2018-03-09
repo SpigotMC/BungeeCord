@@ -98,7 +98,7 @@ public class Proxy
             }
         } catch ( IOException ex )
         {
-            logger.log( Level.WARNING, "[BotFilter] Could not load proxies from file", ex );
+            logger.log( Level.WARNING, "[BotFilter] Не могу загрузить прокси из файлов", ex );
         }
     }
 
@@ -137,7 +137,7 @@ public class Proxy
                     }
                 } catch ( IOException ex )
                 {
-                    logger.log( Level.WARNING, "[BotFilter] Could not download proxies from " + site, ex );
+                    logger.log( Level.WARNING, "[BotFilter] Не могу загрузить прокси с сайта - " + site, ex );
                 }
                 if ( Thread.interrupted() )
                 {
@@ -145,13 +145,13 @@ public class Proxy
                     return;
                 }
             }
-            logger.log( Level.INFO, "[BotFilter] Downloaded {0} proxies", downloaded );
+            logger.log( Level.INFO, "[BotFilter] Скачано {0} прокси", downloaded );
         }, "Proxy download thread" ) ).start();
     }
 
     public void close()
     {
-        if ( downloadThread != null && downloadThread.isAlive() )
+        if ( downloadThread != null && !downloadThread.isInterrupted() )
         {
             downloadThread.interrupt();
         }
