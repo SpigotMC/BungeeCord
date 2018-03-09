@@ -1,10 +1,14 @@
 BungeeCord with built in AntiBot protection. (Russian lang)
 ==========
 
-Video
+Videos
 --------
-[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/75yN3sDnJx0/2.jpg)](https://youtu.be/75yN3sDnJx0)
-
+Only captcha:
+[![Only captcha](https://i.ytimg.com/vi/1tv2BoEPvL4/1.jpg)](https://youtu.be/1tv2BoEPvL4)
+Captcha + Falling check:
+[![Only captcha](https://i.ytimg.com/vi/RDqjsScTWBs/1.jpg)](https://youtu.be/RDqjsScTWBs)
+Falling check, if failed captcha:
+[![Only captcha](https://i.ytimg.com/vi/FKdzCYvsqGI/1.jpg)](https://youtu.be/FKdzCYvsqGI)
 
 Download
 --------
