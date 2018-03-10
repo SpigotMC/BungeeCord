@@ -62,6 +62,7 @@ public class Connector extends MoveHandler
         }
         sendPing();
         BotFilter.getInstance().addConnection( this );
+        BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] <-> BotFilter has connected", name );
     }
 
     @Override
