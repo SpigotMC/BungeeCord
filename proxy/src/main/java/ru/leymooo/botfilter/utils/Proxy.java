@@ -116,11 +116,11 @@ public class Proxy
                     conn.setConnectTimeout( 35000 );
                     try ( BufferedReader in = new BufferedReader( new InputStreamReader( conn.getInputStream() ) ) )
                     {
+                        HashSet<String> dproxies = new HashSet<>();
                         String inputLine;
                         while ( ( inputLine = in.readLine() ) != null && !Thread.interrupted() )
                         {
                             Matcher matcher = IPADDRESS_PATTERN.matcher( inputLine );
-                            HashSet<String> dproxies = new HashSet<>();
                             while ( matcher.find() && !Thread.interrupted() )
                             {
                                 String proxy = matcher.group( 0 );
@@ -131,9 +131,8 @@ public class Proxy
                                     downloaded++;
                                 }
                             }
-                            Files.write( proxyFile, dproxies, Charset.forName( "UTF-8" ), StandardOpenOption.APPEND );
-
                         }
+                        Files.write( proxyFile, dproxies, Charset.forName( "UTF-8" ), StandardOpenOption.APPEND );
                     }
                 } catch ( IOException ex )
                 {
@@ -146,6 +145,7 @@ public class Proxy
                 }
             }
             logger.log( Level.INFO, "[BotFilter] Скачано {0} прокси", downloaded );
+            BotFilter.getInstance().getGeoIp().getCached().clear();
         }, "Proxy download thread" ) ).start();
     }
 

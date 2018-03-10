@@ -12,9 +12,6 @@ import net.md_5.bungee.protocol.packet.KeepAlive;
 import ru.leymooo.botfilter.BotFilter.CheckState;
 import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.caching.PacketUtils.KickType;
-import ru.leymooo.botfilter.packets.PlayerAbilities;
-import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
-import ru.leymooo.botfilter.packets.SetSlot;
 import ru.leymooo.botfilter.utils.ManyChecksUtils;
 
 /**
@@ -50,6 +47,7 @@ public class Connector extends MoveHandler
         this.channelWrapper = userConnection.getCh();
         this.userConnection = userConnection;
         this.version = userConnection.getPendingConnection().getVersion();
+        this.userConnection.setClientEntityId( -1 );
         channelWrapper.setDecoderProtocol( Protocol.BotFilter );
         BotFilter.getInstance().incrementBotCounter();
         ManyChecksUtils.IncreaseOrAdd( channelWrapper.getRemoteAddress().getAddress() );
@@ -104,9 +102,13 @@ public class Connector extends MoveHandler
             }
             return;
         }
-
-        KickType type = BotFilter.getInstance().checkIpAddress( channelWrapper.getRemoteAddress().getAddress(),
-                (int) ( totalping / ( lastSend == 0 ? sentPings : sentPings - 1 ) ) );
+        //Пока пусть так будет. А то тут почему null вылезает у некоторых. 
+        KickType type = BotFilter.getInstance()
+                .checkIpAddress(
+                        channelWrapper
+                                .getRemoteAddress()
+                                .getAddress(),
+                        (int) ( totalping / ( lastSend == 0 ? sentPings : sentPings - 1 ) ) );
         if ( type != null )
         {
             PacketUtils.kickPlayer( type, Protocol.GAME, channelWrapper, version );

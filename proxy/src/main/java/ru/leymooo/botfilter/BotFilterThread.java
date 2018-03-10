@@ -3,7 +3,6 @@ package ru.leymooo.botfilter;
 import java.util.logging.Level;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.protocol.Protocol;
-import net.md_5.bungee.protocol.packet.KeepAlive;
 import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.caching.PacketUtils.KickType;
 import ru.leymooo.botfilter.config.Settings;

@@ -5,7 +5,6 @@ import com.google.common.cache.CacheBuilder;
 import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
 import ru.leymooo.botfilter.BotFilter;
-import ru.leymooo.botfilter.config.Config;
 
 /**
  *

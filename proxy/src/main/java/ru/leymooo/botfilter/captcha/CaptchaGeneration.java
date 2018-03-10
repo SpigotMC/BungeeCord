@@ -66,6 +66,7 @@ public class CaptchaGeneration
             }
         }
         CachedCaptcha.generated = true;
+        executor.shutdownNow();
         BungeeCord.getInstance().getLogger().log( Level.INFO, "[BotFilter] Капча сгенерированна за {0} мс", System.currentTimeMillis() - start );
     }
 }

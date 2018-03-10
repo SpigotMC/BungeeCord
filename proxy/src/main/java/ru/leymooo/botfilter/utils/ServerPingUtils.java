@@ -4,9 +4,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
-import lombok.Getter;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.config.Configuration;
 import ru.leymooo.botfilter.BotFilter;
 import ru.leymooo.botfilter.config.Settings;
 

@@ -1,9 +1,7 @@
 
 import io.netty.util.ResourceLeakDetector;
-import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Login;
 import ru.leymooo.botfilter.caching.PacketUtils;
-import static ru.leymooo.botfilter.caching.PacketUtils.packets;
 import ru.leymooo.botfilter.packets.ChunkPacket;
 import ru.leymooo.botfilter.packets.PlayerAbilities;
 import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
