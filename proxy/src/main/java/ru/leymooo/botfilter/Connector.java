@@ -51,6 +51,7 @@ public class Connector extends MoveHandler
         this.userConnection = userConnection;
         this.version = userConnection.getPendingConnection().getVersion();
         channelWrapper.setDecoderProtocol( Protocol.BotFilter );
+        BotFilter.getInstance().incrementBotCounter();
         ManyChecksUtils.IncreaseOrAdd( channelWrapper.getRemoteAddress().getAddress() );
         if ( state == CheckState.CAPTCHA_ON_POSITION_FAILED )
         {

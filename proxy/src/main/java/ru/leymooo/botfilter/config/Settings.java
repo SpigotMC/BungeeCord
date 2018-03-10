@@ -23,7 +23,7 @@ public class Settings extends Config
     @Final
     public int CONFIG_VERSION = 1;
     @Final
-    public String BOT_FILTER_VERSION = "3.0";
+    public String BOT_FILTER_VERSION = "3.0.1";
 
     @Create
     public MESSAGES MESSGAGES;
