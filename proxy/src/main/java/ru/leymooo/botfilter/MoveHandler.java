@@ -51,7 +51,7 @@ public class MoveHandler extends PacketHandler
     @Override
     public void handle(PlayerPositionAndLook posRot) throws Exception
     {
-        if ( ( (Connector) this ).version == 47 && posRot.getX() == 7 && posRot.getY() == 450 && posRot.getZ() == 7 )
+        if ( ( (Connector) this ).version == 47 && posRot.getX() == 7 && posRot.getY() == 450 && posRot.getZ() == 7 && waitingTeleportId == 9876 )
         {
             ticks = 0;
             y = -1;

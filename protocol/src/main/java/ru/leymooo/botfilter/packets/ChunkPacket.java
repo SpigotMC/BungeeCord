@@ -30,7 +30,7 @@ public class ChunkPacket extends DefinedPacket
     {
         buf.writeInt( this.x );
         buf.writeInt( this.z );
-        buf.writeBoolean( version > ProtocolConstants.MINECRAFT_1_8 ? true : unload );
+        buf.writeBoolean( true );
         if ( version > ProtocolConstants.MINECRAFT_1_8 )
         {
             DefinedPacket.writeVarInt( 0, buf );

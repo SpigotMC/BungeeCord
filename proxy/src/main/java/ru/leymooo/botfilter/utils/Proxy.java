@@ -69,7 +69,7 @@ public class Proxy
 
     public void addIp(String ip)
     {
-        if ( !proxies.contains( ip ) )
+        if ( enabled && !proxies.contains( ip ) )
         {
             proxies.add( ip );
             try

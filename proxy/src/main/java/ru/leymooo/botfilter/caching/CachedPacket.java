@@ -14,17 +14,31 @@ public class CachedPacket
 
     private ByteBuf[] byteBuf = new ByteBuf[ ProtocolConstants.MINECRAFT_1_12_2 + 1 ];
 
-    public CachedPacket(DefinedPacket packet, Protocol protocol)
+    public CachedPacket(DefinedPacket packet, Protocol protocol, Protocol secondProtocol)
     {
-        cache( packet, protocol );
+        cache( packet, protocol, secondProtocol );
     }
 
-    private void cache(DefinedPacket packet, Protocol protocol)
+    public CachedPacket(DefinedPacket packet, Protocol protocol)
+    {
+        cache( packet, protocol, null );
+    }
+
+    private void cache(DefinedPacket packet, Protocol protocol, Protocol secondProtocol)
     {
         Protocol.DirectionData prot = protocol.TO_CLIENT;
+        Protocol.DirectionData prot2 = secondProtocol == null ? null : secondProtocol.TO_CLIENT;
+
         for ( int version : ProtocolConstants.SUPPORTED_VERSION_IDS )
         {
-            int packetId = prot.getId( packet.getClass(), version );
+            int packetId;
+            try
+            {
+                packetId = prot.getId( packet.getClass(), version );
+            } catch ( Exception e )
+            {
+                packetId = prot2.getId( packet.getClass(), version );
+            }
             byteBuf[version] = PacketUtils.createPacket( packet, packetId, version );
             // Создаем для каждой версии свой пакет,
             // по сколько есть пакеты у которых одинаковые айдишки,

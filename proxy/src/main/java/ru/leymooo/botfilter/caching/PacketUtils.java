@@ -33,18 +33,17 @@ import ru.leymooo.botfilter.packets.SetSlot;
 public class PacketUtils
 {
 
-    public static HashMap<Class<? extends DefinedPacket>, CachedPacket> singlePackets = new HashMap<>();
+    /*
+    0 - Login, 1 - SpawnPosition, 2 - ChunkData, 3 - TimeUpdate, 4 - PlayerAbilities,
+    5 - PlayerPosAndLook, 6 - SetSlot(Map), 7 - SetSlot(Reset), 8 - KeepAlive,
+    9 - 10 - CaptchaFailedMessage, 11 - checkMessage, 12 - captchaCheckMessage,
+    13 - CheckSus
+     */
+    public static CachedPacket[] packets = new CachedPacket[ 14 ];
     private static HashMap<KickType, CachedPacket> kickMessagesGame = new HashMap<KickType, CachedPacket>();
     private static HashMap<KickType, CachedPacket> kickMessagesLogin = new HashMap<KickType, CachedPacket>();
-    public static CachedPacket[] captchaFailedMessage = new CachedPacket[ 2 ];
 
     public static CachedCaptcha captchas = new CachedCaptcha();
-
-    public static CachedPacket resetSlot = new CachedPacket( new SetSlot( 0, 36, -1, 0, 0 ), Protocol.BotFilter );
-
-    public static CachedPacket checkMessage;
-    public static CachedPacket captchaCheckMessage;
-    public static CachedPacket checkSus;
 
     public static ByteBuf createPacket(DefinedPacket packet, int id, int protocol)
     {
@@ -56,53 +55,43 @@ public class PacketUtils
 
     public static void init()
     {
-        for ( CachedPacket packet : singlePackets.values() )
-        {
-            packet.release();
-        }
-        singlePackets.clear();
-        for ( CachedPacket packet : kickMessagesGame.values() )
-        {
-            packet.release();
-        }
-        kickMessagesGame.clear();
-
-        for ( CachedPacket packet : captchaFailedMessage )
+        for ( CachedPacket packet : packets )
         {
             if ( packet != null )
             {
                 packet.release();
             }
         }
-
-        if ( checkMessage != null )
+        for ( CachedPacket packet : kickMessagesGame.values() )
         {
-            checkMessage.release();
-            captchaCheckMessage.release();
-            checkSus.release();
+            packet.release();
         }
+        kickMessagesGame.clear();
 
         DefinedPacket[] packets =
         {
-            new Login( -1, (short) 2, 0, (short) 0, (short) 100, "flat", true ),
-            new SpawnPosition( 1, 60, 1 ), new PlayerPositionAndLook( 7.00, 450, 7.00, -5f, 48f, 9876, false ),
-            new TimeUpdate( 1, Settings.IMP.WORLD_TIME ), new KeepAlive( 9876 ),
-            new ChunkPacket( 0, 0, new byte[ 63 ], false ), new PlayerAbilities( (byte) 6, 0f, 0f ),
-            new SetSlot( 0, 36, 358, 1, 0 )
+            new Login( -1, (short) 2, 0, (short) 0, (short) 100, "flat", true ), //0
+            new SpawnPosition( 7, 60, 7 ), //1
+            new ChunkPacket( 0, 0, new byte[ 256 ], false ), //2
+            new TimeUpdate( 1, Settings.IMP.WORLD_TIME ), //3
+            new PlayerAbilities( (byte) 6, 0f, 0f ), //4
+            new PlayerPositionAndLook( 7.00, 450, 7.00, -5f, 48f, 9876, false ), //5
+            new SetSlot( 0, 36, 358, 1, 0 ), //6
+            new SetSlot( 0, 36, -1, 0, 0 ), //7
+            new KeepAlive( 9876 ), //8
+            createMessagePacket( Settings.IMP.MESSGAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "2" ).replaceFirst( "%s", "попытки" ) ), //9
+            createMessagePacket( Settings.IMP.MESSGAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "1" ).replaceFirst( "%s", "попытка" ) ), //10
+            createMessagePacket( Settings.IMP.MESSGAGES.CHECKING ), //11
+            createMessagePacket( Settings.IMP.MESSGAGES.CHECKING_CAPTCHA ), //12
+            createMessagePacket( Settings.IMP.MESSGAGES.SUCCESSFULLY ) //13
+
         };
 
-        for ( DefinedPacket packet : packets )
+        for ( int i = 0; i < packets.length; i++ )
         {
-            singlePackets.put( packet.getClass(), new CachedPacket( packet, Protocol.BotFilter ) );
+            PacketUtils.packets[i] = new CachedPacket( packets[i], Protocol.BotFilter, Protocol.GAME );
         }
         Protocol kickGame = Protocol.GAME;
-
-        checkMessage = new CachedPacket( createMessagePacket( Settings.IMP.MESSGAGES.CHECKING ), kickGame );
-        checkSus = new CachedPacket( createMessagePacket( Settings.IMP.MESSGAGES.SUCCESSFULLY ), kickGame );
-        captchaCheckMessage = new CachedPacket( createMessagePacket( Settings.IMP.MESSGAGES.CHECKING_CAPTCHA ), kickGame );
-        captchaFailedMessage[1] = new CachedPacket( createMessagePacket( Settings.IMP.MESSGAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "2" ).replaceFirst( "%s", "попытки" ) ), kickGame );
-        captchaFailedMessage[0] = new CachedPacket( createMessagePacket( Settings.IMP.MESSGAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "1" ).replaceFirst( "%s", "попытка" ) ), kickGame );
-
         Protocol kickLogin = Protocol.LOGIN;
 
         kickMessagesGame.put( KickType.PING, new CachedPacket( createKickPacket( Settings.IMP.MESSGAGES.KICK_BIG_PING ), kickGame ) );
@@ -136,15 +125,15 @@ public class PacketUtils
 
     public static void spawnPlayer(Channel channel, int version, boolean disableFall)
     {
-        channel.write( singlePackets.get( Login.class ).get( version ), channel.voidPromise() );
-        channel.write( singlePackets.get( SpawnPosition.class ).get( version ), channel.voidPromise() );
-        channel.write( singlePackets.get( ChunkPacket.class ).get( version ), channel.voidPromise() );
-        channel.write( singlePackets.get( TimeUpdate.class ).get( version ), channel.voidPromise() );
+        channel.write( packets[0].get( version ), channel.voidPromise() ); //Login
+        channel.write( packets[1].get( version ), channel.voidPromise() ); //SpawnPosition
+        channel.write( packets[2].get( version ), channel.voidPromise() ); //ChunkData
         if ( disableFall )
         {
-            channel.write( singlePackets.get( PlayerAbilities.class ).get( version ), channel.voidPromise() );
+            channel.write( packets[4].get( version ), channel.voidPromise() ); //PlayerAbilities
         }
-        channel.write( singlePackets.get( PlayerPositionAndLook.class ).get( version ), channel.voidPromise() );
+        channel.write( packets[5].get( version ), channel.voidPromise() ); //PlayerPosAndLook
+        channel.write( packets[3].get( version ), channel.voidPromise() ); //TimeUpdate
         //channel.flush(); Не очищяем поскольку это будет в другом месте
     }
 

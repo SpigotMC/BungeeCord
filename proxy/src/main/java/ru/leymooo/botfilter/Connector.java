@@ -55,12 +55,9 @@ public class Connector extends MoveHandler
         if ( state == CheckState.CAPTCHA_ON_POSITION_FAILED )
         {
             PacketUtils.spawnPlayer( channelWrapper.getHandle(), userConnection.getPendingConnection().getVersion(), false );
-            channelWrapper.getHandle().write( PacketUtils.checkMessage.get( version ) );
-            channelWrapper.getHandle().flush();
         } else
         {
             PacketUtils.spawnPlayer( channelWrapper.getHandle(), userConnection.getPendingConnection().getVersion(), state == CheckState.ONLY_CAPTCHA );
-            channelWrapper.getHandle().write( PacketUtils.captchaCheckMessage.get( version ) );
             sendCaptcha();
         }
         sendPing();
@@ -95,7 +92,7 @@ public class Connector extends MoveHandler
         {
             if ( state == CheckState.CAPTCHA_POSITION && aticks < TOTAL_TICKS )
             {
-                channelWrapper.getHandle().writeAndFlush( PacketUtils.resetSlot.get( version ) );
+                channelWrapper.getHandle().writeAndFlush( PacketUtils.packets[7].get( version ), channelWrapper.getHandle().voidPromise() );
                 state = CheckState.ONLY_POSITION;
             } else
             {
@@ -118,7 +115,7 @@ public class Connector extends MoveHandler
             return;
         }
 
-        channelWrapper.getHandle().writeAndFlush( PacketUtils.checkSus.get( version ) );
+        channelWrapper.getHandle().writeAndFlush( PacketUtils.packets[13].get( version ), channelWrapper.getHandle().voidPromise() );
         BotFilter.getInstance().saveUser( getName(), channelWrapper.getRemoteAddress().getAddress() );
         BotFilter.getInstance().removeConnection( null, this );
         userConnection.setNeedLogin( false );
@@ -157,7 +154,7 @@ public class Connector extends MoveHandler
             }
             return;
         }
-        if ( y <= 60 && state == CheckState.CAPTCHA_POSITION )
+        if ( y <= 60 && state == CheckState.CAPTCHA_POSITION && waitingTeleportId == -1 )
         {
             resetPosition( false );
         }
@@ -174,10 +171,10 @@ public class Connector extends MoveHandler
     {
         if ( disableFall )
         {
-            channelWrapper.getHandle().write( PacketUtils.singlePackets.get( PlayerAbilities.class ).get( version ) );
+            channelWrapper.getHandle().write( PacketUtils.packets[4].get( version ), channelWrapper.getHandle().voidPromise() );
         }
         waitingTeleportId = 9876;
-        channelWrapper.getHandle().writeAndFlush( PacketUtils.singlePackets.get( PlayerPositionAndLook.class ).get( version ) );
+        channelWrapper.getHandle().writeAndFlush( PacketUtils.packets[5].get( version ), channelWrapper.getHandle().voidPromise() );
     }
 
     @Override
@@ -193,14 +190,14 @@ public class Connector extends MoveHandler
         if ( message.length() > 4 )
         {
             --attemps;
-            channelWrapper.getHandle().write( PacketUtils.captchaFailedMessage[attemps - 1].get( version ) );
+            channelWrapper.getHandle().write( attemps == 2 ? PacketUtils.packets[9].get( version ) : PacketUtils.packets[10].get( version ), channelWrapper.getHandle().voidPromise() );
             sendCaptcha();
         } else if ( message.replace( "/", "" ).equals( String.valueOf( captchaAnswer ) ) )
         {
             completeCheck();
         } else if ( --attemps != 0 )
         {
-            channelWrapper.getHandle().write( PacketUtils.captchaFailedMessage[attemps - 1].get( version ) );
+            channelWrapper.getHandle().write( attemps == 2 ? PacketUtils.packets[9].get( version ) : PacketUtils.packets[10].get( version ), channelWrapper.getHandle().voidPromise() );
             sendCaptcha();
         } else
         {
@@ -239,15 +236,15 @@ public class Connector extends MoveHandler
         {
             lastSend = System.currentTimeMillis();
             sentPings++;
-            channelWrapper.getHandle().writeAndFlush( PacketUtils.singlePackets.get( KeepAlive.class ).get( version ) );
+            channelWrapper.getHandle().writeAndFlush( PacketUtils.packets[8].get( version ) );
         }
     }
 
     private void sendCaptcha()
     {
         captchaAnswer = random.nextInt( 100, 999 );
-        channelWrapper.getHandle().write( PacketUtils.singlePackets.get( SetSlot.class ).get( version ) );
-        channelWrapper.getHandle().writeAndFlush( PacketUtils.captchas.get( version, captchaAnswer ) );
+        channelWrapper.getHandle().write( PacketUtils.packets[6].get( version ), channelWrapper.getHandle().voidPromise() );
+        channelWrapper.getHandle().writeAndFlush( PacketUtils.captchas.get( version, captchaAnswer ), channelWrapper.getHandle().voidPromise() );
     }
 
     public String getName()

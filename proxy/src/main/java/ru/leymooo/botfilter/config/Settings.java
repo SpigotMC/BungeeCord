@@ -33,9 +33,9 @@ public class Settings extends Config
     {
 
         public String PREFIX = "&b&lBot&d&lFilter ";
-        public String CHECKING = "%prefix%&7>> &aИдёт проверка, ожидайте...";
+        public String CHECKING = "%prefix%&7>> &aОжидайте завершения проверки...";
         public String CHECKING_CAPTCHA = "%prefix%&7>> &aВведите номер с картинки в чат";
-        public String CHECKING_CAPTCHA_WRONG = "%prefix%&7>> &cВы ввели капчу неправильно, пожалуйста попробуйте ещё раз. У вас %s %s";
+        public String CHECKING_CAPTCHA_WRONG = "%prefix%&7>> &cВы ввели капчу неправильно, пожалуйста попробуйте ещё раз. У вас &a%s &c%s";
         public String SUCCESSFULLY = "%prefix%&7>> &aПроверка пройдена, приятной игры";
         public String KICK_MANY_CHECKS = "%prefix%%nl%%nl%&cС вашего айпи замечена подозрительная активность%nl%%nl%&6Повторите попытку через 10 минут";
         public String KICK_NOT_PLAYER = "%prefix%%nl%%nl%&cВы не прошли проверку, возможно вы бот%nl%&7&oЕсли это не так, пожалуйста повторите попытку";
