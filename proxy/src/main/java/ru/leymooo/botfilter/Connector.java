@@ -146,7 +146,7 @@ public class Connector extends MoveHandler
             if ( state == CheckState.CAPTCHA_ON_POSITION_FAILED )
             {
                 state = CheckState.ONLY_CAPTCHA;
-                joinTime = System.currentTimeMillis();
+                joinTime = System.currentTimeMillis() + 3500;
                 resetPosition( true );
                 sendCaptcha();
             } else

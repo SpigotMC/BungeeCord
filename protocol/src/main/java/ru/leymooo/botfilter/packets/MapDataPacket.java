@@ -34,17 +34,12 @@ public class MapDataPacket extends DefinedPacket
         {
             buf.writeBoolean( false );
         }
-        MapDataNew column = (MapDataNew) this.data;
-        buf.writeByte( column.getColumns() );
-        if ( column.getColumns() <= 0 )
-        {
-            return;
-        }
-        buf.writeByte( column.getRows() );
-        buf.writeByte( column.getX() );
-        buf.writeByte( column.getY() );
-        MapDataPacket.writeVarInt( column.getData().length, buf );
-        buf.writeBytes( column.getData() );
+        buf.writeByte( data.getColumns() );
+        buf.writeByte( data.getRows() );
+        buf.writeByte( data.getX() );
+        buf.writeByte( data.getY() );
+        MapDataPacket.writeVarInt( data.getData().length, buf );
+        buf.writeBytes( data.getData() );
     }
 
     @Override
@@ -54,7 +49,7 @@ public class MapDataPacket extends DefinedPacket
 
     @AllArgsConstructor
     @Getter
-    public static class MapDataNew implements MapData
+    public static class MapData
     {
 
         private int columns;
@@ -62,10 +57,6 @@ public class MapDataPacket extends DefinedPacket
         private int x;
         private int y;
         private byte[] data;
-    }
-
-    public static interface MapData
-    {
     }
 
 }

@@ -31,8 +31,17 @@ public class Sql
 
     public Sql()
     {
+        setupConnect();
+    }
+
+    protected void setupConnect()
+    {
         try
         {
+            if ( connection != null && !connection.isValid( 3 ) )
+            {
+                return;
+            }
             logger.info( "[BotFilter] Подключаюсь к датабазе..." );
             long start = System.currentTimeMillis();
             if ( Settings.IMP.SQL.STORAGE_TYPE.equalsIgnoreCase( "mysql" ) )
@@ -51,6 +60,7 @@ public class Sql
         } catch ( SQLException | ClassNotFoundException e )
         {
             logger.log( Level.WARNING, "Can not connect to database or execute sql: ", e );
+            connection = null;
         }
     }
 
@@ -100,27 +110,31 @@ public class Sql
 
     public void saveUser(String name, String ip)
     {
-        this.executor.execute( () ->
+        if ( connection != null )
         {
-            final long timestamp = System.currentTimeMillis();
-            String sql = "SELECT `Name` FROM `Users` where `Name` = '" + name + "';";
-            try ( Statement statament = connection.createStatement();
-                    ResultSet set = statament.executeQuery( sql ) )
+            this.executor.execute( () ->
             {
-                if ( !set.next() )
+                final long timestamp = System.currentTimeMillis();
+                String sql = "SELECT `Name` FROM `Users` where `Name` = '" + name + "';";
+                try ( Statement statament = connection.createStatement();
+                        ResultSet set = statament.executeQuery( sql ) )
                 {
-                    sql = "INSERT INTO `Users` (`Name`, `Ip`, `LastCheck`) VALUES ('" + name + "','" + ip + "','" + timestamp + "');";
-                    statament.executeUpdate( sql );
-                } else
+                    if ( !set.next() )
+                    {
+                        sql = "INSERT INTO `Users` (`Name`, `Ip`, `LastCheck`) VALUES ('" + name + "','" + ip + "','" + timestamp + "');";
+                        statament.executeUpdate( sql );
+                    } else
+                    {
+                        sql = "UPDATE `Users` SET `Ip` = '" + ip + "', `LastCheck` = '" + timestamp + "' where `Name` = '" + name + "';";
+                        statament.executeUpdate( sql );
+                    }
+                } catch ( SQLException ex )
                 {
-                    sql = "UPDATE `Users` SET `Ip` = '" + ip + "', `LastCheck` = '" + timestamp + "' where `Name` = '" + name + "';";
-                    statament.executeUpdate( sql );
+                    logger.log( Level.WARNING, "Не могу выполнить запрос к базе данных", ex );
+                    executor.execute( () -> setupConnect() );
                 }
-            } catch ( SQLException ex )
-            {
-                logger.log( Level.WARNING, "Не могу выполнить запрос к базе данных", ex );
-            }
-        } );
+            } );
+        }
     }
 
     public void close()
@@ -128,7 +142,10 @@ public class Sql
         this.executor.shutdownNow();
         try
         {
-            this.connection.close();
+            if ( connection != null )
+            {
+                this.connection.close();
+            }
         } catch ( SQLException ignore )
         {
         }

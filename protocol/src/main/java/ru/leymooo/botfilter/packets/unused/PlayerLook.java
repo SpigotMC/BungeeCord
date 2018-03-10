@@ -26,7 +26,6 @@ public class PlayerLook extends DefinedPacket
         this.yaw = buf.readFloat();
         this.pitch = buf.readFloat();
         this.onGround = buf.readBoolean();
-        buf.skipBytes( buf.readableBytes() );
     }
 
     @Override

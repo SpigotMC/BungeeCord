@@ -14,10 +14,12 @@ public class Settings extends Config
     @Comment(
             {
                 "Первые 3 настройки не настраиваются",
-                "Все ошибки, баги, предложения и прочее просьба писать на гитхабе, "
+                "Все ошибки, баги, предложения и прочее просьба писать на гитхабе "
             })
     @Final
     public final String ISSUES = "https://github.com/Dimatert9/BungeeCord/issues";
+    @Final
+    public final String HELP = "http://www.rubukkit.org/threads/137038/";
     @Final
     public int CONFIG_VERSION = 1;
     @Final
@@ -62,7 +64,7 @@ public class Settings extends Config
     public int WORLD_TIME = 18000;
 
     @Comment("Сколько времени есть у игрока чтобы пройти защиту. В миллисекундах. 1 сек = 1000")
-    public int TIME_OUT = 12000;
+    public int TIME_OUT = 12700;
 
     @Create
     public GEO_IP GEO_IP;
@@ -188,7 +190,9 @@ public class Settings extends Config
     public static class PROTECTION
     {
 
+        @Comment("Режим работы пока нет атаки")
         public int NORMAL = 2;
+        @Comment("Режим работы во время атаки")
         public int ON_ATTACK = 1;
         /*
         @Comment(

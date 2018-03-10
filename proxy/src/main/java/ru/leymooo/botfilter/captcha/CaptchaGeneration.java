@@ -24,9 +24,9 @@ public class CaptchaGeneration
 
     private Font[] fonts = new Font[]
     {
-        new Font( Font.SANS_SERIF, Font.PLAIN, 70 / 2 ),
-        new Font( Font.SERIF, Font.PLAIN, 70 / 2 ),
-        new Font( Font.MONOSPACED, Font.BOLD, 70 / 2 )
+        new Font( Font.SANS_SERIF, Font.PLAIN, 128 / 2 ),
+        new Font( Font.SERIF, Font.PLAIN, 128 / 2 ),
+        new Font( Font.MONOSPACED, Font.BOLD, 128 / 2 )
     };
 
     private CaptchaPainter painter = new CaptchaPainter();
@@ -44,7 +44,7 @@ public class CaptchaGeneration
                 BufferedImage image = painter.draw( fonts[rnd.nextInt( fonts.length )],
                         MapPalette.colors[rnd.nextInt( MapPalette.colors.length )], String.valueOf( answer ) );
                 final CraftMapCanvas map = new CraftMapCanvas();
-                map.drawImage( 0, 0, MapPalette.resizeImage( image ) );
+                map.drawImage( 0, 0, image );
                 MapDataPacket packet = new MapDataPacket( 0, (byte) 0, map.getMapData() );
                 PacketUtils.captchas.createCaptchaPacket( packet, answer );
             } );

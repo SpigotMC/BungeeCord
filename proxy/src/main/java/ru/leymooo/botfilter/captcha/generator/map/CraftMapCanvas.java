@@ -4,7 +4,6 @@ import java.awt.Image;
 import java.util.Arrays;
 import ru.leymooo.botfilter.packets.MapDataPacket;
 
-
 public class CraftMapCanvas
 {
 
@@ -27,11 +26,6 @@ public class CraftMapCanvas
         }
     }
 
-    protected byte[] getBuffer()
-    {
-        return this.buffer;
-    }
-
     @SuppressWarnings("deprecation")
     public void drawImage(int x, int y, Image image)
     {
@@ -47,10 +41,10 @@ public class CraftMapCanvas
 
     }
 
-    public MapDataPacket.MapDataNew getMapData()
+    public MapDataPacket.MapData getMapData()
     {
         byte[] buffer1 = new byte[ 16384 ];
-        byte[] buf = this.getBuffer();
+        byte[] buf = this.buffer;
 
         for ( int i = 0; i < buf.length; ++i )
         {
@@ -62,6 +56,6 @@ public class CraftMapCanvas
             }
         }
 
-        return new MapDataPacket.MapDataNew( 128, 128, 0, 0, buffer1 );
+        return new MapDataPacket.MapData( 128, 128, 0, 0, buffer1 );
     }
 }

@@ -18,8 +18,8 @@ import java.util.Random;
 public class CaptchaPainter
 {
 
-    private final int width = 200;
-    private final int height = 70;
+    private final int width = 128;
+    private final int height = 128;
     private final Color background = Color.WHITE;
     private final Random rnd = new Random();
 
