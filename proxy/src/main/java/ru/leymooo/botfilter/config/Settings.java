@@ -23,10 +23,10 @@ public class Settings extends Config
     @Final
     public int CONFIG_VERSION = 1;
     @Final
-    public String BOT_FILTER_VERSION = "3.0.2";
+    public String BOT_FILTER_VERSION = "3.0.3";
 
     @Create
-    public MESSAGES MESSGAGES;
+    public MESSAGES MESSAGES;
 
     @Comment("Не используйте '\\n', используйте %nl%")
     public static class MESSAGES
@@ -78,7 +78,7 @@ public class Settings extends Config
                     "Когда работает проверка",
                     "0 - Всегда",
                     "1 - Только во время бот атаки",
-                    "2 - Отключить(также отключается проверка на прокси)"
+                    "2 - Отключить"
                 })
         public int MODE = 1;
         @Comment(
@@ -155,26 +155,20 @@ public class Settings extends Config
     }
 
     @Create
-    public PROXY PROXY;
+    public FAILED_IPS FAILED_IPS;
 
-    @Comment("Включить или отключить проверку на прокси")
-    public static class PROXY
+    @Comment("Разрешать ли заходить тем кто праволил проверку больше 2х раз")
+    public static class FAILED_IPS
     {
 
         @Comment(
                 {
                     "Когда работает проверка",
-                    "0 - Всегда",
+                    "0 - Всегда(Крайне не рекомендуется)",
                     "1 - Только во время бот атаки",
                     "2 - Отключить"
                 })
         public int MODE = 1;
-        @Comment(
-                {
-                    "Откуда качать прокси",
-                    "Указывать ссылки, где прокси идут сплошным текстом"
-                })
-        public List<String> PROXY_SITES = Arrays.asList( "http://botfilter.funtime.su/proxy.txt" );
     }
 
     @Create

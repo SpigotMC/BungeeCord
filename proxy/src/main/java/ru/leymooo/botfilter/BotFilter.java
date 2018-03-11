@@ -15,7 +15,7 @@ import lombok.Getter;
 import net.md_5.bungee.BungeeCord;
 import ru.leymooo.botfilter.caching.CachedCaptcha;
 import ru.leymooo.botfilter.utils.GeoIp;
-import ru.leymooo.botfilter.utils.Proxy;
+import ru.leymooo.botfilter.utils.FailedIpUtils;
 import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.caching.PacketUtils.KickType;
 import ru.leymooo.botfilter.captcha.CaptchaGeneration;
@@ -40,7 +40,7 @@ public class BotFilter
 
     private Sql sql;
     @Getter
-    private Proxy proxy;
+    private FailedIpUtils failedUtils;
     @Getter
     private GeoIp geoIp;
     @Getter
@@ -68,7 +68,7 @@ public class BotFilter
         PacketUtils.init();
         sql = new Sql();
         geoIp = new GeoIp( startup );
-        proxy = new Proxy();
+        failedUtils = new FailedIpUtils();
         serverPingUtils = new ServerPingUtils();
         BotFilterThread.start();
     }
@@ -85,8 +85,8 @@ public class BotFilter
             connector.state = CheckState.FAILED;
         }
         connectedUsersSet.clear();
-        proxy.close();
-        proxy = null;
+        failedUtils.close();
+        failedUtils = null;
         geoIp.close();
         geoIp = null;
         sql.close();
@@ -219,7 +219,7 @@ public class BotFilter
     public KickType checkIpAddress(InetAddress address, int ping)
     {
         int mode = isUnderAttack() ? 1 : 0;
-        if ( proxy.isEnabled() && ( Settings.IMP.PROXY.MODE == 0 || Settings.IMP.PROXY.MODE == mode ) && proxy.isProxy( address ) )
+        if ( failedUtils.isEnabled() && ( Settings.IMP.FAILED_IPS.MODE == 0 || Settings.IMP.FAILED_IPS.MODE == mode ) && failedUtils.isFailed( address ) )
         {
             return KickType.PROXY;
         }

@@ -79,11 +79,11 @@ public class PacketUtils
             new SetSlot( 0, 36, 358, 1, 0 ), //6
             new SetSlot( 0, 36, -1, 0, 0 ), //7
             new KeepAlive( 9876 ), //8
-            createMessagePacket( Settings.IMP.MESSGAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "2" ).replaceFirst( "%s", "попытки" ) ), //9
-            createMessagePacket( Settings.IMP.MESSGAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "1" ).replaceFirst( "%s", "попытка" ) ), //10
-            createMessagePacket( Settings.IMP.MESSGAGES.CHECKING ), //11
-            createMessagePacket( Settings.IMP.MESSGAGES.CHECKING_CAPTCHA ), //12
-            createMessagePacket( Settings.IMP.MESSGAGES.SUCCESSFULLY ) //13
+            createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "2" ).replaceFirst( "%s", "попытки" ) ), //9
+            createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "1" ).replaceFirst( "%s", "попытка" ) ), //10
+            createMessagePacket( Settings.IMP.MESSAGES.CHECKING ), //11
+            createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA ), //12
+            createMessagePacket( Settings.IMP.MESSAGES.SUCCESSFULLY ) //13
 
         };
 
@@ -94,14 +94,14 @@ public class PacketUtils
         Protocol kickGame = Protocol.GAME;
         Protocol kickLogin = Protocol.LOGIN;
 
-        kickMessagesGame.put( KickType.PING, new CachedPacket( createKickPacket( Settings.IMP.MESSGAGES.KICK_BIG_PING ), kickGame ) );
-        kickMessagesGame.put( KickType.NOTPLAYER, new CachedPacket( createKickPacket( Settings.IMP.MESSGAGES.KICK_NOT_PLAYER ), kickGame ) );
-        kickMessagesGame.put( KickType.PROXY, new CachedPacket( createKickPacket( Settings.IMP.MESSGAGES.KICK_PROXY ), kickGame ) );
-        kickMessagesGame.put( KickType.COUNTRY, new CachedPacket( createKickPacket( Settings.IMP.MESSGAGES.KICK_COUNTRY ), kickGame ) );
+        kickMessagesGame.put( KickType.PING, new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_BIG_PING ), kickGame ) );
+        kickMessagesGame.put( KickType.NOTPLAYER, new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_NOT_PLAYER ), kickGame ) );
+        kickMessagesGame.put( KickType.PROXY, new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_PROXY ), kickGame ) );
+        kickMessagesGame.put( KickType.COUNTRY, new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_COUNTRY ), kickGame ) );
         kickMessagesLogin.put( KickType.PING, new CachedPacket( createKickPacket( String.join( "", Settings.IMP.SERVER_PING_CHECK.KICK_MESSAGE ) ), kickLogin ) );
-        kickMessagesLogin.put( KickType.PROXY, new CachedPacket( createKickPacket( Settings.IMP.MESSGAGES.KICK_PROXY ), kickLogin ) );
-        kickMessagesLogin.put( KickType.MANYCHECKS, new CachedPacket( createKickPacket( Settings.IMP.MESSGAGES.KICK_MANY_CHECKS ), kickLogin ) );
-        kickMessagesLogin.put( KickType.COUNTRY, new CachedPacket( createKickPacket( Settings.IMP.MESSGAGES.KICK_COUNTRY ), kickLogin ) );
+        kickMessagesLogin.put( KickType.PROXY, new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_PROXY ), kickLogin ) );
+        kickMessagesLogin.put( KickType.MANYCHECKS, new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_MANY_CHECKS ), kickLogin ) );
+        kickMessagesLogin.put( KickType.COUNTRY, new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_COUNTRY ), kickLogin ) );
         BungeeCord bungee = BungeeCord.getInstance();
         kickMessagesLogin.put( KickType.THROTTLE, new CachedPacket( createKickPacket( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( bungee.getConfig().getThrottle() ) ) ), kickLogin ) );
 
@@ -112,7 +112,7 @@ public class PacketUtils
         return new Kick( ComponentSerializer.toString(
                 TextComponent.fromLegacyText(
                         ChatColor.translateAlternateColorCodes( '&',
-                                message.replace( "%prefix%", Settings.IMP.MESSGAGES.PREFIX ).replace( "%nl%", "\n" ) ) ) ) );
+                                message.replace( "%prefix%", Settings.IMP.MESSAGES.PREFIX ).replace( "%nl%", "\n" ) ) ) ) );
     }
 
     private static DefinedPacket createMessagePacket(String message)
@@ -120,7 +120,7 @@ public class PacketUtils
         return new Chat( ComponentSerializer.toString(
                 TextComponent.fromLegacyText(
                         ChatColor.translateAlternateColorCodes( '&',
-                                message.replace( "%prefix%", Settings.IMP.MESSGAGES.PREFIX ).replace( "%nl%", "\n" ) ) ) ), (byte) ChatMessageType.CHAT.ordinal() );
+                                message.replace( "%prefix%", Settings.IMP.MESSAGES.PREFIX ).replace( "%nl%", "\n" ) ) ) ), (byte) ChatMessageType.CHAT.ordinal() );
     }
 
     public static void spawnPlayer(Channel channel, int version, boolean disableFall)
