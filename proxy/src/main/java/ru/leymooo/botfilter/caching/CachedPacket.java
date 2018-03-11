@@ -28,21 +28,36 @@ public class CachedPacket
     {
         Protocol.DirectionData prot = protocol.TO_CLIENT;
         Protocol.DirectionData prot2 = secondProtocol == null ? null : secondProtocol.TO_CLIENT;
-
+        int oldPacketId = -1;
+        ByteBuf oldBuf = null;
         for ( int version : ProtocolConstants.SUPPORTED_VERSION_IDS )
         {
-            int packetId;
+            int newPacketId;
             try
             {
-                packetId = prot.getId( packet.getClass(), version );
+                newPacketId = prot.getId( packet.getClass(), version );
             } catch ( Exception e )
             {
-                packetId = prot2.getId( packet.getClass(), version );
+                newPacketId = prot2.getId( packet.getClass(), version );
             }
-            byteBuf[version] = PacketUtils.createPacket( packet, packetId, version );
-            // Создаем для каждой версии свой пакет,
-            // по сколько есть пакеты у которых одинаковые айдишки,
-            // но для разных версий записывается разная дата 
+            if ( newPacketId != oldPacketId )
+            {
+                oldPacketId = newPacketId;
+                oldBuf = PacketUtils.createPacket( packet, oldPacketId, version );
+                byteBuf[version] = oldBuf;
+            } else
+            {
+                ByteBuf newBuf = PacketUtils.createPacket( packet, oldPacketId, version );
+                if ( newBuf.equals( oldBuf ) )
+                {
+                    byteBuf[version] = oldBuf;
+                    newBuf.release();
+                } else
+                {
+                    oldBuf = newBuf;
+                    byteBuf[version] = oldBuf;
+                }
+            }
         }
     }
 
@@ -55,7 +70,7 @@ public class CachedPacket
     {
         for ( ByteBuf buf : byteBuf )
         {
-            if ( buf != null )
+            if ( buf != null && buf.refCnt() != 0 )
             {
                 buf.release();
             }

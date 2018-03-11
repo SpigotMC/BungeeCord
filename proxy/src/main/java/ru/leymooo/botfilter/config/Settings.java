@@ -13,7 +13,6 @@ public class Settings extends Config
 
     @Comment(
             {
-                "Первые 3 настройки не настраиваются",
                 "Все ошибки, баги, предложения и прочее просьба писать на гитхабе "
             })
     @Final
@@ -23,7 +22,7 @@ public class Settings extends Config
     @Final
     public int CONFIG_VERSION = 1;
     @Final
-    public String BOT_FILTER_VERSION = "3.0.3";
+    public String BOT_FILTER_VERSION = "3.0.4";
 
     @Create
     public MESSAGES MESSAGES;
@@ -39,7 +38,6 @@ public class Settings extends Config
         public String SUCCESSFULLY = "%prefix%&7>> &aПроверка пройдена, приятной игры";
         public String KICK_MANY_CHECKS = "%prefix%%nl%%nl%&cС вашего айпи замечена подозрительная активность%nl%%nl%&6Повторите попытку через 10 минут";
         public String KICK_NOT_PLAYER = "%prefix%%nl%%nl%&cВы не прошли проверку, возможно вы бот%nl%&7&oЕсли это не так, пожалуйста повторите попытку";
-        public String KICK_PROXY = "%prefix%%nl%%nl%&cОбнаружено использование VPN/Прокси";
         public String KICK_COUNTRY = "%prefix%%nl%%nl%&cВаша страна запрещена на серверве";
         public String KICK_BIG_PING = "%prefix%%nl%%nl%&cУ вас очень высокий пинг, скорее всего вы бот";
 
@@ -61,7 +59,7 @@ public class Settings extends Config
     public boolean SHOW_ONLINE = true;
 
     @Comment("Время суток во вермя проверки. https://minecraft.gamepedia.com/File:Day_Night_Clock_24h.png")
-    public int WORLD_TIME = 18000;
+    public int TIME = 13200;
 
     @Comment("Сколько времени есть у игрока чтобы пройти защиту. В миллисекундах. 1 сек = 1000")
     public int TIME_OUT = 12700;
@@ -152,23 +150,6 @@ public class Settings extends Config
 
             }
         };
-    }
-
-    @Create
-    public FAILED_IPS FAILED_IPS;
-
-    @Comment("Разрешать ли заходить тем кто праволил проверку больше 2х раз")
-    public static class FAILED_IPS
-    {
-
-        @Comment(
-                {
-                    "Когда работает проверка",
-                    "0 - Всегда(Крайне не рекомендуется)",
-                    "1 - Только во время бот атаки",
-                    "2 - Отключить"
-                })
-        public int MODE = 1;
     }
 
     @Create

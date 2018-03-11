@@ -1,4 +1,4 @@
-package ru.leymooo.botfilter.packets.unused;
+package ru.leymooo.botfilter.packets;
 
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;

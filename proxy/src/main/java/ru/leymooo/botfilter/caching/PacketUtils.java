@@ -24,6 +24,7 @@ import ru.leymooo.botfilter.packets.SpawnPosition;
 import ru.leymooo.botfilter.packets.TimeUpdate;
 import ru.leymooo.botfilter.config.Settings;
 import ru.leymooo.botfilter.packets.PlayerAbilities;
+import ru.leymooo.botfilter.packets.SetExp;
 import ru.leymooo.botfilter.packets.SetSlot;
 
 /**
@@ -37,13 +38,15 @@ public class PacketUtils
     0 - Login, 1 - SpawnPosition, 2 - ChunkData, 3 - TimeUpdate, 4 - PlayerAbilities,
     5 - PlayerPosAndLook, 6 - SetSlot(Map), 7 - SetSlot(Reset), 8 - KeepAlive,
     9 - 10 - CaptchaFailedMessage, 11 - checkMessage, 12 - captchaCheckMessage,
-    13 - CheckSus
+    13 - CheckSus, 14 - PlayerPosAndLook, 15 - SetExp(reset)
      */
-    public static CachedPacket[] packets = new CachedPacket[ 14 ];
+    public static CachedPacket[] packets = new CachedPacket[ 16 ];
     private static HashMap<KickType, CachedPacket> kickMessagesGame = new HashMap<KickType, CachedPacket>();
     private static HashMap<KickType, CachedPacket> kickMessagesLogin = new HashMap<KickType, CachedPacket>();
 
     public static CachedCaptcha captchas = new CachedCaptcha();
+
+    public static CachedExpPacket expPacket;
 
     public static ByteBuf createPacket(DefinedPacket packet, int id, int protocol)
     {
@@ -55,6 +58,10 @@ public class PacketUtils
 
     public static void init()
     {
+        if ( expPacket != null )
+        {
+            expPacket.release();
+        }
         for ( CachedPacket packet : packets )
         {
             if ( packet != null )
@@ -68,14 +75,16 @@ public class PacketUtils
         }
         kickMessagesGame.clear();
 
+        expPacket = new CachedExpPacket();
+
         DefinedPacket[] packets =
         {
-            new Login( -1, (short) 2, 0, (short) 0, (short) 100, "flat", true ), //0
+            new Login( 0, (short) 2, 0, (short) 0, (short) 100, "flat", false ), //0
             new SpawnPosition( 7, 60, 7 ), //1
             new ChunkPacket( 0, 0, new byte[ 256 ], false ), //2
-            new TimeUpdate( 1, Settings.IMP.WORLD_TIME ), //3
+            new TimeUpdate( 1, Settings.IMP.TIME ), //3
             new PlayerAbilities( (byte) 6, 0f, 0f ), //4
-            new PlayerPositionAndLook( 7.00, 450, 7.00, -5f, 48f, 9876, false ), //5
+            new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 40f, 9876, false ), //5
             new SetSlot( 0, 36, 358, 1, 0 ), //6
             new SetSlot( 0, 36, -1, 0, 0 ), //7
             new KeepAlive( 9876 ), //8
@@ -83,7 +92,9 @@ public class PacketUtils
             createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "1" ).replaceFirst( "%s", "попытка" ) ), //10
             createMessagePacket( Settings.IMP.MESSAGES.CHECKING ), //11
             createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA ), //12
-            createMessagePacket( Settings.IMP.MESSAGES.SUCCESSFULLY ) //13
+            createMessagePacket( Settings.IMP.MESSAGES.SUCCESSFULLY ), //13
+            new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 10f, 9876, false ), //14
+            new SetExp( 0, 0, 0 ), //15
 
         };
 
@@ -96,10 +107,8 @@ public class PacketUtils
 
         kickMessagesGame.put( KickType.PING, new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_BIG_PING ), kickGame ) );
         kickMessagesGame.put( KickType.NOTPLAYER, new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_NOT_PLAYER ), kickGame ) );
-        kickMessagesGame.put( KickType.PROXY, new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_PROXY ), kickGame ) );
         kickMessagesGame.put( KickType.COUNTRY, new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_COUNTRY ), kickGame ) );
         kickMessagesLogin.put( KickType.PING, new CachedPacket( createKickPacket( String.join( "", Settings.IMP.SERVER_PING_CHECK.KICK_MESSAGE ) ), kickLogin ) );
-        kickMessagesLogin.put( KickType.PROXY, new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_PROXY ), kickLogin ) );
         kickMessagesLogin.put( KickType.MANYCHECKS, new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_MANY_CHECKS ), kickLogin ) );
         kickMessagesLogin.put( KickType.COUNTRY, new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_COUNTRY ), kickLogin ) );
         BungeeCord bungee = BungeeCord.getInstance();
@@ -123,7 +132,7 @@ public class PacketUtils
                                 message.replace( "%prefix%", Settings.IMP.MESSAGES.PREFIX ).replace( "%nl%", "\n" ) ) ) ), (byte) ChatMessageType.CHAT.ordinal() );
     }
 
-    public static void spawnPlayer(Channel channel, int version, boolean disableFall)
+    public static void spawnPlayer(Channel channel, int version, boolean disableFall, boolean captcha)
     {
         channel.write( packets[0].get( version ), channel.voidPromise() ); //Login
         channel.write( packets[1].get( version ), channel.voidPromise() ); //SpawnPosition
@@ -132,7 +141,14 @@ public class PacketUtils
         {
             channel.write( packets[4].get( version ), channel.voidPromise() ); //PlayerAbilities
         }
-        channel.write( packets[5].get( version ), channel.voidPromise() ); //PlayerPosAndLook
+        if ( captcha )
+        {
+            channel.write( packets[5].get( version ), channel.voidPromise() ); //PlayerPosAndLook
+        } else
+        {
+            channel.write( packets[14].get( version ), channel.voidPromise() ); //PlayerPosAndLook
+
+        }
         channel.write( packets[3].get( version ), channel.voidPromise() ); //TimeUpdate
         //channel.flush(); Не очищяем поскольку это будет в другом месте
     }
@@ -157,7 +173,6 @@ public class PacketUtils
     {
         MANYCHECKS,
         NOTPLAYER,
-        PROXY,
         COUNTRY,
         THROTTLE,
         PING;

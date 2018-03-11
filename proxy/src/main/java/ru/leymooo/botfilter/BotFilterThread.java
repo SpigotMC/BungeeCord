@@ -41,17 +41,17 @@ public class BotFilterThread
                                 if ( ( currTime - connector.joinTime ) >= Settings.IMP.TIME_OUT )
                                 {
                                     connector.state = BotFilter.CheckState.FAILED;
-                                    PacketUtils.kickPlayer( KickType.NOTPLAYER, Protocol.GAME, connector.channelWrapper, connector.version );
+                                    PacketUtils.kickPlayer( KickType.NOTPLAYER, Protocol.GAME, connector.userConnection.getCh(), connector.version );
                                     BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: "
                                             .concat( connector.state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED
                                                     ? "Too long fall check" : "Captcha not entered" ), connector.name );
                                     continue;
                                 } else if ( state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED || state == BotFilter.CheckState.ONLY_POSITION )
                                 {
-                                    connector.channelWrapper.getHandle().writeAndFlush( PacketUtils.packets[11].get( connector.version ) );
+                                    connector.channel.writeAndFlush( PacketUtils.packets[11].get( connector.version ) );
                                 } else
                                 {
-                                    connector.channelWrapper.getHandle().writeAndFlush( PacketUtils.packets[12].get( connector.version ) );
+                                    connector.channel.writeAndFlush( PacketUtils.packets[12].get( connector.version ) );
                                 }
                                 connector.sendPing();
                         }

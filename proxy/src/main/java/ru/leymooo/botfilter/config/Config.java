@@ -23,9 +23,6 @@ import ru.leymooo.cfg.configuration.file.YamlConfiguration;
 public class Config
 {
 
-    @Ignore
-    HashMap<Class, Object> instances = new HashMap<>();
-
     public Config()
     {
         save( new PrintWriter( new ByteArrayOutputStream( 0 ) ), getClass(), this, 0 );
@@ -42,7 +39,7 @@ public class Config
     private void set(String key, Object value)
     {
         String[] split = key.split( "\\." );
-        Object instance = getInstance( split, this.getClass());
+        Object instance = getInstance( split, this.getClass() );
         if ( instance != null )
         {
             Field field = getField( split, instance );
@@ -74,7 +71,6 @@ public class Config
 
     public boolean load(File file)
     {
-        instances.clear();
         if ( !file.exists() )
         {
             return false;
@@ -166,20 +162,6 @@ public class Config
     }
 
     /**
-     * The names of any default blocks
-     */
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(
-            {
-                ElementType.FIELD, ElementType.TYPE
-            })
-    public @interface BlockName
-    {
-
-        String[] value();
-    }
-
-    /**
      * Any field or class with is not part of the config
      */
     @Retention(RetentionPolicy.RUNTIME)
@@ -265,7 +247,6 @@ public class Config
                     if ( value == null )
                     {
                         field.set( instance, value = current.newInstance() );
-                        instances.put( current, value );
                     }
                     save( writer, current, value, indent + 2 );
                 } else
@@ -347,21 +328,13 @@ public class Config
                             instance = value;
                             split = Arrays.copyOfRange( split, 1, split.length );
                             continue;
-
                         } catch ( NoSuchFieldException ignore )
                         {
-                        }
-                        if ( found != null )
-                        {
-                            split = Arrays.copyOfRange( split, 1, split.length );
-                            clazz = found;
-                            instance = clazz.newInstance();
-                            continue;
                         }
                         return null;
                 }
             }
-        } catch ( Throwable e )
+        } catch ( IllegalAccessException | IllegalArgumentException | InstantiationException | SecurityException e )
         {
             e.printStackTrace();
         }
