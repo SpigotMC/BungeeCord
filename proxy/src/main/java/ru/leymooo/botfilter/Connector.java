@@ -192,30 +192,28 @@ public class Connector extends MoveHandler
     @Override
     public void handle(Chat chat) throws Exception
     {
-        String message = chat.getMessage();
-        if ( message.length() > 256 )
+        if ( state != CheckState.CAPTCHA_ON_POSITION_FAILED )
         {
-            PacketUtils.kickPlayer( KickType.NOTPLAYER, Protocol.GAME, userConnection.getCh(), version );
-            BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Too long message", name );
-            return;
-        }
-        if ( message.length() > 4 )
-        {
-            --attemps;
-            channel.write( attemps == 2 ? PacketUtils.packets[9].get( version ) : PacketUtils.packets[10].get( version ), channel.voidPromise() );
-            sendCaptcha();
-        } else if ( message.replace( "/", "" ).equals( String.valueOf( captchaAnswer ) ) )
-        {
-            completeCheck();
-        } else if ( --attemps != 0 )
-        {
-            channel.write( attemps == 2 ? PacketUtils.packets[9].get( version ) : PacketUtils.packets[10].get( version ), channel.voidPromise() );
-            sendCaptcha();
-        } else
-        {
-            state = CheckState.FAILED;
-            PacketUtils.kickPlayer( KickType.NOTPLAYER, Protocol.GAME, userConnection.getCh(), version );
-            BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Failed captcha check", name );
+            String message = chat.getMessage();
+            if ( message.length() > 256 )
+            {
+                PacketUtils.kickPlayer( KickType.NOTPLAYER, Protocol.GAME, userConnection.getCh(), version );
+                BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Too long message", name );
+                return;
+            }
+            if ( message.replace( "/", "" ).equals( String.valueOf( captchaAnswer ) ) )
+            {
+                completeCheck();
+            } else if ( --attemps != 0 )
+            {
+                channel.write( attemps == 2 ? PacketUtils.packets[9].get( version ) : PacketUtils.packets[10].get( version ), channel.voidPromise() );
+                sendCaptcha();
+            } else
+            {
+                state = CheckState.FAILED;
+                PacketUtils.kickPlayer( KickType.NOTPLAYER, Protocol.GAME, userConnection.getCh(), version );
+                BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Failed captcha check", name );
+            }
         }
     }
 

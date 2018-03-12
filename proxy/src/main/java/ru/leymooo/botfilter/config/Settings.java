@@ -22,7 +22,7 @@ public class Settings extends Config
     @Final
     public int CONFIG_VERSION = 1;
     @Final
-    public String BOT_FILTER_VERSION = "3.0.4";
+    public String BOT_FILTER_VERSION = "3.0.5";
 
     @Create
     public MESSAGES MESSAGES;
@@ -106,7 +106,7 @@ public class Settings extends Config
                 })
         public int MODE = 1;
         @Comment("Максимальный допустимый пинг")
-        public int MAX_PING = 330;
+        public int MAX_PING = 350;
     }
 
     @Create
@@ -121,9 +121,10 @@ public class Settings extends Config
                     "Когда работает проверка",
                     "0 - Всегда",
                     "1 - Только во время бот атаки",
-                    "2 - Отключить"
+                    "2 - Отключить",
+                    "По умолчанию отключено, по скольку работает не очень стабильно, во время сильных атак"
                 })
-        public int MODE = 1;
+        public int MODE = 2;
         @Comment("В течении какого времени можно заходить на сервер после получения мотд сервера")
         public int CACHE_TIME = 12;
         public List<String> KICK_MESSAGE = new ArrayList()

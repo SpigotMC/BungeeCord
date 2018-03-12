@@ -97,7 +97,7 @@ import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.fusesource.jansi.AnsiConsole;
 import ru.leymooo.botfilter.BotFilter;
 import ru.leymooo.botfilter.config.Settings;
-import ru.leymooo.fakeonline.FakeOnline;
+import ru.leymooo.botfilter.utils.FakeOnlineUtils;
 
 /**
  * Main BungeeCord proxy class.
@@ -267,7 +267,7 @@ public class BungeeCord extends ProxyServer
         customBungeeName = ( nameProperty == null ? getName() : nameProperty ) + " " + getGameVersion(); // BotFilter
 
         new BotFilter( true ); //Hook BotFilter into Bungee
-        new FakeOnline(); //Init fake online
+        new FakeOnlineUtils(); //Init fake online
 
         bossEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Boss IO Thread #%1$d" ).build() ); //BotFilter //WaterFall backport
         workerEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Worker IO Thread #%1$d" ).build() );//BotFilter //WaterFall backport
@@ -561,7 +561,7 @@ public class BungeeCord extends ProxyServer
         int online = connections.size();
         if ( fake )
         {
-            online = FakeOnline.getInstance().getFakeOnline( online );
+            online = FakeOnlineUtils.getInstance().getFakeOnline( online );
         }
         if ( Settings.IMP.SHOW_ONLINE )
         {

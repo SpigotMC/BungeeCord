@@ -23,7 +23,7 @@ public class BotFilterCommand extends Command
         }
         if ( args.length == 0 )
         {
-            sender.sendMessage( "§r--------------- §bBotFilter §r-----------------" );
+            sender.sendMessage( "§r--------------- §bBotFilter §cv" + Settings.IMP.BOT_FILTER_VERSION + "§r-----------------" );
             sender.sendMessage( "§r> §lbotfilter reload §6- §aПерезагружить конфиг" );
             sender.sendMessage( "§r> §lbotfilter stat §6- §aПоказать статистику" );
             sender.sendMessage( "§r--------------- §bBotFilter §r-----------------" );

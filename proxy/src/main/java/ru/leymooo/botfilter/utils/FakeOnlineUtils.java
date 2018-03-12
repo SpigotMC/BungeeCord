@@ -1,4 +1,4 @@
-package ru.leymooo.fakeonline;
+package ru.leymooo.botfilter.utils;
 
 import java.util.logging.Level;
 import lombok.Getter;
@@ -8,15 +8,15 @@ import net.md_5.bungee.BungeeCord;
  *
  * @author Leymooo
  */
-public class FakeOnline
+public class FakeOnlineUtils
 {
 
     @Getter
-    private static FakeOnline instance;
+    private static FakeOnlineUtils instance;
     private boolean enabled = false;
     private float multiple = 1.0f;
 
-    public FakeOnline()
+    public FakeOnlineUtils()
     {
         instance = this;
         String boost = System.getProperty( "onlineBooster" );

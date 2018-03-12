@@ -20,8 +20,8 @@ public class ServerPingUtils
     public ServerPingUtils()
     {
         pingList = CacheBuilder.newBuilder()
-                .concurrencyLevel( 2 )
-                .initialCapacity( 40 )
+                .concurrencyLevel( Runtime.getRuntime().availableProcessors() )
+                .initialCapacity( 100 )
                 .expireAfterWrite( Settings.IMP.SERVER_PING_CHECK.CACHE_TIME, TimeUnit.SECONDS )
                 .build();
     }
