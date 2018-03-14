@@ -292,7 +292,7 @@ public class ServerConnector extends PacketHandler
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
             obsolete = true;
-            user.connect( event.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT_HANDSHAKE );
+            user.connect( event.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT );
             throw CancelSendSignal.INSTANCE;
         }
 

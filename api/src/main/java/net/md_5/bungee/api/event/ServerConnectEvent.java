@@ -71,11 +71,6 @@ public class ServerConnectEvent extends Event implements Cancellable
          */
         KICK_REDIRECT,
         /**
-         * Redirecting to another server when kicked from server during the
-         * handshake.
-         */
-        KICK_REDIRECT_HANDSHAKE,
-        /**
          * Plugin message request.
          */
         PLUGIN_MESSAGE,
