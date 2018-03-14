@@ -5,8 +5,28 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class ComponentsTest
 {
+
+    @Test
+    public void testLegacyComponentBuilderAppend()
+    {
+        String text = "§a§lHello §r§kworld§7!";
+        BaseComponent[] components = TextComponent.fromLegacyText( text );
+        BaseComponent[] builderComponents = new ComponentBuilder( "" ).append( components ).create();
+        List<BaseComponent> list = new ArrayList<BaseComponent>( Arrays.asList( builderComponents ) );
+        // Remove the first element (empty text component). This needs to be done because toLegacyText always
+        // appends &f regardless if the color is non null or not and would otherwise mess with our unit test.
+        list.remove( 0 );
+        Assert.assertEquals(
+            TextComponent.toLegacyText( components ),
+            TextComponent.toLegacyText( list.toArray( new BaseComponent[ list.size() ] ) )
+        );
+    }
 
     @Test
     public void testComponentFormatRetention()
