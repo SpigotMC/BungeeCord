@@ -57,7 +57,10 @@ public abstract class TabList
                 {
                     player.setGamemode( item.getGamemode() );
                 }
-                player.setPing( player.getPing() );
+                if ( playerListItem.getAction() == PlayerListItem.Action.ADD_PLAYER || playerListItem.getAction() == PlayerListItem.Action.UPDATE_LATENCY )
+                {
+                    player.setPing( item.getPing() );
+                }
             }
         }
         return playerListItem;

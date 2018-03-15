@@ -61,6 +61,7 @@ import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
 import net.md_5.bungee.util.CaseInsensitiveSet;
+import net.md_5.bungee.util.ChatComponentTransformer;
 
 @RequiredArgsConstructor
 public final class UserConnection implements ProxiedPlayer
@@ -404,6 +405,9 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendMessage(ChatMessageType position, BaseComponent... message)
     {
+        // transform score components
+        message = ChatComponentTransformer.getInstance().transform( this, message );
+
         // Action bar doesn't display the new JSON formattings, legacy works - send it using this for now
         if ( position == ChatMessageType.ACTION_BAR )
         {
@@ -417,6 +421,8 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendMessage(ChatMessageType position, BaseComponent message)
     {
+        message = ChatComponentTransformer.getInstance().transform( this, message )[0];
+
         // Action bar doesn't display the new JSON formattings, legacy works - send it using this for now
         if ( position == ChatMessageType.ACTION_BAR )
         {
@@ -594,23 +600,27 @@ public final class UserConnection implements ProxiedPlayer
         return ImmutableMap.copyOf( forgeClientHandler.getClientModList() );
     }
 
-    private static final String EMPTY_TEXT = ComponentSerializer.toString( new TextComponent( "" ) );
-
     @Override
     public void setTabHeader(BaseComponent header, BaseComponent footer)
     {
+        header = ChatComponentTransformer.getInstance().transform( this, header )[0];
+        footer = ChatComponentTransformer.getInstance().transform( this, footer )[0];
+
         unsafe().sendPacket( new PlayerListHeaderFooter(
-                ( header != null ) ? ComponentSerializer.toString( header ) : EMPTY_TEXT,
-                ( footer != null ) ? ComponentSerializer.toString( footer ) : EMPTY_TEXT
+                ComponentSerializer.toString( header ),
+                ComponentSerializer.toString( footer )
         ) );
     }
 
     @Override
     public void setTabHeader(BaseComponent[] header, BaseComponent[] footer)
     {
+        header = ChatComponentTransformer.getInstance().transform( this, header );
+        footer = ChatComponentTransformer.getInstance().transform( this, footer );
+
         unsafe().sendPacket( new PlayerListHeaderFooter(
-                ( header != null ) ? ComponentSerializer.toString( header ) : EMPTY_TEXT,
-                ( footer != null ) ? ComponentSerializer.toString( footer ) : EMPTY_TEXT
+                ComponentSerializer.toString( header ),
+                ComponentSerializer.toString( footer )
         ) );
     }
 
@@ -646,5 +656,11 @@ public final class UserConnection implements ProxiedPlayer
     public boolean isConnected()
     {
         return !ch.isClosed();
+    }
+
+    @Override
+    public Scoreboard getScoreboard()
+    {
+        return serverSentScoreboard;
     }
 }

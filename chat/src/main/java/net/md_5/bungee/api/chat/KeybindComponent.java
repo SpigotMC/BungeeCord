@@ -35,7 +35,7 @@ public class KeybindComponent extends BaseComponent
      * Creates a keybind component with the passed internal keybind value.
      *
      * @param keybind the keybind value
-     * @see Keybind
+     * @see Keybinds
      */
     public KeybindComponent(String keybind)
     {
@@ -46,12 +46,6 @@ public class KeybindComponent extends BaseComponent
     public BaseComponent duplicate()
     {
         return new KeybindComponent( this );
-    }
-
-    @Override
-    public BaseComponent duplicateWithoutFormatting()
-    {
-        return new KeybindComponent( keybind );
     }
 
     @Override
