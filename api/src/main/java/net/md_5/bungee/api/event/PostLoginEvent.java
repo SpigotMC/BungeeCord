@@ -3,6 +3,7 @@ package net.md_5.bungee.api.event;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Event;
 
@@ -20,4 +21,6 @@ public class PostLoginEvent extends Event
      * The player involved with this event.
      */
     private final ProxiedPlayer player;
+    private ServerInfo target = null;
+
 }
