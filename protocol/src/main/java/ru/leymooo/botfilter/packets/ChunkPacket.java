@@ -45,7 +45,8 @@ public class ChunkPacket extends DefinedPacket
         if ( version <= ProtocolConstants.MINECRAFT_1_7_6 )
         {
             buf.writeInt( data.length );
-        } else {
+        } else
+        {
             DefinedPacket.writeVarInt( data.length, buf );
         }
         buf.writeBytes( this.data );

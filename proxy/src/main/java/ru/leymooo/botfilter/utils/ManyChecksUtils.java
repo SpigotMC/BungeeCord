@@ -22,7 +22,7 @@ public class ManyChecksUtils
     public static void IncreaseOrAdd(InetAddress address)
     {
         Integer numOfCon = connections.getIfPresent( address );
-        if ( numOfCon >= 3 )
+        if ( numOfCon != null && numOfCon >= 3 )
         {
             return;
         }

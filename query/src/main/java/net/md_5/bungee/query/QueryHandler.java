@@ -110,7 +110,7 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
                 data.put( "gametype", "SMP" );
                 // Start Extra Info
                 data.put( "game_id", "MINECRAFT" );
-                data.put( "version", "BotFilter " + bungee.getGameVersion() + " by vk.com Leymooo_s" ); //BotFilter
+                data.put( "version", bungee.getCustomBungeeName() ); //BotFilter
                 data.put( "plugins", "" );
                 // End Extra Info
                 data.put( "map", "BotFilter_by_vk.com/Leymooo_s" ); //BotFilter

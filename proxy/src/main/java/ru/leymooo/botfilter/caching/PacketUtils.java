@@ -20,7 +20,6 @@ import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Login;
 import ru.leymooo.botfilter.packets.ChunkPacket;
 import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
-import ru.leymooo.botfilter.packets.unused.SpawnPosition;
 import ru.leymooo.botfilter.packets.TimeUpdate;
 import ru.leymooo.botfilter.config.Settings;
 import ru.leymooo.botfilter.packets.PlayerAbilities;

@@ -309,4 +309,5 @@ public abstract class ProxyServer
      */
     public abstract Title createTitle();
 
+    public abstract String getCustomBungeeName(); //BotFilter
 }
