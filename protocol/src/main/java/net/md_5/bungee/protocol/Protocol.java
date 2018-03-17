@@ -45,7 +45,7 @@ import ru.leymooo.botfilter.packets.PlayerPosition;
 import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
 import ru.leymooo.botfilter.packets.SetExp;
 import ru.leymooo.botfilter.packets.SetSlot;
-import ru.leymooo.botfilter.packets.SpawnPosition;
+import ru.leymooo.botfilter.packets.unused.SpawnPosition;
 import ru.leymooo.botfilter.packets.TimeUpdate;
 
 public enum Protocol
@@ -268,6 +268,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x23 ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x23 )
             );
+            /*
             TO_CLIENT.registerPacket(
                     SpawnPosition.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x05 ),
@@ -275,6 +276,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12, 0x45 ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x46 )
             );
+            */
             TO_CLIENT.registerPacket(
                     TimeUpdate.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x03 ),

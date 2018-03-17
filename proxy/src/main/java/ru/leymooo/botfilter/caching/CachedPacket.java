@@ -26,6 +26,10 @@ public class CachedPacket
 
     private void cache(DefinedPacket packet, Protocol protocol, Protocol secondProtocol)
     {
+        if ( packet == null )
+        {
+            return;
+        }
         Protocol.DirectionData prot = protocol.TO_CLIENT;
         Protocol.DirectionData prot2 = secondProtocol == null ? null : secondProtocol.TO_CLIENT;
         int oldPacketId = -1;

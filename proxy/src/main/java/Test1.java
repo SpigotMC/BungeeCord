@@ -6,7 +6,7 @@ import ru.leymooo.botfilter.packets.ChunkPacket;
 import ru.leymooo.botfilter.packets.PlayerAbilities;
 import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
 import ru.leymooo.botfilter.packets.SetSlot;
-import ru.leymooo.botfilter.packets.SpawnPosition;
+import ru.leymooo.botfilter.packets.unused.SpawnPosition;
 
 /*
  * To change this template, choose Tools | Templates

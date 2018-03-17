@@ -20,7 +20,7 @@ import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Login;
 import ru.leymooo.botfilter.packets.ChunkPacket;
 import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
-import ru.leymooo.botfilter.packets.SpawnPosition;
+import ru.leymooo.botfilter.packets.unused.SpawnPosition;
 import ru.leymooo.botfilter.packets.TimeUpdate;
 import ru.leymooo.botfilter.config.Settings;
 import ru.leymooo.botfilter.packets.PlayerAbilities;
@@ -35,7 +35,7 @@ public class PacketUtils
 {
 
     /*
-    0 - Login, 1 - SpawnPosition, 2 - ChunkData, 3 - TimeUpdate, 4 - PlayerAbilities,
+    0 - Login, 1 - SpawnPosition(null), 2 - ChunkData, 3 - TimeUpdate, 4 - PlayerAbilities,
     5 - PlayerPosAndLook, 6 - SetSlot(Map), 7 - SetSlot(Reset), 8 - KeepAlive,
     9 - 10 - CaptchaFailedMessage, 11 - checkMessage, 12 - captchaCheckMessage,
     13 - CheckSus, 14 - PlayerPosAndLook, 15 - SetExp(reset)
@@ -80,7 +80,7 @@ public class PacketUtils
         DefinedPacket[] packets =
         {
             new Login( 0, (short) 2, 0, (short) 0, (short) 100, "flat", false ), //0
-            new SpawnPosition( 7, 60, 7 ), //1
+            null, //1
             new ChunkPacket( 0, 0, new byte[ 256 ], false ), //2
             new TimeUpdate( 1, Settings.IMP.TIME ), //3
             new PlayerAbilities( (byte) 6, 0f, 0f ), //4
@@ -135,7 +135,6 @@ public class PacketUtils
     public static void spawnPlayer(Channel channel, int version, boolean disableFall, boolean captcha)
     {
         channel.write( packets[0].get( version ), channel.voidPromise() ); //Login
-        channel.write( packets[1].get( version ), channel.voidPromise() ); //SpawnPosition
         channel.write( packets[2].get( version ), channel.voidPromise() ); //ChunkData
         if ( disableFall )
         {
