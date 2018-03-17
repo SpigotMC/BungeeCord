@@ -31,6 +31,7 @@ public class PlayerPositionAndLook extends DefinedPacket
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         buf.writeDouble( this.x );
+        buf.writeDouble( this.y );
         buf.writeDouble( this.z );
         buf.writeFloat( this.yaw );
         buf.writeFloat( this.pitch );

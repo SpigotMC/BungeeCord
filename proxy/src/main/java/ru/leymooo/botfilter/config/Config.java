@@ -13,12 +13,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.md_5.bungee.BungeeCord;
-import ru.leymooo.cfg.configuration.MemorySection;
-import ru.leymooo.cfg.configuration.file.YamlConfiguration;
+import net.md_5.bungee.config.Configuration;
+import net.md_5.bungee.config.ConfigurationProvider;
+import net.md_5.bungee.config.YamlConfiguration;
 
 public class Config
 {
@@ -75,24 +76,40 @@ public class Config
         {
             return false;
         }
-        YamlConfiguration yml = YamlConfiguration.loadConfiguration( file );
-        for ( String key : yml.getKeys( true ) )
+        Configuration yml;
+        try
         {
-            Object value = yml.get( key );
-            if ( value instanceof MemorySection )
-            {
-                continue;
-            }
-            set( key, value );
+            yml = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( file );
+        } catch ( IOException ex )
+        {
+            BungeeCord.getInstance().getLogger().log( Level.WARNING, "[BotFilter] Не могу загрузить конфиг ", ex );
+            return false;
         }
+        set( yml, "" );
         return true;
     }
 
+    public void set(Configuration yml, String oldPath)
+    {
+        for ( String key : yml.getKeys() )
+        {
+            Object value = yml.get( key );
+            String newPath = oldPath + ( oldPath.isEmpty() ? "" : "." ) + key;
+            if ( value instanceof Configuration )
+            {
+                set( (Configuration) value, newPath );
+                continue;
+            }
+            set( newPath, value );
+        }
+    }
+
+    /*
     public int getConfigVersion(File file)
     {
         return YamlConfiguration.loadConfiguration( file ).getInt( "config-version", 0 );
     }
-
+     */
     /**
      * Set all values in the file (load first to avoid overwriting)
      *
