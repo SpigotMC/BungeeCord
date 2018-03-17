@@ -5,8 +5,6 @@ import java.util.List;
 
 public class ProtocolConstants
 {
-    public static final int MINECRAFT_1_7_2 = 4;
-    public static final int MINECRAFT_1_7_6 = 5;
     public static final int MINECRAFT_1_8 = 47;
     public static final int MINECRAFT_1_9 = 107;
     public static final int MINECRAFT_1_9_1 = 108;

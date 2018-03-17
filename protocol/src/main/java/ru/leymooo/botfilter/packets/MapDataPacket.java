@@ -26,32 +26,18 @@ public class MapDataPacket extends DefinedPacket
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_8 )
+        MapDataPacket.writeVarInt( this.mapId, buf );
+        buf.writeByte( this.scale );
+        MapDataPacket.writeVarInt( 0, buf );
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
         {
-            MapDataPacket.writeVarInt( this.mapId, buf );
-
-            buf.writeByte( this.scale );
-            MapDataPacket.writeVarInt( 0, buf );
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
-            {
-                buf.writeBoolean( false );
-            }
-            buf.writeByte( data.getColumns() );
-            buf.writeByte( data.getRows() );
-            buf.writeByte( data.getX() );
-            buf.writeByte( data.getY() );
-            MapDataPacket.writeVarInt( data.getData().length, buf );
-            buf.writeBytes( data.getData() );
-        } else //1.7
-        {
-            byte[] data = new byte[ this.data.getData().length + 3 ];
-            data[0] = 0;
-            data[1] = (byte) this.data.getX();
-            data[2] = (byte) this.data.getY();
-            System.arraycopy( this.data.getData(), 0, data, 3, data.length - 3 );
-            buf.writeShort( data.length );
-            buf.writeBytes( data );
+            buf.writeBoolean( false );
         }
+        buf.writeByte( data.getColumns() );
+        buf.writeByte( data.getRows() );
+        buf.writeByte( data.getX() );
+        buf.writeByte( data.getY() );
+        writeArray( data.getData(), buf);
     }
 
     @Override

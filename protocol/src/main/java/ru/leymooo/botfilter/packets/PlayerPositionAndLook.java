@@ -31,7 +31,6 @@ public class PlayerPositionAndLook extends DefinedPacket
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         buf.writeDouble( this.x );
-        buf.writeDouble( protocolVersion <= ProtocolConstants.MINECRAFT_1_7_6 ? this.y + 1.62 : this.y );
         buf.writeDouble( this.z );
         buf.writeFloat( this.yaw );
         buf.writeFloat( this.pitch );
@@ -47,10 +46,6 @@ public class PlayerPositionAndLook extends DefinedPacket
     {
         this.x = buf.readDouble();
         this.y = buf.readDouble();
-        if ( protocolVersion <= ProtocolConstants.MINECRAFT_1_7_6 )
-        {
-            buf.readBoolean();
-        }
         this.z = buf.readDouble();
         this.yaw = buf.readFloat();
         this.pitch = buf.readFloat();

@@ -24,15 +24,8 @@ public class SetExp extends DefinedPacket
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         buf.writeFloat( this.expBar );
-        if ( protocolVersion <= ProtocolConstants.MINECRAFT_1_7_6 )
-        {
-            buf.writeShort( level );
-            buf.writeShort( totalExp );
-        } else
-        {
-            DefinedPacket.writeVarInt( level, buf );
-            DefinedPacket.writeVarInt( totalExp, buf );
-        }
+        DefinedPacket.writeVarInt( level, buf );
+        DefinedPacket.writeVarInt( totalExp, buf );
     }
 
     @Override
