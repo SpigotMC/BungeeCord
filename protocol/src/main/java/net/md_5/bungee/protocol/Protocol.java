@@ -45,7 +45,6 @@ import ru.leymooo.botfilter.packets.PlayerPosition;
 import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
 import ru.leymooo.botfilter.packets.SetExp;
 import ru.leymooo.botfilter.packets.SetSlot;
-import ru.leymooo.botfilter.packets.unused.SpawnPosition;
 import ru.leymooo.botfilter.packets.TimeUpdate;
 
 public enum Protocol

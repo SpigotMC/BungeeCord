@@ -6,7 +6,6 @@ import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import ru.leymooo.botfilter.Connector;
 import ru.leymooo.botfilter.packets.SetExp;
-import ru.leymooo.botfilter.packets.SetSlot;
 
 /**
  *

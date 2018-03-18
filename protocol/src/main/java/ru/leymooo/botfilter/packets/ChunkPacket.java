@@ -1,7 +1,6 @@
 package ru.leymooo.botfilter.packets;
 
 import io.netty.buffer.ByteBuf;
-import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

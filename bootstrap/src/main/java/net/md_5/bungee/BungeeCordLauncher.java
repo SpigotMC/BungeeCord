@@ -1,13 +1,7 @@
 package net.md_5.bungee;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.security.Security;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
