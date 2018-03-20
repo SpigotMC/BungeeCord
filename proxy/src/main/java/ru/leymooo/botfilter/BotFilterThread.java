@@ -1,5 +1,6 @@
 package ru.leymooo.botfilter;
 
+import java.util.HashSet;
 import java.util.logging.Level;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.protocol.Protocol;
@@ -22,6 +23,7 @@ public class BotFilterThread
         {
             while ( !Thread.currentThread().isInterrupted() && sleep() )
             {
+                HashSet<String> toRemove = new HashSet<>();
                 try
                 {
                     long currTime = System.currentTimeMillis();
@@ -29,6 +31,7 @@ public class BotFilterThread
                     {
                         if ( !connector.isConnected() )
                         {
+                            toRemove.add( connector.getName() );
                             continue;
                         }
                         BotFilter.CheckState state = connector.state;
@@ -36,6 +39,7 @@ public class BotFilterThread
                         {
                             case SUCCESSFULLY:
                             case FAILED:
+                                toRemove.add( connector.getName() );
                                 continue;
                             default:
                                 if ( ( currTime - connector.joinTime ) >= Settings.IMP.TIME_OUT )
@@ -45,6 +49,7 @@ public class BotFilterThread
                                     BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: "
                                             .concat( connector.state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED
                                                     ? "Too long fall check" : "Captcha not entered" ), connector.name );
+                                    connector.markDisconnected = true;
                                     continue;
                                 } else if ( state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED || state == BotFilter.CheckState.ONLY_POSITION )
                                 {
@@ -56,9 +61,18 @@ public class BotFilterThread
                                 connector.sendPing();
                         }
                     }
+
                 } catch ( Exception e )
                 {
                     BungeeCord.getInstance().getLogger().log( Level.WARNING, "[BotFilter] Непонятная ошибка. Пожалуйста отправте ёё разработчику!", e );
+                } finally
+                {
+                    for ( String remove : toRemove )
+                    {
+                        BotFilter.getInstance().removeConnection( remove, null );
+                    }
+                    toRemove.clear();
+                    toRemove = null;
                 }
             }
 
@@ -67,7 +81,7 @@ public class BotFilterThread
 
     public static void stop()
     {
-        if ( thread != null && thread.isAlive() )
+        if ( thread != null )
         {
             thread.interrupt();
         }

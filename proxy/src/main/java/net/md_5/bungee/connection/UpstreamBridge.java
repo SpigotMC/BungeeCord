@@ -40,6 +40,15 @@ public class UpstreamBridge extends PacketHandler
         BungeeCord.getInstance().addConnection( con );
         con.getTabListHandler().onConnect();
         con.unsafe().sendPacket( BungeeCord.getInstance().registerChannels() );
+
+        //BotFilter start
+        if ( con.isCallSettingsEvent() )
+        {
+            SettingsChangedEvent settingsEvent = new SettingsChangedEvent( con );
+            bungee.getPluginManager().callEvent( settingsEvent );
+            con.setCallSettingsEvent( false );
+        }
+        //BotFilter end
     }
 
     @Override

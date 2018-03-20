@@ -7,9 +7,11 @@ import java.util.logging.Level;
 import lombok.EqualsAndHashCode;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
+import net.md_5.bungee.Util;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.Chat;
+import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import ru.leymooo.botfilter.BotFilter.CheckState;
 import ru.leymooo.botfilter.caching.PacketUtils;
@@ -38,6 +40,7 @@ public class Connector extends MoveHandler
     public int version;
     private int aticks = 0, sentPings = 0, captchaAnswer, attemps = 3;
     public long joinTime = System.currentTimeMillis(), lastSend = 0, totalping = 9999;
+    public boolean markDisconnected = false;
 
     public CheckState state = BotFilter.getInstance().getCurrentCheckState();
     public Channel channel;
@@ -69,25 +72,36 @@ public class Connector extends MoveHandler
     }
 
     @Override
+    public void exception(Throwable t) throws Exception
+    {
+        markDisconnected = true;
+        if ( state == CheckState.FAILED )
+        {
+            channel.close();
+        } else
+        {
+            this.userConnection.disconnect( Util.exception( t ) );
+        }
+        disconnected();
+    }
+
+    @Override
     public void disconnected(ChannelWrapper channel) throws Exception
     {
         BotFilter.getInstance().removeConnection( null, this );
-        disconnected( true );
+        disconnected();
     }
 
     @Override
     public void handlerChanged()
     {
-        disconnected( true );
+        disconnected();
     }
 
-    private void disconnected(boolean finnaly)
+    private void disconnected()
     {
-        if ( finnaly )
-        {
-            userConnection = null;
-        }
         channel = null;
+        userConnection = null;
     }
 
     public void completeCheck()
@@ -103,6 +117,7 @@ public class Connector extends MoveHandler
                 state = CheckState.FAILED;
                 PacketUtils.kickPlayer( PacketUtils.KickType.NOTPLAYER, Protocol.GAME, userConnection.getCh(), version );
                 BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Too fast check passed", name );
+                markDisconnected = true;
             }
             return;
         }
@@ -110,20 +125,22 @@ public class Connector extends MoveHandler
                 (int) ( totalping / ( lastSend == 0 ? sentPings : sentPings - 1 ) ) );
         if ( type != null )
         {
+            state = CheckState.FAILED;
             PacketUtils.kickPlayer( type, Protocol.GAME, userConnection.getCh(), version );
             BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: {1}", new Object[]
             {
                 name, type == KickType.COUNTRY ? "Country is not allowed" : "Big ping"
             } );
+            markDisconnected = true;
             return;
         }
         state = CheckState.SUCCESSFULLY;
+        BotFilter.getInstance().removeConnection( null, this );
         channel.writeAndFlush( PacketUtils.packets[13].get( version ), channel.voidPromise() );
         BotFilter.getInstance().saveUser( getName(), IPUtils.getAddress( userConnection ) );
-        BotFilter.getInstance().removeConnection( null, this );
         userConnection.setNeedLogin( false );
         userConnection.getPendingConnection().finishLogin( userConnection );
-        disconnected( false );
+        markDisconnected = true;
     }
 
     @Override
@@ -155,6 +172,7 @@ public class Connector extends MoveHandler
                 state = CheckState.FAILED;
                 PacketUtils.kickPlayer( PacketUtils.KickType.NOTPLAYER, Protocol.GAME, userConnection.getCh(), userConnection.getPendingConnection().getVersion() );
                 BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Failed position check", name );
+                markDisconnected = true;
             }
             return;
         }
@@ -197,8 +215,10 @@ public class Connector extends MoveHandler
             String message = chat.getMessage();
             if ( message.length() > 256 )
             {
+                state = CheckState.FAILED;
                 PacketUtils.kickPlayer( KickType.NOTPLAYER, Protocol.GAME, userConnection.getCh(), version );
                 BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Too long message", name );
+                markDisconnected = true;
                 return;
             }
             if ( message.replace( "/", "" ).equals( String.valueOf( captchaAnswer ) ) )
@@ -213,8 +233,16 @@ public class Connector extends MoveHandler
                 state = CheckState.FAILED;
                 PacketUtils.kickPlayer( KickType.NOTPLAYER, Protocol.GAME, userConnection.getCh(), version );
                 BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Failed captcha check", name );
+                markDisconnected = true;
             }
         }
+    }
+
+    @Override
+    public void handle(ClientSettings settings) throws Exception
+    {
+        this.userConnection.setSettings( settings );
+        this.userConnection.setCallSettingsEvent( true );
     }
 
     @Override
@@ -227,6 +255,7 @@ public class Connector extends MoveHandler
                 state = CheckState.FAILED;
                 PacketUtils.kickPlayer( KickType.NOTPLAYER, Protocol.GAME, userConnection.getCh(), version );
                 BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Tried send fake ping", name );
+                markDisconnected = true;
                 return;
             }
             long ping = System.currentTimeMillis() - lastSend;
@@ -259,7 +288,7 @@ public class Connector extends MoveHandler
 
     public boolean isConnected()
     {
-        return userConnection != null && channel != null && userConnection.isConnected();
+        return userConnection != null && channel != null && !markDisconnected && userConnection.isConnected();
     }
 
     @Override

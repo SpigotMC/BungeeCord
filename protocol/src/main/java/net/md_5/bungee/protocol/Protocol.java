@@ -275,7 +275,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12, 0x45 ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x46 )
             );
-            */
+             */
             TO_CLIENT.registerPacket(
                     TimeUpdate.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x03 ),
@@ -359,6 +359,13 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12, 0x11 )
             );
              */
+            TO_SERVER.registerPacket(
+                    ClientSettings.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x15 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x04 ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x05 ),
+                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x04 )
+            );
             TO_SERVER.registerPacket(
                     TeleportConfirm.class,
                     map( ProtocolConstants.MINECRAFT_1_9, 0x00 ),

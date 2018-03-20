@@ -295,7 +295,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 // Ping
                 thisState = State.STATUS;
                 ch.setProtocol( Protocol.STATUS );
-                BotFilter.getInstance().getServerPingUtils().add( getAddress().getAddress() );
+                BotFilter.getInstance().getServerPingUtils().add( getAddress().getAddress() ); //BotFilter
                 break;
             case 2:
                 // Login
@@ -332,8 +332,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
                 if ( bungee.getConnectionThrottle() != null && bungee.getConnectionThrottle().throttle( getAddress().getAddress() ) )
                 {
-                    PacketUtils.kickPlayer( KickType.THROTTLE, Protocol.LOGIN, ch, getVersion() );
-                    bungee.getLogger().log( Level.INFO, "[{0}] disconnected: Connection is throttled", getAddress().getAddress().getHostAddress() );
+                    PacketUtils.kickPlayer( KickType.THROTTLE, Protocol.LOGIN, ch, getVersion() ); //BotFilter
+                    bungee.getLogger().log( Level.INFO, "[{0}] disconnected: Connection is throttled", getAddress().getAddress().getHostAddress() ); //BotFilter
                 }
                 break;
             default:
@@ -516,18 +516,17 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
         userCon.init();
 
-        bungee.getLogger().log( Level.INFO, "{0} has connected", InitialHandler.this );
-
         unsafe.sendPacket( new LoginSuccess( getUniqueId().toString(), getName() ) ); // With dashes in between
 
         ch.setProtocol( Protocol.GAME );
-        
+
         //BotFiler start
         if ( BotFilter.getInstance().needCheck( getName(), getAddress().getAddress() ) )
         {
             ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new Connector( userCon ) );
         } else
         {
+            bungee.getLogger().log( Level.INFO, "{0} has connected", InitialHandler.this );
             finishLogin( userCon );
         }
     }
