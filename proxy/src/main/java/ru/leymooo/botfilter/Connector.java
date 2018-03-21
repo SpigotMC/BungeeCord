@@ -114,10 +114,7 @@ public class Connector extends MoveHandler
                 state = CheckState.ONLY_POSITION;
             } else
             {
-                state = CheckState.FAILED;
-                PacketUtils.kickPlayer( PacketUtils.KickType.NOTPLAYER, Protocol.GAME, userConnection.getCh(), version );
-                BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Too fast check passed", name );
-                markDisconnected = true;
+                failed( KickType.NOTPLAYER, "Too fast check passed" );
             }
             return;
         }
@@ -125,13 +122,7 @@ public class Connector extends MoveHandler
                 (int) ( totalping / ( lastSend == 0 ? sentPings : sentPings - 1 ) ) );
         if ( type != null )
         {
-            state = CheckState.FAILED;
-            PacketUtils.kickPlayer( type, Protocol.GAME, userConnection.getCh(), version );
-            BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: {1}", new Object[]
-            {
-                name, type == KickType.COUNTRY ? "Country is not allowed" : "Big ping"
-            } );
-            markDisconnected = true;
+            failed( type, type == KickType.COUNTRY ? "Country is not allowed" : "Big ping" );
             return;
         }
         state = CheckState.SUCCESSFULLY;
@@ -169,10 +160,7 @@ public class Connector extends MoveHandler
                 sendCaptcha();
             } else
             {
-                state = CheckState.FAILED;
-                PacketUtils.kickPlayer( PacketUtils.KickType.NOTPLAYER, Protocol.GAME, userConnection.getCh(), userConnection.getPendingConnection().getVersion() );
-                BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Failed position check", name );
-                markDisconnected = true;
+                failed( KickType.NOTPLAYER, "Failed position check" );
             }
             return;
         }
@@ -215,10 +203,7 @@ public class Connector extends MoveHandler
             String message = chat.getMessage();
             if ( message.length() > 256 )
             {
-                state = CheckState.FAILED;
-                PacketUtils.kickPlayer( KickType.NOTPLAYER, Protocol.GAME, userConnection.getCh(), version );
-                BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Too long message", name );
-                markDisconnected = true;
+                failed( KickType.NOTPLAYER, "Too long message" );
                 return;
             }
             if ( message.replace( "/", "" ).equals( String.valueOf( captchaAnswer ) ) )
@@ -230,10 +215,7 @@ public class Connector extends MoveHandler
                 sendCaptcha();
             } else
             {
-                state = CheckState.FAILED;
-                PacketUtils.kickPlayer( KickType.NOTPLAYER, Protocol.GAME, userConnection.getCh(), version );
-                BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Failed captcha check", name );
-                markDisconnected = true;
+                failed( KickType.NOTPLAYER, "Failed captcha check" );
             }
         }
     }
@@ -252,10 +234,7 @@ public class Connector extends MoveHandler
         {
             if ( lastSend == 0 )
             {
-                state = CheckState.FAILED;
-                PacketUtils.kickPlayer( KickType.NOTPLAYER, Protocol.GAME, userConnection.getCh(), version );
-                BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: Tried send fake ping", name );
-                markDisconnected = true;
+                failed( KickType.NOTPLAYER, "Tried send fake ping" );
                 return;
             }
             long ping = System.currentTimeMillis() - lastSend;
@@ -289,6 +268,14 @@ public class Connector extends MoveHandler
     public boolean isConnected()
     {
         return userConnection != null && channel != null && !markDisconnected && userConnection.isConnected();
+    }
+
+    public void failed(KickType type, String kickMessage)
+    {
+        state = CheckState.FAILED;
+        PacketUtils.kickPlayer( type, Protocol.GAME, userConnection.getCh(), version );
+        markDisconnected = true;
+        BungeeCord.getInstance().getLogger().log( Level.INFO, "(BF) [{0}] disconnected: ".concat( kickMessage ), name );
     }
 
     @Override

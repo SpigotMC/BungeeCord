@@ -317,7 +317,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 if ( ManyChecksUtils.isManyChecks( getAddress().getAddress() ) )
                 {
                     PacketUtils.kickPlayer( KickType.MANYCHECKS, Protocol.LOGIN, ch, getVersion() );
-                    bungee.getLogger().log( Level.INFO, "[{0}] disconnected: Too many checks in 10 min", getAddress().getAddress().getHostAddress() );
+                    bungee.getLogger().log( Level.INFO, "(BF) [{0}] disconnected: Too many checks in 10 min", getAddress().getAddress().getHostAddress() );
                     return;
                 }
 
@@ -325,7 +325,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 if ( ping.needCheck() && ping.needKickOrRemove( getAddress().getAddress() ) )
                 {
                     PacketUtils.kickPlayer( KickType.PING, Protocol.LOGIN, ch, getVersion() );
-                    bungee.getLogger().log( Level.INFO, "[{0}] disconnected: The player did not ping the server", getAddress().getAddress().getHostAddress() );
+                    bungee.getLogger().log( Level.INFO, "(BF) [{0}] disconnected: The player did not ping the server", getAddress().getAddress().getHostAddress() );
                     return;
                 }
                 //BotFilter end
@@ -371,7 +371,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         if ( kickType != null )
         {
             PacketUtils.kickPlayer( KickType.MANYCHECKS, Protocol.LOGIN, ch, getVersion() );
-            bungee.getLogger().log( Level.INFO, "[{0}] disconnected: ".concat( ( kickType == KickType.COUNTRY ? "Country is not allowed" : "Proxy detected" ) ),
+            bungee.getLogger().log( Level.INFO, "(BF) [{0}] disconnected: ".concat( ( kickType == KickType.COUNTRY ? "Country is not allowed" : "Proxy detected" ) ),
                     getAddress().getAddress().getHostAddress() );
         }
         //BotFilter end

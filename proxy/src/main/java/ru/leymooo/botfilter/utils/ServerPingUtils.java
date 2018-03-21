@@ -54,4 +54,8 @@ public class ServerPingUtils
         pingList.invalidateAll();
     }
 
+    public void cleanUP()
+    {
+        pingList.cleanUp();
+    }
 }

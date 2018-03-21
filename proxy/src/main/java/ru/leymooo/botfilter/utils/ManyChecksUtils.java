@@ -38,4 +38,9 @@ public class ManyChecksUtils
     {
         connections.invalidateAll();
     }
+
+    public static void cleanUP()
+    {
+        connections.cleanUp();
+    }
 }

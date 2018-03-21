@@ -26,4 +26,9 @@ public class ConnectionThrottle
 
         return isThrottled;
     }
+
+    public void cleanUP()
+    {
+        throttle.cleanUp();
+    }
 }

@@ -2,11 +2,13 @@ package ru.leymooo.botfilter;
 
 import java.util.HashSet;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.protocol.Protocol;
 import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.caching.PacketUtils.KickType;
 import ru.leymooo.botfilter.config.Settings;
+import ru.leymooo.botfilter.utils.ManyChecksUtils;
 
 /**
  *
@@ -44,12 +46,8 @@ public class BotFilterThread
                             default:
                                 if ( ( currTime - connector.joinTime ) >= Settings.IMP.TIME_OUT )
                                 {
-                                    connector.state = BotFilter.CheckState.FAILED;
-                                    PacketUtils.kickPlayer( KickType.NOTPLAYER, Protocol.GAME, connector.userConnection.getCh(), connector.version );
-                                    BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] disconnected: "
-                                            .concat( connector.state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED
-                                                    ? "Too long fall check" : "Captcha not entered" ), connector.name );
-                                    connector.markDisconnected = true;
+                                    connector.failed( KickType.NOTPLAYER, connector.state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED
+                                            ? "Too long fall check" : "Captcha not entered" );
                                     continue;
                                 } else if ( state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED || state == BotFilter.CheckState.ONLY_POSITION )
                                 {
@@ -67,11 +65,14 @@ public class BotFilterThread
                     BungeeCord.getInstance().getLogger().log( Level.WARNING, "[BotFilter] Непонятная ошибка. Пожалуйста отправте ёё разработчику!", e );
                 } finally
                 {
-                    for ( String remove : toRemove )
+                    if ( !toRemove.isEmpty() )
                     {
-                        BotFilter.getInstance().removeConnection( remove, null );
+                        for ( String remove : toRemove )
+                        {
+                            BotFilter.getInstance().removeConnection( remove, null );
+                        }
+                        toRemove.clear();
                     }
-                    toRemove.clear();
                     toRemove = null;
                 }
             }
@@ -91,11 +92,38 @@ public class BotFilterThread
     {
         try
         {
-            Thread.sleep( 750 );
+            Thread.sleep( 1000 );
         } catch ( InterruptedException ex )
         {
             return false;
         }
         return true;
+    }
+
+    public static void startCleanUpThread()
+    {
+        new Thread( () ->
+        {
+            while ( !Thread.interrupted() )
+            {
+                ManyChecksUtils.cleanUP();
+                if ( BungeeCord.getInstance().getConnectionThrottle() != null )
+                {
+                    BungeeCord.getInstance().getConnectionThrottle().cleanUP();
+                }
+                if ( BotFilter.getInstance() != null && BotFilter.getInstance().getServerPingUtils() != null )
+                {
+                    BotFilter.getInstance().getServerPingUtils().cleanUP();
+                }
+                try
+                {
+                    Thread.sleep( 60000L );
+                } catch ( InterruptedException ex )
+                {
+                    return;
+                }
+            }
+        }, "CleanUp thread" ).start();
+
     }
 }

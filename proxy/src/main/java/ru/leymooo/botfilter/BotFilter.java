@@ -262,7 +262,7 @@ public class BotFilter
                     logger.log( Level.INFO, "§c[BotFilter] §aПожалуйста обновитесь!" );
                     if ( startup )
                     {
-                        Thread.sleep( 5000l );
+                        Thread.sleep( 3500l );
                     }
                 } else
                 {
