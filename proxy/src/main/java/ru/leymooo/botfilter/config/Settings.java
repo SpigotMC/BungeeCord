@@ -20,8 +20,6 @@ public class Settings extends Config
     @Final
     public final String HELP = "http://www.rubukkit.org/threads/137038/";
     @Final
-    public int CONFIG_VERSION = 1;
-    @Final
     public String BOT_FILTER_VERSION = "3.0.8";
 
     @Create
@@ -31,7 +29,7 @@ public class Settings extends Config
     public static class MESSAGES
     {
 
-        public String PREFIX = "&b&lBot&d&lFilter ";
+        public String PREFIX = "&b&lBot&d&lFilter";
         public String CHECKING = "%prefix%&7>> &aОжидайте завершения проверки...";
         public String CHECKING_CAPTCHA = "%prefix%&7>> &aВведите номер с картинки в чат";
         public String CHECKING_CAPTCHA_WRONG = "%prefix%&7>> &cВы ввели капчу неправильно, пожалуйста попробуйте ещё раз. У вас &a%s &c%s";
@@ -40,7 +38,14 @@ public class Settings extends Config
         public String KICK_NOT_PLAYER = "%prefix%%nl%%nl%&cВы не прошли проверку, возможно вы бот%nl%&7&oЕсли это не так, пожалуйста повторите попытку";
         public String KICK_COUNTRY = "%prefix%%nl%%nl%&cВаша страна запрещена на серверве";
         public String KICK_BIG_PING = "%prefix%%nl%%nl%&cУ вас очень высокий пинг, скорее всего вы бот";
-
+        @Comment(
+                {
+                    "Title%nl%Subtitle", "Оставьте пустым, чтобы отключить( прм: CHECKING_TITLE = \"\" )",
+                    "Отключение титлов может немного улучшить производительность"
+                })
+        public String CHECKING_TITLE = "&r&lBot&b&lFilter%nl%&aИдёт проверка";
+        public String CHECKING_TITLE_SUS = "&rПроверка пройдена%nl%&aПриятной игры";
+        public String CHECKING_TITLE_CAPTCHA = " %nl%&rВведите капчу в чат!";
     }
 
     @Comment(

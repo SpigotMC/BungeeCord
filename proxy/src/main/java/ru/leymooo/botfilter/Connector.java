@@ -61,10 +61,12 @@ public class Connector extends MoveHandler
         if ( state == CheckState.CAPTCHA_ON_POSITION_FAILED )
         {
             PacketUtils.spawnPlayer( channel, userConnection.getPendingConnection().getVersion(), false, false );
+            PacketUtils.titles[0].writeTitle( channel, version );
         } else
         {
             PacketUtils.spawnPlayer( channel, userConnection.getPendingConnection().getVersion(), state == CheckState.ONLY_CAPTCHA, true );
             sendCaptcha();
+            PacketUtils.titles[1].writeTitle( channel, version );
         }
         sendPing();
         BotFilter.getInstance().addConnection( this );
@@ -126,6 +128,8 @@ public class Connector extends MoveHandler
             return;
         }
         state = CheckState.SUCCESSFULLY;
+        PacketUtils.titles[2].writeTitle( channel, version );
+        channel.flush();
         BotFilter.getInstance().removeConnection( null, this );
         channel.writeAndFlush( PacketUtils.packets[13].get( version ), channel.voidPromise() );
         BotFilter.getInstance().saveUser( getName(), IPUtils.getAddress( userConnection ) );
@@ -156,6 +160,7 @@ public class Connector extends MoveHandler
                 state = CheckState.ONLY_CAPTCHA;
                 joinTime = System.currentTimeMillis() + 3500;
                 channel.write( PacketUtils.packets[15].get( version ), channel.voidPromise() );
+                PacketUtils.titles[1].writeTitle( channel, version );
                 resetPosition( true );
                 sendCaptcha();
             } else

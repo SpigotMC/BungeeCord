@@ -27,18 +27,29 @@ public class CachedCaptcha
 
     public ByteBuf get(int version, int captcha)
     {
-        return version == ProtocolConstants.MINECRAFT_1_8 ? byteBuf18[captcha - 100].copy() : byteBuf19[captcha - 100].copy();
+        return version == ProtocolConstants.MINECRAFT_1_8
+                ? byteBuf18[captcha - 100].retainedDuplicate()
+                : byteBuf19[captcha - 100].retainedDuplicate();
     }
 
     public void release()
     {
         for ( ByteBuf buf : byteBuf18 )
         {
-            buf.release();
+            PacketUtils.releaseByteBuf( buf );
         }
         for ( ByteBuf buf : byteBuf19 )
         {
-            buf.release();
+            PacketUtils.releaseByteBuf( buf );
         }
+    }
+
+    //Copy(Only for tests)
+    /*
+    do not use this
+     */
+    public ByteBuf getCopy()
+    {
+        return byteBuf18[800 - 100].copy();
     }
 }

@@ -15,15 +15,7 @@ import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
 import ru.leymooo.botfilter.packets.SetSlot;
 import ru.leymooo.botfilter.packets.unused.SpawnPosition;
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-/**
- *
- * @author michael
- */
-public class Test1
+public class CachingTest
 {
 
     public static void main(String[] args)
@@ -37,27 +29,28 @@ public class Test1
             PacketUtils.init();
         } catch ( Exception ignore )
         {
-
         }
         for ( int i = 0; i < 15; i++ )
         {
             long start = System.currentTimeMillis();
-            for ( int a = 0; a < 20000; a++ )
+            for ( int a = 0; a < 50000; a++ )
             {
                 PacketUtils.packets[0].get( 47 ).release();
-                PacketUtils.packets[3].get( 47 ).release();
+                PacketUtils.packets[2].get( 47 ).release();
                 PacketUtils.packets[6].get( 47 ).release();
                 PacketUtils.packets[4].get( 47 ).release();
                 PacketUtils.packets[5].get( 47 ).release();
                 PacketUtils.packets[12].get( 47 ).release();
+                PacketUtils.titles[0].test();
             }
             System.out.println( "From cache: " + ( System.currentTimeMillis() - start ) );
+            System.gc();
         }
         String message = ChatColor.translateAlternateColorCodes( '&', Settings.IMP.MESSAGES.CHECKING_CAPTCHA.replace( "%prefix%", Settings.IMP.MESSAGES.PREFIX ).replace( "%nl%", "\n" ) );
         for ( int i = 0; i < 15; i++ )
         {
             long start = System.currentTimeMillis();
-            for ( int a = 0; a < 20000; a++ )
+            for ( int a = 0; a < 50000; a++ )
             {
                 //Пофиг на айди
                 PacketUtils.createPacket( new Login( -1, (short) 2, 0, (short) 0, (short) 100, "flat", false ), 1, 47 ).release();
@@ -69,6 +62,7 @@ public class Test1
 
             }
             System.out.println( "Create new: " + ( System.currentTimeMillis() - start ) );
+            System.gc();
         }
 
     }

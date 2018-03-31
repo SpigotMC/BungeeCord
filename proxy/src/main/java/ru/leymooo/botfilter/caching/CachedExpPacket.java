@@ -14,7 +14,7 @@ import ru.leymooo.botfilter.packets.SetExp;
 public class CachedExpPacket
 {
 
-    private ByteBuf[][] byteBuf = new ByteBuf[ Connector.TOTAL_TICKS ][ ProtocolConstants.MINECRAFT_1_12_2 + 1 ];
+    private ByteBuf[][] byteBuf = new ByteBuf[ Connector.TOTAL_TICKS ][ PacketUtils.PROTOCOLS_NUM ];
 
     public CachedExpPacket()
     {
@@ -31,44 +31,14 @@ public class CachedExpPacket
         {
             setExp.setExpBar( setExp.getExpBar() + expinterval );
             setExp.setLevel( setExp.getLevel() + 1 );
-            cache( setExp, i );
-        }
-    }
-
-    private void cache(DefinedPacket packet, int tick)
-    {
-        Protocol.DirectionData prot = Protocol.BotFilter.TO_CLIENT;
-        int oldPacketId = -1;
-        ByteBuf oldBuf = null;
-        for ( int version : ProtocolConstants.SUPPORTED_VERSION_IDS )
-        {
-            int newPacketId;
-            newPacketId = prot.getId( packet.getClass(), version );
-            if ( newPacketId != oldPacketId )
-            {
-                oldPacketId = newPacketId;
-                oldBuf = PacketUtils.createPacket( packet, oldPacketId, version );
-                byteBuf[tick][version] = oldBuf;
-            } else
-            {
-                ByteBuf newBuf = PacketUtils.createPacket( packet, oldPacketId, version );
-                if ( newBuf.equals( oldBuf ) )
-                {
-                    byteBuf[tick][version] = oldBuf;
-                    newBuf.release();
-                } else
-                {
-                    oldBuf = newBuf;
-                    byteBuf[tick][version] = oldBuf;
-                }
-            }
+            PacketUtils.fillArray( byteBuf[i], setExp, Protocol.BotFilter, null );
         }
     }
 
     public ByteBuf get(int tick, int version)
     {
-        ByteBuf buf = byteBuf[tick][version];
-        return buf == null ? null : buf.copy();
+        ByteBuf buf = byteBuf[tick][PacketUtils.rewriteVersion( version )];
+        return buf == null ? null : buf.retainedDuplicate();
     }
 
     public void release()
@@ -79,10 +49,7 @@ public class CachedExpPacket
             {
                 for ( ByteBuf buf : byteBuf[i] )
                 {
-                    if ( buf != null && buf.refCnt() != 0 )
-                    {
-                        buf.release();
-                    }
+                    PacketUtils.releaseByteBuf( buf );
                 }
                 byteBuf[i] = null;
             }
