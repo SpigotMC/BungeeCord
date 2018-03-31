@@ -3,6 +3,7 @@ package net.md_5.bungee.api.event;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import net.md_5.bungee.api.connection.Connection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Event;
 
@@ -13,7 +14,7 @@ import net.md_5.bungee.api.plugin.Event;
 @Data
 @ToString(callSuper = false)
 @EqualsAndHashCode(callSuper = false)
-public class ResourcePackResponseEvent extends Event
+public class ResourcePackResponseEvent extends TargetedEvent
 {
 
     /**
@@ -28,6 +29,14 @@ public class ResourcePackResponseEvent extends Event
      * The hash, note this will be null in clients 1.10 or later
      */
     private final String hash;
+
+    public ResourcePackResponseEvent(Connection sender, Connection receiver, ProxiedPlayer player, ResourcePackResponseEvent.Response response, String hash)
+    {
+        super( sender, receiver );
+        this.player = player;
+        this.response = response;
+        this.hash = hash;
+    }
 
     public enum Response
     {

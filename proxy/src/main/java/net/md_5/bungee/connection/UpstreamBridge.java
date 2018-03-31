@@ -151,9 +151,7 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(ResourcePackRequest resourcePackRequest) throws Exception
     {
-        ResourcePackRequestEvent requestEvent = new ResourcePackRequestEvent(
-                con, resourcePackRequest.getHash(), resourcePackRequest.getUrl()
-        );
+        ResourcePackRequestEvent requestEvent = new ResourcePackRequestEvent( con, con.getServer(), con, resourcePackRequest.getHash(), resourcePackRequest.getUrl() );
 
         // If two servers use the same resource pack, avoid sending the duplicate packet to client on server switch
         if ( con.getResourcePackHash() != null && resourcePackRequest.getHash().equals( con.getResourcePackHash() ) )

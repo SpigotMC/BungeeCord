@@ -484,7 +484,7 @@ public class DownstreamBridge extends PacketHandler
         }
 
         ResourcePackResponseEvent.Response response = ResourcePackResponseEvent.Response.values()[resourcePackResponse.getResult()];
-        bungee.getPluginManager().callEvent( new ResourcePackResponseEvent( con, response, resourcePackResponse.getHash() ) );
+        bungee.getPluginManager().callEvent( new ResourcePackResponseEvent( server, con, con, response, resourcePackResponse.getHash() ) );
     }
 
     @Override
