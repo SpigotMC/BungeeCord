@@ -674,12 +674,17 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendResourcePack(String url, String hash) throws IllegalArgumentException
     {
-        Preconditions.checkArgument( hash.length() <= 40, "Hash must be at least 40 characters" );
-
-        if ( !hash.equals( resourcePackHash ) )
+        if ( hash != null )
         {
-            unsafe().sendPacket( new ResourcePackRequest( url, hash ) );
+            Preconditions.checkArgument( hash.length() <= 40, "Hash must be at least 40 characters" );
+
+            if ( hash.equals( resourcePackHash ) )
+            {
+                return;
+            }
         }
+
+        unsafe().sendPacket( new ResourcePackRequest( url, hash ) );
     }
 
     @Override
