@@ -162,10 +162,9 @@ public class UpstreamBridge extends PacketHandler
         if ( bungee.getPluginManager().callEvent( requestEvent ).isCancelled() )
         {
             throw CancelSendSignal.INSTANCE;
-        } else
-        {
-            con.setRequestedResourcePackHash( resourcePackRequest.getHash() );
         }
+
+        con.setRequestedResourcePackHash( resourcePackRequest.getHash() );
     }
 
     @Override
