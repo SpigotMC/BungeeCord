@@ -239,30 +239,29 @@ public interface ProxiedPlayer extends Connection, CommandSender
 
     /**
      * Sends a resource pack to this player.
+     * <p>
+     * Hash is the SHA-1 digest of the resource pack. It's recommended to specify this.
+     * A hash can be identified by using the service http://onlinemd5.com/
+     * </p>
      *
-     * @param url the url of resource pack
-     * @param hash the resource pack hash
+     * @param url url of resource pack
+     * @param hash optional resource pack hash
      * @throws IllegalArgumentException if hash is longer than 40 characters
      */
     void sendResourcePack(String url, String hash) throws IllegalArgumentException;
 
     /**
-     * Gets the player's currently loaded resource pack hash.
+     * Gets the player's currently loaded resource pack hash that was applied by a proxy or server.
+     * <p>
+     * Hash is returned as a 40 digit lowercase hexadecimal SHA-1 value
+     * </p>
      *
-     * @return resource pack hash
+     * @return hash if resource pack is set, otherwise null
      */
     String getResourcePackHash();
 
     /**
-     * Gets the currently requested resource pack hash that is waiting for
-     * approval from ResourcePackResponse.
-     *
-     * @return currently requested resource pack hash
-     */
-    String getRequestedResourcePackHash();
-
-    /**
-     * Returns if the client has a successfuly loaded resource pack.
+     * Returns if the client has a successfully loaded resource pack.
      *
      * @return true if has resource pack
      */

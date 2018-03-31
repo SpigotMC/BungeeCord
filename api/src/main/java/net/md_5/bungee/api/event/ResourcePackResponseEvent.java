@@ -8,8 +8,8 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Event;
 
 /**
- * Called when a player takes action on a resource pack request sent by the
- * server.
+ * Called when a player takes action on a resource pack request sent to their client
+ * by the proxy or server.
  */
 @Data
 @ToString(callSuper = false)
