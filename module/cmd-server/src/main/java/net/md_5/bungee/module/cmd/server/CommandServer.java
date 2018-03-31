@@ -16,6 +16,7 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.event.ServerConnectEvent;
 
 /**
  * Command to list and switch a player between available servers.
@@ -75,7 +76,7 @@ public class CommandServer extends Command implements TabExecutor
                 player.sendMessage( ProxyServer.getInstance().getTranslation( "no_server_permission" ) );
             } else
             {
-                player.connect( server );
+                player.connect( server, ServerConnectEvent.Reason.COMMAND );
             }
         }
     }
