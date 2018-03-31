@@ -321,6 +321,15 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     return;
                 }
 
+                KickType kickType = BotFilter.getInstance().checkIpAddress( getAddress().getAddress(), -1 );
+                if ( kickType != null )
+                {
+                    PacketUtils.kickPlayer( KickType.COUNTRY, Protocol.LOGIN, ch, getVersion() );
+                    bungee.getLogger().log( Level.INFO, "(BF) [{0}] disconnected: Country is not allowed",
+                            getAddress().getAddress().getHostAddress() );
+                    return;
+                }
+
                 ServerPingUtils ping = BotFilter.getInstance().getServerPingUtils();
                 if ( ping.needCheck() && ping.needKickOrRemove( getAddress().getAddress() ) )
                 {
@@ -365,16 +374,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             disconnect( bungee.getTranslation( "proxy_full" ) );
             return;
         }
-
-        //BotFilter start
-        KickType kickType = BotFilter.getInstance().checkIpAddress( getAddress().getAddress(), -1 );
-        if ( kickType != null )
-        {
-            PacketUtils.kickPlayer( KickType.MANYCHECKS, Protocol.LOGIN, ch, getVersion() );
-            bungee.getLogger().log( Level.INFO, "(BF) [{0}] disconnected: ".concat( ( kickType == KickType.COUNTRY ? "Country is not allowed" : "Proxy detected" ) ),
-                    getAddress().getAddress().getHostAddress() );
-        }
-        //BotFilter end
 
         // If offline mode and they are already on, don't allow connect
         // We can just check by UUID here as names are based on UUID
