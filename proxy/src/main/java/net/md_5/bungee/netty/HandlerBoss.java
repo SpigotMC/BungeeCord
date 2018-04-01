@@ -122,30 +122,35 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     {
         if ( ctx.channel().isActive() )
         {
-            if ( cause instanceof ReadTimeoutException )
+            boolean logExceptions = !( handler instanceof PingHandler );
+
+            if ( logExceptions )
             {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - read timed out", handler );
-            } else if ( cause instanceof DecoderException && cause.getCause() instanceof BadPacketException )
-            {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - bad packet ID, are mods in use!? {1}", new Object[]
+                if ( cause instanceof ReadTimeoutException )
                 {
-                    handler, cause.getCause().getMessage()
-                } );
-            } else if ( cause instanceof DecoderException && cause.getCause() instanceof OverflowPacketException )
-            {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - overflow in packet detected! {1}", new Object[]
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - read timed out", handler );
+                } else if ( cause instanceof DecoderException && cause.getCause() instanceof BadPacketException )
                 {
-                    handler, cause.getCause().getMessage()
-                } );
-            } else if ( cause instanceof IOException || ( cause instanceof IllegalStateException && handler instanceof InitialHandler ) )
-            {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - {1}: {2}", new Object[]
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - bad packet ID, are mods in use!? {1}", new Object[]
+                    {
+                        handler, cause.getCause().getMessage()
+                    } );
+                } else if ( cause instanceof DecoderException && cause.getCause() instanceof OverflowPacketException )
                 {
-                    handler, cause.getClass().getSimpleName(), cause.getMessage()
-                } );
-            } else
-            {
-                ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - encountered exception", cause );
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - overflow in packet detected! {1}", new Object[]
+                    {
+                        handler, cause.getCause().getMessage()
+                    } );
+                } else if ( cause instanceof IOException || ( cause instanceof IllegalStateException && handler instanceof InitialHandler ) )
+                {
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - {1}: {2}", new Object[]
+                    {
+                        handler, cause.getClass().getSimpleName(), cause.getMessage()
+                    } );
+                } else
+                {
+                    ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - encountered exception", cause );
+                }
             }
 
             if ( handler != null )
