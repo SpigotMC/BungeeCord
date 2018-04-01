@@ -23,8 +23,8 @@ public class ComponentsTest
         // appends &f regardless if the color is non null or not and would otherwise mess with our unit test.
         list.remove( 0 );
         Assert.assertEquals(
-            TextComponent.toLegacyText( components ),
-            TextComponent.toLegacyText( list.toArray( new BaseComponent[ list.size() ] ) )
+                TextComponent.toLegacyText( components ),
+                TextComponent.toLegacyText( list.toArray( new BaseComponent[ list.size() ] ) )
         );
     }
 
@@ -60,7 +60,9 @@ public class ComponentsTest
         ComponentBuilder builder = new ComponentBuilder( "Hello " );
         TextComponent textComponent = new TextComponent( "world " );
         TranslatableComponent translatableComponent = new TranslatableComponent( "item.swordGold.name" );
-        builder.append( new BaseComponent[] { // array based BaseComponent append
+        // array based BaseComponent append
+        builder.append( new BaseComponent[]
+        {
             textComponent,
             translatableComponent
         } );
