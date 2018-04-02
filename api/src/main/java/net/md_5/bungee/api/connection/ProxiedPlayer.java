@@ -93,6 +93,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * closing the current one. Depending on the implementation, this method
      * might return before the user has been connected.
      *
+     * @param target the new server to connect to
      * @param reason the reason for connecting to the new server
      */
     void connect(ServerInfo target, ServerConnectEvent.Reason reason);
