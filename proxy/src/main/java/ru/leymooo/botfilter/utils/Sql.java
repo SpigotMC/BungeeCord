@@ -28,6 +28,7 @@ public class Sql
     private Connection connection;
     private final ExecutorService executor = Executors.newFixedThreadPool( 2, new ThreadFactoryBuilder().setNameFormat( "BotFilter-SQL-%d" ).build() );
     private final Logger logger = BungeeCord.getInstance().getLogger();
+    private boolean connecting = false;
 
     public Sql()
     {
@@ -36,9 +37,11 @@ public class Sql
 
     protected void setupConnect()
     {
+
         try
         {
-            if ( connection != null && !connection.isValid( 3 ) )
+            connecting = true;
+            if ( connection != null && connection.isValid( 3 ) )
             {
                 return;
             }
@@ -61,6 +64,9 @@ public class Sql
         {
             logger.log( Level.WARNING, "Can not connect to database or execute sql: ", e );
             connection = null;
+        } finally
+        {
+            connecting = false;
         }
     }
 
@@ -102,14 +108,45 @@ public class Sql
             while ( set.next() )
             {
                 i++;
-                BotFilter.getInstance().saveUser( set.getString( "Name" ), IPUtils.getAddress( set.getString( "Ip" ) ) );
+                String name = set.getString( "Name" );
+                String ip = set.getString( "Ip" );
+                if ( isInvalidName( name ) )
+                {
+                    removeUser( "REMOVE FROM `Users` where `Ip` = '" + ip + "' and `LastCheck` = '" + set.getLong( "LastCheck" ) + "';" );
+                }
+                BotFilter.getInstance().saveUser( name, IPUtils.getAddress( ip ) );
             }
             logger.log( Level.INFO, "[BotFilter] Белый список игроков успешно загружен ({0})", i );
         }
     }
 
+    private boolean isInvalidName(String name)
+    {
+        return name.contains( "'" ) || name.contains( "\"" );
+    }
+
+    private void removeUser(String sql)
+    {
+        if ( connection != null )
+        {
+            this.executor.execute( () ->
+            {
+                try ( PreparedStatement statament = connection.prepareStatement( sql ) )
+                {
+                    statament.execute();
+                } catch ( SQLException ignored )
+                {
+                }
+            } );
+        }
+    }
+
     public void saveUser(String name, String ip)
     {
+        if ( connecting || isInvalidName( name ) )
+        {
+            return;
+        }
         if ( connection != null )
         {
             this.executor.execute( () ->
@@ -131,6 +168,7 @@ public class Sql
                 } catch ( SQLException ex )
                 {
                     logger.log( Level.WARNING, "Не могу выполнить запрос к базе данных", ex );
+                    logger.log( Level.WARNING, sql );
                     executor.execute( () -> setupConnect() );
                 }
             } );
