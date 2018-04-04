@@ -107,14 +107,15 @@ public class Sql
             int i = 0;
             while ( set.next() )
             {
-                i++;
                 String name = set.getString( "Name" );
                 String ip = set.getString( "Ip" );
                 if ( isInvalidName( name ) )
                 {
                     removeUser( "REMOVE FROM `Users` where `Ip` = '" + ip + "' and `LastCheck` = '" + set.getLong( "LastCheck" ) + "';" );
+                    continue;
                 }
                 BotFilter.getInstance().saveUser( name, IPUtils.getAddress( ip ) );
+                i++;
             }
             logger.log( Level.INFO, "[BotFilter] Белый список игроков успешно загружен ({0})", i );
         }
