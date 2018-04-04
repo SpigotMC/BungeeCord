@@ -28,6 +28,21 @@ public final class TextComponent extends BaseComponent
      */
     public static BaseComponent[] fromLegacyText(String message)
     {
+        return fromLegacyText( message, ChatColor.WHITE );
+    }
+
+    /**
+     * Converts the old formatting system that used
+     * {@link net.md_5.bungee.api.ChatColor#COLOR_CHAR} into the new json based
+     * system.
+     *
+     * @param message the text to convert
+     * @param defaultColor color to use when no formatting is to be applied
+     * (i.e. after ChatColor.RESET).
+     * @return the components needed to print the message to the client
+     */
+    public static BaseComponent[] fromLegacyText(String message, ChatColor defaultColor)
+    {
         ArrayList<BaseComponent> components = new ArrayList<BaseComponent>();
         StringBuilder builder = new StringBuilder();
         TextComponent component = new TextComponent();
@@ -78,7 +93,7 @@ public final class TextComponent extends BaseComponent
                         component.setObfuscated( true );
                         break;
                     case RESET:
-                        format = ChatColor.WHITE;
+                        format = defaultColor;
                     default:
                         component = new TextComponent();
                         component.setColor( format );
