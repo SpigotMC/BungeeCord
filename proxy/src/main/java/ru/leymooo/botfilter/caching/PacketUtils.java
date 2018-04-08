@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ChatColor;
@@ -35,7 +36,9 @@ public class PacketUtils
 {
 
     public static int PROTOCOLS_NUM = 11;
-    
+
+    public static int CLIENTID = new Random().nextInt( Integer.MAX_VALUE - 100 ) + 50;
+
     /**
      * 0 - Login, 1 - SpawnPosition(null), 2 - ChunkData, 3 - TimeUpdate, 4 -
      * PlayerAbilities, 5 - PlayerPosAndLook, 6 - SetSlot(Map), 7 -
@@ -98,7 +101,7 @@ public class PacketUtils
 
         DefinedPacket[] packets =
         {
-            new Login( 0, (short) 2, 0, (short) 0, (short) 100, "flat", false ), //0
+            new Login( CLIENTID, (short) 2, 0, (short) 0, (short) 100, "flat", false ), //0
             null, //1
             new ChunkPacket( 0, 0, new byte[ 256 ], false ), //2
             new TimeUpdate( 1, Settings.IMP.TIME ), //3

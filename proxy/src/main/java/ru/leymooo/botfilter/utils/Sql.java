@@ -111,7 +111,7 @@ public class Sql
                 String ip = set.getString( "Ip" );
                 if ( isInvalidName( name ) )
                 {
-                    removeUser( "REMOVE FROM `Users` where `Ip` = '" + ip + "' and `LastCheck` = '" + set.getLong( "LastCheck" ) + "';" );
+                    removeUser( "REMOVE FROM `Users` WHERE `Ip` = '" + ip + "' AND `LastCheck` = '" + set.getLong( "LastCheck" ) + "';" );
                     continue;
                 }
                 BotFilter.getInstance().saveUser( name, IPUtils.getAddress( ip ) );

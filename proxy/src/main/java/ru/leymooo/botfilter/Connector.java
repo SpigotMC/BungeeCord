@@ -53,7 +53,7 @@ public class Connector extends MoveHandler
         this.channel = userConnection.getCh().getHandle();
         this.userConnection = userConnection;
         this.version = userConnection.getPendingConnection().getVersion();
-        this.userConnection.setClientEntityId( 0 );
+        this.userConnection.setClientEntityId( PacketUtils.CLIENTID );
         this.userConnection.setDimension( 0 );
         this.userConnection.getCh().setDecoderProtocol( Protocol.BotFilter );
         BotFilter.getInstance().incrementBotCounter();
