@@ -301,7 +301,9 @@ public class YamlConfig implements ConfigurationAdapter
             // Add defaults if required
             if ( serverPriority.isEmpty() )
             {
-                serverPriority.add( "lobby" );
+                serverPriority.add( "lobby-1" );
+                serverPriority.add( "lobby-2" );
+                serverPriority.add( "lobby-3" );
             }
             set( "priorities", serverPriority, val );
 
