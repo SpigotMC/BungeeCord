@@ -30,7 +30,7 @@ public class Sql
     private final Logger logger = BungeeCord.getInstance().getLogger();
     private boolean connecting = false;
 
-    private long lastCleanUp = System.currentTimeMillis() + ( 60000 * 60 * 2 ); // + 2 hours
+    private long nextCleanUp = System.currentTimeMillis() + ( 60000 * 60 * 2 ); // + 2 hours
 
     public Sql()
     {
@@ -192,9 +192,9 @@ public class Sql
 
     public void tryCleanUP()
     {
-        if ( lastCleanUp - System.currentTimeMillis() <= 0 )
+        if ( nextCleanUp - System.currentTimeMillis() <= 0 )
         {
-            lastCleanUp = System.currentTimeMillis() + ( 60000 * 60 * 2 ); // + 2 hours
+            nextCleanUp = System.currentTimeMillis() + ( 60000 * 60 * 2 ); // + 2 hours
             try
             {
                 clearOldUsers();

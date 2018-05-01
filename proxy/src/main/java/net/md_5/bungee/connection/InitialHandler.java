@@ -209,7 +209,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( thisState == State.STATUS, "Not expecting STATUS" );
 
         PingLimiter.handle(); //BotFilter
-        
+
         ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
         final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
 
@@ -248,7 +248,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             pingBack.done( new ServerPing(
                     new ServerPing.Protocol( bungee.getCustomBungeeName(), protocol ), //BotFilter
                     new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCountBF( true ), null ), //BotFilter
-                    PingLimiter.isBanned() ? null : motd, BungeeCord.getInstance().config.getFaviconObject() ), //BotFilter PingLimiter.isBanned() ? null :
+                    motd, PingLimiter.isBanned() ? null : BungeeCord.getInstance().config.getFaviconObject() ), //BotFilter PingLimiter.isBanned() ? null :
                     null );
         }
 
