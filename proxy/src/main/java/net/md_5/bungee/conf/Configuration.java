@@ -95,7 +95,7 @@ public class Configuration implements ProxyConfig
 
         Preconditions.checkArgument( listeners != null && !listeners.isEmpty(), "No listeners defined." );
 
-        loadServers(adapter);
+        loadServers( adapter, false );
 
         for ( ListenerInfo listener : listeners )
         {
@@ -113,10 +113,14 @@ public class Configuration implements ProxyConfig
             }
         }
     }
-    
+
     //BotFilter start
-    public void loadServers(ConfigurationAdapter adapter)
+    public void loadServers(ConfigurationAdapter adapter, boolean load)
     {
+        if ( load )
+        {
+            adapter.load();
+        }
         Map<String, ServerInfo> newServers = adapter.getServers();
         Preconditions.checkArgument( newServers != null && !newServers.isEmpty(), "No servers defined" );
 
@@ -136,8 +140,10 @@ public class Configuration implements ProxyConfig
                     {
                         p.disconnect( BungeeCord.getInstance().getTranslation( "server_went_down" ) );
                     }
+                    servers.remove( oldServer.getName() );
                     continue;
                 }
+                
                 ServerInfo newServer = newServers.get( oldServer.getName() );
                 if ( !newServer.equals( oldServer ) )
                 {
@@ -145,12 +151,11 @@ public class Configuration implements ProxyConfig
                     {
                         p.disconnect( BungeeCord.getInstance().getTranslation( "server_went_down" ) );
                     }
+                    servers.remove( oldServer.getName() );
                 }
 
             }
 
-            // Add new servers
-            /*
             for ( Map.Entry<String, ServerInfo> newServer : newServers.entrySet() )
             {
                 if ( !servers.containsValue( newServer.getValue() ) )
@@ -158,8 +163,6 @@ public class Configuration implements ProxyConfig
                     servers.put( newServer.getKey(), newServer.getValue() );
                 }
             }
-             */
-            servers = new CaseInsensitiveMap<>( newServers );
         }
     }
     // BotFilter end

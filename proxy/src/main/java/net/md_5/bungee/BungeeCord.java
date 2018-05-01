@@ -76,6 +76,7 @@ import net.md_5.bungee.command.CommandEnd;
 import net.md_5.bungee.command.CommandIP;
 import net.md_5.bungee.command.CommandPerms;
 import net.md_5.bungee.command.CommandReload;
+import net.md_5.bungee.command.CommandReloadServers;
 import net.md_5.bungee.command.ConsoleCommandCompleter;
 import net.md_5.bungee.command.ConsoleCommandSender;
 import ru.leymooo.botfilter.BotFilterCommand;
@@ -183,6 +184,7 @@ public class BungeeCord extends ProxyServer
         getPluginManager().registerCommand( null, new CommandBungee() );
         getPluginManager().registerCommand( null, new CommandPerms() );
         getPluginManager().registerCommand( null, new BotFilterCommand() ); //BotFilter
+        getPluginManager().registerCommand( null, new CommandReloadServers() ); //BotFilter
 
         registerChannel( "BungeeCord" );
     }
@@ -270,7 +272,7 @@ public class BungeeCord extends ProxyServer
         new BotFilter( true ); //Hook BotFilter into Bungee
         new FakeOnlineUtils(); //Init fake online
         BotFilterThread.startCleanUpThread(); //BotFilter
-        
+
         bossEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Boss IO Thread #%1$d" ).build() ); //BotFilter //WaterFall backport
         workerEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Worker IO Thread #%1$d" ).build() );//BotFilter //WaterFall backport
 
