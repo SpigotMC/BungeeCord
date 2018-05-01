@@ -1,10 +1,12 @@
 package ru.leymooo.botfilter;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.protocol.Protocol;
+import ru.leymooo.botfilter.caching.PacketConstans;
 import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.caching.PacketUtils.KickType;
 import ru.leymooo.botfilter.config.Settings;
@@ -18,6 +20,7 @@ public class BotFilterThread
 {
 
     private static Thread thread;
+    private static final HashSet<String> toRemove = new HashSet<>();
 
     public static void start()
     {
@@ -25,15 +28,15 @@ public class BotFilterThread
         {
             while ( !Thread.currentThread().isInterrupted() && sleep() )
             {
-                HashSet<String> toRemove = new HashSet<>();
                 try
                 {
                     long currTime = System.currentTimeMillis();
-                    for ( Connector connector : BotFilter.getInstance().connectedUsersSet.values() )
+                    for ( Map.Entry<String, Connector> entryset : BotFilter.getInstance().connectedUsersSet.entrySet() )
                     {
+                        Connector connector = entryset.getValue();
                         if ( !connector.isConnected() )
                         {
-                            toRemove.add( connector.getName() );
+                            toRemove.add( entryset.getKey() );
                             continue;
                         }
                         BotFilter.CheckState state = connector.state;
@@ -41,20 +44,21 @@ public class BotFilterThread
                         {
                             case SUCCESSFULLY:
                             case FAILED:
-                                toRemove.add( connector.getName() );
+                                toRemove.add( entryset.getKey() );
                                 continue;
                             default:
                                 if ( ( currTime - connector.joinTime ) >= Settings.IMP.TIME_OUT )
                                 {
                                     connector.failed( KickType.NOTPLAYER, connector.state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED
                                             ? "Too long fall check" : "Captcha not entered" );
+                                    toRemove.add( entryset.getKey() );
                                     continue;
                                 } else if ( state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED || state == BotFilter.CheckState.ONLY_POSITION )
                                 {
-                                    connector.channel.writeAndFlush( PacketUtils.packets[11].get( connector.version ) );
+                                    connector.channel.writeAndFlush( PacketUtils.getChachedPacket( PacketConstans.CHECKING ).get( connector.version ) );
                                 } else
                                 {
-                                    connector.channel.writeAndFlush( PacketUtils.packets[12].get( connector.version ) );
+                                    connector.channel.writeAndFlush( PacketUtils.getChachedPacket( PacketConstans.CHECKING_CAPTCHA ).get( connector.version ) );
                                 }
                                 connector.sendPing();
                         }
@@ -73,7 +77,6 @@ public class BotFilterThread
                         }
                         toRemove.clear();
                     }
-                    toRemove = null;
                 }
             }
 
@@ -114,6 +117,10 @@ public class BotFilterThread
                 if ( BotFilter.getInstance() != null && BotFilter.getInstance().getServerPingUtils() != null )
                 {
                     BotFilter.getInstance().getServerPingUtils().cleanUP();
+                }
+                if ( BotFilter.getInstance() != null && BotFilter.getInstance().getSql() != null )
+                {
+                    BotFilter.getInstance().getSql().tryCleanUP();
                 }
                 try
                 {

@@ -11,12 +11,14 @@ import java.util.UUID;
 import java.util.logging.Level;
 import javax.imageio.ImageIO;
 import lombok.Getter;
+import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ProxyConfig;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import net.md_5.bungee.util.CaseInsensitiveSet;
 
@@ -93,29 +95,7 @@ public class Configuration implements ProxyConfig
 
         Preconditions.checkArgument( listeners != null && !listeners.isEmpty(), "No listeners defined." );
 
-        Map<String, ServerInfo> newServers = adapter.getServers();
-        Preconditions.checkArgument( newServers != null && !newServers.isEmpty(), "No servers defined" );
-
-        if ( servers == null )
-        {
-            servers = new CaseInsensitiveMap<>( newServers );
-        } else
-        {
-            for ( ServerInfo oldServer : servers.values() )
-            {
-                // Don't allow servers to be removed
-                Preconditions.checkArgument( newServers.containsKey( oldServer.getName() ), "Server %s removed on reload!", oldServer.getName() );
-            }
-
-            // Add new servers
-            for ( Map.Entry<String, ServerInfo> newServer : newServers.entrySet() )
-            {
-                if ( !servers.containsValue( newServer.getValue() ) )
-                {
-                    servers.put( newServer.getKey(), newServer.getValue() );
-                }
-            }
-        }
+        loadServers(adapter);
 
         for ( ListenerInfo listener : listeners )
         {
@@ -133,6 +113,56 @@ public class Configuration implements ProxyConfig
             }
         }
     }
+    
+    //BotFilter start
+    public void loadServers(ConfigurationAdapter adapter)
+    {
+        Map<String, ServerInfo> newServers = adapter.getServers();
+        Preconditions.checkArgument( newServers != null && !newServers.isEmpty(), "No servers defined" );
+
+        if ( servers == null )
+        {
+            servers = new CaseInsensitiveMap<>( newServers );
+        } else
+        {
+            for ( ServerInfo oldServer : servers.values() )
+            {
+                // Don't allow servers to be removed
+                //Preconditions.checkArgument( newServers.containsKey( oldServer.getName() ), "Server %s removed on reload!", oldServer.getName() );
+                // Allow servers to be removed 
+                if ( !newServers.containsKey( oldServer.getName() ) )
+                {
+                    for ( ProxiedPlayer p : oldServer.getPlayers() )
+                    {
+                        p.disconnect( BungeeCord.getInstance().getTranslation( "server_went_down" ) );
+                    }
+                    continue;
+                }
+                ServerInfo newServer = newServers.get( oldServer.getName() );
+                if ( !newServer.equals( oldServer ) )
+                {
+                    for ( ProxiedPlayer p : oldServer.getPlayers() )
+                    {
+                        p.disconnect( BungeeCord.getInstance().getTranslation( "server_went_down" ) );
+                    }
+                }
+
+            }
+
+            // Add new servers
+            /*
+            for ( Map.Entry<String, ServerInfo> newServer : newServers.entrySet() )
+            {
+                if ( !servers.containsValue( newServer.getValue() ) )
+                {
+                    servers.put( newServer.getKey(), newServer.getValue() );
+                }
+            }
+             */
+            servers = new CaseInsensitiveMap<>( newServers );
+        }
+    }
+    // BotFilter end
 
     @Override
     @Deprecated

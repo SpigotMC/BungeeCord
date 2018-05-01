@@ -30,6 +30,8 @@ public class Sql
     private final Logger logger = BungeeCord.getInstance().getLogger();
     private boolean connecting = false;
 
+    private long lastCleanUp = System.currentTimeMillis() + ( 60000 * 60 * 2 ); // + 2 hours
+
     public Sql()
     {
         setupConnect();
@@ -41,6 +43,10 @@ public class Sql
         try
         {
             connecting = true;
+            if ( executor.isShutdown() )
+            {
+                return;
+            }
             if ( connection != null && connection.isValid( 3 ) )
             {
                 return;
@@ -93,6 +99,14 @@ public class Sql
         Calendar calendar = Calendar.getInstance();
         calendar.add( Calendar.DATE, -Settings.IMP.SQL.PURGE_TIME );
         long until = calendar.getTimeInMillis();
+        try ( PreparedStatement statement = connection.prepareStatement( "SELECT `Name` FROM `Users` WHERE `LastCheck` < " + until + ";" ) )
+        {
+            ResultSet set = statement.executeQuery();
+            while ( set.next() )
+            {
+                BotFilter.getInstance().removeUser( set.getString( "Name" ) );
+            }
+        }
         try ( PreparedStatement statement = connection.prepareStatement( "DELETE FROM `Users` WHERE `LastCheck` < " + until + ";" ) )
         {
             logger.log( Level.INFO, "[BotFilter] Очищено {0} аккаунтов", statement.executeUpdate() );
@@ -168,11 +182,27 @@ public class Sql
                     }
                 } catch ( SQLException ex )
                 {
-                    logger.log( Level.WARNING, "Не могу выполнить запрос к базе данных", ex );
+                    logger.log( Level.WARNING, "[BotFilter] Не могу выполнить запрос к базе данных", ex );
                     logger.log( Level.WARNING, sql );
                     executor.execute( () -> setupConnect() );
                 }
             } );
+        }
+    }
+
+    public void tryCleanUP()
+    {
+        if ( lastCleanUp - System.currentTimeMillis() <= 0 )
+        {
+            lastCleanUp = System.currentTimeMillis() + ( 60000 * 60 * 2 ); // + 2 hours
+            try
+            {
+                clearOldUsers();
+            } catch ( SQLException ex )
+            {
+                setupConnect();
+                logger.log( Level.WARNING, "[BotFilter] Не могу очистить пользователей", ex );
+            }
         }
     }
 

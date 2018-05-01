@@ -17,7 +17,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
@@ -44,6 +47,8 @@ public class YamlConfig implements ConfigurationAdapter
     private final Yaml yaml;
     private Map<String, Object> config;
     private final File file = new File( "config.yml" );
+
+    private static Pattern RANGE_MATCH = Pattern.compile( "(.+)\\[(\\d+)-(\\d+)\\]" ); //BotFilter
 
     public YamlConfig()
     {
@@ -199,19 +204,40 @@ public class YamlConfig implements ConfigurationAdapter
     @SuppressWarnings("unchecked")
     public Map<String, ServerInfo> getServers()
     {
-        Map<String, Map<String, Object>> base = get( "servers", (Map) Collections.singletonMap( "lobby", new HashMap<>() ) );
+        Map<String, Map<String, Object>> base = get( "servers", (Map) Collections.singletonMap( "lobby-[1-3]", new HashMap<>() ) );
         Map<String, ServerInfo> ret = new HashMap<>();
 
         for ( Map.Entry<String, Map<String, Object>> entry : base.entrySet() )
         {
             Map<String, Object> val = entry.getValue();
             String name = entry.getKey();
-            String addr = get( "address", "localhost:25565", val );
+            String addr = get( "address", "localhost:25551", val );
             String motd = ChatColor.translateAlternateColorCodes( '&', get( "motd", "&1Just another BungeeCord - Forced Host", val ) );
             boolean restricted = get( "restricted", false, val );
             InetSocketAddress address = Util.getAddr( addr );
-            ServerInfo info = ProxyServer.getInstance().constructServerInfo( name, address, motd, restricted );
-            ret.put( name, info );
+            Matcher matcher = YamlConfig.RANGE_MATCH.matcher( name );
+            if ( matcher.find() )
+            {
+                name = matcher.group( 1 );
+                int lower = Integer.parseInt( matcher.group( 2 ) );
+                int upper = Integer.parseInt( matcher.group( 3 ) );
+                BungeeCord.getInstance().getLogger().log( Level.INFO, "Use range {0} for server {1}", new Object[]
+                {
+                    "[" + lower + ".." + upper + "]", name
+                } );
+                int port = address.getPort();
+                for ( int i = lower; i <= upper; ++i )
+                {
+                    InetSocketAddress next = new InetSocketAddress( address.getHostName(), port );
+                    ServerInfo info = BungeeCord.getInstance().constructServerInfo( name + i, next, motd, false );
+                    ret.put( info.getName(), info );
+                    port++;
+                }
+            } else
+            {
+                ServerInfo info = ProxyServer.getInstance().constructServerInfo( name, address, motd, restricted );
+                ret.put( name, info );
+            }
         }
 
         return ret;

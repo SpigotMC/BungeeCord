@@ -20,7 +20,7 @@ public class Settings extends Config
     @Final
     public final String HELP = "http://www.rubukkit.org/threads/137038/";
     @Final
-    public String BOT_FILTER_VERSION = "3.0.9";
+    public String BOT_FILTER_VERSION = "3.1";
 
     @Create
     public MESSAGES MESSAGES;
@@ -62,9 +62,6 @@ public class Settings extends Config
 
     @Comment("Показывать ли онлайн с фильтра")
     public boolean SHOW_ONLINE = true;
-
-    @Comment("Время суток во вермя проверки. https://minecraft.gamepedia.com/File:Day_Night_Clock_24h.png")
-    public int TIME = 13200;
 
     @Comment("Сколько времени есть у игрока чтобы пройти защиту. В миллисекундах. 1 сек = 1000")
     public int TIME_OUT = 12700;

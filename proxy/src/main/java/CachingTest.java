@@ -7,6 +7,7 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.Login;
+import ru.leymooo.botfilter.caching.PacketConstans;
 import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.config.Settings;
 import ru.leymooo.botfilter.packets.ChunkPacket;
@@ -35,12 +36,12 @@ public class CachingTest
             long start = System.currentTimeMillis();
             for ( int a = 0; a < 50000; a++ )
             {
-                PacketUtils.packets[0].get( 47 ).release();
-                PacketUtils.packets[2].get( 47 ).release();
-                PacketUtils.packets[6].get( 47 ).release();
-                PacketUtils.packets[4].get( 47 ).release();
-                PacketUtils.packets[5].get( 47 ).release();
-                PacketUtils.packets[12].get( 47 ).release();
+                PacketUtils.getChachedPacket( PacketConstans.LOGIN ).get( 47 ).release();
+                PacketUtils.getChachedPacket( PacketConstans.CHUNK ).get( 47 ).release();
+                PacketUtils.getChachedPacket( PacketConstans.SETSLOT_MAP ).get( 47 ).release();
+                PacketUtils.getChachedPacket( PacketConstans.PLAYERABILITIES ).get( 47 ).release();
+                PacketUtils.getChachedPacket( PacketConstans.PLAYERPOSANDLOOK_CAPTCHA ).get( 47 ).release();
+                PacketUtils.getChachedPacket( PacketConstans.CHECKING_CAPTCHA ).get( 47 ).release();
                 PacketUtils.titles[0].test();
             }
             System.out.println( "From cache: " + ( System.currentTimeMillis() - start ) );

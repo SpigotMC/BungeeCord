@@ -37,6 +37,7 @@ public class BotFilter
     //UserName, Ip
     protected final FastMap<String, String> userCache = new FastMap<>();
 
+    @Getter
     private Sql sql;
     @Getter
     private GeoIp geoIp;
@@ -104,6 +105,17 @@ public class BotFilter
         {
             sql.saveUser( userName, ip );
         }
+    }
+
+    /**
+     * Удаляет игрока из памяти
+     *
+     * @param userName Имя игрока, которого следует удалить из памяти
+     */
+    public void removeUser(String userName)
+    {
+        userName = userName.toLowerCase();
+        userCache.remove( userName );
     }
 
     /**

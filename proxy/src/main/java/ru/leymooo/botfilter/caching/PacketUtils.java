@@ -39,14 +39,7 @@ public class PacketUtils
 
     public static int CLIENTID = new Random().nextInt( Integer.MAX_VALUE - 100 ) + 50;
 
-    /**
-     * 0 - Login, 1 - SpawnPosition(null), 2 - ChunkData, 3 - TimeUpdate, 4 -
-     * PlayerAbilities, 5 - PlayerPosAndLook, 6 - SetSlot(Map), 7 -
-     * SetSlot(Reset), 8 - KeepAlive, 9 - 10 - CaptchaFailedMessage, 11 -
-     * checkMessage, 12 - captchaCheckMessage, 13 - CheckSus, 14 -
-     * PlayerPosAndLook, 15 - SetExp(reset)
-     */
-    public static CachedPacket[] packets = new CachedPacket[ 16 ];
+    private static CachedPacket[] cachedPackets = new CachedPacket[ 16 ];
     private static HashMap<KickType, CachedPacket> kickMessagesGame = new HashMap<KickType, CachedPacket>();
     private static HashMap<KickType, CachedPacket> kickMessagesLogin = new HashMap<KickType, CachedPacket>();
 
@@ -73,7 +66,7 @@ public class PacketUtils
         {
             expPacket.release();
         }
-        for ( CachedPacket packet : packets )
+        for ( CachedPacket packet : cachedPackets )
         {
             if ( packet != null )
             {
@@ -102,27 +95,26 @@ public class PacketUtils
         DefinedPacket[] packets =
         {
             new Login( CLIENTID, (short) 2, 0, (short) 0, (short) 100, "flat", false ), //0
-            null, //1
-            new ChunkPacket( 0, 0, new byte[ 256 ], false ), //2
-            new TimeUpdate( 1, Settings.IMP.TIME ), //3
-            new PlayerAbilities( (byte) 6, 0f, 0f ), //4
-            new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 40f, 9876, false ), //5
-            new SetSlot( 0, 36, 358, 1, 0 ), //6
-            new SetSlot( 0, 36, -1, 0, 0 ), //7
-            new KeepAlive( 9876 ), //8
-            createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "2" ).replaceFirst( "%s", "попытки" ) ), //9
-            createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "1" ).replaceFirst( "%s", "попытка" ) ), //10
-            createMessagePacket( Settings.IMP.MESSAGES.CHECKING ), //11
-            createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA ), //12
-            createMessagePacket( Settings.IMP.MESSAGES.SUCCESSFULLY ), //13
-            new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 10f, 9876, false ), //14
-            new SetExp( 0, 0, 0 ), //15
+            new ChunkPacket( 0, 0, new byte[ 256 ], false ), //1
+            new TimeUpdate( 1, 23700 ), //2
+            new PlayerAbilities( (byte) 6, 0f, 0f ), //3
+            new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 38f, 9876, false ), //4
+            new SetSlot( 0, 36, 358, 1, 0 ), //5
+            new SetSlot( 0, 36, -1, 0, 0 ), //6
+            new KeepAlive( 9876 ), //7
+            createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "2" ).replaceFirst( "%s", "попытки" ) ), //8
+            createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "1" ).replaceFirst( "%s", "попытка" ) ), //9
+            createMessagePacket( Settings.IMP.MESSAGES.CHECKING ), //10
+            createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA ), //11
+            createMessagePacket( Settings.IMP.MESSAGES.SUCCESSFULLY ), //12
+            new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 10f, 9876, false ), //13
+            new SetExp( 0, 0, 0 ), //14
 
         };
 
         for ( int i = 0; i < packets.length; i++ )
         {
-            PacketUtils.packets[i] = new CachedPacket( packets[i], Protocol.BotFilter, Protocol.GAME );
+            PacketUtils.cachedPackets[i] = new CachedPacket( packets[i], Protocol.BotFilter, Protocol.GAME );
         }
         Protocol kickGame = Protocol.GAME;
         Protocol kickLogin = Protocol.LOGIN;
@@ -244,21 +236,21 @@ public class PacketUtils
 
     public static void spawnPlayer(Channel channel, int version, boolean disableFall, boolean captcha)
     {
-        channel.write( packets[0].get( version ), channel.voidPromise() ); //Login
-        channel.write( packets[2].get( version ), channel.voidPromise() ); //ChunkData
+        channel.write( getChachedPacket( PacketConstans.LOGIN ).get( version ), channel.voidPromise() );
+        channel.write( getChachedPacket( PacketConstans.CHUNK ).get( version ), channel.voidPromise() );
         if ( disableFall )
         {
-            channel.write( packets[4].get( version ), channel.voidPromise() ); //PlayerAbilities
+            channel.write( getChachedPacket( PacketConstans.PLAYERABILITIES ).get( version ), channel.voidPromise() );
         }
         if ( captcha )
         {
-            channel.write( packets[5].get( version ), channel.voidPromise() ); //PlayerPosAndLook
+            channel.write( getChachedPacket( PacketConstans.PLAYERPOSANDLOOK_CAPTCHA ).get( version ), channel.voidPromise() );
         } else
         {
-            channel.write( packets[14].get( version ), channel.voidPromise() ); //PlayerPosAndLook
+            channel.write( getChachedPacket( PacketConstans.PLAYERPOSANDLOOK ).get( version ), channel.voidPromise() );
 
         }
-        channel.write( packets[3].get( version ), channel.voidPromise() ); //TimeUpdate
+        channel.write( getChachedPacket( PacketConstans.TIME ).get( version ), channel.voidPromise() );
         //channel.flush(); Не очищяем поскольку это будет в другом месте
     }
 
@@ -276,6 +268,11 @@ public class PacketUtils
             wrapper.write( kickMessagesLogin.get( kick ).get( version ) );
         }
         wrapper.delayedClose( null );
+    }
+
+    public static CachedPacket getChachedPacket(int pos)
+    {
+        return cachedPackets[pos];
     }
 
     public static enum KickType

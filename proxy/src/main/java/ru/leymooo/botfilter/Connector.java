@@ -14,6 +14,7 @@ import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import ru.leymooo.botfilter.BotFilter.CheckState;
+import ru.leymooo.botfilter.caching.PacketConstans;
 import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.caching.PacketUtils.KickType;
 import ru.leymooo.botfilter.utils.IPUtils;
@@ -112,7 +113,7 @@ public class Connector extends MoveHandler
         {
             if ( state == CheckState.CAPTCHA_POSITION && aticks < TOTAL_TICKS )
             {
-                channel.writeAndFlush( PacketUtils.packets[7].get( version ), channel.voidPromise() );
+                channel.writeAndFlush( PacketUtils.getChachedPacket( PacketConstans.SETSLOT_RESET ).get( version ), channel.voidPromise() );
                 state = CheckState.ONLY_POSITION;
             } else
             {
@@ -120,8 +121,9 @@ public class Connector extends MoveHandler
             }
             return;
         }
+        int devide = lastSend == 0 ? sentPings : sentPings - 1;
         KickType type = BotFilter.getInstance().checkIpAddress( IPUtils.getAddress( userConnection ),
-                (int) ( totalping / ( lastSend == 0 ? sentPings : sentPings - 1 ) ) );
+                (int) ( totalping / ( devide <= 0 ? 1 : devide ) ) );
         if ( type != null )
         {
             failed( type, type == KickType.COUNTRY ? "Country is not allowed" : "Big ping" );
@@ -131,7 +133,7 @@ public class Connector extends MoveHandler
         PacketUtils.titles[2].writeTitle( channel, version );
         channel.flush();
         BotFilter.getInstance().removeConnection( null, this );
-        channel.writeAndFlush( PacketUtils.packets[13].get( version ), channel.voidPromise() );
+        channel.writeAndFlush( PacketUtils.getChachedPacket( PacketConstans.CHECK_SUS ).get( version ), channel.voidPromise() );
         BotFilter.getInstance().saveUser( getName(), IPUtils.getAddress( userConnection ) );
         userConnection.setNeedLogin( false );
         userConnection.getPendingConnection().finishLogin( userConnection );
@@ -159,7 +161,7 @@ public class Connector extends MoveHandler
             {
                 state = CheckState.ONLY_CAPTCHA;
                 joinTime = System.currentTimeMillis() + 3500;
-                channel.write( PacketUtils.packets[15].get( version ), channel.voidPromise() );
+                channel.write( PacketUtils.getChachedPacket( PacketConstans.SETEXP_RESET ).get( version ), channel.voidPromise() );
                 PacketUtils.titles[1].writeTitle( channel, version );
                 resetPosition( true );
                 sendCaptcha();
@@ -194,10 +196,10 @@ public class Connector extends MoveHandler
     {
         if ( disableFall )
         {
-            channel.write( PacketUtils.packets[4].get( version ), channel.voidPromise() );
+            channel.write( PacketUtils.getChachedPacket( PacketConstans.PLAYERABILITIES ).get( version ), channel.voidPromise() );
         }
         waitingTeleportId = 9876;
-        channel.writeAndFlush( PacketUtils.packets[5].get( version ), channel.voidPromise() );
+        channel.writeAndFlush( PacketUtils.getChachedPacket( PacketConstans.PLAYERPOSANDLOOK_CAPTCHA ).get( version ), channel.voidPromise() );
     }
 
     @Override
@@ -216,7 +218,8 @@ public class Connector extends MoveHandler
                 completeCheck();
             } else if ( --attemps != 0 )
             {
-                channel.write( attemps == 2 ? PacketUtils.packets[9].get( version ) : PacketUtils.packets[10].get( version ), channel.voidPromise() );
+                channel.write( attemps == 2 ? PacketUtils.getChachedPacket( PacketConstans.CAPTCHA_FAILED_2 ).get( version )
+                        : PacketUtils.getChachedPacket( PacketConstans.CAPTCHA_FAILED_1 ).get( version ), channel.voidPromise() );
                 sendCaptcha();
             } else
             {
@@ -254,14 +257,14 @@ public class Connector extends MoveHandler
         {
             lastSend = System.currentTimeMillis();
             sentPings++;
-            channel.writeAndFlush( PacketUtils.packets[8].get( version ) );
+            channel.writeAndFlush( PacketUtils.getChachedPacket( PacketConstans.KEEPALIVE ).get( version ) );
         }
     }
 
     private void sendCaptcha()
     {
         captchaAnswer = random.nextInt( 100, 999 );
-        channel.write( PacketUtils.packets[6].get( version ), channel.voidPromise() );
+        channel.write( PacketUtils.getChachedPacket( PacketConstans.SETSLOT_MAP ).get( version ), channel.voidPromise() );
         channel.writeAndFlush( PacketUtils.captchas.get( version, captchaAnswer ), channel.voidPromise() );
     }
 

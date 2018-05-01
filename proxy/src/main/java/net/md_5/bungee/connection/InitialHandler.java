@@ -67,6 +67,7 @@ import ru.leymooo.botfilter.Connector;
 import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.caching.PacketUtils.KickType;
 import ru.leymooo.botfilter.utils.ManyChecksUtils;
+import ru.leymooo.botfilter.utils.PingLimiter;
 import ru.leymooo.botfilter.utils.ServerPingUtils;
 
 @RequiredArgsConstructor
@@ -207,6 +208,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.STATUS, "Not expecting STATUS" );
 
+        PingLimiter.handle(); //BotFilter
+        
         ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
         final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
 
@@ -245,7 +248,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             pingBack.done( new ServerPing(
                     new ServerPing.Protocol( bungee.getCustomBungeeName(), protocol ), //BotFilter
                     new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCountBF( true ), null ), //BotFilter
-                    motd, BungeeCord.getInstance().config.getFaviconObject() ),
+                    PingLimiter.isBanned() ? null : motd, BungeeCord.getInstance().config.getFaviconObject() ), //BotFilter PingLimiter.isBanned() ? null :
                     null );
         }
 
