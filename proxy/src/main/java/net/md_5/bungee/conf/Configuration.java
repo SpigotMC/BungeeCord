@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -129,32 +130,18 @@ public class Configuration implements ProxyConfig
             servers = new CaseInsensitiveMap<>( newServers );
         } else
         {
-            for ( ServerInfo oldServer : servers.values() )
-            {
-                // Don't allow servers to be removed
-                //Preconditions.checkArgument( newServers.containsKey( oldServer.getName() ), "Server %s removed on reload!", oldServer.getName() );
-                // Allow servers to be removed 
-                if ( !newServers.containsKey( oldServer.getName() ) )
-                {
-                    for ( ProxiedPlayer p : oldServer.getPlayers() )
+            HashSet<String> toRemove = new HashSet<>();
+            servers.values().stream()
+                    .filter(
+                            oldServer -> ( !newServers.containsKey( oldServer.getName() )
+                            || !newServers.get( oldServer.getName() ).equals( oldServer ) )
+                    ).forEach( server ->
                     {
-                        p.disconnect( BungeeCord.getInstance().getTranslation( "server_went_down" ) );
-                    }
-                    servers.remove( oldServer.getName() );
-                    continue;
-                }
-                
-                ServerInfo newServer = newServers.get( oldServer.getName() );
-                if ( !newServer.equals( oldServer ) )
-                {
-                    for ( ProxiedPlayer p : oldServer.getPlayers() )
-                    {
-                        p.disconnect( BungeeCord.getInstance().getTranslation( "server_went_down" ) );
-                    }
-                    servers.remove( oldServer.getName() );
-                }
+                        toRemove.add( server.getName() );
+                        server.getPlayers().forEach( p -> p.disconnect( BungeeCord.getInstance().getTranslation( "server_went_down" ) ) );
+                    } );
 
-            }
+            toRemove.forEach( s -> servers.remove( s ) );
 
             for ( Map.Entry<String, ServerInfo> newServer : newServers.entrySet() )
             {
