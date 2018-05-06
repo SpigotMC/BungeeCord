@@ -10,6 +10,8 @@ import net.md_5.bungee.api.SkinConfiguration;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.event.ServerConnectEvent;
+import net.md_5.bungee.api.score.Scoreboard;
 
 /**
  * Represents a player who's connection is being connected to somewhere else,
@@ -92,11 +94,34 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * might return before the user has been connected.
      *
      * @param target the new server to connect to
+     * @param reason the reason for connecting to the new server
+     */
+    void connect(ServerInfo target, ServerConnectEvent.Reason reason);
+
+    /**
+     * Connects / transfers this user to the specified connection, gracefully
+     * closing the current one. Depending on the implementation, this method
+     * might return before the user has been connected.
+     *
+     * @param target the new server to connect to
      * @param callback the method called when the connection is complete, or
      * when an exception is encountered. The boolean parameter denotes success
      * or failure.
      */
     void connect(ServerInfo target, Callback<Boolean> callback);
+
+    /**
+     * Connects / transfers this user to the specified connection, gracefully
+     * closing the current one. Depending on the implementation, this method
+     * might return before the user has been connected.
+     *
+     * @param target the new server to connect to
+     * @param callback the method called when the connection is complete, or
+     * when an exception is encountered. The boolean parameter denotes success
+     * or failure.
+     * @param reason the reason for connecting to the new server
+     */
+    void connect(ServerInfo target, Callback<Boolean> callback, ServerConnectEvent.Reason reason);
 
     /**
      * Gets the server this player is connected to.
@@ -275,4 +300,11 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * not occurred for this {@link ProxiedPlayer} yet.
      */
     Map<String, String> getModList();
+
+    /**
+     * Get the {@link Scoreboard} that belongs to this player.
+     *
+     * @return this player's {@link Scoreboard}
+     */
+    Scoreboard getScoreboard();
 }

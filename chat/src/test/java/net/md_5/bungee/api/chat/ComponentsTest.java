@@ -5,8 +5,45 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class ComponentsTest
 {
+
+    @Test
+    public void testLegacyComponentBuilderAppend()
+    {
+        String text = "§a§lHello §r§kworld§7!";
+        BaseComponent[] components = TextComponent.fromLegacyText( text );
+        BaseComponent[] builderComponents = new ComponentBuilder( "" ).append( components ).create();
+        List<BaseComponent> list = new ArrayList<BaseComponent>( Arrays.asList( builderComponents ) );
+        // Remove the first element (empty text component). This needs to be done because toLegacyText always
+        // appends &f regardless if the color is non null or not and would otherwise mess with our unit test.
+        list.remove( 0 );
+        Assert.assertEquals(
+                TextComponent.toLegacyText( components ),
+                TextComponent.toLegacyText( list.toArray( new BaseComponent[ list.size() ] ) )
+        );
+    }
+
+    @Test
+    public void testComponentFormatRetention()
+    {
+        TextComponent first = new TextComponent( "Hello" );
+        first.setBold( true );
+        first.setColor( ChatColor.RED );
+        first.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, "test" ) );
+        first.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( "Test" ).create() ) );
+
+        TextComponent second = new TextComponent( " world" );
+        second.copyFormatting( first, ComponentBuilder.FormatRetention.ALL, true );
+        Assert.assertEquals( first.isBold(), second.isBold() );
+        Assert.assertEquals( first.getColor(), second.getColor() );
+        Assert.assertEquals( first.getClickEvent(), second.getClickEvent() );
+        Assert.assertEquals( first.getHoverEvent(), second.getHoverEvent() );
+    }
 
     @Test
     public void testBuilderClone()
@@ -15,6 +52,27 @@ public class ComponentsTest
         ComponentBuilder cloned = new ComponentBuilder( builder );
 
         Assert.assertEquals( TextComponent.toLegacyText( builder.create() ), TextComponent.toLegacyText( cloned.create() ) );
+    }
+
+    @Test
+    public void testBuilderAppendMixedComponents()
+    {
+        ComponentBuilder builder = new ComponentBuilder( "Hello " );
+        TextComponent textComponent = new TextComponent( "world " );
+        TranslatableComponent translatableComponent = new TranslatableComponent( "item.swordGold.name" );
+        // array based BaseComponent append
+        builder.append( new BaseComponent[]
+        {
+            textComponent,
+            translatableComponent
+        } );
+        ScoreComponent scoreComponent = new ScoreComponent( "myscore", "myobjective" );
+        builder.append( scoreComponent ); // non array based BaseComponent append
+        BaseComponent[] components = builder.create();
+        Assert.assertEquals( "Hello ", components[0].toPlainText() );
+        Assert.assertEquals( textComponent.toPlainText(), components[1].toPlainText() );
+        Assert.assertEquals( translatableComponent.toPlainText(), components[2].toPlainText() );
+        Assert.assertEquals( scoreComponent.toPlainText(), components[3].toPlainText() );
     }
 
     @Test

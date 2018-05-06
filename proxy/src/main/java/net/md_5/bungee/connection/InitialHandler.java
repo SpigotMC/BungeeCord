@@ -37,6 +37,7 @@ import net.md_5.bungee.api.event.PlayerHandshakeEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.PreLoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
+import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.http.HttpClient;
 import net.md_5.bungee.jni.cipher.BungeeCipher;
@@ -142,7 +143,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(LegacyHandshake legacyHandshake) throws Exception
     {
         this.legacy = true;
-        ch.close( bungee.getTranslation( "outdated_client" ) );
+        ch.close( bungee.getTranslation( "outdated_client", bungee.getGameVersion() ) );
     }
 
     @Override
@@ -301,10 +302,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 {
                     if ( handshake.getProtocolVersion() > bungee.getProtocolVersion() )
                     {
-                        disconnect( bungee.getTranslation( "outdated_server" ) );
+                        disconnect( bungee.getTranslation( "outdated_server", bungee.getGameVersion() ) );
                     } else
                     {
-                        disconnect( bungee.getTranslation( "outdated_client" ) );
+                        disconnect( bungee.getTranslation( "outdated_client", bungee.getGameVersion() ) );
                     }
                     return;
                 }
@@ -518,7 +519,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                                 server = bungee.getServerInfo( listener.getDefaultServer() );
                             }
 
-                            userCon.connect( server, null, true );
+                            userCon.connect( server, null, true, ServerConnectEvent.Reason.JOIN_PROXY );
 
                             thisState = State.FINISHED;
                         }
