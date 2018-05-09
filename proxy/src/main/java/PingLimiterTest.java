@@ -22,39 +22,37 @@ public class PingLimiterTest
 
     public static void main(String[] args) throws InterruptedException
     {
-        System.out.println( PingLimiter.isBanned() );
-        for ( int i = 0; i < 300; i++ )
+        for ( int i = 0; i < 430; i++ )
         {
             PingLimiter.handle();
-            System.out.println( PingLimiter.isBanned() );
+        }
+
+        System.out.println( PingLimiter.handle() ); //true
+        Thread.sleep( 60001 );
+        PingLimiter.handle();
+        System.out.println( "1: " + PingLimiter.handle() ); //true
+
+        Thread.sleep( 60001 );
+        PingLimiter.handle();
+        System.out.println( "2: " + PingLimiter.handle() ); //true 
+
+        Thread.sleep( 60001 );
+        PingLimiter.handle();
+        System.out.println( "3: " + PingLimiter.handle() ); //false
+
+        for ( int i = 0; i < 418; i++ )
+        {
+            PingLimiter.handle();
         }
 
         Thread.sleep( 60000 );
-        PingLimiter.handle();
-        System.out.println( "1: " + PingLimiter.isBanned() ); //true
 
-        Thread.sleep( 60000 );
-        PingLimiter.handle();
-        System.out.println( "2: " + PingLimiter.isBanned() ); //true 
-
-        Thread.sleep( 60000 );
-        PingLimiter.handle();
-        System.out.println( "3: " + PingLimiter.isBanned() ); //false
-
-        for ( int i = 0; i < 250; i++ )
-        {
-            PingLimiter.handle();
-            System.out.println( PingLimiter.isBanned() );
-        }
-
-        Thread.sleep( 60000 );
-        PingLimiter.handle();
-        System.out.println( "4: " + PingLimiter.isBanned() ); //false
+        System.out.println( "4: " + PingLimiter.handle() ); //false
 
         for ( int i = 0; i < 100; i++ )
         {
             PingLimiter.handle();
-            System.out.println( PingLimiter.isBanned() ); // false
         }
+        System.out.println( PingLimiter.handle() ); // false
     }
 }

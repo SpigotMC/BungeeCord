@@ -277,7 +277,7 @@ public class Connector extends MoveHandler
     {
         return userConnection != null && channel != null && !markDisconnected && userConnection.isConnected();
     }
-
+    
     public void failed(KickType type, String kickMessage)
     {
         state = CheckState.FAILED;

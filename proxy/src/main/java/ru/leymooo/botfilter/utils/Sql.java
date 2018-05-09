@@ -56,7 +56,7 @@ public class Sql
             if ( Settings.IMP.SQL.STORAGE_TYPE.equalsIgnoreCase( "mysql" ) )
             {
                 SQL s = Settings.IMP.SQL;
-                connectToDatabase( "JDBC:mysql://" + s.HOSTNAME + ":" + s.PORT + "/" + s.DATABASE, s.USER, s.PASSWORD );
+                connectToDatabase( String.format( "JDBC:mysql://%s:%s/%s?useSSL=false&useUnicode=true&characterEncoding=utf-8", s.HOSTNAME, String.valueOf( s.PORT ), s.DATABASE ), s.USER, s.PASSWORD );
             } else
             {
                 Class.forName( "org.sqlite.JDBC" );
