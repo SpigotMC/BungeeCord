@@ -132,17 +132,9 @@ public final class TextComponent extends BaseComponent
             }
             builder.append( c );
         }
-        if ( builder.length() > 0 )
-        {
-            component.setText( builder.toString() );
-            components.add( component );
-        }
 
-        // The client will crash if the array is empty
-        if ( components.isEmpty() )
-        {
-            components.add( new TextComponent( "" ) );
-        }
+        component.setText( builder.toString() );
+        components.add( component );
 
         return components.toArray( new BaseComponent[ components.size() ] );
     }
