@@ -26,7 +26,7 @@ public class PluginMessage extends DefinedPacket
         @Override
         public boolean apply(PluginMessage input)
         {
-            return input.getTag().equals( "REGISTER" ) || input.getTag().equals( "MC|Brand" );
+            return ( input.getTag().equals( "REGISTER" ) || input.getTag().equals( "MC|Brand" ) ) && input.getData().length < Byte.MAX_VALUE;
         }
     };
     //
