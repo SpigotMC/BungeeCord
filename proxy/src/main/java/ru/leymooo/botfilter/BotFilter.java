@@ -29,8 +29,9 @@ import ru.leymooo.botfilter.utils.ServerPingUtils;
 public class BotFilter
 {
 
-    @Getter
+    // @Getter
     private static BotFilter instance;
+
     private static long ONE_MIN = 60000;
 
     protected final FastMap<String, Connector> connectedUsersSet = new FastMap<>();
@@ -49,9 +50,6 @@ public class BotFilter
     private CheckState normalState;
     private CheckState attackState;
 
-    @Getter
-    private static final Logger logger = BungeeCord.getInstance().getLogger();
-
     public BotFilter(boolean startup)
     {
         instance = this;
@@ -64,9 +62,9 @@ public class BotFilter
         normalState = getCheckState( Settings.IMP.PROTECTION.NORMAL );
         attackState = getCheckState( Settings.IMP.PROTECTION.ON_ATTACK );
         PacketUtils.init();
-        sql = new Sql();
+        sql = new Sql( this );
         geoIp = new GeoIp( startup );
-        serverPingUtils = new ServerPingUtils();
+        serverPingUtils = new ServerPingUtils( this );
         BotFilterThread.start();
     }
 
@@ -75,11 +73,11 @@ public class BotFilter
         BotFilterThread.stop();
         for ( Connector connector : connectedUsersSet.values() )
         {
-            if ( connector.userConnection != null )
+            if ( connector.getUserConnection() != null )
             {
-                connector.userConnection.disconnect( "§c[BotFilter] §aПерезагрузка фильтра" );
+                connector.getUserConnection().disconnect( "§c[BotFilter] §aПерезагрузка фильтра" );
             }
-            connector.state = CheckState.FAILED;
+            connector.setState( CheckState.FAILED );
         }
         connectedUsersSet.clear();
         geoIp.close();
@@ -258,6 +256,7 @@ public class BotFilter
 
     private void checkForUpdates(boolean startup)
     {
+        Logger logger = BungeeCord.getInstance().getLogger();
         try
         {
             logger.log( Level.INFO, "[BotFilter] Проверяю наличее обновлений" );

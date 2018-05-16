@@ -175,6 +175,9 @@ public class BungeeCord extends ProxyServer
     @Getter
     private String customBungeeName; //BotFilter
 
+    @Getter
+    @Setter
+    private BotFilter botFilter; //BotFilter
     
     {
         // TODO: Proper fallback when we interface the manager
@@ -565,6 +568,7 @@ public class BungeeCord extends ProxyServer
         return connections.size();
     }
 
+    //BotFilter start
     @Override
     public int getOnlineCountBF(boolean fake)
     {
@@ -575,12 +579,13 @@ public class BungeeCord extends ProxyServer
         }
         if ( Settings.IMP.SHOW_ONLINE )
         {
-            online += BotFilter.getInstance().getOnlineOnFilter();
+            online += botFilter.getOnlineOnFilter();
         }
 
         return online;
     }
-
+    //BotFilter end
+    
     @Override
     public ProxiedPlayer getPlayer(String name)
     {

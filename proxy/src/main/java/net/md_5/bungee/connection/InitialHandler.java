@@ -297,7 +297,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 // Ping
                 thisState = State.STATUS;
                 ch.setProtocol( Protocol.STATUS );
-                BotFilter.getInstance().getServerPingUtils().add( getAddress().getAddress() ); //BotFilter
+                bungee.getBotFilter().getServerPingUtils().add( getAddress().getAddress() ); //BotFilter
                 break;
             case 2:
                 // Login
@@ -323,7 +323,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     return;
                 }
 
-                KickType kickType = BotFilter.getInstance().checkIpAddress( getAddress().getAddress(), -1 );
+                KickType kickType = bungee.getBotFilter().checkIpAddress( getAddress().getAddress(), -1 );
                 if ( kickType != null )
                 {
                     PacketUtils.kickPlayer( KickType.COUNTRY, Protocol.LOGIN, ch, getVersion() );
@@ -332,7 +332,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     return;
                 }
 
-                ServerPingUtils ping = BotFilter.getInstance().getServerPingUtils();
+                ServerPingUtils ping = bungee.getBotFilter().getServerPingUtils();
                 if ( ping.needCheck() && ping.needKickOrRemove( getAddress().getAddress() ) )
                 {
                     PacketUtils.kickPlayer( KickType.PING, Protocol.LOGIN, ch, getVersion() );
@@ -502,7 +502,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         //BotFilter start
-        if ( BotFilter.getInstance().isOnChecking( getName() ) )
+        if ( bungee.getBotFilter().isOnChecking( getName() ) )
         {
             disconnect( bungee.getTranslation( "already_connected_proxy" ) );
             return;
@@ -522,9 +522,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         ch.setProtocol( Protocol.GAME );
 
         //BotFiler start
-        if ( BotFilter.getInstance().needCheck( getName(), getAddress().getAddress() ) )
+        if ( bungee.getBotFilter().needCheck( getName(), getAddress().getAddress() ) )
         {
-            ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new Connector( userCon ) );
+            ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new Connector( userCon, bungee.getBotFilter() ) );
         } else
         {
             bungee.getLogger().log( Level.INFO, "{0} has connected", InitialHandler.this );

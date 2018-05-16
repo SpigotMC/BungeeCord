@@ -3,9 +3,8 @@ package ru.leymooo.botfilter;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.md_5.bungee.BungeeCord;
-import net.md_5.bungee.protocol.Protocol;
+import ru.leymooo.botfilter.BotFilter.CheckState;
 import ru.leymooo.botfilter.caching.PacketConstans;
 import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.caching.PacketUtils.KickType;
@@ -21,6 +20,7 @@ public class BotFilterThread
 
     private static Thread thread;
     private static final HashSet<String> toRemove = new HashSet<>();
+    private static BungeeCord bungee = BungeeCord.getInstance();
 
     public static void start()
     {
@@ -31,7 +31,7 @@ public class BotFilterThread
                 try
                 {
                     long currTime = System.currentTimeMillis();
-                    for ( Map.Entry<String, Connector> entryset : BotFilter.getInstance().connectedUsersSet.entrySet() )
+                    for ( Map.Entry<String, Connector> entryset : bungee.getBotFilter().connectedUsersSet.entrySet() )
                     {
                         Connector connector = entryset.getValue();
                         if ( !connector.isConnected() )
@@ -39,7 +39,7 @@ public class BotFilterThread
                             toRemove.add( entryset.getKey() );
                             continue;
                         }
-                        BotFilter.CheckState state = connector.state;
+                        CheckState state = connector.getState();
                         switch ( state )
                         {
                             case SUCCESSFULLY:
@@ -47,18 +47,18 @@ public class BotFilterThread
                                 toRemove.add( entryset.getKey() );
                                 continue;
                             default:
-                                if ( ( currTime - connector.joinTime ) >= Settings.IMP.TIME_OUT )
+                                if ( ( currTime - connector.getJoinTime() ) >= Settings.IMP.TIME_OUT )
                                 {
-                                    connector.failed( KickType.NOTPLAYER, connector.state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED
+                                    connector.failed( KickType.NOTPLAYER, state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED
                                             ? "Too long fall check" : "Captcha not entered" );
                                     toRemove.add( entryset.getKey() );
                                     continue;
                                 } else if ( state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED || state == BotFilter.CheckState.ONLY_POSITION )
                                 {
-                                    connector.channel.writeAndFlush( PacketUtils.getChachedPacket( PacketConstans.CHECKING ).get( connector.version ) );
+                                    connector.getChannel().writeAndFlush( PacketUtils.getChachedPacket( PacketConstans.CHECKING ).get( connector.getVersion() ) );
                                 } else
                                 {
-                                    connector.channel.writeAndFlush( PacketUtils.getChachedPacket( PacketConstans.CHECKING_CAPTCHA ).get( connector.version ) );
+                                    connector.getChannel().writeAndFlush( PacketUtils.getChachedPacket( PacketConstans.CHECKING_CAPTCHA ).get( connector.getVersion() ) );
                                 }
                                 connector.sendPing();
                         }
@@ -73,7 +73,7 @@ public class BotFilterThread
                     {
                         for ( String remove : toRemove )
                         {
-                            BotFilter.getInstance().removeConnection( remove, null );
+                            bungee.getBotFilter().removeConnection( remove, null );
                         }
                         toRemove.clear();
                     }
@@ -110,18 +110,23 @@ public class BotFilterThread
             while ( !Thread.interrupted() )
             {
                 ManyChecksUtils.cleanUP();
-                if ( BungeeCord.getInstance().getConnectionThrottle() != null )
+                if ( bungee.getConnectionThrottle() != null )
                 {
-                    BungeeCord.getInstance().getConnectionThrottle().cleanUP();
+                    bungee.getConnectionThrottle().cleanUP();
                 }
-                if ( BotFilter.getInstance() != null && BotFilter.getInstance().getServerPingUtils() != null )
+                if ( bungee.getBotFilter() != null )
                 {
-                    BotFilter.getInstance().getServerPingUtils().cleanUP();
+                    BotFilter botFilter = bungee.getBotFilter();
+                    if ( botFilter.getServerPingUtils() != null )
+                    {
+                        botFilter.getServerPingUtils().cleanUP();
+                    }
+                    if ( botFilter.getSql() != null )
+                    {
+                        botFilter.getSql().tryCleanUP();
+                    }
                 }
-                if ( BotFilter.getInstance() != null && BotFilter.getInstance().getSql() != null )
-                {
-                    BotFilter.getInstance().getSql().tryCleanUP();
-                }
+
                 try
                 {
                     Thread.sleep( 60000L );

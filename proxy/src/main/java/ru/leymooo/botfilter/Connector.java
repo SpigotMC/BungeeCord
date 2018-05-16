@@ -1,10 +1,14 @@
 package ru.leymooo.botfilter;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
@@ -33,23 +37,35 @@ public class Connector extends MoveHandler
 
     public static int TOTAL_TICKS = 100;
     private static long TOTAL_TIME = ( TOTAL_TICKS * 50 ) - 100; //TICKS * 50MS
+    private static final Logger logger = BungeeCord.getInstance().getLogger();
 
-    public UserConnection userConnection;
+    private BotFilter botFilter;
+    @Getter
+    private UserConnection userConnection;
 
-    public String name;
+    private String name;
 
-    public int version;
+    @Getter
+    @Setter
+    private CheckState state = CheckState.CAPTCHA_ON_POSITION_FAILED;
+    @Getter
+    private Channel channel;
+
+    @Getter
+    private int version;
     private int aticks = 0, sentPings = 0, captchaAnswer, attemps = 3;
-    public long joinTime = System.currentTimeMillis(), lastSend = 0, totalping = 9999;
-    public boolean markDisconnected = false;
-
-    public CheckState state = BotFilter.getInstance().getCurrentCheckState();
-    public Channel channel;
+    @Getter
+    private long joinTime = System.currentTimeMillis();
+    private long lastSend = 0, totalping = 9999;
+    private boolean markDisconnected = false;
 
     private ThreadLocalRandom random = ThreadLocalRandom.current();
 
-    public Connector(UserConnection userConnection)
+    public Connector(UserConnection userConnection, BotFilter botFilter)
     {
+        Preconditions.checkNotNull(botFilter, "BotFilter instance is null");
+        this.botFilter = botFilter;
+        this.state = this.botFilter.getCurrentCheckState();
         this.name = userConnection.getName();
         this.channel = userConnection.getCh().getHandle();
         this.userConnection = userConnection;
@@ -57,7 +73,7 @@ public class Connector extends MoveHandler
         this.userConnection.setClientEntityId( PacketUtils.CLIENTID );
         this.userConnection.setDimension( 0 );
         this.userConnection.getCh().setDecoderProtocol( Protocol.BotFilter );
-        BotFilter.getInstance().incrementBotCounter();
+        this.botFilter.incrementBotCounter();
         ManyChecksUtils.IncreaseOrAdd( IPUtils.getAddress( this.userConnection ) );
         if ( state == CheckState.CAPTCHA_ON_POSITION_FAILED )
         {
@@ -70,8 +86,8 @@ public class Connector extends MoveHandler
             PacketUtils.titles[1].writeTitle( channel, version );
         }
         sendPing();
-        BotFilter.getInstance().addConnection( this );
-        BungeeCord.getInstance().getLogger().log( Level.INFO, "[{0}] <-> BotFilter has connected", name );
+        this.botFilter.addConnection( this );
+        logger.log( Level.INFO, "[{0}] <-> BotFilter has connected", name );
     }
 
     @Override
@@ -91,7 +107,7 @@ public class Connector extends MoveHandler
     @Override
     public void disconnected(ChannelWrapper channel) throws Exception
     {
-        BotFilter.getInstance().removeConnection( null, this );
+        botFilter.removeConnection( null, this );
         disconnected();
     }
 
@@ -122,7 +138,7 @@ public class Connector extends MoveHandler
             return;
         }
         int devide = lastSend == 0 ? sentPings : sentPings - 1;
-        KickType type = BotFilter.getInstance().checkIpAddress( IPUtils.getAddress( userConnection ),
+        KickType type = botFilter.checkIpAddress( IPUtils.getAddress( userConnection ),
                 (int) ( totalping / ( devide <= 0 ? 1 : devide ) ) );
         if ( type != null )
         {
@@ -132,9 +148,9 @@ public class Connector extends MoveHandler
         state = CheckState.SUCCESSFULLY;
         PacketUtils.titles[2].writeTitle( channel, version );
         channel.flush();
-        BotFilter.getInstance().removeConnection( null, this );
+        botFilter.removeConnection( null, this );
         channel.writeAndFlush( PacketUtils.getChachedPacket( PacketConstans.CHECK_SUS ).get( version ), channel.voidPromise() );
-        BotFilter.getInstance().saveUser( getName(), IPUtils.getAddress( userConnection ) );
+        botFilter.saveUser( getName(), IPUtils.getAddress( userConnection ) );
         userConnection.setNeedLogin( false );
         userConnection.getPendingConnection().finishLogin( userConnection );
         markDisconnected = true;
@@ -277,13 +293,13 @@ public class Connector extends MoveHandler
     {
         return userConnection != null && channel != null && !markDisconnected && userConnection.isConnected();
     }
-    
+
     public void failed(KickType type, String kickMessage)
     {
         state = CheckState.FAILED;
         PacketUtils.kickPlayer( type, Protocol.GAME, userConnection.getCh(), version );
         markDisconnected = true;
-        BungeeCord.getInstance().getLogger().log( Level.INFO, "(BF) [{0}] disconnected: ".concat( kickMessage ), name );
+        logger.log( Level.INFO, "(BF) [{0}] disconnected: ".concat( kickMessage ), name );
     }
 
     @Override

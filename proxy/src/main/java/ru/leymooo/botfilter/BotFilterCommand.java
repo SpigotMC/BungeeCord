@@ -1,5 +1,6 @@
 package ru.leymooo.botfilter;
 
+import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
@@ -29,8 +30,8 @@ public class BotFilterCommand extends Command
             sender.sendMessage( "§r--------------- §bBotFilter §r-----------------" );
         } else if ( args[0].equalsIgnoreCase( "reload" ) )
         {
-            BotFilter.getInstance().disable();
-            new BotFilter( false );
+            BungeeCord.getInstance().getBotFilter().disable();
+            BungeeCord.getInstance().setBotFilter( new BotFilter( false ) );
             sender.sendMessage( "§aКоманда выполнена" );
         } else if ( args[0].equalsIgnoreCase( "stat" ) || args[0].equalsIgnoreCase( "stats" ) || args[0].equalsIgnoreCase( "info" ) )
         {
@@ -40,10 +41,11 @@ public class BotFilterCommand extends Command
 
     private void sendStat(CommandSender sender)
     {
+        BotFilter botFilter = BungeeCord.getInstance().getBotFilter();
         sender.sendMessage( "§r----------------- §bBotFilter §cv" + Settings.IMP.BOT_FILTER_VERSION + " §r-----------------" );
-        sender.sendMessage( "§r> §lОбнаружена атака: " + ( BotFilter.getInstance().isUnderAttack() ? "§cДа" : "§aНет" ) );
-        sender.sendMessage( "§r> §lБотов на проверке: " + BotFilter.getInstance().connectedUsersSet.size() );
-        sender.sendMessage( "§r> §lПрошло проверку: " + BotFilter.getInstance().userCache.size() );
+        sender.sendMessage( "§r> §lОбнаружена атака: " + ( botFilter.isUnderAttack() ? "§cДа" : "§aНет" ) );
+        sender.sendMessage( "§r> §lБотов на проверке: " + botFilter.connectedUsersSet.size() );
+        sender.sendMessage( "§r> §lПрошло проверку: " + botFilter.userCache.size() );
         sender.sendMessage( "§r> §lСкачать BotFilter: http://www.rubukkit.org/threads/137038/" );
     }
 }

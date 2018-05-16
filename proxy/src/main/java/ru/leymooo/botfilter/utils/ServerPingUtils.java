@@ -17,8 +17,11 @@ public class ServerPingUtils
     private Cache<InetAddress, Boolean> pingList;
     private boolean enabled = Settings.IMP.SERVER_PING_CHECK.MODE != 2;
 
-    public ServerPingUtils()
+    private final BotFilter botFilter;
+
+    public ServerPingUtils(BotFilter botFilter)
     {
+        this.botFilter = botFilter;
         pingList = CacheBuilder.newBuilder()
                 .concurrencyLevel( Runtime.getRuntime().availableProcessors() )
                 .initialCapacity( 100 )
@@ -46,7 +49,7 @@ public class ServerPingUtils
 
     public boolean needCheck()
     {
-        return enabled && ( Settings.IMP.SERVER_PING_CHECK.MODE == 0 || BotFilter.getInstance().isUnderAttack() );
+        return enabled && ( Settings.IMP.SERVER_PING_CHECK.MODE == 0 || botFilter.isUnderAttack() );
     }
 
     public void clear()

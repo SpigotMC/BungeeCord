@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import javolution.util.FastMap;
 import lombok.Getter;
+import net.md_5.bungee.BungeeCord;
 import ru.leymooo.botfilter.BotFilter;
 import ru.leymooo.botfilter.config.Settings;
 
@@ -34,10 +35,10 @@ public class GeoIp
     private final HashSet<String> countries = new HashSet<>();
     @Getter
     private final FastMap<InetAddress, String> cached = new FastMap<>();
-    private final Logger logger = BotFilter.getLogger();
-
     @Getter
     private boolean enabled = Settings.IMP.GEO_IP.MODE != 2;
+
+    private final Logger logger = BungeeCord.getInstance().getLogger();
 
     private DatabaseReader reader;
 

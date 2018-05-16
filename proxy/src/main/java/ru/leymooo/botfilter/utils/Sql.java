@@ -25,15 +25,17 @@ import ru.leymooo.botfilter.config.Settings.SQL;
 public class Sql
 {
 
+    private BotFilter botFilter;
     private Connection connection;
-    private final ExecutorService executor = Executors.newFixedThreadPool( 2, new ThreadFactoryBuilder().setNameFormat( "BotFilter-SQL-%d" ).build() );
-    private final Logger logger = BungeeCord.getInstance().getLogger();
     private boolean connecting = false;
-
     private long nextCleanUp = System.currentTimeMillis() + ( 60000 * 60 * 2 ); // + 2 hours
 
-    public Sql()
+    private final ExecutorService executor = Executors.newFixedThreadPool( 2, new ThreadFactoryBuilder().setNameFormat( "BotFilter-SQL-%d" ).build() );
+    private final Logger logger = BungeeCord.getInstance().getLogger();
+
+    public Sql(BotFilter botFilter)
     {
+        this.botFilter = botFilter;
         setupConnect();
     }
 
@@ -104,7 +106,7 @@ public class Sql
             ResultSet set = statement.executeQuery();
             while ( set.next() )
             {
-                BotFilter.getInstance().removeUser( set.getString( "Name" ) );
+                botFilter.removeUser( set.getString( "Name" ) );
             }
         }
         try ( PreparedStatement statement = connection.prepareStatement( "DELETE FROM `Users` WHERE `LastCheck` < " + until + ";" ) )
@@ -128,7 +130,7 @@ public class Sql
                     removeUser( "REMOVE FROM `Users` WHERE `Ip` = '" + ip + "' AND `LastCheck` = '" + set.getLong( "LastCheck" ) + "';" );
                     continue;
                 }
-                BotFilter.getInstance().saveUser( name, IPUtils.getAddress( ip ) );
+                botFilter.saveUser( name, IPUtils.getAddress( ip ) );
                 i++;
             }
             logger.log( Level.INFO, "[BotFilter] Белый список игроков успешно загружен ({0})", i );
