@@ -2,14 +2,20 @@ package net.md_5.bungee.api.plugin;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.scheduler.GroupedThreadFactory;
+import net.md_5.bungee.config.Configuration;
+import net.md_5.bungee.config.ConfigurationProvider;
+import net.md_5.bungee.config.YamlConfiguration;
 
 /**
  * Represents any Plugin that may be loaded at runtime to enhance existing
@@ -26,6 +32,8 @@ public class Plugin
     private File file;
     @Getter
     private Logger logger;
+    private File configurationFile;
+    private Configuration configuration;
 
     /**
      * Called when the plugin has just been loaded. Most of the proxy will not
@@ -75,6 +83,62 @@ public class Plugin
     }
 
     /**
+     * (Re)load the {@link Configuration} of this plugin from the disk. The config file is config.yml
+     */
+    public void loadConfig()
+    {
+        try
+        {
+            if ( !getDataFolder().exists() )
+            {
+                getDataFolder().mkdir();
+            }
+
+            if ( !configurationFile.exists() )
+            {
+                try ( InputStream in = getResourceAsStream( "config.yml" ) )
+                {
+                    Files.copy( in, configurationFile.toPath() );
+                }
+            }
+            configuration = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( configurationFile );
+        } catch ( IOException ex )
+        {
+            logger.log( Level.SEVERE, "Could not load the configuration", ex );
+        }
+    }
+
+    /**
+     * Save the {@link Configuration} of this plugin to the disk.
+     */
+    public void saveConfig() {
+        if ( configuration != null )
+        {
+            try
+            {
+                ConfigurationProvider.getProvider( YamlConfiguration.class ).save( configuration, configurationFile );
+            } catch (IOException ex)
+            {
+                logger.log( Level.SEVERE, "Could not save the configuration", ex );
+            }
+        }
+    }
+
+    /**
+     * Get the {@link Configuration} of this plugin.
+     *
+     * @return Plugin configuration
+     */
+    public Configuration getConfig()
+    {
+        if ( configuration == null )
+        {
+            loadConfig();
+        }
+        return configuration;
+    }
+
+    /**
      * Called by the loader to initialize the fields in this plugin.
      *
      * @param proxy current proxy instance
@@ -86,6 +150,7 @@ public class Plugin
         this.description = description;
         this.file = description.getFile();
         this.logger = new PluginLogger( this );
+        this.configurationFile = new File( getDataFolder(), "config.yml" );
     }
 
     //
