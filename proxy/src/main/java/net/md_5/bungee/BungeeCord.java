@@ -272,7 +272,7 @@ public class BungeeCord extends ProxyServer
         String nameProperty = System.getProperty( "bungeeName" ); // BotFilter
         customBungeeName = ( nameProperty == null ? getName() : nameProperty ) + " " + getGameVersion(); // BotFilter
 
-        new BotFilter( true ); //Hook BotFilter into Bungee
+        this.botFilter = new BotFilter( true ); //Hook BotFilter into Bungee
         new FakeOnlineUtils(); //Init fake online
         BotFilterThread.startCleanUpThread(); //BotFilter
 
