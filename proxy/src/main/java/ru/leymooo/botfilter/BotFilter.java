@@ -8,9 +8,10 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javolution.util.FastMap;
 import lombok.Getter;
 import net.md_5.bungee.BungeeCord;
 import ru.leymooo.botfilter.caching.CachedCaptcha;
@@ -34,9 +35,9 @@ public class BotFilter
 
     private static long ONE_MIN = 60000;
 
-    protected final FastMap<String, Connector> connectedUsersSet = new FastMap<>();
+    protected final Map<String, Connector> connectedUsersSet = new ConcurrentHashMap<>();
     //UserName, Ip
-    protected final FastMap<String, String> userCache = new FastMap<>();
+    protected final Map<String, String> userCache = new ConcurrentHashMap<>();
 
     @Getter
     private Sql sql;

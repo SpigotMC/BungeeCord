@@ -13,14 +13,14 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
-import javolution.util.FastMap;
 import lombok.Getter;
 import net.md_5.bungee.BungeeCord;
-import ru.leymooo.botfilter.BotFilter;
 import ru.leymooo.botfilter.config.Settings;
 
 /**
@@ -34,7 +34,7 @@ public class GeoIp
 
     private final HashSet<String> countries = new HashSet<>();
     @Getter
-    private final FastMap<InetAddress, String> cached = new FastMap<>();
+    private final Map<InetAddress, String> cached = new ConcurrentHashMap<>();
     @Getter
     private boolean enabled = Settings.IMP.GEO_IP.MODE != 2;
 
