@@ -187,6 +187,7 @@ public class EventBus
                         for ( Method method : listenerHandlers.getValue() )
                         {
                             EventHandlerMethod ehm = new EventHandlerMethod( listenerHandlers.getKey(), method );
+                            ehm.setLogger( logger ); //BotFilter
                             handlersList.add( ehm );
                         }
                     }
