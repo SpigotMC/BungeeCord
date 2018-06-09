@@ -167,6 +167,29 @@ public final class ComponentBuilder
     }
 
     /**
+     * Appends something to builder using appender given using {@link FormatRetention#ALL}.
+     * May come in handy especially in Java 8 due to functional interfaces support.
+     *
+     * @param appender appender used for operation
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder append(Appender appender) {
+        return appender.append(this, FormatRetention.ALL);
+    }
+
+    /**
+     * Appends something to builder using appender given using retention given.
+     * May come in handy especially in Java 8 due to functional interfaces support.
+     *
+     * @param appender appender used for operation
+     * @param retention the formatting to retain
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder append(Appender appender, FormatRetention retention) {
+        return appender.append(this, retention);
+    }
+
+    /**
      * Sets the color of the current part.
      *
      * @param color the new color
@@ -331,5 +354,21 @@ public final class ComponentBuilder
          * component.
          */
         ALL
+    }
+
+    /**
+     * Actually functional interface to append
+     */
+    public interface Appender
+    {
+
+        /**
+         * Appends something to {@code ComponentBuilder} given returning it for fulfilling chain pattern.
+         *
+         * @param componentBuilder to which to append something
+         * @param retention the formatting to retain
+         * @return ComponentBuilder given for chaining
+         */
+        ComponentBuilder append(ComponentBuilder componentBuilder, FormatRetention retention);
     }
 }
