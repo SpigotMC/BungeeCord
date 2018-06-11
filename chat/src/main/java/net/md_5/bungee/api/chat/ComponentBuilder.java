@@ -167,26 +167,27 @@ public final class ComponentBuilder
     }
 
     /**
-     * Appends something to builder using appender given using {@link FormatRetention#ALL}.
+     * Joins something to builder using joiner given using {@link FormatRetention#ALL}.
      * May come in handy especially in Java 8 due to functional interfaces support.
      *
-     * @param appender appender used for operation
+     * @param joiner joiner used for operation
      * @return this ComponentBuilder for chaining
      */
-    public ComponentBuilder append(Appender appender) {
-        return appender.append(this, FormatRetention.ALL);
+    public ComponentBuilder append(Joiner joiner) {
+        return joiner.join(this, FormatRetention.ALL);
     }
 
     /**
-     * Appends something to builder using appender given using retention given.
+     * Joins something to builder using Joiner using retention given.
      * May come in handy especially in Java 8 due to functional interfaces support.
+     * Retention may be ignored by Joiner.
      *
-     * @param appender appender used for operation
+     * @param joiner joiner used for operation
      * @param retention the formatting to retain
      * @return this ComponentBuilder for chaining
      */
-    public ComponentBuilder append(Appender appender, FormatRetention retention) {
-        return appender.append(this, retention);
+    public ComponentBuilder append(Joiner joiner, FormatRetention retention) {
+        return joiner.join(this, retention);
     }
 
     /**
@@ -332,7 +333,7 @@ public final class ComponentBuilder
         return result;
     }
 
-    public static enum FormatRetention
+    public enum FormatRetention
     {
 
         /**
@@ -359,16 +360,19 @@ public final class ComponentBuilder
     /**
      * Actually functional interface to append
      */
-    public interface Appender
+    public interface Joiner
     {
 
         /**
-         * Appends something to {@code ComponentBuilder} given returning it for fulfilling chain pattern.
+         * Joins something to {@code ComponentBuilder} given returning it for fulfilling chain pattern.
+         * Retention may be ignored and is to be understood as an optional recommendation for Joiner in case
+         * its behaviour can depend on it but not as a guarantee to hava previous component in builder unmodified.
          *
          * @param componentBuilder to which to append something
-         * @param retention the formatting to retain
+         * @param retention the formatting to retain.
+         *                  This does not guarantee that retention will be taken into account as
          * @return ComponentBuilder given for chaining
          */
-        ComponentBuilder append(ComponentBuilder componentBuilder, FormatRetention retention);
+        ComponentBuilder join(ComponentBuilder componentBuilder, FormatRetention retention);
     }
 }
