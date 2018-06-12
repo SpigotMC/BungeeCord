@@ -18,6 +18,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.score.Objective;
 import net.md_5.bungee.api.score.Position;
@@ -63,7 +64,7 @@ public class DownstreamBridge extends PacketHandler
         if ( def != null )
         {
             server.setObsolete( true );
-            con.connectNow( def );
+            con.connectNow( def, ServerConnectEvent.Reason.SERVER_DOWN_REDIRECT );
             con.sendMessage( bungee.getTranslation( "server_went_down" ) );
         } else
         {
@@ -325,7 +326,7 @@ public class DownstreamBridge extends PacketHandler
                 ServerInfo server = bungee.getServerInfo( in.readUTF() );
                 if ( server != null )
                 {
-                    con.connect( server );
+                    con.connect( server, ServerConnectEvent.Reason.PLUGIN_MESSAGE );
                 }
             }
             if ( subChannel.equals( "ConnectOther" ) )
@@ -457,7 +458,7 @@ public class DownstreamBridge extends PacketHandler
         ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTED ) );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
-            con.connectNow( event.getCancelServer() );
+            con.connectNow( event.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT );
         } else
         {
             con.disconnect0( event.getKickReasonComponent() ); // TODO: Prefix our own stuff.
