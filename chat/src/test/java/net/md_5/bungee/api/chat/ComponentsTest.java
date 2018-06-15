@@ -5,8 +5,28 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class ComponentsTest
 {
+
+    @Test
+    public void testLegacyComponentBuilderAppend()
+    {
+        String text = "§a§lHello §r§kworld§7!";
+        BaseComponent[] components = TextComponent.fromLegacyText( text );
+        BaseComponent[] builderComponents = new ComponentBuilder( "" ).append( components ).create();
+        List<BaseComponent> list = new ArrayList<BaseComponent>( Arrays.asList( builderComponents ) );
+        // Remove the first element (empty text component). This needs to be done because toLegacyText always
+        // appends &f regardless if the color is non null or not and would otherwise mess with our unit test.
+        list.remove( 0 );
+        Assert.assertEquals(
+                TextComponent.toLegacyText( components ),
+                TextComponent.toLegacyText( list.toArray( new BaseComponent[ list.size() ] ) )
+        );
+    }
 
     @Test
     public void testComponentFormatRetention()
@@ -40,7 +60,9 @@ public class ComponentsTest
         ComponentBuilder builder = new ComponentBuilder( "Hello " );
         TextComponent textComponent = new TextComponent( "world " );
         TranslatableComponent translatableComponent = new TranslatableComponent( "item.swordGold.name" );
-        builder.append( new BaseComponent[] { // array based BaseComponent append
+        // array based BaseComponent append
+        builder.append( new BaseComponent[]
+        {
             textComponent,
             translatableComponent
         } );
@@ -91,9 +113,9 @@ public class ComponentsTest
         BaseComponent[] test2 = TextComponent.fromLegacyText( "Text http://spigotmc.org " + ChatColor.GREEN + "google.com/test" );
 
         Assert.assertEquals( "Text http://spigotmc.org google.com/test", BaseComponent.toPlainText( test2 ) );
-        //The extra ChatColor.WHITEs are sometimes inserted when not needed but it doesn't change the result
+        //The extra ChatColor instances are sometimes inserted when not needed but it doesn't change the result
         Assert.assertEquals( ChatColor.WHITE + "Text " + ChatColor.WHITE + "http://spigotmc.org" + ChatColor.WHITE
-                + " " + ChatColor.GREEN + "google.com/test", BaseComponent.toLegacyText( test2 ) );
+                + " " + ChatColor.GREEN + "google.com/test" + ChatColor.GREEN, BaseComponent.toLegacyText( test2 ) );
 
         ClickEvent url1 = test2[1].getClickEvent();
         Assert.assertNotNull( url1 );
@@ -251,6 +273,20 @@ public class ComponentsTest
 
         // all invalid color codes and the trailing '§' should be ignored
         Assert.assertEquals( emptyLegacyText, invalidColorCodesLegacyText );
+    }
+
+    @Test
+    public void testFormattingOnlyTextConversion()
+    {
+        String text = "§a";
+
+        BaseComponent[] converted = TextComponent.fromLegacyText( text );
+        Assert.assertEquals( ChatColor.GREEN, converted[0].getColor() );
+
+        String roundtripLegacyText = BaseComponent.toLegacyText( converted );
+
+        // color code should not be lost during conversion
+        Assert.assertEquals( text, roundtripLegacyText );
     }
 
     private String fromAndToLegacyText(String legacyText)
