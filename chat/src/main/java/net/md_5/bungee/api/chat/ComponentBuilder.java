@@ -122,11 +122,11 @@ public final class ComponentBuilder
     {
         Preconditions.checkArgument( components.length != 0, "No components to append" );
 
+        BaseComponent previous = current;
         for ( BaseComponent component : components )
         {
             parts.add( current );
 
-            BaseComponent previous = current;
             current = component.duplicate();
             current.copyFormatting( previous, retention, false );
         }

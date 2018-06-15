@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.event.ServerSwitchEvent;
@@ -87,57 +88,33 @@ public class ServerConnector extends PacketHandler
     public void connected(ChannelWrapper channel) throws Exception
     {
         this.ch = channel;
-        
-        this.handshakeHandler = new ForgeServerHandler(user, ch, target);
+
+        this.handshakeHandler = new ForgeServerHandler( user, ch, target );
         Handshake originalHandshake = user.getPendingConnection().getHandshake();
-        Handshake copiedHandshake = new Handshake(originalHandshake.getProtocolVersion(), originalHandshake.getHost(), originalHandshake.getPort(), 2);
-        
-        if (BungeeCord.getInstance().config.isIpForward())
+        Handshake copiedHandshake = new Handshake( originalHandshake.getProtocolVersion(), originalHandshake.getHost(), originalHandshake.getPort(), 2 );
+
+        if ( BungeeCord.getInstance().config.isIpForward() )
         {
             String newHost = copiedHandshake.getHost() + "\00" + user.getAddress().getHostString() + "\00" + user.getUUID();
 
-            // Handle properties.
-            LoginResult.Property[] properties = new LoginResult.Property[0];
-
             LoginResult profile = user.getPendingConnection().getLoginProfile();
-            if (profile != null && profile.getProperties() != null && profile.getProperties().length > 0)
+            if ( profile != null && profile.getProperties() != null && profile.getProperties().length > 0 )
             {
-                properties = profile.getProperties();
+                newHost += "\00" + BungeeCord.getInstance().gson.toJson( profile.getProperties() );
             }
-
-            if ( user.getForgeClientHandler().isFmlTokenInHandshake() )
-            {
-                // Get the current properties and copy them into a slightly bigger array.
-                LoginResult.Property[] newp = Arrays.copyOf( properties, properties.length + 2 );
-
-                // Add a new profile property that specifies that this user is a Forge user.
-                newp[newp.length - 2] = new LoginResult.Property( ForgeConstants.FML_LOGIN_PROFILE, "true", null );
-
-                // If we do not perform the replacement, then the IP Forwarding code in Spigot et. al. will try to split on this prematurely.
-                newp[newp.length - 1] = new LoginResult.Property( ForgeConstants.EXTRA_DATA, user.getExtraDataInHandshake().replaceAll( "\0", "\1"), "" );
-
-                // All done.
-                properties = newp;
-            }
-
-            // If we touched any properties, then append them
-            if (properties.length > 0)
-            {
-                newHost += "\00" + BungeeCord.getInstance().gson.toJson(properties);
-            }
-
-            copiedHandshake.setHost(newHost);
+            copiedHandshake.setHost( newHost );
+        } else if ( !user.getExtraDataInHandshake().isEmpty() )
+        {
+            // Only restore the extra data if IP forwarding is off.
+            // TODO: Add support for this data with IP forwarding.
+            copiedHandshake.setHost( copiedHandshake.getHost() + user.getExtraDataInHandshake() );
         }
-        else if (!user.getExtraDataInHandshake().isEmpty()) {
-            // Restore the extra data
-            copiedHandshake.setHost(copiedHandshake.getHost() + user.getExtraDataInHandshake());
-        }
-        
-        channel.write(copiedHandshake);
-        
-        channel.setProtocol(Protocol.LOGIN);
-        channel.write(new LoginRequest(user.getName()));
-}
+
+        channel.write( copiedHandshake );
+
+        channel.setProtocol( Protocol.LOGIN );
+        channel.write( new LoginRequest( user.getName() ) );
+    }
     
     @Override
     public void disconnected(ChannelWrapper channel) throws Exception
@@ -329,7 +306,7 @@ public class ServerConnector extends PacketHandler
         if (event.isCancelled() && event.getCancelServer() != null)
         {
             obsolete = true;
-            user.connect(event.getCancelServer());
+            user.connect( event.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT );
             throw CancelSendSignal.INSTANCE;
         }
         
@@ -345,42 +322,49 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(PluginMessage pluginMessage) throws Exception
     {
-        if (pluginMessage.getTag().equals(ForgeConstants.FML_REGISTER))
+        if ( BungeeCord.getInstance().config.isForgeSupport() )
         {
-            Set<String> channels = ForgeUtils.readRegisteredChannels(pluginMessage);
-            boolean isForgeServer = false;
-            for (String channel : channels)
-                if (channel.equals(ForgeConstants.FML_HANDSHAKE_TAG))
-                {
-                    // If we have a completed handshake and we have been asked to register a FML|HS
-                    // packet, let's send the reset packet now. Then, we can continue the message sending.
-                    // The handshake will not be complete if we reset this earlier.
-                    if (user.getServer() != null && user.getForgeClientHandler().isHandshakeComplete())
-                        user.getForgeClientHandler().resetHandshake();
-                    
-                    isForgeServer = true;
-                    break;
-                }
-            
-            if (isForgeServer && !this.handshakeHandler.isServerForge())
+            if ( pluginMessage.getTag().equals( ForgeConstants.FML_REGISTER ) )
             {
-                // We now set the server-side handshake handler for the client to this.
-                handshakeHandler.setServerAsForgeServer();
-                user.setForgeServerHandler(handshakeHandler);
+                Set<String> channels = ForgeUtils.readRegisteredChannels( pluginMessage );
+                boolean isForgeServer = false;
+                for ( String channel : channels )
+                {
+                    if ( channel.equals( ForgeConstants.FML_HANDSHAKE_TAG ) )
+                    {
+                        // If we have a completed handshake and we have been asked to register a FML|HS
+                        // packet, let's send the reset packet now. Then, we can continue the message sending.
+                        // The handshake will not be complete if we reset this earlier.
+                        if ( user.getServer() != null && user.getForgeClientHandler().isHandshakeComplete() )
+                        {
+                            user.getForgeClientHandler().resetHandshake();
+                        }
+
+                        isForgeServer = true;
+                        break;
+                    }
+                }
+
+                if ( isForgeServer && !this.handshakeHandler.isServerForge() )
+                {
+                    // We now set the server-side handshake handler for the client to this.
+                    handshakeHandler.setServerAsForgeServer();
+                    user.setForgeServerHandler( handshakeHandler );
+                }
+            }
+
+            if ( pluginMessage.getTag().equals( ForgeConstants.FML_HANDSHAKE_TAG ) || pluginMessage.getTag().equals( ForgeConstants.FORGE_REGISTER ) )
+            {
+                this.handshakeHandler.handle( pluginMessage );
+
+                // We send the message as part of the handler, so don't send it here.
+                throw CancelSendSignal.INSTANCE;
             }
         }
-        
-        if (!handshakeHandler.isHandshakeComplete() && ( pluginMessage.getTag().equals(ForgeConstants.FML_HANDSHAKE_TAG) || pluginMessage.getTag().equals(ForgeConstants.FORGE_REGISTER ) ))
-        {
-        	handshakeHandler.handle( pluginMessage );
-            
-            // We send the message as part of the handler, so don't send it here.
-            throw CancelSendSignal.INSTANCE;
-        }
-        else
-            // We have to forward these to the user, especially with Forge as stuff might break
-            // This includes any REGISTER messages we intercepted earlier.
-            user.unsafe().sendPacket(pluginMessage);
+
+        // We have to forward these to the user, especially with Forge as stuff might break
+        // This includes any REGISTER messages we intercepted earlier.
+        user.unsafe().sendPacket( pluginMessage );
     }
     
     @Override
