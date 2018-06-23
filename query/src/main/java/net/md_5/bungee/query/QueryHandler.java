@@ -55,6 +55,7 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
         if ( in.readUnsignedByte() != 0xFE || in.readUnsignedByte() != 0xFD )
         {
             bungee.getLogger().log( Level.WARNING, "Query - Incorrect magic!: {0}", msg.sender() );
+            in.clear();
             return;
         }
 
@@ -87,57 +88,55 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
             out.writeByte( 0x00 );
             out.writeInt( sessionId );
 
-            if ( in.readableBytes() == 0 )
+            switch ( in.readableBytes() )
             {
-                // Short response
-                writeString( out, listener.getMotd() ); // MOTD
-                writeString( out, "SMP" ); // Game Type
-                writeString( out, "BotFilter_by_vk.com/Leymooo_s" ); // World Name //BotFilter
-                writeNumber( out, bungee.getOnlineCountBF(true) ); // Online Count//BotFilter
-                writeNumber( out, listener.getMaxPlayers() ); // Max Players
-                writeShort( out, listener.getHost().getPort() ); // Port
-                writeString( out, listener.getHost().getHostString() ); // IP
-            } else if ( in.readableBytes() == 4 )
-            {
-                // Long Response
-                out.writeBytes( new byte[]
-                {
-                    0x73, 0x70, 0x6C, 0x69, 0x74, 0x6E, 0x75, 0x6D, 0x00, (byte) 0x80, 0x00
-                } );
-                Map<String, String> data = new LinkedHashMap<>();
-
-                data.put( "hostname", listener.getMotd() );
-                data.put( "gametype", "SMP" );
-                // Start Extra Info
-                data.put( "game_id", "MINECRAFT" );
-                data.put( "version", bungee.getCustomBungeeName() ); //BotFilter
-                data.put( "plugins", "" );
-                // End Extra Info
-                data.put( "map", "BotFilter_by_vk.com/Leymooo_s" ); //BotFilter
-                data.put( "numplayers", Integer.toString( bungee.getOnlineCountBF(true) ) ); //BotFilter
-                data.put( "maxplayers", Integer.toString( listener.getMaxPlayers() ) );
-                data.put( "hostport", Integer.toString( listener.getHost().getPort() ) );
-                data.put( "hostip", listener.getHost().getHostString() );
-
-                for ( Map.Entry<String, String> entry : data.entrySet() )
-                {
-                    writeString( out, entry.getKey() );
-                    writeString( out, entry.getValue() );
-                }
-                out.writeByte( 0x00 ); // Null
-
-                // Padding
-                writeString( out, "\01player_\00" );
-                // Player List
-                for ( ProxiedPlayer p : bungee.getPlayers() )
-                {
-                    writeString( out, p.getName() );
-                }
-                out.writeByte( 0x00 ); // Null
-            } else
-            {
-                // Error!
-                throw new IllegalStateException( "Invalid data request packet" );
+                case 0:
+                    // Short response
+                    writeString( out, listener.getMotd() ); // MOTD
+                    writeString( out, "SMP" ); // Game Type
+                    writeString( out, "BotFilter_by_vk.com/Leymooo_s" ); // World Name //BotFilter
+                    writeNumber( out, bungee.getOnlineCountBF( true ) ); // Online Count//BotFilter
+                    writeNumber( out, listener.getMaxPlayers() ); // Max Players
+                    writeShort( out, listener.getHost().getPort() ); // Port
+                    writeString( out, listener.getHost().getHostString() ); // IP
+                    break;
+                case 4:
+                    // Long Response
+                    out.writeBytes( new byte[]
+                    {
+                        0x73, 0x70, 0x6C, 0x69, 0x74, 0x6E, 0x75, 0x6D, 0x00, (byte) 0x80, 0x00
+                    } );
+                    Map<String, String> data = new LinkedHashMap<>();
+                    data.put( "hostname", listener.getMotd() );
+                    data.put( "gametype", "SMP" );
+                    // Start Extra Info
+                    data.put( "game_id", "MINECRAFT" );
+                    data.put( "version", bungee.getCustomBungeeName() ); //BotFilter
+                    data.put( "plugins", "" );
+                    // End Extra Info
+                    data.put( "map", "BotFilter_by_vk.com/Leymooo_s" ); //BotFilter
+                    data.put( "numplayers", Integer.toString( bungee.getOnlineCountBF( true ) ) ); //BotFilter
+                    data.put( "maxplayers", Integer.toString( listener.getMaxPlayers() ) );
+                    data.put( "hostport", Integer.toString( listener.getHost().getPort() ) );
+                    data.put( "hostip", listener.getHost().getHostString() );
+                    for ( Map.Entry<String, String> entry : data.entrySet() )
+                    {
+                        writeString( out, entry.getKey() );
+                        writeString( out, entry.getValue() );
+                    }
+                    out.writeByte( 0x00 ); // Null
+                    // Padding
+                    writeString( out, "\01player_\00" );
+                    // Player List
+                    for ( ProxiedPlayer p : bungee.getPlayers() )
+                    {
+                        writeString( out, p.getName() );
+                    }
+                    out.writeByte( 0x00 ); // Null
+                    break;
+                default:
+                    // Error!
+                    throw new IllegalStateException( "Invalid data request packet" );
             }
         }
 

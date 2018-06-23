@@ -121,7 +121,7 @@ public class BungeeCord extends ProxyServer
      */
     private ResourceBundle baseBundle;
     private ResourceBundle customBundle;
-    public EventLoopGroup bossEventLoopGroup, workerEventLoopGroup; //BotFilter
+    public EventLoopGroup bossEventLoopGroup, workerEventLoopGroup, queryEventLoopGroup; //BotFilter
     /**
      * locations.yml save thread.
      */
@@ -178,6 +178,7 @@ public class BungeeCord extends ProxyServer
     @Getter
     @Setter
     private BotFilter botFilter; //BotFilter
+
     
     {
         // TODO: Proper fallback when we interface the manager
@@ -278,6 +279,7 @@ public class BungeeCord extends ProxyServer
 
         bossEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Boss IO Thread #%1$d" ).build() ); //BotFilter //WaterFall backport
         workerEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Worker IO Thread #%1$d" ).build() );//BotFilter //WaterFall backport
+        queryEventLoopGroup = PipelineUtils.newEventLoopGroup( 1, new ThreadFactoryBuilder().setNameFormat( "Query Netty IO Thread #%1$d" ).build() );//BotFilter
 
         File moduleDirectory = new File( "modules" );
         moduleManager.load( this, moduleDirectory );
@@ -294,7 +296,7 @@ public class BungeeCord extends ProxyServer
             registerChannel( ForgeConstants.FML_TAG );
             registerChannel( ForgeConstants.FML_HANDSHAKE_TAG );
             registerChannel( ForgeConstants.FORGE_REGISTER );
-            
+
             getLogger().warning( "MinecraftForge support is currently unmaintained and may have unresolved issues. Please use at your own risk." );
         }
 
@@ -372,7 +374,7 @@ public class BungeeCord extends ProxyServer
                         }
                     }
                 };
-                new RemoteQuery( this, info ).start( PipelineUtils.getDatagramChannel(), new InetSocketAddress( info.getHost().getAddress(), info.getQueryPort() ), workerEventLoopGroup, bindListener ); //BotFilter //WaterFall backport
+                new RemoteQuery( this, info ).start( PipelineUtils.getDatagramChannel(), new InetSocketAddress( info.getHost().getAddress(), info.getQueryPort() ), queryEventLoopGroup, bindListener ); //BotFilter
             }
         }
     }
@@ -585,7 +587,7 @@ public class BungeeCord extends ProxyServer
         return online;
     }
     //BotFilter end
-    
+
     @Override
     public ProxiedPlayer getPlayer(String name)
     {
