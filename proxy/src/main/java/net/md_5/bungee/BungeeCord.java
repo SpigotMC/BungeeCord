@@ -466,14 +466,12 @@ public class BungeeCord extends ProxyServer
                 getLogger().info( "Closing IO threads" );
                 bossEventLoopGroup.shutdownGracefully(); //BotFilter //WaterFall backport
                 workerEventLoopGroup.shutdownGracefully(); //BotFilter //WaterFall backport
-                queryEventLoopGroup.shutdownGracefully(); //BotFilter
                 while ( true ) //BotFilter //WaterFall backport
                 {
                     try
                     {
                         bossEventLoopGroup.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS );//BotFilter //WaterFall backport
                         workerEventLoopGroup.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS ); //BotFilter //WaterFall backport 
-                        queryEventLoopGroup.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS ); //BotFilter 
                         break;
                     } catch ( InterruptedException ignored )
                     {
