@@ -45,7 +45,7 @@ public class PacketUtils
 
     public static CachedCaptcha captchas = new CachedCaptcha();
 
-    public static CachedExpPackets expPacket;
+    public static CachedExpPackets expPackets;
 
     /**
      * 0 - Checking_fall, 1 - checking_captcha, 2 - sus
@@ -62,9 +62,9 @@ public class PacketUtils
 
     public static void init()
     {
-        if ( expPacket != null )
+        if ( expPackets != null )
         {
-            expPacket.release();
+            expPackets.release();
         }
         for ( CachedPacket packet : cachedPackets )
         {
@@ -86,7 +86,7 @@ public class PacketUtils
         }
         kickMessagesGame.clear();
 
-        expPacket = new CachedExpPackets();
+        expPackets = new CachedExpPackets();
 
         titles[0] = new CachedTitle( Settings.IMP.MESSAGES.CHECKING_TITLE, 5, 90, 15 );
         titles[1] = new CachedTitle( Settings.IMP.MESSAGES.CHECKING_TITLE_CAPTCHA, 5, 15, 10 );

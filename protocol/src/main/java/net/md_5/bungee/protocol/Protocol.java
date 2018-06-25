@@ -267,6 +267,52 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x23 ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x23 )
             );
+            TO_CLIENT.registerPacket(
+                    TimeUpdate.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x03 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x44 ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x46 ),
+                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x47 )
+            );
+            TO_CLIENT.registerPacket(
+                    PlayerPositionAndLook.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x08 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x2E ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x2E ),
+                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x2F )
+            );
+            TO_CLIENT.registerPacket(
+                    ChunkPacket.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x21 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x20 ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x20 )
+            );
+            TO_CLIENT.registerPacket(
+                    SetSlot.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x2F ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x16 ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x16 )
+            );
+            TO_CLIENT.registerPacket(
+                    PlayerAbilities.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x39 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x2B ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x2B ),
+                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x2C )
+            );
+            TO_CLIENT.registerPacket(
+                    KeepAlive.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x00 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x1F ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x1F )
+            );
+            TO_CLIENT.registerPacket(
+                    SetExp.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x1F ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x3D ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x3F ),
+                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x40 )
+            );
             TO_SERVER.registerPacket(
                     ClientSettings.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x15 ),

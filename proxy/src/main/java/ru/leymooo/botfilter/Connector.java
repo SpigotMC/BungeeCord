@@ -198,7 +198,7 @@ public class Connector extends MoveHandler
         }
         if ( state == CheckState.CAPTCHA_ON_POSITION_FAILED )
         {
-            ByteBuf expBuf = PacketUtils.expPacket.get( aticks, version );
+            ByteBuf expBuf = PacketUtils.expPackets.get( aticks, version );
             if ( expBuf != null )
             {
                 channel.writeAndFlush( expBuf, channel.voidPromise() );
