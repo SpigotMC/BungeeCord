@@ -45,7 +45,7 @@ public class PacketUtils
 
     public static CachedCaptcha captchas = new CachedCaptcha();
 
-    public static CachedExpPacket expPacket;
+    public static CachedExpPackets expPacket;
 
     /**
      * 0 - Checking_fall, 1 - checking_captcha, 2 - sus
@@ -86,31 +86,31 @@ public class PacketUtils
         }
         kickMessagesGame.clear();
 
-        expPacket = new CachedExpPacket();
+        expPacket = new CachedExpPackets();
 
         titles[0] = new CachedTitle( Settings.IMP.MESSAGES.CHECKING_TITLE, 5, 90, 15 );
         titles[1] = new CachedTitle( Settings.IMP.MESSAGES.CHECKING_TITLE_CAPTCHA, 5, 15, 10 );
         titles[2] = new CachedTitle( Settings.IMP.MESSAGES.CHECKING_TITLE_SUS, 5, 20, 10 );
 
-        DefinedPacket[] packets =
-        {
-            new Login( CLIENTID, (short) 2, 0, (short) 0, (short) 100, "flat", false ), //0
-            new ChunkPacket( 0, 0, new byte[ 256 ], false ), //1
-            new TimeUpdate( 1, 23700 ), //2
-            new PlayerAbilities( (byte) 6, 0f, 0f ), //3
-            new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 38f, 9876, false ), //4
-            new SetSlot( 0, 36, 358, 1, 0 ), //5
-            new SetSlot( 0, 36, -1, 0, 0 ), //6
-            new KeepAlive( 9876 ), //7
-            createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "2" ).replaceFirst( "%s", "попытки" ) ), //8
-            createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "1" ).replaceFirst( "%s", "попытка" ) ), //9
-            createMessagePacket( Settings.IMP.MESSAGES.CHECKING ), //10
-            createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA ), //11
-            createMessagePacket( Settings.IMP.MESSAGES.SUCCESSFULLY ), //12
-            new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 10f, 9876, false ), //13
-            new SetExp( 0, 0, 0 ), //14
-
-        };
+        DefinedPacket[] packets
+                =
+                {
+                    new Login( CLIENTID, (short) 2, 0, (short) 0, (short) 100, "flat", false ), //0
+                    new ChunkPacket( 0, 0, new byte[ 256 ], false ), //1
+                    new TimeUpdate( 1, 23700 ), //2
+                    new PlayerAbilities( (byte) 6, 0f, 0f ), //3
+                    new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 38f, 9876, false ), //4
+                    new SetSlot( 0, 36, 358, 1, 0 ), //5
+                    new SetSlot( 0, 36, -1, 0, 0 ), //6
+                    new KeepAlive( 9876 ), //7
+                    createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "2" ).replaceFirst( "%s", "попытки" ) ), //8
+                    createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "1" ).replaceFirst( "%s", "попытка" ) ), //9
+                    createMessagePacket( Settings.IMP.MESSAGES.CHECKING ), //10
+                    createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA ), //11
+                    createMessagePacket( Settings.IMP.MESSAGES.SUCCESSFULLY ), //12
+                    new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 10f, 9876, false ), //13
+                    new SetExp( 0, 0, 0 ), //14
+                };
 
         for ( int i = 0; i < packets.length; i++ )
         {
@@ -146,15 +146,19 @@ public class PacketUtils
                                 message.replace( "%prefix%", Settings.IMP.MESSAGES.PREFIX ).replace( "%nl%", "\n" ) ) ) ), (byte) ChatMessageType.CHAT.ordinal() );
     }
 
-    public static int getPacketId(DefinedPacket packet, DirectionData def, DirectionData prot, int version)
+    public static int getPacketId(DefinedPacket packet, int version, Protocol... protocols)
     {
-        try
+        for ( Protocol protocol : protocols )
         {
-            return def.getId( packet.getClass(), version );
-        } catch ( Exception e )
-        {
-            return prot.getId( packet.getClass(), version );
+            try
+            {
+                return protocol.TO_CLIENT.getId( packet.getClass(), version );
+            } catch ( Exception ignore )
+            {
+            }
         }
+
+        throw new IllegalStateException( "Can not get id for " + packet.getClass().getSimpleName() + "(" + version + ")" );
     }
 
     public static void releaseByteBuf(ByteBuf buf)
@@ -168,20 +172,18 @@ public class PacketUtils
         }
     }
 
-    public static void fillArray(ByteBuf[] buffer, DefinedPacket packet, Protocol protocol, Protocol secondProtocol)
+    public static void fillArray(ByteBuf[] buffer, DefinedPacket packet, Protocol... protocols)
     {
         if ( packet == null )
         {
             return;
         }
-        Protocol.DirectionData prot = protocol.TO_CLIENT;
-        Protocol.DirectionData prot2 = secondProtocol == null ? null : secondProtocol.TO_CLIENT;
         int oldPacketId = -1;
         ByteBuf oldBuf = null;
         for ( int version : ProtocolConstants.SUPPORTED_VERSION_IDS )
         {
             int versionRewrited = rewriteVersion( version );
-            int newPacketId = PacketUtils.getPacketId( packet, prot, prot2, version );
+            int newPacketId = PacketUtils.getPacketId( packet, version, protocols );
             if ( newPacketId != oldPacketId )
             {
                 oldPacketId = newPacketId;

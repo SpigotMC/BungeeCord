@@ -29,7 +29,7 @@ public class Team
 
     public void addPlayer(String name)
     {
-        players.add(name.intern()); //WaterFall backport
+        players.add( name.intern() ); //WaterFall backport
     }
 
     public void removePlayer(String name)

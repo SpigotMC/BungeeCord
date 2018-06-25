@@ -17,7 +17,7 @@ public class KeepAlive extends DefinedPacket
 {
 
     private long randomId;
-    
+
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {

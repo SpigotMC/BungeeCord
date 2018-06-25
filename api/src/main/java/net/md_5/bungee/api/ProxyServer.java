@@ -243,12 +243,7 @@ public abstract class ProxyServer
      * @return the current number of connected players
      */
     public abstract int getOnlineCount();
-    
-    /**
-     * Получить количество игроков с учетом онлайна фильтра и фейк онлайна
-     * @return количество подключенных игроков
-     */
-    public abstract int getOnlineCountBF(boolean fake); //BotFilter
+
     /**
      * Send the specified message to the console and all connected players.
      *
@@ -310,4 +305,7 @@ public abstract class ProxyServer
     public abstract Title createTitle();
 
     public abstract String getCustomBungeeName(); //BotFilter
+
+    public abstract int getOnlineCountBF(boolean fake); //BotFilter
+
 }

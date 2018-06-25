@@ -79,7 +79,7 @@ public class PipelineUtils
     public static final String LEGACY_DECODER = "legacy-decoder";
     public static final String LEGACY_KICKER = "legacy-kick";
     private static final KickStringWriter KICK_STRING_WRITER = new KickStringWriter(); //BotFilter //WaterFall backport
-    
+
     private static boolean epoll;
 
     static

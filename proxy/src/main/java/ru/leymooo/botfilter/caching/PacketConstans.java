@@ -10,7 +10,7 @@ public class PacketConstans
     private PacketConstans()
     {
     }
-    
+
     public static final int LOGIN = 0;
     public static final int CHUNK = 1;
     public static final int TIME = 2;
@@ -26,7 +26,5 @@ public class PacketConstans
     public static final int CHECK_SUS = 12;
     public static final int PLAYERPOSANDLOOK = 13;
     public static final int SETEXP_RESET = 14;
-    
-    
 
 }

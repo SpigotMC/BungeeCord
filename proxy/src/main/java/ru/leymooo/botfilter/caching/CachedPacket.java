@@ -14,16 +14,10 @@ public class CachedPacket
 
     private ByteBuf[] byteBuf = new ByteBuf[ PacketUtils.PROTOCOLS_NUM ];
 
-    public CachedPacket(DefinedPacket packet, Protocol protocol, Protocol secondProtocol)
+    public CachedPacket(DefinedPacket packet, Protocol... protocols)
     {
-        PacketUtils.fillArray( byteBuf, packet, protocol, secondProtocol);
+        PacketUtils.fillArray( byteBuf, packet, protocols );
     }
-
-    public CachedPacket(DefinedPacket packet, Protocol protocol)
-    {
-        PacketUtils.fillArray( byteBuf, packet, protocol, null );
-    }
-
 
     public ByteBuf get(int version)
     {

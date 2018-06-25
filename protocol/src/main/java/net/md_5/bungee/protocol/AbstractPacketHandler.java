@@ -6,7 +6,6 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.ClientStatus;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.Chat;
-import ru.leymooo.botfilter.packets.unused.ConfirmTransaction;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
@@ -26,15 +25,11 @@ import net.md_5.bungee.protocol.packet.LegacyPing;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PingPacket;
-import ru.leymooo.botfilter.packets.unused.PlayerLook;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import ru.leymooo.botfilter.packets.TeleportConfirm;
 import net.md_5.bungee.protocol.packet.Title;
-import ru.leymooo.botfilter.packets.unused.Animation;
-import ru.leymooo.botfilter.packets.ChunkPacket;
-import ru.leymooo.botfilter.packets.unused.HeldItemSlot;
 import ru.leymooo.botfilter.packets.Player;
 import ru.leymooo.botfilter.packets.PlayerPosition;
 import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
@@ -47,14 +42,6 @@ public abstract class AbstractPacketHandler
     }
 
     //BotFilter statrt
-    public void handle(HeldItemSlot heldSlot) throws Exception
-    {
-    }
-
-    public void handle(ConfirmTransaction transaction) throws Exception
-    {
-    }
-
     public void handle(Player player) throws Exception
     {
     }
@@ -63,23 +50,11 @@ public abstract class AbstractPacketHandler
     {
     }
 
-    public void handle(PlayerLook look) throws Exception
-    {
-    }
-
     public void handle(TeleportConfirm confirm) throws Exception
     {
     }
 
     public void handle(PlayerPositionAndLook posRot) throws Exception
-    {
-    }
-
-    public void handle(Animation anim)
-    {
-    }
-
-    public void handle(ChunkPacket chunk)
     {
     }
     //BotFilter end

@@ -11,12 +11,12 @@ import ru.leymooo.botfilter.packets.SetExp;
  *
  * @author Leymooo
  */
-public class CachedExpPacket
+public class CachedExpPackets
 {
 
-    private ByteBuf[][] byteBuf = new ByteBuf[ Connector.TOTAL_TICKS ][ PacketUtils.PROTOCOLS_NUM ];
+    private ByteBuf[/*mc version*/][/*tick*/] byteBuf = new ByteBuf[ Connector.TOTAL_TICKS ][ PacketUtils.PROTOCOLS_NUM ];
 
-    public CachedExpPacket()
+    public CachedExpPackets()
     {
         create();
     }
@@ -31,7 +31,7 @@ public class CachedExpPacket
         {
             setExp.setExpBar( setExp.getExpBar() + expinterval );
             setExp.setLevel( setExp.getLevel() + 1 );
-            PacketUtils.fillArray( byteBuf[i], setExp, Protocol.BotFilter, null );
+            PacketUtils.fillArray( byteBuf[i], setExp, Protocol.BotFilter );
         }
     }
 

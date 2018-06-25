@@ -63,7 +63,7 @@ public class Connector extends MoveHandler
 
     public Connector(UserConnection userConnection, BotFilter botFilter)
     {
-        Preconditions.checkNotNull(botFilter, "BotFilter instance is null");
+        Preconditions.checkNotNull( botFilter, "BotFilter instance is null" );
         this.botFilter = botFilter;
         this.state = this.botFilter.getCurrentCheckState();
         this.name = userConnection.getName();

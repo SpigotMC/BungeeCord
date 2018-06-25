@@ -33,7 +33,7 @@ public class CachedTitle
                 Title titlePacket = new Title();
                 titlePacket.setAction( Title.Action.TITLE );
                 titlePacket.setText( ComponentSerializer.toString( TextComponent.fromLegacyText( ChatColor.translateAlternateColorCodes( '&', title ) ) ) );
-                PacketUtils.fillArray( this.title, titlePacket, Protocol.GAME, null );
+                PacketUtils.fillArray( this.title, titlePacket, Protocol.GAME );
             }
             if ( subtitle != null && !subtitle.isEmpty() )
             {
@@ -41,7 +41,7 @@ public class CachedTitle
                 Title subTitlePacket = new Title();
                 subTitlePacket.setAction( Title.Action.SUBTITLE );
                 subTitlePacket.setText( ComponentSerializer.toString( TextComponent.fromLegacyText( ChatColor.translateAlternateColorCodes( '&', subtitle ) ) ) );
-                PacketUtils.fillArray( this.subtitle, subTitlePacket, Protocol.GAME, null );
+                PacketUtils.fillArray( this.subtitle, subTitlePacket, Protocol.GAME );
             }
 
             if ( this.title != null || this.subtitle != null )
@@ -52,7 +52,7 @@ public class CachedTitle
                 times.setStay( stay );
                 times.setFadeOut( out );
                 times.setAction( Title.Action.TIMES );
-                PacketUtils.fillArray( this.times, times, Protocol.GAME, null );
+                PacketUtils.fillArray( this.times, times, Protocol.GAME );
             }
         }
     }
@@ -76,9 +76,9 @@ public class CachedTitle
 
     public void test()
     {
-        times[0].retainedDuplicate();
-        title[0].retainedDuplicate();
-        subtitle[0].retainedDuplicate();
+        times[0].retainedDuplicate().release();
+        title[0].retainedDuplicate().release();
+        subtitle[0].retainedDuplicate().release();
     }
 
     public void release()

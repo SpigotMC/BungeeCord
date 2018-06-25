@@ -35,7 +35,7 @@ public class ChunkPacket extends DefinedPacket
             buf.writeShort( unload ? 0 : 1 );
         } else
         {
-            writeVarInt( 0, buf);
+            writeVarInt( 0, buf );
         }
         writeArray( data, buf );
         if ( version >= ProtocolConstants.MINECRAFT_1_9_4 )
@@ -47,7 +47,6 @@ public class ChunkPacket extends DefinedPacket
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {
-        handler.handle( this );
     }
 
 }
