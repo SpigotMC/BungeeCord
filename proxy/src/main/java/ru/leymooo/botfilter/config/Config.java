@@ -1,9 +1,9 @@
 package ru.leymooo.botfilter.config;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.InputStreamReader;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -11,6 +11,12 @@ import java.lang.annotation.Target;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -25,7 +31,7 @@ public class Config
 
     public Config()
     {
-        save( new PrintWriter( new ByteArrayOutputStream( 0 ) ), getClass(), this, 0 );
+        save( new ArrayList<>(), getClass(), this, 0 );
     }
 
     /**
@@ -78,7 +84,7 @@ public class Config
         Configuration yml;
         try
         {
-            yml = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( file );
+            yml = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( new InputStreamReader( new FileInputStream( file ), StandardCharsets.UTF_8 ) );
         } catch ( IOException ex )
         {
             BungeeCord.getInstance().getLogger().log( Level.WARNING, "[BotFilter] Не могу загрузить конфиг ", ex );
@@ -116,23 +122,17 @@ public class Config
      */
     public void save(File file)
     {
-        Class<? extends Config> root = getClass();
         try
         {
-            if ( !file.exists() )
+            File parent = file.getParentFile();
+            if ( parent != null )
             {
-                File parent = file.getParentFile();
-                if ( parent != null )
-                {
-                    file.getParentFile().mkdirs();
-                }
-                file.createNewFile();
+                file.getParentFile().mkdirs();
             }
-            try ( PrintWriter writer = new PrintWriter( file ) )
-            {
-                Object instance = this;
-                save( writer, getClass(), instance, 0 );
-            }
+            Path configFile = Paths.get( file.getPath() );
+            List<String> lines = new ArrayList<>();
+            save( lines, getClass(), this, 0 );
+            Files.write( configFile, lines, StandardCharsets.UTF_8, StandardOpenOption.CREATE );
         } catch ( IOException e )
         {
             BungeeCord.getInstance().getLogger().log( Level.WARNING, "Error:", e );
@@ -217,11 +217,10 @@ public class Config
         return value != null ? value.toString() : "null";
     }
 
-    private void save(PrintWriter writer, Class clazz, final Object instance, int indent)
+    private void save(List<String> lines, Class clazz, final Object instance, int indent)
     {
         try
         {
-            String CTRF = System.lineSeparator();
             String spacing = repeat( " ", indent );
             for ( Field field : clazz.getFields() )
             {
@@ -239,7 +238,7 @@ public class Config
                 {
                     for ( String commentLine : comment.value() )
                     {
-                        writer.write( spacing + "# " + commentLine + CTRF );
+                        lines.add( spacing + "# " + commentLine );
                     }
                 }
                 Create create = field.getAnnotation( Create.class );
@@ -249,25 +248,25 @@ public class Config
                     setAccessible( field );
                     if ( indent == 0 )
                     {
-                        writer.write( CTRF );
+                        lines.add( "" );
                     }
                     comment = current.getAnnotation( Comment.class );
                     if ( comment != null )
                     {
                         for ( String commentLine : comment.value() )
                         {
-                            writer.write( spacing + "# " + commentLine + CTRF );
+                            lines.add( spacing + "# " + commentLine );
                         }
                     }
-                    writer.write( spacing + toNodeName( current.getSimpleName() ) + ":" + CTRF );
+                    lines.add( spacing + toNodeName( current.getSimpleName() ) + ":" );
                     if ( value == null )
                     {
                         field.set( instance, value = current.newInstance() );
                     }
-                    save( writer, current, value, indent + 2 );
+                    save( lines, current, value, indent + 2 );
                 } else
                 {
-                    writer.write( spacing + toNodeName( field.getName() + ": " ) + toYamlString( field.get( instance ), spacing ) + CTRF );
+                    lines.add( spacing + toNodeName( field.getName() + ": " ) + toYamlString( field.get( instance ), spacing ) );
                 }
             }
         } catch ( IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchFieldException | SecurityException e )
