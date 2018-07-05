@@ -6,6 +6,7 @@ import java.util.UUID;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.ServerConnectRequest;
 import net.md_5.bungee.api.SkinConfiguration;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -122,6 +123,15 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param reason the reason for connecting to the new server
      */
     void connect(ServerInfo target, Callback<Boolean> callback, ServerConnectEvent.Reason reason);
+
+    /**
+     * Connects / transfers this user to the specified connection, gracefully
+     * closing the current one. Depending on the implementation, this method
+     * might return before the user has been connected.
+     *
+     * @param request request to connect with
+     */
+    void connect(ServerConnectRequest request);
 
     /**
      * Gets the server this player is connected to.

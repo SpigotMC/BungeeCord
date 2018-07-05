@@ -1,4 +1,4 @@
-package net.md_5.bungee;
+package net.md_5.bungee.api;
 
 import lombok.Builder;
 import lombok.Getter;
