@@ -378,8 +378,14 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public void stop(final String reason)
+    public synchronized void stop(final String reason)
     {
+        if ( !isRunning )
+        {
+            return;
+        }
+        isRunning = false;
+
         new Thread( "Shutdown Thread" )
         {
             @Override
@@ -387,8 +393,6 @@ public class BungeeCord extends ProxyServer
             @SuppressWarnings("TooBroadCatch")
             public void run()
             {
-                BungeeCord.this.isRunning = false;
-
                 stopListeners();
                 getLogger().info( "Closing pending connections" );
 
