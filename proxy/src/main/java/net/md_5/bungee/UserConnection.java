@@ -266,13 +266,13 @@ public final class UserConnection implements ProxiedPlayer
     {
         Preconditions.checkNotNull( request, "request" );
 
-        final ServerConnectRequest.Callback callback = request.getCallback();
+        final Callback<ServerConnectRequest.Result> callback = request.getCallback();
         ServerConnectEvent event = new ServerConnectEvent( this, request.getTarget(), request.getReason() );
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
             if ( callback != null )
             {
-                callback.done( ServerConnectRequest.Callback.Result.EVENT_CANCEL, null );
+                callback.done( ServerConnectRequest.Result.EVENT_CANCEL, null );
             }
 
             if ( getServer() == null && !ch.isClosing() )
@@ -288,7 +288,7 @@ public final class UserConnection implements ProxiedPlayer
         {
             if ( callback != null )
             {
-                callback.done( ServerConnectRequest.Callback.Result.ALREADY_CONNECTED, null );
+                callback.done( ServerConnectRequest.Result.ALREADY_CONNECTED, null );
             }
 
             sendMessage( bungee.getTranslation( "already_connected" ) );
@@ -298,7 +298,7 @@ public final class UserConnection implements ProxiedPlayer
         {
             if ( callback != null )
             {
-                callback.done( ServerConnectRequest.Callback.Result.ALREADY_CONNECTING, null );
+                callback.done( ServerConnectRequest.Result.ALREADY_CONNECTING, null );
             }
 
             sendMessage( bungee.getTranslation( "already_connecting" ) );
@@ -326,7 +326,7 @@ public final class UserConnection implements ProxiedPlayer
             {
                 if ( callback != null )
                 {
-                    callback.done( ( future.isSuccess() ) ? ServerConnectRequest.Callback.Result.SUCCESS : ServerConnectRequest.Callback.Result.FAIL, future.cause() );
+                    callback.done( ( future.isSuccess() ) ? ServerConnectRequest.Result.SUCCESS : ServerConnectRequest.Result.FAIL, future.cause() );
                 }
 
                 if ( !future.isSuccess() )

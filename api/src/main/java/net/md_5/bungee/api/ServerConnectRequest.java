@@ -15,71 +15,30 @@ public class ServerConnectRequest
 {
 
     /**
-     * A class that creates a callback system for executing code after a result has been computed.
+     * The result from this callback after request has been executed by proxy.
      */
-    public interface Callback
-    {
+    public enum Result {
 
         /**
-         * Called when the result is done.
-         *
-         * @param result the result of the computation
-         * @param error the error(s) that occurred, if any
+         * ServerConnectEvent to the new server was canceled.
          */
-        void done(Result result, Throwable error);
-
+        EVENT_CANCEL,
         /**
-         * The result from this callback after request has been executed by proxy.
+         * Already connected to target server.
          */
-        enum Result {
-
-            /**
-             * ServerConnectEvent to the new server was canceled.
-             */
-            EVENT_CANCEL,
-            /**
-             * Already connected to target server.
-             */
-            ALREADY_CONNECTED,
-            /**
-             * Already connecting to target server.
-             */
-            ALREADY_CONNECTING,
-            /**
-             * Successfully connected to server.
-             */
-            SUCCESS,
-            /**
-             * Connection failed, error can be accessed from callback method handle.
-             */
-            FAIL
-        }
-    }
-
-    /**
-     * Legacy wrapper for converting {@link net.md_5.bungee.api.Callback} into {@link Callback}
-     */
-    public static class LegacyCallback implements net.md_5.bungee.api.Callback<Boolean>, Callback
-    {
-
-        private final net.md_5.bungee.api.Callback<Boolean> callback;
-
-        public LegacyCallback(net.md_5.bungee.api.Callback<Boolean> callback)
-        {
-            this.callback = callback;
-        }
-
-        @Override
-        public final void done(Result result, Throwable error)
-        {
-            done( ( result == Result.SUCCESS ) ? Boolean.TRUE : Boolean.FALSE, error );
-        }
-
-        @Override
-        public void done(Boolean result, Throwable error)
-        {
-            callback.done( result, error );
-        }
+        ALREADY_CONNECTED,
+        /**
+         * Already connecting to target server.
+         */
+        ALREADY_CONNECTING,
+        /**
+         * Successfully connected to server.
+         */
+        SUCCESS,
+        /**
+         * Connection failed, error can be accessed from callback method handle.
+         */
+        FAIL
     }
 
     /**
@@ -95,7 +54,7 @@ public class ServerConnectRequest
     /**
      * Callback to execute post request.
      */
-    private final ServerConnectRequest.Callback callback;
+    private final Callback<Result> callback;
     /**
      * Timeout in milliseconds for request.
      */
@@ -112,13 +71,27 @@ public class ServerConnectRequest
     public static class ServerConnectRequestBuilder
     {
 
-        private ServerConnectRequest.Callback callback;
+        private Callback<Result> callback;
         private int connectTimeout = 5000; // TODO: Configurable
 
-        // Backwards compat callback.
-        public ServerConnectRequestBuilder callback(final net.md_5.bungee.api.Callback<Boolean> callback)
+        /**
+         * Sets the callback to execute on explicit succession of the request.
+         *
+         * @param callback the callback to execute
+         * @return this builder
+         * @deprecated recommended to use callback with result
+         */
+        @Deprecated
+        public ServerConnectRequestBuilder callback(final Callback<Boolean> callback)
         {
-            this.callback = new LegacyCallback( callback );
+            this.callback = new Callback<Result>()
+            {
+                @Override
+                public void done(Result result, Throwable error)
+                {
+                    callback.done( ( result == Result.SUCCESS ) ? Boolean.TRUE : Boolean.FALSE, error );
+                }
+            };
             return this;
         }
     }
