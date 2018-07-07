@@ -14,11 +14,23 @@ import net.md_5.bungee.api.event.ServerConnectEvent;
 public class ServerConnectRequest
 {
 
+    /**
+     * A class that creates a callback system for executing code after a result has been computed.
+     */
     public interface Callback
     {
 
+        /**
+         * Called when the result is done.
+         *
+         * @param result the result of the computation
+         * @param error the error(s) that occurred, if any
+         */
         void done(Result result, Throwable error);
 
+        /**
+         * The result from this callback after request has been executed by proxy.
+         */
         enum Result {
 
             /**
@@ -44,6 +56,9 @@ public class ServerConnectRequest
         }
     }
 
+    /**
+     * Legacy wrapper for converting {@link net.md_5.bungee.api.Callback} into {@link Callback}
+     */
     public static class LegacyCallback implements net.md_5.bungee.api.Callback<Boolean>, Callback
     {
 
@@ -78,7 +93,7 @@ public class ServerConnectRequest
     @NonNull
     private final ServerConnectEvent.Reason reason;
     /**
-     * Callback sent back from request.
+     * Callback to execute post request.
      */
     private final ServerConnectRequest.Callback callback;
     /**
@@ -91,11 +106,14 @@ public class ServerConnectRequest
      */
     private final boolean retry;
 
+    /**
+     * Class that sets default properties/adds methods to the lombok builder generated class.
+     */
     public static class ServerConnectRequestBuilder
     {
 
         private ServerConnectRequest.Callback callback;
-        private int connectTimeout = 5000; //TODO: Configurable
+        private int connectTimeout = 5000; // TODO: Configurable
 
         // Backwards compat callback.
         public ServerConnectRequestBuilder callback(final net.md_5.bungee.api.Callback<Boolean> callback)
