@@ -138,7 +138,7 @@ public class BungeeCord extends ProxyServer
      * Plugin manager.
      */
     @Getter
-    public final PluginManager pluginManager = new PluginManager( this );
+    public final PluginManager pluginManager;
     @Getter
     @Setter
     private ReconnectHandler reconnectHandler;
@@ -170,12 +170,6 @@ public class BungeeCord extends ProxyServer
     
     {
         // TODO: Proper fallback when we interface the manager
-        getPluginManager().registerCommand( null, new CommandReload() );
-        getPluginManager().registerCommand( null, new CommandEnd() );
-        getPluginManager().registerCommand( null, new CommandIP() );
-        getPluginManager().registerCommand( null, new CommandBungee() );
-        getPluginManager().registerCommand( null, new CommandPerms() );
-
         registerChannel( "BungeeCord" );
     }
 
@@ -219,6 +213,13 @@ public class BungeeCord extends ProxyServer
         logger = new BungeeLogger( "BungeeCord", "proxy.log", consoleReader );
         System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
         System.setOut( new PrintStream( new LoggingOutputStream( logger, Level.INFO ), true ) );
+
+        pluginManager = new PluginManager( this );
+        getPluginManager().registerCommand( null, new CommandReload() );
+        getPluginManager().registerCommand( null, new CommandEnd() );
+        getPluginManager().registerCommand( null, new CommandIP() );
+        getPluginManager().registerCommand( null, new CommandBungee() );
+        getPluginManager().registerCommand( null, new CommandPerms() );
 
         if ( !Boolean.getBoolean( "net.md_5.bungee.native.disable" ) )
         {
