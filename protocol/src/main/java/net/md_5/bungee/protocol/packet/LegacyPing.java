@@ -19,13 +19,13 @@ public class LegacyPing extends DefinedPacket
     @Override
     public void read(ByteBuf buf)
     {
-        throw new UnsupportedOperationException( "Not supported yet." ); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException( "Not supported yet." );
     }
 
     @Override
     public void write(ByteBuf buf)
     {
-        throw new UnsupportedOperationException( "Not supported yet." ); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException( "Not supported yet." );
     }
 
     @Override
