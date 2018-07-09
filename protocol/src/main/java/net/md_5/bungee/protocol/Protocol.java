@@ -70,12 +70,6 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12, 0x23 )
             );
             TO_CLIENT.registerPacket(
-                    Chat.class,
-                    map( ProtocolConstants.MINECRAFT_1_8, 0x02 ),
-                    map( ProtocolConstants.MINECRAFT_1_9, 0x0F ),
-                    map( ProtocolConstants.MINECRAFT_1_12, 0x0F )
-            );
-            TO_CLIENT.registerPacket(
                     Respawn.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x07 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x33 ),
