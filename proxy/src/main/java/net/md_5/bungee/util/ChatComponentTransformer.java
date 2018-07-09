@@ -51,7 +51,7 @@ public final class ChatComponentTransformer
      */
     public BaseComponent[] transform(ProxiedPlayer player, BaseComponent... component)
     {
-        if ( component == null || component.length < 1 )
+        if ( component == null || component[0] == null || component.length < 1 )
         {
             return new BaseComponent[]
             {
