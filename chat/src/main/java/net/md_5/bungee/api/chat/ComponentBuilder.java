@@ -167,6 +167,30 @@ public final class ComponentBuilder
     }
 
     /**
+     * Joins something to builder using joiner given using {@link FormatRetention#ALL}.
+     * May come in handy especially in Java 8 due to functional interfaces support.
+     *
+     * @param joiner joiner used for operation
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder append(Joiner joiner) {
+        return joiner.join(this, FormatRetention.ALL);
+    }
+
+    /**
+     * Joins something to builder using Joiner using retention given.
+     * May come in handy especially in Java 8 due to functional interfaces support.
+     * Retention may be ignored by Joiner.
+     *
+     * @param joiner joiner used for operation
+     * @param retention the formatting to retain
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder append(Joiner joiner, FormatRetention retention) {
+        return joiner.join(this, retention);
+    }
+
+    /**
      * Sets the color of the current part.
      *
      * @param color the new color
@@ -309,7 +333,7 @@ public final class ComponentBuilder
         return result;
     }
 
-    public static enum FormatRetention
+    public enum FormatRetention
     {
 
         /**
@@ -331,5 +355,24 @@ public final class ComponentBuilder
          * component.
          */
         ALL
+    }
+
+    /**
+     * Actually functional interface to append
+     */
+    public interface Joiner
+    {
+
+        /**
+         * Joins something to {@code ComponentBuilder} given returning it for fulfilling chain pattern.
+         * Retention may be ignored and is to be understood as an optional recommendation for Joiner in case
+         * its behaviour can depend on it but not as a guarantee to hava previous component in builder unmodified.
+         *
+         * @param componentBuilder to which to append something
+         * @param retention the formatting to retain.
+         *                  This does not guarantee that retention will be taken into account as
+         * @return ComponentBuilder given for chaining
+         */
+        ComponentBuilder join(ComponentBuilder componentBuilder, FormatRetention retention);
     }
 }
