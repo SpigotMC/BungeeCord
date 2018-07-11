@@ -17,8 +17,6 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
     @Setter
     private int protocolVersion;
     @Setter
-    private boolean[] copiedBuffers;
-    @Setter
     private boolean[] handledPackets;
 
     public MinecraftDecoder(Protocol protocol, boolean server, int protocolVersion)
@@ -32,20 +30,11 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
     {
         Protocol.DirectionData prot = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
-        ByteBuf buf = null;
+        ByteBuf slice = in.copy(); // Can't slice this one due to EntityMap :(
 
         try
         {
-            int markIndex = in.readerIndex();
-            int markReadable = in.readableBytes();
             int packetId = DefinedPacket.readVarInt( in );
-            if ( copiedBuffers != null && packetId >= 0 && packetId < copiedBuffers.length && copiedBuffers[packetId] )
-            {
-                buf =  in.copy( markIndex, markReadable ); // Can't slice this one due to EntityMap varint :(
-            } else
-            {
-                buf =  in.slice( markIndex, markReadable ).retain();
-            }
 
             DefinedPacket packet = null;
             if ( handledPackets == null || ( packetId >= 0 && packetId < handledPackets.length && handledPackets[packetId] ) )
@@ -65,13 +54,13 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
                 }
             }
 
-            out.add( new PacketWrapper( packet, buf ) );
-            buf = null;
+            out.add( new PacketWrapper( packet, slice ) );
+            slice = null;
         } finally
         {
-            if ( buf != null )
+            if ( slice != null )
             {
-                buf.release();
+                slice.release();
             }
         }
     }

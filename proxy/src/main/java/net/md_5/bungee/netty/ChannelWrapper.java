@@ -10,15 +10,10 @@ import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.md_5.bungee.compress.PacketCompressor;
 import net.md_5.bungee.compress.PacketDecompressor;
-import net.md_5.bungee.connection.DownstreamBridge;
-import net.md_5.bungee.connection.UpstreamBridge;
-import net.md_5.bungee.entitymap.EntityMap;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
@@ -29,7 +24,6 @@ import net.md_5.bungee.protocol.packet.Kick;
 public class ChannelWrapper
 {
 
-    private static final Map<CopiedBuffersCacheKey, boolean[]> COPIED_BUFFERS_CACHE = new ConcurrentHashMap<>();
     private static final Map<Protocol.ProtocolData, boolean[]> HANDLED_PACKETS_CACHE = new ConcurrentHashMap<>();
 
     private final Channel ch;
@@ -51,7 +45,6 @@ public class ChannelWrapper
     public void setHandler(PacketHandler handler)
     {
         this.handler = handler;
-        updateCopiedBuffers();
         updateHandledPackets();
     }
 
@@ -59,7 +52,6 @@ public class ChannelWrapper
     {
         ch.pipeline().get( MinecraftDecoder.class ).setProtocol( protocol );
         ch.pipeline().get( MinecraftEncoder.class ).setProtocol( protocol );
-        updateCopiedBuffers();
         updateHandledPackets();
     }
 
@@ -67,20 +59,7 @@ public class ChannelWrapper
     {
         ch.pipeline().get( MinecraftDecoder.class ).setProtocolVersion( protocol );
         ch.pipeline().get( MinecraftEncoder.class ).setProtocolVersion( protocol );
-        updateCopiedBuffers();
         updateHandledPackets();
-    }
-
-    private void updateCopiedBuffers()
-    {
-        MinecraftDecoder decoder = ch.pipeline().get( MinecraftDecoder.class );
-        if ( handler == null )
-        {
-            decoder.setCopiedBuffers( null );
-        } else
-        {
-            decoder.setCopiedBuffers( computeCopiedBuffers( handler, decoder.getProtocol(), decoder.isServer(), decoder.getProtocolVersion() ) );
-        }
     }
 
     private void updateHandledPackets()
@@ -202,37 +181,6 @@ public class ChannelWrapper
         }
     }
 
-    private static boolean[] computeCopiedBuffers(PacketHandler handler, Protocol protocol, boolean server, int protocolVersion)
-    {
-        EntityMap entityMap;
-        if ( handler instanceof UpstreamBridge )
-        {
-            entityMap = ( (UpstreamBridge) handler ).getCon().getEntityRewrite();
-        } else if ( handler instanceof DownstreamBridge )
-        {
-            entityMap = ( (DownstreamBridge) handler ).getCon().getEntityRewrite();
-        } else
-        {
-            return null;
-        }
-        CopiedBuffersCacheKey cacheKey = new CopiedBuffersCacheKey( entityMap.getClass(), server );
-        boolean[] copiedBuffers = COPIED_BUFFERS_CACHE.get( cacheKey );
-        if ( copiedBuffers == null )
-        {
-            copiedBuffers = new boolean[ Protocol.MAX_PACKET_ID ];
-            for ( int i = 0; i < Protocol.MAX_PACKET_ID; i++ )
-            {
-                boolean varintRewritten = server ? entityMap.hasServerboundRewrite( i, true ) : entityMap.hasClientboundRewrite( i, true );
-                if ( varintRewritten )
-                {
-                    copiedBuffers[i] = true;
-                }
-            }
-            COPIED_BUFFERS_CACHE.put( cacheKey, copiedBuffers );
-        }
-        return copiedBuffers;
-    }
-
     private static boolean[] computeHandledPackets(Class<? extends PacketHandler> handlerClass, Protocol protocol, boolean server, int protocolVersion)
     {
         Protocol.DirectionData protDir = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
@@ -262,13 +210,5 @@ public class ChannelWrapper
             HANDLED_PACKETS_CACHE.put( protData, handledPackets );
         }
         return handledPackets;
-    }
-
-    @RequiredArgsConstructor
-    @EqualsAndHashCode
-    private static class CopiedBuffersCacheKey
-    {
-        private final Class<? extends EntityMap> entityMapClass;
-        private final boolean server;
     }
 }
