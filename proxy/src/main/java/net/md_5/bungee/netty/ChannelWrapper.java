@@ -24,7 +24,7 @@ import net.md_5.bungee.protocol.packet.Kick;
 public class ChannelWrapper
 {
 
-    private static final Map<Protocol.ProtocolData, boolean[]> UNHANDLED_PACKETS_CACHE = new ConcurrentHashMap<>();
+    private static final Map<Protocol.ProtocolData, boolean[]> HANDLED_PACKETS_CACHE = new ConcurrentHashMap<>();
 
     private final Channel ch;
     private Class<? extends PacketHandler> handlerClass;
@@ -46,7 +46,7 @@ public class ChannelWrapper
     {
         Preconditions.checkState(ch.eventLoop().inEventLoop()); // FIXME: Tests
         this.handlerClass = handlerClass;
-        updateUnhandledPackets();
+        updateHandledPackets();
     }
 
     public void setProtocol(Protocol protocol)
@@ -54,7 +54,7 @@ public class ChannelWrapper
         Preconditions.checkState(ch.eventLoop().inEventLoop()); // FIXME: Tests
         ch.pipeline().get( MinecraftDecoder.class ).setProtocol( protocol );
         ch.pipeline().get( MinecraftEncoder.class ).setProtocol( protocol );
-        updateUnhandledPackets();
+        updateHandledPackets();
     }
 
     public void setVersion(int protocol)
@@ -62,18 +62,18 @@ public class ChannelWrapper
         Preconditions.checkState(ch.eventLoop().inEventLoop()); // FIXME: Tests
         ch.pipeline().get( MinecraftDecoder.class ).setProtocolVersion( protocol );
         ch.pipeline().get( MinecraftEncoder.class ).setProtocolVersion( protocol );
-        updateUnhandledPackets();
+        updateHandledPackets();
     }
 
-    private void updateUnhandledPackets()
+    private void updateHandledPackets()
     {
         MinecraftDecoder decoder = ch.pipeline().get( MinecraftDecoder.class );
         if ( handlerClass == null )
         {
-            decoder.setUnhandledPackets( null );
+            decoder.setHandledPackets( null );
         } else
         {
-            decoder.setUnhandledPackets( computeUnhandledPackets( handlerClass, decoder.getProtocol(), decoder.isServer(), decoder.getProtocolVersion() ) );
+            decoder.setHandledPackets( computeHandledPackets( handlerClass, decoder.getProtocol(), decoder.isServer(), decoder.getProtocolVersion() ) );
         }
     }
 
@@ -184,39 +184,34 @@ public class ChannelWrapper
         }
     }
 
-    private static boolean[] computeUnhandledPackets(Class<? extends PacketHandler> handlerClass, Protocol protocol, boolean server, int protocolVersion)
+    private static boolean[] computeHandledPackets(Class<? extends PacketHandler> handlerClass, Protocol protocol, boolean server, int protocolVersion)
     {
         Protocol.DirectionData protDir = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
         Protocol.ProtocolData protData = protDir.getProtocolData( protocolVersion );
-        boolean[] ignoredPackets = UNHANDLED_PACKETS_CACHE.get( protData );
-        if ( ignoredPackets == null )
+        boolean[] handledPackets = HANDLED_PACKETS_CACHE.get( protData );
+        if ( handledPackets == null )
         {
-            ignoredPackets = new boolean[ Protocol.MAX_PACKET_ID ];
+            handledPackets = new boolean[ Protocol.MAX_PACKET_ID ];
             for ( int i = 0; i < Protocol.MAX_PACKET_ID; i++ )
             {
                 Class<? extends DefinedPacket> packetClass = protData.getPacketClass( i );
-                if ( packetClass == null )
-                {
-                    ignoredPackets[i] = true;
-                }
-                else
+                if ( packetClass != null )
                 {
                     try
                     {
                         Method defaultMethod = PacketHandler.class.getMethod( "handle", packetClass );
                         Method handlerMethod = handlerClass.getMethod( "handle", packetClass );
-                        if ( defaultMethod.equals(handlerMethod) )
+                        if ( !defaultMethod.equals(handlerMethod) )
                         {
-                            ignoredPackets[i] = true;
+                            handledPackets[i] = true;
                         }
-                    } catch (NoSuchMethodException e)
+                    } catch (NoSuchMethodException ignored)
                     {
-                        ignoredPackets[i] = true;
                     }
                 }
             }
-            UNHANDLED_PACKETS_CACHE.put( protData, ignoredPackets );
+            HANDLED_PACKETS_CACHE.put( protData, handledPackets );
         }
-        return ignoredPackets;
+        return handledPackets;
     }
 }

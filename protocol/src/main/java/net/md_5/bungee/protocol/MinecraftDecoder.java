@@ -4,7 +4,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,7 +17,7 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
     @Setter
     private int protocolVersion;
     @Setter
-    private boolean[] unhandledPackets;
+    private boolean[] handledPackets;
 
     public MinecraftDecoder(Protocol protocol, boolean server, int protocolVersion)
     {
@@ -38,7 +37,7 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
             int packetId = DefinedPacket.readVarInt( in );
 
             DefinedPacket packet = null;
-            if ( unhandledPackets == null || packetId < 0 || packetId >= unhandledPackets.length || !unhandledPackets[packetId])
+            if ( handledPackets == null || (packetId >= 0 && packetId < handledPackets.length && handledPackets[packetId]))
             {
                 packet = prot.createPacket( packetId, protocolVersion );
                 if ( packet != null )
