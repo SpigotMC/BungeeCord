@@ -257,11 +257,7 @@ public final class UserConnection implements ProxiedPlayer
         connect( ServerConnectRequest.builder().callback( callback ).retry( retry ).reason( reason ).target( info ).build() );
     }
 
-    /**
-     * Connects to a server with given request info
-     *
-     * @param request request to connect with
-     */
+    @Override
     public void connect(final ServerConnectRequest request)
     {
         Preconditions.checkNotNull( request, "request" );

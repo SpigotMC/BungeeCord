@@ -78,8 +78,8 @@ public class ServerConnectRequest
          * Sets the callback to execute on explicit succession of the request.
          *
          * @param callback the callback to execute
-         * @return this builder
-         * @deprecated recommended to use callback with result
+         * @return this builder for chaining
+         * @deprecated recommended to use callback providing generic type of {@link Result}
          */
         @Deprecated
         public ServerConnectRequestBuilder callback(final Callback<Boolean> callback)
