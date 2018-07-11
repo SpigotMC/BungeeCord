@@ -262,7 +262,7 @@ public final class UserConnection implements ProxiedPlayer
     {
         Preconditions.checkNotNull( request, "request" );
 
-        final Callback<ServerConnectRequest.Result> callback = request.getCallback();
+        final Callback<ServerConnectRequest.Result> callback = request.getResult();
         ServerConnectEvent event = new ServerConnectEvent( this, request.getTarget(), request.getReason() );
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {

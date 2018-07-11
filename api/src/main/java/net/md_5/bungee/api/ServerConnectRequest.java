@@ -54,7 +54,7 @@ public class ServerConnectRequest
     /**
      * Callback to execute post request.
      */
-    private final Callback<Result> callback;
+    private final Callback<Result> result;
     /**
      * Timeout in milliseconds for request.
      */
@@ -71,7 +71,7 @@ public class ServerConnectRequest
     public static class ServerConnectRequestBuilder
     {
 
-        private Callback<Result> callback;
+        private Callback<Result> result;
         private int connectTimeout = 5000; // TODO: Configurable
 
         /**
@@ -84,7 +84,7 @@ public class ServerConnectRequest
         @Deprecated
         public ServerConnectRequestBuilder callback(final Callback<Boolean> callback)
         {
-            this.callback = new Callback<Result>()
+            this.result = new Callback<Result>()
             {
                 @Override
                 public void done(Result result, Throwable error)
