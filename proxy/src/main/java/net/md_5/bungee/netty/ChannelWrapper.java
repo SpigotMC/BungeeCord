@@ -7,7 +7,8 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,6 +23,8 @@ import net.md_5.bungee.protocol.packet.Kick;
 
 public class ChannelWrapper
 {
+
+    private static final Map<Protocol.ProtocolData, boolean[]> UNHANDLED_PACKETS_CACHE = new ConcurrentHashMap<>();
 
     private final Channel ch;
     private Class<? extends PacketHandler> handlerClass;
@@ -183,32 +186,36 @@ public class ChannelWrapper
 
     private static boolean[] computeUnhandledPackets(Class<? extends PacketHandler> handlerClass, Protocol protocol, boolean server, int protocolVersion)
     {
-        // TODO: Cache results
         Protocol.DirectionData protDir = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
         Protocol.ProtocolData protData = protDir.getProtocolData( protocolVersion );
-        boolean[] ignoredPackets = new boolean[ Protocol.MAX_PACKET_ID ];
-        for ( int i = 0; i < Protocol.MAX_PACKET_ID; i++ )
+        boolean[] ignoredPackets = UNHANDLED_PACKETS_CACHE.get( protData );
+        if ( ignoredPackets == null )
         {
-            Class<? extends DefinedPacket> packetClass = protData.getPacketClass( i );
-            if ( packetClass == null )
+            ignoredPackets = new boolean[ Protocol.MAX_PACKET_ID ];
+            for ( int i = 0; i < Protocol.MAX_PACKET_ID; i++ )
             {
-                ignoredPackets[i] = true;
-            }
-            else
-            {
-                try
-                {
-                    Method defaultMethod = PacketHandler.class.getMethod( "handle", packetClass );
-                    Method handlerMethod = handlerClass.getMethod( "handle", packetClass );
-                    if ( defaultMethod.equals(handlerMethod) )
-                    {
-                        ignoredPackets[i] = true;
-                    }
-                } catch (NoSuchMethodException e)
+                Class<? extends DefinedPacket> packetClass = protData.getPacketClass( i );
+                if ( packetClass == null )
                 {
                     ignoredPackets[i] = true;
                 }
+                else
+                {
+                    try
+                    {
+                        Method defaultMethod = PacketHandler.class.getMethod( "handle", packetClass );
+                        Method handlerMethod = handlerClass.getMethod( "handle", packetClass );
+                        if ( defaultMethod.equals(handlerMethod) )
+                        {
+                            ignoredPackets[i] = true;
+                        }
+                    } catch (NoSuchMethodException e)
+                    {
+                        ignoredPackets[i] = true;
+                    }
+                }
             }
+            UNHANDLED_PACKETS_CACHE.put( protData, ignoredPackets );
         }
         return ignoredPackets;
     }
