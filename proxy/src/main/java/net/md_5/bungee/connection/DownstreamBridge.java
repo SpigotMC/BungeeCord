@@ -7,7 +7,6 @@ import java.io.DataInput;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -49,7 +48,6 @@ public class DownstreamBridge extends PacketHandler
 {
 
     private final ProxyServer bungee;
-    @Getter
     private final UserConnection con;
     private final ServerConnection server;
 
