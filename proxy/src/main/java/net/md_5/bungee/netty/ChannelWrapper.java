@@ -44,14 +44,12 @@ public class ChannelWrapper
 
     public void setHandlerClass(Class<? extends PacketHandler> handlerClass)
     {
-        Preconditions.checkState(ch.eventLoop().inEventLoop()); // FIXME: Tests
         this.handlerClass = handlerClass;
         updateHandledPackets();
     }
 
     public void setProtocol(Protocol protocol)
     {
-        Preconditions.checkState(ch.eventLoop().inEventLoop()); // FIXME: Tests
         ch.pipeline().get( MinecraftDecoder.class ).setProtocol( protocol );
         ch.pipeline().get( MinecraftEncoder.class ).setProtocol( protocol );
         updateHandledPackets();
@@ -59,7 +57,6 @@ public class ChannelWrapper
 
     public void setVersion(int protocol)
     {
-        Preconditions.checkState(ch.eventLoop().inEventLoop()); // FIXME: Tests
         ch.pipeline().get( MinecraftDecoder.class ).setProtocolVersion( protocol );
         ch.pipeline().get( MinecraftEncoder.class ).setProtocolVersion( protocol );
         updateHandledPackets();

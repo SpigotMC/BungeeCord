@@ -34,7 +34,6 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
         this.handler = handler;
         if ( channel != null )
         {
-            Preconditions.checkState(channel.getHandle().eventLoop().inEventLoop()); // FIXME: Tests
             channel.setHandlerClass( handler.getClass() );
         }
     }
