@@ -159,7 +159,9 @@ public abstract class ProxyServer
      *
      * @throws Exception any exception thrown during startup causing the
      * instance to fail to boot
+     * @deprecated not API, will be removed in a future version
      */
+    @Deprecated
     public abstract void start() throws Exception;
 
     /**

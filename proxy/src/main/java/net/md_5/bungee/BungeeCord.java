@@ -273,7 +273,7 @@ public class BungeeCord extends ProxyServer
             registerChannel( ForgeConstants.FML_TAG );
             registerChannel( ForgeConstants.FML_HANDSHAKE_TAG );
             registerChannel( ForgeConstants.FORGE_REGISTER );
-            
+
             getLogger().warning( "MinecraftForge support is currently unmaintained and may have unresolved issues. Please use at your own risk." );
         }
 
@@ -379,8 +379,14 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public void stop(final String reason)
+    public synchronized void stop(final String reason)
     {
+        if ( !isRunning )
+        {
+            return;
+        }
+        isRunning = false;
+
         new Thread( "Shutdown Thread" )
         {
             @Override
@@ -388,8 +394,6 @@ public class BungeeCord extends ProxyServer
             @SuppressWarnings("TooBroadCatch")
             public void run()
             {
-                BungeeCord.this.isRunning = false;
-
                 stopListeners();
                 getLogger().info( "Closing pending connections" );
 
