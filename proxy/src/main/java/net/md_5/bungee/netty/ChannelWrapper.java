@@ -29,7 +29,7 @@ import net.md_5.bungee.protocol.packet.Kick;
 public class ChannelWrapper
 {
 
-    private static final Map<RewrittenPacketsCacheKey, boolean[]> REWRITTEN_PACKETS_CACHE = new ConcurrentHashMap<>();
+    private static final Map<CopiedBuffersCacheKey, boolean[]> COPIED_BUFFERS_CACHE = new ConcurrentHashMap<>();
     private static final Map<Protocol.ProtocolData, boolean[]> HANDLED_PACKETS_CACHE = new ConcurrentHashMap<>();
 
     private final Channel ch;
@@ -51,7 +51,7 @@ public class ChannelWrapper
     public void setHandler(PacketHandler handler)
     {
         this.handler = handler;
-        updateRewrittenPackets();
+        updateCopiedBuffers();
         updateHandledPackets();
     }
 
@@ -59,7 +59,7 @@ public class ChannelWrapper
     {
         ch.pipeline().get( MinecraftDecoder.class ).setProtocol( protocol );
         ch.pipeline().get( MinecraftEncoder.class ).setProtocol( protocol );
-        updateRewrittenPackets();
+        updateCopiedBuffers();
         updateHandledPackets();
     }
 
@@ -67,11 +67,11 @@ public class ChannelWrapper
     {
         ch.pipeline().get( MinecraftDecoder.class ).setProtocolVersion( protocol );
         ch.pipeline().get( MinecraftEncoder.class ).setProtocolVersion( protocol );
-        updateRewrittenPackets();
+        updateCopiedBuffers();
         updateHandledPackets();
     }
 
-    private void updateRewrittenPackets()
+    private void updateCopiedBuffers()
     {
         MinecraftDecoder decoder = ch.pipeline().get( MinecraftDecoder.class );
         if ( handler == null )
@@ -79,7 +79,7 @@ public class ChannelWrapper
             decoder.setCopiedBuffers( null );
         } else
         {
-            decoder.setCopiedBuffers( computeRewrittenPackets( handler, decoder.getProtocol(), decoder.isServer(), decoder.getProtocolVersion() ) );
+            decoder.setCopiedBuffers( computeCopiedBuffers( handler, decoder.getProtocol(), decoder.isServer(), decoder.getProtocolVersion() ) );
         }
     }
 
@@ -202,7 +202,7 @@ public class ChannelWrapper
         }
     }
 
-    private static boolean[] computeRewrittenPackets(PacketHandler handler, Protocol protocol, boolean server, int protocolVersion)
+    private static boolean[] computeCopiedBuffers(PacketHandler handler, Protocol protocol, boolean server, int protocolVersion)
     {
         EntityMap entityMap;
         if ( handler instanceof UpstreamBridge )
@@ -215,22 +215,22 @@ public class ChannelWrapper
         {
             return null;
         }
-        RewrittenPacketsCacheKey cacheKey = new RewrittenPacketsCacheKey( entityMap.getClass(), server );
-        boolean[] rewrittenPackets = REWRITTEN_PACKETS_CACHE.get( cacheKey );
-        if ( rewrittenPackets == null )
+        CopiedBuffersCacheKey cacheKey = new CopiedBuffersCacheKey( entityMap.getClass(), server );
+        boolean[] copiedBuffers = COPIED_BUFFERS_CACHE.get( cacheKey );
+        if ( copiedBuffers == null )
         {
-            rewrittenPackets = new boolean[ Protocol.MAX_PACKET_ID ];
+            copiedBuffers = new boolean[ Protocol.MAX_PACKET_ID ];
             for ( int i = 0; i < Protocol.MAX_PACKET_ID; i++ )
             {
-                boolean rewritten = server ? entityMap.hasServerboundRewrite( i, true ) : entityMap.hasClientboundRewrite( i, true );
-                if ( rewritten )
+                boolean varintRewritten = server ? entityMap.hasServerboundRewrite( i, true ) : entityMap.hasClientboundRewrite( i, true );
+                if ( varintRewritten )
                 {
-                    rewrittenPackets[i] = true;
+                    copiedBuffers[i] = true;
                 }
             }
-            REWRITTEN_PACKETS_CACHE.put( cacheKey, rewrittenPackets );
+            COPIED_BUFFERS_CACHE.put( cacheKey, copiedBuffers );
         }
-        return rewrittenPackets;
+        return copiedBuffers;
     }
 
     private static boolean[] computeHandledPackets(Class<? extends PacketHandler> handlerClass, Protocol protocol, boolean server, int protocolVersion)
@@ -266,7 +266,7 @@ public class ChannelWrapper
 
     @RequiredArgsConstructor
     @EqualsAndHashCode
-    private static class RewrittenPacketsCacheKey
+    private static class CopiedBuffersCacheKey
     {
         private final Class<? extends EntityMap> entityMapClass;
         private final boolean server;
