@@ -32,6 +32,11 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     {
         Preconditions.checkArgument( handler != null, "handler" );
         this.handler = handler;
+        if ( channel != null )
+        {
+            Preconditions.checkState(channel.getHandle().eventLoop().inEventLoop()); // FIXME: Tests
+            channel.setHandlerClass( handler.getClass() );
+        }
     }
 
     @Override
@@ -40,6 +45,10 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
         if ( handler != null )
         {
             channel = new ChannelWrapper( ctx );
+            if ( handler != null )
+            {
+                channel.setHandlerClass( handler.getClass() );
+            }
             handler.connected( channel );
 
             if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )

@@ -5,9 +5,10 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.Setter;
 
-@AllArgsConstructor
+@Getter
 public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
 {
 
@@ -16,6 +17,15 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
     private final boolean server;
     @Setter
     private int protocolVersion;
+    @Setter
+    private boolean[] unhandledPackets;
+
+    public MinecraftDecoder(Protocol protocol, boolean server, int protocolVersion)
+    {
+        this.protocol = protocol;
+        this.server = server;
+        this.protocolVersion = protocolVersion;
+    }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
@@ -27,18 +37,22 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
         {
             int packetId = DefinedPacket.readVarInt( in );
 
-            DefinedPacket packet = prot.createPacket( packetId, protocolVersion );
-            if ( packet != null )
+            DefinedPacket packet = null;
+            if ( unhandledPackets == null || packetId < 0 || packetId >= unhandledPackets.length || !unhandledPackets[packetId])
             {
-                packet.read( in, prot.getDirection(), protocolVersion );
-
-                if ( in.isReadable() )
+                packet = prot.createPacket( packetId, protocolVersion );
+                if ( packet != null )
                 {
-                    throw new BadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot );
+                    packet.read( in, prot.getDirection(), protocolVersion );
+
+                    if ( in.isReadable() )
+                    {
+                        throw new BadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot );
+                    }
+                } else
+                {
+                    in.skipBytes( in.readableBytes() );
                 }
-            } else
-            {
-                in.skipBytes( in.readableBytes() );
             }
 
             out.add( new PacketWrapper( packet, slice ) );

@@ -289,12 +289,19 @@ public enum Protocol
     }
 
     @RequiredArgsConstructor
-    private static class ProtocolData
+    public static class ProtocolData
     {
 
         private final int protocolVersion;
         private final TObjectIntMap<Class<? extends DefinedPacket>> packetMap = new TObjectIntHashMap<>( MAX_PACKET_ID );
         private final Constructor<? extends DefinedPacket>[] packetConstructors = new Constructor[ MAX_PACKET_ID ];
+
+        public Class<? extends DefinedPacket> getPacketClass(int packetId)
+        {
+            Constructor<? extends DefinedPacket> packetConstructor =
+                    packetId >= 0 && packetId < packetConstructors.length ? packetConstructors[packetId] : null;
+            return packetConstructor != null ? packetConstructor.getDeclaringClass() : null;
+        }
     }
 
     @RequiredArgsConstructor
@@ -350,7 +357,7 @@ public enum Protocol
         @Getter
         private final ProtocolConstants.Direction direction;
 
-        private ProtocolData getProtocolData(int version)
+        public ProtocolData getProtocolData(int version)
         {
             ProtocolData protocol = protocols.get( version );
             if ( protocol == null && ( protocolPhase != Protocol.GAME ) )

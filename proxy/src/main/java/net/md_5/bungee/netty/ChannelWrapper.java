@@ -5,12 +5,15 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
+import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.compress.PacketCompressor;
 import net.md_5.bungee.compress.PacketDecompressor;
+import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.PacketWrapper;
@@ -21,6 +24,7 @@ public class ChannelWrapper
 {
 
     private final Channel ch;
+    private Class<? extends PacketHandler> handlerClass;
     @Getter
     @Setter
     private InetSocketAddress remoteAddress;
@@ -35,16 +39,39 @@ public class ChannelWrapper
         this.remoteAddress = (InetSocketAddress) this.ch.remoteAddress();
     }
 
+    public void setHandlerClass(Class<? extends PacketHandler> handlerClass)
+    {
+        Preconditions.checkState(ch.eventLoop().inEventLoop()); // FIXME: Tests
+        this.handlerClass = handlerClass;
+        updateUnhandledPackets();
+    }
+
     public void setProtocol(Protocol protocol)
     {
+        Preconditions.checkState(ch.eventLoop().inEventLoop()); // FIXME: Tests
         ch.pipeline().get( MinecraftDecoder.class ).setProtocol( protocol );
         ch.pipeline().get( MinecraftEncoder.class ).setProtocol( protocol );
+        updateUnhandledPackets();
     }
 
     public void setVersion(int protocol)
     {
+        Preconditions.checkState(ch.eventLoop().inEventLoop()); // FIXME: Tests
         ch.pipeline().get( MinecraftDecoder.class ).setProtocolVersion( protocol );
         ch.pipeline().get( MinecraftEncoder.class ).setProtocolVersion( protocol );
+        updateUnhandledPackets();
+    }
+
+    private void updateUnhandledPackets()
+    {
+        MinecraftDecoder decoder = ch.pipeline().get( MinecraftDecoder.class );
+        if ( handlerClass == null )
+        {
+            decoder.setUnhandledPackets( null );
+        } else
+        {
+            decoder.setUnhandledPackets( computeUnhandledPackets( handlerClass, decoder.getProtocol(), decoder.isServer(), decoder.getProtocolVersion() ) );
+        }
     }
 
     public void write(Object packet)
@@ -152,5 +179,37 @@ public class ChannelWrapper
         {
             ch.pipeline().remove( "decompress" );
         }
+    }
+
+    private static boolean[] computeUnhandledPackets(Class<? extends PacketHandler> handlerClass, Protocol protocol, boolean server, int protocolVersion)
+    {
+        // TODO: Cache results
+        Protocol.DirectionData protDir = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
+        Protocol.ProtocolData protData = protDir.getProtocolData( protocolVersion );
+        boolean[] ignoredPackets = new boolean[ Protocol.MAX_PACKET_ID ];
+        for ( int i = 0; i < Protocol.MAX_PACKET_ID; i++ )
+        {
+            Class<? extends DefinedPacket> packetClass = protData.getPacketClass( i );
+            if ( packetClass == null )
+            {
+                ignoredPackets[i] = true;
+            }
+            else
+            {
+                try
+                {
+                    Method defaultMethod = PacketHandler.class.getMethod( "handle", packetClass );
+                    Method handlerMethod = handlerClass.getMethod( "handle", packetClass );
+                    if ( defaultMethod.equals(handlerMethod) )
+                    {
+                        ignoredPackets[i] = true;
+                    }
+                } catch (NoSuchMethodException e)
+                {
+                    ignoredPackets[i] = true;
+                }
+            }
+        }
+        return ignoredPackets;
     }
 }
