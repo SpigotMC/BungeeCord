@@ -71,6 +71,18 @@ public abstract class EntityMap
         }
     }
 
+    public boolean hasServerboundRewrite(int packetId, boolean varint)
+    {
+        boolean[] array = !varint ? serverboundInts : serverboundVarInts;
+        return packetId >= 0 && packetId < array.length && array[packetId];
+    }
+
+    public boolean hasClientboundRewrite(int packetId, boolean varint)
+    {
+        boolean[] array = !varint ? clientboundInts : clientboundVarInts;
+        return packetId >= 0 && packetId < array.length && array[packetId];
+    }
+
     public void rewriteServerbound(ByteBuf packet, int oldId, int newId)
     {
         rewrite( packet, oldId, newId, serverboundInts, serverboundVarInts );
@@ -216,6 +228,7 @@ public abstract class EntityMap
             rewriteInt( packet, oldId, newId, readerIndex + packetIdLength );
         } else if ( varints[packetId] )
         {
+            newId = 1048576;
             rewriteVarInt( packet, oldId, newId, readerIndex + packetIdLength );
         }
         packet.readerIndex( readerIndex );

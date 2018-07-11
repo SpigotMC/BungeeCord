@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
@@ -31,6 +32,7 @@ public class UpstreamBridge extends PacketHandler
 {
 
     private final ProxyServer bungee;
+    @Getter
     private final UserConnection con;
 
     public UpstreamBridge(ProxyServer bungee, UserConnection con)

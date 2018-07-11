@@ -14,6 +14,9 @@ import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.compress.PacketCompressor;
 import net.md_5.bungee.compress.PacketDecompressor;
+import net.md_5.bungee.connection.DownstreamBridge;
+import net.md_5.bungee.connection.UpstreamBridge;
+import net.md_5.bungee.entitymap.EntityMap;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
@@ -27,7 +30,7 @@ public class ChannelWrapper
     private static final Map<Protocol.ProtocolData, boolean[]> HANDLED_PACKETS_CACHE = new ConcurrentHashMap<>();
 
     private final Channel ch;
-    private Class<? extends PacketHandler> handlerClass;
+    private PacketHandler handler;
     @Getter
     @Setter
     private InetSocketAddress remoteAddress;
@@ -42,9 +45,10 @@ public class ChannelWrapper
         this.remoteAddress = (InetSocketAddress) this.ch.remoteAddress();
     }
 
-    public void setHandlerClass(Class<? extends PacketHandler> handlerClass)
+    public void setHandler(PacketHandler handler)
     {
-        this.handlerClass = handlerClass;
+        this.handler = handler;
+        updateRewrittenPackets();
         updateHandledPackets();
     }
 
@@ -52,6 +56,7 @@ public class ChannelWrapper
     {
         ch.pipeline().get( MinecraftDecoder.class ).setProtocol( protocol );
         ch.pipeline().get( MinecraftEncoder.class ).setProtocol( protocol );
+        updateRewrittenPackets();
         updateHandledPackets();
     }
 
@@ -59,18 +64,31 @@ public class ChannelWrapper
     {
         ch.pipeline().get( MinecraftDecoder.class ).setProtocolVersion( protocol );
         ch.pipeline().get( MinecraftEncoder.class ).setProtocolVersion( protocol );
+        updateRewrittenPackets();
         updateHandledPackets();
+    }
+
+    private void updateRewrittenPackets()
+    {
+        MinecraftDecoder decoder = ch.pipeline().get( MinecraftDecoder.class );
+        if ( handler == null )
+        {
+            decoder.setCopiedBuffers( null );
+        } else
+        {
+            decoder.setCopiedBuffers( computeRewrittenPackets( handler, decoder.getProtocol(), decoder.isServer(), decoder.getProtocolVersion() ) );
+        }
     }
 
     private void updateHandledPackets()
     {
         MinecraftDecoder decoder = ch.pipeline().get( MinecraftDecoder.class );
-        if ( handlerClass == null )
+        if ( handler == null )
         {
             decoder.setHandledPackets( null );
         } else
         {
-            decoder.setHandledPackets( computeHandledPackets( handlerClass, decoder.getProtocol(), decoder.isServer(), decoder.getProtocolVersion() ) );
+            decoder.setHandledPackets( computeHandledPackets( handler.getClass(), decoder.getProtocol(), decoder.isServer(), decoder.getProtocolVersion() ) );
         }
     }
 
@@ -179,6 +197,32 @@ public class ChannelWrapper
         {
             ch.pipeline().remove( "decompress" );
         }
+    }
+
+    private static boolean[] computeRewrittenPackets(PacketHandler handler, Protocol protocol, boolean server, int protocolVersion)
+    {
+        // TODO: Cache results
+        EntityMap entityMap;
+        if ( handler instanceof UpstreamBridge )
+        {
+            entityMap = ( (UpstreamBridge) handler ).getCon().getEntityRewrite();
+        } else if ( handler instanceof DownstreamBridge )
+        {
+            entityMap = ( (DownstreamBridge) handler ).getCon().getEntityRewrite();
+        } else
+        {
+            return null;
+        }
+        boolean[] rewrittenPackets = new boolean[ Protocol.MAX_PACKET_ID ];
+        for ( int i = 0; i < Protocol.MAX_PACKET_ID; i++ )
+        {
+            boolean rewritten = server ? entityMap.hasServerboundRewrite( i, true ) : entityMap.hasClientboundRewrite( i, true );
+            if ( rewritten )
+            {
+                rewrittenPackets[i] = true;
+            }
+        }
+        return rewrittenPackets;
     }
 
     private static boolean[] computeHandledPackets(Class<? extends PacketHandler> handlerClass, Protocol protocol, boolean server, int protocolVersion)

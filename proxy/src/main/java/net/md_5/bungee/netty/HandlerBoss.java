@@ -34,7 +34,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
         this.handler = handler;
         if ( channel != null )
         {
-            channel.setHandlerClass( handler.getClass() );
+            channel.setHandler( handler );
         }
     }
 
@@ -46,7 +46,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
             channel = new ChannelWrapper( ctx );
             if ( handler != null )
             {
-                channel.setHandlerClass( handler.getClass() );
+                channel.setHandler( handler );
             }
             handler.connected( channel );
 
