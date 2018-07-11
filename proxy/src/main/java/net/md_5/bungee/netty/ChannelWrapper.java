@@ -10,7 +10,9 @@ import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.md_5.bungee.compress.PacketCompressor;
 import net.md_5.bungee.compress.PacketDecompressor;
@@ -27,6 +29,7 @@ import net.md_5.bungee.protocol.packet.Kick;
 public class ChannelWrapper
 {
 
+    private static final Map<RewrittenPacketsCacheKey, boolean[]> REWRITTEN_PACKETS_CACHE = new ConcurrentHashMap<>();
     private static final Map<Protocol.ProtocolData, boolean[]> HANDLED_PACKETS_CACHE = new ConcurrentHashMap<>();
 
     private final Channel ch;
@@ -201,7 +204,6 @@ public class ChannelWrapper
 
     private static boolean[] computeRewrittenPackets(PacketHandler handler, Protocol protocol, boolean server, int protocolVersion)
     {
-        // TODO: Cache results
         EntityMap entityMap;
         if ( handler instanceof UpstreamBridge )
         {
@@ -213,14 +215,20 @@ public class ChannelWrapper
         {
             return null;
         }
-        boolean[] rewrittenPackets = new boolean[ Protocol.MAX_PACKET_ID ];
-        for ( int i = 0; i < Protocol.MAX_PACKET_ID; i++ )
+        RewrittenPacketsCacheKey cacheKey = new RewrittenPacketsCacheKey( entityMap.getClass(), server );
+        boolean[] rewrittenPackets = REWRITTEN_PACKETS_CACHE.get( cacheKey );
+        if ( rewrittenPackets == null )
         {
-            boolean rewritten = server ? entityMap.hasServerboundRewrite( i, true ) : entityMap.hasClientboundRewrite( i, true );
-            if ( rewritten )
+            rewrittenPackets = new boolean[ Protocol.MAX_PACKET_ID ];
+            for ( int i = 0; i < Protocol.MAX_PACKET_ID; i++ )
             {
-                rewrittenPackets[i] = true;
+                boolean rewritten = server ? entityMap.hasServerboundRewrite( i, true ) : entityMap.hasClientboundRewrite( i, true );
+                if ( rewritten )
+                {
+                    rewrittenPackets[i] = true;
+                }
             }
+            REWRITTEN_PACKETS_CACHE.put( cacheKey, rewrittenPackets );
         }
         return rewrittenPackets;
     }
@@ -254,5 +262,13 @@ public class ChannelWrapper
             HANDLED_PACKETS_CACHE.put( protData, handledPackets );
         }
         return handledPackets;
+    }
+
+    @RequiredArgsConstructor
+    @EqualsAndHashCode
+    private static class RewrittenPacketsCacheKey
+    {
+        private final Class<? extends EntityMap> entityMapClass;
+        private final boolean server;
     }
 }
