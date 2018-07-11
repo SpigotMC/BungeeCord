@@ -228,7 +228,6 @@ public abstract class EntityMap
             rewriteInt( packet, oldId, newId, readerIndex + packetIdLength );
         } else if ( varints[packetId] )
         {
-            newId = 1048576;
             rewriteVarInt( packet, oldId, newId, readerIndex + packetIdLength );
         }
         packet.readerIndex( readerIndex );
