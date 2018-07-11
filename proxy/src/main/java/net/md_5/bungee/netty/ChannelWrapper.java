@@ -198,11 +198,11 @@ public class ChannelWrapper
                     {
                         Method defaultMethod = PacketHandler.class.getMethod( "handle", packetClass );
                         Method handlerMethod = handlerClass.getMethod( "handle", packetClass );
-                        if ( !defaultMethod.equals(handlerMethod) )
+                        if ( !defaultMethod.equals( handlerMethod ) )
                         {
                             handledPackets[i] = true;
                         }
-                    } catch (NoSuchMethodException ignored)
+                    } catch ( NoSuchMethodException ignored )
                     {
                     }
                 }

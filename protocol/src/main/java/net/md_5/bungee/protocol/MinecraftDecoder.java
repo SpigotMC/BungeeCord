@@ -37,7 +37,7 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
             int packetId = DefinedPacket.readVarInt( in );
 
             DefinedPacket packet = null;
-            if ( handledPackets == null || (packetId >= 0 && packetId < handledPackets.length && handledPackets[packetId]))
+            if ( handledPackets == null || ( packetId >= 0 && packetId < handledPackets.length && handledPackets[packetId] ) )
             {
                 packet = prot.createPacket( packetId, protocolVersion );
                 if ( packet != null )
