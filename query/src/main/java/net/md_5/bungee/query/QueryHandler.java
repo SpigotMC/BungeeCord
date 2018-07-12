@@ -1,5 +1,6 @@
 package net.md_5.bungee.query;
 
+import com.google.common.base.Joiner;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.netty.buffer.ByteBuf;
@@ -16,8 +17,9 @@ import java.util.logging.Level;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.QueryResponse;
 import net.md_5.bungee.api.config.ListenerInfo;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.ProxyQueryEvent;
 
 @RequiredArgsConstructor
 public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
@@ -87,17 +89,32 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
             out.writeByte( 0x00 );
             out.writeInt( sessionId );
 
+            boolean longResponse;
             if ( in.readableBytes() == 0 )
             {
-                // Short response
-                writeString( out, listener.getMotd() ); // MOTD
-                writeString( out, "SMP" ); // Game Type
-                writeString( out, "BungeeCord_Proxy" ); // World Name
-                writeNumber( out, bungee.getOnlineCount() ); // Online Count
-                writeNumber( out, listener.getMaxPlayers() ); // Max Players
-                writeShort( out, listener.getHost().getPort() ); // Port
-                writeString( out, listener.getHost().getHostString() ); // IP
+                longResponse = false;
             } else if ( in.readableBytes() == 4 )
+            {
+                longResponse = true;
+            } else
+            {
+                // Error!
+                throw new IllegalStateException( "Invalid data request packet" );
+            }
+
+            QueryResponse query = bungee.getPluginManager().callEvent( new ProxyQueryEvent( longResponse, listener, new QueryResponse( bungee, listener ) ) ).getResponse();
+
+            if ( !longResponse )
+            {
+                // Short response
+                writeString( out, query.getMotd() ); // MOTD
+                writeString( out, "SMP" ); // Game Type
+                writeString( out, query.getWorld() ); // World Name
+                writeNumber( out, query.getPlayerCount() ); // Online Count
+                writeNumber( out, query.getMaxPlayers() ); // Max Players
+                writeShort( out, query.getPort() ); // Port
+                writeString( out, query.getAddress() ); // IP
+            } else
             {
                 // Long Response
                 out.writeBytes( new byte[]
@@ -106,18 +123,18 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
                 } );
                 Map<String, String> data = new LinkedHashMap<>();
 
-                data.put( "hostname", listener.getMotd() );
+                data.put( "hostname", query.getMotd() );
                 data.put( "gametype", "SMP" );
                 // Start Extra Info
                 data.put( "game_id", "MINECRAFT" );
-                data.put( "version", bungee.getGameVersion() );
-                data.put( "plugins", "" );
+                data.put( "version", query.getVersion() );
+                data.put( "plugins", query.getPlugins().isEmpty() ? "" : query.getServer() + ": " + Joiner.on( "; " ).join( query.getPlugins() ) );
                 // End Extra Info
-                data.put( "map", "BungeeCord_Proxy" );
-                data.put( "numplayers", Integer.toString( bungee.getOnlineCount() ) );
-                data.put( "maxplayers", Integer.toString( listener.getMaxPlayers() ) );
-                data.put( "hostport", Integer.toString( listener.getHost().getPort() ) );
-                data.put( "hostip", listener.getHost().getHostString() );
+                data.put( "map", query.getWorld() );
+                data.put( "numplayers", Integer.toString( query.getPlayerCount() ) );
+                data.put( "maxplayers", Integer.toString( query.getMaxPlayers() ) );
+                data.put( "hostport", Integer.toString( query.getPort() ) );
+                data.put( "hostip", query.getAddress() );
 
                 for ( Map.Entry<String, String> entry : data.entrySet() )
                 {
@@ -129,15 +146,11 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
                 // Padding
                 writeString( out, "\01player_\00" );
                 // Player List
-                for ( ProxiedPlayer p : bungee.getPlayers() )
+                for ( String s : query.getPlayers() )
                 {
-                    writeString( out, p.getName() );
+                    writeString( out, s );
                 }
                 out.writeByte( 0x00 ); // Null
-            } else
-            {
-                // Error!
-                throw new IllegalStateException( "Invalid data request packet" );
             }
         }
 
