@@ -73,6 +73,15 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
+    public void connected(ChannelWrapper channel) throws Exception
+    {
+        server.getInfo().addPlayer( con );
+        con.getPendingConnects().remove( server.getInfo() );
+        con.setServerJoinQueue( null );
+        con.setDimensionChange( false );
+    }
+
+    @Override
     public void disconnected(ChannelWrapper channel) throws Exception
     {
         // We lost connection to the server
@@ -456,7 +465,7 @@ public class DownstreamBridge extends PacketHandler
     {
         ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
         ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTED ) );
-        if ( event.isCancelled() && event.getCancelServer() != null )
+        if ( event.isCancelled() && event.getCancelServer() != null && !event.getCancelServer().equals( server.getInfo() ) )
         {
             con.connectNow( event.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT );
         } else

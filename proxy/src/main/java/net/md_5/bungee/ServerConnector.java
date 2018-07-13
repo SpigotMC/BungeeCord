@@ -158,6 +158,11 @@ public class ServerConnector extends PacketHandler
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
+        if ( user.isDisconnecting() )
+        {
+            throw CancelSendSignal.INSTANCE;
+        }
+
         ServerConnection server = new ServerConnection( ch, target );
         ServerConnectedEvent event = new ServerConnectedEvent( user, server );
         bungee.getPluginManager().callEvent( event );
@@ -246,22 +251,6 @@ public class ServerConnector extends PacketHandler
             user.getServer().disconnect( "Quitting" );
         }
 
-        // TODO: Fix this?
-        if ( !user.isActive() )
-        {
-            server.disconnect( "Quitting" );
-            // Silly server admins see stack trace and die
-            bungee.getLogger().warning( "No client connected for pending server!" );
-            return;
-        }
-
-        // Add to new server
-        // TODO: Move this to the connected() method of DownstreamBridge
-        target.addPlayer( user );
-        user.getPendingConnects().remove( target );
-        user.setServerJoinQueue( null );
-        user.setDimensionChange( false );
-
         user.setServer( server );
         ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user, server ) );
 
@@ -289,7 +278,7 @@ public class ServerConnector extends PacketHandler
             event.setCancelled( true );
         }
         bungee.getPluginManager().callEvent( event );
-        if ( event.isCancelled() && event.getCancelServer() != null )
+        if ( event.isCancelled() && event.getCancelServer() != null && !event.getCancelServer().equals( target ) )
         {
             obsolete = true;
             user.connect( event.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT );

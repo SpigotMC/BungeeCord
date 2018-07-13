@@ -615,4 +615,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         return !ch.isClosed();
     }
+
+    @Override
+    public boolean isDisconnecting()
+    {
+        return ch.isClosing();
+    }
 }

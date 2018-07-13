@@ -682,6 +682,12 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
+    public boolean isDisconnecting()
+    {
+        return ch.isClosing();
+    }
+
+    @Override
     public Scoreboard getScoreboard()
     {
         return serverSentScoreboard;
