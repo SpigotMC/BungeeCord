@@ -461,7 +461,7 @@ public enum Protocol
             {
                 throw new BadPacketException( "Unsupported protocol version" );
             }
-            Preconditions.checkArgument( protocolData.packetMap.containsKey( packet ), "Cannot get ID for packet " + packet );
+            Preconditions.checkArgument( protocolData.packetMap.containsKey( packet ), "Cannot get ID for packet %s in phase %s", packet, protocolPhase );
 
             return protocolData.packetMap.get( packet );
         }
