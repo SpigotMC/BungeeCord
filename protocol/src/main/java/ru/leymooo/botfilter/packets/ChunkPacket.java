@@ -1,6 +1,7 @@
 package ru.leymooo.botfilter.packets;
 
 import io.netty.buffer.ByteBuf;
+import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -37,7 +38,7 @@ public class ChunkPacket extends DefinedPacket
         {
             writeVarInt( 0, buf );
         }
-        writeArray( data, buf );
+        writeArray( this.data, buf );
         if ( version >= ProtocolConstants.MINECRAFT_1_9_4 )
         {
             DefinedPacket.writeVarInt( 0, buf );

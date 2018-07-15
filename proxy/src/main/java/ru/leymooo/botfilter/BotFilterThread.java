@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import net.md_5.bungee.BungeeCord;
 import ru.leymooo.botfilter.BotFilter.CheckState;
-import ru.leymooo.botfilter.caching.PacketConstans;
+import ru.leymooo.botfilter.caching.PacketsPosition;
 import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.caching.PacketUtils.KickType;
 import ru.leymooo.botfilter.config.Settings;
@@ -55,10 +55,10 @@ public class BotFilterThread
                                     continue;
                                 } else if ( state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED || state == BotFilter.CheckState.ONLY_POSITION )
                                 {
-                                    connector.getChannel().writeAndFlush( PacketUtils.getChachedPacket( PacketConstans.CHECKING ).get( connector.getVersion() ) );
+                                    connector.getChannel().writeAndFlush(PacketUtils.getChachedPacket(PacketsPosition.CHECKING ).get( connector.getVersion() ) );
                                 } else
                                 {
-                                    connector.getChannel().writeAndFlush( PacketUtils.getChachedPacket( PacketConstans.CHECKING_CAPTCHA ).get( connector.getVersion() ) );
+                                    connector.getChannel().writeAndFlush(PacketUtils.getChachedPacket(PacketsPosition.CHECKING_CAPTCHA ).get( connector.getVersion() ) );
                                 }
                                 connector.sendPing();
                         }

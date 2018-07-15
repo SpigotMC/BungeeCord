@@ -18,7 +18,7 @@ import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import ru.leymooo.botfilter.BotFilter.CheckState;
-import ru.leymooo.botfilter.caching.PacketConstans;
+import ru.leymooo.botfilter.caching.PacketsPosition;
 import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.caching.PacketUtils.KickType;
 import ru.leymooo.botfilter.utils.IPUtils;
@@ -129,7 +129,7 @@ public class Connector extends MoveHandler
         {
             if ( state == CheckState.CAPTCHA_POSITION && aticks < TOTAL_TICKS )
             {
-                channel.writeAndFlush( PacketUtils.getChachedPacket( PacketConstans.SETSLOT_RESET ).get( version ), channel.voidPromise() );
+                channel.writeAndFlush(PacketUtils.getChachedPacket(PacketsPosition.SETSLOT_RESET ).get( version ), channel.voidPromise() );
                 state = CheckState.ONLY_POSITION;
             } else
             {
@@ -149,7 +149,7 @@ public class Connector extends MoveHandler
         PacketUtils.titles[2].writeTitle( channel, version );
         channel.flush();
         botFilter.removeConnection( null, this );
-        channel.writeAndFlush( PacketUtils.getChachedPacket( PacketConstans.CHECK_SUS ).get( version ), channel.voidPromise() );
+        channel.writeAndFlush(PacketUtils.getChachedPacket(PacketsPosition.CHECK_SUS ).get( version ), channel.voidPromise() );
         botFilter.saveUser( getName(), IPUtils.getAddress( userConnection ) );
         userConnection.setNeedLogin( false );
         userConnection.getPendingConnection().finishLogin( userConnection );
@@ -177,7 +177,7 @@ public class Connector extends MoveHandler
             {
                 state = CheckState.ONLY_CAPTCHA;
                 joinTime = System.currentTimeMillis() + 3500;
-                channel.write( PacketUtils.getChachedPacket( PacketConstans.SETEXP_RESET ).get( version ), channel.voidPromise() );
+                channel.write(PacketUtils.getChachedPacket(PacketsPosition.SETEXP_RESET ).get( version ), channel.voidPromise() );
                 PacketUtils.titles[1].writeTitle( channel, version );
                 resetPosition( true );
                 sendCaptcha();
@@ -212,10 +212,10 @@ public class Connector extends MoveHandler
     {
         if ( disableFall )
         {
-            channel.write( PacketUtils.getChachedPacket( PacketConstans.PLAYERABILITIES ).get( version ), channel.voidPromise() );
+            channel.write(PacketUtils.getChachedPacket(PacketsPosition.PLAYERABILITIES ).get( version ), channel.voidPromise() );
         }
         waitingTeleportId = 9876;
-        channel.writeAndFlush( PacketUtils.getChachedPacket( PacketConstans.PLAYERPOSANDLOOK_CAPTCHA ).get( version ), channel.voidPromise() );
+        channel.writeAndFlush(PacketUtils.getChachedPacket(PacketsPosition.PLAYERPOSANDLOOK_CAPTCHA ).get( version ), channel.voidPromise() );
     }
 
     @Override
@@ -234,8 +234,8 @@ public class Connector extends MoveHandler
                 completeCheck();
             } else if ( --attemps != 0 )
             {
-                channel.write( attemps == 2 ? PacketUtils.getChachedPacket( PacketConstans.CAPTCHA_FAILED_2 ).get( version )
-                        : PacketUtils.getChachedPacket( PacketConstans.CAPTCHA_FAILED_1 ).get( version ), channel.voidPromise() );
+                channel.write(attemps == 2 ? PacketUtils.getChachedPacket(PacketsPosition.CAPTCHA_FAILED_2 ).get( version )
+                        : PacketUtils.getChachedPacket(PacketsPosition.CAPTCHA_FAILED_1 ).get( version ), channel.voidPromise() );
                 sendCaptcha();
             } else
             {
@@ -273,14 +273,14 @@ public class Connector extends MoveHandler
         {
             lastSend = System.currentTimeMillis();
             sentPings++;
-            channel.writeAndFlush( PacketUtils.getChachedPacket( PacketConstans.KEEPALIVE ).get( version ) );
+            channel.writeAndFlush(PacketUtils.getChachedPacket(PacketsPosition.KEEPALIVE ).get( version ) );
         }
     }
 
     private void sendCaptcha()
     {
         captchaAnswer = random.nextInt( 100, 999 );
-        channel.write( PacketUtils.getChachedPacket( PacketConstans.SETSLOT_MAP ).get( version ), channel.voidPromise() );
+        channel.write(PacketUtils.getChachedPacket(PacketsPosition.SETSLOT_MAP_18 ).get( version ), channel.voidPromise() );
         channel.writeAndFlush( PacketUtils.captchas.get( version, captchaAnswer ), channel.voidPromise() );
     }
 

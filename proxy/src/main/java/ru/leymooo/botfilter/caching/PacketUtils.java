@@ -35,7 +35,7 @@ import ru.leymooo.botfilter.packets.SetSlot;
 public class PacketUtils
 {
 
-    public static int PROTOCOLS_NUM = 11;
+    public static int PROTOCOLS_NUM = 12;
 
     public static int CLIENTID = new Random().nextInt( Integer.MAX_VALUE - 100 ) + 50;
 
@@ -100,16 +100,17 @@ public class PacketUtils
                     new TimeUpdate( 1, 23700 ), //2
                     new PlayerAbilities( (byte) 6, 0f, 0f ), //3
                     new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 38f, 9876, false ), //4
-                    new SetSlot( 0, 36, 358, 1, 0 ), //5
-                    new SetSlot( 0, 36, -1, 0, 0 ), //6
-                    new KeepAlive( 9876 ), //7
-                    createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "2" ).replaceFirst( "%s", "попытки" ) ), //8
-                    createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "1" ).replaceFirst( "%s", "попытка" ) ), //9
-                    createMessagePacket( Settings.IMP.MESSAGES.CHECKING ), //10
-                    createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA ), //11
-                    createMessagePacket( Settings.IMP.MESSAGES.SUCCESSFULLY ), //12
-                    new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 10f, 9876, false ), //13
-                    new SetExp( 0, 0, 0 ), //14
+                    new SetSlot( 0, 36, 358, 1, 0 ), //5 map 1.8+
+                    new SetSlot( 0, 36, 358, 1, 0 ), //6 map 1.13
+                    new SetSlot( 0, 36, -1, 0, 0 ), //7 map reset
+                    new KeepAlive( 9876 ), //8
+                    createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "2" ).replaceFirst( "%s", "попытки" ) ), //9
+                    createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "1" ).replaceFirst( "%s", "попытка" ) ), //10
+                    createMessagePacket( Settings.IMP.MESSAGES.CHECKING ), //11
+                    createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA ), //12
+                    createMessagePacket( Settings.IMP.MESSAGES.SUCCESSFULLY ), //13
+                    new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 10f, 9876, false ), //14
+                    new SetExp( 0, 0, 0 ), //15
                 };
 
         for ( int i = 0; i < packets.length; i++ )
@@ -231,6 +232,8 @@ public class PacketUtils
                 return 9;
             case ProtocolConstants.MINECRAFT_1_12_2:
                 return 10;
+            case ProtocolConstants.MINECRAFT_1_13:
+                return 11;
             default:
                 throw new IllegalArgumentException( "Version is not supported" );
         }
@@ -238,21 +241,21 @@ public class PacketUtils
 
     public static void spawnPlayer(Channel channel, int version, boolean disableFall, boolean captcha)
     {
-        channel.write( getChachedPacket( PacketConstans.LOGIN ).get( version ), channel.voidPromise() );
-        channel.write( getChachedPacket( PacketConstans.CHUNK ).get( version ), channel.voidPromise() );
+        channel.write( getChachedPacket( PacketsPosition.LOGIN ).get( version ), channel.voidPromise() );
+        channel.write( getChachedPacket( PacketsPosition.CHUNK ).get( version ), channel.voidPromise() );
         if ( disableFall )
         {
-            channel.write( getChachedPacket( PacketConstans.PLAYERABILITIES ).get( version ), channel.voidPromise() );
+            channel.write( getChachedPacket( PacketsPosition.PLAYERABILITIES ).get( version ), channel.voidPromise() );
         }
         if ( captcha )
         {
-            channel.write( getChachedPacket( PacketConstans.PLAYERPOSANDLOOK_CAPTCHA ).get( version ), channel.voidPromise() );
+            channel.write( getChachedPacket( PacketsPosition.PLAYERPOSANDLOOK_CAPTCHA ).get( version ), channel.voidPromise() );
         } else
         {
-            channel.write( getChachedPacket( PacketConstans.PLAYERPOSANDLOOK ).get( version ), channel.voidPromise() );
+            channel.write( getChachedPacket( PacketsPosition.PLAYERPOSANDLOOK ).get( version ), channel.voidPromise() );
 
         }
-        channel.write( getChachedPacket( PacketConstans.TIME ).get( version ), channel.voidPromise() );
+        channel.write( getChachedPacket( PacketsPosition.TIME ).get( version ), channel.voidPromise() );
         //channel.flush(); Не очищяем поскольку это будет в другом месте
     }
 

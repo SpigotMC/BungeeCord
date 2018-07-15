@@ -13,9 +13,11 @@ public class CachedCaptcha
 
     private ByteBuf[] byteBuf18 = new ByteBuf[ 900 ];
     private ByteBuf[] byteBuf19 = new ByteBuf[ 900 ];
+    private ByteBuf[] byteBuf113 = new ByteBuf[ 900 ];
 
-    private int PACKETID_18 = 52;
-    private int PACKETID_19 = 36;
+    private static final int PACKETID_18 = 52;
+    private static final int PACKETID_19 = 36;
+    private static final int PACKETID_113 = 38;
 
     public static boolean generated = false;
 
@@ -23,12 +25,16 @@ public class CachedCaptcha
     {
         byteBuf18[answer - 100] = PacketUtils.createPacket( map, PACKETID_18, ProtocolConstants.MINECRAFT_1_8 );
         byteBuf19[answer - 100] = PacketUtils.createPacket( map, PACKETID_19, ProtocolConstants.MINECRAFT_1_9 );
+        byteBuf113[answer - 100] = PacketUtils.createPacket( map, PACKETID_113, ProtocolConstants.MINECRAFT_1_13 );
+
     }
 
     public ByteBuf get(int version, int captcha)
     {
         return version == ProtocolConstants.MINECRAFT_1_8
                 ? byteBuf18[captcha - 100].retainedDuplicate()
+                : version == ProtocolConstants.MINECRAFT_1_13 
+                ? byteBuf113[captcha - 100].retainedDuplicate()
                 : byteBuf19[captcha - 100].retainedDuplicate();
     }
 

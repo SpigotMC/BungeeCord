@@ -28,11 +28,18 @@ public class SetSlot extends DefinedPacket
         buf.writeByte( this.windowId );
         buf.writeShort( this.slot );
         buf.writeShort( this.item );
-        if ( this.item != -1 )
+        if ( this.item >= 0 )
         {
             buf.writeByte( this.count );
-            buf.writeShort( this.data );
-            buf.writeByte( 0 );
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
+            {
+                buf.writeByte( this.data );
+            } else
+            {
+                buf.writeShort( this.data );
+                buf.writeByte( 0 );
+            }
+
         }
     }
 
