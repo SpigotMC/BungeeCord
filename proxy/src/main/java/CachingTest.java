@@ -37,7 +37,7 @@ public class CachingTest
             {
                 PacketUtils.getChachedPacket(PacketsPosition.LOGIN ).get( 47 ).release();
                 PacketUtils.getChachedPacket(PacketsPosition.CHUNK ).get( 47 ).release();
-                PacketUtils.getChachedPacket(PacketsPosition.SETSLOT_MAP_18 ).get( 47 ).release();
+                PacketUtils.getChachedPacket(PacketsPosition.SETSLOT_MAP ).get( 47 ).release();
                 PacketUtils.getChachedPacket(PacketsPosition.PLAYERABILITIES ).get( 47 ).release();
                 PacketUtils.getChachedPacket(PacketsPosition.PLAYERPOSANDLOOK_CAPTCHA ).get( 47 ).release();
                 PacketUtils.getChachedPacket(PacketsPosition.CHECKING_CAPTCHA ).get( 47 ).release();

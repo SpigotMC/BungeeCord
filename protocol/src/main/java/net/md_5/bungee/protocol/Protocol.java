@@ -69,6 +69,17 @@ public enum Protocol
 
         {
             TO_CLIENT.registerPacket(
+                    ChunkPacket.class,
+                    map( ProtocolConstants.MINECRAFT_1_13, 0x22 )
+            );
+            TO_CLIENT.registerPacket(
+                    SetSlot.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x2F ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x16 ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x16 ),
+                    map( ProtocolConstants.MINECRAFT_1_13, 0x17 )
+            );
+            TO_CLIENT.registerPacket(
                     KeepAlive.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x00 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x1F ),
@@ -353,7 +364,8 @@ public enum Protocol
             TO_SERVER.registerPacket(
                     TeleportConfirm.class,
                     map( ProtocolConstants.MINECRAFT_1_9, 0x00 ),
-                    map( ProtocolConstants.MINECRAFT_1_12, 0x00 )
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x00 ),
+                    map( ProtocolConstants.MINECRAFT_1_13, 0x00 )
             );
             TO_SERVER.registerPacket(
                     PlayerPositionAndLook.class,
