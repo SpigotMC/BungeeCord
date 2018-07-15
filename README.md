@@ -8,6 +8,10 @@ Captcha+Falling check:
 Falling check:
 [![Only captcha](https://i.ytimg.com/vi/P1MA7ZmR2Ik/1.jpg)](https://youtu.be/P1MA7ZmR2Ik)
 
+<<<<<<< HEAD
 Download
 --------
 You can download this protection on [RuBukkit](http://www.rubukkit.org/threads/137038/) or on [Yandex Disk](https://yadi.sk/d/QrSeJWeU3LAq4p)
+=======
+(c) 2012-2018 SpigotMC Pty. Ltd.
+>>>>>>> 5cdb181cc51587386c13d2bfb5a034f72ccae126

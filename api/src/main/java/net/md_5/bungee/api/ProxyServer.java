@@ -155,14 +155,6 @@ public abstract class ProxyServer
     public abstract void stop(String reason);
 
     /**
-     * Start this instance so that it may accept connections.
-     *
-     * @throws Exception any exception thrown during startup causing the
-     * instance to fail to boot
-     */
-    public abstract void start() throws Exception;
-
-    /**
      * Register a channel for use with plugin messages. This is required by some
      * server / client implementations.
      *

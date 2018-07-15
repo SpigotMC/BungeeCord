@@ -14,5 +14,4 @@ public class PacketConstants
     {
         0, 0, 0, 0, 0, 2
     }, false );
-    public static final PluginMessage I_AM_BUNGEE = new PluginMessage( "BungeeCord", new byte[ 0 ], false );
 }

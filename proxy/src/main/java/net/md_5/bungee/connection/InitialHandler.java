@@ -55,6 +55,7 @@ import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.LegacyHandshake;
 import net.md_5.bungee.protocol.packet.LegacyPing;
+import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PingPacket;
@@ -62,13 +63,13 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
-import ru.leymooo.botfilter.BotFilter;
 import ru.leymooo.botfilter.Connector;
 import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.caching.PacketUtils.KickType;
 import ru.leymooo.botfilter.utils.ManyChecksUtils;
 import ru.leymooo.botfilter.utils.PingLimiter;
 import ru.leymooo.botfilter.utils.ServerPingUtils;
+import net.md_5.bungee.util.BufUtil;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -132,6 +133,15 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void exception(Throwable t) throws Exception
     {
         disconnect( ChatColor.RED + Util.exception( t ) );
+    }
+
+    @Override
+    public void handle(PacketWrapper packet) throws Exception
+    {
+        if ( packet.packet == null )
+        {
+            throw new IllegalArgumentException( "Unexpected packet received during login process!\n" + BufUtil.dump( packet.buf, 64 ) );
+        }
     }
 
     @Override
@@ -590,6 +600,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         thisState = State.FINISHED;
     }
     //BotFilter end
+
+    @Override
+    public void handle(LoginPayloadResponse response) throws Exception
+    {
+        disconnect( "Unexpected custom LoginPayloadResponse" );
+    }
 
     @Override
     public void disconnect(String reason)
