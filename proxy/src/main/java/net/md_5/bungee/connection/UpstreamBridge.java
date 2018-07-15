@@ -40,7 +40,7 @@ public class UpstreamBridge extends PacketHandler
 
         BungeeCord.getInstance().addConnection( con );
         con.getTabListHandler().onConnect();
-        con.unsafe().sendPacket( BungeeCord.getInstance().registerChannels() );
+        con.unsafe().sendPacket( BungeeCord.getInstance().registerChannels( con.getPendingConnection().getVersion() ) );
     }
 
     @Override
@@ -167,7 +167,12 @@ public class UpstreamBridge extends PacketHandler
         List<String> results = tabCompleteEvent.getSuggestions();
         if ( !results.isEmpty() )
         {
-            con.unsafe().sendPacket( new TabCompleteResponse( results ) );
+            // Unclear how to handle 1.13 commands at this point. Because we don't inject into the command packets we are unlikely to get this far unless
+            // Bungee plugins are adding results for commands they don't own anyway
+            if ( con.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_13 )
+            {
+                con.unsafe().sendPacket( new TabCompleteResponse( results ) );
+            }
             throw CancelSendSignal.INSTANCE;
         }
     }

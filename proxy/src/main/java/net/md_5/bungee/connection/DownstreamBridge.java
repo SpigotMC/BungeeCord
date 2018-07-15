@@ -30,6 +30,7 @@ import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
@@ -125,7 +126,7 @@ public class DownstreamBridge extends PacketHandler
         switch ( objective.getAction() )
         {
             case 0:
-                serverScoreboard.addObjective( new Objective( objective.getName(), objective.getValue(), objective.getType() ) );
+                serverScoreboard.addObjective( new Objective( objective.getName(), objective.getValue(), objective.getType().toString() ) );
                 break;
             case 1:
                 serverScoreboard.removeObjective( objective.getName() );
@@ -135,7 +136,7 @@ public class DownstreamBridge extends PacketHandler
                 if ( oldObjective != null )
                 {
                     oldObjective.setValue( objective.getValue() );
-                    oldObjective.setType( objective.getType() );
+                    oldObjective.setType( objective.getType().toString() );
                 }
                 break;
             default:
@@ -231,7 +232,7 @@ public class DownstreamBridge extends PacketHandler
             throw CancelSendSignal.INSTANCE;
         }
 
-        if ( pluginMessage.getTag().equals( "MC|Brand" ) )
+        if ( pluginMessage.getTag().equals( con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ? "minecraft:brand" : "MC|Brand" ) )
         {
             ByteBuf brand = Unpooled.wrappedBuffer( pluginMessage.getData() );
             String serverBrand = DefinedPacket.readString( brand );
@@ -476,6 +477,12 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(TabCompleteResponse tabCompleteResponse) throws Exception
     {
+        if ( tabCompleteResponse.getCommands() == null )
+        {
+            // Passthrough on 1.13 style command responses - unclear of a sane way to process them at the moment, contributions welcome 
+            return;
+        }
+
         TabCompleteResponseEvent tabCompleteResponseEvent = new TabCompleteResponseEvent( server, con, tabCompleteResponse.getCommands() );
 
         if ( !bungee.getPluginManager().callEvent( tabCompleteResponseEvent ).isCancelled() )

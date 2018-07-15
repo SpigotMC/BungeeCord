@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBufAllocator;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Level;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
@@ -30,7 +31,9 @@ import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.Kick;
@@ -42,6 +45,7 @@ import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.SetCompression;
+import net.md_5.bungee.util.BufUtil;
 
 @RequiredArgsConstructor
 public class ServerConnector extends PacketHandler
@@ -119,6 +123,15 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
+    public void handle(PacketWrapper packet) throws Exception
+    {
+        if ( packet.packet == null )
+        {
+            throw new IllegalArgumentException( "Unexpected packet received during server login process!\n" + BufUtil.dump( packet.buf, 64 ) );
+        }
+    }
+
+    @Override
     public void handle(LoginSuccess loginSuccess) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not expecting LOGIN_SUCCESS" );
@@ -162,7 +175,7 @@ public class ServerConnector extends PacketHandler
         ServerConnectedEvent event = new ServerConnectedEvent( user, server );
         bungee.getPluginManager().callEvent( event );
 
-        ch.write( BungeeCord.getInstance().registerChannels() );
+        ch.write( BungeeCord.getInstance().registerChannels( user.getPendingConnection().getVersion() ) );
         Queue<DefinedPacket> packetQueue = target.getPacketQueue();
         synchronized ( packetQueue )
         {
@@ -201,7 +214,7 @@ public class ServerConnector extends PacketHandler
 
             ByteBuf brand = ByteBufAllocator.DEFAULT.heapBuffer();
             DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")", brand );
-            user.unsafe().sendPacket( new PluginMessage( "MC|Brand", DefinedPacket.toArray( brand ), handshakeHandler.isServerForge() ) );
+            user.unsafe().sendPacket( new PluginMessage( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ? "minecraft:brand" : "MC|Brand", DefinedPacket.toArray( brand ), handshakeHandler.isServerForge() ) );
             brand.release();
 
             user.setDimension( login.getDimension() );
@@ -213,7 +226,7 @@ public class ServerConnector extends PacketHandler
             Scoreboard serverScoreboard = user.getServerSentScoreboard();
             for ( Objective objective : serverScoreboard.getObjectives() )
             {
-                user.unsafe().sendPacket( new ScoreboardObjective( objective.getName(), objective.getValue(), objective.getType(), (byte) 1 ) );
+                user.unsafe().sendPacket( new ScoreboardObjective( objective.getName(), objective.getValue(), ScoreboardObjective.HealthDisplay.fromString( objective.getType() ), (byte) 1 ) );
             }
             for ( Score score : serverScoreboard.getScores() )
             {

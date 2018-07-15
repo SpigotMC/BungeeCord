@@ -22,6 +22,8 @@ import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.LegacyHandshake;
 import net.md_5.bungee.protocol.packet.LegacyPing;
+import net.md_5.bungee.protocol.packet.LoginPayloadRequest;
+import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PingPacket;
@@ -146,6 +148,14 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(BossBar bossBar) throws Exception
+    {
+    }
+
+    public void handle(LoginPayloadRequest request) throws Exception
+    {
+    }
+
+    public void handle(LoginPayloadResponse response) throws Exception
     {
     }
 }

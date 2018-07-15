@@ -140,6 +140,10 @@ public interface ProxiedPlayer extends Connection, CommandSender
     /**
      * Send a plugin message to this player.
      *
+     * In recent Minecraft versions channel names must contain a colon separator
+     * and consist of [a-z0-9/._-]. This will be enforced in a future version.
+     * The "BungeeCord" channel is an exception and may only take this form.
+     *
      * @param channel the channel to send this data via
      * @param data the data to send
      */
