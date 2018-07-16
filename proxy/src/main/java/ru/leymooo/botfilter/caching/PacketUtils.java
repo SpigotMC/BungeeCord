@@ -20,6 +20,7 @@ import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Login;
+import net.md_5.bungee.protocol.packet.PluginMessage;
 import ru.leymooo.botfilter.packets.ChunkPacket;
 import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
 import ru.leymooo.botfilter.packets.TimeUpdate;
@@ -39,11 +40,11 @@ public class PacketUtils
 
     public static int CLIENTID = new Random().nextInt( Integer.MAX_VALUE - 100 ) + 50;
 
-    private static CachedPacket[] cachedPackets = new CachedPacket[ 16 ];
-    private static HashMap<KickType, CachedPacket> kickMessagesGame = new HashMap<KickType, CachedPacket>();
-    private static HashMap<KickType, CachedPacket> kickMessagesLogin = new HashMap<KickType, CachedPacket>();
+    private static final CachedPacket[] cachedPackets = new CachedPacket[ 16 ];
+    private static final HashMap<KickType, CachedPacket> kickMessagesGame = new HashMap<KickType, CachedPacket>();
+    private static final HashMap<KickType, CachedPacket> kickMessagesLogin = new HashMap<KickType, CachedPacket>();
 
-    public static CachedCaptcha captchas = new CachedCaptcha();
+    public static final CachedCaptcha captchas = new CachedCaptcha();
 
     public static CachedExpPackets expPackets;
 
@@ -110,6 +111,7 @@ public class PacketUtils
                     createMessagePacket( Settings.IMP.MESSAGES.SUCCESSFULLY ), //12
                     new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 10f, 9876, false ), //13
                     new SetExp( 0, 0, 0 ), //14
+                    createPluginMessage(), //15
                 };
 
         for ( int i = 0; i < packets.length; i++ )
@@ -144,6 +146,15 @@ public class PacketUtils
                 TextComponent.fromLegacyText(
                         ChatColor.translateAlternateColorCodes( '&',
                                 message.replace( "%prefix%", Settings.IMP.MESSAGES.PREFIX ).replace( "%nl%", "\n" ) ) ) ), (byte) ChatMessageType.CHAT.ordinal() );
+    }
+
+    private static DefinedPacket createPluginMessage()
+    {
+        ByteBuf brand = ByteBufAllocator.DEFAULT.heapBuffer();
+        DefinedPacket.writeString( "BotFilter (http://u.to/r8HHEg)", brand );
+        DefinedPacket packet = new PluginMessage( "MC|Brand", DefinedPacket.toArray( brand ), false );
+        brand.release();
+        return packet;
     }
 
     public static int getPacketId(DefinedPacket packet, int version, Protocol... protocols)
@@ -241,6 +252,7 @@ public class PacketUtils
     public static void spawnPlayer(Channel channel, int version, boolean disableFall, boolean captcha)
     {
         channel.write( getChachedPacket( PacketsPosition.LOGIN ).get( version ), channel.voidPromise() );
+        channel.write( getChachedPacket( PacketsPosition.PLUGIN_MESSAGE ).get( version ), channel.voidPromise() );
         channel.write( getChachedPacket( PacketsPosition.CHUNK ).get( version ), channel.voidPromise() );
         if ( disableFall )
         {

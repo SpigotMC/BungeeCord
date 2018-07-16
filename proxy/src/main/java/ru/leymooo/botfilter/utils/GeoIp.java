@@ -29,16 +29,15 @@ import ru.leymooo.botfilter.config.Settings;
  */
 public class GeoIp
 {
-
-    private static String NA = "N/A";
+    private static final Logger LOGGER = BungeeCord.getInstance().getLogger();
+    private static final String NA = "N/A";
 
     private final HashSet<String> countries = new HashSet<>();
     @Getter
     private final Map<InetAddress, String> cached = new ConcurrentHashMap<>();
     @Getter
-    private boolean enabled = Settings.IMP.GEO_IP.MODE != 2;
+    private final boolean enabled = Settings.IMP.GEO_IP.MODE != 2;
 
-    private final Logger logger = BungeeCord.getInstance().getLogger();
 
     private DatabaseReader reader;
 
@@ -93,7 +92,7 @@ public class GeoIp
                 reader = new DatabaseReader.Builder( file ).withCache( new CHMCache( 4096 * 4 ) ).build();
             } catch ( IOException ex )
             {
-                logger.log( Level.WARNING, "[BotFilter] На могу подключиться к GeoLite2 датабазе. Перекачиваю", ex );
+                LOGGER.log( Level.WARNING, "[BotFilter] На могу подключиться к GeoLite2 датабазе. Перекачиваю", ex );
                 file.delete();
                 setupDataBase( true );
             }
@@ -102,7 +101,7 @@ public class GeoIp
 
     private void downloadDataBase(final File out)
     {
-        logger.log( Level.INFO, "[BotFilter] Скачиваю GeoLite2 датабазу" );
+        LOGGER.log( Level.INFO, "[BotFilter] Скачиваю GeoLite2 датабазу" );
         long start = System.currentTimeMillis();
         try
         {
@@ -135,10 +134,10 @@ public class GeoIp
             setupDataBase( true );
         } catch ( Exception ex )
         {
-            logger.log( Level.WARNING, "[BotFilter] Не могу скачать GeoLite2 датабазу", ex );
+            LOGGER.log( Level.WARNING, "[BotFilter] Не могу скачать GeoLite2 датабазу", ex );
             return;
         }
-        logger.log( Level.INFO, "[BotFilter] GeoLite2 загружена ({0}мс)", System.currentTimeMillis() - start );
+        LOGGER.log( Level.INFO, "[BotFilter] GeoLite2 загружена ({0}мс)", System.currentTimeMillis() - start );
     }
 
     private void saveToFile(InputStream stream, File out) throws IOException
@@ -153,7 +152,7 @@ public class GeoIp
                 {
                     fis.close();
                     out.delete();
-                    logger.log( Level.WARNING, "[BotFilter] Не удалось скачать GeoLite2 датабазу. Удаляю недокачанный файл." );
+                    LOGGER.log( Level.WARNING, "[BotFilter] Не удалось скачать GeoLite2 датабазу. Удаляю недокачанный файл." );
                     return;
                 }
                 fis.write( buffer, 0, count );

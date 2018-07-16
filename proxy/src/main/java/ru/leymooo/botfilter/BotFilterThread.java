@@ -19,24 +19,25 @@ public class BotFilterThread
 {
 
     private static Thread thread;
-    private static final HashSet<String> toRemove = new HashSet<>();
+    private static final HashSet<String> TO_REMOVE_SET = new HashSet<>();
     private static BungeeCord bungee = BungeeCord.getInstance();
+    
 
     public static void start()
     {
         ( thread = new Thread( () ->
         {
-            while ( !Thread.currentThread().isInterrupted() && sleep() )
+            while ( !Thread.currentThread().isInterrupted() && sleep(1000) )
             {
                 try
                 {
                     long currTime = System.currentTimeMillis();
-                    for ( Map.Entry<String, Connector> entryset : bungee.getBotFilter().connectedUsersSet.entrySet() )
+                    for ( Map.Entry<String, Connector> entryset : bungee.getBotFilter().getConnectedUsersSet().entrySet() )
                     {
                         Connector connector = entryset.getValue();
                         if ( !connector.isConnected() )
                         {
-                            toRemove.add( entryset.getKey() );
+                            TO_REMOVE_SET.add( entryset.getKey() );
                             continue;
                         }
                         CheckState state = connector.getState();
@@ -44,14 +45,14 @@ public class BotFilterThread
                         {
                             case SUCCESSFULLY:
                             case FAILED:
-                                toRemove.add( entryset.getKey() );
+                                TO_REMOVE_SET.add( entryset.getKey() );
                                 continue;
                             default:
                                 if ( ( currTime - connector.getJoinTime() ) >= Settings.IMP.TIME_OUT )
                                 {
                                     connector.failed( KickType.NOTPLAYER, state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED
                                             ? "Too long fall check" : "Captcha not entered" );
-                                    toRemove.add( entryset.getKey() );
+                                    TO_REMOVE_SET.add( entryset.getKey() );
                                     continue;
                                 } else if ( state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED || state == BotFilter.CheckState.ONLY_POSITION )
                                 {
@@ -66,16 +67,16 @@ public class BotFilterThread
 
                 } catch ( Exception e )
                 {
-                    BungeeCord.getInstance().getLogger().log( Level.WARNING, "[BotFilter] Непонятная ошибка. Пожалуйста отправте ёё разработчику!", e );
+                    bungee.getLogger().log( Level.WARNING, "[BotFilter] Непонятная ошибка. Пожалуйста отправте ёё разработчику!", e );
                 } finally
                 {
-                    if ( !toRemove.isEmpty() )
+                    if ( !TO_REMOVE_SET.isEmpty() )
                     {
-                        for ( String remove : toRemove )
+                        for ( String remove : TO_REMOVE_SET )
                         {
                             bungee.getBotFilter().removeConnection( remove, null );
                         }
-                        toRemove.clear();
+                        TO_REMOVE_SET.clear();
                     }
                 }
             }
@@ -91,11 +92,11 @@ public class BotFilterThread
         }
     }
 
-    private static boolean sleep()
+    private static boolean sleep(long time)
     {
         try
         {
-            Thread.sleep( 1000 );
+            Thread.sleep( time );
         } catch ( InterruptedException ex )
         {
             return false;
@@ -107,7 +108,7 @@ public class BotFilterThread
     {
         new Thread( () ->
         {
-            while ( !Thread.interrupted() )
+            while ( !Thread.interrupted() && sleep(BotFilter.ONE_MIN) )
             {
                 ManyChecksUtils.cleanUP();
                 if ( bungee.getConnectionThrottle() != null )
@@ -125,14 +126,6 @@ public class BotFilterThread
                     {
                         botFilter.getSql().tryCleanUP();
                     }
-                }
-
-                try
-                {
-                    Thread.sleep( 60000L );
-                } catch ( InterruptedException ex )
-                {
-                    return;
                 }
             }
         }, "CleanUp thread" ).start();

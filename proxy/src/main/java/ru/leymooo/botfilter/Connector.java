@@ -18,10 +18,9 @@ import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import ru.leymooo.botfilter.BotFilter.CheckState;
-import ru.leymooo.botfilter.caching.PacketsPosition;
 import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.caching.PacketUtils.KickType;
-import ru.leymooo.botfilter.packets.SetSlot;
+import ru.leymooo.botfilter.caching.PacketsPosition;
 import ru.leymooo.botfilter.utils.IPUtils;
 import ru.leymooo.botfilter.utils.ManyChecksUtils;
 
@@ -36,31 +35,30 @@ import ru.leymooo.botfilter.utils.ManyChecksUtils;
 public class Connector extends MoveHandler
 {
 
+    private static final Logger LOGGER = BungeeCord.getInstance().getLogger();
+
     public static int TOTAL_TICKS = 100;
     private static long TOTAL_TIME = ( TOTAL_TICKS * 50 ) - 100; //TICKS * 50MS
-    private static final Logger logger = BungeeCord.getInstance().getLogger();
 
-    private BotFilter botFilter;
+    private final BotFilter botFilter;
     @Getter
     private UserConnection userConnection;
 
-    private String name;
+    private final String name;
+    @Getter
+    private final int version;
+    private final ThreadLocalRandom random = ThreadLocalRandom.current();
 
     @Getter
     @Setter
     private CheckState state = CheckState.CAPTCHA_ON_POSITION_FAILED;
     @Getter
     private Channel channel;
-
-    @Getter
-    private int version;
     private int aticks = 0, sentPings = 0, captchaAnswer, attemps = 3;
     @Getter
     private long joinTime = System.currentTimeMillis();
     private long lastSend = 0, totalping = 9999;
     private boolean markDisconnected = false;
-
-    private ThreadLocalRandom random = ThreadLocalRandom.current();
 
     public Connector(UserConnection userConnection, BotFilter botFilter)
     {
@@ -88,7 +86,7 @@ public class Connector extends MoveHandler
         }
         sendPing();
         this.botFilter.addConnection( this );
-        logger.log( Level.INFO, "[{0}] <-> BotFilter has connected", name );
+        LOGGER.log( Level.INFO, "[{0}] <-> BotFilter has connected", name );
     }
 
     @Override
@@ -300,7 +298,7 @@ public class Connector extends MoveHandler
         state = CheckState.FAILED;
         PacketUtils.kickPlayer( type, Protocol.GAME, userConnection.getCh(), version );
         markDisconnected = true;
-        logger.log( Level.INFO, "(BF) [{0}] disconnected: ".concat( kickMessage ), name );
+        LOGGER.log( Level.INFO, "(BF) [{0}] disconnected: ".concat( kickMessage ), name );
     }
 
     @Override

@@ -11,13 +11,13 @@ import ru.leymooo.botfilter.packets.MapDataPacket;
 public class CachedCaptcha
 {
 
-    private ByteBuf[] byteBuf18 = new ByteBuf[ 900 ];
-    private ByteBuf[] byteBuf19 = new ByteBuf[ 900 ];
-    private ByteBuf[] byteBuf113 = new ByteBuf[ 900 ];
-
     private static final int PACKETID_18 = 52;
     private static final int PACKETID_19 = 36;
     private static final int PACKETID_113 = 38;
+
+    private final ByteBuf[] byteBuf18 = new ByteBuf[ 900 ];
+    private final ByteBuf[] byteBuf19 = new ByteBuf[ 900 ];
+    private final ByteBuf[] byteBuf113 = new ByteBuf[ 900 ];
 
     public static boolean generated = false;
 
@@ -50,9 +50,9 @@ public class CachedCaptcha
         }
     }
 
-    //Copy(Only for tests)
-    /*
-    do not use this
+    /**
+     * (Only for tests) do not use this
+     *
      */
     public ByteBuf getCopy()
     {

@@ -30,30 +30,28 @@ import ru.leymooo.botfilter.utils.ServerPingUtils;
 public class BotFilter
 {
 
-    // @Getter
-    private static BotFilter instance;
+    public static final long ONE_MIN = 60000;
 
-    private static long ONE_MIN = 60000;
-
-    protected final Map<String, Connector> connectedUsersSet = new ConcurrentHashMap<>();
+    @Getter
+    private final Map<String, Connector> connectedUsersSet = new ConcurrentHashMap<>();
     //UserName, Ip
-    protected final Map<String, String> userCache = new ConcurrentHashMap<>();
+    private final Map<String, String> userCache = new ConcurrentHashMap<>();
 
     @Getter
-    private Sql sql;
+    private final Sql sql;
     @Getter
-    private GeoIp geoIp;
+    private final GeoIp geoIp;
     @Getter
-    private ServerPingUtils serverPingUtils;
+    private final ServerPingUtils serverPingUtils;
+
+    private final CheckState normalState;
+    private final CheckState attackState;
 
     private int botCounter = 0;
     private long lastAttack = 0, lastCheck = System.currentTimeMillis();
-    private CheckState normalState;
-    private CheckState attackState;
 
     public BotFilter(boolean startup)
     {
-        instance = this;
         Settings.IMP.reload( new File( "BotFilter", "config.yml" ) );
         checkForUpdates( startup );
         if ( !CachedCaptcha.generated )
@@ -82,9 +80,7 @@ public class BotFilter
         }
         connectedUsersSet.clear();
         geoIp.close();
-        geoIp = null;
         sql.close();
-        sql = null;
         ManyChecksUtils.clear();
         serverPingUtils.clear();
     }
@@ -163,7 +159,13 @@ public class BotFilter
     {
         return connectedUsersSet.size();
     }
-
+    /**
+     * 
+     * @return количество пользователей, которые прошли проверку 
+     */
+    public int getUsersCount() {
+        return userCache.size();
+    }
     /**
      * Проверяет нужно ли игроку проходить проверку
      *

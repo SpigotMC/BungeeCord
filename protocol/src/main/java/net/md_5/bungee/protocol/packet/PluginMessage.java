@@ -78,6 +78,7 @@ public class PluginMessage extends DefinedPacket
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
+        tag = transformBrand( tag, protocolVersion ); //BotFilter
         writeString( ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? MODERNISE.apply( tag ) : tag, buf );
         buf.writeBytes( data );
     }
@@ -88,6 +89,17 @@ public class PluginMessage extends DefinedPacket
         handler.handle( this );
     }
 
+    //BotFilter start
+    private String transformBrand(String input, int protocolVersion)
+    {
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 && "MC|Brand".equals( input ) )
+        {
+            return "minecraft:brand";
+        }
+        return input;
+    }
+
+    //BotFilter end
     public DataInput getStream()
     {
         return new DataInputStream( new ByteArrayInputStream( data ) );

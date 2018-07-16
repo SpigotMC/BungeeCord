@@ -44,8 +44,8 @@ public class BotFilterCommand extends Command
         BotFilter botFilter = BungeeCord.getInstance().getBotFilter();
         sender.sendMessage( "§r----------------- §bBotFilter §cv" + Settings.IMP.BOT_FILTER_VERSION + " §r-----------------" );
         sender.sendMessage( "§r> §lОбнаружена атака: " + ( botFilter.isUnderAttack() ? "§cДа" : "§aНет" ) );
-        sender.sendMessage( "§r> §lБотов на проверке: " + botFilter.connectedUsersSet.size() );
-        sender.sendMessage( "§r> §lПрошло проверку: " + botFilter.userCache.size() );
+        sender.sendMessage( "§r> §lБотов на проверке: " + botFilter.getOnlineOnFilter() );
+        sender.sendMessage( "§r> §lПрошло проверку: " + botFilter.getUsersCount() );
         sender.sendMessage( "§r> §lСкачать BotFilter: http://www.rubukkit.org/threads/137038/" );
     }
 }

@@ -25,7 +25,7 @@ import ru.leymooo.botfilter.config.Settings.SQL;
 public class Sql
 {
 
-    private BotFilter botFilter;
+    private final BotFilter botFilter;
     private Connection connection;
     private boolean connecting = false;
     private long nextCleanUp = System.currentTimeMillis() + ( 60000 * 60 * 2 ); // + 2 hours
@@ -39,7 +39,7 @@ public class Sql
         setupConnect();
     }
 
-    protected void setupConnect()
+    private void setupConnect()
     {
 
         try
@@ -78,12 +78,12 @@ public class Sql
         }
     }
 
-    protected void connectToDatabase(String url, String user, String password) throws SQLException
+    private void connectToDatabase(String url, String user, String password) throws SQLException
     {
         this.connection = DriverManager.getConnection( url, user, password );
     }
 
-    protected void createTable() throws SQLException
+    private void createTable() throws SQLException
     {
         String sql = "CREATE TABLE IF NOT EXISTS `Users` ("
                 + "`Name` VARCHAR(16) NOT NULL PRIMARY KEY UNIQUE,"
@@ -96,7 +96,7 @@ public class Sql
         }
     }
 
-    protected void clearOldUsers() throws SQLException
+    private void clearOldUsers() throws SQLException
     {
         Calendar calendar = Calendar.getInstance();
         calendar.add( Calendar.DATE, -Settings.IMP.SQL.PURGE_TIME );
@@ -109,13 +109,16 @@ public class Sql
                 botFilter.removeUser( set.getString( "Name" ) );
             }
         }
-        try ( PreparedStatement statement = connection.prepareStatement( "DELETE FROM `Users` WHERE `LastCheck` < " + until + ";" ) )
+        if ( this.connection != null )
         {
-            logger.log( Level.INFO, "[BotFilter] Очищено {0} аккаунтов", statement.executeUpdate() );
+            try ( PreparedStatement statement = connection.prepareStatement( "DELETE FROM `Users` WHERE `LastCheck` < " + until + ";" ) )
+            {
+                logger.log( Level.INFO, "[BotFilter] Очищено {0} аккаунтов", statement.executeUpdate() );
+            }
         }
     }
 
-    protected void loadUsers() throws SQLException
+    private void loadUsers() throws SQLException
     {
         try ( PreparedStatement statament = connection.prepareStatement( "SELECT * FROM `Users`;" );
                 ResultSet set = statament.executeQuery() )

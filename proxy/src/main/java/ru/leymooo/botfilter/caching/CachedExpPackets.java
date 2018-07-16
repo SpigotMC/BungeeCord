@@ -1,9 +1,7 @@
 package ru.leymooo.botfilter.caching;
 
 import io.netty.buffer.ByteBuf;
-import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
-import net.md_5.bungee.protocol.ProtocolConstants;
 import ru.leymooo.botfilter.Connector;
 import ru.leymooo.botfilter.packets.SetExp;
 

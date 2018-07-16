@@ -26,5 +26,6 @@ public class PacketsPosition
     public static int CHECK_SUS = 12;
     public static int PLAYERPOSANDLOOK = 13;
     public static int SETEXP_RESET = 14;
+    public static int PLUGIN_MESSAGE = 15;
 
 }
