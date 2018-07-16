@@ -214,7 +214,7 @@ public class ServerConnector extends PacketHandler
             user.unsafe().sendPacket( modLogin );
 
             ByteBuf brand = ByteBufAllocator.DEFAULT.heapBuffer();
-            DefinedPacket.writeString( "BotFilter (http://u.to/r8HHEg)", brand );
+            DefinedPacket.writeString( "BotFilter (https://vk.cc/8hr1pU)", brand );
             user.unsafe().sendPacket( new PluginMessage( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ? "minecraft:brand" : "MC|Brand", DefinedPacket.toArray( brand ), handshakeHandler.isServerForge() ) );
             brand.release();
 
