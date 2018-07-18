@@ -1,12 +1,18 @@
 package net.md_5.bungee.protocol;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
+import gnu.trove.impl.Constants;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
-import java.lang.reflect.Constructor;
+import java.lang.invoke.CallSite;
+import java.lang.invoke.LambdaMetafactory;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
@@ -437,9 +443,8 @@ public enum Protocol
     private static class ProtocolData
     {
 
-        private final int protocolVersion;
-        private final TObjectIntMap<Class<? extends DefinedPacket>> packetMap = new TObjectIntHashMap<>( MAX_PACKET_ID );
-        private final Constructor<? extends DefinedPacket>[] packetConstructors = new Constructor[ MAX_PACKET_ID ];
+        private final TObjectIntMap<Class<? extends DefinedPacket>> packetMap = new TObjectIntHashMap<>( MAX_PACKET_ID, Constants.DEFAULT_LOAD_FACTOR, -1 );
+        private final Supplier<? extends DefinedPacket>[] packetConstructors = new Supplier[ MAX_PACKET_ID ];
     }
 
     @RequiredArgsConstructor
@@ -467,7 +472,7 @@ public enum Protocol
         {
             for ( int protocol : ProtocolConstants.SUPPORTED_VERSION_IDS )
             {
-                protocols.put( protocol, new ProtocolData( protocol ) );
+                protocols.put( protocol, new ProtocolData() );
             }
         }
         private final TIntObjectMap<List<Integer>> linkedProtocols = new TIntObjectHashMap<>();
@@ -522,57 +527,45 @@ public enum Protocol
                 throw new BadPacketException( "Packet with id " + id + " outside of range " );
             }
 
-            Constructor<? extends DefinedPacket> constructor = protocolData.packetConstructors[id];
-            try
-            {
-                return ( constructor == null ) ? null : constructor.newInstance();
-            } catch ( ReflectiveOperationException ex )
-            {
-                throw new BadPacketException( "Could not construct packet with id " + id, ex );
-            }
+            Supplier<? extends DefinedPacket> constructor = protocolData.packetConstructors[id];
+            return ( constructor == null ) ? null : constructor.get();
         }
 
         protected final void registerPacket(Class<? extends DefinedPacket> packetClass, ProtocolMapping... mappings)
         {
-            try
-            {
-                Constructor<? extends DefinedPacket> constructor = packetClass.getDeclaredConstructor();
-                for ( ProtocolMapping mapping : mappings )
-                {
-                    ProtocolData data = protocols.get( mapping.protocolVersion );
-                    data.packetMap.put( packetClass, mapping.packetID );
-                    data.packetConstructors[mapping.packetID] = constructor;
 
-                    List<Integer> links = linkedProtocols.get( mapping.protocolVersion );
-                    if ( links != null )
+            for ( ProtocolMapping mapping : mappings )
+            {
+                ProtocolData data = protocols.get( mapping.protocolVersion );
+                data.packetMap.put( packetClass, mapping.packetID );
+                data.packetConstructors[mapping.packetID] = createNoArgsConstructorUnchecked( packetClass );
+
+                List<Integer> links = linkedProtocols.get( mapping.protocolVersion );
+                if ( links != null )
+                {
+                    links:
+                    for ( int link : links )
                     {
-                        links:
-                        for ( int link : links )
+                        // Check for manual mappings
+                        for ( ProtocolMapping m : mappings )
                         {
-                            // Check for manual mappings
-                            for ( ProtocolMapping m : mappings )
+                            if ( m == mapping )
                             {
-                                if ( m == mapping )
-                                {
-                                    continue;
-                                }
-                                if ( m.protocolVersion == link )
-                                {
-                                    continue links;
-                                }
-                                List<Integer> innerLinks = linkedProtocols.get( m.protocolVersion );
-                                if ( innerLinks != null && innerLinks.contains( link ) )
-                                {
-                                    continue links;
-                                }
+                                continue;
                             }
-                            registerPacket( packetClass, map( link, mapping.packetID ) );
+                            if ( m.protocolVersion == link )
+                            {
+                                continue links;
+                            }
+                            List<Integer> innerLinks = linkedProtocols.get( m.protocolVersion );
+                            if ( innerLinks != null && innerLinks.contains( link ) )
+                            {
+                                continue links;
+                            }
                         }
+                        registerPacket( packetClass, map( link, mapping.packetID ) );
                     }
                 }
-            } catch ( NoSuchMethodException ex )
-            {
-                throw new BadPacketException( "No NoArgsConstructor for packet class " + packetClass );
             }
         }
 
@@ -588,5 +581,35 @@ public enum Protocol
 
             return protocolData.packetMap.get( packet );
         }
+
+        private Supplier<? extends DefinedPacket> createNoArgsConstructorUnchecked(Class<? extends DefinedPacket> packetClazz)
+        {
+            try
+            {
+                return createNoArgsConstructor( packetClazz );
+            } catch ( NoSuchMethodError e )
+            {
+                throw new BadPacketException( "Can not construct packet with class name " + packetClazz.getName(), e );
+            } catch ( Throwable throwable )
+            {
+                throw new RuntimeException( throwable );
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        private Supplier<? extends DefinedPacket> createNoArgsConstructor(Class<? extends DefinedPacket> packetClazz) throws Throwable
+        {
+            MethodHandles.Lookup caller = MethodHandles.lookup();
+            MethodType invokedType = MethodType.methodType( Supplier.class );
+            CallSite site = LambdaMetafactory.metafactory( caller,
+                    "get",
+                    invokedType,
+                    MethodType.methodType( Object.class ),
+                    MethodHandles.lookup().findConstructor( packetClazz, MethodType.methodType( void.class ) ),
+                    MethodType.methodType( Object.class ) );
+            MethodHandle factory = site.getTarget();
+            return (Supplier<? extends DefinedPacket>) factory.invoke();
+        }
+
     }
 }
