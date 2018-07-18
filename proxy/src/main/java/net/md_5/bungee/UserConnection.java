@@ -369,6 +369,11 @@ public final class UserConnection implements ProxiedPlayer
 
     public void disconnect0(final BaseComponent... reason)
     {
+        disconnect0( true, reason );
+    }
+
+    public void disconnect0(final boolean kick, final BaseComponent... reason)
+    {
         if ( !ch.isClosing() )
         {
             bungee.getLogger().log( Level.INFO, "[{0}] disconnected with: {1}", new Object[]
@@ -376,12 +381,12 @@ public final class UserConnection implements ProxiedPlayer
                 getName(), BaseComponent.toLegacyText( reason )
             } );
 
-            ch.delayedClose( new Kick( ComponentSerializer.toString( reason ) ) );
+            ch.close( ( kick ) ? new Kick( ComponentSerializer.toString( reason ) ) : null );
 
             if ( server != null )
             {
                 server.setObsolete( true );
-                server.disconnect( "Quitting" );
+                server.getHandle().close( null );
             }
         }
     }

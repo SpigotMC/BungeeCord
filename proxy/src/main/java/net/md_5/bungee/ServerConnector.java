@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
@@ -312,13 +313,13 @@ public class ServerConnector extends PacketHandler
         String message = bungee.getTranslation( "connect_kick", target.getName(), event.getKickReason() );
         if ( user.isDimensionChange() )
         {
-            user.disconnect( message );
+            kick.setMessage( message );
+            user.disconnect0( false, TextComponent.fromLegacyText( message ) ); // Required to close channels and log message
         } else
         {
             user.sendMessage( message );
+            throw CancelSendSignal.INSTANCE;
         }
-
-        throw CancelSendSignal.INSTANCE;
     }
 
     @Override

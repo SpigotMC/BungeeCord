@@ -81,4 +81,9 @@ public class ServerConnection implements Server
     {
         return unsafe;
     }
+
+    public ChannelWrapper getHandle()
+    {
+        return ch;
+    }
 }
