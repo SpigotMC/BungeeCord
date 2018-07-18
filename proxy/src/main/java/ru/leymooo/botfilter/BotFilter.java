@@ -263,7 +263,7 @@ public class BotFilter
         try
         {
             logger.log( Level.INFO, "[BotFilter] Проверяю наличее обновлений" );
-            URL url = new URL( "http://botfilter.funtime.su/version.txt" );
+            URL url = new URL( "https://raw.githubusercontent.com/Leymooo/BungeeCord/master/version.txt" );
             URLConnection conn = url.openConnection();
             conn.setConnectTimeout( 1200 );
             try ( BufferedReader in = new BufferedReader(
