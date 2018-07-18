@@ -2,6 +2,8 @@ package net.md_5.bungee.protocol.packet;
 
 import net.md_5.bungee.protocol.DefinedPacket;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import java.nio.charset.StandardCharsets;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -33,6 +35,8 @@ public class LoginPayloadResponse extends DefinedPacket
             }
             data = new byte[ len ];
             buf.readBytes( data );
+            System.out.println( new String( data, StandardCharsets.UTF_8 ) );
+
         }
     }
 

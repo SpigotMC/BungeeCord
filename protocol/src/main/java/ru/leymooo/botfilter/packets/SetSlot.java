@@ -1,4 +1,4 @@
-package ru.leymooo.botfilter.packets;
+    package ru.leymooo.botfilter.packets;
 
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
@@ -27,7 +27,7 @@ public class SetSlot extends DefinedPacket
     {
         buf.writeByte( this.windowId );
         buf.writeShort( this.slot );
-        buf.writeShort( this.item == 358 && protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ? 603 : this.item);
+        buf.writeShort( this.item == 358 && protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ? 608 : this.item);
         if ( this.item >= 0 )
         {
             buf.writeByte( this.count );
