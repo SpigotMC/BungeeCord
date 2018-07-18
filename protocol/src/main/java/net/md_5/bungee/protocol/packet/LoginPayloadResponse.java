@@ -35,8 +35,6 @@ public class LoginPayloadResponse extends DefinedPacket
             }
             data = new byte[ len ];
             buf.readBytes( data );
-            System.out.println( new String( data, StandardCharsets.UTF_8 ) );
-
         }
     }
 
