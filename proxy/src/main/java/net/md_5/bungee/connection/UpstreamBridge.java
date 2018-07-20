@@ -133,6 +133,7 @@ public class UpstreamBridge extends PacketHandler
     {
         int maxLength = ( con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_11 ) ? 256 : 100;
         Preconditions.checkArgument( chat.getMessage().length() <= maxLength, "Chat message too long" ); // Mojang limit, check on updates
+        Preconditions.checkArgument( !chat.getMessage().trim().isEmpty(), "Chat message empty" );
 
         ChatEvent chatEvent = new ChatEvent( con, con.getServer(), chat.getMessage() );
         if ( !bungee.getPluginManager().callEvent( chatEvent ).isCancelled() )
