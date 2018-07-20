@@ -437,6 +437,14 @@ public class DownstreamBridge extends PacketHandler
                     player.disconnect( new TextComponent( kickReason ) );
                 }
             }
+            if ( subChannel.equals( "Alert" ) )
+            {
+                String message = in.readUTF();
+                if ( message != null && message != "" )
+                {
+                    ProxyServer.getInstance().broadcast( TextComponent.fromLegacyText( message ) );
+                }
+            }
 
             // Check we haven't set out to null, and we have written data, if so reply back back along the BungeeCord channel
             if ( out != null )
