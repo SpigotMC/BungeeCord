@@ -13,6 +13,7 @@ import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
@@ -443,6 +444,7 @@ public enum Protocol
     private static class ProtocolData
     {
 
+        private final int protocolVersion;
         private final TObjectIntMap<Class<? extends DefinedPacket>> packetMap = new TObjectIntHashMap<>( MAX_PACKET_ID, Constants.DEFAULT_LOAD_FACTOR, -1 );
         private final Supplier<? extends DefinedPacket>[] packetConstructors = new Supplier[ MAX_PACKET_ID ];
     }
@@ -472,7 +474,7 @@ public enum Protocol
         {
             for ( int protocol : ProtocolConstants.SUPPORTED_VERSION_IDS )
             {
-                protocols.put( protocol, new ProtocolData() );
+                protocols.put( protocol, new ProtocolData( protocol ) );
             }
         }
         private final TIntObjectMap<List<Integer>> linkedProtocols = new TIntObjectHashMap<>();
@@ -599,7 +601,7 @@ public enum Protocol
         @SuppressWarnings("unchecked")
         private Supplier<? extends DefinedPacket> createNoArgsConstructor(Class<? extends DefinedPacket> packetClazz) throws Throwable
         {
-            MethodHandles.Lookup caller = MethodHandles.lookup();
+            MethodHandles.Lookup caller = constructLookup(packetClazz);
             MethodType invokedType = MethodType.methodType( Supplier.class );
             CallSite site = LambdaMetafactory.metafactory( caller,
                     "get",
@@ -611,5 +613,17 @@ public enum Protocol
             return (Supplier<? extends DefinedPacket>) factory.invoke();
         }
 
+        private MethodHandles.Lookup constructLookup(Class<?> owner) throws Exception
+        {
+            Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class.getDeclaredConstructor( Class.class );
+            constructor.setAccessible( true );
+            try
+            {
+                return constructor.newInstance( owner );
+            } finally
+            {
+                constructor.setAccessible( false );
+            }
+        }
     }
 }

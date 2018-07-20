@@ -25,6 +25,14 @@ public class ScoreboardObjective extends DefinedPacket
      */
     private byte action;
 
+    public ScoreboardObjective(String name, String value, String type, byte action)
+    {
+        this.name = name;
+        this.value = value;
+        this.type = HealthDisplay.fromString( type );
+        this.action = action;
+    }
+
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
