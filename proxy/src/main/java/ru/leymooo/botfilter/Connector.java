@@ -3,6 +3,8 @@ package ru.leymooo.botfilter;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,6 +19,7 @@ import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.KeepAlive;
+import net.md_5.bungee.protocol.packet.PluginMessage;
 import ru.leymooo.botfilter.BotFilter.CheckState;
 import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.caching.PacketUtils.KickType;
@@ -264,6 +267,19 @@ public class Connector extends MoveHandler
             totalping = totalping == 9999 ? ping : totalping + ping;
             lastSend = 0;
         }
+    }
+
+    @Override
+    public void handle(PluginMessage pluginMessage) throws Exception
+    {
+        if ( PluginMessage.SHOULD_RELAY.apply( pluginMessage ) )
+        {
+            userConnection.getPendingConnection().getRelayMessages().add( pluginMessage );
+        } else
+        {
+            userConnection.getDelayedPluginMessages().add( pluginMessage );
+        }
+
     }
 
     public void sendPing()

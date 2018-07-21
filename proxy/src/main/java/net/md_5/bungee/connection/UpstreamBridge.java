@@ -2,7 +2,11 @@ package net.md_5.bungee.connection;
 
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
@@ -48,8 +52,35 @@ public class UpstreamBridge extends PacketHandler
             bungee.getPluginManager().callEvent( settingsEvent );
             con.setCallSettingsEvent( false );
         }
+        if ( !con.getDelayedPluginMessages().isEmpty() )
+        {
+            con.setDelayedPluginMessages( clearPluginMessages( con.getDelayedPluginMessages() ) );
+        }
         //BotFilter end
     }
+
+    //BotFilter start
+    private Set<PluginMessage> clearPluginMessages(Set<PluginMessage> delayedPluginMessages)
+    {
+        Set<PluginMessage> cleared = new HashSet<>();
+        for ( PluginMessage message : delayedPluginMessages )
+        {
+            try
+            {
+                this.handle( message );
+                cleared.add( message );
+            } catch ( Throwable t )
+            {
+                if ( !( t instanceof CancelSendSignal ) )
+                {
+                    throw new RuntimeException( t.getMessage(), t );
+                }
+            }
+        }
+        delayedPluginMessages.clear();
+        return cleared;
+    }
+    //BotFilter end
 
     @Override
     public void exception(Throwable t) throws Exception

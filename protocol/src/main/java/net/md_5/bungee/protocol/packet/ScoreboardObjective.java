@@ -43,16 +43,11 @@ public class ScoreboardObjective extends DefinedPacket
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
                 value = readChat( buf );
-            } else
-            {
-                value = readString( buf );
-            }
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
-            {
                 type = HealthDisplay.values()[readVarInt( buf )];
             } else
             {
                 type = HealthDisplay.fromString( readString( buf ) );
+                value = readString( buf );
             }
         }
     }
@@ -67,15 +62,10 @@ public class ScoreboardObjective extends DefinedPacket
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
                 writeChat( value, buf );
-            } else
-            {
-                writeString( value, buf );
-            }
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
-            {
                 writeVarInt( type.ordinal(), buf );
             } else
             {
+                writeString( value, buf );
                 writeString( type.toString(), buf );
             }
         }

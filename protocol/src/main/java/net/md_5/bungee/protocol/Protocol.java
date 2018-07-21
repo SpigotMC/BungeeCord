@@ -397,6 +397,14 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x02 ),
                     map( ProtocolConstants.MINECRAFT_1_13, 0x02 )
             );
+            TO_SERVER.registerPacket(
+                    PluginMessage.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x17 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x09 ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x0A ),
+                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x09 ),
+                    map( ProtocolConstants.MINECRAFT_1_13, 0x0A )
+            );
         }
     };
 
@@ -601,7 +609,7 @@ public enum Protocol
         @SuppressWarnings("unchecked")
         private Supplier<? extends DefinedPacket> createNoArgsConstructor(Class<? extends DefinedPacket> packetClazz) throws Throwable
         {
-            MethodHandles.Lookup caller = constructLookup(packetClazz);
+            MethodHandles.Lookup caller = constructLookup( packetClazz );
             MethodType invokedType = MethodType.methodType( Supplier.class );
             CallSite site = LambdaMetafactory.metafactory( caller,
                     "get",

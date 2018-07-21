@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import lombok.Getter;
@@ -71,6 +72,10 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     @Setter
     private boolean callSettingsEvent = false; //BotFilter
+    @Getter
+    @Setter
+    private Set<PluginMessage> delayedPluginMessages = new HashSet<>( 30 ); //BotFilter
+
     /*========================================================================*/
     @NonNull
     private final ProxyServer bungee;
