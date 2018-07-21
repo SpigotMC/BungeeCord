@@ -46,8 +46,8 @@ public class ScoreboardObjective extends DefinedPacket
                 type = HealthDisplay.values()[readVarInt( buf )];
             } else
             {
-                type = HealthDisplay.fromString( readString( buf ) );
                 value = readString( buf );
+                type = HealthDisplay.fromString( readString( buf ) );
             }
         }
     }
