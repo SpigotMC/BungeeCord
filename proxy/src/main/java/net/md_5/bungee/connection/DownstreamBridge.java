@@ -394,9 +394,10 @@ public class DownstreamBridge extends PacketHandler
                 String target = in.readUTF();
                 if ( target.equals("ALL") )
                 {
-                    for( ProxiedPlayer p : BungeeCord.getInstance().getPlayers() )
+                    String message = in.readUTF();
+                    for ( ProxiedPlayer p : BungeeCord.getInstance().getPlayers() )
                     {
-                        p.sendMessage( in.readUTF() );
+                        p.sendMessage( message );
                     }
                 } else {
                     ProxiedPlayer player = bungee.getPlayer( target );
