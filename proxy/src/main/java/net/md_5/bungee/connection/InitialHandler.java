@@ -140,7 +140,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( packet.packet == null )
         {
-            throw new IllegalArgumentException( "Unexpected packet received during login process!\n" + BufUtil.dump( packet.buf, 64 ) );
+            this.ch.getHandle().close();
+            //throw new IllegalArgumentException( "Unexpected packet received during login process!\n" + BufUtil.dump( packet.buf, 64 ) );
         }
     }
 
