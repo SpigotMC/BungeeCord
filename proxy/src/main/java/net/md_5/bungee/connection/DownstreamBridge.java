@@ -391,10 +391,19 @@ public class DownstreamBridge extends PacketHandler
             }
             if ( subChannel.equals( "Message" ) )
             {
-                ProxiedPlayer target = bungee.getPlayer( in.readUTF() );
-                if ( target != null )
+                String target = in.readUTF();
+                if ( target.equals("ALL") )
                 {
-                    target.sendMessage( in.readUTF() );
+                    for( ProxiedPlayer p : BungeeCord.getInstance().getPlayers() )
+                    {
+                        p.sendMessage( in.readUTF() );
+                    }
+                } else {
+                    ProxiedPlayer player = bungee.getPlayer( target );
+                    if ( player != null )
+                    {
+                        player.sendMessage( in.readUTF() );
+                    }
                 }
             }
             if ( subChannel.equals( "GetServer" ) )
@@ -435,14 +444,6 @@ public class DownstreamBridge extends PacketHandler
                 {
                     String kickReason = in.readUTF();
                     player.disconnect( new TextComponent( kickReason ) );
-                }
-            }
-            if ( subChannel.equals( "Alert" ) )
-            {
-                String message = in.readUTF();
-                if ( message != null && message != "" )
-                {
-                    ProxyServer.getInstance().broadcast( TextComponent.fromLegacyText( message ) );
                 }
             }
 
