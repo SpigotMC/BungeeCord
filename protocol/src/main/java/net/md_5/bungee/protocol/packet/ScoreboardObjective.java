@@ -40,7 +40,13 @@ public class ScoreboardObjective extends DefinedPacket
         action = buf.readByte();
         if ( action == 0 || action == 2 )
         {
-            value = readString( buf );
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
+            {
+                value = readChat( buf );
+            } else
+            {
+                value = readString( buf );
+            }
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
                 type = HealthDisplay.values()[readVarInt( buf )];
@@ -58,7 +64,13 @@ public class ScoreboardObjective extends DefinedPacket
         buf.writeByte( action );
         if ( action == 0 || action == 2 )
         {
-            writeString( value, buf );
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
+            {
+                writeChat( value, buf );
+            } else
+            {
+                writeString( value, buf );
+            }
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
                 writeVarInt( type.ordinal(), buf );

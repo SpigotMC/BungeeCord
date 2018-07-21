@@ -46,7 +46,13 @@ public class Team extends DefinedPacket
         mode = buf.readByte();
         if ( mode == 0 || mode == 2 )
         {
-            displayName = readString( buf );
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
+            {
+                displayName = readChat( buf );
+            } else
+            {
+                displayName = readString( buf );
+            }
             if ( protocolVersion < ProtocolConstants.MINECRAFT_1_13 )
             {
                 prefix = readString( buf );
@@ -61,8 +67,8 @@ public class Team extends DefinedPacket
             color = ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? readVarInt( buf ) : buf.readByte();
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
-                prefix = readString( buf );
-                suffix = readString( buf );
+                prefix = readChat( buf );
+                suffix = readChat( buf );
             }
         }
         if ( mode == 0 || mode == 3 || mode == 4 )
@@ -83,7 +89,13 @@ public class Team extends DefinedPacket
         buf.writeByte( mode );
         if ( mode == 0 || mode == 2 )
         {
-            writeString( displayName, buf );
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
+            {
+                writeChat( displayName, buf );
+            } else
+            {
+                writeString( displayName, buf );
+            }
             if ( protocolVersion < ProtocolConstants.MINECRAFT_1_13 )
             {
                 writeString( prefix, buf );
@@ -99,8 +111,8 @@ public class Team extends DefinedPacket
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
                 writeVarInt( color, buf );
-                writeString( prefix, buf );
-                writeString( suffix, buf );
+                writeChat( prefix, buf );
+                writeChat( suffix, buf );
             } else
             {
                 buf.writeByte( color );
