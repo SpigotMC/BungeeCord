@@ -244,42 +244,36 @@ public enum Protocol
 
         {
             TO_CLIENT.registerPacket(
-                    LoginPayloadRequest.class,
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x00 )
-            );
-            TO_CLIENT.registerPacket(
                     Kick.class,
-                    map( ProtocolConstants.MINECRAFT_1_8, 0x00 ),
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x01 )
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x00 )
             );
             TO_CLIENT.registerPacket(
                     EncryptionRequest.class,
-                    map( ProtocolConstants.MINECRAFT_1_8, 0x01 ),
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x02 )
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x01 )
             );
             TO_CLIENT.registerPacket(
                     LoginSuccess.class,
-                    map( ProtocolConstants.MINECRAFT_1_8, 0x02 ),
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x03 )
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x02 )
             );
             TO_CLIENT.registerPacket(
                     SetCompression.class,
-                    map( ProtocolConstants.MINECRAFT_1_8, 0x03 ),
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x03 )
+            );
+            TO_CLIENT.registerPacket(
+                    LoginPayloadRequest.class,
                     map( ProtocolConstants.MINECRAFT_1_13, 0x04 )
             );
 
             TO_SERVER.registerPacket(
-                    LoginPayloadResponse.class,
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x00 )
-            );
-            TO_SERVER.registerPacket(
                     LoginRequest.class,
-                    map( ProtocolConstants.MINECRAFT_1_8, 0x00 ),
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x01 )
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x00 )
             );
             TO_SERVER.registerPacket(
                     EncryptionResponse.class,
-                    map( ProtocolConstants.MINECRAFT_1_8, 0x01 ),
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x01 )
+            );
+            TO_SERVER.registerPacket(
+                    LoginPayloadResponse.class,
                     map( ProtocolConstants.MINECRAFT_1_13, 0x02 )
             );
         }
