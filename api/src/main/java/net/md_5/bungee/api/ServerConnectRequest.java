@@ -54,7 +54,7 @@ public class ServerConnectRequest
     /**
      * Callback to execute post request.
      */
-    private final Callback<Result> result;
+    private final Callback<Result> callback;
     /**
      * Timeout in milliseconds for request.
      */
@@ -71,28 +71,6 @@ public class ServerConnectRequest
     public static class ServerConnectRequestBuilder
     {
 
-        private Callback<Result> result;
         private int connectTimeout = 5000; // TODO: Configurable
-
-        /**
-         * Sets the callback to execute on explicit succession of the request.
-         *
-         * @param callback the callback to execute
-         * @return this builder for chaining
-         * @deprecated recommended to use callback providing generic type of {@link Result}
-         */
-        @Deprecated
-        public ServerConnectRequestBuilder callback(final Callback<Boolean> callback)
-        {
-            this.result = new Callback<Result>()
-            {
-                @Override
-                public void done(Result result, Throwable error)
-                {
-                    callback.done( ( result == Result.SUCCESS ) ? Boolean.TRUE : Boolean.FALSE, error );
-                }
-            };
-            return this;
-        }
     }
 }

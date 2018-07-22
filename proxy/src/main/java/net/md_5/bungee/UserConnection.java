@@ -254,7 +254,21 @@ public final class UserConnection implements ProxiedPlayer
     {
         Preconditions.checkNotNull( info, "info" );
 
-        connect( ServerConnectRequest.builder().callback( callback ).retry( retry ).reason( reason ).target( info ).build() );
+        ServerConnectRequest.ServerConnectRequestBuilder builder = ServerConnectRequest.builder().retry( retry ).reason( reason ).target( info );
+        if ( callback != null )
+        {
+            // Convert the Callback<Boolean> to be compatible with Callback<Result> from ServerConnectRequest.
+            builder.callback( new Callback<ServerConnectRequest.Result>()
+            {
+                @Override
+                public void done(ServerConnectRequest.Result result, Throwable error)
+                {
+                    callback.done( ( result == ServerConnectRequest.Result.SUCCESS ) ? Boolean.TRUE : Boolean.FALSE, error );
+                }
+            } );
+        }
+
+        connect( builder.build() );
     }
 
     @Override
@@ -262,7 +276,7 @@ public final class UserConnection implements ProxiedPlayer
     {
         Preconditions.checkNotNull( request, "request" );
 
-        final Callback<ServerConnectRequest.Result> callback = request.getResult();
+        final Callback<ServerConnectRequest.Result> callback = request.getCallback();
         ServerConnectEvent event = new ServerConnectEvent( this, request.getTarget(), request.getReason() );
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
