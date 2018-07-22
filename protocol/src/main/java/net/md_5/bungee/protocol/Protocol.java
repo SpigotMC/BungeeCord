@@ -259,10 +259,6 @@ public enum Protocol
 
         {
             TO_CLIENT.registerPacket(
-                    LoginPayloadRequest.class,
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x04 )
-            );
-            TO_CLIENT.registerPacket(
                     Kick.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x00 )
             );
@@ -278,10 +274,9 @@ public enum Protocol
                     SetCompression.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x03 )
             );
-
-            TO_SERVER.registerPacket(
-                    LoginPayloadResponse.class,
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x02 )
+            TO_CLIENT.registerPacket(
+                    LoginPayloadRequest.class,
+                    map( ProtocolConstants.MINECRAFT_1_13, 0x04 )
             );
             TO_SERVER.registerPacket(
                     LoginRequest.class,
@@ -290,6 +285,10 @@ public enum Protocol
             TO_SERVER.registerPacket(
                     EncryptionResponse.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x01 )
+            );
+            TO_SERVER.registerPacket(
+                    LoginPayloadResponse.class,
+                    map( ProtocolConstants.MINECRAFT_1_13, 0x02 )
             );
         }
     },

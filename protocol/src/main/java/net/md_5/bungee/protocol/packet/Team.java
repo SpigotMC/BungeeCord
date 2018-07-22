@@ -53,7 +53,7 @@ public class Team extends DefinedPacket
                 suffix = readString( buf );
             } else
             {
-                displayName = readChat( buf );
+                displayName = readChatComponentAsString( buf );
             }
             friendlyFire = buf.readByte();
             nameTagVisibility = readString( buf );
@@ -64,8 +64,8 @@ public class Team extends DefinedPacket
             color = ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? readVarInt( buf ) : buf.readByte();
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
-                prefix = readChat( buf );
-                suffix = readChat( buf );
+                prefix = readChatComponentAsString( buf );
+                suffix = readChatComponentAsString( buf );
             }
         }
         if ( mode == 0 || mode == 3 || mode == 4 )
@@ -93,7 +93,7 @@ public class Team extends DefinedPacket
                 writeString( suffix, buf );
             } else
             {
-                writeChat( displayName, buf );
+                writeStringAsChatComponent( displayName, buf );
             }
             buf.writeByte( friendlyFire );
             writeString( nameTagVisibility, buf );
@@ -105,8 +105,8 @@ public class Team extends DefinedPacket
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
                 writeVarInt( color, buf );
-                writeChat( prefix, buf );
-                writeChat( suffix, buf );
+                writeStringAsChatComponent( prefix, buf );
+                writeStringAsChatComponent( suffix, buf );
             } else
             {
                 buf.writeByte( color );

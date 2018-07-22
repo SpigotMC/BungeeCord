@@ -42,7 +42,7 @@ public class ScoreboardObjective extends DefinedPacket
         {
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
-                value = readChat( buf );
+                value = readChatComponentAsString( buf );
                 type = HealthDisplay.values()[readVarInt( buf )];
             } else
             {
@@ -61,7 +61,7 @@ public class ScoreboardObjective extends DefinedPacket
         {
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
-                writeChat( value, buf );
+                writeStringAsChatComponent( value, buf );
                 writeVarInt( type.ordinal(), buf );
             } else
             {

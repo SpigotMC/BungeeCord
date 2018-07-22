@@ -27,15 +27,16 @@ public abstract class DefinedPacket
         buf.writeBytes( b );
     }
 
-    public static void writeChat(String s, ByteBuf buf)
+    public static void writeStringAsChatComponent(String s, ByteBuf buf)
     {
         writeString( ComponentSerializer.toString( TextComponent.fromLegacyText( s ) ), buf );
     }
 
-    public static String readChat(ByteBuf buf)
+    public static String readChatComponentAsString(ByteBuf buf)
     {
-        BaseComponent[] chat = ComponentSerializer.parse( readString( buf ) );
-        return TextComponent.toLegacyText( chat );
+        String json = readString( buf );
+        BaseComponent[] components = ComponentSerializer.parse( json );
+        return ( components.length == 0 || components[0] == null ) ? json : TextComponent.toLegacyText( components );
     }
 
     public static String readString(ByteBuf buf)
