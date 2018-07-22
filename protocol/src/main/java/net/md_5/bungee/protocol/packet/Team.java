@@ -46,11 +46,14 @@ public class Team extends DefinedPacket
         mode = buf.readByte();
         if ( mode == 0 || mode == 2 )
         {
-            displayName = readString( buf );
             if ( protocolVersion < ProtocolConstants.MINECRAFT_1_13 )
             {
+                displayName = readString( buf );
                 prefix = readString( buf );
                 suffix = readString( buf );
+            } else
+            {
+                displayName = readChatComponentAsString( buf );
             }
             friendlyFire = buf.readByte();
             nameTagVisibility = readString( buf );
@@ -61,8 +64,8 @@ public class Team extends DefinedPacket
             color = ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? readVarInt( buf ) : buf.readByte();
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
-                prefix = readString( buf );
-                suffix = readString( buf );
+                prefix = readChatComponentAsString( buf );
+                suffix = readChatComponentAsString( buf );
             }
         }
         if ( mode == 0 || mode == 3 || mode == 4 )
@@ -83,11 +86,14 @@ public class Team extends DefinedPacket
         buf.writeByte( mode );
         if ( mode == 0 || mode == 2 )
         {
-            writeString( displayName, buf );
             if ( protocolVersion < ProtocolConstants.MINECRAFT_1_13 )
             {
+                writeString( displayName, buf );
                 writeString( prefix, buf );
                 writeString( suffix, buf );
+            } else
+            {
+                writeStringAsChatComponent( displayName, buf );
             }
             buf.writeByte( friendlyFire );
             writeString( nameTagVisibility, buf );
@@ -99,8 +105,8 @@ public class Team extends DefinedPacket
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
                 writeVarInt( color, buf );
-                writeString( prefix, buf );
-                writeString( suffix, buf );
+                writeStringAsChatComponent( prefix, buf );
+                writeStringAsChatComponent( suffix, buf );
             } else
             {
                 buf.writeByte( color );

@@ -7,6 +7,9 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 
 @RequiredArgsConstructor
 public abstract class DefinedPacket
@@ -36,6 +39,18 @@ public abstract class DefinedPacket
         buf.readBytes( b );
 
         return new String( b, Charsets.UTF_8 );
+    }
+
+    public static void writeStringAsChatComponent(String s, ByteBuf buf)
+    {
+        writeString( ComponentSerializer.toString( TextComponent.fromLegacyText( s ) ), buf );
+    }
+
+    public static String readChatComponentAsString(ByteBuf buf)
+    {
+        String json = readString( buf );
+        BaseComponent[] components = ComponentSerializer.parse( json );
+        return ( components.length == 0 || components[0] == null ) ? json : TextComponent.toLegacyText( components );
     }
 
     public static void writeArray(byte[] b, ByteBuf buf)

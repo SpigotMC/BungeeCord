@@ -25,6 +25,15 @@ public class ScoreboardObjective extends DefinedPacket
      */
     private byte action;
 
+    @Deprecated
+    public ScoreboardObjective(String name, String value, String type, byte action)
+    {
+        this.name = name;
+        this.value = value;
+        this.type = HealthDisplay.fromString( type );
+        this.action = action;
+    }
+
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
@@ -32,12 +41,13 @@ public class ScoreboardObjective extends DefinedPacket
         action = buf.readByte();
         if ( action == 0 || action == 2 )
         {
-            value = readString( buf );
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
+                value = readChatComponentAsString( buf );
                 type = HealthDisplay.values()[readVarInt( buf )];
             } else
             {
+                value = readString( buf );
                 type = HealthDisplay.fromString( readString( buf ) );
             }
         }
@@ -50,12 +60,13 @@ public class ScoreboardObjective extends DefinedPacket
         buf.writeByte( action );
         if ( action == 0 || action == 2 )
         {
-            writeString( value, buf );
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
+                writeStringAsChatComponent( value, buf );
                 writeVarInt( type.ordinal(), buf );
             } else
             {
+                writeString( value, buf );
                 writeString( type.toString(), buf );
             }
         }
