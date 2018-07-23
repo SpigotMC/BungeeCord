@@ -254,7 +254,7 @@ public final class UserConnection implements ProxiedPlayer
     {
         Preconditions.checkNotNull( info, "info" );
 
-        ServerConnectRequest.ServerConnectRequestBuilder builder = ServerConnectRequest.builder().retry( retry ).reason( reason ).target( info );
+        ServerConnectRequest.Builder builder = ServerConnectRequest.builder().retry( retry ).reason( reason ).target( info );
         if ( callback != null )
         {
             // Convert the Callback<Boolean> to be compatible with Callback<Result> from ServerConnectRequest.

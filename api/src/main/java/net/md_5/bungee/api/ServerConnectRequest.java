@@ -10,7 +10,7 @@ import net.md_5.bungee.api.event.ServerConnectEvent;
  * A request to connect a server
  */
 @Getter
-@Builder
+@Builder(builderClassName = "Builder")
 public class ServerConnectRequest
 {
 
