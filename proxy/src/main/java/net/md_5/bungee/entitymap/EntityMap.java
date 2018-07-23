@@ -144,7 +144,7 @@ public abstract class EntityMap
                         {
                             DefinedPacket.readString( packet );
                         }
-                        break;
+                        continue;
                     case 15: // particle
                         int particleId = DefinedPacket.readVarInt( packet );
                         switch ( particleId )
@@ -160,7 +160,7 @@ public abstract class EntityMap
                                 readSkipSlot( packet, protocolVersion );
                                 break;
                         }
-                        break;
+                        continue;
                     default:
                         if ( type >= 6 )
                         {
