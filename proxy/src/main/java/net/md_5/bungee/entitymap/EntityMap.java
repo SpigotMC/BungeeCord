@@ -144,8 +144,8 @@ public abstract class EntityMap
                         {
                             DefinedPacket.readString( packet );
                         }
-                        break;
-                    case 14: // particle
+                        continue;
+                    case 15: // particle
                         int particleId = DefinedPacket.readVarInt( packet );
                         switch ( particleId )
                         {
@@ -157,12 +157,15 @@ public abstract class EntityMap
                                 packet.skipBytes( 16 ); // float, float, float, flat
                                 break;
                             case 27: // item
-                                readSkipSlot( packet );
+                                readSkipSlot( packet, protocolVersion );
                                 break;
                         }
-                        break;
+                        continue;
                     default:
-                        type--;
+                        if ( type >= 6 )
+                        {
+                            type--;
+                        }
                         break;
                 }
             }
@@ -189,7 +192,7 @@ public abstract class EntityMap
                     DefinedPacket.readString( packet );
                     break;
                 case 5:
-                    readSkipSlot( packet );
+                    readSkipSlot( packet, protocolVersion );
                     break;
                 case 6:
                     packet.skipBytes( 1 ); // boolean
@@ -235,11 +238,11 @@ public abstract class EntityMap
         packet.readerIndex( readerIndex );
     }
 
-    private static void readSkipSlot(ByteBuf packet)
+    private static void readSkipSlot(ByteBuf packet, int protocolVersion)
     {
         if ( packet.readShort() != -1 )
         {
-            packet.skipBytes( 3 ); // byte, short
+            packet.skipBytes( ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? 1 : 3 ); // byte vs byte, short
 
             int position = packet.readerIndex();
             if ( packet.readByte() != 0 )

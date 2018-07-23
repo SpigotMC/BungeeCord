@@ -45,7 +45,7 @@ public class PluginMessage extends DefinedPacket
                 return tag;
             }
 
-            return "bungeecord:legacy/" + tag.toLowerCase( Locale.ROOT );
+            return "legacy:" + tag.toLowerCase( Locale.ROOT );
         }
     };
     public static final Predicate<PluginMessage> SHOULD_RELAY = new Predicate<PluginMessage>()
