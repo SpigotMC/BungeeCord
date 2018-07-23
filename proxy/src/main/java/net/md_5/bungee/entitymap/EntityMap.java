@@ -145,7 +145,7 @@ public abstract class EntityMap
                             DefinedPacket.readString( packet );
                         }
                         break;
-                    case 14: // particle
+                    case 15: // particle
                         int particleId = DefinedPacket.readVarInt( packet );
                         switch ( particleId )
                         {
@@ -162,7 +162,10 @@ public abstract class EntityMap
                         }
                         break;
                     default:
-                        type--;
+                        if ( type >= 6 )
+                        {
+                            type--;
+                        }
                         break;
                 }
             }
