@@ -11,7 +11,7 @@ public class PluginMessageTest
     {
         Assert.assertEquals( "bungeecord:main", PluginMessage.MODERNISE.apply( "BungeeCord" ) );
         Assert.assertEquals( "BungeeCord", PluginMessage.MODERNISE.apply( "bungeecord:main" ) );
-        Assert.assertEquals( "bungeecord:legacy/foo", PluginMessage.MODERNISE.apply( "FoO" ) );
+        Assert.assertEquals( "legacy:foo", PluginMessage.MODERNISE.apply( "FoO" ) );
         Assert.assertEquals( "foo:bar", PluginMessage.MODERNISE.apply( "foo:bar" ) );
     }
 }
