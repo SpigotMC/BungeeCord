@@ -17,10 +17,12 @@ import net.md_5.bungee.api.chat.TranslatableComponent;
 
 import java.lang.reflect.Type;
 import java.util.HashSet;
+import lombok.Getter;
 
 public class ComponentSerializer implements JsonDeserializer<BaseComponent>
 {
 
+    @Getter //BotFilter
     private final static JsonParser JSON_PARSER = new JsonParser();
     private final static Gson gson = new GsonBuilder().
             registerTypeAdapter( BaseComponent.class, new ComponentSerializer() ).

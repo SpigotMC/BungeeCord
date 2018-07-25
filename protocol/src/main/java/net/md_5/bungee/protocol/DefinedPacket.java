@@ -1,6 +1,7 @@
 package net.md_5.bungee.protocol;
 
 import com.google.common.base.Charsets;
+import com.google.gson.JsonSyntaxException;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,18 +28,6 @@ public abstract class DefinedPacket
         buf.writeBytes( b );
     }
 
-    public static void writeStringAsChatComponent(String s, ByteBuf buf)
-    {
-        writeString( ComponentSerializer.toString( TextComponent.fromLegacyText( s ) ), buf );
-    }
-
-    public static String readChatComponentAsString(ByteBuf buf)
-    {
-        String json = readString( buf );
-        BaseComponent[] components = ComponentSerializer.parse( json );
-        return ( components.length == 0 || components[0] == null ) ? json : TextComponent.toLegacyText( components );
-    }
-
     public static String readString(ByteBuf buf)
     {
         int len = readVarInt( buf );
@@ -52,6 +41,27 @@ public abstract class DefinedPacket
 
         return new String( b, Charsets.UTF_8 );
     }
+
+    //BotFilter start
+    public static void writeStringAsChatComponent(String s, ByteBuf buf)
+    {
+        try
+        {
+            ComponentSerializer.getJSON_PARSER().parse( s );
+            writeString( s, buf );  //Its a json string
+        } catch ( JsonSyntaxException ex )
+        {
+            writeString( ComponentSerializer.toString( TextComponent.fromLegacyText( s ) ), buf );
+        }
+    }
+
+    public static String readChatComponentAsString(ByteBuf buf)
+    {
+        String json = readString( buf );
+        BaseComponent[] components = ComponentSerializer.parse( json );
+        return ( components.length == 0 || components[0] == null ) ? json : TextComponent.toLegacyText( components );
+    }
+    //BotFilter end
 
     public static void writeArray(byte[] b, ByteBuf buf)
     {
