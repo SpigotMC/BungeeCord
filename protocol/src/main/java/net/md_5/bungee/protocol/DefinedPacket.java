@@ -47,12 +47,13 @@ public abstract class DefinedPacket
     {
         try
         {
-            ComponentSerializer.getJSON_PARSER().parse( s );
-            writeString( s, buf );  //Its a json string
-        } catch ( JsonSyntaxException ex )
-        {
-            writeString( ComponentSerializer.toString( TextComponent.fromLegacyText( s ) ), buf );
-        }
+            if ( !ComponentSerializer.getJSON_PARSER().parse( s ).isJsonPrimitive() )
+            {
+                writeString( s, buf );  //Its a valid json string
+                return;
+            }
+        } catch ( JsonSyntaxException ex ) {}
+        writeString( ComponentSerializer.toString( TextComponent.fromLegacyText( s ) ), buf );
     }
 
     public static String readChatComponentAsString(ByteBuf buf)

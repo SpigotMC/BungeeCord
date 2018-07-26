@@ -16,7 +16,7 @@ public class Settings extends Config
                 "Все ошибки, баги, предложения и прочее просьба писать на гитхабе "
             })
     @Final
-    public final String ISSUES = "https://github.com/Dimatert9/BungeeCord/issues";
+    public final String ISSUES = "https://github.com/Leymooo/BungeeCord/issues";
     @Final
     public final String HELP = "http://www.rubukkit.org/threads/137038/";
     @Final
