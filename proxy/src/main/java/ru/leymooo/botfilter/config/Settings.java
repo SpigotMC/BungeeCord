@@ -194,7 +194,7 @@ public class Settings extends Config
 
         @Comment("Тип датабазы. sqlite или mysql")
         public String STORAGE_TYPE = "sqlite";
-        @Comment("Через сколько дней удалять игроков из датабазы, которые прошли проверку и больше не заходили")
+        @Comment("Через сколько дней удалять игроков из датабазы, которые прошли проверку и больше не заходили. 0 или меньше чтобы отключить")
         public int PURGE_TIME = 14;
         @Comment("Настройки для mysql")
         public String HOSTNAME = "127.0.0.1";

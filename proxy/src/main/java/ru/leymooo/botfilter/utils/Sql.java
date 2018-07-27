@@ -97,6 +97,10 @@ public class Sql
 
     private void clearOldUsers() throws SQLException
     {
+        if ( Settings.IMP.SQL.PURGE_TIME <= 0 )
+        {
+            return;
+        }
         Calendar calendar = Calendar.getInstance();
         calendar.add( Calendar.DATE, -Settings.IMP.SQL.PURGE_TIME );
         long until = calendar.getTimeInMillis();
