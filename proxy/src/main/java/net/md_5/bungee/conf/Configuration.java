@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import gnu.trove.map.TMap;
 import java.io.File;
 import java.io.IOException;
+import java.net.Proxy;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import javax.imageio.ImageIO;
 import lombok.Getter;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ProxyConfig;
 import net.md_5.bungee.api.ProxyServer;
@@ -51,6 +53,10 @@ public class Configuration implements ProxyConfig
      * Whether we log proxy commands to the proxy log
      */
     private boolean logCommands;
+    /**
+     * Authlib proxy
+     */
+    private Proxy authlibProxy;
     private int playerLimit = -1;
     private Collection<String> disabledCommands;
     private int throttle = 4000;
@@ -80,7 +86,16 @@ public class Configuration implements ProxyConfig
         listeners = adapter.getListeners();
         timeout = adapter.getInt( "timeout", timeout );
         uuid = adapter.getString( "stats", uuid );
-        onlineMode = adapter.getBoolean( "online_mode", onlineMode );
+
+        boolean state = adapter.getBoolean( "online_mode", onlineMode );
+        if ( ( state != onlineMode ) && ( ProxyServer.getInstance().getReloadCount() > 0 ) )
+        {
+            ProxyServer.getInstance().getLogger().warning( ChatColor.BOLD.toString() + ChatColor.RED.toString() + "Online mode will not be changed. You have to restart BungeeCord ASAP." );
+        } else
+        {
+            onlineMode = state;
+        }
+
         logCommands = adapter.getBoolean( "log_commands", logCommands );
         playerLimit = adapter.getInt( "player_limit", playerLimit );
         throttle = adapter.getInt( "connection_throttle", throttle );
@@ -88,6 +103,7 @@ public class Configuration implements ProxyConfig
         compressionThreshold = adapter.getInt( "network_compression_threshold", compressionThreshold );
         preventProxyConnections = adapter.getBoolean( "prevent_proxy_connections", preventProxyConnections );
         forgeSupport = adapter.getBoolean( "forge_support", forgeSupport );
+        authlibProxy = adapter.getAuthlibProxy();
 
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
 

@@ -18,6 +18,14 @@
     <name>BungeeCord-API</name>
     <description>API implemented by the Elastic Portal Suite</description>
 
+    <repositories>
+        <repository>
+            <id>mojang</id>
+            <name>Mojang's Repository</name>
+            <url>https://libraries.minecraft.net/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>net.md-5</groupId>
@@ -42,6 +50,11 @@
             <artifactId>bungeecord-protocol</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.mojang</groupId>
+            <artifactId>authlib</artifactId>
+            <version>1.5.25</version>
         </dependency>
     </dependencies>
 </project>

@@ -10,6 +10,9 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mojang.authlib.AuthenticationService;
+import com.mojang.authlib.minecraft.MinecraftSessionService;
+import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -38,6 +41,8 @@ import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -117,6 +122,8 @@ public class BungeeCord extends ProxyServer
     private ResourceBundle baseBundle;
     private ResourceBundle customBundle;
     public EventLoopGroup eventLoops;
+    public MinecraftSessionService sessionService;
+    public ExecutorService loginExecutor;
     /**
      * locations.yml save thread.
      */
@@ -165,6 +172,10 @@ public class BungeeCord extends ProxyServer
             .registerTypeAdapter( Favicon.class, Favicon.getFaviconTypeAdapter() ).create();
     @Getter
     private ConnectionThrottle connectionThrottle;
+    @Getter
+    private AuthenticationService authenticationService;
+    @Getter
+    private int reloadCount = 0;
     private final ModuleManager moduleManager = new ModuleManager();
 
     
@@ -279,6 +290,10 @@ public class BungeeCord extends ProxyServer
         isRunning = true;
 
         pluginManager.enablePlugins();
+
+        authenticationService = new YggdrasilAuthenticationService( config.getAuthlibProxy(), UUID.randomUUID().toString() );
+        sessionService = authenticationService.createMinecraftSessionService();
+        loginExecutor = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("Login Thread #%1$d").setDaemon(true).build());
 
         if ( config.getThrottle() > 0 )
         {
@@ -444,6 +459,15 @@ public class BungeeCord extends ProxyServer
                     plugin.getExecutorService().shutdownNow();
                 }
 
+                getLogger().info( "Stopping login executor" );
+                loginExecutor.shutdown();
+                try
+                {
+                    loginExecutor.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS );
+                } catch ( InterruptedException ex )
+                {
+                }
+
                 getLogger().info( "Closing IO threads" );
                 eventLoops.shutdownGracefully();
                 try
@@ -462,6 +486,16 @@ public class BungeeCord extends ProxyServer
                 System.exit( 0 );
             }
         }.start();
+    }
+
+    @Override
+    public void reload()
+    {
+        reloadCount++;
+        config.load();
+        reloadMessages();
+        stopListeners();
+        startListeners();
     }
 
     /**
