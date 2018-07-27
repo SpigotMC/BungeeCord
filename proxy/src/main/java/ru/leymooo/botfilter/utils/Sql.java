@@ -14,7 +14,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.md_5.bungee.BungeeCord;
 import ru.leymooo.botfilter.BotFilter;
-import ru.leymooo.botfilter.utils.IPUtils;
 import ru.leymooo.botfilter.config.Settings;
 import ru.leymooo.botfilter.config.Settings.SQL;
 
@@ -197,7 +196,7 @@ public class Sql
 
     public void tryCleanUP()
     {
-        if ( nextCleanUp - System.currentTimeMillis() <= 0 )
+        if ( Settings.IMP.SQL.PURGE_TIME > 0 && nextCleanUp - System.currentTimeMillis() <= 0 )
         {
             nextCleanUp = System.currentTimeMillis() + ( 60000 * 60 * 2 ); // + 2 hours
             try
