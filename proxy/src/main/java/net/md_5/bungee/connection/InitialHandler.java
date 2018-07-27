@@ -8,11 +8,17 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import javax.crypto.SecretKey;
+
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.exceptions.AuthenticationUnavailableException;
+import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.BungeeCord;
@@ -399,13 +405,21 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.ENCRYPT, "Not expecting ENCRYPT" );
 
+        // Since client already encrypted channel, we have to do the same before we can actually verify token
         SecretKey sharedKey = EncryptionUtil.getSecret( encryptResponse, request );
-        BungeeCipher decrypt = EncryptionUtil.getCipher( false, sharedKey );
-        ch.addBefore( PipelineUtils.FRAME_DECODER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
         BungeeCipher encrypt = EncryptionUtil.getCipher( true, sharedKey );
         ch.addBefore( PipelineUtils.FRAME_PREPENDER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
 
-        String encName = URLEncoder.encode( InitialHandler.this.getName(), "UTF-8" );
+        byte[] token = encryptResponse.getVerifyToken();
+        if ( ( token == null ) || ( token.length == 0 ) )
+        {
+            disconnect( bungee.getTranslation( "auth_invalid_token" ) );
+            return;
+        }
+
+        // Now apply channel decryption handler
+        BungeeCipher decrypt = EncryptionUtil.getCipher( false, sharedKey );
+        ch.addBefore( PipelineUtils.FRAME_DECODER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
 
         MessageDigest sha = MessageDigest.getInstance( "SHA-1" );
         for ( byte[] bit : new byte[][]
@@ -415,37 +429,42 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             sha.update( bit );
         }
-        String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
-
-        String preventProxy = ( ( BungeeCord.getInstance().config.isPreventProxyConnections() ) ? "&ip=" + URLEncoder.encode( getAddress().getAddress().getHostAddress(), "UTF-8" ) : "" );
-        String authURL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" + encName + "&serverId=" + encodedHash + preventProxy;
-
-        Callback<String> handler = new Callback<String>()
+        final String serverID = new BigInteger( sha.digest() ).toString( 16 );
+        final String username = getName();
+        bungee.loginExecutor.submit( new Runnable()
         {
             @Override
-            public void done(String result, Throwable error)
+            public void run()
             {
-                if ( error == null )
+                // Check if disconnected
+                if ( !isConnected() )
                 {
-                    LoginResult obj = BungeeCord.getInstance().gson.fromJson( result, LoginResult.class );
-                    if ( obj != null && obj.getId() != null )
-                    {
-                        loginProfile = obj;
-                        name = obj.getName();
-                        uniqueId = Util.getUUID( obj.getId() );
-                        finish();
-                        return;
-                    }
-                    disconnect( bungee.getTranslation( "offline_mode_player" ) );
-                } else
-                {
-                    disconnect( bungee.getTranslation( "mojang_fail" ) );
-                    bungee.getLogger().log( Level.SEVERE, "Error authenticating " + getName() + " with minecraft.net", error );
+                    return;
                 }
+                GameProfile result;
+                try
+                {
+                    result = bungee.sessionService.hasJoinedServer( new GameProfile( null, username  ), serverID, getAddress().getAddress() );
+                } catch (Exception ex )
+                {
+                    disconnect( Util.exception( ex ) );
+                    return;
+                }
+                name = result.getName();
+                uniqueId = result.getId();
+                PropertyMap propertyMap = result.getProperties();
+                List<LoginResult.Property> properties = new ArrayList<>();
+                for ( String key : propertyMap.keys() )
+                {
+                    for ( Property property : propertyMap.get( key ) )
+                    {
+                        properties.add( new LoginResult.Property( property.getName(), property.getValue(), property.getSignature() ) );
+                    }
+                }
+                loginProfile = new LoginResult( uniqueId.toString(), name, properties.toArray( new LoginResult.Property[0] ) );
+                finish();
             }
-        };
-
-        HttpClient.get( authURL, ch.getHandle().eventLoop(), handler );
+        } );
     }
 
     private void finish()

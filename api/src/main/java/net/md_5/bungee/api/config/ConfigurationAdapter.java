@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.config;
 
+import java.net.Proxy;
 import java.util.Collection;
 import java.util.Map;
 
@@ -82,4 +83,11 @@ public interface ConfigurationAdapter
      * @return all true permissions for this group
      */
     public Collection<String> getPermissions(String group);
+
+    /**
+     * Gets proxy that will be used for authlib
+     *
+     * @return the proxy
+     */
+    Proxy getAuthlibProxy();
 }

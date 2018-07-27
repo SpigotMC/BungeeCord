@@ -1,12 +1,16 @@
 package net.md_5.bungee.conf;
 
+import com.google.common.base.Preconditions;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Authenticator;
 import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
+import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -308,5 +312,46 @@ public class YamlConfig implements ConfigurationAdapter
     {
         Collection<String> permissions = get( "permissions." + group, null );
         return ( permissions == null ) ? Collections.EMPTY_SET : permissions;
+    }
+
+    @Override
+    public Proxy getAuthlibProxy()
+    {
+        Map<String, Object> settings = get( "authlib", new LinkedHashMap<String, Object>()
+        {
+            {
+                put( "proxy-enabled", false );
+                put( "proxy-type", "SOCKS" );
+                put("proxy-host", "host");
+                put( "proxy-port", 1080 );
+                put( "proxy-login", "login" );
+                put( "proxy-password", "password" );
+            }
+        });
+        boolean enabled = (boolean) settings.get( "proxy-enabled" );
+        if ( !enabled )
+        {
+            return Proxy.NO_PROXY;
+        }
+        Proxy.Type type = Proxy.Type.valueOf( (String) settings.get( "proxy-type" ) );
+        // Supports only SOCKS for now?
+        Preconditions.checkState( type == Proxy.Type.SOCKS, "Not a SOCKS proxy type" );
+        String host = (String) settings.get( "proxy-host" );
+        int port = (int) settings.get( "proxy-port" );
+        final String login = (String) settings.get( "proxy-login" );
+        final String password = (String) settings.get( "proxy-password" );
+        Proxy proxy = new Proxy( type, new InetSocketAddress( host, port ) );
+        if ( login != null && password != null )
+        {
+            Authenticator.setDefault( new Authenticator()
+            {
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication()
+                {
+                    return new PasswordAuthentication( login, password.toCharArray() );
+                }
+            } );
+        }
+        return proxy;
     }
 }

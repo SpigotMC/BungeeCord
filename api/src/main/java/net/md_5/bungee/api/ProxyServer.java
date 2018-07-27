@@ -1,5 +1,6 @@
 package net.md_5.bungee.api;
 
+import com.mojang.authlib.AuthenticationService;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.plugin.PluginManager;
 import com.google.common.base.Preconditions;
@@ -295,5 +296,24 @@ public abstract class ProxyServer
      * @see Title
      */
     public abstract Title createTitle();
+
+    /**
+     * Returns authentication service instance
+     *
+     * @return Authentication Service
+     */
+    public abstract AuthenticationService getAuthenticationService();
+
+    /**
+     * Reloads proxy
+     */
+    public abstract void reload();
+
+    /**
+     * Returns proxy reload count
+     *
+     * @return Proxy reload count
+     */
+    public abstract int getReloadCount();
 
 }
