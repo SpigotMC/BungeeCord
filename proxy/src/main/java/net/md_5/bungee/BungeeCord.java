@@ -293,7 +293,7 @@ public class BungeeCord extends ProxyServer
 
         authenticationService = new YggdrasilAuthenticationService( config.getAuthlibProxy(), UUID.randomUUID().toString() );
         sessionService = authenticationService.createMinecraftSessionService();
-        loginExecutor = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("Login Thread #%1$d").setDaemon(true).build());
+        loginExecutor = Executors.newCachedThreadPool( new ThreadFactoryBuilder().setNameFormat( "Login Thread #%1$d" ).setDaemon( true ).build() );
 
         if ( config.getThrottle() > 0 )
         {
