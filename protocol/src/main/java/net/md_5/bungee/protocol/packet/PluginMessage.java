@@ -70,7 +70,6 @@ public class PluginMessage extends DefinedPacket
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        tag = readString( buf );
         if ( protocolVersion < ProtocolConstants.MINECRAFT_1_8 )
         {
         	tag = readString( buf );
@@ -88,7 +87,6 @@ public class PluginMessage extends DefinedPacket
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        writeString( tag, buf );
         if ( protocolVersion < ProtocolConstants.MINECRAFT_1_8 )
         {
         	writeString( tag, buf );
