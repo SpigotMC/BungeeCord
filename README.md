@@ -16,7 +16,11 @@ Most of them are, so get rid of 1.7 fast and move to 1.10.2/1.11.2 modpacks asap
 
 This version is maintained by https://hexagonmc.eu
 
+<<<<<<< HEAD
 ###Releases can be downloaded here: [Releases](https://github.com/HexagonMC/BungeeCord/releases)
 ```
 Modules are automatically downloaded from the releases page.
 ```
+=======
+(c) 2012-2018 SpigotMC Pty. Ltd.
+>>>>>>> 6fadb4250cb7f89feb2a98d9de973f6d627e33ae

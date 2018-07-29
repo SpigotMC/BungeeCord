@@ -167,6 +167,37 @@ public final class ComponentBuilder
     }
 
     /**
+     * Allows joining additional components to this builder using the given
+     * {@link Joiner} and {@link FormatRetention#ALL}.
+     *
+     * Simply executes the provided joiner on this instance to facilitate a
+     * chain pattern.
+     *
+     * @param joiner joiner used for operation
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder append(Joiner joiner)
+    {
+        return joiner.join( this, FormatRetention.ALL );
+    }
+
+    /**
+     * Allows joining additional components to this builder using the given
+     * {@link Joiner}.
+     *
+     * Simply executes the provided joiner on this instance to facilitate a
+     * chain pattern.
+     *
+     * @param joiner joiner used for operation
+     * @param retention the formatting to retain
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder append(Joiner joiner, FormatRetention retention)
+    {
+        return joiner.join( this, retention );
+    }
+
+    /**
      * Sets the color of the current part.
      *
      * @param color the new color
@@ -331,5 +362,26 @@ public final class ComponentBuilder
          * component.
          */
         ALL
+    }
+
+    /**
+     * Functional interface to join additional components to a ComponentBuilder.
+     */
+    public interface Joiner
+    {
+
+        /**
+         * Joins additional components to the provided {@link ComponentBuilder}
+         * and then returns it to fulfill a chain pattern.
+         *
+         * Retention may be ignored and is to be understood as an optional
+         * recommendation to the Joiner and not as a guarantee to have a
+         * previous component in builder unmodified.
+         *
+         * @param componentBuilder to which to append additional components
+         * @param retention the formatting to possibly retain
+         * @return input componentBuilder for chaining
+         */
+        ComponentBuilder join(ComponentBuilder componentBuilder, FormatRetention retention);
     }
 }

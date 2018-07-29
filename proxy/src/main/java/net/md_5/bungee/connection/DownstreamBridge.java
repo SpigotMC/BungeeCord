@@ -31,6 +31,7 @@ import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
@@ -98,8 +99,8 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(PacketWrapper packet) throws Exception
     {
-        con.getEntityRewrite().rewriteClientbound(packet.buf, con.getServerEntityId(), con.getClientEntityId());
-        con.sendPacket(packet);
+        con.getEntityRewrite().rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId(), con.getPendingConnection().getVersion() );
+        con.sendPacket( packet );
     }
     
     @Override
@@ -123,7 +124,7 @@ public class DownstreamBridge extends PacketHandler
         switch (objective.getAction())
         {
             case 0:
-                serverScoreboard.addObjective(new Objective(objective.getName(), objective.getValue(), objective.getType()));
+                serverScoreboard.addObjective( new Objective( objective.getName(), objective.getValue(), objective.getType().toString() ) );
                 break;
             case 1:
                 serverScoreboard.removeObjective(objective.getName());
@@ -133,7 +134,7 @@ public class DownstreamBridge extends PacketHandler
                 if ( oldObjective != null )
                 {
                     oldObjective.setValue( objective.getValue() );
-                    oldObjective.setType( objective.getType() );
+                    oldObjective.setType( objective.getType().toString() );
                 }
                 break;
             default:
@@ -227,8 +228,8 @@ public class DownstreamBridge extends PacketHandler
         {
             throw CancelSendSignal.INSTANCE;
         }
-        
-        if (pluginMessage.getTag().equals("MC|Brand"))
+
+        if ( pluginMessage.getTag().equals( con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ? "minecraft:brand" : "MC|Brand" ) )
         {
             if (con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8)
             {
@@ -396,9 +397,22 @@ public class DownstreamBridge extends PacketHandler
             }
             if (subChannel.equals("Message"))
             {
-                ProxiedPlayer target = bungee.getPlayer(in.readUTF());
-                if (target != null)
-                    target.sendMessage(in.readUTF());
+                String target = in.readUTF();
+                String message = in.readUTF();
+                if ( target.equals( "ALL" ) )
+                {
+                    for ( ProxiedPlayer player : bungee.getPlayers() )
+                    {
+                        player.sendMessage( message );
+                    }
+                } else
+                {
+                    ProxiedPlayer player = bungee.getPlayer( target );
+                    if ( player != null )
+                    {
+                        player.sendMessage( message );
+                    }
+                }
             }
             if (subChannel.equals("GetServer"))
             {
@@ -480,6 +494,12 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(TabCompleteResponse tabCompleteResponse) throws Exception
     {
+        if ( tabCompleteResponse.getCommands() == null )
+        {
+            // Passthrough on 1.13 style command responses - unclear of a sane way to process them at the moment, contributions welcome 
+            return;
+        }
+
         TabCompleteResponseEvent tabCompleteResponseEvent = new TabCompleteResponseEvent( server, con, tabCompleteResponse.getCommands() );
 
         if ( !bungee.getPluginManager().callEvent( tabCompleteResponseEvent ).isCancelled() )
