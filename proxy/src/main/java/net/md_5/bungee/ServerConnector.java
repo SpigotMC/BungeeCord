@@ -102,16 +102,36 @@ public class ServerConnector extends PacketHandler
         {
             String newHost = copiedHandshake.getHost() + "\00" + user.getAddress().getHostString() + "\00" + user.getUUID();
 
+            // Handle properties.
+            LoginResult.Property[] properties = new LoginResult.Property[0];
+
             LoginResult profile = user.getPendingConnection().getLoginProfile();
             if ( profile != null && profile.getProperties() != null && profile.getProperties().length > 0 )
             {
-                newHost += "\00" + BungeeCord.getInstance().gson.toJson( profile.getProperties() );
+                properties = profile.getProperties();
             }
+
+            if ( user.getForgeClientHandler().isFmlTokenInHandshake() )
+            {
+                // Get the current properties and copy them into a slightly bigger array.
+                LoginResult.Property[] newp = Arrays.copyOf( properties, properties.length + 2 );
+                // Add a new profile property that specifies that this user is a Forge user.
+                newp[newp.length - 2] = new LoginResult.Property( ForgeConstants.FML_LOGIN_PROFILE, "true", null );
+                // If we do not perform the replacement, then the IP Forwarding code in Spigot et. al. will try to split on this prematurely.
+                newp[newp.length - 1] = new LoginResult.Property( ForgeConstants.EXTRA_DATA, user.getExtraDataInHandshake().replaceAll( "\0", "\1"), "" );
+                // All done.
+                properties = newp;
+            }
+            // If we touched any properties, then append them
+            if (properties.length > 0)
+            {
+                newHost += "\00" + BungeeCord.getInstance().gson.toJson(properties);
+            }
+
             copiedHandshake.setHost( newHost );
         } else if ( !user.getExtraDataInHandshake().isEmpty() )
         {
-            // Only restore the extra data if IP forwarding is off.
-            // TODO: Add support for this data with IP forwarding.
+            // Restore the extra data
             copiedHandshake.setHost( copiedHandshake.getHost() + user.getExtraDataInHandshake() );
         }
 
