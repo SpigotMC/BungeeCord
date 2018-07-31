@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
+import net.md_5.bungee.api.ServerConnectRequest;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Cancellable;
@@ -31,10 +32,17 @@ public class ServerConnectEvent extends Event implements Cancellable
     @NonNull
     private ServerInfo target;
     /**
+     * Reason for connecting to a new server.
+     */
+    private final Reason reason;
+    /**
+     * Request used to connect to given server.
+     */
+    private final ServerConnectRequest request;
+    /**
      * Cancelled state.
      */
     private boolean cancelled;
-    private final Reason reason;
 
     @Deprecated
     public ServerConnectEvent(ProxiedPlayer player, ServerInfo target)
@@ -42,11 +50,18 @@ public class ServerConnectEvent extends Event implements Cancellable
         this( player, target, Reason.UNKNOWN );
     }
 
+    @Deprecated
     public ServerConnectEvent(ProxiedPlayer player, ServerInfo target, Reason reason)
+    {
+        this( player, target, reason, null );
+    }
+
+    public ServerConnectEvent(ProxiedPlayer player, ServerInfo target, Reason reason, ServerConnectRequest request)
     {
         this.player = player;
         this.target = target;
         this.reason = reason;
+        this.request = request;
     }
 
     public enum Reason

@@ -3,6 +3,7 @@ package net.md_5.bungee.api;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 
@@ -59,12 +60,14 @@ public class ServerConnectRequest
     /**
      * Timeout in milliseconds for request.
      */
-    private final int connectTimeout;
+    @Setter
+    private int connectTimeout;
     /**
      * Should the player be attempted to connect to the next server in their
      * queue if the initial request fails.
      */
-    private final boolean retry;
+    @Setter
+    private boolean retry;
 
     /**
      * Class that sets default properties/adds methods to the lombok builder
