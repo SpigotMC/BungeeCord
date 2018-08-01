@@ -207,7 +207,7 @@ public class Settings extends Config
     @Comment(
     {
         "Включить/Отключить ли совместимость со старыми плагинами, которые используют ScoreBoard на бандже?",
-        "Поставте false, если есть проблеммы с новыми плагинами."
+        "Поставте false, если есть проблемы с новыми плагинами."
     })
     public boolean FIX_SCOREBOARDS = true;
 

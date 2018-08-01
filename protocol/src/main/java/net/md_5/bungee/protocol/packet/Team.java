@@ -48,12 +48,12 @@ public class Team extends DefinedPacket
         {
             if ( protocolVersion < ProtocolConstants.MINECRAFT_1_13 )
             {
-                displayName = readString( buf );
+                displayName = readString( buf ); //BotFilter
                 prefix = readString( buf );
                 suffix = readString( buf );
             } else
             {
-                displayName = readChatComponentAsString( buf );
+                displayName = readChatComponentAsString( buf ); //BotFilter
             }
             friendlyFire = buf.readByte();
             nameTagVisibility = readString( buf );
@@ -64,8 +64,8 @@ public class Team extends DefinedPacket
             color = ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? readVarInt( buf ) : buf.readByte();
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
-                prefix = readChatComponentAsString( buf );
-                suffix = readChatComponentAsString( buf );
+                prefix = readChatComponentAsString( buf ); //BotFilter
+                suffix = readChatComponentAsString( buf ); //BotFilter
             }
         }
         if ( mode == 0 || mode == 3 || mode == 4 )
@@ -88,12 +88,12 @@ public class Team extends DefinedPacket
         {
             if ( protocolVersion < ProtocolConstants.MINECRAFT_1_13 )
             {
-                writeString( displayName, buf );
+                writeString( displayName, buf ); //BotFilter
                 writeString( prefix, buf );
                 writeString( suffix, buf );
             } else
             {
-                writeStringAsChatComponent( displayName, buf );
+                writeStringAsChatComponent( displayName, buf ); //BotFilter
             }
             buf.writeByte( friendlyFire );
             writeString( nameTagVisibility, buf );
@@ -105,8 +105,8 @@ public class Team extends DefinedPacket
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
                 writeVarInt( color, buf );
-                writeStringAsChatComponent( prefix, buf );
-                writeStringAsChatComponent( suffix, buf );
+                writeStringAsChatComponent( prefix, buf ); //BotFilter
+                writeStringAsChatComponent( suffix, buf ); //BotFilter
             } else
             {
                 buf.writeByte( color );

@@ -15,7 +15,6 @@ import net.md_5.bungee.chat.ComponentSerializer;
 @RequiredArgsConstructor
 public abstract class DefinedPacket
 {
-    
     public static void writeString(String s, ByteBuf buf)
     {
         if ( s.length() > Short.MAX_VALUE )

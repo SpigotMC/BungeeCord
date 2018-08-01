@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
 import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.protocol.DefinedPacket;
 import ru.leymooo.botfilter.caching.CachedCaptcha;
 import ru.leymooo.botfilter.utils.GeoIp;
 import ru.leymooo.botfilter.caching.PacketUtils;
@@ -53,6 +54,7 @@ public class BotFilter
     public BotFilter(boolean startup)
     {
         Settings.IMP.reload( new File( "BotFilter", "config.yml" ) );
+        DefinedPacket.fix_scoreboards = Settings.IMP.FIX_SCOREBOARDS;
         checkForUpdates( startup );
         if ( !CachedCaptcha.generated )
         {
