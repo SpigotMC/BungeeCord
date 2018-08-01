@@ -25,6 +25,7 @@ public class ScoreboardObjective extends DefinedPacket
      */
     private byte action;
 
+    @Deprecated
     public ScoreboardObjective(String name, String value, String type, byte action)
     {
         this.name = name;

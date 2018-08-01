@@ -529,7 +529,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         userCon.init();
 
         unsafe.sendPacket( new LoginSuccess( getUniqueId().toString(), getName() ) ); // With dashes in between
-
+    
         ch.setProtocol( Protocol.GAME );
 
         //BotFiler start
@@ -545,6 +545,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
     public void finishLogin(UserConnection userCon)
     {
+        ch.setDecoderProtocol( Protocol.GAME );
+
         Callback<LoginEvent> complete = new Callback<LoginEvent>()
         {
             @Override

@@ -15,7 +15,7 @@ import net.md_5.bungee.chat.ComponentSerializer;
 @RequiredArgsConstructor
 public abstract class DefinedPacket
 {
-
+    
     public static void writeString(String s, ByteBuf buf)
     {
         if ( s.length() > Short.MAX_VALUE )
@@ -43,24 +43,37 @@ public abstract class DefinedPacket
     }
 
     //BotFilter start
+    public static boolean fix_scoreboards;
     public static void writeStringAsChatComponent(String s, ByteBuf buf)
     {
-        try
+        if ( fix_scoreboards )
         {
-            if ( !ComponentSerializer.getJSON_PARSER().parse( s ).isJsonPrimitive() )
+            try
             {
-                writeString( s, buf );  //Its a valid json string
-                return;
-            }
-        } catch ( JsonSyntaxException ex ) {}
-        writeString( ComponentSerializer.toString( TextComponent.fromLegacyText( s ) ), buf );
+                if ( !ComponentSerializer.getJSON_PARSER().parse( s ).isJsonPrimitive() )
+                {
+                    writeString( s, buf );  //Its a valid json string
+                    return;
+                }
+            } catch ( JsonSyntaxException ex ) {}
+            writeString( ComponentSerializer.toString( TextComponent.fromLegacyText( s ) ), buf );
+        } else
+        {
+            writeString( s, buf );
+        }
     }
 
     public static String readChatComponentAsString(ByteBuf buf)
     {
         String json = readString( buf );
-        BaseComponent[] components = ComponentSerializer.parse( json );
-        return ( components.length == 0 || components[0] == null ) ? json : TextComponent.toLegacyText( components );
+        if ( fix_scoreboards )
+        {
+            BaseComponent[] components = ComponentSerializer.parse( json );
+            return ( components.length == 0 || components[0] == null ) ? json : TextComponent.toLegacyText( components );
+        } else
+        {
+            return json;
+        }
     }
     //BotFilter end
 

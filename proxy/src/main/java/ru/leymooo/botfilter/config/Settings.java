@@ -20,7 +20,7 @@ public class Settings extends Config
     @Final
     public final String HELP = "http://www.rubukkit.org/threads/137038/";
     @Final
-    public String BOT_FILTER_VERSION = "3.3.7";
+    public String BOT_FILTER_VERSION = "3.4";
 
     @Create
     public MESSAGES MESSAGES;
@@ -47,24 +47,6 @@ public class Settings extends Config
         public String CHECKING_TITLE_SUS = "&rПроверка пройдена%nl%&aПриятной игры";
         public String CHECKING_TITLE_CAPTCHA = " %nl%&rВведите капчу в чат!";
     }
-
-    @Comment(
-            {
-                "Сколько игроков/ботов должно зайти за 1 минуту, чтобы включилась защита",
-                "Рекомендуемые параметры когда нет рекламы: ",
-                "До 150 онлайна - 25, до 250 - 30, до 350 - 35, до 550 - 40,45, выше - подстраивать под себя ",
-                "Во время рекламы или когда токо, токо поставили защиту рекомендуется повышать эти значения"
-            })
-    public int PROTECTION_THRESHOLD = 30;
-
-    @Comment("Как долго активна автоматическая защита? В миллисекундах. 1 сек = 1000")
-    public int PROTECTION_TIME = 120000;
-
-    @Comment("Показывать ли онлайн с фильтра")
-    public boolean SHOW_ONLINE = true;
-
-    @Comment("Сколько времени есть у игрока чтобы пройти защиту. В миллисекундах. 1 сек = 1000")
-    public int TIME_OUT = 12700;
 
     @Create
     public GEO_IP GEO_IP;
@@ -203,6 +185,31 @@ public class Settings extends Config
         public String PASSWORD = "password";
         public String DATABASE = "database";
     }
+
+    @Comment(
+            {
+                "Сколько игроков/ботов должно зайти за 1 минуту, чтобы включилась защита",
+                "Рекомендуемые параметры когда нет рекламы: ",
+                "До 150 онлайна - 25, до 250 - 30, до 350 - 35, до 550 - 40,45, выше - подстраивать под себя ",
+                "Во время рекламы или когда токо, токо поставили защиту рекомендуется повышать эти значения"
+            })
+    public int PROTECTION_THRESHOLD = 30;
+
+    @Comment("Как долго активна автоматическая защита? В миллисекундах. 1 сек = 1000")
+    public int PROTECTION_TIME = 120000;
+
+    @Comment("Показывать ли онлайн с фильтра")
+    public boolean SHOW_ONLINE = true;
+
+    @Comment("Сколько времени есть у игрока чтобы пройти защиту. В миллисекундах. 1 сек = 1000")
+    public int TIME_OUT = 12700;
+
+    @Comment(
+    {
+        "Включить/Отключить ли совместимость со старыми плагинами, которые используют ScoreBoard на бандже?",
+        "Поставте false, если есть проблеммы с новыми плагинами."
+    })
+    public boolean FIX_SCOREBOARDS = true;
 
     public void reload(File file)
     {
