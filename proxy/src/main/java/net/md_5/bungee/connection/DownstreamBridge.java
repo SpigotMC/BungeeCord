@@ -124,7 +124,8 @@ public class DownstreamBridge extends PacketHandler
         switch (objective.getAction())
         {
             case 0:
-                serverScoreboard.addObjective( new Objective( objective.getName(), objective.getValue(), objective.getType().toString() ) );
+                //serverScoreboard.addObjective( new Objective( objective.getName(), objective.getValue(), objective.getType().toString() ) );
+                serverScoreboard.addObjective( new Objective( objective.getName(), objective.getValue(), objective.getType() != null ? objective.getType().toString() : null) ); // Travertine - 1.7 protocol support
                 break;
             case 1:
                 serverScoreboard.removeObjective(objective.getName());
@@ -134,7 +135,8 @@ public class DownstreamBridge extends PacketHandler
                 if ( oldObjective != null )
                 {
                     oldObjective.setValue( objective.getValue() );
-                    oldObjective.setType( objective.getType().toString() );
+                    //oldObjective.setType( objective.getType().toString() );
+                    oldObjective.setType( objective.getType() != null ? objective.getType().toString() : null ); // Travertine - 1.7 protocol support
                 }
                 break;
             default:
