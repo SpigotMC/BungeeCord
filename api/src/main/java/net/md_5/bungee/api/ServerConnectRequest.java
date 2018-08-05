@@ -1,6 +1,7 @@
 package net.md_5.bungee.api;
 
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NonNull;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -59,7 +60,7 @@ public class ServerConnectRequest
     /**
      * Timeout in milliseconds for request.
      */
-    @Builder.Default
+    @Default
     private final int connectTimeout = 5000; // TODO: Configurable
     /**
      * Should the player be attempted to connect to the next server in their
