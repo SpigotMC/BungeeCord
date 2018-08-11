@@ -70,7 +70,7 @@ public class ServerConnectRequest
      * Class that sets default properties/adds methods to the lombok builder
      * generated class.
      */
-    public static class ServerConnectRequestBuilder
+    public static class Builder
     {
 
         private int connectTimeout = 5000; // TODO: Configurable
