@@ -59,11 +59,20 @@ public class ServerConnectRequest
     /**
      * Timeout in milliseconds for request.
      */
-    @Builder.Default
-    private final int connectTimeout = 5000; // TODO: Configurable
+    private final int connectTimeout;
     /**
      * Should the player be attempted to connect to the next server in their
      * queue if the initial request fails.
      */
     private final boolean retry;
+
+    /**
+     * Class that sets default properties/adds methods to the lombok builder
+     * generated class.
+     */
+    public static class Builder
+    {
+
+        private int connectTimeout = 5000; // TODO: Configurable
+    }
 }
