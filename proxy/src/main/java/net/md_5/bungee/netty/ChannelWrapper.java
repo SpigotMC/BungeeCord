@@ -46,6 +46,11 @@ public class ChannelWrapper
     {
         ch.pipeline().get( MinecraftDecoder.class ).setProtocol( protocol );
     }
+
+    public void setEncoderProtocol(Protocol protocol)
+    {
+        ch.pipeline().get( MinecraftEncoder.class ).setProtocol( protocol );
+    }
     //BotFilter end
 
     public void setVersion(int protocol)

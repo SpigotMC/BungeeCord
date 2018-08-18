@@ -15,10 +15,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import lombok.Getter;
@@ -60,6 +60,7 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
+import net.md_5.bungee.util.BoundedArrayList;
 import net.md_5.bungee.util.CaseInsensitiveSet;
 import net.md_5.bungee.util.ChatComponentTransformer;
 
@@ -75,7 +76,7 @@ public final class UserConnection implements ProxiedPlayer
     private boolean callSettingsEvent = false; //BotFilter
     @Getter
     @Setter
-    private Set<PluginMessage> delayedPluginMessages = new HashSet<>( 30 ); //BotFilter
+    private List<PluginMessage> delayedPluginMessages = new BoundedArrayList<>( 64 ); //BotFilter
 
     /*========================================================================*/
     @NonNull

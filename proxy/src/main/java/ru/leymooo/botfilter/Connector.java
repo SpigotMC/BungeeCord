@@ -3,8 +3,6 @@ package ru.leymooo.botfilter;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -74,7 +72,6 @@ public class Connector extends MoveHandler
         this.version = userConnection.getPendingConnection().getVersion();
         this.userConnection.setClientEntityId( PacketUtils.CLIENTID );
         this.userConnection.setDimension( 0 );
-        this.userConnection.getCh().setDecoderProtocol( Protocol.BotFilter );
         this.botFilter.incrementBotCounter();
         ManyChecksUtils.IncreaseOrAdd( IPUtils.getAddress( this.userConnection ) );
         if ( state == CheckState.CAPTCHA_ON_POSITION_FAILED )
@@ -135,7 +132,13 @@ public class Connector extends MoveHandler
                 state = CheckState.ONLY_POSITION;
             } else
             {
-                failed( KickType.NOTPLAYER, "Too fast check passed" );
+                if ( state == CheckState.CAPTCHA_ON_POSITION_FAILED )
+                {
+                    changeStateToCaptcha();
+                } else
+                {
+                    failed( KickType.NOTPLAYER, "Too fast check passed" );
+                }
             }
             return;
         }
@@ -154,7 +157,7 @@ public class Connector extends MoveHandler
         channel.writeAndFlush( PacketUtils.getChachedPacket( PacketsPosition.CHECK_SUS ).get( version ), channel.voidPromise() );
         botFilter.saveUser( getName(), IPUtils.getAddress( userConnection ) );
         userConnection.setNeedLogin( false );
-        userConnection.getPendingConnection().finishLogin( userConnection );
+        userConnection.getPendingConnection().finishLogin( userConnection, true );
         markDisconnected = true;
     }
 
@@ -177,12 +180,7 @@ public class Connector extends MoveHandler
         {
             if ( state == CheckState.CAPTCHA_ON_POSITION_FAILED )
             {
-                state = CheckState.ONLY_CAPTCHA;
-                joinTime = System.currentTimeMillis() + 3500;
-                channel.write( PacketUtils.getChachedPacket( PacketsPosition.SETEXP_RESET ).get( version ), channel.voidPromise() );
-                PacketUtils.titles[1].writeTitle( channel, version );
-                resetPosition( true );
-                sendCaptcha();
+                changeStateToCaptcha();
             } else
             {
                 failed( KickType.NOTPLAYER, "Failed position check" );
@@ -297,6 +295,16 @@ public class Connector extends MoveHandler
         captchaAnswer = random.nextInt( 100, 999 );
         channel.write( PacketUtils.getChachedPacket( PacketsPosition.SETSLOT_MAP ).get( version ), channel.voidPromise() );
         channel.writeAndFlush( PacketUtils.captchas.get( version, captchaAnswer ), channel.voidPromise() );
+    }
+
+    private void changeStateToCaptcha()
+    {
+        state = CheckState.ONLY_CAPTCHA;
+        joinTime = System.currentTimeMillis() + 3500;
+        channel.write( PacketUtils.getChachedPacket( PacketsPosition.SETEXP_RESET ).get( version ), channel.voidPromise() );
+        PacketUtils.titles[1].writeTitle( channel, version );
+        resetPosition( true );
+        sendCaptcha();
     }
 
     public String getName()

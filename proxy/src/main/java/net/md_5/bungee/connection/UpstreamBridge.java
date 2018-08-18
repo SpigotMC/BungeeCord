@@ -2,11 +2,7 @@ package net.md_5.bungee.connection;
 
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
@@ -62,9 +58,9 @@ public class UpstreamBridge extends PacketHandler
     }
 
     //BotFilter start
-    private Set<PluginMessage> clearPluginMessages(Set<PluginMessage> delayedPluginMessages)
+    private List<PluginMessage> clearPluginMessages(List<PluginMessage> delayedPluginMessages)
     {
-        Set<PluginMessage> cleared = new HashSet<>();
+        List<PluginMessage> cleared = new ArrayList<>();
         for ( PluginMessage message : delayedPluginMessages )
         {
             try
