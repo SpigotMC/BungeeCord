@@ -29,7 +29,7 @@ public class CachedTitle
             String subtitle = titles.length == 2 ? titles[1] : null;
             if ( !title.isEmpty() )
             {
-                this.title = new ByteBuf[ PacketUtils.PROTOCOLS_NUM ];
+                this.title = new ByteBuf[ PacketUtils.PROTOCOLS_COUNT ];
                 Title titlePacket = new Title();
                 titlePacket.setAction( Title.Action.TITLE );
                 titlePacket.setText( ComponentSerializer.toString( TextComponent.fromLegacyText( ChatColor.translateAlternateColorCodes( '&', title ) ) ) );
@@ -37,7 +37,7 @@ public class CachedTitle
             }
             if ( subtitle != null && !subtitle.isEmpty() )
             {
-                this.subtitle = new ByteBuf[ PacketUtils.PROTOCOLS_NUM ];
+                this.subtitle = new ByteBuf[ PacketUtils.PROTOCOLS_COUNT ];
                 Title subTitlePacket = new Title();
                 subTitlePacket.setAction( Title.Action.SUBTITLE );
                 subTitlePacket.setText( ComponentSerializer.toString( TextComponent.fromLegacyText( ChatColor.translateAlternateColorCodes( '&', subtitle ) ) ) );
@@ -46,7 +46,7 @@ public class CachedTitle
 
             if ( this.title != null || this.subtitle != null )
             {
-                this.times = new ByteBuf[ PacketUtils.PROTOCOLS_NUM ];
+                this.times = new ByteBuf[ PacketUtils.PROTOCOLS_COUNT ];
                 Title times = new Title();
                 times.setFadeIn( in );
                 times.setStay( stay );

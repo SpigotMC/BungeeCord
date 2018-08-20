@@ -14,14 +14,13 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
-import net.md_5.bungee.protocol.Protocol.DirectionData;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.PluginMessage;
-import ru.leymooo.botfilter.packets.ChunkPacket;
+import ru.leymooo.botfilter.packets.EmptyChunkPacket;
 import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
 import ru.leymooo.botfilter.packets.TimeUpdate;
 import ru.leymooo.botfilter.config.Settings;
@@ -36,13 +35,13 @@ import ru.leymooo.botfilter.packets.SetSlot;
 public class PacketUtils
 {
 
-    public static int PROTOCOLS_NUM = 12;
+    public static int PROTOCOLS_COUNT = ProtocolConstants.SUPPORTED_VERSION_IDS.size();
 
     public static int CLIENTID = new Random().nextInt( Integer.MAX_VALUE - 100 ) + 50;
 
     private static final CachedPacket[] cachedPackets = new CachedPacket[ 16 ];
-    private static final HashMap<KickType, CachedPacket> kickMessagesGame = new HashMap<KickType, CachedPacket>();
-    private static final HashMap<KickType, CachedPacket> kickMessagesLogin = new HashMap<KickType, CachedPacket>();
+    private static final HashMap<KickType, CachedPacket> kickMessagesGame = new HashMap<KickType, CachedPacket>( 3 );
+    private static final HashMap<KickType, CachedPacket> kickMessagesLogin = new HashMap<KickType, CachedPacket>( 4 );
 
     public static final CachedCaptcha captchas = new CachedCaptcha();
 
@@ -97,7 +96,7 @@ public class PacketUtils
                 =
                 {
                     new Login( CLIENTID, (short) 2, 0, (short) 0, (short) 100, "flat", false ), //0
-                    new ChunkPacket( 0, 0, new byte[ 256 ], false ), //1
+                    new EmptyChunkPacket( 0, 0 ), //1
                     new TimeUpdate( 1, 23700 ), //2
                     new PlayerAbilities( (byte) 6, 0f, 0f ), //3
                     new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 38f, 9876, false ), //4
@@ -244,6 +243,8 @@ public class PacketUtils
                 return 10;
             case ProtocolConstants.MINECRAFT_1_13:
                 return 11;
+            case ProtocolConstants.MINECRAFT_1_13_1:
+                return 12;
             default:
                 throw new IllegalArgumentException( "Version is not supported" );
         }

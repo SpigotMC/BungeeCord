@@ -11,7 +11,7 @@ import net.md_5.bungee.protocol.Protocol;
 public class CachedPacket
 {
 
-    private ByteBuf[] byteBuf = new ByteBuf[ PacketUtils.PROTOCOLS_NUM ];
+    private ByteBuf[] byteBuf = new ByteBuf[ PacketUtils.PROTOCOLS_COUNT ];
 
     public CachedPacket(DefinedPacket packet, Protocol... protocols)
     {

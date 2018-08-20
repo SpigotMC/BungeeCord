@@ -176,6 +176,7 @@ public class Connector extends MoveHandler
             }
             return;
         }
+        // System.out.println( "lastY=" + lastY + "; y=" + y + "; diff=" + formatDouble( lastY - y ) + "; need=" + getSpeed( ticks ) +"; ticks=" + ticks );
         if ( formatDouble( lastY - y ) != getSpeed( ticks ) )
         {
             if ( state == CheckState.CAPTCHA_ON_POSITION_FAILED )
