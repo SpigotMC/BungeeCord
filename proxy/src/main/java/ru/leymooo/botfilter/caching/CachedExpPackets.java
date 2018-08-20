@@ -12,7 +12,7 @@ import ru.leymooo.botfilter.packets.SetExp;
 public class CachedExpPackets
 {
 
-    private ByteBuf[/*mc version*/][/*tick*/] byteBuf = new ByteBuf[ Connector.TOTAL_TICKS ][ PacketUtils.PROTOCOLS_COUNT ];
+    private ByteBuf[/*tick*/][/*mc version*/] byteBuf = new ByteBuf[ Connector.TOTAL_TICKS ][ PacketUtils.PROTOCOLS_COUNT ];
 
     public CachedExpPackets()
     {

@@ -19,7 +19,7 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 public class EmptyChunkPacket extends DefinedPacket
 {
 
-    private static byte[] mc1_8 = new byte[ 32 ], mc1_13 = new byte[ 512 ], mc1_13_1 = new byte[ 1024 ];
+    private static byte[] mc1_8 = new byte[ 256 ], mc1_13 = new byte[ 512 ], mc1_13_1 = new byte[ 1024 ];
 
     int x;
     int z;
