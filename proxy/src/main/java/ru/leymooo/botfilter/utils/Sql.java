@@ -175,7 +175,7 @@ public class Sql
             this.executor.execute( () ->
             {
                 final long timestamp = System.currentTimeMillis();
-                String sql = "SELECT `Name` FROM `Users` where `Name` = '" + name + "';";
+                String sql = "SELECT `Name` FROM `Users` where `Name` = '" + name + "' LIMIT 1;";
                 try ( Statement statament = connection.createStatement();
                         ResultSet set = statament.executeQuery( sql ) )
                 {
