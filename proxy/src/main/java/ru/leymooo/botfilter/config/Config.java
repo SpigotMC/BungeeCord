@@ -12,9 +12,10 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -84,7 +85,10 @@ public class Config
         Configuration yml;
         try
         {
-            yml = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( new InputStreamReader( new FileInputStream( file ), StandardCharsets.UTF_8 ) );
+            try ( InputStreamReader reader = new InputStreamReader( new FileInputStream( file ), StandardCharsets.UTF_8 ) )
+            {
+                yml = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( reader );
+            }
         } catch ( IOException ex )
         {
             BungeeCord.getInstance().getLogger().log( Level.WARNING, "[BotFilter] Не могу загрузить конфиг ", ex );
@@ -129,10 +133,20 @@ public class Config
             {
                 file.getParentFile().mkdirs();
             }
-            Path configFile = Paths.get( file.getPath() );
+            Path configFile = file.toPath();
+            Path tempCfg = new File( file.getParentFile(), "__tmpcfg" ).toPath();
             List<String> lines = new ArrayList<>();
             save( lines, getClass(), this, 0 );
-            Files.write( configFile, lines, StandardCharsets.UTF_8, StandardOpenOption.CREATE );
+
+            Files.write( tempCfg, lines, StandardCharsets.UTF_8, StandardOpenOption.CREATE );
+            try
+            {
+                Files.move( tempCfg, configFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE );
+            } catch ( AtomicMoveNotSupportedException e )
+            {
+                Files.move( tempCfg, configFile, StandardCopyOption.REPLACE_EXISTING );
+            }
+
         } catch ( IOException e )
         {
             BungeeCord.getInstance().getLogger().log( Level.WARNING, "Error:", e );
