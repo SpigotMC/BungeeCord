@@ -33,7 +33,7 @@ public class CachedCaptcha
     {
         return version == ProtocolConstants.MINECRAFT_1_8
                 ? byteBuf18[captcha - 100].retainedDuplicate()
-                : version == ProtocolConstants.MINECRAFT_1_13 
+                : version >= ProtocolConstants.MINECRAFT_1_13 
                 ? byteBuf113[captcha - 100].retainedDuplicate()
                 : byteBuf19[captcha - 100].retainedDuplicate();
     }

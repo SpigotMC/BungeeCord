@@ -55,9 +55,8 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
             {
                 in.skipBytes( in.readableBytes() );
             }
-            
-            //System.out.println( "ID: " + packetId + ( packet == null ? "null" : packet ) );
-            
+
+            //System.out.println( "ID: " + packetId + ( packet == null ? " (null)" : " ("+packet+")" ) );
             out.add( new PacketWrapper( packet, slice ) );
             slice = null;
         } finally
