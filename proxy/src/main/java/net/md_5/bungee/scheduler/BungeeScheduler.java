@@ -62,9 +62,12 @@ public class BungeeScheduler implements TaskScheduler
     public int cancel(Plugin plugin)
     {
         Set<ScheduledTask> toRemove = new HashSet<>();
-        for ( ScheduledTask task : tasksByPlugin.get( plugin ) )
+        synchronized ( lock )
         {
-            toRemove.add( task );
+            for ( ScheduledTask task : tasksByPlugin.get( plugin ) )
+            {
+                toRemove.add( task );
+            }
         }
         for ( ScheduledTask task : toRemove )
         {
