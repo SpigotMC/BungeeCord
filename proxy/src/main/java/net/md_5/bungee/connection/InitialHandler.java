@@ -293,7 +293,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         this.virtualHost = InetSocketAddress.createUnresolved( handshake.getHost(), handshake.getPort() );
-        bungee.getLogger().log( Level.INFO, "{0} has connected", this );
+        if ( bungee.getConfig().isLogPings() )
+        {
+            bungee.getLogger().log( Level.INFO, "{0} has connected", this );
+        }
 
         bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
 
@@ -306,6 +309,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 break;
             case 2:
                 // Login
+                if ( !bungee.getConfig().isLogPings() )
+                {
+                    bungee.getLogger().log( Level.INFO, "{0} has connected", this );
+                }
                 thisState = State.USERNAME;
                 ch.setProtocol( Protocol.LOGIN );
 
