@@ -6,7 +6,6 @@ import io.netty.buffer.ByteBufAllocator;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Level;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
