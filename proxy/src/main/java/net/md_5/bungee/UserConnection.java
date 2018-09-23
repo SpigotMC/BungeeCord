@@ -1,6 +1,5 @@
 package net.md_5.bungee;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import io.netty.bootstrap.Bootstrap;
@@ -17,6 +16,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -51,13 +51,11 @@ import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
-import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
-import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
@@ -235,7 +233,7 @@ public final class UserConnection implements ProxiedPlayer
         while ( !serverJoinQueue.isEmpty() )
         {
             ServerInfo candidate = ProxyServer.getInstance().getServerInfo( serverJoinQueue.remove() );
-            if ( !Objects.equal( currentTarget, candidate ) )
+            if ( !Objects.equals( currentTarget, candidate ) )
             {
                 next = candidate;
                 break;
@@ -294,7 +292,7 @@ public final class UserConnection implements ProxiedPlayer
 
         final BungeeServerInfo target = (BungeeServerInfo) event.getTarget(); // Update in case the event changed target
 
-        if ( getServer() != null && Objects.equal( getServer().getInfo(), target ) )
+        if ( getServer() != null && Objects.equals( getServer().getInfo(), target ) )
         {
             if ( callback != null )
             {

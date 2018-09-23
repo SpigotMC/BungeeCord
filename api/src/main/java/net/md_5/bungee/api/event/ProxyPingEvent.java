@@ -6,7 +6,6 @@ import lombok.ToString;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.connection.PendingConnection;
-import net.md_5.bungee.api.plugin.Event;
 
 /**
  * Called when the proxy is pinged with packet 0xFE from the server list.
