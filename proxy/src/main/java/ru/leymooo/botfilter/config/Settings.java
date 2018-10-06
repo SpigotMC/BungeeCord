@@ -198,6 +198,9 @@ public class Settings extends Config
     @Comment("Как долго активна автоматическая защита? В миллисекундах. 1 сек = 1000")
     public int PROTECTION_TIME = 120000;
 
+    @Comment("Проверять ли на бота при заходе на сервер во время бот атаки, не зависимо проходил ли проверку или нет")
+    public boolean FORCE_CHECK_ON_ATTACK = true;
+
     @Comment("Показывать ли онлайн с фильтра")
     public boolean SHOW_ONLINE = true;
 
@@ -205,12 +208,14 @@ public class Settings extends Config
     public int TIME_OUT = 12700;
 
     @Comment(
-    {
-        "Включить/Отключить ли совместимость со старыми плагинами, которые используют ScoreBoard на бандже?",
-        "Поставте false, если есть проблемы с новыми плагинами."
-    })
+            {
+                "Включить/Отключить ли совместимость со старыми плагинами, которые используют ScoreBoard на бандже?",
+                "Поставте false, если есть проблемы с новыми плагинами."
+            })
     public boolean FIX_SCOREBOARDS = true;
 
+    @Comment("Включить ли фикс от 'Team 'xxx' already exist in this scoreboard'")
+    public boolean FIX_SCOREBOARD_TEAMS = true;
     public void reload(File file)
     {
         load( file );

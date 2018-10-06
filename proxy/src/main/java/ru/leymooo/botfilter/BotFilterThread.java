@@ -32,6 +32,7 @@ public class BotFilterThread
                 try
                 {
                     long currTime = System.currentTimeMillis();
+                    BotFilter botFilter = bungee.getBotFilter();
                     for ( Map.Entry<String, Connector> entryset : bungee.getBotFilter().getConnectedUsersSet().entrySet() )
                     {
                         Connector connector = entryset.getValue();

@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 public class Scoreboard
 {
 
+    public static boolean DISABLE_DUBLICATE = false; // BotFilter
+
     /**
      * Unique name for this scoreboard.
      */
@@ -70,7 +72,11 @@ public class Scoreboard
     public void addTeam(Team team)
     {
         Preconditions.checkNotNull( team, "team" );
-        Preconditions.checkArgument( !teams.containsKey( team.getName() ), "Team %s already exists in this scoreboard", team.getName() );
+        //BotFilter start
+        if ( !DISABLE_DUBLICATE )
+        {
+            Preconditions.checkArgument( !teams.containsKey( team.getName() ), "Team %s already exists in this scoreboard", team.getName() );
+        } //BotFilter end
         teams.put( team.getName(), team );
     }
 

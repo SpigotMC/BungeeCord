@@ -13,7 +13,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
+import lombok.Setter;
 import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.protocol.DefinedPacket;
 import ru.leymooo.botfilter.caching.CachedCaptcha;
 import ru.leymooo.botfilter.utils.GeoIp;
@@ -49,12 +51,16 @@ public class BotFilter
     private final CheckState attackState;
 
     private int botCounter = 0;
-    private long lastAttack = 0, lastCheck = System.currentTimeMillis();
+    private long lastAttack = 0;
+    @Setter
+    @Getter
+    private long lastCheck = System.currentTimeMillis();
 
     public BotFilter(boolean startup)
     {
         Settings.IMP.reload( new File( "BotFilter", "config.yml" ) );
         DefinedPacket.fix_scoreboards = Settings.IMP.FIX_SCOREBOARDS;
+        Scoreboard.DISABLE_DUBLICATE = Settings.IMP.FIX_SCOREBOARD_TEAMS;
         checkForUpdates( startup );
         if ( !CachedCaptcha.generated )
         {
@@ -161,13 +167,16 @@ public class BotFilter
     {
         return connectedUsersSet.size();
     }
+
     /**
-     * 
-     * @return количество пользователей, которые прошли проверку 
+     *
+     * @return количество пользователей, которые прошли проверку
      */
-    public int getUsersCount() {
+    public int getUsersCount()
+    {
         return userCache.size();
     }
+
     /**
      * Проверяет нужно ли игроку проходить проверку
      *
@@ -178,7 +187,7 @@ public class BotFilter
     public boolean needCheck(String userName, InetAddress address)
     {
         String ip = userCache.get( userName.toLowerCase() );
-        return ( ip == null || !ip.equals( address.getHostAddress() ) );
+        return ip == null || ( Settings.IMP.FORCE_CHECK_ON_ATTACK && isUnderAttack() ) || !ip.equals( address.getHostAddress() );
     }
 
     /**
