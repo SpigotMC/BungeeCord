@@ -300,8 +300,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         this.virtualHost = InetSocketAddress.createUnresolved( handshake.getHost(), handshake.getPort() );
 
+        if ( bungee.getConfig().isLogPings() )
+        {
+            bungee.getLogger().log( Level.INFO, "{0} has connected", this );
+        }
+
         bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
-        //BotFilter Я тут гдето убрал строку которая выводит InitialHandler has connected
         switch ( handshake.getRequestedProtocol() )
         {
             case 1:
@@ -312,6 +316,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 break;
             case 2:
                 // Login
+                if ( !bungee.getConfig().isLogPings() )
+                {
+                    bungee.getLogger().log( Level.INFO, "{0} has connected", this );
+                }
                 thisState = State.USERNAME;
                 ch.setProtocol( Protocol.LOGIN );
 
@@ -713,7 +721,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public String getUUID()
     {
-        return uniqueId.toString().replaceAll( "-", "" );
+        return uniqueId.toString().replace( "-", "" );
     }
 
     @Override

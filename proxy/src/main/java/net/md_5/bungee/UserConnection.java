@@ -592,7 +592,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public Locale getLocale()
     {
-        return ( locale == null && settings != null ) ? locale = Locale.forLanguageTag( settings.getLocale().replaceAll( "_", "-" ) ) : locale;
+        return ( locale == null && settings != null ) ? locale = Locale.forLanguageTag( settings.getLocale().replace( '_', '-' ) ) : locale;
     }
 
     @Override
