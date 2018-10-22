@@ -49,6 +49,7 @@ public abstract class EntityMap
                 return EntityMap_1_12_1.INSTANCE;
             case ProtocolConstants.MINECRAFT_1_13:
             case ProtocolConstants.MINECRAFT_1_13_1:
+            case ProtocolConstants.MINECRAFT_1_13_2:
                 return EntityMap_1_13.INSTANCE;
         }
         throw new RuntimeException( "Version " + version + " has no entity map" );
@@ -241,8 +242,12 @@ public abstract class EntityMap
 
     private static void readSkipSlot(ByteBuf packet, int protocolVersion)
     {
-        if ( packet.readShort() != -1 )
+        if ( (protocolVersion >= ProtocolConstants.MINECRAFT_1_13_2) ? packet.readBoolean() : packet.readShort() != -1 )
         {
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13_2 )
+            {
+                DefinedPacket.readVarInt( packet );
+            }
             packet.skipBytes( ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? 1 : 3 ); // byte vs byte, short
 
             int position = packet.readerIndex();
