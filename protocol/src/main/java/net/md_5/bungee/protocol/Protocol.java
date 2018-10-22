@@ -313,7 +313,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x2F ),
                     map( ProtocolConstants.MINECRAFT_1_13, 0x32 )
             );
-            TO_CLIENT.registerPacket(EmptyChunkPacket.class, EmptyChunkPacket::new,
+            TO_CLIENT.registerPacket( EmptyChunkPacket.class, EmptyChunkPacket::new,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x21 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x20 ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x20 ),
@@ -511,7 +511,8 @@ public enum Protocol
                     ProtocolConstants.MINECRAFT_1_12_2
             ) );
             linkedProtocols.put( ProtocolConstants.MINECRAFT_1_13, Arrays.asList(
-                    ProtocolConstants.MINECRAFT_1_13_1
+                    ProtocolConstants.MINECRAFT_1_13_1,
+                    ProtocolConstants.MINECRAFT_1_13_2
             ) );
         }
 

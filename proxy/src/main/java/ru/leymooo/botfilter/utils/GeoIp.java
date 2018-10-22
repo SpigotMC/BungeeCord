@@ -1,5 +1,7 @@
 package ru.leymooo.botfilter.utils;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.ice.tar.TarEntry;
 import com.ice.tar.TarInputStream;
 import com.maxmind.db.CHMCache;
@@ -13,8 +15,6 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,15 +29,15 @@ import ru.leymooo.botfilter.config.Settings;
  */
 public class GeoIp
 {
+
     private static final Logger LOGGER = BungeeCord.getInstance().getLogger();
-    private static final String NA = "N/A";
 
     private final HashSet<String> countries = new HashSet<>();
     @Getter
-    private final Map<InetAddress, String> cached = new ConcurrentHashMap<>();
+    private final Cache<InetAddress, String> cached;
+
     @Getter
     private final boolean enabled = Settings.IMP.GEO_IP.MODE != 2;
-
 
     private DatabaseReader reader;
 
@@ -47,6 +47,13 @@ public class GeoIp
         {
             countries.addAll( Settings.IMP.GEO_IP.ALLOWED_COUNTRIES );
             setupDataBase( startup );
+            cached = CacheBuilder.newBuilder()
+                    .concurrencyLevel( Runtime.getRuntime().availableProcessors() )
+                    .expireAfterAccess( 5, TimeUnit.MINUTES ).initialCapacity( 200 ).build();
+
+        } else
+        {
+            cached = null;
         }
     }
 
@@ -56,8 +63,8 @@ public class GeoIp
         {
             return true;
         }
-        String country;
-        if ( !( country = cached.getOrDefault( address, NA ) ).equals( NA ) )
+        String country = cached.getIfPresent( address );
+        if ( country != null )
         {
             return countries.contains( country );
         }
@@ -171,7 +178,15 @@ public class GeoIp
             {
             }
         }
-        cached.clear();
+        cached.invalidateAll();
+    }
+
+    public void tryClenUP()
+    {
+        if ( cached != null )
+        {
+            cached.cleanUp();
+        }
     }
 
 }

@@ -19,8 +19,6 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 public class EmptyChunkPacket extends DefinedPacket
 {
 
-    private static byte[] mc1_8 = new byte[ 256 ], mc1_13 = new byte[ 512 ], mc1_13_1 = new byte[ 1024 ];
-
     int x;
     int z;
 
@@ -39,13 +37,13 @@ public class EmptyChunkPacket extends DefinedPacket
         }
         if ( version < ProtocolConstants.MINECRAFT_1_13 )
         {
-            writeArray( mc1_8, buf ); //1.8 - 1.12.2
+            writeArray( new byte[ 256 ], buf ); //1.8 - 1.12.2
         } else if ( version >= ProtocolConstants.MINECRAFT_1_13_1 )
         {
-            writeArray( mc1_13_1, buf ); //1.13.1 - 1.xx
+            writeArray( new byte[ 1024 ], buf ); //1.13.1 - 1.xx
         } else
         {
-            writeArray( mc1_13, buf ); //1.13
+            writeArray( new byte[ 512 ], buf ); //1.13
         }
         if ( version >= ProtocolConstants.MINECRAFT_1_9_4 )
         {

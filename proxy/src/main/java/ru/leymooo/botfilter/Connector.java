@@ -22,6 +22,7 @@ import ru.leymooo.botfilter.BotFilter.CheckState;
 import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.caching.PacketUtils.KickType;
 import ru.leymooo.botfilter.caching.PacketsPosition;
+import ru.leymooo.botfilter.packets.SetSlot;
 import ru.leymooo.botfilter.utils.IPUtils;
 import ru.leymooo.botfilter.utils.ManyChecksUtils;
 
@@ -86,6 +87,7 @@ public class Connector extends MoveHandler
         }
         sendPing();
         this.botFilter.addConnection( this );
+        //channel.writeAndFlush( PacketUtils.createPacket( new SetSlot( 0, 36, i, 1, 0 ), PacketUtils.getPacketId( new SetSlot(), version, Protocol.BotFilter ), version ), channel.voidPromise() );
         LOGGER.log( Level.INFO, "[{0}] <-> BotFilter has connected", name );
     }
 
@@ -143,11 +145,9 @@ public class Connector extends MoveHandler
             return;
         }
         int devide = lastSend == 0 ? sentPings : sentPings - 1;
-        KickType type = botFilter.checkIpAddress( IPUtils.getAddress( userConnection ),
-                (int) ( totalping / ( devide <= 0 ? 1 : devide ) ) );
-        if ( type != null )
+        if ( botFilter.checkBigPing( totalping / ( devide <= 0 ? 1 : devide ) ) )
         {
-            failed( type, type == KickType.COUNTRY ? "Country is not allowed" : "Big ping" );
+            failed( KickType.PING, "Big ping" );
             return;
         }
         state = CheckState.SUCCESSFULLY;

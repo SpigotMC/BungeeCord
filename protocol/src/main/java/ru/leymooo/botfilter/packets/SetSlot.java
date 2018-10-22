@@ -1,4 +1,4 @@
-    package ru.leymooo.botfilter.packets;
+package ru.leymooo.botfilter.packets;
 
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
@@ -27,7 +27,20 @@ public class SetSlot extends DefinedPacket
     {
         buf.writeByte( this.windowId );
         buf.writeShort( this.slot );
-        buf.writeShort( this.item == 358 && protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ? (protocolVersion == ProtocolConstants.MINECRAFT_1_13_1 ? 613 : 608) : this.item);
+        int id = this.item == 358 ? getCapthcaId( protocolVersion ) : this.item;
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13_2 )
+        {
+            buf.writeBoolean( item >= 1 );
+            if ( item <= 0 )
+            {
+                return;
+            }
+            writeVarInt( id, buf );
+        } else
+        {
+            buf.writeShort( id );
+        }
+
         if ( this.item >= 0 )
         {
             buf.writeByte( this.count );
@@ -41,6 +54,19 @@ public class SetSlot extends DefinedPacket
             }
 
         }
+    }
+
+    private int getCapthcaId(int version)
+    {
+        if ( version == ProtocolConstants.MINECRAFT_1_13 )
+        {
+            return 608;
+        }
+        if ( version >= ProtocolConstants.MINECRAFT_1_13_1 )
+        {
+            return 613;
+        }
+        return 358;
     }
 
     @Override

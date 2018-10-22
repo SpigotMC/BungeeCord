@@ -10,13 +10,18 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.score.Scoreboard;
+import net.md_5.bungee.connection.InitialHandler;
+import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.Protocol;
 import ru.leymooo.botfilter.caching.CachedCaptcha;
 import ru.leymooo.botfilter.utils.GeoIp;
 import ru.leymooo.botfilter.caching.PacketUtils;
@@ -39,6 +44,8 @@ public class BotFilter
     private final Map<String, Connector> connectedUsersSet = new ConcurrentHashMap<>();
     //UserName, Ip
     private final Map<String, String> userCache = new ConcurrentHashMap<>();
+
+    private final ExecutorService executor = Executors.newFixedThreadPool( Runtime.getRuntime().availableProcessors() * 2 );
 
     @Getter
     private final Sql sql;
@@ -91,6 +98,7 @@ public class BotFilter
         sql.close();
         ManyChecksUtils.clear();
         serverPingUtils.clear();
+        executor.shutdownNow();
     }
 
     /**
@@ -227,25 +235,68 @@ public class BotFilter
         return false;
     }
 
-    /**
-     * Проверяет можно ли подключиться с айпи аддресса
-     *
-     * @param address Айпи аддресс для проверки
-     * @param ping Пинг игрока, -1 если нету
-     * @return DisconnectReason
-     */
-    public KickType checkIpAddress(InetAddress address, int ping)
+    public boolean checkBigPing(double ping)
     {
         int mode = isUnderAttack() ? 1 : 0;
-        if ( geoIp.isEnabled() && ( Settings.IMP.GEO_IP.MODE == 0 || Settings.IMP.GEO_IP.MODE == mode ) && !geoIp.isAllowed( address ) )
+        return ping != -1 && Settings.IMP.PING_CHECK.MODE != 2 && ( Settings.IMP.PING_CHECK.MODE == 0 || Settings.IMP.PING_CHECK.MODE == mode ) && ping >= Settings.IMP.PING_CHECK.MAX_PING;
+    }
+
+    public boolean isGeoIpEnabled()
+    {
+        int mode = isUnderAttack() ? 1 : 0;
+        return geoIp.isEnabled() && ( Settings.IMP.GEO_IP.MODE == 0 || Settings.IMP.GEO_IP.MODE == mode );
+    }
+
+    public boolean checkGeoIp(InetAddress address)
+    {
+
+        return !geoIp.isAllowed( address );
+    }
+
+    public void checkAsyncIfNeeded(InitialHandler handler)
+    {
+        InetAddress address = handler.getAddress().getAddress();
+        ChannelWrapper ch = handler.getCh();
+        int version = handler.getVersion();
+        BungeeCord bungee = BungeeCord.getInstance();
+        if ( ManyChecksUtils.isManyChecks( address ) )
         {
-            return KickType.COUNTRY;
+            PacketUtils.kickPlayer( KickType.MANYCHECKS, Protocol.LOGIN, ch, version );
+            bungee.getLogger().log( Level.INFO, "(BF) [{0}] disconnected: Too many checks in 10 min", address );
+            return;
         }
-        if ( ping != -1 && Settings.IMP.PING_CHECK.MODE != 2 && ( Settings.IMP.PING_CHECK.MODE == 0 || Settings.IMP.PING_CHECK.MODE == mode ) && ping >= Settings.IMP.PING_CHECK.MAX_PING )
+
+        ServerPingUtils ping = getServerPingUtils();
+        if ( ping.needCheck() && ping.needKickOrRemove( address ) )
         {
-            return KickType.PING;
+            PacketUtils.kickPlayer( KickType.PING, Protocol.LOGIN, ch, version );
+            bungee.getLogger().log( Level.INFO, "(BF) [{0}] disconnected: The player did not ping the server", address.getHostAddress() );
+            return;
         }
-        return null;
+
+        if ( bungee.getConnectionThrottle() != null && bungee.getConnectionThrottle().throttle( address ) )
+        {
+            PacketUtils.kickPlayer( KickType.THROTTLE, Protocol.LOGIN, ch, version ); //BotFilter
+            bungee.getLogger().log( Level.INFO, "[{0}] disconnected: Connection is throttled", address.getHostAddress() );
+            return;
+        }
+        if ( isGeoIpEnabled() )
+        {
+            executor.execute( () ->
+            {
+                if ( checkGeoIp( address ) )
+                {
+                    PacketUtils.kickPlayer( KickType.COUNTRY, Protocol.LOGIN, ch, version );
+                    bungee.getLogger().log( Level.INFO, "(BF) [{0}] disconnected: Country is not allowed",
+                            address.getHostAddress() );
+                    return;
+                }
+                handler.delayedHandleOfLoginRequset();
+            } );
+        } else
+        {
+            handler.delayedHandleOfLoginRequset();
+        }
     }
 
     public CheckState getCurrentCheckState()

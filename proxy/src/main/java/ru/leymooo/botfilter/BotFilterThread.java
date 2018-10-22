@@ -127,6 +127,9 @@ public class BotFilterThread
                     {
                         botFilter.getSql().tryCleanUP();
                     }
+                    if (botFilter.getGeoIp() != null) {
+                        botFilter.getGeoIp().tryClenUP();
+                    }
                 }
             }
         }, "CleanUp thread" ).start();

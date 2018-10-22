@@ -76,6 +76,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 {
 
     private final BungeeCord bungee;
+    @Getter //BotFilter
     private ChannelWrapper ch;
     @Getter
     private final ListenerInfo listener;
@@ -334,37 +335,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     }
                     return;
                 }
-                //BotFilter start
-                if ( ManyChecksUtils.isManyChecks( getAddress().getAddress() ) )
-                {
-                    PacketUtils.kickPlayer( KickType.MANYCHECKS, Protocol.LOGIN, ch, getVersion() );
-                    bungee.getLogger().log( Level.INFO, "(BF) [{0}] disconnected: Too many checks in 10 min", getAddress().getAddress().getHostAddress() );
-                    return;
-                }
-
-                KickType kickType = bungee.getBotFilter().checkIpAddress( getAddress().getAddress(), -1 );
-                if ( kickType != null )
-                {
-                    PacketUtils.kickPlayer( KickType.COUNTRY, Protocol.LOGIN, ch, getVersion() );
-                    bungee.getLogger().log( Level.INFO, "(BF) [{0}] disconnected: Country is not allowed",
-                            getAddress().getAddress().getHostAddress() );
-                    return;
-                }
-
-                ServerPingUtils ping = bungee.getBotFilter().getServerPingUtils();
-                if ( ping.needCheck() && ping.needKickOrRemove( getAddress().getAddress() ) )
-                {
-                    PacketUtils.kickPlayer( KickType.PING, Protocol.LOGIN, ch, getVersion() );
-                    bungee.getLogger().log( Level.INFO, "(BF) [{0}] disconnected: The player did not ping the server", getAddress().getAddress().getHostAddress() );
-                    return;
-                }
-                //BotFilter end
-
-                if ( bungee.getConnectionThrottle() != null && bungee.getConnectionThrottle().throttle( getAddress().getAddress() ) )
-                {
-                    PacketUtils.kickPlayer( KickType.THROTTLE, Protocol.LOGIN, ch, getVersion() ); //BotFilter
-                    bungee.getLogger().log( Level.INFO, "[{0}] disconnected: Connection is throttled", getAddress().getAddress().getHostAddress() ); //BotFilter
-                }
                 break;
             default:
                 throw new IllegalArgumentException( "Cannot request protocol " + handshake.getRequestedProtocol() );
@@ -377,6 +347,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( thisState == State.USERNAME, "Not expecting USERNAME" );
         this.loginRequest = loginRequest;
 
+        bungee.getBotFilter().checkAsyncIfNeeded( this );
+        //BotFilter moved code to delayedHandleOfLoginRequset();
+    }
+
+    public void delayedHandleOfLoginRequset()
+    {
         if ( getName().contains( "." ) )
         {
             disconnect( bungee.getTranslation( "name_invalid" ) );
@@ -441,6 +417,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         // fire pre login event
         bungee.getPluginManager().callEvent( new PreLoginEvent( InitialHandler.this, callback ) );
+
     }
 
     @Override
@@ -544,7 +521,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         //a LoginSuccess packet before a LoginEvent will be fired.
         bungee.getPluginManager().callEvent( uuidEvent );
 
-        boolean sendLoginSuccess = (uniqueId = uuidEvent.getUniqueId()) != null;
+        boolean sendLoginSuccess = ( uniqueId = uuidEvent.getUniqueId() ) != null;
 
         if ( uniqueId == null )
         {
