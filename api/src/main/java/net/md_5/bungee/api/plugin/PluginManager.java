@@ -22,7 +22,6 @@ import java.util.Stack;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
-import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -42,7 +41,6 @@ import org.yaml.snakeyaml.introspector.PropertyUtils;
 public class PluginManager
 {
 
-    private static final Pattern argsSplit = Pattern.compile( " " );
     /*========================================================================*/
     private final ProxyServer proxy;
     /*========================================================================*/
@@ -126,7 +124,7 @@ public class PluginManager
      */
     public boolean dispatchCommand(CommandSender sender, String commandLine, List<String> tabResults)
     {
-        String[] split = argsSplit.split( commandLine, -1 );
+        String[] split = commandLine.split( " ", -1 );
         // Check for chat that only contains " "
         if ( split.length == 0 )
         {
