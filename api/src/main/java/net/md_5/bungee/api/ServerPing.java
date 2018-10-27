@@ -53,7 +53,7 @@ public class ServerPing
         private String name;
         private UUID uniqueId;
 
-        private static final UUID md5UUID = Util.getUUID( "af74a02d19cb445bb07f6866a861f783" );
+        private static final UUID md5UUID = UUID.fromString( "af74a02d-19cb-445b-b07f-6866a861f783" );
 
         public PlayerInfo(String name, String id)
         {
