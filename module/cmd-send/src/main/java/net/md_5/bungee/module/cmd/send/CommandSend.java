@@ -2,6 +2,7 @@ package net.md_5.bungee.module.cmd.send;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -97,10 +98,10 @@ public class CommandSend extends Command implements TabExecutor
         Set<String> matches = new HashSet<>();
         if ( args.length == 1 )
         {
-            String search = args[0].toLowerCase();
+            String search = args[0].toLowerCase( Locale.ROOT );
             for ( ProxiedPlayer player : ProxyServer.getInstance().getPlayers() )
             {
-                if ( player.getName().toLowerCase().startsWith( search ) )
+                if ( player.getName().toLowerCase( Locale.ROOT ).startsWith( search ) )
                 {
                     matches.add( player.getName() );
                 }
@@ -115,10 +116,10 @@ public class CommandSend extends Command implements TabExecutor
             }
         } else
         {
-            String search = args[1].toLowerCase();
+            String search = args[1].toLowerCase( Locale.ROOT );
             for ( String server : ProxyServer.getInstance().getServers().keySet() )
             {
-                if ( server.toLowerCase().startsWith( search ) )
+                if ( server.toLowerCase( Locale.ROOT ).startsWith( search ) )
                 {
                     matches.add( server );
                 }
