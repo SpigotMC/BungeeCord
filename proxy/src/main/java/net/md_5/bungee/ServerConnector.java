@@ -1,16 +1,13 @@
 package net.md_5.bungee;
 
+import com.google.common.base.Preconditions;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
-
-import com.google.common.base.Preconditions;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
-
-import java.util.logging.Level;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -333,11 +330,13 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(Kick kick) throws Exception
     {
-        ServerInfo def = user.updateAndGetNextServer(target);
-        ServerKickEvent event = new ServerKickEvent(user, target, ComponentSerializer.parse(kick.getMessage()), def, ServerKickEvent.State.CONNECTING);
-        if (event.getKickReason().toLowerCase().contains("outdated") && def != null)
+        ServerInfo def = user.updateAndGetNextServer( target );
+        ServerKickEvent event = new ServerKickEvent( user, target, ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTING );
+        if ( event.getKickReason().toLowerCase( Locale.ROOT ).contains( "outdated" ) && def != null )
+        {
             // Pre cancel the event if we are going to try another server
             event.setCancelled(true);
+        }
         bungee.getPluginManager().callEvent(event);
         if (event.isCancelled() && event.getCancelServer() != null)
         {
