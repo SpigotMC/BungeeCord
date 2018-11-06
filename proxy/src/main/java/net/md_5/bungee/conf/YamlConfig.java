@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
@@ -269,7 +270,7 @@ public class YamlConfig implements ConfigurationAdapter
             InetSocketAddress address = Util.getAddr( host );
             Map<String, String> forced = new CaseInsensitiveMap<>( get( "forced_hosts", forcedDef, val ) );
             String tabListName = get( "tab_list", "GLOBAL_PING", val );
-            DefaultTabList value = DefaultTabList.valueOf( tabListName.toUpperCase() );
+            DefaultTabList value = DefaultTabList.valueOf( tabListName.toUpperCase( Locale.ROOT ) );
             if ( value == null )
             {
                 value = DefaultTabList.GLOBAL_PING;
