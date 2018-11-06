@@ -181,7 +181,7 @@ public class UpstreamBridge extends PacketHandler
     {
         //BotFilter start
         long now = System.currentTimeMillis();
-        if ( lastTabCompletion > 0 && ( now - lastTabCompletion ) <= 500 )
+        if ( con.getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_12_2 && lastTabCompletion > 0 && ( now - lastTabCompletion ) <= 500 )
         {
             throw CancelSendSignal.INSTANCE;
         }
