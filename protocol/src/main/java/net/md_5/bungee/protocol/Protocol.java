@@ -545,6 +545,11 @@ public enum Protocol
             return ( constructor == null ) ? null : constructor.get();
         }
 
+        protected final <P extends DefinedPacket> void registerPacket(Class<? extends DefinedPacket> packetClass, ProtocolMapping... mappings)
+        {
+            registerPacket( packetClass, MetaFactoryUtils.createNoArgsConstructorUnchecked( packetClass ), mappings );
+        }
+
         protected final <P extends DefinedPacket> void registerPacket(Class<? extends DefinedPacket> packetClass, Supplier<P> packetSupplier, ProtocolMapping... mappings)
         {
 
@@ -553,7 +558,6 @@ public enum Protocol
                 ProtocolData data = protocols.get( mapping.protocolVersion );
                 data.packetMap.put( packetClass, mapping.packetID );
                 data.packetConstructors[mapping.packetID] = packetSupplier;
-
                 List<Integer> links = linkedProtocols.get( mapping.protocolVersion );
                 if ( links != null )
                 {
