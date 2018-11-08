@@ -1,10 +1,12 @@
 package net.md_5.bungee.config;
 
+import com.google.common.base.Charsets;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.LinkedHashMap;
@@ -51,7 +53,7 @@ public class YamlConfiguration extends ConfigurationProvider
     @Override
     public void save(Configuration config, File file) throws IOException
     {
-        try ( FileWriter writer = new FileWriter( file ) )
+        try ( Writer writer = new OutputStreamWriter( new FileOutputStream( file ), Charsets.UTF_8 ) )
         {
             save( config, writer );
         }
@@ -72,9 +74,9 @@ public class YamlConfiguration extends ConfigurationProvider
     @Override
     public Configuration load(File file, Configuration defaults) throws IOException
     {
-        try ( FileReader reader = new FileReader( file ) )
+        try ( FileInputStream is = new FileInputStream( file ) )
         {
-            return load( reader, defaults );
+            return load( is, defaults );
         }
     }
 
