@@ -13,10 +13,12 @@ import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
+import net.md_5.bungee.util.BufUtil;
 
 @RequiredArgsConstructor
 public class PingHandler extends PacketHandler
@@ -46,6 +48,15 @@ public class PingHandler extends PacketHandler
     public void exception(Throwable t) throws Exception
     {
         callback.done( null, t );
+    }
+
+    @Override
+    public void handle(PacketWrapper packet) throws Exception
+    {
+        if ( packet.packet == null )
+        {
+            throw new IllegalArgumentException( "Unexpected packet received during ping process!\n" + BufUtil.dump( packet.buf, 64 ) );
+        }
     }
 
     @Override

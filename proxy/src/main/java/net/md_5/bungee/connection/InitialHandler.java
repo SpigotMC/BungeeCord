@@ -4,7 +4,6 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import java.math.BigInteger;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
@@ -29,7 +28,6 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.connection.Connection.Unsafe;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
@@ -57,6 +55,7 @@ import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.LegacyHandshake;
 import net.md_5.bungee.protocol.packet.LegacyPing;
+import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PingPacket;
@@ -64,6 +63,7 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
+import net.md_5.bungee.util.BufUtil;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -127,6 +127,15 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void exception(Throwable t) throws Exception
     {
         disconnect( ChatColor.RED + Util.exception( t ) );
+    }
+
+    @Override
+    public void handle(PacketWrapper packet) throws Exception
+    {
+        if ( packet.packet == null )
+        {
+            throw new IllegalArgumentException( "Unexpected packet received during login process!\n" + BufUtil.dump( packet.buf, 64 ) );
+        }
     }
 
     @Override
@@ -282,7 +291,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         this.virtualHost = InetSocketAddress.createUnresolved( handshake.getHost(), handshake.getPort() );
-        bungee.getLogger().log( Level.INFO, "{0} has connected", this );
+        if ( bungee.getConfig().isLogPings() )
+        {
+            bungee.getLogger().log( Level.INFO, "{0} has connected", this );
+        }
 
         bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
 
@@ -295,6 +307,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 break;
             case 2:
                 // Login
+                if ( !bungee.getConfig().isLogPings() )
+                {
+                    bungee.getLogger().log( Level.INFO, "{0} has connected", this );
+                }
                 thisState = State.USERNAME;
                 ch.setProtocol( Protocol.LOGIN );
 
@@ -469,7 +485,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         }
 
-        offlineId = java.util.UUID.nameUUIDFromBytes( ( "OfflinePlayer:" + getName() ).getBytes( Charsets.UTF_8 ) );
+        offlineId = UUID.nameUUIDFromBytes( ( "OfflinePlayer:" + getName() ).getBytes( Charsets.UTF_8 ) );
         if ( uniqueId == null )
         {
             uniqueId = offlineId;
@@ -530,6 +546,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         // fire login event
         bungee.getPluginManager().callEvent( new LoginEvent( InitialHandler.this, complete ) );
+    }
+
+    @Override
+    public void handle(LoginPayloadResponse response) throws Exception
+    {
+        disconnect( "Unexpected custom LoginPayloadResponse" );
     }
 
     @Override
@@ -601,7 +623,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public String getUUID()
     {
-        return uniqueId.toString().replaceAll( "-", "" );
+        return uniqueId.toString().replace( "-", "" );
     }
 
     @Override

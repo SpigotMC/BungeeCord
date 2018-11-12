@@ -6,6 +6,7 @@ import java.util.UUID;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.ServerConnectRequest;
 import net.md_5.bungee.api.SkinConfiguration;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -124,6 +125,15 @@ public interface ProxiedPlayer extends Connection, CommandSender
     void connect(ServerInfo target, Callback<Boolean> callback, ServerConnectEvent.Reason reason);
 
     /**
+     * Connects / transfers this user to the specified connection, gracefully
+     * closing the current one. Depending on the implementation, this method
+     * might return before the user has been connected.
+     *
+     * @param request request to connect with
+     */
+    void connect(ServerConnectRequest request);
+
+    /**
      * Gets the server this player is connected to.
      *
      * @return the server this player is connected to
@@ -139,6 +149,10 @@ public interface ProxiedPlayer extends Connection, CommandSender
 
     /**
      * Send a plugin message to this player.
+     *
+     * In recent Minecraft versions channel names must contain a colon separator
+     * and consist of [a-z0-9/._-]. This will be enforced in a future version.
+     * The "BungeeCord" channel is an exception and may only take this form.
      *
      * @param channel the channel to send this data via
      * @param data the data to send

@@ -6,13 +6,13 @@
     <parent>
         <groupId>net.madgamble</groupId>
         <artifactId>bungeecord-parent</artifactId>
-        <version>1.12-SNAPSHOT</version>
+        <version>1.13-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>net.madgamble</groupId>
     <artifactId>bungeecord-proxy</artifactId>
-    <version>1.12-SNAPSHOT</version>
+    <version>1.13-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>BungeeCord-Proxy</name>
@@ -87,7 +87,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.46</version>
+            <version>5.1.47</version>
             <scope>runtime</scope>
         </dependency>
     </dependencies>

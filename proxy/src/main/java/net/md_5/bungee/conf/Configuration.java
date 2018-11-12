@@ -51,6 +51,7 @@ public class Configuration implements ProxyConfig
      * Whether we log proxy commands to the proxy log
      */
     private boolean logCommands;
+    private boolean logPings = true;
     private int playerLimit = -1;
     private Collection<String> disabledCommands;
     private int throttle = 4000;
@@ -82,6 +83,7 @@ public class Configuration implements ProxyConfig
         uuid = adapter.getString( "stats", uuid );
         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
         logCommands = adapter.getBoolean( "log_commands", logCommands );
+        logPings = adapter.getBoolean( "log_pings", logPings );
         playerLimit = adapter.getInt( "player_limit", playerLimit );
         throttle = adapter.getInt( "connection_throttle", throttle );
         ipForward = adapter.getBoolean( "ip_forward", ipForward );

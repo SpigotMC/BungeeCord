@@ -26,7 +26,7 @@ public class Team extends DefinedPacket
     private String suffix;
     private String nameTagVisibility;
     private String collisionRule;
-    private byte color;
+    private int color;
     private byte friendlyFire;
     private String[] players;
 
@@ -47,15 +47,23 @@ public class Team extends DefinedPacket
         if ( mode == 0 || mode == 2 )
         {
             displayName = readString( buf );
-            prefix = readString( buf );
-            suffix = readString( buf );
+            if ( protocolVersion < ProtocolConstants.MINECRAFT_1_13 )
+            {
+                prefix = readString( buf );
+                suffix = readString( buf );
+            }
             friendlyFire = buf.readByte();
             nameTagVisibility = readString( buf );
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
             {
                 collisionRule = readString( buf );
             }
-            color = buf.readByte();
+            color = ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? readVarInt( buf ) : buf.readByte();
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
+            {
+                prefix = readString( buf );
+                suffix = readString( buf );
+            }
         }
         if ( mode == 0 || mode == 3 || mode == 4 )
         {
@@ -76,15 +84,27 @@ public class Team extends DefinedPacket
         if ( mode == 0 || mode == 2 )
         {
             writeString( displayName, buf );
-            writeString( prefix, buf );
-            writeString( suffix, buf );
+            if ( protocolVersion < ProtocolConstants.MINECRAFT_1_13 )
+            {
+                writeString( prefix, buf );
+                writeString( suffix, buf );
+            }
             buf.writeByte( friendlyFire );
             writeString( nameTagVisibility, buf );
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
             {
                 writeString( collisionRule, buf );
             }
-            buf.writeByte( color );
+
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
+            {
+                writeVarInt( color, buf );
+                writeString( prefix, buf );
+                writeString( suffix, buf );
+            } else
+            {
+                buf.writeByte( color );
+            }
         }
         if ( mode == 0 || mode == 3 || mode == 4 )
         {

@@ -6,11 +6,10 @@ import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.ToString;
+import net.md_5.bungee.chat.TranslationRegistry;
 
 @Getter
 @Setter
@@ -19,7 +18,6 @@ import lombok.ToString;
 public class TranslatableComponent extends BaseComponent
 {
 
-    private final ResourceBundle locales = ResourceBundle.getBundle( "mojang-translations/en_US" );
     private final Pattern format = Pattern.compile( "%(?:(\\d+)\\$)?([A-Za-z%]|$)" );
 
     /**
@@ -71,12 +69,12 @@ public class TranslatableComponent extends BaseComponent
             List<BaseComponent> temp = new ArrayList<BaseComponent>();
             for ( Object w : with )
             {
-                if ( w instanceof String )
-                {
-                    temp.add( new TextComponent( (String) w ) );
-                } else
+                if ( w instanceof BaseComponent )
                 {
                     temp.add( (BaseComponent) w );
+                } else
+                {
+                    temp.add( new TextComponent( String.valueOf( w ) ) );
                 }
             }
             setWith( temp );
@@ -139,14 +137,7 @@ public class TranslatableComponent extends BaseComponent
     @Override
     protected void toPlainText(StringBuilder builder)
     {
-        String trans;
-        try
-        {
-            trans = locales.getString( translate );
-        } catch ( MissingResourceException ex )
-        {
-            trans = translate;
-        }
+        String trans = TranslationRegistry.INSTANCE.translate( translate );
 
         Matcher matcher = format.matcher( trans );
         int position = 0;
@@ -184,14 +175,7 @@ public class TranslatableComponent extends BaseComponent
     @Override
     protected void toLegacyText(StringBuilder builder)
     {
-        String trans;
-        try
-        {
-            trans = locales.getString( translate );
-        } catch ( MissingResourceException e )
-        {
-            trans = translate;
-        }
+        String trans = TranslationRegistry.INSTANCE.translate( translate );
 
         Matcher matcher = format.matcher( trans );
         int position = 0;

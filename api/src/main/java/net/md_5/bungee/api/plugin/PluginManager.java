@@ -16,13 +16,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
-import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -42,7 +42,6 @@ import org.yaml.snakeyaml.introspector.PropertyUtils;
 public class PluginManager
 {
 
-    private static final Pattern argsSplit = Pattern.compile( " " );
     /*========================================================================*/
     private final ProxyServer proxy;
     /*========================================================================*/
@@ -77,10 +76,10 @@ public class PluginManager
      */
     public void registerCommand(Plugin plugin, Command command)
     {
-        commandMap.put( command.getName().toLowerCase(), command );
+        commandMap.put( command.getName().toLowerCase( Locale.ROOT ), command );
         for ( String alias : command.getAliases() )
         {
-            commandMap.put( alias.toLowerCase(), command );
+            commandMap.put( alias.toLowerCase( Locale.ROOT ), command );
         }
         commandsByPlugin.put( plugin, command );
     }
@@ -126,14 +125,14 @@ public class PluginManager
      */
     public boolean dispatchCommand(CommandSender sender, String commandLine, List<String> tabResults)
     {
-        String[] split = argsSplit.split( commandLine, -1 );
+        String[] split = commandLine.split( " ", -1 );
         // Check for chat that only contains " "
-        if ( split.length == 0 )
+        if ( split.length == 0 || split[0].isEmpty() )
         {
             return false;
         }
 
-        String commandName = split[0].toLowerCase();
+        String commandName = split[0].toLowerCase( Locale.ROOT );
         if ( sender instanceof ProxiedPlayer && proxy.getDisabledCommands().contains( commandName ) )
         {
             return false;
@@ -147,7 +146,7 @@ public class PluginManager
         String permission = command.getPermission();
         if ( permission != null && !permission.isEmpty() && !sender.hasPermission( permission ) )
         {
-            if ( !( command instanceof TabExecutor ) || tabResults == null )
+            if ( tabResults == null )
             {
                 sender.sendMessage( proxy.getTranslation( "no_permission" ) );
             }
