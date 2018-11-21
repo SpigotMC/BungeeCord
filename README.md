@@ -11,9 +11,9 @@ BungeeCord is maintained by [SpigotMC](https://www.spigotmc.org/) and has its ow
 
 ### Security warning
 
-As your minecraft servers have to run without authentication (online-mode=false) for bungeecord to work, this poses a new security risk. Users may connect to your servers directly, under any username they wish to use. The kick "If you wish to use IP forwarding, please enable it in your BungeeCord config as well!" does not protect your spigot servers.
+As your minecraft servers have to run without authentication (online-mode=false) for BungeeCord to work, this poses a new security risk. Users may connect to your servers directly, under any username they wish to use. The kick "If you wish to use IP forwarding, please enable it in your BungeeCord config as well!" does not protect your spigot servers.
 
-To combat this, you need to restrict access to these servers for example with a firewall. See [firewall guide](https://www.spigotmc.org/wiki/firewall-guide/)
+To combat this, you need to restrict access to these servers for example with a firewall (please see [firewall guide](https://www.spigotmc.org/wiki/firewall-guide/)).
 
 Source
 ------
