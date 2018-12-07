@@ -42,7 +42,7 @@ public class CommandServer extends Command implements TabExecutor
             }
 
             TextComponent serverList = new TextComponent( ProxyServer.getInstance().getTranslation( "server_list" ) );
-            serverList.setColor( ChatColor.GOLD );
+            serverList.setColor( TextComponent.fromLegacyText() );
             boolean first = true;
             for ( ServerInfo server : servers.values() )
             {
