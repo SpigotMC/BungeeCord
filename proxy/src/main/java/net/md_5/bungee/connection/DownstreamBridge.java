@@ -431,7 +431,7 @@ public class DownstreamBridge extends PacketHandler
             if ( subChannel.equals( "ServerIP" ) )
             {
                 ServerInfo info = bungee.getServerInfo( in.readUTF() );
-                if ( info != null )
+                if ( info != null && !info.getAddress().isUnresolved() )
                 {
                     out.writeUTF( "ServerIP" );
                     out.writeUTF( info.getName() );
