@@ -176,6 +176,7 @@ public enum Protocol
                     EntityStatus.class,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x1A ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x1B ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x1B ),
                     map( ProtocolConstants.MINECRAFT_1_13, 0x1C )
             );
 
