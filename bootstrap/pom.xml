@@ -32,12 +32,6 @@
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>net.sf.jopt-simple</groupId>
-            <artifactId>jopt-simple</artifactId>
-            <version>4.9</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 
     <build>
