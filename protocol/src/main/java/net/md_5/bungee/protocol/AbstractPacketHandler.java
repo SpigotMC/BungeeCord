@@ -20,6 +20,7 @@ import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
+import net.md_5.bungee.protocol.packet.EntityStatus;
 import net.md_5.bungee.protocol.packet.LegacyHandshake;
 import net.md_5.bungee.protocol.packet.LegacyPing;
 import net.md_5.bungee.protocol.packet.LoginPayloadRequest;
@@ -156,6 +157,10 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(LoginPayloadResponse response) throws Exception
+    {
+    }
+
+    public void handle(EntityStatus status) throws Exception
     {
     }
 }

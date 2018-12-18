@@ -16,6 +16,7 @@ import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
+import net.md_5.bungee.protocol.packet.EntityStatus;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Kick;
@@ -170,6 +171,12 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12, 0x49 ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x4A ),
                     map( ProtocolConstants.MINECRAFT_1_13, 0x4E )
+            );
+            TO_CLIENT.registerPacket(
+                    EntityStatus.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x1A ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x1B ),
+                    map( ProtocolConstants.MINECRAFT_1_13, 0x1C )
             );
 
             TO_SERVER.registerPacket(
