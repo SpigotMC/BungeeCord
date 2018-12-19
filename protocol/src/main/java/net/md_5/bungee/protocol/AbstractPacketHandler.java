@@ -6,6 +6,7 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.ClientStatus;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.Chat;
+import net.md_5.bungee.protocol.packet.Commands;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
@@ -161,6 +162,10 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(EntityStatus status) throws Exception
+    {
+    }
+
+    public void handle(Commands commands) throws Exception
     {
     }
 }

@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
+import net.md_5.bungee.protocol.packet.Commands;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.EntityStatus;
@@ -179,6 +180,13 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12, 0x1B ),
                     map( ProtocolConstants.MINECRAFT_1_13, 0x1C )
             );
+            if ( Boolean.getBoolean( "net.md-5.bungee.protocol.register_commands" ) )
+            {
+                TO_CLIENT.registerPacket(
+                        Commands.class,
+                        map( ProtocolConstants.MINECRAFT_1_13, 0x11 )
+                );
+            }
 
             TO_SERVER.registerPacket(
                     KeepAlive.class,

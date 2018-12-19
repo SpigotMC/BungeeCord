@@ -11,6 +11,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -427,5 +428,15 @@ public class PluginManager
             eventBus.unregister( it.next() );
             it.remove();
         }
+    }
+
+    /**
+     * Get an unmodifiable collection of all registered commands.
+     *
+     * @return commands
+     */
+    public Collection<String> getCommands()
+    {
+        return Collections.unmodifiableCollection( commandMap.keySet() );
     }
 }
