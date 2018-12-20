@@ -12,6 +12,7 @@ import java.io.DataInput;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.ServerConnection;
@@ -26,6 +27,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
+import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.score.Objective;
 import net.md_5.bungee.api.score.Position;
 import net.md_5.bungee.api.score.Score;
@@ -540,11 +542,11 @@ public class DownstreamBridge extends PacketHandler
 
         if ( BungeeCord.getInstance().config.isInjectCommands() )
         {
-            for ( String command : bungee.getPluginManager().getCommands() )
+            for ( Map.Entry<String, Command> command : bungee.getPluginManager().getCommands() )
             {
-                if ( commands.getRoot().getChild( command ) == null )
+                if ( commands.getRoot().getChild( command.getKey() ) == null && command.getValue().hasPermission( con ) )
                 {
-                    LiteralCommandNode dummy = LiteralArgumentBuilder.literal( command )
+                    LiteralCommandNode dummy = LiteralArgumentBuilder.literal( command.getKey() )
                             .then( RequiredArgumentBuilder.argument( "args", StringArgumentType.greedyString() )
                                     .suggests( Commands.SuggestionRegistry.ASK_SERVER ) )
                             .build();

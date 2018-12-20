@@ -144,8 +144,7 @@ public class PluginManager
             return false;
         }
 
-        String permission = command.getPermission();
-        if ( permission != null && !permission.isEmpty() && !sender.hasPermission( permission ) )
+        if ( !command.hasPermission( sender ) )
         {
             if ( tabResults == null )
             {
@@ -435,8 +434,8 @@ public class PluginManager
      *
      * @return commands
      */
-    public Collection<String> getCommands()
+    public Collection<Map.Entry<String, Command>> getCommands()
     {
-        return Collections.unmodifiableCollection( commandMap.keySet() );
+        return Collections.unmodifiableCollection( commandMap.entrySet() );
     }
 }
