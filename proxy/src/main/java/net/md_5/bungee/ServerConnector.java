@@ -47,6 +47,7 @@ import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.util.BufUtil;
+import net.md_5.bungee.util.QuietException;
 
 @RequiredArgsConstructor
 public class ServerConnector extends PacketHandler
@@ -128,7 +129,7 @@ public class ServerConnector extends PacketHandler
     {
         if ( packet.packet == null )
         {
-            throw new IllegalArgumentException( "Unexpected packet received during server login process!\n" + BufUtil.dump( packet.buf, 64 ) );
+            throw new QuietException( "Unexpected packet received during server login process!\n" + BufUtil.dump( packet.buf, 16 ) );
         }
     }
 
@@ -292,7 +293,7 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(EncryptionRequest encryptionRequest) throws Exception
     {
-        throw new RuntimeException( "Server is online mode!" );
+        throw new QuietException( "Server is online mode!" );
     }
 
     @Override

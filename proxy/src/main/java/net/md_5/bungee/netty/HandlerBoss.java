@@ -16,6 +16,7 @@ import net.md_5.bungee.connection.PingHandler;
 import net.md_5.bungee.protocol.BadPacketException;
 import net.md_5.bungee.protocol.OverflowPacketException;
 import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.util.QuietException;
 
 /**
  * This class is a primitive wrapper for {@link PacketHandler} instances tied to
@@ -146,6 +147,12 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                     ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - {1}: {2}", new Object[]
                     {
                         handler, cause.getClass().getSimpleName(), cause.getMessage()
+                    } );
+                } else if ( cause instanceof QuietException )
+                {
+                    ProxyServer.getInstance().getLogger().log( Level.SEVERE, "{0} - encountered exception: {1}", new Object[]
+                    {
+                        handler, cause
                     } );
                 } else
                 {
