@@ -235,6 +235,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     {
                         Gson gson = BungeeCord.getInstance().gson;
                         unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
+                        if ( bungee.getConnectionThrottle() != null )
+                        {
+                            bungee.getConnectionThrottle().unthrottle( getAddress().getAddress() );
+                        }
                     }
                 };
 
@@ -325,11 +329,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                         disconnect( bungee.getTranslation( "outdated_client", bungee.getGameVersion() ) );
                     }
                     return;
-                }
-
-                if ( bungee.getConnectionThrottle() != null && bungee.getConnectionThrottle().throttle( getAddress().getAddress() ) )
-                {
-                    disconnect( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( bungee.getConfig().getThrottle() ) ) );
                 }
                 break;
             default:
