@@ -55,6 +55,7 @@ public class Configuration implements ProxyConfig
     private int playerLimit = -1;
     private Collection<String> disabledCommands;
     private int throttle = 4000;
+    private int throttleLimit = 3;
     private boolean ipForward;
     private Favicon favicon;
     private int compressionThreshold = 256;
@@ -89,6 +90,7 @@ public class Configuration implements ProxyConfig
         logPings = adapter.getBoolean( "log_pings", logPings );
         playerLimit = adapter.getInt( "player_limit", playerLimit );
         throttle = adapter.getInt( "connection_throttle", throttle );
+        throttleLimit = adapter.getInt( "connection_throttle_limit", throttleLimit );
         ipForward = adapter.getBoolean( "ip_forward", ipForward );
         compressionThreshold = adapter.getInt( "network_compression_threshold", compressionThreshold );
         customServerName = adapter.getString( "custom_server_name", "HexaCord" );
