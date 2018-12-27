@@ -38,6 +38,7 @@ import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
+import net.md_5.bungee.protocol.packet.EntityStatus;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Login;
@@ -49,6 +50,7 @@ import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.util.BufUtil;
+import net.md_5.bungee.util.QuietException;
 
 
 @RequiredArgsConstructor
@@ -149,7 +151,7 @@ public class ServerConnector extends PacketHandler
     {
         if ( packet.packet == null )
         {
-            throw new IllegalArgumentException( "Unexpected packet received during server login process!\n" + BufUtil.dump( packet.buf, 64 ) );
+            throw new QuietException( "Unexpected packet received during server login process!\n" + BufUtil.dump( packet.buf, 16 ) );
         }
     }
 
@@ -221,8 +223,6 @@ public class ServerConnector extends PacketHandler
         if (user.getServer() == null)
         {
             // Once again, first connection
-            user.setClientEntityId(login.getEntityId());
-            user.setServerEntityId(login.getEntityId());
             
             // Set tab list size, this sucks balls, TODO: what shall we do about packet mutability
             // Forge allows dimension ID's > 127
@@ -281,6 +281,9 @@ public class ServerConnector extends PacketHandler
                 user.unsafe().sendPacket(new net.md_5.bungee.protocol.packet.BossBar(bossbar, 1));
             user.getSentBossBars().clear();
 
+            // Update debug info from login packet
+            user.unsafe().sendPacket( new EntityStatus( user.getClientEntityId(), login.isReducedDebugInfo() ? EntityStatus.DEBUG_INFO_REDUCED : EntityStatus.DEBUG_INFO_NORMAL ) );
+
             user.setDimensionChange( true );
             if ( login.getDimension() == user.getDimension() )
             {
@@ -324,7 +327,7 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(EncryptionRequest encryptionRequest) throws Exception
     {
-        throw new RuntimeException("Server is online mode!");
+        throw new QuietException( "Server is online mode!" );
     }
     
     @Override

@@ -79,9 +79,8 @@ public final class ChatComponentTransformer
      * Transform a ScoreComponent by replacing the name and value with the
      * appropriate values.
      *
-     * @param component the component to transform
-     * @param scoreboard the scoreboard to retrieve scores from
      * @param player the player to use for the component's name
+     * @param component the component to transform
      */
     private void transformScoreComponent(ProxiedPlayer player, ScoreComponent component)
     {

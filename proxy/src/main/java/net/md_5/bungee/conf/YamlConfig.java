@@ -83,23 +83,23 @@ public class YamlConfig implements ConfigurationAdapter
             throw new RuntimeException( "Could not load configuration!", ex );
         }
 
-        Map<String, Object> permissions = get( "permissions", new HashMap<String, Object>() );
-        if ( permissions.isEmpty() )
+        Map<String, Object> permissions = get( "permissions", null );
+        if ( permissions == null )
         {
-            permissions.put( "default", Arrays.asList( new String[]
+            set( "permissions.default", Arrays.asList( new String[]
             {
                 "bungeecord.command.server", "bungeecord.command.list"
             } ) );
-            permissions.put( "admin", Arrays.asList( new String[]
+            set( "permissions.admin", Arrays.asList( new String[]
             {
                 "bungeecord.command.alert", "bungeecord.command.end", "bungeecord.command.ip", "bungeecord.command.reload"
             } ) );
         }
 
-        Map<String, Object> groups = get( "groups", new HashMap<String, Object>() );
-        if ( groups.isEmpty() )
+        Map<String, Object> groups = get( "groups", null );
+        if ( groups == null )
         {
-            groups.put( "md_5", Collections.singletonList( "admin" ) );
+            set( "groups.md_5", Collections.singletonList( "admin" ) );
         }
     }
 
@@ -134,6 +134,11 @@ public class YamlConfig implements ConfigurationAdapter
             }
             return get( second, def, sub );
         }
+    }
+
+    private void set(String path, Object val)
+    {
+        set( path, val, config );
     }
 
     @SuppressWarnings("unchecked")
