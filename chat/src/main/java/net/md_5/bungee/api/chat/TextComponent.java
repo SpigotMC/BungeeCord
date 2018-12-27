@@ -2,7 +2,6 @@ package net.md_5.bungee.api.chat;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;
 

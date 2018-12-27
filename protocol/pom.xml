@@ -18,7 +18,28 @@
     <name>BungeeCord-Protocol</name>
     <description>Minimal implementation of the Minecraft protocol for use in BungeeCord</description>
 
+    <!-- We really shouldn't depend on external repositories, but at least this is the Central staging one -->
+    <repositories>
+        <repository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <dependencies>
+        <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>brigadier</artifactId>
+            <version>1.0.16-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>net.md-5</groupId>
             <artifactId>bungeecord-chat</artifactId>
@@ -33,8 +54,8 @@
         </dependency>
         <dependency>
             <groupId>net.sf.trove4j</groupId>
-            <artifactId>trove4j</artifactId>
-            <version>3.0.3</version>
+            <artifactId>core</artifactId>
+            <version>3.1.0</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

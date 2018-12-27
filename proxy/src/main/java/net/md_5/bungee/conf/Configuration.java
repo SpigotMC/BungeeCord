@@ -62,6 +62,7 @@ public class Configuration implements ProxyConfig
     private boolean alwaysHandlePackets = false;
     private boolean preventProxyConnections;
     private boolean forgeSupport;
+    private boolean injectCommands;
 
     public void load()
     {
@@ -94,6 +95,11 @@ public class Configuration implements ProxyConfig
         alwaysHandlePackets = adapter.getBoolean( "always_handle_packets", false );
         preventProxyConnections = adapter.getBoolean( "prevent_proxy_connections", preventProxyConnections );
         forgeSupport = adapter.getBoolean( "forge_support", forgeSupport );
+        injectCommands = adapter.getBoolean( "inject_commands", injectCommands );
+        if ( injectCommands )
+        {
+            System.setProperty( "net.md-5.bungee.protocol.register_commands", "true" );
+        }
 
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
 

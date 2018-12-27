@@ -1,8 +1,12 @@
 package net.md_5.bungee.connection;
 
 import com.google.common.base.Preconditions;
+import com.mojang.brigadier.context.StringRange;
+import com.mojang.brigadier.suggestion.Suggestion;
+import com.mojang.brigadier.suggestion.Suggestions;
 import io.netty.channel.Channel;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
@@ -175,6 +179,19 @@ public class UpstreamBridge extends PacketHandler
             if ( con.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_13 )
             {
                 con.unsafe().sendPacket( new TabCompleteResponse( results ) );
+            } else if ( BungeeCord.getInstance().config.isInjectCommands() )
+            {
+                int start = tabComplete.getCursor().lastIndexOf( ' ' ) + 1;
+                int end = tabComplete.getCursor().length();
+                StringRange range = StringRange.between( start, end );
+
+                List<Suggestion> brigadier = new LinkedList<>();
+                for ( String s : results )
+                {
+                    brigadier.add( new Suggestion( range, s ) );
+                }
+
+                con.unsafe().sendPacket( new TabCompleteResponse( tabComplete.getTransactionId(), new Suggestions( range, brigadier ) ) );
             }
             throw CancelSendSignal.INSTANCE;
         }

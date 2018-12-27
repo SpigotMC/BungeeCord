@@ -38,7 +38,7 @@ public class BungeeCordLauncher
 
         if ( options.has("version") )
         {
-            System.out.println(Bootstrap.class.getPackage().getImplementationVersion());
+            System.out.println( BungeeCord.class.getPackage().getImplementationVersion() );
             return;
         }
 
