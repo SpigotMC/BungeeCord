@@ -19,6 +19,7 @@ import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BufUtil;
+import net.md_5.bungee.util.QuietException;
 
 @RequiredArgsConstructor
 public class PingHandler extends PacketHandler
@@ -55,7 +56,7 @@ public class PingHandler extends PacketHandler
     {
         if ( packet.packet == null )
         {
-            throw new IllegalArgumentException( "Unexpected packet received during ping process!\n" + BufUtil.dump( packet.buf, 64 ) );
+            throw new QuietException( "Unexpected packet received during ping process! " + BufUtil.dump( packet.buf, 16 ) );
         }
     }
 

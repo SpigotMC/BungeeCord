@@ -58,11 +58,13 @@ public class Configuration implements ProxyConfig
     private int playerLimit = -1;
     private Collection<String> disabledCommands;
     private int throttle = 4000;
+    private int throttleLimit = 3;
     private boolean ipForward;
     private Favicon favicon;
     private int compressionThreshold = 256;
     private boolean preventProxyConnections;
     private boolean forgeSupport;
+    private boolean injectCommands;
 
     public void load()
     {
@@ -89,10 +91,16 @@ public class Configuration implements ProxyConfig
         logPings = adapter.getBoolean( "log_pings", logPings );
         playerLimit = adapter.getInt( "player_limit", playerLimit );
         throttle = adapter.getInt( "connection_throttle", throttle );
+        throttleLimit = adapter.getInt( "connection_throttle_limit", throttleLimit );
         ipForward = adapter.getBoolean( "ip_forward", ipForward );
         compressionThreshold = adapter.getInt( "network_compression_threshold", compressionThreshold );
         preventProxyConnections = adapter.getBoolean( "prevent_proxy_connections", preventProxyConnections );
         forgeSupport = adapter.getBoolean( "forge_support", forgeSupport );
+        injectCommands = adapter.getBoolean( "inject_commands", injectCommands );
+        if ( injectCommands )
+        {
+            System.setProperty( "net.md-5.bungee.protocol.register_commands", "true" );
+        }
 
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
         disabledCommands.remove( "bungee" ); //BotFilter

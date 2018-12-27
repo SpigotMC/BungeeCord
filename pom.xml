@@ -136,10 +136,11 @@
                 <version>3.0.2</version>
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
-                    <nonFilteredFileExtensions>
-                        <nonFilteredFileExtension>schematic</nonFilteredFileExtension>
-                        <nonFilteredFileExtension>gz</nonFilteredFileExtension>
-                    </nonFilteredFileExtensions>
+                    <signature>
+                        <groupId>org.codehaus.mojo.signature</groupId>
+                        <artifactId>java18</artifactId>
+                        <version>1.0</version>
+                    </signature>
                 </configuration>
             </plugin>
         </plugins>

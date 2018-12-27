@@ -3,11 +3,18 @@ package net.md_5.bungee.connection;
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import java.io.DataInput;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.ServerDisconnectEvent;
@@ -20,6 +27,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
+import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.score.Objective;
 import net.md_5.bungee.api.score.Position;
 import net.md_5.bungee.api.score.Score;
@@ -32,6 +40,7 @@ import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.BossBar;
+import net.md_5.bungee.protocol.packet.Commands;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.Respawn;
@@ -541,6 +550,35 @@ public class DownstreamBridge extends PacketHandler
     public void handle(Respawn respawn)
     {
         con.setDimension( respawn.getDimension() );
+    }
+
+    @Override
+    public void handle(Commands commands) throws Exception
+    {
+        boolean modified = false;
+
+        if ( BungeeCord.getInstance().config.isInjectCommands() )
+        {
+            for ( Map.Entry<String, Command> command : bungee.getPluginManager().getCommands() )
+            {
+                if ( commands.getRoot().getChild( command.getKey() ) == null && command.getValue().hasPermission( con ) )
+                {
+                    LiteralCommandNode dummy = LiteralArgumentBuilder.literal( command.getKey() )
+                            .then( RequiredArgumentBuilder.argument( "args", StringArgumentType.greedyString() )
+                                    .suggests( Commands.SuggestionRegistry.ASK_SERVER ) )
+                            .build();
+                    commands.getRoot().addChild( dummy );
+
+                    modified = true;
+                }
+            }
+        }
+
+        if ( modified )
+        {
+            con.unsafe().sendPacket( commands );
+            throw CancelSendSignal.INSTANCE;
+        }
     }
 
     @Override

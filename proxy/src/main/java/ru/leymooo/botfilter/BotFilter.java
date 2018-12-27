@@ -274,12 +274,13 @@ public class BotFilter
             return;
         }
 
-        if ( bungee.getConnectionThrottle() != null && bungee.getConnectionThrottle().throttle( address ) )
+        /*if ( bungee.getConnectionThrottle() != null && bungee.getConnectionThrottle().throttle( address ) )
         {
             PacketUtils.kickPlayer( KickType.THROTTLE, Protocol.LOGIN, ch, version ); //BotFilter
             bungee.getLogger().log( Level.INFO, "[{0}] disconnected: Connection is throttled", address.getHostAddress() );
             return;
         }
+		*/
         if ( isGeoIpEnabled() )
         {
             executor.execute( () ->
