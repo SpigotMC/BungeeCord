@@ -10,21 +10,17 @@ This version reimplements Minecraft 1.7.10 and basic 1.7.10 Forge support.
 
 Since release 134+, SpongePls is no longer needed when using Sponge-servers within your network!
 
-<<<<<<< HEAD
 IMPORTANT: We WON'T fix any 1.7 bugs. 
 This fork is designed for keeping your old servers in your network, until your modspacks are available for 1.10.2/1.11.2 or higher.
 Most of them are, so get rid of 1.7 fast and move to 1.10.2/1.11.2 modpacks asap.
-=======
+
+
 ### Security warning
 
 As your Minecraft servers have to run without authentication (online-mode=false) for BungeeCord to work, this poses a new security risk. Users may connect to your servers directly, under any username they wish to use. The kick "If you wish to use IP forwarding, please enable it in your BungeeCord config as well!" does not protect your Spigot servers.
 
 To combat this, you need to restrict access to these servers for example with a firewall (please see [firewall guide](https://www.spigotmc.org/wiki/firewall-guide/)).
 
-Source
-------
-Source code is currently available on [GitHub](https://www.spigotmc.org/go/bungeecord-git).
->>>>>>> 7dd09289ee7aed473caaf228e461f8927c51f1a5
 
 This version is maintained by https://hexagonmc.eu
 
