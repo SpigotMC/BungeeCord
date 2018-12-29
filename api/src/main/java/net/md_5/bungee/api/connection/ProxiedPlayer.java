@@ -107,7 +107,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param target the new server to connect to
      * @param callback the method called when the connection is complete, or
      * when an exception is encountered. The boolean parameter denotes success
-     * or failure.
+     * (true) or failure (false).
      */
     void connect(ServerInfo target, Callback<Boolean> callback);
 
@@ -119,7 +119,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param target the new server to connect to
      * @param callback the method called when the connection is complete, or
      * when an exception is encountered. The boolean parameter denotes success
-     * or failure.
+     * (true) or failure (false).
      * @param reason the reason for connecting to the new server
      */
     void connect(ServerInfo target, Callback<Boolean> callback, ServerConnectEvent.Reason reason);
