@@ -280,7 +280,7 @@ public class BotFilter
             bungee.getLogger().log( Level.INFO, "[{0}] disconnected: Connection is throttled", address.getHostAddress() );
             return;
         }
-		*/
+         */
         if ( isGeoIpEnabled() )
         {
             executor.execute( () ->
