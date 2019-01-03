@@ -38,9 +38,21 @@ public class ServerConnectRequestTest
         }
 
         @Override
-        public boolean canAccess(CommandSender sender)
+        public boolean isRestricted()
         {
             return false;
+        }
+
+        @Override
+        public String getPermission()
+        {
+            return null;
+        }
+
+        @Override
+        public boolean canAccess(CommandSender sender)
+        {
+            return true;
         }
 
         @Override
