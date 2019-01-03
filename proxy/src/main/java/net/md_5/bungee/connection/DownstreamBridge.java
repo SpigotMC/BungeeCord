@@ -544,7 +544,7 @@ public class DownstreamBridge extends PacketHandler
         {
             for ( Map.Entry<String, Command> command : bungee.getPluginManager().getCommands() )
             {
-                if ( commands.getRoot().getChild( command.getKey() ) == null && command.getValue().hasPermission( con ) )
+                if ( !bungee.getDisabledCommands().contains( command.getKey() ) && commands.getRoot().getChild( command.getKey() ) == null && command.getValue().hasPermission( con ) )
                 {
                     LiteralCommandNode dummy = LiteralArgumentBuilder.literal( command.getKey() )
                             .then( RequiredArgumentBuilder.argument( "args", StringArgumentType.greedyString() )
