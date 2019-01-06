@@ -1,8 +1,7 @@
 package net.md_5.bungee.api.event;
 
 import com.google.common.base.Preconditions;
-import java.util.Collections;
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,7 +24,7 @@ public class AsyncEvent<T> extends Event
 {
 
     private final Callback<T> done;
-    private final Set<Plugin> intents = Collections.newSetFromMap( new ConcurrentHashMap<Plugin, Boolean>() );
+    private final Map<Plugin, AtomicInteger> intents = new ConcurrentHashMap<Plugin, AtomicInteger>();
     private final AtomicBoolean fired = new AtomicBoolean();
     private final AtomicInteger latch = new AtomicInteger();
 
@@ -43,39 +42,49 @@ public class AsyncEvent<T> extends Event
     /**
      * Register an intent that this plugin will continue to perform work on a
      * background task, and wishes to let the event proceed once the registered
-     * background task has completed.
+     * background task has completed. Multiple intents can be registered by a
+     * plugin, but the plugin must complete the same amount of intents for the
+     * event to proceed.
      *
      * @param plugin the plugin registering this intent
      */
     public void registerIntent(Plugin plugin)
     {
         Preconditions.checkState( !fired.get(), "Event %s has already been fired", this );
-        Preconditions.checkState( !intents.contains( plugin ), "Plugin %s already registered intent for event %s", plugin, this );
 
-        intents.add( plugin );
-        latch.incrementAndGet();
+        if ( !intents.containsKey( plugin ) )
+        {
+            intents.put( plugin, new AtomicInteger( 1 ) );
+            latch.incrementAndGet();
+        } else if ( intents.get( plugin ).getAndIncrement() == 0 )
+        {
+            latch.incrementAndGet();
+        }
     }
 
     /**
-     * Notifies this event that this plugin has done all its required processing
-     * and wishes to let the event proceed.
+     * Notifies this event that this plugin has completed an intent and wishes
+     * to let the event proceed once all intents have been completed.
      *
      * @param plugin a plugin which has an intent registered for this event
      */
     @SuppressWarnings("unchecked")
     public void completeIntent(Plugin plugin)
     {
-        Preconditions.checkState( intents.contains( plugin ), "Plugin %s has not registered intent for event %s", plugin, this );
-        intents.remove( plugin );
-        if ( fired.get() )
+        Preconditions.checkState( intents.containsKey( plugin ) && intents.get( plugin ).get() != 0, "Plugin %s has not registered intents for event %s", plugin, this );
+
+        if ( intents.get( plugin ).decrementAndGet() == 0 )
         {
-            if ( latch.decrementAndGet() == 0 )
+            if ( fired.get() )
             {
-                done.done( (T) this, null );
+                if ( latch.decrementAndGet() == 0 )
+                {
+                    done.done( (T) this, null );
+                }
+            } else
+            {
+                latch.decrementAndGet();
             }
-        } else
-        {
-            latch.decrementAndGet();
         }
     }
 }
