@@ -5,8 +5,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.plugin.Event;
@@ -18,13 +20,14 @@ import net.md_5.bungee.api.plugin.Plugin;
  * @param <T> Type of this event
  */
 @Data
+@Getter(AccessLevel.NONE)
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class AsyncEvent<T> extends Event
 {
 
     private final Callback<T> done;
-    private final Map<Plugin, AtomicInteger> intents = new ConcurrentHashMap<Plugin, AtomicInteger>();
+    private final Map<Plugin, AtomicInteger> intents = new ConcurrentHashMap<>();
     private final AtomicBoolean fired = new AtomicBoolean();
     private final AtomicInteger latch = new AtomicInteger();
 
