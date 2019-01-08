@@ -57,7 +57,7 @@ public class ChatEvent extends TargetedEvent implements Cancellable
             return false;
         }
 
-        String[] split = message.split( " ", -1 );
+        String[] split = message.substring( 1 ).split( " ", -1 );
         // Check for chat that only contains " "
         if ( split.length == 0 || split[0].isEmpty() )
         {
