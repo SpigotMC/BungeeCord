@@ -66,7 +66,7 @@ public class ChatEvent extends TargetedEvent implements Cancellable
 
         ProxyServer proxy = ProxyServer.getInstance();
         String commandName = split[0].toLowerCase( Locale.ROOT );
-        if ( ProxyServer.getInstance().getDisabledCommands().contains( commandName ) )
+        if ( proxy.getDisabledCommands().contains( commandName ) )
         {
             return false;
         }
