@@ -116,6 +116,24 @@ public class PluginManager
         return dispatchCommand( sender, commandLine, null );
     }
 
+
+    /**
+     * Checks if the command is registered and can be executed.
+     *
+     * @param commandName the name of the command
+     * @param checkDisabled if it should consider disabled command
+     * @return whether the command will be handled
+     */
+    public boolean isRunnableCommand(String commandName, boolean checkDisabled)
+    {
+        if (checkDisabled && proxy.getDisabledCommands().contains( commandName ) )
+        {
+            return false;
+        }
+
+        return commandMap.containsKey(commandName);
+    }
+
     /**
      * Execute a command if it is registered, else return false.
      *
@@ -134,15 +152,13 @@ public class PluginManager
         }
 
         String commandName = split[0].toLowerCase( Locale.ROOT );
-        if ( sender instanceof ProxiedPlayer && proxy.getDisabledCommands().contains( commandName ) )
-        {
+        // Check if command is disabled when a player sent the command
+        boolean checkDisabled = sender instanceof ProxiedPlayer;
+        if ( !isRunnableCommand( commandName, checkDisabled ) ) {
             return false;
         }
+
         Command command = commandMap.get( commandName );
-        if ( command == null )
-        {
-            return false;
-        }
 
         if ( !command.hasPermission( sender ) )
         {
