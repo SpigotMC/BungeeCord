@@ -223,6 +223,8 @@ public class ServerConnector extends PacketHandler
         if (user.getServer() == null)
         {
             // Once again, first connection
+            user.setClientEntityId( login.getEntityId() );
+            user.setServerEntityId( login.getEntityId() );
             
             // Set tab list size, this sucks balls, TODO: what shall we do about packet mutability
             // Forge allows dimension ID's > 127
