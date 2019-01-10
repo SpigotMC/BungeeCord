@@ -49,7 +49,7 @@ public class ChatEvent extends TargetedEvent implements Cancellable
      */
     public boolean isProxyCommand()
     {
-        String commandName = message.split(" ",2)[0].substring( 1 );
+        String commandName = message.substring( 1, message.indexOf( " " ) );
         boolean checkDisabled = getSender() instanceof ProxiedPlayer;
         return ProxyServer.getInstance().getPluginManager().isRunnableCommand( commandName, checkDisabled );
     }
