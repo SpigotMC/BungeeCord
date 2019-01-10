@@ -111,27 +111,31 @@ public class PluginManager
         }
     }
 
-    public boolean dispatchCommand(CommandSender sender, String commandLine)
+    private Command getCommandIfEnabled(String commandName, boolean byProxiedPlayer)
     {
-        return dispatchCommand( sender, commandLine, null );
-    }
+        if (byProxiedPlayer && proxy.getDisabledCommands().contains( commandName ) )
+        {
+            return null;
+        }
 
+        return commandMap.get(commandName);
+    }
 
     /**
      * Checks if the command is registered and can be executed.
      *
      * @param commandName the name of the command
-     * @param checkDisabled if it should consider disabled command
+     * @param byProxiedPlayer if it should consider disabled command
      * @return whether the command will be handled
      */
-    public boolean isRunnableCommand(String commandName, boolean checkDisabled)
+    public boolean isRunnableCommand(String commandName, boolean byProxiedPlayer)
     {
-        if (checkDisabled && proxy.getDisabledCommands().contains( commandName ) )
-        {
-            return false;
-        }
+        return getCommandIfEnabled( commandName, byProxiedPlayer ) != null;
+    }
 
-        return commandMap.containsKey(commandName);
+    public boolean dispatchCommand(CommandSender sender, String commandLine)
+    {
+        return dispatchCommand( sender, commandLine, null );
     }
 
     /**
@@ -153,12 +157,11 @@ public class PluginManager
 
         String commandName = split[0].toLowerCase( Locale.ROOT );
         // Check if command is disabled when a player sent the command
-        boolean checkDisabled = sender instanceof ProxiedPlayer;
-        if ( !isRunnableCommand( commandName, checkDisabled ) ) {
+        boolean byProxiedPlayer = sender instanceof ProxiedPlayer;
+        Command command = getCommandIfEnabled( commandName, byProxiedPlayer );
+        if ( command == null ) {
             return false;
         }
-
-        Command command = commandMap.get( commandName );
 
         if ( !command.hasPermission( sender ) )
         {
