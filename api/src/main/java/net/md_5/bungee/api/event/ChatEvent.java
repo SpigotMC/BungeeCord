@@ -49,6 +49,11 @@ public class ChatEvent extends TargetedEvent implements Cancellable
      */
     public boolean isProxyCommand()
     {
+        if ( !isCommand() )
+        {
+            return false;
+        }
+        
         int index = message.indexOf( " " );
         String commandName;
         if ( index == -1 )
