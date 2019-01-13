@@ -275,7 +275,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
         this.handshake = handshake;
-        ch.setVersion( handshake.getProtocolVersion() );
 
         // Starting with FML 1.8, a "\0FML\0" token is appended to the handshake. This interferes
         // with Bungee's IP forwarding, so we detect it, and remove it from the host string, for now.
@@ -302,6 +301,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
+        ch.setVersion( handshake.getProtocolVersion() );
 
         switch ( handshake.getRequestedProtocol() )
         {
