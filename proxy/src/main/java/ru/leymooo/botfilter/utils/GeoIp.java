@@ -39,6 +39,8 @@ public class GeoIp
     @Getter
     private final boolean enabled = Settings.IMP.GEO_IP.MODE != 2;
 
+    private final boolean whiteList = Settings.IMP.GEO_IP.TYPE == 0;
+
     private DatabaseReader reader;
 
     public GeoIp(boolean startup)
@@ -66,7 +68,7 @@ public class GeoIp
         String country = cached.getIfPresent( address );
         if ( country != null )
         {
-            return countries.contains( country );
+            return whiteList ? countries.contains( country ) : /*blacklist*/ !countries.contains( country );
         }
         try
         {
@@ -77,7 +79,7 @@ public class GeoIp
             //logger.log( Level.WARNING, "[BotFilter] Could not get country for " + address.getHostAddress() );
         }
         cached.put( address, country );
-        return countries.contains( country );
+        return whiteList ? countries.contains( country ) : /*blacklist*/ !countries.contains( country );
     }
 
     public boolean isAvailable()
@@ -178,7 +180,10 @@ public class GeoIp
             {
             }
         }
-        cached.invalidateAll();
+        if ( cached != null )
+        {
+            cached.invalidateAll();
+        }
     }
 
     public void tryClenUP()

@@ -20,7 +20,7 @@ public class Settings extends Config
     @Final
     public final String HELP = "http://www.rubukkit.org/threads/137038/";
     @Final
-    public String BOT_FILTER_VERSION = "3.6.2";
+    public String BOT_FILTER_VERSION = "3.6.3";
 
     @Create
     public MESSAGES MESSAGES;
@@ -63,6 +63,13 @@ public class Settings extends Config
                     "2 - Отключить"
                 })
         public int MODE = 1;
+        @Comment(
+        {
+            "Как именно работает GeoIp",
+            "0 - White list(Зайти могут только те страны, которые есть в списке)",
+            "1 - Black list(Зайти могут только те страны, которых нет в списке)"
+        })
+        public int TYPE = 0;
         @Comment(
                 {
                     "Откуда качать GEOIP",
@@ -216,6 +223,7 @@ public class Settings extends Config
 
     @Comment("Включить ли фикс от 'Team 'xxx' already exist in this scoreboard'")
     public boolean FIX_SCOREBOARD_TEAMS = true;
+
     public void reload(File file)
     {
         load( file );
