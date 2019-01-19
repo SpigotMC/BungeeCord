@@ -93,6 +93,18 @@ public class ComponentsTest
     }
 
     @Test
+    public void testBuilderAppendLegacy()
+    {
+        ComponentBuilder builder = new ComponentBuilder( "Hello " ).color( ChatColor.YELLOW );
+        builder.appendLegacy( "§aworld!" );
+
+        BaseComponent[] components = builder.create();
+
+        Assert.assertEquals( "Hello world!", BaseComponent.toPlainText( components ) );
+        Assert.assertEquals( ChatColor.YELLOW + "Hello " + ChatColor.GREEN + "world!", BaseComponent.toLegacyText( components ) );
+    }
+
+    @Test
     public void testBasicComponent()
     {
         TextComponent textComponent = new TextComponent( "Hello world" );
