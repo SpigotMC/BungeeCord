@@ -111,26 +111,27 @@ public class PluginManager
         }
     }
 
-    private Command getCommandIfEnabled(String commandName, boolean byProxiedPlayer)
+    private Command getCommandIfEnabled(String commandName, CommandSender sender)
     {
-        if (byProxiedPlayer && proxy.getDisabledCommands().contains( commandName ) )
+        String commandLower = commandName.toLowerCase( Locale.ROOT );
+        if ( ( sender instanceof ProxiedPlayer ) && proxy.getDisabledCommands().contains( commandLower ) )
         {
             return null;
         }
 
-        return commandMap.get(commandName);
+        return commandMap.get( commandLower );
     }
 
     /**
-     * Checks if the command is registered and can be executed.
+     * Checks if the command is registered and can be executed by the sender.
      *
      * @param commandName the name of the command
-     * @param byProxiedPlayer if it should consider disabled command
+     * @param sender Connection that sent the command
      * @return whether the command will be handled
      */
-    public boolean isRunnableCommand(String commandName, boolean byProxiedPlayer)
+    public boolean isRunnableCommand(String commandName, CommandSender sender)
     {
-        return getCommandIfEnabled( commandName, byProxiedPlayer ) != null;
+        return getCommandIfEnabled( commandName, sender ) != null;
     }
 
     public boolean dispatchCommand(CommandSender sender, String commandLine)
@@ -155,10 +156,9 @@ public class PluginManager
             return false;
         }
 
-        String commandName = split[0].toLowerCase( Locale.ROOT );
+        String commandName = split[0];
         // Check if command is disabled when a player sent the command
-        boolean byProxiedPlayer = sender instanceof ProxiedPlayer;
-        Command command = getCommandIfEnabled( commandName, byProxiedPlayer );
+        Command command = getCommandIfEnabled( commandName, sender );
         if ( command == null ) {
             return false;
         }

@@ -3,9 +3,9 @@ package net.md_5.bungee.api.event;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.Connection;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Cancellable;
 
 /**
@@ -64,7 +64,17 @@ public class ChatEvent extends TargetedEvent implements Cancellable
         {
             commandName = message.substring( 1, index );
         }
-        boolean checkDisabled = getSender() instanceof ProxiedPlayer;
-        return ProxyServer.getInstance().getPluginManager().isRunnableCommand( commandName, checkDisabled );
+
+        CommandSender sender;
+        if (getSender() instanceof CommandSender)
+        {
+            sender = (CommandSender) getSender();
+        }
+        else
+        {
+            sender = null;
+        }
+
+        return ProxyServer.getInstance().getPluginManager().isRunnableCommand( commandName, sender );
     }
 }
