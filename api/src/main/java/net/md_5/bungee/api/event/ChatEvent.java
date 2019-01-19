@@ -3,6 +3,7 @@ package net.md_5.bungee.api.event;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.connection.Connection;
 import net.md_5.bungee.api.plugin.Cancellable;
 
@@ -12,9 +13,17 @@ import net.md_5.bungee.api.plugin.Cancellable;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class ChatEvent extends TargetedEvent implements Cancellable
+public class ChatEvent extends AsyncEvent<ChatEvent> implements Cancellable
 {
 
+    /**
+     * Creator of the action.
+     */
+    private final Connection sender;
+    /**
+     * Receiver of the action.
+     */
+    private final Connection receiver;
     /**
      * Cancelled state.
      */
@@ -24,9 +33,11 @@ public class ChatEvent extends TargetedEvent implements Cancellable
      */
     private String message;
 
-    public ChatEvent(Connection sender, Connection receiver, String message)
+    public ChatEvent(Callback<ChatEvent> callback, Connection sender, Connection receiver, String message)
     {
-        super( sender, receiver );
+        super( callback );
+        this.sender = sender;
+        this.receiver = receiver;
         this.message = message;
     }
 
