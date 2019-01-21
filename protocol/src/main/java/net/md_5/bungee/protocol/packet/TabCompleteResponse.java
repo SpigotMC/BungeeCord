@@ -36,6 +36,14 @@ public class TabCompleteResponse extends DefinedPacket
         this.commands = commands;
     }
 
+    public List<String> getCommands() {
+        return commands;
+    }
+
+    public Suggestions getSuggestions() {
+        return suggestions;
+    }
+
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
@@ -78,8 +86,8 @@ public class TabCompleteResponse extends DefinedPacket
             for ( Suggestion suggestion : suggestions.getList() )
             {
                 writeString( suggestion.getText(), buf );
-                buf.writeBoolean( suggestion.getTooltip() != null );
-                if ( suggestion.getTooltip() != null )
+                buf.writeBoolean( suggestion.getTooltip() != null && suggestion.getTooltip().getString() != null);
+                if ( suggestion.getTooltip() != null && suggestion.getTooltip().getString() != null)
                 {
                     writeString( suggestion.getTooltip().getString(), buf );
                 }

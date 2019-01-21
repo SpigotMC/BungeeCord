@@ -6,6 +6,7 @@ import com.google.common.io.ByteStreams;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import java.io.DataInput;
@@ -13,6 +14,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.ServerConnection;
@@ -497,13 +500,8 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(TabCompleteResponse tabCompleteResponse) throws Exception
     {
-        if ( tabCompleteResponse.getCommands() == null )
-        {
-            // Passthrough on 1.13 style command responses - unclear of a sane way to process them at the moment, contributions welcome 
-            return;
-        }
-
-        TabCompleteResponseEvent tabCompleteResponseEvent = new TabCompleteResponseEvent( server, con, tabCompleteResponse.getCommands() );
+        TabCompleteResponseEvent tabCompleteResponseEvent = new TabCompleteResponseEvent( server, con,
+                tabCompleteResponse.getCommands(), tabCompleteResponse.getSuggestions());
 
         if ( !bungee.getPluginManager().callEvent( tabCompleteResponseEvent ).isCancelled() )
         {

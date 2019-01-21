@@ -1,11 +1,17 @@
 package net.md_5.bungee.api.event;
 
+import com.mojang.brigadier.suggestion.Suggestion;
+import com.mojang.brigadier.suggestion.Suggestions;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import net.md_5.bungee.api.connection.Connection;
 import net.md_5.bungee.api.plugin.Cancellable;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Event called when a backend server sends a response to a player asking to
@@ -25,14 +31,36 @@ public class TabCompleteResponseEvent extends TargetedEvent implements Cancellab
     private boolean cancelled;
 
     /**
-     * Mutable list of suggestions sent back to the player. If this list is
-     * empty, an empty list is sent back to the client.
+     * List of affected commands from the tab completion.
      */
-    private final List<String> suggestions;
+    private final List<String> commands;
 
-    public TabCompleteResponseEvent(Connection sender, Connection receiver, List<String> suggestions)
-    {
+    /**
+     *  Suggestions provided by minecrafts brigadier.
+     *  Note: this variable is not named suggestions caused by the deprecated method getSuggestions()
+     */
+    private final Suggestions brigadierSuggestions;
+
+    /**
+     * List of suggestions sent back to the player.
+     * If this list is empty, an empty list is sent back to the client.
+     * Changes at this list don't affect the suggested list.
+     *
+     * @return list from suggestions
+     * @deprecated
+     */
+    @Deprecated
+    public List<String> getSuggestions() {
+        List<String> list = new ArrayList<>();
+        for (Suggestion suggestion : brigadierSuggestions.getList()) {
+            list.add(suggestion.getText());
+        }
+        return list;
+    }
+
+    public TabCompleteResponseEvent(Connection sender, Connection receiver, List<String> commands, Suggestions suggestions) {
         super( sender, receiver );
-        this.suggestions = suggestions;
+        this.commands = commands;
+        this.brigadierSuggestions = suggestions;
     }
 }
