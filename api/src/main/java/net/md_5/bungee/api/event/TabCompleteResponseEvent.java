@@ -51,6 +51,7 @@ public class TabCompleteResponseEvent extends TargetedEvent implements Cancellab
      */
     @Deprecated
     public List<String> getSuggestions() {
+        if(commands != null) return commands;
         List<String> list = new ArrayList<>();
         for (Suggestion suggestion : brigadierSuggestions.getList()) {
             list.add(suggestion.getText());
