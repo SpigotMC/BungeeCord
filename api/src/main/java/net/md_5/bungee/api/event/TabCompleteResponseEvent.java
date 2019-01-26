@@ -31,37 +31,39 @@ public class TabCompleteResponseEvent extends TargetedEvent implements Cancellab
     private boolean cancelled;
 
     /**
-     * List of affected commands from the tab completion.
+     * If brigadier support is enabled.
      */
-    private final List<String> commands;
+    private final boolean brigadier;
+
+    /**
+     * List of affected commands from the tab completion.
+     * If brigadier is present this value will be null.
+     */
+    private final List<String> suggestions;
 
     /**
      *  Suggestions provided by minecrafts brigadier.
-     *  Note: this variable is not named suggestions caused by the deprecated method getSuggestions()
+     *  Note: this variable is not named suggestions caused by the method getSuggestions()
      */
     private final Suggestions brigadierSuggestions;
 
     /**
-     * List of suggestions sent back to the player.
-     * If this list is empty, an empty list is sent back to the client.
-     * Changes at this list don't affect the suggested list.
-     *
-     * @return list from suggestions
-     * @deprecated
+     * Returns a list of suggestions. The list is mutable for versions < Minecraft 1.13 or if brigadier support is disabled
+     * @return list of suggestions
      */
-    @Deprecated
     public List<String> getSuggestions() {
-        if(commands != null) return commands;
-        List<String> list = new ArrayList<>();
-        for (Suggestion suggestion : brigadierSuggestions.getList()) {
+        if(!brigadier) return suggestions;
+        List<String> list = new ArrayList<>(brigadierSuggestions.getList().size());
+        for(Suggestion suggestion : brigadierSuggestions.getList())
             list.add(suggestion.getText());
-        }
         return list;
     }
 
-    public TabCompleteResponseEvent(Connection sender, Connection receiver, List<String> commands, Suggestions suggestions) {
+    public TabCompleteResponseEvent(Connection sender, Connection receiver,
+                                    List<String> commands, Suggestions suggestions, boolean brigadier) {
         super( sender, receiver );
-        this.commands = commands;
+        this.suggestions = commands;
         this.brigadierSuggestions = suggestions;
+        this.brigadier = brigadier;
     }
 }

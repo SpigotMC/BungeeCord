@@ -6,6 +6,8 @@ import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
 import net.md_5.bungee.protocol.DefinedPacket;
 import io.netty.buffer.ByteBuf;
+
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import lombok.Data;
@@ -56,12 +58,14 @@ public class TabCompleteResponse extends DefinedPacket
 
             int cnt = readVarInt( buf );
             List<Suggestion> matches = new LinkedList<>();
+            commands = new ArrayList<>(cnt);
             for ( int i = 0; i < cnt; i++ )
             {
                 String match = readString( buf );
                 String tooltip = buf.readBoolean() ? readString( buf ) : null;
 
                 matches.add( new Suggestion( range, match, new LiteralMessage( tooltip ) ) );
+                commands.add(match);
             }
 
             suggestions = new Suggestions( range, matches );

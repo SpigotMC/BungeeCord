@@ -160,7 +160,10 @@ public class UpstreamBridge extends PacketHandler
             bungee.getPluginManager().dispatchCommand( con, tabComplete.getCursor().substring( 1 ), suggestions );
         }
 
-        TabCompleteEvent tabCompleteEvent = new TabCompleteEvent( con, con.getServer(), tabComplete.getCursor(), suggestions );
+        boolean brigadier = BungeeCord.getInstance().config.isBrigadierSuggestions() &&
+                con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13;
+        TabCompleteEvent tabCompleteEvent = new TabCompleteEvent( con, con.getServer(), tabComplete.getCursor(),
+                suggestions, brigadier );
         bungee.getPluginManager().callEvent( tabCompleteEvent );
 
         if ( tabCompleteEvent.isCancelled() )
@@ -169,28 +172,27 @@ public class UpstreamBridge extends PacketHandler
         }
 
         List<String> results = tabCompleteEvent.getSuggestions();
-        if ( !results.isEmpty() )
+        if ( !results.isEmpty() && (
+                con.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_13 ) )
         {
-            // Unclear how to handle 1.13 commands at this point. Because we don't inject into the command packets we are unlikely to get this far unless
-            // Bungee plugins are adding results for commands they don't own anyway
-            if ( con.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_13 )
-            {
-                con.unsafe().sendPacket( new TabCompleteResponse( results ) );
-            } else if ( BungeeCord.getInstance().config.isInjectCommands() )
-            {
-                int start = tabComplete.getCursor().lastIndexOf( ' ' ) + 1;
-                int end = tabComplete.getCursor().length();
-                StringRange range = StringRange.between( start, end );
-
-                List<Suggestion> brigadier = new LinkedList<>();
-                for ( String s : results )
-                {
-                    brigadier.add( new Suggestion( range, s ) );
-                }
-
-                con.unsafe().sendPacket( new TabCompleteResponse( tabComplete.getTransactionId(), new Suggestions( range, brigadier ) ) );
-            }
+            // Minecraft versions without brigadier or disabled Brigadier support.
+            con.unsafe().sendPacket( new TabCompleteResponse( results ) );
             throw CancelSendSignal.INSTANCE;
+        }
+        if (con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ) {
+            Suggestions brigadierSuggestions = tabCompleteEvent.getBrigadierSuggestions();
+            if (brigadier && !brigadierSuggestions.getList().isEmpty()) {
+                con.unsafe().sendPacket(new TabCompleteResponse(tabComplete.getTransactionId(), brigadierSuggestions));
+                throw CancelSendSignal.INSTANCE;
+            }
+            if (!brigadier && !(tabCompleteEvent.getSuggestions().isEmpty() && brigadierSuggestions.getList().isEmpty())) {
+                // We add all suggestions from the string list to Brigadier Suggestions.
+                for (String suggestion : tabCompleteEvent.getSuggestions()) {
+                    brigadierSuggestions.getList().add(new Suggestion(brigadierSuggestions.getRange(), suggestion));
+                }
+                con.unsafe().sendPacket(new TabCompleteResponse(tabComplete.getTransactionId(), brigadierSuggestions));
+                throw CancelSendSignal.INSTANCE;
+            }
         }
     }
 
