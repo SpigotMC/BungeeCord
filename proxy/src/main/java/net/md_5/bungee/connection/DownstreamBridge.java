@@ -500,7 +500,7 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(TabCompleteResponse tabCompleteResponse) throws Exception
     {
-        boolean brigadier = BungeeCord.getInstance().config.isBrigadierSuggestions() &&
+        boolean brigadier = BungeeCord.getInstance().config.isBrigadierResponse() &&
                 con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13;
         TabCompleteResponseEvent tabCompleteResponseEvent = new TabCompleteResponseEvent( server, con,
                 tabCompleteResponse.getCommands(), tabCompleteResponse.getSuggestions(), brigadier );

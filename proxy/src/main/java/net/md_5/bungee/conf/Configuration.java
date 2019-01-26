@@ -63,6 +63,7 @@ public class Configuration implements ProxyConfig
     private boolean forgeSupport;
     private boolean injectCommands;
     private boolean brigadierSuggestions;
+    private boolean brigadierResponse;
 
     public void load()
     {
@@ -96,6 +97,7 @@ public class Configuration implements ProxyConfig
         forgeSupport = adapter.getBoolean( "forge_support", forgeSupport );
         injectCommands = adapter.getBoolean( "inject_commands", injectCommands );
         brigadierSuggestions = adapter.getBoolean("brigadier_suggestions", brigadierSuggestions);
+        brigadierSuggestions = adapter.getBoolean("brigadier_response", brigadierSuggestions);
         if ( injectCommands )
         {
             System.setProperty( "net.md-5.bungee.protocol.register_commands", "true" );

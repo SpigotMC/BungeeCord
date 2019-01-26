@@ -172,8 +172,7 @@ public class UpstreamBridge extends PacketHandler
         }
 
         List<String> results = tabCompleteEvent.getSuggestions();
-        if ( !results.isEmpty() && (
-                con.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_13 ) )
+        if ( !results.isEmpty() && ( con.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_13 ) )
         {
             // Minecraft versions without brigadier or disabled Brigadier support.
             con.unsafe().sendPacket( new TabCompleteResponse( results ) );
