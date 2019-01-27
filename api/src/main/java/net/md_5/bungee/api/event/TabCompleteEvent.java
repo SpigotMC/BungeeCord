@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import net.md_5.bungee.api.connection.Connection;
 import net.md_5.bungee.api.plugin.Cancellable;
+import net.md_5.bungee.util.SuggestionList;
 
 /**
  * Event called when a player uses tab completion.
@@ -42,10 +43,7 @@ public class TabCompleteEvent extends TargetedEvent implements Cancellable
      */
     private final Suggestions brigadierSuggestions;
 
-    /**
-     * List of affected commands from the tab completion.
-     * If brigadier is present this value will be null.
-     */
+    // Only used for MC < 1.13
     private final List<String> suggestions;
 
     /**
@@ -53,12 +51,22 @@ public class TabCompleteEvent extends TargetedEvent implements Cancellable
      * @return list of suggestions
      */
     public List<String> getSuggestions() {
-        if (!brigadier) return this.suggestions;
-        List<String> list = new ArrayList<>(brigadierSuggestions.getList().size());
-        for (Suggestion suggestion : brigadierSuggestions.getList()) {
-            list.add(suggestion.getText());
+        if(brigadier)
+            return new SuggestionList(brigadierSuggestions);
+        else
+            return suggestions;
+    }
+
+    public void setSuggestions(List<String> suggestions) {
+        if(brigadier) {
+            brigadierSuggestions.getList().clear();
+            for (String suggestion : suggestions) {
+                brigadierSuggestions.getList().add(new Suggestion(brigadierSuggestions.getRange(), suggestion));
+            }
+        } else {
+            this.suggestions.clear();
+            this.suggestions.addAll(suggestions);
         }
-        return list;
     }
 
     public TabCompleteEvent(Connection sender, Connection receiver,
@@ -66,15 +74,15 @@ public class TabCompleteEvent extends TargetedEvent implements Cancellable
     {
         super( sender, receiver );
         this.cursor = cursor;
-        this.suggestions = suggestions;
-        this.brigadierSuggestions = new Suggestions(
-                StringRange.between(cursor.lastIndexOf( ' ' ) + 1, cursor.length() ),
-                new ArrayList<Suggestion>());
-        if(brigadier) {
-            for(String suggestion : suggestions) {
-                this.brigadierSuggestions.getList().add(new Suggestion(this.brigadierSuggestions.getRange(), suggestion));
-            }
-        }
         this.brigadier = brigadier;
+        if(brigadier) {
+            this.brigadierSuggestions = new Suggestions(
+                    StringRange.between(cursor.lastIndexOf(' ') + 1, cursor.length()),
+                    new ArrayList<Suggestion>());
+            this.suggestions = null;
+        } else {
+            this.brigadierSuggestions = null;
+            this.suggestions = suggestions;
+        }
     }
 }

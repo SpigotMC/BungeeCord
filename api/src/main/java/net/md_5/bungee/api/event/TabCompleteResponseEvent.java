@@ -7,9 +7,11 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import net.md_5.bungee.api.connection.Connection;
 import net.md_5.bungee.api.plugin.Cancellable;
+import net.md_5.bungee.util.SuggestionList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,34 +38,49 @@ public class TabCompleteResponseEvent extends TargetedEvent implements Cancellab
     private final boolean brigadier;
 
     /**
-     * List of affected commands from the tab completion.
-     * If brigadier is present this value will be null.
-     */
-    private final List<String> suggestions;
-
-    /**
      *  Suggestions provided by minecrafts brigadier.
      *  Note: this variable is not named suggestions caused by the method getSuggestions()
      */
     private final Suggestions brigadierSuggestions;
+
+    private final List<String> suggestions;
 
     /**
      * Returns a list of suggestions. The list is mutable for versions < Minecraft 1.13 or if brigadier support is disabled
      * @return list of suggestions
      */
     public List<String> getSuggestions() {
-        if(!brigadier) return suggestions;
-        List<String> list = new ArrayList<>(brigadierSuggestions.getList().size());
-        for(Suggestion suggestion : brigadierSuggestions.getList())
-            list.add(suggestion.getText());
-        return list;
+        if(brigadier)
+            return new SuggestionList(brigadierSuggestions);
+        else
+            return this.suggestions;
     }
 
-    public TabCompleteResponseEvent(Connection sender, Connection receiver,
-                                    List<String> commands, Suggestions suggestions, boolean brigadier) {
+    public void setSuggestions(List<String> suggestions) {
+        if(brigadier) {
+            brigadierSuggestions.getList().clear();
+            for (String suggestion : suggestions) {
+                brigadierSuggestions.getList().add(new Suggestion(brigadierSuggestions.getRange(), suggestion));
+            }
+        } else {
+            this.suggestions.clear();
+            this.suggestions.addAll(suggestions);
+        }
+    }
+
+    public TabCompleteResponseEvent(Connection sender, Connection receiver, List<String> suggestions,
+                                    Suggestions brigadierSuggestions, boolean brigadier) {
         super( sender, receiver );
-        this.suggestions = commands;
-        this.brigadierSuggestions = suggestions;
         this.brigadier = brigadier;
+        if(brigadier) {
+            Objects.requireNonNull(brigadierSuggestions);
+            this.brigadierSuggestions = brigadierSuggestions;
+            this.suggestions = null;
+        } else {
+            Objects.requireNonNull(suggestions);
+            this.brigadierSuggestions = null;
+            this.suggestions = suggestions;
+        }
+
     }
 }

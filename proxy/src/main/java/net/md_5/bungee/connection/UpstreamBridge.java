@@ -160,10 +160,8 @@ public class UpstreamBridge extends PacketHandler
             bungee.getPluginManager().dispatchCommand( con, tabComplete.getCursor().substring( 1 ), suggestions );
         }
 
-        boolean brigadier = BungeeCord.getInstance().config.isBrigadierSuggestions() &&
-                con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13;
         TabCompleteEvent tabCompleteEvent = new TabCompleteEvent( con, con.getServer(), tabComplete.getCursor(),
-                suggestions, brigadier );
+                suggestions, con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 );
         bungee.getPluginManager().callEvent( tabCompleteEvent );
 
         if ( tabCompleteEvent.isCancelled() )
@@ -178,20 +176,12 @@ public class UpstreamBridge extends PacketHandler
             con.unsafe().sendPacket( new TabCompleteResponse( results ) );
             throw CancelSendSignal.INSTANCE;
         }
-        if (con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ) {
-            Suggestions brigadierSuggestions = tabCompleteEvent.getBrigadierSuggestions();
-            if (brigadier && !brigadierSuggestions.getList().isEmpty()) {
-                con.unsafe().sendPacket(new TabCompleteResponse(tabComplete.getTransactionId(), brigadierSuggestions));
-                throw CancelSendSignal.INSTANCE;
-            }
-            if (!brigadier && !(tabCompleteEvent.getSuggestions().isEmpty() && brigadierSuggestions.getList().isEmpty())) {
-                // We add all suggestions from the string list to Brigadier Suggestions.
-                for (String suggestion : tabCompleteEvent.getSuggestions()) {
-                    brigadierSuggestions.getList().add(new Suggestion(brigadierSuggestions.getRange(), suggestion));
-                }
-                con.unsafe().sendPacket(new TabCompleteResponse(tabComplete.getTransactionId(), brigadierSuggestions));
-                throw CancelSendSignal.INSTANCE;
-            }
+        Suggestions brigadierSuggestions = tabCompleteEvent.getBrigadierSuggestions();
+        if ( (con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13) &&
+                !brigadierSuggestions.getList().isEmpty() ) {
+            con.unsafe().sendPacket(new TabCompleteResponse(tabComplete.getTransactionId(), brigadierSuggestions));
+            throw CancelSendSignal.INSTANCE;
+
         }
     }
 
