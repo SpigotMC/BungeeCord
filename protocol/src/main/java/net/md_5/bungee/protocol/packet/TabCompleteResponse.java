@@ -78,7 +78,7 @@ public class TabCompleteResponse extends DefinedPacket
             for ( Suggestion suggestion : suggestions.getList() )
             {
                 writeString( suggestion.getText(), buf );
-                buf.writeBoolean( suggestion.getTooltip() != null );
+                buf.writeBoolean( suggestion.getTooltip() != null && suggestion.getTooltip().getString() != null );
                 if ( suggestion.getTooltip() != null && suggestion.getTooltip().getString() != null )
                 {
                     writeString( suggestion.getTooltip().getString(), buf );
