@@ -79,7 +79,7 @@ public class TabCompleteResponse extends DefinedPacket
             {
                 writeString( suggestion.getText(), buf );
                 buf.writeBoolean( suggestion.getTooltip() != null );
-                if ( suggestion.getTooltip() != null )
+                if ( suggestion.getTooltip() != null && suggestion.getTooltip().getString() != null )
                 {
                     writeString( suggestion.getTooltip().getString(), buf );
                 }
