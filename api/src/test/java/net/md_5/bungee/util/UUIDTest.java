@@ -17,13 +17,25 @@ public class UUIDTest
     }
 
     @Test
-    public void testMany()
+    public void testParseMany()
     {
         for ( int i = 0; i < 1000; i++ )
         {
             UUID expected = UUID.randomUUID();
             UUID actual = Util.getUUID( expected.toString().replace( "-", "" ) );
             Assert.assertEquals( "Could not parse UUID " + expected, expected, actual );
+        }
+    }
+
+    @Test
+    public void testUndashMany()
+    {
+        for ( int i = 0; i < 1000; i++ )
+        {
+            UUID uuid = UUID.randomUUID();
+            String expected = uuid.toString().replace( "-", "" );
+            String actual = Util.undashUUID( uuid );
+            Assert.assertEquals( "Could not undash UUID " + expected, expected, actual );
         }
     }
 }
