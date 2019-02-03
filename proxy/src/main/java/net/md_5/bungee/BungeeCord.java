@@ -310,7 +310,7 @@ public class BungeeCord extends ProxyServer
                 if ( connectionThrottle != null )
                 {
                     connectionThrottle = null;
-                    getLogger().log( Level.WARNING, "Since PROXY protocol is in use, internel connection throttle has been disabled." );
+                    getLogger().log( Level.WARNING, "Since PROXY protocol is in use, internal connection throttle has been disabled." );
                 }
             }
 
