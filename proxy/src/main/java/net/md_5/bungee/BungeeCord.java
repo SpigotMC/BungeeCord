@@ -81,6 +81,7 @@ import net.md_5.bungee.command.ConsoleCommandSender;
 import net.md_5.bungee.compress.CompressFactory;
 import net.md_5.bungee.conf.Configuration;
 import net.md_5.bungee.conf.YamlConfig;
+import net.md_5.bungee.config.ConfigurationManager;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.log.BungeeLogger;
 import net.md_5.bungee.log.LoggingOutputStream;
@@ -138,6 +139,8 @@ public class BungeeCord extends ProxyServer
      */
     @Getter
     public final PluginManager pluginManager;
+    @Getter
+    public final ConfigurationManager configurationManager;
     @Getter
     @Setter
     private ReconnectHandler reconnectHandler;
@@ -213,6 +216,7 @@ public class BungeeCord extends ProxyServer
         System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
         System.setOut( new PrintStream( new LoggingOutputStream( logger, Level.INFO ), true ) );
 
+        this.configurationManager = new ConfigurationManager();
         pluginManager = new PluginManager( this );
         getPluginManager().registerCommand( null, new CommandReload() );
         getPluginManager().registerCommand( null, new CommandEnd() );

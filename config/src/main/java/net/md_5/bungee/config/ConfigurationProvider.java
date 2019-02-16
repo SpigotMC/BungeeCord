@@ -10,17 +10,19 @@ import java.util.Map;
 
 public abstract class ConfigurationProvider
 {
-
-    private static final Map<Class<? extends ConfigurationProvider>, ConfigurationProvider> providers = new HashMap<>();
-
-    static
-    {
-        providers.put( YamlConfiguration.class, new YamlConfiguration() );
-    }
-
+    /**
+     * @deprecated Use ProxyServer.getConfigurationManager
+     * @param provider The class of the configuration provider
+     * @return The object of the configuration provider
+     */
+    @Deprecated
     public static ConfigurationProvider getProvider(Class<? extends ConfigurationProvider> provider)
     {
-        return providers.get( provider );
+        try {
+            return ConfigurationManager.getInstance().getProvider(provider);
+        } catch (ConfigurationProviderNotRegisteredException e) {
+            return null;
+        }
     }
 
     /*------------------------------------------------------------------------*/

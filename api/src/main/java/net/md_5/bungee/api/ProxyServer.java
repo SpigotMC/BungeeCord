@@ -15,6 +15,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.scheduler.TaskScheduler;
+import net.md_5.bungee.config.ConfigurationManager;
 
 public abstract class ProxyServer
 {
@@ -271,6 +272,13 @@ public abstract class ProxyServer
      * @return the config.
      */
     public abstract ProxyConfig getConfig();
+
+    /**
+     * Gets the configuration manager
+     *
+     * @return the instance of the ConfigurationManager
+     */
+    public abstract ConfigurationManager getConfigurationManager();
 
     /**
      * Attempts to match any players with the given name, and returns a list of
