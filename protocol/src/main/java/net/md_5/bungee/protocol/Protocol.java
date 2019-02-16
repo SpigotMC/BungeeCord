@@ -180,13 +180,10 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12, 0x1B ),
                     map( ProtocolConstants.MINECRAFT_1_13, 0x1C )
             );
-            if ( Boolean.getBoolean( "net.md-5.bungee.protocol.register_commands" ) )
-            {
-                TO_CLIENT.registerPacket(
-                        Commands.class,
-                        map( ProtocolConstants.MINECRAFT_1_13, 0x11 )
-                );
-            }
+            TO_CLIENT.registerPacket(
+                    Commands.class,
+                    map( ProtocolConstants.MINECRAFT_1_13, 0x11 )
+            );
 
             TO_SERVER.registerPacket(
                     KeepAlive.class,

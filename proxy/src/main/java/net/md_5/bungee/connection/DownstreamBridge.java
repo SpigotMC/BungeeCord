@@ -575,20 +575,17 @@ public class DownstreamBridge extends PacketHandler
     {
         boolean modified = false;
 
-        if ( BungeeCord.getInstance().config.isInjectCommands() )
+        for ( Map.Entry<String, Command> command : bungee.getPluginManager().getCommands() )
         {
-            for ( Map.Entry<String, Command> command : bungee.getPluginManager().getCommands() )
+            if ( !bungee.getDisabledCommands().contains( command.getKey() ) && commands.getRoot().getChild( command.getKey() ) == null && command.getValue().hasPermission( con ) )
             {
-                if ( !bungee.getDisabledCommands().contains( command.getKey() ) && commands.getRoot().getChild( command.getKey() ) == null && command.getValue().hasPermission( con ) )
-                {
-                    LiteralCommandNode dummy = LiteralArgumentBuilder.literal( command.getKey() )
-                            .then( RequiredArgumentBuilder.argument( "args", StringArgumentType.greedyString() )
-                                    .suggests( Commands.SuggestionRegistry.ASK_SERVER ) )
-                            .build();
-                    commands.getRoot().addChild( dummy );
+                LiteralCommandNode dummy = LiteralArgumentBuilder.literal( command.getKey() )
+                        .then( RequiredArgumentBuilder.argument( "args", StringArgumentType.greedyString() )
+                                .suggests( Commands.SuggestionRegistry.ASK_SERVER ) )
+                        .build();
+                commands.getRoot().addChild( dummy );
 
-                    modified = true;
-                }
+                modified = true;
             }
         }
 
