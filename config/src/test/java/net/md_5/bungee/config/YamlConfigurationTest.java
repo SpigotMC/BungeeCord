@@ -1,15 +1,16 @@
 package net.md_5.bungee.config;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.junit.Assert;
-import org.junit.Test;
 
-public class YamlConfigurationTest
-{
+public class YamlConfigurationTest {
 
     private static final String TEST_DOCUMENT = ""
             + "receipt:     Oz-Ware Purchase Invoice\n"
@@ -55,89 +56,88 @@ public class YamlConfigurationTest
             + "    null: object\n"
             + "    object: null\n";
 
+    private ConfigurationFactory factory;
+
+    @Before
+    public void init() {
+        factory = YamlConfigurationFactory.create();
+    }
+
     @Test
-    public void testConfig() throws Exception
-    {
-        Configuration conf = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( TEST_DOCUMENT );
-        testSection( conf );
+    public void testConfig() throws Exception {
+        Configuration conf = factory.load(TEST_DOCUMENT);
+        testSection(conf);
 
         StringWriter sw = new StringWriter();
-        ConfigurationProvider.getProvider( YamlConfiguration.class ).save( conf, sw );
+        factory.save(conf, sw);
 
         // Check nulls were saved, see #1094
-        Assert.assertFalse( "Config contains null", sw.toString().contains( "null" ) );
+        Assert.assertFalse("Config contains null", sw.toString().contains("null"));
 
-        conf = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( new StringReader( sw.toString() ) );
-        conf.set( "receipt", "Oz-Ware Purchase Invoice" ); // Add it back
-        testSection( conf );
+        conf = factory.load(new StringReader(sw.toString()));
+        conf.set("receipt", "Oz-Ware Purchase Invoice"); // Add it back
+        testSection(conf);
     }
 
-    private void testSection(Configuration conf)
-    {
-        Assert.assertEquals( "receipt", "Oz-Ware Purchase Invoice", conf.getString( "receipt" ) );
+    private void testSection(Configuration conf) {
+        Assert.assertEquals("receipt", "Oz-Ware Purchase Invoice", conf.getString("receipt"));
         // Assert.assertEquals( "date", "2012-08-06", conf.get( "date" ).toString() );
 
-        Configuration customer = conf.getSection( "customer" );
-        Assert.assertEquals( "customer.given", "Dorothy", customer.getString( "given" ) );
-        Assert.assertEquals( "customer.given", "Dorothy", conf.getString( "customer.given" ) );
+        Configuration customer = conf.getSection("customer");
+        Assert.assertEquals("customer.given", "Dorothy", customer.getString("given"));
+        Assert.assertEquals("customer.given", "Dorothy", conf.getString("customer.given"));
 
-        List items = conf.getList( "items" );
-        Map item = (Map) items.get( 0 );
-        Assert.assertEquals( "items[0].part_no", "A4786", item.get( "part_no" ) );
+        List items = conf.getList("items");
+        Map item = (Map) items.get(0);
+        Assert.assertEquals("items[0].part_no", "A4786", item.get("part_no"));
 
-        conf.set( "receipt", null );
-        Assert.assertEquals( null, conf.get( "receipt" ) );
-        Assert.assertEquals( "foo", conf.get( "receipt", "foo" ) );
+        conf.set("receipt", null);
+        Assert.assertNull(conf.get("receipt"));
+        Assert.assertEquals("foo", conf.get("receipt", "foo"));
 
-        Configuration newSection = conf.getSection( "new.section" );
-        newSection.set( "value", "foo" );
-        Assert.assertEquals( "foo", conf.get( "new.section.value" ) );
+        Configuration newSection = conf.getSection("new.section");
+        newSection.set("value", "foo");
+        Assert.assertEquals("foo", conf.get("new.section.value"));
 
-        conf.set( "other.new.section", "bar" );
-        Assert.assertEquals( "bar", conf.get( "other.new.section" ) );
+        conf.set("other.new.section", "bar");
+        Assert.assertEquals("bar", conf.get("other.new.section"));
 
-        Assert.assertTrue( conf.contains( "customer.given" ) );
-        Assert.assertTrue( customer.contains( "given" ) );
+        Assert.assertTrue(conf.contains("customer.given"));
+        Assert.assertTrue(customer.contains("given"));
 
-        Assert.assertFalse( conf.contains( "customer.foo" ) );
-        Assert.assertFalse( customer.contains( "foo" ) );
+        Assert.assertFalse(conf.contains("customer.foo"));
+        Assert.assertFalse(customer.contains("foo"));
     }
 
     @Test
-    public void testNumberedKeys()
-    {
-        Configuration conf = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( NUMBER_TEST );
+    public void testNumberedKeys() {
+        Configuration conf = factory.load(NUMBER_TEST);
 
-        Configuration section = conf.getSection( "someKey" );
-        for ( String key : section.getKeys() )
-        {
-            // empty
-        }
+        Configuration section = conf.getSection("someKey");
+        Assert.assertArrayEquals(section.getKeys().toArray(), new String[]{"1", "2", "3", "4"});
     }
 
     @Test
-    public void testNull()
-    {
-        Configuration conf = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( NULL_TEST );
+    public void testNull() {
+        Configuration conf = factory.load(NULL_TEST);
 
-        Assert.assertEquals( "object", conf.get( "null.null" ) );
-        Assert.assertEquals( "object", conf.getSection( "null" ).get( "null" ) );
+        Assert.assertEquals("object", conf.get("null.null"));
+        Assert.assertEquals("object", conf.getSection("null").get("null"));
 
-        Assert.assertEquals( null, conf.get( "null.object" ) );
-        Assert.assertEquals( "", conf.getString( "null.object" ) );
+        Assert.assertNull(conf.get("null.object"));
+        Assert.assertEquals("", conf.getString("null.object"));
     }
 
     @Test
-    public void testMapAddition()
-    {
-        Configuration conf = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( TEST_DOCUMENT );
+    public void testMapAddition() {
+        Configuration conf = factory.load(TEST_DOCUMENT);
 
-        conf.set( "addition", Collections.singletonMap( "foo", "bar" ) );
+        conf.set("addition", Collections.singletonMap("foo", "bar"));
 
         // Order matters
-        Assert.assertEquals( "bar", conf.getSection( "addition" ).getString( "foo" ) );
-        Assert.assertEquals( "bar", conf.getString( "addition.foo" ) );
+        Assert.assertEquals("bar", conf.getSection("addition").getString("foo"));
+        Assert.assertEquals("bar", conf.getString("addition.foo"));
 
-        Assert.assertTrue( conf.get( "addition" ) instanceof Configuration );
+        Assert.assertTrue(conf.get("addition") instanceof Configuration);
     }
 }

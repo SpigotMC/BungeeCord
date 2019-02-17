@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "Duplicates"})
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class YamlConfigurationFactory extends ConfigurationFactory {
 
