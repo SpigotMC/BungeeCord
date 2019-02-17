@@ -1,5 +1,6 @@
 package net.md_5.bungee.config;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -8,40 +9,28 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-public final class Configuration
+public class Configuration
 {
 
     private static final char SEPARATOR = '.';
-    final Map<String, Object> self;
-    private final Configuration defaults;
+    protected final Map<String, Object> self;
+    private Configuration defaults;
 
     public Configuration()
     {
-        this( null );
+        this.self = new LinkedHashMap<>();
     }
 
-    public Configuration(Configuration defaults)
+    Configuration(Configuration defaults)
     {
-        this( new LinkedHashMap<String, Object>(), defaults );
+        this();
+        setDefaults(defaults);
     }
 
     Configuration(Map<?, ?> map, Configuration defaults)
     {
-        this.self = new LinkedHashMap<>();
-        this.defaults = defaults;
-
-        for ( Map.Entry<?, ?> entry : map.entrySet() )
-        {
-            String key = ( entry.getKey() == null ) ? "null" : entry.getKey().toString();
-
-            if ( entry.getValue() instanceof Map )
-            {
-                this.self.put( key, new Configuration( (Map) entry.getValue(), ( defaults == null ) ? null : defaults.getSection( key ) ) );
-            } else
-            {
-                this.self.put( key, entry.getValue() );
-            }
-        }
+        this(defaults);
+        load(map);
     }
 
     private Configuration getSectionFor(String path)
@@ -410,5 +399,58 @@ public final class Configuration
     {
         Object val = get( path, def );
         return ( val instanceof List<?> ) ? (List<?>) val : def;
+    }
+
+    public Configuration setDefaults(Configuration defaults)
+    {
+        this.defaults = defaults;
+        return this;
+    }
+
+    public Configuration load(File file) throws IOException
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public Configuration load(Reader reader)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public Configuration load(InputStream is)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public Configuration load(String string)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public Configuration load(Map<?, ?> map)
+    {
+        for ( Map.Entry<?, ?> entry : map.entrySet() )
+        {
+            String key = ( entry.getKey() == null ) ? "null" : entry.getKey().toString();
+
+            if ( entry.getValue() instanceof Map )
+            {
+                this.self.put( key, new Configuration( (Map) entry.getValue(), ( defaults == null ) ? null : defaults.getSection( key ) ) );
+            } else
+            {
+                this.self.put( key, entry.getValue() );
+            }
+        }
+        return this;
+    }
+
+    public void save(File file) throws IOException
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public void save(Writer writer)
+    {
+        throw new UnsupportedOperationException();
     }
 }

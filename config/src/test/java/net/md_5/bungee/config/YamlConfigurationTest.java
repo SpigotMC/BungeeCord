@@ -58,16 +58,16 @@ public class YamlConfigurationTest
     @Test
     public void testConfig() throws Exception
     {
-        Configuration conf = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( TEST_DOCUMENT );
+        Configuration conf = new YamlConfiguration().load( TEST_DOCUMENT );
         testSection( conf );
 
         StringWriter sw = new StringWriter();
-        ConfigurationProvider.getProvider( YamlConfiguration.class ).save( conf, sw );
+        conf.save( sw );
 
         // Check nulls were saved, see #1094
         Assert.assertFalse( "Config contains null", sw.toString().contains( "null" ) );
 
-        conf = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( new StringReader( sw.toString() ) );
+        conf = new YamlConfiguration().load( new StringReader( sw.toString() ) );
         conf.set( "receipt", "Oz-Ware Purchase Invoice" ); // Add it back
         testSection( conf );
     }
@@ -106,7 +106,7 @@ public class YamlConfigurationTest
     @Test
     public void testNumberedKeys()
     {
-        Configuration conf = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( NUMBER_TEST );
+        Configuration conf = new YamlConfiguration().load( NUMBER_TEST );
 
         Configuration section = conf.getSection( "someKey" );
         for ( String key : section.getKeys() )
@@ -118,7 +118,7 @@ public class YamlConfigurationTest
     @Test
     public void testNull()
     {
-        Configuration conf = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( NULL_TEST );
+        Configuration conf = new YamlConfiguration().load( NULL_TEST );
 
         Assert.assertEquals( "object", conf.get( "null.null" ) );
         Assert.assertEquals( "object", conf.getSection( "null" ).get( "null" ) );
@@ -130,7 +130,7 @@ public class YamlConfigurationTest
     @Test
     public void testMapAddition()
     {
-        Configuration conf = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( TEST_DOCUMENT );
+        Configuration conf = new YamlConfiguration().load( TEST_DOCUMENT );
 
         conf.set( "addition", Collections.singletonMap( "foo", "bar" ) );
 
