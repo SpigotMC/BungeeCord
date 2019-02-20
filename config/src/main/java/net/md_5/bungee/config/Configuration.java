@@ -403,6 +403,10 @@ public class Configuration
 
     public Configuration setDefaults(Configuration defaults)
     {
+        if ( defaults == this )
+        {
+            throw new IllegalArgumentException( "Can't set self as defaults" );
+        }
         this.defaults = defaults;
         return this;
     }
