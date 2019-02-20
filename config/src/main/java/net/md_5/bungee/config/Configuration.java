@@ -448,7 +448,7 @@ public class Configuration
         throw new UnsupportedOperationException();
     }
 
-    public Configuration load(Map<?, ?> map)
+    protected Configuration load(Map<?, ?> map)
     {
         for ( Map.Entry<?, ?> entry : map.entrySet() )
         {
