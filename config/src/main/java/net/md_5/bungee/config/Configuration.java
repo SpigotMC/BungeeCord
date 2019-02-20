@@ -23,16 +23,16 @@ public class Configuration
         this.self = new LinkedHashMap<>();
     }
 
-    Configuration(Configuration defaults)
+    /**
+     * @deprecated This constructors function was replaced with a setter.
+     *
+     * @see Configuration#setDefaults(Configuration)
+     */
+    @Deprecated
+    public Configuration(Configuration defaults)
     {
         this();
         setDefaults(defaults);
-    }
-
-    Configuration(Map<?, ?> map, Configuration defaults)
-    {
-        this(defaults);
-        load(map);
     }
 
     private Configuration getSectionFor(String path)
@@ -47,7 +47,7 @@ public class Configuration
         Object section = self.get( root );
         if ( section == null )
         {
-            section = new Configuration( ( defaults == null ) ? null : defaults.getSection( root ) );
+            section = new Configuration().setDefaults(defaults == null ? null : defaults.getSection( root ));
             self.put( root, section );
         }
 
@@ -101,7 +101,9 @@ public class Configuration
     {
         if ( value instanceof Map )
         {
-            value = new Configuration( (Map) value, ( defaults == null ) ? null : defaults.getSection( path ) );
+            value = new Configuration()
+                    .load(((Map) value))
+                    .setDefaults(defaults == null ? null : defaults.getSection(path));
         }
 
         Configuration section = getSectionFor( path );
@@ -124,7 +126,8 @@ public class Configuration
     public Configuration getSection(String path)
     {
         Object def = getDefault( path );
-        return (Configuration) get( path, ( def instanceof Configuration ) ? def : new Configuration( ( defaults == null ) ? null : defaults.getSection( path ) ) );
+        return (Configuration) get( path, ( def instanceof Configuration ) ? def :
+                new Configuration().setDefaults( defaults == null ? null : defaults.getSection( path ) ) );
     }
 
     /**
@@ -460,7 +463,9 @@ public class Configuration
 
             if ( entry.getValue() instanceof Map )
             {
-                this.self.put( key, new Configuration( (Map) entry.getValue(), ( defaults == null ) ? null : defaults.getSection( key ) ) );
+                this.self.put( key, new Configuration()
+                    .load(((Map) entry.getValue()))
+                    .setDefaults(defaults == null ? null : defaults.getSection( key )) );
             } else
             {
                 this.self.put( key, entry.getValue() );

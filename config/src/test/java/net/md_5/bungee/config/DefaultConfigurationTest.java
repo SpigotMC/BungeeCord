@@ -14,7 +14,7 @@ public class DefaultConfigurationTest
         defaultConfig.set( "nested.setting", 11 );
         defaultConfig.set( "double.nested.setting", 12 );
 
-        Configuration actualConfig = new Configuration( defaultConfig );
+        Configuration actualConfig = new Configuration().setDefaults( defaultConfig );
 
         Assert.assertEquals( 10, actualConfig.getInt( "setting" ) );
         Assert.assertEquals( 11, actualConfig.getInt( "nested.setting" ) );
