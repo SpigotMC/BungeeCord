@@ -76,8 +76,11 @@ public class YamlConfiguration extends Configuration
     @SuppressWarnings("unchecked")
     public Configuration load(Reader reader)
     {
-        Map<String, Object> map = yaml.get().loadAs( reader, LinkedHashMap.class );
-        load( map == null ? new LinkedHashMap<>() : map );
+        Map<String, Object> loadedData = yaml.get().loadAs( reader, LinkedHashMap.class );
+        if ( loadedData != null )
+        {
+            load ( loadedData );
+        }
         return this;
     }
 
@@ -85,8 +88,11 @@ public class YamlConfiguration extends Configuration
     @SuppressWarnings("unchecked")
     public Configuration load(InputStream is)
     {
-        Map<String, Object> map = yaml.get().loadAs( is, LinkedHashMap.class );
-        load( map == null ? new LinkedHashMap<>() : map );
+        Map<String, Object> loadedData = yaml.get().loadAs( is, LinkedHashMap.class );
+        if ( loadedData != null )
+        {
+            load ( loadedData );
+        }
         return this;
     }
 
@@ -94,8 +100,11 @@ public class YamlConfiguration extends Configuration
     @SuppressWarnings("unchecked")
     public Configuration load(String string)
     {
-        Map<String, Object> map = yaml.get().loadAs( string, LinkedHashMap.class );
-        load( map == null ? new LinkedHashMap<>() : map );
+        Map<String, Object> loadedData = yaml.get().loadAs( string, LinkedHashMap.class );
+        if ( loadedData != null )
+        {
+            load ( loadedData );
+        }
         return this;
     }
 }
