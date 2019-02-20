@@ -26,22 +26,42 @@ class YamlConfigurationProvider extends ConfigurationProvider {
 
     @Override
     public Configuration load(Reader reader) {
-        return new YamlConfiguration().load( reader );
+        try {
+            return new YamlConfiguration().load( reader );
+        } catch ( IOException e )
+        {
+            throw new RuntimeException( e );
+        }
     }
 
     @Override
     public Configuration load(Reader reader, Configuration defaults) {
-        return new YamlConfiguration().load( reader ).setDefaults( defaults );
+        try {
+            return new YamlConfiguration().load( reader ).setDefaults( defaults );
+        } catch ( IOException e )
+        {
+            throw new RuntimeException( e );
+        }
     }
 
     @Override
     public Configuration load(InputStream is) {
-        return new YamlConfiguration().load( is );
+        try {
+            return new YamlConfiguration().load( is );
+        } catch ( IOException e )
+        {
+            throw new RuntimeException( e );
+        }
     }
 
     @Override
     public Configuration load(InputStream is, Configuration defaults) {
-        return new YamlConfiguration().load( is ).setDefaults( defaults );
+        try {
+            return new YamlConfiguration().load( is ).setDefaults( defaults );
+        } catch ( IOException e )
+        {
+            throw new RuntimeException( e );
+        }
     }
 
     @Override

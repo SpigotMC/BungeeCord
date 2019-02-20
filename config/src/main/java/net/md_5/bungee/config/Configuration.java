@@ -1,5 +1,7 @@
 package net.md_5.bungee.config;
 
+import com.google.common.base.Charsets;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -411,23 +413,42 @@ public class Configuration
         return this;
     }
 
-    public Configuration load(File file) throws IOException
+    public Configuration load(File file) throws FileNotFoundException
     {
-        throw new UnsupportedOperationException();
-    }
-
-    public Configuration load(Reader reader)
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    public Configuration load(InputStream is)
-    {
-        throw new UnsupportedOperationException();
+        try ( FileInputStream is = new FileInputStream( file ) )
+        {
+            return load( is );
+        } catch (FileNotFoundException e)
+        {
+            throw e;
+        } catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     public Configuration load(String string)
     {
+        try ( Reader reader = new StringReader( string ) )
+        {
+            return load( reader );
+        } catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Configuration load(InputStream is) throws IOException
+    {
+        try ( Reader reader = new InputStreamReader( is , Charsets.UTF_8 ) )
+        {
+            return load( reader );
+        }
+    }
+
+    public Configuration load(Reader reader) throws IOException
+    {
+        reader.close();
         throw new UnsupportedOperationException();
     }
 

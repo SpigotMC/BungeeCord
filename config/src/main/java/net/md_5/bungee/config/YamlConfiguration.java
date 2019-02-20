@@ -2,10 +2,8 @@ package net.md_5.bungee.config;
 
 import com.google.common.base.Charsets;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
@@ -15,6 +13,7 @@ import lombok.NoArgsConstructor;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.error.YAMLException;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
@@ -62,45 +61,22 @@ public class YamlConfiguration extends Configuration
         yaml.get().dump( self, writer );
     }
 
-
-    @Override
-    public Configuration load(File file) throws IOException
-    {
-        try ( FileInputStream is = new FileInputStream( file ) )
-        {
-            return load( is );
-        }
-    }
-
     @Override
     @SuppressWarnings("unchecked")
-    public Configuration load(Reader reader)
+    public Configuration load(Reader reader) throws IOException
     {
-        Map<String, Object> loadedData = yaml.get().loadAs( reader, LinkedHashMap.class );
-        if ( loadedData != null )
+        Map<String, Object> loadedData;
+        try {
+            loadedData = yaml.get().loadAs( reader, LinkedHashMap.class );
+        } catch (YAMLException e)
         {
-            load ( loadedData );
+            final Throwable cause = e.getCause();
+            if ( cause instanceof IOException ) //unwrap IOExceptions
+            {
+                throw ((IOException) cause);
+            }
+            throw e;
         }
-        return this;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Configuration load(InputStream is)
-    {
-        Map<String, Object> loadedData = yaml.get().loadAs( is, LinkedHashMap.class );
-        if ( loadedData != null )
-        {
-            load ( loadedData );
-        }
-        return this;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Configuration load(String string)
-    {
-        Map<String, Object> loadedData = yaml.get().loadAs( string, LinkedHashMap.class );
         if ( loadedData != null )
         {
             load ( loadedData );
