@@ -1,19 +1,21 @@
 package net.md_5.bungee.config;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @deprecated This class was merged into {@link Configuration}.
- * To load a new configuration, instantiate the implementation directly.
- * To save an existing configuration, use one of the save methods in the {@link Configuration} class.
+ * To load a new configuration, instantiate the implementation directly and use one of the load methods.
+ * To save an existing configuration, use one of the save methods.
  *
  * @see Configuration
+ *
+ * @see Configuration#load(File)
+ * @see Configuration#load(String)
+ * @see Configuration#load(InputStream)
+ * @see Configuration#load(Reader)
+ *
  * @see Configuration#save(File)
  * @see Configuration#save(Writer)
  */
@@ -26,12 +28,14 @@ public abstract class ConfigurationProvider
     static
     {
         final YamlConfigurationProvider provider = new YamlConfigurationProvider();
-        providers.put( YamlConfiguration.class, provider);
-        providers.put( YamlConfigurationProvider.class, provider);
+        providers.put( YamlConfiguration.class, provider );
+        providers.put( YamlConfigurationProvider.class, provider );
     }
 
     /**
      * @deprecated Instantiate the implementation of {@link Configuration} directly.
+     *
+     * @see YamlConfiguration
      */
     @Deprecated
     public static ConfigurationProvider getProvider(Class<?> provider)

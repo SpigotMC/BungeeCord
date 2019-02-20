@@ -1,15 +1,8 @@
 package net.md_5.bungee.config;
 
-import com.google.common.base.Charsets;
-
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import com.google.common.base.Charsets;
 
 public class Configuration
 {
@@ -32,7 +25,7 @@ public class Configuration
     public Configuration(Configuration defaults)
     {
         this();
-        setDefaults(defaults);
+        setDefaults( defaults );
     }
 
     private Configuration getSectionFor(String path)
@@ -47,7 +40,7 @@ public class Configuration
         Object section = self.get( root );
         if ( section == null )
         {
-            section = new Configuration().setDefaults(defaults == null ? null : defaults.getSection( root ));
+            section = new Configuration().setDefaults( defaults == null ? null : defaults.getSection( root ) );
             self.put( root, section );
         }
 
@@ -102,8 +95,8 @@ public class Configuration
         if ( value instanceof Map )
         {
             value = new Configuration()
-                    .load(((Map) value))
-                    .setDefaults(defaults == null ? null : defaults.getSection(path));
+                    .load( ( (Map) value ) )
+                    .setDefaults( defaults == null ? null : defaults.getSection( path ) );
         }
 
         Configuration section = getSectionFor( path );
@@ -421,12 +414,12 @@ public class Configuration
         try ( FileInputStream is = new FileInputStream( file ) )
         {
             return load( is );
-        } catch (FileNotFoundException e)
+        } catch ( FileNotFoundException e )
         {
             throw e;
-        } catch (IOException e)
+        } catch ( IOException e )
         {
-            throw new RuntimeException(e);
+            throw new RuntimeException( e );
         }
     }
 
@@ -435,15 +428,15 @@ public class Configuration
         try ( Reader reader = new StringReader( string ) )
         {
             return load( reader );
-        } catch (IOException e)
+        } catch ( IOException e )
         {
-            throw new RuntimeException(e);
+            throw new RuntimeException( e );
         }
     }
 
     public Configuration load(InputStream is) throws IOException
     {
-        try ( Reader reader = new InputStreamReader( is , Charsets.UTF_8 ) )
+        try ( Reader reader = new InputStreamReader( is, Charsets.UTF_8 ) )
         {
             return load( reader );
         }
@@ -464,8 +457,8 @@ public class Configuration
             if ( entry.getValue() instanceof Map )
             {
                 this.self.put( key, new Configuration()
-                    .load(((Map) entry.getValue()))
-                    .setDefaults(defaults == null ? null : defaults.getSection( key )) );
+                        .load( ( (Map) entry.getValue() ) )
+                        .setDefaults( defaults == null ? null : defaults.getSection( key ) ) );
             } else
             {
                 this.self.put( key, entry.getValue() );
