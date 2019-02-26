@@ -49,10 +49,10 @@ public class CommandServer extends Command implements TabExecutor
                 {
                     TextComponent serverTextComponent = new TextComponent( first ? server.getName() : ", " + server.getName() );
                     int count = server.getPlayers().size();
-                    serverTextComponent.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT,
-                            new ComponentBuilder( count + ( count == 1 ? " player" : " players" ) + "\n" )
-                            .append( "Click to connect to the server" ).italic( true )
-                            .create() ) );
+                    serverTextComponent.setHoverEvent( new HoverEvent(
+                            HoverEvent.Action.SHOW_TEXT,
+                            new ComponentBuilder( count + ( count == 1 ? " player" : " players" ) + "\n" ).append( "Click to connect to the server" ).italic( true ).create() )
+                    );
                     serverTextComponent.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, "/server " + server.getName() ) );
                     serverList.append( serverTextComponent );
                     first = false;
