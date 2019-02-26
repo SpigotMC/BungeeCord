@@ -93,6 +93,7 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import net.md_5.bungee.util.CaseInsensitiveMap;
+import net.md_5.bungee.util.ShutdownThread;
 import org.fusesource.jansi.AnsiConsole;
 
 /**
@@ -105,6 +106,7 @@ public class BungeeCord extends ProxyServer
      * Current operation state.
      */
     public volatile boolean isRunning;
+    public volatile boolean isStopping;
     /**
      * Configuration.
      */
@@ -165,8 +167,95 @@ public class BungeeCord extends ProxyServer
     @Getter
     private ConnectionThrottle connectionThrottle;
     private final ModuleManager moduleManager = new ModuleManager();
+    private final ShutdownThread shutdownThread = new ShutdownThread( "Shutdown Thread" )
+    {
+        @Override
+        @SuppressFBWarnings("DM_EXIT")
+        @SuppressWarnings("TooBroadCatch")
+        public void run()
+        {
+            stopListeners();
+            getLogger().info( "Closing pending connections" );
 
-    
+            connectionLock.readLock().lock();
+            try
+            {
+                getLogger().log( Level.INFO, "Disconnecting {0} connections", connections.size() );
+                for ( UserConnection user : connections.values() )
+                {
+                    user.disconnect( reason );
+                }
+            } finally
+            {
+                connectionLock.readLock().unlock();
+            }
+
+            try
+            {
+                Thread.sleep( 500 );
+            } catch ( InterruptedException ex )
+            {
+            }
+
+            if ( reconnectHandler != null )
+            {
+                getLogger().info( "Saving reconnect locations" );
+                reconnectHandler.save();
+                reconnectHandler.close();
+            }
+            saveThread.cancel();
+            metricsThread.cancel();
+
+            // TODO: Fix this shit
+            getLogger().info( "Disabling plugins" );
+            for ( Plugin plugin : Lists.reverse( new ArrayList<>( pluginManager.getPlugins() ) ) )
+            {
+                try
+                {
+                    plugin.onDisable();
+                    for ( Handler handler : plugin.getLogger().getHandlers() )
+                    {
+                        handler.close();
+                    }
+                } catch ( Throwable t )
+                {
+                    getLogger().log( Level.SEVERE, "Exception disabling plugin " + plugin.getDescription().getName(), t );
+                }
+                getScheduler().cancel( plugin );
+                plugin.getExecutorService().shutdownNow();
+            }
+
+            getLogger().info( "Closing IO threads" );
+            eventLoops.shutdownGracefully();
+            try
+            {
+                eventLoops.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS );
+            } catch ( InterruptedException ex )
+            {
+            }
+
+            getLogger().info( "Thank you and goodbye" );
+            // Need to close loggers after last message!
+            for ( Handler handler : getLogger().getHandlers() )
+            {
+                handler.close();
+            }
+
+            try
+            {
+                System.in.close();
+            } catch ( IOException ex )
+            {
+            }
+
+            if ( !isStopping )
+            {
+                isStopping = true;
+                System.exit( 0 );
+            }
+        }
+    };
+
     {
         // TODO: Proper fallback when we interface the manager
         registerChannel( "BungeeCord" );
@@ -276,6 +365,7 @@ public class BungeeCord extends ProxyServer
         }
 
         isRunning = true;
+        isStopping = false;
 
         pluginManager.enablePlugins();
 
@@ -297,6 +387,25 @@ public class BungeeCord extends ProxyServer
             }
         }, 0, TimeUnit.MINUTES.toMillis( 5 ) );
         metricsThread.scheduleAtFixedRate( new Metrics(), 0, TimeUnit.MINUTES.toMillis( Metrics.PING_INTERVAL ) );
+
+        Runtime.getRuntime().addShutdownHook( new Thread( new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                if ( !isStopping )
+                {
+                    isStopping = true;
+                    try
+                    {
+                        stopThreaded().join();
+                    } catch ( InterruptedException e )
+                    {
+                        getLogger().log( Level.WARNING, "Shutdown Thread got interrupted, an unclean shutdown could've been performed" );
+                    }
+                }
+            }
+        } ) );
     }
 
     public void startListeners()
@@ -383,90 +492,25 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public synchronized void stop(final String reason)
+    public void stop(final String reason)
     {
-        if ( !isRunning )
+        stopThreaded( reason );
+    }
+
+    public Thread stopThreaded()
+    {
+        return stopThreaded( getTranslation( "restart" ) );
+    }
+
+    public synchronized Thread stopThreaded(final String reason)
+    {
+        if ( isRunning )
         {
-            return;
+            shutdownThread.bind(reason).start();
         }
         isRunning = false;
 
-        new Thread( "Shutdown Thread" )
-        {
-            @Override
-            @SuppressFBWarnings("DM_EXIT")
-            @SuppressWarnings("TooBroadCatch")
-            public void run()
-            {
-                stopListeners();
-                getLogger().info( "Closing pending connections" );
-
-                connectionLock.readLock().lock();
-                try
-                {
-                    getLogger().log( Level.INFO, "Disconnecting {0} connections", connections.size() );
-                    for ( UserConnection user : connections.values() )
-                    {
-                        user.disconnect( reason );
-                    }
-                } finally
-                {
-                    connectionLock.readLock().unlock();
-                }
-
-                try
-                {
-                    Thread.sleep( 500 );
-                } catch ( InterruptedException ex )
-                {
-                }
-
-                if ( reconnectHandler != null )
-                {
-                    getLogger().info( "Saving reconnect locations" );
-                    reconnectHandler.save();
-                    reconnectHandler.close();
-                }
-                saveThread.cancel();
-                metricsThread.cancel();
-
-                // TODO: Fix this shit
-                getLogger().info( "Disabling plugins" );
-                for ( Plugin plugin : Lists.reverse( new ArrayList<>( pluginManager.getPlugins() ) ) )
-                {
-                    try
-                    {
-                        plugin.onDisable();
-                        for ( Handler handler : plugin.getLogger().getHandlers() )
-                        {
-                            handler.close();
-                        }
-                    } catch ( Throwable t )
-                    {
-                        getLogger().log( Level.SEVERE, "Exception disabling plugin " + plugin.getDescription().getName(), t );
-                    }
-                    getScheduler().cancel( plugin );
-                    plugin.getExecutorService().shutdownNow();
-                }
-
-                getLogger().info( "Closing IO threads" );
-                eventLoops.shutdownGracefully();
-                try
-                {
-                    eventLoops.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS );
-                } catch ( InterruptedException ex )
-                {
-                }
-
-                getLogger().info( "Thank you and goodbye" );
-                // Need to close loggers after last message!
-                for ( Handler handler : getLogger().getHandlers() )
-                {
-                    handler.close();
-                }
-                System.exit( 0 );
-            }
-        }.start();
+        return shutdownThread;
     }
 
     /**
