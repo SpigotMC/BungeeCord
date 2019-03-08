@@ -1,6 +1,7 @@
 package net.md_5.bungee.protocol;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -359,9 +360,19 @@ public enum Protocol
             }
         }
 
+        private ProtocolData getProtocolData(int version)
+        {
+            ProtocolData protocol = protocols.get( version );
+            if ( protocol == null && ( protocolPhase != Protocol.GAME ) )
+            {
+                protocol = Iterables.getFirst( protocols.valueCollection(), null );
+            }
+            return protocol;
+        }
+
         public final DefinedPacket createPacket(int id, int version)
         {
-            ProtocolData protocolData = protocols.get( version );
+            ProtocolData protocolData = getProtocolData( version );
             if ( protocolData == null )
             {
                 throw new BadPacketException( "Unsupported protocol version " + version );
@@ -423,7 +434,7 @@ public enum Protocol
         final int getId(Class<? extends DefinedPacket> packet, int version)
         {
 
-            ProtocolData protocolData = protocols.get( version );
+            ProtocolData protocolData = getProtocolData( version );
             if ( protocolData == null )
             {
                 throw new BadPacketException( "Unsupported protocol version" );
