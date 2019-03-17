@@ -62,6 +62,17 @@ public class Plugin
     }
 
     /**
+     * Gets the plugin name
+     * Shortcut from {@link PluginDescription#getName()}
+     *
+     * @return plugin name
+     */
+    public String getName()
+    {
+        return description.getName();
+    }
+
+    /**
      * Get a resource from within this plugins jar or container. Care must be
      * taken to close the returned stream.
      *
