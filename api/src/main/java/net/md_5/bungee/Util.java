@@ -29,7 +29,12 @@ public class Util
             uri = new URI( "tcp://" + hostline );
         } catch ( URISyntaxException ex )
         {
-            throw new IllegalArgumentException( "Bad hostline", ex );
+            throw new IllegalArgumentException( "Bad hostline: " + hostline, ex );
+        }
+
+        if ( uri.getHost() == null )
+        {
+            throw new IllegalArgumentException( "Invalid host/address: " + hostline );
         }
 
         return new InetSocketAddress( uri.getHost(), ( uri.getPort() ) == -1 ? DEFAULT_PORT : uri.getPort() );
