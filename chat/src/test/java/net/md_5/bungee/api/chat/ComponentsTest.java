@@ -76,6 +76,16 @@ public class ComponentsTest
     }
 
     @Test
+    public void testScore()
+    {
+        BaseComponent[] component = ComponentSerializer.parse( "{\"score\":{\"name\":\"@p\",\"objective\":\"TEST\",\"value\":\"hello\"}}" );
+        String text = ComponentSerializer.toString( component );
+        BaseComponent[] reparsed = ComponentSerializer.parse( text );
+
+        Assert.assertArrayEquals( component, reparsed );
+    }
+
+    @Test
     public void testBuilderAppend()
     {
         ClickEvent clickEvent = new ClickEvent( ClickEvent.Action.RUN_COMMAND, "/help " );
