@@ -1,5 +1,7 @@
 package net.md_5.bungee;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Ticker;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -14,7 +16,14 @@ public class ConnectionThrottle
 
     public ConnectionThrottle(int throttleTime, int throttleLimit)
     {
+        this(Ticker.systemTicker(), throttleTime, throttleLimit);
+    }
+
+    @VisibleForTesting
+    ConnectionThrottle(Ticker ticker, int throttleTime, int throttleLimit)
+    {
         this.throttle = CacheBuilder.newBuilder()
+                .ticker(ticker)
                 .concurrencyLevel( Runtime.getRuntime().availableProcessors() )
                 .initialCapacity( 100 )
                 .expireAfterWrite( throttleTime, TimeUnit.MILLISECONDS )
