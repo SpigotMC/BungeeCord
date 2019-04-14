@@ -8,11 +8,13 @@ import net.md_5.bungee.api.ChatColor;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import net.md_5.bungee.api.chat.ComponentBuilder.FormatRetention;
 
 @Setter
 @ToString(exclude = "parent")
+@EqualsAndHashCode
 @NoArgsConstructor
 public abstract class BaseComponent
 {

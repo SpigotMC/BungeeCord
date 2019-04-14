@@ -246,7 +246,7 @@ public abstract class EntityMap
 
     private static void readSkipSlot(ByteBuf packet, int protocolVersion)
     {
-        if ( (protocolVersion >= ProtocolConstants.MINECRAFT_1_13_2) ? packet.readBoolean() : packet.readShort() != -1 )
+        if ( ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13_2 ) ? packet.readBoolean() : packet.readShort() != -1 )
         {
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13_2 )
             {

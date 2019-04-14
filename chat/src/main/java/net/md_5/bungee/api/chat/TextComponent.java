@@ -9,10 +9,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.EqualsAndHashCode;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public final class TextComponent extends BaseComponent
 {
 

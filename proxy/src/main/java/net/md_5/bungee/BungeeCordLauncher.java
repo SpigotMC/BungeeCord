@@ -28,15 +28,21 @@ public class BungeeCordLauncher
     {
         Security.setProperty( "networkaddress.cache.ttl", "30" );
         Security.setProperty( "networkaddress.cache.negative.ttl", "10" );
-        
+
         OptionParser parser = new OptionParser();
         parser.allowsUnrecognizedOptions();
-        parser.acceptsAll( Arrays.asList( "v", "version") );
-        parser.acceptsAll( Arrays.asList( "noconsole" ) );
+        parser.acceptsAll( Arrays.asList( "help" ), "Show the help" );
+        parser.acceptsAll( Arrays.asList( "v", "version" ), "Print version and exit" );
+        parser.acceptsAll( Arrays.asList( "noconsole" ), "Disable console input" );
 
         OptionSet options = parser.parse( args );
 
-        if ( options.has("version") )
+        if ( options.has( "help" ) )
+        {
+            parser.printHelpOn( System.out );
+            return;
+        }
+        if ( options.has( "version" ) )
         {
             System.out.println( BungeeCord.class.getPackage().getImplementationVersion() );
             return;
@@ -45,7 +51,7 @@ public class BungeeCordLauncher
         if ( BungeeCord.class.getPackage().getSpecificationVersion() != null && System.getProperty( "IReallyKnowWhatIAmDoingISwear" ) == null)
         {
             String version = BungeeCord.class.getPackage().getSpecificationVersion();
-            
+
             if ( version.equalsIgnoreCase("unknown") )
             {
                 System.err.println( "*** You are using a self compiled version ***" );
@@ -56,7 +62,7 @@ public class BungeeCordLauncher
             } else
             {
                 int currentVersion = Integer.parseInt( version );
-                
+
                 try
                 {
                     URL api = new URL( "https://api.github.com/repos/HexagonMC/BungeeCord/releases/latest" );
@@ -64,16 +70,16 @@ public class BungeeCordLauncher
                     // 15 second timeout at various stages
                     con.setConnectTimeout( 15000 );
                     con.setReadTimeout( 15000 );
-                    
+
                     String tagName = null;
-                    
+
                     try
                     {
                         JsonObject json = new JsonParser().parse( new InputStreamReader( con.getInputStream() ) ).getAsJsonObject();
                         tagName = json.get( "tag_name" ).getAsString();
-                        
+
                         int latestVersion = Integer.parseInt( tagName.substring( 1, tagName.length() ) );
-                        
+
                         if ( latestVersion > currentVersion )
                         {
                             System.err.println("*** Warning, this build is outdated ***");

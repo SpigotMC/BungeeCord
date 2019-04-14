@@ -1,11 +1,13 @@
 package net.md_5.bungee.api.chat;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @Getter
 @ToString
+@EqualsAndHashCode
 @RequiredArgsConstructor
 public final class ClickEvent
 {

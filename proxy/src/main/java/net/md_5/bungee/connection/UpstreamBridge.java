@@ -179,7 +179,7 @@ public class UpstreamBridge extends PacketHandler
             if ( con.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_13 )
             {
                 con.unsafe().sendPacket( new TabCompleteResponse( results ) );
-            } else if ( BungeeCord.getInstance().config.isInjectCommands() )
+            } else
             {
                 int start = tabComplete.getCursor().lastIndexOf( ' ' ) + 1;
                 int end = tabComplete.getCursor().length();

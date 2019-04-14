@@ -1,18 +1,24 @@
 package net.md_5.bungee.connection;
 
-
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.context.StringRange;
+import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import java.io.DataInput;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.BungeeCord;
@@ -60,11 +66,11 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @RequiredArgsConstructor
 public class DownstreamBridge extends PacketHandler
 {
-    
+
     private final ProxyServer      bungee;
     private final UserConnection   con;
     private final ServerConnection server;
-    
+
     @Override
     public void exception(Throwable t) throws Exception
     {
@@ -83,7 +89,7 @@ public class DownstreamBridge extends PacketHandler
             con.disconnect( Util.exception( t ) );
         }
     }
-    
+
     @Override
     public void disconnected(ChannelWrapper channel) throws Exception
     {
@@ -91,41 +97,41 @@ public class DownstreamBridge extends PacketHandler
         server.getInfo().removePlayer(con);
         if (bungee.getReconnectHandler() != null)
             bungee.getReconnectHandler().setServer(con);
-        
+
         if (!server.isObsolete())
             con.disconnect(bungee.getTranslation("lost_connection"));
-        
+
         ServerDisconnectEvent serverDisconnectEvent = new ServerDisconnectEvent(con, server.getInfo());
         bungee.getPluginManager().callEvent(serverDisconnectEvent);
     }
-    
+
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
     {
         return !server.isObsolete();
     }
-    
+
     @Override
     public void handle(PacketWrapper packet) throws Exception
     {
         con.getEntityRewrite().rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId(), con.getPendingConnection().getVersion() );
         con.sendPacket( packet );
     }
-    
+
     @Override
     public void handle(KeepAlive alive) throws Exception
     {
         server.setSentPingId( alive.getRandomId() );
         con.setSentPingTime( System.currentTimeMillis() );
     }
-    
+
     @Override
     public void handle(PlayerListItem playerList) throws Exception
     {
         con.getTabListHandler().onUpdate(TabList.rewrite(playerList));
         throw CancelSendSignal.INSTANCE; // Always throw because of profile rewriting
     }
-    
+
     @Override
     public void handle(ScoreboardObjective objective) throws Exception
     {
@@ -152,7 +158,7 @@ public class DownstreamBridge extends PacketHandler
                 throw new IllegalArgumentException("Unknown objective action: " + objective.getAction());
         }
     }
-    
+
     @Override
     public void handle(ScoreboardScore score) throws Exception
     {
@@ -171,7 +177,7 @@ public class DownstreamBridge extends PacketHandler
                 throw new IllegalArgumentException("Unknown scoreboard action: " + score.getAction());
         }
     }
-    
+
     @Override
     public void handle(ScoreboardDisplay displayScoreboard) throws Exception
     {
@@ -179,7 +185,7 @@ public class DownstreamBridge extends PacketHandler
         serverScoreboard.setName(displayScoreboard.getName());
         serverScoreboard.setPosition(Position.values()[displayScoreboard.getPosition()]);
     }
-    
+
     @Override
     public void handle(net.md_5.bungee.protocol.packet.Team team) throws Exception
     {
@@ -190,7 +196,7 @@ public class DownstreamBridge extends PacketHandler
             serverScoreboard.removeTeam(team.getName());
             return;
         }
-        
+
         // Create or get old team
         Team t;
         if (team.getMode() == 0)
@@ -200,7 +206,7 @@ public class DownstreamBridge extends PacketHandler
         }
         else
             t = serverScoreboard.getTeam(team.getName());
-        
+
         if ( t != null )
         {
             if ( team.getMode() == 0 || team.getMode() == 2 )
@@ -228,7 +234,7 @@ public class DownstreamBridge extends PacketHandler
             }
         }
     }
-    
+
     @Override
     public void handle(PluginMessage pluginMessage) throws Exception
     {
@@ -267,12 +273,12 @@ public class DownstreamBridge extends PacketHandler
             con.unsafe().sendPacket(pluginMessage);
             throw CancelSendSignal.INSTANCE;
         }
-        
+
         if (pluginMessage.getTag().equals("BungeeCord"))
         {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             String subChannel = in.readUTF();
-            
+
             if (subChannel.equals("ForwardToPlayer"))
             {
                 ProxiedPlayer target = bungee.getPlayer(in.readUTF());
@@ -283,16 +289,16 @@ public class DownstreamBridge extends PacketHandler
                     short len = in.readShort();
                     byte[] data = new byte[len];
                     in.readFully(data);
-                    
+
                     // Prepare new data to send
                     out.writeUTF(channel);
                     out.writeShort(data.length);
                     out.write(data);
                     byte[] payload = out.toByteArray();
-                    
+
                     target.getServer().sendData("BungeeCord", payload);
                 }
-                
+
                 // Null out stream, important as we don't want to send to ourselves
                 out = null;
             }
@@ -304,16 +310,16 @@ public class DownstreamBridge extends PacketHandler
                 short len = in.readShort();
                 byte[] data = new byte[len];
                 in.readFully(data);
-                
+
                 // Prepare new data to send
                 out.writeUTF(channel);
                 out.writeShort(data.length);
                 out.write(data);
                 byte[] payload = out.toByteArray();
-                
+
                 // Null out stream, important as we don't want to send to ourselves
                 out = null;
-                
+
                 if (target.equals("ALL"))
                 {
                     for ( ServerInfo server : bungee.getServers().values() )
@@ -465,7 +471,7 @@ public class DownstreamBridge extends PacketHandler
                     player.disconnect(new TextComponent(kickReason));
                 }
             }
-            
+
             // Check we haven't set out to null, and we have written data, if so reply back back along the BungeeCord channel
             if (out != null)
             {
@@ -475,11 +481,11 @@ public class DownstreamBridge extends PacketHandler
                     server.sendData( "BungeeCord", b );
                 }
             }
-            
+
             throw CancelSendSignal.INSTANCE;
         }
     }
-    
+
     @Override
     public void handle(Kick kick) throws Exception
     {
@@ -495,32 +501,60 @@ public class DownstreamBridge extends PacketHandler
         server.setObsolete( true );
         throw CancelSendSignal.INSTANCE;
     }
-    
+
     @Override
     public void handle(SetCompression setCompression) throws Exception
     {
         server.getCh().setCompressionThreshold(setCompression.getThreshold());
     }
-    
+
     @Override
     public void handle(TabCompleteResponse tabCompleteResponse) throws Exception
     {
-        if ( tabCompleteResponse.getCommands() == null )
+        List<String> commands = tabCompleteResponse.getCommands();
+        if ( commands == null )
         {
-            // Passthrough on 1.13 style command responses - unclear of a sane way to process them at the moment, contributions welcome 
-            return;
+            commands = Lists.transform( tabCompleteResponse.getSuggestions().getList(), new Function<Suggestion, String>()
+            {
+                @Override
+                public String apply(Suggestion input)
+                {
+                    return input.getText();
+                }
+            } );
         }
 
-        TabCompleteResponseEvent tabCompleteResponseEvent = new TabCompleteResponseEvent( server, con, tabCompleteResponse.getCommands() );
-
+        TabCompleteResponseEvent tabCompleteResponseEvent = new TabCompleteResponseEvent( server, con, new ArrayList<>( commands ) );
         if ( !bungee.getPluginManager().callEvent( tabCompleteResponseEvent ).isCancelled() )
         {
+            // Take action only if modified
+            if ( !commands.equals( tabCompleteResponseEvent.getSuggestions() ) )
+            {
+                if ( tabCompleteResponse.getCommands() != null )
+                {
+                    // Classic style
+                    tabCompleteResponse.setCommands( tabCompleteResponseEvent.getSuggestions() );
+                } else
+                {
+                    // Brigadier style
+                    final StringRange range = tabCompleteResponse.getSuggestions().getRange();
+                    tabCompleteResponse.setSuggestions( new Suggestions( range, Lists.transform( tabCompleteResponseEvent.getSuggestions(), new Function<String, Suggestion>()
+                    {
+                        @Override
+                        public Suggestion apply(String input)
+                        {
+                            return new Suggestion( range, input );
+                        }
+                    } ) ) );
+                }
+            }
+
             con.unsafe().sendPacket( tabCompleteResponse );
         }
 
         throw CancelSendSignal.INSTANCE;
     }
-    
+
     @Override
     public void handle(BossBar bossBar)
     {
@@ -536,7 +570,7 @@ public class DownstreamBridge extends PacketHandler
                 break;
         }
     }
-    
+
     @Override
     public void handle(Respawn respawn)
     {
@@ -548,20 +582,17 @@ public class DownstreamBridge extends PacketHandler
     {
         boolean modified = false;
 
-        if ( BungeeCord.getInstance().config.isInjectCommands() )
+        for ( Map.Entry<String, Command> command : bungee.getPluginManager().getCommands() )
         {
-            for ( Map.Entry<String, Command> command : bungee.getPluginManager().getCommands() )
+            if ( !bungee.getDisabledCommands().contains( command.getKey() ) && commands.getRoot().getChild( command.getKey() ) == null && command.getValue().hasPermission( con ) )
             {
-                if ( commands.getRoot().getChild( command.getKey() ) == null && command.getValue().hasPermission( con ) )
-                {
-                    LiteralCommandNode dummy = LiteralArgumentBuilder.literal( command.getKey() )
-                            .then( RequiredArgumentBuilder.argument( "args", StringArgumentType.greedyString() )
-                                    .suggests( Commands.SuggestionRegistry.ASK_SERVER ) )
-                            .build();
-                    commands.getRoot().addChild( dummy );
+                LiteralCommandNode dummy = LiteralArgumentBuilder.literal( command.getKey() )
+                        .then( RequiredArgumentBuilder.argument( "args", StringArgumentType.greedyString() )
+                                .suggests( Commands.SuggestionRegistry.ASK_SERVER ) )
+                        .build();
+                commands.getRoot().addChild( dummy );
 
-                    modified = true;
-                }
+                modified = true;
             }
         }
 
