@@ -38,11 +38,12 @@ public class CommandList extends Command
                 players.add( player.getDisplayName() );
             }
             Collections.sort( players, String.CASE_INSENSITIVE_ORDER );
-            if(!players.isEmpty) 
+            if(!players.isEmpty()) 
             {
                 sender.sendMessage( ProxyServer.getInstance().getTranslation( "command_list", server.getName(), server.getPlayers().size(), Util.format( players, ChatColor.RESET + ", " ) ) );
             }
         }
+        
         sender.sendMessage( ProxyServer.getInstance().getTranslation( "total_players", ProxyServer.getInstance().getOnlineCount() ) );
     }
 }
