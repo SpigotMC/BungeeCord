@@ -492,7 +492,9 @@ public class Commands extends DefinedPacket
             PROVIDERS.put( "minecraft:color", VOID );
             PROVIDERS.put( "minecraft:component", VOID );
             PROVIDERS.put( "minecraft:message", VOID );
-            PROVIDERS.put( "minecraft:nbt", VOID );
+            PROVIDERS.put( "minecraft:nbt_compound_tag", VOID ); // 1.14
+            PROVIDERS.put( "minecraft:nbt_tag", VOID ); // 1.14
+            PROVIDERS.put( "minecraft:nbt", VOID ); // 1.13
             PROVIDERS.put( "minecraft:nbt_path", VOID );
             PROVIDERS.put( "minecraft:objective", VOID );
             PROVIDERS.put( "minecraft:objective_criteria", VOID );
@@ -513,6 +515,7 @@ public class Commands extends DefinedPacket
             PROVIDERS.put( "minecraft:item_enchantment", VOID );
             PROVIDERS.put( "minecraft:entity_summon", VOID );
             PROVIDERS.put( "minecraft:dimension", VOID );
+            PROVIDERS.put( "minecraft:time", VOID ); // 1.14
         }
 
         private static ArgumentType<?> read(String key, ByteBuf buf)
