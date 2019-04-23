@@ -94,11 +94,11 @@ class EntityMap_1_14 extends EntityMap
             case 0x00 /* Spawn Object : PacketPlayOutSpawnEntity */:
                 DefinedPacket.readVarInt( packet );
                 DefinedPacket.readUUID( packet );
-                int type = packet.readUnsignedByte();
+                int type = DefinedPacket.readVarInt( packet );
 
-                if ( type == 60 || type == 90 || type == 91 )
+                if ( type == 2 || type == 93 || type == 68 ) // arrow, fishing_bobber or spectral_arrow
                 {
-                    if ( type == 60 || type == 91 )
+                    if ( type == 2 || type == 68 ) // arrow or spectral_arrow
                     {
                         oldId = oldId + 1;
                         newId = newId + 1;
