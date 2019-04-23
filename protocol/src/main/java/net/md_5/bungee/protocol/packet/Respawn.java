@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
+import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
@@ -21,19 +22,25 @@ public class Respawn extends DefinedPacket
     private String levelType;
 
     @Override
-    public void read(ByteBuf buf)
+    public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         dimension = buf.readInt();
-        difficulty = buf.readUnsignedByte();
+        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_14 )
+        {
+            difficulty = buf.readUnsignedByte();
+        }
         gameMode = buf.readUnsignedByte();
         levelType = readString( buf );
     }
 
     @Override
-    public void write(ByteBuf buf)
+    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         buf.writeInt( dimension );
-        buf.writeByte( difficulty );
+        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_14 )
+        {
+            buf.writeByte( difficulty );
+        }
         buf.writeByte( gameMode );
         writeString( levelType, buf );
     }

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import net.md_5.bungee.chat.TranslationRegistry;
 
@@ -15,6 +16,7 @@ import net.md_5.bungee.chat.TranslationRegistry;
 @Setter
 @ToString
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public final class TranslatableComponent extends BaseComponent
 {
 

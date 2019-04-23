@@ -22,6 +22,7 @@ public class Login extends DefinedPacket
     private short difficulty;
     private short maxPlayers;
     private String levelType;
+    private int viewDistance;
     private boolean reducedDebugInfo;
 
     @Override
@@ -36,9 +37,16 @@ public class Login extends DefinedPacket
         {
             dimension = buf.readByte();
         }
-        difficulty = buf.readUnsignedByte();
+        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_14 )
+        {
+            difficulty = buf.readUnsignedByte();
+        }
         maxPlayers = buf.readUnsignedByte();
         levelType = readString( buf );
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_14 )
+        {
+            viewDistance = readVarInt( buf );
+        }
         if ( protocolVersion >= 29 )
         {
             reducedDebugInfo = buf.readBoolean();
@@ -57,9 +65,16 @@ public class Login extends DefinedPacket
         {
             buf.writeByte( dimension );
         }
-        buf.writeByte( difficulty );
+        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_14 )
+        {
+            buf.writeByte( difficulty );
+        }
         buf.writeByte( maxPlayers );
         writeString( levelType, buf );
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_14 )
+        {
+            writeVarInt( viewDistance, buf );
+        }
         if ( protocolVersion >= 29 )
         {
             buf.writeBoolean( reducedDebugInfo );
