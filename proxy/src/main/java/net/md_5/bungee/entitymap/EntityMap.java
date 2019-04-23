@@ -253,12 +253,12 @@ public abstract class EntityMap
                         throw Throwables.propagate( ex );
                     }
                     break;
-                case 16:
+                case 15:
                     DefinedPacket.readVarInt( packet );
                     DefinedPacket.readVarInt( packet );
                     DefinedPacket.readVarInt( packet );
                     break;
-                case 17:
+                case 16:
                     if ( index == metaIndex )
                     {
                         int position = packet.readerIndex();
@@ -267,7 +267,7 @@ public abstract class EntityMap
                     }
                     DefinedPacket.readVarInt( packet );
                     break;
-                case 18:
+                case 17:
                     DefinedPacket.readVarInt( packet );
                     break;
                 default:
