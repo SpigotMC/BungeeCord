@@ -1,5 +1,6 @@
 package ru.leymooo.botfilter;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.io.BufferedReader;
 import ru.leymooo.botfilter.utils.Sql;
 import java.io.File;
@@ -45,7 +46,7 @@ public class BotFilter
     //UserName, Ip
     private final Map<String, String> userCache = new ConcurrentHashMap<>();
 
-    private final ExecutorService executor = Executors.newFixedThreadPool( Runtime.getRuntime().availableProcessors() * 2 );
+    private final ExecutorService executor = Executors.newFixedThreadPool( Runtime.getRuntime().availableProcessors() * 2, new ThreadFactoryBuilder().setNameFormat( "BF-%d").build() );
 
     @Getter
     private final Sql sql;

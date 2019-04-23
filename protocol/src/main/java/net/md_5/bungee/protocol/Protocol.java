@@ -314,36 +314,37 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x44 ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x46 ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x47 ),
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x4A )
+                    map( ProtocolConstants.MINECRAFT_1_13, 0x4A ),
+                    map( ProtocolConstants.MINECRAFT_1_14, 0x4E )
             );
             TO_CLIENT.registerPacket(
                     PlayerPositionAndLook.class, PlayerPositionAndLook::new,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x08 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x2E ),
-                    map( ProtocolConstants.MINECRAFT_1_12, 0x2E ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x2F ),
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x32 )
+                    map( ProtocolConstants.MINECRAFT_1_13, 0x32 ),
+                    map( ProtocolConstants.MINECRAFT_1_14, 0x35 )
             );
             TO_CLIENT.registerPacket( EmptyChunkPacket.class, EmptyChunkPacket::new,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x21 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x20 ),
-                    map( ProtocolConstants.MINECRAFT_1_12, 0x20 ),
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x22 )
+                    map( ProtocolConstants.MINECRAFT_1_13, 0x22 ),
+                    map( ProtocolConstants.MINECRAFT_1_14, 0x21 )
             );
             TO_CLIENT.registerPacket(
                     SetSlot.class, SetSlot::new,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x2F ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x16 ),
-                    map( ProtocolConstants.MINECRAFT_1_12, 0x16 ),
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x17 )
+                    map( ProtocolConstants.MINECRAFT_1_13, 0x17 ),
+                    map( ProtocolConstants.MINECRAFT_1_14, 0x16 )
             );
             TO_CLIENT.registerPacket(
                     PlayerAbilities.class, PlayerAbilities::new,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x39 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x2B ),
-                    map( ProtocolConstants.MINECRAFT_1_12, 0x2B ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x2C ),
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x2E )
+                    map( ProtocolConstants.MINECRAFT_1_13, 0x2E ),
+                    map( ProtocolConstants.MINECRAFT_1_14, 0x31 )
             );
             TO_CLIENT.registerPacket(
                     SetExp.class, SetExp::new,
@@ -351,22 +352,20 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x3D ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x3F ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x40 ),
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x43 )
+                    map( ProtocolConstants.MINECRAFT_1_13, 0x43 ),
+                    map( ProtocolConstants.MINECRAFT_1_14, 0x47 )
             );
             TO_SERVER.registerPacket(
                     ClientSettings.class, ClientSettings::new,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x15 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x04 ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x05 ),
-                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x04 ),
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x04 )
+                    map( ProtocolConstants.MINECRAFT_1_13, 0x04 ),
+                    map( ProtocolConstants.MINECRAFT_1_14, 0x05 )
             );
             TO_SERVER.registerPacket(
                     TeleportConfirm.class, TeleportConfirm::new,
-                    map( ProtocolConstants.MINECRAFT_1_9, 0x00 ),
-                    map( ProtocolConstants.MINECRAFT_1_12, 0x00 ),
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x00 ),
-                    map( ProtocolConstants.MINECRAFT_1_13_1, 0x00 )
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x00 )
             );
             TO_SERVER.registerPacket(
                     PlayerPositionAndLook.class, PlayerPositionAndLook::new,
@@ -374,7 +373,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x0D ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x0F ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x0E ),
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x11 )
+                    map( ProtocolConstants.MINECRAFT_1_13, 0x11 ),
+                    map( ProtocolConstants.MINECRAFT_1_14, 0x12 )
             );
             TO_SERVER.registerPacket(
                     PlayerPosition.class, PlayerPosition::new,
@@ -382,7 +382,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x0C ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x0E ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x0D ),
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x10 )
+                    map( ProtocolConstants.MINECRAFT_1_13, 0x10 ),
+                    map( ProtocolConstants.MINECRAFT_1_14, 0x11 )
             );
             TO_SERVER.registerPacket(
                     Player.class, Player::new,
@@ -390,7 +391,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x0F ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x0D ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x0C ),
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x0F )
+                    map( ProtocolConstants.MINECRAFT_1_13, 0x0F ),
+                    map( ProtocolConstants.MINECRAFT_1_14, 0x14 )
             );
             TO_SERVER.registerPacket(
                     KeepAlive.class, KeepAlive::new,
@@ -398,7 +400,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x0B ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x0C ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x0B ),
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x0E )
+                    map( ProtocolConstants.MINECRAFT_1_13, 0x0E ),
+                    map( ProtocolConstants.MINECRAFT_1_14, 0x0F )
             );
             TO_SERVER.registerPacket(
                     Chat.class, Chat::new,
@@ -406,7 +409,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x02 ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x03 ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x02 ),
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x02 )
+                    map( ProtocolConstants.MINECRAFT_1_14, 0x03 )
             );
             TO_SERVER.registerPacket(
                     PluginMessage.class, PluginMessage::new,
@@ -414,7 +417,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x09 ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x0A ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x09 ),
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x0A )
+                    map( ProtocolConstants.MINECRAFT_1_13, 0x0A ),
+                    map( ProtocolConstants.MINECRAFT_1_14, 0x0B )
             );
         }
     };
@@ -422,8 +426,8 @@ public enum Protocol
     /*========================================================================*/
     public static final int MAX_PACKET_ID = 0xFF;
     /*========================================================================*/
-    final DirectionData TO_SERVER = new DirectionData( this, ProtocolConstants.Direction.TO_SERVER );
-    final DirectionData TO_CLIENT = new DirectionData( this, ProtocolConstants.Direction.TO_CLIENT );
+    public final DirectionData TO_SERVER = new DirectionData( this, ProtocolConstants.Direction.TO_SERVER ); //BotFilter -> public
+    public final DirectionData TO_CLIENT = new DirectionData( this, ProtocolConstants.Direction.TO_CLIENT ); //BotFilter -> public
 
     public static void main(String[] args)
     {
@@ -465,7 +469,7 @@ public enum Protocol
 
         private final int protocolVersion;
         private final TObjectIntMap<Class<? extends DefinedPacket>> packetMap = new TObjectIntHashMap<>( MAX_PACKET_ID, Constants.DEFAULT_LOAD_FACTOR, -1 );
-        private final Supplier<? extends DefinedPacket>[] packetConstructors = new Supplier[ MAX_PACKET_ID ];
+        private final Supplier<? extends DefinedPacket>[] packetConstructors = new Supplier[ MAX_PACKET_ID ]; //BotFilter
     }
 
     @Data
@@ -482,7 +486,7 @@ public enum Protocol
         return new ProtocolMapping( protocol, id );
     }
 
-    static final class DirectionData
+    public static final class DirectionData //BotFilter -> public
     {
 
         private final TIntObjectMap<ProtocolData> protocols = new TIntObjectHashMap<>();
@@ -524,16 +528,16 @@ public enum Protocol
                 throw new BadPacketException( "Packet with id " + id + " outside of range " );
             }
 
-            Supplier<? extends DefinedPacket> constructor = protocolData.packetConstructors[id];
-            return ( constructor == null ) ? null : constructor.get();
+            Supplier<? extends DefinedPacket> constructor = protocolData.packetConstructors[id]; //BotFilter
+            return ( constructor == null ) ? null : constructor.get(); //BotFilter
         }
 
-        private void registerPacket(Class<? extends DefinedPacket> packetClass, ProtocolMapping... mappings)
+        private void registerPacket(Class<? extends DefinedPacket> packetClass, ProtocolMapping... mappings) //BotFilter
         {
-            registerPacket( packetClass, MetaFactoryUtils.createNoArgsConstructorUnchecked( packetClass ), mappings );
+            registerPacket( packetClass, MetaFactoryUtils.createNoArgsConstructorUnchecked( packetClass ), mappings ); //BotFilter
         }
 
-        private <P extends DefinedPacket> void registerPacket(Class<? extends DefinedPacket> packetClass, Supplier<P> packetSupplier, ProtocolMapping... mappings)
+        private <P extends DefinedPacket> void registerPacket(Class<? extends DefinedPacket> packetClass, Supplier<P> packetSupplier, ProtocolMapping... mappings) //BotFilter
         {
             int mappingIndex = 0;
             ProtocolMapping mapping = mappings[mappingIndex];
@@ -560,7 +564,7 @@ public enum Protocol
 
                 ProtocolData data = protocols.get( protocol );
                 data.packetMap.put( packetClass, mapping.packetID );
-                data.packetConstructors[mapping.packetID] = packetSupplier;
+                data.packetConstructors[mapping.packetID] = packetSupplier; //BotFilter
             }
         }
 
