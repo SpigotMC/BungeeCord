@@ -29,9 +29,9 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.BungeeServerInfo;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
-import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
+import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.protocol.KickStringWriter;
 import net.md_5.bungee.protocol.LegacyDecoder;
 import net.md_5.bungee.protocol.MinecraftDecoder;
@@ -128,7 +128,7 @@ public class PipelineUtils
     private static final int HIGH_MARK = Integer.getInteger( "net.md_5.bungee.high_mark", 2 << 20 ); // 2 mb
     private static final WriteBufferWaterMark MARK = new WriteBufferWaterMark( LOW_MARK, HIGH_MARK );
 
-    public final static class Base extends ChannelInitializer<Channel>
+    public static final class Base extends ChannelInitializer<Channel>
     {
 
         @Override

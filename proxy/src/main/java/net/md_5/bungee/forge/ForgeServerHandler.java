@@ -1,7 +1,6 @@
 package net.md_5.bungee.forge;
 
 import java.util.ArrayDeque;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

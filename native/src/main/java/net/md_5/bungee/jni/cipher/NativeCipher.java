@@ -3,9 +3,9 @@ package net.md_5.bungee.jni.cipher;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import lombok.Getter;
-import javax.crypto.SecretKey;
 import java.security.GeneralSecurityException;
+import javax.crypto.SecretKey;
+import lombok.Getter;
 
 public class NativeCipher implements BungeeCipher
 {
