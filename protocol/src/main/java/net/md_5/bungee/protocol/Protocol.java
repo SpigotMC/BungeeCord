@@ -8,12 +8,6 @@ import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
-import java.lang.invoke.CallSite;
-import java.lang.invoke.LambdaMetafactory;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.lang.reflect.Constructor;
 import lombok.Data;
 import lombok.Getter;
 import net.md_5.bungee.protocol.packet.BossBar;
@@ -105,7 +99,6 @@ public enum Protocol
             );
             TO_CLIENT.registerPacket(
                     BossBar.class, BossBar::new,
-                    BossBar.class,
                     map( ProtocolConstants.MINECRAFT_1_9, 0x0C )
             );
             TO_CLIENT.registerPacket(
@@ -540,7 +533,7 @@ public enum Protocol
             registerPacket( packetClass, MetaFactoryUtils.createNoArgsConstructorUnchecked( packetClass ), mappings );
         }
 
-        private void <P extends DefinedPacket> void registerPacket(Class<? extends DefinedPacket> packetClass, Supplier<P> packetSupplier, ProtocolMapping... mappings)
+        private <P extends DefinedPacket> void registerPacket(Class<? extends DefinedPacket> packetClass, Supplier<P> packetSupplier, ProtocolMapping... mappings)
         {
             int mappingIndex = 0;
             ProtocolMapping mapping = mappings[mappingIndex];
@@ -551,7 +544,7 @@ public enum Protocol
                     // This is a new packet, skip it till we reach the next protocol
                     continue;
                 }
-        
+
                 if ( mapping.protocolVersion < protocol && mappingIndex + 1 < mappings.length )
                 {
                     // Mapping is non current, but the next one may be ok
@@ -559,23 +552,22 @@ public enum Protocol
                     if ( nextMapping.protocolVersion == protocol )
                     {
                         Preconditions.checkState( nextMapping.packetID != mapping.packetID, "Duplicate packet mapping (%s, %s)", mapping.protocolVersion, nextMapping.protocolVersion );
-        
+
                         mapping = nextMapping;
                         mappingIndex++;
                     }
                 }
-        
+
                 ProtocolData data = protocols.get( protocol );
                 data.packetMap.put( packetClass, mapping.packetID );
                 data.packetConstructors[mapping.packetID] = packetSupplier;
-                }
             }
         }
 
         public final int getId(Class<? extends DefinedPacket> packet, int version)
         {
 
-            ProtocolData protocolData = getProtocolData( version );
+            ProtocolData protocolData = protocols.get( version );
             if ( protocolData == null )
             {
                 throw new BadPacketException( "Unsupported protocol version" );
