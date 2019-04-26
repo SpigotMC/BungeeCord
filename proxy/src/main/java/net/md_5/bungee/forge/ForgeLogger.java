@@ -1,10 +1,13 @@
 package net.md_5.bungee.forge;
 
 import java.util.logging.Level;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
-class ForgeLogger
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+final class ForgeLogger
 {
 
     static void logServer(LogDirection direction, String stateName, PluginMessage message)
@@ -63,9 +66,5 @@ class ForgeLogger
 
         SENDING,
         RECEIVED
-    }
-
-    private ForgeLogger()
-    { // Don't allow instantiations
     }
 }

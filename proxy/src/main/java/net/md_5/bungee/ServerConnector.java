@@ -233,12 +233,12 @@ public class ServerConnector extends PacketHandler
             if ( handshakeHandler != null && handshakeHandler.isServerForge() )
             {
                 modLogin = new Login( login.getEntityId(), login.getGameMode(), login.getDimension(), login.getDifficulty(),
-                        (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.isReducedDebugInfo() );
+                        (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.getViewDistance(), login.isReducedDebugInfo() );
             }
             else
             {
                 modLogin = new Login( login.getEntityId(), login.getGameMode(), (byte) login.getDimension(), login.getDifficulty(),
-                        (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.isReducedDebugInfo() );
+                        (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.getViewDistance(), login.isReducedDebugInfo() );
             }
 
             user.unsafe().sendPacket( modLogin );
