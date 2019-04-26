@@ -81,7 +81,7 @@ public class ForgeServerHandler
     {
         serverForge = true;
     }
-    
+
 
     /**
      * Returns whether the handshake is complete.

@@ -1,13 +1,11 @@
 package net.md_5.bungee.module;
 
 
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Files;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
-
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
-
 import lombok.Data;
 import net.md_5.bungee.Util;
 
@@ -15,7 +13,7 @@ import net.md_5.bungee.Util;
 @Data
 public class TravisCiModuleSource implements ModuleSource
 {
-    
+
     @Override
     public void retrieve(ModuleSpec module, ModuleVersion version)
     {
@@ -27,7 +25,7 @@ public class TravisCiModuleSource implements ModuleSource
             // 15 second timeout at various stages
             con.setConnectTimeout(15000);
             con.setReadTimeout(15000);
-            
+
             Files.write(ByteStreams.toByteArray(con.getInputStream()), module.getFile());
             System.out.println("Download complete");
         }

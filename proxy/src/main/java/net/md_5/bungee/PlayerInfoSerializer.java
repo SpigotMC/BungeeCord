@@ -19,7 +19,7 @@ public class PlayerInfoSerializer implements JsonSerializer<ServerPing.PlayerInf
     {
         this.protocol = protocol;
     }
-    
+
     @Override
     public ServerPing.PlayerInfo deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {

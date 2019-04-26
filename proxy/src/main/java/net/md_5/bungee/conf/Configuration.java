@@ -161,8 +161,8 @@ public class Configuration implements ProxyConfig
         return customServerName;
     }
 
-	@Override
-	public boolean getAlwaysHandlePackets() {
+    @Override
+    public boolean getAlwaysHandlePackets() {
         return alwaysHandlePackets;
-	}
+    }
 }

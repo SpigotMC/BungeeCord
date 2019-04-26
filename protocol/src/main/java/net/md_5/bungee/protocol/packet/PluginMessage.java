@@ -13,9 +13,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import net.md_5.bungee.protocol.MinecraftInput;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.MinecraftInput;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
@@ -72,11 +72,11 @@ public class PluginMessage extends DefinedPacket
     {
         if ( protocolVersion < ProtocolConstants.MINECRAFT_1_8 )
         {
-        	tag = readString( buf );
+            tag = readString( buf );
             data = readArrayLegacy( buf );
         } else
         {
-        	tag = ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? MODERNISE.apply( readString( buf ) ) : readString( buf );
+            tag = ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? MODERNISE.apply( readString( buf ) ) : readString( buf );
             int maxSize = direction == ProtocolConstants.Direction.TO_SERVER ? Short.MAX_VALUE : 0x100000;
             Preconditions.checkArgument( buf.readableBytes() < maxSize );
             data = new byte[ buf.readableBytes() ];
@@ -89,11 +89,11 @@ public class PluginMessage extends DefinedPacket
     {
         if ( protocolVersion < ProtocolConstants.MINECRAFT_1_8 )
         {
-        	writeString( tag, buf );
+            writeString( tag, buf );
             writeArrayLegacy( data, buf, allowExtendedPacket );
         } else
         {
-        	writeString( ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? MODERNISE.apply( tag ) : tag, buf );
+            writeString( ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? MODERNISE.apply( tag ) : tag, buf );
             buf.writeBytes( data );
         }
     }
@@ -108,7 +108,7 @@ public class PluginMessage extends DefinedPacket
     {
         return new DataInputStream( new ByteArrayInputStream( data ) );
     }
-    
+
     public MinecraftInput getMCStream()
     {
         return new MinecraftInput( Unpooled.wrappedBuffer( data ) );

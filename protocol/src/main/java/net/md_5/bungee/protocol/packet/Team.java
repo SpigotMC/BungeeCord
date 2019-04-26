@@ -100,7 +100,7 @@ public class Team extends DefinedPacket
                 {
                     writeString( collisionRule, buf);
                 }
-                
+
                 if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
                 {
                     writeVarInt( color, buf );

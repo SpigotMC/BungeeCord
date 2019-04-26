@@ -78,12 +78,12 @@ public interface ProxyConfig
      * The favicon used for the server ping list.
      */
     Favicon getFaviconObject();
-    
+
     /**
      * The server name for the server ping list.
      */
     String getCustomServerName();
-    
+
     /**
      * Whether the server should handle packets before the player has connected to a server
      */

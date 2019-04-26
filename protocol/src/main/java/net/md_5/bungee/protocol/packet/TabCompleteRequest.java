@@ -39,8 +39,8 @@ public class TabCompleteRequest extends DefinedPacket
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
         {
-        	transactionId = readVarInt( buf );
-    	}
+            transactionId = readVarInt( buf );
+        }
 
         cursor = readString( buf );
 
@@ -60,10 +60,10 @@ public class TabCompleteRequest extends DefinedPacket
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-    	if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13)
-    	{
-    		writeVarInt( transactionId, buf );
-    	}
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13)
+        {
+            writeVarInt( transactionId, buf );
+        }
 
         writeString( cursor, buf );
 

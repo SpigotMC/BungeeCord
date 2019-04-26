@@ -1,6 +1,10 @@
 package net.md_5.bungee;
 
 
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -8,12 +12,6 @@ import java.net.URLConnection;
 import java.security.Security;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
-
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
-
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.md_5.bungee.api.ChatColor;
