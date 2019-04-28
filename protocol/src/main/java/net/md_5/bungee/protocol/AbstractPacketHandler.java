@@ -33,6 +33,7 @@ import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.Team;
 import net.md_5.bungee.protocol.packet.Title;
+import net.md_5.bungee.protocol.packet.ViewDistance;
 
 public abstract class AbstractPacketHandler
 {
@@ -166,6 +167,10 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(Commands commands) throws Exception
+    {
+    }
+
+    public void handle(ViewDistance viewDistance) throws Exception
     {
     }
 }

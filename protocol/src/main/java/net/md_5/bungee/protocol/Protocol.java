@@ -39,6 +39,7 @@ import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.Team;
 import net.md_5.bungee.protocol.packet.Title;
+import net.md_5.bungee.protocol.packet.ViewDistance;
 
 public enum Protocol
 {
@@ -183,6 +184,10 @@ public enum Protocol
             TO_CLIENT.registerPacket(
                     Commands.class,
                     map( ProtocolConstants.MINECRAFT_1_13, 0x11 )
+            );
+            TO_CLIENT.registerPacket(
+                    ViewDistance.class,
+                    map( ProtocolConstants.MINECRAFT_1_14, 0x41 )
             );
 
             TO_SERVER.registerPacket(
