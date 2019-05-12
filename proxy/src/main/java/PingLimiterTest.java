@@ -18,7 +18,7 @@ public class PingLimiterTest
 
         Thread.sleep( 60001 );
         PingLimiter.handle();
-        System.out.println( "2: " + PingLimiter.handle() ); //true 
+        System.out.println( "2: " + PingLimiter.handle() ); //true
 
         Thread.sleep( 60001 );
         PingLimiter.handle();

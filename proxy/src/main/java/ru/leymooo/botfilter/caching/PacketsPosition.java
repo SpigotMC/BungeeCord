@@ -4,7 +4,7 @@ package ru.leymooo.botfilter.caching;
  *
  * @author Leymooo
  */
-public class PacketsPosition
+public final class PacketsPosition
 {
 
     private PacketsPosition()

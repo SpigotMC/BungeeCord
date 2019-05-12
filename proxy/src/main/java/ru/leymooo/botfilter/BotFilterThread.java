@@ -5,11 +5,12 @@ import java.util.Map;
 import java.util.logging.Level;
 import net.md_5.bungee.BungeeCord;
 import ru.leymooo.botfilter.BotFilter.CheckState;
-import ru.leymooo.botfilter.caching.PacketsPosition;
 import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.caching.PacketUtils.KickType;
+import ru.leymooo.botfilter.caching.PacketsPosition;
 import ru.leymooo.botfilter.config.Settings;
 import ru.leymooo.botfilter.utils.ManyChecksUtils;
+
 
 /**
  *
@@ -21,7 +22,6 @@ public class BotFilterThread
     private static Thread thread;
     private static final HashSet<String> TO_REMOVE_SET = new HashSet<>();
     private static BungeeCord bungee = BungeeCord.getInstance();
-    
 
     public static void start()
     {

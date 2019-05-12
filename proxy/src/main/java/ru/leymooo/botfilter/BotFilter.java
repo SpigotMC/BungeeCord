@@ -2,7 +2,6 @@ package ru.leymooo.botfilter;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.io.BufferedReader;
-import ru.leymooo.botfilter.utils.Sql;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,13 +23,14 @@ import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
 import ru.leymooo.botfilter.caching.CachedCaptcha;
-import ru.leymooo.botfilter.utils.GeoIp;
 import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.caching.PacketUtils.KickType;
 import ru.leymooo.botfilter.captcha.CaptchaGeneration;
 import ru.leymooo.botfilter.config.Settings;
+import ru.leymooo.botfilter.utils.GeoIp;
 import ru.leymooo.botfilter.utils.ManyChecksUtils;
 import ru.leymooo.botfilter.utils.ServerPingUtils;
+import ru.leymooo.botfilter.utils.Sql;
 
 /**
  *
@@ -46,7 +46,7 @@ public class BotFilter
     //UserName, Ip
     private final Map<String, String> userCache = new ConcurrentHashMap<>();
 
-    private final ExecutorService executor = Executors.newFixedThreadPool( Runtime.getRuntime().availableProcessors() * 2, new ThreadFactoryBuilder().setNameFormat( "BF-%d").build() );
+    private final ExecutorService executor = Executors.newFixedThreadPool( Runtime.getRuntime().availableProcessors() * 2, new ThreadFactoryBuilder().setNameFormat( "BF-%d" ).build() );
 
     @Getter
     private final Sql sql;
@@ -340,7 +340,7 @@ public class BotFilter
                     logger.log( Level.INFO, "§c[BotFilter] §aПожалуйста обновитесь!" );
                     if ( startup )
                     {
-                        Thread.sleep( 3500l );
+                        Thread.sleep( 3500L );
                     }
                 } else
                 {

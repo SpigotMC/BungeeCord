@@ -1,8 +1,6 @@
 package net.md_5.bungee.protocol.packet;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import java.nio.charset.StandardCharsets;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

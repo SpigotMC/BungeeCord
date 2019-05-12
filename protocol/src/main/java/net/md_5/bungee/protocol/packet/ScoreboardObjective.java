@@ -35,7 +35,7 @@ public class ScoreboardObjective extends DefinedPacket
         this.action = action;
     }
     //BotFilter end
-    
+
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {

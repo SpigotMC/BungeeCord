@@ -1,6 +1,5 @@
 package ru.leymooo.botfilter.captcha;
 
-import ru.leymooo.botfilter.captcha.generator.CaptchaPainter;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.ExecutorService;
@@ -10,9 +9,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.logging.Level;
 import net.md_5.bungee.BungeeCord;
 import ru.leymooo.botfilter.caching.CachedCaptcha;
-import ru.leymooo.botfilter.captcha.generator.map.MapPalette;
 import ru.leymooo.botfilter.caching.PacketUtils;
+import ru.leymooo.botfilter.captcha.generator.CaptchaPainter;
 import ru.leymooo.botfilter.captcha.generator.map.CraftMapCanvas;
+import ru.leymooo.botfilter.captcha.generator.map.MapPalette;
 import ru.leymooo.botfilter.packets.MapDataPacket;
 
 /**
@@ -57,7 +57,7 @@ public class CaptchaGeneration
             BungeeCord.getInstance().getLogger().log( Level.INFO, "[BotFilter] Генерирую капчу [{0}/900]", 900 - ex.getQueue().size() - ex.getActiveCount() );
             try
             {
-                Thread.sleep( 1000l );
+                Thread.sleep( 1000L );
             } catch ( InterruptedException ex1 )
             {
                 BungeeCord.getInstance().getLogger().log( Level.WARNING, "[BotFilter] Немогу сгенерировать капчу. Выключаю банджу", ex1 );

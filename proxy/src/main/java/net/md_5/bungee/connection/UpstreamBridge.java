@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
-import io.netty.channel.Channel;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -192,7 +191,7 @@ public class UpstreamBridge extends PacketHandler
         }
         lastTabCompletion = now;
         //BotFilter end
-        
+
         List<String> suggestions = new ArrayList<>();
 
         if ( tabComplete.getCursor().startsWith( "/" ) )

@@ -39,9 +39,8 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.Team;
-import net.md_5.bungee.protocol.packet.ViewDistance;
 import net.md_5.bungee.protocol.packet.Title;
-import ru.leymooo.botfilter.packets.TeleportConfirm;
+import net.md_5.bungee.protocol.packet.ViewDistance;
 import ru.leymooo.botfilter.packets.EmptyChunkPacket;
 import ru.leymooo.botfilter.packets.Player;
 import ru.leymooo.botfilter.packets.PlayerAbilities;
@@ -49,6 +48,7 @@ import ru.leymooo.botfilter.packets.PlayerPosition;
 import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
 import ru.leymooo.botfilter.packets.SetExp;
 import ru.leymooo.botfilter.packets.SetSlot;
+import ru.leymooo.botfilter.packets.TeleportConfirm;
 import ru.leymooo.botfilter.packets.TimeUpdate;
 
 public enum Protocol
