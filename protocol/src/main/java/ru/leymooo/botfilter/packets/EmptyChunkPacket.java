@@ -1,8 +1,5 @@
 package ru.leymooo.botfilter.packets;
 
-import com.sk89q.jnbt.CompoundTag;
-import com.sk89q.jnbt.CompoundTagBuilder;
-import com.sk89q.jnbt.NBTOutputStream;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import java.io.IOException;
@@ -34,34 +31,16 @@ public class EmptyChunkPacket extends DefinedPacket
         buf.writeInt( this.z );
         buf.writeBoolean( true );
 
-        //Damn you, 1.14
-        if ( version >= ProtocolConstants.MINECRAFT_1_14 )
-        {
-            try
-            {
-                writeVarInt( 0, buf );
-
-                CompoundTag tag = CompoundTagBuilder.create()
-                        .putLongArray( "MOTION_BLOCKING", new long[ roundToNearest( 256 * 9, 64 ) / 64 ] )
-                        .build(); //1.14 - heightmaps, important thing
-
-                new NBTOutputStream( new ByteBufOutputStream( buf ) ).writeNamedTag( "root", tag );
-
-                writeArray( new byte[ 1024 ], buf );
-                writeVarInt( 0, buf );
-            } catch ( IOException e )
-            {
-                throw new RuntimeException( "Cannot write NBT tag to buffer.", e );
-            }
-            return;
-        }
-
         if ( version == ProtocolConstants.MINECRAFT_1_8 )
         {
             buf.writeShort( 1 );
         } else
         {
             writeVarInt( 0, buf );
+        }
+        if ( version >= ProtocolConstants.MINECRAFT_1_14 )
+        {
+            this.write1_14Heightmaps( buf );
         }
         if ( version < ProtocolConstants.MINECRAFT_1_13 )
         {
@@ -71,8 +50,9 @@ public class EmptyChunkPacket extends DefinedPacket
             writeArray( new byte[ 512 ], buf ); //1.13
         } else
         {
-            writeArray( new byte[ 1024 ], buf );
+            writeArray( new byte[ 1024 ], buf ); //1.13.1 - 1.xx
         }
+        writeVarInt( 0, buf );
     }
 
     @Override
@@ -80,24 +60,28 @@ public class EmptyChunkPacket extends DefinedPacket
     {
     }
 
-    private static int roundToNearest(int value, int roundTo)
+    private void write1_14Heightmaps(ByteBuf buf)
     {
-        if ( roundTo == 0 )
+        try
         {
-            return 0;
-        } else if ( value == 0 )
-        {
-            return roundTo;
-        } else
-        {
-            if ( value < 0 )
+            ByteBufOutputStream output = new ByteBufOutputStream( buf );
+            output.writeByte( 10 ); //CompoundTag
+            output.writeUTF( "" ); // CompoundName
+            output.writeByte( 10 ); //CompoundTag
+            output.writeUTF( "root" ); //root compound
+            output.writeByte( 12 ); //long array
+            output.writeUTF( "MOTION_BLOCKING" );
+            long[] longArrayTag = new long[ 36 ];
+            output.writeInt( longArrayTag.length );
+            for ( int i = 0, length = longArrayTag.length; i < length; i++ )
             {
-                roundTo *= -1;
+                output.writeLong( longArrayTag[i] );
             }
-
-            int remainder = value % roundTo;
-            return remainder != 0 ? value + roundTo - remainder : value;
+            buf.writeByte( 0 ); //end of compound
+            buf.writeByte( 0 ); //end of compound
+        } catch ( IOException ex )
+        {
+            throw new RuntimeException(ex );
         }
     }
-
 }
