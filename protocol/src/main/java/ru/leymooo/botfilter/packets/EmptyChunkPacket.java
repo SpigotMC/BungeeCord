@@ -52,7 +52,10 @@ public class EmptyChunkPacket extends DefinedPacket
         {
             writeArray( new byte[ 1024 ], buf ); //1.13.1 - 1.xx
         }
-        writeVarInt( 0, buf );
+        if ( version >= ProtocolConstants.MINECRAFT_1_9_4 )
+        {
+            DefinedPacket.writeVarInt( 0, buf );
+        }
     }
 
     @Override
@@ -81,7 +84,7 @@ public class EmptyChunkPacket extends DefinedPacket
             buf.writeByte( 0 ); //end of compound
         } catch ( IOException ex )
         {
-            throw new RuntimeException(ex );
+            throw new RuntimeException( ex );
         }
     }
 }
