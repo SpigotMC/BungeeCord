@@ -41,6 +41,13 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>com.sk89q.jnbt</groupId>
+            <artifactId>jnbt</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../libraries/jnbt-1.0.jar</systemPath>
+        </dependency>
+        <dependency>
             <groupId>net.md-5</groupId>
             <artifactId>bungeecord-chat</artifactId>
             <version>${project.version}</version>
