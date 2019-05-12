@@ -10,7 +10,8 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 
 import java.util.UUID;
 
-class EntityMap_1_9_4 extends EntityMap {
+class EntityMap_1_9_4 extends EntityMap
+{
 
     static final EntityMap_1_9_4 INSTANCE = new EntityMap_1_9_4();
 

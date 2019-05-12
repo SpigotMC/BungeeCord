@@ -1,30 +1,32 @@
 package net.md_5.bungee.protocol.packet;
 
 import io.netty.buffer.ByteBuf;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 
 @Data
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class LegacyPing extends DefinedPacket
+public class ViewDistance extends DefinedPacket
 {
 
-    private final boolean v1_5;
+    private int distance;
 
     @Override
     public void read(ByteBuf buf)
     {
-        throw new UnsupportedOperationException( "Not supported yet." ); //To change body of generated methods, choose Tools | Templates.
+        distance = DefinedPacket.readVarInt( buf );
     }
 
     @Override
     public void write(ByteBuf buf)
     {
-        throw new UnsupportedOperationException( "Not supported yet." ); //To change body of generated methods, choose Tools | Templates.
+        DefinedPacket.writeVarInt( distance, buf );
     }
 
     @Override

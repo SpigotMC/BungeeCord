@@ -5,9 +5,8 @@ import com.google.gson.JsonSyntaxException;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
-
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;

@@ -2,13 +2,12 @@ package net.md_5.bungee.entitymap;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
+import java.util.UUID;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-
-import java.util.UUID;
 
 class EntityMap_1_13 extends EntityMap
 {

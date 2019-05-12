@@ -2,13 +2,12 @@ package net.md_5.bungee.entitymap;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
+import java.util.UUID;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-
-import java.util.UUID;
 
 class EntityMap_1_14 extends EntityMap
 {
@@ -95,11 +94,11 @@ class EntityMap_1_14 extends EntityMap
             case 0x00 /* Spawn Object : PacketPlayOutSpawnEntity */:
                 DefinedPacket.readVarInt( packet );
                 DefinedPacket.readUUID( packet );
-                int type = packet.readUnsignedByte();
+                int type = DefinedPacket.readVarInt( packet );
 
-                if ( type == 60 || type == 90 || type == 91 )
+                if ( type == 2 || type == 101 || type == 71 ) // arrow, fishing_bobber or spectral_arrow
                 {
-                    if ( type == 60 || type == 91 )
+                    if ( type == 2 || type == 71 ) // arrow or spectral_arrow
                     {
                         oldId = oldId + 1;
                         newId = newId + 1;

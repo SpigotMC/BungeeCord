@@ -8,6 +8,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
+import java.lang.reflect.Type;
+import java.util.Set;
+import lombok.Getter;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.KeybindComponent;
 import net.md_5.bungee.api.chat.ScoreComponent;
@@ -15,17 +18,12 @@ import net.md_5.bungee.api.chat.SelectorComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 
-import java.lang.reflect.Type;
-import java.util.HashSet;
-import java.util.Set;
-import lombok.Getter;
-
 public class ComponentSerializer implements JsonDeserializer<BaseComponent>
 {
 
     @Getter //BotFilter
-    private final static JsonParser JSON_PARSER = new JsonParser();
-    private final static Gson gson = new GsonBuilder().
+    private static final JsonParser JSON_PARSER = new JsonParser();
+    private static final Gson gson = new GsonBuilder().
             registerTypeAdapter( BaseComponent.class, new ComponentSerializer() ).
             registerTypeAdapter( TextComponent.class, new TextComponentSerializer() ).
             registerTypeAdapter( TranslatableComponent.class, new TranslatableComponentSerializer() ).
@@ -34,7 +32,8 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
             registerTypeAdapter( SelectorComponent.class, new SelectorComponentSerializer() ).
             create();
 
-    public final static ThreadLocal<Set<BaseComponent>> serializedComponents = new ThreadLocal<Set<BaseComponent>>();
+
+    public static final ThreadLocal<Set<BaseComponent>> serializedComponents = new ThreadLocal<Set<BaseComponent>>();
 
     public static BaseComponent[] parse(String json)
     {

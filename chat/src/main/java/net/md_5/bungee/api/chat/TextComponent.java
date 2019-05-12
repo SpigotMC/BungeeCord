@@ -1,15 +1,14 @@
 package net.md_5.bungee.api.chat;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import net.md_5.bungee.api.ChatColor;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import net.md_5.bungee.api.ChatColor;
 
 @Getter
 @Setter

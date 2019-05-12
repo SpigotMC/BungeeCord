@@ -559,7 +559,7 @@ public class Commands extends DefinedPacket
             }
         }
 
-        private static abstract class ArgumentSerializer<T>
+        private abstract static class ArgumentSerializer<T>
         {
 
             protected abstract T read(ByteBuf buf);
@@ -567,7 +567,7 @@ public class Commands extends DefinedPacket
             protected abstract void write(ByteBuf buf, T t);
         }
 
-        private static abstract class ProperArgumentSerializer<T> extends ArgumentSerializer<T>
+        private abstract static class ProperArgumentSerializer<T> extends ArgumentSerializer<T>
         {
 
             protected abstract String getKey();

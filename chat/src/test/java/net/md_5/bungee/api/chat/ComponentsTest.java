@@ -1,13 +1,12 @@
 package net.md_5.bungee.api.chat;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class ComponentsTest
 {

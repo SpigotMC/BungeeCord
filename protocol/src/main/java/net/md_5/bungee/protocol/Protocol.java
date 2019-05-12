@@ -39,8 +39,9 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.Team;
-import ru.leymooo.botfilter.packets.TeleportConfirm;
+import net.md_5.bungee.protocol.packet.ViewDistance;
 import net.md_5.bungee.protocol.packet.Title;
+import ru.leymooo.botfilter.packets.TeleportConfirm;
 import ru.leymooo.botfilter.packets.EmptyChunkPacket;
 import ru.leymooo.botfilter.packets.Player;
 import ru.leymooo.botfilter.packets.PlayerAbilities;
@@ -193,6 +194,10 @@ public enum Protocol
             TO_CLIENT.registerPacket(
                     Commands.class,
                     map( ProtocolConstants.MINECRAFT_1_13, 0x11 )
+            );
+            TO_CLIENT.registerPacket(
+                    ViewDistance.class,
+                    map( ProtocolConstants.MINECRAFT_1_14, 0x41 )
             );
 
             TO_SERVER.registerPacket(
