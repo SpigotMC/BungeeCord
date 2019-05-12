@@ -1,7 +1,6 @@
 package net.md_5.bungee.api.connection;
 
 import java.net.InetSocketAddress;
-
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.DefinedPacket;
 

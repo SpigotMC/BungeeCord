@@ -1,9 +1,9 @@
 package net.md_5.bungee.api.chat;
 
 import com.google.common.base.Preconditions;
-import net.md_5.bungee.api.ChatColor;
 import java.util.ArrayList;
 import java.util.List;
+import net.md_5.bungee.api.ChatColor;
 
 /**
  * <p>
@@ -144,6 +144,19 @@ public final class ComponentBuilder
     public ComponentBuilder append(String text)
     {
         return append( text, FormatRetention.ALL );
+    }
+
+    /**
+     * Parse text to BaseComponent[] with colors and format, appends the text to
+     * the builder and makes it the current target for formatting. The component
+     * will have all the formatting from previous part.
+     *
+     * @param text the text to append
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder appendLegacy(String text)
+    {
+        return append( TextComponent.fromLegacyText( text ) );
     }
 
     /**

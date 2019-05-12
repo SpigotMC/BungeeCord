@@ -1,6 +1,8 @@
 package ru.leymooo.botfilter.packets;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufOutputStream;
+import java.io.IOException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,6 +30,7 @@ public class EmptyChunkPacket extends DefinedPacket
         buf.writeInt( this.x );
         buf.writeInt( this.z );
         buf.writeBoolean( true );
+
         if ( version == ProtocolConstants.MINECRAFT_1_8 )
         {
             buf.writeShort( 1 );
@@ -35,15 +38,19 @@ public class EmptyChunkPacket extends DefinedPacket
         {
             writeVarInt( 0, buf );
         }
+        if ( version >= ProtocolConstants.MINECRAFT_1_14 )
+        {
+            this.write1_14Heightmaps( buf );
+        }
         if ( version < ProtocolConstants.MINECRAFT_1_13 )
         {
             writeArray( new byte[ 256 ], buf ); //1.8 - 1.12.2
-        } else if ( version >= ProtocolConstants.MINECRAFT_1_13_1 )
-        {
-            writeArray( new byte[ 1024 ], buf ); //1.13.1 - 1.xx
-        } else
+        } else if ( version == ProtocolConstants.MINECRAFT_1_13 )
         {
             writeArray( new byte[ 512 ], buf ); //1.13
+        } else
+        {
+            writeArray( new byte[ 1024 ], buf ); //1.13.1 - 1.xx
         }
         if ( version >= ProtocolConstants.MINECRAFT_1_9_4 )
         {
@@ -54,5 +61,30 @@ public class EmptyChunkPacket extends DefinedPacket
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {
+    }
+
+    private void write1_14Heightmaps(ByteBuf buf)
+    {
+        try
+        {
+            ByteBufOutputStream output = new ByteBufOutputStream( buf );
+            output.writeByte( 10 ); //CompoundTag
+            output.writeUTF( "" ); // CompoundName
+            output.writeByte( 10 ); //CompoundTag
+            output.writeUTF( "root" ); //root compound
+            output.writeByte( 12 ); //long array
+            output.writeUTF( "MOTION_BLOCKING" );
+            long[] longArrayTag = new long[ 36 ];
+            output.writeInt( longArrayTag.length );
+            for ( int i = 0, length = longArrayTag.length; i < length; i++ )
+            {
+                output.writeLong( longArrayTag[i] );
+            }
+            buf.writeByte( 0 ); //end of compound
+            buf.writeByte( 0 ); //end of compound
+        } catch ( IOException ex )
+        {
+            throw new RuntimeException( ex );
+        }
     }
 }

@@ -27,6 +27,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.Connection.Unsafe;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
@@ -64,13 +65,7 @@ import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
 import ru.leymooo.botfilter.Connector;
-import ru.leymooo.botfilter.caching.PacketUtils;
-import ru.leymooo.botfilter.caching.PacketUtils.KickType;
-import ru.leymooo.botfilter.utils.ManyChecksUtils;
 import ru.leymooo.botfilter.utils.PingLimiter;
-import ru.leymooo.botfilter.utils.ServerPingUtils;
-import net.md_5.bungee.util.BufUtil;
-import net.md_5.bungee.util.QuietException;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection

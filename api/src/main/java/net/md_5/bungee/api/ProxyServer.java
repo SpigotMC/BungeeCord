@@ -1,7 +1,5 @@
 package net.md_5.bungee.api;
 
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.plugin.PluginManager;
 import com.google.common.base.Preconditions;
 import java.io.File;
 import java.net.InetSocketAddress;
@@ -10,10 +8,12 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 import lombok.Getter;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.api.scheduler.TaskScheduler;
 
 public abstract class ProxyServer

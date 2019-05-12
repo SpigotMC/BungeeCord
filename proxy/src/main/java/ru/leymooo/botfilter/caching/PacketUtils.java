@@ -5,8 +5,6 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
 import java.util.HashMap;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
-import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -20,13 +18,13 @@ import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.PluginMessage;
-import ru.leymooo.botfilter.packets.EmptyChunkPacket;
-import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
-import ru.leymooo.botfilter.packets.TimeUpdate;
 import ru.leymooo.botfilter.config.Settings;
+import ru.leymooo.botfilter.packets.EmptyChunkPacket;
 import ru.leymooo.botfilter.packets.PlayerAbilities;
+import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
 import ru.leymooo.botfilter.packets.SetExp;
 import ru.leymooo.botfilter.packets.SetSlot;
+import ru.leymooo.botfilter.packets.TimeUpdate;
 
 /**
  *
@@ -92,26 +90,25 @@ public class PacketUtils
         titles[1] = new CachedTitle( Settings.IMP.MESSAGES.CHECKING_TITLE_CAPTCHA, 5, 15, 10 );
         titles[2] = new CachedTitle( Settings.IMP.MESSAGES.CHECKING_TITLE_SUS, 5, 20, 10 );
 
-        DefinedPacket[] packets
-                =
-                {
-                    new Login( CLIENTID, (short) 2, 0, (short) 0, (short) 100, "flat", false ), //0
-                    new EmptyChunkPacket( 0, 0 ), //1
-                    new TimeUpdate( 1, 23700 ), //2
-                    new PlayerAbilities( (byte) 6, 0f, 0f ), //3
-                    new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 38f, 9876, false ), //4
-                    new SetSlot( 0, 36, 358, 1, 0 ), //5 map 1.8+
-                    new SetSlot( 0, 36, -1, 0, 0 ), //6 map reset
-                    new KeepAlive( 9876 ), //7
-                    createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "2" ).replaceFirst( "%s", "попытки" ) ), //8
-                    createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "1" ).replaceFirst( "%s", "попытка" ) ), //9
-                    createMessagePacket( Settings.IMP.MESSAGES.CHECKING ), //10
-                    createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA ), //11
-                    createMessagePacket( Settings.IMP.MESSAGES.SUCCESSFULLY ), //12
-                    new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 10f, 9876, false ), //13
-                    new SetExp( 0, 0, 0 ), //14
-                    createPluginMessage(), //15
-                };
+        DefinedPacket[] packets =
+        {
+            new Login( CLIENTID, (short) 2, 0, (short) 0, (short) 100, "flat", 2, false ), //0
+            new EmptyChunkPacket( 0, 0 ), //1
+            new TimeUpdate( 1, 23700 ), //2
+            new PlayerAbilities( (byte) 6, 0f, 0f ), //3
+            new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 38f, 9876, false ), //4
+            new SetSlot( 0, 36, 358, 1, 0 ), //5 map 1.8+
+            new SetSlot( 0, 36, -1, 0, 0 ), //6 map reset
+            new KeepAlive( 9876 ), //7
+            createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "2" ).replaceFirst( "%s", "попытки" ) ), //8
+            createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "1" ).replaceFirst( "%s", "попытка" ) ), //9
+            createMessagePacket( Settings.IMP.MESSAGES.CHECKING ), //10
+            createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA ), //11
+            createMessagePacket( Settings.IMP.MESSAGES.SUCCESSFULLY ), //12
+            new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 10f, 9876, false ), //13
+            new SetExp( 0, 0, 0 ), //14
+            createPluginMessage(), //15
+        };
 
         for ( int i = 0; i < packets.length; i++ )
         {
@@ -128,7 +125,7 @@ public class PacketUtils
         kickMessagesLogin.put( KickType.COUNTRY, new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_COUNTRY ), kickLogin ) );
         /*BungeeCord bungee = BungeeCord.getInstance();
         kickMessagesLogin.put( KickType.THROTTLE, new CachedPacket( createKickPacket( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( bungee.getConfig().getThrottle() ) ) ), kickLogin ) );
-		*/
+         */
 
     }
 
@@ -248,6 +245,8 @@ public class PacketUtils
                 return 12;
             case ProtocolConstants.MINECRAFT_1_13_2:
                 return 13;
+            case ProtocolConstants.MINECRAFT_1_14:
+                return 14;
             default:
                 throw new IllegalArgumentException( "Version is not supported" );
         }
@@ -300,7 +299,7 @@ public class PacketUtils
         MANYCHECKS,
         NOTPLAYER,
         COUNTRY,
-       // THROTTLE,
+        // THROTTLE,
         PING;
     }
 

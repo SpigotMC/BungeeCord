@@ -79,7 +79,6 @@ import net.md_5.bungee.command.CommandReload;
 import net.md_5.bungee.command.CommandReloadServers;
 import net.md_5.bungee.command.ConsoleCommandCompleter;
 import net.md_5.bungee.command.ConsoleCommandSender;
-import ru.leymooo.botfilter.BotFilterCommand;
 import net.md_5.bungee.compress.CompressFactory;
 import net.md_5.bungee.conf.Configuration;
 import net.md_5.bungee.conf.YamlConfig;
@@ -97,6 +96,7 @@ import net.md_5.bungee.scheduler.BungeeScheduler;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.fusesource.jansi.AnsiConsole;
 import ru.leymooo.botfilter.BotFilter;
+import ru.leymooo.botfilter.BotFilterCommand;
 import ru.leymooo.botfilter.BotFilterThread;
 import ru.leymooo.botfilter.config.Settings;
 import ru.leymooo.botfilter.utils.FakeOnlineUtils;
@@ -179,7 +179,6 @@ public class BungeeCord extends ProxyServer
     @Setter
     private BotFilter botFilter; //BotFilter
 
-    
     {
         registerChannel( "BungeeCord" );
     }
@@ -233,7 +232,7 @@ public class BungeeCord extends ProxyServer
         getPluginManager().registerCommand( null, new CommandPerms() );
         getPluginManager().registerCommand( null, new BotFilterCommand() ); //BotFilter
         getPluginManager().registerCommand( null, new CommandReloadServers() ); //BotFilter
-        
+
         if ( !Boolean.getBoolean( "net.md_5.bungee.native.disable" ) )
         {
             if ( EncryptionUtil.nativeFactory.load() )
@@ -329,6 +328,12 @@ public class BungeeCord extends ProxyServer
             if ( info.isProxyProtocol() )
             {
                 getLogger().log( Level.WARNING, "Using PROXY protocol for listener {0}, please ensure this listener is adequately firewalled.", info.getHost() );
+
+                if ( connectionThrottle != null )
+                {
+                    connectionThrottle = null;
+                    getLogger().log( Level.WARNING, "Since PROXY protocol is in use, internal connection throttle has been disabled." );
+                }
             }
 
             ChannelFutureListener listener = new ChannelFutureListener()
@@ -475,8 +480,8 @@ public class BungeeCord extends ProxyServer
                     try
                     {
                         bossEventLoopGroup.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS );//BotFilter //WaterFall backport
-                        workerEventLoopGroup.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS ); //BotFilter //WaterFall backport 
-                        queryEventLoopGroup.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS ); //BotFilter 
+                        workerEventLoopGroup.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS ); //BotFilter //WaterFall backport
+                        queryEventLoopGroup.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS ); //BotFilter
                         break;
                     } catch ( InterruptedException ignored )
                     {

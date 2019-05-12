@@ -7,8 +7,8 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.Login;
-import ru.leymooo.botfilter.caching.PacketsPosition;
 import ru.leymooo.botfilter.caching.PacketUtils;
+import ru.leymooo.botfilter.caching.PacketsPosition;
 import ru.leymooo.botfilter.config.Settings;
 import ru.leymooo.botfilter.packets.EmptyChunkPacket;
 import ru.leymooo.botfilter.packets.PlayerAbilities;
@@ -53,8 +53,8 @@ public class CachingTest
             for ( int a = 0; a < 50000; a++ )
             {
                 //Пофиг на айди
-                PacketUtils.createPacket( new Login( -1, (short) 2, 0, (short) 0, (short) 100, "flat", false ), 1, 47 ).release();
-                PacketUtils.createPacket(new EmptyChunkPacket( 0, 0 ), 1, 47 ).release();
+                PacketUtils.createPacket( new Login( -1, (short) 2, 0, (short) 0, (short) 100, "flat", 2, false ), 1, 47 ).release();
+                PacketUtils.createPacket( new EmptyChunkPacket( 0, 0 ), 1, 47 ).release();
                 PacketUtils.createPacket( new SetSlot( 0, 36, 358, 1, 0 ), 1, 47 ).release();
                 PacketUtils.createPacket( new PlayerAbilities( (byte) 6, 0f, 0f ), 1, 47 ).release();
                 PacketUtils.createPacket( new PlayerPositionAndLook( 7.00, 450, 7.00, -5f, 48f, 9876, false ), 1, 47 ).release();

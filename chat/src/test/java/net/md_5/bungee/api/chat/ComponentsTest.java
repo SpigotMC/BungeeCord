@@ -1,13 +1,12 @@
 package net.md_5.bungee.api.chat;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class ComponentsTest
 {
@@ -76,6 +75,16 @@ public class ComponentsTest
     }
 
     @Test
+    public void testScore()
+    {
+        BaseComponent[] component = ComponentSerializer.parse( "{\"score\":{\"name\":\"@p\",\"objective\":\"TEST\",\"value\":\"hello\"}}" );
+        String text = ComponentSerializer.toString( component );
+        BaseComponent[] reparsed = ComponentSerializer.parse( text );
+
+        Assert.assertArrayEquals( component, reparsed );
+    }
+
+    @Test
     public void testBuilderAppend()
     {
         ClickEvent clickEvent = new ClickEvent( ClickEvent.Action.RUN_COMMAND, "/help " );
@@ -88,6 +97,18 @@ public class ComponentsTest
 
         Assert.assertEquals( components[1].getHoverEvent(), hoverEvent );
         Assert.assertEquals( components[1].getClickEvent(), clickEvent );
+        Assert.assertEquals( "Hello world!", BaseComponent.toPlainText( components ) );
+        Assert.assertEquals( ChatColor.YELLOW + "Hello " + ChatColor.GREEN + "world!", BaseComponent.toLegacyText( components ) );
+    }
+
+    @Test
+    public void testBuilderAppendLegacy()
+    {
+        ComponentBuilder builder = new ComponentBuilder( "Hello " ).color( ChatColor.YELLOW );
+        builder.appendLegacy( "§aworld!" );
+
+        BaseComponent[] components = builder.create();
+
         Assert.assertEquals( "Hello world!", BaseComponent.toPlainText( components ) );
         Assert.assertEquals( ChatColor.YELLOW + "Hello " + ChatColor.GREEN + "world!", BaseComponent.toLegacyText( components ) );
     }

@@ -58,15 +58,19 @@ public class SetSlot extends DefinedPacket
 
     private int getCapthcaId(int version)
     {
-        if ( version == ProtocolConstants.MINECRAFT_1_13 )
+        if ( version <= ProtocolConstants.MINECRAFT_1_12_2 )
+        {
+            return 358;
+        } else if ( version == ProtocolConstants.MINECRAFT_1_13 )
         {
             return 608;
-        }
-        if ( version >= ProtocolConstants.MINECRAFT_1_13_1 )
+        } else if ( version <= ProtocolConstants.MINECRAFT_1_13_2 )
         {
             return 613;
+        } else
+        {
+            return 671;
         }
-        return 358;
     }
 
     @Override

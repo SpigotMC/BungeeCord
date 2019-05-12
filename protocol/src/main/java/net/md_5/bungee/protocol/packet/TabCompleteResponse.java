@@ -4,7 +4,6 @@ import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
-import net.md_5.bungee.protocol.DefinedPacket;
 import io.netty.buffer.ByteBuf;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,6 +11,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
+import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
@@ -78,8 +78,8 @@ public class TabCompleteResponse extends DefinedPacket
             for ( Suggestion suggestion : suggestions.getList() )
             {
                 writeString( suggestion.getText(), buf );
-                buf.writeBoolean( suggestion.getTooltip() != null );
-                if ( suggestion.getTooltip() != null )
+                buf.writeBoolean( suggestion.getTooltip() != null && suggestion.getTooltip().getString() != null );
+                if ( suggestion.getTooltip() != null && suggestion.getTooltip().getString() != null )
                 {
                     writeString( suggestion.getTooltip().getString(), buf );
                 }

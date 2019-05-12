@@ -22,7 +22,6 @@ public class CraftMapCanvas
             {
                 this.buffer[y * 128 + x] = color;
             }
-
         }
     }
 
@@ -43,19 +42,6 @@ public class CraftMapCanvas
 
     public MapDataPacket.MapData getMapData()
     {
-        byte[] buffer1 = new byte[ 16384 ];
-        byte[] buf = this.buffer;
-
-        for ( int i = 0; i < buf.length; ++i )
-        {
-            byte color = buf[i];
-
-            if ( color >= 0 || color <= -113 )
-            {
-                buffer1[i] = color;
-            }
-        }
-
-        return new MapDataPacket.MapData( 128, 128, 0, 0, buffer1 );
+        return new MapDataPacket.MapData( 128, 128, 0, 0, this.buffer );
     }
 }

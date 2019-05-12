@@ -2,11 +2,11 @@ package net.md_5.bungee.jni.cipher;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import java.security.GeneralSecurityException;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
-import java.security.GeneralSecurityException;
 
 public class JavaCipher implements BungeeCipher
 {

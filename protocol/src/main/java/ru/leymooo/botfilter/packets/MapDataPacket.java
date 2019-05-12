@@ -1,13 +1,11 @@
 package ru.leymooo.botfilter.packets;
 
 import io.netty.buffer.ByteBuf;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
@@ -28,11 +26,15 @@ public class MapDataPacket extends DefinedPacket
     {
         MapDataPacket.writeVarInt( this.mapId, buf );
         buf.writeByte( this.scale );
-        MapDataPacket.writeVarInt( 0, buf );
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
         {
             buf.writeBoolean( false );
         }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_14 )
+        {
+            buf.writeBoolean( false );
+        }
+        MapDataPacket.writeVarInt( 0, buf );
         buf.writeByte( data.getColumns() );
         buf.writeByte( data.getRows() );
         buf.writeByte( data.getX() );

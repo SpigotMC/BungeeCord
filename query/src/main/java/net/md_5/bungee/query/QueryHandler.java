@@ -51,6 +51,17 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket>
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception
     {
+        try
+        {
+            handleMessage( ctx, msg );
+        } catch ( Throwable t )
+        {
+            bungee.getLogger().log( Level.WARNING, "Error whilst handling query packet from " + msg.sender(), t );
+        }
+    }
+
+    private void handleMessage(ChannelHandlerContext ctx, DatagramPacket msg)
+    {
         ByteBuf in = msg.content();
         if ( in.readUnsignedByte() != 0xFE || in.readUnsignedByte() != 0xFD )
         {
