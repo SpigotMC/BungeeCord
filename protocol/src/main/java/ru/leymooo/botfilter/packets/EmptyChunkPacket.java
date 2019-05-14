@@ -65,9 +65,8 @@ public class EmptyChunkPacket extends DefinedPacket
 
     private void write1_14Heightmaps(ByteBuf buf)
     {
-        try
+        try (ByteBufOutputStream output = new ByteBufOutputStream( buf ))
         {
-            ByteBufOutputStream output = new ByteBufOutputStream( buf );
             output.writeByte( 10 ); //CompoundTag
             output.writeUTF( "" ); // CompoundName
             output.writeByte( 10 ); //CompoundTag
