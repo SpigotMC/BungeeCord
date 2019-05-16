@@ -18,31 +18,6 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.ResourceLeakDetector;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.net.InetSocketAddress;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import jline.console.ConsoleReader;
 import lombok.Getter;
 import lombok.Setter;
@@ -71,14 +46,7 @@ import net.md_5.bungee.chat.ScoreComponentSerializer;
 import net.md_5.bungee.chat.SelectorComponentSerializer;
 import net.md_5.bungee.chat.TextComponentSerializer;
 import net.md_5.bungee.chat.TranslatableComponentSerializer;
-import net.md_5.bungee.command.CommandBungee;
-import net.md_5.bungee.command.CommandEnd;
-import net.md_5.bungee.command.CommandIP;
-import net.md_5.bungee.command.CommandPerms;
-import net.md_5.bungee.command.CommandReload;
-import net.md_5.bungee.command.CommandReloadServers;
-import net.md_5.bungee.command.ConsoleCommandCompleter;
-import net.md_5.bungee.command.ConsoleCommandSender;
+import net.md_5.bungee.command.*;
 import net.md_5.bungee.compress.CompressFactory;
 import net.md_5.bungee.conf.Configuration;
 import net.md_5.bungee.conf.YamlConfig;
@@ -101,6 +69,20 @@ import ru.leymooo.botfilter.BotFilterThread;
 import ru.leymooo.botfilter.config.Settings;
 import ru.leymooo.botfilter.utils.FakeOnlineUtils;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.InetSocketAddress;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * Main BungeeCord proxy class.
  */
@@ -121,6 +103,8 @@ public class BungeeCord extends ProxyServer
      */
     private ResourceBundle baseBundle;
     private ResourceBundle customBundle;
+
+    public EventLoopGroup eventLoops;
     public EventLoopGroup bossEventLoopGroup, workerEventLoopGroup, queryEventLoopGroup; //BotFilter
     /**
      * locations.yml save thread.
@@ -275,7 +259,7 @@ public class BungeeCord extends ProxyServer
         BotFilterThread.startCleanUpThread(); //BotFilter
 
         bossEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Boss IO Thread #%1$d" ).build() ); //BotFilter //WaterFall backport
-        workerEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Worker IO Thread #%1$d" ).build() );//BotFilter //WaterFall backport
+        eventLoops = workerEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Worker IO Thread #%1$d" ).build() );//BotFilter //WaterFall backport
         queryEventLoopGroup = PipelineUtils.newEventLoopGroup( 1, new ThreadFactoryBuilder().setNameFormat( "Query Netty IO Thread #%1$d" ).build() );//BotFilter
 
         File moduleDirectory = new File( "modules" );
