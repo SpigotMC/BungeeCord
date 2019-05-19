@@ -18,6 +18,8 @@ public class PlayerPosition extends DefinedPacket
     private double x;
     private double y;
     private double z;
+    private float yaw;
+    private float pitch;
     private boolean onGround;
 
     @Override
@@ -26,6 +28,8 @@ public class PlayerPosition extends DefinedPacket
         x = buf.readDouble();
         y = buf.readDouble();
         z = buf.readDouble();
+        yaw = buf.readFloat();
+        pitch = buf.readFloat();
         onGround = buf.readBoolean();
     }
 
@@ -35,6 +39,8 @@ public class PlayerPosition extends DefinedPacket
         buf.writeDouble( x );
         buf.writeDouble( y );
         buf.writeDouble( z );
+        buf.writeFloat( yaw );
+        buf.writeFloat( pitch );
         buf.writeBoolean( onGround );
     }
 

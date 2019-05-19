@@ -253,7 +253,7 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(PlayerPosition playerPosition)
     {
-        Position position = new Position( playerPosition.getX(), playerPosition.getY(), playerPosition.getZ(), playerPosition.isOnGround() );
+        Position position = new Position( playerPosition.getX(), playerPosition.getY(), playerPosition.getZ(), playerPosition.getYaw(), playerPosition.getPitch(), playerPosition.isOnGround() );
         con.setPosition0( position );
     }
 

@@ -717,7 +717,7 @@ public final class UserConnection implements ProxiedPlayer
     public void setPosition(Position newPosition)
     {
         setPosition0( newPosition );
-        unsafe().sendPacket( new PlayerPosition( newPosition.getX(), newPosition.getY(), newPosition.getZ(), newPosition.isOnGround() ) );
+        unsafe().sendPacket( new PlayerPosition( newPosition.getX(), newPosition.getY(), newPosition.getZ(), newPosition.getYaw(), newPosition.getPitch(), newPosition.isOnGround() ) );
     }
 
     public void setPosition0(Position newPosition)

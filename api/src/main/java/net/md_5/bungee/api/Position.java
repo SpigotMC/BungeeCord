@@ -27,6 +27,16 @@ public class Position
     private double z;
 
     /**
+     * Yaw axis
+     */
+    private float yaw;
+
+    /**
+     * Pitch axis
+     */
+    private float pitch;
+
+    /**
      * Does the player is on ground
      */
     private boolean onGround;
