@@ -6,6 +6,7 @@ import java.util.UUID;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.Position;
 import net.md_5.bungee.api.ServerConnectRequest;
 import net.md_5.bungee.api.SkinConfiguration;
 import net.md_5.bungee.api.Title;
@@ -321,4 +322,18 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @return this player's {@link Scoreboard}
      */
     Scoreboard getScoreboard();
+
+    /**
+     * Gets the player's position on current connected server
+     *
+     * @return player's position
+     */
+    Position getPosition();
+
+    /**
+     * Sets the player a new {@link #getPosition()} and teleports the player to it
+     *
+     * @param newPosition new player position
+     */
+    void setPosition(Position newPosition);
 }

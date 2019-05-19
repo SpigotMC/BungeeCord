@@ -11,6 +11,7 @@ import java.util.List;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
+import net.md_5.bungee.api.Position;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
@@ -27,6 +28,7 @@ import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
+import net.md_5.bungee.protocol.packet.PlayerPosition;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
@@ -246,6 +248,13 @@ public class UpstreamBridge extends PacketHandler
         {
             con.getPendingConnection().getRelayMessages().add( pluginMessage );
         }
+    }
+
+    @Override
+    public void handle(PlayerPosition playerPosition)
+    {
+        Position position = new Position( playerPosition.getX(), playerPosition.getY(), playerPosition.getZ(), playerPosition.isOnGround() );
+        con.setPosition0( position );
     }
 
     @Override

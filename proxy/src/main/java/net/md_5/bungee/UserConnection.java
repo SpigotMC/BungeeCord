@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.Position;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerConnectRequest;
 import net.md_5.bungee.api.SkinConfiguration;
@@ -55,6 +56,7 @@ import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
+import net.md_5.bungee.protocol.packet.PlayerPosition;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.tab.ServerUnique;
@@ -108,6 +110,8 @@ public final class UserConnection implements ProxiedPlayer
     // Used for trying multiple servers in order
     @Setter
     private Queue<String> serverJoinQueue;
+    @Getter
+    private Position position;
     /*========================================================================*/
     private final Collection<String> groups = new CaseInsensitiveSet();
     private final Collection<String> permissions = new CaseInsensitiveSet();
@@ -707,5 +711,17 @@ public final class UserConnection implements ProxiedPlayer
     public Scoreboard getScoreboard()
     {
         return serverSentScoreboard;
+    }
+
+    @Override
+    public void setPosition(Position newPosition)
+    {
+        setPosition0( newPosition );
+        unsafe().sendPacket( new PlayerPosition( newPosition.getX(), newPosition.getY(), newPosition.getZ(), newPosition.isOnGround() ) );
+    }
+
+    public void setPosition0(Position newPosition)
+    {
+        this.position = newPosition;
     }
 }

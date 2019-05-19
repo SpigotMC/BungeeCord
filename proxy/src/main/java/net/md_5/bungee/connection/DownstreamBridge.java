@@ -49,6 +49,7 @@ import net.md_5.bungee.protocol.packet.Commands;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
+import net.md_5.bungee.protocol.packet.PlayerPosition;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
@@ -590,6 +591,22 @@ public class DownstreamBridge extends PacketHandler
         if ( modified )
         {
             con.unsafe().sendPacket( commands );
+            throw CancelSendSignal.INSTANCE;
+        }
+    }
+
+    @Override
+    public void handle(PlayerPosition position)
+    {
+        boolean changed = true;
+        net.md_5.bungee.api.Position conPos = con.getPosition();
+        if ( conPos.getX() == position.getX() && conPos.getY() == position.getY() && conPos.getZ() == position.getZ() && conPos.isOnGround() == position.isOnGround() )
+        {
+            changed = false;
+        }
+        if ( changed )
+        {
+            con.unsafe().sendPacket( position );
             throw CancelSendSignal.INSTANCE;
         }
     }
