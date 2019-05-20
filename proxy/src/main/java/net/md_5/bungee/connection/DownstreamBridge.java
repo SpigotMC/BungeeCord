@@ -27,6 +27,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.PlayerChangePositionEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerDisconnectEvent;
@@ -604,10 +605,22 @@ public class DownstreamBridge extends PacketHandler
         {
             changed = false;
         }
+        net.md_5.bungee.api.Position packetPos = new net.md_5.bungee.api.Position( position.getX(), position.getY(), position.getZ(),
+            position.getYaw(), position.getPitch(), position.isOnGround() );
+        PlayerChangePositionEvent event = new PlayerChangePositionEvent( con, conPos, packetPos );
         if ( changed )
         {
-            con.unsafe().sendPacket( position );
-            throw CancelSendSignal.INSTANCE;
+            PlayerChangePositionEvent called = bungee.getPluginManager().callEvent( event );
+            if ( !called.isCancelled() )
+            {
+                con.unsafe().sendPacket( position );
+                throw CancelSendSignal.INSTANCE;
+            } else
+            {
+                net.md_5.bungee.api.Position newPos = called.getNewPosition();
+                con.unsafe().sendPacket( new PlayerPosition( newPos.getX(), newPos.getY(), newPos.getZ(), newPos.getYaw(), newPos.getPitch(), newPos.isOnGround() ) );
+                throw CancelSendSignal.INSTANCE;
+            }
         }
     }
 

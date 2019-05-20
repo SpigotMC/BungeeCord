@@ -331,7 +331,9 @@ public interface ProxiedPlayer extends Connection, CommandSender
     Position getPosition();
 
     /**
-     * Sets the player a new {@link #getPosition()} and teleports the player to it
+     * Sets the player a new {@link #getPosition()} and teleports the player to it.
+     * <b>!!!!! WARNING !!!!!! This might give false positives on anti cheats, also may break client-server synchronization.
+     * USE AT YOUR OWN RISK!!!!!!</b>
      *
      * @param newPosition new player position
      */
