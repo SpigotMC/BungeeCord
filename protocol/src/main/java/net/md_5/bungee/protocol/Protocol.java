@@ -236,6 +236,7 @@ public enum Protocol
             );
             TO_SERVER.registerPacket(
                     PlayerPosition.class,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x06 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x0D ),
                     map( ProtocolConstants.MINECRAFT_1_12, 0x0F ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x0E ),
