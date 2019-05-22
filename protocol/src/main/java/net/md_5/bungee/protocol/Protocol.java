@@ -576,7 +576,7 @@ public enum Protocol
         public final int getId(Class<? extends DefinedPacket> packet, int version)
         {
 
-            ProtocolData protocolData = protocols.get( version );
+            ProtocolData protocolData = getProtocolData( version );
             if ( protocolData == null )
             {
                 throw new BadPacketException( "Unsupported protocol version" );
