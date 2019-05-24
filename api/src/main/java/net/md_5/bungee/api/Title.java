@@ -65,7 +65,7 @@ public interface Title
      * duration specified in {@link #fadeOut(int)}. The default value for the
      * official Minecraft version is 60 (3 seconds).
      *
-     * @param ticks The amount of ticks (1/20 second) for the fade in effect.
+     * @param ticks The amount of ticks (1/20 second) for the stay effect.
      * @return This title configuration.
      */
     public Title stay(int ticks);

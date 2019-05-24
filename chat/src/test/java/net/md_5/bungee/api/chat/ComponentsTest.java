@@ -1,13 +1,12 @@
 package net.md_5.bungee.api.chat;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class ComponentsTest
 {
@@ -76,6 +75,16 @@ public class ComponentsTest
     }
 
     @Test
+    public void testScore()
+    {
+        BaseComponent[] component = ComponentSerializer.parse( "{\"score\":{\"name\":\"@p\",\"objective\":\"TEST\",\"value\":\"hello\"}}" );
+        String text = ComponentSerializer.toString( component );
+        BaseComponent[] reparsed = ComponentSerializer.parse( text );
+
+        Assert.assertArrayEquals( component, reparsed );
+    }
+
+    @Test
     public void testBuilderAppend()
     {
         ClickEvent clickEvent = new ClickEvent( ClickEvent.Action.RUN_COMMAND, "/help " );
@@ -88,6 +97,18 @@ public class ComponentsTest
 
         Assert.assertEquals( components[1].getHoverEvent(), hoverEvent );
         Assert.assertEquals( components[1].getClickEvent(), clickEvent );
+        Assert.assertEquals( "Hello world!", BaseComponent.toPlainText( components ) );
+        Assert.assertEquals( ChatColor.YELLOW + "Hello " + ChatColor.GREEN + "world!", BaseComponent.toLegacyText( components ) );
+    }
+
+    @Test
+    public void testBuilderAppendLegacy()
+    {
+        ComponentBuilder builder = new ComponentBuilder( "Hello " ).color( ChatColor.YELLOW );
+        builder.appendLegacy( "§aworld!" );
+
+        BaseComponent[] components = builder.create();
+
         Assert.assertEquals( "Hello world!", BaseComponent.toPlainText( components ) );
         Assert.assertEquals( ChatColor.YELLOW + "Hello " + ChatColor.GREEN + "world!", BaseComponent.toLegacyText( components ) );
     }
@@ -113,9 +134,9 @@ public class ComponentsTest
         BaseComponent[] test2 = TextComponent.fromLegacyText( "Text http://spigotmc.org " + ChatColor.GREEN + "google.com/test" );
 
         Assert.assertEquals( "Text http://spigotmc.org google.com/test", BaseComponent.toPlainText( test2 ) );
-        //The extra ChatColor.WHITEs are sometimes inserted when not needed but it doesn't change the result
+        //The extra ChatColor instances are sometimes inserted when not needed but it doesn't change the result
         Assert.assertEquals( ChatColor.WHITE + "Text " + ChatColor.WHITE + "http://spigotmc.org" + ChatColor.WHITE
-                + " " + ChatColor.GREEN + "google.com/test", BaseComponent.toLegacyText( test2 ) );
+                + " " + ChatColor.GREEN + "google.com/test" + ChatColor.GREEN, BaseComponent.toLegacyText( test2 ) );
 
         ClickEvent url1 = test2[1].getClickEvent();
         Assert.assertNotNull( url1 );
@@ -273,6 +294,20 @@ public class ComponentsTest
 
         // all invalid color codes and the trailing '§' should be ignored
         Assert.assertEquals( emptyLegacyText, invalidColorCodesLegacyText );
+    }
+
+    @Test
+    public void testFormattingOnlyTextConversion()
+    {
+        String text = "§a";
+
+        BaseComponent[] converted = TextComponent.fromLegacyText( text );
+        Assert.assertEquals( ChatColor.GREEN, converted[0].getColor() );
+
+        String roundtripLegacyText = BaseComponent.toLegacyText( converted );
+
+        // color code should not be lost during conversion
+        Assert.assertEquals( text, roundtripLegacyText );
     }
 
     private String fromAndToLegacyText(String legacyText)

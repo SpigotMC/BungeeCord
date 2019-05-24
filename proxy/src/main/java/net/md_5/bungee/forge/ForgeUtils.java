@@ -2,9 +2,9 @@ package net.md_5.bungee.forge;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -36,7 +36,7 @@ public class ForgeUtils
      */
     public static Map<String, String> readModList(PluginMessage pluginMessage)
     {
-        Map<String, String> modTags = Maps.newHashMap();
+        Map<String, String> modTags = new HashMap<>();
         ByteBuf payload = Unpooled.wrappedBuffer( pluginMessage.getData() );
         byte discriminator = payload.readByte();
         if ( discriminator == 2 ) // ModList

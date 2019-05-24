@@ -3,6 +3,7 @@ package net.md_5.bungee;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import java.util.Locale;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
@@ -30,8 +31,11 @@ import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
+import net.md_5.bungee.protocol.packet.EntityStatus;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Login;
@@ -42,6 +46,9 @@ import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.SetCompression;
+import net.md_5.bungee.protocol.packet.ViewDistance;
+import net.md_5.bungee.util.BufUtil;
+import net.md_5.bungee.util.QuietException;
 
 @RequiredArgsConstructor
 public class ServerConnector extends PacketHandler
@@ -119,6 +126,15 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
+    public void handle(PacketWrapper packet) throws Exception
+    {
+        if ( packet.packet == null )
+        {
+            throw new QuietException( "Unexpected packet received during server login process!\n" + BufUtil.dump( packet.buf, 16 ) );
+        }
+    }
+
+    @Override
     public void handle(LoginSuccess loginSuccess) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not expecting LOGIN_SUCCESS" );
@@ -162,7 +178,7 @@ public class ServerConnector extends PacketHandler
         ServerConnectedEvent event = new ServerConnectedEvent( user, server );
         bungee.getPluginManager().callEvent( event );
 
-        ch.write( BungeeCord.getInstance().registerChannels() );
+        ch.write( BungeeCord.getInstance().registerChannels( user.getPendingConnection().getVersion() ) );
         Queue<DefinedPacket> packetQueue = target.getPacketQueue();
         synchronized ( packetQueue )
         {
@@ -193,15 +209,15 @@ public class ServerConnector extends PacketHandler
             user.setClientEntityId( login.getEntityId() );
             user.setServerEntityId( login.getEntityId() );
 
-            // Set tab list size, this sucks balls, TODO: what shall we do about packet mutability
+            // Set tab list size, TODO: what shall we do about packet mutability
             Login modLogin = new Login( login.getEntityId(), login.getGameMode(), (byte) login.getDimension(), login.getDifficulty(),
-                    (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.isReducedDebugInfo() );
+                    (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.getViewDistance(), login.isReducedDebugInfo() );
 
             user.unsafe().sendPacket( modLogin );
 
             ByteBuf brand = ByteBufAllocator.DEFAULT.heapBuffer();
             DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")", brand );
-            user.unsafe().sendPacket( new PluginMessage( "MC|Brand", DefinedPacket.toArray( brand ), handshakeHandler.isServerForge() ) );
+            user.unsafe().sendPacket( new PluginMessage( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ? "minecraft:brand" : "MC|Brand", DefinedPacket.toArray( brand ), handshakeHandler.isServerForge() ) );
             brand.release();
 
             user.setDimension( login.getDimension() );
@@ -213,7 +229,7 @@ public class ServerConnector extends PacketHandler
             Scoreboard serverScoreboard = user.getServerSentScoreboard();
             for ( Objective objective : serverScoreboard.getObjectives() )
             {
-                user.unsafe().sendPacket( new ScoreboardObjective( objective.getName(), objective.getValue(), objective.getType(), (byte) 1 ) );
+                user.unsafe().sendPacket( new ScoreboardObjective( objective.getName(), objective.getValue(), ScoreboardObjective.HealthDisplay.fromString( objective.getType() ), (byte) 1 ) );
             }
             for ( Score score : serverScoreboard.getScores() )
             {
@@ -232,6 +248,9 @@ public class ServerConnector extends PacketHandler
             }
             user.getSentBossBars().clear();
 
+            // Update debug info from login packet
+            user.unsafe().sendPacket( new EntityStatus( user.getClientEntityId(), login.isReducedDebugInfo() ? EntityStatus.DEBUG_INFO_REDUCED : EntityStatus.DEBUG_INFO_NORMAL ) );
+
             user.setDimensionChange( true );
             if ( login.getDimension() == user.getDimension() )
             {
@@ -240,6 +259,10 @@ public class ServerConnector extends PacketHandler
 
             user.setServerEntityId( login.getEntityId() );
             user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getDifficulty(), login.getGameMode(), login.getLevelType() ) );
+            if ( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_14 )
+            {
+                user.unsafe().sendPacket( new ViewDistance( login.getViewDistance() ) );
+            }
             user.setDimension( login.getDimension() );
 
             // Remove from old servers
@@ -275,7 +298,7 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(EncryptionRequest encryptionRequest) throws Exception
     {
-        throw new RuntimeException( "Server is online mode!" );
+        throw new QuietException( "Server is online mode!" );
     }
 
     @Override
@@ -283,7 +306,7 @@ public class ServerConnector extends PacketHandler
     {
         ServerInfo def = user.updateAndGetNextServer( target );
         ServerKickEvent event = new ServerKickEvent( user, target, ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTING );
-        if ( event.getKickReason().toLowerCase().contains( "outdated" ) && def != null )
+        if ( event.getKickReason().toLowerCase( Locale.ROOT ).contains( "outdated" ) && def != null )
         {
             // Pre cancel the event if we are going to try another server
             event.setCancelled( true );
@@ -311,47 +334,49 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(PluginMessage pluginMessage) throws Exception
     {
-        if ( pluginMessage.getTag().equals( ForgeConstants.FML_REGISTER ) )
+        if ( BungeeCord.getInstance().config.isForgeSupport() )
         {
-            Set<String> channels = ForgeUtils.readRegisteredChannels( pluginMessage );
-            boolean isForgeServer = false;
-            for ( String channel : channels )
+            if ( pluginMessage.getTag().equals( ForgeConstants.FML_REGISTER ) )
             {
-                if ( channel.equals( ForgeConstants.FML_HANDSHAKE_TAG ) )
+                Set<String> channels = ForgeUtils.readRegisteredChannels( pluginMessage );
+                boolean isForgeServer = false;
+                for ( String channel : channels )
                 {
-                    // If we have a completed handshake and we have been asked to register a FML|HS
-                    // packet, let's send the reset packet now. Then, we can continue the message sending.
-                    // The handshake will not be complete if we reset this earlier.
-                    if ( user.getServer() != null && user.getForgeClientHandler().isHandshakeComplete() )
+                    if ( channel.equals( ForgeConstants.FML_HANDSHAKE_TAG ) )
                     {
-                        user.getForgeClientHandler().resetHandshake();
-                    }
+                        // If we have a completed handshake and we have been asked to register a FML|HS
+                        // packet, let's send the reset packet now. Then, we can continue the message sending.
+                        // The handshake will not be complete if we reset this earlier.
+                        if ( user.getServer() != null && user.getForgeClientHandler().isHandshakeComplete() )
+                        {
+                            user.getForgeClientHandler().resetHandshake();
+                        }
 
-                    isForgeServer = true;
-                    break;
+                        isForgeServer = true;
+                        break;
+                    }
+                }
+
+                if ( isForgeServer && !this.handshakeHandler.isServerForge() )
+                {
+                    // We now set the server-side handshake handler for the client to this.
+                    handshakeHandler.setServerAsForgeServer();
+                    user.setForgeServerHandler( handshakeHandler );
                 }
             }
 
-            if ( isForgeServer && !this.handshakeHandler.isServerForge() )
+            if ( pluginMessage.getTag().equals( ForgeConstants.FML_HANDSHAKE_TAG ) || pluginMessage.getTag().equals( ForgeConstants.FORGE_REGISTER ) )
             {
-                // We now set the server-side handshake handler for the client to this.
-                handshakeHandler.setServerAsForgeServer();
-                user.setForgeServerHandler( handshakeHandler );
+                this.handshakeHandler.handle( pluginMessage );
+
+                // We send the message as part of the handler, so don't send it here.
+                throw CancelSendSignal.INSTANCE;
             }
         }
 
-        if ( pluginMessage.getTag().equals( ForgeConstants.FML_HANDSHAKE_TAG ) || pluginMessage.getTag().equals( ForgeConstants.FORGE_REGISTER ) )
-        {
-            this.handshakeHandler.handle( pluginMessage );
-
-            // We send the message as part of the handler, so don't send it here.
-            throw CancelSendSignal.INSTANCE;
-        } else
-        {
-            // We have to forward these to the user, especially with Forge as stuff might break
-            // This includes any REGISTER messages we intercepted earlier.
-            user.unsafe().sendPacket( pluginMessage );
-        }
+        // We have to forward these to the user, especially with Forge as stuff might break
+        // This includes any REGISTER messages we intercepted earlier.
+        user.unsafe().sendPacket( pluginMessage );
     }
 
     @Override

@@ -19,7 +19,7 @@ public class Team
     private byte friendlyFire;
     private String nameTagVisibility;
     private String collisionRule;
-    private byte color;
+    private int color;
     private Set<String> players = new HashSet<>();
 
     public Collection<String> getPlayers()

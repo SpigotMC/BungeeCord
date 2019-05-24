@@ -51,7 +51,7 @@ public final class ChatComponentTransformer
      */
     public BaseComponent[] transform(ProxiedPlayer player, BaseComponent... component)
     {
-        if ( component == null || component.length < 1 )
+        if ( component == null || component.length < 1 || ( component.length == 1 && component[0] == null ) )
         {
             return new BaseComponent[]
             {
@@ -79,9 +79,8 @@ public final class ChatComponentTransformer
      * Transform a ScoreComponent by replacing the name and value with the
      * appropriate values.
      *
-     * @param component the component to transform
-     * @param scoreboard the scoreboard to retrieve scores from
      * @param player the player to use for the component's name
+     * @param component the component to transform
      */
     private void transformScoreComponent(ProxiedPlayer player, ScoreComponent component)
     {

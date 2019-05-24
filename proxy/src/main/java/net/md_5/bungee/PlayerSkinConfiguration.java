@@ -6,7 +6,7 @@ import net.md_5.bungee.api.SkinConfiguration;
 
 /*
  * Bitmask, displayed Skin Parts flags:
- * 
+ *
  * Bit 0 (0x01 ): Cape enabled
  * Bit 1 (0x02): Jacket enabled
  * Bit 2 (0x04): Left Sleeve enabled
