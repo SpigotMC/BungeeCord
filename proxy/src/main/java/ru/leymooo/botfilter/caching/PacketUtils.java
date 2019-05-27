@@ -123,10 +123,6 @@ public class PacketUtils
         kickMessagesLogin.put( KickType.PING, new CachedPacket( createKickPacket( String.join( "", Settings.IMP.SERVER_PING_CHECK.KICK_MESSAGE ) ), kickLogin ) );
         kickMessagesLogin.put( KickType.MANYCHECKS, new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_MANY_CHECKS ), kickLogin ) );
         kickMessagesLogin.put( KickType.COUNTRY, new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_COUNTRY ), kickLogin ) );
-        /*BungeeCord bungee = BungeeCord.getInstance();
-        kickMessagesLogin.put( KickType.THROTTLE, new CachedPacket( createKickPacket( bungee.getTranslation( "join_throttle_kick", TimeUnit.MILLISECONDS.toSeconds( bungee.getConfig().getThrottle() ) ) ), kickLogin ) );
-         */
-
     }
 
     private static DefinedPacket createKickPacket(String message)
@@ -251,8 +247,6 @@ public class PacketUtils
                 return 15;
             case ProtocolConstants.MINECRAFT_1_14_2:
                 return 16;
-            case ProtocolConstants.MINECRAFT_1_14_2_FUTURE:
-                return 17;
             default:
                 throw new IllegalArgumentException( "Version is not supported" );
         }

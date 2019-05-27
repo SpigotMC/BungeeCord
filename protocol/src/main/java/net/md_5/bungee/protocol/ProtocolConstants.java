@@ -22,8 +22,7 @@ public class ProtocolConstants
     public static final int MINECRAFT_1_13_2 = 404;
     public static final int MINECRAFT_1_14 = 477;
     public static final int MINECRAFT_1_14_1 = 480;
-    public static final int MINECRAFT_1_14_2 = 484; //try to predict 1.14.2 release protocol version.
-    public static final int MINECRAFT_1_14_2_FUTURE = 485; //in case of mistake
+    public static final int MINECRAFT_1_14_2 = 485;
 
     public static final List<String> SUPPORTED_VERSIONS = Arrays.asList(
             "1.8.x",
@@ -51,8 +50,7 @@ public class ProtocolConstants
             ProtocolConstants.MINECRAFT_1_13_2,
             ProtocolConstants.MINECRAFT_1_14,
             ProtocolConstants.MINECRAFT_1_14_1,
-            ProtocolConstants.MINECRAFT_1_14_2,
-            ProtocolConstants.MINECRAFT_1_14_2_FUTURE
+            ProtocolConstants.MINECRAFT_1_14_2
     );
 
     public enum Direction
