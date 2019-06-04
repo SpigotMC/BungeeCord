@@ -389,9 +389,6 @@ public enum Protocol
             {
                 protocol = Iterables.getFirst( protocols.valueCollection(), null );
             }
-            if (protocol == null && version >= ProtocolConstants.MINECRAFT_1_12) {
-            	protocol = getProtocolData( ProtocolConstants.MINECRAFT_1_12 );
-            }
             return protocol;
         }
 

@@ -274,9 +274,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
         this.handshake = handshake;
-        ch.setVersion( handshake.getProtocolVersion() );
+        int protocol = ( ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
 
-        // Starting with FML 1.8, a "\0FML\0" token is appended to the handshake. This interferes 
+        // Starting with FML 1.8, a "\0FML\0" token is appended to the handshake. This interferes
         // with Bungee's IP forwarding, so we detect it, and remove it from the host string, for now.
         // We know FML appends \00FML\00. However, we need to also consider that other systems might
         // add their own data to the end of the string. So, we just take everything from the \0 character
@@ -318,7 +318,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 thisState = State.USERNAME;
                 ch.setProtocol( Protocol.LOGIN );
 
-                if ( false && !ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) )
+                if ( !ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) )
                 {
                     if ( handshake.getProtocolVersion() > bungee.getProtocolVersion() )
                     {
