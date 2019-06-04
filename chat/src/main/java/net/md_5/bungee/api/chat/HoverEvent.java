@@ -9,7 +9,7 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
-final public class HoverEvent
+public final class HoverEvent
 {
 
     private final Action action;
