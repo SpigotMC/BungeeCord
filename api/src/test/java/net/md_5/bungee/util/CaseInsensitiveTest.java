@@ -1,7 +1,7 @@
 package net.md_5.bungee.util;
 
-import org.junit.Test;
 import org.junit.Assert;
+import org.junit.Test;
 
 public class CaseInsensitiveTest
 {

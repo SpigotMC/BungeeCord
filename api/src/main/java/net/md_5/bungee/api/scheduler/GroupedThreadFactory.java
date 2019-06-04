@@ -11,7 +11,7 @@ public class GroupedThreadFactory implements ThreadFactory
 
     private final ThreadGroup group;
 
-    public static class BungeeGroup extends ThreadGroup
+    public static final class BungeeGroup extends ThreadGroup
     {
 
         private BungeeGroup(String name)

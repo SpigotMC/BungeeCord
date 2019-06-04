@@ -1,7 +1,6 @@
 package net.md_5.bungee.api;
 
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 import lombok.Getter;

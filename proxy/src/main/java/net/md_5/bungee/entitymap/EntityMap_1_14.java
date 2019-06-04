@@ -9,12 +9,12 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
-class EntityMap_1_10 extends EntityMap
+class EntityMap_1_14 extends EntityMap
 {
 
-    static final EntityMap_1_10 INSTANCE = new EntityMap_1_10();
+    static final EntityMap_1_14 INSTANCE = new EntityMap_1_14();
 
-    EntityMap_1_10()
+    EntityMap_1_14()
     {
         addRewrite( 0x00, ProtocolConstants.Direction.TO_CLIENT, true ); // Spawn Object : PacketPlayOutSpawnEntity
         addRewrite( 0x01, ProtocolConstants.Direction.TO_CLIENT, true ); // Spawn Experience Orb : PacketPlayOutSpawnEntityExperienceOrb
@@ -24,31 +24,30 @@ class EntityMap_1_10 extends EntityMap
         addRewrite( 0x06, ProtocolConstants.Direction.TO_CLIENT, true ); // Animation : PacketPlayOutAnimation
         addRewrite( 0x08, ProtocolConstants.Direction.TO_CLIENT, true ); // Block Break Animation : PacketPlayOutBlockBreakAnimation
         addRewrite( 0x1B, ProtocolConstants.Direction.TO_CLIENT, false ); // Entity Status : PacketPlayOutEntityStatus
-        addRewrite( 0x25, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Relative Move : PacketPlayOutRelEntityMove
-        addRewrite( 0x26, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Look and Relative Move : PacketPlayOutRelEntityMoveLook
-        addRewrite( 0x27, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Look : PacketPlayOutEntityLook
-        addRewrite( 0x28, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity : PacketPlayOutEntity
-        addRewrite( 0x2F, ProtocolConstants.Direction.TO_CLIENT, true ); // Use bed : PacketPlayOutBed
-        addRewrite( 0x31, ProtocolConstants.Direction.TO_CLIENT, true ); // Remove Entity Effect : PacketPlayOutRemoveEntityEffect
-        addRewrite( 0x34, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Head Look : PacketPlayOutEntityHeadRotation
-        addRewrite( 0x36, ProtocolConstants.Direction.TO_CLIENT, true ); // Camera : PacketPlayOutCamera
-        addRewrite( 0x39, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Metadata : PacketPlayOutEntityMetadata
-        addRewrite( 0x3A, ProtocolConstants.Direction.TO_CLIENT, false ); // Attach Entity : PacketPlayOutAttachEntity
-        addRewrite( 0x3B, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Velocity : PacketPlayOutEntityVelocity
-        addRewrite( 0x3C, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Equipment : PacketPlayOutEntityEquipment
-        addRewrite( 0x40, ProtocolConstants.Direction.TO_CLIENT, true ); // Attach Entity : PacketPlayOutMount
-        addRewrite( 0x48, ProtocolConstants.Direction.TO_CLIENT, true ); // Collect Item : PacketPlayOutCollect
-        addRewrite( 0x49, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Teleport : PacketPlayOutEntityTeleport
-        addRewrite( 0x4A, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Properties : PacketPlayOutUpdateAttributes
-        addRewrite( 0x4B, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Effect : PacketPlayOutEntityEffect
+        addRewrite( 0x28, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Relative Move : PacketPlayOutRelEntityMove
+        addRewrite( 0x29, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Look and Relative Move : PacketPlayOutRelEntityMoveLook
+        addRewrite( 0x2A, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Look : PacketPlayOutEntityLook
+        addRewrite( 0x2B, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity : PacketPlayOutEntity
+        addRewrite( 0x38, ProtocolConstants.Direction.TO_CLIENT, true ); // Remove Entity Effect : PacketPlayOutRemoveEntityEffect
+        addRewrite( 0x3B, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Head Look : PacketPlayOutEntityHeadRotation
+        addRewrite( 0x3E, ProtocolConstants.Direction.TO_CLIENT, true ); // Camera : PacketPlayOutCamera
+        addRewrite( 0x43, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Metadata : PacketPlayOutEntityMetadata
+        addRewrite( 0x44, ProtocolConstants.Direction.TO_CLIENT, false ); // Attach Entity : PacketPlayOutAttachEntity
+        addRewrite( 0x45, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Velocity : PacketPlayOutEntityVelocity
+        addRewrite( 0x46, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Equipment : PacketPlayOutEntityEquipment
+        addRewrite( 0x4A, ProtocolConstants.Direction.TO_CLIENT, true ); // Set Passengers : PacketPlayOutMount
+        addRewrite( 0x55, ProtocolConstants.Direction.TO_CLIENT, true ); // Collect Item : PacketPlayOutCollect
+        addRewrite( 0x56, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Teleport : PacketPlayOutEntityTeleport
+        addRewrite( 0x58, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Properties : PacketPlayOutUpdateAttributes
+        addRewrite( 0x59, ProtocolConstants.Direction.TO_CLIENT, true ); // Entity Effect : PacketPlayOutEntityEffect
 
-        addRewrite( 0x0A, ProtocolConstants.Direction.TO_SERVER, true ); // Use Entity : PacketPlayInUseEntity
-        addRewrite( 0x14, ProtocolConstants.Direction.TO_SERVER, true ); // Entity Action : PacketPlayInEntityAction
+        addRewrite( 0x0E, ProtocolConstants.Direction.TO_SERVER, true ); // Use Entity : PacketPlayInUseEntity
+        addRewrite( 0x1B, ProtocolConstants.Direction.TO_SERVER, true ); // Entity Action : PacketPlayInEntityAction
     }
 
     @Override
     @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
-    public void rewriteClientbound(ByteBuf packet, int oldId, int newId)
+    public void rewriteClientbound(ByteBuf packet, int oldId, int newId, int protocolVersion)
     {
         super.rewriteClientbound( packet, oldId, newId );
 
@@ -59,18 +58,18 @@ class EntityMap_1_10 extends EntityMap
         int jumpIndex = packet.readerIndex();
         switch ( packetId )
         {
-            case 0x3A /* Attach Entity : PacketPlayOutAttachEntity */:
+            case 0x44 /* Attach Entity : PacketPlayOutAttachEntity */:
                 rewriteInt( packet, oldId, newId, readerIndex + packetIdLength + 4 );
                 break;
-            case 0x48 /* Collect Item : PacketPlayOutCollect */:
+            case 0x55 /* Collect Item : PacketPlayOutCollect */:
                 DefinedPacket.readVarInt( packet );
                 rewriteVarInt( packet, oldId, newId, packet.readerIndex() );
                 break;
-            case 0x40 /* Attach Entity : PacketPlayOutMount */:
+            case 0x4A /* Set Passengers : PacketPlayOutMount */:
                 DefinedPacket.readVarInt( packet );
                 jumpIndex = packet.readerIndex();
             // Fall through on purpose to int array of IDs
-            case 0x30 /* Destroy Entities : PacketPlayOutEntityDestroy */:
+            case 0x37 /* Destroy Entities : PacketPlayOutEntityDestroy */:
                 int count = DefinedPacket.readVarInt( packet );
                 int[] ids = new int[ count ];
                 for ( int i = 0; i < count; i++ )
@@ -95,11 +94,11 @@ class EntityMap_1_10 extends EntityMap
             case 0x00 /* Spawn Object : PacketPlayOutSpawnEntity */:
                 DefinedPacket.readVarInt( packet );
                 DefinedPacket.readUUID( packet );
-                int type = packet.readUnsignedByte();
+                int type = DefinedPacket.readVarInt( packet );
 
-                if ( type == 60 || type == 90 || type == 91 )
+                if ( type == 2 || type == 101 || type == 71 ) // arrow, fishing_bobber or spectral_arrow
                 {
-                    if ( type == 60 || type == 91 )
+                    if ( type == 2 || type == 71 ) // arrow or spectral_arrow
                     {
                         oldId = oldId + 1;
                         newId = newId + 1;
@@ -131,7 +130,7 @@ class EntityMap_1_10 extends EntityMap
                     packet.writerIndex( previous );
                 }
                 break;
-            case 0x2C /* Combat Event : PacketPlayOutCombatEvent */:
+            case 0x32 /* Combat Event : PacketPlayOutCombatEvent */:
                 int event = packet.readUnsignedByte();
                 if ( event == 1 /* End Combat*/ )
                 {
@@ -146,9 +145,15 @@ class EntityMap_1_10 extends EntityMap
                     rewriteInt( packet, oldId, newId, packet.readerIndex() );
                 }
                 break;
-            case 0x39 /* EntityMetadata : PacketPlayOutEntityMetadata */:
+            case 0x43 /* EntityMetadata : PacketPlayOutEntityMetadata */:
                 DefinedPacket.readVarInt( packet ); // Entity ID
-                rewriteMetaVarInt( packet, oldId + 1, newId + 1, 6 ); // fishing hook
+                rewriteMetaVarInt( packet, oldId + 1, newId + 1, 7, protocolVersion ); // fishing hook
+                rewriteMetaVarInt( packet, oldId, newId, 8, protocolVersion ); // fireworks (et al)
+                break;
+            case 0x50 /* Entity Sound Effect : PacketPlayOutEntitySound */:
+                DefinedPacket.readVarInt( packet );
+                DefinedPacket.readVarInt( packet );
+                rewriteVarInt( packet, oldId, newId, packet.readerIndex() );
                 break;
         }
         packet.readerIndex( readerIndex );
@@ -163,7 +168,7 @@ class EntityMap_1_10 extends EntityMap
         int packetId = DefinedPacket.readVarInt( packet );
         int packetIdLength = packet.readerIndex() - readerIndex;
 
-        if ( packetId == 0x1B /* Spectate : PacketPlayInSpectate */ && !BungeeCord.getInstance().getConfig().isIpForward() )
+        if ( packetId == 0x2B /* Spectate : PacketPlayInSpectate */ && !BungeeCord.getInstance().getConfig().isIpForward() )
         {
             UUID uuid = DefinedPacket.readUUID( packet );
             ProxiedPlayer player;

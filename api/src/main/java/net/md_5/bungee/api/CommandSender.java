@@ -1,8 +1,7 @@
 package net.md_5.bungee.api;
 
-import net.md_5.bungee.api.chat.BaseComponent;
-
 import java.util.Collection;
+import net.md_5.bungee.api.chat.BaseComponent;
 
 public interface CommandSender
 {
