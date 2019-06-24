@@ -65,6 +65,7 @@ import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
 import ru.leymooo.botfilter.Connector;
+import ru.leymooo.botfilter.utils.IPUtils;
 import ru.leymooo.botfilter.utils.PingLimiter;
 
 @RequiredArgsConstructor
@@ -544,6 +545,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         } else
         {
             bungee.getLogger().log( Level.INFO, "{0} has connected", InitialHandler.this );
+            bungee.getBotFilter().saveUser( userCon.getName().toLowerCase(), IPUtils.getAddress( userCon )); //update timestamp
             finishLogin( userCon, sendLoginSuccess ); //if true, dont send again login success
         }
     }
