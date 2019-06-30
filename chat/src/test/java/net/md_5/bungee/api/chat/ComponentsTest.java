@@ -167,6 +167,9 @@ public class ComponentsTest
 
         Assert.assertEquals( "Page 5 of 50", positional.toPlainText() );
         Assert.assertEquals( ChatColor.WHITE + "Page " + ChatColor.WHITE + "5" + ChatColor.WHITE + " of " + ChatColor.WHITE + "50", positional.toLegacyText() );
+
+        TranslatableComponent one_four_two = new TranslatableComponent( "filled_map.buried_treasure" );
+        Assert.assertEquals( "Buried Treasure Map", one_four_two.toPlainText() );
     }
 
     @Test

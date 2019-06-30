@@ -36,6 +36,13 @@ public final class TranslationRegistry
 
         try
         {
+            INSTANCE.addProvider( new JsonProvider( "/mojang-translations/en_us.json" ) );
+        } catch ( Exception ex )
+        {
+        }
+
+        try
+        {
             INSTANCE.addProvider( new ResourceBundleProvider( "mojang-translations/en_US" ) );
         } catch ( Exception ex )
         {
