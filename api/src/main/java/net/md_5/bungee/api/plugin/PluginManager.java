@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
@@ -53,6 +54,7 @@ public class PluginManager
     private Map<String, PluginDescription> toLoad = new HashMap<>();
     private final Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
     private final Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
+    private final Set<Plugin> disabledPlugins = new HashSet<>();
 
     @SuppressWarnings("unchecked")
     public PluginManager(ProxyServer proxy)
@@ -242,17 +244,7 @@ public class PluginManager
     {
         for ( Plugin plugin : plugins.values() )
         {
-            try
-            {
-                plugin.onEnable();
-                ProxyServer.getInstance().getLogger().log( Level.INFO, "Enabled plugin {0} version {1} by {2}", new Object[]
-                {
-                    plugin.getDescription().getName(), plugin.getDescription().getVersion(), plugin.getDescription().getAuthor()
-                } );
-            } catch ( Throwable t )
-            {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Exception encountered when loading plugin: " + plugin.getDescription().getName(), t );
-            }
+            enablePlugin( plugin );
         }
     }
 
@@ -339,6 +331,81 @@ public class PluginManager
 
         pluginStatuses.put( plugin, status );
         return status;
+    }
+
+    /**
+     * Enables the specified plugin
+     *
+     * @param plugin the plugin you wish to enable
+     */
+    public void enablePlugin(Plugin plugin)
+    {
+        disabledPlugins.remove( plugin );
+        try
+        {
+            plugin.onEnable();
+            proxy.getLogger().log( Level.INFO, "Enabled plugin {0} version {1} by {2}", new Object[]
+            {
+                plugin.getDescription().getName(), plugin.getDescription().getVersion(), plugin.getDescription().getAuthor()
+            } );
+        } catch ( Throwable t )
+        {
+            proxy.getLogger().log( Level.WARNING, "Exception encountered when loading plugin: " + plugin.getDescription().getName(), t );
+        }
+    }
+
+    /**
+     * Disables the specified plugin
+     *
+     * @param plugin the plugin you wish to disable
+     */
+    public void disablePlugin(Plugin plugin)
+    {
+        try
+        {
+            plugin.onDisable();
+            for ( Handler handler : plugin.getLogger().getHandlers() )
+            {
+                handler.close();
+            }
+            proxy.getLogger().log( Level.INFO, "Disabled plugin {0} version {1} by {2}", new Object[]
+            {
+                plugin.getDescription().getName(), plugin.getDescription().getVersion(), plugin.getDescription().getAuthor()
+            } );
+        } catch ( Throwable t )
+        {
+            proxy.getLogger().log( Level.SEVERE, "Exception disabling plugin " + plugin.getDescription().getName(), t );
+        }
+        unregisterCommands( plugin );
+        unregisterListeners( plugin );
+        proxy.getScheduler().cancel( plugin );
+        plugin.getExecutorService().shutdownNow();
+        disabledPlugins.add( plugin );
+    }
+
+    /**
+     * @param pluginName the plugin's name you wish to check
+     * @return <code>true</code> if enabed, otherwise <code>false</code>
+     * @see #isPluginEnabled(Plugin)
+     */
+    public boolean isPluginEnabled(String pluginName)
+    {
+        if ( getPlugin( pluginName ) == null )
+        {
+            return false;
+        }
+        return isPluginEnabled( getPlugin( pluginName ) );
+    }
+
+    /**
+     * Checks if the specified plugin is being enabled
+     *
+     * @param plugin the plugin you wish to check
+     * @return <code>true</code> if enabled, otherwise <code>false</code>
+     */
+    public boolean isPluginEnabled(Plugin plugin)
+    {
+        return !disabledPlugins.contains( Preconditions.checkNotNull( plugin, "Specified plugin cannot be null" ) );
     }
 
     /**
