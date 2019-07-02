@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -428,7 +430,7 @@ public class BungeeCord extends ProxyServer
                 metricsThread.cancel();
 
                 getLogger().info( "Disabling plugins" );
-                for ( Plugin plugin : pluginManager.getPlugins() )
+                for ( Plugin plugin : Lists.reverse( new ArrayList<>( pluginManager.getPlugins() ) ) )
                 {
                     pluginManager.disablePlugin( plugin );
                 }

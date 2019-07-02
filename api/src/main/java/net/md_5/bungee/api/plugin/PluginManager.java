@@ -361,6 +361,11 @@ public class PluginManager
      */
     public void disablePlugin(Plugin plugin)
     {
+        Preconditions.checkNotNull( plugin, "Specified plugin cannot be null" );
+        if ( !isPluginEnabled( plugin ) )
+        {
+            return;
+        }
         try
         {
             plugin.onDisable();
