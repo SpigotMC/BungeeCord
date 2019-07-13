@@ -357,7 +357,7 @@ public class Commands extends DefinedPacket
             {
                 byte flags = buf.readByte();
                 float min = ( flags & 0x1 ) != 0 ? buf.readFloat() : -Float.MAX_VALUE;
-                float max = ( flags & 0x2 ) != 0 ? buf.readFloat() : -Float.MAX_VALUE;
+                float max = ( flags & 0x2 ) != 0 ? buf.readFloat() : Float.MAX_VALUE;
 
                 return FloatArgumentType.floatArg( min, max );
             }
@@ -386,7 +386,7 @@ public class Commands extends DefinedPacket
             {
                 byte flags = buf.readByte();
                 double min = ( flags & 0x1 ) != 0 ? buf.readDouble() : -Double.MAX_VALUE;
-                double max = ( flags & 0x2 ) != 0 ? buf.readDouble() : -Double.MAX_VALUE;
+                double max = ( flags & 0x2 ) != 0 ? buf.readDouble() : Double.MAX_VALUE;
 
                 return DoubleArgumentType.doubleArg( min, max );
             }
