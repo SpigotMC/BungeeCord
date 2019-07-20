@@ -336,10 +336,11 @@ public class PluginManager
     /**
      * Enables the specified plugin
      *
-     * @param plugin the plugin you wish to enable
+     * @param plugin the plugin you wish to enable, should not be null
      */
     public void enablePlugin(Plugin plugin)
     {
+        Preconditions.checkNotNull( plugin, "Enabling plugin cannot be null" );
         disabledPlugins.remove( plugin );
         try
         {
@@ -355,13 +356,14 @@ public class PluginManager
     }
 
     /**
-     * Disables the specified plugin
+     * Disables the specified plugin. It is not encouraged to use it
+     * much as it leaves the so-called "behind junk".
      *
-     * @param plugin the plugin you wish to disable
+     * @param plugin the plugin you wish to disable, should not be null
      */
     public void disablePlugin(Plugin plugin)
     {
-        Preconditions.checkNotNull( plugin, "Specified plugin cannot be null" );
+        Preconditions.checkNotNull( plugin, "Disabling plugin cannot be null" );
         if ( !isPluginEnabled( plugin ) )
         {
             return;
@@ -389,12 +391,13 @@ public class PluginManager
     }
 
     /**
-     * @param pluginName the plugin's name you wish to check
+     * @param pluginName the plugin's name you wish to check, should not be null or empty
      * @return <code>true</code> if enabed, otherwise <code>false</code>
      * @see #isPluginEnabled(Plugin)
      */
     public boolean isPluginEnabled(String pluginName)
     {
+        Preconditions.checkArgument( pluginName != null || pluginName.length() != 0, "Checked plugin name cannot be null or empty" );
         if ( getPlugin( pluginName ) == null )
         {
             return false;
@@ -405,12 +408,12 @@ public class PluginManager
     /**
      * Checks if the specified plugin is being enabled
      *
-     * @param plugin the plugin you wish to check
+     * @param plugin the plugin you wish to check, should not be null
      * @return <code>true</code> if enabled, otherwise <code>false</code>
      */
     public boolean isPluginEnabled(Plugin plugin)
     {
-        return !disabledPlugins.contains( Preconditions.checkNotNull( plugin, "Specified plugin cannot be null" ) );
+        return !disabledPlugins.contains( Preconditions.checkNotNull( plugin, "Checked plugin cannot be null" ) );
     }
 
     /**
