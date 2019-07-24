@@ -59,8 +59,7 @@ public abstract class Command
 
     /**
     *
-    * @deprecated Warning: This method is only called if the {@link #execute(CommandSender, String[])} function is not overwritten
-    * or the overwrite is calling the super method.  
+    * @deprecated Warning: This method is only called if the {@link #execute(CommandSender, String, String[])} function is not overwritten or the overwrite is calling the super method.  
     *
     * Execute this command with the specified sender and arguments.
     *
