@@ -45,10 +45,10 @@ public abstract class Command
     }
 
     /**
-     * Execute this command with the specified sender and arguments.
+     * Execute this command with the specified sender, label and arguments.
      *
      * @param sender the executor of this command
-     * @param label - the label used to invoke this command
+     * @param label the label used to invoke this command
      * @param args arguments used to invoke this command
      */
     
@@ -56,6 +56,17 @@ public abstract class Command
     {
         execute(sender, args);
     }
+
+    /**
+    *
+    * @deprecated Warning: This method is only called if the {@link #execute(CommandSender, String[])} function is not overwritten
+    * or the overwrite is calling the super method.  
+    *
+    * Execute this command with the specified sender and arguments.
+    *
+    * @param sender the executor of this command
+    * @param args arguments used to invoke this command
+    */
 
     @Deprecated
     public abstract void execute(CommandSender sender, String[] args);
