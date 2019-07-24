@@ -17,6 +17,7 @@ public abstract class Command
     private final String name;
     private final String permission;
     private final String[] aliases;
+    private String label;
 
     /**
      * Construct a new command with no permissions or aliases.
@@ -42,14 +43,22 @@ public abstract class Command
         this.name = name;
         this.permission = permission;
         this.aliases = aliases;
+        this.label = name;
     }
 
     /**
      * Execute this command with the specified sender and arguments.
      *
      * @param sender the executor of this command
+     * @param label - the label used to invoke this command
      * @param args arguments used to invoke this command
      */
+    pulbic void execute(CommandSender sender, String label, String[] args)
+    {
+        this.label = label;
+        execute(sender, args);
+    }
+
     public abstract void execute(CommandSender sender, String[] args);
 
     /**
@@ -61,5 +70,10 @@ public abstract class Command
     public boolean hasPermission(CommandSender sender)
     {
         return permission == null || permission.isEmpty() || sender.hasPermission( permission );
+    }
+    
+    public final String getLabel()
+    {
+        return label;
     }
 }
