@@ -52,11 +52,12 @@ public abstract class Command
      * @param args arguments used to invoke this command
      */
     
-    pulbic void execute(CommandSender sender, String label, String[] args)
+    public void execute(CommandSender sender, String label, String[] args)
     {
         execute(sender, args);
     }
 
+    @Deprecated
     public abstract void execute(CommandSender sender, String[] args);
 
     /**
