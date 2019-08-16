@@ -1,9 +1,7 @@
 package net.md_5.bungee.module.cmd.find;
 
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.command.PlayerCommand;
 
@@ -20,16 +18,16 @@ public class CommandFind extends PlayerCommand
     {
         if ( args.length != 1 )
         {
-            sender.sendMessage( new ComponentBuilder( "Please follow this command by a user name" ).color( ChatColor.RED ).create() );
+            sender.sendMessage( ProxyServer.getInstance().getTranslation( "username_needed" ) );
         } else
         {
             ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
             if ( player == null || player.getServer() == null )
             {
-                sender.sendMessage( new ComponentBuilder( "That user is not online" ).color( ChatColor.RED ).create() );
+                sender.sendMessage( ProxyServer.getInstance().getTranslation( "user_not_online" ) );
             } else
             {
-                sender.sendMessage( new ComponentBuilder( args[0] ).color( ChatColor.GREEN ).append( " is online at " ).append( player.getServer().getInfo().getName() ).create() );
+                sender.sendMessage( ProxyServer.getInstance().getTranslation( "user_online_at", player.getName(), player.getServer().getInfo().getName() ) );
             }
         }
     }

@@ -23,7 +23,7 @@ public class CommandAlertRaw extends Command
     {
         if ( args.length == 0 )
         {
-            sender.sendMessage( ChatColor.RED + "You must supply a message." );
+            sender.sendMessage( ProxyServer.getInstance().getTranslation( "message_needed" ) );
         } else
         {
             String message = Joiner.on( ' ' ).join( args );
@@ -40,7 +40,7 @@ public class CommandAlertRaw extends Command
                 }
                 if ( sender instanceof ProxiedPlayer )
                 {
-                    sender.sendMessage( new ComponentBuilder( "An error occurred while parsing your message. (Hover for details)" )
+                    sender.sendMessage( new ComponentBuilder( ProxyServer.getInstance().getTranslation( "error_occurred_player" ) )
                             .color( ChatColor.RED )
                             .underlined( true )
                             .event( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( error.getMessage() ).color( ChatColor.RED ).create() ) )
@@ -48,7 +48,7 @@ public class CommandAlertRaw extends Command
                     );
                 } else
                 {
-                    sender.sendMessage( new ComponentBuilder( "An error occurred while parsing your message: " ).color( ChatColor.RED ).append( error.getMessage() ).create() );
+                    sender.sendMessage( new ComponentBuilder( ProxyServer.getInstance().getTranslation( "error_occurred_console" ) ).color( ChatColor.RED ).append( error.getMessage() ).create() );
                 }
             }
         }
