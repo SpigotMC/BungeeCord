@@ -41,14 +41,14 @@ public class CommandAlertRaw extends Command
                 if ( sender instanceof ProxiedPlayer )
                 {
                     sender.sendMessage( new ComponentBuilder( ProxyServer.getInstance().getTranslation( "error_occurred_player" ) )
-                            .color( ChatColor.RED )
-                            .underlined( true )
-                            .event( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( error.getMessage() ).color( ChatColor.RED ).create() ) )
+                            .event( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( error.getMessage() )
+                                    .color( ChatColor.RED )
+                                    .create() ) )
                             .create()
                     );
                 } else
                 {
-                    sender.sendMessage( new ComponentBuilder( ProxyServer.getInstance().getTranslation( "error_occurred_console" ) ).color( ChatColor.RED ).append( error.getMessage() ).create() );
+                    sender.sendMessage( ProxyServer.getInstance().getTranslation( "error_occurred_console", error.getMessage() ) );
                 }
             }
         }

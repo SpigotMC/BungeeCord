@@ -52,7 +52,6 @@ public class CommandServer extends Command implements TabExecutor
                             HoverEvent.Action.SHOW_TEXT,
                             new ComponentBuilder( count + ( count == 1 ? " player" : " players" ) + "\n" )
                                     .appendLegacy( ProxyServer.getInstance().getTranslation( "click_to_connect" ) )
-                                    .italic( true )
                                     .create() )
                     );
                     serverTextComponent.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, "/server " + server.getName() ) );
