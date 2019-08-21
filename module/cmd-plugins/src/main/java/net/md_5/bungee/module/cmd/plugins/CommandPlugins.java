@@ -39,7 +39,7 @@ public class CommandPlugins extends Command
             pluginsList.append( ChatColor.GREEN ).append( pluginName ).append( ChatColor.WHITE ).append( ", " );
         }
         String plugins = pluginsList.substring( 0, pluginsList.lastIndexOf( "," ) - 1 );
-        String translation = proxy.getTranslation( "cmd_plugins", proxy.getPluginManager().getPlugins().size(), plugins );
+        String translation = proxy.getTranslation( "command_plugins", proxy.getPluginManager().getPlugins().size(), plugins );
         sender.sendMessage( TextComponent.fromLegacyText( translation ) );
     }
 }
