@@ -55,6 +55,11 @@ public interface ProxyConfig
     Collection<String> getDisabledCommands();
 
     /**
+     * A collection of plugin group bundles.
+     */
+    Collection<String> getPluginGroups();
+
+    /**
      * The connection throttle delay.
      */
     @Deprecated

@@ -255,15 +255,18 @@ public class BungeeCord extends ProxyServer
 
         eventLoops = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
 
+        config.load();
+
         File moduleDirectory = new File( "modules" );
         moduleManager.load( this, moduleDirectory );
         pluginManager.detectPlugins( moduleDirectory );
 
-        pluginsFolder.mkdir();
-        pluginManager.detectPlugins( pluginsFolder );
-
+        // No need to search for plugins if this is the first time the folder was init'ed
+        if ( !pluginsFolder.mkdir() )
+        {
+            pluginManager.detectPlugins( pluginsFolder );
+        }
         pluginManager.loadPlugins();
-        config.load();
 
         if ( config.isForgeSupport() )
         {

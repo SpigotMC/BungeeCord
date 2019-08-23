@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import gnu.trove.map.TMap;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -54,6 +55,7 @@ public class Configuration implements ProxyConfig
     private boolean logPings = true;
     private int playerLimit = -1;
     private Collection<String> disabledCommands;
+    private Collection<String> pluginGroups;
     private int throttle = 4000;
     private int throttleLimit = 3;
     private boolean ipForward;
@@ -94,6 +96,8 @@ public class Configuration implements ProxyConfig
         forgeSupport = adapter.getBoolean( "forge_support", forgeSupport );
 
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
+
+        pluginGroups = (Collection<String>) adapter.getList("plugin-groups", new ArrayList<>());
 
         Preconditions.checkArgument( listeners != null && !listeners.isEmpty(), "No listeners defined." );
 

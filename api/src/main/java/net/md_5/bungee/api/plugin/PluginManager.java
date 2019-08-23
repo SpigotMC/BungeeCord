@@ -351,33 +351,57 @@ public class PluginManager
         Preconditions.checkNotNull( folder, "folder" );
         Preconditions.checkArgument( folder.isDirectory(), "Must load from a directory" );
 
+        proxy.getLogger().log(Level.INFO, "Attempting to load plugins");
         for ( File file : folder.listFiles() )
         {
-            if ( file.isFile() && file.getName().endsWith( ".jar" ) )
+            if ( file.getName().endsWith( ".jar" ) )
             {
-                try ( JarFile jar = new JarFile( file ) )
+                detectJarFile( file );
+            } else if ( file.isDirectory() )
+            {
+                if ( proxy.getConfig().getPluginGroups().contains( file.getName() ) )
                 {
-                    JarEntry pdf = jar.getJarEntry( "bungee.yml" );
-                    if ( pdf == null )
+                    proxy.getLogger().log( Level.INFO, "Attempting to load plugins from group " + file.getName() );
+                    for ( File groupFile : file.listFiles() )
                     {
-                        pdf = jar.getJarEntry( "plugin.yml" );
+                        if ( groupFile.getName().endsWith( ".jar") )
+                        {
+                            detectJarFile(groupFile);
+                        }
                     }
-                    Preconditions.checkNotNull( pdf, "Plugin must have a plugin.yml or bungee.yml" );
-
-                    try ( InputStream in = jar.getInputStream( pdf ) )
-                    {
-                        PluginDescription desc = yaml.loadAs( in, PluginDescription.class );
-                        Preconditions.checkNotNull( desc.getName(), "Plugin from %s has no name", file );
-                        Preconditions.checkNotNull( desc.getMain(), "Plugin from %s has no main", file );
-
-                        desc.setFile( file );
-                        toLoad.put( desc.getName(), desc );
-                    }
-                } catch ( Exception ex )
-                {
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load plugin from file " + file, ex );
                 }
             }
+        }
+    }
+
+    private void detectJarFile(File file)
+    {
+        if ( !file.isFile() )
+        {
+            return;
+        }
+
+        try ( JarFile jar = new JarFile( file ) )
+        {
+            JarEntry pdf = jar.getJarEntry( "bungee.yml" );
+            if ( pdf == null )
+            {
+                pdf = jar.getJarEntry( "plugin.yml" );
+            }
+            Preconditions.checkNotNull( pdf, "Plugin must have a plugin.yml or bungee.yml" );
+
+            try ( InputStream in = jar.getInputStream( pdf ) )
+            {
+                PluginDescription desc = yaml.loadAs( in, PluginDescription.class );
+                Preconditions.checkNotNull( desc.getName(), "Plugin from %s has no name", file );
+                Preconditions.checkNotNull( desc.getMain(), "Plugin from %s has no main", file );
+
+                desc.setFile( file );
+                toLoad.put( desc.getName(), desc );
+            }
+        } catch ( Exception ex )
+        {
+            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load plugin from file " + file, ex );
         }
     }
 
