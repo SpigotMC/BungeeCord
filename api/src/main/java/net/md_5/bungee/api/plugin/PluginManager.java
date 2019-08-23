@@ -237,7 +237,6 @@ public class PluginManager
             }
         }
         toLoad.clear();
-        toLoad = null;
     }
 
     public void enablePlugins()
@@ -362,14 +361,14 @@ public class PluginManager
                 detectJarFile( file );
             } else if ( searchGroups && file.isDirectory() )
             {
-                if ( proxy.getConfig().getPluginGroups().contains( file.getName() ) || ( enforcedPluginGroups.contains( file.getName() ) ) )
+                if ( proxy.getConfig().getPluginGroups().contains( file.getName() ) || enforcedPluginGroups.contains( file.getName() ) )
                 {
                     proxy.getLogger().log( Level.INFO, "Attempting to load plugins from group " + file.getName() );
                     for ( File groupFile : file.listFiles() )
                     {
-                        if ( groupFile.getName().endsWith( ".jar") )
+                        if ( groupFile.getName().endsWith( ".jar" ) )
                         {
-                            detectJarFile(groupFile);
+                            detectJarFile( groupFile );
                         }
                     }
                 }
