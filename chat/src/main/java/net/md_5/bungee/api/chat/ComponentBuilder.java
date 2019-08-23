@@ -1,9 +1,9 @@
 package net.md_5.bungee.api.chat;
 
 import com.google.common.base.Preconditions;
-import net.md_5.bungee.api.ChatColor;
 import java.util.ArrayList;
 import java.util.List;
+import net.md_5.bungee.api.ChatColor;
 
 /**
  * <p>
@@ -147,6 +147,19 @@ public final class ComponentBuilder
     }
 
     /**
+     * Parse text to BaseComponent[] with colors and format, appends the text to
+     * the builder and makes it the current target for formatting. The component
+     * will have all the formatting from previous part.
+     *
+     * @param text the text to append
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder appendLegacy(String text)
+    {
+        return append( TextComponent.fromLegacyText( text ) );
+    }
+
+    /**
      * Appends the text to the builder and makes it the current target for
      * formatting. You can specify the amount of formatting retained from
      * previous part.
@@ -164,6 +177,37 @@ public final class ComponentBuilder
         current.copyFormatting( old, retention, false );
 
         return this;
+    }
+
+    /**
+     * Allows joining additional components to this builder using the given
+     * {@link Joiner} and {@link FormatRetention#ALL}.
+     *
+     * Simply executes the provided joiner on this instance to facilitate a
+     * chain pattern.
+     *
+     * @param joiner joiner used for operation
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder append(Joiner joiner)
+    {
+        return joiner.join( this, FormatRetention.ALL );
+    }
+
+    /**
+     * Allows joining additional components to this builder using the given
+     * {@link Joiner}.
+     *
+     * Simply executes the provided joiner on this instance to facilitate a
+     * chain pattern.
+     *
+     * @param joiner joiner used for operation
+     * @param retention the formatting to retain
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder append(Joiner joiner, FormatRetention retention)
+    {
+        return joiner.join( this, retention );
     }
 
     /**
@@ -331,5 +375,26 @@ public final class ComponentBuilder
          * component.
          */
         ALL
+    }
+
+    /**
+     * Functional interface to join additional components to a ComponentBuilder.
+     */
+    public interface Joiner
+    {
+
+        /**
+         * Joins additional components to the provided {@link ComponentBuilder}
+         * and then returns it to fulfill a chain pattern.
+         *
+         * Retention may be ignored and is to be understood as an optional
+         * recommendation to the Joiner and not as a guarantee to have a
+         * previous component in builder unmodified.
+         *
+         * @param componentBuilder to which to append additional components
+         * @param retention the formatting to possibly retain
+         * @return input componentBuilder for chaining
+         */
+        ComponentBuilder join(ComponentBuilder componentBuilder, FormatRetention retention);
     }
 }

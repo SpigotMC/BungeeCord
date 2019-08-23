@@ -44,6 +44,22 @@ public interface ServerInfo
     String getMotd();
 
     /**
+     * Whether this server is restricted and therefore only players with the
+     * given permission can access it.
+     *
+     * @return if restricted
+     */
+    boolean isRestricted();
+
+    /**
+     * Get the permission required to access this server. Only enforced when the
+     * server is restricted.
+     *
+     * @return access permission
+     */
+    String getPermission();
+
+    /**
      * Whether the player can access this server. It will only return false when
      * the player has no permission and this server is restricted.
      *
@@ -56,6 +72,10 @@ public interface ServerInfo
      * Send data by any available means to this server. This data may be queued
      * and there is no guarantee of its timely arrival.
      *
+     * In recent Minecraft versions channel names must contain a colon separator
+     * and consist of [a-z0-9/._-]. This will be enforced in a future version.
+     * The "BungeeCord" channel is an exception and may only take this form.
+     *
      * @param channel the channel to send this data via
      * @param data the data to send
      */
@@ -63,6 +83,10 @@ public interface ServerInfo
 
     /**
      * Send data by any available means to this server.
+     *
+     * In recent Minecraft versions channel names must contain a colon separator
+     * and consist of [a-z0-9/._-]. This will be enforced in a future version.
+     * The "BungeeCord" channel is an exception and may only take this form.
      *
      * @param channel the channel to send this data via
      * @param data the data to send

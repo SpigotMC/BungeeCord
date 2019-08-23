@@ -1,6 +1,5 @@
 package net.md_5.bungee;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import io.netty.bootstrap.Bootstrap;
@@ -17,6 +16,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -27,6 +27,7 @@ import lombok.Setter;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.ServerConnectRequest;
 import net.md_5.bungee.api.SkinConfiguration;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -50,14 +51,12 @@ import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
-import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.ResourcePackRequest;
-import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
@@ -241,7 +240,7 @@ public final class UserConnection implements ProxiedPlayer
         while ( !serverJoinQueue.isEmpty() )
         {
             ServerInfo candidate = ProxyServer.getInstance().getServerInfo( serverJoinQueue.remove() );
-            if ( !Objects.equal( currentTarget, candidate ) )
+            if ( !Objects.equals( currentTarget, candidate ) )
             {
                 next = candidate;
                 break;
@@ -260,12 +259,35 @@ public final class UserConnection implements ProxiedPlayer
     {
         Preconditions.checkNotNull( info, "info" );
 
-        ServerConnectEvent event = new ServerConnectEvent( this, info, reason );
+        ServerConnectRequest.Builder builder = ServerConnectRequest.builder().retry( retry ).reason( reason ).target( info );
+        if ( callback != null )
+        {
+            // Convert the Callback<Boolean> to be compatible with Callback<Result> from ServerConnectRequest.
+            builder.callback( new Callback<ServerConnectRequest.Result>()
+            {
+                @Override
+                public void done(ServerConnectRequest.Result result, Throwable error)
+                {
+                    callback.done( ( result == ServerConnectRequest.Result.SUCCESS ) ? Boolean.TRUE : Boolean.FALSE, error );
+                }
+            } );
+        }
+
+        connect( builder.build() );
+    }
+
+    @Override
+    public void connect(final ServerConnectRequest request)
+    {
+        Preconditions.checkNotNull( request, "request" );
+
+        final Callback<ServerConnectRequest.Result> callback = request.getCallback();
+        ServerConnectEvent event = new ServerConnectEvent( this, request.getTarget(), request.getReason() );
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
             if ( callback != null )
             {
-                callback.done( false, null );
+                callback.done( ServerConnectRequest.Result.EVENT_CANCEL, null );
             }
 
             if ( getServer() == null && !ch.isClosing() )
@@ -277,11 +299,11 @@ public final class UserConnection implements ProxiedPlayer
 
         final BungeeServerInfo target = (BungeeServerInfo) event.getTarget(); // Update in case the event changed target
 
-        if ( getServer() != null && Objects.equal( getServer().getInfo(), target ) )
+        if ( getServer() != null && Objects.equals( getServer().getInfo(), target ) )
         {
             if ( callback != null )
             {
-                callback.done( false, null );
+                callback.done( ServerConnectRequest.Result.ALREADY_CONNECTED, null );
             }
 
             sendMessage( bungee.getTranslation( "already_connected" ) );
@@ -291,7 +313,7 @@ public final class UserConnection implements ProxiedPlayer
         {
             if ( callback != null )
             {
-                callback.done( false, null );
+                callback.done( ServerConnectRequest.Result.ALREADY_CONNECTING, null );
             }
 
             sendMessage( bungee.getTranslation( "already_connecting" ) );
@@ -319,7 +341,7 @@ public final class UserConnection implements ProxiedPlayer
             {
                 if ( callback != null )
                 {
-                    callback.done( future.isSuccess(), future.cause() );
+                    callback.done( ( future.isSuccess() ) ? ServerConnectRequest.Result.SUCCESS : ServerConnectRequest.Result.FAIL, future.cause() );
                 }
 
                 if ( !future.isSuccess() )
@@ -328,7 +350,7 @@ public final class UserConnection implements ProxiedPlayer
                     pendingConnects.remove( target );
 
                     ServerInfo def = updateAndGetNextServer( target );
-                    if ( retry && def != null && ( getServer() == null || def != getServer().getInfo() ) )
+                    if ( request.isRetry() && def != null && ( getServer() == null || def != getServer().getInfo() ) )
                     {
                         sendMessage( bungee.getTranslation( "fallback_lobby" ) );
                         connect( def, null, true, ServerConnectEvent.Reason.LOBBY_FALLBACK );
@@ -346,7 +368,7 @@ public final class UserConnection implements ProxiedPlayer
                 .channel( PipelineUtils.getChannel() )
                 .group( ch.getHandle().eventLoop() )
                 .handler( initializer )
-                .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000 ) // TODO: Configurable
+                .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, request.getConnectTimeout() )
                 .remoteAddress( target.getAddress() );
         // Windows is bugged, multi homed users will just have to live with random connecting IPs
         if ( getPendingConnection().getListener().isSetLocalAddress() && !PlatformDependent.isWindows() )
@@ -418,13 +440,13 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendMessage(BaseComponent... message)
     {
-        sendMessage( ChatMessageType.CHAT, message );
+        sendMessage( ChatMessageType.SYSTEM, message );
     }
 
     @Override
     public void sendMessage(BaseComponent message)
     {
-        sendMessage( ChatMessageType.CHAT, message );
+        sendMessage( ChatMessageType.SYSTEM, message );
     }
 
     private void sendMessage(ChatMessageType position, String message)
@@ -564,7 +586,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public Locale getLocale()
     {
-        return ( locale == null && settings != null ) ? locale = Locale.forLanguageTag( settings.getLocale().replaceAll( "_", "-" ) ) : locale;
+        return ( locale == null && settings != null ) ? locale = Locale.forLanguageTag( settings.getLocale().replace( '_', '-' ) ) : locale;
     }
 
     @Override

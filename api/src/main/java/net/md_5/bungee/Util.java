@@ -1,6 +1,7 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Joiner;
+import com.google.common.primitives.UnsignedLongs;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -28,7 +29,12 @@ public class Util
             uri = new URI( "tcp://" + hostline );
         } catch ( URISyntaxException ex )
         {
-            throw new IllegalArgumentException( "Bad hostline", ex );
+            throw new IllegalArgumentException( "Bad hostline: " + hostline, ex );
+        }
+
+        if ( uri.getHost() == null )
+        {
+            throw new IllegalArgumentException( "Invalid host/address: " + hostline );
         }
 
         return new InetSocketAddress( uri.getHost(), ( uri.getPort() ) == -1 ? DEFAULT_PORT : uri.getPort() );
@@ -78,6 +84,6 @@ public class Util
      */
     public static UUID getUUID(String uuid)
     {
-        return UUID.fromString( uuid.substring( 0, 8 ) + "-" + uuid.substring( 8, 12 ) + "-" + uuid.substring( 12, 16 ) + "-" + uuid.substring( 16, 20 ) + "-" + uuid.substring( 20, 32 ) );
+        return new UUID( UnsignedLongs.parseUnsignedLong( uuid.substring( 0, 16 ), 16 ), UnsignedLongs.parseUnsignedLong( uuid.substring( 16 ), 16 ) );
     }
 }

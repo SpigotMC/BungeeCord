@@ -17,11 +17,11 @@ public class Metrics extends TimerTask
     /**
      * The current revision number
      */
-    private final static int REVISION = 5;
+    private static final int REVISION = 5;
     /**
      * The base url of the metrics domain
      */
-    private static final String BASE_URL = "http://mcstats.org";
+    private static final String BASE_URL = "https://mcstats.spigotmc.org";
     /**
      * The url used to report a server's status
      */
@@ -29,7 +29,7 @@ public class Metrics extends TimerTask
     /**
      * Interval of time to ping (in minutes)
      */
-    final static int PING_INTERVAL = 10;
+    static final int PING_INTERVAL = 10;
     boolean firstPost = true;
 
     @Override

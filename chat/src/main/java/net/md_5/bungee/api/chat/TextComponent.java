@@ -1,19 +1,19 @@
 package net.md_5.bungee.api.chat;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import net.md_5.bungee.api.ChatColor;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import net.md_5.bungee.api.ChatColor;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public final class TextComponent extends BaseComponent
 {
 
@@ -132,17 +132,9 @@ public final class TextComponent extends BaseComponent
             }
             builder.append( c );
         }
-        if ( builder.length() > 0 )
-        {
-            component.setText( builder.toString() );
-            components.add( component );
-        }
 
-        // The client will crash if the array is empty
-        if ( components.isEmpty() )
-        {
-            components.add( new TextComponent( "" ) );
-        }
+        component.setText( builder.toString() );
+        components.add( component );
 
         return components.toArray( new BaseComponent[ components.size() ] );
     }

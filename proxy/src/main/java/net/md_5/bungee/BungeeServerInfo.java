@@ -1,6 +1,5 @@
 package net.md_5.bungee;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -12,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Queue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -70,16 +70,22 @@ public class BungeeServerInfo implements ServerInfo
     }
 
     @Override
+    public String getPermission()
+    {
+        return "bungeecord.server." + name;
+    }
+
+    @Override
     public boolean canAccess(CommandSender player)
     {
         Preconditions.checkNotNull( player, "player" );
-        return !restricted || player.hasPermission( "bungeecord.server." + name );
+        return !restricted || player.hasPermission( getPermission() );
     }
 
     @Override
     public boolean equals(Object obj)
     {
-        return ( obj instanceof ServerInfo ) && Objects.equal( getAddress(), ( (ServerInfo) obj ).getAddress() );
+        return ( obj instanceof ServerInfo ) && Objects.equals( getAddress(), ( (ServerInfo) obj ).getAddress() );
     }
 
     @Override

@@ -1,7 +1,6 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -138,7 +137,7 @@ public class BungeeCord extends ProxyServer
      * Plugin manager.
      */
     @Getter
-    public final PluginManager pluginManager = new PluginManager( this );
+    public final PluginManager pluginManager;
     @Getter
     @Setter
     private ReconnectHandler reconnectHandler;
@@ -167,15 +166,8 @@ public class BungeeCord extends ProxyServer
     private ConnectionThrottle connectionThrottle;
     private final ModuleManager moduleManager = new ModuleManager();
 
-    
     {
         // TODO: Proper fallback when we interface the manager
-        getPluginManager().registerCommand( null, new CommandReload() );
-        getPluginManager().registerCommand( null, new CommandEnd() );
-        getPluginManager().registerCommand( null, new CommandIP() );
-        getPluginManager().registerCommand( null, new CommandBungee() );
-        getPluginManager().registerCommand( null, new CommandPerms() );
-
         registerChannel( "BungeeCord" );
     }
 
@@ -220,6 +212,13 @@ public class BungeeCord extends ProxyServer
         System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
         System.setOut( new PrintStream( new LoggingOutputStream( logger, Level.INFO ), true ) );
 
+        pluginManager = new PluginManager( this );
+        getPluginManager().registerCommand( null, new CommandReload() );
+        getPluginManager().registerCommand( null, new CommandEnd() );
+        getPluginManager().registerCommand( null, new CommandIP() );
+        getPluginManager().registerCommand( null, new CommandBungee() );
+        getPluginManager().registerCommand( null, new CommandPerms() );
+
         if ( !Boolean.getBoolean( "net.md_5.bungee.native.disable" ) )
         {
             if ( EncryptionUtil.nativeFactory.load() )
@@ -245,11 +244,9 @@ public class BungeeCord extends ProxyServer
      *
      * @throws Exception
      */
-    @Override
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public void start() throws Exception
     {
-        System.setProperty( "java.net.preferIPv4Stack", "true" ); // Minecraft does not support IPv6
         System.setProperty( "io.netty.selectorAutoRebuildThreshold", "0" ); // Seems to cause Bungee to stop accepting connections
         if ( System.getProperty( "io.netty.leakDetectionLevel" ) == null )
         {
@@ -268,9 +265,14 @@ public class BungeeCord extends ProxyServer
         pluginManager.loadPlugins();
         config.load();
 
-        registerChannel( ForgeConstants.FML_TAG );
-        registerChannel( ForgeConstants.FML_HANDSHAKE_TAG );
-        registerChannel( ForgeConstants.FORGE_REGISTER );
+        if ( config.isForgeSupport() )
+        {
+            registerChannel( ForgeConstants.FML_TAG );
+            registerChannel( ForgeConstants.FML_HANDSHAKE_TAG );
+            registerChannel( ForgeConstants.FORGE_REGISTER );
+
+            getLogger().warning( "MinecraftForge support is currently unmaintained and may have unresolved issues. Please use at your own risk." );
+        }
 
         isRunning = true;
 
@@ -278,7 +280,7 @@ public class BungeeCord extends ProxyServer
 
         if ( config.getThrottle() > 0 )
         {
-            connectionThrottle = new ConnectionThrottle( config.getThrottle() );
+            connectionThrottle = new ConnectionThrottle( config.getThrottle(), config.getThrottleLimit() );
         }
         startListeners();
 
@@ -303,6 +305,12 @@ public class BungeeCord extends ProxyServer
             if ( info.isProxyProtocol() )
             {
                 getLogger().log( Level.WARNING, "Using PROXY protocol for listener {0}, please ensure this listener is adequately firewalled.", info.getHost() );
+
+                if ( connectionThrottle != null )
+                {
+                    connectionThrottle = null;
+                    getLogger().log( Level.WARNING, "Since PROXY protocol is in use, internal connection throttle has been disabled." );
+                }
             }
 
             ChannelFutureListener listener = new ChannelFutureListener()
@@ -374,8 +382,14 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public void stop(final String reason)
+    public synchronized void stop(final String reason)
     {
+        if ( !isRunning )
+        {
+            return;
+        }
+        isRunning = false;
+
         new Thread( "Shutdown Thread" )
         {
             @Override
@@ -383,8 +397,6 @@ public class BungeeCord extends ProxyServer
             @SuppressWarnings("TooBroadCatch")
             public void run()
             {
-                BungeeCord.this.isRunning = false;
-
                 stopListeners();
                 getLogger().info( "Closing pending connections" );
 
@@ -607,8 +619,13 @@ public class BungeeCord extends ProxyServer
         return Collections.unmodifiableCollection( pluginChannels );
     }
 
-    public PluginMessage registerChannels()
+    public PluginMessage registerChannels(int protocolVersion)
     {
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
+        {
+            return new PluginMessage( "minecraft:register", Util.format( Iterables.transform( pluginChannels, PluginMessage.MODERNISE ), "\00" ).getBytes( Charsets.UTF_8 ), false );
+        }
+
         return new PluginMessage( "REGISTER", Util.format( pluginChannels, "\00" ).getBytes( Charsets.UTF_8 ), false );
     }
 
@@ -711,7 +728,7 @@ public class BungeeCord extends ProxyServer
             @Override
             public boolean apply(ProxiedPlayer input)
             {
-                return ( input == null ) ? false : input.getName().toLowerCase().startsWith( partialName.toLowerCase() );
+                return ( input == null ) ? false : input.getName().toLowerCase( Locale.ROOT ).startsWith( partialName.toLowerCase( Locale.ROOT ) );
             }
         } ) );
     }

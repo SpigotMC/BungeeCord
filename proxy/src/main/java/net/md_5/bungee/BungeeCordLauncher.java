@@ -23,14 +23,20 @@ public class BungeeCordLauncher
 
         OptionParser parser = new OptionParser();
         parser.allowsUnrecognizedOptions();
-        parser.acceptsAll( Arrays.asList( "v", "version" ) );
-        parser.acceptsAll( Arrays.asList( "noconsole" ) );
+        parser.acceptsAll( Arrays.asList( "help" ), "Show the help" );
+        parser.acceptsAll( Arrays.asList( "v", "version" ), "Print version and exit" );
+        parser.acceptsAll( Arrays.asList( "noconsole" ), "Disable console input" );
 
         OptionSet options = parser.parse( args );
 
+        if ( options.has( "help" ) )
+        {
+            parser.printHelpOn( System.out );
+            return;
+        }
         if ( options.has( "version" ) )
         {
-            System.out.println( Bootstrap.class.getPackage().getImplementationVersion() );
+            System.out.println( BungeeCord.class.getPackage().getImplementationVersion() );
             return;
         }
 

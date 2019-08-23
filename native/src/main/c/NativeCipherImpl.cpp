@@ -1,3 +1,6 @@
+// Support for CentOS 6
+__asm__(".symver memcpy,memcpy@GLIBC_2.2.5");
+
 #include <stdlib.h>
 #include <string.h>
 
