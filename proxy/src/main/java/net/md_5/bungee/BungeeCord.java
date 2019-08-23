@@ -266,12 +266,12 @@ public class BungeeCord extends ProxyServer
 
         File moduleDirectory = new File( "modules" );
         moduleManager.load( this, moduleDirectory );
-        pluginManager.detectPlugins( moduleDirectory );
+        pluginManager.detectPlugins( moduleDirectory, false );
 
         // No need to search for plugins if this is the first time the folder was init'ed
         if ( !pluginsFolder.mkdir() )
         {
-            pluginManager.detectPlugins( pluginsFolder );
+            pluginManager.detectPlugins( pluginsFolder, true );
         }
         pluginManager.loadPlugins();
 

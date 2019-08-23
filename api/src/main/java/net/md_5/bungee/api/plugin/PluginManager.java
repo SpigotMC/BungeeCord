@@ -347,19 +347,20 @@ public class PluginManager
      * Load all plugins from the specified folder.
      *
      * @param folder the folder to search for plugins in
+     * @param searchGroups if subsequent directories should be searched for plugins to load
      */
-    public void detectPlugins(File folder)
+    public void detectPlugins(File folder, boolean searchGroups)
     {
         Preconditions.checkNotNull( folder, "folder" );
         Preconditions.checkArgument( folder.isDirectory(), "Must load from a directory" );
 
-        proxy.getLogger().log(Level.INFO, "Attempting to load plugins");
+        proxy.getLogger().log( Level.INFO, "Attempting to load plugins from " + folder.getName() );
         for ( File file : folder.listFiles() )
         {
             if ( file.getName().endsWith( ".jar" ) )
             {
                 detectJarFile( file );
-            } else if ( file.isDirectory() )
+            } else if ( searchGroups && file.isDirectory() )
             {
                 if ( proxy.getConfig().getPluginGroups().contains( file.getName() ) || ( enforcedPluginGroups.contains( file.getName() ) ) )
                 {
