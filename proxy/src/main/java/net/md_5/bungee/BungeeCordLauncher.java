@@ -29,7 +29,7 @@ public class BungeeCordLauncher
         parser.acceptsAll( Arrays.asList( "help" ), "Show the help" );
         parser.acceptsAll( Arrays.asList( "v", "version" ), "Print version and exit" );
         parser.acceptsAll( Arrays.asList( "noconsole" ), "Disable console input" );
-        OptionSpec pluginGroupSpec = parser.accepts( "plugingroups", "Force a plugin group(s) to load" ).withRequiredArg().withValuesSeparatedBy(',');
+        OptionSpec pluginGroupSpec = parser.accepts( "plugingroups", "Force a plugin group(s) to load" ).withRequiredArg().withValuesSeparatedBy( ',' );
 
         OptionSet options = parser.parse( args );
 

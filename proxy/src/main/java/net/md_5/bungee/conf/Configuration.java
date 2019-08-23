@@ -97,7 +97,7 @@ public class Configuration implements ProxyConfig
 
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
 
-        pluginGroups = (Collection<String>) adapter.getList("plugin-groups", new ArrayList<>());
+        pluginGroups = (Collection<String>) adapter.getList( "plugin-groups", new ArrayList<>() );
 
         Preconditions.checkArgument( listeners != null && !listeners.isEmpty(), "No listeners defined." );
 
