@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -147,6 +148,7 @@ public class BungeeCord extends ProxyServer
     private final Collection<String> pluginChannels = new HashSet<>();
     @Getter
     private final File pluginsFolder = new File( "plugins" );
+    private List<String> enforcedPluginGroups;
     @Getter
     private final BungeeScheduler scheduler = new BungeeScheduler();
     @Getter
@@ -176,8 +178,13 @@ public class BungeeCord extends ProxyServer
         return (BungeeCord) ProxyServer.getInstance();
     }
 
-    @SuppressFBWarnings("DM_DEFAULT_ENCODING")
     public BungeeCord() throws IOException
+    {
+        this( new ArrayList<String>() );
+    }
+
+    @SuppressFBWarnings("DM_DEFAULT_ENCODING")
+    public BungeeCord( List<String> enforcedPluginGroups ) throws IOException
     {
         // Java uses ! to indicate a resource inside of a jar/zip/other container. Running Bungee from within a directory that has a ! will cause this to muck up.
         Preconditions.checkState( new File( "." ).getAbsolutePath().indexOf( '!' ) == -1, "Cannot use BungeeCord in directory with ! in path." );
@@ -212,7 +219,7 @@ public class BungeeCord extends ProxyServer
         System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
         System.setOut( new PrintStream( new LoggingOutputStream( logger, Level.INFO ), true ) );
 
-        pluginManager = new PluginManager( this );
+        pluginManager = new PluginManager( this, enforcedPluginGroups );
         getPluginManager().registerCommand( null, new CommandReload() );
         getPluginManager().registerCommand( null, new CommandEnd() );
         getPluginManager().registerCommand( null, new CommandIP() );

@@ -53,11 +53,13 @@ public class PluginManager
     private Map<String, PluginDescription> toLoad = new HashMap<>();
     private final Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
     private final Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
+    private final List<String> enforcedPluginGroups;
 
     @SuppressWarnings("unchecked")
-    public PluginManager(ProxyServer proxy)
+    public PluginManager(ProxyServer proxy, List<String> enforcedPluginGroups)
     {
         this.proxy = proxy;
+        this.enforcedPluginGroups = enforcedPluginGroups;
 
         // Ignore unknown entries in the plugin descriptions
         Constructor yamlConstructor = new Constructor();
@@ -359,7 +361,7 @@ public class PluginManager
                 detectJarFile( file );
             } else if ( file.isDirectory() )
             {
-                if ( proxy.getConfig().getPluginGroups().contains( file.getName() ) )
+                if ( proxy.getConfig().getPluginGroups().contains( file.getName() ) || ( enforcedPluginGroups.contains( file.getName() ) ) )
                 {
                     proxy.getLogger().log( Level.INFO, "Attempting to load plugins from group " + file.getName() );
                     for ( File groupFile : file.listFiles() )
