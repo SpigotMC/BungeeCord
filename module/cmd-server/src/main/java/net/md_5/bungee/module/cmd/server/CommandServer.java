@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.Map;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -46,17 +47,36 @@ public class CommandServer extends Command implements TabExecutor
             {
                 if ( server.canAccess( sender ) )
                 {
-                    TextComponent serverTextComponent = new TextComponent( first ? server.getName() : ", " + server.getName() );
+                    BaseComponent[] serverBaseComponents;
+                    if ( first )
+                    {
+                        serverBaseComponents = TextComponent.fromLegacyText( ProxyServer.getInstance().getTranslation( "server_list_value_first", server.getName() ) );
+                    } else
+                    {
+                        serverBaseComponents = TextComponent.fromLegacyText( ProxyServer.getInstance().getTranslation( "server_list_value_next", server.getName() ) );
+                    }
                     int count = server.getPlayers().size();
-                    serverTextComponent.setHoverEvent( new HoverEvent(
+                    for ( BaseComponent serverBaseComponent : serverBaseComponents )
+                    {
+                        BaseComponent[] playersHoverBaseComponents;
+                        if ( count == 1 )
+                        {
+                            playersHoverBaseComponents = TextComponent.fromLegacyText( ProxyServer.getInstance().getTranslation( "server_list_value_hover_players_single" ) );
+                        } else
+                        {
+                            playersHoverBaseComponents = TextComponent.fromLegacyText( ProxyServer.getInstance().getTranslation( "server_list_value_hover_players_multi", count ) );
+                        }
+                        serverBaseComponent.setHoverEvent( new HoverEvent(
                             HoverEvent.Action.SHOW_TEXT,
-                            new ComponentBuilder( count + ( count == 1 ? " player" : " players" ) + "\n" ).appendLegacy( ProxyServer.getInstance().getTranslation( "click_to_connect" ) ).create() )
-                    );
-                    serverTextComponent.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, "/server " + server.getName() ) );
-                    serverList.append( serverTextComponent );
+                            new ComponentBuilder( "" ).append( playersHoverBaseComponents ).create() )
+                        );
+                        serverBaseComponent.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, "/server " + server.getName() ) );
+                    }
+                    serverList.append( serverBaseComponents );
                     first = false;
                 }
             }
+            serverList.appendLegacy( ProxyServer.getInstance().getTranslation( "server_list_ending" ) );
             sender.sendMessage( serverList.create() );
         } else
         {
