@@ -16,14 +16,14 @@ public class ConnectionThrottle
 
     public ConnectionThrottle(int throttleTime, int throttleLimit)
     {
-        this(Ticker.systemTicker(), throttleTime, throttleLimit);
+        this( Ticker.systemTicker(), throttleTime, throttleLimit );
     }
 
     @VisibleForTesting
     ConnectionThrottle(Ticker ticker, int throttleTime, int throttleLimit)
     {
         this.throttle = CacheBuilder.newBuilder()
-                .ticker(ticker)
+                .ticker( ticker )
                 .concurrencyLevel( Runtime.getRuntime().availableProcessors() )
                 .initialCapacity( 100 )
                 .expireAfterWrite( throttleTime, TimeUnit.MILLISECONDS )
