@@ -523,7 +523,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         //a LoginSuccess packet before a LoginEvent will be fired.
         bungee.getPluginManager().callEvent( uuidEvent );
 
-        boolean sendLoginSuccess = ( uniqueId = uuidEvent.getUniqueId() ) != null;
+        if (uuidEvent.getUniqueId() != null) {
+            uniqueId = uuidEvent.getUniqueId();
+        }
+        
+        boolean sendLoginSuccess = uuidEvent.getUniqueId() != null;
 
         if ( uniqueId == null )
         {
