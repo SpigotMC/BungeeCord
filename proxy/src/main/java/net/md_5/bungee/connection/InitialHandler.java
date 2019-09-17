@@ -526,7 +526,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         if (uuidEvent.getUniqueId() != null) {
             uniqueId = uuidEvent.getUniqueId();
         }
-        
+
         boolean sendLoginSuccess = uuidEvent.getUniqueId() != null;
 
         if ( uniqueId == null )
