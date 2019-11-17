@@ -122,7 +122,7 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(KeepAlive alive) throws Exception
     {
-        if ( con.getServer().getKeepAliveHistory().size() == 0 )
+        if ( con.getServer().getKeepAliveHistory().isEmpty() )
         {
             throw CancelSendSignal.INSTANCE;
         }
