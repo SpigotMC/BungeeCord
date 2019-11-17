@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.ServerConnection;
+import net.md_5.bungee.ServerConnection.KeepAliveData;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
@@ -122,8 +123,12 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(KeepAlive alive) throws Exception
     {
-        server.setSentPingId( alive.getRandomId() );
-        con.setSentPingTime( System.currentTimeMillis() );
+        server.getKeepAliveHistory().add( new KeepAliveData( alive.getRandomId(), System.currentTimeMillis() ) );
+
+        if ( server.getKeepAliveHistory().size() > 256 )
+        {
+            server.getKeepAliveHistory().removeFirst();
+        }
     }
 
     @Override

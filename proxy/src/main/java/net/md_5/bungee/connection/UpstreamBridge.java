@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.ServerConnection.KeepAliveData;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
@@ -121,9 +122,16 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(KeepAlive alive) throws Exception
     {
-        if ( alive.getRandomId() == con.getServer().getSentPingId() )
+        if ( con.getServer().getKeepAliveHistory().size() == 0 )
         {
-            int newPing = (int) ( System.currentTimeMillis() - con.getSentPingTime() );
+            throw CancelSendSignal.INSTANCE;
+        }
+
+        KeepAliveData keepAliveData = con.getServer().getKeepAliveHistory().removeFirst();
+
+        if ( alive.getRandomId() == keepAliveData.getId() )
+        {
+            int newPing = (int) ( System.currentTimeMillis() - keepAliveData.getTime() );
             con.getTabListHandler().onPingChange( newPing );
             con.setPing( newPing );
         } else
