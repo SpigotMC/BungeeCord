@@ -127,7 +127,7 @@ public class UpstreamBridge extends PacketHandler
             throw CancelSendSignal.INSTANCE;
         }
 
-        KeepAliveData keepAliveData = con.getServer().getKeepAliveHistory().removeFirst();
+        KeepAliveData keepAliveData = con.getServer().getKeepAliveHistory().remove();
 
         if ( alive.getRandomId() == keepAliveData.getId() )
         {

@@ -1,8 +1,9 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.EvictingQueue;
 import java.net.InetSocketAddress;
-import java.util.LinkedList;
+import java.util.Queue;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class ServerConnection implements Server
     @Getter
     private final boolean forgeServer = false;
     @Getter
-    private final LinkedList<KeepAliveData> keepAliveHistory = new LinkedList<>();
+    private final Queue<KeepAliveData> keepAliveHistory = EvictingQueue.create(1024);
 
     private final Unsafe unsafe = new Unsafe()
     {

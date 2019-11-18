@@ -124,11 +124,6 @@ public class DownstreamBridge extends PacketHandler
     public void handle(KeepAlive alive) throws Exception
     {
         server.getKeepAliveHistory().add( new KeepAliveData( alive.getRandomId(), System.currentTimeMillis() ) );
-
-        if ( server.getKeepAliveHistory().size() > 256 )
-        {
-            server.getKeepAliveHistory().removeFirst();
-        }
     }
 
     @Override
