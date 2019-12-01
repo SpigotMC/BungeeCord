@@ -8,6 +8,7 @@ import io.netty.handler.codec.haproxy.HAProxyMessage;
 import io.netty.handler.timeout.ReadTimeoutException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Objects;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.connection.CancelSendSignal;
@@ -123,43 +124,6 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     {
         if ( ctx.channel().isActive() )
         {
-            boolean logExceptions = !( handler instanceof PingHandler );
-
-            if ( logExceptions )
-            {
-                if ( cause instanceof ReadTimeoutException )
-                {
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - read timed out", handler );
-                } else if ( cause instanceof DecoderException && cause.getCause() instanceof BadPacketException )
-                {
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - bad packet ID, are mods in use!? {1}", new Object[]
-                    {
-                        handler, cause.getCause().getMessage()
-                    } );
-                } else if ( cause instanceof DecoderException && cause.getCause() instanceof OverflowPacketException )
-                {
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - overflow in packet detected! {1}", new Object[]
-                    {
-                        handler, cause.getCause().getMessage()
-                    } );
-                } else if ( cause instanceof IOException || ( cause instanceof IllegalStateException && handler instanceof InitialHandler ) )
-                {
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - {1}: {2}", new Object[]
-                    {
-                        handler, cause.getClass().getSimpleName(), cause.getMessage()
-                    } );
-                } else if ( cause instanceof QuietException )
-                {
-                    ProxyServer.getInstance().getLogger().log( Level.SEVERE, "{0} - encountered exception: {1}", new Object[]
-                    {
-                        handler, cause
-                    } );
-                } else
-                {
-                    ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - encountered exception", cause );
-                }
-            }
-
             if ( handler != null )
             {
                 try
@@ -171,7 +135,52 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                 }
             }
 
+            boolean logExceptions = !( handler instanceof PingHandler );
+
+            //fetch handler's toString because its likely no good idea for them to query information from a closed ctx
+            //will also free the handler in this method and not after the log entry was actually written
+            String handlerToString = null;
+            if ( logExceptions )
+            {
+                handlerToString = Objects.toString( handler );
+            }
+
             ctx.close();
+
+            if ( logExceptions )
+            {
+                if ( cause instanceof ReadTimeoutException )
+                {
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - read timed out", handlerToString );
+                } else if ( cause instanceof DecoderException && cause.getCause() instanceof BadPacketException )
+                {
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - bad packet ID, are mods in use!? {1}", new Object[]
+                    {
+                            handlerToString, cause.getCause().getMessage()
+                    } );
+                } else if ( cause instanceof DecoderException && cause.getCause() instanceof OverflowPacketException )
+                {
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - overflow in packet detected! {1}", new Object[]
+                    {
+                            handlerToString, cause.getCause().getMessage()
+                    } );
+                } else if ( cause instanceof IOException || ( cause instanceof IllegalStateException && handler instanceof InitialHandler ) )
+                {
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - {1}: {2}", new Object[]
+                    {
+                            handlerToString, cause.getClass().getSimpleName(), cause.getMessage()
+                    } );
+                } else if ( cause instanceof QuietException )
+                {
+                    ProxyServer.getInstance().getLogger().log( Level.SEVERE, "{0} - encountered exception: {1}", new Object[]
+                    {
+                            handlerToString, cause
+                    } );
+                } else
+                {
+                    ProxyServer.getInstance().getLogger().log( Level.SEVERE, Objects.toString( handlerToString ).concat( " - encountered exception" ), cause );
+                }
+            }
         }
     }
 }
