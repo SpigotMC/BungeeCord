@@ -38,6 +38,12 @@ public abstract class PlayerCommand extends Command implements TabExecutor
             {
                 return player.getName().toLowerCase( Locale.ROOT ).startsWith( lastArg );
             }
+
+            @Override
+            public boolean test(ProxiedPlayer input)
+            {
+                return apply( input );
+            }
         } ), new Function<ProxiedPlayer, String>()
         {
             @Override

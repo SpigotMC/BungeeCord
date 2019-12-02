@@ -55,6 +55,12 @@ public class PluginMessage extends DefinedPacket
         {
             return ( input.getTag().equals( "REGISTER" ) || input.getTag().equals( "minecraft:register" ) || input.getTag().equals( "MC|Brand" ) || input.getTag().equals( "minecraft:brand" ) ) && input.getData().length < Byte.MAX_VALUE;
         }
+
+        @Override
+        public boolean test(PluginMessage input)
+        {
+            return apply( input );
+        }
     };
     //
     private String tag;

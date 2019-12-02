@@ -92,6 +92,12 @@ public class CommandServer extends Command implements TabExecutor
             {
                 return input.getName().toLowerCase( Locale.ROOT ).startsWith( lower ) && input.canAccess( sender );
             }
+
+            @Override
+            public boolean test(ServerInfo input)
+            {
+                return apply( input );
+            }
         } ), new Function<ServerInfo, String>()
         {
             @Override

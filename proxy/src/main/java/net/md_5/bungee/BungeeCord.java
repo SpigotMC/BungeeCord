@@ -730,6 +730,12 @@ public class BungeeCord extends ProxyServer
             {
                 return ( input == null ) ? false : input.getName().toLowerCase( Locale.ROOT ).startsWith( partialName.toLowerCase( Locale.ROOT ) );
             }
+
+            @Override
+            public boolean test(ProxiedPlayer input)
+            {
+                return apply( input );
+            }
         } ) );
     }
 
