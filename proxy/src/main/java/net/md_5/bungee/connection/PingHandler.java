@@ -53,23 +53,47 @@ public class PingHandler extends PacketHandler
     }
 
     @Override
-    public void handle(PacketWrapper packet) throws Exception
+    @SuppressWarnings("unchecked")
+    public void handleFully(PacketWrapper<?> packet) throws Exception
     {
         if ( packet.packet == null )
         {
-            throw new QuietException( "Unexpected packet received during ping process! " + BufUtil.dump( packet.buf, 16 ) );
+            channel.close();
+            callback.done( null, new QuietException( "Unexpected packet received during ping process! " + BufUtil.dump( packet.buf, 16 ) ) );
+            return;
+        }
+        packet.packet.callHandler( this, packet );
+    }
+
+    @Override
+    public void handleGeneral(PacketWrapper<?> packet)
+    {
+        if ( packet.packet == null )
+        {
+            channel.close();
+            callback.done( null, new QuietException( "Unexpected packet received during ping process! " + BufUtil.dump( packet.buf, 16 ) ) );
+        }
+    }
+
+    @Override
+    public void handleGeneralNoEntity(PacketWrapper<?> packet)
+    {
+        if ( packet.packet == null )
+        {
+            channel.close();
+            callback.done( null, new QuietException( "Unexpected packet received during ping process! " + BufUtil.dump( packet.buf, 16 ) ) );
         }
     }
 
     @Override
     @SuppressFBWarnings("UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
-    public void handle(StatusResponse statusResponse) throws Exception
+    public void handleStatusResponse(PacketWrapper<StatusResponse> packet) throws Exception
     {
+        channel.close();
         Gson gson = BungeeCord.getInstance().gson;
         ServerPing serverPing = gson.fromJson( statusResponse.getResponse(), ServerPing.class );
         ( (BungeeServerInfo) target ).cachePing( serverPing );
         callback.done( serverPing, null );
-        channel.close();
     }
 
     @Override

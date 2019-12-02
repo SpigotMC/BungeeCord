@@ -16,6 +16,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.BungeeServerInfo;
+import net.md_5.bungee.ConnectionThrottle;
 import net.md_5.bungee.EncryptionUtil;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
@@ -64,7 +65,6 @@ import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
 import net.md_5.bungee.util.BufUtil;
-import net.md_5.bungee.util.QuietException;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -85,7 +85,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private final Unsafe unsafe = new Unsafe()
     {
         @Override
-        public void sendPacket(DefinedPacket packet)
+        public void sendPacket(DefinedPacket<?> packet)
         {
             ch.write( packet );
         }
@@ -105,12 +105,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private boolean legacy;
     @Getter
     private String extraDataInHandshake = "";
-
-    @Override
-    public boolean shouldHandle(PacketWrapper packet) throws Exception
-    {
-        return !ch.isClosing();
-    }
 
     private enum State
     {
@@ -142,18 +136,26 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void handle(PacketWrapper packet) throws Exception
+    @SuppressWarnings("unchecked")
+    public void handleFully(PacketWrapper<?> packet) throws Exception
     {
+        if ( ch.isClosing() )
+        {
+            return;
+        }
         if ( packet.packet == null )
         {
-            throw new QuietException( "Unexpected packet received during login process! " + BufUtil.dump( packet.buf, 16 ) );
+            disconnectFastAndLog( "Unexpected packet received during login process! " + BufUtil.dump( packet.buf, 16 ) );
+            return;
         }
+        packet.packet.callHandler( this, packet );
     }
 
     @Override
-    public void handle(PluginMessage pluginMessage) throws Exception
+    public void handlePluginMessage(PacketWrapper<PluginMessage> packet) throws Exception
     {
         // TODO: Unregister?
+        final PluginMessage pluginMessage = packet.packet;
         if ( PluginMessage.SHOULD_RELAY.apply( pluginMessage ) )
         {
             relayMessages.add( pluginMessage );
@@ -161,16 +163,17 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void handle(LegacyHandshake legacyHandshake) throws Exception
+    public void handleLegacyHandshake(PacketWrapper<LegacyHandshake> packet) throws Exception
     {
         this.legacy = true;
         ch.close( bungee.getTranslation( "outdated_client", bungee.getGameVersion() ) );
     }
 
     @Override
-    public void handle(LegacyPing ping) throws Exception
+    public void handleLegacyPing(PacketWrapper<LegacyPing> packet) throws Exception
     {
         this.legacy = true;
+        final LegacyPing ping = packet.packet;
         final boolean v1_5 = ping.isV1_5();
 
         ServerPing legacy = new ServerPing( new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), bungee.getProtocolVersion() ),
@@ -229,9 +232,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void handle(StatusRequest statusRequest) throws Exception
+    public void handleStatusRequest(PacketWrapper<StatusRequest> packet) throws Exception
     {
-        Preconditions.checkState( thisState == State.STATUS, "Not expecting STATUS" );
+        if ( thisState != State.STATUS )
+        {
+            disconnectFastAndLog( "Not expecting STATUS" );
+            return;
+        }
 
         ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
         final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
@@ -255,9 +262,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     {
                         Gson gson = BungeeCord.getInstance().gson;
                         unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
-                        if ( bungee.getConnectionThrottle() != null )
+
+                        final ConnectionThrottle connectionThrottle = bungee.getConnectionThrottle();
+                        if ( connectionThrottle != null )
                         {
-                            bungee.getConnectionThrottle().unthrottle( getSocketAddress() );
+                            connectionThrottle.unthrottle( getSocketAddress() );
                         }
                     }
                 };
@@ -278,17 +287,32 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void handle(PingPacket ping) throws Exception
+    public void handlePing(PacketWrapper<PingPacket> packet) throws Exception
     {
-        Preconditions.checkState( thisState == State.PING, "Not expecting PING" );
-        unsafe.sendPacket( ping );
+        if ( thisState != State.PING )
+        {
+            disconnectFastAndLog( "Not expecting PING" );
+            return;
+        }
+        unsafe.sendPacket( packet.packet );
         disconnect( "" );
     }
 
     @Override
-    public void handle(Handshake handshake) throws Exception
+    public void handleHandshake(PacketWrapper<Handshake> packet) throws Exception
     {
-        Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
+        final Handshake handshake = packet.packet;
+        if ( thisState != State.HANDSHAKE )
+        {
+            disconnectFastAndLog( "Not expecting HANDSHAKE" );
+            return;
+        }
+        final int requestedProtocol = handshake.getRequestedProtocol();
+        if ( requestedProtocol != 1 && requestedProtocol != 2 )
+        {
+            disconnectFastAndLog( "Unknown handshake protocol " + requestedProtocol );
+            return;
+        }
         this.handshake = handshake;
         ch.setVersion( handshake.getProtocolVersion() );
 
@@ -297,22 +321,23 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         // We know FML appends \00FML\00. However, we need to also consider that other systems might
         // add their own data to the end of the string. So, we just take everything from the \0 character
         // and save it for later.
-        if ( handshake.getHost().contains( "\0" ) )
+        final String handshakeHost = handshake.getHost();
+        if ( handshakeHost.contains( "\0" ) )
         {
-            String[] split = handshake.getHost().split( "\0", 2 );
-            handshake.setHost( split[0] );
-            extraDataInHandshake = "\0" + split[1];
+            String[] split = handshakeHost.split( "\0", 2 );
+            handshake.setHost( split[ 0 ] );
+            extraDataInHandshake = "\0" + split[ 1 ];
         }
 
         // SRV records can end with a . depending on DNS / client.
-        if ( handshake.getHost().endsWith( "." ) )
+        if ( handshakeHost.endsWith( "." ) )
         {
-            handshake.setHost( handshake.getHost().substring( 0, handshake.getHost().length() - 1 ) );
+            handshake.setHost( handshakeHost.substring( 0, handshakeHost.length() - 1 ) );
         }
 
-        this.virtualHost = InetSocketAddress.createUnresolved( handshake.getHost(), handshake.getPort() );
+        this.virtualHost = InetSocketAddress.createUnresolved( handshakeHost, handshake.getPort() );
 
-        bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
+        bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( this, handshake ) );
 
         switch ( handshake.getRequestedProtocol() )
         {
@@ -344,23 +369,29 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 }
                 break;
             default:
-                throw new IllegalArgumentException( "Cannot request protocol " + handshake.getRequestedProtocol() );
+                disconnectFastAndLog( "Unknown handshake protocol by plugin " + handshake.getRequestedProtocol() );
+                break;
         }
     }
 
     @Override
-    public void handle(LoginRequest loginRequest) throws Exception
+    public void handleLoginRequest(PacketWrapper<LoginRequest> packet) throws Exception
     {
-        Preconditions.checkState( thisState == State.USERNAME, "Not expecting USERNAME" );
-        this.loginRequest = loginRequest;
+        if ( thisState != State.USERNAME )
+        {
+            disconnectFastAndLog( "Not expecting USERNAME" );
+            return;
+        }
+        this.loginRequest = packet.packet;
 
-        if ( getName().contains( "." ) )
+        final String name = getName();
+        if ( name.contains( "." ) )
         {
             disconnect( bungee.getTranslation( "name_invalid" ) );
             return;
         }
 
-        if ( getName().length() > 16 )
+        if ( name.length() > 16 )
         {
             disconnect( bungee.getTranslation( "name_too_long" ) );
             return;
@@ -412,10 +443,15 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void handle(final EncryptionResponse encryptResponse) throws Exception
+    public void handleEncryptionResponse(final PacketWrapper<EncryptionResponse> packet) throws Exception
     {
-        Preconditions.checkState( thisState == State.ENCRYPT, "Not expecting ENCRYPT" );
+        if ( thisState != State.ENCRYPT )
+        {
+            disconnectFastAndLog( "Not expecting ENCRYPT" );
+            return;
+        }
 
+        final EncryptionResponse encryptResponse = packet.packet;
         SecretKey sharedKey = EncryptionUtil.getSecret( encryptResponse, request );
         BungeeCipher decrypt = EncryptionUtil.getCipher( false, sharedKey );
         ch.addBefore( PipelineUtils.FRAME_DECODER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
@@ -425,13 +461,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         String encName = URLEncoder.encode( InitialHandler.this.getName(), "UTF-8" );
 
         MessageDigest sha = MessageDigest.getInstance( "SHA-1" );
-        for ( byte[] bit : new byte[][]
-        {
-            request.getServerId().getBytes( "ISO_8859_1" ), sharedKey.getEncoded(), EncryptionUtil.keys.getPublic().getEncoded()
-        } )
-        {
-            sha.update( bit );
-        }
+        sha.update( request.getServerId().getBytes( "ISO_8859_1" ) );
+        sha.update( sharedKey.getEncoded() );
+        sha.update( EncryptionUtil.keys.getPublic().getEncoded() );
+
         String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
 
         String preventProxy = ( BungeeCord.getInstance().config.isPreventProxyConnections() && getSocketAddress() instanceof InetSocketAddress ) ? "&ip=" + URLEncoder.encode( getAddress().getAddress().getHostAddress(), "UTF-8" ) : "";
@@ -494,7 +527,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 disconnect( bungee.getTranslation( "already_connected_proxy" ) );
                 return;
             }
-
         }
 
         offlineId = UUID.nameUUIDFromBytes( ( "OfflinePlayer:" + getName() ).getBytes( Charsets.UTF_8 ) );
@@ -561,7 +593,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void handle(LoginPayloadResponse response) throws Exception
+    public void handleLoginPayloadResponse(PacketWrapper<LoginPayloadResponse> packet) throws Exception
     {
         disconnect( "Unexpected custom LoginPayloadResponse" );
     }
@@ -588,6 +620,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             ch.close();
         }
+    }
+
+    protected void disconnectFastAndLog(String reason)
+    {
+        if ( canSendKickMessage() )
+        {
+            ch.close( new Kick( reason ) );
+        } else
+        {
+            ch.close();
+        }
+        bungee.getLogger().log( Level.INFO, "{0} disconnected without waiting: {1}", new Object[]{ toString(), reason } );
     }
 
     @Override

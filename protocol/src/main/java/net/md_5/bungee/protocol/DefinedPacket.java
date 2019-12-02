@@ -8,7 +8,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public abstract class DefinedPacket
+public abstract class DefinedPacket<P extends DefinedPacket<P>>
 {
 
     public static void writeString(String s, ByteBuf buf)
@@ -79,7 +79,7 @@ public abstract class DefinedPacket
 
         for ( int i = 0; i < len; i++ )
         {
-            ret[i] = readVarInt( buf );
+            ret[ i ] = readVarInt( buf );
         }
 
         return ret;
@@ -124,6 +124,75 @@ public abstract class DefinedPacket
             if ( bytes > maxBytes )
             {
                 throw new RuntimeException( "VarInt too big" );
+            }
+
+            if ( ( in & 0x80 ) != 0x80 )
+            {
+                break;
+            }
+        }
+
+        return out;
+    }
+
+    /**
+     * @return read varint (could also be something negative), -9975399 if it got too long, -9935799 if not enough read
+     */
+    public static int readVarIntLengthSpecial(byte[] buf)
+    {
+        final int length = buf.length;
+
+        int out = 0;
+        int bytes = 0;
+        byte in;
+        while ( true )
+        {
+            in = buf[ bytes ];
+
+            out |= ( in & 0x7F ) << ( bytes++ * 7 );
+
+            if ( ( in & 0x80 ) != 0x80 )
+            {
+                break;
+            }
+            if ( bytes > length )
+            {
+                return -9975399;
+            }
+        }
+
+        return out;
+    }
+
+    /**
+     * @return read varint (could also be something negative) or -9975399 if it got too long (max 2 bytes), -9935799 if its too short
+     */
+    public static int readVarIntPacketIdSpecial(ByteBuf input)
+    {
+        return readVarIntPacketIdSpecial( input, 2 );
+    }
+
+    /**
+     * @return read varint (could also be something negative) or -9975399 if it got too long, -9935799 if its too short
+     */
+    public static int readVarIntPacketIdSpecial(ByteBuf input, int maxBytes)
+    {
+        int out = 0;
+        int bytes = 0;
+        byte in;
+        while ( true )
+        {
+            if ( !input.isReadable() )
+            {
+                return -9935799;
+            }
+            in = input.readByte();
+
+            out |= ( in & 0x7F ) << ( bytes++ * 7 );
+
+            if ( bytes > maxBytes )
+            {
+                return -9975399;
             }
 
             if ( ( in & 0x80 ) != 0x80 )
@@ -215,7 +284,7 @@ public abstract class DefinedPacket
         write( buf );
     }
 
-    public abstract void handle(AbstractPacketHandler handler) throws Exception;
+    public abstract void callHandler(AbstractPacketHandler handler, PacketWrapper<P> packet) throws Exception;
 
     @Override
     public abstract boolean equals(Object obj);

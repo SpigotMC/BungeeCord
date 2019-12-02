@@ -51,7 +51,7 @@ public class BungeeServerInfo implements ServerInfo
     @Getter
     private final boolean restricted;
     @Getter
-    private final Queue<DefinedPacket> packetQueue = new LinkedList<>();
+    private final Queue<DefinedPacket<?>> packetQueue = new LinkedList<>();
 
     @Synchronized("players")
     public void addPlayer(ProxiedPlayer player)
@@ -182,7 +182,7 @@ public class BungeeServerInfo implements ServerInfo
         new Bootstrap()
                 .channel( PipelineUtils.getChannel( socketAddress ) )
                 .group( BungeeCord.getInstance().eventLoops )
-                .handler( PipelineUtils.BASE )
+                .handler( PipelineUtils.BASE_OTHER )
                 .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, BungeeCord.getInstance().getConfig().getRemotePingTimeout() )
                 .remoteAddress( socketAddress )
                 .connect()

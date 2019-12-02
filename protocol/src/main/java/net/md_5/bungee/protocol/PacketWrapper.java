@@ -5,10 +5,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @RequiredArgsConstructor
-public class PacketWrapper
+@SuppressWarnings("rawtypes")
+public class PacketWrapper<P extends DefinedPacket>
 {
 
-    public final DefinedPacket packet;
+    public final P packet;
     public final ByteBuf buf;
     @Setter
     private boolean released;

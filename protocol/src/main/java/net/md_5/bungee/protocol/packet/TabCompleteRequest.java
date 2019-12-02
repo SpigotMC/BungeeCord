@@ -6,12 +6,13 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class TabCompleteRequest extends DefinedPacket
+public class TabCompleteRequest extends DefinedPacket<TabCompleteRequest>
 {
 
     private int transactionId;
@@ -82,8 +83,8 @@ public class TabCompleteRequest extends DefinedPacket
     }
 
     @Override
-    public void handle(AbstractPacketHandler handler) throws Exception
+    public void callHandler(AbstractPacketHandler handler, PacketWrapper<TabCompleteRequest> packet) throws Exception
     {
-        handler.handle( this );
+        handler.handleTabCompleteRequest( packet );
     }
 }

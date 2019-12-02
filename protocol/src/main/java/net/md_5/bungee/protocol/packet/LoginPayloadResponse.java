@@ -8,12 +8,13 @@ import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.OverflowPacketException;
+import net.md_5.bungee.protocol.PacketWrapper;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class LoginPayloadResponse extends DefinedPacket
+public class LoginPayloadResponse extends DefinedPacket<LoginPayloadResponse>
 {
 
     private int id;
@@ -51,8 +52,8 @@ public class LoginPayloadResponse extends DefinedPacket
     }
 
     @Override
-    public void handle(AbstractPacketHandler handler) throws Exception
+    public void callHandler(AbstractPacketHandler handler, PacketWrapper<LoginPayloadResponse> packet) throws Exception
     {
-        handler.handle( this );
+        handler.handleLoginPayloadResponse( packet );
     }
 }

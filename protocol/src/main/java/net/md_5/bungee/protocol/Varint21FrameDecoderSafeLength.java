@@ -10,12 +10,12 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
-public class Varint21FrameDecoder extends ByteToMessageDecoder
+public class Varint21FrameDecoderSafeLength extends ByteToMessageDecoder
 {
 
-    static boolean DIRECT_WARNING;
-
-    private boolean stop;
+    private boolean first = true;
+    private boolean second = false;
+    private boolean stop = false;
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
@@ -44,9 +44,35 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
                     super.setSingleDecode( true );
                     ctx.pipeline().addFirst( DiscardHandler.DISCARD_FIRST, DiscardHandler.INSTANCE )
                             .addAfter( ctx.name(), DiscardHandler.DISCARD, DiscardHandler.INSTANCE );
-                    ctx.close().addListener( new InvalidPacketLengthLogger( address, length ) );
+                    ctx.close().addListener( new Varint21FrameDecoder.InvalidPacketLengthLogger( address, length ) );
                     stop = true;
                     return;
+                }
+                if ( first )
+                {
+                    if ( length != 15 )
+                    {
+                        final InetAddress address = ( (InetSocketAddress) ctx.channel().remoteAddress() ).getAddress();
+                        super.setSingleDecode( true );
+                        ctx.pipeline().addFirst( DiscardHandler.DISCARD_FIRST, DiscardHandler.INSTANCE )
+                                .addAfter( ctx.name(), DiscardHandler.DISCARD, DiscardHandler.INSTANCE );
+                        ctx.close().addListener( new WrongFirstPacketLength( address, length ) );
+                        stop = true;
+                        return;
+                    }
+                } else if ( second )
+                {
+                    second = false;
+                    if ( length != 1 && length != 9 )
+                    {
+                        final InetAddress address = ( (InetSocketAddress) ctx.channel().remoteAddress() ).getAddress();
+                        super.setSingleDecode( true );
+                        ctx.pipeline().addFirst( DiscardHandler.DISCARD_FIRST, DiscardHandler.INSTANCE )
+                                .addAfter( ctx.name(), DiscardHandler.DISCARD, DiscardHandler.INSTANCE );
+                        ctx.close().addListener( new WrongSecondPacketLength( address, length ) );
+                        stop = true;
+                        return;
+                    }
                 }
 
                 if ( in.readableBytes() < length )
@@ -55,15 +81,20 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
                     return;
                 } else
                 {
+                    if ( first )
+                    {
+                        first = false;
+                        second = true;
+                    }
                     if ( in.hasMemoryAddress() )
                     {
                         out.add( in.slice( in.readerIndex(), length ).retain() );
                         in.skipBytes( length );
                     } else
                     {
-                        if ( !DIRECT_WARNING )
+                        if ( !Varint21FrameDecoder.DIRECT_WARNING )
                         {
-                            DIRECT_WARNING = true;
+                            Varint21FrameDecoder.DIRECT_WARNING = true;
                             System.out.println( "Netty is not using direct IO buffers." );
                         }
 
@@ -76,42 +107,37 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
                 }
             }
         }
-
         final InetAddress address = ( (InetSocketAddress) ctx.channel().remoteAddress() ).getAddress();
         super.setSingleDecode( true );
         ctx.pipeline().addFirst( DiscardHandler.DISCARD_FIRST, DiscardHandler.INSTANCE )
                 .addAfter( ctx.name(), DiscardHandler.DISCARD, DiscardHandler.INSTANCE );
-        ctx.close().addListener( new PacketLengthFieldTooLongLogger( address ) );
+        ctx.close().addListener( new Varint21FrameDecoder.PacketLengthFieldTooLongLogger( address ) );
         stop = true;
     }
 
-    static class InvalidPacketLengthLogger implements GenericFutureListener<Future<? super Void>>
+    @RequiredArgsConstructor
+    private static class WrongFirstPacketLength implements GenericFutureListener<Future<? super Void>>
     {
         private final InetAddress address;
         private final int length;
 
-        public InvalidPacketLengthLogger(InetAddress address, int length)
-        {
-            this.address = address;
-            this.length = length;
-        }
-
         @Override
         public void operationComplete(Future<? super Void> future) throws Exception
         {
-            System.err.println( "[" + address.getHostAddress() + "] <-> Varint21FrameDecoder recieved invalid packet length " + length + ", disconnected" );
+            System.err.println( "[" + address.getHostAddress() + "] <-> Varint21FrameDecoder first packet length " + length + " was not 15, disconnected" );
         }
     }
 
     @RequiredArgsConstructor
-    static class PacketLengthFieldTooLongLogger implements GenericFutureListener<Future<? super Void>>
+    private static class WrongSecondPacketLength implements GenericFutureListener<Future<? super Void>>
     {
         private final InetAddress address;
+        private final int length;
 
         @Override
         public void operationComplete(Future<? super Void> future) throws Exception
         {
-            System.err.println( "[" + address.getHostAddress() + "] <-> Varint21FrameDecoder packet length field too long" );
+            System.err.println( "[" + address.getHostAddress() + "] <-> Varint21FrameDecoder second packet length " + length + " was not 1 or 9, disconnected" );
         }
     }
 }

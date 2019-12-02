@@ -35,12 +35,13 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Commands extends DefinedPacket
+public class Commands extends DefinedPacket<Commands>
 {
 
     private static final int FLAG_TYPE = 0x3;
@@ -225,9 +226,9 @@ public class Commands extends DefinedPacket
     }
 
     @Override
-    public void handle(AbstractPacketHandler handler) throws Exception
+    public void callHandler(AbstractPacketHandler handler, PacketWrapper<Commands> packet) throws Exception
     {
-        handler.handle( this );
+        handler.handleCommands( packet );
     }
 
     @Data

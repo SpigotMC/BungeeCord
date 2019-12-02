@@ -28,6 +28,7 @@ public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
     {
+
         int size = DefinedPacket.readVarInt( in );
         if ( size == 0 )
         {

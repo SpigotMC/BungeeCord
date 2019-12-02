@@ -6,11 +6,12 @@ import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 
 @Data
 @RequiredArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class LegacyPing extends DefinedPacket
+public class LegacyPing extends DefinedPacket<LegacyPing>
 {
 
     private final boolean v1_5;
@@ -28,8 +29,8 @@ public class LegacyPing extends DefinedPacket
     }
 
     @Override
-    public void handle(AbstractPacketHandler handler) throws Exception
+    public void callHandler(AbstractPacketHandler handler, PacketWrapper<LegacyPing> packet) throws Exception
     {
-        handler.handle( this );
+        handler.handleLegacyPing( packet );
     }
 }

@@ -7,13 +7,14 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class KeepAlive extends DefinedPacket
+public class KeepAlive extends DefinedPacket<KeepAlive>
 {
 
     private long randomId;
@@ -37,8 +38,8 @@ public class KeepAlive extends DefinedPacket
     }
 
     @Override
-    public void handle(AbstractPacketHandler handler) throws Exception
+    public void callHandler(AbstractPacketHandler handler, PacketWrapper<KeepAlive> packet) throws Exception
     {
-        handler.handle( this );
+        handler.handleKeepAlive( packet );
     }
 }

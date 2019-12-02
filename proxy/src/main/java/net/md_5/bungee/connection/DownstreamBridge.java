@@ -110,38 +110,58 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public boolean shouldHandle(PacketWrapper packet) throws Exception
+    @SuppressWarnings("unchecked")
+    public void handleFully(PacketWrapper<?> packet) throws Exception
     {
-        return !server.isObsolete();
+        if ( server.isObsolete() )
+        {
+            return;
+        }
+        if ( packet.packet != null )
+        {
+            packet.packet.callHandler( this, packet );
+        } else
+        {
+            handleGeneral( packet );
+        }
     }
 
     @Override
-    public void handle(PacketWrapper packet) throws Exception
+    public void handleGeneral(PacketWrapper<?> packet)
     {
         con.getEntityRewrite().rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId(), con.getPendingConnection().getVersion() );
         con.sendPacket( packet );
     }
 
     @Override
-    public void handle(KeepAlive alive) throws Exception
+    public void handleGeneralNoEntity(PacketWrapper<?> packet)
+    {
+        con.sendPacket( packet );
+    }
+
+    @Override
+    public void handleKeepAlive(PacketWrapper<KeepAlive> packet) throws Exception
     {
         int timeout = bungee.getConfig().getTimeout();
         if ( timeout <= 0 || server.getKeepAlives().size() < timeout / 50 ) // Some people disable timeout, otherwise allow a theoretical maximum of 1 keepalive per tick
         {
             server.getKeepAlives().add( new KeepAliveData( alive.getRandomId(), System.currentTimeMillis() ) );
         }
+        server.setSentPingId( packet.packet.getRandomId() );
+        handleGeneralNoEntity( packet );
     }
 
     @Override
-    public void handle(PlayerListItem playerList) throws Exception
+    public void handlePlayerListItem(PacketWrapper<PlayerListItem> packet) throws Exception
     {
-        con.getTabListHandler().onUpdate( TabList.rewrite( playerList ) );
-        throw CancelSendSignal.INSTANCE; // Always throw because of profile rewriting
+        con.getTabListHandler().onUpdate( TabList.rewrite( packet.packet ) );
+        // onUpdate sends modified packet, so we do nothing here
     }
 
     @Override
-    public void handle(ScoreboardObjective objective) throws Exception
+    public void handleScoreboardObjective(PacketWrapper<ScoreboardObjective> packet) throws Exception
     {
+        final ScoreboardObjective objective = packet.packet;
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
         switch ( objective.getAction() )
         {
@@ -162,11 +182,13 @@ public class DownstreamBridge extends PacketHandler
             default:
                 throw new IllegalArgumentException( "Unknown objective action: " + objective.getAction() );
         }
+        handleGeneralNoEntity( packet );
     }
 
     @Override
-    public void handle(ScoreboardScore score) throws Exception
+    public void handleScoreboardScore(PacketWrapper<ScoreboardScore> packet) throws Exception
     {
+        final ScoreboardScore score = packet.packet;
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
         switch ( score.getAction() )
         {
@@ -181,30 +203,36 @@ public class DownstreamBridge extends PacketHandler
             default:
                 throw new IllegalArgumentException( "Unknown scoreboard action: " + score.getAction() );
         }
+        handleGeneralNoEntity( packet );
     }
 
     @Override
-    public void handle(ScoreboardDisplay displayScoreboard) throws Exception
+    public void handleScoreboardDisplay(PacketWrapper<ScoreboardDisplay> packet) throws Exception
     {
+        final ScoreboardDisplay displayScoreboard = packet.packet;
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
         serverScoreboard.setName( displayScoreboard.getName() );
-        serverScoreboard.setPosition( Position.values()[displayScoreboard.getPosition()] );
+        serverScoreboard.setPosition( Position.values()[ displayScoreboard.getPosition() ] );
+        handleGeneralNoEntity( packet );
     }
 
     @Override
-    public void handle(net.md_5.bungee.protocol.packet.Team team) throws Exception
+    public void handleTeam(PacketWrapper<net.md_5.bungee.protocol.packet.Team> packet) throws Exception
     {
+        final net.md_5.bungee.protocol.packet.Team team = packet.packet;
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
         // Remove team and move on
-        if ( team.getMode() == 1 )
+        final byte teamMode = team.getMode();
+        if ( teamMode == 1 )
         {
             serverScoreboard.removeTeam( team.getName() );
+            handleGeneralNoEntity( packet );
             return;
         }
 
         // Create or get old team
         Team t;
-        if ( team.getMode() == 0 )
+        if ( teamMode == 0 )
         {
             t = new Team( team.getName() );
             serverScoreboard.addTeam( t );
@@ -215,7 +243,7 @@ public class DownstreamBridge extends PacketHandler
 
         if ( t != null )
         {
-            if ( team.getMode() == 0 || team.getMode() == 2 )
+            if ( teamMode == 0 || teamMode == 2 )
             {
                 t.setDisplayName( team.getDisplayName() );
                 t.setPrefix( team.getPrefix() );
@@ -229,27 +257,29 @@ public class DownstreamBridge extends PacketHandler
             {
                 for ( String s : team.getPlayers() )
                 {
-                    if ( team.getMode() == 0 || team.getMode() == 3 )
+                    if ( teamMode == 0 || teamMode == 3 )
                     {
                         t.addPlayer( s );
-                    } else if ( team.getMode() == 4 )
+                    } else if ( teamMode == 4 )
                     {
                         t.removePlayer( s );
                     }
                 }
             }
         }
+        handleGeneralNoEntity( packet );
     }
 
     @Override
-    public void handle(PluginMessage pluginMessage) throws Exception
+    public void handlePluginMessage(PacketWrapper<PluginMessage> packet) throws Exception
     {
+        final PluginMessage pluginMessage = packet.packet;
         DataInput in = pluginMessage.getStream();
         PluginMessageEvent event = new PluginMessageEvent( server, con, pluginMessage.getTag(), pluginMessage.getData().clone() );
 
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
-            throw CancelSendSignal.INSTANCE;
+            return;
         }
 
         if ( pluginMessage.getTag().equals( con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ? "minecraft:brand" : "MC|Brand" ) )
@@ -266,7 +296,7 @@ public class DownstreamBridge extends PacketHandler
             brand.release();
             // changes in the packet are ignored so we need to send it manually
             con.unsafe().sendPacket( pluginMessage );
-            throw CancelSendSignal.INSTANCE;
+            return;
         }
 
         if ( pluginMessage.getTag().equals( "BungeeCord" ) )
@@ -486,15 +516,16 @@ public class DownstreamBridge extends PacketHandler
                 }
             }
 
-            throw CancelSendSignal.INSTANCE;
+            return;
         }
+        handleGeneralNoEntity( packet );
     }
 
     @Override
-    public void handle(Kick kick) throws Exception
+    public void handleKick(PacketWrapper<Kick> packet) throws Exception
     {
         ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
-        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTED ) );
+        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), ComponentSerializer.parse( packet.packet.getMessage() ), def, ServerKickEvent.State.CONNECTED ) );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
             con.connectNow( event.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT );
@@ -503,18 +534,19 @@ public class DownstreamBridge extends PacketHandler
             con.disconnect0( event.getKickReasonComponent() ); // TODO: Prefix our own stuff.
         }
         server.setObsolete( true );
-        throw CancelSendSignal.INSTANCE;
     }
 
     @Override
-    public void handle(SetCompression setCompression) throws Exception
+    public void handleSetCompression(PacketWrapper<SetCompression> packet) throws Exception
     {
-        server.getCh().setCompressionThreshold( setCompression.getThreshold() );
+        server.getCh().setCompressionThreshold( packet.packet.getThreshold() );
+        handleGeneralNoEntity( packet );
     }
 
     @Override
-    public void handle(TabCompleteResponse tabCompleteResponse) throws Exception
+    public void handleTabCompleteResponse(PacketWrapper<TabCompleteResponse> packet) throws Exception
     {
+        final TabCompleteResponse tabCompleteResponse = packet.packet;
         List<String> commands = tabCompleteResponse.getCommands();
         if ( commands == null )
         {
@@ -555,13 +587,13 @@ public class DownstreamBridge extends PacketHandler
 
             con.unsafe().sendPacket( tabCompleteResponse );
         }
-
-        throw CancelSendSignal.INSTANCE;
+        // Don't pipe through as we sent custom already or event cancelled
     }
 
     @Override
-    public void handle(BossBar bossBar)
+    public void handleBossBar(PacketWrapper<BossBar> packet) throws Exception
     {
+        final BossBar bossBar = packet.packet;
         switch ( bossBar.getAction() )
         {
             // Handle add bossbar
@@ -573,18 +605,21 @@ public class DownstreamBridge extends PacketHandler
                 con.getSentBossBars().remove( bossBar.getUuid() );
                 break;
         }
+        handleGeneralNoEntity( packet );
     }
 
     @Override
-    public void handle(Respawn respawn)
+    public void handleRespawn(PacketWrapper<Respawn> packet) throws Exception
     {
-        con.setDimension( respawn.getDimension() );
+        con.setDimension( packet.packet.getDimension() );
+        handleGeneralNoEntity( packet );
     }
 
     @Override
-    public void handle(Commands commands) throws Exception
+    public void handleCommands(PacketWrapper<Commands> packet) throws Exception
     {
         boolean modified = false;
+        final Commands commands = packet.packet;
 
         for ( Map.Entry<String, Command> command : bungee.getPluginManager().getCommands() )
         {
@@ -603,7 +638,9 @@ public class DownstreamBridge extends PacketHandler
         if ( modified )
         {
             con.unsafe().sendPacket( commands );
-            throw CancelSendSignal.INSTANCE;
+        } else
+        {
+            handleGeneralNoEntity( packet );
         }
     }
 

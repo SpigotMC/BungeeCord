@@ -140,7 +140,7 @@ public final class UserConnection implements ProxiedPlayer
     private final Unsafe unsafe = new Unsafe()
     {
         @Override
-        public void sendPacket(DefinedPacket packet)
+        public void sendPacket(DefinedPacket<?> packet)
         {
             ch.write( packet );
         }
@@ -167,7 +167,7 @@ public final class UserConnection implements ProxiedPlayer
         forgeClientHandler.setFmlTokenInHandshake( this.getPendingConnection().getExtraDataInHandshake().contains( ForgeConstants.FML_HANDSHAKE_TOKEN ) );
     }
 
-    public void sendPacket(PacketWrapper packet)
+    public void sendPacket(PacketWrapper<?> packet)
     {
         ch.write( packet );
     }
@@ -319,7 +319,7 @@ public final class UserConnection implements ProxiedPlayer
             @Override
             protected void initChannel(Channel ch) throws Exception
             {
-                PipelineUtils.BASE.initChannel( ch );
+                PipelineUtils.BASE_OTHER.initChannel( ch );
                 ch.pipeline().addAfter( PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, false, getPendingConnection().getVersion() ) );
                 ch.pipeline().addAfter( PipelineUtils.FRAME_PREPENDER, PipelineUtils.PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, false, getPendingConnection().getVersion() ) );
                 ch.pipeline().get( HandlerBoss.class ).setHandler( new ServerConnector( bungee, UserConnection.this, target ) );
@@ -393,9 +393,9 @@ public final class UserConnection implements ProxiedPlayer
         if ( !ch.isClosing() )
         {
             bungee.getLogger().log( Level.INFO, "[{0}] disconnected with: {1}", new Object[]
-            {
-                getName(), BaseComponent.toLegacyText( reason )
-            } );
+                    {
+                            getName(), BaseComponent.toLegacyText( reason )
+                    } );
 
             ch.delayedClose( new Kick( ComponentSerializer.toString( reason ) ) );
 
@@ -475,7 +475,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendMessage(ChatMessageType position, BaseComponent message)
     {
-        message = ChatComponentTransformer.getInstance().transform( this, message )[0];
+        message = ChatComponentTransformer.getInstance().transform( this, message )[ 0 ];
 
         // Action bar doesn't display the new JSON formattings, legacy works - send it using this for now
         if ( position == ChatMessageType.ACTION_BAR )
@@ -663,8 +663,8 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void setTabHeader(BaseComponent header, BaseComponent footer)
     {
-        header = ChatComponentTransformer.getInstance().transform( this, header )[0];
-        footer = ChatComponentTransformer.getInstance().transform( this, footer )[0];
+        header = ChatComponentTransformer.getInstance().transform( this, header )[ 0 ];
+        footer = ChatComponentTransformer.getInstance().transform( this, footer )[ 0 ];
 
         unsafe().sendPacket( new PlayerListHeaderFooter(
                 ComponentSerializer.toString( header ),

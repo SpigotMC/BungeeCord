@@ -6,11 +6,12 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class LegacyHandshake extends DefinedPacket
+public class LegacyHandshake extends DefinedPacket<LegacyHandshake>
 {
 
     @Override
@@ -26,8 +27,8 @@ public class LegacyHandshake extends DefinedPacket
     }
 
     @Override
-    public void handle(AbstractPacketHandler handler) throws Exception
+    public void callHandler(AbstractPacketHandler handler, PacketWrapper<LegacyHandshake> packet) throws Exception
     {
-        handler.handle( this );
+        handler.handleLegacyHandshake( packet );
     }
 }

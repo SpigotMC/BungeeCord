@@ -37,140 +37,181 @@ import net.md_5.bungee.protocol.packet.ViewDistance;
 
 public abstract class AbstractPacketHandler
 {
-
-    public void handle(LegacyPing ping) throws Exception
+    protected void handleGeneral(PacketWrapper<?> packet) throws Exception
     {
     }
 
-    public void handle(TabCompleteResponse tabResponse) throws Exception
+    protected void handleGeneralNoEntity(PacketWrapper<?> packet) throws Exception
     {
     }
 
-    public void handle(PingPacket ping) throws Exception
+    public void handleLegacyPing(PacketWrapper<LegacyPing> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(StatusRequest statusRequest) throws Exception
+    public void handleTabCompleteResponse(PacketWrapper<TabCompleteResponse> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(StatusResponse statusResponse) throws Exception
+    public void handlePing(PacketWrapper<PingPacket> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(Handshake handshake) throws Exception
+    public void handleStatusRequest(PacketWrapper<StatusRequest> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(KeepAlive keepAlive) throws Exception
+    public void handleStatusResponse(PacketWrapper<StatusResponse> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(Login login) throws Exception
+    public void handleHandshake(PacketWrapper<Handshake> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(Chat chat) throws Exception
+    public void handleKeepAlive(PacketWrapper<KeepAlive> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(Respawn respawn) throws Exception
+    public void handleLogin(PacketWrapper<Login> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(LoginRequest loginRequest) throws Exception
+    public void handleChat(PacketWrapper<Chat> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(ClientSettings settings) throws Exception
+    public void handleRespawn(PacketWrapper<Respawn> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(ClientStatus clientStatus) throws Exception
+    public void handleLoginRequest(PacketWrapper<LoginRequest> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(PlayerListItem playerListItem) throws Exception
+    public void handleClientSettings(PacketWrapper<ClientSettings> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(PlayerListHeaderFooter playerListHeaderFooter) throws Exception
+    public void handleClientStatus(PacketWrapper<ClientStatus> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(TabCompleteRequest tabComplete) throws Exception
+    public void handlePlayerListItem(PacketWrapper<PlayerListItem> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(ScoreboardObjective scoreboardObjective) throws Exception
+    public void handlePlayerListHeaderFooter(PacketWrapper<PlayerListHeaderFooter> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(ScoreboardScore scoreboardScore) throws Exception
+    public void handleTabCompleteRequest(PacketWrapper<TabCompleteRequest> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(EncryptionRequest encryptionRequest) throws Exception
+    public void handleScoreboardObjective(PacketWrapper<ScoreboardObjective> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(ScoreboardDisplay displayScoreboard) throws Exception
+    public void handleScoreboardScore(PacketWrapper<ScoreboardScore> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(Team team) throws Exception
+    public void handleEncryptionRequest(PacketWrapper<EncryptionRequest> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(Title title) throws Exception
+    public void handleScoreboardDisplay(PacketWrapper<ScoreboardDisplay> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(PluginMessage pluginMessage) throws Exception
+    public void handleTeam(PacketWrapper<Team> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(Kick kick) throws Exception
+    public void handleTitle(PacketWrapper<Title> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(EncryptionResponse encryptionResponse) throws Exception
+    public void handlePluginMessage(PacketWrapper<PluginMessage> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(LoginSuccess loginSuccess) throws Exception
+    public void handleKick(PacketWrapper<Kick> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(LegacyHandshake legacyHandshake) throws Exception
+    public void handleEncryptionResponse(PacketWrapper<EncryptionResponse> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(SetCompression setCompression) throws Exception
+    public void handleLoginSuccess(PacketWrapper<LoginSuccess> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(BossBar bossBar) throws Exception
+    public void handleLegacyHandshake(PacketWrapper<LegacyHandshake> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(LoginPayloadRequest request) throws Exception
+    public void handleSetCompression(PacketWrapper<SetCompression> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(LoginPayloadResponse response) throws Exception
+    public void handleBossBar(PacketWrapper<BossBar> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(EntityStatus status) throws Exception
+    public void handleLoginPayloadRequest(PacketWrapper<LoginPayloadRequest> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(Commands commands) throws Exception
+    public void handleLoginPayloadResponse(PacketWrapper<LoginPayloadResponse> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 
-    public void handle(ViewDistance viewDistance) throws Exception
+    public void handleEntityStatus(PacketWrapper<EntityStatus> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
+    }
+
+    public void handleCommands(PacketWrapper<Commands> packet) throws Exception
+    {
+        handleGeneralNoEntity( packet );
+    }
+
+    public void handleViewDistance(PacketWrapper<ViewDistance> packet) throws Exception
+    {
+        handleGeneralNoEntity( packet );
     }
 }

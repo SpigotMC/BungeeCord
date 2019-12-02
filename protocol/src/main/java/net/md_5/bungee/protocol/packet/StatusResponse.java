@@ -7,12 +7,13 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class StatusResponse extends DefinedPacket
+public class StatusResponse extends DefinedPacket<StatusResponse>
 {
 
     private String response;
@@ -30,8 +31,8 @@ public class StatusResponse extends DefinedPacket
     }
 
     @Override
-    public void handle(AbstractPacketHandler handler) throws Exception
+    public void callHandler(AbstractPacketHandler handler, PacketWrapper<StatusResponse> packet) throws Exception
     {
-        handler.handle( this );
+        handler.handleStatusResponse( packet );
     }
 }

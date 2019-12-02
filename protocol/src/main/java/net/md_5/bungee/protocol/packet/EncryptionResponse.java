@@ -7,13 +7,14 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class EncryptionResponse extends DefinedPacket
+public class EncryptionResponse extends DefinedPacket<EncryptionResponse>
 {
 
     private byte[] sharedSecret;
@@ -34,8 +35,8 @@ public class EncryptionResponse extends DefinedPacket
     }
 
     @Override
-    public void handle(AbstractPacketHandler handler) throws Exception
+    public void callHandler(AbstractPacketHandler handler, PacketWrapper<EncryptionResponse> packet) throws Exception
     {
-        handler.handle( this );
+        handler.handleEncryptionResponse( packet );
     }
 }

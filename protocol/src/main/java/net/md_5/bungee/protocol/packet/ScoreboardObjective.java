@@ -8,13 +8,14 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class ScoreboardObjective extends DefinedPacket
+public class ScoreboardObjective extends DefinedPacket<ScoreboardObjective>
 {
 
     private String name;
@@ -35,7 +36,7 @@ public class ScoreboardObjective extends DefinedPacket
             value = readString( buf );
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
-                type = HealthDisplay.values()[readVarInt( buf )];
+                type = HealthDisplay.values()[ readVarInt( buf ) ];
             } else
             {
                 type = HealthDisplay.fromString( readString( buf ) );
@@ -62,9 +63,9 @@ public class ScoreboardObjective extends DefinedPacket
     }
 
     @Override
-    public void handle(AbstractPacketHandler handler) throws Exception
+    public void callHandler(AbstractPacketHandler handler, PacketWrapper<ScoreboardObjective> packet) throws Exception
     {
-        handler.handle( this );
+        handler.handleScoreboardObjective( packet );
     }
 
     public enum HealthDisplay

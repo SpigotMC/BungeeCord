@@ -7,12 +7,13 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class PingPacket extends DefinedPacket
+public class PingPacket extends DefinedPacket<PingPacket>
 {
 
     private long time;
@@ -30,8 +31,8 @@ public class PingPacket extends DefinedPacket
     }
 
     @Override
-    public void handle(AbstractPacketHandler handler) throws Exception
+    public void callHandler(AbstractPacketHandler handler, PacketWrapper<PingPacket> packet) throws Exception
     {
-        handler.handle( this );
+        handler.handlePing( packet );
     }
 }

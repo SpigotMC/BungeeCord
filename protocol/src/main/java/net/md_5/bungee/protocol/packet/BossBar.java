@@ -7,12 +7,13 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class BossBar extends DefinedPacket
+public class BossBar extends DefinedPacket<BossBar>
 {
 
     private UUID uuid;
@@ -102,8 +103,8 @@ public class BossBar extends DefinedPacket
     }
 
     @Override
-    public void handle(AbstractPacketHandler handler) throws Exception
+    public void callHandler(AbstractPacketHandler handler, PacketWrapper<BossBar> packet) throws Exception
     {
-        handler.handle( this );
+        handler.handleBossBar( packet );
     }
 }

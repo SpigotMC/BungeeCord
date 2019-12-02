@@ -22,7 +22,6 @@ import net.md_5.bungee.api.score.Score;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.api.score.Team;
 import net.md_5.bungee.chat.ComponentSerializer;
-import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.connection.LoginResult;
 import net.md_5.bungee.forge.ForgeConstants;
@@ -49,7 +48,6 @@ import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.ViewDistance;
 import net.md_5.bungee.util.BufUtil;
-import net.md_5.bungee.util.QuietException;
 
 @RequiredArgsConstructor
 public class ServerConnector extends PacketHandler
@@ -78,7 +76,11 @@ public class ServerConnector extends PacketHandler
             return;
         }
 
-        String message = "Exception Connecting:" + Util.exception( t );
+        disconnect( "Exception Connecting:" + Util.exception( t ) );
+    }
+
+    private void disconnect(String message)
+    {
         if ( user.getServer() == null )
         {
             user.disconnect( message );
@@ -127,16 +129,20 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
-    public void handle(PacketWrapper packet) throws Exception
+    @SuppressWarnings("unchecked")
+    public void handleFully(PacketWrapper<?> packet) throws Exception
     {
         if ( packet.packet == null )
         {
-            throw new QuietException( "Unexpected packet received during server login process!\n" + BufUtil.dump( packet.buf, 16 ) );
+            disconnect( "Unexpected packet received during server login process!\n" + BufUtil.dump( packet.buf, 16 ) );
+        } else
+        {
+            packet.packet.callHandler( this, packet );
         }
     }
 
     @Override
-    public void handle(LoginSuccess loginSuccess) throws Exception
+    public void handleLoginSuccess(PacketWrapper<LoginSuccess> packet) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not expecting LOGIN_SUCCESS" );
         ch.setProtocol( Protocol.GAME );
@@ -161,26 +167,29 @@ public class ServerConnector extends PacketHandler
             user.getForgeClientHandler().resetHandshake();
         }
 
-        throw CancelSendSignal.INSTANCE;
+        // throw CancelSendSignal.INSTANCE; //TODO explore further, this seems kind of unneccessary as the old handle(PacketWrapper) method just checked packet.packet != null
     }
 
     @Override
-    public void handle(SetCompression setCompression) throws Exception
+    public void handleSetCompression(PacketWrapper<SetCompression> packet) throws Exception
     {
-        ch.setCompressionThreshold( setCompression.getThreshold() );
+        ch.setCompressionThreshold( packet.packet.getThreshold() );
     }
 
     @Override
-    public void handle(Login login) throws Exception
+    public void handleLogin(PacketWrapper<Login> packet) throws Exception
     {
-        Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
+        if (thisState != State.LOGIN) {
+            disconnect( "Not expecting LOGIN" );
+            return;
+        }
 
         ServerConnection server = new ServerConnection( ch, target );
         ServerConnectedEvent event = new ServerConnectedEvent( user, server );
         bungee.getPluginManager().callEvent( event );
 
         ch.write( BungeeCord.getInstance().registerChannels( user.getPendingConnection().getVersion() ) );
-        Queue<DefinedPacket> packetQueue = target.getPacketQueue();
+        Queue<DefinedPacket<?>> packetQueue = target.getPacketQueue();
         synchronized ( packetQueue )
         {
             while ( !packetQueue.isEmpty() )
@@ -203,6 +212,8 @@ public class ServerConnector extends PacketHandler
         {
             user.getForgeClientHandler().setHandshakeComplete();
         }
+
+        final Login login = packet.packet;
 
         if ( user.getServer() == null )
         {
@@ -271,7 +282,7 @@ public class ServerConnector extends PacketHandler
         }
 
         // TODO: Fix this?
-        if ( !user.isActive() )
+        if ( !user.isConnected() )
         {
             server.disconnect( "Quitting" );
             // Silly server admins see stack trace and die
@@ -293,20 +304,20 @@ public class ServerConnector extends PacketHandler
 
         thisState = State.FINISHED;
 
-        throw CancelSendSignal.INSTANCE;
+//        throw CancelSendSignal.INSTANCE; //TODO see line 171
     }
 
     @Override
-    public void handle(EncryptionRequest encryptionRequest) throws Exception
+    public void handleEncryptionRequest(PacketWrapper<EncryptionRequest> packet) throws Exception
     {
-        throw new QuietException( "Server is online mode!" );
+        disconnect( "Server is online mode!" );
     }
 
     @Override
-    public void handle(Kick kick) throws Exception
+    public void handleKick(PacketWrapper<Kick> packet) throws Exception
     {
         ServerInfo def = user.updateAndGetNextServer( target );
-        ServerKickEvent event = new ServerKickEvent( user, target, ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTING );
+        ServerKickEvent event = new ServerKickEvent( user, target, ComponentSerializer.parse( packet.packet.getMessage() ), def, ServerKickEvent.State.CONNECTING );
         if ( event.getKickReason().toLowerCase( Locale.ROOT ).contains( "outdated" ) && def != null )
         {
             // Pre cancel the event if we are going to try another server
@@ -317,7 +328,7 @@ public class ServerConnector extends PacketHandler
         {
             obsolete = true;
             user.connect( event.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT );
-            throw CancelSendSignal.INSTANCE;
+            return;
         }
 
         String message = bungee.getTranslation( "connect_kick", target.getName(), event.getKickReason() );
@@ -329,12 +340,14 @@ public class ServerConnector extends PacketHandler
             user.sendMessage( message );
         }
 
-        throw CancelSendSignal.INSTANCE;
+//        throw CancelSendSignal.INSTANCE; //TODO see line 171
     }
 
     @Override
-    public void handle(PluginMessage pluginMessage) throws Exception
+    public void handlePluginMessage(PacketWrapper<PluginMessage> packet) throws Exception
     {
+        final PluginMessage pluginMessage = packet.packet;
+
         if ( BungeeCord.getInstance().config.isForgeSupport() )
         {
             if ( pluginMessage.getTag().equals( ForgeConstants.FML_REGISTER ) )
@@ -371,7 +384,7 @@ public class ServerConnector extends PacketHandler
                 this.handshakeHandler.handle( pluginMessage );
 
                 // We send the message as part of the handler, so don't send it here.
-                throw CancelSendSignal.INSTANCE;
+                return;
             }
         }
 

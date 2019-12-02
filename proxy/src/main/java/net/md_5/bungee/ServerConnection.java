@@ -34,7 +34,7 @@ public class ServerConnection implements Server
     private final Unsafe unsafe = new Unsafe()
     {
         @Override
-        public void sendPacket(DefinedPacket packet)
+        public void sendPacket(DefinedPacket<?> packet)
         {
             ch.write( packet );
         }

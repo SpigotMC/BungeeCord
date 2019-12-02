@@ -44,6 +44,7 @@ import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.Varint21FrameDecoder;
+import net.md_5.bungee.protocol.Varint21FrameDecoderSafeLength;
 import net.md_5.bungee.protocol.Varint21LengthFieldPrepender;
 
 public class PipelineUtils
@@ -72,8 +73,8 @@ public class PipelineUtils
                 ch.close();
                 return;
             }
+            BASE_C_TO_B.initChannel( ch );
 
-            BASE.initChannel( ch );
             ch.pipeline().addBefore( FRAME_DECODER, LEGACY_DECODER, new LegacyDecoder() );
             ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
             ch.pipeline().addAfter( FRAME_PREPENDER, PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
@@ -86,7 +87,8 @@ public class PipelineUtils
             }
         }
     };
-    public static final Base BASE = new Base();
+    public static final BaseCToB BASE_C_TO_B = new BaseCToB();
+    public static final Base BASE_OTHER = new Base();
     private static final KickStringWriter legacyKicker = new KickStringWriter();
     private static final Varint21LengthFieldPrepender framePrepender = new Varint21LengthFieldPrepender();
     public static final String TIMEOUT_HANDLER = "timeout";
@@ -174,6 +176,30 @@ public class PipelineUtils
 
             ch.pipeline().addLast( TIMEOUT_HANDLER, new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
             ch.pipeline().addLast( FRAME_DECODER, new Varint21FrameDecoder() );
+            ch.pipeline().addLast( FRAME_PREPENDER, framePrepender );
+
+            ch.pipeline().addLast( BOSS_HANDLER, new HandlerBoss() );
+        }
+    }
+
+    public static final class BaseCToB extends ChannelInitializer<Channel>
+    {
+
+        @Override
+        public void initChannel(Channel ch) throws Exception
+        {
+            try
+            {
+                ch.config().setOption( ChannelOption.IP_TOS, 0x18 );
+            } catch ( ChannelException ex )
+            {
+                // IP_TOS is not supported (Windows XP / Windows Server 2003)
+            }
+            ch.config().setAllocator( PooledByteBufAllocator.DEFAULT );
+            ch.config().setWriteBufferWaterMark( MARK );
+
+            ch.pipeline().addLast( TIMEOUT_HANDLER, new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
+            ch.pipeline().addLast( FRAME_DECODER, new Varint21FrameDecoderSafeLength() );
             ch.pipeline().addLast( FRAME_PREPENDER, framePrepender );
 
             ch.pipeline().addLast( BOSS_HANDLER, new HandlerBoss() );

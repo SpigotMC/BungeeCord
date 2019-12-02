@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.connection.PingHandler;
 import net.md_5.bungee.protocol.BadPacketException;
@@ -84,9 +83,9 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
             InetSocketAddress newAddress = new InetSocketAddress( proxy.sourceAddress(), proxy.sourcePort() );
 
             ProxyServer.getInstance().getLogger().log( Level.FINE, "Set remote address via PROXY {0} -> {1}", new Object[]
-            {
-                channel.getRemoteAddress(), newAddress
-            } );
+                    {
+                            channel.getRemoteAddress(), newAddress
+                    } );
 
             channel.setRemoteAddress( newAddress );
             return;
@@ -95,6 +94,16 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
         if ( handler != null )
         {
             PacketWrapper packet = (PacketWrapper) msg;
+
+            try
+            {
+                handler.handleFully( packet );
+            } finally
+            {
+                packet.trySingleRelease();
+            }
+
+            /*
             boolean sendPacket = handler.shouldHandle( packet );
             try
             {
@@ -116,6 +125,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
             {
                 packet.trySingleRelease();
             }
+            */
         }
     }
 

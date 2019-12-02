@@ -7,12 +7,13 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class LoginSuccess extends DefinedPacket
+public class LoginSuccess extends DefinedPacket<LoginSuccess>
 {
 
     private String uuid;
@@ -33,8 +34,8 @@ public class LoginSuccess extends DefinedPacket
     }
 
     @Override
-    public void handle(AbstractPacketHandler handler) throws Exception
+    public void callHandler(AbstractPacketHandler handler, PacketWrapper<LoginSuccess> packet) throws Exception
     {
-        handler.handle( this );
+        handler.handleLoginSuccess( packet );
     }
 }
