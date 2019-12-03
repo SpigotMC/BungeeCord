@@ -11,15 +11,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class InboundDiscardHandler extends ChannelInboundHandlerAdapter
 {
-    static final String DISCARD_FIRST = "I_DISCARD_FIRST";
-    static final String DISCARD = "I_DISCARD";
+    public static final String DISCARD_FIRST = "I_DISCARD_FIRST";
+    public static final String DISCARD = "I_DISCARD";
 
-    static InboundDiscardHandler INSTANCE = new InboundDiscardHandler();
+    public static InboundDiscardHandler INSTANCE = new InboundDiscardHandler();
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg)
     {
-        ( (ByteBuf) msg ).release();
-        ctx.close();
+        if ( msg instanceof ByteBuf )
+        {
+            ( (ByteBuf) msg ).release();
+            ctx.close();
+        }
     }
 }

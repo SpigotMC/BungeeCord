@@ -12,9 +12,9 @@ import lombok.RequiredArgsConstructor;
 
 public class Varint21FrameDecoderSafeLength extends ByteToMessageDecoder
 {
-    // packet length varint + packetid + protocol version varint + server address (length varint + data) + server port + varint enum
-    private static final int MIN_LENGTH_FIRST_PACKET = 1 + 1 + 1 + ( 1 + 1 ) + 2 + 1;
-    private static final int MAX_LENGTH_FIRST_PACKET = 5 + 1 + 5 + ( 3 + 255 * 4 ) + 2 + 1;
+    // packetid + protocol version varint + server address (length varint + data) + server port + varint enum
+    private static final int MIN_LENGTH_FIRST_PACKET = 1 + 1 + ( 1 + 1 ) + 2 + 1;
+    private static final int MAX_LENGTH_FIRST_PACKET = 1 + 5 + ( 3 + 255 * 4 ) + 2 + 1;
     private boolean first = true;
     private boolean second = false;
     private boolean stop = false;

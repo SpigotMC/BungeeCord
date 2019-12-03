@@ -47,6 +47,7 @@ import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.netty.cipher.CipherDecoder;
 import net.md_5.bungee.netty.cipher.CipherEncoder;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.InboundDiscardHandler;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
@@ -654,6 +655,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void disconnect(final BaseComponent... reason)
     {
+        ch.getHandle().pipeline().addFirst( InboundDiscardHandler.DISCARD_FIRST, InboundDiscardHandler.INSTANCE )
+                .addBefore( PipelineUtils.BOSS_HANDLER, InboundDiscardHandler.DISCARD, InboundDiscardHandler.INSTANCE );
         if ( canSendKickMessage() )
         {
             ch.delayedClose( new Kick( ComponentSerializer.toString( reason ) ) );
@@ -665,6 +668,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
     protected void disconnectFastAndLog(String reason)
     {
+        ch.getHandle().pipeline().addFirst( InboundDiscardHandler.DISCARD_FIRST, InboundDiscardHandler.INSTANCE )
+                .addBefore( PipelineUtils.BOSS_HANDLER, InboundDiscardHandler.DISCARD, InboundDiscardHandler.INSTANCE );
         if ( canSendKickMessage() )
         {
             ch.close( new Kick( reason ) );
