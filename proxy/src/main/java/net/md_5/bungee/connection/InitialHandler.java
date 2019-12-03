@@ -166,7 +166,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handleLegacyHandshake(PacketWrapper<LegacyHandshake> packet) throws Exception
     {
         this.legacy = true;
-        ch.close( bungee.getTranslation( "outdated_client", bungee.getGameVersion() ) );
+        final String disconnectReason = bungee.getTranslation( "outdated_client", bungee.getGameVersion() );
+        ch.close( disconnectReason );
+        bungee.getLogger().log( Level.INFO, "[{0}] (legacy) disconnected with: {1}",
+                new Object[]{ toString(), disconnectReason } );
     }
 
     @Override
@@ -175,6 +178,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         this.legacy = true;
         final LegacyPing ping = packet.packet;
         final boolean v1_5 = ping.isV1_5();
+
+        if ( bungee.getConfig().isLogPings() )
+        {
+            bungee.getLogger().log( Level.INFO, "{0} (legacy) has pinged, v1.4+: {1}", new Object[]{ toString(), v1_5 } );
+        }
 
         ServerPing legacy = new ServerPing( new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), bungee.getProtocolVersion() ),
                 new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
@@ -343,27 +351,33 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             case 1:
                 // Ping
-                if ( bungee.getConfig().isLogPings() )
-                {
-                    bungee.getLogger().log( Level.INFO, "{0} has pinged", this );
-                }
                 thisState = State.STATUS;
                 ch.setProtocol( Protocol.STATUS );
+                if ( bungee.getConfig().isLogPings() )
+                {
+                    bungee.getLogger().log( Level.INFO, "{0} (protocol {1}) has pinged", new Object[]{ this, handshake.getProtocolVersion() } );
+                }
                 break;
             case 2:
                 // Login
-                bungee.getLogger().log( Level.INFO, "{0} has connected", this );
                 thisState = State.USERNAME;
                 ch.setProtocol( Protocol.LOGIN );
+                bungee.getLogger().log( Level.INFO, "{0} (protocol {1}) has connected", new Object[]{ this, handshake.getProtocolVersion() } );
 
                 if ( !ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) )
                 {
                     if ( handshake.getProtocolVersion() > bungee.getProtocolVersion() )
                     {
-                        disconnect( bungee.getTranslation( "outdated_server", bungee.getGameVersion() ) );
+                        final String disconnectReason = bungee.getTranslation( "outdated_server", bungee.getGameVersion() );
+                        disconnect( disconnectReason );
+                        bungee.getLogger().log( Level.INFO, "{0} (protocol {1}) disconnected with: {2}",
+                                new Object[]{ toString(), handshake.getProtocolVersion(), disconnectReason } );
                     } else
                     {
-                        disconnect( bungee.getTranslation( "outdated_client", bungee.getGameVersion() ) );
+                        final String disconnectReason = bungee.getTranslation( "outdated_client", bungee.getGameVersion() );
+                        disconnect( disconnectReason );
+                        bungee.getLogger().log( Level.INFO, "{0} (protocol {1}) disconnected with: {2}",
+                                new Object[]{ toString(), handshake.getProtocolVersion(), disconnectReason } );
                     }
                     return;
                 }
@@ -387,20 +401,29 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         final String name = getName();
         if ( name.contains( "." ) )
         {
-            disconnect( bungee.getTranslation( "name_invalid" ) );
+            final String disconnectReason = bungee.getTranslation( "name_invalid" );
+            disconnect( disconnectReason );
+            bungee.getLogger().log( Level.INFO, "{0} disconnected with: {2}",
+                    new Object[]{ toString(), disconnectReason } );
             return;
         }
 
         if ( name.length() > 16 )
         {
-            disconnect( bungee.getTranslation( "name_too_long" ) );
+            final String disconnectReason = bungee.getTranslation( "name_too_long" );
+            disconnect( disconnectReason );
+            bungee.getLogger().log( Level.INFO, "{0} disconnected with: {2}",
+                    new Object[]{ toString(), disconnectReason } );
             return;
         }
 
         int limit = BungeeCord.getInstance().config.getPlayerLimit();
         if ( limit > 0 && bungee.getOnlineCount() > limit )
         {
-            disconnect( bungee.getTranslation( "proxy_full" ) );
+            final String disconnectReason = bungee.getTranslation( "proxy_full" );
+            disconnect( disconnectReason );
+            bungee.getLogger().log( Level.INFO, "{0} disconnected with: {2}",
+                    new Object[]{ toString(), disconnectReason } );
             return;
         }
 
@@ -408,7 +431,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         // We can just check by UUID here as names are based on UUID
         if ( !isOnlineMode() && bungee.getPlayer( getUniqueId() ) != null )
         {
-            disconnect( bungee.getTranslation( "already_connected_proxy" ) );
+            final String disconnectReason = bungee.getTranslation( "already_connected_proxy" );
+            disconnect( disconnectReason );
+            bungee.getLogger().log( Level.INFO, "{0} disconnected with: {2}",
+                    new Object[]{ toString(), disconnectReason } );
             return;
         }
 
@@ -421,9 +447,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 if ( result.isCancelled() )
                 {
                     disconnect( result.getCancelReasonComponents() );
+                    bungee.getLogger().log( Level.INFO, "{0} disconnected with: {2}",
+                            new Object[]{ InitialHandler.this.toString(), result.getCancelReason() } );
                     return;
                 }
-                if ( ch.isClosed() )
+                if ( ch.isClosing() )
                 {
                     return;
                 }
@@ -486,11 +514,15 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                         finish();
                         return;
                     }
-                    disconnect( bungee.getTranslation( "offline_mode_player" ) );
+                    final String disconnectReason = bungee.getTranslation( "offline_mode_player" );
+                    disconnect( disconnectReason );
+                    bungee.getLogger().log( Level.INFO, "{0} disconnected with: {2}",
+                            new Object[]{ InitialHandler.this.toString(), disconnectReason } );
                 } else
                 {
-                    disconnect( bungee.getTranslation( "mojang_fail" ) );
-                    bungee.getLogger().log( Level.SEVERE, "Error authenticating " + getName() + " with minecraft.net", error );
+                    final String disconnectReason = bungee.getTranslation( "mojang_fail" );
+                    disconnect( disconnectReason );
+                    bungee.getLogger().log( Level.SEVERE, InitialHandler.this.toString() + " Error authenticating with minecraft.net", error );
                 }
             }
         };
@@ -508,14 +540,20 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             if ( oldName != null )
             {
                 // TODO See #1218
-                oldName.disconnect( bungee.getTranslation( "already_connected_proxy" ) );
+                final String disconnectReason = bungee.getTranslation( "already_connected_proxy" );
+                oldName.disconnect( disconnectReason );
+                bungee.getLogger().log( Level.INFO, "{0} disconnected with: {2}",
+                        new Object[]{ InitialHandler.this.toString(), disconnectReason } );
             }
             // And then also for their old UUID
             ProxiedPlayer oldID = bungee.getPlayer( getUniqueId() );
             if ( oldID != null )
             {
                 // TODO See #1218
-                oldID.disconnect( bungee.getTranslation( "already_connected_proxy" ) );
+                final String disconnectReason = bungee.getTranslation( "already_connected_proxy" );
+                oldID.disconnect( disconnectReason );
+                bungee.getLogger().log( Level.INFO, "{0} disconnected with: {2}",
+                        new Object[]{ InitialHandler.this.toString(), disconnectReason } );
             }
         } else
         {
@@ -524,7 +562,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             if ( oldName != null )
             {
                 // TODO See #1218
-                disconnect( bungee.getTranslation( "already_connected_proxy" ) );
+                final String disconnectReason = bungee.getTranslation( "already_connected_proxy" );
+                disconnect( disconnectReason );
+                bungee.getLogger().log( Level.INFO, "{0} disconnected with: {2}",
+                        new Object[]{ InitialHandler.this.toString(), disconnectReason } );
                 return;
             }
         }

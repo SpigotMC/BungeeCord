@@ -41,8 +41,8 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
         if ( server && in.readableBytes() < 1 )
         {
             final InetAddress address = ( (InetSocketAddress) ctx.channel().remoteAddress() ).getAddress();
-            ctx.pipeline().addFirst( DiscardHandler.DISCARD_FIRST, DiscardHandler.INSTANCE )
-                    .addAfter( ctx.name(), DiscardHandler.DISCARD, DiscardHandler.INSTANCE );
+            ctx.pipeline().addFirst( InboundDiscardHandler.DISCARD_FIRST, InboundDiscardHandler.INSTANCE )
+                    .addAfter( ctx.name(), InboundDiscardHandler.DISCARD, InboundDiscardHandler.INSTANCE );
             ctx.close().addListener( new EmptyPacketLogger( address ) );
             stop = true;
             return;
@@ -56,8 +56,8 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
 
             if ( packetId < 0 || packetId > 0xFF )
             {
-                ctx.pipeline().addFirst( DiscardHandler.DISCARD_FIRST, DiscardHandler.INSTANCE )
-                        .addAfter( ctx.name(), DiscardHandler.DISCARD, DiscardHandler.INSTANCE );
+                ctx.pipeline().addFirst( InboundDiscardHandler.DISCARD_FIRST, InboundDiscardHandler.INSTANCE )
+                        .addAfter( ctx.name(), InboundDiscardHandler.DISCARD, InboundDiscardHandler.INSTANCE );
                 final InetAddress address = ( (InetSocketAddress) ctx.channel().remoteAddress() ).getAddress();
                 ctx.close().addListener( new InvalidPacketIdLogger( address, packetId ) );
                 stop = true;
@@ -73,8 +73,8 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
                 {
                     if ( server )
                     {
-                        ctx.pipeline().addFirst( DiscardHandler.DISCARD_FIRST, DiscardHandler.INSTANCE )
-                                .addAfter( ctx.name(), DiscardHandler.DISCARD, DiscardHandler.INSTANCE );
+                        ctx.pipeline().addFirst( InboundDiscardHandler.DISCARD_FIRST, InboundDiscardHandler.INSTANCE )
+                                .addAfter( ctx.name(), InboundDiscardHandler.DISCARD, InboundDiscardHandler.INSTANCE );
                         final InetAddress address = ( (InetSocketAddress) ctx.channel().remoteAddress() ).getAddress();
                         ctx.close().addListener( new IncompleteReadLogger( address, packet, packetId, prot ) );
                         stop = true;

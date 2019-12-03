@@ -42,8 +42,8 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
                 {
                     final InetAddress address = ( (InetSocketAddress) ctx.channel().remoteAddress() ).getAddress();
                     super.setSingleDecode( true );
-                    ctx.pipeline().addFirst( DiscardHandler.DISCARD_FIRST, DiscardHandler.INSTANCE )
-                            .addAfter( ctx.name(), DiscardHandler.DISCARD, DiscardHandler.INSTANCE );
+                    ctx.pipeline().addFirst( InboundDiscardHandler.DISCARD_FIRST, InboundDiscardHandler.INSTANCE )
+                            .addAfter( ctx.name(), InboundDiscardHandler.DISCARD, InboundDiscardHandler.INSTANCE );
                     ctx.close().addListener( new InvalidPacketLengthLogger( address, length ) );
                     stop = true;
                     return;
@@ -79,8 +79,8 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
 
         final InetAddress address = ( (InetSocketAddress) ctx.channel().remoteAddress() ).getAddress();
         super.setSingleDecode( true );
-        ctx.pipeline().addFirst( DiscardHandler.DISCARD_FIRST, DiscardHandler.INSTANCE )
-                .addAfter( ctx.name(), DiscardHandler.DISCARD, DiscardHandler.INSTANCE );
+        ctx.pipeline().addFirst( InboundDiscardHandler.DISCARD_FIRST, InboundDiscardHandler.INSTANCE )
+                .addAfter( ctx.name(), InboundDiscardHandler.DISCARD, InboundDiscardHandler.INSTANCE );
         ctx.close().addListener( new PacketLengthFieldTooLongLogger( address ) );
         stop = true;
     }

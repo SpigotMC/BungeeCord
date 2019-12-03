@@ -9,12 +9,12 @@ import lombok.NoArgsConstructor;
 
 @ChannelHandler.Sharable
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class DiscardHandler extends ChannelInboundHandlerAdapter
+public class InboundDiscardHandler extends ChannelInboundHandlerAdapter
 {
-    static final String DISCARD_FIRST = "DISCARD_FIRST";
-    static final String DISCARD = "DISCARD";
+    static final String DISCARD_FIRST = "I_DISCARD_FIRST";
+    static final String DISCARD = "I_DISCARD";
 
-    static DiscardHandler INSTANCE = new DiscardHandler();
+    static InboundDiscardHandler INSTANCE = new InboundDiscardHandler();
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg)

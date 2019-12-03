@@ -12,7 +12,9 @@ import lombok.RequiredArgsConstructor;
 
 public class Varint21FrameDecoderSafeLength extends ByteToMessageDecoder
 {
-
+    // packet length varint + packetid + protocol version varint + server address (length varint + data) + server port + varint enum
+    private static final int MIN_LENGTH_FIRST_PACKET = 1 + 1 + 1 + ( 1 + 1 ) + 2 + 1;
+    private static final int MAX_LENGTH_FIRST_PACKET = 5 + 1 + 5 + ( 3 + 255 * 4 ) + 2 + 1;
     private boolean first = true;
     private boolean second = false;
     private boolean stop = false;
@@ -42,20 +44,20 @@ public class Varint21FrameDecoderSafeLength extends ByteToMessageDecoder
                 {
                     final InetAddress address = ( (InetSocketAddress) ctx.channel().remoteAddress() ).getAddress();
                     super.setSingleDecode( true );
-                    ctx.pipeline().addFirst( DiscardHandler.DISCARD_FIRST, DiscardHandler.INSTANCE )
-                            .addAfter( ctx.name(), DiscardHandler.DISCARD, DiscardHandler.INSTANCE );
+                    ctx.pipeline().addFirst( InboundDiscardHandler.DISCARD_FIRST, InboundDiscardHandler.INSTANCE )
+                            .addAfter( ctx.name(), InboundDiscardHandler.DISCARD, InboundDiscardHandler.INSTANCE );
                     ctx.close().addListener( new Varint21FrameDecoder.InvalidPacketLengthLogger( address, length ) );
                     stop = true;
                     return;
                 }
                 if ( first )
                 {
-                    if ( length != 15 )
+                    if ( length < MIN_LENGTH_FIRST_PACKET || length > MAX_LENGTH_FIRST_PACKET )
                     {
                         final InetAddress address = ( (InetSocketAddress) ctx.channel().remoteAddress() ).getAddress();
                         super.setSingleDecode( true );
-                        ctx.pipeline().addFirst( DiscardHandler.DISCARD_FIRST, DiscardHandler.INSTANCE )
-                                .addAfter( ctx.name(), DiscardHandler.DISCARD, DiscardHandler.INSTANCE );
+                        ctx.pipeline().addFirst( InboundDiscardHandler.DISCARD_FIRST, InboundDiscardHandler.INSTANCE )
+                                .addAfter( ctx.name(), InboundDiscardHandler.DISCARD, InboundDiscardHandler.INSTANCE );
                         ctx.close().addListener( new WrongFirstPacketLength( address, length ) );
                         stop = true;
                         return;
@@ -67,8 +69,8 @@ public class Varint21FrameDecoderSafeLength extends ByteToMessageDecoder
                     {
                         final InetAddress address = ( (InetSocketAddress) ctx.channel().remoteAddress() ).getAddress();
                         super.setSingleDecode( true );
-                        ctx.pipeline().addFirst( DiscardHandler.DISCARD_FIRST, DiscardHandler.INSTANCE )
-                                .addAfter( ctx.name(), DiscardHandler.DISCARD, DiscardHandler.INSTANCE );
+                        ctx.pipeline().addFirst( InboundDiscardHandler.DISCARD_FIRST, InboundDiscardHandler.INSTANCE )
+                                .addAfter( ctx.name(), InboundDiscardHandler.DISCARD, InboundDiscardHandler.INSTANCE );
                         ctx.close().addListener( new WrongSecondPacketLength( address, length ) );
                         stop = true;
                         return;
@@ -109,8 +111,8 @@ public class Varint21FrameDecoderSafeLength extends ByteToMessageDecoder
         }
         final InetAddress address = ( (InetSocketAddress) ctx.channel().remoteAddress() ).getAddress();
         super.setSingleDecode( true );
-        ctx.pipeline().addFirst( DiscardHandler.DISCARD_FIRST, DiscardHandler.INSTANCE )
-                .addAfter( ctx.name(), DiscardHandler.DISCARD, DiscardHandler.INSTANCE );
+        ctx.pipeline().addFirst( InboundDiscardHandler.DISCARD_FIRST, InboundDiscardHandler.INSTANCE )
+                .addAfter( ctx.name(), InboundDiscardHandler.DISCARD, InboundDiscardHandler.INSTANCE );
         ctx.close().addListener( new Varint21FrameDecoder.PacketLengthFieldTooLongLogger( address ) );
         stop = true;
     }
@@ -124,7 +126,7 @@ public class Varint21FrameDecoderSafeLength extends ByteToMessageDecoder
         @Override
         public void operationComplete(Future<? super Void> future) throws Exception
         {
-            System.err.println( "[" + address.getHostAddress() + "] <-> Varint21FrameDecoder first packet length " + length + " was not 15, disconnected" );
+            System.err.println( "[" + address.getHostAddress() + "] <-> Varint21FrameDecoder first packet length " + length + " out of bounds ( " + MIN_LENGTH_FIRST_PACKET + ", " + MAX_LENGTH_FIRST_PACKET + "), disconnected" );
         }
     }
 
