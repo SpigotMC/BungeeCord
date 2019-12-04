@@ -3,6 +3,8 @@ package net.md_5.bungee.api.chat;
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 
 /**
@@ -23,10 +25,11 @@ import net.md_5.bungee.api.ChatColor;
  * part's formatting
  * </p>
  */
+@NoArgsConstructor
 public final class ComponentBuilder
 {
 
-    private BaseComponent current;
+    @Getter
     private final List<BaseComponent> parts = new ArrayList<BaseComponent>();
 
     /**
@@ -37,7 +40,6 @@ public final class ComponentBuilder
      */
     public ComponentBuilder(ComponentBuilder original)
     {
-        current = original.current.duplicate();
         for ( BaseComponent baseComponent : original.parts )
         {
             parts.add( baseComponent.duplicate() );
@@ -51,7 +53,7 @@ public final class ComponentBuilder
      */
     public ComponentBuilder(String text)
     {
-        current = new TextComponent( text );
+        append( new TextComponent( text ) );
     }
 
     /**
@@ -61,7 +63,7 @@ public final class ComponentBuilder
      */
     public ComponentBuilder(BaseComponent component)
     {
-        current = component.duplicate();
+        parts.add( component.duplicate() );
     }
 
     /**
@@ -88,11 +90,12 @@ public final class ComponentBuilder
      */
     public ComponentBuilder append(BaseComponent component, FormatRetention retention)
     {
-        parts.add( current );
-
-        BaseComponent previous = current;
-        current = component.duplicate();
-        current.copyFormatting( previous, retention, false );
+        BaseComponent previous = getCurrentComponent();
+        if ( previous != null )
+        {
+            component.copyFormatting( previous, retention, false );
+        }
+        parts.add( component );
         return this;
     }
 
@@ -122,13 +125,9 @@ public final class ComponentBuilder
     {
         Preconditions.checkArgument( components.length != 0, "No components to append" );
 
-        BaseComponent previous = current;
         for ( BaseComponent component : components )
         {
-            parts.add( current );
-
-            current = component.duplicate();
-            current.copyFormatting( previous, retention, false );
+            append( component, retention );
         }
 
         return this;
@@ -170,13 +169,8 @@ public final class ComponentBuilder
      */
     public ComponentBuilder append(String text, FormatRetention retention)
     {
-        parts.add( current );
-
-        BaseComponent old = current;
-        current = new TextComponent( text );
-        current.copyFormatting( old, retention, false );
-
-        return this;
+        TextComponent component = new TextComponent( text );
+        return append( component, retention );
     }
 
     /**
@@ -211,6 +205,16 @@ public final class ComponentBuilder
     }
 
     /**
+     * Gets the active component this builder is working on.
+     *
+     * @return the active component or null if builder is empty
+     */
+    public BaseComponent getCurrentComponent()
+    {
+        return ( parts.isEmpty() ) ? null : parts.get( parts.size() - 1 );
+    }
+
+    /**
      * Sets the color of the current part.
      *
      * @param color the new color
@@ -218,6 +222,8 @@ public final class ComponentBuilder
      */
     public ComponentBuilder color(ChatColor color)
     {
+        BaseComponent current = getCurrentComponent();
+        Preconditions.checkNotNull( current, "No component to modify" );
         current.setColor( color );
         return this;
     }
@@ -230,6 +236,8 @@ public final class ComponentBuilder
      */
     public ComponentBuilder bold(boolean bold)
     {
+        BaseComponent current = getCurrentComponent();
+        Preconditions.checkNotNull( current, "No component to modify" );
         current.setBold( bold );
         return this;
     }
@@ -242,6 +250,8 @@ public final class ComponentBuilder
      */
     public ComponentBuilder italic(boolean italic)
     {
+        BaseComponent current = getCurrentComponent();
+        Preconditions.checkNotNull( current, "No component to modify" );
         current.setItalic( italic );
         return this;
     }
@@ -254,6 +264,8 @@ public final class ComponentBuilder
      */
     public ComponentBuilder underlined(boolean underlined)
     {
+        BaseComponent current = getCurrentComponent();
+        Preconditions.checkNotNull( current, "No component to modify" );
         current.setUnderlined( underlined );
         return this;
     }
@@ -266,6 +278,8 @@ public final class ComponentBuilder
      */
     public ComponentBuilder strikethrough(boolean strikethrough)
     {
+        BaseComponent current = getCurrentComponent();
+        Preconditions.checkNotNull( current, "No component to modify" );
         current.setStrikethrough( strikethrough );
         return this;
     }
@@ -278,6 +292,8 @@ public final class ComponentBuilder
      */
     public ComponentBuilder obfuscated(boolean obfuscated)
     {
+        BaseComponent current = getCurrentComponent();
+        Preconditions.checkNotNull( current, "No component to modify" );
         current.setObfuscated( obfuscated );
         return this;
     }
@@ -290,6 +306,8 @@ public final class ComponentBuilder
      */
     public ComponentBuilder insertion(String insertion)
     {
+        BaseComponent current = getCurrentComponent();
+        Preconditions.checkNotNull( current, "No component to modify" );
         current.setInsertion( insertion );
         return this;
     }
@@ -302,6 +320,8 @@ public final class ComponentBuilder
      */
     public ComponentBuilder event(ClickEvent clickEvent)
     {
+        BaseComponent current = getCurrentComponent();
+        Preconditions.checkNotNull( current, "No component to modify" );
         current.setClickEvent( clickEvent );
         return this;
     }
@@ -314,6 +334,8 @@ public final class ComponentBuilder
      */
     public ComponentBuilder event(HoverEvent hoverEvent)
     {
+        BaseComponent current = getCurrentComponent();
+        Preconditions.checkNotNull( current, "No component to modify" );
         current.setHoverEvent( hoverEvent );
         return this;
     }
@@ -336,6 +358,8 @@ public final class ComponentBuilder
      */
     public ComponentBuilder retain(FormatRetention retention)
     {
+        BaseComponent current = getCurrentComponent();
+        Preconditions.checkNotNull( current, "No component to modify" );
         current.retain( retention );
         return this;
     }
@@ -348,12 +372,16 @@ public final class ComponentBuilder
      */
     public BaseComponent[] create()
     {
-        BaseComponent[] result = parts.toArray( new BaseComponent[ parts.size() + 1 ] );
-        result[parts.size()] = current;
-        return result;
+        BaseComponent[] cloned = new BaseComponent[ parts.size() ];
+        int i = 0;
+        for ( BaseComponent part : parts )
+        {
+            cloned[ i ] = parts.get( i++ ).duplicate();
+        }
+        return cloned;
     }
 
-    public static enum FormatRetention
+    public enum FormatRetention
     {
 
         /**

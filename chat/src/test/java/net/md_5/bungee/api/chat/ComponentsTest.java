@@ -12,15 +12,19 @@ public class ComponentsTest
 {
 
     @Test
+    public void testToLegacyFromLegacy()
+    {
+        String text = "§a§lHello §f§kworld§7!";
+        Assert.assertEquals( text, TextComponent.toLegacyText( TextComponent.fromLegacyText( text ) ) );
+    }
+
+    @Test
     public void testLegacyComponentBuilderAppend()
     {
         String text = "§a§lHello §r§kworld§7!";
         BaseComponent[] components = TextComponent.fromLegacyText( text );
-        BaseComponent[] builderComponents = new ComponentBuilder( "" ).append( components ).create();
+        BaseComponent[] builderComponents = new ComponentBuilder().append( components ).create();
         List<BaseComponent> list = new ArrayList<BaseComponent>( Arrays.asList( builderComponents ) );
-        // Remove the first element (empty text component). This needs to be done because toLegacyText always
-        // appends &f regardless if the color is non null or not and would otherwise mess with our unit test.
-        list.remove( 0 );
         Assert.assertEquals(
                 TextComponent.toLegacyText( components ),
                 TextComponent.toLegacyText( list.toArray( new BaseComponent[ list.size() ] ) )
@@ -28,7 +32,7 @@ public class ComponentsTest
     }
 
     @Test
-    public void testComponentFormatRetention()
+    public void testFormatRetentionCopyFormatting()
     {
         TextComponent first = new TextComponent( "Hello" );
         first.setBold( true );
@@ -47,7 +51,7 @@ public class ComponentsTest
     @Test
     public void testBuilderClone()
     {
-        ComponentBuilder builder = new ComponentBuilder( "Hel" ).color( ChatColor.RED ).append( "lo" ).color( ChatColor.DARK_RED );
+        ComponentBuilder builder = new ComponentBuilder( "Hello " ).color( ChatColor.RED ).append( "world" ).color( ChatColor.DARK_RED );
         ComponentBuilder cloned = new ComponentBuilder( builder );
 
         Assert.assertEquals( TextComponent.toLegacyText( builder.create() ), TextComponent.toLegacyText( cloned.create() ) );
