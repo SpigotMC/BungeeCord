@@ -505,4 +505,29 @@ public abstract class BaseComponent
             }
         }
     }
+
+    void addFormat(StringBuilder builder)
+    {
+        builder.append( getColor() );
+        if ( isBold() )
+        {
+            builder.append( ChatColor.BOLD );
+        }
+        if ( isItalic() )
+        {
+            builder.append( ChatColor.ITALIC );
+        }
+        if ( isUnderlined() )
+        {
+            builder.append( ChatColor.UNDERLINE );
+        }
+        if ( isStrikethrough() )
+        {
+            builder.append( ChatColor.STRIKETHROUGH );
+        }
+        if ( isObfuscated() )
+        {
+            builder.append( ChatColor.MAGIC );
+        }
+    }
 }
