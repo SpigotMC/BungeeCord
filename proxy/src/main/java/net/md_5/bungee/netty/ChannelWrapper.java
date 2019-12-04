@@ -97,27 +97,6 @@ public class ChannelWrapper
         }
     }
 
-    public void delayedClose(final Kick kick)
-    {
-        if ( !closing )
-        {
-            closing = true;
-
-            // Minecraft client can take some time to switch protocols.
-            // Sending the wrong disconnect packet whilst a protocol switch is in progress will crash it.
-            // Delay 250ms to ensure that the protocol switch (if any) has definitely taken place.
-            ch.eventLoop().schedule( new Runnable()
-            {
-
-                @Override
-                public void run()
-                {
-                    close( kick );
-                }
-            }, 250, TimeUnit.MILLISECONDS );
-        }
-    }
-
     public void addBefore(String baseName, String name, ChannelHandler handler)
     {
         Preconditions.checkState( ch.eventLoop().inEventLoop(), "cannot add handler outside of event loop" );

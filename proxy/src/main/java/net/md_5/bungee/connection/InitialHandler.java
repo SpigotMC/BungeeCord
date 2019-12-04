@@ -9,6 +9,7 @@ import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import javax.crypto.SecretKey;
 import lombok.Getter;
@@ -562,9 +563,17 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void disconnect(final BaseComponent... reason)
     {
-        if ( thisState != State.STATUS && thisState != State.PING )
+        if ( thisState != State.STATUS && thisState != State.PING && thisState != State.HANDSHAKE )
         {
-            ch.delayedClose( new Kick( ComponentSerializer.toString( reason ) ) );
+            ch.getHandle().eventLoop().schedule( new Runnable()
+            {
+
+                @Override
+                public void run()
+                {
+                    ch.close( new Kick( ComponentSerializer.toString( reason ) ) );
+                }
+            }, 250, TimeUnit.MILLISECONDS );
         } else
         {
             ch.close();
