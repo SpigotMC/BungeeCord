@@ -345,8 +345,17 @@ public final class UserConnection implements ProxiedPlayer
                     ServerInfo def = updateAndGetNextServer( target );
                     if ( request.isRetry() && def != null && ( getServer() == null || def != getServer().getInfo() ) )
                     {
-                        sendMessage( bungee.getTranslation( "fallback_lobby" ) );
-                        connect( def, null, true, ServerConnectEvent.Reason.LOBBY_FALLBACK );
+                        connect(def, new Callback<Boolean>()
+                        {
+                            @Override
+                            public void done(Boolean result, Throwable error)
+                            {
+                                if ( result )
+                                {
+                                    sendMessage( bungee.getTranslation( "fallback_lobby" ) );
+                                }
+                            }
+                        }, true, ServerConnectEvent.Reason.LOBBY_FALLBACK);
                     } else if ( dimensionChange )
                     {
                         disconnect( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
