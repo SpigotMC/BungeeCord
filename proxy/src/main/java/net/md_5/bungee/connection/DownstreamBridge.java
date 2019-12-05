@@ -77,7 +77,7 @@ public class DownstreamBridge extends PacketHandler
             return;
         }
 
-        ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
+        final ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
         if ( def != null )
         {
             server.setObsolete( true );
@@ -89,7 +89,7 @@ public class DownstreamBridge extends PacketHandler
                 {
                     if ( result == ServerConnectRequest.Result.SUCCESS )
                     {
-                        con.sendMessage( bungee.getTranslation( "server_went_down" ) );
+                        con.sendMessage( bungee.getTranslation( "server_went_down", server.getInfo().getName(), def.getName() ) );
                     } else
                     {
                         con.disconnect( Util.exception( t ) );
@@ -503,7 +503,7 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(Kick kick) throws Exception
     {
-        ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
+        final ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
         final ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTED ) );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
@@ -513,7 +513,7 @@ public class DownstreamBridge extends PacketHandler
                 {
                     if ( result == ServerConnectRequest.Result.SUCCESS )
                     {
-                        con.sendMessage( bungee.getTranslation( "server_went_down" ) );
+                        con.sendMessage( bungee.getTranslation( "server_went_down", server.getInfo().getName(), def.getName() ) );
                     } else
                     {
                         con.disconnect0( event.getKickReasonComponent() );
