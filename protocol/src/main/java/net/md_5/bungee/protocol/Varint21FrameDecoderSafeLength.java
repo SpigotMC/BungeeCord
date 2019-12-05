@@ -12,9 +12,12 @@ import lombok.RequiredArgsConstructor;
 
 public class Varint21FrameDecoderSafeLength extends ByteToMessageDecoder
 {
-    // packetid + protocol version varint + server address (length varint + data) + server port + varint enum
+    // packetid + protocol version varint + server address(length varint + data) + server port + varint enum
     private static final int MIN_LENGTH_FIRST_PACKET = 1 + 1 + ( 1 + 1 ) + 2 + 1;
     private static final int MAX_LENGTH_FIRST_PACKET = 1 + 5 + ( 3 + 255 * 4 ) + 2 + 1;
+    // packetid + username(string length varint + string data)
+    private static final int MIN_LENGTH_SECOND_PACKET = 1 + 1 + 1;
+    private static final int MAX_LENGTH_SECOND_PACKET = 1 + ( 1 + 16 * 4 );
     private boolean first = true;
     private boolean second = false;
     private boolean stop = false;
@@ -65,7 +68,7 @@ public class Varint21FrameDecoderSafeLength extends ByteToMessageDecoder
                 } else if ( second )
                 {
                     second = false;
-                    if ( length != 1 && length != 9 )
+                    if ( length != 1 && ( length < MIN_LENGTH_SECOND_PACKET || length > MAX_LENGTH_SECOND_PACKET ) )
                     {
                         final InetAddress address = ( (InetSocketAddress) ctx.channel().remoteAddress() ).getAddress();
                         super.setSingleDecode( true );
