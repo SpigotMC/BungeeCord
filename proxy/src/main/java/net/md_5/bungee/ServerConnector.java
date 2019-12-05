@@ -21,6 +21,7 @@ import net.md_5.bungee.api.score.Score;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.api.score.Team;
 import net.md_5.bungee.chat.ComponentSerializer;
+import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.connection.LoginResult;
 import net.md_5.bungee.forge.ForgeConstants;
@@ -158,6 +159,8 @@ public class ServerConnector extends PacketHandler
         {
             user.getForgeClientHandler().resetHandshake();
         }
+
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override
@@ -288,6 +291,8 @@ public class ServerConnector extends PacketHandler
         bungee.getPluginManager().callEvent( new ServerSwitchEvent( user ) );
 
         thisState = State.FINISHED;
+
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override
@@ -311,7 +316,7 @@ public class ServerConnector extends PacketHandler
         {
             obsolete = true;
             user.connect( event.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT );
-            return;
+            throw CancelSendSignal.INSTANCE;
         }
 
         String message = bungee.getTranslation( "connect_kick", target.getName(), event.getKickReason() );
@@ -322,6 +327,8 @@ public class ServerConnector extends PacketHandler
         {
             user.sendMessage( message );
         }
+
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override
@@ -363,7 +370,7 @@ public class ServerConnector extends PacketHandler
                 this.handshakeHandler.handle( pluginMessage );
 
                 // We send the message as part of the handler, so don't send it here.
-                return;
+                throw CancelSendSignal.INSTANCE;
             }
         }
 
