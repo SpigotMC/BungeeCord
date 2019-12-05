@@ -565,6 +565,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( thisState != State.STATUS && thisState != State.PING && thisState != State.HANDSHAKE )
         {
+            // Minecraft client can take some time to switch protocols.
+            // Sending the wrong disconnect packet whilst a protocol switch is in progress will crash it.
+            // Delay 250ms to ensure that the protocol switch (if any) has definitely taken place.
             ch.getHandle().eventLoop().schedule( new Runnable()
             {
 
