@@ -9,8 +9,10 @@ import java.util.Set;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.ServerConnectRequest;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
@@ -302,24 +304,35 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
-    public void handle(Kick kick) throws Exception
+    public void handle(final Kick kick) throws Exception
     {
         ServerInfo def = user.updateAndGetNextServer( target );
-        ServerKickEvent event = new ServerKickEvent( user, target, ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTING );
+        final ServerKickEvent event = new ServerKickEvent( user, target, ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTING );
         if ( event.getKickReason().toLowerCase( Locale.ROOT ).contains( "outdated" ) && def != null )
         {
             // Pre cancel the event if we are going to try another server
             event.setCancelled( true );
         }
         bungee.getPluginManager().callEvent( event );
+        final String message = bungee.getTranslation( "connect_kick", target.getName(), event.getKickReason() );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
             obsolete = true;
-            user.connect( event.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT );
+            Callback<ServerConnectRequest.Result> callback = new Callback<ServerConnectRequest.Result>()
+            {
+                @Override
+                public void done(ServerConnectRequest.Result result, Throwable error)
+                {
+                    if ( result != ServerConnectRequest.Result.SUCCESS )
+                    {
+                        user.disconnect( message );
+                    }
+                }
+            };
+            user.connect( ServerConnectRequest.builder().target( event.getCancelServer() ).callback( callback ).retry( false ).reason( ServerConnectEvent.Reason.KICK_REDIRECT ).build() );
             throw CancelSendSignal.INSTANCE;
         }
 
-        String message = bungee.getTranslation( "connect_kick", target.getName(), event.getKickReason() );
         if ( user.isDimensionChange() )
         {
             user.disconnect( message );

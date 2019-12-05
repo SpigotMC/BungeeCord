@@ -23,7 +23,9 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
+import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.ServerConnectRequest;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -67,7 +69,7 @@ public class DownstreamBridge extends PacketHandler
     private final ServerConnection server;
 
     @Override
-    public void exception(Throwable t) throws Exception
+    public void exception(final Throwable t) throws Exception
     {
         if ( server.isObsolete() )
         {
@@ -79,8 +81,29 @@ public class DownstreamBridge extends PacketHandler
         if ( def != null )
         {
             server.setObsolete( true );
-            con.connectNow( def, ServerConnectEvent.Reason.SERVER_DOWN_REDIRECT );
-            con.sendMessage( bungee.getTranslation( "server_went_down" ) );
+
+            Callback<ServerConnectRequest.Result> callback = new Callback<ServerConnectRequest.Result>()
+            {
+                @Override
+                public void done(ServerConnectRequest.Result result, Throwable error)
+                {
+                    if ( result == ServerConnectRequest.Result.SUCCESS )
+                    {
+                        con.sendMessage( bungee.getTranslation( "server_went_down" ) );
+                    } else
+                    {
+                        con.disconnect( Util.exception( t ) );
+                    }
+                }
+            };
+            ServerConnectRequest connectRequest = ServerConnectRequest.builder()
+                    .callback( callback )
+                    .retry( false )
+                    .reason( ServerConnectEvent.Reason.SERVER_DOWN_REDIRECT )
+                    .target( def )
+                    .build();
+            con.connect( connectRequest );
+            con.setDimensionChange( true ); // NOTE: Dim Change Connect
         } else
         {
             con.disconnect( Util.exception( t ) );
@@ -481,10 +504,30 @@ public class DownstreamBridge extends PacketHandler
     public void handle(Kick kick) throws Exception
     {
         ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
-        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTED ) );
+        final ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTED ) );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
-            con.connectNow( event.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT );
+            Callback<ServerConnectRequest.Result> callback = new Callback<ServerConnectRequest.Result>() {
+                @Override
+                public void done(ServerConnectRequest.Result result, Throwable error)
+                {
+                    if ( result == ServerConnectRequest.Result.SUCCESS )
+                    {
+                        con.sendMessage( bungee.getTranslation( "server_went_down" ) );
+                    } else
+                    {
+                        con.disconnect0( event.getKickReasonComponent() );
+                    }
+                }
+            };
+            ServerConnectRequest connectRequest = ServerConnectRequest.builder()
+                .callback( callback )
+                .retry( false )
+                .reason( ServerConnectEvent.Reason.SERVER_DOWN_REDIRECT )
+                .target( def )
+                .build();
+            con.connect( connectRequest );
+            con.setDimensionChange( true ); // NOTE: Dim Change Connect
         } else
         {
             con.disconnect0( event.getKickReasonComponent() ); // TODO: Prefix our own stuff.
