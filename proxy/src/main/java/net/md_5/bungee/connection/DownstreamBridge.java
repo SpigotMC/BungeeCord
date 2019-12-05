@@ -507,6 +507,12 @@ public class DownstreamBridge extends PacketHandler
         final ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTED ) );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
+            if ( event.getCancelServer().equals( server.getInfo() ) )
+            {
+                // Just in case a plugin tries to do this. No point trying to reconnect to same server.
+                // Also prevent the code setting the connection to obsolete from reoccurring.
+                throw CancelSendSignal.INSTANCE;
+            }
             Callback<ServerConnectRequest.Result> callback = new Callback<ServerConnectRequest.Result>() {
                 @Override
                 public void done(ServerConnectRequest.Result result, Throwable error)
