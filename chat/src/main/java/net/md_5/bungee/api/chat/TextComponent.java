@@ -172,8 +172,21 @@ public final class TextComponent extends BaseComponent
      */
     public TextComponent(BaseComponent... extras)
     {
-        setText( "" );
-        setExtra( new ArrayList<BaseComponent>( Arrays.asList( extras ) ) );
+        this( wrapComponent( extras ) );
+    }
+
+    private static TextComponent wrapComponent(BaseComponent... extras)
+    {
+        if ( extras.length == 1 && extras[0] instanceof TextComponent )
+        {
+            return (TextComponent) extras[0];
+        }
+        TextComponent component = new TextComponent( "" );
+        if ( extras.length != 0 )
+        {
+            component.setExtra( new ArrayList<BaseComponent>( Arrays.asList( extras ) ) );
+        }
+        return component;
     }
 
     /**
