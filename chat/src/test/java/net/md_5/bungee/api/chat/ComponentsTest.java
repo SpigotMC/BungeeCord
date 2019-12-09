@@ -18,6 +18,41 @@ public class ComponentsTest
         Assert.assertEquals( text, TextComponent.toLegacyText( TextComponent.fromLegacyText( text ) ) );
     }
 
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testComponentBuilderCursorInvalidPos()
+    {
+        ComponentBuilder builder = new ComponentBuilder();
+        builder.append( new TextComponent( "Apple, ") );
+        builder.append( new TextComponent( "Orange, ") );
+        builder.setCursor( -1 );
+        builder.setCursor( 2 );
+    }
+
+    @Test
+    public void testComponentBuilderCursor()
+    {
+        TextComponent t1, t2, t3;
+        ComponentBuilder builder = new ComponentBuilder();
+        Assert.assertEquals( builder.getCursor(), -1 );
+        builder.append( t1 = new TextComponent( "Apple, ") );
+        Assert.assertEquals( builder.getCursor(), 0 );
+        builder.append( t2 = new TextComponent( "Orange, ") );
+        builder.append( t3 = new TextComponent( "Mango, ") );
+        Assert.assertEquals( builder.getCursor(), 2 );
+
+        builder.setCursor( 0 );
+        Assert.assertEquals( builder.getCurrentComponent(), t1 );
+
+        // Test that appending new components updates the position to the new list size
+        // after having previously set it to 0 (first component)
+        builder.append( new TextComponent( "and Grapefruit"));
+        Assert.assertEquals( builder.getCursor(), 3 );
+
+        builder.setCursor( 0 );
+        builder.resetCursor();
+        Assert.assertEquals( builder.getCursor(), 3 );
+    }
+
     @Test
     public void testLegacyComponentBuilderAppend()
     {

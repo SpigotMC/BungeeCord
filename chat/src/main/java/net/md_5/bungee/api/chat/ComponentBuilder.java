@@ -29,6 +29,13 @@ import net.md_5.bungee.api.ChatColor;
 public final class ComponentBuilder
 {
 
+    /**
+     * The position for the current part to modify.
+     * Modified cursors will automatically reset to the last part after appending new components.
+     * Default value at -1 to assert that the builder has no parts.
+     */
+    @Getter
+    private int cursor = -1;
     @Getter
     private final List<BaseComponent> parts = new ArrayList<BaseComponent>();
 
@@ -44,6 +51,7 @@ public final class ComponentBuilder
         {
             parts.add( baseComponent.duplicate() );
         }
+        resetCursor();
     }
 
     /**
@@ -64,6 +72,37 @@ public final class ComponentBuilder
     public ComponentBuilder(BaseComponent component)
     {
         parts.add( component.duplicate() );
+        resetCursor();
+    }
+
+    /**
+     * Resets the cursor to index of the last element.
+     *
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder resetCursor()
+    {
+        cursor = parts.size() - 1;
+        return this;
+    }
+
+    /**
+     * Sets the position of the current component to be modified
+     *
+     * @param pos the cursor position synonymous to an element position for a list
+     * @throws IndexOutOfBoundsException if the index is out of range
+     *         ({@code index < 0 || index >= size()})
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder setCursor(int pos) throws IndexOutOfBoundsException
+    {
+        if ( ( this.cursor != pos ) && ( pos < 0 || pos >= parts.size() ) )
+        {
+            throw new IndexOutOfBoundsException( "Cursor out of bounds (expected between 0 + " + ( parts.size() - 1 ) + ")" );
+        }
+
+        this.cursor = pos;
+        return this;
     }
 
     /**
@@ -90,12 +129,14 @@ public final class ComponentBuilder
      */
     public ComponentBuilder append(BaseComponent component, FormatRetention retention)
     {
+        resetCursor();
         BaseComponent previous = getCurrentComponent();
         if ( previous != null )
         {
             component.copyFormatting( previous, retention, false );
         }
         parts.add( component );
+        resetCursor();
         return this;
     }
 
@@ -205,13 +246,41 @@ public final class ComponentBuilder
     }
 
     /**
-     * Gets the active component this builder is working on.
+     * Remove the component part at the position of given index.
+     *
+     * @param pos the index to remove at
+     * @throws IndexOutOfBoundsException if the index is out of range
+     *         ({@code index < 0 || index >= size()})
+     */
+    public void removeComponent(int pos) throws IndexOutOfBoundsException
+    {
+        if ( parts.remove( pos ) != null )
+        {
+            resetCursor();
+        }
+    }
+
+    /**
+     * Gets the component part at the position of given index.
+     *
+     * @param pos the index to find
+     * @return the component
+     * @throws IndexOutOfBoundsException if the index is out of range
+     *         ({@code index < 0 || index >= size()})
+     */
+    public BaseComponent getComponent(int pos) throws IndexOutOfBoundsException
+    {
+        return parts.get( pos );
+    }
+
+    /**
+     * Gets the component at the position of the cursor.
      *
      * @return the active component or null if builder is empty
      */
     public BaseComponent getCurrentComponent()
     {
-        return ( parts.isEmpty() ) ? null : parts.get( parts.size() - 1 );
+        return ( cursor == -1 ) ? null : parts.get( cursor );
     }
 
     /**
@@ -366,7 +435,7 @@ public final class ComponentBuilder
 
     /**
      * Returns the components needed to display the message created by this
-     * builder.
+     * builder.git
      *
      * @return the created components
      */
