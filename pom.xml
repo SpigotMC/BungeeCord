@@ -5,7 +5,7 @@
 
     <groupId>net.madgamble</groupId>
     <artifactId>bungeecord-parent</artifactId>
-    <version>1.14-SNAPSHOT</version>
+    <version>1.15-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>BungeeCord-Parent</name>
@@ -67,7 +67,7 @@
 
     <properties>
         <build.number>unknown</build.number>
-        <netty.version>4.1.34.Final</netty.version>
+        <netty.version>4.1.43.Final</netty.version>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -95,7 +95,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.4</version>
+            <version>1.18.10</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -121,7 +121,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <phase>process-classes</phase>
@@ -139,14 +139,14 @@
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
                         <artifactId>checkstyle</artifactId>
-                        <version>8.19</version>
+                        <version>8.27</version>
                     </dependency>
                 </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <version>1.16</version>
+                <version>1.18</version>
                 <executions>
                     <execution>
                         <phase>process-classes</phase>

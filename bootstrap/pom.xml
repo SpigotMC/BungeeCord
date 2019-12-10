@@ -6,13 +6,13 @@
     <parent>
         <groupId>net.madgamble</groupId>
         <artifactId>bungeecord-parent</artifactId>
-        <version>1.14-SNAPSHOT</version>
+        <version>1.15-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>net.madgamble</groupId>
     <artifactId>bungeecord-bootstrap</artifactId>
-    <version>1.14-SNAPSHOT</version>
+    <version>1.15-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>BungeeCord-Bootstrap</name>
@@ -40,7 +40,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.0.2</version>
+                <version>3.2.0</version>
                 <configuration>
                     <archive>
                         <manifestEntries>
@@ -54,7 +54,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.2.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
