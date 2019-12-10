@@ -92,7 +92,7 @@ public class PacketUtils
 
         DefinedPacket[] packets =
         {
-            new Login( CLIENTID, (short) 2, 0, (short) 0, (short) 100, "flat", 2, false ), //0
+            new Login( CLIENTID, (short) 2, 0,1, (short) 0, (short) 100, "flat", 2, false, true ), //0
             new EmptyChunkPacket( 0, 0 ), //1
             new TimeUpdate( 1, 23700 ), //2
             new PlayerAbilities( (byte) 6, 0f, 0f ), //3
@@ -135,6 +135,9 @@ public class PacketUtils
 
     private static DefinedPacket createMessagePacket(String message)
     {
+        if (message.isEmpty()) {
+            return null;
+        }
         return new Chat( ComponentSerializer.toString(
                 TextComponent.fromLegacyText(
                         ChatColor.translateAlternateColorCodes( '&',
@@ -251,6 +254,8 @@ public class PacketUtils
                 return 17;
             case ProtocolConstants.MINECRAFT_1_14_4:
                 return 18;
+            case ProtocolConstants.MINECRAFT_1_15:
+                return 19;
             default:
                 throw new IllegalArgumentException( "Version is not supported" );
         }

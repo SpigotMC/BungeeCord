@@ -15,12 +15,15 @@ public class CachedPacket
 
     public CachedPacket(DefinedPacket packet, Protocol... protocols)
     {
-        PacketUtils.fillArray( byteBuf, packet, protocols );
+        if (packet != null) {
+            PacketUtils.fillArray(byteBuf, packet, protocols);
+        }
     }
 
     public ByteBuf get(int version)
     {
-        return byteBuf[PacketUtils.rewriteVersion( version )].retainedDuplicate();
+        ByteBuf buf = byteBuf[PacketUtils.rewriteVersion( version )];
+        return buf == null ? null : buf.retainedDuplicate();
     }
 
     public void release()

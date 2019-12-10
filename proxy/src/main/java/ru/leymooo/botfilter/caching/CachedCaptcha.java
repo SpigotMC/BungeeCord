@@ -11,15 +11,18 @@ import ru.leymooo.botfilter.packets.MapDataPacket;
 public class CachedCaptcha
 {
 
+    //уже пора с этим чтото придумать
     private static final int PACKETID_18 = 52;
     private static final int PACKETID_19 = 36;
     private static final int PACKETID_113 = 38;
     private static final int PACKETID_114 = 38;
+    private static final int PACKETID_115 = 39;
 
     private final ByteBuf[] byteBuf18 = new ByteBuf[ 900 ];
     private final ByteBuf[] byteBuf19 = new ByteBuf[ 900 ];
     private final ByteBuf[] byteBuf113 = new ByteBuf[ 900 ];
     private final ByteBuf[] byteBuf114 = new ByteBuf[ 900 ];
+    private final ByteBuf[] byteBuf115 = new ByteBuf[ 900 ];
 
     public static boolean generated = false;
 
@@ -29,6 +32,7 @@ public class CachedCaptcha
         byteBuf19[answer - 100] = PacketUtils.createPacket( map, PACKETID_19, ProtocolConstants.MINECRAFT_1_9 );
         byteBuf113[answer - 100] = PacketUtils.createPacket( map, PACKETID_113, ProtocolConstants.MINECRAFT_1_13 );
         byteBuf114[answer - 100] = PacketUtils.createPacket( map, PACKETID_114, ProtocolConstants.MINECRAFT_1_14 );
+        byteBuf115[answer - 100] = PacketUtils.createPacket( map, PACKETID_115, ProtocolConstants.MINECRAFT_1_15 );
 
         //TODO: Do something with this shit.
     }
@@ -44,21 +48,12 @@ public class CachedCaptcha
         } else if ( version < ProtocolConstants.MINECRAFT_1_14 )
         {
             return byteBuf113[captcha - 100].retainedDuplicate();
-        } else
+        } else if ( version < ProtocolConstants.MINECRAFT_1_15 )
         {
             return byteBuf114[captcha - 100].retainedDuplicate();
-        }
-    }
-
-    public void release()
-    {
-        for ( ByteBuf buf : byteBuf18 )
+        } else
         {
-            PacketUtils.releaseByteBuf( buf );
-        }
-        for ( ByteBuf buf : byteBuf19 )
-        {
-            PacketUtils.releaseByteBuf( buf );
+            return byteBuf115[captcha - 100].retainedDuplicate();
         }
     }
 

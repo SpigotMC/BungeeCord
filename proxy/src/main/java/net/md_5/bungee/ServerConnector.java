@@ -211,8 +211,8 @@ public class ServerConnector extends PacketHandler
             user.setServerEntityId( login.getEntityId() );
 
             // Set tab list size, TODO: what shall we do about packet mutability
-            Login modLogin = new Login( login.getEntityId(), login.getGameMode(), (byte) login.getDimension(), login.getDifficulty(),
-                    (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.getViewDistance(), login.isReducedDebugInfo() );
+            Login modLogin = new Login( login.getEntityId(), login.getGameMode(), (byte) login.getDimension(), login.getHashedSeed(), login.getDifficulty(),
+                    (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.getViewDistance(), login.isReducedDebugInfo(), login.isRespawnScreen() );
 
             user.unsafe().sendPacket( modLogin );
 
@@ -258,11 +258,11 @@ public class ServerConnector extends PacketHandler
             user.setDimensionChange( true );
             if ( login.getDimension() == user.getDimension() )
             {
-                user.unsafe().sendPacket( new Respawn( ( login.getDimension() >= 0 ? -1 : 0 ), login.getDifficulty(), login.getGameMode(), login.getLevelType() ) );
+                user.unsafe().sendPacket( new Respawn( ( login.getDimension() >= 0 ? -1 : 0 ), login.getHashedSeed(), login.getDifficulty(), login.getGameMode(), login.getLevelType() ) );
             }
 
             user.setServerEntityId( login.getEntityId() );
-            user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getDifficulty(), login.getGameMode(), login.getLevelType() ) );
+            user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getHashedSeed(), login.getDifficulty(), login.getGameMode(), login.getLevelType() ) );
             if ( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_14 )
             {
                 user.unsafe().sendPacket( new ViewDistance( login.getViewDistance() ) );

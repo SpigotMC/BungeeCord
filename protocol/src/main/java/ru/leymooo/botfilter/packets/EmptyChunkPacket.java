@@ -41,6 +41,11 @@ public class EmptyChunkPacket extends DefinedPacket
         if ( version >= ProtocolConstants.MINECRAFT_1_14 )
         {
             this.write1_14Heightmaps( buf );
+            if (version >= ProtocolConstants.MINECRAFT_1_15) {
+                for (int i = 0; i < 1024; i++) {
+                    buf.writeInt(0);
+                }
+            }
         }
         if ( version < ProtocolConstants.MINECRAFT_1_13 )
         {

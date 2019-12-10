@@ -153,7 +153,7 @@ public class Connector extends MoveHandler
         PacketUtils.titles[2].writeTitle( channel, version );
         channel.flush();
         botFilter.removeConnection( null, this );
-        channel.writeAndFlush( PacketUtils.getChachedPacket( PacketsPosition.CHECK_SUS ).get( version ), channel.voidPromise() );
+        sendMessage(PacketsPosition.CHECK_SUS );
         botFilter.saveUser( getName(), IPUtils.getAddress( userConnection ) );
         userConnection.setNeedLogin( false );
         userConnection.getPendingConnection().finishLogin( userConnection, true );
@@ -234,8 +234,11 @@ public class Connector extends MoveHandler
                 completeCheck();
             } else if ( --attemps != 0 )
             {
-                channel.write( attemps == 2 ? PacketUtils.getChachedPacket( PacketsPosition.CAPTCHA_FAILED_2 ).get( version )
-                        : PacketUtils.getChachedPacket( PacketsPosition.CAPTCHA_FAILED_1 ).get( version ), channel.voidPromise() );
+                ByteBuf buf = attemps == 2 ? PacketUtils.getChachedPacket( PacketsPosition.CAPTCHA_FAILED_2 ).get( version )
+                        : PacketUtils.getChachedPacket( PacketsPosition.CAPTCHA_FAILED_1 ).get( version );
+                if (buf != null) {
+                    channel.write(buf, channel.voidPromise());
+                }
                 sendCaptcha();
             } else
             {
@@ -324,6 +327,15 @@ public class Connector extends MoveHandler
         markDisconnected = true;
         LOGGER.log( Level.INFO, "(BF) [{0}] disconnected: ".concat( kickMessage ), name );
     }
+
+    public void sendMessage(int index) {
+        ByteBuf buf = PacketUtils.getChachedPacket( index ).get( getVersion() );
+        if (buf != null) {
+            getChannel().write(buf,getChannel().voidPromise());
+        }
+
+    }
+
 
     @Override
     public String toString()

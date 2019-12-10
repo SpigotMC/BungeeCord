@@ -57,10 +57,10 @@ public class BotFilterThread
                                     continue;
                                 } else if ( state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED || state == BotFilter.CheckState.ONLY_POSITION )
                                 {
-                                    connector.getChannel().writeAndFlush( PacketUtils.getChachedPacket( PacketsPosition.CHECKING ).get( connector.getVersion() ) );
+                                    connector.sendMessage(PacketsPosition.CHECKING);
                                 } else
                                 {
-                                    connector.getChannel().writeAndFlush( PacketUtils.getChachedPacket( PacketsPosition.CHECKING_CAPTCHA ).get( connector.getVersion() ) );
+                                    connector.sendMessage(PacketsPosition.CHECKING_CAPTCHA);
                                 }
                                 connector.sendPing();
                         }

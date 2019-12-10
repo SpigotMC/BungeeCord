@@ -1,23 +1,8 @@
 
-import io.netty.util.ResourceLeakDetector;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
-import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.packet.Chat;
-import net.md_5.bungee.protocol.packet.Login;
-import ru.leymooo.botfilter.caching.PacketUtils;
-import ru.leymooo.botfilter.caching.PacketsPosition;
-import ru.leymooo.botfilter.config.Settings;
-import ru.leymooo.botfilter.packets.EmptyChunkPacket;
-import ru.leymooo.botfilter.packets.PlayerAbilities;
-import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
-import ru.leymooo.botfilter.packets.SetSlot;
 
 public class CachingTest
 {
-
+/*
     public static void main(String[] args)
     {
         if ( System.getProperty( "io.netty.leakDetectionLevel" ) == null )
@@ -73,4 +58,6 @@ public class CachingTest
                 TextComponent.fromLegacyText(
                         message ) ), (byte) ChatMessageType.CHAT.ordinal() );
     }
+
+ */
 }
