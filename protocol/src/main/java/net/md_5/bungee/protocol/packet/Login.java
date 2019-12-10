@@ -19,11 +19,13 @@ public class Login extends DefinedPacket
     private int entityId;
     private short gameMode;
     private int dimension;
+    private long hashedSeed;
     private short difficulty;
     private short maxPlayers;
     private String levelType;
     private int viewDistance;
     private boolean reducedDebugInfo;
+    private boolean enableRespawnScreen;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
@@ -40,6 +42,9 @@ public class Login extends DefinedPacket
         if ( protocolVersion < ProtocolConstants.MINECRAFT_1_14 )
         {
             difficulty = buf.readUnsignedByte();
+        } else if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_15 )
+        {
+            hashedSeed = buf.readLong();
         }
         maxPlayers = buf.readUnsignedByte();
         levelType = readString( buf );
@@ -50,6 +55,10 @@ public class Login extends DefinedPacket
         if ( protocolVersion >= 29 )
         {
             reducedDebugInfo = buf.readBoolean();
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_15 )
+        {
+            enableRespawnScreen = buf.readBoolean();
         }
     }
 
@@ -68,6 +77,9 @@ public class Login extends DefinedPacket
         if ( protocolVersion < ProtocolConstants.MINECRAFT_1_14 )
         {
             buf.writeByte( difficulty );
+        } else if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_15 )
+        {
+            buf.writeLong( hashedSeed );
         }
         buf.writeByte( maxPlayers );
         writeString( levelType, buf );
@@ -78,6 +90,10 @@ public class Login extends DefinedPacket
         if ( protocolVersion >= 29 )
         {
             buf.writeBoolean( reducedDebugInfo );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_15 )
+        {
+            buf.writeBoolean( enableRespawnScreen );
         }
     }
 

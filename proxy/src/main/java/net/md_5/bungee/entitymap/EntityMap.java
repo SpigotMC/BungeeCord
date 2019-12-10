@@ -5,11 +5,12 @@ import com.google.common.base.Throwables;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
-import java.io.IOException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
+
+import java.io.IOException;
 
 /**
  * Class to rewrite integers within packets.
@@ -57,6 +58,8 @@ public abstract class EntityMap
             case ProtocolConstants.MINECRAFT_1_14_3:
             case ProtocolConstants.MINECRAFT_1_14_4:
                 return EntityMap_1_14.INSTANCE;
+            case ProtocolConstants.MINECRAFT_1_15:
+                return EntityMap_1_15.INSTANCE;
         }
         throw new RuntimeException( "Version " + version + " has no entity map" );
     }
@@ -67,17 +70,17 @@ public abstract class EntityMap
         {
             if ( varint )
             {
-                clientboundVarInts[id] = true;
+                clientboundVarInts[ id ] = true;
             } else
             {
-                clientboundInts[id] = true;
+                clientboundInts[ id ] = true;
             }
         } else if ( varint )
         {
-            serverboundVarInts[id] = true;
+            serverboundVarInts[ id ] = true;
         } else
         {
-            serverboundInts[id] = true;
+            serverboundInts[ id ] = true;
         }
     }
 
@@ -140,7 +143,7 @@ public abstract class EntityMap
         int readerIndex = packet.readerIndex();
 
         short index;
-        while ( ( index = packet.readUnsignedByte() ) != 0xFF )
+        while ( (index = packet.readUnsignedByte()) != 0xFF )
         {
             int type = DefinedPacket.readVarInt( packet );
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
@@ -284,13 +287,13 @@ public abstract class EntityMap
 
     private static void readSkipSlot(ByteBuf packet, int protocolVersion)
     {
-        if ( ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13_2 ) ? packet.readBoolean() : packet.readShort() != -1 )
+        if ( (protocolVersion >= ProtocolConstants.MINECRAFT_1_13_2) ? packet.readBoolean() : packet.readShort() != -1 )
         {
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13_2 )
             {
                 DefinedPacket.readVarInt( packet );
             }
-            packet.skipBytes( ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? 1 : 3 ); // byte vs byte, short
+            packet.skipBytes( (protocolVersion >= ProtocolConstants.MINECRAFT_1_13) ? 1 : 3 ); // byte vs byte, short
 
             int position = packet.readerIndex();
             if ( packet.readByte() != 0 )
@@ -315,10 +318,10 @@ public abstract class EntityMap
         int packetId = DefinedPacket.readVarInt( packet );
         int packetIdLength = packet.readerIndex() - readerIndex;
 
-        if ( ints[packetId] )
+        if ( ints[ packetId ] )
         {
             rewriteInt( packet, oldId, newId, readerIndex + packetIdLength );
-        } else if ( varints[packetId] )
+        } else if ( varints[ packetId ] )
         {
             rewriteVarInt( packet, oldId, newId, readerIndex + packetIdLength );
         }

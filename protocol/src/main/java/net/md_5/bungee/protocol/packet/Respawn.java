@@ -19,6 +19,7 @@ public class Respawn extends DefinedPacket
     private int dimension;
     private short difficulty;
     private short gameMode;
+    private long hashedSeed;
     private String levelType;
 
     @Override
@@ -28,6 +29,9 @@ public class Respawn extends DefinedPacket
         if ( protocolVersion < ProtocolConstants.MINECRAFT_1_14 )
         {
             difficulty = buf.readUnsignedByte();
+        } else if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_15 )
+        {
+            hashedSeed = buf.readLong();
         }
         gameMode = buf.readUnsignedByte();
         levelType = readString( buf );
@@ -40,6 +44,9 @@ public class Respawn extends DefinedPacket
         if ( protocolVersion < ProtocolConstants.MINECRAFT_1_14 )
         {
             buf.writeByte( difficulty );
+        } else if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_15 )
+        {
+            buf.writeLong( hashedSeed );
         }
         buf.writeByte( gameMode );
         writeString( levelType, buf );
