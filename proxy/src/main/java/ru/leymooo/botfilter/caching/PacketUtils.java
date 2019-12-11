@@ -263,22 +263,22 @@ public class PacketUtils
 
     public static void spawnPlayer(Channel channel, int version, boolean disableFall, boolean captcha)
     {
-        channel.write( getChachedPacket( PacketsPosition.LOGIN ).get( version ), channel.voidPromise() );
-        channel.write( getChachedPacket( PacketsPosition.PLUGIN_MESSAGE ).get( version ), channel.voidPromise() );
-        channel.write( getChachedPacket( PacketsPosition.CHUNK ).get( version ), channel.voidPromise() );
+        channel.write( getCachedPacket( PacketsPosition.LOGIN ).get( version ), channel.voidPromise() );
+        channel.write( getCachedPacket( PacketsPosition.PLUGIN_MESSAGE ).get( version ), channel.voidPromise() );
+        channel.write( getCachedPacket( PacketsPosition.CHUNK ).get( version ), channel.voidPromise() );
         if ( disableFall )
         {
-            channel.write( getChachedPacket( PacketsPosition.PLAYERABILITIES ).get( version ), channel.voidPromise() );
+            channel.write( getCachedPacket( PacketsPosition.PLAYERABILITIES ).get( version ), channel.voidPromise() );
         }
         if ( captcha )
         {
-            channel.write( getChachedPacket( PacketsPosition.PLAYERPOSANDLOOK_CAPTCHA ).get( version ), channel.voidPromise() );
+            channel.write( getCachedPacket( PacketsPosition.PLAYERPOSANDLOOK_CAPTCHA ).get( version ), channel.voidPromise() );
         } else
         {
-            channel.write( getChachedPacket( PacketsPosition.PLAYERPOSANDLOOK ).get( version ), channel.voidPromise() );
+            channel.write( getCachedPacket( PacketsPosition.PLAYERPOSANDLOOK ).get( version ), channel.voidPromise() );
 
         }
-        channel.write( getChachedPacket( PacketsPosition.TIME ).get( version ), channel.voidPromise() );
+        channel.write( getCachedPacket( PacketsPosition.TIME ).get( version ), channel.voidPromise() );
         //channel.flush(); Не очищяем поскольку это будет в другом месте
     }
 
@@ -295,10 +295,10 @@ public class PacketUtils
         {
             wrapper.write( kickMessagesLogin.get( kick ).get( version ) );
         }
-        wrapper.delayedClose( null );
+        wrapper.close();
     }
 
-    public static CachedPacket getChachedPacket(int pos)
+    public static CachedPacket getCachedPacket(int pos)
     {
         return cachedPackets[pos];
     }

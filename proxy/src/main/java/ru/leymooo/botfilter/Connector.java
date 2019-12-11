@@ -129,7 +129,7 @@ public class Connector extends MoveHandler
         {
             if ( state == CheckState.CAPTCHA_POSITION && aticks < TOTAL_TICKS )
             {
-                channel.writeAndFlush( PacketUtils.getChachedPacket( PacketsPosition.SETSLOT_RESET ).get( version ), channel.voidPromise() );
+                channel.writeAndFlush( PacketUtils.getCachedPacket( PacketsPosition.SETSLOT_RESET ).get( version ), channel.voidPromise() );
                 state = CheckState.ONLY_POSITION;
             } else
             {
@@ -212,10 +212,10 @@ public class Connector extends MoveHandler
     {
         if ( disableFall )
         {
-            channel.write( PacketUtils.getChachedPacket( PacketsPosition.PLAYERABILITIES ).get( version ), channel.voidPromise() );
+            channel.write( PacketUtils.getCachedPacket( PacketsPosition.PLAYERABILITIES ).get( version ), channel.voidPromise() );
         }
         waitingTeleportId = 9876;
-        channel.writeAndFlush( PacketUtils.getChachedPacket( PacketsPosition.PLAYERPOSANDLOOK_CAPTCHA ).get( version ), channel.voidPromise() );
+        channel.writeAndFlush( PacketUtils.getCachedPacket( PacketsPosition.PLAYERPOSANDLOOK_CAPTCHA ).get( version ), channel.voidPromise() );
     }
 
     @Override
@@ -234,8 +234,8 @@ public class Connector extends MoveHandler
                 completeCheck();
             } else if ( --attemps != 0 )
             {
-                ByteBuf buf = attemps == 2 ? PacketUtils.getChachedPacket( PacketsPosition.CAPTCHA_FAILED_2 ).get( version )
-                        : PacketUtils.getChachedPacket( PacketsPosition.CAPTCHA_FAILED_1 ).get( version );
+                ByteBuf buf = attemps == 2 ? PacketUtils.getCachedPacket( PacketsPosition.CAPTCHA_FAILED_2 ).get( version )
+                        : PacketUtils.getCachedPacket( PacketsPosition.CAPTCHA_FAILED_1 ).get( version );
                 if (buf != null) {
                     channel.write(buf, channel.voidPromise());
                 }
@@ -289,14 +289,14 @@ public class Connector extends MoveHandler
         {
             lastSend = System.currentTimeMillis();
             sentPings++;
-            channel.writeAndFlush( PacketUtils.getChachedPacket( PacketsPosition.KEEPALIVE ).get( version ) );
+            channel.writeAndFlush( PacketUtils.getCachedPacket( PacketsPosition.KEEPALIVE ).get( version ) );
         }
     }
 
     private void sendCaptcha()
     {
         captchaAnswer = random.nextInt( 100, 999 );
-        channel.write( PacketUtils.getChachedPacket( PacketsPosition.SETSLOT_MAP ).get( version ), channel.voidPromise() );
+        channel.write( PacketUtils.getCachedPacket( PacketsPosition.SETSLOT_MAP ).get( version ), channel.voidPromise() );
         channel.writeAndFlush( PacketUtils.captchas.get( version, captchaAnswer ), channel.voidPromise() );
     }
 
@@ -304,7 +304,7 @@ public class Connector extends MoveHandler
     {
         state = CheckState.ONLY_CAPTCHA;
         joinTime = System.currentTimeMillis() + 3500;
-        channel.write( PacketUtils.getChachedPacket( PacketsPosition.SETEXP_RESET ).get( version ), channel.voidPromise() );
+        channel.write( PacketUtils.getCachedPacket( PacketsPosition.SETEXP_RESET ).get( version ), channel.voidPromise() );
         PacketUtils.titles[1].writeTitle( channel, version );
         resetPosition( true );
         sendCaptcha();
@@ -329,7 +329,7 @@ public class Connector extends MoveHandler
     }
 
     public void sendMessage(int index) {
-        ByteBuf buf = PacketUtils.getChachedPacket( index ).get( getVersion() );
+        ByteBuf buf = PacketUtils.getCachedPacket( index ).get( getVersion() );
         if (buf != null) {
             getChannel().write(buf,getChannel().voidPromise());
         }

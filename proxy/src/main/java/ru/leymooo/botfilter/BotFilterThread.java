@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import net.md_5.bungee.BungeeCord;
 import ru.leymooo.botfilter.BotFilter.CheckState;
-import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.caching.PacketUtils.KickType;
 import ru.leymooo.botfilter.caching.PacketsPosition;
 import ru.leymooo.botfilter.config.Settings;

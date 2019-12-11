@@ -19,13 +19,13 @@ public class Login extends DefinedPacket
     private int entityId;
     private short gameMode;
     private int dimension;
-    private long hashedSeed; //botfilter temp 1.15
+    private long seed;
     private short difficulty;
     private short maxPlayers;
     private String levelType;
     private int viewDistance;
     private boolean reducedDebugInfo;
-    private boolean respawnScreen; //botfilter temp 1.15
+    private boolean normalRespawn;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
@@ -39,8 +39,9 @@ public class Login extends DefinedPacket
         {
             dimension = buf.readByte();
         }
-        if (protocolVersion >= ProtocolConstants.MINECRAFT_1_15) {
-            hashedSeed = buf.readLong();
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_15 )
+        {
+            seed = buf.readLong();
         }
         if ( protocolVersion < ProtocolConstants.MINECRAFT_1_14 )
         {
@@ -56,8 +57,9 @@ public class Login extends DefinedPacket
         {
             reducedDebugInfo = buf.readBoolean();
         }
-        if (protocolVersion >= ProtocolConstants.MINECRAFT_1_15) {
-            respawnScreen = buf.readBoolean();
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_15 )
+        {
+            normalRespawn = buf.readBoolean();
         }
     }
 
@@ -73,8 +75,9 @@ public class Login extends DefinedPacket
         {
             buf.writeByte( dimension );
         }
-        if (protocolVersion >= ProtocolConstants.MINECRAFT_1_15) {
-            buf.writeLong(hashedSeed);
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_15 )
+        {
+            buf.writeLong( seed );
         }
         if ( protocolVersion < ProtocolConstants.MINECRAFT_1_14 )
         {
@@ -90,8 +93,9 @@ public class Login extends DefinedPacket
         {
             buf.writeBoolean( reducedDebugInfo );
         }
-        if (protocolVersion >= ProtocolConstants.MINECRAFT_1_15) {
-            buf.writeBoolean(respawnScreen);
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_15 )
+        {
+            buf.writeBoolean( normalRespawn );
         }
     }
 
