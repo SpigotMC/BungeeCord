@@ -5,7 +5,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +44,7 @@ public class Varint21FrameDecoderSafeLength extends ByteToMessageDecoder
                 int length = DefinedPacket.readVarIntLengthSpecial( buf );
                 if ( length <= 0 )
                 {
-                    final InetAddress address = ( (InetSocketAddress) ctx.channel().remoteAddress() ).getAddress();
+                    final InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
                     super.setSingleDecode( true );
                     ctx.pipeline().addFirst( InboundDiscardHandler.DISCARD_FIRST, InboundDiscardHandler.INSTANCE )
                             .addAfter( ctx.name(), InboundDiscardHandler.DISCARD, InboundDiscardHandler.INSTANCE );
@@ -57,7 +56,7 @@ public class Varint21FrameDecoderSafeLength extends ByteToMessageDecoder
                 {
                     if ( length < MIN_LENGTH_FIRST_PACKET || length > MAX_LENGTH_FIRST_PACKET )
                     {
-                        final InetAddress address = ( (InetSocketAddress) ctx.channel().remoteAddress() ).getAddress();
+                        final InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
                         super.setSingleDecode( true );
                         ctx.pipeline().addFirst( InboundDiscardHandler.DISCARD_FIRST, InboundDiscardHandler.INSTANCE )
                                 .addAfter( ctx.name(), InboundDiscardHandler.DISCARD, InboundDiscardHandler.INSTANCE );
@@ -70,7 +69,7 @@ public class Varint21FrameDecoderSafeLength extends ByteToMessageDecoder
                     second = false;
                     if ( length != 1 && ( length < MIN_LENGTH_SECOND_PACKET || length > MAX_LENGTH_SECOND_PACKET ) )
                     {
-                        final InetAddress address = ( (InetSocketAddress) ctx.channel().remoteAddress() ).getAddress();
+                        final InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
                         super.setSingleDecode( true );
                         ctx.pipeline().addFirst( InboundDiscardHandler.DISCARD_FIRST, InboundDiscardHandler.INSTANCE )
                                 .addAfter( ctx.name(), InboundDiscardHandler.DISCARD, InboundDiscardHandler.INSTANCE );
@@ -112,7 +111,7 @@ public class Varint21FrameDecoderSafeLength extends ByteToMessageDecoder
                 }
             }
         }
-        final InetAddress address = ( (InetSocketAddress) ctx.channel().remoteAddress() ).getAddress();
+        final InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
         super.setSingleDecode( true );
         ctx.pipeline().addFirst( InboundDiscardHandler.DISCARD_FIRST, InboundDiscardHandler.INSTANCE )
                 .addAfter( ctx.name(), InboundDiscardHandler.DISCARD, InboundDiscardHandler.INSTANCE );
@@ -123,26 +122,28 @@ public class Varint21FrameDecoderSafeLength extends ByteToMessageDecoder
     @RequiredArgsConstructor
     private static class WrongFirstPacketLength implements GenericFutureListener<Future<? super Void>>
     {
-        private final InetAddress address;
+        private static final String LENGTH_INFO = " out of bounds (" + MIN_LENGTH_FIRST_PACKET + ", " + MAX_LENGTH_FIRST_PACKET + "), disconnected";
+        private final InetSocketAddress address;
         private final int length;
 
         @Override
         public void operationComplete(Future<? super Void> future) throws Exception
         {
-            System.err.println( "[" + address.getHostAddress() + "] <-> Varint21FrameDecoder first packet length " + length + " out of bounds ( " + MIN_LENGTH_FIRST_PACKET + ", " + MAX_LENGTH_FIRST_PACKET + "), disconnected" );
+            System.err.println( "[" + address + "] <-> Varint21FrameDecoder first packet length " + length + LENGTH_INFO );
         }
     }
 
     @RequiredArgsConstructor
     private static class WrongSecondPacketLength implements GenericFutureListener<Future<? super Void>>
     {
-        private final InetAddress address;
+        private static final String LENGTH_INFO = " out of bounds (" + MIN_LENGTH_SECOND_PACKET + ", " + MAX_LENGTH_SECOND_PACKET + "), disconnected";
+        private final InetSocketAddress address;
         private final int length;
 
         @Override
         public void operationComplete(Future<? super Void> future) throws Exception
         {
-            System.err.println( "[" + address.getHostAddress() + "] <-> Varint21FrameDecoder second packet length " + length + " was not 1 or 9, disconnected" );
+            System.err.println( "[" + address + "] <-> Varint21FrameDecoder second packet length " + length + LENGTH_INFO );
         }
     }
 }

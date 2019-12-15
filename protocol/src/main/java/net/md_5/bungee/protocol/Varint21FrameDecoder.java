@@ -5,7 +5,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +39,7 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
                 int length = DefinedPacket.readVarIntLengthSpecial( buf );
                 if ( length <= 0 )
                 {
-                    final InetAddress address = ( (InetSocketAddress) ctx.channel().remoteAddress() ).getAddress();
+                    final InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
                     super.setSingleDecode( true );
                     ctx.pipeline().addFirst( InboundDiscardHandler.DISCARD_FIRST, InboundDiscardHandler.INSTANCE )
                             .addAfter( ctx.name(), InboundDiscardHandler.DISCARD, InboundDiscardHandler.INSTANCE );
@@ -77,7 +76,7 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
             }
         }
 
-        final InetAddress address = ( (InetSocketAddress) ctx.channel().remoteAddress() ).getAddress();
+        final InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
         super.setSingleDecode( true );
         ctx.pipeline().addFirst( InboundDiscardHandler.DISCARD_FIRST, InboundDiscardHandler.INSTANCE )
                 .addAfter( ctx.name(), InboundDiscardHandler.DISCARD, InboundDiscardHandler.INSTANCE );
@@ -85,33 +84,28 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
         stop = true;
     }
 
+    @RequiredArgsConstructor
     static class InvalidPacketLengthLogger implements GenericFutureListener<Future<? super Void>>
     {
-        private final InetAddress address;
+        private final InetSocketAddress address;
         private final int length;
-
-        public InvalidPacketLengthLogger(InetAddress address, int length)
-        {
-            this.address = address;
-            this.length = length;
-        }
 
         @Override
         public void operationComplete(Future<? super Void> future) throws Exception
         {
-            System.err.println( "[" + address.getHostAddress() + "] <-> Varint21FrameDecoder recieved invalid packet length " + length + ", disconnected" );
+            System.err.println( "[" + address + "] <-> Varint21FrameDecoder recieved invalid packet length " + length + ", disconnected" );
         }
     }
 
     @RequiredArgsConstructor
     static class PacketLengthFieldTooLongLogger implements GenericFutureListener<Future<? super Void>>
     {
-        private final InetAddress address;
+        private final InetSocketAddress address;
 
         @Override
         public void operationComplete(Future<? super Void> future) throws Exception
         {
-            System.err.println( "[" + address.getHostAddress() + "] <-> Varint21FrameDecoder packet length field too long" );
+            System.err.println( "[" + address + "] <-> Varint21FrameDecoder packet length field too long" );
         }
     }
 }
