@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -26,7 +25,7 @@ public class CommandSend extends Command implements TabExecutor
     {
         if ( args.length != 2 )
         {
-            sender.sendMessage( ChatColor.RED + "Not enough arguments, usage: /send <server|player|all|current> <target>" );
+            sender.sendMessage( ProxyServer.getInstance().getTranslation( "send_cmd_usage" ) );
             return;
         }
         ServerInfo target = ProxyServer.getInstance().getServerInfo( args[1] );
@@ -46,7 +45,7 @@ public class CommandSend extends Command implements TabExecutor
         {
             if ( !( sender instanceof ProxiedPlayer ) )
             {
-                sender.sendMessage( ChatColor.RED + "Only in game players can use this command" );
+                sender.sendMessage( ProxyServer.getInstance().getTranslation( "player_only" ) );
                 return;
             }
             ProxiedPlayer player = (ProxiedPlayer) sender;
@@ -69,13 +68,13 @@ public class CommandSend extends Command implements TabExecutor
                 ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
                 if ( player == null )
                 {
-                    sender.sendMessage( ChatColor.RED + "That player is not online" );
+                    sender.sendMessage( ProxyServer.getInstance().getTranslation( "user_not_online" ) );
                     return;
                 }
                 summon( player, target, sender );
             }
         }
-        sender.sendMessage( ChatColor.GREEN + "Successfully summoned player(s)" );
+        sender.sendMessage( ProxyServer.getInstance().getTranslation( "successfully_summoned" ) );
     }
 
     private void summon(ProxiedPlayer player, ServerInfo target, CommandSender sender)
@@ -83,7 +82,7 @@ public class CommandSend extends Command implements TabExecutor
         if ( player.getServer() != null && !player.getServer().getInfo().equals( target ) )
         {
             player.connect( target, ServerConnectEvent.Reason.COMMAND );
-            player.sendMessage( ChatColor.GOLD + "Summoned to " + target.getName() + " by " + sender.getName() );
+            player.sendMessage( ProxyServer.getInstance().getTranslation( "you_got_summoned", target.getName(), sender.getName() ) );
         }
     }
 
