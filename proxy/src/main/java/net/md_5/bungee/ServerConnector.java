@@ -237,12 +237,12 @@ public class ServerConnector extends PacketHandler
             if ( handshakeHandler != null && handshakeHandler.isServerForge() )
             {
                 modLogin = new Login( login.getEntityId(), login.getGameMode(), login.getDimension(), login.getSeed(), login.getDifficulty(),
-                        (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.getViewDistance(), login.isReducedDebugInfo() );
+                        (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.getViewDistance(), login.isReducedDebugInfo(), login.isNormalRespawn() );
             }
             else
             {
                 modLogin = new Login( login.getEntityId(), login.getGameMode(), (byte) login.getDimension(), login.getSeed(), login.getDifficulty(),
-                        (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.getViewDistance(), login.isReducedDebugInfo() );
+                        (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.getViewDistance(), login.isReducedDebugInfo(), login.isNormalRespawn() );
             }
 
             user.unsafe().sendPacket( modLogin );
