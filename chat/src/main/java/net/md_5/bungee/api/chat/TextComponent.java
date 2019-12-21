@@ -2,6 +2,7 @@ package net.md_5.bungee.api.chat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
@@ -172,21 +173,26 @@ public final class TextComponent extends BaseComponent
      */
     public TextComponent(BaseComponent... extras)
     {
-        this( wrapComponent( extras ) );
-    }
-
-    private static TextComponent wrapComponent(BaseComponent... extras)
-    {
+        if ( extras.length == 0 )
+        {
+            return;
+        }
         if ( extras.length == 1 && extras[0] instanceof TextComponent )
         {
-            return (TextComponent) extras[0];
-        }
-        TextComponent component = new TextComponent( "" );
-        if ( extras.length != 0 )
+            setText( ( (TextComponent) extras[0] ).getText() );
+            List<BaseComponent> headExtra = extras[0].getExtra();
+            if ( headExtra != null )
+            {
+                for ( BaseComponent extra : headExtra )
+                {
+                    addExtra( extra.duplicate() );
+                }
+            }
+        } else
         {
-            component.setExtra( new ArrayList<BaseComponent>( Arrays.asList( extras ) ) );
+            setText( "" );
+            setExtra( new ArrayList<BaseComponent>( Arrays.asList( extras ) ) );
         }
-        return component;
     }
 
     /**
