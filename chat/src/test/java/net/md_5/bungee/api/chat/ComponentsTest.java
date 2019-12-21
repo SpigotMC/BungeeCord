@@ -12,6 +12,63 @@ public class ComponentsTest
 {
 
     @Test
+    public void testEmptyComponentBuilder()
+    {
+        ComponentBuilder builder = new ComponentBuilder();
+
+        BaseComponent[] parts = builder.create();
+        Assert.assertEquals( parts.length, 0 );
+
+        for ( int i = 0; i < 3; i++ )
+        {
+            builder.append( "part:" + i );
+            parts = builder.create();
+            Assert.assertEquals( parts.length, i + 1 );
+        }
+    }
+
+    @Test
+    public void testDummyRetaining()
+    {
+        ComponentBuilder builder = new ComponentBuilder();
+        Assert.assertNotNull( builder.getCurrentComponent() );
+        builder.color( ChatColor.GREEN );
+        builder.append( "test ", ComponentBuilder.FormatRetention.ALL );
+        Assert.assertEquals( builder.getCurrentComponent().getColor(), ChatColor.GREEN );
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testComponentGettingExceptions()
+    {
+        ComponentBuilder builder = new ComponentBuilder();
+        builder.getComponent( -1 );
+        builder.getComponent( 0 );
+        builder.getComponent( 1 );
+        BaseComponent component = new TextComponent( "Hello" );
+        builder.append( component );
+        Assert.assertEquals( builder.getComponent( 0 ), component );
+        builder.getComponent( 1 );
+    }
+
+    @Test
+    public void testComponentParting()
+    {
+        ComponentBuilder builder = new ComponentBuilder();
+        TextComponent apple = new TextComponent( "apple" );
+        builder.append( apple );
+        Assert.assertEquals( builder.getCurrentComponent(), apple );
+        Assert.assertEquals( builder.getComponent( 0 ), apple );
+
+        TextComponent mango = new TextComponent( "mango" );
+        TextComponent orange = new TextComponent( "orange" );
+        builder.append( mango );
+        builder.append( orange );
+        builder.removeComponent( 1 ); // Removing mango
+        Assert.assertEquals( builder.getComponent( 0 ), apple );
+        Assert.assertEquals( builder.getComponent( 1 ), orange );
+    }
+
+    @Test
     public void testToLegacyFromLegacy()
     {
         String text = "§a§lHello §f§kworld§7!";
