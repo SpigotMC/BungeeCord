@@ -2,20 +2,15 @@ package net.md_5.bungee.module.cmd.send;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -35,10 +30,9 @@ public class CommandSend extends Command implements TabExecutor
     protected static class SendCallback
     {
 
-        @Getter
         private final Map<ServerConnectRequest.Result, List<String>> results = new HashMap<>();
-
         private final CommandSender sender;
+        private int count = 0;
 
         public SendCallback(CommandSender sender)
         {
@@ -49,12 +43,35 @@ public class CommandSend extends Command implements TabExecutor
             }
         }
 
-        @RequiredArgsConstructor
-        public static class Impl implements Callback<ServerConnectRequest.Result>
+        public void lastEntryDone()
+        {
+            sender.sendMessage( ChatColor.GREEN.toString() + ChatColor.BOLD + "Send Results:" );
+            for ( Map.Entry<ServerConnectRequest.Result, List<String>> entry : results.entrySet() )
+            {
+                ComponentBuilder builder = new ComponentBuilder( "" );
+                if ( !entry.getValue().isEmpty() )
+                {
+                    builder.event( new HoverEvent( HoverEvent.Action.SHOW_TEXT,
+                            new ComponentBuilder( Joiner.on(", ").join( entry.getValue() ) ).color( ChatColor.YELLOW ).create() ) );
+                }
+                builder.append( entry.getKey().name() + ": " ).color( ChatColor.GREEN );
+                builder.append( "" + entry.getValue().size() ).bold( true );
+                sender.sendMessage( builder.create() );
+            }
+        }
+
+        public static class Entry implements Callback<ServerConnectRequest.Result>
         {
 
             private final SendCallback callback;
             private final ProxiedPlayer target;
+
+            public Entry(SendCallback callback, ProxiedPlayer target)
+            {
+                this.callback = callback;
+                this.target = target;
+                this.callback.count++;
+            }
 
             @Override
             public void done(ServerConnectRequest.Result result, Throwable error)
@@ -64,22 +81,22 @@ public class CommandSend extends Command implements TabExecutor
                 {
                     target.sendMessage( ProxyServer.getInstance().getTranslation( "you_got_summoned", target.getName(), callback.sender.getName() ) );
                 }
+
+                if ( --callback.count == 0 )
+                {
+                    callback.lastEntryDone();
+                }
             }
         }
-
     }
-
-    private ScheduledExecutorService executor;
 
     public CommandSend()
     {
         super( "send", "bungeecord.command.send" );
-
-        executor = Executors.newScheduledThreadPool( 0, new ThreadFactoryBuilder().setNameFormat( "CommandSend Pool Thread #%1$d" ).build() );
     }
 
     @Override
-    public void execute(final CommandSender sender, String[] args)
+    public void execute(CommandSender sender, String[] args)
     {
         if ( args.length != 2 )
         {
@@ -126,41 +143,19 @@ public class CommandSend extends Command implements TabExecutor
         }
 
         final SendCallback callback = new SendCallback( sender );
-        final int connectTimeout = 5000;
-        for ( ProxiedPlayer target : targets )
+        Iterator<ProxiedPlayer> iterator = targets.iterator();
+        while ( iterator.hasNext() )
         {
+            ProxiedPlayer target = iterator.next();
             ServerConnectRequest request = ServerConnectRequest.builder()
                     .target( server )
                     .reason( ServerConnectEvent.Reason.COMMAND )
-                    .callback( new SendCallback.Impl( callback, target ) )
-                    .connectTimeout( connectTimeout )
+                    .callback( new SendCallback.Entry( callback, target ) )
                     .build();
             target.connect( request );
         }
 
-        // Delay before sending the results to ensure the connect timeout has allowed
-        sender.sendMessage( ChatColor.DARK_GREEN + "Attempting to send " + targets.size() + " players to " + server.getName());
-        Runnable runnable = new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                sender.sendMessage( ChatColor.GREEN.toString() + ChatColor.BOLD + "Send Results:" );
-                for ( Map.Entry<ServerConnectRequest.Result, List<String>> entry : callback.getResults().entrySet() )
-                {
-                    ComponentBuilder builder = new ComponentBuilder( "" );
-                    if ( !entry.getValue().isEmpty() )
-                    {
-                        builder.event( new HoverEvent( HoverEvent.Action.SHOW_TEXT,
-                                new ComponentBuilder( Joiner.on(", ").join( entry.getValue() ) ).color( ChatColor.YELLOW ).create() ) );
-                    }
-                    builder.append( entry.getKey().name() + ": " ).color( ChatColor.GREEN );
-                    builder.append( "" + entry.getValue().size() ).bold( true );
-                    sender.sendMessage( builder.create() );
-                }
-            }
-        };
-        executor.schedule( runnable, connectTimeout + 100, TimeUnit.MILLISECONDS );
+        sender.sendMessage( ChatColor.DARK_GREEN + "Attempting to send " + targets.size() + " players to " + server.getName() );
     }
 
     @Override
