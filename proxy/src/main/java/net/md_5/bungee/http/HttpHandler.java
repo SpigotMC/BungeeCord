@@ -36,7 +36,7 @@ public class HttpHandler extends SimpleChannelInboundHandler<HttpObject>
         if ( msg instanceof HttpResponse )
         {
             HttpResponse response = (HttpResponse) msg;
-            int responseCode = response.getStatus().code();
+            int responseCode = response.status().code();
 
             if ( responseCode == HttpResponseStatus.NO_CONTENT.code() )
             {
@@ -46,7 +46,7 @@ public class HttpHandler extends SimpleChannelInboundHandler<HttpObject>
 
             if ( responseCode != HttpResponseStatus.OK.code() )
             {
-                throw new IllegalStateException( "Expected HTTP response 200 OK, got " + response.getStatus() );
+                throw new IllegalStateException( "Expected HTTP response 200 OK, got " + response.status() );
             }
         }
         if ( msg instanceof HttpContent )
