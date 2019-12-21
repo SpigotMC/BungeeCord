@@ -40,6 +40,15 @@ public final class ComponentBuilder
     private final List<BaseComponent> parts = new ArrayList<BaseComponent>();
     private BaseComponent dummy;
 
+    private ComponentBuilder(BaseComponent[] parts)
+    {
+        for ( BaseComponent baseComponent : parts )
+        {
+            this.parts.add( baseComponent.duplicate() );
+        }
+        resetCursor();
+    }
+
     /**
      * Creates a ComponentBuilder from the other given ComponentBuilder to clone
      * it.
@@ -48,11 +57,7 @@ public final class ComponentBuilder
      */
     public ComponentBuilder(ComponentBuilder original)
     {
-        for ( BaseComponent baseComponent : original.parts )
-        {
-            parts.add( baseComponent.duplicate() );
-        }
-        resetCursor();
+        this( original.parts.toArray( new BaseComponent[ original.parts.size() ] ) );
     }
 
     /**
@@ -62,7 +67,7 @@ public final class ComponentBuilder
      */
     public ComponentBuilder(String text)
     {
-        append( new TextComponent( text ) );
+        this( new TextComponent( text ) );
     }
 
     /**
@@ -72,8 +77,12 @@ public final class ComponentBuilder
      */
     public ComponentBuilder(BaseComponent component)
     {
-        parts.add( component.duplicate() );
-        resetCursor();
+
+        this( new BaseComponent[]
+                {
+                        component
+                }
+        );
     }
 
     private BaseComponent getDummy()
