@@ -146,7 +146,7 @@ public final class ComponentBuilder
      */
     public ComponentBuilder append(BaseComponent component, FormatRetention retention)
     {
-        BaseComponent previous = parts.get( parts.size() - 1 );
+        BaseComponent previous = ( parts.isEmpty() ) ? null : parts.get( parts.size() - 1 );
         if ( previous == null )
         {
             previous = dummy;
