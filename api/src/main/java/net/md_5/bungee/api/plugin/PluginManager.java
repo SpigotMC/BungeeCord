@@ -186,7 +186,7 @@ public class PluginManager
                         sender.getName(), commandLine
                     } );
                 }
-                command.execute( sender, args );
+                command.execute( sender, split[0], args );
             } else if ( commandLine.contains( " " ) && command instanceof TabExecutor )
             {
                 for ( String s : ( (TabExecutor) command ).onTabComplete( sender, args ) )
