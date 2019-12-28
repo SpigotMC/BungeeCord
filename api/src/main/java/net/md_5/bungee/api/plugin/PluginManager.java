@@ -191,6 +191,10 @@ public class PluginManager
             {
                 for ( String s : ( (TabExecutor) command ).onTabComplete( sender, args ) )
                 {
+                    if ( s.isEmpty() )
+                    {
+                        continue;
+                    }
                     tabResults.add( s );
                 }
             }
