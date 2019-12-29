@@ -19,6 +19,7 @@ public abstract class BaseComponent
 {
 
     @Setter(AccessLevel.NONE)
+    @EqualsAndHashCode.Exclude
     BaseComponent parent;
 
     /**
