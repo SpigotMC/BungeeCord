@@ -20,7 +20,7 @@ public class Settings extends Config
     @Final
     public final String HELP = "http://www.rubukkit.org/threads/137038/";
     @Final
-    public String BOT_FILTER_VERSION = "3.7.8-2";
+    public String BOT_FILTER_VERSION = "3.7.8-3";
 
     @Create
     public MESSAGES MESSAGES;
@@ -76,7 +76,10 @@ public class Settings extends Config
                     "Меняйте ссылку если по какой-то причине не качается по этой",
                     "Файл должен заканчиваться на .mmdb или быть запакован в .tar.gz"
                 })
-        public String GEOIP_DOWNLOAD_URL = "http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz";
+        public String NEW_GEOIP_DOWNLOAD_URL = "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key=%license_key%&suffix=tar.gz";
+        @Comment({"Если ключ перестанет работать, то для того чтобы получить новый необходимо зарегестироваться на https://www.maxmind.com/",
+        "и сгенерировать новый ключ на странице https://www.maxmind.com/en/accounts/current/license-key"})
+        public String MAXMIND_LICENSE_KEY= "P5g0fVdAQIq8yQau";
         @Comment("Разрешённые странны")
         public List<String> ALLOWED_COUNTRIES = Arrays.asList( "RU", "UA", "BY", "KZ", "EE", "MD", "KG", "AZ", "LT", "LV", "GE", "PL" );
     }

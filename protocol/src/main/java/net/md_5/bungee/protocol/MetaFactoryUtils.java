@@ -1,12 +1,12 @@
 package net.md_5.bungee.protocol;
 
-import com.google.common.base.Supplier;
 import java.lang.invoke.CallSite;
 import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
+import java.util.function.Supplier;
 
 public class MetaFactoryUtils
 {

@@ -338,6 +338,7 @@ public class BotFilter
 
                     logger.log( Level.INFO, "§c[BotFilter] §aНайдена новая версия!" );
                     logger.log( Level.INFO, "§c[BotFilter] §aПожалуйста обновитесь!" );
+                    logger.log( Level.INFO, "§c[BotFilter] §ahttp://rubukkit.org/threads/137038" );
                     if ( startup )
                     {
                         Thread.sleep( 3500L );

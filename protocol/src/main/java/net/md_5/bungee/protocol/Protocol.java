@@ -1,13 +1,13 @@
 package net.md_5.bungee.protocol;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 import gnu.trove.impl.Constants;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
+import java.util.function.Supplier;
 import lombok.Data;
 import lombok.Getter;
 import net.md_5.bungee.protocol.packet.BossBar;

@@ -92,7 +92,7 @@ public class GeoIp
         File file = new File( "BotFilter", "GeoIP.mmdb" );
         if ( !file.exists() || ( startup && ( System.currentTimeMillis() - file.lastModified() ) > TimeUnit.DAYS.toMillis( 14 ) ) )
         {
-            file.delete();
+            //file.delete();
             downloadDataBase( file );
         } else
         {
@@ -114,9 +114,10 @@ public class GeoIp
         long start = System.currentTimeMillis();
         try
         {
-            URL downloadUrl = new URL( Settings.IMP.GEO_IP.GEOIP_DOWNLOAD_URL );
+            URL downloadUrl = new URL( Settings.IMP.GEO_IP.NEW_GEOIP_DOWNLOAD_URL.replace("%license_key%", Settings.IMP.GEO_IP.MAXMIND_LICENSE_KEY) );
             URLConnection conn = downloadUrl.openConnection();
-            conn.setConnectTimeout( 35000 );
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(10000);
             try ( InputStream input = conn.getInputStream() )
             {
                 if ( downloadUrl.getFile().endsWith( ".mmdb" ) )
@@ -143,6 +144,9 @@ public class GeoIp
             setupDataBase( true );
         } catch ( Exception ex )
         {
+            if (out.exists()) {
+                setupDataBase( false );
+            }
             LOGGER.log( Level.WARNING, "[BotFilter] Не могу скачать GeoLite2 датабазу", ex );
             return;
         }
@@ -151,7 +155,7 @@ public class GeoIp
 
     private void saveToFile(InputStream stream, File out) throws IOException
     {
-        try ( FileOutputStream fis = new FileOutputStream( out ) )
+        try ( FileOutputStream fis = new FileOutputStream( out, false ) )
         {
             byte[] buffer = new byte[ 2048 ];
             int count = 0;
@@ -167,6 +171,7 @@ public class GeoIp
                 fis.write( buffer, 0, count );
             }
         }
+
     }
 
     public void close()
