@@ -13,7 +13,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder.FormatRetention;
 
 @Setter
 @ToString(exclude = "parent")
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = "parent")
 @NoArgsConstructor
 public abstract class BaseComponent
 {

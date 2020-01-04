@@ -409,6 +409,30 @@ public class ComponentsTest
         Assert.assertEquals( text, roundtripLegacyText );
     }
 
+    @Test
+    public void testEquals()
+    {
+        TextComponent first = new TextComponent( "Hello, " );
+        first.addExtra( new TextComponent( "World!" ) );
+
+        TextComponent second = new TextComponent( "Hello, " );
+        second.addExtra( new TextComponent( "World!" ) );
+
+        Assert.assertEquals( first, second );
+    }
+
+    @Test
+    public void testNotEquals()
+    {
+        TextComponent first = new TextComponent( "Hello, " );
+        first.addExtra( new TextComponent( "World." ) );
+
+        TextComponent second = new TextComponent( "Hello, " );
+        second.addExtra( new TextComponent( "World!" ) );
+
+        Assert.assertNotEquals( first, second );
+    }
+
     private String fromAndToLegacyText(String legacyText)
     {
         return BaseComponent.toLegacyText( TextComponent.fromLegacyText( legacyText ) );
