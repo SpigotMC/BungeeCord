@@ -16,52 +16,72 @@ public interface ProxyConfig
 
     /**
      * Time before users are disconnected due to no network activity.
+     *
+     * @return timeout
      */
     int getTimeout();
 
     /**
      * UUID used for metrics.
+     *
+     * @return uuid
      */
     String getUuid();
 
     /**
      * Set of all listeners.
+     *
+     * @return listeners
      */
     Collection<ListenerInfo> getListeners();
 
     /**
      * Set of all servers.
+     *
+     * @return servers
      */
     Map<String, ServerInfo> getServers();
 
     /**
-     * Does the server authenticate with mojang
+     * Does the server authenticate with Mojang.
+     *
+     * @return online mode
      */
     boolean isOnlineMode();
 
     /**
-     * Whether proxy commands are logged to the proxy log
+     * Whether proxy commands are logged to the proxy log.
+     *
+     * @return log commands
      */
     boolean isLogCommands();
 
     /**
      * Returns the player max.
+     *
+     * @return player limit
      */
     int getPlayerLimit();
 
     /**
      * A collection of disabled commands.
+     *
+     * @return disabled commands
      */
     Collection<String> getDisabledCommands();
 
     /**
      * The connection throttle delay.
+     *
+     * @return throttle
      */
     @Deprecated
     int getThrottle();
 
     /**
      * Whether the proxy will parse IPs with spigot or not
+     *
+     * @return ip forward
      */
     @Deprecated
     boolean isIpForward();
@@ -69,6 +89,7 @@ public interface ProxyConfig
     /**
      * The encoded favicon.
      *
+     * @return favicon
      * @deprecated Use #getFaviconObject instead.
      */
     @Deprecated
@@ -76,6 +97,8 @@ public interface ProxyConfig
 
     /**
      * The favicon used for the server ping list.
+     *
+     * @return favicon
      */
     Favicon getFaviconObject();
 }

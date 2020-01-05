@@ -52,6 +52,8 @@ public abstract class ProxyServer
     /**
      * Gets a localized string from the .properties file.
      *
+     * @param name translation name
+     * @param args translation arguments
      * @return the localized string
      */
     public abstract String getTranslation(String name, Object... args);

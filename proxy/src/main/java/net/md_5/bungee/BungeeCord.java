@@ -242,7 +242,7 @@ public class BungeeCord extends ProxyServer
      * Start this proxy instance by loading the configuration, plugins and
      * starting the connect thread.
      *
-     * @throws Exception
+     * @throws Exception any critical errors encountered
      */
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public void start() throws Exception
