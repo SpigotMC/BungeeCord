@@ -116,9 +116,9 @@ public final class ComponentBuilder
      *
      * @param pos the cursor position synonymous to an element position for a
      * list
+     * @return this ComponentBuilder for chaining
      * @throws IndexOutOfBoundsException if the index is out of range
      * ({@code index < 0 || index >= size()})
-     * @return this ComponentBuilder for chaining
      */
     public ComponentBuilder setCursor(int pos) throws IndexOutOfBoundsException
     {
