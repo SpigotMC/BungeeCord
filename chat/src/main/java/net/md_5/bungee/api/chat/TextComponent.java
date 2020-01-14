@@ -179,6 +179,7 @@ public final class TextComponent extends BaseComponent
         }
         if ( extras.length == 1 && extras[0] instanceof TextComponent )
         {
+            copyFormatting( extras[0], ComponentBuilder.FormatRetention.ALL, true );
             setText( ( (TextComponent) extras[0] ).getText() );
             List<BaseComponent> headExtra = extras[0].getExtra();
             if ( headExtra != null )
