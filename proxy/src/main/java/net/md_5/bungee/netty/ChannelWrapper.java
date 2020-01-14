@@ -81,14 +81,6 @@ public class ChannelWrapper
             if ( packet != null && ch.isActive() )
             {
                 ch.writeAndFlush( packet ).addListeners( ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE, ChannelFutureListener.CLOSE );
-                ch.eventLoop().schedule( new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        ch.close();
-                    }
-                }, 250, TimeUnit.MILLISECONDS );
             } else
             {
                 ch.flush();
