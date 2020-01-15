@@ -173,27 +173,12 @@ public final class TextComponent extends BaseComponent
      */
     public TextComponent(BaseComponent... extras)
     {
+        this();
         if ( extras.length == 0 )
         {
             return;
         }
-        if ( extras.length == 1 && extras[0] instanceof TextComponent )
-        {
-            copyFormatting( extras[0], ComponentBuilder.FormatRetention.ALL, true );
-            setText( ( (TextComponent) extras[0] ).getText() );
-            List<BaseComponent> headExtra = extras[0].getExtra();
-            if ( headExtra != null )
-            {
-                for ( BaseComponent extra : headExtra )
-                {
-                    addExtra( extra.duplicate() );
-                }
-            }
-        } else
-        {
-            setText( "" );
-            setExtra( new ArrayList<BaseComponent>( Arrays.asList( extras ) ) );
-        }
+        setExtra( new ArrayList<BaseComponent>( Arrays.asList( extras ) ) );
     }
 
     /**
