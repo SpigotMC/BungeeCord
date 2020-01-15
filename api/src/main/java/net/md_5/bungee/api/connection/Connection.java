@@ -1,6 +1,7 @@
 package net.md_5.bungee.api.connection;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.DefinedPacket;
 
@@ -16,8 +17,17 @@ public interface Connection
      * Gets the remote address of this connection.
      *
      * @return the remote address
+     * @deprecated BungeeCord can accept connections via Unix domain sockets
      */
+    @Deprecated
     InetSocketAddress getAddress();
+
+    /**
+     * Gets the remote address of this connection.
+     *
+     * @return the remote address
+     */
+    SocketAddress getSocketAddress();
 
     /**
      * Disconnects this end of the connection for the specified reason. If this

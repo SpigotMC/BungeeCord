@@ -2,7 +2,9 @@ package net.md_5.bungee;
 
 import com.google.common.base.Joiner;
 import com.google.common.primitives.UnsignedLongs;
+import io.netty.channel.unix.DomainSocketAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
@@ -21,15 +23,30 @@ public class Util
      * @param hostline in the format of 'host:port'
      * @return the constructed hostname + port.
      */
-    public static InetSocketAddress getAddr(String hostline)
+    public static SocketAddress getAddr(String hostline)
     {
-        URI uri;
+        URI uri = null;
         try
         {
-            uri = new URI( "tcp://" + hostline );
+            uri = new URI( hostline );
         } catch ( URISyntaxException ex )
         {
-            throw new IllegalArgumentException( "Bad hostline: " + hostline, ex );
+        }
+
+        if ( uri != null && "unix".equals( uri.getScheme() ) )
+        {
+            return new DomainSocketAddress( uri.getPath() );
+        }
+
+        if ( uri == null || uri.getHost() == null )
+        {
+            try
+            {
+                uri = new URI( "tcp://" + hostline );
+            } catch ( URISyntaxException ex )
+            {
+                throw new IllegalArgumentException( "Bad hostline: " + hostline, ex );
+            }
         }
 
         if ( uri.getHost() == null )

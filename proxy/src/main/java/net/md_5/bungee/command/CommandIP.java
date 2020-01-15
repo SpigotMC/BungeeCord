@@ -26,7 +26,7 @@ public class CommandIP extends PlayerCommand
             sender.sendMessage( ProxyServer.getInstance().getTranslation( "user_not_online" ) );
         } else
         {
-            sender.sendMessage( ProxyServer.getInstance().getTranslation( "command_ip", args[0], user.getAddress() ) );
+            sender.sendMessage( ProxyServer.getInstance().getTranslation( "command_ip", args[0], user.getSocketAddress() ) );
         }
     }
 }

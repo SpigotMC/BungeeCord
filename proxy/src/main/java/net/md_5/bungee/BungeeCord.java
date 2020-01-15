@@ -23,6 +23,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -304,7 +305,7 @@ public class BungeeCord extends ProxyServer
         {
             if ( info.isProxyProtocol() )
             {
-                getLogger().log( Level.WARNING, "Using PROXY protocol for listener {0}, please ensure this listener is adequately firewalled.", info.getHost() );
+                getLogger().log( Level.WARNING, "Using PROXY protocol for listener {0}, please ensure this listener is adequately firewalled.", info.getSocketAddress() );
 
                 if ( connectionThrottle != null )
                 {
@@ -321,24 +322,26 @@ public class BungeeCord extends ProxyServer
                     if ( future.isSuccess() )
                     {
                         listeners.add( future.channel() );
-                        getLogger().log( Level.INFO, "Listening on {0}", info.getHost() );
+                        getLogger().log( Level.INFO, "Listening on {0}", info.getSocketAddress() );
                     } else
                     {
-                        getLogger().log( Level.WARNING, "Could not bind to host " + info.getHost(), future.cause() );
+                        getLogger().log( Level.WARNING, "Could not bind to host " + info.getSocketAddress(), future.cause() );
                     }
                 }
             };
             new ServerBootstrap()
-                    .channel( PipelineUtils.getServerChannel() )
+                    .channel( PipelineUtils.getServerChannel( info.getSocketAddress() ) )
                     .option( ChannelOption.SO_REUSEADDR, true ) // TODO: Move this elsewhere!
                     .childAttr( PipelineUtils.LISTENER, info )
                     .childHandler( PipelineUtils.SERVER_CHILD )
                     .group( eventLoops )
-                    .localAddress( info.getHost() )
+                    .localAddress( info.getSocketAddress() )
                     .bind().addListener( listener );
 
             if ( info.isQueryEnabled() )
             {
+                Preconditions.checkArgument( info.getSocketAddress() instanceof InetSocketAddress, "Can only create query listener on UDP address" );
+
                 ChannelFutureListener bindListener = new ChannelFutureListener()
                 {
                     @Override
@@ -350,7 +353,7 @@ public class BungeeCord extends ProxyServer
                             getLogger().log( Level.INFO, "Started query on {0}", future.channel().localAddress() );
                         } else
                         {
-                            getLogger().log( Level.WARNING, "Could not bind to host " + info.getHost(), future.cause() );
+                            getLogger().log( Level.WARNING, "Could not bind to host " + info.getSocketAddress(), future.cause() );
                         }
                     }
                 };
@@ -643,6 +646,12 @@ public class BungeeCord extends ProxyServer
 
     @Override
     public ServerInfo constructServerInfo(String name, InetSocketAddress address, String motd, boolean restricted)
+    {
+        return constructServerInfo( name, (SocketAddress) address, motd, restricted );
+    }
+
+    @Override
+    public ServerInfo constructServerInfo(String name, SocketAddress address, String motd, boolean restricted)
     {
         return new BungeeServerInfo( name, address, motd, restricted );
     }
