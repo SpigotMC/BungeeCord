@@ -2,6 +2,7 @@ package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -65,6 +66,12 @@ public class ServerConnection implements Server
 
     @Override
     public InetSocketAddress getAddress()
+    {
+        return (InetSocketAddress) getSocketAddress();
+    }
+
+    @Override
+    public SocketAddress getSocketAddress()
     {
         return getInfo().getAddress();
     }

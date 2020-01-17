@@ -7,7 +7,6 @@ import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
 import ru.leymooo.botfilter.packets.TeleportConfirm;
 
 /**
- *
  * @author Leymooo
  */
 public class MoveHandler extends PacketHandler

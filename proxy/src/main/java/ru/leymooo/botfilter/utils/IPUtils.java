@@ -1,6 +1,7 @@
 package ru.leymooo.botfilter.utils;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 import net.md_5.bungee.BungeeCord;
@@ -8,7 +9,6 @@ import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.netty.ChannelWrapper;
 
 /**
- *
  * @author Leymooo
  */
 public class IPUtils
@@ -21,9 +21,7 @@ public class IPUtils
 
     public static InetAddress getAddress(ChannelWrapper wrapper)
     {
-        return wrapper.
-                getRemoteAddress().
-                getAddress();
+        return ((InetSocketAddress)wrapper.getRemoteAddress()).getAddress(); //TODO unix socket
     }
 
     public static InetAddress getAddress(String ip)

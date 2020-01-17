@@ -5,7 +5,6 @@ import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
 
 /**
- *
  * @author Leymooo
  */
 public class CachedPacket

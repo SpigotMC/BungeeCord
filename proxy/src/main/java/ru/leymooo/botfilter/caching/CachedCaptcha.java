@@ -5,7 +5,6 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 import ru.leymooo.botfilter.packets.MapDataPacket;
 
 /**
- *
  * @author Leymooo
  */
 public class CachedCaptcha
@@ -55,14 +54,5 @@ public class CachedCaptcha
         {
             return byteBuf115[captcha - 100].retainedDuplicate();
         }
-    }
-
-    /**
-     * (Only for tests) do not use this
-     *
-     */
-    public ByteBuf getCopy()
-    {
-        return byteBuf18[800 - 100].copy();
     }
 }

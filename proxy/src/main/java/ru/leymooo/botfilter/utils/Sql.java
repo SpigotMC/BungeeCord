@@ -18,7 +18,6 @@ import ru.leymooo.botfilter.config.Settings;
 import ru.leymooo.botfilter.config.Settings.SQL;
 
 /**
- *
  * @author Leymooo
  */
 public class Sql

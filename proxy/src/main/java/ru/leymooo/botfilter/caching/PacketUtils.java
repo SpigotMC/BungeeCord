@@ -27,7 +27,6 @@ import ru.leymooo.botfilter.packets.SetSlot;
 import ru.leymooo.botfilter.packets.TimeUpdate;
 
 /**
- *
  * @author Leymooo
  */
 public class PacketUtils

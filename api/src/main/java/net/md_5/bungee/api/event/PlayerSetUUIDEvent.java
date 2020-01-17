@@ -8,7 +8,6 @@ import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.plugin.Event;
 
 /**
- *
  * @author Leymooo
  */
 @Data

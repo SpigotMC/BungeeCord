@@ -6,7 +6,6 @@ import ru.leymooo.botfilter.Connector;
 import ru.leymooo.botfilter.packets.SetExp;
 
 /**
- *
  * @author Leymooo
  */
 public class CachedExpPackets

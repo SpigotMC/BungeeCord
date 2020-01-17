@@ -8,7 +8,6 @@ import ru.leymooo.botfilter.BotFilter;
 import ru.leymooo.botfilter.config.Settings;
 
 /**
- *
  * @author Leymooo
  */
 public class ServerPingUtils

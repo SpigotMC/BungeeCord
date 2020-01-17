@@ -6,6 +6,8 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 
 public class ConnectionThrottle
@@ -38,14 +40,26 @@ public class ConnectionThrottle
         this.throttleLimit = throttleLimit;
     }
 
-    public void unthrottle(InetAddress address)
+    public void unthrottle(SocketAddress socketAddress)
     {
+        if ( !( socketAddress instanceof InetSocketAddress ) )
+        {
+            return;
+        }
+
+        InetAddress address = ( (InetSocketAddress) socketAddress ).getAddress();
         int throttleCount = throttle.getUnchecked( address ) - 1;
         throttle.put( address, throttleCount );
     }
 
-    public boolean throttle(InetAddress address)
+    public boolean throttle(SocketAddress socketAddress)
     {
+        if ( !( socketAddress instanceof InetSocketAddress ) )
+        {
+            return false;
+        }
+
+        InetAddress address = ( (InetSocketAddress) socketAddress ).getAddress();
         int throttleCount = throttle.getUnchecked( address ) + 1;
         throttle.put( address, throttleCount );
 

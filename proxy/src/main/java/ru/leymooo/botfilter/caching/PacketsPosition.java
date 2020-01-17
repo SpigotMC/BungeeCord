@@ -1,7 +1,6 @@
 package ru.leymooo.botfilter.caching;
 
 /**
- *
  * @author Leymooo
  */
 public final class PacketsPosition

@@ -10,7 +10,6 @@ import net.md_5.bungee.protocol.packet.Title;
 import ru.leymooo.botfilter.config.Settings;
 
 /**
- *
  * @author Leymooo
  */
 public class CachedTitle

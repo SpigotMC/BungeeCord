@@ -21,6 +21,16 @@
     </module>
 
     <module name="TreeWalker">
+        <!-- See https://checkstyle.org/config_javadoc.html -->
+        <module name="AtclauseOrder"/>
+        <module name="InvalidJavadocPosition"/>
+        <module name="JavadocBlockTagLocation"/>
+        <module name="JavadocContentLocationCheck"/>
+        <module name="JavadocMethod"/>
+        <module name="JavadocType"/>
+        <module name="MissingJavadocPackage"/>
+        <module name="NonEmptyAtclauseDescription"/>
+
         <!-- See http://checkstyle.sourceforge.net/config_filters.html -->
         <module name="SuppressionCommentFilter"/>
 

@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.util.List;
@@ -242,7 +243,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                         unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
                         if ( bungee.getConnectionThrottle() != null )
                         {
-                            bungee.getConnectionThrottle().unthrottle( getAddress().getAddress() );
+                            bungee.getConnectionThrottle().unthrottle( getSocketAddress() );
                         }
                     }
                 };
@@ -303,26 +304,22 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         this.virtualHost = InetSocketAddress.createUnresolved( handshake.getHost(), handshake.getPort() );
 
-        if ( bungee.getConfig().isLogPings() )
-        {
-            bungee.getLogger().log( Level.INFO, "{0} has connected", this );
-        }
-
         bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
         switch ( handshake.getRequestedProtocol() )
         {
             case 1:
                 // Ping
+                if ( bungee.getConfig().isLogPings() )
+                {
+                    bungee.getLogger().log( Level.INFO, "{0} has pinged", this );
+                }
                 thisState = State.STATUS;
                 ch.setProtocol( Protocol.STATUS );
                 bungee.getBotFilter().getServerPingUtils().add( getAddress().getAddress() ); //BotFilter
                 break;
             case 2:
                 // Login
-                if ( !bungee.getConfig().isLogPings() )
-                {
-                    bungee.getLogger().log( Level.INFO, "{0} has connected", this );
-                }
+                bungee.getLogger().log( Level.INFO, "{0} has connected", this );
                 thisState = State.USERNAME;
                 ch.setProtocol( Protocol.LOGIN );
 
@@ -445,7 +442,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
         String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
 
-        String preventProxy = ( ( BungeeCord.getInstance().config.isPreventProxyConnections() ) ? "&ip=" + URLEncoder.encode( getAddress().getAddress().getHostAddress(), "UTF-8" ) : "" );
+        String preventProxy = ( BungeeCord.getInstance().config.isPreventProxyConnections() && getSocketAddress() instanceof InetSocketAddress ) ? "&ip=" + URLEncoder.encode( getAddress().getAddress().getHostAddress(), "UTF-8" ) : "";
         String authURL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" + encName + "&serverId=" + encodedHash + preventProxy;
 
         Callback<String> handler = new Callback<String>()
@@ -678,6 +675,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public InetSocketAddress getAddress()
     {
+        return (InetSocketAddress) getSocketAddress();
+    }
+
+    @Override
+    public SocketAddress getSocketAddress()
+    {
         return ch.getRemoteAddress();
     }
 
@@ -711,7 +714,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public String toString()
     {
-        return "[" + ( ( getName() != null ) ? getName() : getAddress() ) + "] <-> InitialHandler";
+        return "[" + ( ( getName() != null ) ? getName() : getSocketAddress() ) + "] <-> InitialHandler";
     }
 
     @Override

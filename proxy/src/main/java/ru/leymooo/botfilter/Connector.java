@@ -26,7 +26,6 @@ import ru.leymooo.botfilter.utils.IPUtils;
 import ru.leymooo.botfilter.utils.ManyChecksUtils;
 
 /**
- *
  * @author Leymooo
  */
 @EqualsAndHashCode(callSuper = false, of =

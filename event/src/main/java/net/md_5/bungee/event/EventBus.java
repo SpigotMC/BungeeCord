@@ -166,6 +166,8 @@ public class EventBus
      * Shouldn't be called without first locking the writeLock; intended for use
      * only inside {@link #register(java.lang.Object) register(Object)} or
      * {@link #unregister(java.lang.Object) unregister(Object)}.
+     *
+     * @param eventClass event class
      */
     private void bakeHandlers(Class<?> eventClass)
     {

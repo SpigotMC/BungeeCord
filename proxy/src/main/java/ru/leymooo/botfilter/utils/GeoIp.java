@@ -24,7 +24,6 @@ import net.md_5.bungee.BungeeCord;
 import ru.leymooo.botfilter.config.Settings;
 
 /**
- *
  * @author Leymooo
  */
 public class GeoIp

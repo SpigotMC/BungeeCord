@@ -5,7 +5,6 @@ import lombok.Getter;
 import net.md_5.bungee.BungeeCord;
 
 /**
- *
  * @author Leymooo
  */
 public class FakeOnlineUtils

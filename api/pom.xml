@@ -43,5 +43,11 @@
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-native-unix-common</artifactId>
+            <version>${netty.version}</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

@@ -122,7 +122,7 @@ public class Config
     /**
      * Set all values in the file (load first to avoid overwriting)
      *
-     * @param file
+     * @param file file
      */
     public void save(File file)
     {
@@ -295,7 +295,7 @@ public class Config
      *
      * @param split the node (split by period)
      * @param instance the instance
-     * @return
+     * @return Field field
      */
     private Field getField(String[] split, Object instance)
     {
@@ -318,6 +318,7 @@ public class Config
      * Get the instance for a specific config node
      *
      * @param split the node (split by period)
+     * @param root the root class
      * @return The instance or null
      */
     private Object getInstance(String[] split, Class root)
@@ -373,8 +374,8 @@ public class Config
     /**
      * Translate a node to a java field name
      *
-     * @param node
-     * @return
+     * @param node node to translate
+     * @return java field name
      */
     private String toFieldName(String node)
     {
@@ -384,8 +385,8 @@ public class Config
     /**
      * Translate a field to a config node
      *
-     * @param field
-     * @return
+     * @param field to translate
+     * @return config node name
      */
     private String toNodeName(String field)
     {
@@ -395,9 +396,9 @@ public class Config
     /**
      * Set some field to be accesible
      *
-     * @param field
-     * @throws NoSuchFieldException
-     * @throws IllegalAccessException
+     * @param field to be accesible
+     * @throws NoSuchFieldException ...
+     * @throws IllegalAccessException ...
      */
     private void setAccessible(Field field) throws NoSuchFieldException, IllegalAccessException
     {

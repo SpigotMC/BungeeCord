@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -220,10 +221,17 @@ public class YamlConfig implements ConfigurationAdapter
             String addr = get( "address", "localhost:25551", val );
             String motd = ChatColor.translateAlternateColorCodes( '&', get( "motd", "&1Just another BungeeCord - Forced Host", val ) );
             boolean restricted = get( "restricted", false, val );
-            InetSocketAddress address = Util.getAddr( addr );
+            SocketAddress address = Util.getAddr( addr );
             Matcher matcher = YamlConfig.RANGE_MATCH.matcher( name );
             if ( matcher.find() )
             {
+                if (!(address instanceof InetSocketAddress)) {
+                    BungeeCord.getInstance().getLogger().warning("Could not use range for servers " + name );
+                    ServerInfo info = ProxyServer.getInstance().constructServerInfo( name, address, motd, restricted );
+                    ret.put( name, info );
+                    continue;
+                }
+
                 name = matcher.group( 1 );
                 int lower = Integer.parseInt( matcher.group( 2 ) );
                 int upper = Integer.parseInt( matcher.group( 3 ) );
@@ -231,18 +239,18 @@ public class YamlConfig implements ConfigurationAdapter
                 {
                     "[" + lower + ".." + upper + "]", name
                 } );
-                int port = address.getPort();
+                int port = ((InetSocketAddress) address).getPort();
                 for ( int i = lower; i <= upper; ++i )
                 {
-                    InetSocketAddress next = new InetSocketAddress( address.getHostName(), port );
+                    InetSocketAddress next = new InetSocketAddress( ((InetSocketAddress) address).getHostName(), port ); //todo, check how unix socket works
                     ServerInfo info = BungeeCord.getInstance().constructServerInfo( name + i, next, motd, false );
                     ret.put( info.getName(), info );
                     port++;
                 }
             } else
             {
-                ServerInfo info = ProxyServer.getInstance().constructServerInfo( name, address, motd, restricted );
-                ret.put( name, info );
+                ServerInfo info = ProxyServer.getInstance().constructServerInfo(name, address, motd, restricted);
+                ret.put(name, info);
             }
         }
 
@@ -272,7 +280,7 @@ public class YamlConfig implements ConfigurationAdapter
             boolean forceDefault = get( "force_default_server", false, val );
             String host = get( "host", "0.0.0.0:25577", val );
             int tabListSize = get( "tab_size", 60, val );
-            InetSocketAddress address = Util.getAddr( host );
+            SocketAddress address = Util.getAddr( host );
             Map<String, String> forced = new CaseInsensitiveMap<>( get( "forced_hosts", forcedDef, val ) );
             String tabListName = get( "tab_list", "GLOBAL_PING", val );
             DefaultTabList value = DefaultTabList.valueOf( tabListName.toUpperCase( Locale.ROOT ) );

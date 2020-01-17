@@ -6,7 +6,6 @@ import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
 
 /**
- *
  * @author Leymooo
  */
 public class ManyChecksUtils

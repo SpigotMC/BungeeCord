@@ -1,7 +1,6 @@
 package ru.leymooo.botfilter.utils;
 
 /**
- *
  * @author Leymooo
  */
 public final class PingLimiter

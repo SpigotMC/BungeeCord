@@ -16,7 +16,6 @@ import ru.leymooo.botfilter.captcha.generator.map.MapPalette;
 import ru.leymooo.botfilter.packets.MapDataPacket;
 
 /**
- *
  * @author Leymooo
  */
 public class CaptchaGeneration

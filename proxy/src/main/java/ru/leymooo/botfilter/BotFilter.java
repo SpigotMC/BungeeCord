@@ -33,7 +33,6 @@ import ru.leymooo.botfilter.utils.ServerPingUtils;
 import ru.leymooo.botfilter.utils.Sql;
 
 /**
- *
  * @author Leymooo
  */
 public class BotFilter
@@ -133,7 +132,7 @@ public class BotFilter
     /**
      * Добавляет игрока в мапу
      *
-     * @param connector
+     * @param connector connector
      */
     public void addConnection(Connector connector)
     {
@@ -178,6 +177,7 @@ public class BotFilter
     }
 
     /**
+     * Количество пользователей, которые прошли проверку
      *
      * @return количество пользователей, которые прошли проверку
      */

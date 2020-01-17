@@ -6,6 +6,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -41,7 +42,7 @@ public class BungeeServerInfo implements ServerInfo
     @Getter
     private final String name;
     @Getter
-    private final InetSocketAddress address;
+    private final SocketAddress socketAddress;
     private final Collection<ProxiedPlayer> players = new ArrayList<>();
     @Getter
     private final String motd;
@@ -91,7 +92,7 @@ public class BungeeServerInfo implements ServerInfo
     @Override
     public int hashCode()
     {
-        return address.hashCode();
+        return socketAddress.hashCode();
     }
 
     @Override
@@ -123,6 +124,12 @@ public class BungeeServerInfo implements ServerInfo
     }
 
     @Override
+    public InetSocketAddress getAddress()
+    {
+        return (InetSocketAddress) socketAddress;
+    }
+
+    @Override
     public void ping(final Callback<ServerPing> callback)
     {
         ping( callback, ProxyServer.getInstance().getProtocolVersion() );
@@ -147,11 +154,11 @@ public class BungeeServerInfo implements ServerInfo
             }
         };
         new Bootstrap()
-                .channel( PipelineUtils.getChannel() )
+                .channel( PipelineUtils.getChannel(socketAddress) )
                 .group( BungeeCord.getInstance().workerEventLoopGroup ) //BotFilter //WaterFall backport
                 .handler( PipelineUtils.BASE )
                 .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000 ) // TODO: Configurable
-                .remoteAddress( getAddress() )
+                .remoteAddress( socketAddress )
                 .connect()
                 .addListener( listener );
     }

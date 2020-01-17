@@ -1,6 +1,7 @@
 package net.md_5.bungee.api;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Collection;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -15,6 +16,12 @@ public class ServerConnectRequestTest
     {
         @Override
         public String getName()
+        {
+            return null;
+        }
+
+        @Override
+        public SocketAddress getSocketAddress()
         {
             return null;
         }

@@ -12,7 +12,6 @@ import ru.leymooo.botfilter.utils.ManyChecksUtils;
 
 
 /**
- *
  * @author Leymooo
  */
 public class BotFilterThread
