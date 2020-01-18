@@ -45,6 +45,11 @@ public interface ProxyConfig
     boolean isLogCommands();
 
     /**
+     * Time in milliseconds to cache ping info
+     */
+    int getPingCache();
+
+    /**
      * Returns the player max.
      */
     int getPlayerLimit();

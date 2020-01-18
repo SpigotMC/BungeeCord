@@ -122,6 +122,19 @@ public class BungeeServerInfo implements ServerInfo
         }
     }
 
+    private long lastPing;
+    private ServerPing cachedPing;
+
+    public void cachePing( ServerPing serverPing )
+    {
+        if ( ProxyServer.getInstance().getConfig().getPingCache() == -1 )
+        {
+            return;
+        }
+        this.cachedPing = serverPing;
+        this.lastPing = System.currentTimeMillis();
+    }
+
     @Override
     public void ping(final Callback<ServerPing> callback)
     {
@@ -131,6 +144,18 @@ public class BungeeServerInfo implements ServerInfo
     public void ping(final Callback<ServerPing> callback, final int protocolVersion)
     {
         Preconditions.checkNotNull( callback, "callback" );
+
+        int pingCache = ProxyServer.getInstance().getConfig().getPingCache();
+        if ( pingCache != -1 && cachedPing != null && ( lastPing - System.currentTimeMillis() ) > pingCache )
+        {
+            cachedPing = null;
+        }
+
+        if ( cachedPing != null )
+        {
+            callback.done( cachedPing, null );
+            return;
+        }
 
         ChannelFutureListener listener = new ChannelFutureListener()
         {
