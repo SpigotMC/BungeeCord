@@ -72,11 +72,15 @@ public interface ProxyConfig
 
     /**
      * Time in milliseconds before timing out a clients server connect request
+     *
+     * @return connect timeout
      */
     int getConnectTimeout();
 
     /**
      * Time in milliseconds before timing out a clients ping
+     *
+     * @return ping timeout
      */
     int getPingTimeout();
 
