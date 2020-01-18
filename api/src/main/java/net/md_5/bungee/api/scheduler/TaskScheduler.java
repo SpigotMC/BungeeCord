@@ -86,6 +86,7 @@ public interface TaskScheduler
         /**
          * An executor service which underlies this scheduler.
          *
+         * @param plugin owning plugin
          * @return the underlying executor service or compatible wrapper
          */
         ExecutorService getExecutorService(Plugin plugin);

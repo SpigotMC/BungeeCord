@@ -67,6 +67,7 @@ public class ForgeServerHandler
      * Receives a {@link PluginMessage} from ForgeClientData to pass to Server.
      *
      * @param message The message to being received.
+     * @throws IllegalArgumentException if invalid packet received
      */
     public void receive(PluginMessage message) throws IllegalArgumentException
     {

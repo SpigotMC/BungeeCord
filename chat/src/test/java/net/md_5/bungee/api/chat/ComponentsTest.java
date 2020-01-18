@@ -12,15 +12,111 @@ public class ComponentsTest
 {
 
     @Test
+    public void testEmptyComponentBuilder()
+    {
+        ComponentBuilder builder = new ComponentBuilder();
+
+        BaseComponent[] parts = builder.create();
+        Assert.assertEquals( parts.length, 0 );
+
+        for ( int i = 0; i < 3; i++ )
+        {
+            builder.append( "part:" + i );
+            parts = builder.create();
+            Assert.assertEquals( parts.length, i + 1 );
+        }
+    }
+
+    @Test
+    public void testDummyRetaining()
+    {
+        ComponentBuilder builder = new ComponentBuilder();
+        Assert.assertNotNull( builder.getCurrentComponent() );
+        builder.color( ChatColor.GREEN );
+        builder.append( "test ", ComponentBuilder.FormatRetention.ALL );
+        Assert.assertEquals( builder.getCurrentComponent().getColor(), ChatColor.GREEN );
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testComponentGettingExceptions()
+    {
+        ComponentBuilder builder = new ComponentBuilder();
+        builder.getComponent( -1 );
+        builder.getComponent( 0 );
+        builder.getComponent( 1 );
+        BaseComponent component = new TextComponent( "Hello" );
+        builder.append( component );
+        Assert.assertEquals( builder.getComponent( 0 ), component );
+        builder.getComponent( 1 );
+    }
+
+    @Test
+    public void testComponentParting()
+    {
+        ComponentBuilder builder = new ComponentBuilder();
+        TextComponent apple = new TextComponent( "apple" );
+        builder.append( apple );
+        Assert.assertEquals( builder.getCurrentComponent(), apple );
+        Assert.assertEquals( builder.getComponent( 0 ), apple );
+
+        TextComponent mango = new TextComponent( "mango" );
+        TextComponent orange = new TextComponent( "orange" );
+        builder.append( mango );
+        builder.append( orange );
+        builder.removeComponent( 1 ); // Removing mango
+        Assert.assertEquals( builder.getComponent( 0 ), apple );
+        Assert.assertEquals( builder.getComponent( 1 ), orange );
+    }
+
+    @Test
+    public void testToLegacyFromLegacy()
+    {
+        String text = "§a§lHello §f§kworld§7!";
+        Assert.assertEquals( text, TextComponent.toLegacyText( TextComponent.fromLegacyText( text ) ) );
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testComponentBuilderCursorInvalidPos()
+    {
+        ComponentBuilder builder = new ComponentBuilder();
+        builder.append( new TextComponent( "Apple, " ) );
+        builder.append( new TextComponent( "Orange, " ) );
+        builder.setCursor( -1 );
+        builder.setCursor( 2 );
+    }
+
+    @Test
+    public void testComponentBuilderCursor()
+    {
+        TextComponent t1, t2, t3;
+        ComponentBuilder builder = new ComponentBuilder();
+        Assert.assertEquals( builder.getCursor(), -1 );
+        builder.append( t1 = new TextComponent( "Apple, " ) );
+        Assert.assertEquals( builder.getCursor(), 0 );
+        builder.append( t2 = new TextComponent( "Orange, " ) );
+        builder.append( t3 = new TextComponent( "Mango, " ) );
+        Assert.assertEquals( builder.getCursor(), 2 );
+
+        builder.setCursor( 0 );
+        Assert.assertEquals( builder.getCurrentComponent(), t1 );
+
+        // Test that appending new components updates the position to the new list size
+        // after having previously set it to 0 (first component)
+        builder.append( new TextComponent( "and Grapefruit" ) );
+        Assert.assertEquals( builder.getCursor(), 3 );
+
+        builder.setCursor( 0 );
+        builder.resetCursor();
+        Assert.assertEquals( builder.getCursor(), 3 );
+    }
+
+    @Test
     public void testLegacyComponentBuilderAppend()
     {
         String text = "§a§lHello §r§kworld§7!";
         BaseComponent[] components = TextComponent.fromLegacyText( text );
-        BaseComponent[] builderComponents = new ComponentBuilder( "" ).append( components ).create();
+        BaseComponent[] builderComponents = new ComponentBuilder().append( components ).create();
         List<BaseComponent> list = new ArrayList<BaseComponent>( Arrays.asList( builderComponents ) );
-        // Remove the first element (empty text component). This needs to be done because toLegacyText always
-        // appends &f regardless if the color is non null or not and would otherwise mess with our unit test.
-        list.remove( 0 );
         Assert.assertEquals(
                 TextComponent.toLegacyText( components ),
                 TextComponent.toLegacyText( list.toArray( new BaseComponent[ list.size() ] ) )
@@ -28,7 +124,7 @@ public class ComponentsTest
     }
 
     @Test
-    public void testComponentFormatRetention()
+    public void testFormatRetentionCopyFormatting()
     {
         TextComponent first = new TextComponent( "Hello" );
         first.setBold( true );
@@ -47,7 +143,7 @@ public class ComponentsTest
     @Test
     public void testBuilderClone()
     {
-        ComponentBuilder builder = new ComponentBuilder( "Hel" ).color( ChatColor.RED ).append( "lo" ).color( ChatColor.DARK_RED );
+        ComponentBuilder builder = new ComponentBuilder( "Hello " ).color( ChatColor.RED ).append( "world" ).color( ChatColor.DARK_RED );
         ComponentBuilder cloned = new ComponentBuilder( builder );
 
         Assert.assertEquals( TextComponent.toLegacyText( builder.create() ), TextComponent.toLegacyText( cloned.create() ) );
@@ -311,6 +407,30 @@ public class ComponentsTest
 
         // color code should not be lost during conversion
         Assert.assertEquals( text, roundtripLegacyText );
+    }
+
+    @Test
+    public void testEquals()
+    {
+        TextComponent first = new TextComponent( "Hello, " );
+        first.addExtra( new TextComponent( "World!" ) );
+
+        TextComponent second = new TextComponent( "Hello, " );
+        second.addExtra( new TextComponent( "World!" ) );
+
+        Assert.assertEquals( first, second );
+    }
+
+    @Test
+    public void testNotEquals()
+    {
+        TextComponent first = new TextComponent( "Hello, " );
+        first.addExtra( new TextComponent( "World." ) );
+
+        TextComponent second = new TextComponent( "Hello, " );
+        second.addExtra( new TextComponent( "World!" ) );
+
+        Assert.assertNotEquals( first, second );
     }
 
     private String fromAndToLegacyText(String legacyText)

@@ -15,7 +15,9 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.unix.DomainSocketAddress;
 import java.io.DataInput;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -359,8 +361,15 @@ public class DownstreamBridge extends PacketHandler
             if ( subChannel.equals( "IP" ) )
             {
                 out.writeUTF( "IP" );
-                out.writeUTF( con.getAddress().getHostString() );
-                out.writeInt( con.getAddress().getPort() );
+                if ( con.getSocketAddress() instanceof InetSocketAddress )
+                {
+                    out.writeUTF( con.getAddress().getHostString() );
+                    out.writeInt( con.getAddress().getPort() );
+                } else
+                {
+                    out.writeUTF( "unix://" + ( (DomainSocketAddress) con.getSocketAddress() ).path() );
+                    out.writeInt( 0 );
+                }
             }
             if ( subChannel.equals( "PlayerCount" ) )
             {
