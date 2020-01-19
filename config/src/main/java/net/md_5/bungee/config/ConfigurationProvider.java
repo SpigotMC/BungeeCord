@@ -5,25 +5,30 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
 public abstract class ConfigurationProvider
 {
 
-    private static final Map<Class<? extends ConfigurationProvider>, ConfigurationProvider> providers = new HashMap<>();
-
-    static
-    {
-        providers.put( YamlConfiguration.class, new YamlConfiguration() );
+    /**
+     * @deprecated Please use ConfigurationManager
+     * @param clazz The class
+     * @return The configuration provider
+     */
+    @Deprecated
+    public static ConfigurationProvider getProvider(Class<? extends ConfigurationProvider> clazz){
+        try {
+            return ConfigurationManager.getInstance().getProvider(clazz);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    public static ConfigurationProvider getProvider(Class<? extends ConfigurationProvider> provider)
-    {
-        return providers.get( provider );
-    }
 
-    /*------------------------------------------------------------------------*/
+
     public abstract void save(Configuration config, File file) throws IOException;
 
     public abstract void save(Configuration config, Writer writer);
