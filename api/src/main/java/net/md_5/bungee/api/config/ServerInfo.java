@@ -33,9 +33,8 @@ public interface ServerInfo
     InetSocketAddress getAddress();
 
     /**
-     * Gets the connectable address this server. Implementations
-     * expect this to be used as the unique identifier per each instance of this
-     * class.
+     * Gets the connectable address for this server. Implementations expect this
+     * to be used as the unique identifier per each instance of this class.
      *
      * @return the address for this server
      */
