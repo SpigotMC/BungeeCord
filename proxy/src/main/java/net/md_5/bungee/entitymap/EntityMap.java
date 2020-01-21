@@ -58,6 +58,7 @@ public abstract class EntityMap
                 return EntityMap_1_14.INSTANCE;
             case ProtocolConstants.MINECRAFT_1_15:
             case ProtocolConstants.MINECRAFT_1_15_1:
+            case ProtocolConstants.MINECRAFT_1_15_2:
                 return EntityMap_1_15.INSTANCE;
         }
         throw new RuntimeException( "Version " + version + " has no entity map" );
@@ -254,11 +255,11 @@ public abstract class EntityMap
                     try
                     {
                         new NBTInputStream( new ByteBufInputStream( packet ), false ).readTag();
-                    } catch ( IOException ex )
-                    {
-                        throw new RuntimeException( ex );
-                    }
-                    break;
+                } catch ( IOException ex )
+                {
+                    throw new RuntimeException( ex );
+                }
+                break;
                 case 15:
                     DefinedPacket.readVarInt( packet );
                     DefinedPacket.readVarInt( packet );
