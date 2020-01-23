@@ -127,7 +127,7 @@ public class BungeeServerInfo implements ServerInfo
 
     public void cachePing( ServerPing serverPing )
     {
-        if ( ProxyServer.getInstance().getConfig().getPingCache() == -1 )
+        if ( ProxyServer.getInstance().getConfig().getRemotePingCache() == -1 )
         {
             return;
         }
@@ -145,7 +145,7 @@ public class BungeeServerInfo implements ServerInfo
     {
         Preconditions.checkNotNull( callback, "callback" );
 
-        int pingCache = ProxyServer.getInstance().getConfig().getPingCache();
+        int pingCache = ProxyServer.getInstance().getConfig().getRemotePingCache();
         if ( pingCache != -1 && cachedPing != null && ( lastPing - System.currentTimeMillis() ) > pingCache )
         {
             cachedPing = null;

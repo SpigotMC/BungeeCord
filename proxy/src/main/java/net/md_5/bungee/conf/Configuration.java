@@ -52,7 +52,7 @@ public class Configuration implements ProxyConfig
      */
     private boolean logCommands;
     private boolean logPings = true;
-    private int pingCache = -1;
+    private int remotePingCache = -1;
     private int playerLimit = -1;
     private Collection<String> disabledCommands;
     private int throttle = 4000;
@@ -86,7 +86,7 @@ public class Configuration implements ProxyConfig
         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
         logCommands = adapter.getBoolean( "log_commands", logCommands );
         logPings = adapter.getBoolean( "log_pings", logPings );
-        pingCache = adapter.getInt( "ping_cache", pingCache );
+        remotePingCache = adapter.getInt( "remote_ping_cache", remotePingCache);
         playerLimit = adapter.getInt( "player_limit", playerLimit );
         throttle = adapter.getInt( "connection_throttle", throttle );
         throttleLimit = adapter.getInt( "connection_throttle_limit", throttleLimit );
