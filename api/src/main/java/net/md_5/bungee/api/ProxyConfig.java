@@ -71,18 +71,19 @@ public interface ProxyConfig
     Collection<String> getDisabledCommands();
 
     /**
-     * Time in milliseconds before timing out a clients server connect request
+     * Time in milliseconds before timing out a clients request to connect to a server
      *
      * @return connect timeout
      */
-    int getConnectTimeout();
+    int getServerConnectTimeout();
 
     /**
-     * Time in milliseconds before timing out a clients ping
+     * Time in milliseconds before timing out a ping request from the proxy
+     * to a server when attempting to request server list info
      *
      * @return ping timeout
      */
-    int getPingTimeout();
+    int getRemotePingTimeout();
 
     /**
      * The connection throttle delay.
