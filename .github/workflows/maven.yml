@@ -17,5 +17,5 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: ${{ matrix.java }}
-    - run: java -version
-    - run: mvn package javadoc:jar source:jar
+    - run: java -version && mvn --version
+    - run: mvn --no-transfer-progress package javadoc:jar source:jar
