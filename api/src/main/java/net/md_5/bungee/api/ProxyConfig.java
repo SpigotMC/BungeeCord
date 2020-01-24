@@ -71,15 +71,17 @@ public interface ProxyConfig
     Collection<String> getDisabledCommands();
 
     /**
-     * Time in milliseconds before timing out a clients request to connect to a server
+     * Time in milliseconds before timing out a clients request
+     * to connect to a server.
      *
      * @return connect timeout
      */
     int getServerConnectTimeout();
 
     /**
-     * Time in milliseconds before timing out a ping request from the proxy
-     * to a server when attempting to request server list info
+     * Time in milliseconds before timing out a ping
+     * request from the proxy to a server when attempting to
+     * request server list info.
      *
      * @return ping timeout
      */
@@ -94,7 +96,7 @@ public interface ProxyConfig
     int getThrottle();
 
     /**
-     * Whether the proxy will parse IPs with spigot or not
+     * Whether the proxy will parse IPs with spigot or not.
      *
      * @return ip forward
      */
