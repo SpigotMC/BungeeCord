@@ -520,7 +520,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         //a LoginSuccess packet before a LoginEvent will be fired.
         bungee.getPluginManager().callEvent( uuidEvent );
 
-        if (uuidEvent.getUniqueId() != null) {
+        if ( uuidEvent.getUniqueId() != null )
+        {
             uniqueId = uuidEvent.getUniqueId();
         }
 
@@ -546,7 +547,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         } else
         {
             bungee.getLogger().log( Level.INFO, "{0} has connected", InitialHandler.this );
-            bungee.getBotFilter().saveUser( userCon.getName().toLowerCase(), IPUtils.getAddress( userCon )); //update timestamp
+            bungee.getBotFilter().saveUser( userCon.getName().toLowerCase(), IPUtils.getAddress( userCon ) ); //update timestamp
             finishLogin( userCon, sendLoginSuccess ); //if true, dont send again login success
         }
     }

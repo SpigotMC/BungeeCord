@@ -54,6 +54,7 @@ public class Configuration implements ProxyConfig
      */
     private boolean logCommands;
     private boolean logPings = true;
+    private int remotePingCache = -1;
     private int playerLimit = -1;
     private Collection<String> disabledCommands;
     private int throttle = 4000;
@@ -87,6 +88,7 @@ public class Configuration implements ProxyConfig
         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
         logCommands = adapter.getBoolean( "log_commands", logCommands );
         logPings = adapter.getBoolean( "log_pings", logPings );
+        remotePingCache = adapter.getInt( "remote_ping_cache", remotePingCache );
         playerLimit = adapter.getInt( "player_limit", playerLimit );
         throttle = adapter.getInt( "connection_throttle", throttle );
         throttleLimit = adapter.getInt( "connection_throttle_limit", throttleLimit );
@@ -137,14 +139,13 @@ public class Configuration implements ProxyConfig
         {
             HashSet<String> toRemove = new HashSet<>();
             servers.values().stream()
-                    .filter(
-                            oldServer -> ( !newServers.containsKey( oldServer.getName() )
-                            || !newServers.get( oldServer.getName() ).equals( oldServer ) )
-                    ).forEach( server ->
-                    {
-                        toRemove.add( server.getName() );
-                        server.getPlayers().forEach( p -> p.disconnect( BungeeCord.getInstance().getTranslation( "server_went_down" ) ) );
-                    } );
+                .filter( oldServer -> ( !newServers.containsKey( oldServer.getName() )
+                        || !newServers.get( oldServer.getName() ).equals( oldServer ) ) )
+                .forEach( server ->
+                {
+                    toRemove.add( server.getName() );
+                    server.getPlayers().forEach( p -> p.disconnect( BungeeCord.getInstance().getTranslation( "server_went_down" ) ) );
+                } );
 
             toRemove.forEach( s -> servers.remove( s ) );
 

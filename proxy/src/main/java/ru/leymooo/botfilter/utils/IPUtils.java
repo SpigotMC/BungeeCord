@@ -21,7 +21,7 @@ public class IPUtils
 
     public static InetAddress getAddress(ChannelWrapper wrapper)
     {
-        return ((InetSocketAddress)wrapper.getRemoteAddress()).getAddress(); //TODO unix socket
+        return ( (InetSocketAddress) wrapper.getRemoteAddress() ).getAddress(); //TODO unix socket
     }
 
     public static InetAddress getAddress(String ip)

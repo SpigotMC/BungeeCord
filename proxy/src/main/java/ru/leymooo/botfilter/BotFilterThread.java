@@ -25,7 +25,7 @@ public class BotFilterThread
     {
         ( thread = new Thread( () ->
         {
-            while ( !Thread.currentThread().isInterrupted() && sleep(1000) )
+            while ( !Thread.currentThread().isInterrupted() && sleep( 1000 ) )
             {
                 try
                 {
@@ -55,10 +55,10 @@ public class BotFilterThread
                                     continue;
                                 } else if ( state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED || state == BotFilter.CheckState.ONLY_POSITION )
                                 {
-                                    connector.sendMessage(PacketsPosition.CHECKING);
+                                    connector.sendMessage( PacketsPosition.CHECKING );
                                 } else
                                 {
-                                    connector.sendMessage(PacketsPosition.CHECKING_CAPTCHA);
+                                    connector.sendMessage( PacketsPosition.CHECKING_CAPTCHA );
                                 }
                                 connector.sendPing();
                         }
@@ -107,7 +107,7 @@ public class BotFilterThread
     {
         new Thread( () ->
         {
-            while ( !Thread.interrupted() && sleep(BotFilter.ONE_MIN) )
+            while ( !Thread.interrupted() && sleep( BotFilter.ONE_MIN ) )
             {
                 ManyChecksUtils.cleanUP();
                 if ( bungee.getConnectionThrottle() != null )
@@ -125,7 +125,8 @@ public class BotFilterThread
                     {
                         botFilter.getSql().tryCleanUP();
                     }
-                    if (botFilter.getGeoIp() != null) {
+                    if ( botFilter.getGeoIp() != null )
+                    {
                         botFilter.getGeoIp().tryClenUP();
                     }
                 }

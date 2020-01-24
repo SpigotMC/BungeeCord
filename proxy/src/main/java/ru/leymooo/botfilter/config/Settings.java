@@ -64,11 +64,11 @@ public class Settings extends Config
                 })
         public int MODE = 1;
         @Comment(
-        {
-            "Как именно работает GeoIp",
-            "0 - White list(Зайти могут только те страны, которые есть в списке)",
-            "1 - Black list(Зайти могут только те страны, которых нет в списке)"
-        })
+            {
+                "Как именно работает GeoIp",
+                "0 - White list(Зайти могут только те страны, которые есть в списке)",
+                "1 - Black list(Зайти могут только те страны, которых нет в списке)"
+            })
         public int TYPE = 0;
         @Comment(
                 {
@@ -77,9 +77,12 @@ public class Settings extends Config
                     "Файл должен заканчиваться на .mmdb или быть запакован в .tar.gz"
                 })
         public String NEW_GEOIP_DOWNLOAD_URL = "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key=%license_key%&suffix=tar.gz";
-        @Comment({"Если ключ перестанет работать, то для того чтобы получить новый необходимо зарегестироваться на https://www.maxmind.com/",
-        "и сгенерировать новый ключ на странице https://www.maxmind.com/en/accounts/current/license-key"})
-        public String MAXMIND_LICENSE_KEY= "P5g0fVdAQIq8yQau";
+        @Comment(
+                {
+                    "Если ключ перестанет работать, то для того чтобы получить новый необходимо зарегестироваться на https://www.maxmind.com/",
+                    "и сгенерировать новый ключ на странице https://www.maxmind.com/en/accounts/current/license-key"
+                })
+        public String MAXMIND_LICENSE_KEY = "P5g0fVdAQIq8yQau";
         @Comment("Разрешённые странны")
         public List<String> ALLOWED_COUNTRIES = Arrays.asList( "RU", "UA", "BY", "KZ", "EE", "MD", "KG", "AZ", "LT", "LV", "GE", "PL" );
     }

@@ -53,7 +53,10 @@ public abstract class DefinedPacket
                     writeString( s, buf );  //Its a valid json string
                     return;
                 }
-            } catch ( JsonSyntaxException ex ) {}
+            } catch ( JsonSyntaxException ex )
+            {
+
+            }
             writeString( ComponentSerializer.toString( TextComponent.fromLegacyText( s ) ), buf );
         } else
         {

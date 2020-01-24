@@ -39,7 +39,7 @@ public class BungeeCordLauncher
 
         BungeeCord bungee = new BungeeCord();
         ProxyServer.setInstance( bungee );
-        bungee.getLogger().log( Level.WARNING, "Включаю BungeCord BotFilter {0} от vk.com/Leymooo_s (http://rubukkit.org/threads/137038)", bungee.getGameVersion() );//BotFilter
+        bungee.getLogger().log( Level.WARNING, "Включаю BungeCord BotFilter {0} от vk.com/Leymooo_s (http://rubukkit.org/threads/137038)", bungee.getGameVersion() ); //BotFilter
         bungee.start();
 
         if ( !options.has( "noconsole" ) )

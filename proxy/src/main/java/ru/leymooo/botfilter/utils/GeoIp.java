@@ -113,10 +113,10 @@ public class GeoIp
         long start = System.currentTimeMillis();
         try
         {
-            URL downloadUrl = new URL( Settings.IMP.GEO_IP.NEW_GEOIP_DOWNLOAD_URL.replace("%license_key%", Settings.IMP.GEO_IP.MAXMIND_LICENSE_KEY) );
+            URL downloadUrl = new URL( Settings.IMP.GEO_IP.NEW_GEOIP_DOWNLOAD_URL.replace( "%license_key%", Settings.IMP.GEO_IP.MAXMIND_LICENSE_KEY ) );
             URLConnection conn = downloadUrl.openConnection();
-            conn.setConnectTimeout(5000);
-            conn.setReadTimeout(10000);
+            conn.setConnectTimeout( 5000 );
+            conn.setReadTimeout( 10000 );
             try ( InputStream input = conn.getInputStream() )
             {
                 if ( downloadUrl.getFile().endsWith( ".mmdb" ) )
@@ -143,7 +143,8 @@ public class GeoIp
             setupDataBase( true );
         } catch ( Exception ex )
         {
-            if (out.exists()) {
+            if ( out.exists() )
+            {
                 setupDataBase( false );
             }
             LOGGER.log( Level.WARNING, "[BotFilter] Не могу скачать GeoLite2 датабазу", ex );

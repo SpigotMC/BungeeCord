@@ -15,9 +15,9 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false, of =
-{
-    "x", "z"
-})
+    {
+        "x", "z"
+    })
 public class EmptyChunkPacket extends DefinedPacket
 {
 
@@ -41,9 +41,11 @@ public class EmptyChunkPacket extends DefinedPacket
         if ( version >= ProtocolConstants.MINECRAFT_1_14 )
         {
             this.write1_14Heightmaps( buf );
-            if (version >= ProtocolConstants.MINECRAFT_1_15) {
-                for (int i = 0; i < 1024; i++) {
-                    buf.writeInt(0);
+            if ( version >= ProtocolConstants.MINECRAFT_1_15 )
+            {
+                for ( int i = 0; i < 1024; i++ )
+                {
+                    buf.writeInt( 0 );
                 }
             }
         }
@@ -70,7 +72,7 @@ public class EmptyChunkPacket extends DefinedPacket
 
     private void write1_14Heightmaps(ByteBuf buf)
     {
-        try (ByteBufOutputStream output = new ByteBufOutputStream( buf ))
+        try ( ByteBufOutputStream output = new ByteBufOutputStream( buf ) )
         {
             output.writeByte( 10 ); //CompoundTag
             output.writeUTF( "" ); // CompoundName

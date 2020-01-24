@@ -3,6 +3,9 @@ package net.md_5.bungee;
 import com.google.common.base.Preconditions;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.LinkedList;
+import java.util.Queue;
+import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -26,8 +29,7 @@ public class ServerConnection implements Server
     @Getter
     private final boolean forgeServer = false;
     @Getter
-    @Setter
-    private long sentPingId = -1;
+    private final Queue<KeepAliveData> keepAlives = new LinkedList<>();
 
     private final Unsafe unsafe = new Unsafe()
     {
@@ -86,5 +88,13 @@ public class ServerConnection implements Server
     public Unsafe unsafe()
     {
         return unsafe;
+    }
+
+    @Data
+    public static class KeepAliveData
+    {
+
+        private final long id;
+        private final long time;
     }
 }

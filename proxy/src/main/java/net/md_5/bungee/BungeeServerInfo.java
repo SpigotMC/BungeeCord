@@ -31,11 +31,13 @@ import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
+// CHECKSTYLE:OFF
 @RequiredArgsConstructor
 @ToString(of =
 {
-    "name", "address", "restricted"
+    "name", "socketAddress", "restricted"
 })
+// CHECKSTYLE:ON
 public class BungeeServerInfo implements ServerInfo
 {
 
@@ -123,6 +125,18 @@ public class BungeeServerInfo implements ServerInfo
         }
     }
 
+    private long lastPing;
+    private ServerPing cachedPing;
+
+    public void cachePing(ServerPing serverPing)
+    {
+        if ( ProxyServer.getInstance().getConfig().getRemotePingCache() > 0 )
+        {
+            this.cachedPing = serverPing;
+            this.lastPing = System.currentTimeMillis();
+        }
+    }
+
     @Override
     public InetSocketAddress getAddress()
     {
@@ -139,6 +153,18 @@ public class BungeeServerInfo implements ServerInfo
     {
         Preconditions.checkNotNull( callback, "callback" );
 
+        int pingCache = ProxyServer.getInstance().getConfig().getRemotePingCache();
+        if ( pingCache > 0 && cachedPing != null && ( lastPing - System.currentTimeMillis() ) > pingCache )
+        {
+            cachedPing = null;
+        }
+
+        if ( cachedPing != null )
+        {
+            callback.done( cachedPing, null );
+            return;
+        }
+
         ChannelFutureListener listener = new ChannelFutureListener()
         {
             @Override
@@ -154,7 +180,7 @@ public class BungeeServerInfo implements ServerInfo
             }
         };
         new Bootstrap()
-                .channel( PipelineUtils.getChannel(socketAddress) )
+                .channel( PipelineUtils.getChannel( socketAddress ) )
                 .group( BungeeCord.getInstance().workerEventLoopGroup ) //BotFilter //WaterFall backport
                 .handler( PipelineUtils.BASE )
                 .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000 ) // TODO: Configurable

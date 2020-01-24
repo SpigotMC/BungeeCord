@@ -28,7 +28,8 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
         try
         {
             //BotFilter start
-            if (in.readableBytes() == 0) {
+            if ( in.readableBytes() == 0 )
+            {
                 return;
             }
             //BotFilter end

@@ -188,7 +188,7 @@ public class CaptchaPainter
 
     protected BufferedImage postProcess(BufferedImage img)
     {
-        if (/*effectConfig.isRippleEnabled()*/ true )
+        if ( /*effectConfig.isRippleEnabled()*/ true )
         {
             final Rippler.AxisConfig vertical = new Rippler.AxisConfig(
                     rnd.nextDouble() * 2 * Math.PI, ( 1 + rnd.nextDouble() * 2 )
@@ -200,7 +200,7 @@ public class CaptchaPainter
 
             img = op.filter( img, createImage() );
         }
-        if (/*effectConfig.isBlurEnabled()*/ true )
+        if ( /*effectConfig.isBlurEnabled()*/ true )
         {
             final float[] blurArray = new float[ 9 ];
             fillBlurArray( blurArray );

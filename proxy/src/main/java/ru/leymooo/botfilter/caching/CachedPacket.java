@@ -14,8 +14,9 @@ public class CachedPacket
 
     public CachedPacket(DefinedPacket packet, Protocol... protocols)
     {
-        if (packet != null) {
-            PacketUtils.fillArray(byteBuf, packet, protocols);
+        if ( packet != null )
+        {
+            PacketUtils.fillArray( byteBuf, packet, protocols );
         }
     }
 

@@ -29,9 +29,9 @@ import ru.leymooo.botfilter.utils.ManyChecksUtils;
  * @author Leymooo
  */
 @EqualsAndHashCode(callSuper = false, of =
-{
-    "name"
-})
+    {
+        "name"
+    })
 public class Connector extends MoveHandler
 {
 
@@ -88,7 +88,7 @@ public class Connector extends MoveHandler
         sendPing();
         this.botFilter.addConnection( this );
         //channel.writeAndFlush( PacketUtils.createPacket( new SetSlot( 0, 36, i, 1, 0 ), PacketUtils.getPacketId( new SetSlot(), version, Protocol.BotFilter ), version ), channel.voidPromise() );
-        LOGGER.log(Level.INFO, toString() + " has connected");
+        LOGGER.log( Level.INFO, toString() + " has connected" );
     }
 
     @Override
@@ -108,12 +108,13 @@ public class Connector extends MoveHandler
     @Override
     public void disconnected(ChannelWrapper channel) throws Exception
     {
-        switch (state) {
+        switch ( state )
+        {
             case ONLY_CAPTCHA:
             case ONLY_POSITION:
             case CAPTCHA_POSITION:
-                String info = "(BF) ["  + name + "|" + ip + "] leaved from server during check";
-                LOGGER.log(Level.INFO, info);
+                String info = "(BF) [" + name + "|" + ip + "] leaved from server during check";
+                LOGGER.log( Level.INFO, info );
                 break;
         }
         botFilter.removeConnection( null, this );
@@ -162,12 +163,12 @@ public class Connector extends MoveHandler
         PacketUtils.titles[2].writeTitle( channel, version );
         channel.flush();
         botFilter.removeConnection( null, this );
-        sendMessage(PacketsPosition.CHECK_SUS );
+        sendMessage( PacketsPosition.CHECK_SUS );
         botFilter.saveUser( getName(), IPUtils.getAddress( userConnection ) );
         userConnection.setNeedLogin( false );
         userConnection.getPendingConnection().finishLogin( userConnection, true );
         markDisconnected = true;
-        LOGGER.log(Level.INFO, "[BotFilter] Игрок (" + name + "|" + ip + ") успешно прошёл проверку");
+        LOGGER.log( Level.INFO, "[BotFilter] Игрок (" + name + "|" + ip + ") успешно прошёл проверку" );
     }
 
     @Override
@@ -246,8 +247,9 @@ public class Connector extends MoveHandler
             {
                 ByteBuf buf = attemps == 2 ? PacketUtils.getCachedPacket( PacketsPosition.CAPTCHA_FAILED_2 ).get( version )
                         : PacketUtils.getCachedPacket( PacketsPosition.CAPTCHA_FAILED_1 ).get( version );
-                if (buf != null) {
-                    channel.write(buf, channel.voidPromise());
+                if ( buf != null )
+                {
+                    channel.write( buf, channel.voidPromise() );
                 }
                 sendCaptcha();
             } else
@@ -335,15 +337,15 @@ public class Connector extends MoveHandler
         state = CheckState.FAILED;
         PacketUtils.kickPlayer( type, Protocol.GAME, userConnection.getCh(), version );
         markDisconnected = true;
-        LOGGER.log(Level.INFO, "(BF) [" + name + "|" + ip + "] check failed: " + kickMessage);
+        LOGGER.log( Level.INFO, "(BF) [" + name + "|" + ip + "] check failed: " + kickMessage );
     }
 
     public void sendMessage(int index)
     {
         ByteBuf buf = PacketUtils.getCachedPacket( index ).get( getVersion() );
-        if (buf != null)
+        if ( buf != null )
         {
-            getChannel().write(buf,getChannel().voidPromise());
+            getChannel().write( buf, getChannel().voidPromise() );
         }
     }
 

@@ -225,8 +225,9 @@ public class YamlConfig implements ConfigurationAdapter
             Matcher matcher = YamlConfig.RANGE_MATCH.matcher( name );
             if ( matcher.find() )
             {
-                if (!(address instanceof InetSocketAddress)) {
-                    BungeeCord.getInstance().getLogger().warning("Could not use range for servers " + name );
+                if ( !( address instanceof InetSocketAddress ) )
+                {
+                    BungeeCord.getInstance().getLogger().warning( "Could not use range for servers " + name );
                     ServerInfo info = ProxyServer.getInstance().constructServerInfo( name, address, motd, restricted );
                     ret.put( name, info );
                     continue;
@@ -239,18 +240,18 @@ public class YamlConfig implements ConfigurationAdapter
                 {
                     "[" + lower + ".." + upper + "]", name
                 } );
-                int port = ((InetSocketAddress) address).getPort();
+                int port = ( (InetSocketAddress) address ).getPort();
                 for ( int i = lower; i <= upper; ++i )
                 {
-                    InetSocketAddress next = new InetSocketAddress( ((InetSocketAddress) address).getHostName(), port ); //todo, check how unix socket works
+                    InetSocketAddress next = new InetSocketAddress( ( (InetSocketAddress) address ).getHostName(), port ); //todo, check how unix socket works
                     ServerInfo info = BungeeCord.getInstance().constructServerInfo( name + i, next, motd, false );
                     ret.put( info.getName(), info );
                     port++;
                 }
             } else
             {
-                ServerInfo info = ProxyServer.getInstance().constructServerInfo(name, address, motd, restricted);
-                ret.put(name, info);
+                ServerInfo info = ProxyServer.getInstance().constructServerInfo( name, address, motd, restricted );
+                ret.put( name, info );
             }
         }
 
