@@ -209,7 +209,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
     private ServerPing getPingInfo( String motd, int protocol )
     {
-        new ServerPing(
+        return new ServerPing(
                 new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), protocol ),
                 new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
                 motd, BungeeCord.getInstance().config.getFaviconObject() );
