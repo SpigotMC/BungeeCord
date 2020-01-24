@@ -34,7 +34,7 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 @RequiredArgsConstructor
 @ToString(of =
 {
-    "name", "address", "restricted"
+    "name", "socketAddress", "restricted"
 })
 public class BungeeServerInfo implements ServerInfo
 {
