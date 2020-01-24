@@ -79,13 +79,6 @@ public class ServerConnectRequestTest
         }
     };
 
-    @Test
-    public void testDefaultConnectTimeout()
-    {
-        ServerConnectRequest request = ServerConnectRequest.builder().target( DUMMY_INFO ).reason( ServerConnectEvent.Reason.JOIN_PROXY ).build();
-        Assert.assertEquals( 5000, request.getConnectTimeout() );
-    }
-
     @Test(expected = NullPointerException.class)
     public void testNullTarget()
     {
