@@ -207,7 +207,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         return pos == -1 ? str : str.substring( 0, pos );
     }
 
-    private ServerPing getPingInfo( String motd, int protocol )
+    private ServerPing getPingInfo(String motd, int protocol)
     {
         return new ServerPing(
                 new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), protocol ),
