@@ -255,11 +255,11 @@ public abstract class EntityMap
                     try
                     {
                         new NBTInputStream( new ByteBufInputStream( packet ), false ).readTag();
-                } catch ( IOException ex )
-                {
-                    throw new RuntimeException( ex );
-                }
-                break;
+                    } catch ( IOException ex )
+                    {
+                        throw new RuntimeException( ex );
+                    }
+                    break;
                 case 15:
                     DefinedPacket.readVarInt( packet );
                     DefinedPacket.readVarInt( packet );
