@@ -6,7 +6,6 @@ import java.util.Collection;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class ServerConnectRequestTest
