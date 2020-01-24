@@ -53,11 +53,13 @@ public class PluginManager
     private Map<String, PluginDescription> toLoad = new HashMap<>();
     private final Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
     private final Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
+    private final List<String> enforcedPluginGroups;
 
     @SuppressWarnings("unchecked")
-    public PluginManager(ProxyServer proxy)
+    public PluginManager(ProxyServer proxy, List<String> enforcedPluginGroups)
     {
         this.proxy = proxy;
+        this.enforcedPluginGroups = enforcedPluginGroups;
 
         // Ignore unknown entries in the plugin descriptions
         Constructor yamlConstructor = new Constructor();
@@ -238,7 +240,6 @@ public class PluginManager
             }
         }
         toLoad.clear();
-        toLoad = null;
     }
 
     public void enablePlugins()
@@ -348,39 +349,64 @@ public class PluginManager
      * Load all plugins from the specified folder.
      *
      * @param folder the folder to search for plugins in
+     * @param searchGroups if subsequent directories should be searched for plugins to load
      */
-    public void detectPlugins(File folder)
+    public void detectPlugins(File folder, boolean searchGroups)
     {
         Preconditions.checkNotNull( folder, "folder" );
         Preconditions.checkArgument( folder.isDirectory(), "Must load from a directory" );
 
+        proxy.getLogger().log( Level.INFO, "Attempting to load plugins from " + folder.getName() );
         for ( File file : folder.listFiles() )
         {
-            if ( file.isFile() && file.getName().endsWith( ".jar" ) )
+            if ( file.getName().endsWith( ".jar" ) )
             {
-                try ( JarFile jar = new JarFile( file ) )
+                detectJarFile( file );
+            } else if ( searchGroups && file.isDirectory() )
+            {
+                if ( proxy.getConfig().getPluginGroups().contains( file.getName() ) || enforcedPluginGroups.contains( file.getName() ) )
                 {
-                    JarEntry pdf = jar.getJarEntry( "bungee.yml" );
-                    if ( pdf == null )
+                    proxy.getLogger().log( Level.INFO, "Attempting to load plugins from group " + file.getName() );
+                    for ( File groupFile : file.listFiles() )
                     {
-                        pdf = jar.getJarEntry( "plugin.yml" );
+                        if ( groupFile.getName().endsWith( ".jar" ) )
+                        {
+                            detectJarFile( groupFile );
+                        }
                     }
-                    Preconditions.checkNotNull( pdf, "Plugin must have a plugin.yml or bungee.yml" );
-
-                    try ( InputStream in = jar.getInputStream( pdf ) )
-                    {
-                        PluginDescription desc = yaml.loadAs( in, PluginDescription.class );
-                        Preconditions.checkNotNull( desc.getName(), "Plugin from %s has no name", file );
-                        Preconditions.checkNotNull( desc.getMain(), "Plugin from %s has no main", file );
-
-                        desc.setFile( file );
-                        toLoad.put( desc.getName(), desc );
-                    }
-                } catch ( Exception ex )
-                {
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load plugin from file " + file, ex );
                 }
             }
+        }
+    }
+
+    private void detectJarFile(File file)
+    {
+        if ( !file.isFile() )
+        {
+            return;
+        }
+
+        try ( JarFile jar = new JarFile( file ) )
+        {
+            JarEntry pdf = jar.getJarEntry( "bungee.yml" );
+            if ( pdf == null )
+            {
+                pdf = jar.getJarEntry( "plugin.yml" );
+            }
+            Preconditions.checkNotNull( pdf, "Plugin must have a plugin.yml or bungee.yml" );
+
+            try ( InputStream in = jar.getInputStream( pdf ) )
+            {
+                PluginDescription desc = yaml.loadAs( in, PluginDescription.class );
+                Preconditions.checkNotNull( desc.getName(), "Plugin from %s has no name", file );
+                Preconditions.checkNotNull( desc.getMain(), "Plugin from %s has no main", file );
+
+                desc.setFile( file );
+                toLoad.put( desc.getName(), desc );
+            }
+        } catch ( Exception ex )
+        {
+            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load plugin from file " + file, ex );
         }
     }
 

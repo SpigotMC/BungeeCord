@@ -2,12 +2,15 @@ package net.md_5.bungee;
 
 import java.security.Security;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -26,6 +29,7 @@ public class BungeeCordLauncher
         parser.acceptsAll( Arrays.asList( "help" ), "Show the help" );
         parser.acceptsAll( Arrays.asList( "v", "version" ), "Print version and exit" );
         parser.acceptsAll( Arrays.asList( "noconsole" ), "Disable console input" );
+        OptionSpec pluginGroupSpec = parser.accepts( "plugingroups", "Force a plugin group(s) to load" ).withRequiredArg().withValuesSeparatedBy( ',' );
 
         OptionSet options = parser.parse( args );
 
@@ -56,7 +60,8 @@ public class BungeeCordLauncher
             }
         }
 
-        BungeeCord bungee = new BungeeCord();
+        List<String> enforcedPluginGroups = options.has( pluginGroupSpec ) ? new ArrayList<String>( options.valuesOf( pluginGroupSpec ) ) : new ArrayList<String>();
+        BungeeCord bungee = new BungeeCord( enforcedPluginGroups );
         ProxyServer.setInstance( bungee );
         bungee.getLogger().info( "Enabled BungeeCord version " + bungee.getVersion() );
         bungee.start();
