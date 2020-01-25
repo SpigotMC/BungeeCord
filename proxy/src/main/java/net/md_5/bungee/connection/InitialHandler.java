@@ -208,6 +208,15 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         return pos == -1 ? str : str.substring( 0, pos );
     }
 
+    private ServerPing getPingInfo(String motd, int protocol)
+    {
+        return new ServerPing(
+                new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), protocol ),
+                new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
+                motd, BungeeCord.getInstance().config.getFaviconObject()
+        );
+    }
+
     @Override
     public void handle(StatusRequest statusRequest) throws Exception
     {
@@ -215,6 +224,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
         final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
+        final int protocol = ( ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
 
         Callback<ServerPing> pingBack = new Callback<ServerPing>()
         {
@@ -223,8 +233,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             {
                 if ( error != null )
                 {
-                    result = new ServerPing();
-                    result.setDescription( bungee.getTranslation( "ping_cannot_connect" ) );
+                    result = getPingInfo( bungee.getTranslation( "ping_cannot_connect" ), protocol );
                     bungee.getLogger().log( Level.WARNING, "Error pinging remote server", error );
                 }
 
@@ -251,12 +260,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             ( (BungeeServerInfo) forced ).ping( pingBack, handshake.getProtocolVersion() );
         } else
         {
-            int protocol = ( ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
-            pingBack.done( new ServerPing(
-                    new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), protocol ),
-                    new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
-                    motd, BungeeCord.getInstance().config.getFaviconObject() ),
-                    null );
+            pingBack.done( getPingInfo( motd, protocol ), null );
         }
 
         thisState = State.PING;
