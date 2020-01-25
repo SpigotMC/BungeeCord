@@ -73,6 +73,6 @@ public class ServerConnectRequest
     public static class Builder
     {
 
-        private int connectTimeout = 5000; // TODO: Configurable
+        private int connectTimeout = ProxyServer.getInstance().getConfig().getServerConnectTimeout();
     }
 }

@@ -6,7 +6,6 @@ import java.util.Collection;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class ServerConnectRequestTest
@@ -78,13 +77,6 @@ public class ServerConnectRequestTest
         {
         }
     };
-
-    @Test
-    public void testDefaultConnectTimeout()
-    {
-        ServerConnectRequest request = ServerConnectRequest.builder().target( DUMMY_INFO ).reason( ServerConnectEvent.Reason.JOIN_PROXY ).build();
-        Assert.assertEquals( 5000, request.getConnectTimeout() );
-    }
 
     @Test(expected = NullPointerException.class)
     public void testNullTarget()
