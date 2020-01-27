@@ -403,9 +403,9 @@ public class PluginManager
         long elapsed = System.nanoTime() - start;
         if ( elapsed > 250000000 )
         {
-            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Event {0} took {1}ns to process!", new Object[]
+            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Event {0} took {1}ms to process!", new Object[]
             {
-                event, elapsed
+                event, elapsed / 1000000
             } );
         }
         return event;
