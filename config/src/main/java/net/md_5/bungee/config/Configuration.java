@@ -1,47 +1,31 @@
 package net.md_5.bungee.config;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
+import com.google.common.base.Charsets;
 
-public final class Configuration
+public class Configuration
 {
 
     private static final char SEPARATOR = '.';
-    final Map<String, Object> self;
-    private final Configuration defaults;
+    protected final Map<String, Object> self;
+    private Configuration defaults;
 
     public Configuration()
     {
-        this( null );
+        this.self = new LinkedHashMap<>();
     }
 
+    /**
+     * @deprecated This constructors function was replaced with a setter.
+     *
+     * @see Configuration#setDefaults(Configuration)
+     */
+    @Deprecated
     public Configuration(Configuration defaults)
     {
-        this( new LinkedHashMap<String, Object>(), defaults );
-    }
-
-    Configuration(Map<?, ?> map, Configuration defaults)
-    {
-        this.self = new LinkedHashMap<>();
-        this.defaults = defaults;
-
-        for ( Map.Entry<?, ?> entry : map.entrySet() )
-        {
-            String key = ( entry.getKey() == null ) ? "null" : entry.getKey().toString();
-
-            if ( entry.getValue() instanceof Map )
-            {
-                this.self.put( key, new Configuration( (Map) entry.getValue(), ( defaults == null ) ? null : defaults.getSection( key ) ) );
-            } else
-            {
-                this.self.put( key, entry.getValue() );
-            }
-        }
+        this();
+        setDefaults( defaults );
     }
 
     private Configuration getSectionFor(String path)
@@ -56,7 +40,7 @@ public final class Configuration
         Object section = self.get( root );
         if ( section == null )
         {
-            section = new Configuration( ( defaults == null ) ? null : defaults.getSection( root ) );
+            section = new Configuration().setDefaults( defaults == null ? null : defaults.getSection( root ) );
             self.put( root, section );
         }
 
@@ -110,7 +94,9 @@ public final class Configuration
     {
         if ( value instanceof Map )
         {
-            value = new Configuration( (Map) value, ( defaults == null ) ? null : defaults.getSection( path ) );
+            value = new Configuration()
+                    .load( ( (Map) value ) )
+                    .setDefaults( defaults == null ? null : defaults.getSection( path ) );
         }
 
         Configuration section = getSectionFor( path );
@@ -133,7 +119,8 @@ public final class Configuration
     public Configuration getSection(String path)
     {
         Object def = getDefault( path );
-        return (Configuration) get( path, ( def instanceof Configuration ) ? def : new Configuration( ( defaults == null ) ? null : defaults.getSection( path ) ) );
+        return (Configuration) get( path, ( def instanceof Configuration ) ? def :
+                new Configuration().setDefaults( defaults == null ? null : defaults.getSection( path ) ) );
     }
 
     /**
@@ -410,5 +397,83 @@ public final class Configuration
     {
         Object val = get( path, def );
         return ( val instanceof List<?> ) ? (List<?>) val : def;
+    }
+
+    public Configuration setDefaults(Configuration defaults)
+    {
+        if ( defaults == this )
+        {
+            throw new IllegalArgumentException( "Can't set self as defaults" );
+        }
+        this.defaults = defaults;
+        return this;
+    }
+
+    public Configuration load(File file) throws FileNotFoundException
+    {
+        try ( FileInputStream is = new FileInputStream( file ) )
+        {
+            return load( is );
+        } catch ( FileNotFoundException e )
+        {
+            throw e;
+        } catch ( IOException e )
+        {
+            throw new RuntimeException( e );
+        }
+    }
+
+    public Configuration load(String string)
+    {
+        try ( Reader reader = new StringReader( string ) )
+        {
+            return load( reader );
+        } catch ( IOException e )
+        {
+            throw new RuntimeException( e );
+        }
+    }
+
+    public Configuration load(InputStream is) throws IOException
+    {
+        try ( Reader reader = new InputStreamReader( is, Charsets.UTF_8 ) )
+        {
+            return load( reader );
+        }
+    }
+
+    public Configuration load(Reader reader) throws IOException
+    {
+        reader.close();
+        throw new UnsupportedOperationException();
+    }
+
+    protected Configuration load(Map<?, ?> map)
+    {
+        for ( Map.Entry<?, ?> entry : map.entrySet() )
+        {
+            String key = ( entry.getKey() == null ) ? "null" : entry.getKey().toString();
+
+            if ( entry.getValue() instanceof Map )
+            {
+                this.self.put( key, new Configuration()
+                        .load( ( (Map) entry.getValue() ) )
+                        .setDefaults( defaults == null ? null : defaults.getSection( key ) ) );
+            } else
+            {
+                this.self.put( key, entry.getValue() );
+            }
+        }
+        return this;
+    }
+
+    public void save(File file) throws IOException
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public void save(Writer writer)
+    {
+        throw new UnsupportedOperationException();
     }
 }
