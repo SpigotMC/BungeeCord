@@ -125,7 +125,8 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(KeepAlive alive) throws Exception
     {
-        if ( server.getKeepAlives().size() < bungee.getConfig().getTimeout() / 50 ) // Allow a theoretical maximum of 1 keepalive per tick
+        int timeout = bungee.getConfig().getTimeout();
+        if ( timeout <= 0 || server.getKeepAlives().size() < timeout / 50 ) // Some people disable timeout, otherwise allow a theoretical maximum of 1 keepalive per tick
         {
             server.getKeepAlives().add( new KeepAliveData( alive.getRandomId(), System.currentTimeMillis() ) );
         }
