@@ -18,4 +18,4 @@ jobs:
       with:
         java-version: ${{ matrix.java }}
     - run: java -version && mvn --version
-    - run: mvn --no-transfer-progress package javadoc:jar source:jar
+    - run: mvn --no-transfer-progress package javadoc:jar source:jar-no-fork
