@@ -653,7 +653,20 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public String toString()
     {
-        return "[" + ( ( getName() != null ) ? getName() : getSocketAddress() ) + "] <-> InitialHandler";
+        StringBuilder sb = new StringBuilder();
+        sb.append( '[' );
+
+        String currentName = getName();
+        if ( currentName != null )
+        {
+            sb.append( currentName );
+            sb.append( ',' );
+        }
+
+        sb.append( getSocketAddress() );
+        sb.append( "] <-> InitialHandler" );
+
+        return sb.toString();
     }
 
     @Override
