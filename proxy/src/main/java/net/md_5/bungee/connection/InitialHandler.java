@@ -118,6 +118,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, FINISHED;
     }
 
+    private boolean canSendKickMessage()
+    {
+        return thisState == State.USERNAME || thisState == State.ENCRYPT || thisState == State.FINISHED;
+    }
+
     @Override
     public void connected(ChannelWrapper channel) throws Exception
     {
@@ -127,7 +132,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void exception(Throwable t) throws Exception
     {
-        disconnect( ChatColor.RED + Util.exception( t ) );
+        if ( canSendKickMessage() )
+        {
+            disconnect( ChatColor.RED + Util.exception( t ) );
+        } else
+        {
+            ch.close();
+        }
     }
 
     @Override
@@ -558,13 +569,19 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void disconnect(String reason)
     {
-        disconnect( TextComponent.fromLegacyText( reason ) );
+        if ( canSendKickMessage() )
+        {
+            disconnect( TextComponent.fromLegacyText( reason ) );
+        } else
+        {
+            ch.close();
+        }
     }
 
     @Override
     public void disconnect(final BaseComponent... reason)
     {
-        if ( thisState != State.STATUS && thisState != State.PING && thisState != State.HANDSHAKE )
+        if ( canSendKickMessage() )
         {
             ch.delayedClose( new Kick( ComponentSerializer.toString( reason ) ) );
         } else
