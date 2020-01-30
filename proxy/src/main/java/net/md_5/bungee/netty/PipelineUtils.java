@@ -4,10 +4,13 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollDatagramChannel;
@@ -23,6 +26,8 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.channel.unix.DomainSocketAddress;
 import io.netty.handler.codec.haproxy.HAProxyMessageDecoder;
+import io.netty.handler.codec.http.HttpClientCodec;
+import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.AttributeKey;
 import io.netty.util.internal.PlatformDependent;
@@ -64,6 +69,9 @@ public class PipelineUtils
 
             ListenerInfo listener = ch.attr( LISTENER ).get();
 
+            ch.pipeline().addLast( HTTP_CODEC, new HttpClientCodec() );
+            ch.pipeline().addLast( HTTP_HANDLER, HTTP_INBOUND_HANDLER );
+
             BASE.initChannel( ch );
             ch.pipeline().addBefore( FRAME_DECODER, LEGACY_DECODER, new LegacyDecoder() );
             ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
@@ -78,6 +86,7 @@ public class PipelineUtils
         }
     };
     public static final Base BASE = new Base();
+    private static final HttpInboundHandler HTTP_INBOUND_HANDLER = new HttpInboundHandler();
     private static final KickStringWriter legacyKicker = new KickStringWriter();
     private static final Varint21LengthFieldPrepender framePrepender = new Varint21LengthFieldPrepender();
     public static final String TIMEOUT_HANDLER = "timeout";
@@ -90,6 +99,8 @@ public class PipelineUtils
     public static final String FRAME_PREPENDER = "frame-prepender";
     public static final String LEGACY_DECODER = "legacy-decoder";
     public static final String LEGACY_KICKER = "legacy-kick";
+    public static final String HTTP_CODEC = "http-codec";
+    public static final String HTTP_HANDLER = "http-handler";
 
     private static boolean epoll;
 
@@ -168,6 +179,18 @@ public class PipelineUtils
             ch.pipeline().addLast( FRAME_PREPENDER, framePrepender );
 
             ch.pipeline().addLast( BOSS_HANDLER, new HandlerBoss() );
+        }
+    }
+
+    @ChannelHandler.Sharable
+    private static class HttpInboundHandler extends SimpleChannelInboundHandler<HttpResponse>
+    {
+
+        @Override
+        protected void channelRead0(ChannelHandlerContext ctx, HttpResponse response) throws Exception
+        {
+            // Close connection immediately
+            ctx.close();
         }
     }
 }
