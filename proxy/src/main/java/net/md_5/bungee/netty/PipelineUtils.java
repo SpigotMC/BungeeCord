@@ -36,6 +36,7 @@ import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
+import net.md_5.bungee.api.event.ClientConnectEvent;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.protocol.KickStringWriter;
 import net.md_5.bungee.protocol.LegacyDecoder;
@@ -56,13 +57,21 @@ public class PipelineUtils
         @Override
         protected void initChannel(Channel ch) throws Exception
         {
-            if ( BungeeCord.getInstance().getConnectionThrottle() != null && BungeeCord.getInstance().getConnectionThrottle().throttle( ch.remoteAddress() ) )
+            SocketAddress remoteAddress = ( ch.remoteAddress() == null ) ? ch.parent().localAddress() : ch.remoteAddress();
+
+            if ( BungeeCord.getInstance().getConnectionThrottle() != null && BungeeCord.getInstance().getConnectionThrottle().throttle( remoteAddress ) )
             {
                 ch.close();
                 return;
             }
 
             ListenerInfo listener = ch.attr( LISTENER ).get();
+
+            if ( BungeeCord.getInstance().getPluginManager().callEvent( new ClientConnectEvent( remoteAddress, listener ) ).isCancelled() )
+            {
+                ch.close();
+                return;
+            }
 
             BASE.initChannel( ch );
             ch.pipeline().addBefore( FRAME_DECODER, LEGACY_DECODER, new LegacyDecoder() );
