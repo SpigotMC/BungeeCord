@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.event;
 
+import java.net.SocketAddress;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -23,10 +24,15 @@ public class ClientConnectEvent extends Event implements Cancellable
     /**
      * Remote Adderss of user.
      */
+    private final SocketAddress socketAddress;
+    /**
+     * ListenerInfo from this connection.
+     */
     private final ListenerInfo listenerInfo;
 
-    public ClientConnectEvent(ListenerInfo listenerInfo)
+    public ClientConnectEvent(SocketAddress socketAddress, ListenerInfo listenerInfo)
     {
+        this.socketAddress = socketAddress;
         this.listenerInfo = listenerInfo;
     }
 }
