@@ -106,11 +106,12 @@ public class Plugin
         return service;
     }
 
-    public static ExecutorService newCachedThreadPool(ThreadFactory threadFactory) {
-        return new ThreadPoolExecutor(2, Integer.MAX_VALUE,
-                                      120L, TimeUnit.SECONDS,
-                                      new SynchronousQueue<Runnable>(),
-                                      threadFactory);
+    public static ExecutorService newCachedThreadPool(ThreadFactory threadFactory)
+    {
+        return new ThreadPoolExecutor( 2, Integer.MAX_VALUE,
+                                        120L, TimeUnit.SECONDS,
+                                        new SynchronousQueue<Runnable>(),
+                                        threadFactory );
     }
 
     //

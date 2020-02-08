@@ -12,8 +12,9 @@ public class LoginResult
     private String name;
     private Property[] properties;
 
-    public LoginResult(String id, Property[] properties) {
-        this(id, null, properties);
+    public LoginResult(String id, Property[] properties)
+    {
+        this( id, null, properties );
     }
 
     @Data
