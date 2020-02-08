@@ -21,6 +21,16 @@
     </module>
 
     <module name="TreeWalker">
+        <!-- See https://checkstyle.org/config_javadoc.html -->
+        <module name="AtclauseOrder"/>
+        <module name="InvalidJavadocPosition"/>
+        <module name="JavadocBlockTagLocation"/>
+        <module name="JavadocContentLocationCheck"/>
+        <module name="JavadocMethod"/>
+        <module name="JavadocType"/>
+        <module name="MissingJavadocPackage"/>
+        <module name="NonEmptyAtclauseDescription"/>
+
         <!-- See http://checkstyle.sourceforge.net/config_filters.html -->
         <module name="SuppressionCommentFilter"/>
 
@@ -35,14 +45,43 @@
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>
 
+        <!-- See https://checkstyle.org/config_whitespace.html -->
+        <module name="GenericWhitespace"/>
+        <module name="MethodParamPad"/>
+        <module name="NoLineWrap"/>
+        <module name="NoWhitespaceAfter"/>
+        <module name="NoWhitespaceBefore"/>
+        <module name="OperatorWrap"/>
+        <module name="ParenPad">
+            <property name="option" value="nospace"/>
+            <property name="tokens" value="ANNOTATION, CTOR_DEF, METHOD_DEF"/>
+        </module>
+        <module name="ParenPad">
+            <property name="option" value="space"/>
+            <property name="tokens" value="ANNOTATION_FIELD_DEF, CTOR_CALL, DOT, ENUM_CONSTANT_DEF, EXPR, LITERAL_CATCH, LITERAL_DO, LITERAL_FOR, LITERAL_IF, LITERAL_NEW, LITERAL_SWITCH, LITERAL_SYNCHRONIZED, LITERAL_WHILE, METHOD_CALL, QUESTION, RESOURCE_SPECIFICATION, SUPER_CTOR_CALL, LAMBDA"/>
+        </module>
+        <module name="SingleSpaceSeparator"/>
+        <module name="TypecastParenPad"/>
+        <module name="WhitespaceAfter"/>
+        <module name="WhitespaceAround"/>
+
         <!-- See http://checkstyle.sourceforge.net/config_modifiers.html -->
         <module name="ModifierOrder"/>
+
+        <!-- See https://checkstyle.org/config_blocks.html -->
+        <module name="AvoidNestedBlocks"/>
+        <module name="LeftCurly">
+            <property name="option" value="nl"/>
+        </module>
+        <module name="RightCurly"/>
 
         <!-- See http://checkstyle.sourceforge.net/config_design.html -->
         <module name="FinalClass"/>
 
         <!-- See http://checkstyle.sourceforge.net/config_misc.html -->
         <module name="ArrayTypeStyle"/>
+        <module name="CommentsIndentation"/>
+        <module name="Indentation"/>
         <module name="UpperEll"/>
     </module>
 </module>

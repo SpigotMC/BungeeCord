@@ -40,7 +40,7 @@ public class CommandServer extends Command implements TabExecutor
                 sender.sendMessage( ProxyServer.getInstance().getTranslation( "current_server", ( (ProxiedPlayer) sender ).getServer().getInfo().getName() ) );
             }
 
-            ComponentBuilder serverList = new ComponentBuilder( "" ).appendLegacy( ProxyServer.getInstance().getTranslation( "server_list" ) );
+            ComponentBuilder serverList = new ComponentBuilder().appendLegacy( ProxyServer.getInstance().getTranslation( "server_list" ) );
             boolean first = true;
             for ( ServerInfo server : servers.values() )
             {

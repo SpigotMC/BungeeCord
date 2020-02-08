@@ -49,6 +49,7 @@ public class ForgeClientHandler
      * Handles the Forge packet.
      *
      * @param message The Forge Handshake packet to handle.
+     * @throws IllegalArgumentException if invalid packet received
      */
     public void handle(PluginMessage message) throws IllegalArgumentException
     {
@@ -79,6 +80,7 @@ public class ForgeClientHandler
      * Receives a {@link PluginMessage} from ForgeServer to pass to Client.
      *
      * @param message The message to being received.
+     * @throws IllegalArgumentException if invalid packet received
      */
     public void receive(PluginMessage message) throws IllegalArgumentException
     {

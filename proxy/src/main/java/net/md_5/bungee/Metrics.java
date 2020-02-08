@@ -52,7 +52,10 @@ public class Metrics extends TimerTask
     }
 
     /**
-     * Generic method that posts a plugin to the metrics website
+     * Generic method that posts a plugin to the metrics website.
+     *
+     * @param isPing first post or not
+     * @throws IOException any errors encountered
      */
     private void postPlugin(boolean isPing) throws IOException
     {
@@ -110,6 +113,7 @@ public class Metrics extends TimerTask
      * @param buffer the StringBuilder to append the data pair onto
      * @param key the key value
      * @param value the value
+     * @throws UnsupportedEncodingException if UTF-8 encoding not supported
      */
     private static void encodeDataPair(final StringBuilder buffer, final String key, final String value) throws UnsupportedEncodingException
     {
@@ -121,6 +125,7 @@ public class Metrics extends TimerTask
      *
      * @param text the text to encode
      * @return the encoded text, as UTF-8
+     * @throws UnsupportedEncodingException if UTF-8 encoding not supported
      */
     private static String encode(final String text) throws UnsupportedEncodingException
     {

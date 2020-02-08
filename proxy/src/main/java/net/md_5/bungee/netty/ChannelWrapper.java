@@ -5,7 +5,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +23,7 @@ public class ChannelWrapper
     private final Channel ch;
     @Getter
     @Setter
-    private InetSocketAddress remoteAddress;
+    private SocketAddress remoteAddress;
     @Getter
     private volatile boolean closed;
     @Getter
@@ -32,7 +32,7 @@ public class ChannelWrapper
     public ChannelWrapper(ChannelHandlerContext ctx)
     {
         this.ch = ctx.channel();
-        this.remoteAddress = (InetSocketAddress) this.ch.remoteAddress();
+        this.remoteAddress = ( this.ch.remoteAddress() == null ) ? this.ch.parent().localAddress() : this.ch.remoteAddress();
     }
 
     public void setProtocol(Protocol protocol)
@@ -81,14 +81,6 @@ public class ChannelWrapper
             if ( packet != null && ch.isActive() )
             {
                 ch.writeAndFlush( packet ).addListeners( ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE, ChannelFutureListener.CLOSE );
-                ch.eventLoop().schedule( new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        ch.close();
-                    }
-                }, 250, TimeUnit.MILLISECONDS );
             } else
             {
                 ch.flush();

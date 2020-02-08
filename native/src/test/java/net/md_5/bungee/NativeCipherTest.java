@@ -80,6 +80,9 @@ public class NativeCipherTest
     /**
      * Hackish test which can test both native and fallback ciphers using direct
      * buffers.
+     *
+     * @param cipher cipher to test
+     * @throws java.lang.Exception any exceptions encountered
      */
     public void testACipher(BungeeCipher cipher) throws Exception
     {

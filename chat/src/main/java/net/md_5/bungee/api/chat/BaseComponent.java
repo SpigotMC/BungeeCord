@@ -13,7 +13,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder.FormatRetention;
 
 @Setter
 @ToString(exclude = "parent")
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = "parent")
 @NoArgsConstructor
 public abstract class BaseComponent
 {
@@ -503,6 +503,31 @@ public abstract class BaseComponent
             {
                 e.toLegacyText( builder );
             }
+        }
+    }
+
+    void addFormat(StringBuilder builder)
+    {
+        builder.append( getColor() );
+        if ( isBold() )
+        {
+            builder.append( ChatColor.BOLD );
+        }
+        if ( isItalic() )
+        {
+            builder.append( ChatColor.ITALIC );
+        }
+        if ( isUnderlined() )
+        {
+            builder.append( ChatColor.UNDERLINE );
+        }
+        if ( isStrikethrough() )
+        {
+            builder.append( ChatColor.STRIKETHROUGH );
+        }
+        if ( isObfuscated() )
+        {
+            builder.append( ChatColor.MAGIC );
         }
     }
 }
