@@ -561,7 +561,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new Connector( userCon, bungee.getBotFilter() ) );
         } else
         {
-            bungee.getLogger().log( Level.INFO, "{0} has connected", InitialHandler.this );
             bungee.getBotFilter().saveUser( userCon.getName().toLowerCase(), IPUtils.getAddress( userCon ) ); //update timestamp
             finishLogin( userCon, sendLoginSuccess ); //if true, dont send again login success
         }

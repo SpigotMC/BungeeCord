@@ -27,12 +27,6 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
 
         try
         {
-            //BotFilter start
-            if ( in.readableBytes() == 0 )
-            {
-                return;
-            }
-            //BotFilter end
             int packetId = DefinedPacket.readVarInt( in );
             DefinedPacket packet = prot.createPacket( packetId, protocolVersion );
             if ( packet != null )

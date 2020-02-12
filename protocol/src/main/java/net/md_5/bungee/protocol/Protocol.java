@@ -385,14 +385,13 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_14, 0x47 ),
                     map( ProtocolConstants.MINECRAFT_1_15, 0x48 )
             );
-            //no changes in 1.15??
             TO_SERVER.registerPacket(
-                    ClientSettings.class, ClientSettings::new,
-                    map( ProtocolConstants.MINECRAFT_1_8, 0x15 ),
-                    map( ProtocolConstants.MINECRAFT_1_9, 0x04 ),
-                    map( ProtocolConstants.MINECRAFT_1_12, 0x05 ),
-                    map( ProtocolConstants.MINECRAFT_1_13, 0x04 ),
-                    map( ProtocolConstants.MINECRAFT_1_14, 0x05 )
+                ClientSettings.class, ClientSettings::new,
+                map( ProtocolConstants.MINECRAFT_1_8, 0x15 ),
+                map( ProtocolConstants.MINECRAFT_1_9, 0x04 ),
+                map( ProtocolConstants.MINECRAFT_1_12, 0x05 ),
+                map( ProtocolConstants.MINECRAFT_1_12_1, 0x04 ),
+                map( ProtocolConstants.MINECRAFT_1_14, 0x05 )
             );
             TO_SERVER.registerPacket(
                     TeleportConfirm.class, TeleportConfirm::new,

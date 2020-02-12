@@ -30,7 +30,7 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
             if ( buf[i] >= 0 )
             {
                 int length = DefinedPacket.readVarInt( Unpooled.wrappedBuffer( buf ) );
-                if ( false && length == 0 ) //BotFilter
+                if ( length == 0 )
                 {
                     throw new CorruptedFrameException( "Empty Packet!" );
                 }
