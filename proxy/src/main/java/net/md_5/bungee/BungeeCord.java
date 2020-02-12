@@ -297,6 +297,18 @@ public class BungeeCord extends ProxyServer
             }
         }, 0, TimeUnit.MINUTES.toMillis( 5 ) );
         metricsThread.scheduleAtFixedRate( new Metrics(), 0, TimeUnit.MINUTES.toMillis( Metrics.PING_INTERVAL ) );
+
+        Runtime.getRuntime().addShutdownHook( new Thread( new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                if ( isRunning )
+                {
+                    independantThreadStop( getTranslation( "restart" ) );
+                }
+            }
+        } ) );
     }
 
     public void startListeners()
@@ -396,79 +408,85 @@ public class BungeeCord extends ProxyServer
         new Thread( "Shutdown Thread" )
         {
             @Override
-            @SuppressFBWarnings("DM_EXIT")
-            @SuppressWarnings("TooBroadCatch")
             public void run()
             {
-                stopListeners();
-                getLogger().info( "Closing pending connections" );
-
-                connectionLock.readLock().lock();
-                try
-                {
-                    getLogger().log( Level.INFO, "Disconnecting {0} connections", connections.size() );
-                    for ( UserConnection user : connections.values() )
-                    {
-                        user.disconnect( reason );
-                    }
-                } finally
-                {
-                    connectionLock.readLock().unlock();
-                }
-
-                try
-                {
-                    Thread.sleep( 500 );
-                } catch ( InterruptedException ex )
-                {
-                }
-
-                if ( reconnectHandler != null )
-                {
-                    getLogger().info( "Saving reconnect locations" );
-                    reconnectHandler.save();
-                    reconnectHandler.close();
-                }
-                saveThread.cancel();
-                metricsThread.cancel();
-
-                // TODO: Fix this shit
-                getLogger().info( "Disabling plugins" );
-                for ( Plugin plugin : Lists.reverse( new ArrayList<>( pluginManager.getPlugins() ) ) )
-                {
-                    try
-                    {
-                        plugin.onDisable();
-                        for ( Handler handler : plugin.getLogger().getHandlers() )
-                        {
-                            handler.close();
-                        }
-                    } catch ( Throwable t )
-                    {
-                        getLogger().log( Level.SEVERE, "Exception disabling plugin " + plugin.getDescription().getName(), t );
-                    }
-                    getScheduler().cancel( plugin );
-                    plugin.getExecutorService().shutdownNow();
-                }
-
-                getLogger().info( "Closing IO threads" );
-                eventLoops.shutdownGracefully();
-                try
-                {
-                    eventLoops.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS );
-                } catch ( InterruptedException ex )
-                {
-                }
-
-                getLogger().info( "Thank you and goodbye" );
-                // Need to close loggers after last message!
-                for ( Handler handler : getLogger().getHandlers() )
-                {
-                    handler.close();
-                }
+                independantThreadStop( reason );
                 System.exit( 0 );
             }
         }.start();
+    }
+
+    /* This must be run on a separate thread to avoid deadlock! */
+    @SuppressFBWarnings("DM_EXIT")
+    @SuppressWarnings("TooBroadCatch")
+    private void independantThreadStop(final String reason)
+    {
+        stopListeners();
+        getLogger().info( "Closing pending connections" );
+
+        connectionLock.readLock().lock();
+        try
+        {
+            getLogger().log( Level.INFO, "Disconnecting {0} connections", connections.size() );
+            for ( UserConnection user : connections.values() )
+            {
+                user.disconnect( reason );
+            }
+        } finally
+        {
+            connectionLock.readLock().unlock();
+        }
+
+        try
+        {
+            Thread.sleep( 500 );
+        } catch ( InterruptedException ex )
+        {
+        }
+
+        if ( reconnectHandler != null )
+        {
+            getLogger().info( "Saving reconnect locations" );
+            reconnectHandler.save();
+            reconnectHandler.close();
+        }
+        saveThread.cancel();
+        metricsThread.cancel();
+
+        // TODO: Fix this shit
+        getLogger().info( "Disabling plugins" );
+        for ( Plugin plugin : Lists.reverse( new ArrayList<>( pluginManager.getPlugins() ) ) )
+        {
+            try
+            {
+                plugin.onDisable();
+                for ( Handler handler : plugin.getLogger().getHandlers() )
+                {
+                    handler.close();
+                }
+            } catch ( Throwable t )
+            {
+                getLogger().log( Level.SEVERE, "Exception disabling plugin " + plugin.getDescription().getName(), t );
+            }
+            getScheduler().cancel( plugin );
+            plugin.getExecutorService().shutdownNow();
+        }
+
+        getLogger().info( "Closing IO threads" );
+        eventLoops.shutdownGracefully();
+        try
+        {
+            eventLoops.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS );
+        } catch ( InterruptedException ex )
+        {
+        }
+
+        getLogger().info( "Thank you and goodbye" );
+        // Need to close loggers after last message!
+        for ( Handler handler : getLogger().getHandlers() )
+        {
+            handler.close();
+        }
     }
 
     /**
