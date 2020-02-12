@@ -57,6 +57,8 @@ public class Configuration implements ProxyConfig
     private int remotePingCache = -1;
     private int playerLimit = -1;
     private Collection<String> disabledCommands;
+    private int serverConnectTimeout = 5000;
+    private int remotePingTimeout = 5000;
     private int throttle = 4000;
     private int throttleLimit = 3;
     private boolean ipForward;
@@ -90,6 +92,8 @@ public class Configuration implements ProxyConfig
         logPings = adapter.getBoolean( "log_pings", logPings );
         remotePingCache = adapter.getInt( "remote_ping_cache", remotePingCache );
         playerLimit = adapter.getInt( "player_limit", playerLimit );
+        serverConnectTimeout = adapter.getInt( "server_connect_timeout", serverConnectTimeout );
+        remotePingTimeout = adapter.getInt( "remote_ping_timeout", remotePingTimeout );
         throttle = adapter.getInt( "connection_throttle", throttle );
         throttleLimit = adapter.getInt( "connection_throttle_limit", throttleLimit );
         ipForward = adapter.getBoolean( "ip_forward", ipForward );

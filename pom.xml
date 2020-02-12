@@ -104,7 +104,7 @@
             <plugin>
                 <groupId>net.md-5</groupId>
                 <artifactId>scriptus</artifactId>
-                <version>0.3.1</version>
+                <version>0.3.2</version>
                 <configuration>
                     <format>git:${project.name}:${project.version}:%s:${build.number}</format>
                 </configuration>
@@ -138,10 +138,81 @@
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
                         <artifactId>checkstyle</artifactId>
-                        <version>8.27</version>
+                        <version>8.29</version>
                     </dependency>
                 </dependencies>
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>dist</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.2.1</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok-maven-plugin</artifactId>
+                        <version>1.18.10.0</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>delombok</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <addOutputDirectory>false</addOutputDirectory>
+                            <outputDirectory>${project.build.directory}/delombok</outputDirectory>
+                            <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.1.1</version>
+                        <executions>
+                            <!-- Execute Javadoc once normally to catch any warnings -->
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                            <!-- Then execute it again to generate properly with delombok -->
+                            <execution>
+                                <id>delombok</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                                <configuration>
+                                    <!-- lombok does not add @return or @param which causes warnings, so ignore -->
+                                    <doclint>none</doclint>
+                                    <sourcepath>${project.build.directory}/delombok</sourcepath>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <quiet>true</quiet>
+                            <failOnWarnings>true</failOnWarnings>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
