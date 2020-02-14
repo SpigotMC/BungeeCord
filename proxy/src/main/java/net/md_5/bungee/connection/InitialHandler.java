@@ -330,11 +330,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         // We know FML appends \00FML\00. However, we need to also consider that other systems might
         // add their own data to the end of the string. So, we just take everything from the \0 character
         // and save it for later.
-        final String handshakeHost = handshake.getHost();
-        if ( handshakeHost.contains( "\0" ) )
+        String handshakeHost = handshake.getHost();
+        if ( handshakeHost.indexOf( '\0' ) > -1)
         {
             String[] split = handshakeHost.split( "\0", 2 );
-            handshake.setHost( split[ 0 ] );
+            handshake.setHost( handshakeHost = split[ 0 ] );
             extraDataInHandshake = "\0" + split[ 1 ];
         }
 
