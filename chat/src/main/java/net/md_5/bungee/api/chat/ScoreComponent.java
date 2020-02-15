@@ -85,8 +85,16 @@ public final class ScoreComponent extends BaseComponent
     }
 
     @Override
+    protected void toPlainText(StringBuilder builder)
+    {
+        builder.append( this.value );
+        super.toPlainText( builder );
+    }
+
+    @Override
     protected void toLegacyText(StringBuilder builder)
     {
+        addFormat( builder );
         builder.append( this.value );
         super.toLegacyText( builder );
     }

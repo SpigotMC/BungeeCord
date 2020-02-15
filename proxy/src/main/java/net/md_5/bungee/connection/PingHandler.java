@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.BungeeServerInfo;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerPing;
@@ -66,7 +67,9 @@ public class PingHandler extends PacketHandler
     public void handle(StatusResponse statusResponse) throws Exception
     {
         Gson gson = protocol == ProtocolConstants.MINECRAFT_1_7_2 ? BungeeCord.getInstance().gsonLegacy : BungeeCord.getInstance().gson;
-        callback.done( gson.fromJson( statusResponse.getResponse(), ServerPing.class ), null );
+        ServerPing serverPing = gson.fromJson( statusResponse.getResponse(), ServerPing.class );
+        ( (BungeeServerInfo) target ).cachePing( serverPing );
+        callback.done( serverPing, null );
         channel.close();
     }
 

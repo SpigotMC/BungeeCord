@@ -24,7 +24,7 @@ public class YamlReconnectHandler extends AbstractReconnectHandler
     private final File file = new File( "locations.yml" );
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     /*========================================================================*/
-    private CaseInsensitiveMap< String> data;
+    private CaseInsensitiveMap<String> data;
 
     @SuppressWarnings("unchecked")
     public YamlReconnectHandler()

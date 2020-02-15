@@ -1,6 +1,7 @@
 package net.md_5.bungee.api.config;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Collection;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.CommandSender;
@@ -26,8 +27,18 @@ public interface ServerInfo
      * class.
      *
      * @return the IP and port pair for this server
+     * @deprecated BungeeCord can connect via Unix domain sockets
      */
+    @Deprecated
     InetSocketAddress getAddress();
+
+    /**
+     * Gets the connectable address for this server. Implementations expect this
+     * to be used as the unique identifier per each instance of this class.
+     *
+     * @return the address for this server
+     */
+    SocketAddress getSocketAddress();
 
     /**
      * Get the set of all players on this server.

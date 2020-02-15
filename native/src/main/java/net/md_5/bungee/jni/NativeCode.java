@@ -28,8 +28,8 @@ public final class NativeCode<T>
     {
         try
         {
-            return ( loaded ) ? nativeImpl.newInstance() : javaImpl.newInstance();
-        } catch ( IllegalAccessException | InstantiationException ex )
+            return ( loaded ) ? nativeImpl.getDeclaredConstructor().newInstance() : javaImpl.getDeclaredConstructor().newInstance();
+        } catch ( ReflectiveOperationException ex )
         {
             throw new RuntimeException( "Error getting instance", ex );
         }

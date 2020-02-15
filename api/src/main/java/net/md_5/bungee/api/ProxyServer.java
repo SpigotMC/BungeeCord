@@ -3,6 +3,7 @@ package net.md_5.bungee.api;
 import com.google.common.base.Preconditions;
 import java.io.File;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
@@ -52,6 +53,8 @@ public abstract class ProxyServer
     /**
      * Gets a localized string from the .properties file.
      *
+     * @param name translation name
+     * @param args translation arguments
      * @return the localized string
      */
     public abstract String getTranslation(String name, Object... args);
@@ -203,6 +206,18 @@ public abstract class ProxyServer
      * @return the constructed instance
      */
     public abstract ServerInfo constructServerInfo(String name, InetSocketAddress address, String motd, boolean restricted);
+
+    /**
+     * Factory method to construct an implementation specific server info
+     * instance.
+     *
+     * @param name name of the server
+     * @param address connectable Minecraft address + port of the server
+     * @param motd the motd when used as a forced server
+     * @param restricted whether the server info restricted property will be set
+     * @return the constructed instance
+     */
+    public abstract ServerInfo constructServerInfo(String name, SocketAddress address, String motd, boolean restricted);
 
     /**
      * Returns the console overlord for this proxy. Being the console, this

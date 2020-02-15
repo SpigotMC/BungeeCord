@@ -2,6 +2,7 @@ package net.md_5.bungee;
 
 import com.google.common.base.Ticker;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
@@ -27,14 +28,14 @@ public class ThrottleTest
     {
         FixedTicker ticker = new FixedTicker();
         ConnectionThrottle throttle = new ConnectionThrottle( ticker, 10, 3 );
-        InetAddress address;
+        InetSocketAddress address;
 
         try
         {
-            address = InetAddress.getLocalHost();
+            address = new InetSocketAddress( InetAddress.getLocalHost(), 0 );
         } catch ( UnknownHostException ex )
         {
-            address = InetAddress.getByName( null );
+            address = new InetSocketAddress( InetAddress.getByName( null ), 0 );
         }
 
         Assert.assertFalse( "Address should not be throttled", throttle.throttle( address ) ); // 1
