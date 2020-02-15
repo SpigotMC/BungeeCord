@@ -22,6 +22,7 @@ import net.md_5.bungee.command.ConsoleCommandSender;
 
 public class BungeeCordLauncher
 {
+    @SuppressWarnings("checkstyle:ParenPad")
     public static void main(String[] args) throws Exception
     {
         Security.setProperty( "networkaddress.cache.ttl", "30" );
@@ -46,11 +47,11 @@ public class BungeeCordLauncher
             return;
         }
 
-        if ( BungeeCord.class.getPackage().getSpecificationVersion() != null && System.getProperty( "IReallyKnowWhatIAmDoingISwear" ) == null)
+        if ( BungeeCord.class.getPackage().getSpecificationVersion() != null && System.getProperty( "IReallyKnowWhatIAmDoingISwear" ) == null )
         {
             String version = BungeeCord.class.getPackage().getSpecificationVersion();
 
-            if ( version.equalsIgnoreCase("unknown") )
+            if ( version.equalsIgnoreCase( "unknown" ) )
             {
                 System.err.println( "*** You are using a self compiled version ***" );
                 System.err.println( "*** Please make sure your server is up to date ***" );
@@ -80,27 +81,23 @@ public class BungeeCordLauncher
 
                         if ( latestVersion > currentVersion )
                         {
-                            System.err.println("*** Warning, this build is outdated ***");
-                            System.err.println("*** Please download a new build from https://github.com/HexagonMC/BungeeCord/releases ***");
-                            System.err.println("*** You will get NO support regarding this build ***");
-                            System.err.println("*** Server will start in 10 seconds ***");
-                            Thread.sleep(TimeUnit.SECONDS.toMillis(10));
+                            System.err.println( "*** Warning, this build is outdated ***" );
+                            System.err.println( "*** Please download a new build from https://github.com/HexagonMC/BungeeCord/releases ***" );
+                            System.err.println( "*** You will get NO support regarding this build ***" );
+                            System.err.println( "*** Server will start in 10 seconds ***" );
+                            Thread.sleep( TimeUnit.SECONDS.toMillis( 10 ) );
                         }
-                    }
-                    catch ( JsonIOException e )
+                    } catch ( JsonIOException e )
                     {
-                        throw new IOException(e);
-                    }
-                    catch ( JsonSyntaxException e )
+                        throw new IOException( e );
+                    } catch ( JsonSyntaxException e )
+                    {
+                        throw new IOException( e );
+                    } catch ( NumberFormatException e )
                     {
                         throw new IOException( e );
                     }
-                    catch( NumberFormatException e )
-                    {
-                        throw new IOException( e );
-                    }
-                }
-                catch ( IOException e )
+                } catch ( IOException e )
                 {
                     System.err.println( "*** Can not test if up to date ***" );
                     System.err.println( "*** Using current version without warranty ***" );
@@ -120,7 +117,7 @@ public class BungeeCordLauncher
             String line;
             while ( bungee.isRunning && ( line = bungee.getConsoleReader().readLine( ">" ) ) != null )
             {
-                if ( !bungee.getPluginManager().dispatchCommand(ConsoleCommandSender.getInstance(), line ) )
+                if ( !bungee.getPluginManager().dispatchCommand( ConsoleCommandSender.getInstance(), line ) )
                 {
                     bungee.getConsole().sendMessage( new ComponentBuilder( "Command not found" ).color( ChatColor.RED ).create() );
                 }

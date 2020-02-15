@@ -165,7 +165,7 @@ public final class UserConnection implements ProxiedPlayer
 
         // No-config FML handshake marker.
         // Set whether the connection has a 1.8 FML marker in the handshake.
-        if (this.getPendingConnection().getExtraDataInHandshake().contains( ForgeConstants.FML_HANDSHAKE_TOKEN ))
+        if ( this.getPendingConnection().getExtraDataInHandshake().contains( ForgeConstants.FML_HANDSHAKE_TOKEN ) )
         {
             forgeClientHandler.setFmlTokenInHandshake( true );
         }
@@ -186,7 +186,7 @@ public final class UserConnection implements ProxiedPlayer
     public void setDisplayName(String name)
     {
         Preconditions.checkNotNull( name, "displayName" );
-        if( pendingConnection.getVersion() <= ProtocolConstants.MINECRAFT_1_7_6 )
+        if ( pendingConnection.getVersion() <= ProtocolConstants.MINECRAFT_1_7_6 )
         {
             Preconditions.checkArgument( name.length() <= 16, "Display name cannot be longer than 16 characters" );
         }

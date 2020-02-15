@@ -119,14 +119,14 @@ public class ServerConnector extends PacketHandler
                 // Add a new profile property that specifies that this user is a Forge user.
                 newp[newp.length - 2] = new LoginResult.Property( ForgeConstants.FML_LOGIN_PROFILE, "true", null );
                 // If we do not perform the replacement, then the IP Forwarding code in Spigot et. al. will try to split on this prematurely.
-                newp[newp.length - 1] = new LoginResult.Property( ForgeConstants.EXTRA_DATA, user.getExtraDataInHandshake().replaceAll( "\0", "\1"), "" );
+                newp[newp.length - 1] = new LoginResult.Property( ForgeConstants.EXTRA_DATA, user.getExtraDataInHandshake().replaceAll( "\0", "\1" ), "" );
                 // All done.
                 properties = newp;
             }
             // If we touched any properties, then append them
-            if (properties.length > 0)
+            if ( properties.length > 0 )
             {
-                newHost += "\00" + BungeeCord.getInstance().gson.toJson(properties);
+                newHost += "\00" + BungeeCord.getInstance().gson.toJson( properties );
             }
 
             copiedHandshake.setHost( newHost );
@@ -240,8 +240,7 @@ public class ServerConnector extends PacketHandler
             {
                 modLogin = new Login( login.getEntityId(), login.getGameMode(), login.getDimension(), login.getSeed(), login.getDifficulty(),
                         (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.getViewDistance(), login.isReducedDebugInfo(), login.isNormalRespawn() );
-            }
-            else
+            } else
             {
                 modLogin = new Login( login.getEntityId(), login.getGameMode(), (byte) login.getDimension(), login.getSeed(), login.getDifficulty(),
                         (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.getViewDistance(), login.isReducedDebugInfo(), login.isNormalRespawn() );
@@ -249,13 +248,12 @@ public class ServerConnector extends PacketHandler
 
             user.unsafe().sendPacket( modLogin );
 
-            if (user.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_8)
+            if ( user.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_8 )
             {
                 MinecraftOutput out = new MinecraftOutput();
-                out.writeStringUTF8WithoutLengthHeaderBecauseDinnerboneStuffedUpTheMCBrandPacket(ProxyServer.getInstance().getName() + " (" + ProxyServer.getInstance().getVersion() + ")");
-                user.unsafe().sendPacket(new PluginMessage("MC|Brand", out.toArray(), handshakeHandler.isServerForge()));
-            }
-            else
+                out.writeStringUTF8WithoutLengthHeaderBecauseDinnerboneStuffedUpTheMCBrandPacket( ProxyServer.getInstance().getName() + " (" + ProxyServer.getInstance().getVersion() + ")" );
+                user.unsafe().sendPacket( new PluginMessage( "MC|Brand", out.toArray(), handshakeHandler.isServerForge() ) );
+            } else
             {
                 ByteBuf brand = ByteBufAllocator.DEFAULT.heapBuffer();
                 DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")", brand );
@@ -273,7 +271,7 @@ public class ServerConnector extends PacketHandler
             for ( Objective objective : serverScoreboard.getObjectives() )
             {
                 //user.unsafe().sendPacket( new ScoreboardObjective( objective.getName(), objective.getValue(), ScoreboardObjective.HealthDisplay.fromString( objective.getType() ), (byte) 1 ) );
-                user.unsafe().sendPacket( new ScoreboardObjective( objective.getName(), objective.getValue(), objective.getType() == null ? null : ScoreboardObjective.HealthDisplay.fromString(objective.getType()), (byte) 1 ) ); // Travertine - 1.7
+                user.unsafe().sendPacket( new ScoreboardObjective( objective.getName(), objective.getValue(), objective.getType() == null ? null : ScoreboardObjective.HealthDisplay.fromString( objective.getType() ), (byte) 1 ) ); // Travertine - 1.7
             }
             for ( Score score : serverScoreboard.getScores() )
             {

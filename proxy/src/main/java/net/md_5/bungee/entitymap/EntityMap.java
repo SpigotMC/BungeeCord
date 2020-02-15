@@ -322,7 +322,8 @@ public abstract class EntityMap
         int packetId = DefinedPacket.readVarInt( packet );
         int packetIdLength = packet.readerIndex() - readerIndex;
 
-        if(packetId>=0) {
+        if ( packetId >= 0 )
+        {
             if ( ints[ packetId ] )
             {
                 rewriteInt( packet, oldId, newId, readerIndex + packetIdLength );

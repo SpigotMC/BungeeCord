@@ -191,7 +191,7 @@ public enum Protocol
             );
             TO_CLIENT.registerPacket(
                     EntityStatus.class,
-                    map( ProtocolConstants.MINECRAFT_1_7_2, 0x1A),
+                    map( ProtocolConstants.MINECRAFT_1_7_2, 0x1A ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x1B ),
                     map( ProtocolConstants.MINECRAFT_1_13, 0x1C ),
                     map( ProtocolConstants.MINECRAFT_1_14, 0x1B ),
@@ -377,7 +377,7 @@ public enum Protocol
     // Helper method
     private static ProtocolMapping map(int protocol, int id)
     {
-        return new ProtocolMapping(protocol, id);
+        return new ProtocolMapping( protocol, id );
     }
 
     static final class DirectionData

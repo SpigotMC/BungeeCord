@@ -60,7 +60,7 @@ public class TabCompleteRequest extends DefinedPacket
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13)
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
         {
             writeVarInt( transactionId, buf );
         }

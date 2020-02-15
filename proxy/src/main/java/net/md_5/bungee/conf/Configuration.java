@@ -168,7 +168,8 @@ public class Configuration implements ProxyConfig
     }
 
     @Override
-    public boolean getAlwaysHandlePackets() {
+    public boolean getAlwaysHandlePackets()
+    {
         return alwaysHandlePackets;
     }
 }
