@@ -136,6 +136,7 @@ public abstract class DefinedPacket<P extends DefinedPacket<P>>
     }
 
     /**
+     * @param buf buf
      * @return read varint (could also be something negative), -9975399 if it got too long, -9935799 if not enough read
      */
     public static int readVarIntLengthSpecial(byte[] buf)
@@ -165,6 +166,7 @@ public abstract class DefinedPacket<P extends DefinedPacket<P>>
     }
 
     /**
+     * @param input input
      * @return read varint (could also be something negative) or -9975399 if it got too long (max 2 bytes), -9935799 if its too short
      */
     public static int readVarIntPacketIdSpecial(ByteBuf input)
@@ -173,6 +175,8 @@ public abstract class DefinedPacket<P extends DefinedPacket<P>>
     }
 
     /**
+     * @param input input
+     * @param maxBytes max bytes
      * @return read varint (could also be something negative) or -9975399 if it got too long, -9935799 if its too short
      */
     public static int readVarIntPacketIdSpecial(ByteBuf input, int maxBytes)

@@ -91,7 +91,7 @@ public class PingHandler extends PacketHandler
     {
         channel.close();
         Gson gson = BungeeCord.getInstance().gson;
-        ServerPing serverPing = gson.fromJson( statusResponse.getResponse(), ServerPing.class );
+        ServerPing serverPing = gson.fromJson( packet.packet.getResponse(), ServerPing.class );
         ( (BungeeServerInfo) target ).cachePing( serverPing );
         callback.done( serverPing, null );
     }

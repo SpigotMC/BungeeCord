@@ -83,9 +83,9 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
             InetSocketAddress newAddress = new InetSocketAddress( proxy.sourceAddress(), proxy.sourcePort() );
 
             ProxyServer.getInstance().getLogger().log( Level.FINE, "Set remote address via PROXY {0} -> {1}", new Object[]
-                    {
-                            channel.getRemoteAddress(), newAddress
-                    } );
+            {
+                channel.getRemoteAddress(), newAddress
+            } );
 
             channel.setRemoteAddress( newAddress );
             return;

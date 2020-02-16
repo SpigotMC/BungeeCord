@@ -179,7 +179,8 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handleLogin(PacketWrapper<Login> packet) throws Exception
     {
-        if (thisState != State.LOGIN) {
+        if ( thisState != State.LOGIN )
+        {
             disconnect( "Not expecting LOGIN" );
             return;
         }
@@ -304,7 +305,7 @@ public class ServerConnector extends PacketHandler
 
         thisState = State.FINISHED;
 
-//        throw CancelSendSignal.INSTANCE; //TODO see line 171
+        // throw CancelSendSignal.INSTANCE; //TODO see line 171
     }
 
     @Override
@@ -340,7 +341,7 @@ public class ServerConnector extends PacketHandler
             user.sendMessage( message );
         }
 
-//        throw CancelSendSignal.INSTANCE; //TODO see line 171
+        // throw CancelSendSignal.INSTANCE; //TODO see line 171
     }
 
     @Override
