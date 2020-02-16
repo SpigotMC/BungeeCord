@@ -149,6 +149,7 @@ class EntityMap_1_10 extends EntityMap
             case 0x39 /* EntityMetadata : PacketPlayOutEntityMetadata */:
                 DefinedPacket.readVarInt( packet ); // Entity ID
                 rewriteMetaVarInt( packet, oldId + 1, newId + 1, 6 ); // fishing hook
+                rewriteMetaVarInt( packet, oldId, newId, 13 ); // guardian beam
                 break;
         }
         packet.readerIndex( readerIndex );

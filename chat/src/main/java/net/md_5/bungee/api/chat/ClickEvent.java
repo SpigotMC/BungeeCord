@@ -13,11 +13,11 @@ public final class ClickEvent
 {
 
     /**
-     * The type of action to perform on click
+     * The type of action to perform on click.
      */
     private final Action action;
     /**
-     * Depends on action
+     * Depends on the action.
      *
      * @see Action
      */
@@ -28,29 +28,35 @@ public final class ClickEvent
 
         /**
          * Open a url at the path given by
-         * {@link net.md_5.bungee.api.chat.ClickEvent#value}
+         * {@link net.md_5.bungee.api.chat.ClickEvent#value}.
          */
         OPEN_URL,
         /**
          * Open a file at the path given by
-         * {@link net.md_5.bungee.api.chat.ClickEvent#value}
+         * {@link net.md_5.bungee.api.chat.ClickEvent#value}.
          */
         OPEN_FILE,
         /**
          * Run the command given by
-         * {@link net.md_5.bungee.api.chat.ClickEvent#value}
+         * {@link net.md_5.bungee.api.chat.ClickEvent#value}.
          */
         RUN_COMMAND,
         /**
          * Inserts the string given by
-         * {@link net.md_5.bungee.api.chat.ClickEvent#value} into the players
-         * text box
+         * {@link net.md_5.bungee.api.chat.ClickEvent#value} into the player's
+         * text box.
          */
         SUGGEST_COMMAND,
         /**
          * Change to the page number given by
-         * {@link net.md_5.bungee.api.chat.ClickEvent#value} in a book
+         * {@link net.md_5.bungee.api.chat.ClickEvent#value} in a book.
          */
-        CHANGE_PAGE
+        CHANGE_PAGE,
+        /**
+         * Copy the string given by
+         * {@link net.md_5.bungee.api.chat.ClickEvent#value} into the player's
+         * clipboard.
+         */
+        COPY_TO_CLIPBOARD
     }
 }

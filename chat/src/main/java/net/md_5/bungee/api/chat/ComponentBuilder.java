@@ -3,6 +3,8 @@ package net.md_5.bungee.api.chat;
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 
 /**
@@ -23,11 +25,29 @@ import net.md_5.bungee.api.ChatColor;
  * part's formatting
  * </p>
  */
+@NoArgsConstructor
 public final class ComponentBuilder
 {
 
-    private BaseComponent current;
+    /**
+     * The position for the current part to modify. Modified cursors will
+     * automatically reset to the last part after appending new components.
+     * Default value at -1 to assert that the builder has no parts.
+     */
+    @Getter
+    private int cursor = -1;
+    @Getter
     private final List<BaseComponent> parts = new ArrayList<BaseComponent>();
+    private BaseComponent dummy;
+
+    private ComponentBuilder(BaseComponent[] parts)
+    {
+        for ( BaseComponent baseComponent : parts )
+        {
+            this.parts.add( baseComponent.duplicate() );
+        }
+        resetCursor();
+    }
 
     /**
      * Creates a ComponentBuilder from the other given ComponentBuilder to clone
@@ -37,11 +57,7 @@ public final class ComponentBuilder
      */
     public ComponentBuilder(ComponentBuilder original)
     {
-        current = original.current.duplicate();
-        for ( BaseComponent baseComponent : original.parts )
-        {
-            parts.add( baseComponent.duplicate() );
-        }
+        this( original.parts.toArray( new BaseComponent[ original.parts.size() ] ) );
     }
 
     /**
@@ -51,7 +67,7 @@ public final class ComponentBuilder
      */
     public ComponentBuilder(String text)
     {
-        current = new TextComponent( text );
+        this( new TextComponent( text ) );
     }
 
     /**
@@ -61,7 +77,58 @@ public final class ComponentBuilder
      */
     public ComponentBuilder(BaseComponent component)
     {
-        current = component.duplicate();
+
+        this( new BaseComponent[]
+        {
+            component
+        } );
+    }
+
+    private BaseComponent getDummy()
+    {
+        if ( dummy == null )
+        {
+            dummy = new BaseComponent()
+            {
+                @Override
+                public BaseComponent duplicate()
+                {
+                    return this;
+                }
+            };
+        }
+        return dummy;
+    }
+
+    /**
+     * Resets the cursor to index of the last element.
+     *
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder resetCursor()
+    {
+        cursor = parts.size() - 1;
+        return this;
+    }
+
+    /**
+     * Sets the position of the current component to be modified
+     *
+     * @param pos the cursor position synonymous to an element position for a
+     * list
+     * @return this ComponentBuilder for chaining
+     * @throws IndexOutOfBoundsException if the index is out of range
+     * ({@code index < 0 || index >= size()})
+     */
+    public ComponentBuilder setCursor(int pos) throws IndexOutOfBoundsException
+    {
+        if ( ( this.cursor != pos ) && ( pos < 0 || pos >= parts.size() ) )
+        {
+            throw new IndexOutOfBoundsException( "Cursor out of bounds (expected between 0 + " + ( parts.size() - 1 ) + ")" );
+        }
+
+        this.cursor = pos;
+        return this;
     }
 
     /**
@@ -88,11 +155,18 @@ public final class ComponentBuilder
      */
     public ComponentBuilder append(BaseComponent component, FormatRetention retention)
     {
-        parts.add( current );
-
-        BaseComponent previous = current;
-        current = component.duplicate();
-        current.copyFormatting( previous, retention, false );
+        BaseComponent previous = ( parts.isEmpty() ) ? null : parts.get( parts.size() - 1 );
+        if ( previous == null )
+        {
+            previous = dummy;
+            dummy = null;
+        }
+        if ( previous != null )
+        {
+            component.copyFormatting( previous, retention, false );
+        }
+        parts.add( component );
+        resetCursor();
         return this;
     }
 
@@ -122,13 +196,9 @@ public final class ComponentBuilder
     {
         Preconditions.checkArgument( components.length != 0, "No components to append" );
 
-        BaseComponent previous = current;
         for ( BaseComponent component : components )
         {
-            parts.add( current );
-
-            current = component.duplicate();
-            current.copyFormatting( previous, retention, false );
+            append( component, retention );
         }
 
         return this;
@@ -170,13 +240,7 @@ public final class ComponentBuilder
      */
     public ComponentBuilder append(String text, FormatRetention retention)
     {
-        parts.add( current );
-
-        BaseComponent old = current;
-        current = new TextComponent( text );
-        current.copyFormatting( old, retention, false );
-
-        return this;
+        return append( new TextComponent( text ), retention );
     }
 
     /**
@@ -211,6 +275,44 @@ public final class ComponentBuilder
     }
 
     /**
+     * Remove the component part at the position of given index.
+     *
+     * @param pos the index to remove at
+     * @throws IndexOutOfBoundsException if the index is out of range
+     * ({@code index < 0 || index >= size()})
+     */
+    public void removeComponent(int pos) throws IndexOutOfBoundsException
+    {
+        if ( parts.remove( pos ) != null )
+        {
+            resetCursor();
+        }
+    }
+
+    /**
+     * Gets the component part at the position of given index.
+     *
+     * @param pos the index to find
+     * @return the component
+     * @throws IndexOutOfBoundsException if the index is out of range
+     * ({@code index < 0 || index >= size()})
+     */
+    public BaseComponent getComponent(int pos) throws IndexOutOfBoundsException
+    {
+        return parts.get( pos );
+    }
+
+    /**
+     * Gets the component at the position of the cursor.
+     *
+     * @return the active component or null if builder is empty
+     */
+    public BaseComponent getCurrentComponent()
+    {
+        return ( cursor == -1 ) ? getDummy() : parts.get( cursor );
+    }
+
+    /**
      * Sets the color of the current part.
      *
      * @param color the new color
@@ -218,7 +320,7 @@ public final class ComponentBuilder
      */
     public ComponentBuilder color(ChatColor color)
     {
-        current.setColor( color );
+        getCurrentComponent().setColor( color );
         return this;
     }
 
@@ -230,7 +332,7 @@ public final class ComponentBuilder
      */
     public ComponentBuilder bold(boolean bold)
     {
-        current.setBold( bold );
+        getCurrentComponent().setBold( bold );
         return this;
     }
 
@@ -242,7 +344,7 @@ public final class ComponentBuilder
      */
     public ComponentBuilder italic(boolean italic)
     {
-        current.setItalic( italic );
+        getCurrentComponent().setItalic( italic );
         return this;
     }
 
@@ -254,7 +356,7 @@ public final class ComponentBuilder
      */
     public ComponentBuilder underlined(boolean underlined)
     {
-        current.setUnderlined( underlined );
+        getCurrentComponent().setUnderlined( underlined );
         return this;
     }
 
@@ -266,7 +368,7 @@ public final class ComponentBuilder
      */
     public ComponentBuilder strikethrough(boolean strikethrough)
     {
-        current.setStrikethrough( strikethrough );
+        getCurrentComponent().setStrikethrough( strikethrough );
         return this;
     }
 
@@ -278,7 +380,7 @@ public final class ComponentBuilder
      */
     public ComponentBuilder obfuscated(boolean obfuscated)
     {
-        current.setObfuscated( obfuscated );
+        getCurrentComponent().setObfuscated( obfuscated );
         return this;
     }
 
@@ -290,7 +392,7 @@ public final class ComponentBuilder
      */
     public ComponentBuilder insertion(String insertion)
     {
-        current.setInsertion( insertion );
+        getCurrentComponent().setInsertion( insertion );
         return this;
     }
 
@@ -302,7 +404,7 @@ public final class ComponentBuilder
      */
     public ComponentBuilder event(ClickEvent clickEvent)
     {
-        current.setClickEvent( clickEvent );
+        getCurrentComponent().setClickEvent( clickEvent );
         return this;
     }
 
@@ -314,7 +416,7 @@ public final class ComponentBuilder
      */
     public ComponentBuilder event(HoverEvent hoverEvent)
     {
-        current.setHoverEvent( hoverEvent );
+        getCurrentComponent().setHoverEvent( hoverEvent );
         return this;
     }
 
@@ -336,24 +438,28 @@ public final class ComponentBuilder
      */
     public ComponentBuilder retain(FormatRetention retention)
     {
-        current.retain( retention );
+        getCurrentComponent().retain( retention );
         return this;
     }
 
     /**
      * Returns the components needed to display the message created by this
-     * builder.
+     * builder.git
      *
      * @return the created components
      */
     public BaseComponent[] create()
     {
-        BaseComponent[] result = parts.toArray( new BaseComponent[ parts.size() + 1 ] );
-        result[parts.size()] = current;
-        return result;
+        BaseComponent[] cloned = new BaseComponent[ parts.size() ];
+        int i = 0;
+        for ( BaseComponent part : parts )
+        {
+            cloned[i++] = part.duplicate();
+        }
+        return cloned;
     }
 
-    public static enum FormatRetention
+    public enum FormatRetention
     {
 
         /**

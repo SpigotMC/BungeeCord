@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.chat.TranslationRegistry;
 
 @Getter
@@ -56,12 +55,12 @@ public final class TranslatableComponent extends BaseComponent
     /**
      * Creates a translatable component with the passed substitutions
      *
-     * @see #translate
-     * @see #setWith(java.util.List)
      * @param translate the translation key
      * @param with the {@link java.lang.String}s and
      * {@link net.md_5.bungee.api.chat.BaseComponent}s to use into the
      * translation
+     * @see #translate
+     * @see #setWith(java.util.List)
      */
     public TranslatableComponent(String translate, Object... with)
     {
@@ -139,44 +138,19 @@ public final class TranslatableComponent extends BaseComponent
     @Override
     protected void toPlainText(StringBuilder builder)
     {
-        String trans = TranslationRegistry.INSTANCE.translate( translate );
-
-        Matcher matcher = format.matcher( trans );
-        int position = 0;
-        int i = 0;
-        while ( matcher.find( position ) )
-        {
-            int pos = matcher.start();
-            if ( pos != position )
-            {
-                builder.append( trans.substring( position, pos ) );
-            }
-            position = matcher.end();
-
-            String formatCode = matcher.group( 2 );
-            switch ( formatCode.charAt( 0 ) )
-            {
-                case 's':
-                case 'd':
-                    String withIndex = matcher.group( 1 );
-                    with.get( withIndex != null ? Integer.parseInt( withIndex ) - 1 : i++ ).toPlainText( builder );
-                    break;
-                case '%':
-                    builder.append( '%' );
-                    break;
-            }
-        }
-        if ( trans.length() != position )
-        {
-            builder.append( trans.substring( position, trans.length() ) );
-        }
-
+        convert( builder, false );
         super.toPlainText( builder );
     }
 
     @Override
     protected void toLegacyText(StringBuilder builder)
     {
+        convert( builder, true );
+        super.toLegacyText( builder );
+    }
+
+    private void convert(StringBuilder builder, boolean applyFormat)
+    {
         String trans = TranslationRegistry.INSTANCE.translate( translate );
 
         Matcher matcher = format.matcher( trans );
@@ -187,7 +161,10 @@ public final class TranslatableComponent extends BaseComponent
             int pos = matcher.start();
             if ( pos != position )
             {
-                addFormat( builder );
+                if ( applyFormat )
+                {
+                    addFormat( builder );
+                }
                 builder.append( trans.substring( position, pos ) );
             }
             position = matcher.end();
@@ -198,44 +175,32 @@ public final class TranslatableComponent extends BaseComponent
                 case 's':
                 case 'd':
                     String withIndex = matcher.group( 1 );
-                    with.get( withIndex != null ? Integer.parseInt( withIndex ) - 1 : i++ ).toLegacyText( builder );
+
+                    BaseComponent withComponent = with.get( withIndex != null ? Integer.parseInt( withIndex ) - 1 : i++ );
+                    if ( applyFormat )
+                    {
+                        withComponent.toLegacyText( builder );
+                    } else
+                    {
+                        withComponent.toPlainText( builder );
+                    }
                     break;
                 case '%':
-                    addFormat( builder );
+                    if ( applyFormat )
+                    {
+                        addFormat( builder );
+                    }
                     builder.append( '%' );
                     break;
             }
         }
         if ( trans.length() != position )
         {
-            addFormat( builder );
+            if ( applyFormat )
+            {
+                addFormat( builder );
+            }
             builder.append( trans.substring( position, trans.length() ) );
-        }
-        super.toLegacyText( builder );
-    }
-
-    private void addFormat(StringBuilder builder)
-    {
-        builder.append( getColor() );
-        if ( isBold() )
-        {
-            builder.append( ChatColor.BOLD );
-        }
-        if ( isItalic() )
-        {
-            builder.append( ChatColor.ITALIC );
-        }
-        if ( isUnderlined() )
-        {
-            builder.append( ChatColor.UNDERLINE );
-        }
-        if ( isStrikethrough() )
-        {
-            builder.append( ChatColor.STRIKETHROUGH );
-        }
-        if ( isObfuscated() )
-        {
-            builder.append( ChatColor.MAGIC );
         }
     }
 }

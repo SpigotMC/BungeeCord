@@ -51,8 +51,16 @@ public final class SelectorComponent extends BaseComponent
     }
 
     @Override
+    protected void toPlainText(StringBuilder builder)
+    {
+        builder.append( this.selector );
+        super.toPlainText( builder );
+    }
+
+    @Override
     protected void toLegacyText(StringBuilder builder)
     {
+        addFormat( builder );
         builder.append( this.selector );
         super.toLegacyText( builder );
     }

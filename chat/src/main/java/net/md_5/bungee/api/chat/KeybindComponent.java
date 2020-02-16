@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import net.md_5.bungee.api.ChatColor;
 
 @Getter
 @Setter
@@ -60,29 +59,8 @@ public final class KeybindComponent extends BaseComponent
     @Override
     protected void toLegacyText(StringBuilder builder)
     {
-        builder.append( getColor() );
-        if ( isBold() )
-        {
-            builder.append( ChatColor.BOLD );
-        }
-        if ( isItalic() )
-        {
-            builder.append( ChatColor.ITALIC );
-        }
-        if ( isUnderlined() )
-        {
-            builder.append( ChatColor.UNDERLINE );
-        }
-        if ( isStrikethrough() )
-        {
-            builder.append( ChatColor.STRIKETHROUGH );
-        }
-        if ( isObfuscated() )
-        {
-            builder.append( ChatColor.MAGIC );
-        }
+        addFormat( builder );
         builder.append( getKeybind() );
-
         super.toLegacyText( builder );
     }
 }

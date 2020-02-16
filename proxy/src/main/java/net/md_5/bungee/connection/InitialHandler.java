@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.util.List;
@@ -118,6 +119,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, FINISHED;
     }
 
+    private boolean canSendKickMessage()
+    {
+        return thisState == State.USERNAME || thisState == State.ENCRYPT || thisState == State.FINISHED;
+    }
+
     @Override
     public void connected(ChannelWrapper channel) throws Exception
     {
@@ -127,7 +133,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void exception(Throwable t) throws Exception
     {
-        disconnect( ChatColor.RED + Util.exception( t ) );
+        if ( canSendKickMessage() )
+        {
+            disconnect( ChatColor.RED + Util.exception( t ) );
+        } else
+        {
+            ch.close();
+        }
     }
 
     @Override
@@ -208,6 +220,15 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         return pos == -1 ? str : str.substring( 0, pos );
     }
 
+    private ServerPing getPingInfo(String motd, int protocol)
+    {
+        return new ServerPing(
+                new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), protocol ),
+                new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
+                motd, BungeeCord.getInstance().config.getFaviconObject()
+        );
+    }
+
     @Override
     public void handle(StatusRequest statusRequest) throws Exception
     {
@@ -215,6 +236,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
         final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
+        final int protocol = ( ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
 
         Callback<ServerPing> pingBack = new Callback<ServerPing>()
         {
@@ -223,8 +245,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             {
                 if ( error != null )
                 {
-                    result = new ServerPing();
-                    result.setDescription( bungee.getTranslation( "ping_cannot_connect" ) );
+                    result = getPingInfo( bungee.getTranslation( "ping_cannot_connect" ), protocol );
                     bungee.getLogger().log( Level.WARNING, "Error pinging remote server", error );
                 }
 
@@ -237,7 +258,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                         unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
                         if ( bungee.getConnectionThrottle() != null )
                         {
-                            bungee.getConnectionThrottle().unthrottle( getAddress().getAddress() );
+                            bungee.getConnectionThrottle().unthrottle( getSocketAddress() );
                         }
                     }
                 };
@@ -251,12 +272,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             ( (BungeeServerInfo) forced ).ping( pingBack, handshake.getProtocolVersion() );
         } else
         {
-            int protocol = ( ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
-            pingBack.done( new ServerPing(
-                    new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), protocol ),
-                    new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
-                    motd, BungeeCord.getInstance().config.getFaviconObject() ),
-                    null );
+            pingBack.done( getPingInfo( motd, protocol ), null );
         }
 
         thisState = State.PING;
@@ -296,10 +312,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         this.virtualHost = InetSocketAddress.createUnresolved( handshake.getHost(), handshake.getPort() );
-        if ( bungee.getConfig().isLogPings() )
-        {
-            bungee.getLogger().log( Level.INFO, "{0} has connected", this );
-        }
 
         bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
 
@@ -307,15 +319,16 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             case 1:
                 // Ping
+                if ( bungee.getConfig().isLogPings() )
+                {
+                    bungee.getLogger().log( Level.INFO, "{0} has pinged", this );
+                }
                 thisState = State.STATUS;
                 ch.setProtocol( Protocol.STATUS );
                 break;
             case 2:
                 // Login
-                if ( !bungee.getConfig().isLogPings() )
-                {
-                    bungee.getLogger().log( Level.INFO, "{0} has connected", this );
-                }
+                bungee.getLogger().log( Level.INFO, "{0} has connected", this );
                 thisState = State.USERNAME;
                 ch.setProtocol( Protocol.LOGIN );
 
@@ -422,7 +435,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
         String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
 
-        String preventProxy = ( ( BungeeCord.getInstance().config.isPreventProxyConnections() ) ? "&ip=" + URLEncoder.encode( getAddress().getAddress().getHostAddress(), "UTF-8" ) : "" );
+        String preventProxy = ( BungeeCord.getInstance().config.isPreventProxyConnections() && getSocketAddress() instanceof InetSocketAddress ) ? "&ip=" + URLEncoder.encode( getAddress().getAddress().getHostAddress(), "UTF-8" ) : "";
         String authURL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" + encName + "&serverId=" + encodedHash + preventProxy;
 
         Callback<String> handler = new Callback<String>()
@@ -557,13 +570,19 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void disconnect(String reason)
     {
-        disconnect( TextComponent.fromLegacyText( reason ) );
+        if ( canSendKickMessage() )
+        {
+            disconnect( TextComponent.fromLegacyText( reason ) );
+        } else
+        {
+            ch.close();
+        }
     }
 
     @Override
     public void disconnect(final BaseComponent... reason)
     {
-        if ( thisState != State.STATUS && thisState != State.PING && thisState != State.HANDSHAKE )
+        if ( canSendKickMessage() )
         {
             // Minecraft client can take some time to switch protocols.
             // Sending the wrong disconnect packet whilst a protocol switch is in progress will crash it.
@@ -607,6 +626,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public InetSocketAddress getAddress()
     {
+        return (InetSocketAddress) getSocketAddress();
+    }
+
+    @Override
+    public SocketAddress getSocketAddress()
+    {
         return ch.getRemoteAddress();
     }
 
@@ -640,7 +665,20 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public String toString()
     {
-        return "[" + ( ( getName() != null ) ? getName() : getAddress() ) + "] <-> InitialHandler";
+        StringBuilder sb = new StringBuilder();
+        sb.append( '[' );
+
+        String currentName = getName();
+        if ( currentName != null )
+        {
+            sb.append( currentName );
+            sb.append( ',' );
+        }
+
+        sb.append( getSocketAddress() );
+        sb.append( "] <-> InitialHandler" );
+
+        return sb.toString();
     }
 
     @Override
