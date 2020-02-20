@@ -40,7 +40,7 @@ import org.yaml.snakeyaml.introspector.PropertyUtils;
  * example event handling and plugin management.
  */
 @RequiredArgsConstructor
-public class PluginManager
+public final class PluginManager
 {
 
     /*========================================================================*/
