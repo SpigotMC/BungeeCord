@@ -32,16 +32,16 @@ final class PluginClassloader extends URLClassLoader
     }
 
     @Override
-    protected Class<?> findClass(String name) throws ClassNotFoundException
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException
     {
-        return findClass0( name, true );
+        return loadClass0( name, resolve, true );
     }
 
-    private Class<?> findClass0(String name, boolean checkOther) throws ClassNotFoundException
+    private Class<?> loadClass0(String name, boolean resolve, boolean checkOther) throws ClassNotFoundException
     {
         try
         {
-            return super.findClass( name );
+            return super.loadClass( name, resolve );
         } catch ( ClassNotFoundException ex )
         {
         }
@@ -53,7 +53,7 @@ final class PluginClassloader extends URLClassLoader
                 {
                     try
                     {
-                        return loader.findClass0( name, false );
+                        return loader.loadClass0( name, resolve, false );
                     } catch ( ClassNotFoundException ex )
                     {
                     }
