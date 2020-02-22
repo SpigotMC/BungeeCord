@@ -298,17 +298,17 @@ public class BungeeCord extends ProxyServer
         }, 0, TimeUnit.MINUTES.toMillis( 5 ) );
         metricsThread.scheduleAtFixedRate( new Metrics(), 0, TimeUnit.MINUTES.toMillis( Metrics.PING_INTERVAL ) );
 
-        Runtime.getRuntime().addShutdownHook( new Thread( new Runnable()
+        Runtime.getRuntime().addShutdownHook( new Thread()
         {
             @Override
             public void run()
             {
                 if ( isRunning )
                 {
-                    independantThreadStop( getTranslation( "restart" ) );
+                    independentThreadStop( getTranslation( "restart" ) );
                 }
             }
-        } ) );
+        } );
     }
 
     public void startListeners()
@@ -410,7 +410,7 @@ public class BungeeCord extends ProxyServer
             @Override
             public void run()
             {
-                independantThreadStop( reason );
+                independentThreadStop( reason );
                 System.exit( 0 );
             }
         }.start();
@@ -419,7 +419,7 @@ public class BungeeCord extends ProxyServer
     /* This must be run on a separate thread to avoid deadlock! */
     @SuppressFBWarnings("DM_EXIT")
     @SuppressWarnings("TooBroadCatch")
-    private void independantThreadStop(final String reason)
+    private void independentThreadStop(final String reason)
     {
         stopListeners();
         getLogger().info( "Closing pending connections" );
