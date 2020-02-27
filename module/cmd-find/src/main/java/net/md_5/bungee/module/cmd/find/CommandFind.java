@@ -1,14 +1,14 @@
 package net.md_5.bungee.module.cmd.find;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.TabExecutor;
 import net.md_5.bungee.command.PlayerCommand;
-import java.util.Locale;
-import java.util.HashSet;
-import java.util.Set;
 
 public class CommandFind extends PlayerCommand implements TabExecutor
 {
