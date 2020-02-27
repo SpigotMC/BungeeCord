@@ -40,6 +40,7 @@ import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -134,6 +135,11 @@ public class BungeeCord extends ProxyServer
     private final Map<UUID, UserConnection> connectionsByOfflineUUID = new HashMap<>();
     private final Map<UUID, UserConnection> connectionsByUUID = new HashMap<>();
     private final ReadWriteLock connectionLock = new ReentrantReadWriteLock();
+    /**
+     * Lock to protect the shutdown process from being triggered
+     * simultaneously from multiple sources
+     */
+    private final ReentrantLock shutdownLock = new ReentrantLock();
     /**
      * Plugin manager.
      */
@@ -303,10 +309,7 @@ public class BungeeCord extends ProxyServer
             @Override
             public void run()
             {
-                if ( isRunning )
-                {
-                    independentThreadStop( getTranslation( "restart" ) );
-                }
+                independentThreadStop( getTranslation( "restart" ), false );
             }
         } );
     }
@@ -399,19 +402,12 @@ public class BungeeCord extends ProxyServer
     @Override
     public synchronized void stop(final String reason)
     {
-        if ( !isRunning )
-        {
-            return;
-        }
-        isRunning = false;
-
         new Thread( "Shutdown Thread" )
         {
             @Override
             public void run()
             {
-                independentThreadStop( reason );
-                System.exit( 0 );
+                independentThreadStop( reason, true );
             }
         }.start();
     }
@@ -419,8 +415,26 @@ public class BungeeCord extends ProxyServer
     /* This must be run on a separate thread to avoid deadlock! */
     @SuppressFBWarnings("DM_EXIT")
     @SuppressWarnings("TooBroadCatch")
-    private void independentThreadStop(final String reason)
+    private void independentThreadStop(final String reason, boolean callSystemExit)
     {
+        /*
+         * Acquire the shutdown lock
+         * This needs to actually block here - otherwise running 'end' and then control+C will
+         * cause the thread to terminate prematurely
+         */
+        shutdownLock.lock();
+
+        /* Acquired the shutdown lock */
+
+        if ( !isRunning )
+        {
+            /* Server is already shutting down - nothing to do */
+            shutdownLock.unlock();
+            return;
+        }
+
+        isRunning = false;
+
         stopListeners();
         getLogger().info( "Closing pending connections" );
 
@@ -453,7 +467,6 @@ public class BungeeCord extends ProxyServer
         saveThread.cancel();
         metricsThread.cancel();
 
-        // TODO: Fix this shit
         getLogger().info( "Disabling plugins" );
         for ( Plugin plugin : Lists.reverse( new ArrayList<>( pluginManager.getPlugins() ) ) )
         {
@@ -486,6 +499,20 @@ public class BungeeCord extends ProxyServer
         for ( Handler handler : getLogger().getHandlers() )
         {
             handler.close();
+        }
+
+        /*
+         * Unlock the thread before optionally calling system exit,
+         * which might invoke this function again.
+         *
+         * If that happens, the system will obtain the lock, and then
+         * see that isRunning == false and return without doing anything
+         */
+        shutdownLock.unlock();
+
+        if ( callSystemExit )
+        {
+            System.exit( 0 );
         }
     }
 
