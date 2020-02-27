@@ -55,4 +55,3 @@ public class CommandFind extends PlayerCommand implements TabExecutor
         return matches;
     }
 }
-}
