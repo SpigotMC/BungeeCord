@@ -1,11 +1,17 @@
 package net.md_5.bungee.module.cmd.find;
 
+import com.google.common.collect.ImmutableSet;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.plugin.TabExecutor;
 import net.md_5.bungee.command.PlayerCommand;
 
-public class CommandFind extends PlayerCommand
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
+
+public class CommandFind extends PlayerCommand implements TabExecutor
 {
 
     public CommandFind()
@@ -31,4 +37,22 @@ public class CommandFind extends PlayerCommand
             }
         }
     }
+    public Iterable<String> onTabComplete(CommandSender sender, String[] args)
+    {
+        if (args.length != 1)
+        {
+            return ImmutableSet.of();
+        }
+        Set<String> matches = new HashSet<>();
+        String search = args[0].toLowerCase(Locale.ROOT);
+        for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers())
+        {
+            if (player.getName().toLowerCase(Locale.ROOT).startsWith(search))
+            {
+                matches.add(player.getName());
+            }
+        }
+        return matches;
+    }
+}
 }
