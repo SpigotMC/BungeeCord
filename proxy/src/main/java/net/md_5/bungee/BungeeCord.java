@@ -400,7 +400,7 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public synchronized void stop(final String reason)
+    public void stop(final String reason)
     {
         new Thread( "Shutdown Thread" )
         {
