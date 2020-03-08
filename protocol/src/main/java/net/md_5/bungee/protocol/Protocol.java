@@ -17,6 +17,7 @@ import net.md_5.bungee.protocol.packet.Commands;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.EntityStatus;
+import net.md_5.bungee.protocol.packet.GameState;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Kick;
@@ -213,9 +214,13 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_15, 0x12 )
             );
             TO_CLIENT.registerPacket(
-                    ViewDistance.class, ViewDistance::new,
-                    map( ProtocolConstants.MINECRAFT_1_14, 0x41 ),
-                    map( ProtocolConstants.MINECRAFT_1_15, 0x42 )
+                GameState.class, GameState::new,
+                map( ProtocolConstants.MINECRAFT_1_15, 0x1F )
+            );
+            TO_CLIENT.registerPacket(
+                ViewDistance.class, ViewDistance::new,
+                map( ProtocolConstants.MINECRAFT_1_14, 0x41 ),
+                map( ProtocolConstants.MINECRAFT_1_15, 0x42 )
             );
 
             TO_SERVER.registerPacket(
