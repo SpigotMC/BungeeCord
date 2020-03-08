@@ -4,6 +4,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
+import ru.leymooo.botfilter.caching.PacketUtils;
 
 /**
  * @author Leymooo
@@ -24,7 +25,13 @@ public class ManyChecksUtils
         {
             return;
         }
-        connections.put( address, numOfCon == null ? 1 : numOfCon + 1 );
+
+        Integer newValue = numOfCon == null ? 1 : numOfCon + 1;
+        if ( newValue == 3 )
+        {
+            FailedUtils.addIpToQueue( address.getHostAddress(), PacketUtils.KickType.MANYCHECKS );
+        }
+        connections.put( address, newValue );
     }
 
     public static boolean isManyChecks(InetAddress address)

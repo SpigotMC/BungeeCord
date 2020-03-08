@@ -20,7 +20,7 @@ public class Settings extends Config
     @Final
     public final String HELP = "http://www.rubukkit.org/threads/137038/";
     @Final
-    public String BOT_FILTER_VERSION = "3.7.8-5";
+    public String BOT_FILTER_VERSION = "3.7.9";
 
     @Create
     public MESSAGES MESSAGES;
@@ -229,6 +229,9 @@ public class Settings extends Config
 
     @Comment("Включить ли фикс от 'Team 'xxx' already exist in this scoreboard'")
     public boolean FIX_SCOREBOARD_TEAMS = true;
+
+    @Comment("Записывать ли IP адреса игроков/ботов которые провалили проверку в файл?")
+    public boolean SAVE_FAILED_IPS_TO_FILE = true;
 
     public void reload(File file)
     {

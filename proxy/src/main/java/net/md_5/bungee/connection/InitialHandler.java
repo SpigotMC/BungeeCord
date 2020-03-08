@@ -562,53 +562,49 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         } else
         {
             bungee.getBotFilter().saveUser( userCon.getName().toLowerCase(), IPUtils.getAddress( userCon ) ); //update timestamp
-            finishLogin( userCon, sendLoginSuccess ); //if true, dont send again login success
+            finishLogin( userCon, sendLoginSuccess, false ); //if true, dont send again login success
         }
     }
 
-    public void finishLogin(UserConnection userCon, boolean ignoreLoginSuccess)
+    public void finishLogin(UserConnection userCon, boolean ignoreLoginSuccess, boolean discardFirstKeepAlive)
     {
 
-        Callback<LoginEvent> complete = new Callback<LoginEvent>()
+        Callback<LoginEvent> complete = ( result, error ) ->
         {
-            @Override
-            public void done(LoginEvent result, Throwable error)
+            if ( result.isCancelled() )
             {
-                if ( result.isCancelled() )
+                disconnect( result.getCancelReasonComponents() );
+                return;
+            }
+            if ( ch.isClosed() )
+            {
+                return;
+            }
+            if ( isInEventLoop() )
+            {
+                finnalyFinishLogin( userCon, ignoreLoginSuccess, discardFirstKeepAlive );
+            } else
+            {
+                ch.getHandle().eventLoop().execute( () ->
                 {
-                    disconnect( result.getCancelReasonComponents() );
-                    return;
-                }
-                if ( ch.isClosed() )
-                {
-                    return;
-                }
-                if ( isInEventLoop() )
-                {
-                    finnalyFinishLogin( userCon, ignoreLoginSuccess );
-                } else
-                {
-                    ch.getHandle().eventLoop().execute( () ->
+                    if ( !ch.isClosing() )
                     {
-                        if ( !ch.isClosing() )
-                        {
-                            finnalyFinishLogin( userCon, ignoreLoginSuccess );
-                        }
-                    } );
-                }
+                        finnalyFinishLogin( userCon, ignoreLoginSuccess, discardFirstKeepAlive );
+                    }
+                } );
             }
         };
         // fire login event
         bungee.getPluginManager().callEvent( new LoginEvent( InitialHandler.this, complete ) );
     }
 
-    private void finnalyFinishLogin(UserConnection userCon, boolean ignoreLoginSuccess)
+    private void finnalyFinishLogin(UserConnection userCon, boolean ignoreLoginSuccess, boolean discardFirstKeepAlive)
     {
         userCon.init();
         sendLoginSuccess( !ignoreLoginSuccess );
         ch.setProtocol( Protocol.GAME );
 
-        ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) ); //BotFilter
+        ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon, discardFirstKeepAlive ) ); //BotFilter
 
         bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) ); //BotFilter
 

@@ -2,12 +2,14 @@ package ru.leymooo.botfilter;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import net.md_5.bungee.BungeeCord;
 import ru.leymooo.botfilter.BotFilter.CheckState;
 import ru.leymooo.botfilter.caching.PacketUtils.KickType;
 import ru.leymooo.botfilter.caching.PacketsPosition;
 import ru.leymooo.botfilter.config.Settings;
+import ru.leymooo.botfilter.utils.FailedUtils;
 import ru.leymooo.botfilter.utils.ManyChecksUtils;
 
 
@@ -49,7 +51,7 @@ public class BotFilterThread
                             default:
                                 if ( ( currTime - connector.getJoinTime() ) >= Settings.IMP.TIME_OUT )
                                 {
-                                    connector.failed( KickType.NOTPLAYER, state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED
+                                    connector.failed( KickType.TIMED_OUT, state == BotFilter.CheckState.CAPTCHA_ON_POSITION_FAILED
                                             ? "Too long fall check" : "Captcha not entered" );
                                     TO_REMOVE_SET.add( entryset.getKey() );
                                     continue;
@@ -105,31 +107,40 @@ public class BotFilterThread
 
     public static void startCleanUpThread()
     {
+
+        AtomicLong longHolder = new AtomicLong();
+        longHolder.set( System.currentTimeMillis() );
+
         new Thread( () ->
         {
-            while ( !Thread.interrupted() && sleep( BotFilter.ONE_MIN ) )
+            while ( !Thread.interrupted() && sleep( 5 * 1000 ) )
             {
-                ManyChecksUtils.cleanUP();
-                if ( bungee.getConnectionThrottle() != null )
+                if ( ( System.currentTimeMillis() - longHolder.get() ) >= BotFilter.ONE_MIN )
                 {
-                    bungee.getConnectionThrottle().cleanUP();
+                    longHolder.set( System.currentTimeMillis() );
+                    ManyChecksUtils.cleanUP();
+                    if ( bungee.getConnectionThrottle() != null )
+                    {
+                        bungee.getConnectionThrottle().cleanUP();
+                    }
+                    if ( bungee.getBotFilter() != null )
+                    {
+                        BotFilter botFilter = bungee.getBotFilter();
+                        if ( botFilter.getServerPingUtils() != null )
+                        {
+                            botFilter.getServerPingUtils().cleanUP();
+                        }
+                        if ( botFilter.getSql() != null )
+                        {
+                            botFilter.getSql().tryCleanUP();
+                        }
+                        if ( botFilter.getGeoIp() != null )
+                        {
+                            botFilter.getGeoIp().tryClenUP();
+                        }
+                    }
                 }
-                if ( bungee.getBotFilter() != null )
-                {
-                    BotFilter botFilter = bungee.getBotFilter();
-                    if ( botFilter.getServerPingUtils() != null )
-                    {
-                        botFilter.getServerPingUtils().cleanUP();
-                    }
-                    if ( botFilter.getSql() != null )
-                    {
-                        botFilter.getSql().tryCleanUP();
-                    }
-                    if ( botFilter.getGeoIp() != null )
-                    {
-                        botFilter.getGeoIp().tryClenUP();
-                    }
-                }
+                FailedUtils.flushQueue();
             }
         }, "CleanUp thread" ).start();
 

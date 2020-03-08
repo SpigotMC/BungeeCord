@@ -30,6 +30,7 @@ import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
+import ru.leymooo.botfilter.caching.PacketUtils;
 
 public class UpstreamBridge extends PacketHandler
 {
@@ -38,6 +39,7 @@ public class UpstreamBridge extends PacketHandler
     private final UserConnection con;
 
     private long lastTabCompletion = -1; //BotFilter
+    private boolean discardFirstKeepAlive = false; //BotFilter
 
     public UpstreamBridge(ProxyServer bungee, UserConnection con)
     {
@@ -60,6 +62,12 @@ public class UpstreamBridge extends PacketHandler
             con.setDelayedPluginMessages( clearPluginMessages( con.getDelayedPluginMessages() ) );
         }
         //BotFilter end
+    }
+
+    public UpstreamBridge(ProxyServer bungee, UserConnection con, boolean discardFirstKeepAlive)
+    {
+        this( bungee, con );
+        this.discardFirstKeepAlive = discardFirstKeepAlive;
     }
 
     //BotFilter start
@@ -152,6 +160,24 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(KeepAlive alive) throws Exception
     {
+        //BotFilter start - fix possibility race condition caused by botfilter keep alive packet
+        if ( con.getServer() == null )
+        {
+            throw CancelSendSignal.INSTANCE;
+        }
+        //BotFilter end
+
+        //BotFilter start - discard keepalive with id 9876 if player is after check
+        if ( discardFirstKeepAlive )
+        {
+            discardFirstKeepAlive = false;
+            if ( alive.getRandomId() == PacketUtils.KEEPALIVE_ID )
+            {
+                throw CancelSendSignal.INSTANCE;
+            }
+        }
+        //BotFilter end
+
         KeepAliveData keepAliveData = con.getServer().getKeepAlives().poll();
 
         if ( keepAliveData != null && alive.getRandomId() == keepAliveData.getId() )

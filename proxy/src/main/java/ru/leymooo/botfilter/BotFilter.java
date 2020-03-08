@@ -43,6 +43,7 @@ public class BotFilter
     @Getter
     private final Map<String, Connector> connectedUsersSet = new ConcurrentHashMap<>();
     //UserName, Ip
+    @Getter
     private final Map<String, String> userCache = new ConcurrentHashMap<>();
 
     private final ExecutorService executor = Executors.newFixedThreadPool( Runtime.getRuntime().availableProcessors() * 2, new ThreadFactoryBuilder().setNameFormat( "BF-%d" ).build() );

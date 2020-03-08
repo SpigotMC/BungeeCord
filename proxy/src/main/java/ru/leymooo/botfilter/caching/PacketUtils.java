@@ -35,6 +35,7 @@ public class PacketUtils
     public static int PROTOCOLS_COUNT = ProtocolConstants.SUPPORTED_VERSION_IDS.size();
 
     public static int CLIENTID = new Random().nextInt( Integer.MAX_VALUE - 100 ) + 50;
+    public static int KEEPALIVE_ID = 9876;
 
     private static final CachedPacket[] cachedPackets = new CachedPacket[ 16 ];
     private static final HashMap<KickType, CachedPacket> kickMessagesGame = new HashMap<KickType, CachedPacket>( 3 );
@@ -98,7 +99,7 @@ public class PacketUtils
             new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 38f, 9876, false ), //4
             new SetSlot( 0, 36, 358, 1, 0 ), //5 map 1.8+
             new SetSlot( 0, 36, -1, 0, 0 ), //6 map reset
-            new KeepAlive( 9876 ), //7
+            new KeepAlive( KEEPALIVE_ID ), //7
             createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "2" ).replaceFirst( "%s", "попытки" ) ), //8
             createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "1" ).replaceFirst( "%s", "попытка" ) ), //9
             createMessagePacket( Settings.IMP.MESSAGES.CHECKING ), //10
@@ -116,8 +117,11 @@ public class PacketUtils
         Protocol kickGame = Protocol.GAME;
         Protocol kickLogin = Protocol.LOGIN;
 
+        CachedPacket failedMessage = new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_NOT_PLAYER ), kickGame );
         kickMessagesGame.put( KickType.PING, new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_BIG_PING ), kickGame ) );
-        kickMessagesGame.put( KickType.NOTPLAYER, new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_NOT_PLAYER ), kickGame ) );
+        kickMessagesGame.put( KickType.FAILED_CAPTCHA, failedMessage );
+        kickMessagesGame.put( KickType.FAILED_FALLING, failedMessage );
+        kickMessagesGame.put( KickType.TIMED_OUT, failedMessage );
         kickMessagesGame.put( KickType.COUNTRY, new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_COUNTRY ), kickGame ) );
         kickMessagesLogin.put( KickType.PING, new CachedPacket( createKickPacket( String.join( "", Settings.IMP.SERVER_PING_CHECK.KICK_MESSAGE ) ), kickLogin ) );
         kickMessagesLogin.put( KickType.MANYCHECKS, new CachedPacket( createKickPacket( Settings.IMP.MESSAGES.KICK_MANY_CHECKS ), kickLogin ) );
@@ -310,7 +314,9 @@ public class PacketUtils
     public static enum KickType
     {
         MANYCHECKS,
-        NOTPLAYER,
+        FAILED_CAPTCHA,
+        FAILED_FALLING,
+        TIMED_OUT,
         COUNTRY,
         // THROTTLE,
         PING;
