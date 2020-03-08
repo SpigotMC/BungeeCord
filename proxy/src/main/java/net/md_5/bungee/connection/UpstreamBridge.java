@@ -36,7 +36,7 @@ import ru.leymooo.botfilter.caching.PacketUtils;
 public class UpstreamBridge extends PacketHandler
 {
 
-    static boolean tryFixTimedOut = Boolean.parseBoolean( System.getProperty( "tryFixTimedOut", "true" ) );
+    static boolean tryFixTimedOut = Boolean.parseBoolean( System.getProperty( "tryFixTimedOut", "false" ) );
 
     private final ProxyServer bungee;
     private final UserConnection con;
