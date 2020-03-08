@@ -106,6 +106,9 @@ public final class UserConnection implements ProxiedPlayer
     /*========================================================================*/
     @Getter
     @Setter
+    private long sentPingTime;
+    @Getter
+    @Setter
     private int ping = 100;
     @Getter
     @Setter
