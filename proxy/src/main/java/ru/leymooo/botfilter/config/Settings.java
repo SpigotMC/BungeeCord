@@ -20,7 +20,7 @@ public class Settings extends Config
     @Final
     public final String HELP = "http://www.rubukkit.org/threads/137038/";
     @Final
-    public String BOT_FILTER_VERSION = "3.7.9";
+    public String BOT_FILTER_VERSION = "3.7.9-1";
 
     @Create
     public MESSAGES MESSAGES;
@@ -167,6 +167,9 @@ public class Settings extends Config
         public int NORMAL = 2;
         @Comment("Режим работы во время атаки")
         public int ON_ATTACK = 1;
+        @Comment({"Включить ли постоянную проверку игроков при заходе?",
+            "Включая эту функци, не забудьте увелечить лимиты у protection-threshold"})
+        public boolean ALWAYS_CHECK = false;
         /*
         @Comment(
                 {

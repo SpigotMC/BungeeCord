@@ -318,6 +318,7 @@ public class PacketUtils
         FAILED_FALLING,
         TIMED_OUT,
         COUNTRY,
+        LEAVED,
         // THROTTLE,
         PING;
     }

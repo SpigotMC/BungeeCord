@@ -44,7 +44,7 @@ public class BotFilter
     private final Map<String, Connector> connectedUsersSet = new ConcurrentHashMap<>();
     //UserName, Ip
     @Getter
-    private final Map<String, String> userCache = new ConcurrentHashMap<>();
+    private final Map<String, BotFilterUser> userCache = new ConcurrentHashMap<>();
 
     private final ExecutorService executor = Executors.newFixedThreadPool( Runtime.getRuntime().availableProcessors() * 2, new ThreadFactoryBuilder().setNameFormat( "BF-%d" ).build() );
 
@@ -63,6 +63,9 @@ public class BotFilter
     @Setter
     @Getter
     private long lastCheck = System.currentTimeMillis();
+    @Setter
+    @Getter
+    private boolean forceProtectionEnabled = false;
 
     public BotFilter(boolean startup)
     {
@@ -107,16 +110,36 @@ public class BotFilter
      *
      * @param userName Имя игрока
      * @param address InetAddress игрока
+     * @param afterCheck игрок после проверки или нет
      */
-    public void saveUser(String userName, InetAddress address)
+    public void saveUser(String userName, InetAddress address, boolean afterCheck)
     {
         userName = userName.toLowerCase();
-        String ip = address.getHostAddress();
-        userCache.put( userName, ip );
+        long timestamp = System.currentTimeMillis();
+        BotFilterUser botFilterUser = userCache.get( userName );
+        if ( botFilterUser == null )
+        {
+            botFilterUser = new BotFilterUser( userName, address.getHostAddress(), timestamp, timestamp );
+        } else
+        {
+            botFilterUser.setIp( address.getHostAddress() );
+            botFilterUser.setLastJoin( timestamp );
+            if ( afterCheck )
+            {
+                botFilterUser.setLastCheck( timestamp );
+            }
+        }
+
+        userCache.put( userName, botFilterUser );
         if ( sql != null )
         {
-            sql.saveUser( userName, ip );
+            sql.saveUser( botFilterUser );
         }
+    }
+
+    public void addUserToCache(BotFilterUser botFilterUser)
+    {
+        userCache.put( botFilterUser.getName(), botFilterUser );
     }
 
     /**
@@ -196,8 +219,9 @@ public class BotFilter
      */
     public boolean needCheck(String userName, InetAddress address)
     {
-        String ip = userCache.get( userName.toLowerCase() );
-        return ip == null || ( Settings.IMP.FORCE_CHECK_ON_ATTACK && isUnderAttack() ) || !ip.equals( address.getHostAddress() );
+        BotFilterUser botFilterUser = userCache.get( userName.toLowerCase() );
+        return botFilterUser == null || ( Settings.IMP.FORCE_CHECK_ON_ATTACK && isUnderAttack() )
+            || !botFilterUser.getIp().equalsIgnoreCase( address.getHostAddress() );
     }
 
     /**
@@ -218,6 +242,10 @@ public class BotFilter
      */
     public boolean isUnderAttack()
     {
+        if ( isForceProtectionEnabled() )
+        {
+            return true;
+        }
         long currTime = System.currentTimeMillis();
         if ( currTime - lastAttack < Settings.IMP.PROTECTION_TIME )
         {
@@ -261,7 +289,7 @@ public class BotFilter
         ChannelWrapper ch = handler.getCh();
         int version = handler.getVersion();
         BungeeCord bungee = BungeeCord.getInstance();
-        if ( ManyChecksUtils.isManyChecks( address ) )
+        if ( !Settings.IMP.PROTECTION.ALWAYS_CHECK && ManyChecksUtils.isManyChecks( address ) )
         {
             PacketUtils.kickPlayer( KickType.MANYCHECKS, Protocol.LOGIN, ch, version );
             bungee.getLogger().log( Level.INFO, "(BF) [{0}] disconnected: Too many checks in 10 min", address );

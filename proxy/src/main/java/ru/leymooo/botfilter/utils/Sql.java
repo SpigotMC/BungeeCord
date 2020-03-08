@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.md_5.bungee.BungeeCord;
 import ru.leymooo.botfilter.BotFilter;
+import ru.leymooo.botfilter.BotFilterUser;
 import ru.leymooo.botfilter.config.Settings;
 import ru.leymooo.botfilter.config.Settings.SQL;
 
@@ -64,6 +65,7 @@ public class Sql
             }
             logger.log( Level.INFO, "[BotFilter] Подключено ({0} мс)", System.currentTimeMillis() - start );
             createTable();
+            alterLastJoinColumn();
             clearOldUsers();
             loadUsers();
         } catch ( SQLException | ClassNotFoundException e )
@@ -86,11 +88,30 @@ public class Sql
         String sql = "CREATE TABLE IF NOT EXISTS `Users` ("
                 + "`Name` VARCHAR(16) NOT NULL PRIMARY KEY UNIQUE,"
                 + "`Ip` VARCHAR(16) NOT NULL,"
-                + "`LastCheck` BIGINT NOT NULL);";
+                + "`LastCheck` BIGINT NOT NULL,"
+                + "`LastJoin` BIGINT NOT NULL);";
 
         try ( PreparedStatement statement = connection.prepareStatement( sql ) )
         {
             statement.executeUpdate();
+        }
+    }
+
+    private void alterLastJoinColumn()
+    {
+        try ( ResultSet rs = connection.getMetaData().getColumns( null, null, "Users", "LastJoin" ) )
+        {
+            if ( !rs.next() )
+            {
+                try ( Statement st = connection.createStatement() )
+                {
+                    st.executeUpdate( "ALTER TABLE `Users` ADD COLUMN `LastJoin` BIGINT NOT NULL DEFAULT 0;" );
+                    st.executeUpdate( "UPDATE `Users` SET LastJoin = LastCheck" );
+                }
+            }
+        } catch ( Exception e )
+        {
+            logger.log( Level.WARNING, "[BotFilter] Ошибка при добавлении столбца в таблицу", e );
         }
     }
 
@@ -103,7 +124,7 @@ public class Sql
         Calendar calendar = Calendar.getInstance();
         calendar.add( Calendar.DATE, -Settings.IMP.SQL.PURGE_TIME );
         long until = calendar.getTimeInMillis();
-        try ( PreparedStatement statement = connection.prepareStatement( "SELECT `Name` FROM `Users` WHERE `LastCheck` < " + until + ";" ) )
+        try ( PreparedStatement statement = connection.prepareStatement( "SELECT `Name` FROM `Users` WHERE `LastJoin` < " + until + ";" ) )
         {
             ResultSet set = statement.executeQuery();
             while ( set.next() )
@@ -113,7 +134,7 @@ public class Sql
         }
         if ( this.connection != null )
         {
-            try ( PreparedStatement statement = connection.prepareStatement( "DELETE FROM `Users` WHERE `LastCheck` < " + until + ";" ) )
+            try ( PreparedStatement statement = connection.prepareStatement( "DELETE FROM `Users` WHERE `LastJoin` < " + until + ";" ) )
             {
                 logger.log( Level.INFO, "[BotFilter] Очищено {0} аккаунтов", statement.executeUpdate() );
             }
@@ -135,7 +156,10 @@ public class Sql
                     removeUser( "REMOVE FROM `Users` WHERE `Ip` = '" + ip + "' AND `LastCheck` = '" + set.getLong( "LastCheck" ) + "';" );
                     continue;
                 }
-                botFilter.saveUser( name, IPUtils.getAddress( ip ) );
+                long lastCheck = set.getLong( "LastCheck" );
+                long lastJoin = set.getLong( "LastJoin" );
+                BotFilterUser botFilterUser = new BotFilterUser( name, ip, lastCheck, lastJoin );
+                botFilter.addUserToCache( botFilterUser );
                 i++;
             }
             logger.log( Level.INFO, "[BotFilter] Белый список игроков успешно загружен ({0})", i );
@@ -163,9 +187,9 @@ public class Sql
         }
     }
 
-    public void saveUser(String name, String ip)
+    public void saveUser(BotFilterUser botFilterUser)
     {
-        if ( connecting || isInvalidName( name ) )
+        if ( connecting || isInvalidName( botFilterUser.getName() ) )
         {
             return;
         }
@@ -174,17 +198,20 @@ public class Sql
             this.executor.execute( () ->
             {
                 final long timestamp = System.currentTimeMillis();
-                String sql = "SELECT `Name` FROM `Users` where `Name` = '" + name + "' LIMIT 1;";
+                String sql = "SELECT `Name` FROM `Users` where `Name` = '" + botFilterUser.getName() + "' LIMIT 1;";
                 try ( Statement statament = connection.createStatement();
                         ResultSet set = statament.executeQuery( sql ) )
                 {
                     if ( !set.next() )
                     {
-                        sql = "INSERT INTO `Users` (`Name`, `Ip`, `LastCheck`) VALUES ('" + name + "','" + ip + "','" + timestamp + "');";
+                        sql = "INSERT INTO `Users` (`Name`, `Ip`, `LastCheck`, `LastJoin`) VALUES "
+                            + "('" + botFilterUser.getName() + "','" + botFilterUser.getIp() + "',"
+                            + "'" + botFilterUser.getLastCheck() + "','" + botFilterUser.getLastJoin() + "');";
                         statament.executeUpdate( sql );
                     } else
                     {
-                        sql = "UPDATE `Users` SET `Ip` = '" + ip + "', `LastCheck` = '" + timestamp + "' where `Name` = '" + name + "';";
+                        sql = "UPDATE `Users` SET `Ip` = '" + botFilterUser.getIp() + "', `LastCheck` = '" + botFilterUser.getLastCheck() + "',"
+                            + " `LastJoin` = '" + botFilterUser.getLastJoin() + "' where `Name` = '" + botFilterUser.getName() + "';";
                         statament.executeUpdate( sql );
                     }
                 } catch ( SQLException ex )

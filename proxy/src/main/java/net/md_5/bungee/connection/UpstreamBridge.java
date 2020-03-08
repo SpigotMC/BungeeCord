@@ -5,6 +5,7 @@ import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import net.md_5.bungee.BungeeCord;
@@ -34,6 +35,8 @@ import ru.leymooo.botfilter.caching.PacketUtils;
 
 public class UpstreamBridge extends PacketHandler
 {
+
+    static boolean tryFixTimedOut = Boolean.parseBoolean( System.getProperty( "tryFixTimedOut", "true" ) );
 
     private final ProxyServer bungee;
     private final UserConnection con;
@@ -187,6 +190,10 @@ public class UpstreamBridge extends PacketHandler
             con.setPing( newPing );
         } else
         {
+            if ( keepAliveData != null && tryFixTimedOut )
+            {
+                ( (Deque) con.getServer().getKeepAlives() ).addFirst( keepAliveData ); //BotFilter
+            }
             throw CancelSendSignal.INSTANCE;
         }
     }

@@ -66,6 +66,7 @@ import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
 import ru.leymooo.botfilter.Connector;
+import ru.leymooo.botfilter.config.Settings;
 import ru.leymooo.botfilter.utils.IPUtils;
 import ru.leymooo.botfilter.utils.PingLimiter;
 
@@ -553,7 +554,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         sendLoginSuccess( sendLoginSuccess );
 
-        if ( bungee.getBotFilter().needCheck( getName(), getAddress().getAddress() ) )
+        if ( Settings.IMP.PROTECTION.ALWAYS_CHECK || bungee.getBotFilter().needCheck( getName(), getAddress().getAddress() ) )
         {
             sendLoginSuccess( !sendLoginSuccess ); //Send a loginSuccess if sendLoginSuccess is false
             ch.setEncoderProtocol( Protocol.GAME );
@@ -561,7 +562,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new Connector( userCon, bungee.getBotFilter() ) );
         } else
         {
-            bungee.getBotFilter().saveUser( userCon.getName().toLowerCase(), IPUtils.getAddress( userCon ) ); //update timestamp
+            bungee.getBotFilter().saveUser( userCon.getName().toLowerCase(), IPUtils.getAddress( userCon ), false ); //update timestamp
             finishLogin( userCon, sendLoginSuccess, false ); //if true, dont send again login success
         }
     }

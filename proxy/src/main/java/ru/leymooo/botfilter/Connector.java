@@ -22,6 +22,7 @@ import ru.leymooo.botfilter.BotFilter.CheckState;
 import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.caching.PacketUtils.KickType;
 import ru.leymooo.botfilter.caching.PacketsPosition;
+import ru.leymooo.botfilter.config.Settings;
 import ru.leymooo.botfilter.utils.FailedUtils;
 import ru.leymooo.botfilter.utils.IPUtils;
 import ru.leymooo.botfilter.utils.ManyChecksUtils;
@@ -75,7 +76,10 @@ public class Connector extends MoveHandler
         this.userConnection.setDimension( 0 );
         this.botFilter.incrementBotCounter();
         this.ip = IPUtils.getAddress( this.userConnection ).getHostAddress();
-        ManyChecksUtils.IncreaseOrAdd( IPUtils.getAddress( this.userConnection ) );
+        if ( !Settings.IMP.PROTECTION.ALWAYS_CHECK )
+        {
+            ManyChecksUtils.IncreaseOrAdd( IPUtils.getAddress( this.userConnection ) );
+        }
         if ( state == CheckState.CAPTCHA_ON_POSITION_FAILED )
         {
             PacketUtils.spawnPlayer( channel, userConnection.getPendingConnection().getVersion(), false, false );
@@ -116,6 +120,7 @@ public class Connector extends MoveHandler
             case CAPTCHA_POSITION:
                 String info = "(BF) [" + name + "|" + ip + "] leaved from server during check";
                 LOGGER.log( Level.INFO, info );
+                FailedUtils.addIpToQueue( ip, KickType.LEAVED );
                 break;
         }
         botFilter.removeConnection( null, this );
@@ -165,7 +170,7 @@ public class Connector extends MoveHandler
         channel.flush();
         botFilter.removeConnection( null, this );
         sendMessage( PacketsPosition.CHECK_SUS );
-        botFilter.saveUser( getName(), IPUtils.getAddress( userConnection ) );
+        botFilter.saveUser( getName(), IPUtils.getAddress( userConnection ), true );
         userConnection.setNeedLogin( false );
         userConnection.getPendingConnection().finishLogin( userConnection, true, lastSend != 0 );
         markDisconnected = true;

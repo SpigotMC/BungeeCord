@@ -28,10 +28,13 @@ public class CachedPacket
 
     public void release()
     {
-        for ( ByteBuf buf : byteBuf )
+        if ( byteBuf != null )
         {
-            PacketUtils.releaseByteBuf( buf );
+            for ( ByteBuf buf : byteBuf )
+            {
+                PacketUtils.releaseByteBuf( buf );
+            }
+            byteBuf = null;
         }
-        byteBuf = null;
     }
 }
