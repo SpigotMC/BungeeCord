@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.logging.Level;
 import lombok.Getter;
 import lombok.NonNull;
@@ -36,6 +37,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
+import net.md_5.bungee.api.event.PermissionSetEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -546,13 +548,17 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void setPermission(String permission, boolean value)
     {
-        if ( value )
+        BiConsumer<String, Boolean> setFunction = ( perm, val ) ->
         {
-            permissions.add( permission );
-        } else
-        {
-            permissions.remove( permission );
-        }
+            if ( val )
+            {
+                permissions.add( perm );
+            } else
+            {
+                permissions.remove( perm );
+            }
+        };
+        bungee.getPluginManager().callEvent( new PermissionSetEvent( this, setFunction ) ).getPermissionSetFunction().accept( permission, value );
     }
 
     @Override
