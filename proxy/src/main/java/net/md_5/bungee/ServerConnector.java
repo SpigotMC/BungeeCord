@@ -292,7 +292,7 @@ public class ServerConnector extends PacketHandler
         user.setServerJoinQueue( null );
         user.setDimensionChange( false );
 
-        Server oldServer = server;
+        Server oldServer = user.getServer();
         user.setServer( server );
         ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user, server ) );
 
