@@ -58,8 +58,10 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
                     packet.read( in, prot.getDirection(), protocolVersion );
                 } catch ( Exception e )
                 {
-                    ctx.channel().unsafe().closeForcibly();
-                    ErrorStream.error( "[" + ctx.channel().remoteAddress() + "] Sended wrong handshake" );
+                    tracker.shutdown( ctx ).addListener( (ChannelFutureListener) future ->
+                    {
+                        ErrorStream.error( "[" + ctx.channel().remoteAddress() + "] Sent wrong handshake" );
+                    } );
                     return;
                 }
             } else

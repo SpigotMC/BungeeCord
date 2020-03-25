@@ -17,6 +17,7 @@ public class ErrorStream
         {
             WRITER.write( message );
             WRITER.newLine();
+            WRITER.flush();
         } catch ( IOException ex )
         {
             // That should not happen.
