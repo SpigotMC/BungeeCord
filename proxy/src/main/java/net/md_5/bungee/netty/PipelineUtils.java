@@ -30,7 +30,6 @@ import java.net.SocketAddress;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-
 import lombok.val;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.BungeeServerInfo;
@@ -181,7 +180,7 @@ public class PipelineUtils
             ch.config().setAllocator( PooledByteBufAllocator.DEFAULT );
             ch.config().setWriteBufferWaterMark( MARK );
 
-            val tracker = new ChannelShutdownTracker(ch);
+            val tracker = new ChannelShutdownTracker( ch );
             ch.attr( SHUTDOWN ).set( tracker );
             ch.pipeline().addLast( TIMEOUT_HANDLER, new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
             ch.pipeline().addLast( FRAME_DECODER, new Varint21FrameDecoder( tracker ) );

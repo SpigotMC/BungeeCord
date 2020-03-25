@@ -37,11 +37,11 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
         {
             int originalReaderIndex = in.readerIndex();
             int originalReadableBytes = in.readableBytes();
-            int packetId = DefinedPacket.readVarInt(in);
+            int packetId = DefinedPacket.readVarInt( in );
 
             if ( packetId < 0 || packetId > Protocol.MAX_PACKET_ID )
             {
-                tracker.shutdown( ctx ).addListener( ( ChannelFutureListener ) future ->
+                tracker.shutdown( ctx ).addListener( (ChannelFutureListener) future ->
                 {
                     ErrorStream.error( "[" + ctx.channel().remoteAddress() + "] <-> MinecraftDecoder received invalid packet id " + packetId + ", disconnected" );
                 } );

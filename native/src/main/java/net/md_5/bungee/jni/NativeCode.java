@@ -8,8 +8,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.util.concurrent.Callable;
-
-import lombok.val;
 import net.md_5.bungee.jni.cipher.BungeeCipher;
 
 public final class NativeCode<T>
@@ -23,7 +21,7 @@ public final class NativeCode<T>
 
     public NativeCode(String name, Class<? extends T> javaImpl, Class<? extends T> nativeImpl)
     {
-        this(name, new Callable<T>()
+        this( name, new Callable<T>()
         {
             final Constructor<? extends T> constructor;
 
@@ -63,7 +61,7 @@ public final class NativeCode<T>
             {
                 return this.constructor.newInstance();
             }
-        });
+        } );
     }
 
     public NativeCode(String name, Callable<? extends T> javaImpl, Callable<? extends T> nativeImpl)
