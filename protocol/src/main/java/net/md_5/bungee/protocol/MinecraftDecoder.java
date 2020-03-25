@@ -31,60 +31,44 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
             return;
         }
 
-        ByteBuf slice = null;
 
-        try
+        int originalReaderIndex = in.readerIndex();
+        int originalReadableBytes = in.readableBytes();
+        int packetId = DefinedPacket.readVarInt( in );
+        if ( packetId < 0 || packetId > Protocol.MAX_PACKET_ID )
         {
-            int originalReaderIndex = in.readerIndex();
-            int originalReadableBytes = in.readableBytes();
-            int packetId = DefinedPacket.readVarInt( in );
-
-            if ( packetId < 0 || packetId > Protocol.MAX_PACKET_ID )
+            tracker.shutdown( ctx ).addListener( (ChannelFutureListener) future ->
             {
-                tracker.shutdown( ctx ).addListener( (ChannelFutureListener) future ->
-                {
-                    ErrorStream.error( "[" + ctx.channel().remoteAddress() + "] <-> MinecraftDecoder received invalid packet id " + packetId + ", disconnected" );
-                } );
-                return;
-            }
-
-            slice = in.retainedSlice( originalReaderIndex, originalReadableBytes );
-
-            Protocol.DirectionData prot = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
-            int protocolVersion = this.protocolVersion;
-            DefinedPacket packet = prot.createPacket( packetId, protocolVersion );
-            if ( packet != null )
-            {
-                packet.read( in, prot.getDirection(), protocolVersion );
-                if ( in.isReadable() )
-                {
-                    if ( server )
-                    {
-                        tracker.shutdown( ctx ).addListener( (ChannelFutureListener) future ->
-                        {
-                            ErrorStream.error( "[" + ctx.channel().remoteAddress() + "] Longer than expected: Packet " + packetId + " Protocol " + protocol + " Direction " + prot.getDirection() );
-                        } );
-                        return;
-                    }
-
-                    in.skipBytes( in.readableBytes() ); //BotFilter
-                    throw new BadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot.getDirection() );
-                }
-            } else
-            {
-                in.skipBytes( in.readableBytes() );
-            }
-
-            //System.out.println( "ID: " + packetId + ( packet == null ? " (null)" : " ("+packet+")" ) );
-            out.add( new PacketWrapper( packet, slice ) );
-            slice = null;
-        } finally
-        {
-            if ( slice != null )
-            {
-                slice.release();
-            }
+                ErrorStream.error( "[" + ctx.channel().remoteAddress() + "] <-> MinecraftDecoder received invalid packet id " + packetId + ", disconnected" );
+            } );
+            return;
         }
+        Protocol.DirectionData prot = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
+        int protocolVersion = this.protocolVersion;
+        DefinedPacket packet = prot.createPacket( packetId, protocolVersion );
+        if ( packet != null )
+        {
+            packet.read( in, prot.getDirection(), protocolVersion );
+            if ( in.isReadable() )
+            {
+                if ( server )
+                {
+                    tracker.shutdown( ctx ).addListener( (ChannelFutureListener) future ->
+                    {
+                        ErrorStream.error( "[" + ctx.channel().remoteAddress() + "] Longer than expected: Packet " + packetId + " Protocol " + protocol + " Direction " + prot.getDirection() );
+                    } );
+                    return;
+                }
+                in.skipBytes( in.readableBytes() ); //BotFilter
+                throw new BadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot.getDirection() );
+            }
+        } else
+        {
+            in.skipBytes( in.readableBytes() );
+        }
+        //System.out.println( "ID: " + packetId + ( packet == null ? " (null)" : " ("+packet+")" ) );
+        ByteBuf slice = in.copy( originalReaderIndex, originalReadableBytes );
+        out.add( new PacketWrapper( packet, slice ) );
     }
 
     @Override
