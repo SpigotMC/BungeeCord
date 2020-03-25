@@ -59,7 +59,7 @@ public class ChannelWrapper
         ch.pipeline().get( MinecraftEncoder.class ).setProtocolVersion( protocol );
     }
 
-    public void write(Object packet)
+    public void write(Object packet) // BotFilter - old plugins may use that, so we keep PacketWrapper check
     {
         if ( !closed )
         {
@@ -71,6 +71,15 @@ public class ChannelWrapper
             {
                 ch.writeAndFlush( packet, ch.voidPromise() );
             }
+        }
+    }
+
+    public void write(PacketWrapper packet)
+    {
+        if ( !closed )
+        {
+            packet.setReleased( true );
+            ch.writeAndFlush( packet.buf, ch.voidPromise() );
         }
     }
 

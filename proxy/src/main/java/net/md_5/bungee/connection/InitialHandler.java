@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import javax.crypto.SecretKey;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.BungeeServerInfo;
 import net.md_5.bungee.EncryptionUtil;
@@ -28,7 +29,6 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.connection.Connection.Unsafe;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
@@ -67,6 +67,7 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
 import ru.leymooo.botfilter.Connector;
 import ru.leymooo.botfilter.config.Settings;
+import ru.leymooo.botfilter.discard.ChannelShutdownTracker;
 import ru.leymooo.botfilter.utils.IPUtils;
 import ru.leymooo.botfilter.utils.PingLimiter;
 
@@ -110,6 +111,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private boolean legacy;
     @Getter
     private String extraDataInHandshake = "";
+    private final ChannelShutdownTracker shutdownTracker;
 
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
@@ -151,7 +153,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( packet.packet == null )
         {
-            this.ch.getHandle().close(); //BotFilter
+            val tracker = this.shutdownTracker;
+            if ( tracker.isShuttedDown() )
+            {
+                return;
+            }
+            tracker.shutdown( PipelineUtils.BOSS_HANDLER );
             //throw new IllegalArgumentException( "Unexpected packet received during login process!\n" + BufUtil.dump( packet.buf, 64 ) );
             //throw new QuietException( "Unexpected packet received during login process! " + BufUtil.dump( packet.buf, 16 ) );
         }

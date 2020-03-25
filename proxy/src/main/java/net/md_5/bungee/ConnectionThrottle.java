@@ -29,6 +29,7 @@ public class ConnectionThrottle
                 .concurrencyLevel( Runtime.getRuntime().availableProcessors() )
                 .initialCapacity( 100 )
                 .expireAfterWrite( throttleTime, TimeUnit.MILLISECONDS )
+                .maximumSize( Long.MAX_VALUE ) // Don't know if that fixes https://github.com/Leymooo/BungeeCord/issues/47
                 .build( new CacheLoader<InetAddress, Integer>()
                 {
                     @Override

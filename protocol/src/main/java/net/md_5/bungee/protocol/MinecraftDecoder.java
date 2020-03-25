@@ -1,13 +1,15 @@
 package net.md_5.bungee.protocol;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
-import java.net.InetSocketAddress;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
-import net.md_5.bungee.protocol.packet.Handshake;
+import lombok.val;
+import ru.leymooo.botfilter.discard.ChannelShutdownTracker;
+import ru.leymooo.botfilter.discard.ErrorStream;
 
 @AllArgsConstructor
 public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
@@ -18,36 +20,53 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
     private final boolean server;
     @Setter
     private int protocolVersion;
+    private ChannelShutdownTracker shutdownTracker;
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
     {
-        Protocol.DirectionData prot = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
-        ByteBuf slice = in.copy(); // Can't slice this one due to EntityMap :(
+        val tracker = this.shutdownTracker;
+        if ( tracker.isShuttedDown() )
+        {
+            return;
+        }
+
+        ByteBuf slice = null;
 
         try
         {
-            int packetId = DefinedPacket.readVarInt( in );
+            int originalReaderIndex = in.readerIndex();
+            int originalReadableBytes = in.readableBytes();
+            int packetId = DefinedPacket.readVarInt(in);
+
+            if ( packetId < 0 || packetId > Protocol.MAX_PACKET_ID )
+            {
+                tracker.shutdown( ctx ).addListener( ( ChannelFutureListener ) future ->
+                {
+                    ErrorStream.error( "[" + ctx.channel().remoteAddress() + "] <-> MinecraftDecoder received invalid packet id " + packetId + ", disconnected" );
+                } );
+                return;
+            }
+
+            slice = in.retainedSlice( originalReaderIndex, originalReadableBytes );
+
+            Protocol.DirectionData prot = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
+            int protocolVersion = this.protocolVersion;
             DefinedPacket packet = prot.createPacket( packetId, protocolVersion );
             if ( packet != null )
             {
-                if ( packet instanceof Handshake )
-                {
-                    try
-                    {
-                        packet.read( in, prot.getDirection(), protocolVersion );
-                    } catch ( IndexOutOfBoundsException e )
-                    {
-                        ctx.close();
-                        System.out.println( "[" + ( (InetSocketAddress) ctx.channel().remoteAddress() ).getAddress().getHostAddress() + "] sent wrong Handshake packet. Junk??)" );
-                        return;
-                    }
-                } else
-                {
-                    packet.read( in, prot.getDirection(), protocolVersion );
-                }
+                packet.read( in, prot.getDirection(), protocolVersion );
                 if ( in.isReadable() )
                 {
+                    if ( server )
+                    {
+                        tracker.shutdown( ctx ).addListener( (ChannelFutureListener) future ->
+                        {
+                            ErrorStream.error( "[" + ctx.channel().remoteAddress() + "] Longer than expected: Packet " + packetId + " Protocol " + protocol + " Direction " + prot.getDirection() );
+                        } );
+                        return;
+                    }
+
                     in.skipBytes( in.readableBytes() ); //BotFilter
                     throw new BadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot.getDirection() );
                 }
@@ -66,5 +85,11 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
                 slice.release();
             }
         }
+    }
+
+    @Override
+    public boolean acceptInboundMessage(Object msg) throws Exception
+    {
+        return msg instanceof ByteBuf;
     }
 }
