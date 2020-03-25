@@ -18,6 +18,7 @@ import net.md_5.bungee.protocol.BadPacketException;
 import net.md_5.bungee.protocol.OverflowPacketException;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.util.QuietException;
+import ru.leymooo.botfilter.discard.ChannelShutdownTracker;
 
 /**
  * This class is a primitive wrapper for {@link PacketHandler} instances tied to
@@ -29,7 +30,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
 
     private ChannelWrapper channel;
     private PacketHandler handler;
-
+    private ChannelShutdownTracker shutdownTracker; //BotFilter
     public void setHandler(PacketHandler handler)
     {
         Preconditions.checkArgument( handler != null, "handler" );
@@ -46,6 +47,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
         if ( handler != null )
         {
             channel = new ChannelWrapper( ctx );
+            shutdownTracker = ctx.channel().attr( PipelineUtils.SHUTDOWN ).get();
             handler.connected( channel );
 
             if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
@@ -126,6 +128,12 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
     {
+        //BotFilter start
+        if ( shutdownTracker.isShuttedDown() )
+        {
+            return;
+        }
+        //BotFilter end
         if ( ctx.channel().isActive() )
         {
             boolean logExceptions = !( handler instanceof PingHandler );
@@ -185,7 +193,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                 }
             }
 
-            ctx.close();
+            shutdownTracker.shutdown( ctx ); //BotFilter
         }
     }
 }

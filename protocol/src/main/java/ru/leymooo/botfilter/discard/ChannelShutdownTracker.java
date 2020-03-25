@@ -30,6 +30,7 @@ public final class ChannelShutdownTracker
         return ch.close();
     }
 
+
     public boolean isShuttedDown()
     {
         return this.shutdown;

@@ -8,6 +8,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
 import lombok.val;
+import net.md_5.bungee.protocol.packet.Handshake;
 import ru.leymooo.botfilter.discard.ChannelShutdownTracker;
 import ru.leymooo.botfilter.discard.ErrorStream;
 
@@ -25,12 +26,12 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
     {
+        //BotFilter start
         val tracker = this.shutdownTracker;
         if ( tracker.isShuttedDown() )
         {
             return;
         }
-
 
         int originalReaderIndex = in.readerIndex();
         int originalReadableBytes = in.readableBytes();
@@ -43,14 +44,32 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
             } );
             return;
         }
+        //BotFilter end
         Protocol.DirectionData prot = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
         int protocolVersion = this.protocolVersion;
         DefinedPacket packet = prot.createPacket( packetId, protocolVersion );
         if ( packet != null )
         {
-            packet.read( in, prot.getDirection(), protocolVersion );
+            //BotFilter start
+            if ( packet instanceof Handshake )
+            {
+                try
+                {
+                    packet.read( in, prot.getDirection(), protocolVersion );
+                } catch ( Exception e )
+                {
+                    ctx.channel().unsafe().closeForcibly();
+                    ErrorStream.error( "[" + ctx.channel().remoteAddress() + "] Sended wrong handshake" );
+                    return;
+                }
+            } else
+            {
+                //BotFilter end
+                packet.read( in, prot.getDirection(), protocolVersion );
+            }
             if ( in.isReadable() )
             {
+                //BotFilter start
                 if ( server )
                 {
                     tracker.shutdown( ctx ).addListener( (ChannelFutureListener) future ->
@@ -59,7 +78,7 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
                     } );
                     return;
                 }
-                in.skipBytes( in.readableBytes() ); //BotFilter
+                in.skipBytes( in.readableBytes() ); //BotFilter end
                 throw new BadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot.getDirection() );
             }
         } else
@@ -67,13 +86,15 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
             in.skipBytes( in.readableBytes() );
         }
         //System.out.println( "ID: " + packetId + ( packet == null ? " (null)" : " ("+packet+")" ) );
-        ByteBuf slice = in.copy( originalReaderIndex, originalReadableBytes );
+        ByteBuf slice = in.copy( originalReaderIndex, originalReadableBytes ); //BotFilter
         out.add( new PacketWrapper( packet, slice ) );
     }
 
+    //BotFilter start
     @Override
     public boolean acceptInboundMessage(Object msg) throws Exception
     {
         return msg instanceof ByteBuf;
     }
+    //BotFilter end
 }

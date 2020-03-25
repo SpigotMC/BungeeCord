@@ -153,6 +153,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( packet.packet == null )
         {
+            //BotFilter start
             val tracker = this.shutdownTracker;
             if ( tracker.isShuttedDown() )
             {
@@ -161,6 +162,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             tracker.shutdown( PipelineUtils.BOSS_HANDLER );
             //throw new IllegalArgumentException( "Unexpected packet received during login process!\n" + BufUtil.dump( packet.buf, 64 ) );
             //throw new QuietException( "Unexpected packet received during login process! " + BufUtil.dump( packet.buf, 16 ) );
+            //BotFilter end
         }
     }
 
@@ -302,6 +304,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(Handshake handshake) throws Exception
     {
+        //BotFilter start
+        val tracker = this.shutdownTracker;
+        if ( tracker.isShuttedDown() )
+        {
+            return;
+        }
+        //BotFilter end
 
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
         this.handshake = handshake;
@@ -359,7 +368,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 }
                 break;
             default:
-                throw new IllegalArgumentException( "Cannot request protocol " + handshake.getRequestedProtocol() );
+                tracker.shutdown( PipelineUtils.BOSS_HANDLER ); //BotFilter
+                //throw new IllegalArgumentException( "Cannot request protocol " + handshake.getRequestedProtocol() );
         }
     }
 
