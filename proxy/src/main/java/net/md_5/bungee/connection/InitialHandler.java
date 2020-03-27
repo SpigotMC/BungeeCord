@@ -3,6 +3,7 @@ package net.md_5.bungee.connection;
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
+import io.netty.channel.ChannelFutureListener;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -14,7 +15,6 @@ import java.util.logging.Level;
 import javax.crypto.SecretKey;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.BungeeServerInfo;
 import net.md_5.bungee.EncryptionUtil;
@@ -67,7 +67,8 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
 import ru.leymooo.botfilter.Connector;
 import ru.leymooo.botfilter.config.Settings;
-import ru.leymooo.botfilter.discard.ChannelShutdownTracker;
+import ru.leymooo.botfilter.discard.DiscardUtils;
+import ru.leymooo.botfilter.discard.ErrorStream;
 import ru.leymooo.botfilter.utils.IPUtils;
 import ru.leymooo.botfilter.utils.PingLimiter;
 
@@ -111,7 +112,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private boolean legacy;
     @Getter
     private String extraDataInHandshake = "";
-    private final ChannelShutdownTracker shutdownTracker;
 
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
@@ -151,15 +151,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(PacketWrapper packet) throws Exception
     {
-        if ( packet.packet == null )
+        if ( packet.packet == null && !ch.isClosed() )
         {
             //BotFilter start
-            val tracker = this.shutdownTracker;
-            if ( tracker.isShuttedDown() )
+            DiscardUtils.InjectAndClose( ch.getHandle() ).addListener( (ChannelFutureListener) future ->
             {
-                return;
-            }
-            tracker.shutdown( PipelineUtils.BOSS_HANDLER );
+                ErrorStream.error( "[" + ch.getHandle().remoteAddress() + "] Unexpected packet received during login process!" );
+            } );
             //throw new IllegalArgumentException( "Unexpected packet received during login process!\n" + BufUtil.dump( packet.buf, 64 ) );
             //throw new QuietException( "Unexpected packet received during login process! " + BufUtil.dump( packet.buf, 16 ) );
             //BotFilter end
@@ -304,14 +302,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(Handshake handshake) throws Exception
     {
-        //BotFilter start
-        val tracker = this.shutdownTracker;
-        if ( tracker.isShuttedDown() )
-        {
-            return;
-        }
-        //BotFilter end
-
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
         this.handshake = handshake;
         ch.setVersion( handshake.getProtocolVersion() );
@@ -368,8 +358,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 }
                 break;
             default:
-                tracker.shutdown( PipelineUtils.BOSS_HANDLER ); //BotFilter
+                //BotFilter start
+                DiscardUtils.InjectAndClose( ch.getHandle() ).addListener( (ChannelFutureListener) future ->
+                {
+                    ErrorStream.error( "[" + ch.getHandle().remoteAddress() + "] Cannot request protocol " + handshake.getRequestedProtocol() );
+                } );
                 //throw new IllegalArgumentException( "Cannot request protocol " + handshake.getRequestedProtocol() );
+                //BotFilter end
         }
     }
 

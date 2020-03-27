@@ -46,7 +46,6 @@ import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.Varint21FrameDecoder;
 import net.md_5.bungee.protocol.Varint21LengthFieldPrepender;
-import ru.leymooo.botfilter.discard.ChannelShutdownTracker;
 
 public class PipelineUtils
 {
@@ -54,7 +53,6 @@ public class PipelineUtils
     public static final AttributeKey<ListenerInfo> LISTENER = AttributeKey.valueOf( "ListerInfo" );
     public static final AttributeKey<UserConnection> USER = AttributeKey.valueOf( "User" );
     public static final AttributeKey<BungeeServerInfo> TARGET = AttributeKey.valueOf( "Target" );
-    public static final AttributeKey<ChannelShutdownTracker> SHUTDOWN = AttributeKey.valueOf( "ShutdownTracker" ); // Stupid modules
 
     public static final ChannelInitializer<Channel> SERVER_CHILD = new ChannelInitializer<Channel>()
     {
@@ -80,12 +78,11 @@ public class PipelineUtils
             }
 
             BASE.initChannel( ch );
-            val tracker = ch.attr( SHUTDOWN ).get();
             ch.pipeline().addBefore( FRAME_DECODER, LEGACY_DECODER, new LegacyDecoder() );
-            ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion(), tracker ) );
+            ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
             ch.pipeline().addAfter( FRAME_PREPENDER, PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
             ch.pipeline().addBefore( FRAME_PREPENDER, LEGACY_KICKER, legacyKicker );
-            ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( BungeeCord.getInstance(), listener, tracker ) );
+            ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( BungeeCord.getInstance(), listener ) );
 
             if ( listener.isProxyProtocol() )
             {
@@ -180,10 +177,8 @@ public class PipelineUtils
             ch.config().setAllocator( PooledByteBufAllocator.DEFAULT );
             ch.config().setWriteBufferWaterMark( MARK );
 
-            val tracker = new ChannelShutdownTracker( ch );
-            ch.attr( SHUTDOWN ).set( tracker );
             ch.pipeline().addLast( TIMEOUT_HANDLER, new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
-            ch.pipeline().addLast( FRAME_DECODER, new Varint21FrameDecoder( tracker ) );
+            ch.pipeline().addLast( FRAME_DECODER, new Varint21FrameDecoder() );
             ch.pipeline().addLast( FRAME_PREPENDER, framePrepender );
 
             ch.pipeline().addLast( BOSS_HANDLER, new HandlerBoss() );

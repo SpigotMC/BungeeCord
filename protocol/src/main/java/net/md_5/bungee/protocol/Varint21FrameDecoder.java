@@ -5,21 +5,16 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
-import ru.leymooo.botfilter.discard.ChannelShutdownTracker;
+import ru.leymooo.botfilter.discard.DiscardUtils;
 import ru.leymooo.botfilter.discard.ErrorStream;
 
-@RequiredArgsConstructor
 public class Varint21FrameDecoder extends ByteToMessageDecoder
 {
-    private final ChannelShutdownTracker shutdownTracker;
-
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
     {
-        val tracker = this.shutdownTracker;
-        if ( tracker.isShuttedDown() )
+        //BotFilter start - rewrite Varint21Decoder
+        if ( !ctx.channel().isActive() )
         {
             return;
         }
@@ -44,7 +39,7 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
                 if ( packetLength <= 0 )
                 {
                     super.setSingleDecode( true );
-                    tracker.shutdown( ctx ).addListener( (ChannelFutureListener) future ->
+                    DiscardUtils.InjectAndClose( ctx.channel() ).addListener( (ChannelFutureListener) future ->
                     {
                         ErrorStream.error( "[" + future.channel().remoteAddress() + "] <-> Varint21FrameDecoder received invalid packet length " + packetLength + ", disconnected" );
                     } );
@@ -62,10 +57,11 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
         }
 
         super.setSingleDecode( true );
-        tracker.shutdown( ctx ).addListener( (ChannelFutureListener) future ->
+        DiscardUtils.InjectAndClose( ctx.channel() ).addListener( (ChannelFutureListener) future ->
         {
             ErrorStream.error( "[" + future.channel().remoteAddress() + "] <-> Varint21FrameDecoder packet length field too long, disconnected" );
         } );
         //throw new CorruptedFrameException( "length wider than 21-bit" );
     }
+    //BotFilter end
 }
