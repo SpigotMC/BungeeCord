@@ -1,6 +1,6 @@
 package net.md_5.bungee;
 
-import com.google.common.base.Ticker;
+import com.github.benmanes.caffeine.cache.Ticker;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -11,7 +11,7 @@ import org.junit.Test;
 public class ThrottleTest
 {
 
-    private class FixedTicker extends Ticker
+    private class FixedTicker implements Ticker
     {
 
         private long value;

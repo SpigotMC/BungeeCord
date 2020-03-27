@@ -19,6 +19,7 @@ import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import ru.leymooo.botfilter.config.Settings;
+import ru.leymooo.botfilter.discard.DiscardUtils;
 import ru.leymooo.botfilter.packets.EmptyChunkPacket;
 import ru.leymooo.botfilter.packets.PlayerAbilities;
 import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
@@ -292,7 +293,7 @@ public class PacketUtils
 
     public static void kickPlayer(KickType kick, Protocol protocol, ChannelWrapper wrapper, int version)
     {
-        if ( wrapper.isClosed() || wrapper.isClosing() )
+        if ( !wrapper.getHandle().isActive() || wrapper.isClosed() || wrapper.isClosing() )
         {
             return;
         }
@@ -303,6 +304,7 @@ public class PacketUtils
         {
             wrapper.write( kickMessagesLogin.get( kick ).get( version ) );
         }
+        DiscardUtils.InjectAndClose( wrapper.getHandle() );
         wrapper.close();
     }
 

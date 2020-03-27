@@ -23,4 +23,10 @@ public class MinecraftEncoder extends MessageToByteEncoder<DefinedPacket>
         DefinedPacket.writeVarInt( prot.getId( msg.getClass(), protocolVersion ), out );
         msg.write( out, prot.getDirection(), protocolVersion );
     }
+
+    @Override
+    public boolean acceptOutboundMessage(Object msg) throws Exception
+    {
+        return msg instanceof DefinedPacket;
+    }
 }

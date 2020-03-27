@@ -1,6 +1,7 @@
 package net.md_5.bungee.netty;
 
 import com.google.common.base.Preconditions;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.CorruptedFrameException;
@@ -18,6 +19,8 @@ import net.md_5.bungee.protocol.BadPacketException;
 import net.md_5.bungee.protocol.OverflowPacketException;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.util.QuietException;
+import ru.leymooo.botfilter.discard.DiscardUtils;
+import ru.leymooo.botfilter.discard.ErrorStream;
 
 /**
  * This class is a primitive wrapper for {@link PacketHandler} instances tied to
@@ -29,7 +32,6 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
 
     private ChannelWrapper channel;
     private PacketHandler handler;
-
     public void setHandler(PacketHandler handler)
     {
         Preconditions.checkArgument( handler != null, "handler" );
@@ -129,12 +131,14 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
         if ( ctx.channel().isActive() )
         {
             boolean logExceptions = !( handler instanceof PingHandler );
+            boolean logged = false; //BotFilter
 
             if ( logExceptions )
             {
                 if ( cause instanceof ReadTimeoutException )
                 {
                     ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - read timed out", handler );
+                    logged = true; //BotFilter
                 } else if ( cause instanceof DecoderException )
                 {
                     if ( cause instanceof CorruptedFrameException )
@@ -143,18 +147,21 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                         {
                             handler, cause.getMessage()
                         } );
+                        logged = true; //BotFilter
                     } else if ( cause.getCause() instanceof BadPacketException )
                     {
                         ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - bad packet ID, are mods in use!? {1}", new Object[]
                         {
                             handler, cause.getCause().getMessage()
                         } );
+                        logged = true; //BotFilter
                     } else if ( cause.getCause() instanceof OverflowPacketException )
                     {
                         ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - overflow in packet detected! {1}", new Object[]
                         {
                             handler, cause.getCause().getMessage()
                         } );
+                        logged = true; //BotFilter
                     }
                 } else if ( cause instanceof IOException || ( cause instanceof IllegalStateException && handler instanceof InitialHandler ) )
                 {
@@ -162,15 +169,18 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                     {
                         handler, cause.getClass().getSimpleName(), cause.getMessage()
                     } );
+                    logged = true; //BotFilter
                 } else if ( cause instanceof QuietException )
                 {
                     ProxyServer.getInstance().getLogger().log( Level.SEVERE, "{0} - encountered exception: {1}", new Object[]
                     {
                         handler, cause
                     } );
+                    logged = true; //BotFilter
                 } else
                 {
                     ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - encountered exception", cause );
+                    logged = true; //BotFilter
                 }
             }
 
@@ -185,7 +195,14 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                 }
             }
 
-            ctx.close();
+            boolean finalLogged = logged;
+            DiscardUtils.InjectAndClose( ctx.channel() ).addListener( (ChannelFutureListener) future ->
+            {
+                if ( logExceptions && !finalLogged )
+                {
+                    ErrorStream.error( "[" + future.channel().remoteAddress() + "] Exception: " + cause.getMessage() );
+                }
+            } );
         }
     }
 }

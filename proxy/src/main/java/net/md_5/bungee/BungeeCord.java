@@ -101,6 +101,7 @@ import ru.leymooo.botfilter.BotFilter;
 import ru.leymooo.botfilter.BotFilterCommand;
 import ru.leymooo.botfilter.BotFilterThread;
 import ru.leymooo.botfilter.config.Settings;
+import ru.leymooo.botfilter.discard.ErrorStream;
 import ru.leymooo.botfilter.utils.FakeOnlineUtils;
 
 /**
@@ -232,6 +233,7 @@ public class BungeeCord extends ProxyServer
         logger = new BungeeLogger( "BungeeCord", "proxy.log", consoleReader );
         System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
         System.setOut( new PrintStream( new LoggingOutputStream( logger, Level.INFO ), true ) );
+        ErrorStream.init();
 
         pluginManager = new PluginManager( this );
         getPluginManager().registerCommand( null, new CommandReload() );

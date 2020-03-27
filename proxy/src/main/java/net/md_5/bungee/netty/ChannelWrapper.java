@@ -59,7 +59,7 @@ public class ChannelWrapper
         ch.pipeline().get( MinecraftEncoder.class ).setProtocolVersion( protocol );
     }
 
-    public void write(Object packet)
+    public void write(Object packet) // BotFilter - old plugins may use that, so we keep PacketWrapper check
     {
         if ( !closed )
         {
@@ -71,6 +71,15 @@ public class ChannelWrapper
             {
                 ch.writeAndFlush( packet, ch.voidPromise() );
             }
+        }
+    }
+
+    public void write(PacketWrapper packet)
+    {
+        if ( !closed )
+        {
+            packet.setReleased( true );
+            ch.writeAndFlush( packet.buf, ch.voidPromise() );
         }
     }
 
@@ -90,13 +99,16 @@ public class ChannelWrapper
         {
             closed = closing = true;
 
-            if ( packet != null && ch.isActive() )
+            if ( ch.isActive() )
             {
-                ch.writeAndFlush( packet ).addListeners( ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE, ChannelFutureListener.CLOSE );
-            } else
-            {
-                ch.flush();
-                ch.close();
+                ch.config().setAutoRead( false );
+                if ( packet != null )
+                {
+                    ch.writeAndFlush( packet ).addListeners( ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE, ChannelFutureListener.CLOSE );
+                } else
+                {
+                    ch.flush().close();
+                }
             }
         }
     }
@@ -106,6 +118,8 @@ public class ChannelWrapper
         if ( !closing )
         {
             closing = true;
+
+            ch.config().setAutoRead( false );
 
             // Minecraft client can take some time to switch protocols.
             // Sending the wrong disconnect packet whilst a protocol switch is in progress will crash it.

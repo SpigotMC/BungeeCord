@@ -30,6 +30,7 @@ import java.net.SocketAddress;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+import lombok.val;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.BungeeServerInfo;
 import net.md_5.bungee.UserConnection;
@@ -52,6 +53,7 @@ public class PipelineUtils
     public static final AttributeKey<ListenerInfo> LISTENER = AttributeKey.valueOf( "ListerInfo" );
     public static final AttributeKey<UserConnection> USER = AttributeKey.valueOf( "User" );
     public static final AttributeKey<BungeeServerInfo> TARGET = AttributeKey.valueOf( "Target" );
+
     public static final ChannelInitializer<Channel> SERVER_CHILD = new ChannelInitializer<Channel>()
     {
         @Override
@@ -59,7 +61,9 @@ public class PipelineUtils
         {
             SocketAddress remoteAddress = ( ch.remoteAddress() == null ) ? ch.parent().localAddress() : ch.remoteAddress();
 
-            if ( BungeeCord.getInstance().getConnectionThrottle() != null && BungeeCord.getInstance().getConnectionThrottle().throttle( remoteAddress ) )
+            val instance = BungeeCord.getInstance();
+            val throttle = instance.getConnectionThrottle();
+            if ( throttle != null && throttle.throttle( remoteAddress ) )
             {
                 ch.close();
                 return;
@@ -67,7 +71,7 @@ public class PipelineUtils
 
             ListenerInfo listener = ch.attr( LISTENER ).get();
 
-            if ( BungeeCord.getInstance().getPluginManager().callEvent( new ClientConnectEvent( remoteAddress, listener ) ).isCancelled() )
+            if ( instance.getPluginManager().callEvent( new ClientConnectEvent( remoteAddress, listener ) ).isCancelled() )
             {
                 ch.close();
                 return;
