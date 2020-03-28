@@ -39,7 +39,7 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
                 if ( packetLength <= 0 )
                 {
                     super.setSingleDecode( true );
-                    DiscardUtils.InjectAndClose( ctx.channel() ).addListener( (ChannelFutureListener) future ->
+                    DiscardUtils.discard( ctx.channel() ).addListener( (ChannelFutureListener) future ->
                     {
                         ErrorStream.error( "[" + future.channel().remoteAddress() + "] <-> Varint21FrameDecoder received invalid packet length " + packetLength + ", disconnected" );
                     } );
@@ -57,7 +57,7 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
         }
 
         super.setSingleDecode( true );
-        DiscardUtils.InjectAndClose( ctx.channel() ).addListener( (ChannelFutureListener) future ->
+        DiscardUtils.discard( ctx.channel() ).addListener( (ChannelFutureListener) future ->
         {
             ErrorStream.error( "[" + future.channel().remoteAddress() + "] <-> Varint21FrameDecoder packet length field too long, disconnected" );
         } );

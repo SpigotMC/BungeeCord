@@ -304,8 +304,8 @@ public class PacketUtils
         {
             wrapper.write( kickMessagesLogin.get( kick ).get( version ) );
         }
-        DiscardUtils.InjectAndClose( wrapper.getHandle() );
-        wrapper.close();
+        DiscardUtils.discard( wrapper.getHandle() );
+        wrapper.markClosed();
     }
 
     public static CachedPacket getCachedPacket(int pos)

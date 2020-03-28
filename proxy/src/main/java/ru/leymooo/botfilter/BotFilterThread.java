@@ -27,12 +27,11 @@ public class BotFilterThread
     {
         ( thread = new Thread( () ->
         {
-            while ( !Thread.currentThread().isInterrupted() && sleep( 1000 ) )
+            while ( sleep( 1000 ) )
             {
                 try
                 {
                     long currTime = System.currentTimeMillis();
-                    BotFilter botFilter = bungee.getBotFilter();
                     for ( Map.Entry<String, Connector> entryset : bungee.getBotFilter().getConnectedUsersSet().entrySet() )
                     {
                         Connector connector = entryset.getValue();
@@ -107,22 +106,15 @@ public class BotFilterThread
 
     public static void startCleanUpThread()
     {
-
-        AtomicLong longHolder = new AtomicLong();
-        longHolder.set( System.currentTimeMillis() );
-
-        new Thread( () ->
+        Thread t = new Thread( () ->
         {
+            byte counter = 0;
             while ( !Thread.interrupted() && sleep( 5 * 1000 ) )
             {
-                if ( ( System.currentTimeMillis() - longHolder.get() ) >= BotFilter.ONE_MIN )
+                if ( ++counter == 12 )
                 {
-                    longHolder.set( System.currentTimeMillis() );
+                    counter = 0;
                     ManyChecksUtils.cleanUP();
-                    if ( bungee.getConnectionThrottle() != null )
-                    {
-                        bungee.getConnectionThrottle().cleanUP();
-                    }
                     if ( bungee.getBotFilter() != null )
                     {
                         BotFilter botFilter = bungee.getBotFilter();
@@ -142,7 +134,8 @@ public class BotFilterThread
                 }
                 FailedUtils.flushQueue();
             }
-        }, "CleanUp thread" ).start();
-
+        }, "CleanUp thread" );
+        t.setDaemon( true );
+        t.start();
     }
 }

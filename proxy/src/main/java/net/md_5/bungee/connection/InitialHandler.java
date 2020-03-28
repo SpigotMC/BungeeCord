@@ -154,7 +154,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         if ( packet.packet == null && !ch.isClosed() )
         {
             //BotFilter start
-            DiscardUtils.InjectAndClose( ch.getHandle() ).addListener( (ChannelFutureListener) future ->
+            DiscardUtils.discard( ch.getHandle() ).addListener( (ChannelFutureListener) future ->
             {
                 ErrorStream.error( "[" + ch.getHandle().remoteAddress() + "] Unexpected packet received during login process!" );
             } );
@@ -359,7 +359,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 break;
             default:
                 //BotFilter start
-                DiscardUtils.InjectAndClose( ch.getHandle() ).addListener( (ChannelFutureListener) future ->
+                DiscardUtils.discard( ch.getHandle() ).addListener( (ChannelFutureListener) future ->
                 {
                     ErrorStream.error( "[" + ch.getHandle().remoteAddress() + "] Cannot request protocol " + handshake.getRequestedProtocol() );
                 } );
