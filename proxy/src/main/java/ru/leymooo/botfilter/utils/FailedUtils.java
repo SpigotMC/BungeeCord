@@ -1,28 +1,27 @@
 package ru.leymooo.botfilter.utils;
 
-import com.google.common.collect.Sets;
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
+import com.google.common.collect.Queues;
+import lombok.experimental.UtilityClass;
+import lombok.val;
 import net.md_5.bungee.BungeeCord;
 import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.config.Settings;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Queue;
+import java.util.logging.Level;
 
-
-
+@UtilityClass
 public class FailedUtils
 {
 
-    private static final Path out = new File( "BotFilter", "failed.txt" ).toPath();
-    private static final Set<String> writeQueue = Sets.newConcurrentHashSet();
+    private final Path out = Paths.get( "BotFilter", "failed.txt" );
+    private final Queue<String> writeQueue = Queues.newConcurrentLinkedQueue();
 
-    public static void addIpToQueue(String ip, PacketUtils.KickType reason)
+    public void addIpToQueue(String ip, PacketUtils.KickType reason)
     {
         if ( Settings.IMP.SAVE_FAILED_IPS_TO_FILE && reason != PacketUtils.KickType.COUNTRY )
         {
@@ -30,17 +29,22 @@ public class FailedUtils
         }
     }
 
-    public static void flushQueue()
+    public void flushQueue()
     {
-        if ( writeQueue.isEmpty() )
+        val queue = writeQueue;
+        int j = queue.size();
+        if ( j == 0 )
         {
             return;
         }
-        try
+        try ( val writer = Files.newBufferedWriter( out, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND ) )
         {
-            List<String> outLines = new ArrayList<>( writeQueue );
-            writeQueue.clear();
-            Files.write( out, outLines, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND );
+            String line;
+            while ( j-- > 0 && ( line = queue.poll() ) != null )
+            {
+                writer.write( line );
+                writer.newLine();
+            }
         } catch ( Exception e )
         {
             BungeeCord.getInstance().getLogger().log( Level.WARNING, "[BotFilter] Could not save failed ips to file", e );
