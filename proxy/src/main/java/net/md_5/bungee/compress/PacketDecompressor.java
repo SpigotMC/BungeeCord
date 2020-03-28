@@ -11,11 +11,12 @@ import net.md_5.bungee.protocol.DefinedPacket;
 public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
 {
 
-    private final BungeeZlib zlib = CompressFactory.zlib.newInstance();
+    private BungeeZlib zlib;
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception
     {
+        zlib = CompressFactory.zlib.newInstance();
         zlib.init( false, 0 );
     }
 

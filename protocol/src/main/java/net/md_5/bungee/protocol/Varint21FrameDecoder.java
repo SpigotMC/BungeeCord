@@ -14,10 +14,6 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
     {
         //BotFilter start - rewrite Varint21Decoder
-        if ( !ctx.channel().isActive() )
-        {
-            return;
-        }
         int origReaderIndex = in.readerIndex();
 
         int i = 3;

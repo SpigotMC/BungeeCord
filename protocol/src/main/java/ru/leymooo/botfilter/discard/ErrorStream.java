@@ -10,8 +10,4 @@ public class ErrorStream
     {
         System.err.print( message );
     }
-
-    public void init()
-    {
-    } // Just to initialize the class
 }
