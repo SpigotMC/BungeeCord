@@ -1,6 +1,7 @@
 package net.md_5.bungee.netty;
 
 import com.google.common.base.Preconditions;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -130,6 +131,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     {
         if ( ctx.channel().isActive() )
         {
+            ChannelFuture channelFuture = DiscardUtils.discardAndClose( ctx.channel() ); //BotFilter
             boolean logExceptions = !( handler instanceof PingHandler );
             boolean logged = false; //BotFilter
 
@@ -196,7 +198,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
             }
 
             boolean finalLogged = logged;
-            DiscardUtils.discard( ctx.channel() ).addListener( (ChannelFutureListener) future ->
+            channelFuture.addListener( (ChannelFutureListener) future ->
             {
                 if ( logExceptions && !finalLogged )
                 {

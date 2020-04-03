@@ -2,7 +2,6 @@ package ru.leymooo.botfilter;
 
 import java.util.HashSet;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import net.md_5.bungee.BungeeCord;
 import ru.leymooo.botfilter.BotFilter.CheckState;

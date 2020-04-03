@@ -5,10 +5,8 @@ import java.awt.image.BufferedImage;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.logging.Level;
-
 import lombok.experimental.UtilityClass;
 import net.md_5.bungee.BungeeCord;
 import ru.leymooo.botfilter.caching.CachedCaptcha;
@@ -27,11 +25,11 @@ public class CaptchaGeneration
     public void generateImages()
     {
         Font[] fonts = new Font[]
-                {
-                        new Font( Font.SANS_SERIF, Font.PLAIN, 128 / 2 ),
-                        new Font( Font.SERIF, Font.PLAIN, 128 / 2 ),
-                        new Font( Font.MONOSPACED, Font.BOLD, 128 / 2 )
-                };
+        {
+            new Font( Font.SANS_SERIF, Font.PLAIN, 128 / 2 ),
+            new Font( Font.SERIF, Font.PLAIN, 128 / 2 ),
+            new Font( Font.MONOSPACED, Font.BOLD, 128 / 2 )
+        };
         ExecutorService executor = Executors.newFixedThreadPool( Runtime.getRuntime().availableProcessors() );
         Random rnd = new Random();
         CaptchaPainter painter = new CaptchaPainter();

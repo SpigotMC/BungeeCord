@@ -16,6 +16,7 @@ import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.Kick;
+import ru.leymooo.botfilter.discard.DiscardUtils;
 
 public class ChannelWrapper
 {
@@ -85,6 +86,7 @@ public class ChannelWrapper
 
     public void markClosed()
     {
+        DiscardUtils.discard( ch ); //BotFilter
         closed = closing = true;
     }
 
@@ -95,6 +97,7 @@ public class ChannelWrapper
 
     public void close(Object packet)
     {
+        DiscardUtils.discard( ch ); //BotFilter
         if ( !closed )
         {
             closed = closing = true;
@@ -115,6 +118,7 @@ public class ChannelWrapper
 
     public void delayedClose(final Kick kick)
     {
+        DiscardUtils.discard( ch ); //BotFilter
         if ( !closing )
         {
             closing = true;

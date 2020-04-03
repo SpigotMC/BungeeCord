@@ -10,10 +10,24 @@ import ru.leymooo.botfilter.discard.ErrorStream;
 
 public class Varint21FrameDecoder extends ByteToMessageDecoder
 {
+
+    private boolean shutDowned = false;
+    public void shutdown()
+    {
+        shutDowned = true;
+    }
+
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
     {
         //BotFilter start - rewrite Varint21Decoder
+
+        if ( !ctx.channel().isActive() || shutDowned )
+        {
+            super.setSingleDecode( true );
+            return;
+        }
+
         int origReaderIndex = in.readerIndex();
 
         int i = 3;
@@ -35,7 +49,8 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
                 if ( packetLength <= 0 )
                 {
                     super.setSingleDecode( true );
-                    DiscardUtils.discard( ctx.channel() ).addListener( (ChannelFutureListener) future ->
+                    shutdown();
+                    DiscardUtils.discardAndClose( ctx.channel() ).addListener( (ChannelFutureListener) future ->
                     {
                         ErrorStream.error( "[" + future.channel().remoteAddress() + "] <-> Varint21FrameDecoder received invalid packet length " + packetLength + ", disconnected" );
                     } );
@@ -53,7 +68,8 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
         }
 
         super.setSingleDecode( true );
-        DiscardUtils.discard( ctx.channel() ).addListener( (ChannelFutureListener) future ->
+        shutdown();
+        DiscardUtils.discardAndClose( ctx.channel() ).addListener( (ChannelFutureListener) future ->
         {
             ErrorStream.error( "[" + future.channel().remoteAddress() + "] <-> Varint21FrameDecoder packet length field too long, disconnected" );
         } );

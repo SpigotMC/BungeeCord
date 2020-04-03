@@ -304,7 +304,7 @@ public class PacketUtils
         {
             wrapper.write( kickMessagesLogin.get( kick ).get( version ) );
         }
-        DiscardUtils.discard( wrapper.getHandle() );
+        DiscardUtils.discardAndClose( wrapper.getHandle() );
         wrapper.markClosed();
     }
 

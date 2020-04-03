@@ -70,6 +70,7 @@ import ru.leymooo.botfilter.Connector;
 import ru.leymooo.botfilter.config.Settings;
 import ru.leymooo.botfilter.discard.DiscardUtils;
 import ru.leymooo.botfilter.discard.ErrorStream;
+import ru.leymooo.botfilter.discard.FastThrownException;
 import ru.leymooo.botfilter.utils.IPUtils;
 import ru.leymooo.botfilter.utils.PingLimiter;
 
@@ -155,7 +156,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         if ( packet.packet == null && !ch.isClosed() )
         {
             //BotFilter start
-            DiscardUtils.discard( ch.getHandle() ).addListener( (ChannelFutureListener) future ->
+            ch.markClosed();
+            DiscardUtils.discardAndClose( ch.getHandle() ).addListener( (ChannelFutureListener) future ->
             {
                 ErrorStream.error( "[" + ch.getHandle().remoteAddress() + "] Unexpected packet received during login process!" );
             } );
@@ -185,6 +187,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(LegacyPing ping) throws Exception
     {
+        //BotFilter start
+        if ( this.legacy )
+        {
+            DiscardUtils.discardAndClose( ch.getHandle() ).addListener( (ChannelFutureListener) future ->
+            {
+                ErrorStream.error( "[" + ch.getHandle().remoteAddress() + "] Multiple legacy pings" );
+            } );
+            ch.markClosed();
+            return;
+        }
+        //BotFilter end
+
         this.legacy = true;
         final boolean v1_5 = ping.isV1_5();
 
@@ -246,7 +260,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(StatusRequest statusRequest) throws Exception
     {
-        Preconditions.checkState( thisState == State.STATUS, "Not expecting STATUS" );
+        checkState( thisState == State.STATUS, "Not expecting STATUS" ); //BotFilter
 
         ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
         final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
@@ -295,7 +309,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(PingPacket ping) throws Exception
     {
-        Preconditions.checkState( thisState == State.PING, "Not expecting PING" );
+        checkState( thisState == State.PING, "Not expecting PING" ); //BotFilter
         unsafe.sendPacket( ping );
         disconnect( "" );
     }
@@ -303,7 +317,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(Handshake handshake) throws Exception
     {
-        Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
+        checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" ); //BotFilter
         this.handshake = handshake;
         ch.setVersion( handshake.getProtocolVersion() );
 
@@ -360,10 +374,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 break;
             default:
                 //BotFilter start
-                DiscardUtils.discard( ch.getHandle() ).addListener( (ChannelFutureListener) future ->
+                DiscardUtils.discardAndClose( ch.getHandle() ).addListener( (ChannelFutureListener) future ->
                 {
                     ErrorStream.error( "[" + ch.getHandle().remoteAddress() + "] Cannot request protocol " + handshake.getRequestedProtocol() );
                 } );
+                ch.markClosed();
                 //throw new IllegalArgumentException( "Cannot request protocol " + handshake.getRequestedProtocol() );
                 //BotFilter end
         }
@@ -372,7 +387,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(LoginRequest loginRequest) throws Exception
     {
-        Preconditions.checkState( thisState == State.USERNAME, "Not expecting USERNAME" );
+        checkState( thisState == State.USERNAME, "Not expecting USERNAME" ); //BotFilter
         this.loginRequest = loginRequest;
 
         bungee.getBotFilter().checkAsyncIfNeeded( this );
@@ -451,7 +466,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(final EncryptionResponse encryptResponse) throws Exception
     {
-        Preconditions.checkState( thisState == State.ENCRYPT, "Not expecting ENCRYPT" );
+        checkState( thisState == State.ENCRYPT, "Not expecting ENCRYPT" ); //BotFilter
 
         SecretKey sharedKey = EncryptionUtil.getSecret( encryptResponse, request );
         BungeeCipher decrypt = EncryptionUtil.getCipher( false, sharedKey );
@@ -762,4 +777,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         return !ch.isClosed();
     }
+
+    //BotFilter start
+    public static void checkState(boolean expression, String errorMessage)
+    {
+        if ( !expression )
+        {
+            throw new FastThrownException( errorMessage );
+        }
+    }
+    //BotFilter end
 }

@@ -10,10 +10,15 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
+import ru.leymooo.botfilter.discard.FastThrownException;
 
 @RequiredArgsConstructor
 public abstract class DefinedPacket
 {
+
+    private static final FastThrownException VARINT_TOO_BIG = new FastThrownException( "varint too big" ); //BotFilter
+    private static final FastThrownException ILLEGAL_BUF = new FastThrownException( "Buffer is no longer readable" ); //BotFilter
+
     public static void writeString(String s, ByteBuf buf)
     {
         if ( s.length() > Short.MAX_VALUE )
@@ -31,7 +36,7 @@ public abstract class DefinedPacket
         int len = readVarInt( buf );
         if ( len > Short.MAX_VALUE )
         {
-            throw new OverflowPacketException( String.format( "Cannot receive string longer than Short.MAX_VALUE (got %s characters)", len ) );
+            throw new FastThrownException( String.format( "Cannot receive string longer than Short.MAX_VALUE (got " + len + " characters)" ) );
         }
 
         byte[] b = new byte[ len ];
@@ -106,7 +111,7 @@ public abstract class DefinedPacket
         int len = readVarInt( buf );
         if ( len > limit )
         {
-            throw new OverflowPacketException( String.format( "Cannot receive byte array longer than %s (got %s bytes)", limit, len ) );
+            throw new FastThrownException( String.format( "Cannot receive byte array longer than %s (got %s bytes)", limit, len ) );
         }
         byte[] ret = new byte[ len ];
         buf.readBytes( ret );
@@ -156,15 +161,22 @@ public abstract class DefinedPacket
         int out = 0;
         int bytes = 0;
         byte in;
+        int readable = input.readableBytes(); //BotFilter
         while ( true )
         {
+            //BotFilter start
+            if ( readable-- == 0 )
+            {
+                throw ILLEGAL_BUF;
+            }
+            //BotFiter end
             in = input.readByte();
 
             out |= ( in & 0x7F ) << ( bytes++ * 7 );
 
             if ( bytes > maxBytes )
             {
-                throw new RuntimeException( "VarInt too big" );
+                throw VARINT_TOO_BIG; //BotFilter
             }
 
             if ( ( in & 0x80 ) != 0x80 )

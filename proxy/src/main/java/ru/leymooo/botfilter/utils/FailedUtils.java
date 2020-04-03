@@ -1,11 +1,7 @@
 package ru.leymooo.botfilter.utils;
 
 import com.google.common.collect.Queues;
-import lombok.experimental.UtilityClass;
-import lombok.val;
-import net.md_5.bungee.BungeeCord;
-import ru.leymooo.botfilter.caching.PacketUtils;
-import ru.leymooo.botfilter.config.Settings;
+import java.io.BufferedWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,6 +9,10 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Queue;
 import java.util.logging.Level;
+import lombok.experimental.UtilityClass;
+import net.md_5.bungee.BungeeCord;
+import ru.leymooo.botfilter.caching.PacketUtils;
+import ru.leymooo.botfilter.config.Settings;
 
 @UtilityClass
 public class FailedUtils
@@ -31,13 +31,13 @@ public class FailedUtils
 
     public void flushQueue()
     {
-        val queue = writeQueue;
+        Queue<String> queue = writeQueue;
         int j = queue.size();
         if ( j == 0 )
         {
             return;
         }
-        try ( val writer = Files.newBufferedWriter( out, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND ) )
+        try ( BufferedWriter writer = Files.newBufferedWriter( out, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND ) )
         {
             String line;
             while ( j-- > 0 && ( line = queue.poll() ) != null )

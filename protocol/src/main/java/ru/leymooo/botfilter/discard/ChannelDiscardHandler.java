@@ -6,25 +6,30 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @ChannelHandler.Sharable
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class ChannelDiscardHandler extends ChannelInboundHandlerAdapter
 {
     static final String DISCARD = "I_DISCARD";
-    static final ChannelDiscardHandler INSTANCE = new ChannelDiscardHandler();
+    static final ChannelDiscardHandler SOFT = new ChannelDiscardHandler( true );
+    static final ChannelDiscardHandler HARD = new ChannelDiscardHandler( false );
 
+    private final boolean softDiscard;
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg)
     {
         if ( msg instanceof ByteBuf )
         {
             ( (ByteBuf) msg ).release();
-            Channel ch = ctx.channel();
-            if ( ch.isActive() )
+            if ( !softDiscard )
             {
-                ch.close();
+                Channel ch = ctx.channel();
+                if ( ch.isActive() )
+                {
+                    ch.close();
+                }
             }
         }
     }

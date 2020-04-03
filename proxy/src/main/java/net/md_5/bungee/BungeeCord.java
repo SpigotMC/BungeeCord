@@ -101,7 +101,6 @@ import ru.leymooo.botfilter.BotFilter;
 import ru.leymooo.botfilter.BotFilterCommand;
 import ru.leymooo.botfilter.BotFilterThread;
 import ru.leymooo.botfilter.config.Settings;
-import ru.leymooo.botfilter.discard.ErrorStream;
 import ru.leymooo.botfilter.utils.FakeOnlineUtils;
 
 /**
