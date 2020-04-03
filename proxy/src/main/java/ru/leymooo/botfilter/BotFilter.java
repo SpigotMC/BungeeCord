@@ -46,7 +46,7 @@ public class BotFilter
     @Getter
     private final Map<String, BotFilterUser> userCache = new ConcurrentHashMap<>();
 
-    private final ExecutorService executor = Executors.newFixedThreadPool( Runtime.getRuntime().availableProcessors() * 2, new ThreadFactoryBuilder().setNameFormat( "BF-%d" ).build() );
+    private final ExecutorService executor;
 
     @Getter
     private final Sql sql;
@@ -75,7 +75,7 @@ public class BotFilter
         checkForUpdates( startup );
         if ( !CachedCaptcha.generated )
         {
-            new CaptchaGeneration();
+            CaptchaGeneration.generateImages();
         }
         normalState = getCheckState( Settings.IMP.PROTECTION.NORMAL );
         attackState = getCheckState( Settings.IMP.PROTECTION.ON_ATTACK );
@@ -83,6 +83,15 @@ public class BotFilter
         sql = new Sql( this );
         geoIp = new GeoIp( startup );
         serverPingUtils = new ServerPingUtils( this );
+
+        if ( isGeoIpEnabled() )
+        {
+            executor = Executors.newFixedThreadPool( Runtime.getRuntime().availableProcessors() * 2, new ThreadFactoryBuilder().setNameFormat( "BF-%d" ).build() );
+        } else
+        {
+            executor = null;
+        }
+
         BotFilterThread.start();
     }
 
@@ -102,7 +111,10 @@ public class BotFilter
         sql.close();
         ManyChecksUtils.clear();
         serverPingUtils.clear();
-        executor.shutdownNow();
+        if ( executor != null )
+        {
+            executor.shutdownNow();
+        }
     }
 
     /**

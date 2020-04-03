@@ -196,7 +196,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
             }
 
             boolean finalLogged = logged;
-            DiscardUtils.InjectAndClose( ctx.channel() ).addListener( (ChannelFutureListener) future ->
+            DiscardUtils.discard( ctx.channel() ).addListener( (ChannelFutureListener) future ->
             {
                 if ( logExceptions && !finalLogged )
                 {

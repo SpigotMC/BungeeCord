@@ -29,12 +29,14 @@ public class CraftMapCanvas
     public void drawImage(int x, int y, Image image)
     {
         byte[] bytes = MapPalette.imageToBytes( image );
+        int width = image.getWidth( null );
+        int height = image.getHeight( null );
 
-        for ( int x2 = 0; x2 < image.getWidth( null ); ++x2 )
+        for ( int x2 = 0; x2 < width; ++x2 )
         {
-            for ( int y2 = 0; y2 < image.getHeight( null ); ++y2 )
+            for ( int y2 = 0; y2 < height; ++y2 )
             {
-                this.setPixel( x + x2, y + y2, bytes[y2 * image.getWidth( null ) + x2] );
+                this.setPixel( x + x2, y + y2, bytes[y2 * width + x2] );
             }
         }
 

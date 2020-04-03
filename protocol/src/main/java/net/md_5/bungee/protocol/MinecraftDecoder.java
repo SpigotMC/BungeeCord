@@ -30,7 +30,7 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
         int packetId = DefinedPacket.readVarInt( in );
         if ( packetId < 0 || packetId > Protocol.MAX_PACKET_ID )
         {
-            DiscardUtils.InjectAndClose( ctx.channel() ).addListener( (ChannelFutureListener) future ->
+            DiscardUtils.discard( ctx.channel() ).addListener( (ChannelFutureListener) future ->
             {
                 ErrorStream.error( "[" + ctx.channel().remoteAddress() + "] <-> MinecraftDecoder received invalid packet id " + packetId + ", disconnected" );
             } );
@@ -50,7 +50,7 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
                     packet.read( in, prot.getDirection(), protocolVersion );
                 } catch ( Exception e )
                 {
-                    DiscardUtils.InjectAndClose( ctx.channel() ).addListener( (ChannelFutureListener) future ->
+                    DiscardUtils.discard( ctx.channel() ).addListener( (ChannelFutureListener) future ->
                     {
                         ErrorStream.error( "[" + ctx.channel().remoteAddress() + "] Sent wrong handshake" );
                     } );
@@ -67,7 +67,7 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
                 in.skipBytes( in.readableBytes() ); //BotFilter end
                 if ( server )
                 {
-                    DiscardUtils.InjectAndClose( ctx.channel() ).addListener( (ChannelFutureListener) future ->
+                    DiscardUtils.discard( ctx.channel() ).addListener( (ChannelFutureListener) future ->
                     {
                         ErrorStream.error( "[" + ctx.channel().remoteAddress() + "] Longer than expected: Packet " + packetId + " Protocol " + protocol + " Direction " + prot.getDirection() );
                     } );

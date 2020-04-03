@@ -8,6 +8,7 @@ import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.List;
 import java.util.UUID;
@@ -154,7 +155,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         if ( packet.packet == null && !ch.isClosed() )
         {
             //BotFilter start
-            DiscardUtils.InjectAndClose( ch.getHandle() ).addListener( (ChannelFutureListener) future ->
+            DiscardUtils.discard( ch.getHandle() ).addListener( (ChannelFutureListener) future ->
             {
                 ErrorStream.error( "[" + ch.getHandle().remoteAddress() + "] Unexpected packet received during login process!" );
             } );
@@ -359,7 +360,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 break;
             default:
                 //BotFilter start
-                DiscardUtils.InjectAndClose( ch.getHandle() ).addListener( (ChannelFutureListener) future ->
+                DiscardUtils.discard( ch.getHandle() ).addListener( (ChannelFutureListener) future ->
                 {
                     ErrorStream.error( "[" + ch.getHandle().remoteAddress() + "] Cannot request protocol " + handshake.getRequestedProtocol() );
                 } );
@@ -461,13 +462,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         String encName = URLEncoder.encode( InitialHandler.this.getName(), "UTF-8" );
 
         MessageDigest sha = MessageDigest.getInstance( "SHA-1" );
-        for ( byte[] bit : new byte[][]
-        {
-            request.getServerId().getBytes( "ISO_8859_1" ), sharedKey.getEncoded(), EncryptionUtil.keys.getPublic().getEncoded()
-        } )
-        {
-            sha.update( bit );
-        }
+        sha.update( request.getServerId().getBytes( StandardCharsets.ISO_8859_1 ) );
+        sha.update( sharedKey.getEncoded() );
+        sha.update( EncryptionUtil.keys.getPublic().getEncoded() );
         String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
 
         String preventProxy = ( BungeeCord.getInstance().config.isPreventProxyConnections() && getSocketAddress() instanceof InetSocketAddress ) ? "&ip=" + URLEncoder.encode( getAddress().getAddress().getHostAddress(), "UTF-8" ) : "";

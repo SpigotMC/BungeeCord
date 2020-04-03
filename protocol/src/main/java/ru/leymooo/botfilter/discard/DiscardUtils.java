@@ -2,15 +2,18 @@ package ru.leymooo.botfilter.discard;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import lombok.experimental.UtilityClass;
+import lombok.val;
 
+@UtilityClass
 public class DiscardUtils
 {
-
-    public static ChannelFuture InjectAndClose(Channel channel)
+    public ChannelFuture discard(Channel channel)
     {
-        if ( channel.pipeline().get( ChannelDiscardHandler.class ) == null )
+        val pipeline = channel.pipeline();
+        if ( pipeline.get( ChannelDiscardHandler.class ) == null )
         {
-            channel.pipeline().addBefore( "packet-decoder", ChannelDiscardHandler.DISCARD, ChannelDiscardHandler.INSTANCE );
+            pipeline.addFirst( ChannelDiscardHandler.DISCARD, ChannelDiscardHandler.INSTANCE );
             channel.config().setAutoRead( false );
         }
         return channel.close();
