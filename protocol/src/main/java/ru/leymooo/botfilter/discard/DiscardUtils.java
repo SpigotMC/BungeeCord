@@ -16,7 +16,7 @@ public class DiscardUtils
     public ChannelFuture discardAndClose(Channel channel)
     {
         ChannelPipeline pipeline = channel.pipeline();
-        if ( pipeline.get( ChannelDiscardHandler.class ) == null )
+        if ( pipeline.get( ChannelDiscardHandler.class ) == null && pipeline.get( Varint21FrameDecoder.class ) != null )
         {
             pipeline.addAfter( "frame-decoder", ChannelDiscardHandler.DISCARD, ChannelDiscardHandler.HARD );
             pipeline.get( Varint21FrameDecoder.class ).shutdown();
@@ -33,7 +33,7 @@ public class DiscardUtils
     public void discard(Channel channel)
     {
         ChannelPipeline pipeline = channel.pipeline();
-        if ( pipeline.get( ChannelDiscardHandler.class ) == null )
+        if ( pipeline.get( ChannelDiscardHandler.class ) == null && pipeline.get( Varint21FrameDecoder.class ) != null )
         {
             pipeline.addAfter( "frame-decoder", ChannelDiscardHandler.DISCARD, ChannelDiscardHandler.SOFT );
             pipeline.get( Varint21FrameDecoder.class ).shutdown();
