@@ -10,6 +10,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.AtomicMoveNotSupportedException;
@@ -283,7 +285,7 @@ public class Config
                     lines.add( spacing + toNodeName( field.getName() + ": " ) + toYamlString( field.get( instance ), spacing ) );
                 }
             }
-        } catch ( IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchFieldException | SecurityException e )
+        } catch ( Exception e )
         {
             BungeeCord.getInstance().getLogger().log( Level.WARNING, "Error:", e );
         }
@@ -304,7 +306,7 @@ public class Config
             Field field = instance.getClass().getField( toFieldName( split[split.length - 1] ) );
             setAccessible( field );
             return field;
-        } catch ( IllegalAccessException | NoSuchFieldException | SecurityException e )
+        } catch ( IllegalAccessException | NoSuchFieldException | SecurityException | NoSuchMethodException | InvocationTargetException e )
         {
             BungeeCord.getInstance().getLogger().log( Level.WARNING, "[BotFilter] Invalid config field: {0} for {1}", new Object[]
             {
@@ -358,13 +360,13 @@ public class Config
                             instance = value;
                             split = Arrays.copyOfRange( split, 1, split.length );
                             continue;
-                        } catch ( NoSuchFieldException ignore )
+                        } catch ( NoSuchFieldException | NoSuchMethodException | InvocationTargetException ignore )
                         {
                         }
                         return null;
                 }
             }
-        } catch ( IllegalAccessException | IllegalArgumentException | InstantiationException | SecurityException e )
+        } catch ( Exception e )
         {
             e.printStackTrace();
         }
@@ -400,12 +402,34 @@ public class Config
      * @throws NoSuchFieldException ...
      * @throws IllegalAccessException ...
      */
-    private void setAccessible(Field field) throws NoSuchFieldException, IllegalAccessException
+    private void setAccessible(Field field) throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException
     {
         field.setAccessible( true );
-        Field modifiersField = Field.class.getDeclaredField( "modifiers" );
-        modifiersField.setAccessible( true );
-        modifiersField.setInt( field, field.getModifiers() & ~Modifier.FINAL );
+        int modifiers = field.getModifiers();
+        if ( Modifier.isFinal( modifiers ) )
+        {
+            try
+            {
+                Field modifiersField = Field.class.getDeclaredField( "modifiers" );
+                modifiersField.setAccessible( true );
+                modifiersField.setInt( field, modifiers & ~Modifier.FINAL );
+            } catch ( NoSuchFieldException e )
+            {
+                // Java 12 compatibility *this is fine*
+                Method getDeclaredFields0 = Class.class.getDeclaredMethod( "getDeclaredFields0", boolean.class );
+                getDeclaredFields0.setAccessible( true );
+                Field[] fields = (Field[]) getDeclaredFields0.invoke( Field.class, false );
+                for ( Field classField : fields )
+                {
+                    if ( "modifiers".equals( classField.getName() ) )
+                    {
+                        classField.setAccessible( true );
+                        classField.set( field, modifiers & ~Modifier.FINAL );
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     private String repeat(final String s, final int n)
