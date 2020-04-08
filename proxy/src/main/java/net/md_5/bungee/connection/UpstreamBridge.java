@@ -5,7 +5,6 @@ import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -32,18 +31,15 @@ import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
-import ru.leymooo.botfilter.caching.PacketUtils;
 
 public class UpstreamBridge extends PacketHandler
 {
 
-    static boolean tryFixTimedOut = Boolean.parseBoolean( System.getProperty( "tryFixTimedOut", "false" ) );
 
     private final ProxyServer bungee;
     private final UserConnection con;
 
     private long lastTabCompletion = -1; //BotFilter
-    private boolean discardFirstKeepAlive = false; //BotFilter
 
     public UpstreamBridge(ProxyServer bungee, UserConnection con)
     {
@@ -66,12 +62,6 @@ public class UpstreamBridge extends PacketHandler
             con.setDelayedPluginMessages( clearPluginMessages( con.getDelayedPluginMessages() ) );
         }
         //BotFilter end
-    }
-
-    public UpstreamBridge(ProxyServer bungee, UserConnection con, boolean discardFirstKeepAlive)
-    {
-        this( bungee, con );
-        this.discardFirstKeepAlive = discardFirstKeepAlive;
     }
 
     //BotFilter start

@@ -587,11 +587,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         } else
         {
             bungee.getBotFilter().saveUser( userCon.getName().toLowerCase(), IPUtils.getAddress( userCon ), false ); //update timestamp
-            finishLogin( userCon, sendLoginSuccess, false ); //if true, dont send again login success
+            finishLogin( userCon, sendLoginSuccess ); //if true, dont send again login success
         }
     }
 
-    public void finishLogin(UserConnection userCon, boolean ignoreLoginSuccess, boolean discardFirstKeepAlive)
+    public void finishLogin(UserConnection userCon, boolean ignoreLoginSuccess)
     {
 
         Callback<LoginEvent> complete = ( result, error ) ->
@@ -607,14 +607,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             }
             if ( isInEventLoop() )
             {
-                finnalyFinishLogin( userCon, ignoreLoginSuccess, discardFirstKeepAlive );
+                finnalyFinishLogin( userCon, ignoreLoginSuccess );
             } else
             {
                 ch.getHandle().eventLoop().execute( () ->
                 {
                     if ( !ch.isClosing() )
                     {
-                        finnalyFinishLogin( userCon, ignoreLoginSuccess, discardFirstKeepAlive );
+                        finnalyFinishLogin( userCon, ignoreLoginSuccess );
                     }
                 } );
             }
@@ -623,13 +623,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         bungee.getPluginManager().callEvent( new LoginEvent( InitialHandler.this, complete ) );
     }
 
-    private void finnalyFinishLogin(UserConnection userCon, boolean ignoreLoginSuccess, boolean discardFirstKeepAlive)
+    private void finnalyFinishLogin(UserConnection userCon, boolean ignoreLoginSuccess)
     {
         userCon.init();
         sendLoginSuccess( !ignoreLoginSuccess );
         ch.setProtocol( Protocol.GAME );
 
-        ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon, discardFirstKeepAlive ) ); //BotFilter
+        ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) ); //BotFilter
 
         bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) ); //BotFilter
 

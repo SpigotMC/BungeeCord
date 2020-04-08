@@ -172,7 +172,7 @@ public class Connector extends MoveHandler
         sendMessage( PacketsPosition.CHECK_SUS );
         botFilter.saveUser( getName(), IPUtils.getAddress( userConnection ), true );
         userConnection.setNeedLogin( false );
-        userConnection.getPendingConnection().finishLogin( userConnection, true, lastSend != 0 );
+        userConnection.getPendingConnection().finishLogin( userConnection, true );
         markDisconnected = true;
         LOGGER.log( Level.INFO, "[BotFilter] Игрок (" + name + "|" + ip + ") успешно прошёл проверку" );
     }
