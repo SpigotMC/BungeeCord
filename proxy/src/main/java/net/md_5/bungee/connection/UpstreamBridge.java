@@ -5,9 +5,11 @@ import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.ServerConnection.KeepAliveData;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
@@ -29,11 +31,12 @@ import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
+import ru.leymooo.botfilter.caching.PacketUtils;
 
 public class UpstreamBridge extends PacketHandler
 {
 
-    //static boolean tryFixTimedOut = Boolean.parseBoolean( System.getProperty( "tryFixTimedOut", "false" ) );
+    static boolean tryFixTimedOut = Boolean.parseBoolean( System.getProperty( "tryFixTimedOut", "false" ) );
 
     private final ProxyServer bungee;
     private final UserConnection con;
@@ -160,13 +163,37 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(KeepAlive alive) throws Exception
     {
-        if ( alive.getRandomId() == con.getServer().getSentPingId() )
+        //BotFilter start - fix possibility race condition caused by botfilter keep alive packet
+        if ( con.getServer() == null )
         {
-            int newPing = (int) ( System.currentTimeMillis() - con.getSentPingTime() );
+            throw CancelSendSignal.INSTANCE;
+        }
+        //BotFilter end
+
+        //BotFilter start - discard keepalive with id 9876 if player is after check
+        if ( discardFirstKeepAlive )
+        {
+            discardFirstKeepAlive = false;
+            if ( alive.getRandomId() == PacketUtils.KEEPALIVE_ID )
+            {
+                throw CancelSendSignal.INSTANCE;
+            }
+        }
+        //BotFilter end
+
+        KeepAliveData keepAliveData = con.getServer().getKeepAlives().poll();
+
+        if ( keepAliveData != null && alive.getRandomId() == keepAliveData.getId() )
+        {
+            int newPing = (int) ( System.currentTimeMillis() - keepAliveData.getTime() );
             con.getTabListHandler().onPingChange( newPing );
             con.setPing( newPing );
         } else
         {
+            if ( keepAliveData != null && tryFixTimedOut )
+            {
+                ( (Deque) con.getServer().getKeepAlives() ).addFirst( keepAliveData ); //BotFilter
+            }
             throw CancelSendSignal.INSTANCE;
         }
     }
