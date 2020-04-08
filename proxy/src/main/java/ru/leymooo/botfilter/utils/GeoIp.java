@@ -77,6 +77,10 @@ public class GeoIp
             return false;
             //logger.log( Level.WARNING, "[BotFilter] Could not get country for " + address.getHostAddress() );
         }
+        if ( country == null )
+        {
+            return false;
+        }
         cached.put( address, country );
         return whiteList ? countries.contains( country ) : /*blacklist*/ !countries.contains( country );
     }
