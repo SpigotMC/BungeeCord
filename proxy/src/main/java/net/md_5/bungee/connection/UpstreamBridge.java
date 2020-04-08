@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.ServerConnection.KeepAliveData;
 import net.md_5.bungee.UserConnection;
@@ -170,30 +171,17 @@ public class UpstreamBridge extends PacketHandler
         }
         //BotFilter end
 
-        //BotFilter start - discard keepalive with id 9876 if player is after check
-        if ( discardFirstKeepAlive )
-        {
-            discardFirstKeepAlive = false;
-            if ( alive.getRandomId() == PacketUtils.KEEPALIVE_ID )
-            {
-                throw CancelSendSignal.INSTANCE;
-            }
-        }
-        //BotFilter end
-
-        KeepAliveData keepAliveData = con.getServer().getKeepAlives().poll();
+        Queue<KeepAliveData> keepAliveDataQueue = con.getServer().getKeepAlives();
+        KeepAliveData keepAliveData = keepAliveDataQueue.peek();
 
         if ( keepAliveData != null && alive.getRandomId() == keepAliveData.getId() )
         {
+            keepAliveDataQueue.remove();
             int newPing = (int) ( System.currentTimeMillis() - keepAliveData.getTime() );
             con.getTabListHandler().onPingChange( newPing );
             con.setPing( newPing );
         } else
         {
-            if ( keepAliveData != null && tryFixTimedOut )
-            {
-                ( (Deque) con.getServer().getKeepAlives() ).addFirst( keepAliveData ); //BotFilter
-            }
             throw CancelSendSignal.INSTANCE;
         }
     }
