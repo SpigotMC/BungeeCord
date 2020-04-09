@@ -186,7 +186,7 @@ public final class TextComponent extends BaseComponent
      * @return the duplicate of this TextComponent.
      */
     @Override
-    public BaseComponent duplicate()
+    public TextComponent duplicate()
     {
         return new TextComponent( this );
     }
