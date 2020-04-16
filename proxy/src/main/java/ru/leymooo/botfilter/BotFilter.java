@@ -84,7 +84,7 @@ public class BotFilter
         geoIp = new GeoIp( startup );
         serverPingUtils = new ServerPingUtils( this );
 
-        if ( isGeoIpEnabled() )
+        if ( geoIp.isAvailable() )
         {
             executor = Executors.newFixedThreadPool( Runtime.getRuntime().availableProcessors() * 2, new ThreadFactoryBuilder().setNameFormat( "BF-%d" ).build() );
         } else
@@ -286,7 +286,7 @@ public class BotFilter
     public boolean isGeoIpEnabled()
     {
         int mode = isUnderAttack() ? 1 : 0;
-        return geoIp.isEnabled() && ( Settings.IMP.GEO_IP.MODE == 0 || Settings.IMP.GEO_IP.MODE == mode );
+        return geoIp.isAvailable() && ( Settings.IMP.GEO_IP.MODE == 0 || Settings.IMP.GEO_IP.MODE == mode );
     }
 
     public boolean checkGeoIp(InetAddress address)

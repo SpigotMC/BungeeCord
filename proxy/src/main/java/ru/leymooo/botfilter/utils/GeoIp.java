@@ -60,7 +60,7 @@ public class GeoIp
 
     public boolean isAllowed(InetAddress address)
     {
-        if ( !enabled || reader == null || address.isAnyLocalAddress() || address.isLoopbackAddress() )
+        if ( address.isAnyLocalAddress() || address.isLoopbackAddress() )
         {
             return true;
         }
