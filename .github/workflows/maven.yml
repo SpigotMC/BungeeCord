@@ -27,4 +27,4 @@ jobs:
     - uses: actions/upload-artifact@v2-preview
       with:
         name: BungeeCord
-        path: bootstrap/target/
+        path: bootstrap/target/BungeeCord.jar
