@@ -216,7 +216,8 @@ public abstract class AbstractPacketHandler
         handleGeneralNoEntity( packet );
     }
 
-    public void handle(GameState gameState) throws Exception
+    public void handleGameState(PacketWrapper<GameState> packet) throws Exception
     {
+        handleGeneralNoEntity( packet );
     }
 }
