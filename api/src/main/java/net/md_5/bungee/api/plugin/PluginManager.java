@@ -40,7 +40,7 @@ import org.yaml.snakeyaml.introspector.PropertyUtils;
  * example event handling and plugin management.
  */
 @RequiredArgsConstructor
-public class PluginManager
+public final class PluginManager
 {
 
     /*========================================================================*/
@@ -320,14 +320,13 @@ public class PluginManager
         {
             try
             {
-                URLClassLoader loader = new PluginClassloader( new URL[]
+                URLClassLoader loader = new PluginClassloader( proxy, plugin, new URL[]
                 {
                     plugin.getFile().toURI().toURL()
                 } );
                 Class<?> main = loader.loadClass( plugin.getMain() );
                 Plugin clazz = (Plugin) main.getDeclaredConstructor().newInstance();
 
-                clazz.init( proxy, plugin );
                 plugins.put( plugin.getName(), clazz );
                 clazz.onLoad();
                 ProxyServer.getInstance().getLogger().log( Level.INFO, "Loaded plugin {0} version {1} by {2}", new Object[]

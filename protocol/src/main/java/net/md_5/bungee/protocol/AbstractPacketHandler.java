@@ -8,6 +8,7 @@ import net.md_5.bungee.protocol.packet.Commands;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.EntityStatus;
+import net.md_5.bungee.protocol.packet.GameState;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Kick;
@@ -213,5 +214,9 @@ public abstract class AbstractPacketHandler
     public void handleViewDistance(PacketWrapper<ViewDistance> packet) throws Exception
     {
         handleGeneralNoEntity( packet );
+    }
+
+    public void handle(GameState gameState) throws Exception
+    {
     }
 }
