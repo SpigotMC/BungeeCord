@@ -40,6 +40,7 @@ import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -134,6 +135,11 @@ public class BungeeCord extends ProxyServer
     private final Map<UUID, UserConnection> connectionsByOfflineUUID = new HashMap<>();
     private final Map<UUID, UserConnection> connectionsByUUID = new HashMap<>();
     private final ReadWriteLock connectionLock = new ReentrantReadWriteLock();
+    /**
+     * Lock to protect the shutdown process from being triggered simultaneously
+     * from multiple sources.
+     */
+    private final ReentrantLock shutdownLock = new ReentrantLock();
     /**
      * Plugin manager.
      */
@@ -297,6 +303,15 @@ public class BungeeCord extends ProxyServer
             }
         }, 0, TimeUnit.MINUTES.toMillis( 5 ) );
         metricsThread.scheduleAtFixedRate( new Metrics(), 0, TimeUnit.MINUTES.toMillis( Metrics.PING_INTERVAL ) );
+
+        Runtime.getRuntime().addShutdownHook( new Thread()
+        {
+            @Override
+            public void run()
+            {
+                independentThreadStop( getTranslation( "restart" ), false );
+            }
+        } );
     }
 
     public void startListeners()
@@ -385,90 +400,110 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public synchronized void stop(final String reason)
+    public void stop(final String reason)
     {
+        new Thread( "Shutdown Thread" )
+        {
+            @Override
+            public void run()
+            {
+                independentThreadStop( reason, true );
+            }
+        }.start();
+    }
+
+    // This must be run on a separate thread to avoid deadlock!
+    @SuppressFBWarnings("DM_EXIT")
+    @SuppressWarnings("TooBroadCatch")
+    private void independentThreadStop(final String reason, boolean callSystemExit)
+    {
+        // Acquire the shutdown lock
+        // This needs to actually block here, otherwise running 'end' and then ctrl+c will cause the thread to terminate prematurely
+        shutdownLock.lock();
+
+        // Acquired the shutdown lock
         if ( !isRunning )
         {
+            // Server is already shutting down - nothing to do
+            shutdownLock.unlock();
             return;
         }
         isRunning = false;
 
-        new Thread( "Shutdown Thread" )
+        stopListeners();
+        getLogger().info( "Closing pending connections" );
+
+        connectionLock.readLock().lock();
+        try
         {
-            @Override
-            @SuppressFBWarnings("DM_EXIT")
-            @SuppressWarnings("TooBroadCatch")
-            public void run()
+            getLogger().log( Level.INFO, "Disconnecting {0} connections", connections.size() );
+            for ( UserConnection user : connections.values() )
             {
-                stopListeners();
-                getLogger().info( "Closing pending connections" );
+                user.disconnect( reason );
+            }
+        } finally
+        {
+            connectionLock.readLock().unlock();
+        }
 
-                connectionLock.readLock().lock();
-                try
-                {
-                    getLogger().log( Level.INFO, "Disconnecting {0} connections", connections.size() );
-                    for ( UserConnection user : connections.values() )
-                    {
-                        user.disconnect( reason );
-                    }
-                } finally
-                {
-                    connectionLock.readLock().unlock();
-                }
+        try
+        {
+            Thread.sleep( 500 );
+        } catch ( InterruptedException ex )
+        {
+        }
 
-                try
-                {
-                    Thread.sleep( 500 );
-                } catch ( InterruptedException ex )
-                {
-                }
+        if ( reconnectHandler != null )
+        {
+            getLogger().info( "Saving reconnect locations" );
+            reconnectHandler.save();
+            reconnectHandler.close();
+        }
+        saveThread.cancel();
+        metricsThread.cancel();
 
-                if ( reconnectHandler != null )
-                {
-                    getLogger().info( "Saving reconnect locations" );
-                    reconnectHandler.save();
-                    reconnectHandler.close();
-                }
-                saveThread.cancel();
-                metricsThread.cancel();
-
-                // TODO: Fix this shit
-                getLogger().info( "Disabling plugins" );
-                for ( Plugin plugin : Lists.reverse( new ArrayList<>( pluginManager.getPlugins() ) ) )
-                {
-                    try
-                    {
-                        plugin.onDisable();
-                        for ( Handler handler : plugin.getLogger().getHandlers() )
-                        {
-                            handler.close();
-                        }
-                    } catch ( Throwable t )
-                    {
-                        getLogger().log( Level.SEVERE, "Exception disabling plugin " + plugin.getDescription().getName(), t );
-                    }
-                    getScheduler().cancel( plugin );
-                    plugin.getExecutorService().shutdownNow();
-                }
-
-                getLogger().info( "Closing IO threads" );
-                eventLoops.shutdownGracefully();
-                try
-                {
-                    eventLoops.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS );
-                } catch ( InterruptedException ex )
-                {
-                }
-
-                getLogger().info( "Thank you and goodbye" );
-                // Need to close loggers after last message!
-                for ( Handler handler : getLogger().getHandlers() )
+        getLogger().info( "Disabling plugins" );
+        for ( Plugin plugin : Lists.reverse( new ArrayList<>( pluginManager.getPlugins() ) ) )
+        {
+            try
+            {
+                plugin.onDisable();
+                for ( Handler handler : plugin.getLogger().getHandlers() )
                 {
                     handler.close();
                 }
-                System.exit( 0 );
+            } catch ( Throwable t )
+            {
+                getLogger().log( Level.SEVERE, "Exception disabling plugin " + plugin.getDescription().getName(), t );
             }
-        }.start();
+            getScheduler().cancel( plugin );
+            plugin.getExecutorService().shutdownNow();
+        }
+
+        getLogger().info( "Closing IO threads" );
+        eventLoops.shutdownGracefully();
+        try
+        {
+            eventLoops.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS );
+        } catch ( InterruptedException ex )
+        {
+        }
+
+        getLogger().info( "Thank you and goodbye" );
+        // Need to close loggers after last message!
+        for ( Handler handler : getLogger().getHandlers() )
+        {
+            handler.close();
+        }
+
+        // Unlock the thread before optionally calling system exit, which might invoke this function again.
+        // If that happens, the system will obtain the lock, and then see that isRunning == false and return without doing anything.
+        shutdownLock.unlock();
+
+        if ( callSystemExit )
+        {
+            System.exit( 0 );
+        }
     }
 
     /**

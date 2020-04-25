@@ -30,7 +30,7 @@ public class BungeeLogger extends Logger
             addHandler( fileHandler );
 
             ColouredWriter consoleHandler = new ColouredWriter( reader );
-            consoleHandler.setLevel( Level.INFO );
+            consoleHandler.setLevel( Level.parse( System.getProperty( "net.md_5.bungee.console-log-level", "INFO" ) ) );
             consoleHandler.setFormatter( new ConciseFormatter( true ) );
             addHandler( consoleHandler );
         } catch ( IOException ex )

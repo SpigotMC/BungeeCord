@@ -149,6 +149,7 @@ class EntityMap_1_15 extends EntityMap
                 DefinedPacket.readVarInt( packet ); // Entity ID
                 rewriteMetaVarInt( packet, oldId + 1, newId + 1, 7, protocolVersion ); // fishing hook
                 rewriteMetaVarInt( packet, oldId, newId, 8, protocolVersion ); // fireworks (et al)
+                rewriteMetaVarInt( packet, oldId, newId, 16, protocolVersion ); // guardian beam
                 break;
             case 0x51 /* Entity Sound Effect : PacketPlayOutEntitySound */:
                 DefinedPacket.readVarInt( packet );
