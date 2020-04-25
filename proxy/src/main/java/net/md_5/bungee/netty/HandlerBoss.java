@@ -131,14 +131,12 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
         if ( ctx.channel().isActive() )
         {
             boolean logExceptions = !( handler instanceof PingHandler );
-            boolean logged = false; //BotFilter
 
             if ( logExceptions )
             {
                 if ( cause instanceof ReadTimeoutException )
                 {
                     ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - read timed out", handler );
-                    logged = true; //BotFilter
                 } else if ( cause instanceof DecoderException )
                 {
                     if ( cause instanceof CorruptedFrameException )
@@ -147,21 +145,18 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                         {
                             handler, cause.getMessage()
                         } );
-                        logged = true; //BotFilter
                     } else if ( cause.getCause() instanceof BadPacketException )
                     {
                         ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - bad packet ID, are mods in use!? {1}", new Object[]
                         {
                             handler, cause.getCause().getMessage()
                         } );
-                        logged = true; //BotFilter
                     } else if ( cause.getCause() instanceof OverflowPacketException )
                     {
                         ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - overflow in packet detected! {1}", new Object[]
                         {
                             handler, cause.getCause().getMessage()
                         } );
-                        logged = true; //BotFilter
                     }
                 } else if ( cause instanceof IOException || ( cause instanceof IllegalStateException && handler instanceof InitialHandler ) )
                 {
@@ -169,18 +164,15 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                     {
                         handler, cause.getClass().getSimpleName(), cause.getMessage()
                     } );
-                    logged = true; //BotFilter
                 } else if ( cause instanceof QuietException )
                 {
                     ProxyServer.getInstance().getLogger().log( Level.SEVERE, "{0} - encountered exception: {1}", new Object[]
                     {
                         handler, cause
                     } );
-                    logged = true; //BotFilter
                 } else
                 {
                     ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - encountered exception", cause );
-                    logged = true; //BotFilter
                 }
             }
 
@@ -195,7 +187,6 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                 }
             }
 
-            boolean finalLogged = logged;
             channel.markClosed();
             ctx.close();
         }
