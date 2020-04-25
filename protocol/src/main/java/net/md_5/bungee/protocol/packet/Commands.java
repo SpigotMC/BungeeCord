@@ -7,6 +7,7 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -437,6 +438,35 @@ public class Commands extends DefinedPacket
                 }
             }
         };
+        private static final ArgumentSerializer<LongArgumentType> LONG = new ArgumentSerializer<LongArgumentType>()
+        {
+            @Override
+            protected LongArgumentType read(ByteBuf buf)
+            {
+                byte flags = buf.readByte();
+                long min = ( flags & 0x1 ) != 0 ? buf.readLong() : Long.MIN_VALUE;
+                long max = ( flags & 0x2 ) != 0 ? buf.readLong() : Long.MAX_VALUE;
+
+                return LongArgumentType.longArg( min, max );
+            }
+
+            @Override
+            protected void write(ByteBuf buf, LongArgumentType t)
+            {
+                boolean hasMin = t.getMinimum() != Long.MIN_VALUE;
+                boolean hasMax = t.getMaximum() != Long.MAX_VALUE;
+
+                buf.writeByte( binaryFlag( hasMin, hasMax ) );
+                if ( hasMin )
+                {
+                    buf.writeLong( t.getMinimum() );
+                }
+                if ( hasMax )
+                {
+                    buf.writeLong( t.getMaximum() );
+                }
+            }
+        };
         private static final ProperArgumentSerializer<StringArgumentType> STRING = new ProperArgumentSerializer<StringArgumentType>()
         {
             @Override
@@ -475,6 +505,7 @@ public class Commands extends DefinedPacket
             PROVIDERS.put( "brigadier:float", FLOAT );
             PROVIDERS.put( "brigadier:double", DOUBLE );
             PROVIDERS.put( "brigadier:integer", INTEGER );
+            PROVIDERS.put( "brigadier:long", LONG );
 
             PROVIDERS.put( "brigadier:string", STRING );
             PROPER_PROVIDERS.put( StringArgumentType.class, STRING );
