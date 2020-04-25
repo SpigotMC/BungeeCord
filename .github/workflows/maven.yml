@@ -17,5 +17,14 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: ${{ matrix.java }}
-    - run: java -version && mvn --version
+    - uses: actions/cache@v1.1.2
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-    - run: java -version && mvn --version
     - run: mvn --activate-profiles dist --no-transfer-progress package
+    - uses: actions/upload-artifact@v2-preview
+      with:
+        name: BungeeCord
+        path: bootstrap/target/BungeeCord.jar
