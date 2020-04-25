@@ -3,7 +3,6 @@ package net.md_5.bungee.connection;
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
-import io.netty.channel.ChannelFutureListener;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -66,11 +65,10 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
+import net.md_5.bungee.util.QuietException;
 import ru.leymooo.botfilter.Connector;
 import ru.leymooo.botfilter.config.Settings;
-import ru.leymooo.botfilter.discard.DiscardUtils;
-import ru.leymooo.botfilter.discard.ErrorStream;
-import ru.leymooo.botfilter.discard.FastThrownException;
+import ru.leymooo.botfilter.utils.FastException;
 import ru.leymooo.botfilter.utils.IPUtils;
 import ru.leymooo.botfilter.utils.PingLimiter;
 
@@ -153,17 +151,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(PacketWrapper packet) throws Exception
     {
-        if ( packet.packet == null && !ch.isClosed() )
+        if ( packet.packet == null && !ch.isClosed() ) //BotFilter ch.isClosed
         {
-            //BotFilter start
-            DiscardUtils.discardAndClose( ch.getHandle() ).addListener( (ChannelFutureListener) future ->
-            {
-                ErrorStream.error( "[" + ch.getHandle().remoteAddress() + "] Unexpected packet received during login process!" );
-            } );
-            ch.markClosed();
-            //throw new IllegalArgumentException( "Unexpected packet received during login process!\n" + BufUtil.dump( packet.buf, 64 ) );
-            //throw new QuietException( "Unexpected packet received during login process! " + BufUtil.dump( packet.buf, 16 ) );
-            //BotFilter end
+            throw new QuietException( "Unexpected packet received during login process! " ); //BotFilter removed bump
         }
     }
 
@@ -187,18 +177,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(LegacyPing ping) throws Exception
     {
-        //BotFilter start
-        if ( this.legacy )
-        {
-            DiscardUtils.discardAndClose( ch.getHandle() ).addListener( (ChannelFutureListener) future ->
-            {
-                ErrorStream.error( "[" + ch.getHandle().remoteAddress() + "] Multiple legacy pings" );
-            } );
-            ch.markClosed();
-            return;
-        }
-        //BotFilter end
-
+        checkState( !this.legacy, "Multiple legacy pings" ); //BotFilter
         this.legacy = true;
         final boolean v1_5 = ping.isV1_5();
 
@@ -373,14 +352,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 }
                 break;
             default:
-                //BotFilter start
-                DiscardUtils.discardAndClose( ch.getHandle() ).addListener( (ChannelFutureListener) future ->
-                {
-                    ErrorStream.error( "[" + ch.getHandle().remoteAddress() + "] Cannot request protocol " + handshake.getRequestedProtocol() );
-                } );
-                ch.markClosed();
-                //throw new IllegalArgumentException( "Cannot request protocol " + handshake.getRequestedProtocol() );
-                //BotFilter end
+                throw new FastException( "[" + ch.getHandle().remoteAddress() + "] Cannot request protocol " + handshake.getRequestedProtocol() ); //BotFilter
         }
     }
 
@@ -783,7 +755,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( !expression )
         {
-            throw new FastThrownException( errorMessage );
+            throw new FastException( errorMessage );
         }
     }
     //BotFilter end

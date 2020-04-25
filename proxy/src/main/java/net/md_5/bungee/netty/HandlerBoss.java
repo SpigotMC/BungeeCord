@@ -1,8 +1,6 @@
 package net.md_5.bungee.netty;
 
 import com.google.common.base.Preconditions;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.CorruptedFrameException;
@@ -20,8 +18,6 @@ import net.md_5.bungee.protocol.BadPacketException;
 import net.md_5.bungee.protocol.OverflowPacketException;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.util.QuietException;
-import ru.leymooo.botfilter.discard.DiscardUtils;
-import ru.leymooo.botfilter.discard.ErrorStream;
 
 /**
  * This class is a primitive wrapper for {@link PacketHandler} instances tied to
@@ -105,19 +101,22 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
             boolean sendPacket = handler.shouldHandle( packet );
             try
             {
-                if ( sendPacket && packet.packet != null )
+                if ( !channel.isClosed() ) //BotFilter Do not handle packets if closed
                 {
-                    try
+                    if ( sendPacket && packet.packet != null )
                     {
-                        packet.packet.handle( handler );
-                    } catch ( CancelSendSignal ex )
-                    {
-                        sendPacket = false;
+                        try
+                        {
+                            packet.packet.handle( handler );
+                        } catch ( CancelSendSignal ex )
+                        {
+                            sendPacket = false;
+                        }
                     }
-                }
-                if ( sendPacket )
-                {
-                    handler.handle( packet );
+                    if ( sendPacket )
+                    {
+                        handler.handle( packet );
+                    }
                 }
             } finally
             {
@@ -131,7 +130,6 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     {
         if ( ctx.channel().isActive() )
         {
-            ChannelFuture channelFuture = DiscardUtils.discardAndClose( ctx.channel() ); //BotFilter
             boolean logExceptions = !( handler instanceof PingHandler );
             boolean logged = false; //BotFilter
 
@@ -198,13 +196,8 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
             }
 
             boolean finalLogged = logged;
-            channelFuture.addListener( (ChannelFutureListener) future ->
-            {
-                if ( logExceptions && !finalLogged )
-                {
-                    ErrorStream.error( "[" + future.channel().remoteAddress() + "] Exception: " + cause.getMessage() );
-                }
-            } );
+            channel.markClosed();
+            ctx.close();
         }
     }
 }

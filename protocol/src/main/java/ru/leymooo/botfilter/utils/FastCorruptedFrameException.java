@@ -1,9 +1,11 @@
-package ru.leymooo.botfilter.discard;
+package ru.leymooo.botfilter.utils;
 
-public class FastThrownException extends RuntimeException
+import io.netty.handler.codec.CorruptedFrameException;
+
+public class FastCorruptedFrameException extends CorruptedFrameException
 {
 
-    public FastThrownException(String message)
+    public FastCorruptedFrameException(String message)
     {
         super( message );
     }

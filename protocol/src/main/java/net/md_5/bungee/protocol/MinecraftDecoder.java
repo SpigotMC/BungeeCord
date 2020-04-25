@@ -1,15 +1,12 @@
 package net.md_5.bungee.protocol;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
-import net.md_5.bungee.protocol.packet.Handshake;
-import ru.leymooo.botfilter.discard.DiscardUtils;
-import ru.leymooo.botfilter.discard.ErrorStream;
+import ru.leymooo.botfilter.utils.FastBadPacketException;
 
 @AllArgsConstructor
 public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
@@ -30,11 +27,7 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
         int packetId = DefinedPacket.readVarInt( in );
         if ( packetId < 0 || packetId > Protocol.MAX_PACKET_ID )
         {
-            DiscardUtils.discardAndClose( ctx.channel() ).addListener( (ChannelFutureListener) future ->
-            {
-                ErrorStream.error( "[" + ctx.channel().remoteAddress() + "] <-> MinecraftDecoder received invalid packet id " + packetId + ", disconnected" );
-            } );
-            return;
+            throw new FastBadPacketException( "[" + ctx.channel().remoteAddress() + "] <-> MinecraftDecoder received invalid packet id " + packetId );
         }
         //BotFilter end
         Protocol.DirectionData prot = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
@@ -42,38 +35,11 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
         DefinedPacket packet = prot.createPacket( packetId, protocolVersion );
         if ( packet != null )
         {
-            //BotFilter start
-            if ( packet instanceof Handshake )
-            {
-                try
-                {
-                    packet.read( in, prot.getDirection(), protocolVersion );
-                } catch ( Exception e )
-                {
-                    DiscardUtils.discardAndClose( ctx.channel() ).addListener( (ChannelFutureListener) future ->
-                    {
-                        ErrorStream.error( "[" + ctx.channel().remoteAddress() + "] Sent wrong handshake" );
-                    } );
-                    return;
-                }
-            } else
-            {
-                //BotFilter end
-                packet.read( in, prot.getDirection(), protocolVersion );
-            }
+            packet.read( in, prot.getDirection(), protocolVersion );
             if ( in.isReadable() )
             {
-                //BotFilter start
-                in.skipBytes( in.readableBytes() ); //BotFilter end
-                if ( server )
-                {
-                    DiscardUtils.discardAndClose( ctx.channel() ).addListener( (ChannelFutureListener) future ->
-                    {
-                        ErrorStream.error( "[" + ctx.channel().remoteAddress() + "] Longer than expected: Packet " + packetId + " Protocol " + protocol + " Direction " + prot.getDirection() );
-                    } );
-                    return;
-                }
-                throw new BadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot.getDirection() );
+                in.skipBytes( in.readableBytes() ); //BotFilter
+                throw new FastBadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot.getDirection() );
             }
         } else
         {
@@ -83,12 +49,4 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
         ByteBuf copy = in.copy( originalReaderIndex, originalReadableBytes ); //BotFilter
         out.add( new PacketWrapper( packet, copy ) );
     }
-
-    //BotFilter start
-    @Override
-    public boolean acceptInboundMessage(Object msg) throws Exception
-    {
-        return msg instanceof ByteBuf;
-    }
-    //BotFilter end
 }

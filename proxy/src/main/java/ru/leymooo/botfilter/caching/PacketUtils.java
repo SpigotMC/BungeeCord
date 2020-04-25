@@ -19,7 +19,6 @@ import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import ru.leymooo.botfilter.config.Settings;
-import ru.leymooo.botfilter.discard.DiscardUtils;
 import ru.leymooo.botfilter.packets.EmptyChunkPacket;
 import ru.leymooo.botfilter.packets.PlayerAbilities;
 import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
@@ -299,13 +298,12 @@ public class PacketUtils
         }
         if ( protocol == Protocol.GAME )
         {
-            wrapper.write( kickMessagesGame.get( kick ).get( version ) );
+            wrapper.close( kickMessagesGame.get( kick ).get( version ) );
         } else
         {
-            wrapper.write( kickMessagesLogin.get( kick ).get( version ) );
+            wrapper.close( kickMessagesLogin.get( kick ).get( version ) );
         }
-        DiscardUtils.discardAndClose( wrapper.getHandle() );
-        wrapper.markClosed();
+
     }
 
     public static CachedPacket getCachedPacket(int pos)

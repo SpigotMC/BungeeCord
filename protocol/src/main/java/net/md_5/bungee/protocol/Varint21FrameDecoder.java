@@ -1,28 +1,19 @@
 package net.md_5.bungee.protocol;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import java.util.List;
-import ru.leymooo.botfilter.discard.DiscardUtils;
-import ru.leymooo.botfilter.discard.ErrorStream;
+import ru.leymooo.botfilter.utils.FastCorruptedFrameException;
 
 public class Varint21FrameDecoder extends ByteToMessageDecoder
 {
-
-    private boolean shutDowned = false;
-    public void shutdown()
-    {
-        shutDowned = true;
-    }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
     {
         //BotFilter start - rewrite Varint21Decoder
-
-        if ( !ctx.channel().isActive() || shutDowned )
+        if ( !ctx.channel().isActive() )
         {
             super.setSingleDecode( true );
             return;
@@ -49,12 +40,7 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
                 if ( packetLength <= 0 )
                 {
                     super.setSingleDecode( true );
-                    shutdown();
-                    DiscardUtils.discardAndClose( ctx.channel() ).addListener( (ChannelFutureListener) future ->
-                    {
-                        ErrorStream.error( "[" + future.channel().remoteAddress() + "] <-> Varint21FrameDecoder received invalid packet length " + packetLength + ", disconnected" );
-                    } );
-                    return;
+                    throw new FastCorruptedFrameException( "Empty Packet!" );
                 }
 
                 if ( in.readableBytes() < packetLength )
@@ -68,12 +54,7 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
         }
 
         super.setSingleDecode( true );
-        shutdown();
-        DiscardUtils.discardAndClose( ctx.channel() ).addListener( (ChannelFutureListener) future ->
-        {
-            ErrorStream.error( "[" + future.channel().remoteAddress() + "] <-> Varint21FrameDecoder packet length field too long, disconnected" );
-        } );
-        //throw new CorruptedFrameException( "length wider than 21-bit" );
+        throw new FastCorruptedFrameException( "length wider than 21-bit" );
     }
     //BotFilter end
 }

@@ -10,14 +10,15 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
-import ru.leymooo.botfilter.discard.FastThrownException;
+import ru.leymooo.botfilter.utils.FastException;
+import ru.leymooo.botfilter.utils.FastOverflowPacketException;
 
 @RequiredArgsConstructor
 public abstract class DefinedPacket
 {
 
-    private static final FastThrownException VARINT_TOO_BIG = new FastThrownException( "varint too big" ); //BotFilter
-    private static final FastThrownException ILLEGAL_BUF = new FastThrownException( "Buffer is no longer readable" ); //BotFilter
+    private static final FastException VARINT_TOO_BIG = new FastException( "varint too big" ); //BotFilter
+    private static final FastException ILLEGAL_BUF = new FastException( "Buffer is no longer readable" ); //BotFilter
 
     public static void writeString(String s, ByteBuf buf)
     {
@@ -36,7 +37,7 @@ public abstract class DefinedPacket
         int len = readVarInt( buf );
         if ( len > Short.MAX_VALUE )
         {
-            throw new FastThrownException( String.format( "Cannot receive string longer than Short.MAX_VALUE (got " + len + " characters)" ) );
+            throw new FastOverflowPacketException( String.format( "Cannot receive string longer than Short.MAX_VALUE (got " + len + " characters)" ) );
         }
 
         byte[] b = new byte[ len ];
@@ -111,7 +112,7 @@ public abstract class DefinedPacket
         int len = readVarInt( buf );
         if ( len > limit )
         {
-            throw new FastThrownException( String.format( "Cannot receive byte array longer than %s (got %s bytes)", limit, len ) );
+            throw new FastOverflowPacketException( String.format( "Cannot receive byte array longer than %s (got %s bytes)", limit, len ) );
         }
         byte[] ret = new byte[ len ];
         buf.readBytes( ret );
