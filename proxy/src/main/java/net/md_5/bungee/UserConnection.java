@@ -456,7 +456,7 @@ public final class UserConnection implements ProxiedPlayer
         {
             // Versions older than 1.11 cannot send the Action bar with the new JSON formattings
             // Fix by converting to a legacy message, see https://bugs.mojang.com/browse/MC-119145
-            if ( ProxyServer.getInstance().getProtocolVersion() <= ProtocolConstants.MINECRAFT_1_10 )
+            if ( getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_10 )
             {
                 sendMessage( position, ComponentSerializer.toString( new TextComponent( BaseComponent.toLegacyText( message ) ) ) );
             } else
