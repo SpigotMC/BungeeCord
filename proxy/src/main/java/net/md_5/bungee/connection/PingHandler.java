@@ -68,11 +68,7 @@ public class PingHandler extends PacketHandler
     @Override
     public void handleGeneral(PacketWrapper<?> packet)
     {
-        if ( packet.packet == null )
-        {
-            channel.close();
-            callback.done( null, new QuietException( "Unexpected packet received during ping process! " + BufUtil.dump( packet.buf, 16 ) ) );
-        }
+        handleGeneralNoEntity( packet );
     }
 
     @Override
