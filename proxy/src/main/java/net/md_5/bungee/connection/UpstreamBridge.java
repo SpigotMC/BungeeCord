@@ -275,6 +275,6 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public String toString()
     {
-        return "[" + con.getName() + "] -> UpstreamBridge";
+        return new StringBuilder( 1 + 16 + 19 ).append( "[" ).append( con.getName() ).append( "] -> UpstreamBridge" ).toString();
     }
 }

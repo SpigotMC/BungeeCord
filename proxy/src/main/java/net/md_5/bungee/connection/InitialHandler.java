@@ -786,17 +786,17 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder();
+        //max length of [/ip:port | name] <-> InitialHandler, splitted up like this "[/", ip, ":", port, " | ", suffix
+        StringBuilder sb = new StringBuilder( 2 + 15 + 1 + 5 + 3 + 16 + 20 );
         sb.append( '[' );
+        sb.append( getSocketAddress() );
 
         String currentName = getName();
         if ( currentName != null )
         {
             sb.append( currentName );
-            sb.append( ',' );
+            sb.append( " | " );
         }
-
-        sb.append( getSocketAddress() );
         sb.append( "] <-> InitialHandler" );
 
         return sb.toString();

@@ -646,6 +646,7 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public String toString()
     {
-        return "[" + con.getName() + "] <-> DownstreamBridge <-> [" + server.getInfo().getName() + "]";
+        // server names are usually not longer than 20 characters, optimizing for that
+        return new StringBuilder( 1 + 16 + 28 + 20 + 1 ).append( "[" ).append( con.getName() ).append( "] <-> DownstreamBridge <-> [" ).append( server.getInfo().getName() ).append( "]" ).toString();
     }
 }

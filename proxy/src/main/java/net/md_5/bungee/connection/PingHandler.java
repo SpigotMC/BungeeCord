@@ -95,6 +95,7 @@ public class PingHandler extends PacketHandler
     @Override
     public String toString()
     {
-        return "[Ping Handler] -> " + target.getName();
+        // server names are usually not longer than 20 characters, optimizing for that
+        return new StringBuilder( 18 + 20 ).append( "[Ping Handler] -> " ).append( target.getName() ).toString();
     }
 }
