@@ -135,11 +135,7 @@ public abstract class DefinedPacket<P extends DefinedPacket<P>>
         return out;
     }
 
-    /**
-     * @param buf buf
-     * @return read varint (could also be something negative), -9975399 if it got too long, -9935799 if not enough read
-     */
-    public static int readVarIntLengthSpecial(byte[] buf)
+    public static int readVarInt(byte[] buf)
     {
         final int length = buf.length;
 
@@ -159,49 +155,6 @@ public abstract class DefinedPacket<P extends DefinedPacket<P>>
             if ( bytes > length )
             {
                 return -9975399;
-            }
-        }
-
-        return out;
-    }
-
-    /**
-     * @param input input
-     * @return read varint (could also be something negative) or -9975399 if it got too long (max 2 bytes), -9935799 if its too short
-     */
-    public static int readVarIntPacketIdSpecial(ByteBuf input)
-    {
-        return readVarIntPacketIdSpecial( input, 2 );
-    }
-
-    /**
-     * @param input input
-     * @param maxBytes max bytes
-     * @return read varint (could also be something negative) or -9975399 if it got too long, -9935799 if its too short
-     */
-    public static int readVarIntPacketIdSpecial(ByteBuf input, int maxBytes)
-    {
-        int out = 0;
-        int bytes = 0;
-        byte in;
-        while ( true )
-        {
-            if ( !input.isReadable() )
-            {
-                return -9935799;
-            }
-            in = input.readByte();
-
-            out |= ( in & 0x7F ) << ( bytes++ * 7 );
-
-            if ( bytes > maxBytes )
-            {
-                return -9975399;
-            }
-
-            if ( ( in & 0x80 ) != 0x80 )
-            {
-                break;
             }
         }
 

@@ -49,6 +49,7 @@ import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.ViewDistance;
 import net.md_5.bungee.util.BufUtil;
+import net.md_5.bungee.util.QuietException;
 
 @RequiredArgsConstructor
 public class ServerConnector extends PacketHandler
@@ -66,7 +67,7 @@ public class ServerConnector extends PacketHandler
     private enum State
     {
 
-        LOGIN_SUCCESS, ENCRYPT_RESPONSE, LOGIN, FINISHED;
+        LOGIN_SUCCESS, /*ENCRYPT_RESPONSE,*/ LOGIN, FINISHED;
     }
 
     @Override
@@ -135,7 +136,7 @@ public class ServerConnector extends PacketHandler
     {
         if ( packet.packet == null )
         {
-            disconnect( "Unexpected packet received during server login process!\n" + BufUtil.dump( packet.buf, 16 ) );
+            throw new QuietException( "Unexpected packet received during server login process!\n" + BufUtil.dump( packet.buf, 16 ) );
         } else
         {
             packet.packet.callHandler( this, packet );
@@ -167,8 +168,6 @@ public class ServerConnector extends PacketHandler
         {
             user.getForgeClientHandler().resetHandshake();
         }
-
-        // throw CancelSendSignal.INSTANCE; //TODO explore further, this seems kind of unneccessary as the old handle(PacketWrapper) method just checked packet.packet != null
     }
 
     @Override
@@ -180,11 +179,7 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handleLogin(PacketWrapper<Login> packet) throws Exception
     {
-        if ( thisState != State.LOGIN )
-        {
-            disconnect( "Not expecting LOGIN" );
-            return;
-        }
+        QuietException.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
         ServerConnection server = new ServerConnection( ch, target );
         ServerConnectedEvent event = new ServerConnectedEvent( user, server );
@@ -311,14 +306,12 @@ public class ServerConnector extends PacketHandler
         bungee.getPluginManager().callEvent( new ServerSwitchEvent( user, from ) );
 
         thisState = State.FINISHED;
-
-        // throw CancelSendSignal.INSTANCE; //TODO see line 171
     }
 
     @Override
     public void handleEncryptionRequest(PacketWrapper<EncryptionRequest> packet) throws Exception
     {
-        disconnect( "Server is online mode!" );
+        throw new QuietException( "Server is online mode!" );
     }
 
     @Override
@@ -347,8 +340,6 @@ public class ServerConnector extends PacketHandler
         {
             user.sendMessage( message );
         }
-
-        // throw CancelSendSignal.INSTANCE; //TODO see line 171
     }
 
     @Override
@@ -404,6 +395,7 @@ public class ServerConnector extends PacketHandler
     @Override
     public String toString()
     {
-        return "[" + user.getName() + "] <-> ServerConnector [" + target.getName() + "]";
+        // server names are usually not longer than 20 characters, optimizing for that
+        return new StringBuilder( 1 + 16 + 23 + 20 + 1 ).append( "[" ).append( user.getName() ).append( "] <-> ServerConnector [" ).append( target.getName() ).append( "]" ).toString();
     }
 }

@@ -47,7 +47,6 @@ import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.netty.cipher.CipherDecoder;
 import net.md_5.bungee.netty.cipher.CipherEncoder;
 import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.InboundDiscardHandler;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
@@ -66,6 +65,7 @@ import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
 import net.md_5.bungee.util.BufUtil;
+import net.md_5.bungee.util.QuietException;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -147,8 +147,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
         if ( packet.packet == null )
         {
-            disconnectFastAndLog( "Unexpected packet received during login process! " + BufUtil.dump( packet.buf, 16 ) );
-            return;
+            throw new QuietException( "Unexpected packet received during login process! " + BufUtil.dump( packet.buf, 16 ) );
         }
         packet.packet.callHandler( this, packet );
     }
@@ -170,7 +169,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         this.legacy = true;
         final String disconnectReason = bungee.getTranslation( "outdated_client", bungee.getGameVersion() );
         ch.close( disconnectReason );
-        bungee.getLogger().log( Level.INFO, "[{0}] (legacy) disconnected with: {1}", new Object[]
+        bungee.getLogger().log( Level.INFO, "{0} (legacy) disconnected with: {1}", new Object[]
         {
             toString(), disconnectReason
         } );
@@ -250,11 +249,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handleStatusRequest(PacketWrapper<StatusRequest> packet) throws Exception
     {
-        if ( thisState != State.STATUS )
-        {
-            disconnectFastAndLog( "Not expecting STATUS" );
-            return;
-        }
+        QuietException.checkState( thisState == State.STATUS, "Not expecting STATUS" );
 
         ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
         final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
@@ -307,11 +302,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handlePing(PacketWrapper<PingPacket> packet) throws Exception
     {
-        if ( thisState != State.PING )
-        {
-            disconnectFastAndLog( "Not expecting PING" );
-            return;
-        }
+        QuietException.checkState( thisState == State.PING, "Not expecting PING" );
         unsafe.sendPacket( packet.packet );
         disconnect( "" );
     }
@@ -319,19 +310,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handleHandshake(PacketWrapper<Handshake> packet) throws Exception
     {
-        final Handshake handshake = packet.packet;
-        if ( thisState != State.HANDSHAKE )
-        {
-            disconnectFastAndLog( "Not expecting HANDSHAKE" );
-            return;
-        }
-        final int requestedProtocol = handshake.getRequestedProtocol();
-        if ( requestedProtocol != 1 && requestedProtocol != 2 )
-        {
-            disconnectFastAndLog( "Unknown handshake protocol " + requestedProtocol );
-            return;
-        }
-        this.handshake = handshake;
+        QuietException.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
+        final Handshake handshake = this.handshake = packet.packet;
         ch.setVersion( handshake.getProtocolVersion() );
 
         // Starting with FML 1.8, a "\0FML\0" token is appended to the handshake. This interferes
@@ -343,14 +323,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         if ( handshakeHost.indexOf( '\0' ) > -1 )
         {
             String[] split = handshakeHost.split( "\0", 2 );
-            handshake.setHost( handshakeHost = split[0] );
-            extraDataInHandshake = "\0" + split[1];
+            handshake.setHost( handshakeHost = split[ 0 ] );
+            extraDataInHandshake = "\0" + split[ 1 ];
         }
 
         // SRV records can end with a . depending on DNS / client.
         if ( handshakeHost.endsWith( "." ) )
         {
-            handshake.setHost( handshakeHost.substring( 0, handshakeHost.length() - 1 ) );
+            handshake.setHost( handshakeHost = handshakeHost.substring( 0, handshakeHost.length() - 1 ) );
         }
 
         this.virtualHost = InetSocketAddress.createUnresolved( handshakeHost, handshake.getPort() );
@@ -361,8 +341,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             case 1:
                 // Ping
-                thisState = State.STATUS;
-                ch.setProtocol( Protocol.STATUS );
                 if ( bungee.getConfig().isLogPings() )
                 {
                     bungee.getLogger().log( Level.INFO, "{0} (protocol {1}) has pinged", new Object[]
@@ -370,15 +348,17 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                         this, handshake.getProtocolVersion()
                     } );
                 }
+                thisState = State.STATUS;
+                ch.setProtocol( Protocol.STATUS );
                 break;
             case 2:
                 // Login
-                thisState = State.USERNAME;
-                ch.setProtocol( Protocol.LOGIN );
                 bungee.getLogger().log( Level.INFO, "{0} (protocol {1}) has connected", new Object[]
                 {
                     this, handshake.getProtocolVersion()
                 } );
+                thisState = State.USERNAME;
+                ch.setProtocol( Protocol.LOGIN );
 
                 if ( !ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) )
                 {
@@ -403,19 +383,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 }
                 break;
             default:
-                disconnectFastAndLog( "Unknown handshake protocol by plugin " + handshake.getRequestedProtocol() );
-                break;
+                throw new QuietException( "Unknown handshake protocol " + handshake.getRequestedProtocol() );
         }
     }
 
     @Override
     public void handleLoginRequest(PacketWrapper<LoginRequest> packet) throws Exception
     {
-        if ( thisState != State.USERNAME )
-        {
-            disconnectFastAndLog( "Not expecting USERNAME" );
-            return;
-        }
+        QuietException.checkState( thisState == State.USERNAME, "Not expecting USERNAME" );
         this.loginRequest = packet.packet;
 
         final String name = getName();
@@ -423,7 +398,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             final String disconnectReason = bungee.getTranslation( "name_invalid" );
             disconnect( disconnectReason );
-            bungee.getLogger().log( Level.INFO, "{0} disconnected with: {2}", new Object[]
+            bungee.getLogger().log( Level.INFO, "{0} disconnected with: {1}", new Object[]
             {
                 toString(), disconnectReason
             } );
@@ -434,7 +409,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             final String disconnectReason = bungee.getTranslation( "name_too_long" );
             disconnect( disconnectReason );
-            bungee.getLogger().log( Level.INFO, "{0} disconnected with: {2}", new Object[]
+            bungee.getLogger().log( Level.INFO, "{0} disconnected with: {1}", new Object[]
             {
                 toString(), disconnectReason
             } );
@@ -446,7 +421,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             final String disconnectReason = bungee.getTranslation( "proxy_full" );
             disconnect( disconnectReason );
-            bungee.getLogger().log( Level.INFO, "{0} disconnected with: {2}", new Object[]
+            bungee.getLogger().log( Level.INFO, "{0} disconnected with: {1}", new Object[]
             {
                 toString(), disconnectReason
             } );
@@ -459,7 +434,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             final String disconnectReason = bungee.getTranslation( "already_connected_proxy" );
             disconnect( disconnectReason );
-            bungee.getLogger().log( Level.INFO, "{0} disconnected with: {2}", new Object[]
+            bungee.getLogger().log( Level.INFO, "{0} disconnected with: {1}", new Object[]
             {
                 toString(), disconnectReason
             } );
@@ -475,7 +450,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 if ( result.isCancelled() )
                 {
                     disconnect( result.getCancelReasonComponents() );
-                    bungee.getLogger().log( Level.INFO, "{0} disconnected with: {2}", new Object[]
+                    bungee.getLogger().log( Level.INFO, "{0} disconnected with: {1}", new Object[]
                     {
                         InitialHandler.this.toString(), result.getCancelReason()
                     } );
@@ -503,13 +478,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handleEncryptionResponse(final PacketWrapper<EncryptionResponse> packet) throws Exception
     {
-        if ( thisState != State.ENCRYPT )
-        {
-            disconnectFastAndLog( "Not expecting ENCRYPT" );
-            return;
-        }
+        QuietException.checkState( thisState == State.ENCRYPT, "Not expecting ENCRYPT" );
 
         final EncryptionResponse encryptResponse = packet.packet;
+
         SecretKey sharedKey = EncryptionUtil.getSecret( encryptResponse, request );
         BungeeCipher decrypt = EncryptionUtil.getCipher( false, sharedKey );
         ch.addBefore( PipelineUtils.FRAME_DECODER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
@@ -547,7 +519,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     }
                     final String disconnectReason = bungee.getTranslation( "offline_mode_player" );
                     disconnect( disconnectReason );
-                    bungee.getLogger().log( Level.INFO, "{0} disconnected with: {2}", new Object[]
+                    bungee.getLogger().log( Level.INFO, "{0} disconnected with: {1}", new Object[]
                     {
                         InitialHandler.this.toString(), disconnectReason
                     } );
@@ -695,8 +667,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void disconnect(final BaseComponent... reason)
     {
-        ch.getHandle().pipeline().addFirst( InboundDiscardHandler.DISCARD_FIRST, InboundDiscardHandler.INSTANCE )
-                .addBefore( PipelineUtils.BOSS_HANDLER, InboundDiscardHandler.DISCARD, InboundDiscardHandler.INSTANCE );
         if ( canSendKickMessage() )
         {
             ch.delayedClose( new Kick( ComponentSerializer.toString( reason ) ) );
@@ -704,23 +674,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             ch.close();
         }
-    }
-
-    protected void disconnectFastAndLog(String reason)
-    {
-        ch.getHandle().pipeline().addFirst( InboundDiscardHandler.DISCARD_FIRST, InboundDiscardHandler.INSTANCE )
-                .addBefore( PipelineUtils.BOSS_HANDLER, InboundDiscardHandler.DISCARD, InboundDiscardHandler.INSTANCE );
-        if ( canSendKickMessage() )
-        {
-            ch.close( new Kick( reason ) );
-        } else
-        {
-            ch.close();
-        }
-        bungee.getLogger().log( Level.INFO, "{0} disconnected without waiting: {1}", new Object[]
-        {
-            toString(), reason
-        } );
     }
 
     @Override
@@ -786,7 +739,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public String toString()
     {
-        //max length of [/ip:port | name] <-> InitialHandler, splitted up like this "[/", ip, ":", port, " | ", suffix
+        //max length of "[/ip:port | name] <-> InitialHandler", splitted up like this "[/", ip, ":", port, " | ", suffix
         StringBuilder sb = new StringBuilder( 2 + 15 + 1 + 5 + 3 + 16 + 20 );
         sb.append( '[' );
         sb.append( getSocketAddress() );

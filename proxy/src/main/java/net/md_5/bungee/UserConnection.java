@@ -319,7 +319,7 @@ public final class UserConnection implements ProxiedPlayer
             @Override
             protected void initChannel(Channel ch) throws Exception
             {
-                PipelineUtils.BASE_OTHER.initChannel( ch );
+                PipelineUtils.BASE.initChannel( ch );
                 ch.pipeline().addAfter( PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, false, getPendingConnection().getVersion() ) );
                 ch.pipeline().addAfter( PipelineUtils.FRAME_PREPENDER, PipelineUtils.PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, false, getPendingConnection().getVersion() ) );
                 ch.pipeline().get( HandlerBoss.class ).setHandler( new ServerConnector( bungee, UserConnection.this, target ) );
@@ -392,12 +392,12 @@ public final class UserConnection implements ProxiedPlayer
     {
         if ( !ch.isClosing() )
         {
-            ch.close( new Kick( ComponentSerializer.toString( reason ) ) );
-
             bungee.getLogger().log( Level.INFO, "[{0} | {1}] disconnected with: {2}", new Object[]
             {
                 getAddress(), getName(), BaseComponent.toLegacyText( reason )
             } );
+
+            ch.close( new Kick( ComponentSerializer.toString( reason ) ) );
 
             if ( server != null )
             {

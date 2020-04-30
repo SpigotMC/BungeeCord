@@ -5,6 +5,9 @@ import java.util.List;
 
 public class ProtocolConstants
 {
+    public static final int PACKET_ID_MINIMUM = 0;
+    public static final int PACKET_ID_MAXIMUM = 0xFF;
+    public static final int PACKET_ID_MAXBYTES = 2;
 
     public static final int MINECRAFT_1_8 = 47;
     public static final int MINECRAFT_1_9 = 107;
