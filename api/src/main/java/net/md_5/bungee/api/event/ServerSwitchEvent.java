@@ -21,8 +21,7 @@ public class ServerSwitchEvent extends Event
      */
     private final ProxiedPlayer player;
     /**
-     * Server the player is switch from. May be null if initial proxy
-     * connection.
+     * The server the player is switching from.
      */
     private final ServerInfo from;
 }
