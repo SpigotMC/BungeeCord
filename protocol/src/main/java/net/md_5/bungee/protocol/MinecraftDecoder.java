@@ -22,6 +22,10 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
     {
         //BotFilter start
+        if ( !server && in.readableBytes() == 0 ) //Fix empty packet from server
+        {
+            return;
+        }
         int originalReaderIndex = in.readerIndex();
         int originalReadableBytes = in.readableBytes();
         int packetId = DefinedPacket.readVarInt( in );

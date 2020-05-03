@@ -162,14 +162,14 @@ public abstract class DefinedPacket
         int out = 0;
         int bytes = 0;
         byte in;
-        int readable = input.readableBytes(); //BotFilter
+        // int readable = input.readableBytes(); //BotFilter
         while ( true )
         {
-            //BotFilter start
-            if ( readable-- == 0 )
-            {
-                throw ILLEGAL_BUF;
-            }
+            // BotFilter start
+            // if ( readable-- == 0 )
+            // {
+            //      throw ILLEGAL_BUF;
+            //   }
             //BotFiter end
             in = input.readByte();
 

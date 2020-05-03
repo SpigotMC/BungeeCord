@@ -8,6 +8,14 @@ import ru.leymooo.botfilter.utils.FastCorruptedFrameException;
 
 public class Varint21FrameDecoder extends ByteToMessageDecoder
 {
+    //BotFilter start
+    private boolean fromBackend;
+
+    public void setFromBackend(boolean fromBackend)
+    {
+        this.fromBackend = fromBackend;
+    }
+    //BotFilter end
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
@@ -37,7 +45,7 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
                 in.readerIndex( origReaderIndex );
                 int packetLength = DefinedPacket.readVarInt( in );
 
-                if ( packetLength <= 0 )
+                if ( packetLength <= 0 && !fromBackend )
                 {
                     super.setSingleDecode( true );
                     throw new FastCorruptedFrameException( "Empty Packet!" );
