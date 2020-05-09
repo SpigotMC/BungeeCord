@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -145,10 +144,8 @@ public class CommandSend extends Command implements TabExecutor
         }
 
         final SendCallback callback = new SendCallback( sender );
-        Iterator<ProxiedPlayer> iterator = targets.iterator();
-        while ( iterator.hasNext() )
+        for ( ProxiedPlayer player : targets )
         {
-            ProxiedPlayer player = iterator.next();
             ServerConnectRequest request = ServerConnectRequest.builder()
                     .target( server )
                     .reason( ServerConnectEvent.Reason.COMMAND )
