@@ -88,7 +88,7 @@ public final class TranslatableComponent extends BaseComponent
      * @return the duplicate of this TranslatableComponent.
      */
     @Override
-    public BaseComponent duplicate()
+    public TranslatableComponent duplicate()
     {
         return new TranslatableComponent( this );
     }
