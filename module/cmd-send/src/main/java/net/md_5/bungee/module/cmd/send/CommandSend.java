@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -64,11 +63,13 @@ public class CommandSend extends Command implements TabExecutor
         {
 
             private final SendCallback callback;
-            private final ProxiedPlayer target;
+            private final ProxiedPlayer player;
+            private final ServerInfo target;
 
-            public Entry(SendCallback callback, ProxiedPlayer target)
+            public Entry(SendCallback callback, ProxiedPlayer player, ServerInfo target)
             {
                 this.callback = callback;
+                this.player = player;
                 this.target = target;
                 this.callback.count++;
             }
@@ -76,10 +77,10 @@ public class CommandSend extends Command implements TabExecutor
             @Override
             public void done(ServerConnectRequest.Result result, Throwable error)
             {
-                callback.results.get( result ).add( target.getName() );
+                callback.results.get( result ).add( player.getName() );
                 if ( result == ServerConnectRequest.Result.SUCCESS )
                 {
-                    target.sendMessage( ProxyServer.getInstance().getTranslation( "you_got_summoned", target.getName(), callback.sender.getName() ) );
+                    player.sendMessage( ProxyServer.getInstance().getTranslation( "you_got_summoned", target.getName(), callback.sender.getName() ) );
                 }
 
                 if ( --callback.count == 0 )
@@ -143,16 +144,14 @@ public class CommandSend extends Command implements TabExecutor
         }
 
         final SendCallback callback = new SendCallback( sender );
-        Iterator<ProxiedPlayer> iterator = targets.iterator();
-        while ( iterator.hasNext() )
+        for ( ProxiedPlayer player : targets )
         {
-            ProxiedPlayer target = iterator.next();
             ServerConnectRequest request = ServerConnectRequest.builder()
                     .target( server )
                     .reason( ServerConnectEvent.Reason.COMMAND )
-                    .callback( new SendCallback.Entry( callback, target ) )
+                    .callback( new SendCallback.Entry( callback, player, server ) )
                     .build();
-            target.connect( request );
+            player.connect( request );
         }
 
         sender.sendMessage( ChatColor.DARK_GREEN + "Attempting to send " + targets.size() + " players to " + server.getName() );
