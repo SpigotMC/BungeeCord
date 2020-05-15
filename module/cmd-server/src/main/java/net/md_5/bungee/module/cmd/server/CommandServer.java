@@ -37,7 +37,7 @@ public class CommandServer extends Command implements TabExecutor
         {
             if ( sender instanceof ProxiedPlayer )
             {
-                sender.sendMessage( ProxyServer.getInstance().getTranslation( "current_server", ( (ProxiedPlayer) sender ).getServer().getInfo().getName() ) );
+                sender.sendMessage( TextComponent.fromLegacyText( ProxyServer.getInstance().getTranslation( "current_server", ( (ProxiedPlayer) sender ).getServer().getInfo().getName() ) ) );
             }
 
             ComponentBuilder serverList = new ComponentBuilder().appendLegacy( ProxyServer.getInstance().getTranslation( "server_list" ) );
@@ -69,10 +69,10 @@ public class CommandServer extends Command implements TabExecutor
             ServerInfo server = servers.get( args[0] );
             if ( server == null )
             {
-                player.sendMessage( ProxyServer.getInstance().getTranslation( "no_server" ) );
+                player.sendMessage( TextComponent.fromLegacyText( ProxyServer.getInstance().getTranslation( "no_server" ) ) );
             } else if ( !server.canAccess( player ) )
             {
-                player.sendMessage( ProxyServer.getInstance().getTranslation( "no_server_permission" ) );
+                player.sendMessage( TextComponent.fromLegacyText( ProxyServer.getInstance().getTranslation( "no_server_permission" ) ) );
             } else
             {
                 player.connect( server, ServerConnectEvent.Reason.COMMAND );
@@ -83,7 +83,7 @@ public class CommandServer extends Command implements TabExecutor
     @Override
     public Iterable<String> onTabComplete(final CommandSender sender, final String[] args)
     {
-        return ( args.length > 1 ) ? Collections.EMPTY_LIST : Iterables.transform( Iterables.filter( ProxyServer.getInstance().getServers().values(), new Predicate<ServerInfo>()
+        return ( args.length > 1 ) ? Collections.emptyList() : Iterables.transform( Iterables.filter( ProxyServer.getInstance().getServers().values(), new Predicate<ServerInfo>()
         {
             private final String lower = ( args.length == 0 ) ? "" : args[0].toLowerCase( Locale.ROOT );
 
