@@ -113,7 +113,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                     handler.handle( packet );
                 } else {
                 	if (packet == null || packet.packet == null) {
-                		ProxyServer.getInstance().getLogger().log( Level.ALL, "Packet null -> Close channel" );
+                		ProxyServer.getInstance().getLogger().log( Level.FINE, "Packet null -> Close channel" );
                 	    ctx.close();
                 	}
                 }
