@@ -9,11 +9,12 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConnectionThrottle
 {
 
-    private final LoadingCache<InetAddress, Integer> throttle;
+    private final LoadingCache<InetAddress, AtomicInteger> throttle;
     private final int throttleLimit;
 
     public ConnectionThrottle(int throttleTime, int throttleLimit)
@@ -29,8 +30,7 @@ public class ConnectionThrottle
                 //.concurrencyLevel( Runtime.getRuntime().availableProcessors() )
                 .initialCapacity( 100 )
                 .expireAfterWrite( throttleTime, TimeUnit.MILLISECONDS )
-                .maximumSize( Long.MAX_VALUE ) // Don't know if that fixes https://github.com/Leymooo/BungeeCord/issues/47
-                .build( key -> 0 );
+                .build( key -> new AtomicInteger() );
         this.throttleLimit = throttleLimit;
     }
 
@@ -43,8 +43,11 @@ public class ConnectionThrottle
 
         InetAddress address = ( (InetSocketAddress) socketAddress ).getAddress();
 
-        int throttleCount = throttle.get( address ) - 1;
-        throttle.put( address, throttleCount );
+        AtomicInteger throttleCount = throttle.get( address );
+        if ( throttleCount != null )
+        {
+            throttleCount.decrementAndGet();
+        }
     }
 
     public boolean throttle(SocketAddress socketAddress)
@@ -55,8 +58,7 @@ public class ConnectionThrottle
         }
 
         InetAddress address = ( (InetSocketAddress) socketAddress ).getAddress();
-        int throttleCount = throttle.get( address ) + 1;
-        throttle.put( address, throttleCount );
+        int throttleCount = throttle.get( address ).incrementAndGet();
 
         return throttleCount > throttleLimit;
     }

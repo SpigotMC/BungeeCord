@@ -5,7 +5,6 @@ import java.util.List;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import net.md_5.bungee.api.ChatColor;
@@ -14,7 +13,6 @@ import net.md_5.bungee.api.chat.ComponentBuilder.FormatRetention;
 @Setter
 @ToString(exclude = "parent")
 @EqualsAndHashCode(exclude = "parent")
-@NoArgsConstructor
 public abstract class BaseComponent
 {
 
@@ -75,6 +73,16 @@ public abstract class BaseComponent
      */
     @Getter
     private HoverEvent hoverEvent;
+
+    /**
+     * Default constructor.
+     *
+     * @deprecated for use by internal classes only, will be removed.
+     */
+    @Deprecated
+    public BaseComponent()
+    {
+    }
 
     BaseComponent(BaseComponent old)
     {
