@@ -17,9 +17,11 @@ import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.netty.ChannelWrapper;
+import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
 import ru.leymooo.botfilter.caching.CachedCaptcha;
@@ -165,14 +167,31 @@ public class BotFilter
         userCache.remove( userName );
     }
 
+    public void connectToBotFilter(UserConnection userConnection)
+    {
+        userConnection.getCh().setEncoderProtocol( Protocol.GAME );
+        userConnection.getCh().setDecoderProtocol( Protocol.BotFilter );
+        Connector connector = new Connector( userConnection, this );
+
+        if ( !addConnection( connector ) )
+        {
+            userConnection.disconnect( BungeeCord.getInstance().getTranslation( "already_connected_proxy" ) ); // TODO: Cache this disconnect packet
+        } else
+        {
+            userConnection.getCh().getHandle().pipeline().get( HandlerBoss.class ).setHandler( connector );
+            connector.spawn();
+        }
+    }
+
     /**
      * Добавляет игрока в мапу
      *
      * @param connector connector
+     * @return если игрок был добавлен в мапу
      */
-    public void addConnection(Connector connector)
+    public boolean addConnection(Connector connector)
     {
-        connectedUsersSet.put( connector.getName(), connector );
+        return connectedUsersSet.putIfAbsent( connector.getName(), connector ) == null;
     }
 
     /**

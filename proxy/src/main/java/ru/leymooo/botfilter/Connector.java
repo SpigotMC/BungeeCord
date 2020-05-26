@@ -1,6 +1,5 @@
 package ru.leymooo.botfilter;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import java.util.concurrent.ThreadLocalRandom;
@@ -65,7 +64,6 @@ public class Connector extends MoveHandler
 
     public Connector(UserConnection userConnection, BotFilter botFilter)
     {
-        Preconditions.checkNotNull( botFilter, "BotFilter instance is null" );
         this.botFilter = botFilter;
         this.state = this.botFilter.getCurrentCheckState();
         this.name = userConnection.getName();
@@ -74,8 +72,13 @@ public class Connector extends MoveHandler
         this.version = userConnection.getPendingConnection().getVersion();
         this.userConnection.setClientEntityId( PacketUtils.CLIENTID );
         this.userConnection.setDimension( 0 );
-        this.botFilter.incrementBotCounter();
         this.ip = IPUtils.getAddress( this.userConnection ).getHostAddress();
+    }
+
+
+    public void spawn()
+    {
+        this.botFilter.incrementBotCounter();
         if ( !Settings.IMP.PROTECTION.ALWAYS_CHECK )
         {
             ManyChecksUtils.IncreaseOrAdd( IPUtils.getAddress( this.userConnection ) );
@@ -91,8 +94,7 @@ public class Connector extends MoveHandler
             PacketUtils.titles[1].writeTitle( channel, version );
         }
         sendPing();
-        this.botFilter.addConnection( this );
-        //channel.writeAndFlush( PacketUtils.createPacket( new SetSlot( 0, 36, i, 1, 0 ), PacketUtils.getPacketId( new SetSlot(), version, Protocol.BotFilter ), version ), channel.voidPromise() );
+        //this.botFilter.addConnection( this );
         LOGGER.log( Level.INFO, toString() + " has connected" );
     }
 

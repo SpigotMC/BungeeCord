@@ -66,7 +66,6 @@ import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
 import net.md_5.bungee.util.QuietException;
-import ru.leymooo.botfilter.Connector;
 import ru.leymooo.botfilter.config.Settings;
 import ru.leymooo.botfilter.utils.FastException;
 import ru.leymooo.botfilter.utils.IPUtils;
@@ -553,9 +552,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         if ( Settings.IMP.PROTECTION.ALWAYS_CHECK || bungee.getBotFilter().needCheck( getName(), getAddress().getAddress() ) )
         {
             sendLoginSuccess( !sendLoginSuccess ); //Send a loginSuccess if sendLoginSuccess is false
-            ch.setEncoderProtocol( Protocol.GAME );
-            ch.setDecoderProtocol( Protocol.BotFilter );
-            ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new Connector( userCon, bungee.getBotFilter() ) );
+            bungee.getBotFilter().connectToBotFilter( userCon );
         } else
         {
             bungee.getBotFilter().saveUser( userCon.getName().toLowerCase(), IPUtils.getAddress( userCon ), false ); //update timestamp
