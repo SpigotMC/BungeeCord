@@ -36,6 +36,7 @@ import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
+import net.md_5.bungee.protocol.packet.EntityAttributes;
 import net.md_5.bungee.protocol.packet.EntityStatus;
 import net.md_5.bungee.protocol.packet.GameState;
 import net.md_5.bungee.protocol.packet.Handshake;
@@ -249,6 +250,9 @@ public class ServerConnector extends PacketHandler
                 user.unsafe().sendPacket( new net.md_5.bungee.protocol.packet.BossBar( bossbar, 1 ) );
             }
             user.getSentBossBars().clear();
+
+            // Reset max health attribute
+            user.unsafe().sendPacket( EntityAttributes.createDefaultHealth( user.getClientEntityId(), user.getPendingConnection().getVersion() ) );
 
             // Update debug info from login packet
             user.unsafe().sendPacket( new EntityStatus( user.getClientEntityId(), login.isReducedDebugInfo() ? EntityStatus.DEBUG_INFO_REDUCED : EntityStatus.DEBUG_INFO_NORMAL ) );
