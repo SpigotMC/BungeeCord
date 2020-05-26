@@ -7,7 +7,6 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.ServerConnection.KeepAliveData;
 import net.md_5.bungee.UserConnection;
@@ -161,12 +160,10 @@ public class UpstreamBridge extends PacketHandler
         }
         //BotFilter end
 
-        Queue<KeepAliveData> keepAliveDataQueue = con.getServer().getKeepAlives();
-        KeepAliveData keepAliveData = keepAliveDataQueue.peek();
-
+        KeepAliveData keepAliveData = con.getServer().getKeepAlives().peek();
         if ( keepAliveData != null && alive.getRandomId() == keepAliveData.getId() )
         {
-            keepAliveDataQueue.remove();
+            Preconditions.checkState( keepAliveData == con.getServer().getKeepAlives().poll(), "keepalive queue mismatch" );
             int newPing = (int) ( System.currentTimeMillis() - keepAliveData.getTime() );
             con.getTabListHandler().onPingChange( newPing );
             con.setPing( newPing );
