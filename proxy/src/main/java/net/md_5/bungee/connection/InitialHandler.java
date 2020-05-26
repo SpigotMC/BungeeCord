@@ -30,12 +30,14 @@ import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.LoginAbortedEvent;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.PlayerHandshakeEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.PreLoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
+import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.http.HttpClient;
 import net.md_5.bungee.jni.cipher.BungeeCipher;
@@ -503,6 +505,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             uniqueId = offlineId;
         }
 
+        final PluginManager pluginManager = bungee.getPluginManager();
         Callback<LoginEvent> complete = new Callback<LoginEvent>()
         {
             @Override
@@ -515,6 +518,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 }
                 if ( ch.isClosed() )
                 {
+                    pluginManager.callEvent( new LoginAbortedEvent( InitialHandler.this ) );
                     return;
                 }
 
@@ -523,41 +527,44 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     @Override
                     public void run()
                     {
-                        if ( !ch.isClosing() )
+                        if ( ch.isClosing() )
                         {
-                            UserConnection userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
-                            userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
-                            userCon.init();
-
-                            unsafe.sendPacket( new LoginSuccess( getUniqueId().toString(), getName() ) ); // With dashes in between
-                            ch.setProtocol( Protocol.GAME );
-
-                            ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
-                            bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
-                            ServerInfo server;
-                            if ( bungee.getReconnectHandler() != null )
-                            {
-                                server = bungee.getReconnectHandler().getServer( userCon );
-                            } else
-                            {
-                                server = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
-                            }
-                            if ( server == null )
-                            {
-                                server = bungee.getServerInfo( listener.getDefaultServer() );
-                            }
-
-                            userCon.connect( server, null, true, ServerConnectEvent.Reason.JOIN_PROXY );
-
-                            thisState = State.FINISHED;
+                            pluginManager.callEvent( new LoginAbortedEvent( InitialHandler.this ) );
+                            return;
                         }
+
+                        UserConnection userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
+                        userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
+                        userCon.init();
+
+                        unsafe.sendPacket( new LoginSuccess( getUniqueId().toString(), getName() ) ); // With dashes in between
+                        ch.setProtocol( Protocol.GAME );
+
+                        ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
+                        pluginManager.callEvent( new PostLoginEvent( userCon ) );
+                        ServerInfo server;
+                        if ( bungee.getReconnectHandler() != null )
+                        {
+                            server = bungee.getReconnectHandler().getServer( userCon );
+                        } else
+                        {
+                            server = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
+                        }
+                        if ( server == null )
+                        {
+                            server = bungee.getServerInfo( listener.getDefaultServer() );
+                        }
+
+                        userCon.connect( server, null, true, ServerConnectEvent.Reason.JOIN_PROXY );
+
+                        thisState = State.FINISHED;
                     }
                 } );
             }
         };
 
         // fire login event
-        bungee.getPluginManager().callEvent( new LoginEvent( InitialHandler.this, complete ) );
+        pluginManager.callEvent( new LoginEvent( InitialHandler.this, complete ) );
     }
 
     @Override
