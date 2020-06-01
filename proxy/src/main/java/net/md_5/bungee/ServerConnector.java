@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import java.net.InetSocketAddress;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Queue;
 import java.util.Set;
@@ -13,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.profile.ProfileProperty;
+import net.md_5.bungee.api.event.PlayerProfileCompleteEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
@@ -103,10 +106,31 @@ public class ServerConnector extends PacketHandler
             String newHost = copiedHandshake.getHost() + "\00" + user.getAddress().getHostString() + "\00" + user.getUUID();
 
             LoginResult profile = user.getPendingConnection().getLoginProfile();
-            if ( profile != null && profile.getProperties() != null && profile.getProperties().length > 0 )
+            if ( profile == null )
             {
-                newHost += "\00" + BungeeCord.getInstance().gson.toJson( profile.getProperties() );
+                profile = new LoginResult( user.getUUID(), user.getName(), new HashSet<>() );
             }
+            Set<ProfileProperty> eventPropertySet;
+
+            if ( profile.getProperties() != null )
+            {
+                eventPropertySet = profile.getProperties();
+            } else
+            {
+                eventPropertySet = new HashSet<>();
+            }
+
+            PlayerProfileCompleteEvent profileEvent = new PlayerProfileCompleteEvent( user, eventPropertySet );
+            bungee.getPluginManager().callEvent( profileEvent );
+            Set<ProfileProperty> updatedProperties = profileEvent.getProperties();
+            if ( !updatedProperties.isEmpty() )
+            {
+                newHost += "\00" + BungeeCord.getInstance().gson.toJson( updatedProperties );
+            }
+
+            profile.setProperties( updatedProperties );
+            user.getPendingConnection().setLoginProfile( profile );
+
             copiedHandshake.setHost( newHost );
         } else if ( !user.getExtraDataInHandshake().isEmpty() )
         {

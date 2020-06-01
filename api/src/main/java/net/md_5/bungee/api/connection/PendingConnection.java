@@ -1,8 +1,10 @@
 package net.md_5.bungee.api.connection;
 
 import java.net.InetSocketAddress;
+import java.util.Set;
 import java.util.UUID;
 import net.md_5.bungee.api.config.ListenerInfo;
+import net.md_5.bungee.api.connection.profile.ProfileProperty;
 
 /**
  * Represents a user attempting to log into the proxy.
@@ -89,4 +91,13 @@ public interface PendingConnection extends Connection
      * @return Whether the client is using a legacy client.
      */
     boolean isLegacy();
+
+    /**
+     * Returns immutable copy of the profile properties this connection has. The result of
+     * the return value may be different depending if you're getting the properties before
+     * or after {@link net.md_5.bungee.api.event.PlayerProfileCompleteEvent} was called.
+     *
+     * @return properties
+     */
+    Set<ProfileProperty> getProperties();
 }
