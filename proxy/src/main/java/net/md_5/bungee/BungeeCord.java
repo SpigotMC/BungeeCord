@@ -1,11 +1,7 @@
 package net.md_5.bungee;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -24,6 +20,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,6 +42,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import jline.console.ConsoleReader;
 import lombok.Getter;
 import lombok.Setter;
@@ -661,10 +659,10 @@ public class BungeeCord extends ProxyServer
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
         {
-            return new PluginMessage( "minecraft:register", Util.format( Iterables.transform( pluginChannels, PluginMessage.MODERNISE ), "\00" ).getBytes( Charsets.UTF_8 ), false );
+            return new PluginMessage( "minecraft:register", Util.format( pluginChannels.stream().map( PluginMessage.MODERNISE ).collect( Collectors.toList() ), "\00" ).getBytes( StandardCharsets.UTF_8 ), false );
         }
 
-        return new PluginMessage( "REGISTER", Util.format( pluginChannels, "\00" ).getBytes( Charsets.UTF_8 ), false );
+        return new PluginMessage( "REGISTER", Util.format( pluginChannels, "\00" ).getBytes( StandardCharsets.UTF_8 ), false );
     }
 
     @Override
@@ -766,15 +764,9 @@ public class BungeeCord extends ProxyServer
             return Collections.singleton( exactMatch );
         }
 
-        return Sets.newHashSet( Iterables.filter( getPlayers(), new Predicate<ProxiedPlayer>()
-        {
-
-            @Override
-            public boolean apply(ProxiedPlayer input)
-            {
-                return ( input == null ) ? false : input.getName().toLowerCase( Locale.ROOT ).startsWith( partialName.toLowerCase( Locale.ROOT ) );
-            }
-        } ) );
+        return getPlayers().stream()
+            .filter( player -> player != null && player.getName().toLowerCase( Locale.ROOT ).startsWith( partialName.toLowerCase( Locale.ROOT ) ) )
+            .collect( Collectors.toSet() );
     }
 
     @Override

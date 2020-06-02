@@ -1,10 +1,11 @@
 package net.md_5.bungee.module;
 
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import lombok.Data;
 import net.md_5.bungee.Util;
 
@@ -24,7 +25,10 @@ public class JenkinsModuleSource implements ModuleSource
             con.setConnectTimeout( 15000 );
             con.setReadTimeout( 15000 );
 
-            Files.write( ByteStreams.toByteArray( con.getInputStream() ), module.getFile() );
+            try ( InputStream in = con.getInputStream() )
+            {
+                Files.copy( in, module.getFile().toPath(), StandardCopyOption.REPLACE_EXISTING );
+            }
             System.out.println( "Download complete" );
         } catch ( IOException ex )
         {
