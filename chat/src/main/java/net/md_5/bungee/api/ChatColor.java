@@ -116,6 +116,7 @@ public enum ChatColor
     /**
      * The code appended to {@link #COLOR_CHAR} to make usable colour.
      */
+    @Getter
     private final char code;
     /**
      * This colour's colour char prefixed by the {@link #COLOR_CHAR}.
