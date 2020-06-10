@@ -15,7 +15,7 @@ import net.md_5.bungee.api.plugin.Cancellable;
  * Event called to represent a player logging in.
  */
 @Data
-@ToString(callSuper = false)
+@ToString
 @EqualsAndHashCode(callSuper = false)
 public class LoginEvent extends AsyncEvent<LoginEvent> implements Cancellable
 {

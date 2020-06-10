@@ -15,7 +15,7 @@ import net.md_5.bungee.api.plugin.Event;
  * should be <b>fast</b>.
  */
 @Data
-@ToString(callSuper = false)
+@ToString
 @EqualsAndHashCode(callSuper = false)
 public class ClientConnectEvent extends Event implements Cancellable
 {
