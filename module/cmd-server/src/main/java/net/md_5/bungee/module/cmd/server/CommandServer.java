@@ -81,7 +81,8 @@ public class CommandServer extends Command implements TabExecutor
     @Override
     public Iterable<String> onTabComplete(final CommandSender sender, final String[] args)
     {
-        if ( args.length != 1 ) {
+        if ( args.length != 1 )
+        {
             return Collections.emptyList();
         }
 
