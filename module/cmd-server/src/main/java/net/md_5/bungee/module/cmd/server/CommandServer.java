@@ -6,6 +6,8 @@ import com.google.common.collect.Iterables;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -83,22 +85,14 @@ public class CommandServer extends Command implements TabExecutor
     @Override
     public Iterable<String> onTabComplete(final CommandSender sender, final String[] args)
     {
-        return ( args.length > 1 ) ? Collections.EMPTY_LIST : Iterables.transform( Iterables.filter( ProxyServer.getInstance().getServers().values(), new Predicate<ServerInfo>()
-        {
-            private final String lower = ( args.length == 0 ) ? "" : args[0].toLowerCase( Locale.ROOT );
+        if ( args.length != 1 ) {
+            return Collections.emptyList();
+        }
 
-            @Override
-            public boolean apply(ServerInfo input)
-            {
-                return input.getName().toLowerCase( Locale.ROOT ).startsWith( lower ) && input.canAccess( sender );
-            }
-        } ), new Function<ServerInfo, String>()
-        {
-            @Override
-            public String apply(ServerInfo input)
-            {
-                return input.getName();
-            }
-        } );
+        String firstLowerCaseArgument = args[0].toLowerCase( Locale.ROOT );
+        return ProxyServer.getInstance().getServers().values().stream()
+            .filter( serverInfo -> serverInfo.getName().toLowerCase( Locale.ROOT ).startsWith( firstLowerCaseArgument ) && serverInfo.canAccess( sender ) )
+            .map( ServerInfo::getName )
+            .collect( Collectors.toList() );
     }
 }
