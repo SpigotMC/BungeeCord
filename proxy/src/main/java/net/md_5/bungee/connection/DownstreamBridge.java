@@ -1,8 +1,6 @@
 package net.md_5.bungee.connection;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -21,6 +19,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.ServerConnection.KeepAliveData;
@@ -518,14 +517,9 @@ public class DownstreamBridge extends PacketHandler
         List<String> commands = tabCompleteResponse.getCommands();
         if ( commands == null )
         {
-            commands = Lists.transform( tabCompleteResponse.getSuggestions().getList(), new Function<Suggestion, String>()
-            {
-                @Override
-                public String apply(Suggestion input)
-                {
-                    return input.getText();
-                }
-            } );
+            commands = tabCompleteResponse.getSuggestions().getList().stream()
+                .map( Suggestion::getText )
+                .collect( Collectors.toList() );
         }
 
         TabCompleteResponseEvent tabCompleteResponseEvent = new TabCompleteResponseEvent( server, con, new ArrayList<>( commands ) );
@@ -542,14 +536,10 @@ public class DownstreamBridge extends PacketHandler
                 {
                     // Brigadier style
                     final StringRange range = tabCompleteResponse.getSuggestions().getRange();
-                    tabCompleteResponse.setSuggestions( new Suggestions( range, Lists.transform( tabCompleteResponseEvent.getSuggestions(), new Function<String, Suggestion>()
-                    {
-                        @Override
-                        public Suggestion apply(String input)
-                        {
-                            return new Suggestion( range, input );
-                        }
-                    } ) ) );
+                    tabCompleteResponse.setSuggestions( new Suggestions( range,
+                        tabCompleteResponseEvent.getSuggestions().stream()
+                            .map( input -> new Suggestion( range, input ) )
+                            .collect( Collectors.toList() ) ) );
                 }
             }
 

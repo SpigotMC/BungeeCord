@@ -45,6 +45,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import jline.console.ConsoleReader;
 import lombok.Getter;
 import lombok.Setter;
@@ -661,7 +662,8 @@ public class BungeeCord extends ProxyServer
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
         {
-            return new PluginMessage( "minecraft:register", Util.format( Iterables.transform( pluginChannels, PluginMessage.MODERNISE ), "\00" ).getBytes( Charsets.UTF_8 ), false );
+            return new PluginMessage( "minecraft:register", Util.format( pluginChannels.stream().map( PluginMessage.MODERNISE )
+                    .collect( Collectors.toList() ), "\00" ).getBytes( Charsets.UTF_8 ), false );
         }
 
         return new PluginMessage( "REGISTER", Util.format( pluginChannels, "\00" ).getBytes( Charsets.UTF_8 ), false );
