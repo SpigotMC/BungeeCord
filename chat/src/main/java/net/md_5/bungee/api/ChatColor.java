@@ -169,12 +169,13 @@ public enum ChatColor
     {
         char[] b = textToTranslate.toCharArray();
         IntStream.range( 0, b.length - 1 )
-            .filter( i -> b[i] == altColorChar && ALL_CODES.indexOf( b[i + 1])  > -1 )
-            .forEachOrdered( i -> replaceAltColorCharWithColorChar(b, i) );
+            .filter( i -> b[i] == altColorChar && ALL_CODES.indexOf( b[i + 1] ) > -1 )
+            .forEachOrdered( i -> replaceAltColorCharWithColorChar( b, i ) );
         return new String( b );
     }
 
-    private static void replaceAltColorCharWithColorChar(char[] chars, int index) {
+    private static void replaceAltColorCharWithColorChar(char[] chars, int index)
+    {
         chars[index] = ChatColor.COLOR_CHAR;
         chars[index + 1] = Character.toLowerCase( chars[index + 1] );
     }
