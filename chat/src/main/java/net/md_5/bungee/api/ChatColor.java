@@ -3,6 +3,7 @@ package net.md_5.bungee.api;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import lombok.Getter;
 
 /**
@@ -108,11 +109,11 @@ public enum ChatColor
     /**
      * Pattern to remove all colour codes.
      */
-    public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile( "(?i)" + String.valueOf( COLOR_CHAR ) + "[0-9A-FK-OR]" );
+    public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile( "(?i)" + COLOR_CHAR + "[0-9A-FK-OR]" );
     /**
      * Colour instances keyed by their active character.
      */
-    private static final Map<Character, ChatColor> BY_CHAR = new HashMap<Character, ChatColor>();
+    private static final Map<Character, ChatColor> BY_CHAR = new HashMap<>();
     /**
      * The code appended to {@link #COLOR_CHAR} to make usable colour.
      */
@@ -132,7 +133,7 @@ public enum ChatColor
         }
     }
 
-    private ChatColor(char code, String name)
+    ChatColor(char code, String name)
     {
         this.code = code;
         this.name = name;
@@ -167,15 +168,15 @@ public enum ChatColor
     public static String translateAlternateColorCodes(char altColorChar, String textToTranslate)
     {
         char[] b = textToTranslate.toCharArray();
-        for ( int i = 0; i < b.length - 1; i++ )
-        {
-            if ( b[i] == altColorChar && ALL_CODES.indexOf( b[i + 1] ) > -1 )
-            {
-                b[i] = ChatColor.COLOR_CHAR;
-                b[i + 1] = Character.toLowerCase( b[i + 1] );
-            }
-        }
+        IntStream.range( 0, b.length - 1 )
+            .filter( i -> b[i] == altColorChar && ALL_CODES.indexOf( b[i + 1])  > -1 )
+            .forEachOrdered( i -> replaceAltColorCharWithColorChar(b, i) );
         return new String( b );
+    }
+
+    private static void replaceAltColorCharWithColorChar(char[] chars, int index) {
+        chars[index] = ChatColor.COLOR_CHAR;
+        chars[index + 1] = Character.toLowerCase( chars[index + 1] );
     }
 
     /**

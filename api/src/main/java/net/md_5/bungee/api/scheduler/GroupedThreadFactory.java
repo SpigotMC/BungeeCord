@@ -27,8 +27,8 @@ public class GroupedThreadFactory implements ThreadFactory
     }
 
     @Override
-    public Thread newThread(Runnable r)
+    public Thread newThread(Runnable task)
     {
-        return new Thread( group, r );
+        return new Thread( group, task );
     }
 }

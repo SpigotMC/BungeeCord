@@ -42,7 +42,7 @@ final class PluginClassloader extends URLClassLoader
         try
         {
             return super.loadClass( name, resolve );
-        } catch ( ClassNotFoundException ex )
+        } catch ( ClassNotFoundException ignored )
         {
         }
         if ( checkOther )
@@ -54,7 +54,7 @@ final class PluginClassloader extends URLClassLoader
                     try
                     {
                         return loader.loadClass0( name, resolve, false );
-                    } catch ( ClassNotFoundException ex )
+                    } catch ( ClassNotFoundException ignored )
                     {
                     }
                 }
