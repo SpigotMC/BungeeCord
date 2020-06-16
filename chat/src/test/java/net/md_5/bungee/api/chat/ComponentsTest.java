@@ -4,12 +4,34 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.nbt.NbtItem;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class ComponentsTest
 {
+
+    @Test
+    public void testHoverItem()
+    {
+        NbtItem item = new NbtItem( "minecraft:diamond_sword" );
+        item.setLore( Arrays.asList( "Sparkle", "Shine" ) );
+
+        String serialisedJson = ComponentSerializer.toString( item );
+        NbtItem deserialisedItem = ComponentSerializer.parse( serialisedJson, NbtItem.class );
+        Assert.assertEquals( item, deserialisedItem );
+
+        TextComponent component = new TextComponent( "I can swing my sword" );
+        component.setHoverEvent( HoverEvent.showItem( item ) );
+
+        String serialised = ComponentSerializer.toString( component );
+        BaseComponent[] deserialised = ComponentSerializer.parse( serialised );
+        Assert.assertArrayEquals( new BaseComponent[]
+        {
+            component
+        }, deserialised );
+    }
 
     @Test
     public void testEmptyComponentBuilder()

@@ -12,6 +12,8 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.nbt.NbtEntity;
+import net.md_5.bungee.api.chat.nbt.NbtItem;
 
 public class BaseComponentSerializer
 {
@@ -62,18 +64,30 @@ public class BaseComponentSerializer
         if ( object.has( "hoverEvent" ) )
         {
             JsonObject event = object.getAsJsonObject( "hoverEvent" );
-            BaseComponent[] res;
-            if ( event.get( "value" ).isJsonArray() )
+            HoverEvent.Action hoverAction = HoverEvent.Action.valueOf( event.get( "action" ).getAsString().toUpperCase( Locale.ROOT ) );
+            HoverEvent hoverEvent;
+            if ( hoverAction == HoverEvent.Action.SHOW_ITEM )
             {
-                res = context.deserialize( event.get( "value" ), BaseComponent[].class );
+                hoverEvent = HoverEvent.showItem( context.deserialize( event.get( "value" ), NbtItem.class ) );
+            } else if ( hoverAction == HoverEvent.Action.SHOW_ENTITY )
+            {
+                hoverEvent = HoverEvent.showEntity( context.deserialize( event.get( "value" ), NbtEntity.class ) );
             } else
             {
-                res = new BaseComponent[]
+                BaseComponent[] res;
+                if ( event.get( "value" ).isJsonArray() )
                 {
-                    context.<BaseComponent>deserialize( event.get( "value" ), BaseComponent.class )
-                };
+                    res = context.deserialize( event.get( "value" ), BaseComponent[].class );
+                } else
+                {
+                    res = new BaseComponent[]
+                    {
+                        context.<BaseComponent>deserialize( event.get( "value" ), BaseComponent.class )
+                    };
+                }
+                hoverEvent = new HoverEvent( HoverEvent.Action.valueOf( event.get( "action" ).getAsString().toUpperCase( Locale.ROOT ) ), res );
             }
-            component.setHoverEvent( new HoverEvent( HoverEvent.Action.valueOf( event.get( "action" ).getAsString().toUpperCase( Locale.ROOT ) ), res ) );
+            component.setHoverEvent( hoverEvent );
         }
     }
 
