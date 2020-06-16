@@ -15,6 +15,11 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Used to show items within the {@link net.md_5.bungee.api.chat.HoverEvent} in the chat api.
+ *
+ * This creates dummy info and does not require any existing item on the server for use.
+ */
 @Data
 @RequiredArgsConstructor
 public class NbtItem

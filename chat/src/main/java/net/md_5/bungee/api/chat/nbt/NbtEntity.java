@@ -7,10 +7,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import java.lang.reflect.Type;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.lang.reflect.Type;
 
 /**
  * Used to show entities within the {@link net.md_5.bungee.api.chat.HoverEvent} in the chat api.
@@ -37,6 +36,9 @@ public class NbtEntity
      */
     private String id;
 
+    /**
+     * Serialises this entity into a JSON format recognised by the Minecraft chat.
+     */
     public static class Serializer implements JsonSerializer<NbtEntity>, JsonDeserializer<NbtEntity>
     {
 
@@ -66,9 +68,18 @@ public class NbtEntity
         public JsonElement serialize(NbtEntity entity, Type type, JsonSerializationContext context)
         {
             JsonObject root = new JsonObject();
-            root.addProperty( "name", entity.name );
-            root.addProperty( "id", entity.id );
-            root.addProperty( "type", entity.type );
+            if ( entity.name != null )
+            {
+                root.addProperty( "name", entity.name );
+            }
+            if ( entity.id != null )
+            {
+                root.addProperty( "id", entity.id );
+            }
+            if ( entity.type != null )
+            {
+                root.addProperty( "type", entity.type );
+            }
             return root;
         }
     }
