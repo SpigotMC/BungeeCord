@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.chat.nbt;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -14,24 +15,28 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-@ToString
 @Data
 @RequiredArgsConstructor
 public class NbtItem
 {
 
     /**
-     * Namespaced item ID
+     * Namespaced item ID.
      */
     private final String id;
+    /**
+     * Tag data for this item.
+     */
     private Tag tag;
 
-    @ToString
     @Data
     @RequiredArgsConstructor
     public static class Tag
     {
 
+        /**
+         * Display information for this item.
+         */
         protected Display display;
 
         @Data
@@ -43,13 +48,22 @@ public class NbtItem
         }
     }
 
+    /**
+     * Sets the lore of the item.
+     *
+     * @param lore the lore to set
+     */
     public void setLore(List<String> lore)
     {
+        Preconditions.checkNotNull( lore, "lore" );
         if ( tag == null ) tag = new Tag();
         if ( tag.display == null ) tag.display = new Tag.Display();
         tag.display.lore = lore;
     }
 
+    /**
+     * Serialises this item into a JSON format recognised by the Minecraft chat.
+     */
     public static class Serializer implements JsonSerializer<NbtItem>, JsonDeserializer<NbtItem>
     {
 
