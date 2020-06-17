@@ -343,6 +343,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     return;
                 }
                 break;
+            default:
+                ch.close();
         }
     }
 
