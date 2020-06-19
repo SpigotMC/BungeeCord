@@ -1,24 +1,20 @@
 package net.md_5.bungee.api.chat.nbt;
 
-import com.google.common.base.Preconditions;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.List;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import se.llbit.nbt.CompoundTag;
+import se.llbit.nbt.IntTag;
+import se.llbit.nbt.StringTag;
 
 /**
  * Used to show items within the {@link net.md_5.bungee.api.chat.HoverEvent} in the chat api.
  *
  * This creates dummy info and does not require any existing item on the server for use.
+ *
+ * For reference, see <a href="https://minecraft.gamepedia.com/Player.dat_format#Item_structure">Item structure</a>
+ * For reference, see <a href="https://minecraft.gamepedia.com/Tutorials/Command_NBT_tags#Items">Command NBT Tags</a>
  */
 @Data
 @RequiredArgsConstructor
@@ -38,6 +34,19 @@ public class NbtItem
     @RequiredArgsConstructor
     public static class Tag
     {
+        public boolean hasDisplay()
+        {
+            return display != null;
+        }
+
+        public NbtItem.Tag.Display getDisplay()
+        {
+            if ( display == null )
+            {
+                display = new Tag.Display();
+            }
+            return display;
+        }
 
         /**
          * Display information for this item.
@@ -49,75 +58,53 @@ public class NbtItem
         public static class Display
         {
 
+            protected String name;
             protected List<String> lore;
         }
     }
 
-    /**
-     * Sets the lore of the item.
-     *
-     * @param lore the lore to set
-     */
-    public void setLore(List<String> lore)
+    public boolean hasTag()
     {
-        Preconditions.checkNotNull( lore, "lore" );
-        if ( tag == null ) tag = new Tag();
-        if ( tag.display == null ) tag.display = new Tag.Display();
-        tag.display.lore = lore;
+        return tag != null;
     }
 
-    /**
-     * Serialises this item into a JSON format recognised by the Minecraft chat.
-     */
-    public static class Serializer implements JsonSerializer<NbtItem>, JsonDeserializer<NbtItem>
+    public NbtItem.Tag getTag()
     {
-
-        @Override
-        public NbtItem deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
+        if ( tag == null )
         {
-            JsonObject json = element.getAsJsonObject();
-            String id = json.get( "id" ).getAsString();
+            tag = new Tag();
+        }
+        return tag;
+    }
 
-            NbtItem item = new NbtItem( id );
+    public CompoundTag asTag()
+    {
+        CompoundTag root = new CompoundTag();
 
-            if ( json.has( "tag" ) )
+        root.add( "id", new StringTag( getId() ) );
+        root.add( "Count", new IntTag( 1 ) ); // any use allowing modification?
+
+        if ( tag != null )
+        {
+            CompoundTag tag1 = new CompoundTag();
+            if ( tag.display != null )
             {
-                JsonObject tag = json.get( "tag" ).getAsJsonObject();
-                if ( tag.has( "display" ) )
+                CompoundTag display = new CompoundTag();
+                if ( tag.display.lore != null )
                 {
-                    JsonObject display = tag.get( "display" ).getAsJsonObject();
-                    if ( display.has( "lore" ) )
-                    {
-                        item.setLore( Arrays.asList( context.<String[]>deserialize( display.get( "lore" ), String[].class ) ) );
-                    }
+                    display.add( "Name", new StringTag( tag.display.name + "!" ) );
+                    /*
+                    TODO Test Serialisation Properly
+                    display.add( "Lore", new ListTag( 8, Arrays.asList(
+                            new StringTag(  "Line1" ),
+                            new StringTag( "Line2" )
+                    ) ));*/
                 }
+                tag1.add( "display", display );
             }
-
-            return item;
+            root.add( "tag", tag1 );
         }
 
-        @Override
-        public JsonElement serialize(NbtItem item, Type type, JsonSerializationContext context)
-        {
-            JsonObject root = new JsonObject();
-            root.addProperty( "id", item.getId() );
-            root.addProperty( "count", 1 ); // No use-case for different value?
-
-            if ( item.tag != null )
-            {
-                JsonObject tag = new JsonObject();
-                if ( item.tag.display != null )
-                {
-                    JsonObject display = new JsonObject();
-                    if ( item.tag.display.lore != null )
-                    {
-                        display.add( "lore", context.serialize( item.tag.display.lore ) );
-                    }
-                    tag.add( "display", display );
-                }
-                root.add( "tag", tag );
-            }
-            return root;
-        }
+        return root;
     }
 }

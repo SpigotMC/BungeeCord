@@ -12,6 +12,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.nbt.NBTUtil;
 import net.md_5.bungee.api.chat.nbt.NbtEntity;
 import net.md_5.bungee.api.chat.nbt.NbtItem;
 
@@ -65,13 +66,16 @@ public class BaseComponentSerializer
         {
             JsonObject event = object.getAsJsonObject( "hoverEvent" );
             HoverEvent.Action hoverAction = HoverEvent.Action.valueOf( event.get( "action" ).getAsString().toUpperCase( Locale.ROOT ) );
-            HoverEvent hoverEvent;
+            HoverEvent hoverEvent = null;
             if ( hoverAction == HoverEvent.Action.SHOW_ITEM )
             {
-                hoverEvent = HoverEvent.showItem( context.deserialize( event.get( "value" ), NbtItem.class ) );
+                //TODO
+                //String nbt = context.deserialize( event.get( "value" ), String.class );
+                //hoverEvent = HoverEvent.showItem( context.deserialize( event.get( "value" ), String.class ) );
             } else if ( hoverAction == HoverEvent.Action.SHOW_ENTITY )
             {
-                hoverEvent = HoverEvent.showEntity( context.deserialize( event.get( "value" ), NbtEntity.class ) );
+                //TODO
+                //hoverEvent = HoverEvent.showEntity( context.deserialize( event.get( "value" ), String.class ) );
             } else
             {
                 BaseComponent[] res;
@@ -149,7 +153,16 @@ public class BaseComponentSerializer
             {
                 JsonObject hoverEvent = new JsonObject();
                 hoverEvent.addProperty( "action", component.getHoverEvent().getAction().toString().toLowerCase( Locale.ROOT ) );
-                hoverEvent.add( "value", context.serialize( component.getHoverEvent().getValue() ) );
+                if ( component.getHoverEvent().getValue() instanceof NbtItem )
+                {
+                    hoverEvent.add( "value", context.serialize( NBTUtil.nbtAsString( ( (NbtItem) component.getHoverEvent().getValue() ).asTag() ) ) );
+                } else if ( component.getHoverEvent().getValue() instanceof NbtEntity )
+                {
+                    hoverEvent.add( "value", context.serialize( NBTUtil.nbtAsString( ( (NbtEntity) component.getHoverEvent().getValue() ).asTag() ) ) );
+                } else
+                {
+                    hoverEvent.add( "value", context.serialize( component.getHoverEvent().getValue() ) );
+                }
                 object.add( "hoverEvent", hoverEvent );
             }
         } finally

@@ -15,9 +15,15 @@ public final class HoverEvent
     private final Action action;
     private final Object value;
 
+    @Deprecated
     public HoverEvent(Action action, BaseComponent[] value)
     {
         this( action, (Object) value );
+    }
+
+    public static HoverEvent showText(BaseComponent[] text)
+    {
+        return new HoverEvent( Action.SHOW_TEXT, text );
     }
 
     public static HoverEvent showItem(NbtItem nbt)

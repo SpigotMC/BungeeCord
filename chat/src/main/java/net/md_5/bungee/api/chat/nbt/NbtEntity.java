@@ -1,15 +1,9 @@
 package net.md_5.bungee.api.chat.nbt;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import java.lang.reflect.Type;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import se.llbit.nbt.CompoundTag;
+import se.llbit.nbt.StringTag;
 
 /**
  * Used to show entities within the {@link net.md_5.bungee.api.chat.HoverEvent} in the chat api.
@@ -36,51 +30,14 @@ public class NbtEntity
      */
     private String id;
 
-    /**
-     * Serialises this entity into a JSON format recognised by the Minecraft chat.
-     */
-    public static class Serializer implements JsonSerializer<NbtEntity>, JsonDeserializer<NbtEntity>
+    public CompoundTag asTag()
     {
+        CompoundTag compoundTag = new CompoundTag();
 
-        @Override
-        public NbtEntity deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
-        {
-            NbtEntity entity = new NbtEntity();
+        compoundTag.add( "name", new StringTag( name ) );
+        compoundTag.add( "type", new StringTag( type ) );
+        compoundTag.add( "id", new StringTag( id ) );
 
-            JsonObject json = element.getAsJsonObject();
-
-            if ( json.has( "name" ) )
-            {
-                entity.setName( json.get( "name" ).getAsString() );
-            }
-            if ( json.has( "type" ) )
-            {
-                entity.setType( json.get( "type" ).getAsString() );
-            }
-            if ( json.has( "id" ) )
-            {
-                entity.setId( json.get( "id" ).getAsString() );
-            }
-            return entity;
-        }
-
-        @Override
-        public JsonElement serialize(NbtEntity entity, Type type, JsonSerializationContext context)
-        {
-            JsonObject root = new JsonObject();
-            if ( entity.name != null )
-            {
-                root.addProperty( "name", entity.name );
-            }
-            if ( entity.id != null )
-            {
-                root.addProperty( "id", entity.id );
-            }
-            if ( entity.type != null )
-            {
-                root.addProperty( "type", entity.type );
-            }
-            return root;
-        }
+        return compoundTag;
     }
 }
