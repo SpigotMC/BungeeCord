@@ -6,7 +6,6 @@ import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
 import io.netty.channel.Channel;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.ServerConnection.KeepAliveData;
@@ -14,6 +13,7 @@ import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.BrigadierSuggestionsEvent;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
@@ -172,34 +172,48 @@ public class UpstreamBridge extends PacketHandler
         TabCompleteEvent tabCompleteEvent = new TabCompleteEvent( con, con.getServer(), tabComplete.getCursor(), suggestions );
         bungee.getPluginManager().callEvent( tabCompleteEvent );
 
-        if ( tabCompleteEvent.isCancelled() )
+        List<String> legacyResults = tabCompleteEvent.getSuggestions();
+
+        if ( con.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_13 )
         {
-            throw CancelSendSignal.INSTANCE;
-        }
-
-        List<String> results = tabCompleteEvent.getSuggestions();
-        if ( !results.isEmpty() )
-        {
-            // Unclear how to handle 1.13 commands at this point. Because we don't inject into the command packets we are unlikely to get this far unless
-            // Bungee plugins are adding results for commands they don't own anyway
-            if ( con.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_13 )
+            if ( tabCompleteEvent.isCancelled() )
             {
-                con.unsafe().sendPacket( new TabCompleteResponse( results ) );
-            } else
-            {
-                int start = tabComplete.getCursor().lastIndexOf( ' ' ) + 1;
-                int end = tabComplete.getCursor().length();
-                StringRange range = StringRange.between( start, end );
-
-                List<Suggestion> brigadier = new LinkedList<>();
-                for ( String s : results )
-                {
-                    brigadier.add( new Suggestion( range, s ) );
-                }
-
-                con.unsafe().sendPacket( new TabCompleteResponse( tabComplete.getTransactionId(), new Suggestions( range, brigadier ) ) );
+                throw CancelSendSignal.INSTANCE;
             }
-            throw CancelSendSignal.INSTANCE;
+
+            if ( !legacyResults.isEmpty() )
+            {
+                con.unsafe().sendPacket( new TabCompleteResponse( legacyResults ) );
+                throw CancelSendSignal.INSTANCE;
+            }
+        } else
+        {
+            int start = tabComplete.getCursor().lastIndexOf( ' ' ) + 1;
+            int end = tabComplete.getCursor().length();
+            StringRange lastArgumentRange = StringRange.between( start, end );
+
+            List<Suggestion> brigadier = new ArrayList<>( legacyResults.size() );
+            for ( String s : legacyResults )
+            {
+                brigadier.add( new Suggestion( lastArgumentRange, s ) );
+            }
+
+            BrigadierSuggestionsEvent tabCompleteRequestEvent = new BrigadierSuggestionsEvent( con, con.getServer(), tabComplete.getCursor(), new Suggestions( lastArgumentRange, brigadier ) );
+            tabCompleteRequestEvent.setCancelled( tabCompleteEvent.isCancelled() );
+            bungee.getPluginManager().callEvent( tabCompleteRequestEvent );
+
+            if ( tabCompleteRequestEvent.isCancelled() )
+            {
+                throw CancelSendSignal.INSTANCE;
+            }
+
+            Suggestions brigadierResults = tabCompleteRequestEvent.getSuggestions();
+
+            if ( !brigadierResults.isEmpty() )
+            {
+                con.unsafe().sendPacket( new TabCompleteResponse( tabComplete.getTransactionId(), brigadierResults ) );
+                throw CancelSendSignal.INSTANCE;
+            }
         }
     }
 
