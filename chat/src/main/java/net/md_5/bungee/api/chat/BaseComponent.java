@@ -24,6 +24,10 @@ public abstract class BaseComponent
      */
     private ChatColor color;
     /**
+     * The font of this component and any child components (unless overridden)
+     */
+    private String font;
+    /**
      * Whether this component and any child components (unless overridden) is
      * bold
      */
@@ -146,6 +150,10 @@ public abstract class BaseComponent
             if ( replace || color == null )
             {
                 setColor( component.getColorRaw() );
+            }
+            if ( replace || font == null )
+            {
+                setFont( component.getFontRaw() );
             }
             if ( replace || bold == null )
             {
@@ -281,6 +289,36 @@ public abstract class BaseComponent
     public ChatColor getColorRaw()
     {
         return color;
+    }
+
+    /**
+     * Returns the font of this component. This uses the parent's font if this
+     * component doesn't have one.
+     *
+     * @return the font of this component, or null if default font
+     */
+    public String getFont()
+    {
+        if ( color == null )
+        {
+            if ( parent == null )
+            {
+                return null;
+            }
+            return parent.getFont();
+        }
+        return font;
+    }
+
+    /**
+     * Returns the font of this component without checking the parents font. May
+     * return null
+     *
+     * @return the font of this component
+     */
+    public String getFontRaw()
+    {
+        return font;
     }
 
     /**
@@ -461,7 +499,7 @@ public abstract class BaseComponent
      */
     public boolean hasFormatting()
     {
-        return color != null || bold != null
+        return color != null || font != null || bold != null
                 || italic != null || underlined != null
                 || strikethrough != null || obfuscated != null
                 || insertion != null || hoverEvent != null || clickEvent != null;

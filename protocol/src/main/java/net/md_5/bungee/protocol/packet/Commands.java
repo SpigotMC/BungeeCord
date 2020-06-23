@@ -547,6 +547,9 @@ public class Commands extends DefinedPacket
             PROVIDERS.put( "minecraft:entity_summon", VOID );
             PROVIDERS.put( "minecraft:dimension", VOID );
             PROVIDERS.put( "minecraft:time", VOID ); // 1.14
+            PROVIDERS.put( "minecraft:uuid", VOID ); // 1.16
+            PROVIDERS.put( "minecraft:test_argument", VOID ); // 1.16, debug
+            PROVIDERS.put( "minecraft:test_class", VOID ); // 1.16, debug
         }
 
         private static ArgumentType<?> read(String key, ByteBuf buf)
@@ -617,6 +620,7 @@ public class Commands extends DefinedPacket
             PROVIDERS.put( "minecraft:ask_server", ASK_SERVER );
             registerDummy( "minecraft:all_recipes" );
             registerDummy( "minecraft:available_sounds" );
+            registerDummy( "minecraft:available_biomes" );
             registerDummy( "minecraft:summonable_entities" );
         }
 

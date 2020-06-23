@@ -212,8 +212,8 @@ public class ServerConnector extends PacketHandler
             user.setServerEntityId( login.getEntityId() );
 
             // Set tab list size, TODO: what shall we do about packet mutability
-            Login modLogin = new Login( login.getEntityId(), login.getGameMode(), (byte) login.getDimension(), login.getSeed(), login.getDifficulty(),
-                    (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.getViewDistance(), login.isReducedDebugInfo(), login.isNormalRespawn() );
+            Login modLogin = new Login( login.getEntityId(), login.getGameMode(), login.getPreviousGameMode(), login.getWorldNames(), login.getDimensions(), login.getDimension(), login.getWorldName(), login.getSeed(), login.getDifficulty(),
+                    (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.getViewDistance(), login.isReducedDebugInfo(), login.isNormalRespawn(), login.isDebug(), login.isFlat() );
 
             user.unsafe().sendPacket( modLogin );
 
@@ -259,13 +259,23 @@ public class ServerConnector extends PacketHandler
             }
 
             user.setDimensionChange( true );
-            if ( login.getDimension() == user.getDimension() )
+            if ( login.getDimension().equals( user.getDimension() ) )
             {
-                user.unsafe().sendPacket( new Respawn( ( login.getDimension() >= 0 ? -1 : 0 ), login.getSeed(), login.getDifficulty(), login.getGameMode(), login.getLevelType() ) );
+                Object newDim;
+                String worldName = login.getWorldName();
+                if ( login.getDimension() instanceof Number )
+                {
+                    newDim = ( ( (Number) login.getDimension() ).intValue() >= 0 ? -1 : 0 );
+                } else
+                {
+                    newDim = worldName = ( "minecraft:overworld".equals( login.getDimension() ) ) ? "minecraft:the_nether" : "minecraft:overworld";
+                }
+
+                user.unsafe().sendPacket( new Respawn( newDim, worldName, login.getSeed(), login.getDifficulty(), login.getGameMode(), login.getPreviousGameMode(), login.getLevelType(), login.isDebug(), login.isFlat(), false ) );
             }
 
             user.setServerEntityId( login.getEntityId() );
-            user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getSeed(), login.getDifficulty(), login.getGameMode(), login.getLevelType() ) );
+            user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getWorldName(), login.getSeed(), login.getDifficulty(), login.getGameMode(), login.getPreviousGameMode(), login.getLevelType(), login.isDebug(), login.isFlat(), false ) );
             if ( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_14 )
             {
                 user.unsafe().sendPacket( new ViewDistance( login.getViewDistance() ) );

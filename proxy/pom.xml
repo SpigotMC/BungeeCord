@@ -6,13 +6,13 @@
     <parent>
         <groupId>net.md-5</groupId>
         <artifactId>bungeecord-parent</artifactId>
-        <version>1.15-SNAPSHOT</version>
+        <version>1.16-R0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-proxy</artifactId>
-    <version>1.15-SNAPSHOT</version>
+    <version>1.16-R0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>BungeeCord-Proxy</name>
@@ -83,12 +83,6 @@
             <groupId>net.sf.jopt-simple</groupId>
             <artifactId>jopt-simple</artifactId>
             <version>5.0.4</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>se.llbit</groupId>
-            <artifactId>jo-nbt</artifactId>
-            <version>1.3.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
