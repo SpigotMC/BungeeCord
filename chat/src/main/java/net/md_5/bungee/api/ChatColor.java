@@ -122,11 +122,16 @@ public final class ChatColor
      */
     public static final ChatColor RESET = new ChatColor( 'r', "reset" );
     /**
+     * Count used for populating legacy ordinal.
+     */
+    private static int count = 0;
+    /**
      * This colour's colour char prefixed by the {@link #COLOR_CHAR}.
      */
     private final String toString;
     @Getter
     private final String name;
+    private final int ordinal;
 
     private ChatColor(char code, String name)
     {
@@ -135,6 +140,7 @@ public final class ChatColor
         {
             COLOR_CHAR, code
         } );
+        this.ordinal = count++;
 
         BY_CHAR.put( code, this );
         BY_NAME.put( name.toUpperCase( Locale.ROOT ), this );
@@ -144,6 +150,7 @@ public final class ChatColor
     {
         this.name = name;
         this.toString = toString;
+        this.ordinal = -1;
     }
 
     @Override
@@ -293,5 +300,18 @@ public final class ChatColor
     public String name()
     {
         return getName().toUpperCase( Locale.ROOT );
+    }
+
+    /**
+     * See {@link Enum#ordinal()}.
+     *
+     * @return ordinal
+     * @deprecated holdover from when this class was an enum
+     */
+    @Deprecated
+    public int ordinal()
+    {
+        Preconditions.checkArgument( ordinal >= 0, "Cannot get ordinal of hex color" );
+        return ordinal;
     }
 }
