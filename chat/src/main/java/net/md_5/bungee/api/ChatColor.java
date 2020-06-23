@@ -278,7 +278,7 @@ public final class ChatColor
      * @deprecated holdover from when this class was an enum
      */
     @Deprecated
-    public ChatColor[] values()
+    public static ChatColor[] values()
     {
         return BY_CHAR.values().toArray( new ChatColor[ BY_CHAR.values().size() ] );
     }
