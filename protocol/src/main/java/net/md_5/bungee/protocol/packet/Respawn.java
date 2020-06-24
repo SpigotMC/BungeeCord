@@ -68,7 +68,7 @@ public class Respawn extends DefinedPacket
             writeString( worldName, buf );
         } else
         {
-            buf.writeInt( ( (Number) dimension ).intValue() );
+            buf.writeInt( ( (Integer) dimension ) );
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_15 )
         {

@@ -263,12 +263,12 @@ public class ServerConnector extends PacketHandler
             {
                 Object newDim;
                 String worldName = login.getWorldName();
-                if ( login.getDimension() instanceof Number )
+                if ( login.getDimension() instanceof Integer )
                 {
-                    newDim = ( ( (Number) login.getDimension() ).intValue() >= 0 ? -1 : 0 );
+                    newDim = ( (Integer) login.getDimension() >= 0 ? -1 : 0 );
                 } else
                 {
-                    newDim = worldName = ( "minecraft:overworld".equals( login.getDimension() ) ) ? "minecraft:the_nether" : "minecraft:overworld";
+                    newDim = worldName = ( "minecraft:overworld".equals( (String) login.getDimension() ) ) ? "minecraft:the_nether" : "minecraft:overworld";
                 }
 
                 user.unsafe().sendPacket( new Respawn( newDim, worldName, login.getSeed(), login.getDifficulty(), login.getGameMode(), login.getPreviousGameMode(), login.getLevelType(), login.isDebug(), login.isFlat(), false ) );

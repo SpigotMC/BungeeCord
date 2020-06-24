@@ -74,7 +74,7 @@ public class Login extends DefinedPacket
             dimension = buf.readInt();
         } else
         {
-            dimension = buf.readByte();
+            dimension = (int) buf.readByte();
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_15 )
         {
@@ -138,10 +138,10 @@ public class Login extends DefinedPacket
             writeString( worldName, buf );
         } else if ( protocolVersion > ProtocolConstants.MINECRAFT_1_9 )
         {
-            buf.writeInt( ( (Number) dimension ).intValue() );
+            buf.writeInt( (Integer) dimension );
         } else
         {
-            buf.writeByte( ( (Number) dimension ).byteValue() );
+            buf.writeByte( (Integer) dimension );
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_15 )
         {
