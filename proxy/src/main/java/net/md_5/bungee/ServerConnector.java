@@ -205,7 +205,7 @@ public class ServerConnector extends PacketHandler
             user.getForgeClientHandler().setHandshakeComplete();
         }
 
-        if ( user.getServer() == null )
+        if ( user.getServer() == null || !( login.getDimension() instanceof Integer ) )
         {
             // Once again, first connection
             user.setClientEntityId( login.getEntityId() );
@@ -217,10 +217,18 @@ public class ServerConnector extends PacketHandler
 
             user.unsafe().sendPacket( modLogin );
 
-            ByteBuf brand = ByteBufAllocator.DEFAULT.heapBuffer();
-            DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")", brand );
-            user.unsafe().sendPacket( new PluginMessage( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ? "minecraft:brand" : "MC|Brand", DefinedPacket.toArray( brand ), handshakeHandler.isServerForge() ) );
-            brand.release();
+            if ( user.getServer() != null )
+            {
+                user.getServer().setObsolete( true );
+                user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getWorldName(), login.getSeed(), login.getDifficulty(), login.getGameMode(), login.getPreviousGameMode(), login.getLevelType(), login.isDebug(), login.isFlat(), false ) );
+                user.getServer().disconnect( "Quitting" );
+            } else
+            {
+                ByteBuf brand = ByteBufAllocator.DEFAULT.heapBuffer();
+                DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")", brand );
+                user.unsafe().sendPacket( new PluginMessage( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ? "minecraft:brand" : "MC|Brand", DefinedPacket.toArray( brand ), handshakeHandler.isServerForge() ) );
+                brand.release();
+            }
 
             user.setDimension( login.getDimension() );
         } else
@@ -259,19 +267,9 @@ public class ServerConnector extends PacketHandler
             }
 
             user.setDimensionChange( true );
-            if ( login.getDimension().equals( user.getDimension() ) )
+            if ( login.getDimension() == user.getDimension() )
             {
-                Object newDim;
-                String worldName = login.getWorldName();
-                if ( login.getDimension() instanceof Integer )
-                {
-                    newDim = ( (Integer) login.getDimension() >= 0 ? -1 : 0 );
-                } else
-                {
-                    newDim = worldName = ( "minecraft:overworld".equals( (String) login.getDimension() ) ) ? "minecraft:the_nether" : "minecraft:overworld";
-                }
-
-                user.unsafe().sendPacket( new Respawn( newDim, worldName, login.getSeed(), login.getDifficulty(), login.getGameMode(), login.getPreviousGameMode(), login.getLevelType(), login.isDebug(), login.isFlat(), false ) );
+                user.unsafe().sendPacket( new Respawn( (Integer) login.getDimension() >= 0 ? -1 : 0, login.getWorldName(), login.getSeed(), login.getDifficulty(), login.getGameMode(), login.getPreviousGameMode(), login.getLevelType(), login.isDebug(), login.isFlat(), false ) );
             }
 
             user.setServerEntityId( login.getEntityId() );
