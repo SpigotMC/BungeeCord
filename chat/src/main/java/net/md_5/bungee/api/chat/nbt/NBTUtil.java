@@ -1,103 +1,178 @@
 package net.md_5.bungee.api.chat.nbt;
 
-import com.google.common.collect.Lists;
-import java.util.List;
 import java.util.regex.Pattern;
+import se.llbit.nbt.ByteArrayTag;
+import se.llbit.nbt.ByteTag;
 import se.llbit.nbt.CompoundTag;
+import se.llbit.nbt.DoubleTag;
+import se.llbit.nbt.FloatTag;
+import se.llbit.nbt.IntArrayTag;
 import se.llbit.nbt.IntTag;
 import se.llbit.nbt.ListTag;
+import se.llbit.nbt.LongArrayTag;
+import se.llbit.nbt.LongTag;
 import se.llbit.nbt.NamedTag;
-import se.llbit.nbt.SpecificTag;
+import se.llbit.nbt.ShortTag;
 import se.llbit.nbt.StringTag;
+import se.llbit.nbt.Tag;
 
 public class NBTUtil
 {
 
-    public static CompoundTag nbtFromString(String string)
+    /**
+     * Pattern to test whether String needs escaping
+     */
+    private static final Pattern PATTERN = Pattern.compile( "[A-Za-z0-9._+-]+" );
+
+    public static CompoundTag fromString(String string)
     {
-        // TODO Deserialisation
+        // TODO:
         return null;
     }
 
-    public static String nbtAsString(CompoundTag tag)
+    public static String toString(Tag tag)
     {
-        return nbtAsString( tag, new StringBuilder() );
-    }
-
-    public static String nbtAsString(CompoundTag tag, StringBuilder builder)
-    {
-        builder.append( '{' );
-
-        // NBT lib has no tag#getItems method :(
-        List<NamedTag> list = Lists.newArrayList( tag.iterator() );
-
-        for ( NamedTag next : list )
+        if ( tag instanceof NamedTag )
         {
-            if ( builder.length() != 1 )
-            {
-                builder.append( ',' );
-            }
-
-            builder.append( handleEscape( next.name ) ).append( ':' ).append( NBTUtil.toString( next.tag ) );
-        }
-
-        return builder.append( '}' ).toString();
-    }
-
-    private static final Pattern PATTERN = Pattern.compile( "[A-Za-z0-9._+-]+" );
-
-    protected static String handleEscape(String string)
-    {
-        return PATTERN.matcher( string ).matches() ? string : escape( string );
-    }
-
-    private static String escape(String string)
-    {
-        StringBuilder stringbuilder = new StringBuilder( "\"" );
-
-        for ( int i = 0; i < string.length(); ++i )
-        {
-            char ch = string.charAt( i );
-            if ( ch == '\\' || ch == '"' )
-            {
-                stringbuilder.append( '\\' );
-            }
-
-            stringbuilder.append( ch );
-        }
-
-        return stringbuilder.append( '"' ).toString();
-    }
-
-    private static String toString(SpecificTag tag)
-    {
-        if ( tag.isCompoundTag() )
-        {
-            return nbtAsString( (CompoundTag) tag );
-        } else if ( tag instanceof StringTag )
-        {
-            return tag.extraInfo().substring( 2 ); // remove ': '
-            //return ( (StringTag) tag ).value;
-        } else if ( tag instanceof IntTag )
-        {
-            return tag.extraInfo().substring( 2 ); // remove ': '
-            //return ( (IntTag) tag ).value;
-        } else if ( tag instanceof ListTag )
+            return toString( ( (NamedTag) tag ).getTag() );
+        } else if ( tag instanceof CompoundTag )
         {
             StringBuilder builder = new StringBuilder();
-            ListTag list = (ListTag) tag;
-            for ( SpecificTag tag1 : list.items )
+            builder.append( '{' );
+
+            for ( NamedTag next : ( CompoundTag ) tag )
             {
-                if ( builder.length() != 0 )
+                if ( builder.length() != 1 )
                 {
                     builder.append( ',' );
                 }
-                builder.append( toString( tag1 ) );
-            };
-            return builder.toString();
-        } else
+
+                if ( PATTERN.matcher( next.name ).matches() )
+                {
+                    builder.append( next.name );
+                } else
+                {
+                    // escape the name
+                    StringBuilder builder1 = new StringBuilder( "\"" );
+
+                    for ( int i = 0; i < next.name.length(); ++i )
+                    {
+                        char ch = next.name.charAt( i );
+                        if ( ch == '\\' || ch == '"' )
+                        {
+                            builder1.append( '\\' );
+                        }
+
+                        builder1.append( ch );
+                    }
+
+                    builder1.append( '"' );
+                    builder.append( builder1 );
+                }
+
+                builder.append( ':' ).append( toString( next ) );
+            }
+
+            return builder.append( '}' ).toString();
+        } else if ( tag instanceof IntTag )
         {
-            throw new UnsupportedOperationException( "Unimplemented tag type " + tag.tagName() + " (" + tag.tagType() + ")" );
-        }
+            return Integer.toString( ( (IntTag) tag ).value );
+        } else if ( tag instanceof ByteTag )
+        {
+            return ( (ByteTag) tag ).value + "b";
+        } else if ( tag instanceof DoubleTag )
+        {
+            return ( (DoubleTag) tag ).value + "d";
+        } else if ( tag instanceof FloatTag )
+        {
+            return ( (FloatTag) tag ).value + "f";
+        } else if ( tag instanceof LongTag )
+        {
+            return ( (LongTag) tag ).value + "L";
+        } else if ( tag instanceof ShortTag )
+        {
+            return ( (ShortTag) tag ).value + "s";
+        } else if ( tag instanceof StringTag )
+        {
+            StringTag stringTag = (StringTag) tag;
+
+            StringBuilder builder = new StringBuilder( "\"" );
+
+            for ( int i = 0; i < stringTag.value.length(); ++i )
+            {
+                char ch = stringTag.value.charAt( i );
+                if ( ch == '\\' || ch == '"' )
+                {
+                    builder.append( '\\' );
+                }
+                builder.append( ch );
+            }
+            return builder.append( '"' ).toString();
+        } else if ( tag instanceof ListTag )
+        {
+            ListTag list = (ListTag) tag;
+
+            StringBuilder builder = new StringBuilder();
+            builder.append( '[' );
+
+            for ( int i = 0; i < list.items.size(); ++i )
+            {
+                if ( i != 0 )
+                {
+                    builder.append( ',' );
+                }
+
+                builder.append( toString( list.items.get( i ) ) );
+            }
+
+            return builder.append( ']' ).toString();
+        } else if ( tag instanceof ByteArrayTag )
+        {
+            ByteArrayTag arrayTag = (ByteArrayTag) tag;
+
+            StringBuilder builder = new StringBuilder( "[B;" );
+            for ( int i = 0; i < arrayTag.value.length; ++i )
+            {
+                if ( i != 0 )
+                {
+                    builder.append( ',' );
+                }
+                builder.append( arrayTag.value[ i ] ).append( 'B' );
+            }
+
+            return builder.append( ']' ).toString();
+        } else if ( tag instanceof IntArrayTag )
+        {
+            IntArrayTag arrayTag = (IntArrayTag) tag;
+
+            StringBuilder builder = new StringBuilder( "[I;" );
+            for ( int i = 0; i < arrayTag.value.length; ++i )
+            {
+                if ( i != 0 )
+                {
+                    builder.append( ',' );
+                }
+                builder.append( arrayTag.value[ i ] );
+            }
+
+            return builder.append( ']' ).toString();
+        } else if ( tag instanceof LongArrayTag )
+        {
+            LongArrayTag arrayTag = (LongArrayTag) tag;
+
+            StringBuilder builder = new StringBuilder( "[L;" );
+            for ( int i = 0; i < arrayTag.value.length; ++i )
+            {
+                if ( i != 0 )
+                {
+                    builder.append( ',' );
+                }
+                builder.append( arrayTag.value[ i ] ).append( 'L' );
+            }
+
+            return builder.append( ']' ).toString();
+        } // TODO: handle item properly
+
+        throw new UnsupportedOperationException( "Unimplemented tag type " + tag.tagName() + " (" + tag.tagName() + "|" + tag.getClass().getSimpleName() + ")" );
     }
 }
