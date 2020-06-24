@@ -2,6 +2,10 @@ package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.ArrayDeque;
+import java.util.Queue;
+import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -25,8 +29,7 @@ public class ServerConnection implements Server
     @Getter
     private final boolean forgeServer = false;
     @Getter
-    @Setter
-    private long sentPingId = -1;
+    private final Queue<KeepAliveData> keepAlives = new ArrayDeque<>();
 
     private final Unsafe unsafe = new Unsafe()
     {
@@ -54,7 +57,7 @@ public class ServerConnection implements Server
     {
         Preconditions.checkArgument( reason.length == 0, "Server cannot have disconnect reason" );
 
-        ch.delayedClose( null );
+        ch.close();
     }
 
     @Override
@@ -65,6 +68,12 @@ public class ServerConnection implements Server
 
     @Override
     public InetSocketAddress getAddress()
+    {
+        return (InetSocketAddress) getSocketAddress();
+    }
+
+    @Override
+    public SocketAddress getSocketAddress()
     {
         return getInfo().getAddress();
     }
@@ -79,5 +88,13 @@ public class ServerConnection implements Server
     public Unsafe unsafe()
     {
         return unsafe;
+    }
+
+    @Data
+    public static class KeepAliveData
+    {
+
+        private final long id;
+        private final long time;
     }
 }

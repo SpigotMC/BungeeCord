@@ -40,7 +40,7 @@ public class CommandServer extends Command implements TabExecutor
                 sender.sendMessage( ProxyServer.getInstance().getTranslation( "current_server", ( (ProxiedPlayer) sender ).getServer().getInfo().getName() ) );
             }
 
-            ComponentBuilder serverList = new ComponentBuilder( "" ).append( TextComponent.fromLegacyText( ProxyServer.getInstance().getTranslation( "server_list" ) ) );
+            ComponentBuilder serverList = new ComponentBuilder().appendLegacy( ProxyServer.getInstance().getTranslation( "server_list" ) );
             boolean first = true;
             for ( ServerInfo server : servers.values() )
             {
@@ -50,7 +50,7 @@ public class CommandServer extends Command implements TabExecutor
                     int count = server.getPlayers().size();
                     serverTextComponent.setHoverEvent( new HoverEvent(
                             HoverEvent.Action.SHOW_TEXT,
-                            new ComponentBuilder( count + ( count == 1 ? " player" : " players" ) + "\n" ).append( "Click to connect to the server" ).italic( true ).create() )
+                            new ComponentBuilder( count + ( count == 1 ? " player" : " players" ) + "\n" ).appendLegacy( ProxyServer.getInstance().getTranslation( "click_to_connect" ) ).create() )
                     );
                     serverTextComponent.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, "/server " + server.getName() ) );
                     serverList.append( serverTextComponent );

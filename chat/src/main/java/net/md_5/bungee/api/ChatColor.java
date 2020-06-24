@@ -1,145 +1,180 @@
 package net.md_5.bungee.api;
 
+import com.google.common.base.Preconditions;
+import java.awt.Color;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import lombok.Getter;
 
 /**
  * Simplistic enumeration of all supported color values for chat.
  */
-public enum ChatColor
+public final class ChatColor
 {
 
-    /**
-     * Represents black.
-     */
-    BLACK( '0', "black" ),
-    /**
-     * Represents dark blue.
-     */
-    DARK_BLUE( '1', "dark_blue" ),
-    /**
-     * Represents dark green.
-     */
-    DARK_GREEN( '2', "dark_green" ),
-    /**
-     * Represents dark blue (aqua).
-     */
-    DARK_AQUA( '3', "dark_aqua" ),
-    /**
-     * Represents dark red.
-     */
-    DARK_RED( '4', "dark_red" ),
-    /**
-     * Represents dark purple.
-     */
-    DARK_PURPLE( '5', "dark_purple" ),
-    /**
-     * Represents gold.
-     */
-    GOLD( '6', "gold" ),
-    /**
-     * Represents gray.
-     */
-    GRAY( '7', "gray" ),
-    /**
-     * Represents dark gray.
-     */
-    DARK_GRAY( '8', "dark_gray" ),
-    /**
-     * Represents blue.
-     */
-    BLUE( '9', "blue" ),
-    /**
-     * Represents green.
-     */
-    GREEN( 'a', "green" ),
-    /**
-     * Represents aqua.
-     */
-    AQUA( 'b', "aqua" ),
-    /**
-     * Represents red.
-     */
-    RED( 'c', "red" ),
-    /**
-     * Represents light purple.
-     */
-    LIGHT_PURPLE( 'd', "light_purple" ),
-    /**
-     * Represents yellow.
-     */
-    YELLOW( 'e', "yellow" ),
-    /**
-     * Represents white.
-     */
-    WHITE( 'f', "white" ),
-    /**
-     * Represents magical characters that change around randomly.
-     */
-    MAGIC( 'k', "obfuscated" ),
-    /**
-     * Makes the text bold.
-     */
-    BOLD( 'l', "bold" ),
-    /**
-     * Makes a line appear through the text.
-     */
-    STRIKETHROUGH( 'm', "strikethrough" ),
-    /**
-     * Makes the text appear underlined.
-     */
-    UNDERLINE( 'n', "underline" ),
-    /**
-     * Makes the text italic.
-     */
-    ITALIC( 'o', "italic" ),
-    /**
-     * Resets all previous chat colors or formats.
-     */
-    RESET( 'r', "reset" );
     /**
      * The special character which prefixes all chat colour codes. Use this if
      * you need to dynamically convert colour codes from your custom format.
      */
     public static final char COLOR_CHAR = '\u00A7';
-    public static final String ALL_CODES = "0123456789AaBbCcDdEeFfKkLlMmNnOoRr";
+    public static final String ALL_CODES = "0123456789AaBbCcDdEeFfKkLlMmNnOoRrXx";
     /**
      * Pattern to remove all colour codes.
      */
-    public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile( "(?i)" + String.valueOf( COLOR_CHAR ) + "[0-9A-FK-OR]" );
+    public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile( "(?i)" + String.valueOf( COLOR_CHAR ) + "[0-9A-FK-ORX]" );
     /**
      * Colour instances keyed by their active character.
      */
     private static final Map<Character, ChatColor> BY_CHAR = new HashMap<Character, ChatColor>();
     /**
-     * The code appended to {@link #COLOR_CHAR} to make usable colour.
+     * Colour instances keyed by their name.
      */
-    private final char code;
+    private static final Map<String, ChatColor> BY_NAME = new HashMap<String, ChatColor>();
+    /**
+     * Represents black.
+     */
+    public static final ChatColor BLACK = new ChatColor( '0', "black" );
+    /**
+     * Represents dark blue.
+     */
+    public static final ChatColor DARK_BLUE = new ChatColor( '1', "dark_blue" );
+    /**
+     * Represents dark green.
+     */
+    public static final ChatColor DARK_GREEN = new ChatColor( '2', "dark_green" );
+    /**
+     * Represents dark blue (aqua).
+     */
+    public static final ChatColor DARK_AQUA = new ChatColor( '3', "dark_aqua" );
+    /**
+     * Represents dark red.
+     */
+    public static final ChatColor DARK_RED = new ChatColor( '4', "dark_red" );
+    /**
+     * Represents dark purple.
+     */
+    public static final ChatColor DARK_PURPLE = new ChatColor( '5', "dark_purple" );
+    /**
+     * Represents gold.
+     */
+    public static final ChatColor GOLD = new ChatColor( '6', "gold" );
+    /**
+     * Represents gray.
+     */
+    public static final ChatColor GRAY = new ChatColor( '7', "gray" );
+    /**
+     * Represents dark gray.
+     */
+    public static final ChatColor DARK_GRAY = new ChatColor( '8', "dark_gray" );
+    /**
+     * Represents blue.
+     */
+    public static final ChatColor BLUE = new ChatColor( '9', "blue" );
+    /**
+     * Represents green.
+     */
+    public static final ChatColor GREEN = new ChatColor( 'a', "green" );
+    /**
+     * Represents aqua.
+     */
+    public static final ChatColor AQUA = new ChatColor( 'b', "aqua" );
+    /**
+     * Represents red.
+     */
+    public static final ChatColor RED = new ChatColor( 'c', "red" );
+    /**
+     * Represents light purple.
+     */
+    public static final ChatColor LIGHT_PURPLE = new ChatColor( 'd', "light_purple" );
+    /**
+     * Represents yellow.
+     */
+    public static final ChatColor YELLOW = new ChatColor( 'e', "yellow" );
+    /**
+     * Represents white.
+     */
+    public static final ChatColor WHITE = new ChatColor( 'f', "white" );
+    /**
+     * Represents magical characters that change around randomly.
+     */
+    public static final ChatColor MAGIC = new ChatColor( 'k', "obfuscated" );
+    /**
+     * Makes the text bold.
+     */
+    public static final ChatColor BOLD = new ChatColor( 'l', "bold" );
+    /**
+     * Makes a line appear through the text.
+     */
+    public static final ChatColor STRIKETHROUGH = new ChatColor( 'm', "strikethrough" );
+    /**
+     * Makes the text appear underlined.
+     */
+    public static final ChatColor UNDERLINE = new ChatColor( 'n', "underline" );
+    /**
+     * Makes the text italic.
+     */
+    public static final ChatColor ITALIC = new ChatColor( 'o', "italic" );
+    /**
+     * Resets all previous chat colors or formats.
+     */
+    public static final ChatColor RESET = new ChatColor( 'r', "reset" );
+    /**
+     * Count used for populating legacy ordinal.
+     */
+    private static int count = 0;
     /**
      * This colour's colour char prefixed by the {@link #COLOR_CHAR}.
      */
     private final String toString;
     @Getter
     private final String name;
-
-    static
-    {
-        for ( ChatColor colour : values() )
-        {
-            BY_CHAR.put( colour.code, colour );
-        }
-    }
+    private final int ordinal;
 
     private ChatColor(char code, String name)
     {
-        this.code = code;
         this.name = name;
         this.toString = new String( new char[]
         {
             COLOR_CHAR, code
         } );
+        this.ordinal = count++;
+
+        BY_CHAR.put( code, this );
+        BY_NAME.put( name.toUpperCase( Locale.ROOT ), this );
+    }
+
+    private ChatColor(String name, String toString)
+    {
+        this.name = name;
+        this.toString = toString;
+        this.ordinal = -1;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int hash = 7;
+        hash = 53 * hash + Objects.hashCode( this.toString );
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if ( this == obj )
+        {
+            return true;
+        }
+        if ( obj == null || getClass() != obj.getClass() )
+        {
+            return false;
+        }
+        final ChatColor other = (ChatColor) obj;
+
+        return Objects.equals( this.toString, other.toString );
     }
 
     @Override
@@ -187,5 +222,96 @@ public enum ChatColor
     public static ChatColor getByChar(char code)
     {
         return BY_CHAR.get( code );
+    }
+
+    public static ChatColor of(Color color)
+    {
+        return of( "#" + Integer.toHexString( color.getRGB() ).substring( 2 ) );
+    }
+
+    public static ChatColor of(String string)
+    {
+        Preconditions.checkArgument( string != null, "string cannot be null" );
+        if ( string.startsWith( "#" ) && string.length() == 7 )
+        {
+            try
+            {
+                Integer.parseInt( string.substring( 1 ), 16 );
+            } catch ( NumberFormatException ex )
+            {
+                throw new IllegalArgumentException( "Illegal hex string " + string );
+            }
+
+            StringBuilder magic = new StringBuilder( COLOR_CHAR + "x" );
+            for ( char c : string.substring( 1 ).toCharArray() )
+            {
+                magic.append( COLOR_CHAR ).append( c );
+            }
+
+            return new ChatColor( string, magic.toString() );
+        }
+
+        ChatColor defined = BY_NAME.get( string.toUpperCase( Locale.ROOT ) );
+        if ( defined != null )
+        {
+            return defined;
+        }
+
+        throw new IllegalArgumentException( "Could not parse ChatColor " + string );
+    }
+
+    /**
+     * See {@link Enum#valueOf(java.lang.Class, java.lang.String)}.
+     *
+     * @param name color name
+     * @return ChatColor
+     * @deprecated holdover from when this class was an enum
+     */
+    @Deprecated
+    public static ChatColor valueOf(String name)
+    {
+        Preconditions.checkNotNull( name, "Name is null" );
+
+        ChatColor defined = BY_NAME.get( name );
+        Preconditions.checkArgument( defined != null, "No enum constant " + ChatColor.class.getName() + "." + name );
+
+        return defined;
+    }
+
+    /**
+     * Get an array of all defined colors and formats.
+     *
+     * @return copied array of all colors and formats
+     * @deprecated holdover from when this class was an enum
+     */
+    @Deprecated
+    public static ChatColor[] values()
+    {
+        return BY_CHAR.values().toArray( new ChatColor[ BY_CHAR.values().size() ] );
+    }
+
+    /**
+     * See {@link Enum#name()}.
+     *
+     * @return constant name
+     * @deprecated holdover from when this class was an enum
+     */
+    @Deprecated
+    public String name()
+    {
+        return getName().toUpperCase( Locale.ROOT );
+    }
+
+    /**
+     * See {@link Enum#ordinal()}.
+     *
+     * @return ordinal
+     * @deprecated holdover from when this class was an enum
+     */
+    @Deprecated
+    public int ordinal()
+    {
+        Preconditions.checkArgument( ordinal >= 0, "Cannot get ordinal of hex color" );
+        return ordinal;
     }
 }

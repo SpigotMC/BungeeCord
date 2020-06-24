@@ -21,6 +21,8 @@ public @interface EventHandler
      * <li>HIGH</li>
      * <li>HIGHEST</li>
      * </ol>
+     *
+     * @return handler priority
      */
     byte priority() default EventPriority.NORMAL;
 }

@@ -15,12 +15,15 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.unix.DomainSocketAddress;
 import java.io.DataInput;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.ServerConnection;
+import net.md_5.bungee.ServerConnection.KeepAliveData;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
@@ -122,8 +125,11 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(KeepAlive alive) throws Exception
     {
-        server.setSentPingId( alive.getRandomId() );
-        con.setSentPingTime( System.currentTimeMillis() );
+        int timeout = bungee.getConfig().getTimeout();
+        if ( timeout <= 0 || server.getKeepAlives().size() < timeout / 50 ) // Some people disable timeout, otherwise allow a theoretical maximum of 1 keepalive per tick
+        {
+            server.getKeepAlives().add( new KeepAliveData( alive.getRandomId(), System.currentTimeMillis() ) );
+        }
     }
 
     @Override
@@ -359,8 +365,15 @@ public class DownstreamBridge extends PacketHandler
             if ( subChannel.equals( "IP" ) )
             {
                 out.writeUTF( "IP" );
-                out.writeUTF( con.getAddress().getHostString() );
-                out.writeInt( con.getAddress().getPort() );
+                if ( con.getSocketAddress() instanceof InetSocketAddress )
+                {
+                    out.writeUTF( con.getAddress().getHostString() );
+                    out.writeInt( con.getAddress().getPort() );
+                } else
+                {
+                    out.writeUTF( "unix://" + ( (DomainSocketAddress) con.getSocketAddress() ).path() );
+                    out.writeInt( 0 );
+                }
             }
             if ( subChannel.equals( "PlayerCount" ) )
             {

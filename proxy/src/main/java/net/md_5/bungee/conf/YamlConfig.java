@@ -1,12 +1,15 @@
 package net.md_5.bungee.conf;
 
+import com.google.common.base.Charsets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetSocketAddress;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -173,7 +176,7 @@ public class YamlConfig implements ConfigurationAdapter
     {
         try
         {
-            try ( FileWriter wr = new FileWriter( file ) )
+            try ( Writer wr = new OutputStreamWriter( new FileOutputStream( file ), Charsets.UTF_8 ) )
             {
                 yaml.dump( config, wr );
             }
@@ -215,7 +218,7 @@ public class YamlConfig implements ConfigurationAdapter
             String addr = get( "address", "localhost:25565", val );
             String motd = ChatColor.translateAlternateColorCodes( '&', get( "motd", "&1Just another BungeeCord - Forced Host", val ) );
             boolean restricted = get( "restricted", false, val );
-            InetSocketAddress address = Util.getAddr( addr );
+            SocketAddress address = Util.getAddr( addr );
             ServerInfo info = ProxyServer.getInstance().constructServerInfo( name, address, motd, restricted );
             ret.put( name, info );
         }
@@ -246,7 +249,7 @@ public class YamlConfig implements ConfigurationAdapter
             boolean forceDefault = get( "force_default_server", false, val );
             String host = get( "host", "0.0.0.0:25577", val );
             int tabListSize = get( "tab_size", 60, val );
-            InetSocketAddress address = Util.getAddr( host );
+            SocketAddress address = Util.getAddr( host );
             Map<String, String> forced = new CaseInsensitiveMap<>( get( "forced_hosts", forcedDef, val ) );
             String tabListName = get( "tab_list", "GLOBAL_PING", val );
             DefaultTabList value = DefaultTabList.valueOf( tabListName.toUpperCase( Locale.ROOT ) );

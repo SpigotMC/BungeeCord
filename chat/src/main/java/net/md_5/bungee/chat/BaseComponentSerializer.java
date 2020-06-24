@@ -20,7 +20,11 @@ public class BaseComponentSerializer
     {
         if ( object.has( "color" ) )
         {
-            component.setColor( ChatColor.valueOf( object.get( "color" ).getAsString().toUpperCase( Locale.ROOT ) ) );
+            component.setColor( ChatColor.of( object.get( "color" ).getAsString() ) );
+        }
+        if ( object.has( "font" ) )
+        {
+            component.setFont( object.get( "font" ).getAsString() );
         }
         if ( object.has( "bold" ) )
         {
@@ -92,6 +96,10 @@ public class BaseComponentSerializer
             if ( component.getColorRaw() != null )
             {
                 object.addProperty( "color", component.getColorRaw().getName() );
+            }
+            if ( component.getFontRaw() != null )
+            {
+                object.addProperty( "font", component.getFontRaw() );
             }
             if ( component.isBoldRaw() != null )
             {

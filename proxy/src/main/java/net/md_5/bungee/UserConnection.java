@@ -10,6 +10,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.util.internal.PlatformDependent;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -51,6 +52,7 @@ import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.Kick;
@@ -82,16 +84,13 @@ public final class UserConnection implements ProxiedPlayer
     private ServerConnection server;
     @Getter
     @Setter
-    private int dimension;
+    private Object dimension;
     @Getter
     @Setter
     private boolean dimensionChange = true;
     @Getter
     private final Collection<ServerInfo> pendingConnects = new HashSet<>();
     /*========================================================================*/
-    @Getter
-    @Setter
-    private long sentPingTime;
     @Getter
     @Setter
     private int ping = 100;
@@ -275,7 +274,7 @@ public final class UserConnection implements ProxiedPlayer
         Preconditions.checkNotNull( request, "request" );
 
         final Callback<ServerConnectRequest.Result> callback = request.getCallback();
-        ServerConnectEvent event = new ServerConnectEvent( this, request.getTarget(), request.getReason() );
+        ServerConnectEvent event = new ServerConnectEvent( this, request.getTarget(), request.getReason(), request );
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
             if ( callback != null )
@@ -358,13 +357,13 @@ public final class UserConnection implements ProxiedPlayer
             }
         };
         Bootstrap b = new Bootstrap()
-                .channel( PipelineUtils.getChannel() )
+                .channel( PipelineUtils.getChannel( target.getAddress() ) )
                 .group( ch.getHandle().eventLoop() )
                 .handler( initializer )
                 .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, request.getConnectTimeout() )
                 .remoteAddress( target.getAddress() );
         // Windows is bugged, multi homed users will just have to live with random connecting IPs
-        if ( getPendingConnection().getListener().isSetLocalAddress() && !PlatformDependent.isWindows() )
+        if ( getPendingConnection().getListener().isSetLocalAddress() && !PlatformDependent.isWindows() && getPendingConnection().getListener().getSocketAddress() instanceof InetSocketAddress )
         {
             b.localAddress( getPendingConnection().getListener().getHost().getHostString(), 0 );
         }
@@ -398,7 +397,7 @@ public final class UserConnection implements ProxiedPlayer
                 getName(), BaseComponent.toLegacyText( reason )
             } );
 
-            ch.delayedClose( new Kick( ComponentSerializer.toString( reason ) ) );
+            ch.close( new Kick( ComponentSerializer.toString( reason ) ) );
 
             if ( server != null )
             {
@@ -453,10 +452,20 @@ public final class UserConnection implements ProxiedPlayer
         // transform score components
         message = ChatComponentTransformer.getInstance().transform( this, message );
 
-        // Action bar doesn't display the new JSON formattings, legacy works - send it using this for now
         if ( position == ChatMessageType.ACTION_BAR )
         {
-            sendMessage( position, ComponentSerializer.toString( new TextComponent( BaseComponent.toLegacyText( message ) ) ) );
+            // Versions older than 1.11 cannot send the Action bar with the new JSON formattings
+            // Fix by converting to a legacy message, see https://bugs.mojang.com/browse/MC-119145
+            if ( getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_10 )
+            {
+                sendMessage( position, ComponentSerializer.toString( new TextComponent( BaseComponent.toLegacyText( message ) ) ) );
+            } else
+            {
+                net.md_5.bungee.protocol.packet.Title title = new net.md_5.bungee.protocol.packet.Title();
+                title.setAction( net.md_5.bungee.protocol.packet.Title.Action.ACTIONBAR );
+                title.setText( ComponentSerializer.toString( message ) );
+                unsafe.sendPacket( title );
+            }
         } else
         {
             sendMessage( position, ComponentSerializer.toString( message ) );
@@ -486,6 +495,12 @@ public final class UserConnection implements ProxiedPlayer
 
     @Override
     public InetSocketAddress getAddress()
+    {
+        return (InetSocketAddress) getSocketAddress();
+    }
+
+    @Override
+    public SocketAddress getSocketAddress()
     {
         return ch.getRemoteAddress();
     }
