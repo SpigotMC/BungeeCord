@@ -344,7 +344,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 }
                 break;
             default:
-                throw new IllegalArgumentException( "Cannot request protocol " + handshake.getRequestedProtocol() );
+                throw new QuietException( "Cannot request protocol " + handshake.getRequestedProtocol() );
         }
     }
 
@@ -529,7 +529,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
                             userCon.init();
 
-                            unsafe.sendPacket( new LoginSuccess( getUniqueId().toString(), getName() ) ); // With dashes in between
+                            unsafe.sendPacket( new LoginSuccess( getUniqueId(), getName() ) );
                             ch.setProtocol( Protocol.GAME );
 
                             ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );

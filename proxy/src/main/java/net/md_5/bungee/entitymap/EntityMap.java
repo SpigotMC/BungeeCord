@@ -1,14 +1,15 @@
 package net.md_5.bungee.entitymap;
 
-import com.flowpowered.nbt.stream.NBTInputStream;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
-import java.io.IOException;
+import java.io.DataInputStream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import se.llbit.nbt.NamedTag;
+import se.llbit.nbt.Tag;
 
 /**
  * Class to rewrite integers within packets.
@@ -60,6 +61,8 @@ public abstract class EntityMap
             case ProtocolConstants.MINECRAFT_1_15_1:
             case ProtocolConstants.MINECRAFT_1_15_2:
                 return EntityMap_1_15.INSTANCE;
+            case ProtocolConstants.MINECRAFT_1_16:
+                return EntityMap_1_16.INSTANCE;
         }
         throw new RuntimeException( "Version " + version + " has no entity map" );
     }
@@ -252,12 +255,10 @@ public abstract class EntityMap
                     DefinedPacket.readVarInt( packet );
                     break;
                 case 13:
-                    try
+                    Tag tag = NamedTag.read( new DataInputStream( new ByteBufInputStream( packet ) ) );
+                    if ( tag.isError() )
                     {
-                        new NBTInputStream( new ByteBufInputStream( packet ), false ).readTag();
-                    } catch ( IOException ex )
-                    {
-                        throw new RuntimeException( ex );
+                        throw new RuntimeException( tag.error() );
                     }
                     break;
                 case 15:
@@ -300,12 +301,10 @@ public abstract class EntityMap
             {
                 packet.readerIndex( position );
 
-                try
+                Tag tag = NamedTag.read( new DataInputStream( new ByteBufInputStream( packet ) ) );
+                if ( tag.isError() )
                 {
-                    new NBTInputStream( new ByteBufInputStream( packet ), false ).readTag();
-                } catch ( IOException ex )
-                {
-                    throw new RuntimeException( ex );
+                    throw new RuntimeException( tag.error() );
                 }
             }
         }

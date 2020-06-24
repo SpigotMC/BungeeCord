@@ -1,12 +1,14 @@
 package net.md_5.bungee.protocol.packet;
 
 import io.netty.buffer.ByteBuf;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
@@ -15,20 +17,32 @@ import net.md_5.bungee.protocol.DefinedPacket;
 public class LoginSuccess extends DefinedPacket
 {
 
-    private String uuid;
+    private UUID uuid;
     private String username;
 
     @Override
-    public void read(ByteBuf buf)
+    public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        uuid = readString( buf );
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16 )
+        {
+            uuid = readUUID( buf );
+        } else
+        {
+            uuid = UUID.fromString( readString( buf ) );
+        }
         username = readString( buf );
     }
 
     @Override
-    public void write(ByteBuf buf)
+    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        writeString( uuid, buf );
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16 )
+        {
+            writeUUID( uuid, buf );
+        } else
+        {
+            writeString( uuid.toString(), buf );
+        }
         writeString( username, buf );
     }
 

@@ -5,7 +5,6 @@ import java.util.List;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import net.md_5.bungee.api.ChatColor;
@@ -14,7 +13,6 @@ import net.md_5.bungee.api.chat.ComponentBuilder.FormatRetention;
 @Setter
 @ToString(exclude = "parent")
 @EqualsAndHashCode(exclude = "parent")
-@NoArgsConstructor
 public abstract class BaseComponent
 {
 
@@ -25,6 +23,10 @@ public abstract class BaseComponent
      * The color of this component and any child components (unless overridden)
      */
     private ChatColor color;
+    /**
+     * The font of this component and any child components (unless overridden)
+     */
+    private String font;
     /**
      * Whether this component and any child components (unless overridden) is
      * bold
@@ -75,6 +77,16 @@ public abstract class BaseComponent
      */
     @Getter
     private HoverEvent hoverEvent;
+
+    /**
+     * Default constructor.
+     *
+     * @deprecated for use by internal classes only, will be removed.
+     */
+    @Deprecated
+    public BaseComponent()
+    {
+    }
 
     BaseComponent(BaseComponent old)
     {
@@ -138,6 +150,10 @@ public abstract class BaseComponent
             if ( replace || color == null )
             {
                 setColor( component.getColorRaw() );
+            }
+            if ( replace || font == null )
+            {
+                setFont( component.getFontRaw() );
             }
             if ( replace || bold == null )
             {
@@ -273,6 +289,36 @@ public abstract class BaseComponent
     public ChatColor getColorRaw()
     {
         return color;
+    }
+
+    /**
+     * Returns the font of this component. This uses the parent's font if this
+     * component doesn't have one.
+     *
+     * @return the font of this component, or null if default font
+     */
+    public String getFont()
+    {
+        if ( color == null )
+        {
+            if ( parent == null )
+            {
+                return null;
+            }
+            return parent.getFont();
+        }
+        return font;
+    }
+
+    /**
+     * Returns the font of this component without checking the parents font. May
+     * return null
+     *
+     * @return the font of this component
+     */
+    public String getFontRaw()
+    {
+        return font;
     }
 
     /**
@@ -453,7 +499,7 @@ public abstract class BaseComponent
      */
     public boolean hasFormatting()
     {
-        return color != null || bold != null
+        return color != null || font != null || bold != null
                 || italic != null || underlined != null
                 || strikethrough != null || obfuscated != null
                 || insertion != null || hoverEvent != null || clickEvent != null;
