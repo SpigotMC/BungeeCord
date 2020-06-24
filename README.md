@@ -11,3 +11,5 @@ Falling check:
 Download
 --------
 You can download this protection on [RuBukkit](http://www.rubukkit.org/threads/137038/) or on [Yandex Disk](https://yadi.sk/d/QrSeJWeU3LAq4p)
+
+No ETA for 1.16 update. PR is welcome.
