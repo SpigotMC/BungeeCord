@@ -60,11 +60,7 @@ public final class HoverEvent
     public void addContent(Content content)
     {
         Preconditions.checkArgument( !legacy || contents.size() == 0, "Legacy HoverEvent may not have more than one content" );
-        if ( action == Action.SHOW_TEXT )
-        {
-            Preconditions.checkArgument( ( content instanceof ContentText ), "Content type incompatible with action" );
-        }
-
+        content.assertAction( action );
         contents.add( content );
     }
 
@@ -73,6 +69,15 @@ public final class HoverEvent
     public abstract static class Content<V>
     {
 
+        abstract Action requiredAction();
+
+        public void assertAction(Action input)
+        {
+            if ( input != requiredAction() )
+            {
+                throw new IllegalArgumentException( "Action " + input + " not compatible! Expected " + requiredAction() );
+            }
+        }
     }
 
     @Getter
@@ -85,6 +90,12 @@ public final class HoverEvent
         public ContentText(BaseComponent[] value)
         {
             this.value = value;
+        }
+
+        @Override
+        Action requiredAction()
+        {
+            return Action.SHOW_TEXT;
         }
 
         @Override
@@ -134,7 +145,13 @@ public final class HoverEvent
 
         private final String type;
         private final String id;
-        private final BaseComponent name;
+        private final BaseComponent[] name;
+
+        @Override
+        Action requiredAction()
+        {
+            return Action.SHOW_ENTITY;
+        }
 
         public static class Serializer implements JsonSerializer<ContentEntity>, JsonDeserializer<ContentEntity>
         {
@@ -143,10 +160,23 @@ public final class HoverEvent
             public ContentEntity deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
             {
                 JsonObject value = element.getAsJsonObject();
+
+                BaseComponent[] name;
+                if ( value.get( "name" ).isJsonArray() )
+                {
+                    name = context.deserialize( value.get( "name" ), BaseComponent[].class );
+                } else
+                {
+                    name = new BaseComponent[]
+                    {
+                        context.deserialize( value.get( "name" ), BaseComponent.class )
+                    };
+                }
+
                 return new ContentEntity(
                         value.get( "type" ).getAsString(),
                         value.get( "id" ).getAsString(),
-                        context.deserialize( value.get( "name" ), BaseComponent.class )
+                        name
                 );
             }
 
