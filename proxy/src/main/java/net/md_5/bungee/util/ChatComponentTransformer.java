@@ -36,7 +36,7 @@ public final class ChatComponentTransformer
 
     public BaseComponent[] legacyHoverTransform(ProxiedPlayer player, BaseComponent... components)
     {
-        if ( player.getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_16 )
+        if ( player.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_16 )
         {
             for ( int i = 0; i < components.length; i++ )
             {
