@@ -14,6 +14,7 @@ import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @Getter
@@ -25,6 +26,7 @@ public final class HoverEvent
 
     private final Action action;
     private final List<Content> contents;
+    @Setter
     private boolean legacy = false;
 
     public HoverEvent(Action action, Content... contents)
