@@ -125,6 +125,33 @@ public class ComponentsTest
     }
 
     @Test
+    public void testHoverEventContents()
+    {
+        // First do the text using the newer contents system
+        HoverEvent hoverEvent = new HoverEvent(
+                HoverEvent.Action.SHOW_TEXT,
+                new HoverEvent.ContentText( new ComponentBuilder( "First" ).create() ),
+                new HoverEvent.ContentText( new ComponentBuilder( "Second" ).create() )
+        );
+
+        TextComponent component = new TextComponent( "Sample text" );
+        component.setHoverEvent( hoverEvent );
+        Assert.assertEquals( hoverEvent.getContents().size(), 2 );
+        Assert.assertFalse( hoverEvent.isLegacy() );
+        String serialized = ComponentSerializer.toString( component );
+        BaseComponent[] deserialized = ComponentSerializer.parse( serialized );
+        Assert.assertEquals( component.getHoverEvent(), deserialized[ 0 ].getHoverEvent() );
+
+        // check the test still works with the value method
+        hoverEvent = new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( "Sample text" ).create() );
+        Assert.assertEquals( hoverEvent.getContents().size(), 1 );
+        Assert.assertTrue( hoverEvent.isLegacy() );
+        serialized = ComponentSerializer.toString( component );
+        deserialized = ComponentSerializer.parse( serialized );
+        Assert.assertEquals( component.getHoverEvent(), deserialized[ 0 ].getHoverEvent() );
+    }
+
+    @Test
     public void testFormatRetentionCopyFormatting()
     {
         TextComponent first = new TextComponent( "Hello" );
