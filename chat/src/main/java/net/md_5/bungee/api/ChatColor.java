@@ -36,67 +36,67 @@ public final class ChatColor
     /**
      * Represents black.
      */
-    public static final ChatColor BLACK = new ChatColor( '0', "black" );
+    public static final ChatColor BLACK = new ChatColor( '0', "black", 0x000000 );
     /**
      * Represents dark blue.
      */
-    public static final ChatColor DARK_BLUE = new ChatColor( '1', "dark_blue" );
+    public static final ChatColor DARK_BLUE = new ChatColor( '1', "dark_blue", 0x0000AA );
     /**
      * Represents dark green.
      */
-    public static final ChatColor DARK_GREEN = new ChatColor( '2', "dark_green" );
+    public static final ChatColor DARK_GREEN = new ChatColor( '2', "dark_green", 0x00AA00 );
     /**
      * Represents dark blue (aqua).
      */
-    public static final ChatColor DARK_AQUA = new ChatColor( '3', "dark_aqua" );
+    public static final ChatColor DARK_AQUA = new ChatColor( '3', "dark_aqua", 0x00AAAA );
     /**
      * Represents dark red.
      */
-    public static final ChatColor DARK_RED = new ChatColor( '4', "dark_red" );
+    public static final ChatColor DARK_RED = new ChatColor( '4', "dark_red", 0xAA0000 );
     /**
      * Represents dark purple.
      */
-    public static final ChatColor DARK_PURPLE = new ChatColor( '5', "dark_purple" );
+    public static final ChatColor DARK_PURPLE = new ChatColor( '5', "dark_purple", 0xAA00AA );
     /**
      * Represents gold.
      */
-    public static final ChatColor GOLD = new ChatColor( '6', "gold" );
+    public static final ChatColor GOLD = new ChatColor( '6', "gold", 0xFFAA00 );
     /**
      * Represents gray.
      */
-    public static final ChatColor GRAY = new ChatColor( '7', "gray" );
+    public static final ChatColor GRAY = new ChatColor( '7', "gray", 0xAAAAAA );
     /**
      * Represents dark gray.
      */
-    public static final ChatColor DARK_GRAY = new ChatColor( '8', "dark_gray" );
+    public static final ChatColor DARK_GRAY = new ChatColor( '8', "dark_gray", 0x555555 );
     /**
      * Represents blue.
      */
-    public static final ChatColor BLUE = new ChatColor( '9', "blue" );
+    public static final ChatColor BLUE = new ChatColor( '9', "blue", 0x05555FF );
     /**
      * Represents green.
      */
-    public static final ChatColor GREEN = new ChatColor( 'a', "green" );
+    public static final ChatColor GREEN = new ChatColor( 'a', "green", 0x55FF55 );
     /**
      * Represents aqua.
      */
-    public static final ChatColor AQUA = new ChatColor( 'b', "aqua" );
+    public static final ChatColor AQUA = new ChatColor( 'b', "aqua", 0x55FFFF );
     /**
      * Represents red.
      */
-    public static final ChatColor RED = new ChatColor( 'c', "red" );
+    public static final ChatColor RED = new ChatColor( 'c', "red", 0xFF5555 );
     /**
      * Represents light purple.
      */
-    public static final ChatColor LIGHT_PURPLE = new ChatColor( 'd', "light_purple" );
+    public static final ChatColor LIGHT_PURPLE = new ChatColor( 'd', "light_purple", 0xFF55FF );
     /**
      * Represents yellow.
      */
-    public static final ChatColor YELLOW = new ChatColor( 'e', "yellow" );
+    public static final ChatColor YELLOW = new ChatColor( 'e', "yellow", 0xFFFF55 );
     /**
      * Represents white.
      */
-    public static final ChatColor WHITE = new ChatColor( 'f', "white" );
+    public static final ChatColor WHITE = new ChatColor( 'f', "white", 0xFFFFFF );
     /**
      * Represents magical characters that change around randomly.
      */
@@ -132,8 +132,18 @@ public final class ChatColor
     @Getter
     private final String name;
     private final int ordinal;
+    /**
+     * The RGB value of the color. (16-23 are red, 8-15 are green, 0-7 are blue). -1 for non-colors (formatting)
+     */
+    @Getter
+    private final int rgb;
 
     private ChatColor(char code, String name)
+    {
+        this( code, name, -1 );
+    }
+
+    private ChatColor(char code, String name, int rgb)
     {
         this.name = name;
         this.toString = new String( new char[]
@@ -141,16 +151,18 @@ public final class ChatColor
             COLOR_CHAR, code
         } );
         this.ordinal = count++;
+        this.rgb = rgb;
 
         BY_CHAR.put( code, this );
         BY_NAME.put( name.toUpperCase( Locale.ROOT ), this );
     }
 
-    private ChatColor(String name, String toString)
+    private ChatColor(String name, String toString, int rgb)
     {
         this.name = name;
         this.toString = toString;
         this.ordinal = -1;
+        this.rgb = rgb;
     }
 
     @Override
@@ -234,9 +246,10 @@ public final class ChatColor
         Preconditions.checkArgument( string != null, "string cannot be null" );
         if ( string.startsWith( "#" ) && string.length() == 7 )
         {
+            int rgb;
             try
             {
-                Integer.parseInt( string.substring( 1 ), 16 );
+                rgb = Integer.parseInt( string.substring( 1 ), 16 );
             } catch ( NumberFormatException ex )
             {
                 throw new IllegalArgumentException( "Illegal hex string " + string );
@@ -248,7 +261,7 @@ public final class ChatColor
                 magic.append( COLOR_CHAR ).append( c );
             }
 
-            return new ChatColor( string, magic.toString() );
+            return new ChatColor( string, magic.toString(), rgb );
         }
 
         ChatColor defined = BY_NAME.get( string.toUpperCase( Locale.ROOT ) );
