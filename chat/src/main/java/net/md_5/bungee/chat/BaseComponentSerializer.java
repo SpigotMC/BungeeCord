@@ -2,6 +2,7 @@ package net.md_5.bungee.chat;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import java.util.ArrayList;
@@ -69,29 +70,30 @@ public class BaseComponentSerializer
             JsonObject event = object.getAsJsonObject( "hoverEvent" );
             HoverEvent hoverEvent = null;
             HoverEvent.Action action = HoverEvent.Action.valueOf( event.get( "action" ).getAsString().toUpperCase( Locale.ROOT ) );
+
             if ( event.has( "value" ) )
             {
-                BaseComponent[] res;
-                if ( event.get( "value" ).isJsonArray() )
+                HoverEvent.Content[] ret = new HoverEvent.Content[]
                 {
-                    res = context.deserialize( event.get( "value" ), BaseComponent[].class );
-                } else
-                {
-                    res = new BaseComponent[]
-                    {
-                        context.deserialize( event.get( "value" ), BaseComponent.class )
-                    };
-                }
-                hoverEvent = new HoverEvent( action, res );
+                    context.deserialize( event.get( "value" ), HoverEvent.getClass( action, false ) )
+                };
+                hoverEvent = new HoverEvent( action, ret );
             } else if ( event.has( "contents" ) )
             {
-                HoverEvent.Content[] list = context.deserialize( event.get( "contents" ), HoverEvent.Content[].class );
-                hoverEvent = new HoverEvent( action, new ArrayList<>( Arrays.asList( list ) ) );
-            }
+                HoverEvent.Content[] list;
+                JsonElement contents = event.get( "contents" );
+                if ( contents.isJsonArray() )
+                {
+                    list = context.deserialize( contents, HoverEvent.getClass( action, true ) );
+                } else
+                {
+                    list = new HoverEvent.Content[]
+                    {
+                        context.deserialize( contents, HoverEvent.getClass( action, false ) )
+                    };
+                }
 
-            if ( hoverEvent == null )
-            {
-                throw new IllegalArgumentException( "Could not parse: " + object );
+                hoverEvent = new HoverEvent( action, new ArrayList<>( Arrays.asList( list ) ) );
             }
             component.setHoverEvent( hoverEvent );
         }
@@ -161,7 +163,7 @@ public class BaseComponentSerializer
                 hoverEvent.addProperty( "action", component.getHoverEvent().getAction().toString().toLowerCase( Locale.ROOT ) );
                 if ( component.getHoverEvent().isLegacy() )
                 {
-                    hoverEvent.add( "value", context.serialize( component.getHoverEvent().getContents().get( 0 ).getValue() ) );
+                    hoverEvent.add( "value", context.serialize( component.getHoverEvent().getContents().get( 0 ) ) );
                 } else
                 {
                     hoverEvent.add( "contents", context.serialize( component.getHoverEvent().getContents() ) );

@@ -29,8 +29,8 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
             registerTypeAdapter( KeybindComponent.class, new KeybindComponentSerializer() ).
             registerTypeAdapter( ScoreComponent.class, new ScoreComponentSerializer() ).
             registerTypeAdapter( SelectorComponent.class, new SelectorComponentSerializer() ).
-            registerTypeAdapter( HoverEvent.Content.class, new HoverEvent.Content.Serializer() ).
-            registerTypeAdapter( HoverEvent.ContentText.class, new HoverEvent.Content.Serializer() ).
+            registerTypeAdapter( HoverEvent.ContentEntity.class, new HoverEvent.ContentEntity.Serializer() ).
+            registerTypeAdapter( HoverEvent.ContentText.class, new HoverEvent.ContentText.Serializer() ).
             create();
 
     public static final ThreadLocal<Set<BaseComponent>> serializedComponents = new ThreadLocal<Set<BaseComponent>>();

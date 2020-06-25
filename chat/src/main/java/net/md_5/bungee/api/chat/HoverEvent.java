@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
@@ -67,57 +68,97 @@ public final class HoverEvent
         contents.add( content );
     }
 
-    @Getter
     @ToString
     @EqualsAndHashCode
     public abstract static class Content<V>
     {
 
-        protected final V value;
-
-        protected Content(V value)
-        {
-            this.value = value;
-        }
-
-        public static class Serializer implements JsonSerializer<Content>, JsonDeserializer<Content>
-        {
-
-            @Override
-            public Content deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
-            {
-                // TODO: Better way of doing this.
-                // because when we add more content types the element might not be a BaseComponent array
-                return new ContentText( context.deserialize( element, BaseComponent[].class ) );
-            }
-
-            @Override
-            public JsonElement serialize(Content content, Type type, JsonSerializationContext context)
-            {
-                return context.serialize( content.value );
-            }
-        }
     }
 
+    @Getter
     @ToString
     public static class ContentText extends Content<BaseComponent[]>
     {
 
+        private final BaseComponent[] value;
+
         public ContentText(BaseComponent[] value)
         {
-            super( value );
+            this.value = value;
         }
 
         @Override
         public boolean equals(Object o)
         {
-            return o instanceof ContentText && Arrays.equals( getValue(), ( (ContentText) o ).getValue() );
+            return o instanceof ContentText && Arrays.equals( value, ( (ContentText) o ).value );
         }
 
         @Override
         public int hashCode()
         {
             return Arrays.hashCode( value );
+        }
+
+        public static class Serializer implements JsonSerializer<ContentText>, JsonDeserializer<ContentText>
+        {
+
+            @Override
+            public ContentText deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
+            {
+                if ( element.isJsonArray() )
+                {
+                    return new ContentText( context.deserialize( element, BaseComponent[].class ) );
+                } else
+                {
+                    return new ContentText( new BaseComponent[]
+                    {
+                        context.deserialize( element, BaseComponent.class )
+                    } );
+                }
+            }
+
+            @Override
+            public JsonElement serialize(ContentText content, Type type, JsonSerializationContext context)
+            {
+                return context.serialize( content.getValue() );
+            }
+        }
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    @ToString
+    @EqualsAndHashCode(callSuper = true)
+    public static class ContentEntity extends Content<String[]>
+    {
+
+        private final String type;
+        private final String id;
+        private final BaseComponent name;
+
+        public static class Serializer implements JsonSerializer<ContentEntity>, JsonDeserializer<ContentEntity>
+        {
+
+            @Override
+            public ContentEntity deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
+            {
+                JsonObject value = element.getAsJsonObject();
+                return new ContentEntity(
+                        value.get( "type" ).getAsString(),
+                        value.get( "id" ).getAsString(),
+                        context.deserialize( value.get( "name" ), BaseComponent.class )
+                );
+            }
+
+            @Override
+            public JsonElement serialize(ContentEntity content, Type type, JsonSerializationContext context)
+            {
+                JsonObject object = new JsonObject();
+                object.addProperty( "type", content.getType() );
+                object.addProperty( "id", content.getId() );
+                object.add( "name", context.serialize( content.getName() ) );
+                return object;
+            }
         }
     }
 
@@ -130,5 +171,19 @@ public final class HoverEvent
         SHOW_ACHIEVEMENT,
         SHOW_ITEM,
         SHOW_ENTITY
+    }
+
+    public static Class<?> getClass(HoverEvent.Action action, boolean array)
+    {
+        if ( action == HoverEvent.Action.SHOW_TEXT )
+        {
+            return ( array ) ? HoverEvent.ContentText[].class : HoverEvent.ContentText.class;
+        } else if ( action == HoverEvent.Action.SHOW_ENTITY )
+        {
+            return ( array ) ? HoverEvent.ContentEntity[].class : HoverEvent.ContentEntity.class;
+        } else
+        {
+            return null;
+        }
     }
 }
