@@ -11,9 +11,13 @@ import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
@@ -25,11 +29,26 @@ import lombok.ToString;
 public final class HoverEvent
 {
 
+    /**
+     * The action of this event.
+     */
     private final Action action;
+    /**
+     * List of contents to provide for this event.
+     */
     private final List<Content> contents;
+    /**
+     * Returns whether this hover event is prior to 1.16
+     */
     @Setter
     private boolean legacy = false;
 
+    /**
+     * Creates event with an action and a list of contents.
+     *
+     * @param action action of this event
+     * @param contents array of contents, provide at least one
+     */
     public HoverEvent(Action action, Content... contents)
     {
         Preconditions.checkArgument( contents.length != 0, "Must contain at least one content" );
@@ -53,11 +72,19 @@ public final class HoverEvent
     {
         // Old plugins may have somehow hacked BaseComponent[] into
         // anything other than SHOW_TEXT action. Ideally continue support.
-        this( action, new ContentText( value ) );
+        this.action = Action.SHOW_TEXT;
+        this.contents = new ArrayList<>( Collections.singletonList( new ContentText( value ) ) );
         this.legacy = true;
     }
 
-    public void addContent(Content content)
+    /**
+     * Adds a content to this hover event.
+     *
+     * @param content the content add
+     * @throws IllegalArgumentException if is a legacy component and already has a content
+     * @throws UnsupportedOperationException if content action does not match hover event action
+     */
+    public void addContent(Content content) throws UnsupportedOperationException
     {
         Preconditions.checkArgument( !legacy || contents.size() == 0, "Legacy HoverEvent may not have more than one content" );
         content.assertAction( action );
@@ -66,28 +93,47 @@ public final class HoverEvent
 
     @ToString
     @EqualsAndHashCode
-    public abstract static class Content<V>
+    public abstract static class Content
     {
 
+        /**
+         * Required action for this content type.
+         *
+         * @return action
+         */
         abstract Action requiredAction();
 
-        public void assertAction(Action input)
+        /**
+         * Tests this content against an action
+         *
+         * @param input input to test
+         * @throws UnsupportedOperationException if action incompatible
+         */
+        void assertAction(Action input) throws UnsupportedOperationException
         {
             if ( input != requiredAction() )
             {
-                throw new IllegalArgumentException( "Action " + input + " not compatible! Expected " + requiredAction() );
+                throw new UnsupportedOperationException( "Action " + input + " not compatible! Expected " + requiredAction() );
             }
         }
     }
 
-    @Getter
+    @Data
     @ToString
-    public static class ContentText extends Content<BaseComponent[]>
+    public static class ContentText extends Content
     {
 
-        private final BaseComponent[] value;
+        /**
+         * The value. May be a component or raw text depending on constructor used.
+         */
+        private Object value;
 
         public ContentText(BaseComponent[] value)
+        {
+            this.value = value;
+        }
+
+        public ContentText(String value)
         {
             this.value = value;
         }
@@ -101,13 +147,21 @@ public final class HoverEvent
         @Override
         public boolean equals(Object o)
         {
-            return o instanceof ContentText && Arrays.equals( value, ( (ContentText) o ).value );
+            if ( value instanceof BaseComponent[] )
+            {
+                return o instanceof ContentText
+                    && ( (ContentText) o ).value instanceof BaseComponent[]
+                    && Arrays.equals( (BaseComponent[]) value, (BaseComponent[]) ( (ContentText) o ).value );
+            } else
+            {
+                return value.equals( o );
+            }
         }
 
         @Override
         public int hashCode()
         {
-            return Arrays.hashCode( value );
+            return ( value instanceof BaseComponent[] ) ? Arrays.hashCode( (BaseComponent[]) value ) : value.hashCode();
         }
 
         public static class Serializer implements JsonSerializer<ContentText>, JsonDeserializer<ContentText>
@@ -118,7 +172,10 @@ public final class HoverEvent
             {
                 if ( element.isJsonArray() )
                 {
-                    return new ContentText( context.deserialize( element, BaseComponent[].class ) );
+                    return new ContentText( context.<BaseComponent[]>deserialize( element, BaseComponent[].class ) );
+                } else if ( element.getAsJsonObject().isJsonPrimitive() )
+                {
+                    return new ContentText( element.getAsJsonObject().getAsJsonPrimitive().getAsString() );
                 } else
                 {
                     return new ContentText( new BaseComponent[]
@@ -136,16 +193,29 @@ public final class HoverEvent
         }
     }
 
-    @Getter
-    @RequiredArgsConstructor
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     @ToString
     @EqualsAndHashCode(callSuper = true)
-    public static class ContentEntity extends Content<String[]>
+    public static class ContentEntity extends Content
     {
 
-        private final String type;
-        private final String id;
-        private final BaseComponent[] name;
+        /**
+         * Namespaced entity ID.
+         * Will use 'minecraft:pig' if null.
+         */
+        private String type;
+        /**
+         * Entity UUID in hyphenated hexadecimal format. Should be valid UUID.
+         * TODO : validate?
+         */
+        private String id;
+        /**
+         * Name to display as the entity.
+         * This is optional and will be hidden if null.
+         */
+        private BaseComponent name;
 
         @Override
         Action requiredAction()
@@ -161,22 +231,10 @@ public final class HoverEvent
             {
                 JsonObject value = element.getAsJsonObject();
 
-                BaseComponent[] name;
-                if ( value.get( "name" ).isJsonArray() )
-                {
-                    name = context.deserialize( value.get( "name" ), BaseComponent[].class );
-                } else
-                {
-                    name = new BaseComponent[]
-                    {
-                        context.deserialize( value.get( "name" ), BaseComponent.class )
-                    };
-                }
-
                 return new ContentEntity(
-                        value.get( "type" ).getAsString(),
-                        value.get( "id" ).getAsString(),
-                        name
+                    ( value.has( "type" ) ) ? value.get( "type" ).getAsString() : "minecraft:pig",
+                    value.get( "id" ).getAsString(),
+                    ( value.has( "name" ) ) ? context.deserialize( value.get( "name" ), BaseComponent.class ) : null
                 );
             }
 
@@ -184,25 +242,102 @@ public final class HoverEvent
             public JsonElement serialize(ContentEntity content, Type type, JsonSerializationContext context)
             {
                 JsonObject object = new JsonObject();
-                object.addProperty( "type", content.getType() );
+                object.addProperty( "type", ( content.getType() == null ) ? "minecraft:pig" : null );
                 object.addProperty( "id", content.getId() );
-                object.add( "name", context.serialize( content.getName() ) );
+                if ( content.getName() != null )
+                {
+                    object.add( "name", context.serialize( content.getName() ) );
+                }
                 return object;
             }
         }
     }
 
-    // TODO: Support for other the other Action's (ContentEntity|ContentItem)
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @ToString
+    @EqualsAndHashCode(callSuper = true)
+    public static class ContentItem extends Content
+    {
+
+        /**
+         * The namespaced item ID.
+         * Will use 'minecraft:air' if null.
+         */
+        private String id;
+        /**
+         * Optional. Size of the item stack.
+         */
+        private int count = -1;
+        /**
+         * Optional. String of serialized NBT for the item stack.
+         */
+        private String tagNbt;
+
+        @Override
+        Action requiredAction()
+        {
+            return Action.SHOW_ITEM;
+        }
+
+        public static class Serializer implements JsonSerializer<ContentItem>, JsonDeserializer<ContentItem>
+        {
+
+            @Override
+            public ContentItem deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
+            {
+                JsonObject value = element.getAsJsonObject();
+
+                return new ContentItem(
+                        ( value.has( "id" ) ) ? value.get( "id" ).getAsString() : null,
+                        ( value.has( "count" ) ) ? -1 : value.get( "count" ).getAsInt(),
+                        ( value.has( "tag" ) ) ? "minecraft:air" : value.get( "tag" ).getAsString()
+                );
+            }
+
+            @Override
+            public JsonElement serialize(ContentItem content, Type type, JsonSerializationContext context)
+            {
+                JsonObject object = new JsonObject();
+                object.addProperty( "id", ( content.getId() == null ) ? "minecraft:air" : content.getId() );
+                if ( content.getCount() != -1 )
+                {
+                    object.addProperty( "count", content.getCount() );
+                }
+                if ( content.getTagNbt() != null )
+                {
+                    object.addProperty( "tag", content.getTagNbt() );
+                }
+                return object;
+            }
+        }
+    }
 
     public enum Action
     {
 
         SHOW_TEXT,
-        SHOW_ACHIEVEMENT,
         SHOW_ITEM,
-        SHOW_ENTITY
+        SHOW_ENTITY,
+        /**
+         * Removed since 1.12. Advancements instead simply use show_text.
+         * The ID of an achievement or statistic to display.
+         * Example: new ComponentText( "achievement.openInventory" )
+         */
+        @Deprecated
+        SHOW_ACHIEVEMENT,
     }
 
+    /**
+     * Gets the appropriate {@link Content} class for an {@link Action}
+     * for the GSON serialization
+     *
+     * @param action the action to get for
+     * @param array if to return the arrayed class
+     * @return the class
+     */
     public static Class<?> getClass(HoverEvent.Action action, boolean array)
     {
         if ( action == HoverEvent.Action.SHOW_TEXT )
@@ -211,9 +346,12 @@ public final class HoverEvent
         } else if ( action == HoverEvent.Action.SHOW_ENTITY )
         {
             return ( array ) ? HoverEvent.ContentEntity[].class : HoverEvent.ContentEntity.class;
+        } else if ( action == HoverEvent.Action.SHOW_ITEM )
+        {
+            return ( array ) ? HoverEvent.ContentItem[].class : HoverEvent.ContentItem.class;
         } else
         {
-            return null;
+            throw new UnsupportedOperationException( "Action '" + ( ( action == null ) ? "null" : action.name() ) + " not supported" );
         }
     }
 }

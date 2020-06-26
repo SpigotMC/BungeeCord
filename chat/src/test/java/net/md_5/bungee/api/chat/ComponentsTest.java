@@ -125,6 +125,22 @@ public class ComponentsTest
     }
 
     @Test
+    public void testModernShowAdvancement()
+    {
+        String advancement = "achievement.openInventory";
+        // First do the text using the newer contents system
+        HoverEvent hoverEvent = new HoverEvent(
+                HoverEvent.Action.SHOW_TEXT,
+                new HoverEvent.ContentText( advancement )
+        );
+        TextComponent component = new TextComponent( "test" );
+        component.setHoverEvent( hoverEvent );
+        Assert.assertEquals( component.getHoverEvent().getContents().size(), 1 );
+        Assert.assertTrue( component.getHoverEvent().getContents().get( 0 ) instanceof HoverEvent.ContentText );
+        Assert.assertEquals( ( (HoverEvent.ContentText) component.getHoverEvent().getContents().get( 0 ) ).getValue(), advancement );
+    }
+
+    @Test
     public void testHoverEventContents()
     {
         // First do the text using the newer contents system
