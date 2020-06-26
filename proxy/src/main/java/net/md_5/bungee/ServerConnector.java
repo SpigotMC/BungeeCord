@@ -222,6 +222,12 @@ public class ServerConnector extends PacketHandler
                 user.getServer().setObsolete( true );
 
                 user.getServerSentScoreboard().clear();
+
+                for ( UUID bossbar : user.getSentBossBars() )
+                {
+                    // Send remove bossbar packet
+                    user.unsafe().sendPacket( new net.md_5.bungee.protocol.packet.BossBar( bossbar, 1 ) );
+                }
                 user.getSentBossBars().clear();
 
                 user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getWorldName(), login.getSeed(), login.getDifficulty(), login.getGameMode(), login.getPreviousGameMode(), login.getLevelType(), login.isDebug(), login.isFlat(), false ) );
