@@ -125,6 +125,27 @@ public class ComponentsTest
     }
 
     @Test
+    public void testItemTag()
+    {
+        TextComponent component = new TextComponent( "Hello world" );
+        HoverEvent.ContentItem content = new HoverEvent.ContentItem();
+        content.setId( "minecraft:diamond_sword" );
+        content.setCount( 1 );
+        content.setTag( ItemTag.builder()
+                .ench( new ItemTag.Enchantment( 5, 16 ) )
+                .name( new TextComponent( "Sharp Sword" ) )
+                .unbreakable( true )
+                .lore( new ComponentBuilder( "Line1" ).create() )
+                .lore( new ComponentBuilder( "Line2" ).create() )
+                .build() );
+        HoverEvent event = new HoverEvent( HoverEvent.Action.SHOW_ITEM, content );
+        component.setHoverEvent( event );
+        String serialised = ComponentSerializer.toString( component );
+        BaseComponent[] deserialised = ComponentSerializer.parse( serialised );
+        Assert.assertEquals( TextComponent.toLegacyText( deserialised ), TextComponent.toLegacyText( component ) );
+    }
+
+    @Test
     public void testModernShowAdvancement()
     {
         String advancement = "achievement.openInventory";

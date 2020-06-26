@@ -203,7 +203,7 @@ public final class HoverEvent
     {
 
         /**
-         * Namespaced entity ID.
+         * Name-spaced entity ID.
          * Will use 'minecraft:pig' if null.
          */
         private String type;
@@ -265,7 +265,7 @@ public final class HoverEvent
     {
 
         /**
-         * The namespaced item ID.
+         * Name-spaced item ID.
          * Will use 'minecraft:air' if null.
          */
         private String id;
@@ -274,9 +274,9 @@ public final class HoverEvent
          */
         private int count = -1;
         /**
-         * Optional. String of serialized NBT for the item stack.
+         * Optional. Item tag.
          */
-        private String tagNbt;
+        private ItemTag tag;
 
         @Override
         Action requiredAction()
@@ -294,8 +294,8 @@ public final class HoverEvent
 
                 return new ContentItem(
                         ( value.has( "id" ) ) ? value.get( "id" ).getAsString() : null,
-                        ( value.has( "count" ) ) ? value.get( "count" ).getAsInt() : -1,
-                        ( value.has( "tag" ) ) ? value.get( "tag" ).getAsString() : null
+                        ( value.has( "Count" ) ) ? value.get( "Count" ).getAsInt() : -1,
+                        ( value.has( "tag" ) ) ? context.deserialize( value.get( "tag" ), ItemTag.class ) : null
                 );
             }
 
@@ -306,11 +306,11 @@ public final class HoverEvent
                 object.addProperty( "id", ( content.getId() == null ) ? "minecraft:air" : content.getId() );
                 if ( content.getCount() != -1 )
                 {
-                    object.addProperty( "count", content.getCount() );
+                    object.addProperty( "Count", content.getCount() );
                 }
-                if ( content.getTagNbt() != null )
+                if ( content.getTag() != null )
                 {
-                    object.addProperty( "tag", content.getTagNbt() );
+                    object.add( "tag", context.serialize( content.getTag() ) );
                 }
                 return object;
             }

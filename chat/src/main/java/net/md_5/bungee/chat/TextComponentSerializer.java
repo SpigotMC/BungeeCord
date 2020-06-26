@@ -30,11 +30,11 @@ public class TextComponentSerializer extends BaseComponentSerializer implements 
     {
         List<BaseComponent> extra = src.getExtra();
         JsonObject object = new JsonObject();
+        object.addProperty( "text", src.getText() );
         if ( src.hasFormatting() || ( extra != null && !extra.isEmpty() ) )
         {
             serialize( object, src, context );
         }
-        object.addProperty( "text", src.getText() );
         return object;
     }
 }
