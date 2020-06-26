@@ -220,6 +220,7 @@ public class ServerConnector extends PacketHandler
             if ( user.getServer() != null )
             {
                 user.getServer().setObsolete( true );
+                user.getTabListHandler().onServerChange();
 
                 user.getServerSentScoreboard().clear();
 
