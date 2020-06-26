@@ -18,6 +18,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
@@ -72,7 +73,7 @@ public final class HoverEvent
     {
         // Old plugins may have somehow hacked BaseComponent[] into
         // anything other than SHOW_TEXT action. Ideally continue support.
-        this.action = Action.SHOW_TEXT;
+        this.action = action;
         this.contents = new ArrayList<>( Collections.singletonList( new ContentText( value ) ) );
         this.legacy = true;
     }
@@ -210,6 +211,7 @@ public final class HoverEvent
          * Entity UUID in hyphenated hexadecimal format. Should be valid UUID.
          * TODO : validate?
          */
+        @NonNull
         private String id;
         /**
          * Name to display as the entity.
@@ -232,7 +234,7 @@ public final class HoverEvent
                 JsonObject value = element.getAsJsonObject();
 
                 return new ContentEntity(
-                    ( value.has( "type" ) ) ? value.get( "type" ).getAsString() : "minecraft:pig",
+                    ( value.has( "type" ) ) ? value.get( "type" ).getAsString() : null,
                     value.get( "id" ).getAsString(),
                     ( value.has( "name" ) ) ? context.deserialize( value.get( "name" ), BaseComponent.class ) : null
                 );
@@ -242,7 +244,7 @@ public final class HoverEvent
             public JsonElement serialize(ContentEntity content, Type type, JsonSerializationContext context)
             {
                 JsonObject object = new JsonObject();
-                object.addProperty( "type", ( content.getType() == null ) ? "minecraft:pig" : null );
+                object.addProperty( "type", ( content.getType() != null ) ? content.getType() : "minecraft:pig" );
                 object.addProperty( "id", content.getId() );
                 if ( content.getName() != null )
                 {
@@ -292,8 +294,8 @@ public final class HoverEvent
 
                 return new ContentItem(
                         ( value.has( "id" ) ) ? value.get( "id" ).getAsString() : null,
-                        ( value.has( "count" ) ) ? -1 : value.get( "count" ).getAsInt(),
-                        ( value.has( "tag" ) ) ? "minecraft:air" : value.get( "tag" ).getAsString()
+                        ( value.has( "count" ) ) ? value.get( "count" ).getAsInt() : -1,
+                        ( value.has( "tag" ) ) ? value.get( "tag" ).getAsString() : null
                 );
             }
 
