@@ -78,7 +78,7 @@ public final class UserConnection implements ProxiedPlayer
     private boolean callSettingsEvent = false; //BotFilter
     @Getter
     @Setter
-    private List<PluginMessage> delayedPluginMessages = new BoundedArrayList<>( 128 ); //BotFilter
+    private List<PluginMessage> delayedPluginMessages = new BoundedArrayList<>( 128 + 56 ); //BotFilter
 
     /*========================================================================*/
     @NonNull
