@@ -43,6 +43,7 @@ import net.md_5.bungee.protocol.packet.Team;
 import net.md_5.bungee.protocol.packet.Title;
 import net.md_5.bungee.protocol.packet.ViewDistance;
 import ru.leymooo.botfilter.packets.EmptyChunkPacket;
+import ru.leymooo.botfilter.packets.JoinGame;
 import ru.leymooo.botfilter.packets.Player;
 import ru.leymooo.botfilter.packets.PlayerAbilities;
 import ru.leymooo.botfilter.packets.PlayerPosition;
@@ -353,6 +354,14 @@ public enum Protocol
 
         {
             TO_CLIENT.registerPacket(
+                    JoinGame.class, JoinGame::new, //Renamed Login
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x01 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x23 ),
+                    map( ProtocolConstants.MINECRAFT_1_13, 0x25 ),
+                    map( ProtocolConstants.MINECRAFT_1_15, 0x26 ),
+                    map( ProtocolConstants.MINECRAFT_1_16, 0x25 )
+            );
+            TO_CLIENT.registerPacket(
                     TimeUpdate.class, TimeUpdate::new,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x03 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x44 ),
@@ -379,7 +388,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x20 ),
                     map( ProtocolConstants.MINECRAFT_1_13, 0x22 ),
                     map( ProtocolConstants.MINECRAFT_1_14, 0x21 ),
-                    map( ProtocolConstants.MINECRAFT_1_16, 0x22 )
+                    map( ProtocolConstants.MINECRAFT_1_15, 0x22 ),
+                    map( ProtocolConstants.MINECRAFT_1_16, 0x21 )
             );
             TO_CLIENT.registerPacket(
                     SetSlot.class, SetSlot::new,

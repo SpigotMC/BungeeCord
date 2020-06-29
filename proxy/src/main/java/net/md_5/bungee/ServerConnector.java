@@ -221,9 +221,13 @@ public class ServerConnector extends PacketHandler
 
             user.unsafe().sendPacket( modLogin );
 
-            if ( user.getServer() != null )
+            if ( !user.isNeedLogin() ) //BotFilter
             {
-                user.getServer().setObsolete( true );
+                if ( user.getServer() != null ) //BotFilter
+                {
+                    user.getServer().setObsolete( true ); //BotFilter
+
+                }
                 user.getTabListHandler().onServerChange();
 
                 user.getServerSentScoreboard().clear();
@@ -236,11 +240,15 @@ public class ServerConnector extends PacketHandler
                 user.getSentBossBars().clear();
 
                 user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getWorldName(), login.getSeed(), login.getDifficulty(), login.getGameMode(), login.getPreviousGameMode(), login.getLevelType(), login.isDebug(), login.isFlat(), false ) );
-                user.getServer().disconnect( "Quitting" );
-            } else
+
+                if ( user.getServer() != null ) //BotFilter
+                {
+                    user.getServer().disconnect( "Quitting" ); //BotFilter
+                }
+            } else if ( user.isNeedLogin() ) //BotFilters
             {
                 ByteBuf brand = ByteBufAllocator.DEFAULT.heapBuffer();
-                DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")", brand );
+                DefinedPacket.writeString( "BotFilter (https://vk.cc/8hr1pU)", brand );
                 user.unsafe().sendPacket( new PluginMessage( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ? "minecraft:brand" : "MC|Brand", DefinedPacket.toArray( brand ), handshakeHandler.isServerForge() ) );
                 brand.release();
             }
