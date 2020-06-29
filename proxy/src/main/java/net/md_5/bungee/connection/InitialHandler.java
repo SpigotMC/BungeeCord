@@ -622,7 +622,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( send )
         {
-            unsafe.sendPacket( new LoginSuccess( getUniqueId().toString(), getName() ) );
+            unsafe.sendPacket( new LoginSuccess( getUniqueId(), getName() ) );
         }
     }
 

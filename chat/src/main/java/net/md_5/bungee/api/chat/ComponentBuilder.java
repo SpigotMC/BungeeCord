@@ -325,6 +325,18 @@ public final class ComponentBuilder
     }
 
     /**
+     * Sets the font of the current part.
+     *
+     * @param font the new font
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder font(String font)
+    {
+        getCurrentComponent().setFont( font );
+        return this;
+    }
+
+    /**
      * Sets whether the current part is bold.
      *
      * @param bold whether this part is bold

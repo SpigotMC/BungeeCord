@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.chat;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -431,6 +432,17 @@ public class ComponentsTest
         second.addExtra( new TextComponent( "World!" ) );
 
         Assert.assertNotEquals( first, second );
+    }
+
+    @Test
+    public void testLegacyHack()
+    {
+        BaseComponent[] hexColored = new ComponentBuilder().color( ChatColor.of( Color.GRAY ) ).append( "Test" ).create();
+        String legacy = TextComponent.toLegacyText( hexColored );
+
+        BaseComponent[] reColored = TextComponent.fromLegacyText( legacy );
+
+        Assert.assertArrayEquals( hexColored, reColored );
     }
 
     private String fromAndToLegacyText(String legacyText)

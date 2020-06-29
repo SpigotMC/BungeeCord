@@ -97,7 +97,7 @@ public final class UserConnection implements ProxiedPlayer
     private ServerConnection server;
     @Getter
     @Setter
-    private int dimension;
+    private Object dimension;
     @Getter
     @Setter
     private boolean dimensionChange = true;
