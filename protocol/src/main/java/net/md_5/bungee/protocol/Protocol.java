@@ -360,7 +360,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x47 ),
                     map( ProtocolConstants.MINECRAFT_1_13, 0x4A ),
                     map( ProtocolConstants.MINECRAFT_1_14, 0x4E ),
-                    map( ProtocolConstants.MINECRAFT_1_15, 0x4F )
+                    map( ProtocolConstants.MINECRAFT_1_15, 0x4F ),
+                    map( ProtocolConstants.MINECRAFT_1_16, 0x4E )
             );
             TO_CLIENT.registerPacket(
                     PlayerPositionAndLook.class, PlayerPositionAndLook::new,
@@ -369,7 +370,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x2F ),
                     map( ProtocolConstants.MINECRAFT_1_13, 0x32 ),
                     map( ProtocolConstants.MINECRAFT_1_14, 0x35 ),
-                    map( ProtocolConstants.MINECRAFT_1_15, 0x36 )
+                    map( ProtocolConstants.MINECRAFT_1_15, 0x36 ),
+                    map( ProtocolConstants.MINECRAFT_1_16, 0x35 )
             );
             TO_CLIENT.registerPacket(
                     EmptyChunkPacket.class, EmptyChunkPacket::new,
@@ -377,7 +379,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x20 ),
                     map( ProtocolConstants.MINECRAFT_1_13, 0x22 ),
                     map( ProtocolConstants.MINECRAFT_1_14, 0x21 ),
-                    map( ProtocolConstants.MINECRAFT_1_15, 0x22 )
+                    map( ProtocolConstants.MINECRAFT_1_16, 0x22 )
             );
             TO_CLIENT.registerPacket(
                     SetSlot.class, SetSlot::new,
@@ -385,7 +387,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_9, 0x16 ),
                     map( ProtocolConstants.MINECRAFT_1_13, 0x17 ),
                     map( ProtocolConstants.MINECRAFT_1_14, 0x16 ),
-                    map( ProtocolConstants.MINECRAFT_1_15, 0x17 )
+                    map( ProtocolConstants.MINECRAFT_1_15, 0x17 ),
+                    map( ProtocolConstants.MINECRAFT_1_16, 0x16 )
             );
             TO_CLIENT.registerPacket(
                     PlayerAbilities.class, PlayerAbilities::new,
@@ -394,7 +397,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x2C ),
                     map( ProtocolConstants.MINECRAFT_1_13, 0x2E ),
                     map( ProtocolConstants.MINECRAFT_1_14, 0x31 ),
-                    map( ProtocolConstants.MINECRAFT_1_15, 0x32 )
+                    map( ProtocolConstants.MINECRAFT_1_15, 0x32 ),
+                    map( ProtocolConstants.MINECRAFT_1_16, 0x31 )
             );
             TO_CLIENT.registerPacket(
                     SetExp.class, SetExp::new,
@@ -407,12 +411,12 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_15, 0x48 )
             );
             TO_SERVER.registerPacket(
-                ClientSettings.class, ClientSettings::new,
-                map( ProtocolConstants.MINECRAFT_1_8, 0x15 ),
-                map( ProtocolConstants.MINECRAFT_1_9, 0x04 ),
-                map( ProtocolConstants.MINECRAFT_1_12, 0x05 ),
-                map( ProtocolConstants.MINECRAFT_1_12_1, 0x04 ),
-                map( ProtocolConstants.MINECRAFT_1_14, 0x05 )
+                    ClientSettings.class, ClientSettings::new,
+                    map( ProtocolConstants.MINECRAFT_1_8, 0x15 ),
+                    map( ProtocolConstants.MINECRAFT_1_9, 0x04 ),
+                    map( ProtocolConstants.MINECRAFT_1_12, 0x05 ),
+                    map( ProtocolConstants.MINECRAFT_1_12_1, 0x04 ),
+                    map( ProtocolConstants.MINECRAFT_1_14, 0x05 )
             );
             TO_SERVER.registerPacket(
                     TeleportConfirm.class, TeleportConfirm::new,
@@ -425,7 +429,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12, 0x0F ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x0E ),
                     map( ProtocolConstants.MINECRAFT_1_13, 0x11 ),
-                    map( ProtocolConstants.MINECRAFT_1_14, 0x12 )
+                    map( ProtocolConstants.MINECRAFT_1_14, 0x12 ),
+                    map( ProtocolConstants.MINECRAFT_1_16, 0x13 )
             );
             TO_SERVER.registerPacket(
                     PlayerPosition.class, PlayerPosition::new,
@@ -434,7 +439,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12, 0x0E ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x0D ),
                     map( ProtocolConstants.MINECRAFT_1_13, 0x10 ),
-                    map( ProtocolConstants.MINECRAFT_1_14, 0x11 )
+                    map( ProtocolConstants.MINECRAFT_1_14, 0x11 ),
+                    map( ProtocolConstants.MINECRAFT_1_16, 0x12 )
             );
             TO_SERVER.registerPacket(
                     Player.class, Player::new,
@@ -443,7 +449,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12, 0x0D ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x0C ),
                     map( ProtocolConstants.MINECRAFT_1_13, 0x0F ),
-                    map( ProtocolConstants.MINECRAFT_1_14, 0x14 )
+                    map( ProtocolConstants.MINECRAFT_1_14, 0x14 ),
+                    map( ProtocolConstants.MINECRAFT_1_16, 0x15 )
             );
             TO_SERVER.registerPacket(
                     KeepAlive.class, KeepAlive::new,
@@ -452,7 +459,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12, 0x0C ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x0B ),
                     map( ProtocolConstants.MINECRAFT_1_13, 0x0E ),
-                    map( ProtocolConstants.MINECRAFT_1_14, 0x0F )
+                    map( ProtocolConstants.MINECRAFT_1_14, 0x0F ),
+                    map( ProtocolConstants.MINECRAFT_1_16, 0x10 )
             );
             TO_SERVER.registerPacket(
                     Chat.class, Chat::new,
