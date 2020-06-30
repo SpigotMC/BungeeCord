@@ -9,7 +9,7 @@ import net.md_5.bungee.error.Errors;
 @UtilityClass
 public class ChannelUtil
 {
-    private final String DISCARD_HANDLER = "discard-handler";
+    private final String DISCARD_HANDLER = "discard";
 
     @SneakyThrows
     public void shutdownChannel(Channel channel, Throwable t)
