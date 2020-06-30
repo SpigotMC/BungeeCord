@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
+import io.netty.channel.ChannelFactory;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -124,6 +125,19 @@ public class PipelineUtils
         return epoll ? new EpollEventLoopGroup( threads, factory ) : new NioEventLoopGroup( threads, factory );
     }
 
+    public static ChannelFactory<? extends ServerChannel> getServerChannelFactory(SocketAddress address)
+    {
+        if ( address instanceof DomainSocketAddress )
+        {
+            Preconditions.checkState( epoll, "Epoll required to have UNIX sockets" );
+
+            return EpollServerDomainSocketChannel::new;
+        }
+
+        return epoll ? EpollServerSocketChannel::new : NioServerSocketChannel::new;
+    }
+
+    @Deprecated
     public static Class<? extends ServerChannel> getServerChannel(SocketAddress address)
     {
         if ( address instanceof DomainSocketAddress )
@@ -136,6 +150,19 @@ public class PipelineUtils
         return epoll ? EpollServerSocketChannel.class : NioServerSocketChannel.class;
     }
 
+    public static ChannelFactory<? extends Channel> getChannelFactory(SocketAddress address)
+    {
+        if ( address instanceof DomainSocketAddress )
+        {
+            Preconditions.checkState( epoll, "Epoll required to have UNIX sockets" );
+
+            return EpollDomainSocketChannel::new;
+        }
+
+        return epoll ? EpollSocketChannel::new : NioSocketChannel::new;
+    }
+
+    @Deprecated
     public static Class<? extends Channel> getChannel(SocketAddress address)
     {
         if ( address instanceof DomainSocketAddress )
@@ -148,6 +175,12 @@ public class PipelineUtils
         return epoll ? EpollSocketChannel.class : NioSocketChannel.class;
     }
 
+    public static ChannelFactory<? extends DatagramChannel> getDatagramChannelFactory()
+    {
+        return epoll ? EpollDatagramChannel::new : NioDatagramChannel::new;
+    }
+
+    @Deprecated
     public static Class<? extends DatagramChannel> getDatagramChannel()
     {
         return epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
