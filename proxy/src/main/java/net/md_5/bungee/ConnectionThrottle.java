@@ -29,7 +29,7 @@ public class ConnectionThrottle
                 .ticker( ticker )
                 .concurrencyLevel( Runtime.getRuntime().availableProcessors() )
                 .initialCapacity( 100 )
-                .expireAfterWrite( throttleTime, TimeUnit.MILLISECONDS )
+                .expireAfterAccess( throttleTime, TimeUnit.MILLISECONDS )
                 .build( new CacheLoader<InetAddress, AtomicInteger>()
                 {
                     @Override

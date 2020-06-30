@@ -5,6 +5,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
@@ -37,14 +38,21 @@ public class ChannelWrapper
 
     public void setProtocol(Protocol protocol)
     {
-        ch.pipeline().get( MinecraftDecoder.class ).setProtocol( protocol );
-        ch.pipeline().get( MinecraftEncoder.class ).setProtocol( protocol );
+        ChannelPipeline pipeline = ch.pipeline();
+        pipeline.get( MinecraftDecoder.class ).setProtocol( protocol );
+        pipeline.get( MinecraftEncoder.class ).setProtocol( protocol );
+        pipeline.get( HandlerBoss.class ).setProtocol( protocol );
     }
 
     public void setVersion(int protocol)
     {
         ch.pipeline().get( MinecraftDecoder.class ).setProtocolVersion( protocol );
         ch.pipeline().get( MinecraftEncoder.class ).setProtocolVersion( protocol );
+    }
+
+    public void setForge(boolean forge)
+    {
+        ch.pipeline().get( MinecraftDecoder.class ).setForge( forge );
     }
 
     public void write(Object packet)

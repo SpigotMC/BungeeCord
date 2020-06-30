@@ -37,6 +37,8 @@ import net.md_5.bungee.api.event.PreLoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.chat.ComponentSerializer;
+import net.md_5.bungee.error.Errors;
+import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.http.HttpClient;
 import net.md_5.bungee.jni.cipher.BungeeCipher;
 import net.md_5.bungee.netty.ChannelWrapper;
@@ -63,8 +65,6 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
-import net.md_5.bungee.util.BufUtil;
-import net.md_5.bungee.util.QuietException;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -135,9 +135,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         if ( canSendKickMessage() )
         {
             disconnect( ChatColor.RED + Util.exception( t ) );
-        } else
-        {
-            ch.close();
         }
     }
 
@@ -146,7 +143,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( packet.packet == null )
         {
-            throw new QuietException( "Unexpected packet received during login process! " + BufUtil.dump( packet.buf, 16 ) );
+            Errors.unexpectedLoginPacket( packet.buf );
         }
     }
 
@@ -304,6 +301,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             extraDataInHandshake = "\0" + split[1];
         }
 
+        ch.setForge( hasFmlHandshake() );
+
         // SRV records can end with a . depending on DNS / client.
         if ( handshake.getHost().endsWith( "." ) )
         {
@@ -344,7 +343,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 }
                 break;
             default:
-                throw new QuietException( "Cannot request protocol " + handshake.getRequestedProtocol() );
+                Errors.invalidProtocol( handshake.getRequestedProtocol() );
         }
     }
 
@@ -673,5 +672,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public boolean isConnected()
     {
         return !ch.isClosed();
+    }
+
+    public boolean hasFmlHandshake()
+    {
+        return getExtraDataInHandshake().contains( ForgeConstants.FML_HANDSHAKE_TAG );
     }
 }

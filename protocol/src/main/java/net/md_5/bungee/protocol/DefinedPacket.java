@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.error.Errors;
 
 @RequiredArgsConstructor
 public abstract class DefinedPacket
@@ -115,15 +116,22 @@ public abstract class DefinedPacket
         int out = 0;
         int bytes = 0;
         byte in;
+        int readable = input.readableBytes();
         while ( true )
         {
+            if ( readable-- == 0 )
+            {
+                Errors.endOfBuffer();
+            }
+
             in = input.readByte();
 
             out |= ( in & 0x7F ) << ( bytes++ * 7 );
 
+
             if ( bytes > maxBytes )
             {
-                throw new RuntimeException( "VarInt too big" );
+                Errors.varIntTooBig();
             }
 
             if ( ( in & 0x80 ) != 0x80 )

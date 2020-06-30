@@ -42,6 +42,7 @@
         <module>proxy</module>
         <module>query</module>
         <module>native</module>
+        <module>shared</module>
     </modules>
 
     <scm>

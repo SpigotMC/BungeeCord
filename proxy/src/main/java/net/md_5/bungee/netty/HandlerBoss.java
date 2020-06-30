@@ -10,13 +10,17 @@ import io.netty.handler.timeout.ReadTimeoutException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.logging.Level;
+import lombok.Setter;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.connection.PingHandler;
+import net.md_5.bungee.error.Errors;
 import net.md_5.bungee.protocol.BadPacketException;
 import net.md_5.bungee.protocol.OverflowPacketException;
 import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.util.ChannelUtil;
 import net.md_5.bungee.util.QuietException;
 
 /**
@@ -26,9 +30,13 @@ import net.md_5.bungee.util.QuietException;
  */
 public class HandlerBoss extends ChannelInboundHandlerAdapter
 {
+    private static long lastInitialHandlerError;
+    private static int initialHandlerSuppressedCount;
 
     private ChannelWrapper channel;
     private PacketHandler handler;
+    @Setter
+    private Protocol protocol;
 
     public void setHandler(PacketHandler handler)
     {
@@ -124,6 +132,21 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     {
         if ( ctx.channel().isActive() )
         {
+            if ( ( handler instanceof InitialHandler ) && !Errors.isDebug() )
+            {
+                long now = System.currentTimeMillis();
+                if ( now - lastInitialHandlerError > 1000L )
+                {
+                    lastInitialHandlerError = now;
+                    initialHandlerSuppressedCount = 0;
+                }
+                if ( ++initialHandlerSuppressedCount >= 5 )
+                {
+                    ChannelUtil.shutdownChannel( ctx.channel(), null );
+                    return;
+                }
+            }
+
             boolean logExceptions = !( handler instanceof PingHandler );
 
             if ( logExceptions )
@@ -148,6 +171,12 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                     } else if ( cause.getCause() instanceof OverflowPacketException )
                     {
                         ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - overflow in packet detected! {1}", new Object[]
+                        {
+                            handler, cause.getCause().getMessage()
+                        } );
+                    } else if ( cause.getCause() instanceof QuietException )
+                    {
+                        ProxyServer.getInstance().getLogger().log( Level.SEVERE, "{0} - encountered exception: {1}", new Object[]
                         {
                             handler, cause.getCause().getMessage()
                         } );
@@ -181,7 +210,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                 }
             }
 
-            ctx.close();
+            ChannelUtil.shutdownChannel( ctx.channel(), null );
         }
     }
 }

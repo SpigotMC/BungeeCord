@@ -188,6 +188,7 @@ public class EventBus
                     {
                         for ( Method method : listenerHandlers.getValue() )
                         {
+                            method.setAccessible( true );
                             EventHandlerMethod ehm = new EventHandlerMethod( listenerHandlers.getKey(), method );
                             handlersList.add( ehm );
                         }

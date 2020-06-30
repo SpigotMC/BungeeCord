@@ -45,6 +45,7 @@ import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.Varint21FrameDecoder;
 import net.md_5.bungee.protocol.Varint21LengthFieldPrepender;
+import net.md_5.bungee.util.ChannelUtil;
 
 public class PipelineUtils
 {
@@ -61,7 +62,7 @@ public class PipelineUtils
 
             if ( BungeeCord.getInstance().getConnectionThrottle() != null && BungeeCord.getInstance().getConnectionThrottle().throttle( remoteAddress ) )
             {
-                ch.close();
+                ChannelUtil.shutdownChannel( ch, null );
                 return;
             }
 

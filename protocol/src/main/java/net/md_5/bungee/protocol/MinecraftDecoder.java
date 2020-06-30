@@ -4,10 +4,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.Setter;
+import net.md_5.bungee.util.ChannelUtil;
 
-@AllArgsConstructor
 public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
 {
 
@@ -16,25 +15,62 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
     private final boolean server;
     @Setter
     private int protocolVersion;
+    @Setter
+    private boolean forge;
+
+    public MinecraftDecoder(Protocol protocol, boolean server, int protocolVersion)
+    {
+        this.protocol = protocol;
+        this.server = server;
+        this.protocolVersion = protocolVersion;
+    }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
     {
         Protocol.DirectionData prot = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
-        ByteBuf slice = in.copy(); // Can't slice this one due to EntityMap :(
+
+        int originalReaderIndex = in.readerIndex();
+        int originalReadableBytes = in.readableBytes();
+        ByteBuf slice = null; // Can't slice this one due to EntityMap :(
 
         try
         {
             int packetId = DefinedPacket.readVarInt( in );
 
+            if ( server && !forge && ( packetId < 0 || packetId > Protocol.MAX_PACKET_ID ) )
+            {
+                ChannelUtil.shutdownChannel( ctx.channel(), null );
+                return;
+            }
+            slice = in.copy( originalReaderIndex, originalReadableBytes );
+
             DefinedPacket packet = prot.createPacket( packetId, protocolVersion );
             if ( packet != null )
             {
-                packet.read( in, prot.getDirection(), protocolVersion );
+                try
+                {
+                    packet.read( in, prot.getDirection(), protocolVersion );
+                } catch ( Throwable t )
+                {
+                    if ( server )
+                    {
+                        ChannelUtil.shutdownChannel( ctx.channel(), t );
+                        return;
+                    }
+                    throw t;
+                }
 
                 if ( in.isReadable() )
                 {
-                    throw new BadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot.getDirection() );
+                    if ( server )
+                    {
+                        ChannelUtil.shutdownChannel( ctx.channel(), new BadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot.getDirection() ) );
+                        return;
+                    } else
+                    {
+                        throw new BadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot.getDirection() );
+                    }
                 }
             } else
             {
