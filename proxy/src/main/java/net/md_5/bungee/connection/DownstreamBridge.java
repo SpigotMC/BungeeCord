@@ -27,6 +27,7 @@ import net.md_5.bungee.ServerConnection.KeepAliveData;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -420,6 +421,25 @@ public class DownstreamBridge extends PacketHandler
             {
                 String target = in.readUTF();
                 String message = in.readUTF();
+                if ( target.equals( "ALL" ) )
+                {
+                    for ( ProxiedPlayer player : bungee.getPlayers() )
+                    {
+                        player.sendMessage( message );
+                    }
+                } else
+                {
+                    ProxiedPlayer player = bungee.getPlayer( target );
+                    if ( player != null )
+                    {
+                        player.sendMessage( message );
+                    }
+                }
+            }
+            if ( subChannel.equals( "MessageRaw" ) )
+            {
+                String target = in.readUTF();
+                BaseComponent[] message = ComponentSerializer.parse( in.readUTF() );
                 if ( target.equals( "ALL" ) )
                 {
                     for ( ProxiedPlayer player : bungee.getPlayers() )
