@@ -91,7 +91,6 @@ import net.md_5.bungee.module.ModuleManager;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
@@ -752,14 +751,20 @@ public class BungeeCord extends ProxyServer
     public void broadcast(BaseComponent... message)
     {
         getConsole().sendMessage( BaseComponent.toLegacyText( message ) );
-        broadcast( new Chat( ComponentSerializer.toString( message ) ) );
+        for ( ProxiedPlayer player : getPlayers() )
+        {
+            player.sendMessage( message );
+        }
     }
 
     @Override
     public void broadcast(BaseComponent message)
     {
         getConsole().sendMessage( message.toLegacyText() );
-        broadcast( new Chat( ComponentSerializer.toString( message ) ) );
+        for ( ProxiedPlayer player : getPlayers() )
+        {
+            player.sendMessage( message );
+        }
     }
 
     public void addConnection(UserConnection con)
