@@ -1,5 +1,6 @@
 package ru.leymooo.botfilter.captcha;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.util.Random;
@@ -38,8 +39,8 @@ public class CaptchaGeneration
             final int answer = i;
             executor.execute( () ->
             {
-                BufferedImage image = painter.draw( fonts[rnd.nextInt( fonts.length )],
-                        MapPalette.colors[rnd.nextInt( MapPalette.colors.length )], String.valueOf( answer ) );
+                BufferedImage image = painter.draw( fonts[rnd.nextInt( fonts.length )], randomNotWhiteColor( rnd ),
+                    String.valueOf( answer ) );
                 final CraftMapCanvas map = new CraftMapCanvas();
                 map.drawImage( 0, 0, image );
                 MapDataPacket packet = new MapDataPacket( 0, (byte) 0, map.getMapData() );
@@ -66,5 +67,16 @@ public class CaptchaGeneration
         executor.shutdownNow();
         System.gc();
         BungeeCord.getInstance().getLogger().log( Level.INFO, "[BotFilter] Капча сгенерированна за {0} мс", System.currentTimeMillis() - start );
+    }
+
+
+    private static Color randomNotWhiteColor(Random random)
+    {
+        Color color = MapPalette.colors[random.nextInt( MapPalette.colors.length )];
+        if ( color.getRed() == 255 && color.getGreen() == 255 && color.getBlue() == 255 )
+        {
+            return randomNotWhiteColor( random );
+        }
+        return color;
     }
 }
