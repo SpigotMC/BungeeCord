@@ -2,12 +2,14 @@ package ru.leymooo.botfilter.captcha.generator.map;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class MapPalette
 {
 
 
-    private static final ThreadLocal<int[]> rgbBuffer = ThreadLocal.withInitial( () -> new int[ 128 * 128 ] );
+    private static final ThreadLocal<int[]> rgbBuffer = ThreadLocal.withInitial( () -> new int[128 * 128] );
 
     public static final Color[] colors = new Color[]
     {
@@ -49,6 +51,18 @@ public final class MapPalette
         c( 79, 1, 0 ), c( 96, 1, 0 ), c( 112, 2, 0 ), c( 59, 1, 0 ),
     };
 
+    private static final Map<Integer, Byte> colorToIndexMap = new HashMap<>();
+
+    public static void prepareColors()
+    {
+        for ( int i = 4; i < MapPalette.colors.length; ++i )
+        {
+            Color color = MapPalette.colors[i];
+            byte index = (byte) ( i < 128 ? i : -129 + ( i - 127 ) );
+            colorToIndexMap.put( color.getRGB(), index );
+        }
+    }
+
     private static Color c(int r, int g, int b)
     {
         return new Color( r, g, b );
@@ -81,9 +95,19 @@ public final class MapPalette
         image.getRGB( 0, 0, image.getWidth(), image.getHeight(), result, 0, image.getWidth() );
         for ( int i = 0; i < result.length; ++i )
         {
-            result[i] = matchColor( new Color( result[i], true ) );
+            result[i] = tryFastMatchColor( result[i] );
         }
         return result;
+    }
+
+    public static byte tryFastMatchColor(int rgb)
+    {
+        Byte color = colorToIndexMap.get( rgb );
+        if ( color != null )
+        {
+            return color;
+        }
+        return matchColor( new Color( rgb, true ) );
     }
 
     /**

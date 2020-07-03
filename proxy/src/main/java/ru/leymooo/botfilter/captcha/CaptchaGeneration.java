@@ -34,6 +34,7 @@ public class CaptchaGeneration
         ExecutorService executor = Executors.newFixedThreadPool( Runtime.getRuntime().availableProcessors() );
         Random rnd = new Random();
         CaptchaPainter painter = new CaptchaPainter();
+        MapPalette.prepareColors();
         for ( int i = 100; i <= 999; i++ )
         {
             final int answer = i;
