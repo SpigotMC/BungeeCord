@@ -25,14 +25,15 @@ public class CaptchaGeneration
 {
     public void generateImages()
     {
-        Font[] fonts = new Font[]
-        {
-            new Font( Font.SANS_SERIF, Font.PLAIN, 128 / 2 ),
-            new Font( Font.SERIF, Font.PLAIN, 128 / 2 ),
-            new Font( Font.MONOSPACED, Font.BOLD, 128 / 2 )
-        };
-        ExecutorService executor = Executors.newFixedThreadPool( Runtime.getRuntime().availableProcessors() );
         Random rnd = new Random();
+        ThreadLocal<Font[]> fonts = ThreadLocal.withInitial( () -> new Font[]
+        {
+            new Font( Font.SANS_SERIF, Font.PLAIN, rnd.nextInt( 5 ) + 62 ),
+            new Font( Font.SERIF, Font.PLAIN, rnd.nextInt( 5 ) + 62 ),
+            new Font( Font.MONOSPACED, Font.BOLD, rnd.nextInt( 5 ) + 62 )
+        } );
+
+        ExecutorService executor = Executors.newFixedThreadPool( Runtime.getRuntime().availableProcessors() );
         CaptchaPainter painter = new CaptchaPainter();
         MapPalette.prepareColors();
         for ( int i = 100; i <= 999; i++ )
@@ -40,7 +41,8 @@ public class CaptchaGeneration
             final int answer = i;
             executor.execute( () ->
             {
-                BufferedImage image = painter.draw( fonts[rnd.nextInt( fonts.length )], randomNotWhiteColor( rnd ),
+                Font[] curr = fonts.get();
+                BufferedImage image = painter.draw( curr[rnd.nextInt( curr.length )], randomNotWhiteColor( rnd ),
                     String.valueOf( answer ) );
                 final CraftMapCanvas map = new CraftMapCanvas();
                 map.drawImage( 0, 0, image );
