@@ -1,12 +1,13 @@
 package ru.leymooo.botfilter.captcha.generator.map;
 
 import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 public final class MapPalette
 {
+
+
+    private static final ThreadLocal<int[]> rgbBuffer = ThreadLocal.withInitial( () -> new int[ 128 * 128 ] );
 
     public static final Color[] colors = new Color[]
     {
@@ -67,22 +68,6 @@ public final class MapPalette
     }
 
     /**
-     * Resize an image to 128x128.
-     *
-     * @param image The image to resize.
-     * @return The resized image.
-     */
-    public static BufferedImage resizeImage(Image image)
-    {
-        BufferedImage result = new BufferedImage( 128, 128, 2 );
-        Graphics2D graphics = result.createGraphics();
-
-        graphics.drawImage( image, 0, 0, 128, 128, null );
-        graphics.dispose();
-        return result;
-    }
-
-    /**
      * Convert an Image to a byte[] using the palette.
      *
      * @param image The image to convert.
@@ -90,23 +75,14 @@ public final class MapPalette
      * @deprecated Magic value
      */
     @Deprecated
-    public static byte[] imageToBytes(Image image)
+    public static int[] imageToBytes(final BufferedImage image)
     {
-        BufferedImage temp = new BufferedImage( image.getWidth( null ), image.getHeight( null ), 2 );
-        Graphics2D graphics = temp.createGraphics();
-
-        graphics.drawImage( image, 0, 0, null );
-        graphics.dispose();
-        int[] pixels = new int[ temp.getWidth() * temp.getHeight() ];
-
-        temp.getRGB( 0, 0, temp.getWidth(), temp.getHeight(), pixels, 0, temp.getWidth() );
-        byte[] result = new byte[ temp.getWidth() * temp.getHeight() ];
-
-        for ( int i = 0; i < pixels.length; ++i )
+        int[] result = rgbBuffer.get();
+        image.getRGB( 0, 0, image.getWidth(), image.getHeight(), result, 0, image.getWidth() );
+        for ( int i = 0; i < result.length; ++i )
         {
-            result[i] = matchColor( new Color( pixels[i], true ) );
+            result[i] = matchColor( new Color( result[i], true ) );
         }
-
         return result;
     }
 

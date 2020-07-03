@@ -1,16 +1,19 @@
 package ru.leymooo.botfilter.captcha.generator.map;
 
-import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import ru.leymooo.botfilter.packets.MapDataPacket;
 
 public class CraftMapCanvas
 {
 
-    private final byte[] buffer = new byte[ 16384 ];
+
+    private static final ThreadLocal<byte[]> mcPixelsBuffer = ThreadLocal.withInitial( () -> new byte[128 * 128] );
+    private final byte[] buffer;
 
     public CraftMapCanvas()
     {
+        this.buffer = mcPixelsBuffer.get();
         Arrays.fill( this.buffer, (byte) -1 );
     }
 
@@ -26,9 +29,9 @@ public class CraftMapCanvas
     }
 
     @SuppressWarnings("deprecation")
-    public void drawImage(int x, int y, Image image)
+    public void drawImage(int x, int y, BufferedImage image)
     {
-        byte[] bytes = MapPalette.imageToBytes( image );
+        int[] bytes = MapPalette.imageToBytes( image );
         int width = image.getWidth( null );
         int height = image.getHeight( null );
 
@@ -36,7 +39,7 @@ public class CraftMapCanvas
         {
             for ( int y2 = 0; y2 < height; ++y2 )
             {
-                this.setPixel( x + x2, y + y2, bytes[y2 * width + x2] );
+                this.setPixel( x + x2, y + y2, (byte) bytes[y2 * width + x2] );
             }
         }
 
