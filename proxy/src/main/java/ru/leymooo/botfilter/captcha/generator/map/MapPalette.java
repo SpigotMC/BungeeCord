@@ -1,12 +1,15 @@
 package ru.leymooo.botfilter.captcha.generator.map;
 
 import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class MapPalette
 {
+
+
+    private static final ThreadLocal<int[]> rgbBuffer = ThreadLocal.withInitial( () -> new int[128 * 128] );
 
     public static final Color[] colors = new Color[]
     {
@@ -18,7 +21,7 @@ public final class MapPalette
         c( 112, 112, 180 ), c( 138, 138, 220 ), c( 160, 160, 255 ), c( 84, 84, 135 ),
         c( 117, 117, 117 ), c( 144, 144, 144 ), c( 167, 167, 167 ), c( 88, 88, 88 ),
         c( 0, 87, 0 ), c( 0, 106, 0 ), c( 0, 124, 0 ), c( 0, 65, 0 ),
-        c( 180, 180, 180 ), c( 220, 220, 220 ), c( 220, 220, 220 /*255,255,255 думаю нам белый не оч нужен*/ ), c( 135, 135, 135 ),
+        c( 180, 180, 180 ), c( 220, 220, 220 ), c( 255, 255, 255 ), c( 135, 135, 135 ),
         c( 115, 118, 129 ), c( 141, 144, 158 ), c( 164, 168, 184 ), c( 86, 88, 97 ),
         c( 106, 76, 54 ), c( 130, 94, 66 ), c( 151, 109, 77 ), c( 79, 57, 40 ),
         c( 79, 79, 79 ), c( 96, 96, 96 ), c( 112, 112, 112 ), c( 59, 59, 59 ),
@@ -48,6 +51,18 @@ public final class MapPalette
         c( 79, 1, 0 ), c( 96, 1, 0 ), c( 112, 2, 0 ), c( 59, 1, 0 ),
     };
 
+    private static final Map<Integer, Byte> colorToIndexMap = new HashMap<>();
+
+    public static void prepareColors()
+    {
+        for ( int i = 4; i < MapPalette.colors.length; ++i )
+        {
+            Color color = MapPalette.colors[i];
+            byte index = (byte) ( i < 128 ? i : -129 + ( i - 127 ) );
+            colorToIndexMap.put( color.getRGB(), index );
+        }
+    }
+
     private static Color c(int r, int g, int b)
     {
         return new Color( r, g, b );
@@ -67,22 +82,6 @@ public final class MapPalette
     }
 
     /**
-     * Resize an image to 128x128.
-     *
-     * @param image The image to resize.
-     * @return The resized image.
-     */
-    public static BufferedImage resizeImage(Image image)
-    {
-        BufferedImage result = new BufferedImage( 128, 128, 2 );
-        Graphics2D graphics = result.createGraphics();
-
-        graphics.drawImage( image, 0, 0, 128, 128, null );
-        graphics.dispose();
-        return result;
-    }
-
-    /**
      * Convert an Image to a byte[] using the palette.
      *
      * @param image The image to convert.
@@ -90,24 +89,25 @@ public final class MapPalette
      * @deprecated Magic value
      */
     @Deprecated
-    public static byte[] imageToBytes(Image image)
+    public static int[] imageToBytes(final BufferedImage image)
     {
-        BufferedImage temp = new BufferedImage( image.getWidth( null ), image.getHeight( null ), 2 );
-        Graphics2D graphics = temp.createGraphics();
-
-        graphics.drawImage( image, 0, 0, null );
-        graphics.dispose();
-        int[] pixels = new int[ temp.getWidth() * temp.getHeight() ];
-
-        temp.getRGB( 0, 0, temp.getWidth(), temp.getHeight(), pixels, 0, temp.getWidth() );
-        byte[] result = new byte[ temp.getWidth() * temp.getHeight() ];
-
-        for ( int i = 0; i < pixels.length; ++i )
+        int[] result = rgbBuffer.get();
+        image.getRGB( 0, 0, image.getWidth(), image.getHeight(), result, 0, image.getWidth() );
+        for ( int i = 0; i < result.length; ++i )
         {
-            result[i] = matchColor( new Color( pixels[i], true ) );
+            result[i] = tryFastMatchColor( result[i] );
         }
-
         return result;
+    }
+
+    public static byte tryFastMatchColor(int rgb)
+    {
+        Byte color = colorToIndexMap.get( rgb );
+        if ( color != null )
+        {
+            return color;
+        }
+        return matchColor( new Color( rgb, true ) );
     }
 
     /**

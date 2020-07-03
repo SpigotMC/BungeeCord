@@ -16,10 +16,10 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Kick;
-import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import ru.leymooo.botfilter.config.Settings;
 import ru.leymooo.botfilter.packets.EmptyChunkPacket;
+import ru.leymooo.botfilter.packets.JoinGame;
 import ru.leymooo.botfilter.packets.PlayerAbilities;
 import ru.leymooo.botfilter.packets.PlayerPositionAndLook;
 import ru.leymooo.botfilter.packets.SetExp;
@@ -92,7 +92,7 @@ public class PacketUtils
 
         DefinedPacket[] packets =
         {
-            new Login( CLIENTID, (short) 2, 0, 1, (short) 0, (short) 100, "flat", 2, false, true ), //0
+            new JoinGame( CLIENTID ), //0
             new EmptyChunkPacket( 0, 0 ), //1
             new TimeUpdate( 1, 23700 ), //2
             new PlayerAbilities( (byte) 6, 0f, 0f ), //3
@@ -264,6 +264,10 @@ public class PacketUtils
                 return 20;
             case ProtocolConstants.MINECRAFT_1_15_2:
                 return 21;
+            case ProtocolConstants.MINECRAFT_1_16:
+                return 22;
+            case ProtocolConstants.MINECRAFT_1_16_1:
+                return 23;
             default:
                 throw new IllegalArgumentException( "Version is not supported" );
         }

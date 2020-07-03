@@ -1,5 +1,6 @@
 package ru.leymooo.botfilter.captcha;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.util.Random;
@@ -24,22 +25,25 @@ public class CaptchaGeneration
 {
     public void generateImages()
     {
-        Font[] fonts = new Font[]
-        {
-            new Font( Font.SANS_SERIF, Font.PLAIN, 128 / 2 ),
-            new Font( Font.SERIF, Font.PLAIN, 128 / 2 ),
-            new Font( Font.MONOSPACED, Font.BOLD, 128 / 2 )
-        };
-        ExecutorService executor = Executors.newFixedThreadPool( Runtime.getRuntime().availableProcessors() );
         Random rnd = new Random();
+        ThreadLocal<Font[]> fonts = ThreadLocal.withInitial( () -> new Font[]
+        {
+            new Font( Font.SANS_SERIF, Font.PLAIN, rnd.nextInt( 5 ) + 62 ),
+            new Font( Font.SERIF, Font.PLAIN, rnd.nextInt( 5 ) + 62 ),
+            new Font( Font.MONOSPACED, Font.BOLD, rnd.nextInt( 5 ) + 62 )
+        } );
+
+        ExecutorService executor = Executors.newFixedThreadPool( Runtime.getRuntime().availableProcessors() );
         CaptchaPainter painter = new CaptchaPainter();
+        MapPalette.prepareColors();
         for ( int i = 100; i <= 999; i++ )
         {
             final int answer = i;
             executor.execute( () ->
             {
-                BufferedImage image = painter.draw( fonts[rnd.nextInt( fonts.length )],
-                        MapPalette.colors[rnd.nextInt( MapPalette.colors.length )], String.valueOf( answer ) );
+                Font[] curr = fonts.get();
+                BufferedImage image = painter.draw( curr[rnd.nextInt( curr.length )], randomNotWhiteColor( rnd ),
+                    String.valueOf( answer ) );
                 final CraftMapCanvas map = new CraftMapCanvas();
                 map.drawImage( 0, 0, image );
                 MapDataPacket packet = new MapDataPacket( 0, (byte) 0, map.getMapData() );
@@ -66,5 +70,16 @@ public class CaptchaGeneration
         executor.shutdownNow();
         System.gc();
         BungeeCord.getInstance().getLogger().log( Level.INFO, "[BotFilter] Капча сгенерированна за {0} мс", System.currentTimeMillis() - start );
+    }
+
+
+    private static Color randomNotWhiteColor(Random random)
+    {
+        Color color = MapPalette.colors[random.nextInt( MapPalette.colors.length )];
+        if ( color.getRed() == 255 && color.getGreen() == 255 && color.getBlue() == 255 )
+        {
+            return randomNotWhiteColor( random );
+        }
+        return color;
     }
 }
