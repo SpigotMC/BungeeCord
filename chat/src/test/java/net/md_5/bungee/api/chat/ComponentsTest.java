@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.chat;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -121,6 +122,70 @@ public class ComponentsTest
                 TextComponent.toLegacyText( components ),
                 TextComponent.toLegacyText( list.toArray( new BaseComponent[ list.size() ] ) )
         );
+    }
+
+    @Test
+    public void testItemTag()
+    {
+        TextComponent component = new TextComponent( "Hello world" );
+        HoverEvent.ContentItem content = new HoverEvent.ContentItem();
+        content.setId( "minecraft:diamond_sword" );
+        content.setCount( 1 );
+        content.setTag( ItemTag.builder()
+                .ench( new ItemTag.Enchantment( 5, 16 ) )
+                .name( new TextComponent( "Sharp Sword" ) )
+                .unbreakable( true )
+                .lore( new ComponentBuilder( "Line1" ).create() )
+                .lore( new ComponentBuilder( "Line2" ).create() )
+                .build() );
+        HoverEvent event = new HoverEvent( HoverEvent.Action.SHOW_ITEM, content );
+        component.setHoverEvent( event );
+        String serialised = ComponentSerializer.toString( component );
+        BaseComponent[] deserialised = ComponentSerializer.parse( serialised );
+        Assert.assertEquals( TextComponent.toLegacyText( deserialised ), TextComponent.toLegacyText( component ) );
+    }
+
+    @Test
+    public void testModernShowAdvancement()
+    {
+        String advancement = "achievement.openInventory";
+        // First do the text using the newer contents system
+        HoverEvent hoverEvent = new HoverEvent(
+                HoverEvent.Action.SHOW_TEXT,
+                new HoverEvent.ContentText( advancement )
+        );
+        TextComponent component = new TextComponent( "test" );
+        component.setHoverEvent( hoverEvent );
+        Assert.assertEquals( component.getHoverEvent().getContents().size(), 1 );
+        Assert.assertTrue( component.getHoverEvent().getContents().get( 0 ) instanceof HoverEvent.ContentText );
+        Assert.assertEquals( ( (HoverEvent.ContentText) component.getHoverEvent().getContents().get( 0 ) ).getValue(), advancement );
+    }
+
+    @Test
+    public void testHoverEventContents()
+    {
+        // First do the text using the newer contents system
+        HoverEvent hoverEvent = new HoverEvent(
+                HoverEvent.Action.SHOW_TEXT,
+                new HoverEvent.ContentText( new ComponentBuilder( "First" ).create() ),
+                new HoverEvent.ContentText( new ComponentBuilder( "Second" ).create() )
+        );
+
+        TextComponent component = new TextComponent( "Sample text" );
+        component.setHoverEvent( hoverEvent );
+        Assert.assertEquals( hoverEvent.getContents().size(), 2 );
+        Assert.assertFalse( hoverEvent.isLegacy() );
+        String serialized = ComponentSerializer.toString( component );
+        BaseComponent[] deserialized = ComponentSerializer.parse( serialized );
+        Assert.assertEquals( component.getHoverEvent(), deserialized[0].getHoverEvent() );
+
+        // check the test still works with the value method
+        hoverEvent = new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( "Sample text" ).create() );
+        Assert.assertEquals( hoverEvent.getContents().size(), 1 );
+        Assert.assertTrue( hoverEvent.isLegacy() );
+        serialized = ComponentSerializer.toString( component );
+        deserialized = ComponentSerializer.parse( serialized );
+        Assert.assertEquals( component.getHoverEvent(), deserialized[0].getHoverEvent() );
     }
 
     @Test
@@ -431,6 +496,17 @@ public class ComponentsTest
         second.addExtra( new TextComponent( "World!" ) );
 
         Assert.assertNotEquals( first, second );
+    }
+
+    @Test
+    public void testLegacyHack()
+    {
+        BaseComponent[] hexColored = new ComponentBuilder().color( ChatColor.of( Color.GRAY ) ).append( "Test" ).create();
+        String legacy = TextComponent.toLegacyText( hexColored );
+
+        BaseComponent[] reColored = TextComponent.fromLegacyText( legacy );
+
+        Assert.assertArrayEquals( hexColored, reColored );
     }
 
     private String fromAndToLegacyText(String legacyText)

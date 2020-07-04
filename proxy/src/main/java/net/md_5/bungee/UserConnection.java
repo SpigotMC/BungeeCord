@@ -84,7 +84,7 @@ public final class UserConnection implements ProxiedPlayer
     private ServerConnection server;
     @Getter
     @Setter
-    private int dimension;
+    private Object dimension;
     @Getter
     @Setter
     private boolean dimensionChange = true;
@@ -458,7 +458,7 @@ public final class UserConnection implements ProxiedPlayer
     public void sendMessage(ChatMessageType position, BaseComponent... message)
     {
         // transform score components
-        message = ChatComponentTransformer.getInstance().transform( this, message );
+        message = ChatComponentTransformer.getInstance().transform( this, true, message );
 
         if ( position == ChatMessageType.ACTION_BAR && pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
         {
@@ -483,7 +483,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendMessage(ChatMessageType position, BaseComponent message)
     {
-        message = ChatComponentTransformer.getInstance().transform( this, message )[0];
+        message = ChatComponentTransformer.getInstance().transform( this, true, message )[0];
 
         // Action bar doesn't display the new JSON formattings, legacy works - send it using this for now
         if ( position == ChatMessageType.ACTION_BAR && pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
@@ -673,8 +673,8 @@ public final class UserConnection implements ProxiedPlayer
     {
         if ( pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
         {
-            header = ChatComponentTransformer.getInstance().transform( this, header )[0];
-            footer = ChatComponentTransformer.getInstance().transform( this, footer )[0];
+            header = ChatComponentTransformer.getInstance().transform( this, true, header )[0];
+            footer = ChatComponentTransformer.getInstance().transform( this, true, footer )[0];
 
             unsafe().sendPacket( new PlayerListHeaderFooter(
                     ComponentSerializer.toString( header ),
@@ -688,8 +688,8 @@ public final class UserConnection implements ProxiedPlayer
     {
         if ( pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
         {
-            header = ChatComponentTransformer.getInstance().transform( this, header );
-            footer = ChatComponentTransformer.getInstance().transform( this, footer );
+            header = ChatComponentTransformer.getInstance().transform( this, true, header );
+            footer = ChatComponentTransformer.getInstance().transform( this, true, footer );
 
             unsafe().sendPacket( new PlayerListHeaderFooter(
                     ComponentSerializer.toString( header ),

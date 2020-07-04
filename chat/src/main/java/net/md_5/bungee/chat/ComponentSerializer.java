@@ -11,6 +11,8 @@ import com.google.gson.JsonParser;
 import java.lang.reflect.Type;
 import java.util.Set;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.ItemTag;
 import net.md_5.bungee.api.chat.KeybindComponent;
 import net.md_5.bungee.api.chat.ScoreComponent;
 import net.md_5.bungee.api.chat.SelectorComponent;
@@ -28,6 +30,10 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
             registerTypeAdapter( KeybindComponent.class, new KeybindComponentSerializer() ).
             registerTypeAdapter( ScoreComponent.class, new ScoreComponentSerializer() ).
             registerTypeAdapter( SelectorComponent.class, new SelectorComponentSerializer() ).
+            registerTypeAdapter( HoverEvent.ContentEntity.class, new HoverEvent.ContentEntity.Serializer() ).
+            registerTypeAdapter( HoverEvent.ContentText.class, new HoverEvent.ContentText.Serializer() ).
+            registerTypeAdapter( HoverEvent.ContentItem.class, new HoverEvent.ContentItem.Serializer() ).
+            registerTypeAdapter( ItemTag.class, new ItemTag.Serializer() ).
             create();
 
     public static final ThreadLocal<Set<BaseComponent>> serializedComponents = new ThreadLocal<Set<BaseComponent>>();

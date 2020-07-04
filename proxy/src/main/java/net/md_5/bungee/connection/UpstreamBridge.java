@@ -125,10 +125,11 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(KeepAlive alive) throws Exception
     {
-        KeepAliveData keepAliveData = con.getServer().getKeepAlives().poll();
+        KeepAliveData keepAliveData = con.getServer().getKeepAlives().peek();
 
         if ( keepAliveData != null && alive.getRandomId() == keepAliveData.getId() )
         {
+            Preconditions.checkState( keepAliveData == con.getServer().getKeepAlives().poll(), "keepalive queue mismatch" );
             int newPing = (int) ( System.currentTimeMillis() - keepAliveData.getTime() );
             con.getTabListHandler().onPingChange( newPing );
             con.setPing( newPing );
