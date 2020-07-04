@@ -235,8 +235,8 @@ public final class ChatColor
      */
     public static String translateHexColorCodes(String startTag, String endTag, String message)
     {
-		final Pattern pattern = Pattern.compile(startTag + "(\\w{6})" + endTag);
-		java.util.regex.Matcher matcher = pattern.matcher(message);
+        final Pattern pattern = Pattern.compile(startTag + "(\\w{6})" + endTag);
+        java.util.regex.Matcher matcher = pattern.matcher(message);
         StringBuffer buffer = new StringBuffer();
 
         while (matcher.find())
