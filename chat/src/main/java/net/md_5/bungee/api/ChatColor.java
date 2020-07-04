@@ -223,6 +223,27 @@ public final class ChatColor
             }
         }
         return new String( b );
+        }
+    
+    /**
+     * Translate a hex code within two tags to a colour code.
+     *
+     * @param starting tag which must precede the hex code.
+     * @param ending tag which must succeed the hex code.
+     * @param the message to be translated.
+     * @return the new string with the hex code translated to a colour code.
+     */
+    public static String translateHexColorCodes(String startTag, String endTag, String message)
+    {
+        final Pattern pattern = Pattern.compile(startTag + "(\\w{6})" + endTag);
+        Matcher matcher = pattern.matcher(message);
+        StringBuffer buffer = new StringBuffer();
+
+        while (matcher.find())
+        {
+            matcher.appendReplacement(buffer, ChatColor.of('#' + matcher.group(1)).toString());
+        }
+        return matcher.appendTail(buffer).toString();
     }
 
     /**
