@@ -6,6 +6,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
@@ -121,7 +122,7 @@ public final class HoverEvent
         }
     }
 
-    @Data
+    @Getter
     @ToString
     public static class ContentText extends Content
     {
@@ -131,7 +132,7 @@ public final class HoverEvent
          *
          * May be a component or raw text depending on constructor used.
          */
-        private Object value;
+        private final Object value;
 
         public ContentText(BaseComponent[] value)
         {
@@ -297,6 +298,30 @@ public final class HoverEvent
             {
                 JsonObject value = element.getAsJsonObject();
 
+                int count = -1;
+                if ( value.has( "Count" ) )
+                {
+                    JsonPrimitive countObj = value.get( "Count" ).getAsJsonPrimitive();
+                    if ( countObj.isNumber() )
+                    {
+                        count = countObj.getAsInt();
+                    } else if ( countObj.isString() )
+                    {
+                        String cString = countObj.getAsString();
+                        if ( cString.endsWith( "b" ) )
+                        {
+                            cString = cString.substring( 0, cString.length() - 1 );
+                        }
+                        try
+                        {
+                            count = Integer.parseInt( cString );
+                        } catch ( NumberFormatException ex )
+                        {
+                            throw new JsonParseException( "Could not parse count: " + ex );
+                        }
+                    }
+                }
+                
                 return new ContentItem(
                         ( value.has( "id" ) ) ? value.get( "id" ).getAsString() : null,
                         ( value.has( "Count" ) ) ? value.get( "Count" ).getAsInt() : -1,

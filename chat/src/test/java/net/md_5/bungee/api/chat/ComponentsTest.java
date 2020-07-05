@@ -13,6 +13,29 @@ public class ComponentsTest
 {
 
     @Test
+    public void testItemParse()
+    {
+        String json = "{\"extra\":[{\"text\":\"[\"},{\"extra\":[{\"translate\":\"block.minecraft.dirt\"}],\"text\":\"\"},{\"text\":\"]\"}],\"hoverEvent\":{\"action\":\"show_item\",\"value\":[{\"text\":\"{id:\\\"minecraft:dirt\\\",Count:1b}\"}]},\"text\":\"\"}";
+        BaseComponent[] component = ComponentSerializer.parse( json );
+        String serialised = ComponentSerializer.toString( component );
+        BaseComponent[] deserialised = ComponentSerializer.parse( serialised );
+        Assert.assertEquals( TextComponent.toLegacyText( deserialised ), TextComponent.toLegacyText( component ) );
+        //////////
+        TextComponent component1 = new TextComponent( "HoverableText" );
+        String nbt = "{display:{Name:{text:Hello},Lore:[{text:Line_1},{text:Line_2}]},ench:[{id:49,lvl:5}],Unbreakable:1}}";
+        HoverEvent.ContentItem contentItem = new HoverEvent.ContentItem( "minecraft:wood", 1, ItemTag.ofNbt( nbt ) );
+        HoverEvent hoverEvent = new HoverEvent( HoverEvent.Action.SHOW_ITEM, contentItem );
+        component1.setHoverEvent( hoverEvent );
+        json = ComponentSerializer.toString( component1 );
+        component = ComponentSerializer.parse( json );
+        HoverEvent.ContentItem parsedContentItem = ( (HoverEvent.ContentItem) component[ 0 ].getHoverEvent().getContents().get( 0 ) );
+        Assert.assertEquals( contentItem, parsedContentItem );
+        Assert.assertEquals( contentItem.getCount(), parsedContentItem.getCount() );
+        Assert.assertEquals( contentItem.getId(), parsedContentItem.getId() );
+        Assert.assertEquals( nbt, parsedContentItem.getTag().getNbt() );
+    }
+
+    @Test
     public void testEmptyComponentBuilder()
     {
         ComponentBuilder builder = new ComponentBuilder();
@@ -124,6 +147,7 @@ public class ComponentsTest
         );
     }
 
+    /*
     @Test
     public void testItemTag()
     {
@@ -144,6 +168,7 @@ public class ComponentsTest
         BaseComponent[] deserialised = ComponentSerializer.parse( serialised );
         Assert.assertEquals( TextComponent.toLegacyText( deserialised ), TextComponent.toLegacyText( component ) );
     }
+     */
 
     @Test
     public void testModernShowAdvancement()
