@@ -71,17 +71,14 @@ public class BaseComponentSerializer
             HoverEvent hoverEvent = null;
             HoverEvent.Action action = HoverEvent.Action.valueOf( event.get( "action" ).getAsString().toUpperCase( Locale.ROOT ) );
 
-            if ( event.has( "value" ) )
+            for ( String type : Arrays.asList( "value", "contents" ) )
             {
-                HoverEvent.Content[] ret = new HoverEvent.Content[]
+                if ( !event.has( type ) )
                 {
-                    context.deserialize( event.get( "value" ), HoverEvent.getClass( action, false ) )
-                };
-                hoverEvent = new HoverEvent( action, ret );
-            } else if ( event.has( "contents" ) )
-            {
+                    continue;
+                }
                 HoverEvent.Content[] list;
-                JsonElement contents = event.get( "contents" );
+                JsonElement contents = event.get( type );
                 if ( contents.isJsonArray() )
                 {
                     list = context.deserialize( contents, HoverEvent.getClass( action, true ) );
@@ -94,8 +91,14 @@ public class BaseComponentSerializer
                 }
 
                 hoverEvent = new HoverEvent( action, new ArrayList<>( Arrays.asList( list ) ) );
+
+                // stop the loop as soon as either one is found
+                break;
             }
-            component.setHoverEvent( hoverEvent );
+            if ( hoverEvent != null )
+            {
+                component.setHoverEvent( hoverEvent );
+            }
         }
     }
 

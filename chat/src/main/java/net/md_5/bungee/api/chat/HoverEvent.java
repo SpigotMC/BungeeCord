@@ -6,6 +6,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
@@ -297,9 +298,19 @@ public final class HoverEvent
             {
                 JsonObject value = element.getAsJsonObject();
 
+                int count = -1;
+                if ( value.has( "Count" ) )
+                {
+                    JsonPrimitive countObj = value.get( "Count" ).getAsJsonPrimitive();
+                    count = ( countObj.isString() )
+                            // NBT can serialize as {#int"b"} so remove the b
+                            ? Integer.parseInt( countObj.getAsString().substring( countObj.getAsString().length() - 1 ) )
+                            : countObj.getAsInt();
+                }
+
                 return new ContentItem(
                         ( value.has( "id" ) ) ? value.get( "id" ).getAsString() : null,
-                        ( value.has( "Count" ) ) ? value.get( "Count" ).getAsInt() : -1,
+                        count,
                         ( value.has( "tag" ) ) ? context.deserialize( value.get( "tag" ), ItemTag.class ) : null
                 );
             }
