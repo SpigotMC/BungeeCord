@@ -13,6 +13,16 @@ public class ComponentsTest
 {
 
     @Test
+    public void testItemParse()
+    {
+        String json = "{\"extra\":[{\"text\":\"[\"},{\"extra\":[{\"translate\":\"block.minecraft.dirt\"}],\"text\":\"\"},{\"text\":\"]\"}],\"hoverEvent\":{\"action\":\"show_item\",\"value\":[{\"text\":\"{id:\\\"minecraft:dirt\\\",Count:1b}\"}]},\"text\":\"\"}";
+        BaseComponent[] component = ComponentSerializer.parse( json );
+        String serialised = ComponentSerializer.toString( component );
+        BaseComponent[] deserialised = ComponentSerializer.parse( serialised );
+        Assert.assertEquals( TextComponent.toLegacyText( deserialised ), TextComponent.toLegacyText( component ) );
+    }
+
+    @Test
     public void testEmptyComponentBuilder()
     {
         ComponentBuilder builder = new ComponentBuilder();
