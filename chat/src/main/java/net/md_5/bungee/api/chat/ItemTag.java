@@ -15,6 +15,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.Singular;
@@ -24,6 +25,7 @@ import lombok.ToString;
  * Metadata for use in conjunction with {@link HoverEvent.Action#SHOW_ITEM}
  */
 @ToString(callSuper = true)
+@Getter
 @Setter
 @Builder(builderClassName = "Builder", access = AccessLevel.PUBLIC)
 @AllArgsConstructor
@@ -42,6 +44,7 @@ public final class ItemTag
     {
     }
 
+    @Getter
     @RequiredArgsConstructor
     public static class Enchantment
     {
