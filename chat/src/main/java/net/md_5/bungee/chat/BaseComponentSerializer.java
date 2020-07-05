@@ -73,7 +73,7 @@ public class BaseComponentSerializer
 
             for ( String type : Arrays.asList( "value", "contents" ) )
             {
-                if ( !event.has( "type" ) )
+                if ( !event.has( type ) )
                 {
                     continue;
                 }
@@ -91,6 +91,9 @@ public class BaseComponentSerializer
                 }
 
                 hoverEvent = new HoverEvent( action, new ArrayList<>( Arrays.asList( list ) ) );
+
+                // stop the loop as soon as either one is found
+                break;
             }
             if ( hoverEvent != null )
             {
