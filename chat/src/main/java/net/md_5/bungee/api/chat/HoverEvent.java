@@ -302,6 +302,7 @@ public final class HoverEvent
                 if ( value.has( "Count" ) )
                 {
                     JsonPrimitive countObj = value.get( "Count" ).getAsJsonPrimitive();
+
                     if ( countObj.isNumber() )
                     {
                         count = countObj.getAsInt();
@@ -321,10 +322,10 @@ public final class HoverEvent
                         }
                     }
                 }
-                
+
                 return new ContentItem(
                         ( value.has( "id" ) ) ? value.get( "id" ).getAsString() : null,
-                        ( value.has( "Count" ) ) ? value.get( "Count" ).getAsInt() : -1,
+                        count,
                         ( value.has( "tag" ) ) ? context.deserialize( value.get( "tag" ), ItemTag.class ) : null
                 );
             }

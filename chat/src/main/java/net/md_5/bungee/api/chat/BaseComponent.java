@@ -299,7 +299,7 @@ public abstract class BaseComponent
      */
     public String getFont()
     {
-        if ( color == null )
+        if ( font == null )
         {
             if ( parent == null )
             {

@@ -41,7 +41,7 @@ public final class ChatComponentTransformer
             for ( int i = 0; i < components.length; i++ )
             {
                 BaseComponent next = components[i];
-                if ( next.getHoverEvent().isLegacy() )
+                if ( next.getHoverEvent() == null || next.getHoverEvent().isLegacy() )
                 {
                     continue;
                 }
