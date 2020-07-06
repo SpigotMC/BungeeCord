@@ -71,7 +71,6 @@ public class ServerConnectRequest {
      * generated class.
      */
     public static class Builder {
-
-        private final int connectTimeout = ProxyServer.getInstance().getConfig().getServerConnectTimeout();
+        private int connectTimeout = ProxyServer.getInstance().getConfig().getServerConnectTimeout();
     }
 }

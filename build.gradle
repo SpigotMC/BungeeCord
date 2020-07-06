@@ -31,8 +31,11 @@ dependencies {
 	compile 'se.llbit:jo-nbt:1.3.0'
 	compile 'org.projectlombok:lombok:1.18.10'
 	compile 'com.google.code.findbugs:findbugs-annotations:3.0.1'
+	compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '5.0.4'
+	compile group: 'junit', name: 'junit', version: '4.8.1'
 	annotationProcessor 'com.google.code.findbugs:findbugs-annotations:3.0.1'
 	annotationProcessor 'org.projectlombok:lombok:1.18.10'
+	testCompile group: 'junit', name: 'junit', version: '4.8.1'
 }
 
 tasks.withType(JavaCompile) {
@@ -81,11 +84,12 @@ task PatchVersion {
 		if (stable_project_version.indexOf('-SNAPSHOT') < 0){
 			throw new GradleException('Cannot patch a non SNAPSHOT version')
 		} else {
-			def (major, minor, patch) = stable_project_version.tokenize('.')
+			def (patch) = stable_project_version.tokenize('.')
 			//Remove Snapshot from patch
 			patch = patch.take(patch.indexOf('-SNAPSHOT'))
+			patch = patch.substring(4)
 			patch = String.valueOf(patch.toInteger() + 1)
-			String snapshot_project_version = major + '.' + minor + '.' + patch + '-SNAPSHOT'
+			String snapshot_project_version = 'beta' + patch + '-SNAPSHOT'
 			props.setProperty('version', snapshot_project_version)
 			props.store(propsFile.newWriter(), null)
 			println(snapshot_project_version)
