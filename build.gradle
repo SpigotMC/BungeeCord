@@ -62,7 +62,8 @@ group = "net.md_5"
 jar {
 	dependsOn 'PatchVersion'
 	manifest {
-		attributes 'Main-Class': 'net.md_5.bungee.BungeeCordLauncher'
+		attributes 'Main-Class': 'net.md_5.bungee.Bootstrap'
+		attributes 'Build-Jdk-Spec': 1.8
 	}
 	from {
 		configurations.compile.collect {
@@ -87,6 +88,7 @@ task PatchVersion {
 			def (patch) = stable_project_version.tokenize('.')
 			//Remove Snapshot from patch
 			patch = patch.take(patch.indexOf('-SNAPSHOT'))
+			//skip "beta" to get the version number
 			patch = patch.substring(4)
 			patch = String.valueOf(patch.toInteger() + 1)
 			String snapshot_project_version = 'beta' + patch + '-SNAPSHOT'

@@ -168,7 +168,10 @@ public class BungeeCord extends ProxyServer {
         consoleReader.setExpandEvents(false);
         consoleReader.addCompleter(new ConsoleCommandCompleter(this));
 
-        logger = new BungeeLogger("BungeeCord", "proxy.log", consoleReader);
+        File logsDir = new File(new File(".").getAbsolutePath() + "/logs");
+        if (!logsDir.exists()) logsDir.mkdir();
+
+        logger = new BungeeLogger("BungeeCord", "logs/proxy.log", consoleReader);
         System.setErr(new PrintStream(new LoggingOutputStream(logger, Level.SEVERE), true));
         System.setOut(new PrintStream(new LoggingOutputStream(logger, Level.INFO), true));
 
@@ -183,13 +186,7 @@ public class BungeeCord extends ProxyServer {
         getPluginManager().registerCommand(null, new CommandFind());
         getPluginManager().registerCommand(null, new CommandList());
         getPluginManager().registerCommand(null, new CommandSend());
-        //reconnect-yaml
-        for (ListenerInfo info : getConfig().getListeners()) {
-            if (!info.isForceDefault() && getReconnectHandler() == null) {
-                setReconnectHandler(new YamlReconnectHandler());
-                break;
-            }
-        }
+
 
         if (!Boolean.getBoolean("net.md_5.bungee.native.disable")) {
             if (EncryptionUtil.nativeFactory.load()) {
@@ -223,10 +220,6 @@ public class BungeeCord extends ProxyServer {
         }
 
         eventLoops = PipelineUtils.newEventLoopGroup(0, new ThreadFactoryBuilder().setNameFormat("Netty IO Thread #%1$d").build());
-
-        File moduleDirectory = new File("modules");
-        moduleManager.load(this, moduleDirectory);
-        pluginManager.detectPlugins(moduleDirectory);
 
         pluginsFolder.mkdir();
         pluginManager.detectPlugins(pluginsFolder);
@@ -278,6 +271,11 @@ public class BungeeCord extends ProxyServer {
                     connectionThrottle = null;
                     getLogger().log(Level.WARNING, "Since PROXY protocol is in use, internal connection throttle has been disabled.");
                 }
+            }
+            //reconnect-yaml
+            if (!info.isForceDefault() && getReconnectHandler() == null) {
+                setReconnectHandler(new YamlReconnectHandler());
+                break;
             }
 
             ChannelFutureListener listener = new ChannelFutureListener() {

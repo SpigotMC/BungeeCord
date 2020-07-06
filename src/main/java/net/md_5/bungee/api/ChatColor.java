@@ -1,6 +1,7 @@
 package net.md_5.bungee.api;
 
 import com.google.common.base.Preconditions;
+import com.sun.rmi.rmid.ExecPermission;
 import lombok.Getter;
 
 import java.awt.*;
@@ -150,9 +151,12 @@ public final class ChatColor {
                 });
         this.ordinal = count++;
         this.color = color;
-
-        BY_CHAR.put(code, this);
-        BY_NAME.put(name.toUpperCase(Locale.ROOT), this);
+        try {
+            BY_CHAR.put(code, this);
+            BY_NAME.put(name.toUpperCase(Locale.ROOT), this);
+        } catch (Exception e){
+            // ignored it still load's the colors
+        }
     }
 
     private ChatColor(String name, String toString, int rgb) {
