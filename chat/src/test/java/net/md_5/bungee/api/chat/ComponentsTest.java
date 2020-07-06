@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.hover.content.Item;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,12 +25,12 @@ public class ComponentsTest
         //////////
         TextComponent component1 = new TextComponent( "HoverableText" );
         String nbt = "{display:{Name:{text:Hello},Lore:[{text:Line_1},{text:Line_2}]},ench:[{id:49,lvl:5}],Unbreakable:1}}";
-        HoverEvent.ContentItem contentItem = new HoverEvent.ContentItem( "minecraft:wood", 1, ItemTag.ofNbt( nbt ) );
+        Item contentItem = new Item( "minecraft:wood", 1, ItemTag.ofNbt( nbt ) );
         HoverEvent hoverEvent = new HoverEvent( HoverEvent.Action.SHOW_ITEM, contentItem );
         component1.setHoverEvent( hoverEvent );
         json = ComponentSerializer.toString( component1 );
         component = ComponentSerializer.parse( json );
-        HoverEvent.ContentItem parsedContentItem = ( (HoverEvent.ContentItem) component[ 0 ].getHoverEvent().getContents().get( 0 ) );
+        Item parsedContentItem = ( (Item) component[ 0 ].getHoverEvent().getContents().get( 0 ) );
         Assert.assertEquals( contentItem, parsedContentItem );
         Assert.assertEquals( contentItem.getCount(), parsedContentItem.getCount() );
         Assert.assertEquals( contentItem.getId(), parsedContentItem.getId() );
@@ -177,13 +179,13 @@ public class ComponentsTest
         // First do the text using the newer contents system
         HoverEvent hoverEvent = new HoverEvent(
                 HoverEvent.Action.SHOW_TEXT,
-                new HoverEvent.ContentText( advancement )
+                new Text( advancement )
         );
         TextComponent component = new TextComponent( "test" );
         component.setHoverEvent( hoverEvent );
         Assert.assertEquals( component.getHoverEvent().getContents().size(), 1 );
-        Assert.assertTrue( component.getHoverEvent().getContents().get( 0 ) instanceof HoverEvent.ContentText );
-        Assert.assertEquals( ( (HoverEvent.ContentText) component.getHoverEvent().getContents().get( 0 ) ).getValue(), advancement );
+        Assert.assertTrue( component.getHoverEvent().getContents().get( 0 ) instanceof Text );
+        Assert.assertEquals( ( (Text) component.getHoverEvent().getContents().get( 0 ) ).getValue(), advancement );
     }
 
     @Test
@@ -192,8 +194,8 @@ public class ComponentsTest
         // First do the text using the newer contents system
         HoverEvent hoverEvent = new HoverEvent(
                 HoverEvent.Action.SHOW_TEXT,
-                new HoverEvent.ContentText( new ComponentBuilder( "First" ).create() ),
-                new HoverEvent.ContentText( new ComponentBuilder( "Second" ).create() )
+                new Text( new ComponentBuilder( "First" ).create() ),
+                new Text( new ComponentBuilder( "Second" ).create() )
         );
 
         TextComponent component = new TextComponent( "Sample text" );

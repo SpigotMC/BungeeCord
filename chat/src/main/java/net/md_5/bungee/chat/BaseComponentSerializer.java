@@ -14,6 +14,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.hover.content.Content;
 
 public class BaseComponentSerializer
 {
@@ -77,14 +78,14 @@ public class BaseComponentSerializer
                 {
                     continue;
                 }
-                HoverEvent.Content[] list;
+                Content[] list;
                 JsonElement contents = event.get( type );
                 if ( contents.isJsonArray() )
                 {
                     list = context.deserialize( contents, HoverEvent.getClass( action, true ) );
                 } else
                 {
-                    list = new HoverEvent.Content[]
+                    list = new Content[]
                     {
                         context.deserialize( contents, HoverEvent.getClass( action, false ) )
                     };
