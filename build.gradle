@@ -1,0 +1,94 @@
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+repositories {
+	maven {
+		name = "sonatype-nexus-snapshots"
+		url = "https://oss.sonatype.org/content/repositories/snapshots/"
+	}
+	maven {
+		name = "sonatype-nexus-staging"
+		url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+	}
+	mavenCentral()
+}
+
+dependencies {
+	compile 'com.flowpowered:flow-nbt:1.0.0'
+	compile 'com.google.code.gson:gson:2.8.0'
+	compile 'com.google.guava:guava:21.0'
+	compile 'com.googlecode.json-simple:json-simple:1.1.1'
+	compile 'io.netty:netty-codec-haproxy:4.1.45.Final'
+	compile 'io.netty:netty-codec-http:4.1.45.Final'
+	compile 'io.netty:netty-handler:4.1.45.Final'
+	compile 'io.netty:netty-transport-native-epoll:4.1.45.Final:linux-x86_64'
+	compile 'io.netty:netty-transport-native-unix-common:4.1.45.Final:linux-x86_64'
+	compile 'jline:jline:2.12.1'
+	compile 'mysql:mysql-connector-java:5.1.48'
+	compile 'org.yaml:snakeyaml:1.25'
+	compile 'net.sf.trove4j:core:3.1.0'
+	compile 'net.md-5:brigadier:1.0.16-SNAPSHOT'
+	compile 'se.llbit:jo-nbt:1.3.0'
+	compile 'org.projectlombok:lombok:1.18.10'
+	compile 'com.google.code.findbugs:findbugs-annotations:3.0.1'
+	annotationProcessor 'com.google.code.findbugs:findbugs-annotations:3.0.1'
+	annotationProcessor 'org.projectlombok:lombok:1.18.10'
+}
+
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+def root = project.projectDir.parentFile
+sourceSets {
+	main {
+		java {
+			srcDir new File(root, "src")
+		}
+		resources {
+			srcDir new File(root, "resources")
+		}
+	}
+}
+
+group = "net.md_5"
+
+jar {
+	dependsOn 'PatchVersion'
+	manifest {
+		attributes 'Main-Class': 'net.md_5.bungee.BungeeCordLauncher'
+	}
+	from {
+		configurations.compile.collect {
+			it.isDirectory() ? it : zipTree(it)
+		}
+	} {
+		exclude '**/*.java'
+		exclude 'META-INF/*'
+		exclude 'LICENSE.txt'
+	}
+}
+
+task PatchVersion {
+	doLast{
+		Properties props = new Properties()
+		File propsFile = new File('gradle.properties')
+		props.load(propsFile.newDataInputStream())
+		def stable_project_version = props.getProperty('version') as String
+		if (stable_project_version.indexOf('-SNAPSHOT') < 0){
+			throw new GradleException('Cannot patch a non SNAPSHOT version')
+		} else {
+			def (major, minor, patch) = stable_project_version.tokenize('.')
+			//Remove Snapshot from patch
+			patch = patch.take(patch.indexOf('-SNAPSHOT'))
+			patch = String.valueOf(patch.toInteger() + 1)
+			String snapshot_project_version = major + '.' + minor + '.' + patch + '-SNAPSHOT'
+			props.setProperty('version', snapshot_project_version)
+			props.store(propsFile.newWriter(), null)
+			println(snapshot_project_version)
+		}
+	}
+}

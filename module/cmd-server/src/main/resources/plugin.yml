@@ -1,5 +1,0 @@
-name: ${project.name}
-main: net.md_5.bungee.module.cmd.server.PluginServer
-version: ${describe}
-description: ${project.description}
-author: ${module.author}
