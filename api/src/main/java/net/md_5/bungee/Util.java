@@ -1,6 +1,5 @@
 package net.md_5.bungee;
 
-import com.google.common.base.Joiner;
 import com.google.common.primitives.UnsignedLongs;
 import io.netty.channel.unix.DomainSocketAddress;
 import java.net.InetSocketAddress;
@@ -83,14 +82,14 @@ public class Util
                 + ( ( trace.length > 0 ) ? " @ " + t.getStackTrace()[0].getClassName() + ":" + t.getStackTrace()[0].getLineNumber() : "" );
     }
 
-    public static String csv(Iterable<?> objects)
+    public static String csv(Iterable<? extends CharSequence> objects)
     {
         return format( objects, ", " );
     }
 
-    public static String format(Iterable<?> objects, String separators)
+    public static String format(Iterable<? extends CharSequence> objects, String separators)
     {
-        return Joiner.on( separators ).join( objects );
+        return String.join( separators, objects );
     }
 
     /**

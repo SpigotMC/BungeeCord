@@ -1,8 +1,7 @@
 package net.md_5.bungee.util;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import java.util.List;
+import java.util.ListIterator;
 import java.util.regex.Pattern;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -115,8 +114,11 @@ public final class ChatComponentTransformer
         {
             if ( root.getExtra() != null && !root.getExtra().isEmpty() )
             {
-                List<BaseComponent> list = Lists.newArrayList( transform( player, root.getExtra().toArray( new BaseComponent[ root.getExtra().size() ] ) ) );
-                root.setExtra( list );
+                ListIterator<BaseComponent> iterator = root.getExtra().listIterator();
+                while ( iterator.hasNext() )
+                {
+                    iterator.set( transform( player, iterator.next() )[0] );
+                }
             }
 
             if ( root instanceof ScoreComponent )
