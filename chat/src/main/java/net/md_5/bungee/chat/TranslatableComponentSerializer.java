@@ -21,6 +21,10 @@ public class TranslatableComponentSerializer extends BaseComponentSerializer imp
         TranslatableComponent component = new TranslatableComponent();
         JsonObject object = json.getAsJsonObject();
         deserialize( object, component, context );
+        if ( !object.has( "translate" ) )
+        {
+            throw new JsonParseException( "Could not parse JSON: missing 'translate' property" );
+        }
         component.setTranslate( object.get( "translate" ).getAsString() );
         if ( object.has( "with" ) )
         {

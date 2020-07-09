@@ -17,6 +17,10 @@ public class ScoreComponentSerializer extends BaseComponentSerializer implements
     public ScoreComponent deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
     {
         JsonObject json = element.getAsJsonObject();
+        if ( !json.has( "score" ) )
+        {
+            throw new JsonParseException( "Could not parse JSON: missing 'score' property" );
+        }
         JsonObject score = json.get( "score" ).getAsJsonObject();
         if ( !score.has( "name" ) || !score.has( "objective" ) )
         {
