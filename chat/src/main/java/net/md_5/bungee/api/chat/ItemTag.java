@@ -63,7 +63,14 @@ public final class ItemTag
         @Override
         public ItemTag deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
         {
-            return ofNbt( element.toString().replace( "\"", "" ) );
+            // Remove the enclosing string quotes.
+            String eString = element.toString();
+            if ( eString.length() >= 2 && eString.charAt( 0 ) == '\"' && eString.charAt( eString.length() - 1 ) == '\"' )
+            {
+                eString = eString.substring( 1, eString.length() - 1 );
+            }
+
+            return ItemTag.ofNbt( eString );
         }
 
         @Override

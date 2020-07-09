@@ -1,9 +1,6 @@
 package net.md_5.bungee.api.chat;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.hover.content.Item;
 import net.md_5.bungee.api.chat.hover.content.Text;
@@ -14,14 +11,45 @@ import org.junit.Test;
 public class ComponentsTest
 {
 
+    public static void testDissembleReassemble(BaseComponent[] components)
+    {
+        String json = ComponentSerializer.toString( components );
+        BaseComponent[] parsed = ComponentSerializer.parse( json );
+        Assert.assertEquals( TextComponent.toLegacyText( parsed ), TextComponent.toLegacyText( components ) );
+    }
+
+    public static void testDissembleReassemble(String json)
+    {
+        BaseComponent[] parsed = ComponentSerializer.parse( json );
+        Assert.assertEquals( json, ComponentSerializer.toString( parsed ) );
+    }
+
     @Test
     public void testItemParse()
     {
-        String json = "{\"extra\":[{\"text\":\"[\"},{\"extra\":[{\"translate\":\"block.minecraft.dirt\"}],\"text\":\"\"},{\"text\":\"]\"}],\"hoverEvent\":{\"action\":\"show_item\",\"value\":[{\"text\":\"{id:\\\"minecraft:dirt\\\",Count:1b}\"}]},\"text\":\"\"}";
-        BaseComponent[] component = ComponentSerializer.parse( json );
-        String serialised = ComponentSerializer.toString( component );
-        BaseComponent[] deserialised = ComponentSerializer.parse( serialised );
-        Assert.assertEquals( TextComponent.toLegacyText( deserialised ), TextComponent.toLegacyText( component ) );
+        // Declare all commonly used variables for reuse.
+        BaseComponent[] components;
+        TextComponent textComponent;
+        String json;
+
+        textComponent = new TextComponent( "Test" );
+        textComponent.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_ITEM, new BaseComponent[]
+        {
+            new TextComponent( "{id:\"minecraft:netherrack\",Count:47b}" )
+        } ) );
+        testDissembleReassemble( new BaseComponent[]
+        {
+            textComponent
+        } );
+        json = "{\"text\":\"Test\",\"hoverEvent\":{\"action\":\"show_item\",\"value\":[{\"text\":\"{id:\\\"minecraft:netherrack\\\",Count:47b}\"}]}}";
+        testDissembleReassemble( json );
+        //////////
+        String hoverVal = "{\"text\":\"{id:\\\"minecraft:dirt\\\",Count:1b}\"}";
+        json = "{\"extra\":[{\"text\":\"[\"},{\"extra\":[{\"translate\":\"block.minecraft.dirt\"}],\"text\":\"\"},{\"text\":\"]\"}],\"hoverEvent\":{\"action\":\"show_item\",\"value\":[" + hoverVal + "]},\"text\":\"\"}";
+        components = ComponentSerializer.parse( json );
+        Text contentText = ( (Text) components[0].getHoverEvent().getContents().get( 0 ) );
+        Assert.assertEquals( hoverVal, ComponentSerializer.toString( (BaseComponent[]) contentText.getValue() ) );
+        testDissembleReassemble( components );
         //////////
         TextComponent component1 = new TextComponent( "HoverableText" );
         String nbt = "{display:{Name:{text:Hello},Lore:[{text:Line_1},{text:Line_2}]},ench:[{id:49,lvl:5}],Unbreakable:1}}";
@@ -29,8 +57,8 @@ public class ComponentsTest
         HoverEvent hoverEvent = new HoverEvent( HoverEvent.Action.SHOW_ITEM, contentItem );
         component1.setHoverEvent( hoverEvent );
         json = ComponentSerializer.toString( component1 );
-        component = ComponentSerializer.parse( json );
-        Item parsedContentItem = ( (Item) component[0].getHoverEvent().getContents().get( 0 ) );
+        components = ComponentSerializer.parse( json );
+        Item parsedContentItem = ( (Item) components[0].getHoverEvent().getContents().get( 0 ) );
         Assert.assertEquals( contentItem, parsedContentItem );
         Assert.assertEquals( contentItem.getCount(), parsedContentItem.getCount() );
         Assert.assertEquals( contentItem.getId(), parsedContentItem.getId() );
@@ -142,11 +170,7 @@ public class ComponentsTest
         String text = "§a§lHello §r§kworld§7!";
         BaseComponent[] components = TextComponent.fromLegacyText( text );
         BaseComponent[] builderComponents = new ComponentBuilder().append( components ).create();
-        List<BaseComponent> list = new ArrayList<BaseComponent>( Arrays.asList( builderComponents ) );
-        Assert.assertEquals(
-                TextComponent.toLegacyText( components ),
-                TextComponent.toLegacyText( list.toArray( new BaseComponent[ list.size() ] ) )
-        );
+        Assert.assertArrayEquals( components, builderComponents );
     }
 
     /*
