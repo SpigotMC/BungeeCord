@@ -38,7 +38,7 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
                 if ( in.readableBytes() < length )
                 {
                     in.resetReaderIndex();
-                    return;
+                    throw new CorruptedFrameException("The frame has an invalid size");
                 } else
                 {
                     if ( in.hasMemoryAddress() )
