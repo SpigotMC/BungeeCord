@@ -144,6 +144,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(PacketWrapper packet) throws Exception
     {
+        Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting Packet on HANDSHAKE" );
         if ( packet.packet == null )
         {
             throw new QuietException( "Unexpected packet received during login process! " + BufUtil.dump( packet.buf, 16 ) );
@@ -153,6 +154,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(PluginMessage pluginMessage) throws Exception
     {
+        Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting PluginMessage on HANDSHAKE" );
         // TODO: Unregister?
         if ( PluginMessage.SHOULD_RELAY.apply( pluginMessage ) )
         {
