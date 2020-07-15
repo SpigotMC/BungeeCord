@@ -47,17 +47,6 @@ public class CachedCaptcha
         return captchas[random.nextInt( captchas.length )];
     }
 
-    public void checkNotNull()
-    {
-        for ( int i = 0; i < captchas.length; i++ )
-        {
-            if ( captchas[i] == null )
-            {
-                throw new RuntimeException( "index i is null" );
-            }
-        }
-    }
-
     @RequiredArgsConstructor
     @Getter
     public static class CaptchaHolder

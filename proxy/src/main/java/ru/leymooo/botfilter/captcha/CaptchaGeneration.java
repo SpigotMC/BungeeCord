@@ -27,12 +27,12 @@ public class CaptchaGeneration
 
     public void generateImages()
     {
-        ThreadLocal<Font[]> fonts = ThreadLocal.withInitial( () -> new Font[]
+        Font[] fonts =  new Font[]
         {
-            new Font( Font.SANS_SERIF, Font.PLAIN, rnd.nextInt( 5 ) + 58 ),
-            new Font( Font.SERIF, Font.PLAIN, rnd.nextInt( 5 ) + 58 ),
-            new Font( Font.MONOSPACED, Font.BOLD, rnd.nextInt( 5 ) + 58 )
-        } );
+            new Font( Font.SANS_SERIF, Font.PLAIN, 50 ),
+            new Font( Font.SERIF, Font.PLAIN, 50 ),
+            new Font( Font.MONOSPACED, Font.BOLD, 50 )
+        };
 
         ExecutorService executor = Executors.newFixedThreadPool( Runtime.getRuntime().availableProcessors() );
         CaptchaPainter painter = new CaptchaPainter();
@@ -42,8 +42,7 @@ public class CaptchaGeneration
             executor.execute( () ->
             {
                 String answer = randomAnswer();
-                Font[] curr = fonts.get();
-                BufferedImage image = painter.draw( curr[rnd.nextInt( curr.length )], randomNotWhiteColor(), answer );
+                BufferedImage image = painter.draw( fonts[rnd.nextInt( fonts.length )], randomNotWhiteColor(), answer );
                 final CraftMapCanvas map = new CraftMapCanvas();
                 map.drawImage( 0, 0, image );
                 MapDataPacket packet = new MapDataPacket( 0, (byte) 0, map.getMapData() );
@@ -67,7 +66,6 @@ public class CaptchaGeneration
             }
         }
         CachedCaptcha.generated = true;
-        PacketUtils.captchas.checkNotNull();
         executor.shutdownNow();
         System.gc();
         BungeeCord.getInstance().getLogger().log( Level.INFO, "[BotFilter] Капча сгенерированна за {0} мс", System.currentTimeMillis() - start );
