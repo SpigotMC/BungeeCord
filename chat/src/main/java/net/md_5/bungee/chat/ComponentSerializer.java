@@ -62,6 +62,11 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
         }
     }
 
+    public static String toString(Object object)
+    {
+        return gson.toJson( object );
+    }
+
     public static String toString(BaseComponent component)
     {
         return gson.toJson( component );
