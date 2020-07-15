@@ -1,14 +1,15 @@
 package net.md_5.bungee.api.event;
 
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.ToString;
+import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ServerConnectRequest;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Cancellable;
-import net.md_5.bungee.api.plugin.Event;
 
 /**
  * Called when deciding to connect to a server. At the time when this event is
@@ -16,10 +17,11 @@ import net.md_5.bungee.api.plugin.Event;
  * ensure that the connection does not proceed and can be useful to prevent
  * certain players from accessing certain servers.
  */
-@Data
-@ToString(callSuper = false)
+@Getter
+@Setter
+@ToString
 @EqualsAndHashCode(callSuper = false)
-public class ServerConnectEvent extends Event implements Cancellable
+public class ServerConnectEvent extends AsyncEvent<ServerConnectEvent> implements Cancellable
 {
 
     /**
@@ -44,23 +46,12 @@ public class ServerConnectEvent extends Event implements Cancellable
      */
     private boolean cancelled;
 
-    @Deprecated
-    public ServerConnectEvent(ProxiedPlayer player, ServerInfo target)
+    public ServerConnectEvent(ProxiedPlayer player, Callback<ServerConnectEvent> done, ServerConnectRequest request)
     {
-        this( player, target, Reason.UNKNOWN );
-    }
-
-    @Deprecated
-    public ServerConnectEvent(ProxiedPlayer player, ServerInfo target, Reason reason)
-    {
-        this( player, target, reason, null );
-    }
-
-    public ServerConnectEvent(ProxiedPlayer player, ServerInfo target, Reason reason, ServerConnectRequest request)
-    {
+        super( done );
         this.player = player;
-        this.target = target;
-        this.reason = reason;
+        this.target = request.getTarget();
+        this.reason = request.getReason();
         this.request = request;
     }
 
