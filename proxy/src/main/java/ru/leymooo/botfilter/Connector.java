@@ -18,6 +18,7 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import ru.leymooo.botfilter.BotFilter.CheckState;
+import ru.leymooo.botfilter.caching.CachedCaptcha.CaptchaHolder;
 import ru.leymooo.botfilter.caching.PacketUtils;
 import ru.leymooo.botfilter.caching.PacketUtils.KickType;
 import ru.leymooo.botfilter.caching.PacketsPosition;
@@ -56,7 +57,8 @@ public class Connector extends MoveHandler
     private CheckState state = CheckState.CAPTCHA_ON_POSITION_FAILED;
     @Getter
     private Channel channel;
-    private int aticks = 0, sentPings = 0, captchaAnswer, attemps = 3;
+    private String captchaAnswer;
+    private int aticks = 0, sentPings = 0, attemps = 3;
     @Getter
     private long joinTime = System.currentTimeMillis();
     private long lastSend = 0, totalping = 9999;
@@ -248,7 +250,7 @@ public class Connector extends MoveHandler
                 failed( KickType.FAILED_CAPTCHA, "Too long message" );
                 return;
             }
-            if ( message.replace( "/", "" ).equals( String.valueOf( captchaAnswer ) ) )
+            if ( message.replace( "/", "" ).equals( captchaAnswer ) )
             {
                 completeCheck();
             } else if ( --attemps != 0 )
@@ -315,9 +317,10 @@ public class Connector extends MoveHandler
 
     private void sendCaptcha()
     {
-        captchaAnswer = random.nextInt( 100, 999 );
+        CaptchaHolder captchaHolder = PacketUtils.captchas.randomCaptcha();
+        captchaAnswer = captchaHolder.getAnswer();
         channel.write( PacketUtils.getCachedPacket( PacketsPosition.SETSLOT_MAP ).get( version ), channel.voidPromise() );
-        channel.writeAndFlush( PacketUtils.captchas.get( version, captchaAnswer ), channel.voidPromise() );
+        captchaHolder.write( channel, version, true );
     }
 
     private void changeStateToCaptcha()

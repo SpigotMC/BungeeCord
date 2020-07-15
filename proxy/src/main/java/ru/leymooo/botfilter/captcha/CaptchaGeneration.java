@@ -23,14 +23,15 @@ import ru.leymooo.botfilter.packets.MapDataPacket;
 @UtilityClass
 public class CaptchaGeneration
 {
+    Random rnd = new Random();
+
     public void generateImages()
     {
-        Random rnd = new Random();
         ThreadLocal<Font[]> fonts = ThreadLocal.withInitial( () -> new Font[]
         {
-            new Font( Font.SANS_SERIF, Font.PLAIN, rnd.nextInt( 5 ) + 62 ),
-            new Font( Font.SERIF, Font.PLAIN, rnd.nextInt( 5 ) + 62 ),
-            new Font( Font.MONOSPACED, Font.BOLD, rnd.nextInt( 5 ) + 62 )
+            new Font( Font.SANS_SERIF, Font.PLAIN, rnd.nextInt( 5 ) + 58 ),
+            new Font( Font.SERIF, Font.PLAIN, rnd.nextInt( 5 ) + 58 ),
+            new Font( Font.MONOSPACED, Font.BOLD, rnd.nextInt( 5 ) + 58 )
         } );
 
         ExecutorService executor = Executors.newFixedThreadPool( Runtime.getRuntime().availableProcessors() );
@@ -38,12 +39,11 @@ public class CaptchaGeneration
         MapPalette.prepareColors();
         for ( int i = 100; i <= 999; i++ )
         {
-            final int answer = i;
             executor.execute( () ->
             {
+                String answer = randomAnswer();
                 Font[] curr = fonts.get();
-                BufferedImage image = painter.draw( curr[rnd.nextInt( curr.length )], randomNotWhiteColor( rnd ),
-                    String.valueOf( answer ) );
+                BufferedImage image = painter.draw( curr[rnd.nextInt( curr.length )], randomNotWhiteColor(), answer );
                 final CraftMapCanvas map = new CraftMapCanvas();
                 map.drawImage( 0, 0, image );
                 MapDataPacket packet = new MapDataPacket( 0, (byte) 0, map.getMapData() );
@@ -67,19 +67,31 @@ public class CaptchaGeneration
             }
         }
         CachedCaptcha.generated = true;
+        PacketUtils.captchas.checkNotNull();
         executor.shutdownNow();
         System.gc();
         BungeeCord.getInstance().getLogger().log( Level.INFO, "[BotFilter] Капча сгенерированна за {0} мс", System.currentTimeMillis() - start );
     }
 
 
-    private static Color randomNotWhiteColor(Random random)
+    private Color randomNotWhiteColor()
     {
-        Color color = MapPalette.colors[random.nextInt( MapPalette.colors.length )];
+        Color color = MapPalette.colors[rnd.nextInt( MapPalette.colors.length )];
         if ( color.getRed() == 255 && color.getGreen() == 255 && color.getBlue() == 255 )
         {
-            return randomNotWhiteColor( random );
+            return randomNotWhiteColor();
         }
         return color;
+    }
+
+    private String randomAnswer()
+    {
+        if ( rnd.nextBoolean() )
+        {
+            return Integer.toString( rnd.nextInt( ( 99999 - 10000 ) + 1 ) + 10000 );
+        } else
+        {
+            return Integer.toString( rnd.nextInt( ( 9999 - 1000 ) + 1 ) + 1000 );
+        }
     }
 }
