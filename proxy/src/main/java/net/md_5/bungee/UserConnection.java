@@ -297,9 +297,10 @@ public final class UserConnection implements ProxiedPlayer
                 if ( callback != null )
                 {
                     callback.done( ServerConnectRequest.Result.ALREADY_CONNECTED, null );
+                } else
+                {
+                    sendMessage( bungee.getTranslation( "already_connected" ) );
                 }
-
-                sendMessage( bungee.getTranslation( "already_connected" ) );
                 return;
             }
             if ( pendingConnects.contains( target ) )
@@ -307,9 +308,10 @@ public final class UserConnection implements ProxiedPlayer
                 if ( callback != null )
                 {
                     callback.done( ServerConnectRequest.Result.ALREADY_CONNECTING, null );
+                } else
+                {
+                    sendMessage( bungee.getTranslation( "already_connecting" ) );
                 }
-
-                sendMessage( bungee.getTranslation( "already_connecting" ) );
                 return;
             }
 
