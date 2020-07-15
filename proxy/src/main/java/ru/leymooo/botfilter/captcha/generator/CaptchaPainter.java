@@ -130,8 +130,8 @@ public class CaptchaPainter
         final float by = (float) bounds.getY();
         if ( outlineEnabled )
         {
-            g.draw( vector.getOutline( Math.signum( rnd.nextFloat() - 0.5f ) * 2
-                    * width / 200 - bx, Math.signum( rnd.nextFloat() - 0.5f ) * 2
+            g.draw( vector.getOutline( Math.signum( rnd.nextFloat() - 0.5f ) * 1
+                    * width / 200 - bx, Math.signum( rnd.nextFloat() - 0.5f ) * 1
                     * height / 70 + height - by ) );
         }
         g.drawGlyphVector( vector, -bx, height - by );
@@ -191,11 +191,11 @@ public class CaptchaPainter
         if ( /*effectConfig.isRippleEnabled()*/ true )
         {
             final Rippler.AxisConfig vertical = new Rippler.AxisConfig(
-                rnd.nextDouble() * 2 * Math.PI, ( 1 + rnd.nextDouble() * 2 )
-                * Math.PI, img.getHeight() / (double) ( rnd.nextInt( 5 ) + 6 ) );
+                    rnd.nextDouble() * 2 * Math.PI, ( 1 + rnd.nextDouble() * 2 )
+                    * Math.PI, img.getHeight() / 10.0 );
             final Rippler.AxisConfig horizontal = new Rippler.AxisConfig(
-                rnd.nextDouble() * 2 * Math.PI, ( 2 + rnd.nextDouble() * 2 )
-                * Math.PI, img.getWidth() / (double) ( rnd.nextInt( 16 ) + 85 ) );
+                    rnd.nextDouble() * 2 * Math.PI, ( 2 + rnd.nextDouble() * 2 )
+                    * Math.PI, img.getWidth() / 100.0 );
             final Rippler op = new Rippler( vertical, horizontal );
 
             img = op.filter( img, createImage() );
