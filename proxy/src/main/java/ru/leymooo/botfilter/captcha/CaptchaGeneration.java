@@ -27,7 +27,7 @@ public class CaptchaGeneration
 
     public void generateImages()
     {
-        Font[] fonts =  new Font[]
+        Font[] fonts = new Font[]
         {
             new Font( Font.SANS_SERIF, Font.PLAIN, 50 ),
             new Font( Font.SERIF, Font.PLAIN, 50 ),
