@@ -190,7 +190,8 @@ public class BaseComponentSerializer
                     hoverEvent.add( "value", context.serialize( component.getHoverEvent().getContents().get( 0 ) ) );
                 } else
                 {
-                    hoverEvent.add( "contents", context.serialize( component.getHoverEvent().getContents() ) );
+                    hoverEvent.add( "contents", context.serialize( ( component.getHoverEvent().getContents().size() == 1 )
+                            ? component.getHoverEvent().getContents().get( 0 ) : component.getHoverEvent().getContents() ) );
                 }
                 object.add( "hoverEvent", hoverEvent );
             }
