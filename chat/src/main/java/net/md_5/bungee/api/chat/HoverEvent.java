@@ -14,6 +14,7 @@ import net.md_5.bungee.api.chat.hover.content.Entity;
 import net.md_5.bungee.api.chat.hover.content.Item;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.chat.ComponentSerializer;
+import org.jetbrains.annotations.NotNull;
 
 @Getter
 @ToString
@@ -42,7 +43,7 @@ public final class HoverEvent
      * @param action action of this event
      * @param contents array of contents, provide at least one
      */
-    public HoverEvent(Action action, Content... contents)
+    public HoverEvent(Action action, @NotNull Content... contents)
     {
         Preconditions.checkArgument( contents.length != 0,
                 "Must contain at least one content" );
@@ -127,7 +128,8 @@ public final class HoverEvent
      * @param array if to return the arrayed class
      * @return the class
      */
-    public static Class<?> getClass(HoverEvent.Action action, boolean array)
+    @NotNull
+    public static Class<?> getClass(@NotNull HoverEvent.Action action, boolean array)
     {
         Preconditions.checkArgument( action != null, "action" );
 

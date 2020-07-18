@@ -7,6 +7,8 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class ConfigurationProvider
 {
@@ -38,23 +40,23 @@ public abstract class ConfigurationProvider
     }
 
     /*------------------------------------------------------------------------*/
-    public abstract void save(Configuration config, File file) throws IOException;
+    public abstract void save(@NotNull Configuration config, @NotNull File file) throws IOException;
 
-    public abstract void save(Configuration config, Writer writer);
+    public abstract void save(@NotNull Configuration config, @NotNull Writer writer);
 
-    public abstract Configuration load(File file) throws IOException;
+    public abstract Configuration load(@NotNull File file) throws IOException;
 
-    public abstract Configuration load(File file, Configuration defaults) throws IOException;
+    public abstract Configuration load(@NotNull File file, @Nullable Configuration defaults) throws IOException;
 
-    public abstract Configuration load(Reader reader);
+    public abstract Configuration load(@NotNull Reader reader);
 
-    public abstract Configuration load(Reader reader, Configuration defaults);
+    public abstract Configuration load(@NotNull Reader reader, @Nullable Configuration defaults);
 
-    public abstract Configuration load(InputStream is);
+    public abstract Configuration load(@NotNull InputStream is);
 
-    public abstract Configuration load(InputStream is, Configuration defaults);
+    public abstract Configuration load(@NotNull InputStream is, @Nullable Configuration defaults);
 
-    public abstract Configuration load(String string);
+    public abstract Configuration load(@NotNull String string);
 
-    public abstract Configuration load(String string, Configuration defaults);
+    public abstract Configuration load(@NotNull String string, @Nullable Configuration defaults);
 }

@@ -63,6 +63,7 @@ import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
 import net.md_5.bungee.util.CaseInsensitiveSet;
 import net.md_5.bungee.util.ChatComponentTransformer;
+import org.jetbrains.annotations.NotNull;
 
 @RequiredArgsConstructor
 public final class UserConnection implements ProxiedPlayer
@@ -179,32 +180,32 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public void setDisplayName(String name)
+    public void setDisplayName(@NotNull String name)
     {
         Preconditions.checkNotNull( name, "displayName" );
         displayName = name;
     }
 
     @Override
-    public void connect(ServerInfo target)
+    public void connect(@NotNull ServerInfo target)
     {
         connect( target, null, ServerConnectEvent.Reason.PLUGIN );
     }
 
     @Override
-    public void connect(ServerInfo target, ServerConnectEvent.Reason reason)
+    public void connect(@NotNull ServerInfo target, ServerConnectEvent.Reason reason)
     {
         connect( target, null, false, reason );
     }
 
     @Override
-    public void connect(ServerInfo target, Callback<Boolean> callback)
+    public void connect(@NotNull ServerInfo target, Callback<Boolean> callback)
     {
         connect( target, callback, false, ServerConnectEvent.Reason.PLUGIN );
     }
 
     @Override
-    public void connect(ServerInfo target, Callback<Boolean> callback, ServerConnectEvent.Reason reason)
+    public void connect(@NotNull ServerInfo target, Callback<Boolean> callback, ServerConnectEvent.@NotNull Reason reason)
     {
         connect( target, callback, false, reason );
     }
@@ -269,7 +270,7 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public void connect(final ServerConnectRequest request)
+    public void connect(final @NotNull ServerConnectRequest request)
     {
         Preconditions.checkNotNull( request, "request" );
 
@@ -371,7 +372,7 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public void disconnect(String reason)
+    public void disconnect(@NotNull String reason)
     {
         disconnect0( TextComponent.fromLegacyText( reason ) );
     }
@@ -383,7 +384,7 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public void disconnect(BaseComponent reason)
+    public void disconnect(@NotNull BaseComponent reason)
     {
         disconnect0( reason );
     }
@@ -408,14 +409,14 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public void chat(String message)
+    public void chat(@NotNull String message)
     {
         Preconditions.checkState( server != null, "Not connected to server" );
         server.getCh().write( new Chat( message ) );
     }
 
     @Override
-    public void sendMessage(String message)
+    public void sendMessage(@NotNull String message)
     {
         sendMessage( TextComponent.fromLegacyText( message ) );
     }
@@ -436,7 +437,7 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public void sendMessage(BaseComponent message)
+    public void sendMessage(@NotNull BaseComponent message)
     {
         sendMessage( ChatMessageType.SYSTEM, message );
     }
@@ -447,7 +448,7 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public void sendMessage(ChatMessageType position, BaseComponent... message)
+    public void sendMessage(@NotNull ChatMessageType position, BaseComponent... message)
     {
         // transform score components
         message = ChatComponentTransformer.getInstance().transform( this, true, message );
@@ -473,7 +474,7 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public void sendMessage(ChatMessageType position, BaseComponent message)
+    public void sendMessage(@NotNull ChatMessageType position, @NotNull BaseComponent message)
     {
         message = ChatComponentTransformer.getInstance().transform( this, true, message )[0];
 
@@ -488,24 +489,27 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public void sendData(String channel, byte[] data)
+    public void sendData(@NotNull String channel, byte[] data)
     {
         unsafe().sendPacket( new PluginMessage( channel, data, forgeClientHandler.isForgeUser() ) );
     }
 
     @Override
+    @NotNull
     public InetSocketAddress getAddress()
     {
         return (InetSocketAddress) getSocketAddress();
     }
 
     @Override
+    @NotNull
     public SocketAddress getSocketAddress()
     {
         return ch.getRemoteAddress();
     }
 
     @Override
+    @NotNull
     public Collection<String> getGroups()
     {
         return Collections.unmodifiableCollection( groups );
@@ -538,13 +542,13 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public boolean hasPermission(String permission)
+    public boolean hasPermission(@NotNull String permission)
     {
         return bungee.getPluginManager().callEvent( new PermissionCheckEvent( this, permission, permissions.contains( permission ) ) ).hasPermission();
     }
 
     @Override
-    public void setPermission(String permission, boolean value)
+    public void setPermission(@NotNull String permission, boolean value)
     {
         if ( value )
         {
@@ -556,6 +560,7 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
+    @NotNull
     public Collection<String> getPermissions()
     {
         return Collections.unmodifiableCollection( permissions );
@@ -604,7 +609,7 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public ProxiedPlayer.ChatMode getChatMode()
+    public ProxiedPlayer.@NotNull ChatMode getChatMode()
     {
         if ( settings == null )
         {
@@ -630,13 +635,14 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
+    @NotNull
     public SkinConfiguration getSkinParts()
     {
         return ( settings != null ) ? new PlayerSkinConfiguration( settings.getSkinParts() ) : PlayerSkinConfiguration.SKIN_SHOW_ALL;
     }
 
     @Override
-    public ProxiedPlayer.MainHand getMainHand()
+    public ProxiedPlayer.@NotNull MainHand getMainHand()
     {
         return ( settings == null || settings.getMainHand() == 1 ) ? ProxiedPlayer.MainHand.RIGHT : ProxiedPlayer.MainHand.LEFT;
     }
@@ -648,6 +654,7 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
+    @NotNull
     public Map<String, String> getModList()
     {
         if ( forgeClientHandler.getClientModList() == null )
@@ -692,7 +699,7 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
-    public void sendTitle(Title title)
+    public void sendTitle(@NotNull Title title)
     {
         title.send( this );
     }
@@ -719,6 +726,7 @@ public final class UserConnection implements ProxiedPlayer
     }
 
     @Override
+    @NotNull
     public Scoreboard getScoreboard()
     {
         return serverSentScoreboard;

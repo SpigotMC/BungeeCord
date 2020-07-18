@@ -16,11 +16,12 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.hover.content.Content;
+import org.jetbrains.annotations.NotNull;
 
 public class BaseComponentSerializer
 {
 
-    protected void deserialize(JsonObject object, BaseComponent component, JsonDeserializationContext context)
+    protected void deserialize(@NotNull JsonObject object, BaseComponent component, JsonDeserializationContext context)
     {
         if ( object.has( "color" ) )
         {

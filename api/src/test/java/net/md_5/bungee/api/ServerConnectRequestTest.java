@@ -6,6 +6,7 @@ import java.util.Collection;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 public class ServerConnectRequestTest
@@ -50,30 +51,31 @@ public class ServerConnectRequestTest
         }
 
         @Override
+        @NotNull
         public String getPermission()
         {
             return null;
         }
 
         @Override
-        public boolean canAccess(CommandSender sender)
+        public boolean canAccess(@NotNull CommandSender sender)
         {
             return true;
         }
 
         @Override
-        public void sendData(String channel, byte[] data)
+        public void sendData(@NotNull String channel, byte[] data)
         {
         }
 
         @Override
-        public boolean sendData(String channel, byte[] data, boolean queue)
+        public boolean sendData(@NotNull String channel, byte[] data, boolean queue)
         {
             return false;
         }
 
         @Override
-        public void ping(Callback<ServerPing> callback)
+        public void ping(@NotNull Callback<ServerPing> callback)
         {
         }
     };

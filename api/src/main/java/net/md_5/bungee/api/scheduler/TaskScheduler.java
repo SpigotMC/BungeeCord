@@ -3,6 +3,8 @@ package net.md_5.bungee.api.scheduler;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import net.md_5.bungee.api.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * This interface represents a scheduler which may be used to queue, delay and
@@ -25,7 +27,7 @@ public interface TaskScheduler
      *
      * @param task the task to cancel
      */
-    void cancel(ScheduledTask task);
+    void cancel(@NotNull ScheduledTask task);
 
     /**
      * Cancel all tasks owned by this plugin, this preventing them from being
@@ -34,7 +36,7 @@ public interface TaskScheduler
      * @param plugin the plugin owning the tasks to be cancelled
      * @return the number of tasks cancelled by this method
      */
-    int cancel(Plugin plugin);
+    int cancel(@Nullable Plugin plugin);
 
     /**
      * Schedule a task to be executed asynchronously. The task will commence
@@ -44,7 +46,8 @@ public interface TaskScheduler
      * @param task the task to run
      * @return the scheduled task
      */
-    ScheduledTask runAsync(Plugin owner, Runnable task);
+    @NotNull
+    ScheduledTask runAsync(@NotNull Plugin owner, @NotNull Runnable task);
 
     /**
      * Schedules a task to be executed asynchronously after the specified delay
@@ -56,7 +59,8 @@ public interface TaskScheduler
      * @param unit the unit in which the delay will be measured
      * @return the scheduled task
      */
-    ScheduledTask schedule(Plugin owner, Runnable task, long delay, TimeUnit unit);
+    @NotNull
+    ScheduledTask schedule(@NotNull Plugin owner, @NotNull Runnable task, long delay, @NotNull TimeUnit unit);
 
     /**
      * Schedules a task to be executed asynchronously after the specified delay
@@ -71,7 +75,8 @@ public interface TaskScheduler
      * @param unit the unit in which the delay and period will be measured
      * @return the scheduled task
      */
-    ScheduledTask schedule(Plugin owner, Runnable task, long delay, long period, TimeUnit unit);
+    @NotNull
+    ScheduledTask schedule(@NotNull Plugin owner, @NotNull Runnable task, long delay, long period, @NotNull TimeUnit unit);
 
     /**
      * Get the unsafe methods of this class.

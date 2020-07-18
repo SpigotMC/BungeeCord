@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import net.md_5.bungee.chat.TranslationRegistry;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 @Getter
 @Setter
@@ -36,14 +38,14 @@ public final class TranslatableComponent extends BaseComponent
      *
      * @param original the original for the new translatable component.
      */
-    public TranslatableComponent(TranslatableComponent original)
+    public TranslatableComponent(@NotNull TranslatableComponent original)
     {
         super( original );
         setTranslate( original.getTranslate() );
 
         if ( original.getWith() != null )
         {
-            List<BaseComponent> temp = new ArrayList<BaseComponent>();
+            List<BaseComponent> temp = new ArrayList<>();
             for ( BaseComponent baseComponent : original.getWith() )
             {
                 temp.add( baseComponent.duplicate() );
@@ -67,7 +69,7 @@ public final class TranslatableComponent extends BaseComponent
         setTranslate( translate );
         if ( with != null && with.length != 0 )
         {
-            List<BaseComponent> temp = new ArrayList<BaseComponent>();
+            List<BaseComponent> temp = new ArrayList<>();
             for ( Object w : with )
             {
                 if ( w instanceof BaseComponent )
@@ -87,6 +89,8 @@ public final class TranslatableComponent extends BaseComponent
      *
      * @return the duplicate of this TranslatableComponent.
      */
+    @NotNull
+    @Contract(" -> new")
     @Override
     public TranslatableComponent duplicate()
     {

@@ -9,6 +9,8 @@ import lombok.Setter;
 import lombok.ToString;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder.FormatRetention;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Setter
 @ToString(exclude = "parent")
@@ -22,47 +24,56 @@ public abstract class BaseComponent
     /**
      * The color of this component and any child components (unless overridden)
      */
+    @Nullable
     private ChatColor color;
     /**
      * The font of this component and any child components (unless overridden)
      */
+    @Nullable
     private String font;
     /**
      * Whether this component and any child components (unless overridden) is
      * bold
      */
+    @Nullable
     private Boolean bold;
     /**
      * Whether this component and any child components (unless overridden) is
      * italic
      */
+    @Nullable
     private Boolean italic;
     /**
      * Whether this component and any child components (unless overridden) is
      * underlined
      */
+    @Nullable
     private Boolean underlined;
     /**
      * Whether this component and any child components (unless overridden) is
      * strikethrough
      */
+    @Nullable
     private Boolean strikethrough;
     /**
      * Whether this component and any child components (unless overridden) is
      * obfuscated
      */
+    @Nullable
     private Boolean obfuscated;
     /**
      * The text to insert into the chat when this component (and child
      * components) are clicked while pressing the shift key
      */
     @Getter
+    @Nullable
     private String insertion;
 
     /**
      * Appended components that inherit this component's formatting and events
      */
     @Getter
+    @Nullable
     private List<BaseComponent> extra;
 
     /**
@@ -70,12 +81,14 @@ public abstract class BaseComponent
      * clicked
      */
     @Getter
+    @Nullable
     private ClickEvent clickEvent;
     /**
      * The action to perform when this component (and child components) are
      * hovered over
      */
     @Getter
+    @Nullable
     private HoverEvent hoverEvent;
 
     /**
@@ -88,7 +101,7 @@ public abstract class BaseComponent
     {
     }
 
-    BaseComponent(BaseComponent old)
+    BaseComponent(@NotNull BaseComponent old)
     {
         copyFormatting( old, FormatRetention.ALL, true );
 
@@ -107,7 +120,7 @@ public abstract class BaseComponent
      *
      * @param component the component to copy from
      */
-    public void copyFormatting(BaseComponent component)
+    public void copyFormatting(@NotNull BaseComponent component)
     {
         copyFormatting( component, FormatRetention.ALL, true );
     }
@@ -119,7 +132,7 @@ public abstract class BaseComponent
      * @param replace if already set formatting should be replaced by the new
      * component
      */
-    public void copyFormatting(BaseComponent component, boolean replace)
+    public void copyFormatting(@NotNull BaseComponent component, boolean replace)
     {
         copyFormatting( component, FormatRetention.ALL, replace );
     }
@@ -128,11 +141,14 @@ public abstract class BaseComponent
      * Copies the specified formatting of a BaseComponent.
      *
      * @param component the component to copy from
-     * @param retention the formatting to copy
+     * @param retention the formatting to copy, {@code null} behaves like {@link FormatRetention#NONE FormatRetention.NONE}
      * @param replace if already set formatting should be replaced by the new
      * component
+     * @throws java.lang.NullPointerException if {@code component} is null, {@code retention} is neither {@code null}
+     * nor {@link FormatRetention#NONE NONE} and either {@code replace} is true or any formatting is not yet set in this
+     * component
      */
-    public void copyFormatting(BaseComponent component, FormatRetention retention, boolean replace)
+    public void copyFormatting(BaseComponent component, @Nullable FormatRetention retention, boolean replace)
     {
         if ( retention == FormatRetention.EVENTS || retention == FormatRetention.ALL )
         {
@@ -187,7 +203,7 @@ public abstract class BaseComponent
      *
      * @param retention the formatting to retain
      */
-    public void retain(FormatRetention retention)
+    public void retain(@Nullable FormatRetention retention)
     {
         if ( retention == FormatRetention.FORMATTING || retention == FormatRetention.NONE )
         {
@@ -211,6 +227,7 @@ public abstract class BaseComponent
      *
      * @return The duplicate of this BaseComponent
      */
+    @NotNull
     public abstract BaseComponent duplicate();
 
     /**
@@ -220,6 +237,7 @@ public abstract class BaseComponent
      * @deprecated API use discouraged, use traditional duplicate
      */
     @Deprecated
+    @NotNull
     public BaseComponent duplicateWithoutFormatting()
     {
         BaseComponent component = duplicate();
@@ -234,7 +252,8 @@ public abstract class BaseComponent
      * @param components the components to convert
      * @return the string in the old format
      */
-    public static String toLegacyText(BaseComponent... components)
+    @NotNull
+    public static String toLegacyText(@NotNull BaseComponent... components)
     {
         StringBuilder builder = new StringBuilder();
         for ( BaseComponent msg : components )
@@ -250,7 +269,8 @@ public abstract class BaseComponent
      * @param components the components to convert
      * @return the string as plain text
      */
-    public static String toPlainText(BaseComponent... components)
+    @NotNull
+    public static String toPlainText(@NotNull BaseComponent... components)
     {
         StringBuilder builder = new StringBuilder();
         for ( BaseComponent msg : components )
@@ -267,6 +287,7 @@ public abstract class BaseComponent
      *
      * @return the color of this component
      */
+    @Nullable
     public ChatColor getColor()
     {
         if ( color == null )
@@ -286,6 +307,7 @@ public abstract class BaseComponent
      *
      * @return the color of this component
      */
+    @Nullable
     public ChatColor getColorRaw()
     {
         return color;
@@ -297,6 +319,7 @@ public abstract class BaseComponent
      *
      * @return the font of this component, or null if default font
      */
+    @Nullable
     public String getFont()
     {
         if ( font == null )
@@ -316,6 +339,7 @@ public abstract class BaseComponent
      *
      * @return the font of this component
      */
+    @Nullable
     public String getFontRaw()
     {
         return font;
@@ -343,6 +367,7 @@ public abstract class BaseComponent
      *
      * @return whether the component is bold
      */
+    @Nullable
     public Boolean isBoldRaw()
     {
         return bold;
@@ -370,6 +395,7 @@ public abstract class BaseComponent
      *
      * @return whether the component is italic
      */
+    @Nullable
     public Boolean isItalicRaw()
     {
         return italic;
@@ -397,6 +423,7 @@ public abstract class BaseComponent
      *
      * @return whether the component is underlined
      */
+    @Nullable
     public Boolean isUnderlinedRaw()
     {
         return underlined;
@@ -424,6 +451,7 @@ public abstract class BaseComponent
      *
      * @return whether the component is strikethrough
      */
+    @Nullable
     public Boolean isStrikethroughRaw()
     {
         return strikethrough;
@@ -451,12 +479,13 @@ public abstract class BaseComponent
      *
      * @return whether the component is obfuscated
      */
+    @Nullable
     public Boolean isObfuscatedRaw()
     {
         return obfuscated;
     }
 
-    public void setExtra(List<BaseComponent> components)
+    public void setExtra(@NotNull List<BaseComponent> components)
     {
         for ( BaseComponent component : components )
         {
@@ -471,7 +500,7 @@ public abstract class BaseComponent
      *
      * @param text the text to append
      */
-    public void addExtra(String text)
+    public void addExtra(@NotNull String text)
     {
         addExtra( new TextComponent( text ) );
     }
@@ -482,11 +511,11 @@ public abstract class BaseComponent
      *
      * @param component the component to append
      */
-    public void addExtra(BaseComponent component)
+    public void addExtra(@NotNull BaseComponent component)
     {
         if ( extra == null )
         {
-            extra = new ArrayList<BaseComponent>();
+            extra = new ArrayList<>();
         }
         component.parent = this;
         extra.add( component );
@@ -510,6 +539,7 @@ public abstract class BaseComponent
      *
      * @return the string as plain text
      */
+    @NotNull
     public String toPlainText()
     {
         StringBuilder builder = new StringBuilder();
@@ -534,6 +564,7 @@ public abstract class BaseComponent
      *
      * @return the string in the old format
      */
+    @NotNull
     public String toLegacyText()
     {
         StringBuilder builder = new StringBuilder();

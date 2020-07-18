@@ -65,6 +65,7 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
 import net.md_5.bungee.util.BufUtil;
 import net.md_5.bungee.util.QuietException;
+import org.jetbrains.annotations.NotNull;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection
@@ -567,7 +568,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void disconnect(String reason)
+    public void disconnect(@NotNull String reason)
     {
         if ( canSendKickMessage() )
         {
@@ -591,7 +592,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void disconnect(BaseComponent reason)
+    public void disconnect(@NotNull BaseComponent reason)
     {
         disconnect( new BaseComponent[]
         {
@@ -612,12 +613,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
+    @NotNull
     public InetSocketAddress getAddress()
     {
         return (InetSocketAddress) getSocketAddress();
     }
 
     @Override
+    @NotNull
     public SocketAddress getSocketAddress()
     {
         return ch.getRemoteAddress();

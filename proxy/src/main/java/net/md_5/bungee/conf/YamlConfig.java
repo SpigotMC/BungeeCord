@@ -29,6 +29,7 @@ import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.util.CaseInsensitiveMap;
+import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.error.YAMLException;
@@ -187,25 +188,26 @@ public class YamlConfig implements ConfigurationAdapter
     }
 
     @Override
-    public int getInt(String path, int def)
+    public int getInt(@NotNull String path, int def)
     {
         return get( path, def );
     }
 
     @Override
-    public String getString(String path, String def)
+    public String getString(@NotNull String path, String def)
     {
         return get( path, def );
     }
 
     @Override
-    public boolean getBoolean(String path, boolean def)
+    public boolean getBoolean(@NotNull String path, boolean def)
     {
         return get( path, def );
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    @NotNull
     public Map<String, ServerInfo> getServers()
     {
         Map<String, Map<String, Object>> base = get( "servers", (Map) Collections.singletonMap( "lobby", new HashMap<>() ) );
@@ -229,6 +231,7 @@ public class YamlConfig implements ConfigurationAdapter
     @Override
     @SuppressWarnings("unchecked")
     @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
+    @NotNull
     public Collection<ListenerInfo> getListeners()
     {
         Collection<Map<String, Object>> base = get( "listeners", (Collection) Arrays.asList( new Map[]
@@ -297,22 +300,24 @@ public class YamlConfig implements ConfigurationAdapter
 
     @Override
     @SuppressWarnings("unchecked")
+    @NotNull
     public Collection<String> getGroups(String player)
     {
         Collection<String> groups = get( "groups." + player, null );
-        Collection<String> ret = ( groups == null ) ? new HashSet<String>() : new HashSet<>( groups );
+        Collection<String> ret = ( groups == null ) ? new HashSet<>() : new HashSet<>( groups );
         ret.add( "default" );
         return ret;
     }
 
     @Override
-    public Collection<?> getList(String path, Collection<?> def)
+    public Collection<?> getList(@NotNull String path, Collection<?> def)
     {
         return get( path, def );
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    @NotNull
     public Collection<String> getPermissions(String group)
     {
         Collection<String> permissions = get( "permissions." + group, null );

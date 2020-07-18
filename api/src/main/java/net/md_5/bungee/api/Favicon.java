@@ -13,6 +13,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Favicon shown in the server list.
@@ -37,6 +38,7 @@ public class Favicon
         }
     };
 
+    @NotNull
     public static TypeAdapter<Favicon> getFaviconTypeAdapter()
     {
         return FAVICON_TYPE_ADAPTER;
@@ -57,7 +59,8 @@ public class Favicon
      * @throws IllegalArgumentException if the favicon is larger than
      * {@link Short#MAX_VALUE} or not of dimensions 64x64 pixels.
      */
-    public static Favicon create(BufferedImage image)
+    @NotNull
+    public static Favicon create(@NotNull BufferedImage image)
     {
         // check size
         if ( image.getWidth() != 64 || image.getHeight() != 64 )
@@ -99,7 +102,8 @@ public class Favicon
      * @deprecated Use #create(java.awt.image.BufferedImage) instead
      */
     @Deprecated
-    public static Favicon create(String encodedString)
+    @NotNull
+    public static Favicon create(@NotNull String encodedString)
     {
         return new Favicon( encodedString );
     }

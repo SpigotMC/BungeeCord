@@ -6,6 +6,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.Title.Action;
+import org.jetbrains.annotations.NotNull;
 
 public class BungeeTitle implements Title
 {
@@ -149,7 +150,7 @@ public class BungeeTitle implements Title
     }
 
     @Override
-    public Title send(ProxiedPlayer player)
+    public Title send(@NotNull ProxiedPlayer player)
     {
         sendPacket( player, clear );
         sendPacket( player, reset );

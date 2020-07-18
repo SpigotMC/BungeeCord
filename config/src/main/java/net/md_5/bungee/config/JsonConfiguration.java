@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class JsonConfiguration extends ConfigurationProvider
@@ -35,7 +36,7 @@ public class JsonConfiguration extends ConfigurationProvider
     } ).create();
 
     @Override
-    public void save(Configuration config, File file) throws IOException
+    public void save(@NotNull Configuration config, @NotNull File file) throws IOException
     {
         try ( Writer writer = new OutputStreamWriter( new FileOutputStream( file ), Charsets.UTF_8 ) )
         {
@@ -44,19 +45,19 @@ public class JsonConfiguration extends ConfigurationProvider
     }
 
     @Override
-    public void save(Configuration config, Writer writer)
+    public void save(@NotNull Configuration config, @NotNull Writer writer)
     {
         json.toJson( config.self, writer );
     }
 
     @Override
-    public Configuration load(File file) throws IOException
+    public Configuration load(@NotNull File file) throws IOException
     {
         return load( file, null );
     }
 
     @Override
-    public Configuration load(File file, Configuration defaults) throws IOException
+    public Configuration load(@NotNull File file, Configuration defaults) throws IOException
     {
         try ( FileInputStream is = new FileInputStream( file ) )
         {
@@ -65,14 +66,14 @@ public class JsonConfiguration extends ConfigurationProvider
     }
 
     @Override
-    public Configuration load(Reader reader)
+    public Configuration load(@NotNull Reader reader)
     {
         return load( reader, null );
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Configuration load(Reader reader, Configuration defaults)
+    public Configuration load(@NotNull Reader reader, Configuration defaults)
     {
         Map<String, Object> map = json.fromJson( reader, LinkedHashMap.class );
         if ( map == null )
@@ -83,26 +84,26 @@ public class JsonConfiguration extends ConfigurationProvider
     }
 
     @Override
-    public Configuration load(InputStream is)
+    public Configuration load(@NotNull InputStream is)
     {
         return load( is, null );
     }
 
     @Override
-    public Configuration load(InputStream is, Configuration defaults)
+    public Configuration load(@NotNull InputStream is, Configuration defaults)
     {
         return load( new InputStreamReader( is, Charsets.UTF_8 ), defaults );
     }
 
     @Override
-    public Configuration load(String string)
+    public Configuration load(@NotNull String string)
     {
         return load( string, null );
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Configuration load(String string, Configuration defaults)
+    public Configuration load(@NotNull String string, Configuration defaults)
     {
         Map<String, Object> map = json.fromJson( string, LinkedHashMap.class );
         if ( map == null )

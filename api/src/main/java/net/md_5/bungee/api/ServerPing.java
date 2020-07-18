@@ -6,10 +6,13 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.ToString;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the standard list data returned by opening a server in the
@@ -22,6 +25,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 public class ServerPing
 {
 
+    @NonNull
     private Protocol version;
 
     @Data
@@ -32,6 +36,7 @@ public class ServerPing
         private String name;
         private int protocol;
     }
+    @NonNull
     private Players players;
 
     @Data
@@ -41,6 +46,7 @@ public class ServerPing
 
         private int max;
         private int online;
+        @Nullable
         private PlayerInfo[] sample;
     }
 
@@ -72,13 +78,16 @@ public class ServerPing
             }
         }
 
+        @NotNull
         public String getId()
         {
             return uniqueId.toString().replace( "-", "" );
         }
     }
 
+    @NonNull
     private BaseComponent description;
+    @Nullable
     private Favicon favicon;
 
     @Data
@@ -114,45 +123,49 @@ public class ServerPing
         this( version, players, new TextComponent( TextComponent.fromLegacyText( description ) ), favicon );
     }
 
+    @Nullable
     @Deprecated
     public String getFavicon()
     {
         return getFaviconObject() == null ? null : getFaviconObject().getEncoded();
     }
 
+    @Nullable
     public Favicon getFaviconObject()
     {
         return this.favicon;
     }
 
     @Deprecated
-    public void setFavicon(String favicon)
+    public void setFavicon(@Nullable String favicon)
     {
         setFavicon( favicon == null ? null : Favicon.create( favicon ) );
     }
 
-    public void setFavicon(Favicon favicon)
+    public void setFavicon(@Nullable Favicon favicon)
     {
         this.favicon = favicon;
     }
 
     @Deprecated
-    public void setDescription(String description)
+    public void setDescription(@NotNull String description)
     {
         this.description = new TextComponent( TextComponent.fromLegacyText( description ) );
     }
 
+    @NotNull
     @Deprecated
     public String getDescription()
     {
         return BaseComponent.toLegacyText( description );
     }
 
-    public void setDescriptionComponent(BaseComponent description)
+    public void setDescriptionComponent(@NotNull BaseComponent description)
     {
         this.description = description;
     }
 
+    @NotNull
     public BaseComponent getDescriptionComponent()
     {
         return description;

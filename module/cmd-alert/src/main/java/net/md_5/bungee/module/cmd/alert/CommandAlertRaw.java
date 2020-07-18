@@ -9,6 +9,7 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.chat.ComponentSerializer;
+import org.jetbrains.annotations.NotNull;
 
 public class CommandAlertRaw extends Command
 {
@@ -19,7 +20,7 @@ public class CommandAlertRaw extends Command
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args)
+    public void execute(@NotNull CommandSender sender, String[] args)
     {
         if ( args.length == 0 )
         {

@@ -30,6 +30,7 @@ import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import org.jetbrains.annotations.NotNull;
 
 // CHECKSTYLE:OFF
 @RequiredArgsConstructor
@@ -73,13 +74,14 @@ public class BungeeServerInfo implements ServerInfo
     }
 
     @Override
+    @NotNull
     public String getPermission()
     {
         return "bungeecord.server." + name;
     }
 
     @Override
-    public boolean canAccess(CommandSender player)
+    public boolean canAccess(@NotNull CommandSender player)
     {
         Preconditions.checkNotNull( player, "player" );
         return !restricted || player.hasPermission( getPermission() );
@@ -98,14 +100,14 @@ public class BungeeServerInfo implements ServerInfo
     }
 
     @Override
-    public void sendData(String channel, byte[] data)
+    public void sendData(@NotNull String channel, byte[] data)
     {
         sendData( channel, data, true );
     }
 
     // TODO: Don't like this method
     @Override
-    public boolean sendData(String channel, byte[] data, boolean queue)
+    public boolean sendData(@NotNull String channel, byte[] data, boolean queue)
     {
         Preconditions.checkNotNull( channel, "channel" );
         Preconditions.checkNotNull( data, "data" );
@@ -144,7 +146,7 @@ public class BungeeServerInfo implements ServerInfo
     }
 
     @Override
-    public void ping(final Callback<ServerPing> callback)
+    public void ping(final @NotNull Callback<ServerPing> callback)
     {
         ping( callback, ProxyServer.getInstance().getProtocolVersion() );
     }

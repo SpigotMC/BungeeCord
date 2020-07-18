@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Event;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Called after a {@link ProxiedPlayer} changed one or more of the following
@@ -28,5 +29,6 @@ public class SettingsChangedEvent extends Event
     /**
      * Player who changed the settings.
      */
+    @NotNull
     private final ProxiedPlayer player;
 }

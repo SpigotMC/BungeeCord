@@ -13,6 +13,9 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.score.Scoreboard;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 
 /**
  * Represents a player who's connection is being connected to somewhere else,
@@ -52,8 +55,9 @@ public interface ProxiedPlayer extends Connection, CommandSender
     /**
      * Gets this player's display name.
      *
-     * @return the players current display name
+     * @return the players current display name (default: player's name)
      */
+    @NotNull
     String getDisplayName();
 
     /**
@@ -62,7 +66,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      *
      * @param name the name to set
      */
-    void setDisplayName(String name);
+    void setDisplayName(@NotNull String name);
 
     /**
      * Send a message to the specified screen position of this player.
@@ -70,7 +74,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param position the screen position
      * @param message the message to send
      */
-    public void sendMessage(ChatMessageType position, BaseComponent... message);
+    public void sendMessage(@NotNull ChatMessageType position, @NotNull BaseComponent... message);
 
     /**
      * Send a message to the specified screen position of this player.
@@ -78,7 +82,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param position the screen position
      * @param message the message to send
      */
-    public void sendMessage(ChatMessageType position, BaseComponent message);
+    public void sendMessage(@NotNull ChatMessageType position, @NotNull BaseComponent message);
 
     /**
      * Connects / transfers this user to the specified connection, gracefully
@@ -87,7 +91,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      *
      * @param target the new server to connect to
      */
-    void connect(ServerInfo target);
+    void connect(@NotNull ServerInfo target);
 
     /**
      * Connects / transfers this user to the specified connection, gracefully
@@ -97,7 +101,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param target the new server to connect to
      * @param reason the reason for connecting to the new server
      */
-    void connect(ServerInfo target, ServerConnectEvent.Reason reason);
+    void connect(@NotNull ServerInfo target, ServerConnectEvent.Reason reason);
 
     /**
      * Connects / transfers this user to the specified connection, gracefully
@@ -109,7 +113,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * when an exception is encountered. The boolean parameter denotes success
      * (true) or failure (false).
      */
-    void connect(ServerInfo target, Callback<Boolean> callback);
+    void connect(@NotNull ServerInfo target, @Nullable Callback<Boolean> callback);
 
     /**
      * Connects / transfers this user to the specified connection, gracefully
@@ -122,7 +126,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * (true) or failure (false).
      * @param reason the reason for connecting to the new server
      */
-    void connect(ServerInfo target, Callback<Boolean> callback, ServerConnectEvent.Reason reason);
+    void connect(@NotNull ServerInfo target, @Nullable Callback<Boolean> callback, @NotNull ServerConnectEvent.Reason reason);
 
     /**
      * Connects / transfers this user to the specified connection, gracefully
@@ -131,7 +135,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      *
      * @param request request to connect with
      */
-    void connect(ServerConnectRequest request);
+    void connect(@NotNull ServerConnectRequest request);
 
     /**
      * Gets the server this player is connected to.
@@ -157,13 +161,14 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param channel the channel to send this data via
      * @param data the data to send
      */
-    void sendData(String channel, byte[] data);
+    void sendData(@NotNull String channel, @NotNull byte[] data);
 
     /**
      * Get the pending connection that belongs to this player.
      *
      * @return the pending connection that this player used
      */
+    @NotNull
     PendingConnection getPendingConnection();
 
     /**
@@ -171,13 +176,14 @@ public interface ProxiedPlayer extends Connection, CommandSender
      *
      * @param message the message to say
      */
-    void chat(String message);
+    void chat(@NotNull String message);
 
     /**
      * Get the server which this player will be sent to next time the log in.
      *
      * @return the server, or null if default
      */
+    @Nullable
     ServerInfo getReconnectServer();
 
     /**
@@ -185,7 +191,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      *
      * @param server the server to set
      */
-    void setReconnectServer(ServerInfo server);
+    void setReconnectServer(@Nullable ServerInfo server);
 
     /**
      * Get this connection's UUID, if set.
@@ -222,6 +228,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      *
      * @return the chat flags set, or a reasonable default
      */
+    @NotNull
     ChatMode getChatMode();
 
     /**
@@ -236,6 +243,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      *
      * @return the players skin setting
      */
+    @NotNull
     SkinConfiguration getSkinParts();
 
     /**
@@ -243,6 +251,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      *
      * @return main hand setting
      */
+    @NotNull
     MainHand getMainHand();
 
     /**
@@ -251,7 +260,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param header The header for the tab player list, null to clear it.
      * @param footer The footer for the tab player list, null to clear it.
      */
-    void setTabHeader(BaseComponent header, BaseComponent footer);
+    void setTabHeader(@Nullable BaseComponent header, @Nullable BaseComponent footer);
 
     /**
      * Set the header and footer displayed in the tab player list.
@@ -259,7 +268,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param header The header for the tab player list, null to clear it.
      * @param footer The footer for the tab player list, null to clear it.
      */
-    void setTabHeader(BaseComponent[] header, BaseComponent[] footer);
+    void setTabHeader(@Nullable BaseComponent[] header, @Nullable BaseComponent[] footer);
 
     /**
      * Clears the header and footer displayed in the tab player list.
@@ -273,7 +282,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param title The title to send to the player.
      * @see Title
      */
-    void sendTitle(Title title);
+    void sendTitle(@NotNull Title title);
 
     /**
      * Gets whether this player is using a FML client.
@@ -313,6 +322,8 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * the value is the version. Returns an empty list if the FML handshake has
      * not occurred for this {@link ProxiedPlayer} yet.
      */
+    @NotNull
+    @UnmodifiableView
     Map<String, String> getModList();
 
     /**
@@ -320,5 +331,6 @@ public interface ProxiedPlayer extends Connection, CommandSender
      *
      * @return this player's {@link Scoreboard}
      */
+    @NotNull
     Scoreboard getScoreboard();
 }

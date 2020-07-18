@@ -6,6 +6,7 @@ import lombok.ToString;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Event;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Not to be confused with {@link ServerConnectEvent}, this event is called once
@@ -22,9 +23,11 @@ public class ServerConnectedEvent extends Event
     /**
      * Player whom the server is for.
      */
+    @NotNull
     private final ProxiedPlayer player;
     /**
      * The server itself.
      */
+    @NotNull
     private final Server server;
 }

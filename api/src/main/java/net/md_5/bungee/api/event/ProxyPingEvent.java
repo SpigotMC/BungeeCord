@@ -1,7 +1,8 @@
 package net.md_5.bungee.api.event;
 
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ServerPing;
@@ -10,7 +11,8 @@ import net.md_5.bungee.api.connection.PendingConnection;
 /**
  * Called when the proxy is pinged with packet 0xFE from the server list.
  */
-@Data
+@Getter
+@Setter
 @ToString(callSuper = false)
 @EqualsAndHashCode(callSuper = false)
 public class ProxyPingEvent extends AsyncEvent<ProxyPingEvent>

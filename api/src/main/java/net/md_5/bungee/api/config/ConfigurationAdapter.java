@@ -2,6 +2,9 @@ package net.md_5.bungee.api.config;
 
 import java.util.Collection;
 import java.util.Map;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * This class allows plugins to set their own configuration adapter to load
@@ -23,7 +26,7 @@ public interface ConfigurationAdapter
      * @param def the default value
      * @return the retrieved integer
      */
-    public int getInt(String path, int def);
+    public int getInt(@NotNull String path, int def);
 
     /**
      * Gets a string from the specified path.
@@ -32,7 +35,9 @@ public interface ConfigurationAdapter
      * @param def the default value
      * @return the retrieved string
      */
-    public String getString(String path, String def);
+    @Nullable
+    @Contract("!null, !null -> !null; !null, null -> _")
+    public String getString(@NotNull String path, @Nullable String def);
 
     /**
      * Gets a boolean from the specified path.
@@ -41,7 +46,7 @@ public interface ConfigurationAdapter
      * @param def the default value
      * @return the retrieved boolean
      */
-    public boolean getBoolean(String path, boolean def);
+    public boolean getBoolean(@NotNull String path, boolean def);
 
     /**
      * Get a list from the specified path.
@@ -50,13 +55,16 @@ public interface ConfigurationAdapter
      * @param def the default value
      * @return the retrieved list
      */
-    public Collection<?> getList(String path, Collection<?> def);
+    @Nullable
+    @Contract("!null, !null -> !null; !null, null -> _")
+    public Collection<?> getList(@NotNull String path, @Nullable Collection<?> def);
 
     /**
      * Get the configuration all servers which may be accessible via the proxy.
      *
      * @return all accessible servers, keyed by name
      */
+    @NotNull
     public Map<String, ServerInfo> getServers();
 
     /**
@@ -64,6 +72,7 @@ public interface ConfigurationAdapter
      *
      * @return a list of all hosts to bind to
      */
+    @NotNull
     public Collection<ListenerInfo> getListeners();
 
     /**
@@ -72,14 +81,16 @@ public interface ConfigurationAdapter
      * @param player the player to check
      * @return all the player's groups.
      */
-    public Collection<String> getGroups(String player);
+    @NotNull
+    public Collection<String> getGroups(@Nullable String player);
 
     /**
      * Get all permission corresponding to the specified group. The result of
      * this method may or may not be cached, depending on the implementation.
      *
      * @param group the group to check
-     * @return all true permissions for this group
+     * @return all true permissions for this group, if group does not exist, collection is empty and unmodifiable
      */
+    @NotNull
     public Collection<String> getPermissions(String group);
 }

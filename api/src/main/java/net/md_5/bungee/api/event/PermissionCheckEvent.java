@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.ToString;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Event;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Called when the permission of a CommandSender is checked.
@@ -22,10 +23,12 @@ public class PermissionCheckEvent extends Event
     /**
      * The command sender being checked for a permission.
      */
+    @NotNull
     private final CommandSender sender;
     /**
      * The permission to check.
      */
+    @NotNull
     private final String permission;
     /**
      * The outcome of this permission check.

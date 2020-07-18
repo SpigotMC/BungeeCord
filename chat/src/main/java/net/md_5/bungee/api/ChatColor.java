@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import lombok.Getter;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Simplistic enumeration of all supported color values for chat.
@@ -24,15 +27,15 @@ public final class ChatColor
     /**
      * Pattern to remove all colour codes.
      */
-    public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile( "(?i)" + String.valueOf( COLOR_CHAR ) + "[0-9A-FK-ORX]" );
+    public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile( "(?i)" + COLOR_CHAR + "[0-9A-FK-ORX]" );
     /**
      * Colour instances keyed by their active character.
      */
-    private static final Map<Character, ChatColor> BY_CHAR = new HashMap<Character, ChatColor>();
+    private static final Map<Character, ChatColor> BY_CHAR = new HashMap<>();
     /**
      * Colour instances keyed by their name.
      */
-    private static final Map<String, ChatColor> BY_NAME = new HashMap<String, ChatColor>();
+    private static final Map<String, ChatColor> BY_NAME = new HashMap<>();
     /**
      * Represents black.
      */
@@ -174,6 +177,7 @@ public final class ChatColor
     }
 
     @Override
+    @Contract(value = "null -> false", pure = true)
     public boolean equals(Object obj)
     {
         if ( this == obj )
@@ -190,6 +194,7 @@ public final class ChatColor
     }
 
     @Override
+    @Contract(pure = true)
     public String toString()
     {
         return toString;
@@ -201,6 +206,7 @@ public final class ChatColor
      * @param input String to strip of color
      * @return A copy of the input string, without any coloring
      */
+    @Contract(value = "null -> null; !null -> new", pure = true)
     public static String stripColor(final String input)
     {
         if ( input == null )
@@ -211,15 +217,17 @@ public final class ChatColor
         return STRIP_COLOR_PATTERN.matcher( input ).replaceAll( "" );
     }
 
-    public static String translateAlternateColorCodes(char altColorChar, String textToTranslate)
+    @NotNull
+    @Contract(value = "_, !null -> new", pure = true)
+    public static String translateAlternateColorCodes(char altColorChar, @NotNull String textToTranslate)
     {
         char[] b = textToTranslate.toCharArray();
         for ( int i = 0; i < b.length - 1; i++ )
         {
-            if ( b[i] == altColorChar && ALL_CODES.indexOf( b[i + 1] ) > -1 )
+            if ( b[ i ] == altColorChar && ALL_CODES.indexOf( b[ i + 1 ] ) > -1 )
             {
-                b[i] = ChatColor.COLOR_CHAR;
-                b[i + 1] = Character.toLowerCase( b[i + 1] );
+                b[ i ] = ChatColor.COLOR_CHAR;
+                b[ i + 1 ] = Character.toLowerCase( b[ i + 1 ] );
             }
         }
         return new String( b );
@@ -231,19 +239,25 @@ public final class ChatColor
      * @param code the code to search for
      * @return the mapped colour, or null if non exists
      */
+    @Nullable
+    @Contract(pure = true)
     public static ChatColor getByChar(char code)
     {
         return BY_CHAR.get( code );
     }
 
-    public static ChatColor of(Color color)
+    @NotNull
+    @Contract(pure = true)
+    public static ChatColor of(@NotNull Color color)
     {
         return of( "#" + Integer.toHexString( color.getRGB() ).substring( 2 ) );
     }
 
-    public static ChatColor of(String string)
+    @NotNull
+    @Contract(pure = true)
+    public static ChatColor of(@NotNull String string)
     {
-        Preconditions.checkArgument( string != null, "string cannot be null" );
+        Preconditions.checkNotNull( string, "string cannot be null" );
         if ( string.startsWith( "#" ) && string.length() == 7 )
         {
             int rgb;
@@ -280,8 +294,10 @@ public final class ChatColor
      * @return ChatColor
      * @deprecated holdover from when this class was an enum
      */
+    @NotNull
+    @Contract(pure = true)
     @Deprecated
-    public static ChatColor valueOf(String name)
+    public static ChatColor valueOf(@NotNull String name)
     {
         Preconditions.checkNotNull( name, "Name is null" );
 
@@ -297,10 +313,12 @@ public final class ChatColor
      * @return copied array of all colors and formats
      * @deprecated holdover from when this class was an enum
      */
+    @NotNull
+    @Contract(pure = true)
     @Deprecated
     public static ChatColor[] values()
     {
-        return BY_CHAR.values().toArray( new ChatColor[ BY_CHAR.values().size() ] );
+        return BY_CHAR.values().toArray( new ChatColor[ 0 ] );
     }
 
     /**
@@ -309,6 +327,8 @@ public final class ChatColor
      * @return constant name
      * @deprecated holdover from when this class was an enum
      */
+    @NotNull
+    @Contract(pure = true)
     @Deprecated
     public String name()
     {
@@ -321,6 +341,7 @@ public final class ChatColor
      * @return ordinal
      * @deprecated holdover from when this class was an enum
      */
+    @Contract(pure = true)
     @Deprecated
     public int ordinal()
     {

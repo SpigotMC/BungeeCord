@@ -9,6 +9,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 @Setter
@@ -27,7 +30,9 @@ public final class TextComponent extends BaseComponent
      * @param message the text to convert
      * @return the components needed to print the message to the client
      */
-    public static BaseComponent[] fromLegacyText(String message)
+    @NotNull
+    @Contract(pure = true)
+    public static BaseComponent[] fromLegacyText(@NotNull String message)
     {
         return fromLegacyText( message, ChatColor.WHITE );
     }
@@ -42,9 +47,11 @@ public final class TextComponent extends BaseComponent
      * (i.e. after ChatColor.RESET).
      * @return the components needed to print the message to the client
      */
-    public static BaseComponent[] fromLegacyText(String message, ChatColor defaultColor)
+    @NotNull
+    @Contract(pure = true)
+    public static BaseComponent[] fromLegacyText(@NotNull String message, @Nullable ChatColor defaultColor)
     {
-        ArrayList<BaseComponent> components = new ArrayList<BaseComponent>();
+        ArrayList<BaseComponent> components = new ArrayList<>();
         StringBuilder builder = new StringBuilder();
         TextComponent component = new TextComponent();
         Matcher matcher = url.matcher( message );
@@ -157,7 +164,7 @@ public final class TextComponent extends BaseComponent
         component.setText( builder.toString() );
         components.add( component );
 
-        return components.toArray( new BaseComponent[ components.size() ] );
+        return components.toArray( new BaseComponent[ 0 ] );
     }
 
     /**
@@ -179,7 +186,7 @@ public final class TextComponent extends BaseComponent
      *
      * @param textComponent the component to copy from
      */
-    public TextComponent(TextComponent textComponent)
+    public TextComponent(@NotNull TextComponent textComponent)
     {
         super( textComponent );
         setText( textComponent.getText() );
@@ -191,14 +198,14 @@ public final class TextComponent extends BaseComponent
      *
      * @param extras the extras to set
      */
-    public TextComponent(BaseComponent... extras)
+    public TextComponent(@NotNull BaseComponent... extras)
     {
         this();
         if ( extras.length == 0 )
         {
             return;
         }
-        setExtra( new ArrayList<BaseComponent>( Arrays.asList( extras ) ) );
+        setExtra( new ArrayList<>( Arrays.asList( extras ) ) );
     }
 
     /**
@@ -207,6 +214,8 @@ public final class TextComponent extends BaseComponent
      * @return the duplicate of this TextComponent.
      */
     @Override
+    @NotNull
+    @Contract(pure = true)
     public TextComponent duplicate()
     {
         return new TextComponent( this );
@@ -228,6 +237,8 @@ public final class TextComponent extends BaseComponent
     }
 
     @Override
+    @NotNull
+    @Contract(pure = true)
     public String toString()
     {
         return String.format( "TextComponent{text=%s, %s}", text, super.toString() );

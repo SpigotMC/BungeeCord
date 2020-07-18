@@ -11,12 +11,13 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
+import org.jetbrains.annotations.NotNull;
 
 public class TranslatableComponentSerializer extends BaseComponentSerializer implements JsonSerializer<TranslatableComponent>, JsonDeserializer<TranslatableComponent>
 {
 
     @Override
-    public TranslatableComponent deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
+    public TranslatableComponent deserialize(@NotNull JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
         TranslatableComponent component = new TranslatableComponent();
         JsonObject object = json.getAsJsonObject();

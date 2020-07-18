@@ -23,6 +23,8 @@ import net.md_5.bungee.api.chat.hover.content.Item;
 import net.md_5.bungee.api.chat.hover.content.ItemSerializer;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.api.chat.hover.content.TextSerializer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ComponentSerializer implements JsonDeserializer<BaseComponent>
 {
@@ -41,9 +43,10 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
             registerTypeAdapter( ItemTag.class, new ItemTag.Serializer() ).
             create();
 
-    public static final ThreadLocal<Set<BaseComponent>> serializedComponents = new ThreadLocal<Set<BaseComponent>>();
+    public static final ThreadLocal<Set<BaseComponent>> serializedComponents = new ThreadLocal<>();
 
-    public static BaseComponent[] parse(String json)
+    @NotNull
+    public static BaseComponent[] parse(@NotNull String json)
     {
         JsonElement jsonElement = JSON_PARSER.parse( json );
 
@@ -59,17 +62,20 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
         }
     }
 
-    public static String toString(Object object)
+    @NotNull
+    public static String toString(@Nullable Object object)
     {
         return gson.toJson( object );
     }
 
-    public static String toString(BaseComponent component)
+    @NotNull
+    public static String toString(@Nullable BaseComponent component)
     {
         return gson.toJson( component );
     }
 
-    public static String toString(BaseComponent... components)
+    @NotNull
+    public static String toString(@NotNull BaseComponent... components)
     {
         if ( components.length == 1 )
         {
@@ -81,7 +87,7 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
     }
 
     @Override
-    public BaseComponent deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
+    public BaseComponent deserialize(@NotNull JsonElement json, @Nullable Type typeOfT, @NotNull JsonDeserializationContext context) throws JsonParseException
     {
         if ( json.isJsonPrimitive() )
         {

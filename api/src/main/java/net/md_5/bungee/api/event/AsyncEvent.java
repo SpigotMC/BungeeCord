@@ -13,6 +13,7 @@ import lombok.ToString;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.plugin.Event;
 import net.md_5.bungee.api.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an event which depends on the result of asynchronous operations.
@@ -51,7 +52,7 @@ public class AsyncEvent<T> extends Event
      *
      * @param plugin the plugin registering this intent
      */
-    public void registerIntent(Plugin plugin)
+    public void registerIntent(@NotNull Plugin plugin)
     {
         Preconditions.checkState( !fired.get(), "Event %s has already been fired", this );
 
@@ -73,7 +74,7 @@ public class AsyncEvent<T> extends Event
      * @param plugin a plugin which has an intent registered for this event
      */
     @SuppressWarnings("unchecked")
-    public void completeIntent(Plugin plugin)
+    public void completeIntent(@NotNull Plugin plugin)
     {
         AtomicInteger intentCount = intents.get( plugin );
         Preconditions.checkState( intentCount != null && intentCount.get() > 0, "Plugin %s has not registered intents for event %s", plugin, this );

@@ -15,14 +15,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.api.scheduler.TaskScheduler;
+import org.jetbrains.annotations.NotNull;
 
 public class BungeeScheduler implements TaskScheduler
 {
 
     private final Object lock = new Object();
     private final AtomicInteger taskCounter = new AtomicInteger();
-    private final TIntObjectMap<BungeeTask> tasks = TCollections.synchronizedMap( new TIntObjectHashMap<BungeeTask>() );
-    private final Multimap<Plugin, BungeeTask> tasksByPlugin = Multimaps.synchronizedMultimap( HashMultimap.<Plugin, BungeeTask>create() );
+    private final TIntObjectMap<BungeeTask> tasks = TCollections.synchronizedMap( new TIntObjectHashMap<>() );
+    private final Multimap<Plugin, BungeeTask> tasksByPlugin = Multimaps.synchronizedMultimap( HashMultimap.create() );
     //
     private final Unsafe unsafe = new Unsafe()
     {
@@ -53,7 +54,7 @@ public class BungeeScheduler implements TaskScheduler
     }
 
     @Override
-    public void cancel(ScheduledTask task)
+    public void cancel(@NotNull ScheduledTask task)
     {
         task.cancel();
     }
@@ -77,19 +78,22 @@ public class BungeeScheduler implements TaskScheduler
     }
 
     @Override
-    public ScheduledTask runAsync(Plugin owner, Runnable task)
+    @NotNull
+    public ScheduledTask runAsync(@NotNull Plugin owner, @NotNull Runnable task)
     {
         return schedule( owner, task, 0, TimeUnit.MILLISECONDS );
     }
 
     @Override
-    public ScheduledTask schedule(Plugin owner, Runnable task, long delay, TimeUnit unit)
+    @NotNull
+    public ScheduledTask schedule(@NotNull Plugin owner, @NotNull Runnable task, long delay, @NotNull TimeUnit unit)
     {
         return schedule( owner, task, delay, 0, unit );
     }
 
     @Override
-    public ScheduledTask schedule(Plugin owner, Runnable task, long delay, long period, TimeUnit unit)
+    @NotNull
+    public ScheduledTask schedule(@NotNull Plugin owner, @NotNull Runnable task, long delay, long period, @NotNull TimeUnit unit)
     {
         Preconditions.checkNotNull( owner, "owner" );
         Preconditions.checkNotNull( task, "task" );

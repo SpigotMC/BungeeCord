@@ -1,6 +1,7 @@
 package net.md_5.bungee.api.connection;
 
 import net.md_5.bungee.api.config.ServerInfo;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a destination which this proxy might connect to.
@@ -13,6 +14,7 @@ public interface Server extends Connection
      *
      * @return the {@link ServerInfo} for this server
      */
+    @NotNull
     public ServerInfo getInfo();
 
     /**
@@ -25,5 +27,5 @@ public interface Server extends Connection
      * @param channel the channel to send this data via
      * @param data the data to send
      */
-    public abstract void sendData(String channel, byte[] data);
+    public abstract void sendData(@NotNull String channel, @NotNull byte[] data);
 }

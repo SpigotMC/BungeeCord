@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 @Getter
 @Setter
@@ -26,7 +28,7 @@ public final class KeybindComponent extends BaseComponent
      *
      * @param original the original for the new keybind component.
      */
-    public KeybindComponent(KeybindComponent original)
+    public KeybindComponent(@NotNull KeybindComponent original)
     {
         super( original );
         setKeybind( original.getKeybind() );
@@ -44,6 +46,8 @@ public final class KeybindComponent extends BaseComponent
     }
 
     @Override
+    @NotNull
+    @Contract(value = " -> new", pure = true)
     public KeybindComponent duplicate()
     {
         return new KeybindComponent( this );

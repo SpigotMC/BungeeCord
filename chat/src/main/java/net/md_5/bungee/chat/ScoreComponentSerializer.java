@@ -9,12 +9,13 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
 import net.md_5.bungee.api.chat.ScoreComponent;
+import org.jetbrains.annotations.NotNull;
 
 public class ScoreComponentSerializer extends BaseComponentSerializer implements JsonSerializer<ScoreComponent>, JsonDeserializer<ScoreComponent>
 {
 
     @Override
-    public ScoreComponent deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
+    public ScoreComponent deserialize(@NotNull JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
     {
         JsonObject json = element.getAsJsonObject();
         if ( !json.has( "score" ) )

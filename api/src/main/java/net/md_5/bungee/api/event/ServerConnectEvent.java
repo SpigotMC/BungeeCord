@@ -9,6 +9,8 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Cancellable;
 import net.md_5.bungee.api.plugin.Event;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Called when deciding to connect to a server. At the time when this event is
@@ -25,6 +27,7 @@ public class ServerConnectEvent extends Event implements Cancellable
     /**
      * Player connecting to a new server.
      */
+    @NotNull
     private final ProxiedPlayer player;
     /**
      * Server the player will be connected to.
@@ -34,10 +37,12 @@ public class ServerConnectEvent extends Event implements Cancellable
     /**
      * Reason for connecting to a new server.
      */
+    @NotNull
     private final Reason reason;
     /**
      * Request used to connect to given server.
      */
+    @Nullable
     private final ServerConnectRequest request;
     /**
      * Cancelled state.
@@ -56,7 +61,7 @@ public class ServerConnectEvent extends Event implements Cancellable
         this( player, target, reason, null );
     }
 
-    public ServerConnectEvent(ProxiedPlayer player, ServerInfo target, Reason reason, ServerConnectRequest request)
+    public ServerConnectEvent(@NotNull ProxiedPlayer player, @NotNull ServerInfo target, @NotNull Reason reason, @Nullable ServerConnectRequest request)
     {
         this.player = player;
         this.target = target;

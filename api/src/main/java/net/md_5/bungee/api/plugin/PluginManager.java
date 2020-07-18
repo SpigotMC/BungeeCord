@@ -31,6 +31,9 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.event.EventBus;
 import net.md_5.bungee.event.EventHandler;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.introspector.PropertyUtils;
@@ -54,7 +57,6 @@ public final class PluginManager
     private final Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
     private final Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
 
-    @SuppressWarnings("unchecked")
     public PluginManager(ProxyServer proxy)
     {
         this.proxy = proxy;
@@ -75,7 +77,7 @@ public final class PluginManager
      * @param plugin the plugin owning this command
      * @param command the command to register
      */
-    public void registerCommand(Plugin plugin, Command command)
+    public void registerCommand(Plugin plugin, @NotNull Command command)
     {
         commandMap.put( command.getName().toLowerCase( Locale.ROOT ), command );
         for ( String alias : command.getAliases() )
@@ -90,9 +92,9 @@ public final class PluginManager
      *
      * @param command the command to unregister
      */
-    public void unregisterCommand(Command command)
+    public void unregisterCommand(@NotNull Command command)
     {
-        while ( commandMap.values().remove( command ) );
+        while ( commandMap.values().remove( command ) ) ;
         commandsByPlugin.values().remove( command );
     }
 
@@ -106,7 +108,7 @@ public final class PluginManager
         for ( Iterator<Command> it = commandsByPlugin.get( plugin ).iterator(); it.hasNext(); )
         {
             Command command = it.next();
-            while ( commandMap.values().remove( command ) );
+            while ( commandMap.values().remove( command ) ) ;
             it.remove();
         }
     }
@@ -132,12 +134,12 @@ public final class PluginManager
      * @param sender the sender executing the command
      * @return whether the command will be handled
      */
-    public boolean isExecutableCommand(String commandName, CommandSender sender)
+    public boolean isExecutableCommand(@NotNull String commandName, @NotNull CommandSender sender)
     {
         return getCommandIfEnabled( commandName, sender ) != null;
     }
 
-    public boolean dispatchCommand(CommandSender sender, String commandLine)
+    public boolean dispatchCommand(@NotNull CommandSender sender, @NotNull String commandLine)
     {
         return dispatchCommand( sender, commandLine, null );
     }
@@ -153,16 +155,16 @@ public final class PluginManager
      * returned instead.
      * @return whether the command was handled
      */
-    public boolean dispatchCommand(CommandSender sender, String commandLine, List<String> tabResults)
+    public boolean dispatchCommand(@NotNull CommandSender sender, @NotNull String commandLine, @Nullable List<String> tabResults)
     {
         String[] split = commandLine.split( " ", -1 );
         // Check for chat that only contains " "
-        if ( split.length == 0 || split[0].isEmpty() )
+        if ( split.length == 0 || split[ 0 ].isEmpty() )
         {
             return false;
         }
 
-        Command command = getCommandIfEnabled( split[0], sender );
+        Command command = getCommandIfEnabled( split[ 0 ], sender );
         if ( command == null )
         {
             return false;
@@ -186,7 +188,7 @@ public final class PluginManager
                 {
                     proxy.getLogger().log( Level.INFO, "{0} executed command: /{1}", new Object[]
                     {
-                        sender.getName(), commandLine
+                            sender.getName(), commandLine
                     } );
                 }
                 command.execute( sender, args );
@@ -210,6 +212,7 @@ public final class PluginManager
      *
      * @return the set of loaded plugins
      */
+    @NotNull
     public Collection<Plugin> getPlugins()
     {
         return plugins.values();
@@ -221,7 +224,9 @@ public final class PluginManager
      * @param name of the plugin to retrieve
      * @return the retrieved plugin or null if not loaded
      */
-    public Plugin getPlugin(String name)
+    @Nullable
+    @Contract("null -> null; !null -> _")
+    public Plugin getPlugin(@Nullable String name)
     {
         return plugins.get( name );
     }
@@ -232,7 +237,7 @@ public final class PluginManager
         for ( Map.Entry<String, PluginDescription> entry : toLoad.entrySet() )
         {
             PluginDescription plugin = entry.getValue();
-            if ( !enablePlugin( pluginStatuses, new Stack<PluginDescription>(), plugin ) )
+            if ( !enablePlugin( pluginStatuses, new Stack<>(), plugin ) )
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "Failed to enable {0}", entry.getKey() );
             }
@@ -348,7 +353,7 @@ public final class PluginManager
      *
      * @param folder the folder to search for plugins in
      */
-    public void detectPlugins(File folder)
+    public void detectPlugins(@NotNull File folder)
     {
         Preconditions.checkNotNull( folder, "folder" );
         Preconditions.checkArgument( folder.isDirectory(), "Must load from a directory" );
@@ -391,7 +396,8 @@ public final class PluginManager
      * @param event the event to call
      * @return the called event
      */
-    public <T extends Event> T callEvent(T event)
+    @NotNull
+    public <T extends Event> T callEvent(@NotNull T event)
     {
         Preconditions.checkNotNull( event, "event" );
 
@@ -418,7 +424,7 @@ public final class PluginManager
      * @param plugin the owning plugin
      * @param listener the listener to register events for
      */
-    public void registerListener(Plugin plugin, Listener listener)
+    public void registerListener(Plugin plugin, @NotNull Listener listener)
     {
         for ( Method method : listener.getClass().getDeclaredMethods() )
         {
@@ -434,7 +440,7 @@ public final class PluginManager
      *
      * @param listener the listener to unregister
      */
-    public void unregisterListener(Listener listener)
+    public void unregisterListener(@NotNull Listener listener)
     {
         eventBus.unregister( listener );
         listenersByPlugin.values().remove( listener );
@@ -459,6 +465,7 @@ public final class PluginManager
      *
      * @return commands
      */
+    @NotNull
     public Collection<Map.Entry<String, Command>> getCommands()
     {
         return Collections.unmodifiableCollection( commandMap.entrySet() );

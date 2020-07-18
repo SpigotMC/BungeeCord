@@ -9,12 +9,13 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
 import net.md_5.bungee.api.chat.KeybindComponent;
+import org.jetbrains.annotations.NotNull;
 
 public class KeybindComponentSerializer extends BaseComponentSerializer implements JsonSerializer<KeybindComponent>, JsonDeserializer<KeybindComponent>
 {
 
     @Override
-    public KeybindComponent deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
+    public KeybindComponent deserialize(@NotNull JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
         JsonObject object = json.getAsJsonObject();
         if ( !object.has( "keybind" ) )

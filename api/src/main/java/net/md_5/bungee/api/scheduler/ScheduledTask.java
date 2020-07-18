@@ -1,6 +1,7 @@
 package net.md_5.bungee.api.scheduler;
 
 import net.md_5.bungee.api.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a task scheduled for execution by the {@link TaskScheduler}.
@@ -20,6 +21,7 @@ public interface ScheduledTask
      *
      * @return the owning plugin
      */
+    @NotNull
     Plugin getOwner();
 
     /**
@@ -27,6 +29,7 @@ public interface ScheduledTask
      *
      * @return the {@link Runnable} behind this task
      */
+    @NotNull
     Runnable getTask();
 
     /**

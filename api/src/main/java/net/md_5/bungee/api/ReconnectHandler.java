@@ -2,6 +2,7 @@ package net.md_5.bungee.api;
 
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import org.jetbrains.annotations.NotNull;
 
 public interface ReconnectHandler
 {
@@ -12,7 +13,7 @@ public interface ReconnectHandler
      * @param player the connecting player
      * @return the server to connect to
      */
-    ServerInfo getServer(ProxiedPlayer player);
+    ServerInfo getServer(@NotNull ProxiedPlayer player);
 
     /**
      * Save the server of this player before they disconnect so it can be
@@ -20,7 +21,7 @@ public interface ReconnectHandler
      *
      * @param player the player to save
      */
-    void setServer(ProxiedPlayer player); // TOOD: String + String arguments?
+    void setServer(@NotNull ProxiedPlayer player); // TOOD: String + String arguments?
 
     /**
      * Save all pending reconnect locations. Whilst not used for database

@@ -5,6 +5,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This component displays the score based on a player score on the scoreboard.
@@ -70,7 +72,7 @@ public final class ScoreComponent extends BaseComponent
      *
      * @param original the original for the new score component
      */
-    public ScoreComponent(ScoreComponent original)
+    public ScoreComponent(@NotNull ScoreComponent original)
     {
         super( original );
         setName( original.getName() );
@@ -78,6 +80,8 @@ public final class ScoreComponent extends BaseComponent
         setValue( original.getValue() );
     }
 
+    @NotNull
+    @Contract(value = " -> new", pure = true)
     @Override
     public ScoreComponent duplicate()
     {

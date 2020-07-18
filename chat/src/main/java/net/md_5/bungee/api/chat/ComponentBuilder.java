@@ -6,6 +6,9 @@ import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * <p>
@@ -37,7 +40,7 @@ public final class ComponentBuilder
     @Getter
     private int cursor = -1;
     @Getter
-    private final List<BaseComponent> parts = new ArrayList<BaseComponent>();
+    private final List<BaseComponent> parts = new ArrayList<>();
     private BaseComponent dummy;
 
     private ComponentBuilder(BaseComponent[] parts)
@@ -57,7 +60,7 @@ public final class ComponentBuilder
      */
     public ComponentBuilder(ComponentBuilder original)
     {
-        this( original.parts.toArray( new BaseComponent[ original.parts.size() ] ) );
+        this( original.parts.toArray( new BaseComponent[ 0 ] ) );
     }
 
     /**
@@ -90,6 +93,7 @@ public final class ComponentBuilder
         {
             dummy = new BaseComponent()
             {
+                @NotNull
                 @Override
                 public BaseComponent duplicate()
                 {
@@ -105,6 +109,7 @@ public final class ComponentBuilder
      *
      * @return this ComponentBuilder for chaining
      */
+    @Contract(value = "-> this", mutates = "this")
     public ComponentBuilder resetCursor()
     {
         cursor = parts.size() - 1;
@@ -120,11 +125,12 @@ public final class ComponentBuilder
      * @throws IndexOutOfBoundsException if the index is out of range
      * ({@code index < 0 || index >= size()})
      */
+    @Contract(value = "_ -> this", mutates = "this")
     public ComponentBuilder setCursor(int pos) throws IndexOutOfBoundsException
     {
         if ( ( this.cursor != pos ) && ( pos < 0 || pos >= parts.size() ) )
         {
-            throw new IndexOutOfBoundsException( "Cursor out of bounds (expected between 0 + " + ( parts.size() - 1 ) + ")" );
+            throw new IndexOutOfBoundsException( String.format( "Cursor out of bounds (expected between 0 and %d, but was %d)", parts.size() - 1, pos ) );
         }
 
         this.cursor = pos;
@@ -139,6 +145,8 @@ public final class ComponentBuilder
      * @param component the component to append
      * @return this ComponentBuilder for chaining
      */
+    @NotNull
+    @Contract(mutates = "this")
     public ComponentBuilder append(BaseComponent component)
     {
         return append( component, FormatRetention.ALL );
@@ -153,7 +161,9 @@ public final class ComponentBuilder
      * @param retention the formatting to retain
      * @return this ComponentBuilder for chaining
      */
-    public ComponentBuilder append(BaseComponent component, FormatRetention retention)
+    @NotNull
+    @Contract(value = "_, _ -> this", mutates = "this")
+    public ComponentBuilder append(BaseComponent component, @Nullable FormatRetention retention)
     {
         BaseComponent previous = ( parts.isEmpty() ) ? null : parts.get( parts.size() - 1 );
         if ( previous == null )
@@ -178,6 +188,7 @@ public final class ComponentBuilder
      * @param components the components to append
      * @return this ComponentBuilder for chaining
      */
+    @Contract(value = "_ -> this", mutates = "this")
     public ComponentBuilder append(BaseComponent[] components)
     {
         return append( components, FormatRetention.ALL );
@@ -192,7 +203,8 @@ public final class ComponentBuilder
      * @param retention the formatting to retain
      * @return this ComponentBuilder for chaining
      */
-    public ComponentBuilder append(BaseComponent[] components, FormatRetention retention)
+    @Contract(value = "_, _ -> this", mutates = "this")
+    public ComponentBuilder append(@NotNull BaseComponent[] components, @Nullable FormatRetention retention)
     {
         Preconditions.checkArgument( components.length != 0, "No components to append" );
 
@@ -211,6 +223,8 @@ public final class ComponentBuilder
      * @param text the text to append
      * @return this ComponentBuilder for chaining
      */
+    @NotNull
+    @Contract(value = "_ -> this", mutates = "this")
     public ComponentBuilder append(String text)
     {
         return append( text, FormatRetention.ALL );
@@ -224,7 +238,8 @@ public final class ComponentBuilder
      * @param text the text to append
      * @return this ComponentBuilder for chaining
      */
-    public ComponentBuilder appendLegacy(String text)
+    @Contract(value = "!null -> this; null -> fail", mutates = "this")
+    public ComponentBuilder appendLegacy(@NotNull String text)
     {
         return append( TextComponent.fromLegacyText( text ) );
     }
@@ -238,6 +253,8 @@ public final class ComponentBuilder
      * @param retention the formatting to retain
      * @return this ComponentBuilder for chaining
      */
+    @NotNull
+    @Contract(value = "_, _ -> this", mutates = "this")
     public ComponentBuilder append(String text, FormatRetention retention)
     {
         return append( new TextComponent( text ), retention );
@@ -253,7 +270,7 @@ public final class ComponentBuilder
      * @param joiner joiner used for operation
      * @return this ComponentBuilder for chaining
      */
-    public ComponentBuilder append(Joiner joiner)
+    public ComponentBuilder append(@NotNull Joiner joiner)
     {
         return joiner.join( this, FormatRetention.ALL );
     }
@@ -269,7 +286,7 @@ public final class ComponentBuilder
      * @param retention the formatting to retain
      * @return this ComponentBuilder for chaining
      */
-    public ComponentBuilder append(Joiner joiner, FormatRetention retention)
+    public ComponentBuilder append(@NotNull Joiner joiner, FormatRetention retention)
     {
         return joiner.join( this, retention );
     }
@@ -281,6 +298,7 @@ public final class ComponentBuilder
      * @throws IndexOutOfBoundsException if the index is out of range
      * ({@code index < 0 || index >= size()})
      */
+    @Contract(mutates = "this")
     public void removeComponent(int pos) throws IndexOutOfBoundsException
     {
         if ( parts.remove( pos ) != null )
@@ -297,6 +315,7 @@ public final class ComponentBuilder
      * @throws IndexOutOfBoundsException if the index is out of range
      * ({@code index < 0 || index >= size()})
      */
+    @Contract(pure = true)
     public BaseComponent getComponent(int pos) throws IndexOutOfBoundsException
     {
         return parts.get( pos );
@@ -307,6 +326,7 @@ public final class ComponentBuilder
      *
      * @return the active component or null if builder is empty
      */
+    @Contract(pure = true)
     public BaseComponent getCurrentComponent()
     {
         return ( cursor == -1 ) ? getDummy() : parts.get( cursor );
@@ -318,7 +338,8 @@ public final class ComponentBuilder
      * @param color the new color
      * @return this ComponentBuilder for chaining
      */
-    public ComponentBuilder color(ChatColor color)
+    @Contract(mutates = "this")
+    public ComponentBuilder color(@Nullable ChatColor color)
     {
         getCurrentComponent().setColor( color );
         return this;
@@ -330,7 +351,8 @@ public final class ComponentBuilder
      * @param font the new font
      * @return this ComponentBuilder for chaining
      */
-    public ComponentBuilder font(String font)
+    @Contract(mutates = "this")
+    public ComponentBuilder font(@Nullable String font)
     {
         getCurrentComponent().setFont( font );
         return this;
@@ -342,6 +364,7 @@ public final class ComponentBuilder
      * @param bold whether this part is bold
      * @return this ComponentBuilder for chaining
      */
+    @Contract(value = "_ -> this", mutates = "this")
     public ComponentBuilder bold(boolean bold)
     {
         getCurrentComponent().setBold( bold );
@@ -354,6 +377,7 @@ public final class ComponentBuilder
      * @param italic whether this part is italic
      * @return this ComponentBuilder for chaining
      */
+    @Contract(value = "_ -> this", mutates = "this")
     public ComponentBuilder italic(boolean italic)
     {
         getCurrentComponent().setItalic( italic );
@@ -366,6 +390,7 @@ public final class ComponentBuilder
      * @param underlined whether this part is underlined
      * @return this ComponentBuilder for chaining
      */
+    @Contract(value = "_ -> this", mutates = "this")
     public ComponentBuilder underlined(boolean underlined)
     {
         getCurrentComponent().setUnderlined( underlined );
@@ -378,6 +403,7 @@ public final class ComponentBuilder
      * @param strikethrough whether this part is strikethrough
      * @return this ComponentBuilder for chaining
      */
+    @Contract(value = "_ -> this", mutates = "this")
     public ComponentBuilder strikethrough(boolean strikethrough)
     {
         getCurrentComponent().setStrikethrough( strikethrough );
@@ -390,6 +416,7 @@ public final class ComponentBuilder
      * @param obfuscated whether this part is obfuscated
      * @return this ComponentBuilder for chaining
      */
+    @Contract(value = "_ -> this", mutates = "this")
     public ComponentBuilder obfuscated(boolean obfuscated)
     {
         getCurrentComponent().setObfuscated( obfuscated );
@@ -402,7 +429,8 @@ public final class ComponentBuilder
      * @param insertion the insertion text
      * @return this ComponentBuilder for chaining
      */
-    public ComponentBuilder insertion(String insertion)
+    @Contract(value = "_ -> this", mutates = "this")
+    public ComponentBuilder insertion(@Nullable String insertion)
     {
         getCurrentComponent().setInsertion( insertion );
         return this;
@@ -414,7 +442,8 @@ public final class ComponentBuilder
      * @param clickEvent the click event
      * @return this ComponentBuilder for chaining
      */
-    public ComponentBuilder event(ClickEvent clickEvent)
+    @Contract(value = "_ -> this", mutates = "this")
+    public ComponentBuilder event(@Nullable ClickEvent clickEvent)
     {
         getCurrentComponent().setClickEvent( clickEvent );
         return this;
@@ -426,7 +455,8 @@ public final class ComponentBuilder
      * @param hoverEvent the hover event
      * @return this ComponentBuilder for chaining
      */
-    public ComponentBuilder event(HoverEvent hoverEvent)
+    @Contract(value = "_ -> this", mutates = "this")
+    public ComponentBuilder event(@Nullable HoverEvent hoverEvent)
     {
         getCurrentComponent().setHoverEvent( hoverEvent );
         return this;
@@ -437,6 +467,7 @@ public final class ComponentBuilder
      *
      * @return this ComponentBuilder for chaining
      */
+    @Contract(value = "-> this", mutates = "this")
     public ComponentBuilder reset()
     {
         return retain( FormatRetention.NONE );
@@ -448,7 +479,8 @@ public final class ComponentBuilder
      * @param retention the formatting to retain
      * @return this ComponentBuilder for chaining
      */
-    public ComponentBuilder retain(FormatRetention retention)
+    @Contract(value = "_ -> this", mutates = "this")
+    public ComponentBuilder retain(@Nullable FormatRetention retention)
     {
         getCurrentComponent().retain( retention );
         return this;
@@ -460,13 +492,14 @@ public final class ComponentBuilder
      *
      * @return the created components
      */
+    @NotNull
     public BaseComponent[] create()
     {
         BaseComponent[] cloned = new BaseComponent[ parts.size() ];
         int i = 0;
         for ( BaseComponent part : parts )
         {
-            cloned[i++] = part.duplicate();
+            cloned[ i++ ] = part.duplicate();
         }
         return cloned;
     }
@@ -513,6 +546,6 @@ public final class ComponentBuilder
          * @param retention the formatting to possibly retain
          * @return input componentBuilder for chaining
          */
-        ComponentBuilder join(ComponentBuilder componentBuilder, FormatRetention retention);
+        ComponentBuilder join(@NotNull ComponentBuilder componentBuilder, FormatRetention retention);
     }
 }

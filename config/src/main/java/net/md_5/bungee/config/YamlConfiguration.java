@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -51,7 +52,7 @@ public class YamlConfiguration extends ConfigurationProvider
     };
 
     @Override
-    public void save(Configuration config, File file) throws IOException
+    public void save(@NotNull Configuration config, @NotNull File file) throws IOException
     {
         try ( Writer writer = new OutputStreamWriter( new FileOutputStream( file ), Charsets.UTF_8 ) )
         {
@@ -60,19 +61,19 @@ public class YamlConfiguration extends ConfigurationProvider
     }
 
     @Override
-    public void save(Configuration config, Writer writer)
+    public void save(@NotNull Configuration config, @NotNull Writer writer)
     {
         yaml.get().dump( config.self, writer );
     }
 
     @Override
-    public Configuration load(File file) throws IOException
+    public Configuration load(@NotNull File file) throws IOException
     {
         return load( file, null );
     }
 
     @Override
-    public Configuration load(File file, Configuration defaults) throws IOException
+    public Configuration load(@NotNull File file, Configuration defaults) throws IOException
     {
         try ( FileInputStream is = new FileInputStream( file ) )
         {
@@ -81,14 +82,14 @@ public class YamlConfiguration extends ConfigurationProvider
     }
 
     @Override
-    public Configuration load(Reader reader)
+    public Configuration load(@NotNull Reader reader)
     {
         return load( reader, null );
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Configuration load(Reader reader, Configuration defaults)
+    public Configuration load(@NotNull Reader reader, Configuration defaults)
     {
         Map<String, Object> map = yaml.get().loadAs( reader, LinkedHashMap.class );
         if ( map == null )
@@ -99,14 +100,14 @@ public class YamlConfiguration extends ConfigurationProvider
     }
 
     @Override
-    public Configuration load(InputStream is)
+    public Configuration load(@NotNull InputStream is)
     {
         return load( is, null );
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Configuration load(InputStream is, Configuration defaults)
+    public Configuration load(@NotNull InputStream is, Configuration defaults)
     {
         Map<String, Object> map = yaml.get().loadAs( is, LinkedHashMap.class );
         if ( map == null )
@@ -117,14 +118,14 @@ public class YamlConfiguration extends ConfigurationProvider
     }
 
     @Override
-    public Configuration load(String string)
+    public Configuration load(@NotNull String string)
     {
         return load( string, null );
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Configuration load(String string, Configuration defaults)
+    public Configuration load(@NotNull String string, Configuration defaults)
     {
         Map<String, Object> map = yaml.get().loadAs( string, LinkedHashMap.class );
         if ( map == null )

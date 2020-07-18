@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Command sender representing the proxy console.
@@ -20,7 +21,7 @@ public final class ConsoleCommandSender implements CommandSender
     private static final ConsoleCommandSender instance = new ConsoleCommandSender();
 
     @Override
-    public void sendMessage(String message)
+    public void sendMessage(@NotNull String message)
     {
         ProxyServer.getInstance().getLogger().info( message );
     }
@@ -41,18 +42,20 @@ public final class ConsoleCommandSender implements CommandSender
     }
 
     @Override
-    public void sendMessage(BaseComponent message)
+    public void sendMessage(@NotNull BaseComponent message)
     {
         sendMessage( message.toLegacyText() );
     }
 
     @Override
+    @NotNull
     public String getName()
     {
         return "CONSOLE";
     }
 
     @Override
+    @NotNull
     public Collection<String> getGroups()
     {
         return Collections.emptySet();
@@ -71,18 +74,19 @@ public final class ConsoleCommandSender implements CommandSender
     }
 
     @Override
-    public boolean hasPermission(String permission)
+    public boolean hasPermission(@NotNull String permission)
     {
         return true;
     }
 
     @Override
-    public void setPermission(String permission, boolean value)
+    public void setPermission(@NotNull String permission, boolean value)
     {
         throw new UnsupportedOperationException( "Console has all permissions" );
     }
 
     @Override
+    @NotNull
     public Collection<String> getPermissions()
     {
         return Collections.emptySet();

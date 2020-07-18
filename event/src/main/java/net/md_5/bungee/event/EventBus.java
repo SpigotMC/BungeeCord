@@ -14,6 +14,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jetbrains.annotations.NotNull;
 
 public class EventBus
 {
@@ -93,7 +94,7 @@ public class EventBus
         return handler;
     }
 
-    public void register(Object listener)
+    public void register(@NotNull Object listener)
     {
         Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers( listener );
         lock.lock();
@@ -126,7 +127,7 @@ public class EventBus
         }
     }
 
-    public void unregister(Object listener)
+    public void unregister(@NotNull Object listener)
     {
         Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers( listener );
         lock.lock();

@@ -6,6 +6,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectEvent;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A request to connect a server.
@@ -56,6 +57,7 @@ public class ServerConnectRequest
     /**
      * Callback to execute post request.
      */
+    @Nullable
     private final Callback<Result> callback;
     /**
      * Timeout in milliseconds for request.

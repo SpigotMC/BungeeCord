@@ -95,6 +95,7 @@ import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.fusesource.jansi.AnsiConsole;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Main BungeeCord proxy class.
@@ -399,7 +400,7 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public void stop(final String reason)
+    public void stop(final @NotNull String reason)
     {
         new Thread( "Shutdown Thread" )
         {
@@ -526,12 +527,14 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
+    @NotNull
     public String getName()
     {
         return "BungeeCord";
     }
 
     @Override
+    @NotNull
     public String getVersion()
     {
         return ( BungeeCord.class.getPackage().getImplementationVersion() == null ) ? "unknown" : BungeeCord.class.getPackage().getImplementationVersion();
@@ -553,7 +556,8 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public String getTranslation(String name, Object... args)
+    @NotNull
+    public String getTranslation(@NotNull String name, Object... args)
     {
         String translation = "<translation '" + name + "' missing>";
         try
@@ -567,6 +571,7 @@ public class BungeeCord extends ProxyServer
 
     @Override
     @SuppressWarnings("unchecked")
+    @NotNull
     public Collection<ProxiedPlayer> getPlayers()
     {
         connectionLock.readLock().lock();
@@ -624,6 +629,7 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
+    @NotNull
     public Map<String, ServerInfo> getServers()
     {
         return config.getServers();
@@ -651,6 +657,7 @@ public class BungeeCord extends ProxyServer
 
     @Override
     @Synchronized("pluginChannels")
+    @NotNull
     public Collection<String> getChannels()
     {
         return Collections.unmodifiableCollection( pluginChannels );
@@ -673,31 +680,35 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
+    @NotNull
     public String getGameVersion()
     {
         return ProtocolConstants.SUPPORTED_VERSIONS.get( 0 ) + "-" + ProtocolConstants.SUPPORTED_VERSIONS.get( ProtocolConstants.SUPPORTED_VERSIONS.size() - 1 );
     }
 
     @Override
-    public ServerInfo constructServerInfo(String name, InetSocketAddress address, String motd, boolean restricted)
+    @NotNull
+    public ServerInfo constructServerInfo(@NotNull String name, @NotNull InetSocketAddress address, String motd, boolean restricted)
     {
         return constructServerInfo( name, (SocketAddress) address, motd, restricted );
     }
 
     @Override
-    public ServerInfo constructServerInfo(String name, SocketAddress address, String motd, boolean restricted)
+    @NotNull
+    public ServerInfo constructServerInfo(@NotNull String name, @NotNull SocketAddress address, String motd, boolean restricted)
     {
         return new BungeeServerInfo( name, address, motd, restricted );
     }
 
     @Override
+    @NotNull
     public CommandSender getConsole()
     {
         return ConsoleCommandSender.getInstance();
     }
 
     @Override
-    public void broadcast(String message)
+    public void broadcast(@NotNull String message)
     {
         broadcast( TextComponent.fromLegacyText( message ) );
     }
@@ -713,7 +724,7 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public void broadcast(BaseComponent message)
+    public void broadcast(@NotNull BaseComponent message)
     {
         getConsole().sendMessage( message.toLegacyText() );
         for ( ProxiedPlayer player : getPlayers() )
@@ -755,13 +766,15 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
+    @NotNull
     public Collection<String> getDisabledCommands()
     {
         return config.getDisabledCommands();
     }
 
     @Override
-    public Collection<ProxiedPlayer> matchPlayer(final String partialName)
+    @NotNull
+    public Collection<ProxiedPlayer> matchPlayer(final @NotNull String partialName)
     {
         Preconditions.checkNotNull( partialName, "partialName" );
 
@@ -783,6 +796,7 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
+    @NotNull
     public Title createTitle()
     {
         return new BungeeTitle();

@@ -3,6 +3,8 @@ package net.md_5.bungee.api.connection;
 import java.net.InetSocketAddress;
 import java.util.UUID;
 import net.md_5.bungee.api.config.ListenerInfo;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a user attempting to log into the proxy.
@@ -15,6 +17,7 @@ public interface PendingConnection extends Connection
      *
      * @return the requested username, or null if not set
      */
+    @Nullable
     String getName();
 
     /**
@@ -29,6 +32,7 @@ public interface PendingConnection extends Connection
      *
      * @return request virtual host or null if invalid / not specified.
      */
+    @NotNull
     InetSocketAddress getVirtualHost();
 
     /**
@@ -36,6 +40,7 @@ public interface PendingConnection extends Connection
      *
      * @return the accepting listener
      */
+    @NotNull
     ListenerInfo getListener();
 
     /**
@@ -52,6 +57,7 @@ public interface PendingConnection extends Connection
      *
      * @return the UUID
      */
+    @Nullable
     UUID getUniqueId();
 
     /**

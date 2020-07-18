@@ -17,6 +17,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Command to list and switch a player between available servers.
@@ -30,7 +31,7 @@ public class CommandServer extends Command implements TabExecutor
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args)
+    public void execute(@NotNull CommandSender sender, String[] args)
     {
         Map<String, ServerInfo> servers = ProxyServer.getInstance().getServers();
         if ( args.length == 0 )
@@ -81,7 +82,7 @@ public class CommandServer extends Command implements TabExecutor
     }
 
     @Override
-    public Iterable<String> onTabComplete(final CommandSender sender, final String[] args)
+    public Iterable<String> onTabComplete(final @NotNull CommandSender sender, final String[] args)
     {
         return ( args.length > 1 ) ? Collections.EMPTY_LIST : Iterables.transform( Iterables.filter( ProxyServer.getInstance().getServers().values(), new Predicate<ServerInfo>()
         {

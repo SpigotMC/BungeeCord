@@ -5,6 +5,7 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Command;
+import org.jetbrains.annotations.NotNull;
 
 public class CommandAlert extends Command
 {
@@ -15,7 +16,7 @@ public class CommandAlert extends Command
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args)
+    public void execute(@NotNull CommandSender sender, String[] args)
     {
         if ( args.length == 0 )
         {

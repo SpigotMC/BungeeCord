@@ -16,11 +16,16 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.api.scheduler.TaskScheduler;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 
 public abstract class ProxyServer
 {
 
     @Getter
+    @NotNull
     private static ProxyServer instance;
 
     /**
@@ -41,6 +46,7 @@ public abstract class ProxyServer
      *
      * @return the name of this instance
      */
+    @NotNull
     public abstract String getName();
 
     /**
@@ -48,6 +54,7 @@ public abstract class ProxyServer
      *
      * @return the version of this instance
      */
+    @NotNull
     public abstract String getVersion();
 
     /**
@@ -57,7 +64,8 @@ public abstract class ProxyServer
      * @param args translation arguments
      * @return the localized string
      */
-    public abstract String getTranslation(String name, Object... args);
+    @NotNull
+    public abstract String getTranslation(@NotNull String name, @Nullable Object... args);
 
     /**
      * Gets the main logger which can be used as a suitable replacement for
@@ -65,6 +73,7 @@ public abstract class ProxyServer
      *
      * @return the {@link Logger} instance
      */
+    @NotNull
     public abstract Logger getLogger();
 
     /**
@@ -72,6 +81,8 @@ public abstract class ProxyServer
      *
      * @return all connected players
      */
+    @NotNull
+    @UnmodifiableView
     public abstract Collection<ProxiedPlayer> getPlayers();
 
     /**
@@ -80,7 +91,9 @@ public abstract class ProxyServer
      * @param name of the player
      * @return their player instance
      */
-    public abstract ProxiedPlayer getPlayer(String name);
+    @Nullable
+    @Contract("null -> null; !null -> _")
+    public abstract ProxiedPlayer getPlayer(@Nullable String name);
 
     /**
      * Gets a connected player via their UUID
@@ -88,7 +101,9 @@ public abstract class ProxyServer
      * @param uuid of the player
      * @return their player instance
      */
-    public abstract ProxiedPlayer getPlayer(UUID uuid);
+    @Nullable
+    @Contract("null -> null; !null -> _")
+    public abstract ProxiedPlayer getPlayer(@Nullable UUID uuid);
 
     /**
      * Return all servers registered to this proxy, keyed by name. Unlike the
@@ -97,6 +112,7 @@ public abstract class ProxyServer
      *
      * @return all registered remote server destinations
      */
+    @NotNull
     public abstract Map<String, ServerInfo> getServers();
 
     /**
@@ -105,7 +121,9 @@ public abstract class ProxyServer
      * @param name the name of the configured server
      * @return the server info belonging to the specified server
      */
-    public abstract ServerInfo getServerInfo(String name);
+    @Nullable
+    @Contract("null -> null; !null -> _")
+    public abstract ServerInfo getServerInfo(@Nullable String name);
 
     /**
      * Get the {@link PluginManager} associated with loading plugins and
@@ -114,6 +132,7 @@ public abstract class ProxyServer
      *
      * @return the plugin manager
      */
+    @NotNull
     public abstract PluginManager getPluginManager();
 
     /**
@@ -121,6 +140,7 @@ public abstract class ProxyServer
      *
      * @return the used configuration adapter
      */
+    @NotNull
     public abstract ConfigurationAdapter getConfigurationAdapter();
 
     /**
@@ -129,13 +149,14 @@ public abstract class ProxyServer
      *
      * @param adapter the adapter to use
      */
-    public abstract void setConfigurationAdapter(ConfigurationAdapter adapter);
+    public abstract void setConfigurationAdapter(@NotNull ConfigurationAdapter adapter);
 
     /**
      * Get the currently in use reconnect handler.
      *
      * @return the in use reconnect handler
      */
+    @Nullable
     public abstract ReconnectHandler getReconnectHandler();
 
     /**
@@ -143,7 +164,7 @@ public abstract class ProxyServer
      *
      * @param handler the new handler
      */
-    public abstract void setReconnectHandler(ReconnectHandler handler);
+    public abstract void setReconnectHandler(@Nullable ReconnectHandler handler);
 
     /**
      * Gracefully mark this instance for shutdown.
@@ -155,7 +176,7 @@ public abstract class ProxyServer
      *
      * @param reason the reason for stopping. This will be shown to players.
      */
-    public abstract void stop(String reason);
+    public abstract void stop(@NotNull String reason);
 
     /**
      * Register a channel for use with plugin messages. This is required by some
@@ -163,20 +184,22 @@ public abstract class ProxyServer
      *
      * @param channel the channel to register
      */
-    public abstract void registerChannel(String channel);
+    public abstract void registerChannel(@Nullable String channel);
 
     /**
      * Unregister a previously registered channel.
      *
      * @param channel the channel to unregister
      */
-    public abstract void unregisterChannel(String channel);
+    public abstract void unregisterChannel(@Nullable String channel);
 
     /**
      * Get an immutable set of all registered plugin channels.
      *
      * @return registered plugin channels
      */
+    @NotNull
+    @UnmodifiableView
     public abstract Collection<String> getChannels();
 
     /**
@@ -185,6 +208,7 @@ public abstract class ProxyServer
      * @return the supported Minecraft version
      */
     @Deprecated
+    @NotNull
     public abstract String getGameVersion();
 
     /**
@@ -205,7 +229,8 @@ public abstract class ProxyServer
      * @param restricted whether the server info restricted property will be set
      * @return the constructed instance
      */
-    public abstract ServerInfo constructServerInfo(String name, InetSocketAddress address, String motd, boolean restricted);
+    @NotNull
+    public abstract ServerInfo constructServerInfo(@NotNull String name, @NotNull InetSocketAddress address, String motd, boolean restricted);
 
     /**
      * Factory method to construct an implementation specific server info
@@ -217,7 +242,8 @@ public abstract class ProxyServer
      * @param restricted whether the server info restricted property will be set
      * @return the constructed instance
      */
-    public abstract ServerInfo constructServerInfo(String name, SocketAddress address, String motd, boolean restricted);
+    @NotNull
+    public abstract ServerInfo constructServerInfo(@NotNull String name, @NotNull SocketAddress address, String motd, boolean restricted);
 
     /**
      * Returns the console overlord for this proxy. Being the console, this
@@ -226,6 +252,7 @@ public abstract class ProxyServer
      *
      * @return the console command sender of this proxy
      */
+    @NotNull
     public abstract CommandSender getConsole();
 
     /**
@@ -233,6 +260,7 @@ public abstract class ProxyServer
      *
      * @return the folder used to load plugin
      */
+    @NotNull
     public abstract File getPluginsFolder();
 
     /**
@@ -240,6 +268,7 @@ public abstract class ProxyServer
      *
      * @return the in use scheduler
      */
+    @NotNull
     public abstract TaskScheduler getScheduler();
 
     /**
@@ -257,27 +286,28 @@ public abstract class ProxyServer
      * @param message the message to broadcast
      */
     @Deprecated
-    public abstract void broadcast(String message);
+    public abstract void broadcast(@NotNull String message);
 
     /**
      * Send the specified message to the console and all connected players.
      *
      * @param message the message to broadcast
      */
-    public abstract void broadcast(BaseComponent... message);
+    public abstract void broadcast(@NotNull BaseComponent... message);
 
     /**
      * Send the specified message to the console and all connected players.
      *
      * @param message the message to broadcast
      */
-    public abstract void broadcast(BaseComponent message);
+    public abstract void broadcast(@NotNull BaseComponent message);
 
     /**
      * Gets the commands which are disabled and will not be run on this proxy.
      *
      * @return the set of disabled commands
      */
+    @NotNull
     public abstract Collection<String> getDisabledCommands();
 
     /**
@@ -285,6 +315,7 @@ public abstract class ProxyServer
      *
      * @return the config.
      */
+    @NotNull
     public abstract ProxyConfig getConfig();
 
     /**
@@ -299,7 +330,8 @@ public abstract class ProxyServer
      * @return list of all possible players, singleton if there is an exact
      * match
      */
-    public abstract Collection<ProxiedPlayer> matchPlayer(String match);
+    @NotNull
+    public abstract Collection<ProxiedPlayer> matchPlayer(@NotNull String match);
 
     /**
      * Creates a new empty title configuration. In most cases you will want to
@@ -309,6 +341,6 @@ public abstract class ProxyServer
      * @return A new empty title configuration.
      * @see Title
      */
+    @NotNull
     public abstract Title createTitle();
-
 }

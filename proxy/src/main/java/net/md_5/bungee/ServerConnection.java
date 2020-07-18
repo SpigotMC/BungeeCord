@@ -14,6 +14,7 @@ import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import org.jetbrains.annotations.NotNull;
 
 @RequiredArgsConstructor
 public class ServerConnection implements Server
@@ -41,13 +42,13 @@ public class ServerConnection implements Server
     };
 
     @Override
-    public void sendData(String channel, byte[] data)
+    public void sendData(@NotNull String channel, byte[] data)
     {
         unsafe().sendPacket( new PluginMessage( channel, data, forgeServer ) );
     }
 
     @Override
-    public void disconnect(String reason)
+    public void disconnect(@NotNull String reason)
     {
         disconnect();
     }
@@ -61,18 +62,20 @@ public class ServerConnection implements Server
     }
 
     @Override
-    public void disconnect(BaseComponent reason)
+    public void disconnect(@NotNull BaseComponent reason)
     {
         disconnect();
     }
 
     @Override
+    @NotNull
     public InetSocketAddress getAddress()
     {
         return (InetSocketAddress) getSocketAddress();
     }
 
     @Override
+    @NotNull
     public SocketAddress getSocketAddress()
     {
         return getInfo().getAddress();

@@ -5,6 +5,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.event.ProxyReloadEvent;
 import net.md_5.bungee.api.plugin.Command;
+import org.jetbrains.annotations.NotNull;
 
 public class CommandReload extends Command
 {
@@ -15,7 +16,7 @@ public class CommandReload extends Command
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args)
+    public void execute(@NotNull CommandSender sender, String[] args)
     {
         BungeeCord.getInstance().config.load();
         BungeeCord.getInstance().reloadMessages();

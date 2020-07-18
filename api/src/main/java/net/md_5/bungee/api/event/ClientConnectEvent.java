@@ -7,6 +7,7 @@ import lombok.ToString;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.plugin.Cancellable;
 import net.md_5.bungee.api.plugin.Event;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Event called to represent an initial client connection.
@@ -27,9 +28,11 @@ public class ClientConnectEvent extends Event implements Cancellable
     /**
      * Remote address of connection.
      */
+    @NotNull
     private final SocketAddress socketAddress;
     /**
      * Listener that accepted the connection.
      */
+    @NotNull
     private final ListenerInfo listener;
 }

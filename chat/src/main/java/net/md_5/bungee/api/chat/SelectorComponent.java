@@ -5,6 +5,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This component processes a target selector into a pre-formatted set of
@@ -38,12 +40,14 @@ public final class SelectorComponent extends BaseComponent
      *
      * @param original the original for the new selector component
      */
-    public SelectorComponent(SelectorComponent original)
+    public SelectorComponent(@NotNull SelectorComponent original)
     {
         super( original );
         setSelector( original.getSelector() );
     }
 
+    @NotNull
+    @Contract(" -> new")
     @Override
     public SelectorComponent duplicate()
     {

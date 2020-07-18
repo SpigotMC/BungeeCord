@@ -7,6 +7,9 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class Configuration
 {
@@ -20,7 +23,7 @@ public final class Configuration
         this( null );
     }
 
-    public Configuration(Configuration defaults)
+    public Configuration(@Nullable Configuration defaults)
     {
         this( new LinkedHashMap<String, Object>(), defaults );
     }
@@ -44,7 +47,9 @@ public final class Configuration
         }
     }
 
-    private Configuration getSectionFor(String path)
+    @NotNull
+    @Contract(pure = true)
+    private Configuration getSectionFor(@NotNull String path)
     {
         int index = path.indexOf( SEPARATOR );
         if ( index == -1 )
@@ -63,15 +68,19 @@ public final class Configuration
         return (Configuration) section;
     }
 
-    private String getChild(String path)
+    @NotNull
+    @Contract(pure = true)
+    private String getChild(@NotNull String path)
     {
         int index = path.indexOf( SEPARATOR );
         return ( index == -1 ) ? path : path.substring( index + 1 );
     }
 
     /*------------------------------------------------------------------------*/
+    @Nullable
+    @Contract(value = "!null, !null -> !null; !null, null -> _", pure = true)
     @SuppressWarnings("unchecked")
-    public <T> T get(String path, T def)
+    public <T> T get(@NotNull String path, @Nullable T def)
     {
         Configuration section = getSectionFor( path );
         Object val;
@@ -91,22 +100,27 @@ public final class Configuration
         return ( val != null ) ? (T) val : def;
     }
 
-    public boolean contains(String path)
+    @Contract(pure = true)
+    public boolean contains(@NotNull String path)
     {
         return get( path, null ) != null;
     }
 
-    public Object get(String path)
+    @Nullable
+    @Contract(pure = true)
+    public Object get(@NotNull String path)
     {
         return get( path, getDefault( path ) );
     }
 
-    public Object getDefault(String path)
+    @Nullable
+    public Object getDefault(@NotNull String path)
     {
         return ( defaults == null ) ? null : defaults.get( path );
     }
 
-    public void set(String path, Object value)
+    @Contract(mutates = "this")
+    public void set(@NotNull String path, @Nullable Object value)
     {
         if ( value instanceof Map )
         {
@@ -130,7 +144,9 @@ public final class Configuration
     }
 
     /*------------------------------------------------------------------------*/
-    public Configuration getSection(String path)
+    @NotNull
+    @Contract(pure = true)
+    public Configuration getSection(@NotNull String path)
     {
         Object def = getDefault( path );
         return (Configuration) get( path, ( def instanceof Configuration ) ? def : new Configuration( ( defaults == null ) ? null : defaults.getSection( path ) ) );
@@ -141,25 +157,30 @@ public final class Configuration
      *
      * @return top level keys for this section
      */
+    @NotNull
+    @Contract(pure = true)
     public Collection<String> getKeys()
     {
         return new LinkedHashSet<>( self.keySet() );
     }
 
     /*------------------------------------------------------------------------*/
-    public byte getByte(String path)
+    @Contract(pure = true)
+    public byte getByte(@NotNull String path)
     {
         Object def = getDefault( path );
         return getByte( path, ( def instanceof Number ) ? ( (Number) def ).byteValue() : 0 );
     }
 
-    public byte getByte(String path, byte def)
+    @Contract(pure = true)
+    public byte getByte(@NotNull String path, byte def)
     {
         Object val = get( path, def );
         return ( val instanceof Number ) ? ( (Number) val ).byteValue() : def;
     }
 
-    public List<Byte> getByteList(String path)
+    @Contract(pure = true)
+    public List<Byte> getByteList(@NotNull String path)
     {
         List<?> list = getList( path );
         List<Byte> result = new ArrayList<>();
@@ -175,19 +196,23 @@ public final class Configuration
         return result;
     }
 
-    public short getShort(String path)
+    @Contract(pure = true)
+    public short getShort(@NotNull String path)
     {
         Object def = getDefault( path );
         return getShort( path, ( def instanceof Number ) ? ( (Number) def ).shortValue() : 0 );
     }
 
-    public short getShort(String path, short def)
+    @Contract(pure = true)
+    public short getShort(@NotNull String path, short def)
     {
         Object val = get( path, def );
         return ( val instanceof Number ) ? ( (Number) val ).shortValue() : def;
     }
 
-    public List<Short> getShortList(String path)
+    @NotNull
+    @Contract(pure = true)
+    public List<Short> getShortList(@NotNull String path)
     {
         List<?> list = getList( path );
         List<Short> result = new ArrayList<>();
@@ -203,19 +228,23 @@ public final class Configuration
         return result;
     }
 
-    public int getInt(String path)
+    @Contract(pure = true)
+    public int getInt(@NotNull String path)
     {
         Object def = getDefault( path );
         return getInt( path, ( def instanceof Number ) ? ( (Number) def ).intValue() : 0 );
     }
 
-    public int getInt(String path, int def)
+    @Contract(pure = true)
+    public int getInt(@NotNull String path, int def)
     {
         Object val = get( path, def );
         return ( val instanceof Number ) ? ( (Number) val ).intValue() : def;
     }
 
-    public List<Integer> getIntList(String path)
+    @NotNull
+    @Contract(pure = true)
+    public List<Integer> getIntList(@NotNull String path)
     {
         List<?> list = getList( path );
         List<Integer> result = new ArrayList<>();
@@ -231,19 +260,23 @@ public final class Configuration
         return result;
     }
 
-    public long getLong(String path)
+    @Contract(pure = true)
+    public long getLong(@NotNull String path)
     {
         Object def = getDefault( path );
         return getLong( path, ( def instanceof Number ) ? ( (Number) def ).longValue() : 0 );
     }
 
-    public long getLong(String path, long def)
+    @Contract(pure = true)
+    public long getLong(@NotNull String path, long def)
     {
         Object val = get( path, def );
         return ( val instanceof Number ) ? ( (Number) val ).longValue() : def;
     }
 
-    public List<Long> getLongList(String path)
+    @NotNull
+    @Contract(pure = true)
+    public List<Long> getLongList(@NotNull String path)
     {
         List<?> list = getList( path );
         List<Long> result = new ArrayList<>();
@@ -259,19 +292,23 @@ public final class Configuration
         return result;
     }
 
-    public float getFloat(String path)
+    @Contract(pure = true)
+    public float getFloat(@NotNull String path)
     {
         Object def = getDefault( path );
         return getFloat( path, ( def instanceof Number ) ? ( (Number) def ).floatValue() : 0 );
     }
 
-    public float getFloat(String path, float def)
+    @Contract(pure = true)
+    public float getFloat(@NotNull String path, float def)
     {
         Object val = get( path, def );
         return ( val instanceof Number ) ? ( (Number) val ).floatValue() : def;
     }
 
-    public List<Float> getFloatList(String path)
+    @NotNull
+    @Contract(pure = true)
+    public List<Float> getFloatList(@NotNull String path)
     {
         List<?> list = getList( path );
         List<Float> result = new ArrayList<>();
@@ -287,19 +324,23 @@ public final class Configuration
         return result;
     }
 
-    public double getDouble(String path)
+    @Contract(pure = true)
+    public double getDouble(@NotNull String path)
     {
         Object def = getDefault( path );
         return getDouble( path, ( def instanceof Number ) ? ( (Number) def ).doubleValue() : 0 );
     }
 
-    public double getDouble(String path, double def)
+    @Contract(pure = true)
+    public double getDouble(@NotNull String path, double def)
     {
         Object val = get( path, def );
         return ( val instanceof Number ) ? ( (Number) val ).doubleValue() : def;
     }
 
-    public List<Double> getDoubleList(String path)
+    @NotNull
+    @Contract(pure = true)
+    public List<Double> getDoubleList(@NotNull String path)
     {
         List<?> list = getList( path );
         List<Double> result = new ArrayList<>();
@@ -315,19 +356,23 @@ public final class Configuration
         return result;
     }
 
-    public boolean getBoolean(String path)
+    @Contract(pure = true)
+    public boolean getBoolean(@NotNull String path)
     {
         Object def = getDefault( path );
         return getBoolean( path, ( def instanceof Boolean ) ? (Boolean) def : false );
     }
 
-    public boolean getBoolean(String path, boolean def)
+    @Contract(pure = true)
+    public boolean getBoolean(@NotNull String path, boolean def)
     {
         Object val = get( path, def );
         return ( val instanceof Boolean ) ? (Boolean) val : def;
     }
 
-    public List<Boolean> getBooleanList(String path)
+    @NotNull
+    @Contract(pure = true)
+    public List<Boolean> getBooleanList(@NotNull String path)
     {
         List<?> list = getList( path );
         List<Boolean> result = new ArrayList<>();
@@ -343,19 +388,23 @@ public final class Configuration
         return result;
     }
 
-    public char getChar(String path)
+    @Contract(pure = true)
+    public char getChar(@NotNull String path)
     {
         Object def = getDefault( path );
         return getChar( path, ( def instanceof Character ) ? (Character) def : '\u0000' );
     }
 
-    public char getChar(String path, char def)
+    @Contract(pure = true)
+    public char getChar(@NotNull String path, char def)
     {
         Object val = get( path, def );
         return ( val instanceof Character ) ? (Character) val : def;
     }
 
-    public List<Character> getCharList(String path)
+    @NotNull
+    @Contract(pure = true)
+    public List<Character> getCharList(@NotNull String path)
     {
         List<?> list = getList( path );
         List<Character> result = new ArrayList<>();
@@ -371,19 +420,25 @@ public final class Configuration
         return result;
     }
 
-    public String getString(String path)
+    @NotNull
+    @Contract(pure = true)
+    public String getString(@NotNull String path)
     {
         Object def = getDefault( path );
         return getString( path, ( def instanceof String ) ? (String) def : "" );
     }
 
-    public String getString(String path, String def)
+    @Nullable
+    @Contract(value = "!null, null -> _;!null, !null -> !null", pure = true)
+    public String getString(@NotNull String path, @Nullable String def)
     {
         Object val = get( path, def );
         return ( val instanceof String ) ? (String) val : def;
     }
 
-    public List<String> getStringList(String path)
+    @NotNull
+    @Contract(pure = true)
+    public List<String> getStringList(@NotNull String path)
     {
         List<?> list = getList( path );
         List<String> result = new ArrayList<>();
@@ -400,13 +455,17 @@ public final class Configuration
     }
 
     /*------------------------------------------------------------------------*/
-    public List<?> getList(String path)
+    @NotNull
+    @Contract(pure = true)
+    public List<?> getList(@NotNull String path)
     {
         Object def = getDefault( path );
         return getList( path, ( def instanceof List<?> ) ? (List<?>) def : Collections.EMPTY_LIST );
     }
 
-    public List<?> getList(String path, List<?> def)
+    @Nullable
+    @Contract(value = "!null, !null -> !null; !null, null -> _; null, _ -> fail", pure = true)
+    public List<?> getList(@NotNull String path, @Nullable List<?> def)
     {
         Object val = get( path, def );
         return ( val instanceof List<?> ) ? (List<?>) val : def;

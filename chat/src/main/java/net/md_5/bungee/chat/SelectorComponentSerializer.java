@@ -9,12 +9,13 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
 import net.md_5.bungee.api.chat.SelectorComponent;
+import org.jetbrains.annotations.NotNull;
 
 public class SelectorComponentSerializer extends BaseComponentSerializer implements JsonSerializer<SelectorComponent>, JsonDeserializer<SelectorComponent>
 {
 
     @Override
-    public SelectorComponent deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
+    public SelectorComponent deserialize(@NotNull JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
     {
         JsonObject object = element.getAsJsonObject();
         if ( !object.has( "selector" ) )

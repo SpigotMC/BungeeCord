@@ -15,6 +15,7 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.jetbrains.annotations.Contract;
 
 @Data
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -54,6 +55,7 @@ public final class TranslationRegistry
         providers.add( provider );
     }
 
+    @Contract(pure = true)
     public String translate(String s)
     {
         for ( TranslationProvider provider : providers )

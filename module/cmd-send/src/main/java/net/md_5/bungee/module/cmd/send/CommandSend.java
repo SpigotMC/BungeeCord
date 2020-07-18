@@ -22,6 +22,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
+import org.jetbrains.annotations.NotNull;
 
 public class CommandSend extends Command implements TabExecutor
 {
@@ -97,7 +98,7 @@ public class CommandSend extends Command implements TabExecutor
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args)
+    public void execute(@NotNull CommandSender sender, String[] args)
     {
         if ( args.length != 2 )
         {
@@ -158,7 +159,7 @@ public class CommandSend extends Command implements TabExecutor
     }
 
     @Override
-    public Iterable<String> onTabComplete(CommandSender sender, String[] args)
+    public Iterable<String> onTabComplete(@NotNull CommandSender sender, String[] args)
     {
         if ( args.length > 2 || args.length == 0 )
         {

@@ -9,6 +9,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @deprecated internal use only
@@ -28,7 +29,7 @@ public abstract class PlayerCommand extends Command implements TabExecutor
     }
 
     @Override
-    public Iterable<String> onTabComplete(CommandSender sender, String[] args)
+    public Iterable<String> onTabComplete(@NotNull CommandSender sender, String[] args)
     {
         final String lastArg = ( args.length > 0 ) ? args[args.length - 1].toLowerCase( Locale.ROOT ) : "";
         return Iterables.transform( Iterables.filter( ProxyServer.getInstance().getPlayers(), new Predicate<ProxiedPlayer>()

@@ -3,6 +3,7 @@ package net.md_5.bungee.api.scheduler;
 import java.util.concurrent.ThreadFactory;
 import lombok.Data;
 import net.md_5.bungee.api.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 @Data
 @Deprecated
@@ -27,7 +28,7 @@ public class GroupedThreadFactory implements ThreadFactory
     }
 
     @Override
-    public Thread newThread(Runnable r)
+    public Thread newThread(@NotNull Runnable r)
     {
         return new Thread( group, r );
     }

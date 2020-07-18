@@ -11,6 +11,9 @@ import lombok.Getter;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.scheduler.GroupedThreadFactory;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents any Plugin that may be loaded at runtime to enhance existing
@@ -73,6 +76,8 @@ public class Plugin
      *
      * @return the data folder of this plugin
      */
+    @NotNull
+    @Contract(" -> new")
     public final File getDataFolder()
     {
         return new File( getProxy().getPluginsFolder(), getDescription().getName() );
@@ -86,6 +91,7 @@ public class Plugin
      * @return the stream for getting this resource, or null if it does not
      * exist
      */
+    @Nullable
     public final InputStream getResourceAsStream(String name)
     {
         return getClass().getClassLoader().getResourceAsStream( name );

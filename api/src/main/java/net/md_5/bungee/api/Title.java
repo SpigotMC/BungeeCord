@@ -2,6 +2,9 @@ package net.md_5.bungee.api;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a configuration of a title. A title in Minecraft consists of a
@@ -22,7 +25,8 @@ public interface Title
      * @param text The text to use as the title.
      * @return This title configuration.
      */
-    public Title title(BaseComponent text);
+    @Contract(mutates = "this", value = "_ -> this")
+    public Title title(@Nullable BaseComponent text);
 
     /**
      * Set the title to send to the player.
@@ -30,7 +34,8 @@ public interface Title
      * @param text The text to use as the title.
      * @return This title configuration.
      */
-    public Title title(BaseComponent... text);
+    @Contract(mutates = "this", value = "!null -> this")
+    public Title title(@NotNull BaseComponent... text);
 
     /**
      * Set the subtitle to send to the player.
@@ -38,7 +43,8 @@ public interface Title
      * @param text The text to use as the subtitle.
      * @return This title configuration.
      */
-    public Title subTitle(BaseComponent text);
+    @Contract(mutates = "this", value = "_ -> this")
+    public Title subTitle(@Nullable BaseComponent text);
 
     /**
      * Set the subtitle to send to the player.
@@ -46,7 +52,8 @@ public interface Title
      * @param text The text to use as the subtitle.
      * @return This title configuration.
      */
-    public Title subTitle(BaseComponent... text);
+    @Contract(mutates = "this", value = "!null -> this")
+    public Title subTitle(@NotNull BaseComponent... text);
 
     /**
      * Set the duration in ticks of the fade in effect of the title. Once this
@@ -57,6 +64,7 @@ public interface Title
      * @param ticks The amount of ticks (1/20 second) for the fade in effect.
      * @return This title configuration.
      */
+    @Contract(mutates = "this", value = "_ -> this")
     public Title fadeIn(int ticks);
 
     /**
@@ -68,6 +76,7 @@ public interface Title
      * @param ticks The amount of ticks (1/20 second) for the stay effect.
      * @return This title configuration.
      */
+    @Contract(mutates = "this", value = "_ -> this")
     public Title stay(int ticks);
 
     /**
@@ -77,6 +86,7 @@ public interface Title
      * @param ticks The amount of ticks (1/20 second) for the fade out effect.
      * @return This title configuration.
      */
+    @Contract(mutates = "this", value = "_ -> this")
     public Title fadeOut(int ticks);
 
     /**
@@ -85,6 +95,7 @@ public interface Title
      *
      * @return This title configuration.
      */
+    @Contract(mutates = "this", value = "-> this")
     public Title clear();
 
     /**
@@ -93,6 +104,7 @@ public interface Title
      *
      * @return This title configuration.
      */
+    @Contract(mutates = "this", value = "-> this")
     public Title reset();
 
     /**
@@ -102,5 +114,6 @@ public interface Title
      * @param player The player to send the title to.
      * @return This title configuration.
      */
-    public Title send(ProxiedPlayer player);
+    @Contract(value = "!null -> this")
+    public Title send(@NotNull ProxiedPlayer player);
 }

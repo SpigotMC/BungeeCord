@@ -6,6 +6,8 @@ import lombok.ToString;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Event;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Called when a player has changed servers.
@@ -19,10 +21,12 @@ public class ServerSwitchEvent extends Event
     /**
      * Player whom the server is for.
      */
+    @NotNull
     private final ProxiedPlayer player;
     /**
      * Server the player is switch from. May be null if initial proxy
      * connection.
      */
+    @Nullable
     private final ServerInfo from;
 }

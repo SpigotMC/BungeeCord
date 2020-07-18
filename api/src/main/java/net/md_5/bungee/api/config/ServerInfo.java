@@ -7,6 +7,7 @@ import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Class used to represent a server to connect to.
@@ -68,6 +69,7 @@ public interface ServerInfo
      *
      * @return access permission
      */
+    @NotNull
     String getPermission();
 
     /**
@@ -77,7 +79,7 @@ public interface ServerInfo
      * @param sender the player to check access for
      * @return whether access is granted to this server
      */
-    boolean canAccess(CommandSender sender);
+    boolean canAccess(@NotNull CommandSender sender);
 
     /**
      * Send data by any available means to this server. This data may be queued
@@ -90,7 +92,7 @@ public interface ServerInfo
      * @param channel the channel to send this data via
      * @param data the data to send
      */
-    void sendData(String channel, byte[] data);
+    void sendData(@NotNull String channel, @NotNull byte[] data);
 
     /**
      * Send data by any available means to this server.
@@ -107,12 +109,12 @@ public interface ServerInfo
      * <code>false</code> otherwise if queue is true, it has been queued, if it
      * is false it has been discarded.
      */
-    boolean sendData(String channel, byte[] data, boolean queue);
+    boolean sendData(@NotNull String channel, @NotNull byte[] data, boolean queue);
 
     /**
      * Asynchronously gets the current player count on this server.
      *
      * @param callback the callback to call when the count has been retrieved.
      */
-    void ping(Callback<ServerPing> callback);
+    void ping(@NotNull Callback<ServerPing> callback);
 }

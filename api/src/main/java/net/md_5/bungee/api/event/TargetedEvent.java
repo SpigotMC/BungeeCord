@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.md_5.bungee.api.connection.Connection;
 import net.md_5.bungee.api.plugin.Event;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * An event which occurs in the communication between two nodes.
@@ -18,6 +19,7 @@ public abstract class TargetedEvent extends Event
     /**
      * Creator of the action.
      */
+    @NotNull
     private final Connection sender;
     /**
      * Receiver of the action.

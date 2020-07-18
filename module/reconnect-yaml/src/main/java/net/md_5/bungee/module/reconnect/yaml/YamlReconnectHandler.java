@@ -15,6 +15,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.util.CaseInsensitiveMap;
+import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
 
 public class YamlReconnectHandler extends AbstractReconnectHandler
@@ -68,7 +69,7 @@ public class YamlReconnectHandler extends AbstractReconnectHandler
     }
 
     @Override
-    public void setServer(ProxiedPlayer player)
+    public void setServer(@NotNull ProxiedPlayer player)
     {
         lock.writeLock().lock();
         try

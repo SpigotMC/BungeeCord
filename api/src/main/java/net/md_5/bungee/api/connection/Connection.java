@@ -4,6 +4,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.DefinedPacket;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A proxy connection is defined as a connection directly connected to a socket.
@@ -20,6 +21,7 @@ public interface Connection
      * @deprecated BungeeCord can accept connections via Unix domain sockets
      */
     @Deprecated
+    @NotNull
     InetSocketAddress getAddress();
 
     /**
@@ -27,6 +29,7 @@ public interface Connection
      *
      * @return the remote address
      */
+    @NotNull
     SocketAddress getSocketAddress();
 
     /**
@@ -38,7 +41,7 @@ public interface Connection
      * disconnect
      */
     @Deprecated
-    void disconnect(String reason);
+    void disconnect(@NotNull String reason);
 
     /**
      * Disconnects this end of the connection for the specified reason. If this
@@ -48,7 +51,7 @@ public interface Connection
      * @param reason the reason shown to the player / sent to the server on
      * disconnect
      */
-    void disconnect(BaseComponent... reason);
+    void disconnect(@NotNull BaseComponent... reason);
 
     /**
      * Disconnects this end of the connection for the specified reason. If this
@@ -58,7 +61,7 @@ public interface Connection
      * @param reason the reason shown to the player / sent to the server on
      * disconnect
      */
-    void disconnect(BaseComponent reason);
+    void disconnect(@NotNull BaseComponent reason);
 
     /**
      * Gets whether this connection is currently open, ie: not disconnected, and

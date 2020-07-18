@@ -6,6 +6,7 @@ import net.md_5.bungee.Util;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Command;
+import org.jetbrains.annotations.NotNull;
 
 public class CommandPerms extends Command
 {
@@ -16,7 +17,7 @@ public class CommandPerms extends Command
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args)
+    public void execute(@NotNull CommandSender sender, String[] args)
     {
         Set<String> permissions = new HashSet<>();
         for ( String group : sender.getGroups() )

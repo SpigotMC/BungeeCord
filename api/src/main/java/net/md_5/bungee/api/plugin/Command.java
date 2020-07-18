@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.CommandSender;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A command that can be executed by a {@link CommandSender}.
@@ -14,8 +16,11 @@ import net.md_5.bungee.api.CommandSender;
 public abstract class Command
 {
 
+    @NotNull
     private final String name;
+    @Nullable
     private final String permission;
+    @NotNull
     private final String[] aliases;
 
     /**
@@ -23,7 +28,7 @@ public abstract class Command
      *
      * @param name the name of this command
      */
-    public Command(String name)
+    public Command(@NotNull String name)
     {
         this( name, null );
     }
@@ -36,7 +41,7 @@ public abstract class Command
      * null or empty string allows it to be executed by everyone
      * @param aliases aliases which map back to this command
      */
-    public Command(String name, String permission, String... aliases)
+    public Command(@NotNull String name, @Nullable String permission, @NotNull String... aliases)
     {
         Preconditions.checkArgument( name != null, "name" );
         this.name = name;
@@ -50,7 +55,7 @@ public abstract class Command
      * @param sender the executor of this command
      * @param args arguments used to invoke this command
      */
-    public abstract void execute(CommandSender sender, String[] args);
+    public abstract void execute(@NotNull CommandSender sender, @NotNull String[] args);
 
     /**
      * Check if this command can be executed by the given sender.

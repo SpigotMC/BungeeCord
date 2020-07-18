@@ -9,6 +9,8 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Cancellable;
 import net.md_5.bungee.api.plugin.Event;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a player getting kicked from a server.
@@ -26,23 +28,28 @@ public class ServerKickEvent extends Event implements Cancellable
     /**
      * Player being kicked.
      */
+    @NotNull
     private final ProxiedPlayer player;
     /**
      * The server the player was kicked from, should be used in preference to
      * {@link ProxiedPlayer#getServer()}.
      */
+    @NotNull
     private final ServerInfo kickedFrom;
     /**
      * Kick reason.
      */
+    @NotNull
     private BaseComponent[] kickReasonComponent;
     /**
      * Server to send player to if this event is cancelled.
      */
+    @Nullable
     private ServerInfo cancelServer;
     /**
      * State in which the kick occured.
      */
+    @NotNull
     private State state;
 
     public enum State
@@ -63,7 +70,7 @@ public class ServerKickEvent extends Event implements Cancellable
         this( player, player.getServer().getInfo(), kickReasonComponent, cancelServer, state );
     }
 
-    public ServerKickEvent(ProxiedPlayer player, ServerInfo kickedFrom, BaseComponent[] kickReasonComponent, ServerInfo cancelServer, State state)
+    public ServerKickEvent(@NotNull ProxiedPlayer player, @NotNull ServerInfo kickedFrom, BaseComponent[] kickReasonComponent, @Nullable ServerInfo cancelServer, @NotNull State state)
     {
         this.player = player;
         this.kickedFrom = kickedFrom;
@@ -79,7 +86,7 @@ public class ServerKickEvent extends Event implements Cancellable
     }
 
     @Deprecated
-    public void setKickReason(String reason)
+    public void setKickReason(@NotNull String reason)
     {
         kickReasonComponent = TextComponent.fromLegacyText( reason );
     }
