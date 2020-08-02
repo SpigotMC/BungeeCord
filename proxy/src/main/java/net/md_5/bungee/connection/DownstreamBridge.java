@@ -379,7 +379,8 @@ public class DownstreamBridge extends PacketHandler
             if ( subChannel.equals( "IPOther" ) )
             {
                 ProxiedPlayer player = bungee.getPlayer( in.readUTF() );
-                if ( player != null ) {
+                if ( player != null )
+                {
                     out.writeUTF( "IPOther" );
                     out.writeUTF( player.getName() );
                     if ( player.getSocketAddress() instanceof InetSocketAddress )
