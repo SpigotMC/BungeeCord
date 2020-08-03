@@ -72,7 +72,7 @@ public final class ChatColor
     /**
      * Represents blue.
      */
-    public static final ChatColor BLUE = new ChatColor( '9', "blue", new Color( 0x05555FF ) );
+    public static final ChatColor BLUE = new ChatColor( '9', "blue", new Color( 0x5555FF ) );
     /**
      * Represents green.
      */
