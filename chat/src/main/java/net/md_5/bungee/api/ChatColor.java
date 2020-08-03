@@ -238,7 +238,7 @@ public final class ChatColor
 
     public static ChatColor of(Color color)
     {
-        return of( "#" + Integer.toHexString( color.getRGB() ).substring( 2 ) );
+        return of( "#" + String.format( "%08x", color.getRGB() ).substring( 2 ) );
     }
 
     public static ChatColor of(String string)
