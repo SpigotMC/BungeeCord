@@ -23,7 +23,7 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
         //BotFilter start - rewrite Varint21Decoder
         if ( !ctx.channel().isActive() )
         {
-            super.setSingleDecode( true );
+            in.skipBytes( in.readableBytes() );
             return;
         }
 
