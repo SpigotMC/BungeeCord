@@ -21,6 +21,13 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
     {
+        // See Varint21FrameDecoder for the general reasoning. We add this here as ByteToMessageDecoder#handlerRemoved()
+        // will fire any cumulated data through the pipeline, so we want to try and stop it here.
+        if ( !ctx.channel().isActive() )
+        {
+            return;
+        }
+
         //BotFilter start
         if ( !server && in.readableBytes() == 0 ) //Fix empty packet from server
         {
