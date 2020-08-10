@@ -152,7 +152,7 @@ public class BungeeCord extends ProxyServer
     private ConfigurationAdapter configurationAdapter = new YamlConfig();
     private final Collection<String> pluginChannels = new HashSet<>();
     @Getter
-    private final File pluginsFolder = new File( "plugins" );
+    private final File pluginsFolder = new File( System.getProperty( "net.md_5.bungee.plugins", "plugins" ) );
     @Getter
     private final BungeeScheduler scheduler = new BungeeScheduler();
     @Getter
