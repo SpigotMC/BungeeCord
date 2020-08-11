@@ -11,11 +11,18 @@ import com.google.gson.JsonParser;
 import java.lang.reflect.Type;
 import java.util.Set;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ItemTag;
 import net.md_5.bungee.api.chat.KeybindComponent;
 import net.md_5.bungee.api.chat.ScoreComponent;
 import net.md_5.bungee.api.chat.SelectorComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
+import net.md_5.bungee.api.chat.hover.content.Entity;
+import net.md_5.bungee.api.chat.hover.content.EntitySerializer;
+import net.md_5.bungee.api.chat.hover.content.Item;
+import net.md_5.bungee.api.chat.hover.content.ItemSerializer;
+import net.md_5.bungee.api.chat.hover.content.Text;
+import net.md_5.bungee.api.chat.hover.content.TextSerializer;
 
 public class ComponentSerializer implements JsonDeserializer<BaseComponent>
 {
@@ -28,6 +35,10 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
             registerTypeAdapter( KeybindComponent.class, new KeybindComponentSerializer() ).
             registerTypeAdapter( ScoreComponent.class, new ScoreComponentSerializer() ).
             registerTypeAdapter( SelectorComponent.class, new SelectorComponentSerializer() ).
+            registerTypeAdapter( Entity.class, new EntitySerializer() ).
+            registerTypeAdapter( Text.class, new TextSerializer() ).
+            registerTypeAdapter( Item.class, new ItemSerializer() ).
+            registerTypeAdapter( ItemTag.class, new ItemTag.Serializer() ).
             create();
 
     public static final ThreadLocal<Set<BaseComponent>> serializedComponents = new ThreadLocal<Set<BaseComponent>>();
@@ -46,6 +57,11 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
                 gson.fromJson( jsonElement, BaseComponent.class )
             };
         }
+    }
+
+    public static String toString(Object object)
+    {
+        return gson.toJson( object );
     }
 
     public static String toString(BaseComponent component)

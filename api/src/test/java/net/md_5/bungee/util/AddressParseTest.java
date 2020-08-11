@@ -1,6 +1,8 @@
 package net.md_5.bungee.util;
 
+import io.netty.channel.unix.DomainSocketAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Arrays;
 import java.util.Collection;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +46,9 @@ public class AddressParseTest
             },
             {
                 "[0:0:0:0:0:0:0:1]:1337", "0:0:0:0:0:0:0:1", 1337
+            },
+            {
+                "unix:///var/run/bungee.sock", "/var/run/bungee.sock", -1
             }
         } );
     }
@@ -54,8 +59,23 @@ public class AddressParseTest
     @Test
     public void test()
     {
-        InetSocketAddress parsed = Util.getAddr( line );
-        Assert.assertEquals( host, parsed.getHostString() );
-        Assert.assertEquals( port, parsed.getPort() );
+        SocketAddress parsed = Util.getAddr( line );
+
+        if ( parsed instanceof InetSocketAddress )
+        {
+            InetSocketAddress tcp = (InetSocketAddress) parsed;
+
+            Assert.assertEquals( host, tcp.getHostString() );
+            Assert.assertEquals( port, tcp.getPort() );
+        } else if ( parsed instanceof DomainSocketAddress )
+        {
+            DomainSocketAddress unix = (DomainSocketAddress) parsed;
+
+            Assert.assertEquals( host, unix.path() );
+            Assert.assertEquals( -1, port );
+        } else
+        {
+            throw new AssertionError( "Unknown socket " + parsed );
+        }
     }
 }

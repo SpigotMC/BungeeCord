@@ -40,7 +40,7 @@ import org.yaml.snakeyaml.introspector.PropertyUtils;
  * example event handling and plugin management.
  */
 @RequiredArgsConstructor
-public class PluginManager
+public final class PluginManager
 {
 
     /*========================================================================*/
@@ -148,6 +148,9 @@ public class PluginManager
      * @param sender the sender executing the command
      * @param commandLine the complete command line including command name and
      * arguments
+     * @param tabResults list to place tab results into. If this list is non
+     * null then the command will not be executed and tab results will be
+     * returned instead.
      * @return whether the command was handled
      */
     public boolean dispatchCommand(CommandSender sender, String commandLine, List<String> tabResults)
@@ -317,14 +320,13 @@ public class PluginManager
         {
             try
             {
-                URLClassLoader loader = new PluginClassloader( new URL[]
+                URLClassLoader loader = new PluginClassloader( proxy, plugin, new URL[]
                 {
                     plugin.getFile().toURI().toURL()
                 } );
                 Class<?> main = loader.loadClass( plugin.getMain() );
                 Plugin clazz = (Plugin) main.getDeclaredConstructor().newInstance();
 
-                clazz.init( proxy, plugin );
                 plugins.put( plugin.getName(), clazz );
                 clazz.onLoad();
                 ProxyServer.getInstance().getLogger().log( Level.INFO, "Loaded plugin {0} version {1} by {2}", new Object[]
@@ -400,9 +402,9 @@ public class PluginManager
         long elapsed = System.nanoTime() - start;
         if ( elapsed > 250000000 )
         {
-            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Event {0} took {1}ns to process!", new Object[]
+            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Event {0} took {1}ms to process!", new Object[]
             {
-                event, elapsed
+                event, elapsed / 1000000
             } );
         }
         return event;
@@ -440,6 +442,8 @@ public class PluginManager
 
     /**
      * Unregister all of a Plugin's listener.
+     *
+     * @param plugin target plugin
      */
     public void unregisterListeners(Plugin plugin)
     {

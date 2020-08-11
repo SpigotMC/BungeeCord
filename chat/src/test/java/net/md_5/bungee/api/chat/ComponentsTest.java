@@ -1,9 +1,9 @@
 package net.md_5.bungee.api.chat;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.awt.Color;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.hover.content.Item;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -11,24 +11,248 @@ import org.junit.Test;
 public class ComponentsTest
 {
 
+    public static void testDissembleReassemble(BaseComponent[] components)
+    {
+        String json = ComponentSerializer.toString( components );
+        BaseComponent[] parsed = ComponentSerializer.parse( json );
+        Assert.assertEquals( TextComponent.toLegacyText( parsed ), TextComponent.toLegacyText( components ) );
+    }
+
+    public static void testDissembleReassemble(String json)
+    {
+        BaseComponent[] parsed = ComponentSerializer.parse( json );
+        Assert.assertEquals( json, ComponentSerializer.toString( parsed ) );
+    }
+
+    @Test
+    public void testItemParse()
+    {
+        // Declare all commonly used variables for reuse.
+        BaseComponent[] components;
+        TextComponent textComponent;
+        String json;
+
+        textComponent = new TextComponent( "Test" );
+        textComponent.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_ITEM, new BaseComponent[]
+        {
+            new TextComponent( "{id:\"minecraft:netherrack\",Count:47b}" )
+        } ) );
+        testDissembleReassemble( new BaseComponent[]
+        {
+            textComponent
+        } );
+        json = "{\"text\":\"Test\",\"hoverEvent\":{\"action\":\"show_item\",\"value\":[{\"text\":\"{id:\\\"minecraft:netherrack\\\",Count:47b}\"}]}}";
+        testDissembleReassemble( json );
+        //////////
+        String hoverVal = "{\"text\":\"{id:\\\"minecraft:dirt\\\",Count:1b}\"}";
+        json = "{\"extra\":[{\"text\":\"[\"},{\"extra\":[{\"translate\":\"block.minecraft.dirt\"}],\"text\":\"\"},{\"text\":\"]\"}],\"hoverEvent\":{\"action\":\"show_item\",\"value\":[" + hoverVal + "]},\"text\":\"\"}";
+        components = ComponentSerializer.parse( json );
+        Text contentText = ( (Text) components[0].getHoverEvent().getContents().get( 0 ) );
+        Assert.assertEquals( hoverVal, ComponentSerializer.toString( (BaseComponent[]) contentText.getValue() ) );
+        testDissembleReassemble( components );
+        //////////
+        TextComponent component1 = new TextComponent( "HoverableText" );
+        String nbt = "{display:{Name:{text:Hello},Lore:[{text:Line_1},{text:Line_2}]},ench:[{id:49,lvl:5}],Unbreakable:1}}";
+        Item contentItem = new Item( "minecraft:wood", 1, ItemTag.ofNbt( nbt ) );
+        HoverEvent hoverEvent = new HoverEvent( HoverEvent.Action.SHOW_ITEM, contentItem );
+        component1.setHoverEvent( hoverEvent );
+        json = ComponentSerializer.toString( component1 );
+        components = ComponentSerializer.parse( json );
+        Item parsedContentItem = ( (Item) components[0].getHoverEvent().getContents().get( 0 ) );
+        Assert.assertEquals( contentItem, parsedContentItem );
+        Assert.assertEquals( contentItem.getCount(), parsedContentItem.getCount() );
+        Assert.assertEquals( contentItem.getId(), parsedContentItem.getId() );
+        Assert.assertEquals( nbt, parsedContentItem.getTag().getNbt() );
+    }
+
+    @Test
+    public void testEmptyComponentBuilder()
+    {
+        ComponentBuilder builder = new ComponentBuilder();
+
+        BaseComponent[] parts = builder.create();
+        Assert.assertEquals( parts.length, 0 );
+
+        for ( int i = 0; i < 3; i++ )
+        {
+            builder.append( "part:" + i );
+            parts = builder.create();
+            Assert.assertEquals( parts.length, i + 1 );
+        }
+    }
+
+    @Test
+    public void testDummyRetaining()
+    {
+        ComponentBuilder builder = new ComponentBuilder();
+        Assert.assertNotNull( builder.getCurrentComponent() );
+        builder.color( ChatColor.GREEN );
+        builder.append( "test ", ComponentBuilder.FormatRetention.ALL );
+        Assert.assertEquals( builder.getCurrentComponent().getColor(), ChatColor.GREEN );
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testComponentGettingExceptions()
+    {
+        ComponentBuilder builder = new ComponentBuilder();
+        builder.getComponent( -1 );
+        builder.getComponent( 0 );
+        builder.getComponent( 1 );
+        BaseComponent component = new TextComponent( "Hello" );
+        builder.append( component );
+        Assert.assertEquals( builder.getComponent( 0 ), component );
+        builder.getComponent( 1 );
+    }
+
+    @Test
+    public void testComponentParting()
+    {
+        ComponentBuilder builder = new ComponentBuilder();
+        TextComponent apple = new TextComponent( "apple" );
+        builder.append( apple );
+        Assert.assertEquals( builder.getCurrentComponent(), apple );
+        Assert.assertEquals( builder.getComponent( 0 ), apple );
+
+        TextComponent mango = new TextComponent( "mango" );
+        TextComponent orange = new TextComponent( "orange" );
+        builder.append( mango );
+        builder.append( orange );
+        builder.removeComponent( 1 ); // Removing mango
+        Assert.assertEquals( builder.getComponent( 0 ), apple );
+        Assert.assertEquals( builder.getComponent( 1 ), orange );
+    }
+
+    @Test
+    public void testToLegacyFromLegacy()
+    {
+        String text = "§a§lHello §f§kworld§7!";
+        Assert.assertEquals( text, TextComponent.toLegacyText( TextComponent.fromLegacyText( text ) ) );
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testComponentBuilderCursorInvalidPos()
+    {
+        ComponentBuilder builder = new ComponentBuilder();
+        builder.append( new TextComponent( "Apple, " ) );
+        builder.append( new TextComponent( "Orange, " ) );
+        builder.setCursor( -1 );
+        builder.setCursor( 2 );
+    }
+
+    @Test
+    public void testComponentBuilderCursor()
+    {
+        TextComponent t1, t2, t3;
+        ComponentBuilder builder = new ComponentBuilder();
+        Assert.assertEquals( builder.getCursor(), -1 );
+        builder.append( t1 = new TextComponent( "Apple, " ) );
+        Assert.assertEquals( builder.getCursor(), 0 );
+        builder.append( t2 = new TextComponent( "Orange, " ) );
+        builder.append( t3 = new TextComponent( "Mango, " ) );
+        Assert.assertEquals( builder.getCursor(), 2 );
+
+        builder.setCursor( 0 );
+        Assert.assertEquals( builder.getCurrentComponent(), t1 );
+
+        // Test that appending new components updates the position to the new list size
+        // after having previously set it to 0 (first component)
+        builder.append( new TextComponent( "and Grapefruit" ) );
+        Assert.assertEquals( builder.getCursor(), 3 );
+
+        builder.setCursor( 0 );
+        builder.resetCursor();
+        Assert.assertEquals( builder.getCursor(), 3 );
+    }
+
     @Test
     public void testLegacyComponentBuilderAppend()
     {
         String text = "§a§lHello §r§kworld§7!";
         BaseComponent[] components = TextComponent.fromLegacyText( text );
-        BaseComponent[] builderComponents = new ComponentBuilder( "" ).append( components ).create();
-        List<BaseComponent> list = new ArrayList<BaseComponent>( Arrays.asList( builderComponents ) );
-        // Remove the first element (empty text component). This needs to be done because toLegacyText always
-        // appends &f regardless if the color is non null or not and would otherwise mess with our unit test.
-        list.remove( 0 );
-        Assert.assertEquals(
-                TextComponent.toLegacyText( components ),
-                TextComponent.toLegacyText( list.toArray( new BaseComponent[ list.size() ] ) )
+        BaseComponent[] builderComponents = new ComponentBuilder().append( components ).create();
+        Assert.assertArrayEquals( components, builderComponents );
+    }
+
+    /*
+    @Test
+    public void testItemTag()
+    {
+        TextComponent component = new TextComponent( "Hello world" );
+        HoverEvent.ContentItem content = new HoverEvent.ContentItem();
+        content.setId( "minecraft:diamond_sword" );
+        content.setCount( 1 );
+        content.setTag( ItemTag.builder()
+                .ench( new ItemTag.Enchantment( 5, 16 ) )
+                .name( new TextComponent( "Sharp Sword" ) )
+                .unbreakable( true )
+                .lore( new ComponentBuilder( "Line1" ).create() )
+                .lore( new ComponentBuilder( "Line2" ).create() )
+                .build() );
+        HoverEvent event = new HoverEvent( HoverEvent.Action.SHOW_ITEM, content );
+        component.setHoverEvent( event );
+        String serialised = ComponentSerializer.toString( component );
+        BaseComponent[] deserialised = ComponentSerializer.parse( serialised );
+        Assert.assertEquals( TextComponent.toLegacyText( deserialised ), TextComponent.toLegacyText( component ) );
+    }
+     */
+
+    @Test
+    public void testModernShowAdvancement()
+    {
+        String advancement = "achievement.openInventory";
+        // First do the text using the newer contents system
+        HoverEvent hoverEvent = new HoverEvent(
+                HoverEvent.Action.SHOW_TEXT,
+                new Text( advancement )
         );
+        TextComponent component = new TextComponent( "test" );
+        component.setHoverEvent( hoverEvent );
+        Assert.assertEquals( component.getHoverEvent().getContents().size(), 1 );
+        Assert.assertTrue( component.getHoverEvent().getContents().get( 0 ) instanceof Text );
+        Assert.assertEquals( ( (Text) component.getHoverEvent().getContents().get( 0 ) ).getValue(), advancement );
     }
 
     @Test
-    public void testComponentFormatRetention()
+    public void testHoverEventContents()
+    {
+        // First do the text using the newer contents system
+        HoverEvent hoverEvent = new HoverEvent(
+                HoverEvent.Action.SHOW_TEXT,
+                new Text( new ComponentBuilder( "First" ).create() ),
+                new Text( new ComponentBuilder( "Second" ).create() )
+        );
+
+        TextComponent component = new TextComponent( "Sample text" );
+        component.setHoverEvent( hoverEvent );
+        Assert.assertEquals( hoverEvent.getContents().size(), 2 );
+        Assert.assertFalse( hoverEvent.isLegacy() );
+        String serialized = ComponentSerializer.toString( component );
+        BaseComponent[] deserialized = ComponentSerializer.parse( serialized );
+        Assert.assertEquals( component.getHoverEvent(), deserialized[0].getHoverEvent() );
+
+        // check the test still works with the value method
+        hoverEvent = new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( "Sample text" ).create() );
+        Assert.assertEquals( hoverEvent.getContents().size(), 1 );
+        Assert.assertTrue( hoverEvent.isLegacy() );
+        serialized = ComponentSerializer.toString( component );
+        deserialized = ComponentSerializer.parse( serialized );
+        Assert.assertEquals( component.getHoverEvent(), deserialized[0].getHoverEvent() );
+
+        // Test single content:
+        String json = "{\"italic\":true,\"color\":\"gray\",\"translate\":\"chat.type.admin\",\"with\":[{\"text\":\"@\"}"
+                + ",{\"translate\":\"commands.give.success.single\",\"with\":[\"1\",{\"color\":\"white\""
+                + ",\"hoverEvent\":{\"action\":\"show_item\",\"contents\":{\"id\":\"minecraft:diamond_sword\",\"tag\":\""
+                + "{Damage:0,display:{Lore:['\\\"test lore'!\\\"'],Name:'\\\"test\\\"'}}\"}},"
+                + "\"extra\":[{\"italic\":true,\"extra\":[{\"text\":\"test\"}],\"text\":\"\"},{\"text\":\"]\"}],"
+                + "\"text\":\"[\"},{\"insertion\":\"Name\",\"clickEvent\":{\"action\":\"suggest_command\",\"value\":"
+                + "\"/tell Name \"},\"hoverEvent\":{\"action\":\"show_entity\",\"contents\":"
+                + "{\"type\":\"minecraft:player\",\"id\":\"00000000-0000-0000-0000-00000000000000\",\"name\":"
+                + "{\"text\":\"Name\"}}},\"text\":\"Name\"}]}]}";
+        testDissembleReassemble( ComponentSerializer.parse( json ) );
+    }
+
+    @Test
+    public void testFormatRetentionCopyFormatting()
     {
         TextComponent first = new TextComponent( "Hello" );
         first.setBold( true );
@@ -47,7 +271,7 @@ public class ComponentsTest
     @Test
     public void testBuilderClone()
     {
-        ComponentBuilder builder = new ComponentBuilder( "Hel" ).color( ChatColor.RED ).append( "lo" ).color( ChatColor.DARK_RED );
+        ComponentBuilder builder = new ComponentBuilder( "Hello " ).color( ChatColor.RED ).append( "world" ).color( ChatColor.DARK_RED );
         ComponentBuilder cloned = new ComponentBuilder( builder );
 
         Assert.assertEquals( TextComponent.toLegacyText( builder.create() ), TextComponent.toLegacyText( cloned.create() ) );
@@ -311,6 +535,41 @@ public class ComponentsTest
 
         // color code should not be lost during conversion
         Assert.assertEquals( text, roundtripLegacyText );
+    }
+
+    @Test
+    public void testEquals()
+    {
+        TextComponent first = new TextComponent( "Hello, " );
+        first.addExtra( new TextComponent( "World!" ) );
+
+        TextComponent second = new TextComponent( "Hello, " );
+        second.addExtra( new TextComponent( "World!" ) );
+
+        Assert.assertEquals( first, second );
+    }
+
+    @Test
+    public void testNotEquals()
+    {
+        TextComponent first = new TextComponent( "Hello, " );
+        first.addExtra( new TextComponent( "World." ) );
+
+        TextComponent second = new TextComponent( "Hello, " );
+        second.addExtra( new TextComponent( "World!" ) );
+
+        Assert.assertNotEquals( first, second );
+    }
+
+    @Test
+    public void testLegacyHack()
+    {
+        BaseComponent[] hexColored = new ComponentBuilder().color( ChatColor.of( Color.GRAY ) ).append( "Test" ).create();
+        String legacy = TextComponent.toLegacyText( hexColored );
+
+        BaseComponent[] reColored = TextComponent.fromLegacyText( legacy );
+
+        Assert.assertArrayEquals( hexColored, reColored );
     }
 
     private String fromAndToLegacyText(String legacyText)

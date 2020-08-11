@@ -9,8 +9,10 @@ import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ScoreComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Content;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.score.Score;
+import net.md_5.bungee.protocol.ProtocolConstants;
 
 /**
  * This class transforms chat components by attempting to replace transformable
@@ -32,6 +34,32 @@ public final class ChatComponentTransformer
      */
     private static final Pattern SELECTOR_PATTERN = Pattern.compile( "^@([pares])(?:\\[([^ ]*)\\])?$" );
 
+    public BaseComponent[] legacyHoverTransform(ProxiedPlayer player, BaseComponent... components)
+    {
+        if ( player.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_16 )
+        {
+            for ( int i = 0; i < components.length; i++ )
+            {
+                BaseComponent next = components[i];
+                if ( next.getHoverEvent() == null || next.getHoverEvent().isLegacy() )
+                {
+                    continue;
+                }
+                next = next.duplicate();
+                next.getHoverEvent().setLegacy( true );
+                if ( next.getHoverEvent().getContents().size() > 1 )
+                {
+                    Content exception = next.getHoverEvent().getContents().get( 0 );
+                    next.getHoverEvent().getContents().clear();
+                    next.getHoverEvent().getContents().add( exception );
+                }
+                components[i] = next;
+            }
+        }
+
+        return components;
+    }
+
     public static ChatComponentTransformer getInstance()
     {
         return INSTANCE;
@@ -44,14 +72,33 @@ public final class ChatComponentTransformer
      * {@link BaseComponent#getExtra()}).
      *
      * @param player player
-     * @param component the component to transform
+     * @param components the component to transform
      * @return the transformed component, or an array containing a single empty
      * TextComponent if the components are null or empty
      * @throws IllegalArgumentException if an entity selector pattern is present
      */
-    public BaseComponent[] transform(ProxiedPlayer player, BaseComponent... component)
+    public BaseComponent[] transform(ProxiedPlayer player, BaseComponent... components)
     {
-        if ( component == null || component.length < 1 || ( component.length == 1 && component[0] == null ) )
+        return transform( player, false, components );
+    }
+
+    /**
+     * Transform a set of components, and attempt to transform the transformable
+     * fields. Entity selectors <b>cannot</b> be evaluated. This will
+     * recursively search for all extra components (see
+     * {@link BaseComponent#getExtra()}).
+     *
+     * @param player player
+     * @param transformHover if the hover event should replace contents with
+     * value
+     * @param components the component to transform
+     * @return the transformed component, or an array containing a single empty
+     * TextComponent if the components are null or empty
+     * @throws IllegalArgumentException if an entity selector pattern is present
+     */
+    public BaseComponent[] transform(ProxiedPlayer player, boolean transformHover, BaseComponent... components)
+    {
+        if ( components == null || components.length < 1 || ( components.length == 1 && components[0] == null ) )
         {
             return new BaseComponent[]
             {
@@ -59,11 +106,16 @@ public final class ChatComponentTransformer
             };
         }
 
-        for ( BaseComponent root : component )
+        if ( transformHover )
+        {
+            components = legacyHoverTransform( player, components );
+        }
+
+        for ( BaseComponent root : components )
         {
             if ( root.getExtra() != null && !root.getExtra().isEmpty() )
             {
-                List<BaseComponent> list = Lists.newArrayList( transform( player, root.getExtra().toArray( new BaseComponent[ root.getExtra().size() ] ) ) );
+                List<BaseComponent> list = Lists.newArrayList( transform( player, transformHover, root.getExtra().toArray( new BaseComponent[ root.getExtra().size() ] ) ) );
                 root.setExtra( list );
             }
 
@@ -72,7 +124,7 @@ public final class ChatComponentTransformer
                 transformScoreComponent( player, (ScoreComponent) root );
             }
         }
-        return component;
+        return components;
     }
 
     /**

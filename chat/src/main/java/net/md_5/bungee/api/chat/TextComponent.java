@@ -63,7 +63,27 @@ public final class TextComponent extends BaseComponent
                 {
                     c += 32;
                 }
-                ChatColor format = ChatColor.getByChar( c );
+                ChatColor format;
+                if ( c == 'x' && i + 12 < message.length() )
+                {
+                    StringBuilder hex = new StringBuilder( "#" );
+                    for ( int j = 0; j < 6; j++ )
+                    {
+                        hex.append( message.charAt( i + 2 + ( j * 2 ) ) );
+                    }
+                    try
+                    {
+                        format = ChatColor.of( hex.toString() );
+                    } catch ( IllegalArgumentException ex )
+                    {
+                        format = null;
+                    }
+
+                    i += 12;
+                } else
+                {
+                    format = ChatColor.getByChar( c );
+                }
                 if ( format == null )
                 {
                     continue;
@@ -76,29 +96,30 @@ public final class TextComponent extends BaseComponent
                     builder = new StringBuilder();
                     components.add( old );
                 }
-                switch ( format )
+                if ( format == ChatColor.BOLD )
                 {
-                    case BOLD:
-                        component.setBold( true );
-                        break;
-                    case ITALIC:
-                        component.setItalic( true );
-                        break;
-                    case UNDERLINE:
-                        component.setUnderlined( true );
-                        break;
-                    case STRIKETHROUGH:
-                        component.setStrikethrough( true );
-                        break;
-                    case MAGIC:
-                        component.setObfuscated( true );
-                        break;
-                    case RESET:
-                        format = defaultColor;
-                    default:
-                        component = new TextComponent();
-                        component.setColor( format );
-                        break;
+                    component.setBold( true );
+                } else if ( format == ChatColor.ITALIC )
+                {
+                    component.setItalic( true );
+                } else if ( format == ChatColor.UNDERLINE )
+                {
+                    component.setUnderlined( true );
+                } else if ( format == ChatColor.STRIKETHROUGH )
+                {
+                    component.setStrikethrough( true );
+                } else if ( format == ChatColor.MAGIC )
+                {
+                    component.setObfuscated( true );
+                } else if ( format == ChatColor.RESET )
+                {
+                    format = defaultColor;
+                    component = new TextComponent();
+                    component.setColor( format );
+                } else
+                {
+                    component = new TextComponent();
+                    component.setColor( format );
                 }
                 continue;
             }
@@ -172,7 +193,11 @@ public final class TextComponent extends BaseComponent
      */
     public TextComponent(BaseComponent... extras)
     {
-        setText( "" );
+        this();
+        if ( extras.length == 0 )
+        {
+            return;
+        }
         setExtra( new ArrayList<BaseComponent>( Arrays.asList( extras ) ) );
     }
 
@@ -182,7 +207,7 @@ public final class TextComponent extends BaseComponent
      * @return the duplicate of this TextComponent.
      */
     @Override
-    public BaseComponent duplicate()
+    public TextComponent duplicate()
     {
         return new TextComponent( this );
     }
@@ -197,27 +222,7 @@ public final class TextComponent extends BaseComponent
     @Override
     protected void toLegacyText(StringBuilder builder)
     {
-        builder.append( getColor() );
-        if ( isBold() )
-        {
-            builder.append( ChatColor.BOLD );
-        }
-        if ( isItalic() )
-        {
-            builder.append( ChatColor.ITALIC );
-        }
-        if ( isUnderlined() )
-        {
-            builder.append( ChatColor.UNDERLINE );
-        }
-        if ( isStrikethrough() )
-        {
-            builder.append( ChatColor.STRIKETHROUGH );
-        }
-        if ( isObfuscated() )
-        {
-            builder.append( ChatColor.MAGIC );
-        }
+        addFormat( builder );
         builder.append( text );
         super.toLegacyText( builder );
     }

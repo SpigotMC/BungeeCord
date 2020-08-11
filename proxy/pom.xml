@@ -6,13 +6,13 @@
     <parent>
         <groupId>net.md-5</groupId>
         <artifactId>bungeecord-parent</artifactId>
-        <version>1.14-SNAPSHOT</version>
+        <version>1.16-R0.4-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-proxy</artifactId>
-    <version>1.14-SNAPSHOT</version>
+    <version>1.16-R0.4-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>BungeeCord-Proxy</name>
@@ -20,15 +20,10 @@
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>com.flowpowered</groupId>
-            <artifactId>flow-nbt</artifactId>
-            <version>1.0.0</version>
-            <scope>compile</scope>
-        </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec-haproxy</artifactId>
@@ -87,13 +82,13 @@
         <dependency>
             <groupId>net.sf.jopt-simple</groupId>
             <artifactId>jopt-simple</artifactId>
-            <version>4.9</version>
+            <version>5.0.4</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.47</version>
+            <version>5.1.48</version>
             <scope>runtime</scope>
         </dependency>
     </dependencies>

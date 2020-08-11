@@ -20,8 +20,12 @@ public class TextComponentSerializer extends BaseComponentSerializer implements 
     {
         TextComponent component = new TextComponent();
         JsonObject object = json.getAsJsonObject();
-        deserialize( object, component, context );
+        if ( !object.has( "text" ) )
+        {
+            throw new JsonParseException( "Could not parse JSON: missing 'text' property" );
+        }
         component.setText( object.get( "text" ).getAsString() );
+        deserialize( object, component, context );
         return component;
     }
 
@@ -30,11 +34,11 @@ public class TextComponentSerializer extends BaseComponentSerializer implements 
     {
         List<BaseComponent> extra = src.getExtra();
         JsonObject object = new JsonObject();
+        object.addProperty( "text", src.getText() );
         if ( src.hasFormatting() || ( extra != null && !extra.isEmpty() ) )
         {
             serialize( object, src, context );
         }
-        object.addProperty( "text", src.getText() );
         return object;
     }
 }
