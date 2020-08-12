@@ -21,6 +21,7 @@ public class CachedCaptcha
     private static final int PACKETID_113 = 38;
     private static final int PACKETID_114and116 = 38;
     private static final int PACKETID_115 = 39;
+
     private static final Random random = new Random();
 
     private static final CaptchaHolder[] captchas = new CaptchaHolder[900];
