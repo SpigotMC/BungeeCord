@@ -21,6 +21,7 @@ public class CachedCaptcha
     private static final int PACKETID_113 = 38;
     private static final int PACKETID_114and116 = 38;
     private static final int PACKETID_115 = 39;
+    private static final int PACKETID_1162 = 0x25;
 
     private static final Random random = new Random();
 
@@ -37,8 +38,9 @@ public class CachedCaptcha
         ByteBuf byteBuf113 = PacketUtils.createPacket( map, PACKETID_113, ProtocolConstants.MINECRAFT_1_13 );
         ByteBuf byteBuf114And116 = PacketUtils.createPacket( map, PACKETID_114and116, ProtocolConstants.MINECRAFT_1_14 );
         ByteBuf byteBuf115 = PacketUtils.createPacket( map, PACKETID_115, ProtocolConstants.MINECRAFT_1_15 );
+        ByteBuf byteBuf1162 = PacketUtils.createPacket( map, PACKETID_1162, ProtocolConstants.MINECRAFT_1_16_2 );
 
-        captchas[counter.getAndIncrement()] = new CaptchaHolder( answer, byteBuf18, byteBuf19, byteBuf113, byteBuf114And116, byteBuf115 );
+        captchas[counter.getAndIncrement()] = new CaptchaHolder( answer, byteBuf18, byteBuf19, byteBuf113, byteBuf114And116, byteBuf115, byteBuf1162 );
 
         //TODO: Do something with this shit.
     }
@@ -53,28 +55,52 @@ public class CachedCaptcha
     public static class CaptchaHolder
     {
         private final String answer;
-        private final ByteBuf buf18, buf19, buf113, buf114And116, buf115;
+        private final ByteBuf buf18, buf19, buf113, buf114And116, buf115, buf1162;
 
         public void write(Channel channel, int version, boolean flush)
         {
-            if ( version == ProtocolConstants.MINECRAFT_1_8 )
+
+            switch ( version )
             {
-                channel.write( buf18.retainedDuplicate(), channel.voidPromise() );
-            } else if ( version < ProtocolConstants.MINECRAFT_1_13 )
-            {
-                channel.write( buf19.retainedDuplicate(), channel.voidPromise() );
-            } else if ( version < ProtocolConstants.MINECRAFT_1_14 )
-            {
-                channel.write( buf113.retainedDuplicate(), channel.voidPromise() );
-            } else if ( version < ProtocolConstants.MINECRAFT_1_15 )
-            {
-                channel.write( buf114And116.retainedDuplicate(), channel.voidPromise() );
-            } else if ( version < ProtocolConstants.MINECRAFT_1_16 )
-            {
-                channel.write( buf115.retainedDuplicate(), channel.voidPromise() );
-            } else
-            {
-                channel.write( buf114And116.retainedDuplicate(), channel.voidPromise() );
+                case ProtocolConstants.MINECRAFT_1_8:
+                    channel.write( buf18.retainedDuplicate(), channel.voidPromise() );
+                    break;
+                case ProtocolConstants.MINECRAFT_1_9:
+                case ProtocolConstants.MINECRAFT_1_9_1:
+                case ProtocolConstants.MINECRAFT_1_9_2:
+                case ProtocolConstants.MINECRAFT_1_9_4:
+                case ProtocolConstants.MINECRAFT_1_10:
+                case ProtocolConstants.MINECRAFT_1_11:
+                case ProtocolConstants.MINECRAFT_1_11_1:
+                case ProtocolConstants.MINECRAFT_1_12:
+                case ProtocolConstants.MINECRAFT_1_12_1:
+                case ProtocolConstants.MINECRAFT_1_12_2:
+                    channel.write( buf19.retainedDuplicate(), channel.voidPromise() );
+                    break;
+                case ProtocolConstants.MINECRAFT_1_13:
+                case ProtocolConstants.MINECRAFT_1_13_1:
+                case ProtocolConstants.MINECRAFT_1_13_2:
+                    channel.write( buf113.retainedDuplicate(), channel.voidPromise() );
+                    break;
+                case ProtocolConstants.MINECRAFT_1_14:
+                case ProtocolConstants.MINECRAFT_1_14_1:
+                case ProtocolConstants.MINECRAFT_1_14_2:
+                case ProtocolConstants.MINECRAFT_1_14_3:
+                case ProtocolConstants.MINECRAFT_1_14_4:
+                case ProtocolConstants.MINECRAFT_1_16:
+                case ProtocolConstants.MINECRAFT_1_16_1:
+                    channel.write( buf114And116.retainedDuplicate(), channel.voidPromise() );
+                    break;
+                case ProtocolConstants.MINECRAFT_1_15:
+                case ProtocolConstants.MINECRAFT_1_15_1:
+                case ProtocolConstants.MINECRAFT_1_15_2:
+                    channel.write( buf115.retainedDuplicate(), channel.voidPromise() );
+                    break;
+                case ProtocolConstants.MINECRAFT_1_16_2:
+                    channel.write( buf1162.retainedDuplicate(), channel.voidPromise() );
+                    break;
+                default:
+                    throw new IllegalArgumentException( "version not found: " + version );
             }
             if ( flush )
             {

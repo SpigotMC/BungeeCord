@@ -37,7 +37,7 @@ public class PacketUtils
     public static int CLIENTID = new Random().nextInt( Integer.MAX_VALUE - 100 ) + 50;
     public static int KEEPALIVE_ID = 9876;
 
-    private static final CachedPacket[] cachedPackets = new CachedPacket[ 16 ];
+    private static final CachedPacket[] cachedPackets = new CachedPacket[16];
     private static final HashMap<KickType, CachedPacket> kickMessagesGame = new HashMap<KickType, CachedPacket>( 3 );
     private static final HashMap<KickType, CachedPacket> kickMessagesLogin = new HashMap<KickType, CachedPacket>( 4 );
 
@@ -48,7 +48,7 @@ public class PacketUtils
     /**
      * 0 - Checking_fall, 1 - checking_captcha, 2 - sus
      */
-    public static CachedTitle[] titles = new CachedTitle[ 3 ];
+    public static CachedTitle[] titles = new CachedTitle[3];
 
     public static ByteBuf createPacket(DefinedPacket packet, int id, int protocol)
     {
@@ -131,9 +131,9 @@ public class PacketUtils
     private static DefinedPacket createKickPacket(String message)
     {
         return new Kick( ComponentSerializer.toString(
-                TextComponent.fromLegacyText(
-                        ChatColor.translateAlternateColorCodes( '&',
-                                message.replace( "%prefix%", Settings.IMP.MESSAGES.PREFIX ).replace( "%nl%", "\n" ) ) ) ) );
+            TextComponent.fromLegacyText(
+                ChatColor.translateAlternateColorCodes( '&',
+                    message.replace( "%prefix%", Settings.IMP.MESSAGES.PREFIX ).replace( "%nl%", "\n" ) ) ) ) );
     }
 
     private static DefinedPacket createMessagePacket(String message)
@@ -143,9 +143,9 @@ public class PacketUtils
             return null;
         }
         return new Chat( ComponentSerializer.toString(
-                TextComponent.fromLegacyText(
-                        ChatColor.translateAlternateColorCodes( '&',
-                                message.replace( "%prefix%", Settings.IMP.MESSAGES.PREFIX ).replace( "%nl%", "\n" ) ) ) ), (byte) ChatMessageType.CHAT.ordinal() );
+            TextComponent.fromLegacyText(
+                ChatColor.translateAlternateColorCodes( '&',
+                    message.replace( "%prefix%", Settings.IMP.MESSAGES.PREFIX ).replace( "%nl%", "\n" ) ) ) ), (byte) ChatMessageType.CHAT.ordinal() );
     }
 
     private static DefinedPacket createPluginMessage()
@@ -268,6 +268,8 @@ public class PacketUtils
                 return 22;
             case ProtocolConstants.MINECRAFT_1_16_1:
                 return 23;
+            case ProtocolConstants.MINECRAFT_1_16_2:
+                return 24;
             default:
                 throw new IllegalArgumentException( "Version is not supported" );
         }
@@ -288,7 +290,6 @@ public class PacketUtils
         } else
         {
             channel.write( getCachedPacket( PacketsPosition.PLAYERPOSANDLOOK ).get( version ), channel.voidPromise() );
-
         }
         channel.write( getCachedPacket( PacketsPosition.TIME ).get( version ), channel.voidPromise() );
         //channel.flush(); Не очищяем поскольку это будет в другом месте

@@ -1,8 +1,8 @@
 package net.md_5.bungee.protocol;
 
 import com.google.common.base.Charsets;
-import com.google.gson.JsonSyntaxException;
 import com.google.common.base.Preconditions;
+import com.google.gson.JsonSyntaxException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
