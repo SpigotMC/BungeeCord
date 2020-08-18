@@ -550,6 +550,7 @@ public class Commands extends DefinedPacket
             PROVIDERS.put( "minecraft:uuid", VOID ); // 1.16
             PROVIDERS.put( "minecraft:test_argument", VOID ); // 1.16, debug
             PROVIDERS.put( "minecraft:test_class", VOID ); // 1.16, debug
+            PROVIDERS.put( "minecraft:angle", VOID ); // 1.16.2
         }
 
         private static ArgumentType<?> read(String key, ByteBuf buf)

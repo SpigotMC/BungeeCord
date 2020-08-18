@@ -7,9 +7,9 @@ import java.util.regex.Pattern;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.ScoreComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Content;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.score.Score;
 import net.md_5.bungee.protocol.ProtocolConstants;
@@ -49,7 +49,7 @@ public final class ChatComponentTransformer
                 next.getHoverEvent().setLegacy( true );
                 if ( next.getHoverEvent().getContents().size() > 1 )
                 {
-                    HoverEvent.Content exception = next.getHoverEvent().getContents().get( 0 );
+                    Content exception = next.getHoverEvent().getContents().get( 0 );
                     next.getHoverEvent().getContents().clear();
                     next.getHoverEvent().getContents().add( exception );
                 }
@@ -115,7 +115,7 @@ public final class ChatComponentTransformer
         {
             if ( root.getExtra() != null && !root.getExtra().isEmpty() )
             {
-                List<BaseComponent> list = Lists.newArrayList( transform( player, root.getExtra().toArray( new BaseComponent[ root.getExtra().size() ] ) ) );
+                List<BaseComponent> list = Lists.newArrayList( transform( player, transformHover, root.getExtra().toArray( new BaseComponent[ root.getExtra().size() ] ) ) );
                 root.setExtra( list );
             }
 

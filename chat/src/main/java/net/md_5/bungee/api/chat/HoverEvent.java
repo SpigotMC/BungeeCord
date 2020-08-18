@@ -1,27 +1,19 @@
 package net.md_5.bungee.api.chat;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import net.md_5.bungee.api.chat.hover.content.Content;
+import net.md_5.bungee.api.chat.hover.content.Entity;
+import net.md_5.bungee.api.chat.hover.content.Item;
+import net.md_5.bungee.api.chat.hover.content.Text;
+import net.md_5.bungee.chat.ComponentSerializer;
 
 @Getter
 @ToString
@@ -52,7 +44,8 @@ public final class HoverEvent
      */
     public HoverEvent(Action action, Content... contents)
     {
-        Preconditions.checkArgument( contents.length != 0, "Must contain at least one content" );
+        Preconditions.checkArgument( contents.length != 0,
+                "Must contain at least one content" );
         this.action = action;
         this.contents = new ArrayList<>();
         for ( Content it : contents )
@@ -74,8 +67,24 @@ public final class HoverEvent
         // Old plugins may have somehow hacked BaseComponent[] into
         // anything other than SHOW_TEXT action. Ideally continue support.
         this.action = action;
-        this.contents = new ArrayList<>( Collections.singletonList( new ContentText( value ) ) );
+        this.contents = new ArrayList<>( Collections.singletonList( new Text( value ) ) );
         this.legacy = true;
+    }
+
+    @Deprecated
+    public BaseComponent[] getValue()
+    {
+        Content content = contents.get( 0 );
+        if ( content instanceof Text && ( (Text) content ).getValue() instanceof BaseComponent[] )
+        {
+            return (BaseComponent[]) ( (Text) content ).getValue();
+        }
+
+        TextComponent component = new TextComponent( ComponentSerializer.toString( content ) );
+        return new BaseComponent[]
+        {
+            component
+        };
     }
 
     /**
@@ -89,237 +98,10 @@ public final class HoverEvent
      */
     public void addContent(Content content) throws UnsupportedOperationException
     {
-        Preconditions.checkArgument( !legacy || contents.size() == 0, "Legacy HoverEvent may not have more than one content" );
+        Preconditions.checkArgument( !legacy || contents.size() == 0,
+                "Legacy HoverEvent may not have more than one content" );
         content.assertAction( action );
         contents.add( content );
-    }
-
-    @ToString
-    @EqualsAndHashCode
-    public abstract static class Content
-    {
-
-        /**
-         * Required action for this content type.
-         *
-         * @return action
-         */
-        abstract Action requiredAction();
-
-        /**
-         * Tests this content against an action
-         *
-         * @param input input to test
-         * @throws UnsupportedOperationException if action incompatible
-         */
-        void assertAction(Action input) throws UnsupportedOperationException
-        {
-            if ( input != requiredAction() )
-            {
-                throw new UnsupportedOperationException( "Action " + input + " not compatible! Expected " + requiredAction() );
-            }
-        }
-    }
-
-    @Data
-    @ToString
-    public static class ContentText extends Content
-    {
-
-        /**
-         * The value.
-         *
-         * May be a component or raw text depending on constructor used.
-         */
-        private Object value;
-
-        public ContentText(BaseComponent[] value)
-        {
-            this.value = value;
-        }
-
-        public ContentText(String value)
-        {
-            this.value = value;
-        }
-
-        @Override
-        Action requiredAction()
-        {
-            return Action.SHOW_TEXT;
-        }
-
-        @Override
-        public boolean equals(Object o)
-        {
-            if ( value instanceof BaseComponent[] )
-            {
-                return o instanceof ContentText
-                        && ( (ContentText) o ).value instanceof BaseComponent[]
-                        && Arrays.equals( (BaseComponent[]) value, (BaseComponent[]) ( (ContentText) o ).value );
-            } else
-            {
-                return value.equals( o );
-            }
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return ( value instanceof BaseComponent[] ) ? Arrays.hashCode( (BaseComponent[]) value ) : value.hashCode();
-        }
-
-        public static class Serializer implements JsonSerializer<ContentText>, JsonDeserializer<ContentText>
-        {
-
-            @Override
-            public ContentText deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
-            {
-                if ( element.isJsonArray() )
-                {
-                    return new ContentText( context.<BaseComponent[]>deserialize( element, BaseComponent[].class ) );
-                } else if ( element.getAsJsonObject().isJsonPrimitive() )
-                {
-                    return new ContentText( element.getAsJsonObject().getAsJsonPrimitive().getAsString() );
-                } else
-                {
-                    return new ContentText( new BaseComponent[]
-                    {
-                        context.deserialize( element, BaseComponent.class )
-                    } );
-                }
-            }
-
-            @Override
-            public JsonElement serialize(ContentText content, Type type, JsonSerializationContext context)
-            {
-                return context.serialize( content.getValue() );
-            }
-        }
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @ToString
-    @EqualsAndHashCode(callSuper = true)
-    public static class ContentEntity extends Content
-    {
-
-        /**
-         * Namespaced entity ID.
-         *
-         * Will use 'minecraft:pig' if null.
-         */
-        private String type;
-        /**
-         * Entity UUID in hyphenated hexadecimal format.
-         *
-         * Should be valid UUID. TODO : validate?
-         */
-        @NonNull
-        private String id;
-        /**
-         * Name to display as the entity.
-         *
-         * This is optional and will be hidden if null.
-         */
-        private BaseComponent name;
-
-        @Override
-        Action requiredAction()
-        {
-            return Action.SHOW_ENTITY;
-        }
-
-        public static class Serializer implements JsonSerializer<ContentEntity>, JsonDeserializer<ContentEntity>
-        {
-
-            @Override
-            public ContentEntity deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
-            {
-                JsonObject value = element.getAsJsonObject();
-
-                return new ContentEntity(
-                        ( value.has( "type" ) ) ? value.get( "type" ).getAsString() : null,
-                        value.get( "id" ).getAsString(),
-                        ( value.has( "name" ) ) ? context.deserialize( value.get( "name" ), BaseComponent.class ) : null
-                );
-            }
-
-            @Override
-            public JsonElement serialize(ContentEntity content, Type type, JsonSerializationContext context)
-            {
-                JsonObject object = new JsonObject();
-                object.addProperty( "type", ( content.getType() != null ) ? content.getType() : "minecraft:pig" );
-                object.addProperty( "id", content.getId() );
-                if ( content.getName() != null )
-                {
-                    object.add( "name", context.serialize( content.getName() ) );
-                }
-                return object;
-            }
-        }
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @ToString
-    @EqualsAndHashCode(callSuper = true)
-    public static class ContentItem extends Content
-    {
-
-        /**
-         * Namespaced item ID. Will use 'minecraft:air' if null.
-         */
-        private String id;
-        /**
-         * Optional. Size of the item stack.
-         */
-        private int count = -1;
-        /**
-         * Optional. Item tag.
-         */
-        private ItemTag tag;
-
-        @Override
-        Action requiredAction()
-        {
-            return Action.SHOW_ITEM;
-        }
-
-        public static class Serializer implements JsonSerializer<ContentItem>, JsonDeserializer<ContentItem>
-        {
-
-            @Override
-            public ContentItem deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
-            {
-                JsonObject value = element.getAsJsonObject();
-
-                return new ContentItem(
-                        ( value.has( "id" ) ) ? value.get( "id" ).getAsString() : null,
-                        ( value.has( "Count" ) ) ? value.get( "Count" ).getAsInt() : -1,
-                        ( value.has( "tag" ) ) ? context.deserialize( value.get( "tag" ), ItemTag.class ) : null
-                );
-            }
-
-            @Override
-            public JsonElement serialize(ContentItem content, Type type, JsonSerializationContext context)
-            {
-                JsonObject object = new JsonObject();
-                object.addProperty( "id", ( content.getId() == null ) ? "minecraft:air" : content.getId() );
-                if ( content.getCount() != -1 )
-                {
-                    object.addProperty( "Count", content.getCount() );
-                }
-                if ( content.getTag() != null )
-                {
-                    object.add( "tag", context.serialize( content.getTag() ) );
-                }
-                return object;
-            }
-        }
     }
 
     public enum Action
@@ -352,11 +134,11 @@ public final class HoverEvent
         switch ( action )
         {
             case SHOW_TEXT:
-                return ( array ) ? HoverEvent.ContentText[].class : HoverEvent.ContentText.class;
+                return ( array ) ? Text[].class : Text.class;
             case SHOW_ENTITY:
-                return ( array ) ? HoverEvent.ContentEntity[].class : HoverEvent.ContentEntity.class;
+                return ( array ) ? Entity[].class : Entity.class;
             case SHOW_ITEM:
-                return ( array ) ? HoverEvent.ContentItem[].class : HoverEvent.ContentItem.class;
+                return ( array ) ? Item[].class : Item.class;
             default:
                 throw new UnsupportedOperationException( "Action '" + action.name() + " not supported" );
         }

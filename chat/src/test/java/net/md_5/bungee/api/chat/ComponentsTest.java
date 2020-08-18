@@ -1,16 +1,69 @@
 package net.md_5.bungee.api.chat;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.hover.content.Item;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class ComponentsTest
 {
+
+    public static void testDissembleReassemble(BaseComponent[] components)
+    {
+        String json = ComponentSerializer.toString( components );
+        BaseComponent[] parsed = ComponentSerializer.parse( json );
+        Assert.assertEquals( TextComponent.toLegacyText( parsed ), TextComponent.toLegacyText( components ) );
+    }
+
+    public static void testDissembleReassemble(String json)
+    {
+        BaseComponent[] parsed = ComponentSerializer.parse( json );
+        Assert.assertEquals( json, ComponentSerializer.toString( parsed ) );
+    }
+
+    @Test
+    public void testItemParse()
+    {
+        // Declare all commonly used variables for reuse.
+        BaseComponent[] components;
+        TextComponent textComponent;
+        String json;
+
+        textComponent = new TextComponent( "Test" );
+        textComponent.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_ITEM, new BaseComponent[]
+        {
+            new TextComponent( "{id:\"minecraft:netherrack\",Count:47b}" )
+        } ) );
+        testDissembleReassemble( new BaseComponent[]
+        {
+            textComponent
+        } );
+        json = "{\"text\":\"Test\",\"hoverEvent\":{\"action\":\"show_item\",\"value\":[{\"text\":\"{id:\\\"minecraft:netherrack\\\",Count:47b}\"}]}}";
+        testDissembleReassemble( json );
+        //////////
+        String hoverVal = "{\"text\":\"{id:\\\"minecraft:dirt\\\",Count:1b}\"}";
+        json = "{\"extra\":[{\"text\":\"[\"},{\"extra\":[{\"translate\":\"block.minecraft.dirt\"}],\"text\":\"\"},{\"text\":\"]\"}],\"hoverEvent\":{\"action\":\"show_item\",\"value\":[" + hoverVal + "]},\"text\":\"\"}";
+        components = ComponentSerializer.parse( json );
+        Text contentText = ( (Text) components[0].getHoverEvent().getContents().get( 0 ) );
+        Assert.assertEquals( hoverVal, ComponentSerializer.toString( (BaseComponent[]) contentText.getValue() ) );
+        testDissembleReassemble( components );
+        //////////
+        TextComponent component1 = new TextComponent( "HoverableText" );
+        String nbt = "{display:{Name:{text:Hello},Lore:[{text:Line_1},{text:Line_2}]},ench:[{id:49,lvl:5}],Unbreakable:1}}";
+        Item contentItem = new Item( "minecraft:wood", 1, ItemTag.ofNbt( nbt ) );
+        HoverEvent hoverEvent = new HoverEvent( HoverEvent.Action.SHOW_ITEM, contentItem );
+        component1.setHoverEvent( hoverEvent );
+        json = ComponentSerializer.toString( component1 );
+        components = ComponentSerializer.parse( json );
+        Item parsedContentItem = ( (Item) components[0].getHoverEvent().getContents().get( 0 ) );
+        Assert.assertEquals( contentItem, parsedContentItem );
+        Assert.assertEquals( contentItem.getCount(), parsedContentItem.getCount() );
+        Assert.assertEquals( contentItem.getId(), parsedContentItem.getId() );
+        Assert.assertEquals( nbt, parsedContentItem.getTag().getNbt() );
+    }
 
     @Test
     public void testEmptyComponentBuilder()
@@ -117,13 +170,10 @@ public class ComponentsTest
         String text = "§a§lHello §r§kworld§7!";
         BaseComponent[] components = TextComponent.fromLegacyText( text );
         BaseComponent[] builderComponents = new ComponentBuilder().append( components ).create();
-        List<BaseComponent> list = new ArrayList<BaseComponent>( Arrays.asList( builderComponents ) );
-        Assert.assertEquals(
-                TextComponent.toLegacyText( components ),
-                TextComponent.toLegacyText( list.toArray( new BaseComponent[ list.size() ] ) )
-        );
+        Assert.assertArrayEquals( components, builderComponents );
     }
 
+    /*
     @Test
     public void testItemTag()
     {
@@ -144,6 +194,7 @@ public class ComponentsTest
         BaseComponent[] deserialised = ComponentSerializer.parse( serialised );
         Assert.assertEquals( TextComponent.toLegacyText( deserialised ), TextComponent.toLegacyText( component ) );
     }
+     */
 
     @Test
     public void testModernShowAdvancement()
@@ -152,13 +203,13 @@ public class ComponentsTest
         // First do the text using the newer contents system
         HoverEvent hoverEvent = new HoverEvent(
                 HoverEvent.Action.SHOW_TEXT,
-                new HoverEvent.ContentText( advancement )
+                new Text( advancement )
         );
         TextComponent component = new TextComponent( "test" );
         component.setHoverEvent( hoverEvent );
         Assert.assertEquals( component.getHoverEvent().getContents().size(), 1 );
-        Assert.assertTrue( component.getHoverEvent().getContents().get( 0 ) instanceof HoverEvent.ContentText );
-        Assert.assertEquals( ( (HoverEvent.ContentText) component.getHoverEvent().getContents().get( 0 ) ).getValue(), advancement );
+        Assert.assertTrue( component.getHoverEvent().getContents().get( 0 ) instanceof Text );
+        Assert.assertEquals( ( (Text) component.getHoverEvent().getContents().get( 0 ) ).getValue(), advancement );
     }
 
     @Test
@@ -167,8 +218,8 @@ public class ComponentsTest
         // First do the text using the newer contents system
         HoverEvent hoverEvent = new HoverEvent(
                 HoverEvent.Action.SHOW_TEXT,
-                new HoverEvent.ContentText( new ComponentBuilder( "First" ).create() ),
-                new HoverEvent.ContentText( new ComponentBuilder( "Second" ).create() )
+                new Text( new ComponentBuilder( "First" ).create() ),
+                new Text( new ComponentBuilder( "Second" ).create() )
         );
 
         TextComponent component = new TextComponent( "Sample text" );
@@ -186,6 +237,18 @@ public class ComponentsTest
         serialized = ComponentSerializer.toString( component );
         deserialized = ComponentSerializer.parse( serialized );
         Assert.assertEquals( component.getHoverEvent(), deserialized[0].getHoverEvent() );
+
+        // Test single content:
+        String json = "{\"italic\":true,\"color\":\"gray\",\"translate\":\"chat.type.admin\",\"with\":[{\"text\":\"@\"}"
+                + ",{\"translate\":\"commands.give.success.single\",\"with\":[\"1\",{\"color\":\"white\""
+                + ",\"hoverEvent\":{\"action\":\"show_item\",\"contents\":{\"id\":\"minecraft:diamond_sword\",\"tag\":\""
+                + "{Damage:0,display:{Lore:['\\\"test lore'!\\\"'],Name:'\\\"test\\\"'}}\"}},"
+                + "\"extra\":[{\"italic\":true,\"extra\":[{\"text\":\"test\"}],\"text\":\"\"},{\"text\":\"]\"}],"
+                + "\"text\":\"[\"},{\"insertion\":\"Name\",\"clickEvent\":{\"action\":\"suggest_command\",\"value\":"
+                + "\"/tell Name \"},\"hoverEvent\":{\"action\":\"show_entity\",\"contents\":"
+                + "{\"type\":\"minecraft:player\",\"id\":\"00000000-0000-0000-0000-00000000000000\",\"name\":"
+                + "{\"text\":\"Name\"}}},\"text\":\"Name\"}]}]}";
+        testDissembleReassemble( ComponentSerializer.parse( json ) );
     }
 
     @Test
