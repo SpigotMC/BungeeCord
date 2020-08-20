@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.AccessControlException;
 import java.security.Permission;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -14,7 +15,7 @@ public class BungeeSecurityManager extends SecurityManager
 {
 
     private static final boolean ENFORCE = false;
-    private final Set<String> seen = new HashSet<>();
+    private final Set<String> seen = Collections.synchronizedSet( new HashSet<>() );
 
     private void checkRestricted(String text)
     {
