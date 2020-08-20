@@ -106,16 +106,26 @@ public class Plugin
     }
 
     //
-    private ExecutorService service;
+    private volatile ExecutorService service;
 
     @Deprecated
     public ExecutorService getExecutorService()
     {
+        ExecutorService service = this.service;
         if ( service == null )
         {
-            String name = ( getDescription() == null ) ? "unknown" : getDescription().getName();
-            service = Executors.newCachedThreadPool( new ThreadFactoryBuilder().setNameFormat( name + " Pool Thread #%1$d" )
-                    .setThreadFactory( new GroupedThreadFactory( this, name ) ).build() );
+            synchronized ( this )
+            {
+                service = this.service;
+                if ( service == null )
+                {
+                    String name = ( getDescription() == null ) ? "unknown" : getDescription().getName();
+                    service = Executors
+                            .newCachedThreadPool( new ThreadFactoryBuilder().setNameFormat( name + " Pool Thread #%1$d" )
+                                    .setThreadFactory( new GroupedThreadFactory( this, name ) ).build() );
+                    this.service = service;
+                }
+            }
         }
         return service;
     }
