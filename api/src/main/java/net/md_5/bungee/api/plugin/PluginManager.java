@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -77,12 +78,15 @@ public final class PluginManager
      */
     public void registerCommand(Plugin plugin, Command command)
     {
-        commandMap.put( command.getName().toLowerCase( Locale.ROOT ), command );
-        for ( String alias : command.getAliases() )
+        synchronized ( commandMap )
         {
-            commandMap.put( alias.toLowerCase( Locale.ROOT ), command );
+            commandMap.put( command.getName().toLowerCase( Locale.ROOT ), command );
+            for ( String alias : command.getAliases() )
+            {
+                commandMap.put( alias.toLowerCase( Locale.ROOT ), command );
+            }
+            commandsByPlugin.put( plugin, command );
         }
-        commandsByPlugin.put( plugin, command );
     }
 
     /**
@@ -92,8 +96,11 @@ public final class PluginManager
      */
     public void unregisterCommand(Command command)
     {
-        while ( commandMap.values().remove( command ) );
-        commandsByPlugin.values().remove( command );
+        synchronized ( commandMap )
+        {
+            while ( commandMap.values().remove( command ) );
+            commandsByPlugin.values().remove( command );
+        }
     }
 
     /**
@@ -103,11 +110,14 @@ public final class PluginManager
      */
     public void unregisterCommands(Plugin plugin)
     {
-        for ( Iterator<Command> it = commandsByPlugin.get( plugin ).iterator(); it.hasNext(); )
+        synchronized ( commandMap )
         {
-            Command command = it.next();
-            while ( commandMap.values().remove( command ) );
-            it.remove();
+            for ( Iterator<Command> it = commandsByPlugin.get( plugin ).iterator(); it.hasNext(); )
+            {
+                Command command = it.next();
+                while ( commandMap.values().remove( command ) );
+                it.remove();
+            }
         }
     }
 
@@ -121,7 +131,10 @@ public final class PluginManager
             return null;
         }
 
-        return commandMap.get( commandLower );
+        synchronized ( commandMap )
+        {
+            return commandMap.get( commandLower );
+        }
     }
 
     /**
@@ -212,7 +225,10 @@ public final class PluginManager
      */
     public Collection<Plugin> getPlugins()
     {
-        return plugins.values();
+        synchronized ( plugins )
+        {
+            return new ArrayList<>( plugins.values() );
+        }
     }
 
     /**
@@ -223,7 +239,10 @@ public final class PluginManager
      */
     public Plugin getPlugin(String name)
     {
-        return plugins.get( name );
+        synchronized ( plugins )
+        {
+            return plugins.get( name );
+        }
     }
 
     public void loadPlugins()
@@ -243,7 +262,7 @@ public final class PluginManager
 
     public void enablePlugins()
     {
-        for ( Plugin plugin : plugins.values() )
+        for ( Plugin plugin : getPlugins() )
         {
             try
             {
@@ -327,7 +346,10 @@ public final class PluginManager
                 Class<?> main = loader.loadClass( plugin.getMain() );
                 Plugin clazz = (Plugin) main.getDeclaredConstructor().newInstance();
 
-                plugins.put( plugin.getName(), clazz );
+                synchronized ( plugins )
+                {
+                    plugins.put( plugin.getName(), clazz );
+                }
                 clazz.onLoad();
                 ProxyServer.getInstance().getLogger().log( Level.INFO, "Loaded plugin {0} version {1} by {2}", new Object[]
                 {
@@ -426,7 +448,10 @@ public final class PluginManager
                     "Listener %s has registered using deprecated subscribe annotation! Please update to @EventHandler.", listener );
         }
         eventBus.register( listener );
-        listenersByPlugin.put( plugin, listener );
+        synchronized ( listenersByPlugin )
+        {
+            listenersByPlugin.put( plugin, listener );
+        }
     }
 
     /**
@@ -437,7 +462,10 @@ public final class PluginManager
     public void unregisterListener(Listener listener)
     {
         eventBus.unregister( listener );
-        listenersByPlugin.values().remove( listener );
+        synchronized ( listenersByPlugin )
+        {
+            listenersByPlugin.values().remove( listener );
+        }
     }
 
     /**
@@ -447,10 +475,13 @@ public final class PluginManager
      */
     public void unregisterListeners(Plugin plugin)
     {
-        for ( Iterator<Listener> it = listenersByPlugin.get( plugin ).iterator(); it.hasNext(); )
+        synchronized ( listenersByPlugin )
         {
-            eventBus.unregister( it.next() );
-            it.remove();
+            for ( Iterator<Listener> it = listenersByPlugin.get( plugin ).iterator(); it.hasNext(); )
+            {
+                eventBus.unregister( it.next() );
+                it.remove();
+            }
         }
     }
 
@@ -461,6 +492,11 @@ public final class PluginManager
      */
     public Collection<Map.Entry<String, Command>> getCommands()
     {
-        return Collections.unmodifiableCollection( commandMap.entrySet() );
+        Map<String, Command> clone;
+        synchronized ( commandMap )
+        {
+            clone = new HashMap<>( commandMap );
+        }
+        return Collections.unmodifiableMap( clone ).entrySet();
     }
 }
