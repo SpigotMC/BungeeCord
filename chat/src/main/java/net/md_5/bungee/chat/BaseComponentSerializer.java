@@ -65,7 +65,7 @@ public class BaseComponentSerializer
             JsonObject event = object.getAsJsonObject( "clickEvent" );
             component.setClickEvent( new ClickEvent(
                     ClickEvent.Action.valueOf( event.get( "action" ).getAsString().toUpperCase( Locale.ROOT ) ),
-                    event.get( "value" ).getAsString() ) );
+                    ( event.has( "value" ) ) ? event.get( "value" ).getAsString() : "" ) );
         }
         if ( object.has( "hoverEvent" ) )
         {
