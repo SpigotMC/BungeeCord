@@ -447,9 +447,9 @@ public final class PluginManager
             Preconditions.checkArgument( !method.isAnnotationPresent( Subscribe.class ),
                     "Listener %s has registered using deprecated subscribe annotation! Please update to @EventHandler.", listener );
         }
-        eventBus.register( listener );
         synchronized ( listenersByPlugin )
         {
+            eventBus.register( listener );
             listenersByPlugin.put( plugin, listener );
         }
     }
@@ -461,9 +461,9 @@ public final class PluginManager
      */
     public void unregisterListener(Listener listener)
     {
-        eventBus.unregister( listener );
         synchronized ( listenersByPlugin )
         {
+            eventBus.unregister( listener );
             listenersByPlugin.values().remove( listener );
         }
     }
