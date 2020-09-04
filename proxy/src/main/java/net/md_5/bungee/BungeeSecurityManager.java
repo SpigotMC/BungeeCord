@@ -4,9 +4,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.AccessControlException;
 import java.security.Permission;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.scheduler.GroupedThreadFactory;
@@ -15,7 +14,7 @@ public class BungeeSecurityManager extends SecurityManager
 {
 
     private static final boolean ENFORCE = false;
-    private final Set<String> seen = Collections.synchronizedSet( new HashSet<>() );
+    private final Set<String> seen = ConcurrentHashMap.newKeySet();
 
     private void checkRestricted(String text)
     {
