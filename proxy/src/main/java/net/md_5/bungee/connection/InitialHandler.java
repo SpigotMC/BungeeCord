@@ -380,7 +380,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         int limit = BungeeCord.getInstance().config.getPlayerLimit();
-        if ( limit > 0 && bungee.getOnlineCountBF( false ) > limit )//BotFilter
+        if ( limit > 0 && bungee.getOnlineCountBF( false ) >= limit )//BotFilter
         {
             disconnect( bungee.getTranslation( "proxy_full" ) );
             return;
