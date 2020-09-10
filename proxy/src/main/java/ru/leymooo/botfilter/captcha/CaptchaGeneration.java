@@ -75,7 +75,13 @@ public class CaptchaGeneration
     private Color randomNotWhiteColor()
     {
         Color color = MapPalette.colors[rnd.nextInt( MapPalette.colors.length )];
+
         if ( color.getRed() == 255 && color.getGreen() == 255 && color.getBlue() == 255 )
+        {
+            return randomNotWhiteColor();
+        }
+
+        if ( color.getRed() == 220 && color.getGreen() == 220 && color.getBlue() == 220 )
         {
             return randomNotWhiteColor();
         }
