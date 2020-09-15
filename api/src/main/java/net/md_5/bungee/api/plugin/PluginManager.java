@@ -97,7 +97,7 @@ public final class PluginManager {
      * @param plugin the plugin to register the commands of
      */
     public void unregisterCommands(Plugin plugin) {
-        for (Iterator<Command> it = commandsByPlugin.get(plugin.iterator(); it.hasNext();) {
+        for (Iterator<Command> it = commandsByPlugin.get(plugin).iterator(); it.hasNext();) {
             Command command = it.next();
             while (commandMap.values().remove(command));
             it.remove();
