@@ -56,10 +56,6 @@
             <property name="option" value="nospace"/>
             <property name="tokens" value="ANNOTATION, CTOR_DEF, METHOD_DEF"/>
         </module>
-        <module name="ParenPad">
-            <property name="option" value="space"/>
-            <property name="tokens" value="ANNOTATION_FIELD_DEF, CTOR_CALL, DOT, ENUM_CONSTANT_DEF, EXPR, LITERAL_CATCH, LITERAL_DO, LITERAL_FOR, LITERAL_IF, LITERAL_NEW, LITERAL_SWITCH, LITERAL_SYNCHRONIZED, LITERAL_WHILE, METHOD_CALL, QUESTION, RESOURCE_SPECIFICATION, SUPER_CTOR_CALL, LAMBDA"/>
-        </module>
         <module name="SingleSpaceSeparator"/>
         <module name="TypecastParenPad"/>
         <module name="WhitespaceAfter"/>
@@ -71,8 +67,6 @@
         <!-- See https://checkstyle.org/config_blocks.html -->
         <module name="AvoidNestedBlocks"/>
         <module name="LeftCurly">
-            <property name="option" value="nl"/>
-        </module>
         <module name="RightCurly"/>
 
         <!-- See http://checkstyle.sourceforge.net/config_design.html -->
