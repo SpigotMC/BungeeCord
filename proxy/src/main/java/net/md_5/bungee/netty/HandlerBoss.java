@@ -28,7 +28,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
 {
 
     private ChannelWrapper channel;
-    private final PacketHandler handler;
+    private PacketHandler handler;
 
     public void setHandler(PacketHandler handler)
     {
