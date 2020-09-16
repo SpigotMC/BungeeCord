@@ -28,7 +28,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
 {
 
     private ChannelWrapper channel;
-    private PacketHandler handler;
+    private final PacketHandler handler;
 
     public void setHandler(PacketHandler handler)
     {
@@ -39,40 +39,31 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception
     {
-        if ( handler != null )
-        {
-            channel = new ChannelWrapper( ctx );
-            handler.connected( channel );
+        channel = new ChannelWrapper( ctx );
+        handler.connected( channel );
 
-            if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
-            {
-                ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has connected", handler );
-            }
+        if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
+        {
+            ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has connected", handler );
         }
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception
     {
-        if ( handler != null )
-        {
-            channel.markClosed();
-            handler.disconnected( channel );
+        channel.markClosed();
+        handler.disconnected( channel );
 
-            if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
-            {
-                ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has disconnected", handler );
-            }
+        if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
+        {
+            ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has disconnected", handler );
         }
     }
 
     @Override
     public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception
     {
-        if ( handler != null )
-        {
-            handler.writabilityChanged( channel );
-        }
+        handler.writabilityChanged( channel );
     }
 
     @Override
@@ -92,30 +83,27 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
             return;
         }
 
-        if ( handler != null )
+        PacketWrapper packet = (PacketWrapper) msg;
+        boolean sendPacket = handler.shouldHandle( packet );
+        try
         {
-            PacketWrapper packet = (PacketWrapper) msg;
-            boolean sendPacket = handler.shouldHandle( packet );
-            try
+            if ( sendPacket && packet.packet != null )
             {
-                if ( sendPacket && packet.packet != null )
+                try
                 {
-                    try
-                    {
-                        packet.packet.handle( handler );
-                    } catch ( CancelSendSignal ex )
-                    {
-                        sendPacket = false;
-                    }
-                }
-                if ( sendPacket )
+                    packet.packet.handle( handler );
+                } catch ( CancelSendSignal ex )
                 {
-                    handler.handle( packet );
+                    sendPacket = false;
                 }
-            } finally
-            {
-                packet.trySingleRelease();
             }
+            if ( sendPacket )
+            {
+                handler.handle( packet );
+            }
+        } finally
+        {
+            packet.trySingleRelease();
         }
     }
 
@@ -170,15 +158,12 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                 }
             }
 
-            if ( handler != null )
+            try
             {
-                try
-                {
-                    handler.exception( cause );
-                } catch ( Exception ex )
-                {
-                    ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - exception processing exception", ex );
-                }
+                handler.exception( cause );
+            } catch ( Exception ex )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - exception processing exception", ex );
             }
 
             ctx.close();
