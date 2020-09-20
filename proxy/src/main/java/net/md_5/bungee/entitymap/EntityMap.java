@@ -65,9 +65,14 @@ public abstract class EntityMap
             case ProtocolConstants.MINECRAFT_1_15_1:
             case ProtocolConstants.MINECRAFT_1_15_2:
                 return EntityMap_1_15.INSTANCE;
-            default:
-                return null;
+            case ProtocolConstants.MINECRAFT_1_16:
+            case ProtocolConstants.MINECRAFT_1_16_1:
+                return EntityMap_1_16.INSTANCE;
+            case ProtocolConstants.MINECRAFT_1_16_2:
+            case ProtocolConstants.MINECRAFT_1_16_3:
+                return EntityMap_1_16_2.INSTANCE;
         }
+        throw new RuntimeException( "Version " + version + " has no entity map" );
     }
 
     protected void addRewrite(int id, ProtocolConstants.Direction direction, boolean varint)
