@@ -164,7 +164,9 @@ public class ChannelWrapper
 
         if ( ch.pipeline().get( PacketDecompressor.class ) == null && compressionThreshold != -1 )
         {
-            addBefore( PipelineUtils.PACKET_DECODER, "decompress", new PacketDecompressor() );
+            PacketDecompressor packetDecompressor = new PacketDecompressor(); //BotFilter
+            packetDecompressor.setThreshold( compressionThreshold ); //BotFilter
+            addBefore( PipelineUtils.PACKET_DECODER, "decompress", packetDecompressor );
         }
         if ( compressionThreshold == -1 )
         {
