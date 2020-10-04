@@ -5,14 +5,19 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import java.util.List;
+import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.jni.zlib.BungeeZlib;
 import net.md_5.bungee.protocol.DefinedPacket;
 import ru.leymooo.botfilter.utils.FastBadPacketException;
 
 public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
 {
-    //BotFilter start - fix bungeecord crasher
-    private static final int MAXIMUM_UNCOMPRESSED_SIZE = 4 * 1024 * 1024; // 4MiB
+    //BotFilter start - fix BotFilter crasher
+    private static final int MAXIMUM_UNCOMPRESSED_SIZE = Integer.getInteger( "maximumPacketSize", 2 ) * 1024 * 1024; // 2MiB default vanilla maximum
+    static
+    {
+        BungeeCord.getInstance().getLogger().info( "[BotFilter] Maximum packet size: " + MAXIMUM_UNCOMPRESSED_SIZE );
+    }
     private int threshold = -1;
 
     public void setThreshold(int threshold)
@@ -46,6 +51,7 @@ public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
             in.skipBytes( in.readableBytes() );
         } else
         {
+            //BotFilter start
             if ( threshold != -1 && size < threshold )
             {
                 throw new FastBadPacketException( "Uncompressed size " + size + " is less than threshold " + threshold );
@@ -53,8 +59,9 @@ public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
 
             if ( size > MAXIMUM_UNCOMPRESSED_SIZE )
             {
-                throw new FastBadPacketException( "Uncompressed size " + size + " exceeds threshold of " + MAXIMUM_UNCOMPRESSED_SIZE );
+                throw new FastBadPacketException( "Uncompressed size " + size + " exceeds threshold of " + MAXIMUM_UNCOMPRESSED_SIZE + ". If you're server owner launch BungeeCord with '-DmaximumPacketSize=X' before '-jar', where X is 2 = 2MiB(default), 3 = 3MiB, 8 = 8MiB, 10 = ..... For forge use 16" );
             }
+            //BotFilter end
 
             ByteBuf decompressed = ctx.alloc().directBuffer();
 
