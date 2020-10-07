@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
@@ -232,7 +233,7 @@ public final class PluginManager
         for ( Map.Entry<String, PluginDescription> entry : toLoad.entrySet() )
         {
             PluginDescription plugin = entry.getValue();
-            if ( !enablePlugin( pluginStatuses, new Stack<PluginDescription>(), plugin ) )
+            if ( !enablePlugin( pluginStatuses, new Stack<PluginDescription>(), plugin, toLoad ) )
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "Failed to enable {0}", entry.getKey() );
             }
@@ -259,7 +260,7 @@ public final class PluginManager
         }
     }
 
-    private boolean enablePlugin(Map<PluginDescription, Boolean> pluginStatuses, Stack<PluginDescription> dependStack, PluginDescription plugin)
+    private boolean enablePlugin(Map<PluginDescription, Boolean> pluginStatuses, Stack<PluginDescription> dependStack, PluginDescription plugin, Map<String, PluginDescription> toLoad)
     {
         if ( pluginStatuses.containsKey( plugin ) )
         {
@@ -295,7 +296,7 @@ public final class PluginManager
                 } else
                 {
                     dependStack.push( plugin );
-                    dependStatus = this.enablePlugin( pluginStatuses, dependStack, depend );
+                    dependStatus = this.enablePlugin( pluginStatuses, dependStack, depend, toLoad );
                     dependStack.pop();
                 }
             }
@@ -462,5 +463,98 @@ public final class PluginManager
     public Collection<Map.Entry<String, Command>> getCommands()
     {
         return Collections.unmodifiableCollection( commandMap.entrySet() );
+    }
+
+    /**
+     * Load a plugin
+     *
+     * @param file plugin jar
+     */
+    public void loadPlugin(File file)
+    {
+        Preconditions.checkNotNull( file, "file" );
+        Preconditions.checkArgument( file.isFile(), "Must load a file" );
+
+        Map<String, PluginDescription> toLoad = new HashMap<>();
+
+        if ( file.isFile() && file.getName().endsWith( ".jar" ) )
+        {
+            try ( JarFile jar = new JarFile( file ) )
+            {
+                JarEntry pdf = jar.getJarEntry( "bungee.yml" );
+                if ( pdf == null )
+                {
+                    pdf = jar.getJarEntry( "plugin.yml" );
+                }
+                Preconditions.checkNotNull( pdf, "Plugin must have a plugin.yml or bungee.yml" );
+
+                try ( InputStream in = jar.getInputStream( pdf ) )
+                {
+                    PluginDescription desc = yaml.loadAs( in, PluginDescription.class );
+                    Preconditions.checkNotNull( desc.getName(), "Plugin from %s has no name", file );
+                    Preconditions.checkNotNull( desc.getMain(), "Plugin from %s has no main", file );
+
+                    desc.setFile( file );
+                    toLoad.put( desc.getName(), desc );
+                }
+            } catch ( Exception ex )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load plugin from file " + file, ex );
+            }
+        }
+
+        Map<PluginDescription, Boolean> pluginStatuses = new HashMap<>();
+        for ( Map.Entry<String, PluginDescription> entry : toLoad.entrySet() )
+        {
+            PluginDescription plugin = entry.getValue();
+            if ( !enablePlugin( pluginStatuses, new Stack<PluginDescription>(), plugin, toLoad ) )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Failed to enable {0}", entry.getKey() );
+            }
+        }
+
+        for ( Plugin plugin : plugins.values() )
+        {
+            try
+            {
+                plugin.onEnable();
+                ProxyServer.getInstance().getLogger().log( Level.INFO, "Enabled plugin {0} version {1} by {2}", new Object[]
+                {
+                        plugin.getDescription().getName(), plugin.getDescription().getVersion(), plugin.getDescription().getAuthor()
+                } );
+            } catch ( Throwable t )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Exception encountered when loading plugin: " + plugin.getDescription().getName(), t );
+            }
+        }
+
+        toLoad.clear();
+        toLoad = null;
+    }
+
+    /**
+     * Unload a plugin
+     *
+     * @param plugin plugin to unload
+     */
+    public void unloadPlugin(Plugin plugin)
+    {
+        Preconditions.checkNotNull( plugin, "plugin" );
+        Preconditions.checkArgument( plugins.containsKey( plugin ), "The plugin is not in the plugin list" );
+
+        try
+        {
+            plugin.onDisable();
+            for ( Handler handler : plugin.getLogger().getHandlers() )
+            {
+                handler.close();
+            }
+        } catch ( Throwable t )
+        {
+            ProxyServer.getInstance().getLogger().log( Level.SEVERE, "Exception disabling plugin " + plugin.getDescription().getName(), t );
+        }
+        ProxyServer.getInstance().getScheduler().cancel( plugin );
+        plugin.getExecutorService().shutdownNow();
+        plugins.remove( plugin );
     }
 }
