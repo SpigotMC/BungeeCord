@@ -12,7 +12,6 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class Chat extends DefinedPacket
 {
@@ -30,6 +29,13 @@ public class Chat extends DefinedPacket
     public Chat(String message, byte position)
     {
         this( message, position, EMPTY_UUID );
+    }
+
+    public Chat(String message, byte position, UUID sender)
+    {
+        this.message = message;
+        this.position = position;
+        this.sender = sender == null ? EMPTY_UUID : sender;
     }
 
     @Override
