@@ -81,7 +81,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
     public void sendMessage(ChatMessageType position, BaseComponent message);
 
     /**
-     * Send a message to of this player.
+     * Send a message to this player.
      *
      * @param sender the sender of the message
      * @param message the message to send
