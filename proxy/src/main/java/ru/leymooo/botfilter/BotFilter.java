@@ -19,6 +19,7 @@ import lombok.Setter;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.score.Scoreboard;
+import net.md_5.bungee.compress.PacketDecompressor;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
@@ -178,6 +179,11 @@ public class BotFilter
             userConnection.disconnect( BungeeCord.getInstance().getTranslation( "already_connected_proxy" ) ); // TODO: Cache this disconnect packet
         } else
         {
+            PacketDecompressor packetDecompressor = userConnection.getCh().getHandle().pipeline().get( PacketDecompressor.class );
+            if ( packetDecompressor != null )
+            {
+                packetDecompressor.checking = true;
+            }
             userConnection.getCh().getHandle().pipeline().get( HandlerBoss.class ).setHandler( connector );
             connector.spawn();
         }

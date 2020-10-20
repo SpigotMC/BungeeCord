@@ -11,6 +11,7 @@ import lombok.Setter;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
+import net.md_5.bungee.compress.PacketDecompressor;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.Chat;
@@ -175,6 +176,11 @@ public class Connector extends MoveHandler
         botFilter.removeConnection( null, this );
         sendMessage( PacketsPosition.CHECK_SUS );
         botFilter.saveUser( getName(), IPUtils.getAddress( userConnection ), true );
+        PacketDecompressor packetDecompressor = channel.pipeline().get( PacketDecompressor.class );
+        if ( packetDecompressor != null )
+        {
+            packetDecompressor.checking = false;
+        }
         userConnection.setNeedLogin( false );
         userConnection.getPendingConnection().finishLogin( userConnection, true );
         markDisconnected = true;

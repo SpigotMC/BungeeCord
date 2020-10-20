@@ -6,6 +6,7 @@ import io.netty.handler.codec.MessageToMessageDecoder;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
+import net.md_5.bungee.protocol.packet.Team;
 import ru.leymooo.botfilter.utils.FastBadPacketException;
 
 @AllArgsConstructor
@@ -50,7 +51,10 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
             if ( in.isReadable() )
             {
                 in.skipBytes( in.readableBytes() ); //BotFilter
-                throw new FastBadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot.getDirection() );
+                if ( packet.getClass() != Team.class )
+                {
+                    throw new FastBadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot.getDirection() );
+                }
             }
         } else
         {

@@ -12,13 +12,17 @@ import ru.leymooo.botfilter.utils.FastBadPacketException;
 
 public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
 {
-    //BotFilter start - fix BotFilter crasher
+    //BotFilter start - limit compressed data to 2 MiB
     private static final int MAXIMUM_UNCOMPRESSED_SIZE = Integer.getInteger( "maximumPacketSize", 2 ) * 1024 * 1024; // 2MiB default vanilla maximum
+    private static final int MAXIMUM_UNCOMPRESSED_SIZE_WHILE_CHECKING = ( Short.MAX_VALUE + Short.MAX_VALUE ) + 5; //Plugin Message data + String max length + 5 bytes string len
+
     static
     {
         BungeeCord.getInstance().getLogger().info( "[BotFilter] Maximum packet size: " + MAXIMUM_UNCOMPRESSED_SIZE );
+        BungeeCord.getInstance().getLogger().info( "[BotFilter] Maximum packet size while checking: " + MAXIMUM_UNCOMPRESSED_SIZE );
     }
     private int threshold = -1;
+    public boolean checking = false;
 
     public void setThreshold(int threshold)
     {
@@ -60,6 +64,11 @@ public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
             if ( size > MAXIMUM_UNCOMPRESSED_SIZE )
             {
                 throw new FastBadPacketException( "Uncompressed size " + size + " exceeds threshold of " + MAXIMUM_UNCOMPRESSED_SIZE + ". If you're server owner launch BungeeCord with '-DmaximumPacketSize=X' before '-jar', where X is 2 = 2MiB(default), 3 = 3MiB, 8 = 8MiB, 10 = ..... For forge use 16" );
+            }
+
+            if ( checking && size > MAXIMUM_UNCOMPRESSED_SIZE_WHILE_CHECKING )
+            {
+                throw new FastBadPacketException( "Uncompressed size " + size + " exceeds threshold of " + MAXIMUM_UNCOMPRESSED_SIZE_WHILE_CHECKING + " (While checking)" );
             }
             //BotFilter end
 
