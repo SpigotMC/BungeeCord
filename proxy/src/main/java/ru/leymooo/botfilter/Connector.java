@@ -13,6 +13,7 @@ import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.compress.PacketDecompressor;
 import net.md_5.bungee.netty.ChannelWrapper;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
@@ -44,15 +45,13 @@ public class Connector extends MoveHandler
     private static long TOTAL_TIME = ( TOTAL_TICKS * 50 ) - 100; //TICKS * 50MS
 
     private final BotFilter botFilter;
-    @Getter
-    private UserConnection userConnection;
-
     private final String name;
     private final String ip;
     @Getter
     private final int version;
     private final ThreadLocalRandom random = ThreadLocalRandom.current();
-
+    @Getter
+    private UserConnection userConnection;
     @Getter
     @Setter
     private CheckState state = CheckState.CAPTCHA_ON_POSITION_FAILED;
@@ -113,6 +112,16 @@ public class Connector extends MoveHandler
             this.userConnection.disconnect( Util.exception( t ) );
         }
         disconnected();
+    }
+
+    @Override
+    public void handle(PacketWrapper packet) throws Exception
+    {
+        //There are no unknown packets which player will send and will be longer than 2048 bytes during check
+        if ( packet.packet == null && packet.buf.readableBytes() > 2048 )
+        {
+            failed( KickType.BIG_PACKET, "Sent packet larger than 2048 bytes (" + packet.buf.readableBytes() + ")" );
+        }
     }
 
     @Override
@@ -262,7 +271,7 @@ public class Connector extends MoveHandler
             } else if ( --attemps != 0 )
             {
                 ByteBuf buf = attemps == 2 ? PacketUtils.getCachedPacket( PacketsPosition.CAPTCHA_FAILED_2 ).get( version )
-                        : PacketUtils.getCachedPacket( PacketsPosition.CAPTCHA_FAILED_1 ).get( version );
+                    : PacketUtils.getCachedPacket( PacketsPosition.CAPTCHA_FAILED_1 ).get( version );
                 if ( buf != null )
                 {
                     channel.write( buf, channel.voidPromise() );
@@ -355,7 +364,10 @@ public class Connector extends MoveHandler
         PacketUtils.kickPlayer( type, Protocol.GAME, userConnection.getCh(), version );
         markDisconnected = true;
         LOGGER.log( Level.INFO, "(BF) [" + name + "|" + ip + "] check failed: " + kickMessage );
-        FailedUtils.addIpToQueue( ip, type );
+        if ( type != KickType.BIG_PACKET )
+        {
+            FailedUtils.addIpToQueue( ip, type );
+        }
     }
 
     public void sendMessage(int index)

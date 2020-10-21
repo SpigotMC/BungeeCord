@@ -14,7 +14,7 @@ public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
 {
     //BotFilter start - limit compressed data to 2 MiB
     private static final int MAXIMUM_UNCOMPRESSED_SIZE = Integer.getInteger( "maximumPacketSize", 2 ) * 1024 * 1024; // 2MiB default vanilla maximum
-    private static final int MAXIMUM_UNCOMPRESSED_SIZE_WHILE_CHECKING = ( Short.MAX_VALUE + Short.MAX_VALUE ) + 5; //Plugin Message data + String max length + 5 bytes string len
+    private static final int MAXIMUM_UNCOMPRESSED_SIZE_WHILE_CHECKING = ( Short.MAX_VALUE + Short.MAX_VALUE ) + 5 + 5; //Plugin Message data + String max length + 5 bytes string len + 5 packet id
 
     static
     {
