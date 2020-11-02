@@ -32,17 +32,13 @@ import ru.leymooo.botfilter.packets.TimeUpdate;
 public class PacketUtils
 {
 
-    public static int PROTOCOLS_COUNT = ProtocolConstants.SUPPORTED_VERSION_IDS.size();
-
-    public static int CLIENTID = new Random().nextInt( Integer.MAX_VALUE - 100 ) + 50;
-    public static int KEEPALIVE_ID = 9876;
-
+    public static final CachedCaptcha captchas = new CachedCaptcha();
     private static final CachedPacket[] cachedPackets = new CachedPacket[16];
     private static final HashMap<KickType, CachedPacket> kickMessagesGame = new HashMap<KickType, CachedPacket>( 3 );
     private static final HashMap<KickType, CachedPacket> kickMessagesLogin = new HashMap<KickType, CachedPacket>( 4 );
-
-    public static final CachedCaptcha captchas = new CachedCaptcha();
-
+    public static int PROTOCOLS_COUNT = ProtocolConstants.SUPPORTED_VERSION_IDS.size();
+    public static int CLIENTID = new Random().nextInt( Integer.MAX_VALUE - 100 ) + 50;
+    public static int KEEPALIVE_ID = 9876;
     public static CachedExpPackets expPackets;
 
     /**
@@ -272,7 +268,9 @@ public class PacketUtils
             case ProtocolConstants.MINECRAFT_1_16_2:
                 return 24;
             case ProtocolConstants.MINECRAFT_1_16_3:
-                return 24;
+                return 25;
+            case ProtocolConstants.MINECRAFT_1_16_4:
+                return 26;
             default:
                 throw new IllegalArgumentException( "Version is not supported" );
         }
