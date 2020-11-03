@@ -172,7 +172,7 @@ public final class PluginManager
         {
             if ( tabResults == null )
             {
-                sender.sendMessage( proxy.getTranslation( "no_permission" ) );
+                sender.sendMessage( ( command.getPermissionMessage() == null ) ? proxy.getTranslation( "no_permission" ) : command.getPermissionMessage() );
             }
             return true;
         }
