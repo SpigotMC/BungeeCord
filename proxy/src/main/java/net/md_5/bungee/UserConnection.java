@@ -449,13 +449,36 @@ public final class UserConnection implements ProxiedPlayer
         sendMessage( ChatMessageType.SYSTEM, message );
     }
 
-    private void sendMessage(ChatMessageType position, String message)
+    @Override
+    public void sendMessage(ChatMessageType position, BaseComponent... message)
     {
-        unsafe().sendPacket( new Chat( message, (byte) position.ordinal() ) );
+        sendMessage( position, null, message );
     }
 
     @Override
-    public void sendMessage(ChatMessageType position, BaseComponent... message)
+    public void sendMessage(ChatMessageType position, BaseComponent message)
+    {
+        sendMessage( position, (UUID) null, message );
+    }
+
+    @Override
+    public void sendMessage(UUID sender, BaseComponent... message)
+    {
+        sendMessage( ChatMessageType.CHAT, sender, message );
+    }
+
+    @Override
+    public void sendMessage(UUID sender, BaseComponent message)
+    {
+        sendMessage( ChatMessageType.CHAT, sender, message );
+    }
+
+    private void sendMessage(ChatMessageType position, UUID sender, String message)
+    {
+        unsafe().sendPacket( new Chat( message, (byte) position.ordinal(), sender ) );
+    }
+
+    private void sendMessage(ChatMessageType position, UUID sender, BaseComponent... message)
     {
         // transform score components
         message = ChatComponentTransformer.getInstance().transform( this, true, message );
@@ -466,7 +489,7 @@ public final class UserConnection implements ProxiedPlayer
             // Fix by converting to a legacy message, see https://bugs.mojang.com/browse/MC-119145
             if ( getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_10 )
             {
-                sendMessage( position, ComponentSerializer.toString( new TextComponent( BaseComponent.toLegacyText( message ) ) ) );
+                sendMessage( position, sender, ComponentSerializer.toString( new TextComponent( BaseComponent.toLegacyText( message ) ) ) );
             } else
             {
                 net.md_5.bungee.protocol.packet.Title title = new net.md_5.bungee.protocol.packet.Title();
@@ -476,22 +499,7 @@ public final class UserConnection implements ProxiedPlayer
             }
         } else
         {
-            sendMessage( position, ComponentSerializer.toString( message ) );
-        }
-    }
-
-    @Override
-    public void sendMessage(ChatMessageType position, BaseComponent message)
-    {
-        message = ChatComponentTransformer.getInstance().transform( this, true, message )[0];
-
-        // Action bar doesn't display the new JSON formattings, legacy works - send it using this for now
-        if ( position == ChatMessageType.ACTION_BAR && pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
-        {
-            sendMessage( position, ComponentSerializer.toString( new TextComponent( BaseComponent.toLegacyText( message ) ) ) );
-        } else
-        {
-            sendMessage( position, ComponentSerializer.toString( message ) );
+            sendMessage( position, sender, ComponentSerializer.toString( message ) );
         }
     }
 
