@@ -27,7 +27,7 @@ public class HttpClient
 {
 
     public static final int TIMEOUT = 5000;
-    private static final Cache<String, InetAddress> addressCache = CacheBuilder.newBuilder().expireAfterWrite( 1, TimeUnit.MINUTES ).build();
+    private static final Cache<String, InetAddress> ADDRESS_CACHE = CacheBuilder.newBuilder().expireAfterWrite( 1, TimeUnit.MINUTES ).build();
 
     @SuppressWarnings("UnusedAssignment")
     public static void get(String url, EventLoop eventLoop, final Callback<String> callback)
@@ -57,7 +57,7 @@ public class HttpClient
             }
         }
 
-        InetAddress inetHost = addressCache.getIfPresent( uri.getHost() );
+        InetAddress inetHost = ADDRESS_CACHE.getIfPresent( uri.getHost() );
         if ( inetHost == null )
         {
             try
@@ -68,7 +68,7 @@ public class HttpClient
                 callback.done( null, ex );
                 return;
             }
-            addressCache.put( uri.getHost(), inetHost );
+            ADDRESS_CACHE.put( uri.getHost(), inetHost );
         }
 
         ChannelFutureListener future = new ChannelFutureListener()
@@ -86,7 +86,7 @@ public class HttpClient
                     future.channel().writeAndFlush( request );
                 } else
                 {
-                    addressCache.invalidate( uri.getHost() );
+                    ADDRESS_CACHE.invalidate( uri.getHost() );
                     callback.done( null, future.cause() );
                 }
             }
