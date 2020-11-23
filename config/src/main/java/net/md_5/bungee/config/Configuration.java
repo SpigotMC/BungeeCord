@@ -153,7 +153,7 @@ public final class Configuration
      */
     public Map<String, Object> getSection()
     {
-        return Collections.unmodifiableMap(self);
+        return Collections.unmodifiableMap( self );
     }
 
     /*------------------------------------------------------------------------*/
