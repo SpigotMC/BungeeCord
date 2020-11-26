@@ -8,6 +8,9 @@ import java.util.Locale;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
@@ -28,14 +31,19 @@ import net.md_5.bungee.connection.LoginResult;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.forge.ForgeServerHandler;
 import net.md_5.bungee.forge.ForgeUtils;
+import net.md_5.bungee.jni.cipher.BungeeCipher;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PacketHandler;
+import net.md_5.bungee.netty.PipelineUtils;
+import net.md_5.bungee.netty.cipher.CipherDecoder;
+import net.md_5.bungee.netty.cipher.CipherEncoder;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
+import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.EntityStatus;
 import net.md_5.bungee.protocol.packet.GameState;
 import net.md_5.bungee.protocol.packet.Handshake;
@@ -325,7 +333,23 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(EncryptionRequest encryptionRequest) throws Exception
     {
-        throw new QuietException( "Server is online mode!" );
+        byte[] secret = new byte[16];
+        ThreadLocalRandom.current().nextBytes( secret );
+        EncryptionResponse response = EncryptionUtil.encryptResponse( encryptionRequest, secret );
+        if ( response == null )
+        {
+            throw new IllegalStateException( "unable to generate an encryption key" );
+        }
+        ch.write( response );
+
+
+        SecretKey sharedKey = new SecretKeySpec( secret, "AES" );
+        BungeeCipher decrypt = EncryptionUtil.getCipher( false, sharedKey );
+        ch.addBefore( PipelineUtils.FRAME_DECODER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
+        BungeeCipher encrypt = EncryptionUtil.getCipher( true, sharedKey );
+        ch.addBefore( PipelineUtils.FRAME_PREPENDER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
+        System.out.println( "Server connector is ssl enabled" );
+        thisState = State.LOGIN_SUCCESS;
     }
 
     @Override

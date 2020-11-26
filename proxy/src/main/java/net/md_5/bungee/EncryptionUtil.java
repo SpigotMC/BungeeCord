@@ -55,6 +55,22 @@ public class EncryptionUtil
         return new EncryptionRequest( hash, pubKey, verify );
     }
 
+    public static EncryptionResponse encryptResponse(EncryptionRequest request, byte[] randomSecret)
+    {
+        try
+        {
+            PublicKey pubkey = getPubkey( request );
+            Cipher cipher = Cipher.getInstance( "RSA" );
+            cipher.init( Cipher.ENCRYPT_MODE, pubkey );
+            byte[] encrypted = cipher.doFinal( request.getVerifyToken() );
+            return new EncryptionResponse( cipher.doFinal( randomSecret ), encrypted );
+        } catch ( GeneralSecurityException e )
+        {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static SecretKey getSecret(EncryptionResponse resp, EncryptionRequest request) throws GeneralSecurityException
     {
         Cipher cipher = Cipher.getInstance( "RSA" );
