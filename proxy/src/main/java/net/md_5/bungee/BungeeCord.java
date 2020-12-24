@@ -30,7 +30,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -588,13 +587,14 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public Collection<ProxiedPlayer> getPlayers(String name) {
+    public Collection<ProxiedPlayer> getPlayers(String name)
+    {
         connectionLock.readLock().lock();
         try
         {
             return connections.values().stream()
-                .filter(player -> player.getName().equals(name))
-                .collect(Collectors.toList());
+                .filter( player -> player.getName().equals( name ) )
+                .collect( Collectors.toList() );
         } finally
         {
             connectionLock.readLock().unlock();
@@ -604,7 +604,7 @@ public class BungeeCord extends ProxyServer
     @Override
     public ProxiedPlayer getPlayer(String name)
     {
-        return getPlayers(name).iterator().next();
+        return getPlayers( name ).iterator().next();
     }
 
     public UserConnection getPlayerByOfflineUUID(UUID name)

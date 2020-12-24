@@ -136,7 +136,8 @@ public class CommandSend extends Command implements TabExecutor
             } else
             {
                 ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
-                if ( player == null ) {
+                if ( player == null )
+                {
                     ProxyServer.getInstance().getPlayer( UUID.fromString( args[0] ) );
                 }
 

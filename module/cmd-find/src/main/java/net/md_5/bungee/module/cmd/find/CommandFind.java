@@ -25,7 +25,7 @@ public class CommandFind extends PlayerCommand
             ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
             if ( player == null )
             {
-                player = ProxyServer.getInstance().getPlayer(UUID.fromString(args[0]) );
+                player = ProxyServer.getInstance().getPlayer( UUID.fromString( args[0] ) );
             }
             if ( player == null || player.getServer() == null )
             {
