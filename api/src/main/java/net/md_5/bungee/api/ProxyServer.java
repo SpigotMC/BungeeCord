@@ -75,12 +75,20 @@ public abstract class ProxyServer
     public abstract Collection<ProxiedPlayer> getPlayers();
 
     /**
-     * Gets a connected player via their unique username.
+     * Gets the first player with the specified username.
      *
      * @param name of the player
      * @return their player instance
      */
     public abstract ProxiedPlayer getPlayer(String name);
+
+    /**
+     * Gets a list of connected players via a username.
+     *
+     * @param name of the player
+     * @return their player instance
+     */
+    public abstract Collection<ProxiedPlayer> getPlayers(String name);
 
     /**
      * Gets a connected player via their UUID

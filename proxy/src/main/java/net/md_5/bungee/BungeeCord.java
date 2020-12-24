@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -45,6 +46,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import jline.console.ConsoleReader;
 import lombok.Getter;
 import lombok.Setter;
@@ -586,16 +588,23 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public ProxiedPlayer getPlayer(String name)
-    {
+    public Collection<ProxiedPlayer> getPlayers(String name) {
         connectionLock.readLock().lock();
         try
         {
-            return connections.get( name );
+            return connections.values().stream()
+                .filter(player -> player.getName().equals(name))
+                .collect(Collectors.toList());
         } finally
         {
             connectionLock.readLock().unlock();
         }
+    }
+
+    @Override
+    public ProxiedPlayer getPlayer(String name)
+    {
+        return getPlayers(name).iterator().next();
     }
 
     public UserConnection getPlayerByOfflineUUID(UUID name)
