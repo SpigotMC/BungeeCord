@@ -400,7 +400,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 {
                     return;
                 }
-                unsafe().sendPacket( new LoginPayloadRequest( 0, FabricConstants.FABRIC_API_CHANNEL, new byte[] {0} ) );
+                if ( BungeeCord.getInstance().config.isFabricSupport() )
+                {
+                    unsafe().sendPacket( new LoginPayloadRequest( 0, FabricConstants.FABRIC_API_CHANNEL, new byte[] {0} ) );
+                }
                 if ( onlineMode )
                 {
                     unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
@@ -569,7 +572,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(LoginPayloadResponse response) throws Exception
     {
-        if ( !this.fabricChannelDataReceived && response.getId() == FabricConstants.FABRIC_API_PAYLOAD_ID )
+        if ( !this.fabricChannelDataReceived && BungeeCord.getInstance().config.isFabricSupport() && response.getId() == FabricConstants.FABRIC_API_PAYLOAD_ID )
         {
             this.fabricChannelDataReceived = true;
             this.fabricChannelData = response.getData();
