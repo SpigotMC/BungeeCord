@@ -137,6 +137,10 @@ public final class UserConnection implements ProxiedPlayer
     @Setter
     private ForgeServerHandler forgeServerHandler;
     /*========================================================================*/
+    @Getter
+    @Setter
+    private byte[] fabricChannelData;
+    /*========================================================================*/
     private final Unsafe unsafe = new Unsafe()
     {
         @Override

@@ -37,6 +37,7 @@ import net.md_5.bungee.api.event.PreLoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.chat.ComponentSerializer;
+import net.md_5.bungee.fabric.FabricConstants;
 import net.md_5.bungee.http.HttpClient;
 import net.md_5.bungee.jni.cipher.BungeeCipher;
 import net.md_5.bungee.netty.ChannelWrapper;
@@ -55,6 +56,7 @@ import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.LegacyHandshake;
 import net.md_5.bungee.protocol.packet.LegacyPing;
+import net.md_5.bungee.protocol.packet.LoginPayloadRequest;
 import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
@@ -105,6 +107,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private boolean legacy;
     @Getter
     private String extraDataInHandshake = "";
+    private boolean fabricChannelDataReceived;
+    private byte[] fabricChannelData;
 
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
@@ -396,6 +400,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 {
                     return;
                 }
+                unsafe().sendPacket( new LoginPayloadRequest( 0, FabricConstants.FABRIC_API_CHANNEL, new byte[] {0} ) );
                 if ( onlineMode )
                 {
                     unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
@@ -527,6 +532,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                         {
                             UserConnection userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
                             userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
+                            userCon.setFabricChannelData( InitialHandler.this.fabricChannelData );
                             userCon.init();
 
                             unsafe.sendPacket( new LoginSuccess( getUniqueId(), getName() ) );
@@ -563,7 +569,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(LoginPayloadResponse response) throws Exception
     {
-        disconnect( "Unexpected custom LoginPayloadResponse" );
+        if ( !this.fabricChannelDataReceived && response.getId() == FabricConstants.FABRIC_API_PAYLOAD_ID )
+        {
+            this.fabricChannelDataReceived = true;
+            this.fabricChannelData = response.getData();
+        } else
+        {
+            disconnect( "Unexpected custom LoginPayloadResponse" );
+        }
     }
 
     @Override
