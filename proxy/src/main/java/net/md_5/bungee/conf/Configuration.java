@@ -64,6 +64,7 @@ public class Configuration implements ProxyConfig
     private int compressionThreshold = 256;
     private boolean preventProxyConnections;
     private boolean forgeSupport;
+    private boolean fabricSupport;
 
     public void load()
     {
@@ -98,6 +99,7 @@ public class Configuration implements ProxyConfig
         compressionThreshold = adapter.getInt( "network_compression_threshold", compressionThreshold );
         preventProxyConnections = adapter.getBoolean( "prevent_proxy_connections", preventProxyConnections );
         forgeSupport = adapter.getBoolean( "forge_support", forgeSupport );
+        fabricSupport = adapter.getBoolean( "fabric_support", fabricSupport );
 
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
 

@@ -177,7 +177,7 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(LoginPayloadRequest request) throws Exception
     {
-        if ( request.getChannel().equals( FabricConstants.FABRIC_API_CHANNEL ) )
+        if ( BungeeCord.getInstance().config.isFabricSupport() && request.getChannel().equals( FabricConstants.FABRIC_API_CHANNEL ) )
         {
             ch.write( new LoginPayloadResponse( FabricConstants.FABRIC_API_PAYLOAD_ID, user.getFabricChannelData() ) );
         }
