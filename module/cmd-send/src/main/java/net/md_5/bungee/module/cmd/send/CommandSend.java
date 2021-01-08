@@ -30,6 +30,8 @@ import net.md_5.bungee.api.plugin.TabExecutor;
 public class CommandSend extends Command implements TabExecutor
 {
 
+    private static final int HOVER_NAMES_LIMIT = 100;
+
     protected static class SendCallback
     {
 
@@ -80,16 +82,19 @@ public class CommandSend extends Command implements TabExecutor
 
                 // Add hoverable list of players limited up to 100.
                 List<String> serverNames;
-                if ( entry.getValue().size() > 100 )
+                int rem = 0;
+                if ( entry.getValue().size() > HOVER_NAMES_LIMIT )
                 {
-                    serverNames = entry.getValue().subList( 0, 100 );
+                    rem = entry.getValue().size() - HOVER_NAMES_LIMIT;
+                    serverNames = entry.getValue().subList( 0, HOVER_NAMES_LIMIT );
                 } else
                 {
                     serverNames = entry.getValue();
                 }
 
                 serverText.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT,
-                        new ComponentBuilder( Joiner.on( ", " ).join( serverNames ) ).color( ChatColor.YELLOW ).create() ) );
+                        new ComponentBuilder( Joiner.on( ", " ).join( serverNames ) )
+                                .append( ( rem > 0 ) ? " and " + rem + " more" : "" ).color( ChatColor.YELLOW ).create() ) );
                 text.append( serverText, ComponentBuilder.FormatRetention.NONE );
             }
             sender.sendMessage( text.create() );
