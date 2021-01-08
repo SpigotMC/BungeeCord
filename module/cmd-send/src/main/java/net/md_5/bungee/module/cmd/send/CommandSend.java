@@ -1,8 +1,10 @@
 package net.md_5.bungee.module.cmd.send;
 
+import com.google.common.base.CaseFormat;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,8 +17,10 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerConnectRequest;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent;
@@ -44,19 +48,51 @@ public class CommandSend extends Command implements TabExecutor
 
         public void lastEntryDone()
         {
-            sender.sendMessage( ChatColor.GREEN.toString() + ChatColor.BOLD + "Send Results:" );
+            ComponentBuilder text = new ComponentBuilder();
+            text.append( TextComponent.fromLegacyText( ProxyServer.getInstance().getTranslation( "command_send_results" ) ) );
+
+            boolean delimiterFlag = false;
+            BaseComponent[] delimiter = TextComponent.fromLegacyText( ProxyServer.getInstance().getTranslation( "command_send_delimiter" ) );
             for ( Map.Entry<ServerConnectRequest.Result, List<String>> entry : results.entrySet() )
             {
-                ComponentBuilder builder = new ComponentBuilder( "" );
-                if ( !entry.getValue().isEmpty() )
+                if ( entry.getValue().isEmpty() )
                 {
-                    builder.event( new HoverEvent( HoverEvent.Action.SHOW_TEXT,
-                            new ComponentBuilder( Joiner.on( ", " ).join( entry.getValue() ) ).color( ChatColor.YELLOW ).create() ) );
+                    continue;
                 }
-                builder.append( entry.getKey().name() + ": " ).color( ChatColor.GREEN );
-                builder.append( "" + entry.getValue().size() ).bold( true );
-                sender.sendMessage( builder.create() );
+
+                if ( !delimiterFlag )
+                {
+                    delimiterFlag = true;
+                } else
+                {
+                    text.append( delimiter, ComponentBuilder.FormatRetention.NONE );
+                }
+                TextComponent serverText = new TextComponent(
+                        CaseFormat.UPPER_UNDERSCORE.converterTo( CaseFormat.UPPER_CAMEL ).convert( entry.getKey().name() ) );
+                serverText.setColor( ChatColor.getByChar( ProxyServer.getInstance().getTranslation( "command_send_server_title_color_char" ).charAt( 0 ) ) );
+                if ( serverText.getExtra() == null )
+                {
+                    serverText.setExtra( new ArrayList<>() );
+                }
+                serverText.getExtra().addAll( Arrays.asList(
+                        TextComponent.fromLegacyText(
+                                ProxyServer.getInstance().getTranslation( "command_send_counter", entry.getValue().size() ) ) ) );
+
+                // Add hoverable list of players limited up to 100.
+                List<String> serverNames;
+                if ( entry.getValue().size() > 100 )
+                {
+                    serverNames = entry.getValue().subList( 0, 100 );
+                } else
+                {
+                    serverNames = entry.getValue();
+                }
+
+                serverText.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT,
+                        new ComponentBuilder( Joiner.on( ", " ).join( serverNames ) ).color( ChatColor.YELLOW ).create() ) );
+                text.append( serverText, ComponentBuilder.FormatRetention.NONE );
             }
+            sender.sendMessage( text.create() );
         }
 
         public static class Entry implements Callback<ServerConnectRequest.Result>
@@ -143,6 +179,12 @@ public class CommandSend extends Command implements TabExecutor
             }
         }
 
+        if ( targets.isEmpty() )
+        {
+            sender.sendMessage( ProxyServer.getInstance().getTranslation( "command_send_no_players" ) );
+            return;
+        }
+
         final SendCallback callback = new SendCallback( sender );
         for ( ProxiedPlayer player : targets )
         {
@@ -154,7 +196,9 @@ public class CommandSend extends Command implements TabExecutor
             player.connect( request );
         }
 
-        sender.sendMessage( ChatColor.DARK_GREEN + "Attempting to send " + targets.size() + " players to " + server.getName() );
+        sender.sendMessage( ProxyServer.getInstance().getTranslation( "command_send_attempting",
+                ( targets.size() == 1 ) ? targets.get( 0 ).getName() : targets.size() + " players",
+                server.getName() ) );
     }
 
     @Override
