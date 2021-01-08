@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import se.llbit.nbt.Tag;
 
 @Data
 @NoArgsConstructor
@@ -32,7 +33,13 @@ public class Respawn extends DefinedPacket
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16 )
         {
-            dimension = readString( buf );
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16_2 )
+            {
+                dimension = readTag( buf );
+            } else
+            {
+                dimension = readString( buf );
+            }
             worldName = readString( buf );
         } else
         {
@@ -64,7 +71,13 @@ public class Respawn extends DefinedPacket
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16 )
         {
-            writeString( (String) dimension, buf );
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16_2 )
+            {
+                writeTag( (Tag) dimension, buf );
+            } else
+            {
+                writeString( (String) dimension, buf );
+            }
             writeString( worldName, buf );
         } else
         {

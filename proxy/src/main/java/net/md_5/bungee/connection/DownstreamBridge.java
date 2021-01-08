@@ -27,6 +27,7 @@ import net.md_5.bungee.ServerConnection.KeepAliveData;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -42,6 +43,7 @@ import net.md_5.bungee.api.score.Score;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.api.score.Team;
 import net.md_5.bungee.chat.ComponentSerializer;
+import net.md_5.bungee.entitymap.EntityMap;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
@@ -118,7 +120,11 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(PacketWrapper packet) throws Exception
     {
-        con.getEntityRewrite().rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId(), con.getPendingConnection().getVersion() );
+        EntityMap rewrite = con.getEntityRewrite();
+        if ( rewrite != null )
+        {
+            rewrite.rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId(), con.getPendingConnection().getVersion() );
+        }
         con.sendPacket( packet );
     }
 
@@ -375,6 +381,25 @@ public class DownstreamBridge extends PacketHandler
                     out.writeInt( 0 );
                 }
             }
+            if ( subChannel.equals( "IPOther" ) )
+            {
+                ProxiedPlayer player = bungee.getPlayer( in.readUTF() );
+                if ( player != null )
+                {
+                    out.writeUTF( "IPOther" );
+                    out.writeUTF( player.getName() );
+                    if ( player.getSocketAddress() instanceof InetSocketAddress )
+                    {
+                        InetSocketAddress address = (InetSocketAddress) player.getSocketAddress();
+                        out.writeUTF( address.getHostString() );
+                        out.writeInt( address.getPort() );
+                    } else
+                    {
+                        out.writeUTF( "unix://" + ( (DomainSocketAddress) player.getSocketAddress() ).path() );
+                        out.writeInt( 0 );
+                    }
+                }
+            }
             if ( subChannel.equals( "PlayerCount" ) )
             {
                 String target = in.readUTF();
@@ -420,6 +445,25 @@ public class DownstreamBridge extends PacketHandler
             {
                 String target = in.readUTF();
                 String message = in.readUTF();
+                if ( target.equals( "ALL" ) )
+                {
+                    for ( ProxiedPlayer player : bungee.getPlayers() )
+                    {
+                        player.sendMessage( message );
+                    }
+                } else
+                {
+                    ProxiedPlayer player = bungee.getPlayer( target );
+                    if ( player != null )
+                    {
+                        player.sendMessage( message );
+                    }
+                }
+            }
+            if ( subChannel.equals( "MessageRaw" ) )
+            {
+                String target = in.readUTF();
+                BaseComponent[] message = ComponentSerializer.parse( in.readUTF() );
                 if ( target.equals( "ALL" ) )
                 {
                     for ( ProxiedPlayer player : bungee.getPlayers() )

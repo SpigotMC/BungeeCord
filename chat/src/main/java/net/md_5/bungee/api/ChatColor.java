@@ -72,7 +72,7 @@ public final class ChatColor
     /**
      * Represents blue.
      */
-    public static final ChatColor BLUE = new ChatColor( '9', "blue", new Color( 0x05555FF ) );
+    public static final ChatColor BLUE = new ChatColor( '9', "blue", new Color( 0x5555FF ) );
     /**
      * Represents green.
      */
@@ -238,7 +238,7 @@ public final class ChatColor
 
     public static ChatColor of(Color color)
     {
-        return of( "#" + Integer.toHexString( color.getRGB() ).substring( 2 ) );
+        return of( "#" + String.format( "%08x", color.getRGB() ).substring( 2 ) );
     }
 
     public static ChatColor of(String string)
