@@ -4,7 +4,6 @@ import com.google.common.base.CaseFormat;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,17 +68,7 @@ public class CommandSend extends Command implements TabExecutor
                 {
                     text.append( delimiter, ComponentBuilder.FormatRetention.NONE );
                 }
-                TextComponent serverText = new TextComponent(
-                        CaseFormat.UPPER_UNDERSCORE.converterTo( CaseFormat.UPPER_CAMEL ).convert( entry.getKey().name() ) );
-                serverText.setColor( ChatColor.getByChar( ProxyServer.getInstance().getTranslation( "command_send_server_title_color_char" ).charAt( 0 ) ) );
-                if ( serverText.getExtra() == null )
-                {
-                    serverText.setExtra( new ArrayList<>() );
-                }
-                serverText.getExtra().addAll( Arrays.asList(
-                        TextComponent.fromLegacyText(
-                                ProxyServer.getInstance().getTranslation( "command_send_counter", entry.getValue().size() ) ) ) );
-
+                ComponentBuilder serverText = new ComponentBuilder();
                 // Add hoverable list of players limited up to 100.
                 List<String> serverNames;
                 int rem = 0;
@@ -92,10 +81,17 @@ public class CommandSend extends Command implements TabExecutor
                     serverNames = entry.getValue();
                 }
 
-                serverText.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT,
-                        new ComponentBuilder( Joiner.on( ", " ).join( serverNames ) )
-                                .append( ( rem > 0 ) ? " and " + rem + " more" : "" ).color( ChatColor.YELLOW ).create() ) );
-                text.append( serverText, ComponentBuilder.FormatRetention.NONE );
+                serverText.event( new HoverEvent( HoverEvent.Action.SHOW_TEXT,
+                        new ComponentBuilder( Joiner.on( ", " ).join( serverNames ) ).color( ChatColor.YELLOW )
+                                .append( ( rem > 0 ) ? " and " + rem + " more" : "", ComponentBuilder.FormatRetention.ALL ).create() ) );
+                serverText.append( ProxyServer.getInstance().getTranslation( "command_send_server_title",
+                        CaseFormat.UPPER_UNDERSCORE.converterTo( CaseFormat.UPPER_CAMEL ).convert( entry.getKey().name() ) ),
+                        ComponentBuilder.FormatRetention.EVENTS );
+                serverText.append( TextComponent.fromLegacyText(
+                                ProxyServer.getInstance().getTranslation( "command_send_counter", entry.getValue().size() ) ),
+                        ComponentBuilder.FormatRetention.EVENTS );
+
+                text.append( serverText.create(), ComponentBuilder.FormatRetention.NONE );
             }
             sender.sendMessage( text.create() );
         }
