@@ -148,7 +148,7 @@ public class CommandSend extends Command implements TabExecutor
             return;
         }
 
-        List<ProxiedPlayer> targets;
+        List<ProxiedPlayer> targets = null;
         if ( args[0].equalsIgnoreCase( "all" ) )
         {
             targets = new ArrayList<>( ProxyServer.getInstance().getPlayers() );
@@ -170,13 +170,37 @@ public class CommandSend extends Command implements TabExecutor
                 targets = new ArrayList<>( serverTarget.getPlayers() );
             } else
             {
-                ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
-                if ( player == null )
+                // Support for comma seperated list sending
+                if ( args[ 0 ].contains( "," ) )
+                {
+                    String[] names = args[ 0 ].split( "," );
+                    for ( String name : names )
+                    {
+                        ProxiedPlayer player = ProxyServer.getInstance().getPlayer( name );
+                        if ( player != null )
+                        {
+                            if ( targets == null )
+                            {
+                                targets = new ArrayList<>();
+                            }
+                            targets.add( player );
+                        }
+                    }
+                } else
+                {
+                    // Single player selection
+                    ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
+                    if ( player != null )
+                    {
+                        targets = Collections.singletonList( player );
+                    }
+                }
+
+                if ( targets == null )
                 {
                     sender.sendMessage( ProxyServer.getInstance().getTranslation( "user_not_online" ) );
                     return;
                 }
-                targets = Collections.singletonList( player );
             }
         }
 
