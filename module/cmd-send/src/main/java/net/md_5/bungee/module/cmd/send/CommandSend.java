@@ -170,7 +170,7 @@ public class CommandSend extends Command implements TabExecutor
                 targets = new ArrayList<>( serverTarget.getPlayers() );
             } else
             {
-                // Support for comma seperated list sending
+                // Support for comma separated list sending
                 if ( args[ 0 ].contains( "," ) )
                 {
                     String[] names = args[ 0 ].split( "," );
@@ -182,6 +182,10 @@ public class CommandSend extends Command implements TabExecutor
                             if ( targets == null )
                             {
                                 targets = new ArrayList<>();
+                            }
+                            if ( targets.contains( player ) )
+                            {
+                                continue;
                             }
                             targets.add( player );
                         }
