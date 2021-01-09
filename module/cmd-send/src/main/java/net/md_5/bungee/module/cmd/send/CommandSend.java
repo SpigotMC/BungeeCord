@@ -186,20 +186,25 @@ public class CommandSend extends Command implements TabExecutor
             return;
         }
 
-        final SendCallback callback = new SendCallback( sender );
-        for ( ProxiedPlayer player : targets )
-        {
-            ServerConnectRequest request = ServerConnectRequest.builder()
-                    .target( server )
-                    .reason( ServerConnectEvent.Reason.COMMAND )
-                    .callback( new SendCallback.Entry( callback, player, server ) )
-                    .build();
-            player.connect( request );
-        }
-
         sender.sendMessage( ProxyServer.getInstance().getTranslation( "command_send_attempting",
                 ( targets.size() == 1 ) ? targets.get( 0 ).getName() : targets.size() + " players",
                 server.getName() ) );
+
+        final SendCallback callback = new SendCallback( sender );
+        Map<ProxiedPlayer, ServerConnectRequest> connections = new HashMap<>();
+        for ( ProxiedPlayer player : targets )
+        {
+            ServerConnectRequest request = ServerConnectRequest.builder()
+                .target( server )
+                .reason( ServerConnectEvent.Reason.COMMAND )
+                .callback( new SendCallback.Entry( callback, player, server ) )
+                .build();
+            connections.put( player, request );
+        }
+        for ( Map.Entry<ProxiedPlayer, ServerConnectRequest> entry : connections.entrySet() )
+        {
+            entry.getKey().connect( entry.getValue() );
+        }
     }
 
     @Override
