@@ -4,6 +4,7 @@ import com.google.common.base.CaseFormat;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -246,10 +247,22 @@ public class CommandSend extends Command implements TabExecutor
         Set<String> matches = new HashSet<>();
         if ( args.length == 1 )
         {
+            boolean flag = args[0].endsWith( "," );
             String search = args[0].toLowerCase( Locale.ROOT );
+            List<String> existingNames = null;
             for ( ProxiedPlayer player : ProxyServer.getInstance().getPlayers() )
             {
-                if ( player.getName().toLowerCase( Locale.ROOT ).startsWith( search ) )
+                if ( flag )
+                {
+                    if ( existingNames == null )
+                    {
+                        existingNames = Arrays.asList( search.split( "," ) );
+                    }
+                    if ( !existingNames.contains( player.getName().toLowerCase( Locale.ROOT ) ) )
+                    {
+                        matches.add( args[0] + player.getName() );
+                    }
+                } else if ( player.getName().toLowerCase( Locale.ROOT ).startsWith( search ) )
                 {
                     matches.add( player.getName() );
                 }
