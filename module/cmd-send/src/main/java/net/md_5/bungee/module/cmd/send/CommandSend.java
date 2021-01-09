@@ -3,15 +3,15 @@ package net.md_5.bungee.module.cmd.send;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -35,7 +35,7 @@ public class CommandSend extends Command implements TabExecutor
     protected static class SendCallback
     {
 
-        private final Map<ServerConnectRequest.Result, List<String>> results = new HashMap<>();
+        private final Map<ServerConnectRequest.Result, Set<String>> results = new HashMap<>();
         private final CommandSender sender;
         private int count = 0;
 
@@ -44,7 +44,7 @@ public class CommandSend extends Command implements TabExecutor
             this.sender = sender;
             for ( ServerConnectRequest.Result result : ServerConnectRequest.Result.values() )
             {
-                results.put( result, new ArrayList<String>() );
+                results.put( result, new LinkedHashSet<>() );
             }
         }
 
@@ -55,7 +55,7 @@ public class CommandSend extends Command implements TabExecutor
 
             boolean delimiterFlag = false;
             BaseComponent[] delimiter = TextComponent.fromLegacyText( ProxyServer.getInstance().getTranslation( "command_send_delimiter" ) );
-            for ( Map.Entry<ServerConnectRequest.Result, List<String>> entry : results.entrySet() )
+            for ( Map.Entry<ServerConnectRequest.Result, Set<String>> entry : results.entrySet() )
             {
                 if ( entry.getValue().isEmpty() )
                 {
@@ -71,12 +71,12 @@ public class CommandSend extends Command implements TabExecutor
                 }
                 ComponentBuilder serverText = new ComponentBuilder();
                 // Add hoverable list of players limited up to 100.
-                List<String> serverNames;
+                Collection<String> serverNames;
                 int rem = 0;
                 if ( entry.getValue().size() > HOVER_NAMES_LIMIT )
                 {
                     rem = entry.getValue().size() - HOVER_NAMES_LIMIT;
-                    serverNames = entry.getValue().subList( 0, HOVER_NAMES_LIMIT );
+                    serverNames = entry.getValue().stream().limit( HOVER_NAMES_LIMIT ).collect( Collectors.toCollection( LinkedHashSet::new ) );
                 } else
                 {
                     serverNames = entry.getValue();
@@ -149,10 +149,10 @@ public class CommandSend extends Command implements TabExecutor
             return;
         }
 
-        List<ProxiedPlayer> targets = null;
+        Set<ProxiedPlayer> targets = null;
         if ( args[0].equalsIgnoreCase( "all" ) )
         {
-            targets = new ArrayList<>( ProxyServer.getInstance().getPlayers() );
+            targets = new LinkedHashSet<>( ProxyServer.getInstance().getPlayers() );
         } else if ( args[0].equalsIgnoreCase( "current" ) )
         {
             if ( !( sender instanceof ProxiedPlayer ) )
@@ -161,14 +161,14 @@ public class CommandSend extends Command implements TabExecutor
                 return;
             }
             ProxiedPlayer player = (ProxiedPlayer) sender;
-            targets = new ArrayList<>( player.getServer().getInfo().getPlayers() );
+            targets = new LinkedHashSet<>( player.getServer().getInfo().getPlayers() );
         } else
         {
             // If we use a server name, send the entire server. This takes priority over players.
             ServerInfo serverTarget = ProxyServer.getInstance().getServerInfo( args[0] );
             if ( serverTarget != null )
             {
-                targets = new ArrayList<>( serverTarget.getPlayers() );
+                targets = new LinkedHashSet<>( serverTarget.getPlayers() );
             } else
             {
                 // Support for comma separated list sending
@@ -182,11 +182,7 @@ public class CommandSend extends Command implements TabExecutor
                         {
                             if ( targets == null )
                             {
-                                targets = new ArrayList<>();
-                            }
-                            if ( targets.contains( player ) )
-                            {
-                                continue;
+                                targets = new LinkedHashSet<>();
                             }
                             targets.add( player );
                         }
@@ -197,7 +193,7 @@ public class CommandSend extends Command implements TabExecutor
                     ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
                     if ( player != null )
                     {
-                        targets = Collections.singletonList( player );
+                        targets = Collections.singleton( player );
                     }
                 }
 
@@ -216,7 +212,7 @@ public class CommandSend extends Command implements TabExecutor
         }
 
         sender.sendMessage( ProxyServer.getInstance().getTranslation( "command_send_attempting",
-                ( targets.size() == 1 ) ? targets.get( 0 ).getName() : targets.size() + " players",
+                ( targets.size() == 1 ) ? targets.iterator().next().getName() : targets.size() + " players",
                 server.getName() ) );
 
         final SendCallback callback = new SendCallback( sender );
@@ -247,16 +243,17 @@ public class CommandSend extends Command implements TabExecutor
         Set<String> matches = new HashSet<>();
         if ( args.length == 1 )
         {
-            boolean flag = args[0].endsWith( "," );
+            boolean flag = args[0].charAt( args[0].length() - 1) == ',';
             String search = args[0].toLowerCase( Locale.ROOT );
-            List<String> existingNames = null;
+            Set<String> existingNames = null;
             for ( ProxiedPlayer player : ProxyServer.getInstance().getPlayers() )
             {
                 if ( flag )
                 {
                     if ( existingNames == null )
                     {
-                        existingNames = Arrays.asList( search.split( "," ) );
+                        existingNames = new HashSet<>();
+                        Collections.addAll( existingNames, search.split( "," ) );
                     }
                     if ( !existingNames.contains( player.getName().toLowerCase( Locale.ROOT ) ) )
                     {
