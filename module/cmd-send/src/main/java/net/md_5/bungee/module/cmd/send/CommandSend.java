@@ -1,7 +1,7 @@
 package net.md_5.bungee.module.cmd.send;
 
 import com.google.common.base.CaseFormat;
-import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -11,9 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import net.md_5.bungee.api.Callback;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerConnectRequest;
@@ -69,23 +67,40 @@ public class CommandSend extends Command implements TabExecutor
                 {
                     text.append( delimiter, ComponentBuilder.FormatRetention.NONE );
                 }
-                ComponentBuilder serverText = new ComponentBuilder();
-                // Add hoverable list of players limited up to 100.
-                Collection<String> serverNames;
-                int rem = 0;
-                if ( entry.getValue().size() > HOVER_NAMES_LIMIT )
-                {
-                    rem = entry.getValue().size() - HOVER_NAMES_LIMIT;
-                    serverNames = entry.getValue().stream().limit( HOVER_NAMES_LIMIT ).collect( Collectors.toCollection( LinkedHashSet::new ) );
-                } else
-                {
-                    serverNames = entry.getValue();
-                }
 
-                serverText.event( new HoverEvent( HoverEvent.Action.SHOW_TEXT,
-                        new ComponentBuilder( Joiner.on( ", " ).join( serverNames ) ).color( ChatColor.YELLOW )
-                                .append( ( rem > 0 ) ? " and " + rem + " more" : "", ComponentBuilder.FormatRetention.ALL ).create() ) );
-                serverText.append( ProxyServer.getInstance().getTranslation( "command_send_server_title",
+                // Add hover list of player names sent limited by defined constant.
+                Collection<String> serverNames = entry.getValue();
+                ComponentBuilder hoverBuilder = new ComponentBuilder();
+                BaseComponent[] hoverDelimiter = TextComponent.fromLegacyText(
+                        ProxyServer.getInstance().getTranslation( "command_send_hover_delimiter" ) );
+                BaseComponent[] hoverNamePrefix = TextComponent.fromLegacyText(
+                        ProxyServer.getInstance().getTranslation( "command_send_hover_name_prefix" ) );
+                int rem = ( serverNames.size() > HOVER_NAMES_LIMIT ) ? serverNames.size() - HOVER_NAMES_LIMIT : 0;
+                int i = 0;
+                for ( String serverName : serverNames )
+                {
+                    if ( i != 0 )
+                    {
+                        hoverBuilder.append( hoverDelimiter, ComponentBuilder.FormatRetention.NONE );
+                    }
+                    hoverBuilder.append( hoverNamePrefix, ComponentBuilder.FormatRetention.NONE )
+                            .append( serverName, ComponentBuilder.FormatRetention.NONE );
+                    if ( ++i == HOVER_NAMES_LIMIT )
+                    {
+                        break;
+                    }
+                }
+                if ( rem > 0 )
+                {
+                    hoverBuilder.append( hoverDelimiter, ComponentBuilder.FormatRetention.NONE )
+                            .append( hoverNamePrefix, ComponentBuilder.FormatRetention.NONE )
+                            .append( " and " + rem + " more", ComponentBuilder.FormatRetention.NONE );
+                }
+                //
+
+                ComponentBuilder serverText = new ComponentBuilder();
+                serverText.event( new HoverEvent( HoverEvent.Action.SHOW_TEXT, hoverBuilder.create() ) );
+                serverText.append( ProxyServer.getInstance().getTranslation( "command_send_result_title",
                         CaseFormat.UPPER_UNDERSCORE.converterTo( CaseFormat.UPPER_CAMEL ).convert( entry.getKey().name() ) ),
                         ComponentBuilder.FormatRetention.EVENTS );
                 serverText.append( TextComponent.fromLegacyText(
@@ -243,7 +258,7 @@ public class CommandSend extends Command implements TabExecutor
         Set<String> matches = new HashSet<>();
         if ( args.length == 1 )
         {
-            boolean flag = args[0].charAt( args[0].length() - 1) == ',';
+            boolean flag = !Strings.isNullOrEmpty( args[0] ) && args[0].charAt( args[0].length() - 1 ) == ',';
             String search = args[0].toLowerCase( Locale.ROOT );
             Set<String> existingNames = null;
             for ( ProxiedPlayer player : ProxyServer.getInstance().getPlayers() )
