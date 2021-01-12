@@ -8,8 +8,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
-import java.util.List;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class TextComponentSerializer extends BaseComponentSerializer implements JsonSerializer<TextComponent>, JsonDeserializer<TextComponent>
@@ -32,13 +30,9 @@ public class TextComponentSerializer extends BaseComponentSerializer implements 
     @Override
     public JsonElement serialize(TextComponent src, Type typeOfSrc, JsonSerializationContext context)
     {
-        List<BaseComponent> extra = src.getExtra();
         JsonObject object = new JsonObject();
+        serialize( object, src, context );
         object.addProperty( "text", src.getText() );
-        if ( src.hasFormatting() || ( extra != null && !extra.isEmpty() ) )
-        {
-            serialize( object, src, context );
-        }
         return object;
     }
 }
