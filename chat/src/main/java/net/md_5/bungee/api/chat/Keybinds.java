@@ -41,6 +41,7 @@ public interface Keybinds
     String PLAYERLIST = "key.playerlist";
     String CHAT = "key.chat";
     String COMMAND = "key.command";
+    String SOCIAL_INTERACTIONS = "key.socialInteractions";
 
     String ADVANCEMENTS = "key.advancements";
     String SPECTATOR_OUTLINES = "key.spectatorOutlines";
