@@ -20,7 +20,7 @@ public class Settings extends Config
     @Final
     public final String HELP = "http://www.rubukkit.org/threads/137038/";
     @Final
-    public String BOT_FILTER_VERSION = "3.8.4";
+    public String BOT_FILTER_VERSION = "3.8.5-dev";
 
     @Create
     public MESSAGES MESSAGES;
@@ -222,13 +222,6 @@ public class Settings extends Config
 
     @Comment("Сколько времени есть у игрока чтобы пройти защиту. В миллисекундах. 1 сек = 1000")
     public int TIME_OUT = 12700;
-
-    @Comment(
-            {
-                "Включить/Отключить ли совместимость со старыми плагинами, которые используют ScoreBoard на бандже?",
-                "Поставте false, если есть проблемы с новыми плагинами."
-            })
-    public boolean FIX_SCOREBOARDS = true;
 
     @Comment("Включить ли фикс от 'Team 'xxx' already exist in this scoreboard'")
     public boolean FIX_SCOREBOARD_TEAMS = true;

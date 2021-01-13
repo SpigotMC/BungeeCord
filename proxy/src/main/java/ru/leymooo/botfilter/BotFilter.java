@@ -23,7 +23,6 @@ import net.md_5.bungee.compress.PacketDecompressor;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
-import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
 import ru.leymooo.botfilter.caching.CachedCaptcha;
 import ru.leymooo.botfilter.caching.PacketUtils;
@@ -73,7 +72,6 @@ public class BotFilter
     public BotFilter(boolean startup)
     {
         Settings.IMP.reload( new File( "BotFilter", "config.yml" ) );
-        DefinedPacket.fix_scoreboards = Settings.IMP.FIX_SCOREBOARDS;
         Scoreboard.DISABLE_DUBLICATE = Settings.IMP.FIX_SCOREBOARD_TEAMS;
         checkForUpdates( startup );
         if ( !CachedCaptcha.generated )

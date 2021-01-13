@@ -2,7 +2,6 @@ package net.md_5.bungee.protocol;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
-import com.google.gson.JsonSyntaxException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
@@ -13,9 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
 import ru.leymooo.botfilter.utils.FastException;
 import ru.leymooo.botfilter.utils.FastOverflowPacketException;
 import se.llbit.nbt.NamedTag;
@@ -53,44 +49,6 @@ public abstract class DefinedPacket
 
         return new String( b, Charsets.UTF_8 );
     }
-
-    //BotFilter start
-    public static boolean fix_scoreboards;
-    public static void writeStringAsChatComponent(String s, ByteBuf buf)
-    {
-        if ( fix_scoreboards )
-        {
-            try
-            {
-                if ( !ComponentSerializer.getJSON_PARSER().parse( s ).isJsonPrimitive() )
-                {
-                    writeString( s, buf );  //Its a valid json string
-                    return;
-                }
-            } catch ( JsonSyntaxException ex )
-            {
-
-            }
-            writeString( ComponentSerializer.toString( TextComponent.fromLegacyText( s ) ), buf );
-        } else
-        {
-            writeString( s, buf );
-        }
-    }
-
-    public static String readChatComponentAsString(ByteBuf buf)
-    {
-        String json = readString( buf );
-        if ( fix_scoreboards )
-        {
-            BaseComponent[] components = ComponentSerializer.parse( json );
-            return ( components.length == 0 || components[0] == null ) ? json : TextComponent.toLegacyText( components );
-        } else
-        {
-            return json;
-        }
-    }
-    //BotFilter end
 
     public static void writeArray(byte[] b, ByteBuf buf)
     {
