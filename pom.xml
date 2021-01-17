@@ -5,7 +5,7 @@
 
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-parent</artifactId>
-    <version>1.16-R0.4-SNAPSHOT</version>
+    <version>1.16-R0.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>BungeeCord-Parent</name>

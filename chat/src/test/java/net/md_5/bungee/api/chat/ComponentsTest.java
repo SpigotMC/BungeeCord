@@ -41,7 +41,7 @@ public class ComponentsTest
         {
             textComponent
         } );
-        json = "{\"text\":\"Test\",\"hoverEvent\":{\"action\":\"show_item\",\"value\":[{\"text\":\"{id:\\\"minecraft:netherrack\\\",Count:47b}\"}]}}";
+        json = "{\"hoverEvent\":{\"action\":\"show_item\",\"value\":[{\"text\":\"{id:\\\"minecraft:netherrack\\\",Count:47b}\"}]},\"text\":\"Test\"}";
         testDissembleReassemble( json );
         //////////
         String hoverVal = "{\"text\":\"{id:\\\"minecraft:dirt\\\",Count:1b}\"}";
