@@ -24,7 +24,7 @@ public class LoginRequest extends DefinedPacket
     @Override
     public void read(ByteBuf buf)
     {
-        data = readString( buf );
+        data = readString( buf, 16 );
     }
 
     @Override
