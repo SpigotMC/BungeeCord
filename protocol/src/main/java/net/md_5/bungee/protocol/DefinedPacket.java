@@ -46,7 +46,7 @@ public abstract class DefinedPacket
         int len = readVarInt( buf );
         if ( len > maxLen * 4 )
         {
-            throw new FastOverflowPacketException( "Cannot receive string longer than "+maxLen * 4 +" (got " + len + " bytes)" );
+            throw new FastOverflowPacketException( "Cannot receive string longer than " + maxLen * 4 + " (got " + len + " bytes)" );
         }
 
         byte[] b = new byte[ len ];

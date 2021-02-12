@@ -24,7 +24,7 @@ public class LoginRequest extends DefinedPacket
     @Override
     public void read(ByteBuf buf)
     {
-        data = readString( buf, 16 );
+        data = readString( buf, 32 ); //BotFilter read 32 characters instead of 15
     }
 
     @Override

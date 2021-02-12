@@ -359,6 +359,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(LoginRequest loginRequest) throws Exception
     {
         checkState( thisState == State.USERNAME, "Not expecting USERNAME" ); //BotFilter
+        if ( loginRequest.getData().length() > 16 )
+        {
+            disconnect( bungee.getTranslation( "name_too_long" ) );
+            return;
+        }
         this.loginRequest = loginRequest;
 
         bungee.getBotFilter().checkAsyncIfNeeded( this );
@@ -370,12 +375,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         if ( getName().contains( "." ) )
         {
             disconnect( bungee.getTranslation( "name_invalid" ) );
-            return;
-        }
-
-        if ( getName().length() > 16 )
-        {
-            disconnect( bungee.getTranslation( "name_too_long" ) );
             return;
         }
 
