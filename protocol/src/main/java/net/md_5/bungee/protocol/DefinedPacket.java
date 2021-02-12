@@ -38,16 +38,27 @@ public abstract class DefinedPacket
 
     public static String readString(ByteBuf buf)
     {
+        return readString( buf, Short.MAX_VALUE );
+    }
+
+    public static String readString(ByteBuf buf, int maxLen)
+    {
         int len = readVarInt( buf );
-        if ( len > Short.MAX_VALUE )
+        if ( len > maxLen * 4 )
         {
-            throw new FastOverflowPacketException( String.format( "Cannot receive string longer than Short.MAX_VALUE (got " + len + " characters)" ) );
+            throw new FastOverflowPacketException( "Cannot receive string longer than "+maxLen * 4 +" (got " + len + " bytes)" );
         }
 
         byte[] b = new byte[ len ];
         buf.readBytes( b );
 
-        return new String( b, Charsets.UTF_8 );
+        String s = new String( b, Charsets.UTF_8 );
+        if ( s.length() > maxLen )
+        {
+            throw new FastOverflowPacketException( String.format( "Cannot receive string longer than %d (got %d characters)", maxLen, s.length() ) );
+        }
+
+        return s;
     }
 
     public static void writeArray(byte[] b, ByteBuf buf)
