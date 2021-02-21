@@ -41,6 +41,8 @@ import net.md_5.bungee.protocol.packet.GameState;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Login;
+import net.md_5.bungee.protocol.packet.LoginPayloadRequest;
+import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PluginMessage;
@@ -404,6 +406,12 @@ public class ServerConnector extends PacketHandler
         // We have to forward these to the user, especially with Forge as stuff might break
         // This includes any REGISTER messages we intercepted earlier.
         user.unsafe().sendPacket( pluginMessage );
+    }
+
+    @Override
+    public void handle(LoginPayloadRequest loginPayloadRequest)
+    {
+        ch.write( new LoginPayloadResponse( loginPayloadRequest.getId(), null ) );
     }
 
     @Override
