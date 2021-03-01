@@ -39,6 +39,12 @@ public class NativeZlib implements BungeeZlib
     @Override
     public void process(ByteBuf in, ByteBuf out) throws DataFormatException
     {
+        process( in, out, false ); //BotFilter
+    }
+
+    @Override
+    public void process(ByteBuf in, ByteBuf out, boolean preallocatedBuffer) throws DataFormatException //BotFilter
+    {
         // Smoke tests
         in.memoryAddress();
         out.memoryAddress();
@@ -46,7 +52,11 @@ public class NativeZlib implements BungeeZlib
 
         while ( !nativeCompress.finished && ( compress || in.isReadable() ) )
         {
-            out.ensureWritable( 8192 );
+
+            if ( !preallocatedBuffer ) //BotFilter
+            {
+                out.ensureWritable( 8192 );
+            } //BotFilter
 
             int processed = nativeCompress.process( ctx, in.memoryAddress() + in.readerIndex(), in.readableBytes(), out.memoryAddress() + out.writerIndex(), out.writableBytes(), compress );
 

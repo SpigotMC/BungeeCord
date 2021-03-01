@@ -82,7 +82,7 @@ public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
 
             try
             {
-                zlib.process( in, decompressed );
+                zlib.process( in, decompressed, checking ); //BotFilter
                 Preconditions.checkState( decompressed.readableBytes() == size, "Decompressed packet size mismatch" );
 
                 out.add( decompressed );

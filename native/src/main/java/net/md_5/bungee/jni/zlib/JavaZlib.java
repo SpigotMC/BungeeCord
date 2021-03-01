@@ -73,4 +73,10 @@ public class JavaZlib implements BungeeZlib
             inflater.reset();
         }
     }
+
+    @Override
+    public void process(ByteBuf in, ByteBuf out, boolean preallocatedBuffer) throws DataFormatException
+    {
+        process( in, out );
+    }
 }
