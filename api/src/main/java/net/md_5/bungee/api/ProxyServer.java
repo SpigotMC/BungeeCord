@@ -76,7 +76,7 @@ public abstract class ProxyServer
 
     /**
    * This method is depreciated, please use
-     * {@link ProxyServer#getPlayer(UUID)} or {@link ProxyServer#getPlayers(name)}
+     * {@link ProxyServer#getPlayer(UUID)} or {@link ProxyServer#getPlayer(String)}
      *
      * Gets the first connected player with the specified username
      * As usernames are no longer unique.
