@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -135,11 +134,7 @@ public class CommandSend extends Command implements TabExecutor
                 targets = new ArrayList<>( serverTarget.getPlayers() );
             } else
             {
-                ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
-                if ( player == null )
-                {
-                    ProxyServer.getInstance().getPlayer( UUID.fromString( args[0] ) );
-                }
+                ProxiedPlayer player = ProxyServer.getInstance().tryGetPlayer( args[0] );
 
                 if ( player == null )
                 {

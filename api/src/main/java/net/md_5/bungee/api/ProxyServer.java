@@ -75,18 +75,35 @@ public abstract class ProxyServer
     public abstract Collection<ProxiedPlayer> getPlayers();
 
     /**
-     * Gets the first player with the specified username.
+   * This method is depreciated, please use
+     * {@link ProxyServer#getPlayer(UUID)} or {@link ProxyServer#getPlayers(name)}
+     *
+     * Gets the first connected player with the specified username
+     * As usernames are no longer unique.
      *
      * @param name of the player
      * @return their player instance
      */
+    @Deprecated
     public abstract ProxiedPlayer getPlayer(String name);
 
     /**
-     * Gets a list of connected players via a username.
+     * Trys to get an instance of a connected player
+     * using the specified UUID or name
+     *
+     * if a name is supplied the first occurrance of
+     * the player will be returned.
+     *
+     * @param nameOrUUID of the player
+     * @return the player instance or null if no matches are found
+     */
+    public abstract ProxiedPlayer tryGetPlayer(String nameOrUUID);
+
+    /**
+     * Gets a collection of connected players via the specified username.
      *
      * @param name of the player
-     * @return their player instance
+     * @return a collection of player instances or null if none are found
      */
     public abstract Collection<ProxiedPlayer> getPlayers(String name);
 

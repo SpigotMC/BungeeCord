@@ -1,6 +1,5 @@
 package net.md_5.bungee.module.cmd.find;
 
-import java.util.UUID;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -22,11 +21,7 @@ public class CommandFind extends PlayerCommand
             sender.sendMessage( ProxyServer.getInstance().getTranslation( "username_needed" ) );
         } else
         {
-            ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
-            if ( player == null )
-            {
-                player = ProxyServer.getInstance().getPlayer( UUID.fromString( args[0] ) );
-            }
+            ProxiedPlayer player = ProxyServer.getInstance().tryGetPlayer( args[0] );
             if ( player == null || player.getServer() == null )
             {
                 sender.sendMessage( ProxyServer.getInstance().getTranslation( "user_not_online" ) );

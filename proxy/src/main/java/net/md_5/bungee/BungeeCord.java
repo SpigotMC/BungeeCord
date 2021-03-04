@@ -94,7 +94,6 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
-import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.fusesource.jansi.AnsiConsole;
 
 /**
@@ -130,7 +129,7 @@ public class BungeeCord extends ProxyServer
     /**
      * Fully qualified connections.
      */
-    private final Map<String, UserConnection> connections = new CaseInsensitiveMap<>();
+    private final Collection<UserConnection> connections = new HashSet<>();
     // Used to help with packet rewriting
     private final Map<UUID, UserConnection> connectionsByOfflineUUID = new HashMap<>();
     private final Map<UUID, UserConnection> connectionsByUUID = new HashMap<>();
@@ -437,7 +436,7 @@ public class BungeeCord extends ProxyServer
         try
         {
             getLogger().log( Level.INFO, "Disconnecting {0} connections", connections.size() );
-            for ( UserConnection user : connections.values() )
+            for ( UserConnection user : connections )
             {
                 user.disconnect( reason );
             }
@@ -516,10 +515,7 @@ public class BungeeCord extends ProxyServer
         connectionLock.readLock().lock();
         try
         {
-            for ( UserConnection con : connections.values() )
-            {
-                con.unsafe().sendPacket( packet );
-            }
+            connections.forEach( con -> con.unsafe().sendPacket( packet ) );
         } finally
         {
             connectionLock.readLock().unlock();
@@ -573,7 +569,7 @@ public class BungeeCord extends ProxyServer
         connectionLock.readLock().lock();
         try
         {
-            return Collections.unmodifiableCollection( new HashSet( connections.values() ) );
+            return Collections.unmodifiableCollection( new HashSet<ProxiedPlayer>( connections ) );
         } finally
         {
             connectionLock.readLock().unlock();
@@ -592,9 +588,7 @@ public class BungeeCord extends ProxyServer
         connectionLock.readLock().lock();
         try
         {
-            return connections.values().stream()
-                .filter( player -> player.getName().equals( name ) )
-                .collect( Collectors.toList() );
+            return connections.stream().filter( player -> player.getName().equals( name ) ).collect( Collectors.toList() );
         } finally
         {
             connectionLock.readLock().unlock();
@@ -604,7 +598,34 @@ public class BungeeCord extends ProxyServer
     @Override
     public ProxiedPlayer getPlayer(String name)
     {
-        return getPlayers( name ).iterator().next();
+        connectionLock.readLock().lock();
+        try
+        {
+            return connections.stream().filter( player -> player.getName().equals( name ) ).findFirst().orElse( null );
+        } finally
+        {
+            connectionLock.readLock().unlock();
+        }
+    }
+
+
+    @Override
+    public ProxiedPlayer tryGetPlayer(String nameOrUUID)
+    {
+        connectionLock.readLock().lock();
+        try
+        {
+            try
+            {
+                return getPlayer( UUID.fromString( nameOrUUID ) );
+            } catch ( IllegalArgumentException e )
+            {
+                return getPlayer( nameOrUUID );
+            }
+        } finally
+        {
+            connectionLock.readLock().unlock();
+        }
     }
 
     public UserConnection getPlayerByOfflineUUID(UUID name)
@@ -736,7 +757,7 @@ public class BungeeCord extends ProxyServer
         connectionLock.writeLock().lock();
         try
         {
-            connections.put( con.getName(), con );
+            connections.add( con );
             connectionsByUUID.put( con.getUniqueId(), con );
             connectionsByOfflineUUID.put( con.getPendingConnection().getOfflineId(), con );
         } finally
@@ -751,9 +772,9 @@ public class BungeeCord extends ProxyServer
         try
         {
             // TODO See #1218
-            if ( connections.get( con.getName() ) == con )
+            if ( connections.contains( con ) )
             {
-                connections.remove( con.getName() );
+                connections.remove( con );
                 connectionsByUUID.remove( con.getUniqueId() );
                 connectionsByOfflineUUID.remove( con.getPendingConnection().getOfflineId() );
             }
