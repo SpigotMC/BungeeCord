@@ -102,7 +102,7 @@ public abstract class ProxyServer
     /**
      * Gets a collection of connected players via the specified username.
      *
-     * @param name of the player
+     * @param name of the player(s)
      * @return a collection of player instances or null if none are found
      */
     public abstract Collection<ProxiedPlayer> getPlayers(String name);
