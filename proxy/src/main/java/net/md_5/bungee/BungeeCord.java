@@ -5,6 +5,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
@@ -45,7 +47,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import jline.console.ConsoleReader;
 import lombok.Getter;
 import lombok.Setter;
@@ -129,7 +130,7 @@ public class BungeeCord extends ProxyServer
     /**
      * Fully qualified connections.
      */
-    private final Collection<UserConnection> connections = new HashSet<>();
+    private final Multimap<String, UserConnection> connections = MultimapBuilder.hashKeys().arrayListValues( 2 ).build();
     // Used to help with packet rewriting
     private final Map<UUID, UserConnection> connectionsByOfflineUUID = new HashMap<>();
     private final Map<UUID, UserConnection> connectionsByUUID = new HashMap<>();
@@ -436,7 +437,7 @@ public class BungeeCord extends ProxyServer
         try
         {
             getLogger().log( Level.INFO, "Disconnecting {0} connections", connections.size() );
-            for ( UserConnection user : connections )
+            for ( UserConnection user : connections.values() )
             {
                 user.disconnect( reason );
             }
@@ -515,7 +516,7 @@ public class BungeeCord extends ProxyServer
         connectionLock.readLock().lock();
         try
         {
-            connections.forEach( con -> con.unsafe().sendPacket( packet ) );
+            connections.values().forEach( con -> con.unsafe().sendPacket( packet ) );
         } finally
         {
             connectionLock.readLock().unlock();
@@ -569,7 +570,7 @@ public class BungeeCord extends ProxyServer
         connectionLock.readLock().lock();
         try
         {
-            return Collections.unmodifiableCollection( new HashSet<ProxiedPlayer>( connections ) );
+            return Collections.unmodifiableCollection( new HashSet<ProxiedPlayer>( connections.values() ) );
         } finally
         {
             connectionLock.readLock().unlock();
@@ -588,7 +589,7 @@ public class BungeeCord extends ProxyServer
         connectionLock.readLock().lock();
         try
         {
-            return connections.stream().filter( player -> player.getName().equals( name ) ).collect( Collectors.toList() );
+            return connections.containsKey( name ) ? new ArrayList<ProxiedPlayer>( connections.get( name ) ) : null;
         } finally
         {
             connectionLock.readLock().unlock();
@@ -601,7 +602,7 @@ public class BungeeCord extends ProxyServer
         connectionLock.readLock().lock();
         try
         {
-            return connections.stream().filter( player -> player.getName().equals( name ) ).findFirst().orElse( null );
+            return connections.get( name ).stream().findFirst().orElse( null );
         } finally
         {
             connectionLock.readLock().unlock();
@@ -757,7 +758,7 @@ public class BungeeCord extends ProxyServer
         connectionLock.writeLock().lock();
         try
         {
-            connections.add( con );
+            connections.put( con.getName(), con );
             connectionsByUUID.put( con.getUniqueId(), con );
             connectionsByOfflineUUID.put( con.getPendingConnection().getOfflineId(), con );
         } finally
@@ -772,9 +773,9 @@ public class BungeeCord extends ProxyServer
         try
         {
             // TODO See #1218
-            if ( connections.contains( con ) )
+            if ( connections.containsKey( con.getName() ) )
             {
-                connections.remove( con );
+                connections.remove( con.getName(), con );
                 connectionsByUUID.remove( con.getUniqueId() );
                 connectionsByOfflineUUID.remove( con.getPendingConnection().getOfflineId() );
             }
