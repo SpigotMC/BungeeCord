@@ -394,6 +394,7 @@ public class BotFilter
             URL url = new URL( "https://raw.githubusercontent.com/Leymooo/BungeeCord/master/version.txt" );
             URLConnection conn = url.openConnection();
             conn.setConnectTimeout( 1200 );
+            conn.setReadTimeout( 1200 );
             try ( BufferedReader in = new BufferedReader(
                     new InputStreamReader( conn.getInputStream() ) ) )
             {
