@@ -28,7 +28,9 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.PlayerCommandEvent;
 import net.md_5.bungee.event.EventBus;
 import net.md_5.bungee.event.EventHandler;
 import org.yaml.snakeyaml.Yaml;
@@ -172,7 +174,13 @@ public final class PluginManager
         {
             if ( tabResults == null )
             {
-                sender.sendMessage( ( command.getPermissionMessage() == null ) ? proxy.getTranslation( "no_permission" ) : command.getPermissionMessage() );
+                String messageToSend = proxy.getTranslation( "no_permission" );
+                if ( sender instanceof ProxiedPlayer )
+                {
+                    PlayerCommandEvent playerCommandEvent = this.callEvent( new PlayerCommandEvent( (ProxiedPlayer) sender, commandLine ) );
+                    messageToSend = playerCommandEvent.getPlayerNotPermittedMessage() == null ? proxy.getTranslation( "no_permission" ) : playerCommandEvent.getPlayerNotPermittedMessage();
+                }
+                sender.sendMessage( new ComponentBuilder( ( command.getPermissionMessage() == null ) ? messageToSend : command.getPermissionMessage() ).create() );
             }
             return true;
         }
