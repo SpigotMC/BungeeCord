@@ -8,10 +8,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.event.ServerCommandEvent;
 import net.md_5.bungee.command.ConsoleCommandSender;
 
 public class BungeeCordLauncher
@@ -67,14 +64,7 @@ public class BungeeCordLauncher
             String line;
             while ( bungee.isRunning && ( line = bungee.getConsoleReader().readLine( ">" ) ) != null )
             {
-                if ( !bungee.getPluginManager().dispatchCommand( ConsoleCommandSender.getInstance(), line ) )
-                {
-                    ServerCommandEvent serverCommandEvent = bungee.getPluginManager().callEvent( new ServerCommandEvent( line ) );
-                    if ( !serverCommandEvent.isCancelled() )
-                    {
-                        bungee.getConsole().sendMessage( new ComponentBuilder( serverCommandEvent.getCommandNotFoundMessage() ).color( ChatColor.RED ).create() );
-                    }
-                }
+                bungee.getPluginManager().dispatchCommand( ConsoleCommandSender.getInstance(), line );
             }
         }
     }
