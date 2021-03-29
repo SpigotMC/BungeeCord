@@ -179,7 +179,8 @@ public final class PluginManager
 
         if ( commandEvent.isCancelled() )
         {
-            sender.sendMessage( new ComponentBuilder( commandEvent.getCommandCancelledMessage() ).create() );
+            if ( commandEvent.getCommandCancelledMessage() != null && !commandEvent.isSuppressMessages() )
+                sender.sendMessage( new ComponentBuilder( commandEvent.getCommandCancelledMessage() ).create() );
             return true;
         }
 
@@ -187,8 +188,11 @@ public final class PluginManager
         {
             if ( tabResults == null )
             {
-                String notPermittedMessage = commandEvent.getNotPermittedMessage() == null ? proxy.getTranslation( "no_permission" ) : commandEvent.getNotPermittedMessage();
-                sender.sendMessage( new ComponentBuilder( ( command.getPermissionMessage() == null ) ? notPermittedMessage : command.getPermissionMessage() ).create() );
+                if ( commandEvent.getNotPermittedMessage() != null && !commandEvent.isSuppressMessages() )
+                {
+                    String notPermittedMessage = commandEvent.getNotPermittedMessage() == null ? proxy.getTranslation( "no_permission" ) : commandEvent.getNotPermittedMessage();
+                    sender.sendMessage( new ComponentBuilder( ( command.getPermissionMessage() == null ) ? notPermittedMessage : command.getPermissionMessage() ).create() );
+                }
             }
             return true;
         }
@@ -223,10 +227,11 @@ public final class PluginManager
 
     private void handleCommandNotFound(CommandEvent commandEvent, CommandSender sender)
     {
-        this.callEvent( commandEvent );
+        commandEvent = this.callEvent( commandEvent );
         if ( !( sender instanceof ProxiedPlayer ) )
         {
-            sender.sendMessage( new ComponentBuilder( commandEvent.getNotFoundMessage() ).create() );
+            if ( commandEvent.getNotFoundMessage() != null && !commandEvent.isSuppressMessages() )
+                sender.sendMessage( new ComponentBuilder( commandEvent.getNotFoundMessage() ).create() );
         }
     }
 

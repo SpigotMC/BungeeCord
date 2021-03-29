@@ -41,6 +41,11 @@ public class CommandEvent extends Event
     private String notFoundMessage = "Command not found";
 
     /**
+     * Suppress messages state.
+     */
+    private boolean suppressMessages = false;
+
+    /**
      * Cancelled state.
      */
     private boolean isCancelled = false;
