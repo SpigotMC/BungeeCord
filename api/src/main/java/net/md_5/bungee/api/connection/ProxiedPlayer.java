@@ -57,8 +57,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
     String getDisplayName();
 
     /**
-     * Sets this players display name to be used as their nametag and tab list
-     * name.
+     * Sets this players display name to be used by bungeecord commands and plugins.
      *
      * @param name the name to set
      */
