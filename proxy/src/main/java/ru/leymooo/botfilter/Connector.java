@@ -132,7 +132,7 @@ public class Connector extends MoveHandler
             case ONLY_CAPTCHA:
             case ONLY_POSITION:
             case CAPTCHA_POSITION:
-                String info = "(BF) [" + name + "|" + ip + "] leaved from server during check";
+                String info = "(BF) [" + name + "|" + ip + "] left from server during check";
                 LOGGER.log( Level.INFO, info );
                 FailedUtils.addIpToQueue( ip, KickType.LEAVED );
                 break;

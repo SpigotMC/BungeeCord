@@ -22,6 +22,7 @@ public class EncryptionResponse extends DefinedPacket
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
+        DefinedPacket.doLengthSanityChecks( buf, this, direction, protocolVersion, 260, 260 ); //BotFilter
         sharedSecret = readArray( buf, 128 );
         verifyToken = readArray( buf, 128 );
     }

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import ru.leymooo.botfilter.utils.FastBadPacketException;
 import ru.leymooo.botfilter.utils.FastException;
 import ru.leymooo.botfilter.utils.FastOverflowPacketException;
 import se.llbit.nbt.NamedTag;
@@ -154,6 +155,7 @@ public abstract class DefinedPacket
 
             if ( bytes > maxBytes )
             {
+                input.clear();
                 throw VARINT_TOO_BIG; //BotFilter
             }
 
@@ -243,6 +245,26 @@ public abstract class DefinedPacket
             throw new RuntimeException( "Exception writing tag", ex );
         }
     }
+
+    //BotFilter start - see https://github.com/PaperMC/Waterfall/blob/master/BungeeCord-Patches/0060-Additional-DoS-mitigations.patch
+    public static void doLengthSanityChecks(ByteBuf buf, DefinedPacket packet,
+                                      ProtocolConstants.Direction direction, int protocolVersion, int expectedMinLen, int expectedMaxLen)
+    {
+        int readable = buf.readableBytes();
+        if ( readable > expectedMaxLen )
+        {
+            throw new FastBadPacketException( "Packet " + packet.getClass()
+                                    + " Protocol " + protocolVersion + " was too big (expected "
+                                    + expectedMaxLen + " bytes, got " + readable + " bytes)" );
+        }
+        if ( readable < expectedMinLen )
+        {
+            throw new FastBadPacketException( "Packet " + packet.getClass()
+                                    + " Protocol " + protocolVersion + " was too small (expected "
+                                    + expectedMinLen + " bytes, got " + readable + " bytes)");
+        }
+    }
+    //BotFilter end
 
     public void read(ByteBuf buf)
     {
