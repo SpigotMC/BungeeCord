@@ -261,7 +261,7 @@ public abstract class DefinedPacket
         {
             throw new FastBadPacketException( "Packet " + packet.getClass()
                                     + " Protocol " + protocolVersion + " was too small (expected "
-                                    + expectedMinLen + " bytes, got " + readable + " bytes)");
+                                    + expectedMinLen + " bytes, got " + readable + " bytes)" );
         }
     }
     //BotFilter end
