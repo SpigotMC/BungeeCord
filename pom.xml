@@ -71,6 +71,7 @@
 
     <properties>
         <build.number>unknown</build.number>
+        <lombok.version>1.18.20</lombok.version>
         <netty.version>4.1.58.Final</netty.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -99,7 +100,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.12</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -205,6 +206,25 @@
             </build>
         </profile>
         <profile>
+            <id>jdk-15-javadoc</id>
+            <activation>
+                <jdk>[15,)</jdk>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-javadoc-plugin</artifactId>
+                            <configuration>
+                                <doclint>none</doclint>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        <profile>
             <id>dist</id>
             <build>
                 <plugins>
@@ -224,7 +244,7 @@
                     <plugin>
                         <groupId>org.projectlombok</groupId>
                         <artifactId>lombok-maven-plugin</artifactId>
-                        <version>1.18.12.0</version>
+                        <version>1.18.20.0</version>
                         <executions>
                             <execution>
                                 <phase>package</phase>
@@ -238,6 +258,13 @@
                             <outputDirectory>${project.build.directory}/delombok</outputDirectory>
                             <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
                         </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </dependency>
+                        </dependencies>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
