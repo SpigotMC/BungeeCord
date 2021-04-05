@@ -1,6 +1,5 @@
 package net.md_5.bungee.protocol.packet;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.HashSet;
 import java.util.Set;
@@ -53,8 +52,6 @@ public class Login extends DefinedPacket
 
             worldNames = new HashSet<>();
             int worldCount = readVarInt( buf );
-            Preconditions.checkArgument( worldCount < 128, "Too many worlds %s", worldCount );
-
             for ( int i = 0; i < worldCount; i++ )
             {
                 worldNames.add( readString( buf ) );
