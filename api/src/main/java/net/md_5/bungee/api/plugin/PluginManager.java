@@ -28,7 +28,9 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.CommandEvent;
 import net.md_5.bungee.event.EventBus;
 import net.md_5.bungee.event.EventHandler;
 import org.yaml.snakeyaml.Yaml;
@@ -155,24 +157,42 @@ public final class PluginManager
      */
     public boolean dispatchCommand(CommandSender sender, String commandLine, List<String> tabResults)
     {
+
+        CommandEvent commandEvent = new CommandEvent( sender, commandLine );
+
         String[] split = commandLine.split( " ", -1 );
         // Check for chat that only contains " "
         if ( split.length == 0 || split[0].isEmpty() )
         {
+            handleCommandNotFound( commandEvent, sender );
             return false;
         }
 
         Command command = getCommandIfEnabled( split[0], sender );
         if ( command == null )
         {
+            handleCommandNotFound( commandEvent, sender );
             return false;
+        }
+
+        commandEvent = this.callEvent( commandEvent );
+
+        if ( commandEvent.isCancelled() )
+        {
+            if ( commandEvent.getCommandCancelledMessage() != null && !commandEvent.isSuppressMessages() )
+                sender.sendMessage( new ComponentBuilder( commandEvent.getCommandCancelledMessage() ).create() );
+            return true;
         }
 
         if ( !command.hasPermission( sender ) )
         {
             if ( tabResults == null )
             {
-                sender.sendMessage( ( command.getPermissionMessage() == null ) ? proxy.getTranslation( "no_permission" ) : command.getPermissionMessage() );
+                if ( commandEvent.getNotPermittedMessage() != null && !commandEvent.isSuppressMessages() )
+                {
+                    String notPermittedMessage = commandEvent.getNotPermittedMessage() == null ? proxy.getTranslation( "no_permission" ) : commandEvent.getNotPermittedMessage();
+                    sender.sendMessage( new ComponentBuilder( ( command.getPermissionMessage() == null ) ? notPermittedMessage : command.getPermissionMessage() ).create() );
+                }
             }
             return true;
         }
@@ -203,6 +223,16 @@ public final class PluginManager
             ProxyServer.getInstance().getLogger().log( Level.WARNING, "Error in dispatching command", ex );
         }
         return true;
+    }
+
+    private void handleCommandNotFound(CommandEvent commandEvent, CommandSender sender)
+    {
+        commandEvent = this.callEvent( commandEvent );
+        if ( !( sender instanceof ProxiedPlayer ) )
+        {
+            if ( commandEvent.getNotFoundMessage() != null && !commandEvent.isSuppressMessages() )
+                sender.sendMessage( new ComponentBuilder( commandEvent.getNotFoundMessage() ).create() );
+        }
     }
 
     /**
