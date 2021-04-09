@@ -146,7 +146,7 @@ final class PluginClassloader extends URLClassLoader
             return defineClass( name, classBytes, 0, classBytes.length, source );
         }
 
-        throw new ClassNotFoundException( name );
+        return super.findClass( name );
     }
 
     @Override
