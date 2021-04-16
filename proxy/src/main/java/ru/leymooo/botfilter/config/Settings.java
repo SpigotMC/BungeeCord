@@ -170,6 +170,10 @@ public class Settings extends Config
         @Comment({"Включить ли постоянную проверку игроков при заходе?",
             "Включая эту функци, не забудьте увелечить лимиты у protection-threshold"})
         public boolean ALWAYS_CHECK = false;
+
+        @Comment({"Проверять ли игроков у которых ип 127.0.0.1?", "Может быть полезным при использовании Geyser",
+            "0 - проверять", "1 - отключить проверку", "2 - проверять при каждом заходе" })
+        public int CHECK_LOCALHOST = 0;
         /*
         @Comment(
                 {

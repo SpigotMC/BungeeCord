@@ -5,6 +5,7 @@ import com.google.common.cache.CacheBuilder;
 import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
 import ru.leymooo.botfilter.caching.PacketUtils;
+import ru.leymooo.botfilter.config.Settings;
 
 /**
  * @author Leymooo
@@ -20,6 +21,10 @@ public class ManyChecksUtils
 
     public static void IncreaseOrAdd(InetAddress address)
     {
+        if ( Settings.IMP.PROTECTION.CHECK_LOCALHOST != 1 && address.isLoopbackAddress() )
+        {
+            return;
+        }
         Integer numOfCon = connections.getIfPresent( address );
         if ( numOfCon != null && numOfCon >= 3 )
         {

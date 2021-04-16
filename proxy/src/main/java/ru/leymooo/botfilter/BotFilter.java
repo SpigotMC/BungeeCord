@@ -255,6 +255,10 @@ public class BotFilter
     public boolean needCheck(String userName, InetAddress address)
     {
         BotFilterUser botFilterUser = userCache.get( userName.toLowerCase() );
+        if ( Settings.IMP.PROTECTION.CHECK_LOCALHOST >= 1 && address.isLoopbackAddress() )
+        {
+            return Settings.IMP.PROTECTION.CHECK_LOCALHOST != 1;
+        }
         return botFilterUser == null || ( Settings.IMP.FORCE_CHECK_ON_ATTACK && isUnderAttack() )
             || !botFilterUser.getIp().equalsIgnoreCase( address.getHostAddress() );
     }
