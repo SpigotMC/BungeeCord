@@ -28,7 +28,7 @@ public class CommandEvent extends Event
     /**
      * Message which will be sent to sender when executed command is cancelled.
      */
-    private String commandCancelledMessage = "Command not found";
+    private String commandCancelledMessage = "The command may not be executed";
 
     /**
      * Message which will be sent to the sender when executed command is forbidden.
