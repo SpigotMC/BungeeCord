@@ -148,7 +148,10 @@ public final class UserConnection implements ProxiedPlayer
 
     public void init()
     {
-        this.entityRewrite = EntityMap.getEntityMap( getPendingConnection().getVersion() );
+        if ( getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_16_2 || !bungee.getConfig().isIpForward() )
+        {
+            this.entityRewrite = EntityMap.getEntityMap( getPendingConnection().getVersion() );
+        }
 
         this.displayName = name;
 
