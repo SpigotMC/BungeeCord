@@ -23,6 +23,7 @@ public class ClientSettings extends DefinedPacket
     private byte difficulty;
     private byte skinParts;
     private int mainHand;
+    private boolean disableTextFiltering;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
@@ -35,6 +36,10 @@ public class ClientSettings extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
         {
             mainHand = DefinedPacket.readVarInt( buf );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_17 )
+        {
+            disableTextFiltering = buf.readBoolean();
         }
     }
 
@@ -55,6 +60,10 @@ public class ClientSettings extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
         {
             DefinedPacket.writeVarInt( mainHand, buf );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_17 )
+        {
+            buf.writeBoolean( disableTextFiltering );
         }
     }
 
