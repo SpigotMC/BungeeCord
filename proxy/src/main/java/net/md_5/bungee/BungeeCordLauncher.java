@@ -21,7 +21,10 @@ public class BungeeCordLauncher
         Security.setProperty( "networkaddress.cache.ttl", "30" );
         Security.setProperty( "networkaddress.cache.negative.ttl", "10" );
         // For JDK9+ we force-enable multi-release jar file support #3087
-        System.setProperty( "jdk.util.jar.enableMultiRelease", "force" );
+        if ( System.getProperty( "jdk.util.jar.enableMultiRelease" ) == null )
+        {
+            System.setProperty( "jdk.util.jar.enableMultiRelease", "force" );
+        }
 
         OptionParser parser = new OptionParser();
         parser.allowsUnrecognizedOptions();
