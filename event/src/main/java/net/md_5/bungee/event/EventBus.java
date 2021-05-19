@@ -1,5 +1,6 @@
 package net.md_5.bungee.event;
 
+import com.google.common.collect.ImmutableSet;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
@@ -61,7 +62,8 @@ public class EventBus
     private Map<Class<?>, Map<Byte, Set<Method>>> findHandlers(Object listener)
     {
         Map<Class<?>, Map<Byte, Set<Method>>> handler = new HashMap<>();
-        for ( Method m : listener.getClass().getDeclaredMethods() )
+        Set<Method> methods = ImmutableSet.<Method>builder().add( listener.getClass().getMethods() ).add( listener.getClass().getDeclaredMethods() ).build();
+        for ( final Method m : methods )
         {
             EventHandler annotation = m.getAnnotation( EventHandler.class );
             if ( annotation != null )
