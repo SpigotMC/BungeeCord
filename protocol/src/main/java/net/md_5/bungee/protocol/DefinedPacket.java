@@ -33,7 +33,7 @@ public abstract class DefinedPacket
 
     public static String readString(ByteBuf buf)
     {
-        return readString( buf, Short.MAX_VALUE );
+        return readString( buf, 10000 );
     }
 
     public static String readString(ByteBuf buf, int maxLen)
