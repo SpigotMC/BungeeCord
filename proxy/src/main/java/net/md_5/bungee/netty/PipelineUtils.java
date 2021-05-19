@@ -169,6 +169,8 @@ public class PipelineUtils
             {
                 // IP_TOS is not supported (Windows XP / Windows Server 2003)
             }
+            ch.config().setOption( ChannelOption.SO_RCVBUF, 65536 );
+            ch.config().setOption( ChannelOption.SO_SNDBUF, 65536 );
             ch.config().setAllocator( PooledByteBufAllocator.DEFAULT );
             ch.config().setWriteBufferWaterMark( MARK );
 
