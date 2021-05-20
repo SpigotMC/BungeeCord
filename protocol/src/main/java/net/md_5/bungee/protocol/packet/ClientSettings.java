@@ -28,7 +28,7 @@ public class ClientSettings extends DefinedPacket
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        locale = readString( buf );
+        locale = readString( buf, 16 );
         viewDistance = buf.readByte();
         chatFlags = protocolVersion >= ProtocolConstants.MINECRAFT_1_9 ? DefinedPacket.readVarInt( buf ) : buf.readUnsignedByte();
         chatColours = buf.readBoolean();

@@ -24,7 +24,7 @@ public class Handshake extends DefinedPacket
     public void read(ByteBuf buf)
     {
         protocolVersion = readVarInt( buf );
-        host = readString( buf );
+        host = readString( buf, 255 );
         port = buf.readUnsignedShort();
         requestedProtocol = readVarInt( buf );
     }
