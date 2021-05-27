@@ -2,7 +2,6 @@ package net.md_5.bungee.event;
 
 import com.google.common.collect.ImmutableSet;
 import java.lang.invoke.LambdaMetafactory;
-import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
@@ -125,9 +124,9 @@ public class EventBus
                     lookup,
                     "accept",
                     MethodType.methodType( Consumer.class, listener.getClass() ),
-                    MethodType.methodType( method.getReturnType(), Object.class ),
+                    MethodType.methodType( void.class, Object.class ),
                     lookup.unreflect( method ),
-                    MethodType.methodType( method.getReturnType(), method.getParameterTypes()[ 0 ] )
+                    MethodType.methodType( void.class, method.getParameterTypes()[ 0 ] )
             ).getTarget().invoke( listener );
         } catch ( Throwable t )
         {
