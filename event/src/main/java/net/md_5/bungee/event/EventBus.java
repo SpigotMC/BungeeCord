@@ -1,7 +1,11 @@
 package net.md_5.bungee.event;
 
 import com.google.common.collect.ImmutableSet;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.invoke.LambdaMetafactory;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -13,13 +17,43 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement;
 
 public class EventBus
 {
 
-    private final Map<Class<?>, Map<Byte, Map<Object, Method[]>>> byListenerAndPriority = new HashMap<>();
+    private Function<Class<?>, MethodHandles.Lookup> LOOKUP_FUNCTION;
+
+    @IgnoreJRERequirement
+    private void initLookup()
+    {
+        try
+        {
+            // We grab access to a Lookup with all privileges.
+            // This is required as we have to call Lookup#in to be in the plugin's ClassLoader context. Only this
+            // full-power lookup instance can have private and module access after call to Lookup#in, which we need for
+            // LambdaMetafactory. Even the java 9+ method MethodHandles.privateLookupIn does not give us MODULE access
+            // when we call it if its present (via reflection).
+            // This still requires a jvm argument on java 9+ though: --add-opens java.base/java.lang.invoke=ALL-UNNAMED
+            Field field = MethodHandles.Lookup.class.getDeclaredField( "IMPL_LOOKUP" );
+            field.setAccessible( true );
+            MethodHandles.Lookup lookup = (MethodHandles.Lookup) field.get( null );
+            LOOKUP_FUNCTION = lookup::in;
+        } catch ( Throwable t )
+        {
+            if ( t.getClass().getName().equals( "java.lang.reflect.InaccessibleObjectException" ) )
+            {
+                logger.log( Level.SEVERE, "Using BungeeCord on Java 9 or higher requires you to add the jvm argument --add-opens java.base/java.lang.invoke=ALL-UNNAMED (before -jar)" );
+            }
+            throw new RuntimeException( t );
+        }
+    }
+
+    private final Map<Class<?>, Map<Byte, Map<Object, Consumer<Object>[]>>> byListenerAndPriority = new HashMap<>();
     private final Map<Class<?>, EventHandlerMethod[]> byEventBaked = new ConcurrentHashMap<>();
     private final Lock lock = new ReentrantLock();
     private final Logger logger;
@@ -32,6 +66,7 @@ public class EventBus
     public EventBus(Logger logger)
     {
         this.logger = ( logger == null ) ? Logger.getLogger( Logger.GLOBAL_LOGGER_NAME ) : logger;
+        initLookup();
     }
 
     public void post(Object event)
@@ -45,15 +80,9 @@ public class EventBus
                 try
                 {
                     method.invoke( event );
-                } catch ( IllegalAccessException ex )
+                } catch ( Throwable t )
                 {
-                    throw new Error( "Method became inaccessible: " + event, ex );
-                } catch ( IllegalArgumentException ex )
-                {
-                    throw new Error( "Method rejected target/argument: " + event, ex );
-                } catch ( InvocationTargetException ex )
-                {
-                    logger.log( Level.WARNING, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, method.getListener() ), ex.getCause() );
+                    logger.log( Level.WARNING, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, method.getListener() ), t );
                 }
             }
         }
@@ -71,30 +100,42 @@ public class EventBus
                 Class<?>[] params = m.getParameterTypes();
                 if ( params.length != 1 )
                 {
-                    logger.log( Level.INFO, "Method {0} in class {1} annotated with {2} does not have single argument", new Object[]
+                    logger.log( Level.INFO, "Method {0} in class {1} annotated with {2} does not have exactly one argument", new Object[]
                     {
                         m, listener.getClass(), annotation
                     } );
                     continue;
                 }
-                Map<Byte, Set<Method>> prioritiesMap = handler.get( params[0] );
-                if ( prioritiesMap == null )
-                {
-                    prioritiesMap = new HashMap<>();
-                    handler.put( params[0], prioritiesMap );
-                }
-                Set<Method> priority = prioritiesMap.get( annotation.priority() );
-                if ( priority == null )
-                {
-                    priority = new HashSet<>();
-                    prioritiesMap.put( annotation.priority(), priority );
-                }
+                Map<Byte, Set<Method>> prioritiesMap = handler.computeIfAbsent( params[ 0 ], k -> new HashMap<>() );
+                Set<Method> priority = prioritiesMap.computeIfAbsent( annotation.priority(), k -> new HashSet<>() );
                 priority.add( m );
             }
         }
         return handler;
     }
 
+    @IgnoreJRERequirement
+    @SuppressWarnings("unchecked")
+    private Consumer<Object> createMethodInvoker(Object listener, Method method)
+    {
+        try
+        {
+            MethodHandles.Lookup lookup = LOOKUP_FUNCTION.apply( listener.getClass() );
+            return (Consumer<Object>) LambdaMetafactory.metafactory(
+                    lookup,
+                    "accept",
+                    MethodType.methodType( Consumer.class, listener.getClass() ),
+                    MethodType.methodType( method.getReturnType(), Object.class ),
+                    lookup.unreflect( method ),
+                    MethodType.methodType( method.getReturnType(), method.getParameterTypes()[ 0 ] )
+            ).getTarget().invoke( listener );
+        } catch ( Throwable t )
+        {
+            throw new RuntimeException( "Could not create invoker for method " + method + " of listener " + listener + " (" + listener.getClass() + ")", t );
+        }
+    }
+
+    @SuppressWarnings("unchecked")
     public void register(Object listener)
     {
         Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers( listener );
@@ -103,22 +144,17 @@ public class EventBus
         {
             for ( Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet() )
             {
-                Map<Byte, Map<Object, Method[]>> prioritiesMap = byListenerAndPriority.get( e.getKey() );
-                if ( prioritiesMap == null )
-                {
-                    prioritiesMap = new HashMap<>();
-                    byListenerAndPriority.put( e.getKey(), prioritiesMap );
-                }
+                Map<Byte, Map<Object, Consumer<Object>[]>> prioritiesMap = byListenerAndPriority.computeIfAbsent( e.getKey(), k -> new HashMap<>() );
                 for ( Map.Entry<Byte, Set<Method>> entry : e.getValue().entrySet() )
                 {
-                    Map<Object, Method[]> currentPriorityMap = prioritiesMap.get( entry.getKey() );
-                    if ( currentPriorityMap == null )
+                    if ( entry.getValue().isEmpty() )
                     {
-                        currentPriorityMap = new HashMap<>();
-                        prioritiesMap.put( entry.getKey(), currentPriorityMap );
+                        continue;
                     }
-                    Method[] baked = new Method[ entry.getValue().size() ];
-                    currentPriorityMap.put( listener, entry.getValue().toArray( baked ) );
+                    Consumer<Object>[] baked = entry.getValue().stream()
+                            .map( method -> createMethodInvoker( listener, method ) )
+                            .toArray( Consumer[]::new );
+                    prioritiesMap.computeIfAbsent( entry.getKey(), k -> new HashMap<>() ).put( listener, baked );
                 }
                 bakeHandlers( e.getKey() );
             }
@@ -136,12 +172,12 @@ public class EventBus
         {
             for ( Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet() )
             {
-                Map<Byte, Map<Object, Method[]>> prioritiesMap = byListenerAndPriority.get( e.getKey() );
+                Map<Byte, Map<Object, Consumer<Object>[]>> prioritiesMap = byListenerAndPriority.get( e.getKey() );
                 if ( prioritiesMap != null )
                 {
                     for ( Byte priority : e.getValue().keySet() )
                     {
-                        Map<Object, Method[]> currentPriority = prioritiesMap.get( priority );
+                        Map<Object, Consumer<Object>[]> currentPriority = prioritiesMap.get( priority );
                         if ( currentPriority != null )
                         {
                             currentPriority.remove( listener );
@@ -173,7 +209,7 @@ public class EventBus
      */
     private void bakeHandlers(Class<?> eventClass)
     {
-        Map<Byte, Map<Object, Method[]>> handlersByPriority = byListenerAndPriority.get( eventClass );
+        Map<Byte, Map<Object, Consumer<Object>[]>> handlersByPriority = byListenerAndPriority.get( eventClass );
         if ( handlersByPriority != null )
         {
             List<EventHandlerMethod> handlersList = new ArrayList<>( handlersByPriority.size() * 2 );
@@ -183,14 +219,15 @@ public class EventBus
             byte value = Byte.MIN_VALUE;
             do
             {
-                Map<Object, Method[]> handlersByListener = handlersByPriority.get( value );
+                Map<Object, Consumer<Object>[]> handlersByListener = handlersByPriority.get( value );
                 if ( handlersByListener != null )
                 {
-                    for ( Map.Entry<Object, Method[]> listenerHandlers : handlersByListener.entrySet() )
+                    for ( Map.Entry<Object, Consumer<Object>[]> listenerHandlers : handlersByListener.entrySet() )
                     {
-                        for ( Method method : listenerHandlers.getValue() )
+                        Object listener = listenerHandlers.getKey();
+                        for ( Consumer<Object> method : listenerHandlers.getValue() )
                         {
-                            EventHandlerMethod ehm = new EventHandlerMethod( listenerHandlers.getKey(), method );
+                            EventHandlerMethod ehm = new EventHandlerMethod( listener, method );
                             handlersList.add( ehm );
                         }
                     }
