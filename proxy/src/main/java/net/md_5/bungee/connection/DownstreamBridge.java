@@ -247,6 +247,7 @@ public class DownstreamBridge extends PacketHandler
         }
     }
 
+    @SuppressWarnings("checkstyle:avoidnestedblocks")
     @Override
     public void handle(PluginMessage pluginMessage) throws Exception
     {
