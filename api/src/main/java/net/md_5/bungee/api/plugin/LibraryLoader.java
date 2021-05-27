@@ -116,7 +116,7 @@ class LibraryLoader
             } );
         }
 
-        URLClassLoader loader = new URLClassLoader( jarFiles.toArray( new URL[ jarFiles.size() ] ) );
+        URLClassLoader loader = new URLClassLoader( jarFiles.toArray( new URL[ 0 ] ) );
 
         return loader;
     }

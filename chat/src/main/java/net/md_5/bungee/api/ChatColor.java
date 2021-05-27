@@ -300,7 +300,7 @@ public final class ChatColor
     @Deprecated
     public static ChatColor[] values()
     {
-        return BY_CHAR.values().toArray( new ChatColor[ BY_CHAR.values().size() ] );
+        return BY_CHAR.values().toArray( new ChatColor[ 0 ] );
     }
 
     /**

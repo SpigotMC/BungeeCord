@@ -117,8 +117,7 @@ public class EventBus
                         currentPriorityMap = new HashMap<>();
                         prioritiesMap.put( entry.getKey(), currentPriorityMap );
                     }
-                    Method[] baked = new Method[ entry.getValue().size() ];
-                    currentPriorityMap.put( listener, entry.getValue().toArray( baked ) );
+                    currentPriorityMap.put( listener, entry.getValue().toArray( new Method[ 0 ] ) );
                 }
                 bakeHandlers( e.getKey() );
             }
@@ -196,7 +195,7 @@ public class EventBus
                     }
                 }
             } while ( value++ < Byte.MAX_VALUE );
-            byEventBaked.put( eventClass, handlersList.toArray( new EventHandlerMethod[ handlersList.size() ] ) );
+            byEventBaked.put( eventClass, handlersList.toArray( new EventHandlerMethod[ 0 ] ) );
         } else
         {
             byEventBaked.remove( eventClass );
