@@ -41,7 +41,7 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
 
                 if ( in.isReadable() )
                 {
-                    throw new BadPacketException( "Packet longer than expected: " + packet.getClass().getSimpleName() + " " + packetId + " Protocol " + protocol + " Direction " + prot.getDirection() );
+                    throw new BadPacketException( "Packet " + protocol + ":" + prot.getDirection() + "/" + packetId + " (" + packet.getClass().getSimpleName() + ") larger than expected, extra bytes: " + in.readableBytes() );
                 }
             } else
             {
