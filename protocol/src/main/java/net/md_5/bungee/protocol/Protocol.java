@@ -49,6 +49,7 @@ import net.md_5.bungee.protocol.packet.Team;
 import net.md_5.bungee.protocol.packet.Title;
 import net.md_5.bungee.protocol.packet.TitleTimes;
 import net.md_5.bungee.protocol.packet.ViewDistance;
+import org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement;
 
 public enum Protocol
 {
@@ -503,6 +504,7 @@ public enum Protocol
             }
         }
 
+        @IgnoreJRERequirement
         @SuppressWarnings("unchecked")
         private void registerPacket(Class<? extends DefinedPacket> packetClass, ProtocolMapping... mappings)
         {

@@ -104,6 +104,12 @@
             <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>animal-sniffer-annotations</artifactId>
+            <version>1.20</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
