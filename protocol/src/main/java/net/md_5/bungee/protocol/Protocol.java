@@ -6,7 +6,12 @@ import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
-import java.lang.reflect.Constructor;
+import java.lang.invoke.LambdaConversionException;
+import java.lang.invoke.LambdaMetafactory;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.util.function.Supplier;
 import lombok.Data;
 import lombok.Getter;
 import net.md_5.bungee.protocol.packet.BossBar;
@@ -428,7 +433,8 @@ public enum Protocol
 
         private final int protocolVersion;
         private final TObjectIntMap<Class<? extends DefinedPacket>> packetMap = new TObjectIntHashMap<>( MAX_PACKET_ID );
-        private final Constructor<? extends DefinedPacket>[] packetConstructors = new Constructor[ MAX_PACKET_ID ];
+        @SuppressWarnings("unchecked")
+        private final Supplier<? extends DefinedPacket>[] packetConstructors = new Supplier[ MAX_PACKET_ID ];
     }
 
     @Data
@@ -447,7 +453,7 @@ public enum Protocol
 
     static final class DirectionData
     {
-
+        private static final MethodHandles.Lookup lookup = MethodHandles.lookup();
         private final TIntObjectMap<ProtocolData> protocols = new TIntObjectHashMap<>();
         //
         private final Protocol protocolPhase;
@@ -487,52 +493,70 @@ public enum Protocol
                 throw new BadPacketException( "Packet with id " + id + " outside of range " );
             }
 
-            Constructor<? extends DefinedPacket> constructor = protocolData.packetConstructors[id];
+            Supplier<? extends DefinedPacket> constructor = protocolData.packetConstructors[id];
             try
             {
-                return ( constructor == null ) ? null : constructor.newInstance();
-            } catch ( ReflectiveOperationException ex )
+                return ( constructor == null ) ? null : constructor.get();
+            } catch ( Throwable t )
             {
-                throw new BadPacketException( "Could not construct packet with id " + id, ex );
+                throw new BadPacketException( "Could not construct packet with id " + id, t );
             }
         }
 
+        @SuppressWarnings("unchecked")
         private void registerPacket(Class<? extends DefinedPacket> packetClass, ProtocolMapping... mappings)
         {
+            Supplier<? extends DefinedPacket> constructorSupplier;
             try
             {
-                Constructor<? extends DefinedPacket> constructor = packetClass.getDeclaredConstructor();
-
-                int mappingIndex = 0;
-                ProtocolMapping mapping = mappings[mappingIndex];
-                for ( int protocol : ProtocolConstants.SUPPORTED_VERSION_IDS )
-                {
-                    if ( protocol < mapping.protocolVersion )
-                    {
-                        // This is a new packet, skip it till we reach the next protocol
-                        continue;
-                    }
-
-                    if ( mapping.protocolVersion < protocol && mappingIndex + 1 < mappings.length )
-                    {
-                        // Mapping is non current, but the next one may be ok
-                        ProtocolMapping nextMapping = mappings[mappingIndex + 1];
-                        if ( nextMapping.protocolVersion == protocol )
-                        {
-                            Preconditions.checkState( nextMapping.packetID != mapping.packetID, "Duplicate packet mapping (%s, %s)", mapping.protocolVersion, nextMapping.protocolVersion );
-
-                            mapping = nextMapping;
-                            mappingIndex++;
-                        }
-                    }
-
-                    ProtocolData data = protocols.get( protocol );
-                    data.packetMap.put( packetClass, mapping.packetID );
-                    data.packetConstructors[mapping.packetID] = constructor;
-                }
+                MethodHandle constructorHandle = lookup.unreflectConstructor( packetClass.getDeclaredConstructor() );
+                constructorSupplier = (Supplier<? extends DefinedPacket>) LambdaMetafactory.metafactory(
+                        lookup,
+                        "get",
+                        MethodType.methodType( Supplier.class ),
+                        MethodType.methodType( Object.class ),
+                        constructorHandle,
+                        constructorHandle.type()
+                ).getTarget().invokeExact();
             } catch ( NoSuchMethodException ex )
             {
                 throw new BadPacketException( "No NoArgsConstructor for packet class " + packetClass );
+            } catch ( IllegalAccessException ex )
+            {
+                throw new BadPacketException( "NoArgsConstructor not accessible for packet class " + packetClass );
+            } catch ( LambdaConversionException ex )
+            {
+                throw new BadPacketException( "Could not create lambda for packet class " + packetClass, ex );
+            } catch ( Throwable t )
+            {
+                throw new BadPacketException( "Error during lambda creation for packet class " + packetClass, t );
+            }
+            int mappingIndex = 0;
+            ProtocolMapping mapping = mappings[mappingIndex];
+            for ( int protocol : ProtocolConstants.SUPPORTED_VERSION_IDS )
+            {
+                if ( protocol < mapping.protocolVersion )
+                {
+                    // This is a new packet, skip it till we reach the next protocol
+                    continue;
+                }
+
+                if ( mapping.protocolVersion < protocol && mappingIndex + 1 < mappings.length )
+                {
+                    // Mapping is non current, but the next one may be ok
+                    ProtocolMapping nextMapping = mappings[mappingIndex + 1];
+                    if ( nextMapping.protocolVersion == protocol )
+                    {
+                        Preconditions.checkState( nextMapping.packetID != mapping.packetID, "Duplicate packet mapping (%s, %s)", mapping.protocolVersion, nextMapping.protocolVersion );
+
+                        mapping = nextMapping;
+                        mappingIndex++;
+                    }
+                }
+
+                ProtocolData data = protocols.get( protocol );
+                data.packetMap.put( packetClass, mapping.packetID );
+                data.packetConstructors[mapping.packetID] = constructorSupplier;
             }
         }
 
