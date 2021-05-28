@@ -22,6 +22,7 @@ public class BungeeCordLauncher
         {
             System.setProperty( "jdk.util.jar.enableMultiRelease", "force" );
         }
+        System.setProperty( "java.awt.headless", "true" ); //BotFilter
 
         OptionParser parser = new OptionParser();
         parser.allowsUnrecognizedOptions();
