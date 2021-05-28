@@ -18,10 +18,10 @@ import lombok.ToString;
 import net.md_5.bungee.api.ProxyServer;
 
 @ToString(of = "desc")
-final class PluginClassloader extends URLClassLoader
+public final class BungeePluginClassLoader extends URLClassLoader implements PluginClassLoader
 {
 
-    private static final Set<PluginClassloader> allLoaders = new CopyOnWriteArraySet<>();
+    private static final Set<BungeePluginClassLoader> allLoaders = new CopyOnWriteArraySet<>();
     //
     private final ProxyServer proxy;
     private final PluginDescription desc;
@@ -37,7 +37,7 @@ final class PluginClassloader extends URLClassLoader
         ClassLoader.registerAsParallelCapable();
     }
 
-    public PluginClassloader(ProxyServer proxy, PluginDescription desc, File file, ClassLoader libraryLoader) throws IOException
+    public BungeePluginClassLoader(ProxyServer proxy, PluginDescription desc, File file, ClassLoader libraryLoader) throws IOException
     {
         super( new URL[]
         {
@@ -80,7 +80,7 @@ final class PluginClassloader extends URLClassLoader
 
         if ( checkOther )
         {
-            for ( PluginClassloader loader : allLoaders )
+            for ( BungeePluginClassLoader loader : allLoaders )
             {
                 if ( loader != this )
                 {
@@ -161,7 +161,8 @@ final class PluginClassloader extends URLClassLoader
         }
     }
 
-    void init(Plugin plugin)
+    @Override
+    public void init(Plugin plugin)
     {
         Preconditions.checkArgument( plugin != null, "plugin" );
         Preconditions.checkArgument( plugin.getClass().getClassLoader() == this, "Plugin has incorrect ClassLoader" );

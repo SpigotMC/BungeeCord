@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.plugin;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.io.File;
@@ -31,15 +32,16 @@ public class Plugin
     public Plugin()
     {
         ClassLoader classLoader = getClass().getClassLoader();
-        Preconditions.checkState( classLoader instanceof PluginClassloader, "Plugin requires " + PluginClassloader.class.getName() );
+        Preconditions.checkState( classLoader instanceof PluginClassLoader, "Plugin requires " + PluginClassLoader.class.getName() );
 
-        ( (PluginClassloader) classLoader ).init( this );
+        ( (PluginClassLoader) classLoader ).init( this );
     }
 
+    @VisibleForTesting
     protected Plugin(ProxyServer proxy, PluginDescription description)
     {
         ClassLoader classLoader = getClass().getClassLoader();
-        Preconditions.checkState( !( classLoader instanceof PluginClassloader ), "Cannot use initialization constructor at runtime" );
+        Preconditions.checkState( !( classLoader instanceof PluginClassLoader ), "Cannot use initialization constructor at runtime" );
 
         // init( proxy, description );
     }
