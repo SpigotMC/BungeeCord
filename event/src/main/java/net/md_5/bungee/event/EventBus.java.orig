@@ -150,10 +150,14 @@ public class EventBus
                     {
                         continue;
                     }
+<<<<<<< HEAD
                     Consumer<Object>[] baked = entry.getValue().stream()
                             .map( method -> createMethodInvoker( listener, method ) )
                             .toArray( Consumer[]::new );
                     prioritiesMap.computeIfAbsent( entry.getKey(), k -> new HashMap<>() ).put( listener, baked );
+=======
+                    currentPriorityMap.put( listener, entry.getValue().toArray( new Method[ 0 ] ) );
+>>>>>>> upstream/master
                 }
                 bakeHandlers( e.getKey() );
             }

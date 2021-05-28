@@ -57,7 +57,7 @@ public final class ComponentBuilder
      */
     public ComponentBuilder(ComponentBuilder original)
     {
-        this( original.parts.toArray( new BaseComponent[ original.parts.size() ] ) );
+        this( original.parts.toArray( new BaseComponent[ 0 ] ) );
     }
 
     /**
