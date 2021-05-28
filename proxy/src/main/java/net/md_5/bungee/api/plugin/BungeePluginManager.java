@@ -382,7 +382,7 @@ public final class BungeePluginManager extends PluginManager
             Preconditions.checkArgument( !method.isAnnotationPresent( Subscribe.class ),
                     "Listener %s has registered using deprecated subscribe annotation! Please update to @EventHandler.", listener );
         }
-        eventBus.register( listener );
+        eventBus.register( listener, plugin.getLookup() );
         listenersByPlugin.put( plugin, listener );
     }
 

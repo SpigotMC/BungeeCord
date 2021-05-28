@@ -5,9 +5,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.io.File;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
+import lombok.AccessLevel;
 import lombok.Getter;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
@@ -28,6 +30,8 @@ public class Plugin
     private File file;
     @Getter
     private Logger logger;
+    @Getter(AccessLevel.PACKAGE)
+    private MethodHandles.Lookup lookup;
 
     public Plugin()
     {
@@ -98,11 +102,13 @@ public class Plugin
      *
      * @param proxy current proxy instance
      * @param description the description that describes this plugin
+     * @param lookup the MethodHandles lookup for this plugin's classloader, only retrievable by the implementation
      */
-    final void init(ProxyServer proxy, PluginDescription description)
+    final void init(ProxyServer proxy, PluginDescription description, MethodHandles.Lookup lookup)
     {
         this.proxy = proxy;
         this.description = description;
+        this.lookup = lookup;
         this.file = description.getFile();
         this.logger = new PluginLogger( this );
     }

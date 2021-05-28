@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -17,40 +16,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement;
 
 public class EventBus
 {
-
-    private Function<Class<?>, MethodHandles.Lookup> LOOKUP_FUNCTION;
-
-    @IgnoreJRERequirement
-    private void initLookup()
-    {
-        try
-        {
-            // We grab access to a Lookup with all privileges.
-            // This is required as we have to call Lookup#in to be in the plugin's ClassLoader context. Only this
-            // full-power lookup instance can have private and module access after call to Lookup#in, which we need for
-            // LambdaMetafactory. Even the java 9+ method MethodHandles.privateLookupIn does not give us MODULE access
-            // when we call it if its present (via reflection).
-            // This still requires a jvm argument on java 9+ though: --add-opens java.base/java.lang.invoke=ALL-UNNAMED
-            Field field = MethodHandles.Lookup.class.getDeclaredField( "IMPL_LOOKUP" );
-            field.setAccessible( true );
-            MethodHandles.Lookup lookup = (MethodHandles.Lookup) field.get( null );
-            LOOKUP_FUNCTION = lookup::in;
-        } catch ( Throwable t )
-        {
-            if ( t.getClass().getName().equals( "java.lang.reflect.InaccessibleObjectException" ) )
-            {
-                logger.log( Level.SEVERE, "Using BungeeCord on Java 9 or higher requires you to add the jvm argument --add-opens java.base/java.lang.invoke=ALL-UNNAMED (before -jar)" );
-            }
-            throw new RuntimeException( t );
-        }
-    }
 
     private final Map<Class<?>, Map<Byte, Map<Object, Consumer<Object>[]>>> byListenerAndPriority = new HashMap<>();
     private final Map<Class<?>, EventHandlerMethod[]> byEventBaked = new ConcurrentHashMap<>();
@@ -65,7 +36,6 @@ public class EventBus
     public EventBus(Logger logger)
     {
         this.logger = ( logger == null ) ? Logger.getLogger( Logger.GLOBAL_LOGGER_NAME ) : logger;
-        initLookup();
     }
 
     public void post(Object event)
@@ -115,11 +85,10 @@ public class EventBus
 
     @IgnoreJRERequirement
     @SuppressWarnings("unchecked")
-    private Consumer<Object> createMethodInvoker(Object listener, Method method)
+    private Consumer<Object> createMethodInvoker(MethodHandles.Lookup lookup, Object listener, Method method)
     {
         try
         {
-            MethodHandles.Lookup lookup = LOOKUP_FUNCTION.apply( listener.getClass() );
             return (Consumer<Object>) LambdaMetafactory.metafactory(
                     lookup,
                     "accept",
@@ -134,8 +103,14 @@ public class EventBus
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @Deprecated
     public void register(Object listener)
+    {
+        register( listener, MethodHandles.lookup() );
+    }
+
+    @SuppressWarnings("unchecked")
+    public void register(Object listener, MethodHandles.Lookup lookup)
     {
         Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers( listener );
         lock.lock();
@@ -151,7 +126,7 @@ public class EventBus
                         continue;
                     }
                     Consumer<Object>[] baked = entry.getValue().stream()
-                            .map( method -> createMethodInvoker( listener, method ) )
+                            .map( method -> createMethodInvoker( lookup, listener, method ) )
                             .toArray( Consumer[]::new );
                     prioritiesMap.computeIfAbsent( entry.getKey(), k -> new HashMap<>() ).put( listener, baked );
                 }

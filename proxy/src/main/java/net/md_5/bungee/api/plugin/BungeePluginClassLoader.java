@@ -5,17 +5,22 @@ import com.google.common.io.ByteStreams;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.CodeSigner;
 import java.security.CodeSource;
+import java.util.AbstractMap;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.function.Supplier;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import lombok.Getter;
 import lombok.ToString;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.util.LookupFetcherClassCreator;
 
 @ToString(of = "desc")
 public final class BungeePluginClassLoader extends URLClassLoader implements PluginClassLoader
@@ -31,6 +36,8 @@ public final class BungeePluginClassLoader extends URLClassLoader implements Plu
     private final ClassLoader libraryLoader;
     //
     private Plugin plugin;
+    @Getter
+    private MethodHandles.Lookup lookup;
 
     static
     {
@@ -51,6 +58,21 @@ public final class BungeePluginClassLoader extends URLClassLoader implements Plu
         this.libraryLoader = libraryLoader;
 
         allLoaders.add( this );
+        createLookup();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void createLookup()
+    {
+        AbstractMap.SimpleEntry<String, byte[]> entry = LookupFetcherClassCreator.create();
+        try
+        {
+            Class<?> definedCLass = defineClass( entry.getKey(), entry.getValue(), 0, entry.getValue().length );
+            lookup = ( (Supplier<MethodHandles.Lookup>) definedCLass.getConstructor().newInstance() ).get();
+        } catch ( ReflectiveOperationException ex )
+        {
+            throw new RuntimeException( ex );
+        }
     }
 
     @Override
@@ -172,6 +194,6 @@ public final class BungeePluginClassLoader extends URLClassLoader implements Plu
         }
 
         this.plugin = plugin;
-        plugin.init( proxy, desc );
+        plugin.init( proxy, desc, lookup );
     }
 }

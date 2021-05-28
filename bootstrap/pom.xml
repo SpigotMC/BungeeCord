@@ -74,7 +74,19 @@
                                 <exclude>**/*.DSA</exclude>
                             </excludes>
                         </filter>
+                        <filter>
+                            <artifact>org.ow2.asm:asm</artifact>
+                            <excludes>
+                                <exclude>org/objectweb/asm/signature/*</exclude>
+                            </excludes>
+                        </filter>
                     </filters>
+                    <relocations>
+                        <relocation>
+                            <pattern>org.objectweb.asm</pattern>
+                            <shadedPattern>net.md_5.bungee.lib.asm</shadedPattern>
+                        </relocation>
+                    </relocations>
                 </configuration>
             </plugin>
         </plugins>
