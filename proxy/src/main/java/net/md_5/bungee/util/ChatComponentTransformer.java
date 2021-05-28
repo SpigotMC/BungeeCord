@@ -115,7 +115,7 @@ public final class ChatComponentTransformer
         {
             if ( root.getExtra() != null && !root.getExtra().isEmpty() )
             {
-                List<BaseComponent> list = Lists.newArrayList( transform( player, transformHover, root.getExtra().toArray( new BaseComponent[ root.getExtra().size() ] ) ) );
+                List<BaseComponent> list = Lists.newArrayList( transform( player, transformHover, root.getExtra().toArray( new BaseComponent[ 0 ] ) ) );
                 root.setExtra( list );
             }
 

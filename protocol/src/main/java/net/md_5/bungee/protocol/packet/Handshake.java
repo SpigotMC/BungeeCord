@@ -31,7 +31,7 @@ public class Handshake extends DefinedPacket
     {
         DefinedPacket.doLengthSanityChecks( buf, this, Direction.TO_SERVER, -1, EXPECTED_MIN_LENGTH, EXPECTED_MAX_LENGTH ); //BotFilter
         protocolVersion = readVarInt( buf );
-        host = readString( buf );
+        host = readString( buf, 255 );
         port = buf.readUnsignedShort();
         requestedProtocol = readVarInt( buf );
     }

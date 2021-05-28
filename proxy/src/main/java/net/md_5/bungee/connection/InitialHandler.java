@@ -372,7 +372,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
     public void delayedHandleOfLoginRequset()
     {
-        if ( getName().contains( "." ) )
+        if ( getName().contains( " " ) )
         {
             disconnect( bungee.getTranslation( "name_invalid" ) );
             return;
