@@ -19,7 +19,7 @@ import net.md_5.bungee.api.scheduler.GroupedThreadFactory;
  * Represents any Plugin that may be loaded at runtime to enhance existing
  * functionality.
  */
-public class Plugin
+public abstract class Plugin
 {
 
     @Getter
@@ -33,19 +33,27 @@ public class Plugin
     @Getter(AccessLevel.PACKAGE)
     private MethodHandles.Lookup lookup;
 
-    public Plugin()
+    @SuppressWarnings("deprecation")
+    protected Plugin()
     {
         ClassLoader classLoader = getClass().getClassLoader();
-        Preconditions.checkState( classLoader instanceof PluginClassLoader, "Plugin requires " + PluginClassLoader.class.getName() );
+        Preconditions.checkState( classLoader instanceof PluginClassloader, "Plugin requires " + ProxyPluginClassLoader.class.getName() );
 
-        ( (PluginClassLoader) classLoader ).init( this );
+        ( (PluginClassloader) classLoader ).init( this );
     }
 
+    /**
+     * Using this in your plugin will result in an error, this method should only be used in bungeecord's junit tests.
+     * @param proxy proxy
+     * @param description description
+     * @deprecated Only for use in bungeecord's junit tests.
+     */
+    @Deprecated
     @VisibleForTesting
     protected Plugin(ProxyServer proxy, PluginDescription description)
     {
         ClassLoader classLoader = getClass().getClassLoader();
-        Preconditions.checkState( !( classLoader instanceof PluginClassLoader ), "Cannot use initialization constructor at runtime" );
+        Preconditions.checkState( !( classLoader instanceof ProxyPluginClassLoader ), "Cannot use initialization constructor at runtime" );
 
         // init( proxy, description );
     }

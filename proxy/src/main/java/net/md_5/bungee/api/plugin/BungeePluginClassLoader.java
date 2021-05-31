@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.security.CodeSigner;
 import java.security.CodeSource;
 import java.util.AbstractMap;
@@ -18,17 +17,16 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import lombok.Getter;
-import lombok.ToString;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.util.LookupFetcherClassCreator;
 
-@ToString(of = "desc")
-public final class BungeePluginClassLoader extends URLClassLoader implements PluginClassLoader
+final class BungeePluginClassLoader extends PluginClassloader
 {
 
     private static final Set<BungeePluginClassLoader> allLoaders = new CopyOnWriteArraySet<>();
     //
     private final ProxyServer proxy;
+    @Getter
     private final PluginDescription desc;
     private final JarFile jar;
     private final Manifest manifest;
@@ -44,14 +42,14 @@ public final class BungeePluginClassLoader extends URLClassLoader implements Plu
         ClassLoader.registerAsParallelCapable();
     }
 
-    public BungeePluginClassLoader(ProxyServer proxy, PluginDescription desc, File file, ClassLoader libraryLoader) throws IOException
+    BungeePluginClassLoader(ProxyServer proxy, PluginDescription description, File file, ClassLoader libraryLoader) throws IOException
     {
         super( new URL[]
         {
             file.toURI().toURL()
-        } );
+        }, description );
         this.proxy = proxy;
-        this.desc = desc;
+        this.desc = description;
         this.jar = new JarFile( file );
         this.manifest = jar.getManifest();
         this.url = file.toURI().toURL();
@@ -86,7 +84,7 @@ public final class BungeePluginClassLoader extends URLClassLoader implements Plu
         try
         {
             return super.loadClass( name, resolve );
-        } catch ( ClassNotFoundException ex )
+        } catch ( ClassNotFoundException ignored )
         {
         }
 
@@ -95,7 +93,7 @@ public final class BungeePluginClassLoader extends URLClassLoader implements Plu
             try
             {
                 return libraryLoader.loadClass( name );
-            } catch ( ClassNotFoundException ex )
+            } catch ( ClassNotFoundException ignored )
             {
             }
         }
@@ -109,7 +107,7 @@ public final class BungeePluginClassLoader extends URLClassLoader implements Plu
                     try
                     {
                         return loader.loadClass0( name, resolve, false, proxy.getPluginManager().isTransitiveDepend( desc, loader.desc ) );
-                    } catch ( ClassNotFoundException ex )
+                    } catch ( ClassNotFoundException ignored )
                     {
                     }
                 }
@@ -172,6 +170,12 @@ public final class BungeePluginClassLoader extends URLClassLoader implements Plu
     }
 
     @Override
+    public PluginDescription getDescription()
+    {
+        return desc;
+    }
+
+    @Override
     public void close() throws IOException
     {
         try
@@ -184,7 +188,7 @@ public final class BungeePluginClassLoader extends URLClassLoader implements Plu
     }
 
     @Override
-    public void init(Plugin plugin)
+    void init(Plugin plugin)
     {
         Preconditions.checkArgument( plugin != null, "plugin" );
         Preconditions.checkArgument( plugin.getClass().getClassLoader() == this, "Plugin has incorrect ClassLoader" );
