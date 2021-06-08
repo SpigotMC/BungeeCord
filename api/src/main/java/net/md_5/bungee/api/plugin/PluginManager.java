@@ -53,11 +53,19 @@ public final class PluginManager
     {
         try
         {
-            final Field theUnsafeField = sun.misc.Unsafe.class.getDeclaredField( "theUnsafe" );
+            Class<?> unsafeClass = Class.forName( "sun.misc.Unsafe" );
+            Field theUnsafeField = unsafeClass.getDeclaredField( "theUnsafe" );
             theUnsafeField.setAccessible( true );
-            final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) theUnsafeField.get( null );
-            final Field trustedLookup = MethodHandles.Lookup.class.getDeclaredField( "IMPL_LOOKUP" );
-            IMPL_LOOKUP = (MethodHandles.Lookup) unsafe.getObject( unsafe.staticFieldBase( trustedLookup ), unsafe.staticFieldOffset( trustedLookup ) );
+            Object unsafe = theUnsafeField.get( null );
+            Field implLookupField = MethodHandles.Lookup.class.getDeclaredField( "IMPL_LOOKUP" );
+
+            Method getObjectMethod = unsafeClass.getMethod( "getObject", Object.class, long.class );
+            Method staticFieldBaseMethod = unsafeClass.getMethod( "staticFieldBase", Field.class );
+            Method staticFieldOffsetMethod = unsafeClass.getMethod( "staticFieldOffset", Field.class );
+
+            Object staticFieldBase = staticFieldBaseMethod.invoke( unsafe, implLookupField );
+            Long staticFieldOffset = (Long) staticFieldOffsetMethod.invoke( unsafe, implLookupField );
+            IMPL_LOOKUP = (MethodHandles.Lookup) getObjectMethod.invoke( unsafe, staticFieldBase, staticFieldOffset );
         } catch ( ReflectiveOperationException ex )
         {
             throw new RuntimeException( ex );
