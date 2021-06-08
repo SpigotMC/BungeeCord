@@ -9,6 +9,8 @@ import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableGraph;
 import java.io.File;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
 import java.util.Arrays;
@@ -45,6 +47,23 @@ import org.yaml.snakeyaml.introspector.PropertyUtils;
 public final class PluginManager
 {
 
+    private static final MethodHandles.Lookup IMPL_LOOKUP;
+
+    static
+    {
+        try
+        {
+            final Field theUnsafeField = sun.misc.Unsafe.class.getDeclaredField( "theUnsafe" );
+            theUnsafeField.setAccessible( true );
+            final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) theUnsafeField.get( null );
+            final Field trustedLookup = MethodHandles.Lookup.class.getDeclaredField( "IMPL_LOOKUP" );
+            IMPL_LOOKUP = (MethodHandles.Lookup) unsafe.getObject( unsafe.staticFieldBase( trustedLookup ), unsafe.staticFieldOffset( trustedLookup ) );
+        } catch ( ReflectiveOperationException ex )
+        {
+            throw new RuntimeException( ex );
+        }
+    }
+
     /*========================================================================*/
     private final ProxyServer proxy;
     /*========================================================================*/
@@ -58,7 +77,6 @@ public final class PluginManager
     private final Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
     private final Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
 
-    @SuppressWarnings("unchecked")
     public PluginManager(ProxyServer proxy)
     {
         this.proxy = proxy;
@@ -438,7 +456,7 @@ public final class PluginManager
             Preconditions.checkArgument( !method.isAnnotationPresent( Subscribe.class ),
                     "Listener %s has registered using deprecated subscribe annotation! Please update to @EventHandler.", listener );
         }
-        eventBus.register( listener );
+        eventBus.register( listener, IMPL_LOOKUP.in( listener.getClass() ) );
         listenersByPlugin.put( plugin, listener );
     }
 
