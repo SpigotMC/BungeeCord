@@ -71,7 +71,7 @@ public class EventBus
                 Class<?>[] params = m.getParameterTypes();
                 if ( params.length != 1 )
                 {
-                    logger.log( Level.INFO, "Method {0} in class {1} annotated with {2} does not have single argument", new Object[]
+                    logger.log( Level.INFO, "Method {0} in class {1} annotated with {2} does not have exactly one argument", new Object[]
                     {
                         m, listener.getClass(), annotation
                     } );
