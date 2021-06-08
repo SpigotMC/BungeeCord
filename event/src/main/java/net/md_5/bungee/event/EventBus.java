@@ -77,19 +77,9 @@ public class EventBus
                     } );
                     continue;
                 }
-                Map<Byte, Set<Method>> prioritiesMap = handler.get( params[0] );
-                if ( prioritiesMap == null )
-                {
-                    prioritiesMap = new HashMap<>();
-                    handler.put( params[0], prioritiesMap );
-                }
-                Set<Method> priority = prioritiesMap.get( annotation.priority() );
-                if ( priority == null )
-                {
-                    priority = new HashSet<>();
-                    prioritiesMap.put( annotation.priority(), priority );
-                }
-                priority.add( m );
+                handler.computeIfAbsent( params[ 0 ], k -> new HashMap<>() )
+                        .computeIfAbsent( annotation.priority(), k -> new HashSet<>() )
+                        .add( m );
             }
         }
         return handler;
@@ -103,21 +93,11 @@ public class EventBus
         {
             for ( Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet() )
             {
-                Map<Byte, Map<Object, Method[]>> prioritiesMap = byListenerAndPriority.get( e.getKey() );
-                if ( prioritiesMap == null )
-                {
-                    prioritiesMap = new HashMap<>();
-                    byListenerAndPriority.put( e.getKey(), prioritiesMap );
-                }
+                Map<Byte, Map<Object, Method[]>> prioritiesMap = byListenerAndPriority.computeIfAbsent( e.getKey(), k -> new HashMap<>() );
                 for ( Map.Entry<Byte, Set<Method>> entry : e.getValue().entrySet() )
                 {
-                    Map<Object, Method[]> currentPriorityMap = prioritiesMap.get( entry.getKey() );
-                    if ( currentPriorityMap == null )
-                    {
-                        currentPriorityMap = new HashMap<>();
-                        prioritiesMap.put( entry.getKey(), currentPriorityMap );
-                    }
-                    currentPriorityMap.put( listener, entry.getValue().toArray( new Method[ 0 ] ) );
+                    prioritiesMap.computeIfAbsent( entry.getKey(), k -> new HashMap<>() )
+                            .put( listener, entry.getValue().toArray( new Method[ 0 ] ) );
                 }
                 bakeHandlers( e.getKey() );
             }
@@ -135,26 +115,18 @@ public class EventBus
         {
             for ( Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet() )
             {
-                Map<Byte, Map<Object, Method[]>> prioritiesMap = byListenerAndPriority.get( e.getKey() );
-                if ( prioritiesMap != null )
+                byListenerAndPriority.computeIfPresent( e.getKey(), ( clazz, prioritiesMap ) ->
                 {
                     for ( Byte priority : e.getValue().keySet() )
                     {
-                        Map<Object, Method[]> currentPriority = prioritiesMap.get( priority );
-                        if ( currentPriority != null )
+                        prioritiesMap.computeIfPresent( priority, ( prio, currentPriority ) ->
                         {
                             currentPriority.remove( listener );
-                            if ( currentPriority.isEmpty() )
-                            {
-                                prioritiesMap.remove( priority );
-                            }
-                        }
+                            return currentPriority.isEmpty() ? null : currentPriority;
+                        } );
                     }
-                    if ( prioritiesMap.isEmpty() )
-                    {
-                        byListenerAndPriority.remove( e.getKey() );
-                    }
-                }
+                    return prioritiesMap.isEmpty() ? null : prioritiesMap;
+                } );
                 bakeHandlers( e.getKey() );
             }
         } finally
