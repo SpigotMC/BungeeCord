@@ -530,13 +530,7 @@ public enum Protocol
             }
 
             Supplier<? extends DefinedPacket> constructor = protocolData.packetConstructors[id];
-            try
-            {
-                return ( constructor == null ) ? null : constructor.get();
-            } catch ( Throwable t )
-            {
-                throw new BadPacketException( "Could not construct packet with id " + id, t );
-            }
+            return ( constructor == null ) ? null : constructor.get();
         }
 
         private void registerPacket(Class<? extends DefinedPacket> packetClass, Supplier<? extends DefinedPacket> constructorSupplier, ProtocolMapping... mappings)
