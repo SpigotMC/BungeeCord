@@ -26,7 +26,7 @@ public class MapDataPacket extends DefinedPacket
     {
         MapDataPacket.writeVarInt( this.mapId, buf );
         buf.writeByte( this.scale );
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 && protocolVersion < ProtocolConstants.MINECRAFT_1_17 )
         {
             buf.writeBoolean( false );
         }
@@ -34,7 +34,14 @@ public class MapDataPacket extends DefinedPacket
         {
             buf.writeBoolean( false );
         }
-        MapDataPacket.writeVarInt( 0, buf );
+
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_17 )
+        {
+            buf.writeBoolean( false );
+        } else
+        {
+            MapDataPacket.writeVarInt( 0, buf );
+        }
         buf.writeByte( data.getColumns() );
         buf.writeByte( data.getRows() );
         buf.writeByte( data.getX() );

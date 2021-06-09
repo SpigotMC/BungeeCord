@@ -96,8 +96,8 @@ public class Connector extends MoveHandler
             PacketUtils.titles[1].writeTitle( channel, version );
         }
         sendPing();
-        //this.botFilter.addConnection( this );
         LOGGER.log( Level.INFO, toString() + " has connected" );
+
     }
 
     @Override
@@ -232,7 +232,7 @@ public class Connector extends MoveHandler
             completeCheck();
             return;
         }
-        if ( state == CheckState.CAPTCHA_ON_POSITION_FAILED )
+        if ( state == CheckState.CAPTCHA_ON_POSITION_FAILED || state == CheckState.ONLY_POSITION )
         {
             ByteBuf expBuf = PacketUtils.expPackets.get( aticks, version );
             if ( expBuf != null )

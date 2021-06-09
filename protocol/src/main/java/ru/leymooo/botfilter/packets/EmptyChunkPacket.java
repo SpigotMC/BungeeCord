@@ -3,6 +3,7 @@ package ru.leymooo.botfilter.packets;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import java.io.IOException;
+import java.util.BitSet;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -29,19 +30,41 @@ public class EmptyChunkPacket extends DefinedPacket
     {
         buf.writeInt( this.x );
         buf.writeInt( this.z );
-        buf.writeBoolean( true );
+
+
+        if ( version < ProtocolConstants.MINECRAFT_1_17 )
+        {
+            buf.writeBoolean( true );
+        }
 
         if ( version >= ProtocolConstants.MINECRAFT_1_16 && version < ProtocolConstants.MINECRAFT_1_16_2 )
         {
             buf.writeBoolean( true );
         }
 
-        if ( version == ProtocolConstants.MINECRAFT_1_8 )
+        //BitMasks
+        if ( version < ProtocolConstants.MINECRAFT_1_17 )
         {
-            buf.writeShort( 1 );
+            if ( version == ProtocolConstants.MINECRAFT_1_8 )
+            {
+                buf.writeShort( 1 );
+            } else
+            {
+                writeVarInt( 0, buf );
+            }
         } else
         {
-            writeVarInt( 0, buf );
+            BitSet bitSet = new BitSet();
+            for ( int i = 0; i < 16; i++ )
+            {
+                bitSet.set( i, false );
+            }
+            long[] mask = bitSet.toLongArray();
+            DefinedPacket.writeVarInt( mask.length, buf );
+            for ( long l : mask )
+            {
+                buf.writeLong( l );
+            }
         }
         if ( version >= ProtocolConstants.MINECRAFT_1_14 )
         {
@@ -95,7 +118,7 @@ public class EmptyChunkPacket extends DefinedPacket
             output.writeUTF( "root" ); //root compound
             output.writeByte( 12 ); //long array
             output.writeUTF( "MOTION_BLOCKING" );
-            long[] longArrayTag = new long[ 36 ];
+            long[] longArrayTag = new long[36];
             output.writeInt( longArrayTag.length );
             for ( int i = 0, length = longArrayTag.length; i < length; i++ )
             {

@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import se.llbit.nbt.CompoundTag;
+import se.llbit.nbt.IntTag;
+import se.llbit.nbt.NamedTag;
 
 @Data
 @NoArgsConstructor
@@ -23,37 +26,50 @@ public class SetSlot extends DefinedPacket
     private int data;
 
     @Override
-    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
+    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int version)
     {
         buf.writeByte( this.windowId );
         buf.writeShort( this.slot );
-        int id = this.item == 358 ? getCapthcaId( protocolVersion ) : this.item;
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13_2 )
+        int id = this.item == 358 ? getCapthcaId( version ) : this.item;
+        boolean present = id > 0;
+
+        if ( version >= ProtocolConstants.MINECRAFT_1_13_2 )
         {
-            buf.writeBoolean( item >= 1 );
-            if ( item <= 0 )
-            {
-                return;
-            }
-            writeVarInt( id, buf );
-        } else
-        {
-            buf.writeShort( id );
+            buf.writeBoolean( present );
         }
 
-        if ( this.item >= 0 )
+        if ( !present && version < ProtocolConstants.MINECRAFT_1_13_2 )
         {
-            buf.writeByte( this.count );
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
+            buf.writeShort( -1 );
+        }
+
+        if ( present )
+        {
+            if ( version < ProtocolConstants.MINECRAFT_1_13_2 )
             {
-                buf.writeByte( this.data );
+                buf.writeShort( id );
             } else
             {
+                DefinedPacket.writeVarInt( id, buf );
+            }
+            buf.writeByte( this.count );
+            if ( version < ProtocolConstants.MINECRAFT_1_13 )
+            {
                 buf.writeShort( this.data );
-                buf.writeByte( 0 );
+            }
+
+            if ( version < ProtocolConstants.MINECRAFT_1_17 )
+            {
+                buf.writeByte( 0 ); //No Nbt
+            } else
+            {
+                CompoundTag nbt = new CompoundTag();
+                nbt.add( "map", new IntTag( 0 ) );
+                DefinedPacket.writeTag( new NamedTag( "", nbt ), buf );
             }
 
         }
+
     }
 
     private int getCapthcaId(int version)
@@ -70,9 +86,12 @@ public class SetSlot extends DefinedPacket
         } else if ( version <= ProtocolConstants.MINECRAFT_1_15_2 )
         {
             return 671;
-        } else
+        } else if ( version <= ProtocolConstants.MINECRAFT_1_16_4 )
         {
             return 733;
+        } else
+        {
+            return 847;
         }
     }
 

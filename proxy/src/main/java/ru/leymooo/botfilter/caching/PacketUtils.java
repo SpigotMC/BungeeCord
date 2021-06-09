@@ -34,8 +34,8 @@ public class PacketUtils
 
     public static final CachedCaptcha captchas = new CachedCaptcha();
     private static final CachedPacket[] cachedPackets = new CachedPacket[16];
-    private static final HashMap<KickType, CachedPacket> kickMessagesGame = new HashMap<KickType, CachedPacket>( 3 );
-    private static final HashMap<KickType, CachedPacket> kickMessagesLogin = new HashMap<KickType, CachedPacket>( 4 );
+    private static final HashMap<KickType, CachedPacket> kickMessagesGame = new HashMap<>( 3 );
+    private static final HashMap<KickType, CachedPacket> kickMessagesLogin = new HashMap<>( 4 );
     public static int PROTOCOLS_COUNT = ProtocolConstants.SUPPORTED_VERSION_IDS.size();
     public static int CLIENTID = new Random().nextInt( Integer.MAX_VALUE - 100 ) + 50;
     public static int KEEPALIVE_ID = 9876;
@@ -83,7 +83,7 @@ public class PacketUtils
         expPackets = new CachedExpPackets();
 
         titles[0] = new CachedTitle( Settings.IMP.MESSAGES.CHECKING_TITLE, 5, 90, 15 );
-        titles[1] = new CachedTitle( Settings.IMP.MESSAGES.CHECKING_TITLE_CAPTCHA, 5, 15, 10 );
+        titles[1] = new CachedTitle( Settings.IMP.MESSAGES.CHECKING_TITLE_CAPTCHA, 5, 35, 10 );
         titles[2] = new CachedTitle( Settings.IMP.MESSAGES.CHECKING_TITLE_SUS, 5, 20, 10 );
 
         DefinedPacket[] packets =
@@ -182,6 +182,11 @@ public class PacketUtils
 
     public static void fillArray(ByteBuf[] buffer, DefinedPacket packet, Protocol... protocols)
     {
+        fillArray( buffer, packet, 0, Integer.MAX_VALUE, protocols );
+    }
+
+    public static void fillArray(ByteBuf[] buffer, DefinedPacket packet, int from, int to, Protocol... protocols)
+    {
         if ( packet == null )
         {
             return;
@@ -190,6 +195,10 @@ public class PacketUtils
         ByteBuf oldBuf = null;
         for ( int version : ProtocolConstants.SUPPORTED_VERSION_IDS )
         {
+            if ( version < from || version > to )
+            {
+                continue;
+            }
             int versionRewrited = rewriteVersion( version );
             int newPacketId = PacketUtils.getPacketId( packet, version, protocols );
             if ( newPacketId != oldPacketId )
@@ -271,6 +280,8 @@ public class PacketUtils
                 return 25;
             case ProtocolConstants.MINECRAFT_1_16_4:
                 return 26;
+            case ProtocolConstants.MINECRAFT_1_17:
+                return 27;
             default:
                 throw new IllegalArgumentException( "Version is not supported" );
         }
@@ -324,7 +335,7 @@ public class PacketUtils
         FAILED_FALLING,
         TIMED_OUT,
         COUNTRY,
-        LEAVED,
+        LEAVED, //left
         // THROTTLE,
         BIG_PACKET,
         PING;
