@@ -25,7 +25,7 @@ public class ActionBar extends DefinedPacket
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        text = readString( buf );
+        text = readString( buf, 262144 );
     }
 
     @Override
