@@ -491,7 +491,7 @@ public final class UserConnection implements ProxiedPlayer
         // transform score components
         message = ChatComponentTransformer.getInstance().transform( this, true, message );
 
-        if ( position == ChatMessageType.ACTION_BAR )
+        if ( position == ChatMessageType.ACTION_BAR && getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_17 )
         {
             // Versions older than 1.11 cannot send the Action bar with the new JSON formattings
             // Fix by converting to a legacy message, see https://bugs.mojang.com/browse/MC-119145
