@@ -145,7 +145,7 @@ public class UpstreamBridge extends PacketHandler
     public void handle(Chat chat) throws Exception
     {
         for(char character : chat.getMessage().toCharArray()) {
-    		/* unprintable control codes */					  		 /* DEL */
+    		/* unprintable control codes */
     		if(character < 32 || character == '§' || character == Byte.MAX_VALUE) {    			
     			throw new IllegalStateException("Illegal characters in chat");
     		}
