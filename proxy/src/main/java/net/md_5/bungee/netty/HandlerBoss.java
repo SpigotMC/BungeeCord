@@ -27,6 +27,8 @@ import net.md_5.bungee.util.QuietException;
 public class HandlerBoss extends ChannelInboundHandlerAdapter
 {
 
+    private static final boolean printAllStacktraces = Boolean.getBoolean( "botfilter.printallerrors" );
+
     private ChannelWrapper channel;
     private PacketHandler handler;
     public void setHandler(PacketHandler handler)
@@ -136,6 +138,10 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     {
         if ( ctx.channel().isActive() )
         {
+            if ( printAllStacktraces )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Exception in handler " + handler.toString(), cause );
+            }
             boolean logExceptions = !( handler instanceof PingHandler );
 
             if ( logExceptions )
