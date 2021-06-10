@@ -144,6 +144,12 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(Chat chat) throws Exception
     {
+        for(char character : chat.getMessage().toCharArray()) {
+    		/* unprintable control codes */					  		 /* DEL */
+    		if(character < 32 || character == '§' || character == Byte.MAX_VALUE) {    			
+    			throw new IllegalStateException("Illegal characters in chat");
+    		}
+    	}
         ChatEvent chatEvent = new ChatEvent( con, con.getServer(), chat.getMessage() );
         if ( !bungee.getPluginManager().callEvent( chatEvent ).isCancelled() )
         {
