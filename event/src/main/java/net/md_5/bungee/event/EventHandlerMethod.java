@@ -1,6 +1,5 @@
 package net.md_5.bungee.event;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.function.BiConsumer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,7 +13,7 @@ public class EventHandlerMethod
     @Getter
     private final BiConsumer<Object, Object> method;
 
-    public void invoke(Object event) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException
+    public void invoke(Object event)
     {
         method.accept( listener, event );
     }
