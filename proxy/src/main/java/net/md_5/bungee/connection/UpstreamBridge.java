@@ -146,8 +146,8 @@ public class UpstreamBridge extends PacketHandler
     {
         for( int index = 0; index < chat.getMessage().length(); index++ )
         {
-                char character = chat.getMessage().charAt( index );
-                Preconditions.checkState( character > 31 && character != '§' && character != Byte.MAX_VALUE, "illegal characters in chat" );
+            char character = chat.getMessage().charAt( index );
+            Preconditions.checkState( character > 31 && character != '§' && character != Byte.MAX_VALUE, "illegal characters in chat" );
         }
         
         ChatEvent chatEvent = new ChatEvent( con, con.getServer(), chat.getMessage() );
