@@ -31,7 +31,7 @@ public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
         int size = DefinedPacket.readVarInt( in );
         if ( size == 0 )
         {
-            out.add( in );
+            out.add( in.retain() );
         } else
         {
             ByteBuf decompressed = ctx.alloc().directBuffer();
