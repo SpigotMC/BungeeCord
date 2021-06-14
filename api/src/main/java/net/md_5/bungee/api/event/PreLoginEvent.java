@@ -52,6 +52,10 @@ public class PreLoginEvent extends AsyncEvent<PreLoginEvent> implements Cancella
     @Deprecated
     public String getCancelReason()
     {
+        if( getCancelReasonComponents() == null )
+        {
+            return "Disconnected";
+        }
         return BaseComponent.toLegacyText( getCancelReasonComponents() );
     }
 
