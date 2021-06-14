@@ -6,13 +6,13 @@
     <parent>
         <groupId>net.md-5</groupId>
         <artifactId>bungeecord-parent</artifactId>
-        <version>1.16-R0.5-SNAPSHOT</version>
+        <version>1.17-R0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-bootstrap</artifactId>
-    <version>1.16-R0.5-SNAPSHOT</version>
+    <version>1.17-R0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>BungeeCord-Bootstrap</name>
@@ -79,4 +79,25 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>jdk-9-release</id>
+            <activation>
+                <jdk>[9,)</jdk>
+            </activation>
+            <properties>
+                <maven.compiler.release>6</maven.compiler.release>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk-12-release</id>
+            <activation>
+                <jdk>[12,)</jdk>
+            </activation>
+            <properties>
+                <maven.compiler.release>7</maven.compiler.release>
+            </properties>
+        </profile>
+    </profiles>
 </project>

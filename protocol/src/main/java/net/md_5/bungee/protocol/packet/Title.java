@@ -24,9 +24,20 @@ public class Title extends DefinedPacket
     private int stay;
     private int fadeOut;
 
+    public Title(Action action)
+    {
+        this.action = action;
+    }
+
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_17 )
+        {
+            text = readString( buf );
+            return;
+        }
+
         int index = readVarInt( buf );
 
         // If we're working on 1.10 or lower, increment the value of the index so we pull out the correct value.
@@ -54,6 +65,12 @@ public class Title extends DefinedPacket
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_17 )
+        {
+            writeString( text, buf );
+            return;
+        }
+
         int index = action.ordinal();
 
         // If we're working on 1.10 or lower, increment the value of the index so we pull out the correct value.

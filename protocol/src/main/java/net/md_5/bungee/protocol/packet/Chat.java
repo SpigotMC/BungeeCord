@@ -40,7 +40,7 @@ public class Chat extends DefinedPacket
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        message = readString( buf );
+        message = readString( buf, ( direction == ProtocolConstants.Direction.TO_CLIENT ) ? 262144 : 256 );
         if ( direction == ProtocolConstants.Direction.TO_CLIENT && protocolVersion >= ProtocolConstants.MINECRAFT_1_8 )
         {
             position = buf.readByte();

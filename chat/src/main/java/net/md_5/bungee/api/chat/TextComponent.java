@@ -157,7 +157,7 @@ public final class TextComponent extends BaseComponent
         component.setText( builder.toString() );
         components.add( component );
 
-        return components.toArray( new BaseComponent[ components.size() ] );
+        return components.toArray( new BaseComponent[ 0 ] );
     }
 
     /**

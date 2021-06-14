@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.md_5.bungee.protocol.packet;
 
 import io.netty.buffer.ByteBuf;
@@ -24,7 +20,7 @@ public class LoginRequest extends DefinedPacket
     @Override
     public void read(ByteBuf buf)
     {
-        data = readString( buf );
+        data = readString( buf, 16 );
     }
 
     @Override

@@ -1,30 +1,46 @@
 package net.md_5.bungee;
 
+import lombok.Data;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.packet.ClearTitles;
+import net.md_5.bungee.protocol.packet.Subtitle;
 import net.md_5.bungee.protocol.packet.Title.Action;
+import net.md_5.bungee.protocol.packet.TitleTimes;
 
 public class BungeeTitle implements Title
 {
 
-    private net.md_5.bungee.protocol.packet.Title title, subtitle, times, clear, reset;
+    private TitlePacketHolder<net.md_5.bungee.protocol.packet.Title> title;
+    private TitlePacketHolder<Subtitle> subtitle;
+    private TitlePacketHolder<TitleTimes> times;
+    private TitlePacketHolder<ClearTitles> clear;
+    private TitlePacketHolder<ClearTitles> reset;
 
-    private static net.md_5.bungee.protocol.packet.Title createPacket(Action action)
+    @Data
+    private static class TitlePacketHolder<T extends DefinedPacket>
     {
-        net.md_5.bungee.protocol.packet.Title title = new net.md_5.bungee.protocol.packet.Title();
-        title.setAction( action );
 
-        if ( action == Action.TIMES )
-        {
-            // Set packet to default values first
-            title.setFadeIn( 20 );
-            title.setStay( 60 );
-            title.setFadeOut( 20 );
-        }
+        private final net.md_5.bungee.protocol.packet.Title oldPacket;
+        private final T newPacket;
+    }
+
+    private static TitlePacketHolder<TitleTimes> createAnimationPacket()
+    {
+        TitlePacketHolder<TitleTimes> title = new TitlePacketHolder<>( new net.md_5.bungee.protocol.packet.Title( Action.TIMES ), new TitleTimes() );
+
+        title.oldPacket.setFadeIn( 20 );
+        title.oldPacket.setStay( 60 );
+        title.oldPacket.setFadeOut( 20 );
+
+        title.newPacket.setFadeIn( 20 );
+        title.newPacket.setStay( 60 );
+        title.newPacket.setFadeOut( 20 );
+
         return title;
     }
 
@@ -33,10 +49,11 @@ public class BungeeTitle implements Title
     {
         if ( title == null )
         {
-            title = createPacket( Action.TITLE );
+            net.md_5.bungee.protocol.packet.Title packet = new net.md_5.bungee.protocol.packet.Title( Action.TITLE );
+            title = new TitlePacketHolder<>( packet, packet );
         }
 
-        title.setText( ComponentSerializer.toString( text ) );
+        title.oldPacket.setText( ComponentSerializer.toString( text ) ); // = newPacket
         return this;
     }
 
@@ -45,10 +62,11 @@ public class BungeeTitle implements Title
     {
         if ( title == null )
         {
-            title = createPacket( Action.TITLE );
+            net.md_5.bungee.protocol.packet.Title packet = new net.md_5.bungee.protocol.packet.Title( Action.TITLE );
+            title = new TitlePacketHolder<>( packet, packet );
         }
 
-        title.setText( ComponentSerializer.toString( text ) );
+        title.oldPacket.setText( ComponentSerializer.toString( text ) ); // = newPacket
         return this;
     }
 
@@ -57,10 +75,12 @@ public class BungeeTitle implements Title
     {
         if ( subtitle == null )
         {
-            subtitle = createPacket( Action.SUBTITLE );
+            subtitle = new TitlePacketHolder<>( new net.md_5.bungee.protocol.packet.Title( Action.SUBTITLE ), new Subtitle() );
         }
 
-        subtitle.setText( ComponentSerializer.toString( text ) );
+        String serialized = ComponentSerializer.toString( text );
+        subtitle.oldPacket.setText( serialized );
+        subtitle.newPacket.setText( serialized );
         return this;
     }
 
@@ -69,10 +89,12 @@ public class BungeeTitle implements Title
     {
         if ( subtitle == null )
         {
-            subtitle = createPacket( Action.SUBTITLE );
+            subtitle = new TitlePacketHolder<>( new net.md_5.bungee.protocol.packet.Title( Action.SUBTITLE ), new Subtitle() );
         }
 
-        subtitle.setText( ComponentSerializer.toString( text ) );
+        String serialized = ComponentSerializer.toString( text );
+        subtitle.oldPacket.setText( serialized );
+        subtitle.newPacket.setText( serialized );
         return this;
     }
 
@@ -81,10 +103,11 @@ public class BungeeTitle implements Title
     {
         if ( times == null )
         {
-            times = createPacket( Action.TIMES );
+            times = createAnimationPacket();
         }
 
-        times.setFadeIn( ticks );
+        times.oldPacket.setFadeIn( ticks );
+        times.newPacket.setFadeIn( ticks );
         return this;
     }
 
@@ -93,10 +116,11 @@ public class BungeeTitle implements Title
     {
         if ( times == null )
         {
-            times = createPacket( Action.TIMES );
+            times = createAnimationPacket();
         }
 
-        times.setStay( ticks );
+        times.oldPacket.setStay( ticks );
+        times.newPacket.setStay( ticks );
         return this;
     }
 
@@ -105,10 +129,11 @@ public class BungeeTitle implements Title
     {
         if ( times == null )
         {
-            times = createPacket( Action.TIMES );
+            times = createAnimationPacket();
         }
 
-        times.setFadeOut( ticks );
+        times.oldPacket.setFadeOut( ticks );
+        times.newPacket.setFadeOut( ticks );
         return this;
     }
 
@@ -117,7 +142,7 @@ public class BungeeTitle implements Title
     {
         if ( clear == null )
         {
-            clear = createPacket( Action.CLEAR );
+            clear = new TitlePacketHolder<>( new net.md_5.bungee.protocol.packet.Title( Action.CLEAR ), new ClearTitles() );
         }
 
         title = null; // No need to send title if we clear it after that again
@@ -130,7 +155,7 @@ public class BungeeTitle implements Title
     {
         if ( reset == null )
         {
-            reset = createPacket( Action.RESET );
+            reset = new TitlePacketHolder<>( new net.md_5.bungee.protocol.packet.Title( Action.RESET ), new ClearTitles( true ) );
         }
 
         // No need to send these packets if we reset them later
@@ -141,11 +166,17 @@ public class BungeeTitle implements Title
         return this;
     }
 
-    private static void sendPacket(ProxiedPlayer player, DefinedPacket packet)
+    private static void sendPacket(ProxiedPlayer player, TitlePacketHolder packet)
     {
         if ( packet != null )
         {
-            player.unsafe().sendPacket( packet );
+            if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_17 )
+            {
+                player.unsafe().sendPacket( packet.newPacket );
+            } else
+            {
+                player.unsafe().sendPacket( packet.oldPacket );
+            }
         }
     }
 
