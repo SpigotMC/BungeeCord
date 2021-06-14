@@ -81,14 +81,20 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
         if ( msg instanceof HAProxyMessage )
         {
             HAProxyMessage proxy = (HAProxyMessage) msg;
-            InetSocketAddress newAddress = new InetSocketAddress( proxy.sourceAddress(), proxy.sourcePort() );
-
-            ProxyServer.getInstance().getLogger().log( Level.FINE, "Set remote address via PROXY {0} -> {1}", new Object[]
+            try
             {
-                channel.getRemoteAddress(), newAddress
-            } );
+                InetSocketAddress newAddress = new InetSocketAddress( proxy.sourceAddress(), proxy.sourcePort() );
 
-            channel.setRemoteAddress( newAddress );
+                ProxyServer.getInstance().getLogger().log( Level.FINE, "Set remote address via PROXY {0} -> {1}", new Object[]
+                {
+                    channel.getRemoteAddress(), newAddress
+                } );
+
+                channel.setRemoteAddress( newAddress );
+            } finally
+            {
+                proxy.release();
+            }
             return;
         }
 

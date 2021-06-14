@@ -2,6 +2,7 @@ package net.md_5.bungee.protocol;
 
 import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.Chat;
+import net.md_5.bungee.protocol.packet.ClearTitles;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.ClientStatus;
 import net.md_5.bungee.protocol.packet.Commands;
@@ -30,10 +31,12 @@ import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
+import net.md_5.bungee.protocol.packet.Subtitle;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.Team;
 import net.md_5.bungee.protocol.packet.Title;
+import net.md_5.bungee.protocol.packet.TitleTimes;
 import net.md_5.bungee.protocol.packet.ViewDistance;
 
 public abstract class AbstractPacketHandler
@@ -124,6 +127,18 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(Title title) throws Exception
+    {
+    }
+
+    public void handle(Subtitle title) throws Exception
+    {
+    }
+
+    public void handle(TitleTimes title) throws Exception
+    {
+    }
+
+    public void handle(ClearTitles title) throws Exception
     {
     }
 

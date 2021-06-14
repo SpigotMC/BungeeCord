@@ -4,10 +4,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.eventbus.Subscribe;
+import com.google.common.graph.GraphBuilder;
+import com.google.common.graph.Graphs;
+import com.google.common.graph.MutableGraph;
 import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Collection;
@@ -49,6 +51,8 @@ public final class PluginManager
     private final Yaml yaml;
     private final EventBus eventBus;
     private final Map<String, Plugin> plugins = new LinkedHashMap<>();
+    private final MutableGraph<String> dependencyGraph = GraphBuilder.directed().build();
+    private final LibraryLoader libraryLoader;
     private final Map<String, Command> commandMap = new HashMap<>();
     private Map<String, PluginDescription> toLoad = new HashMap<>();
     private final Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
@@ -67,6 +71,17 @@ public final class PluginManager
         yaml = new Yaml( yamlConstructor );
 
         eventBus = new EventBus( proxy.getLogger() );
+
+        LibraryLoader libraryLoader = null;
+        try
+        {
+            libraryLoader = new LibraryLoader( proxy.getLogger() );
+        } catch ( NoClassDefFoundError ex )
+        {
+            // Provided depends were not added back
+            proxy.getLogger().warning( "Could not initialize LibraryLoader (missing dependencies?)" );
+        }
+        this.libraryLoader = libraryLoader;
     }
 
     /**
@@ -309,6 +324,7 @@ public final class PluginManager
                 status = false;
             }
 
+            dependencyGraph.putEdge( plugin.getName(), dependName );
             if ( !status )
             {
                 break;
@@ -320,10 +336,7 @@ public final class PluginManager
         {
             try
             {
-                URLClassLoader loader = new PluginClassloader( proxy, plugin, new URL[]
-                {
-                    plugin.getFile().toURI().toURL()
-                } );
+                URLClassLoader loader = new PluginClassloader( proxy, plugin, plugin.getFile(), ( libraryLoader != null ) ? libraryLoader.createLoader( plugin ) : null );
                 Class<?> main = loader.loadClass( plugin.getMain() );
                 Plugin clazz = (Plugin) main.getDeclaredConstructor().newInstance();
 
@@ -335,7 +348,7 @@ public final class PluginManager
                 } );
             } catch ( Throwable t )
             {
-                proxy.getLogger().log( Level.WARNING, "Error enabling plugin " + plugin.getName(), t );
+                proxy.getLogger().log( Level.WARNING, "Error loading plugin " + plugin.getName(), t );
             }
         }
 
@@ -462,5 +475,20 @@ public final class PluginManager
     public Collection<Map.Entry<String, Command>> getCommands()
     {
         return Collections.unmodifiableCollection( commandMap.entrySet() );
+    }
+
+    boolean isTransitiveDepend(PluginDescription plugin, PluginDescription depend)
+    {
+        Preconditions.checkArgument( plugin != null, "plugin" );
+        Preconditions.checkArgument( depend != null, "depend" );
+
+        if ( dependencyGraph.nodes().contains( plugin.getName() ) )
+        {
+            if ( Graphs.reachableNodes( dependencyGraph, plugin.getName() ).contains( depend.getName() ) )
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
