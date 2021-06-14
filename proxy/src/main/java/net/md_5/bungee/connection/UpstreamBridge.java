@@ -144,8 +144,11 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(Chat chat) throws Exception
     {
-        int maxLength = ( con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_11 ) ? 256 : 100;
-        Preconditions.checkArgument( chat.getMessage().length() <= maxLength, "Chat message too long" ); // Mojang limit, check on updates
+        for ( int index = 0, length = chat.getMessage().length(); index < length; index++ )
+        {
+            char c = chat.getMessage().charAt( index );
+            Preconditions.checkArgument( c != '\u00A7' && c >= ' ' && c != 127, "illegal characters in chat" ); // Section symbol, control sequences, and delete
+        }
 
         ChatEvent chatEvent = new ChatEvent( con, con.getServer(), chat.getMessage() );
         if ( !bungee.getPluginManager().callEvent( chatEvent ).isCancelled() )
