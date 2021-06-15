@@ -581,7 +581,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void disconnect(final BaseComponent... reason)
     {
-        if ( canSendKickMessage() )
+        if ( reason != null && canSendKickMessage() )
         {
             ch.delayedClose( new Kick( ComponentSerializer.toString( reason ) ) );
         } else
