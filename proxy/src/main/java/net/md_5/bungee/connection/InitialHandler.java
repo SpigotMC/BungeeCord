@@ -583,7 +583,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( reason != null && canSendKickMessage() )
         {
-            ch.delayedClose( new Kick( ComponentSerializer.toString( reason ) ) );
+            ch.delayedClose( new Kick( ( reason != null ) ? ComponentSerializer.toString( reason ) : "Disconnected" ) );
         } else
         {
             ch.close();
