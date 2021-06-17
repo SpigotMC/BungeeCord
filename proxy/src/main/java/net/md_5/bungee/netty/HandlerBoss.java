@@ -158,7 +158,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                             handler, cause.getCause().getMessage()
                         } );
                     }
-                } else if ( cause instanceof IOException || ( cause instanceof IllegalStateException && handler instanceof InitialHandler ) )
+                } else if ( cause instanceof IOException || ( ( cause instanceof IllegalStateException || cause instanceof IllegalArgumentException ) && !( handler instanceof DownstreamBridge ) ) )
                 {
                     ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - {1}: {2}", new Object[]
                     {
