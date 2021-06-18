@@ -41,7 +41,7 @@ public class TabCompleteRequest extends DefinedPacket
         {
             transactionId = readVarInt( buf );
         }
-        cursor = readString( buf, 32500 );
+        cursor = readString( buf, ( protocolVersion < ProtocolConstants.MINECRAFT_1_13 ? 32767 : ( protocolVersion > ProtocolConstants.MINECRAFT_1_13  ? 32500 : 256 ) ) );
 
         if ( protocolVersion < ProtocolConstants.MINECRAFT_1_13 )
         {
