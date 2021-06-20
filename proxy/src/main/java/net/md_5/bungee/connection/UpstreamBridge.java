@@ -132,7 +132,7 @@ public class UpstreamBridge extends PacketHandler
         {
             if ( keepAliveData != con.getServer().getKeepAlives().poll() )
             {
-                con.disconnect("keepalive queue mismatch");
+                con.disconnect( "keepalive queue mismatch" );
                 throw CancelSendSignal.INSTANCE;
             }
             int newPing = (int) ( System.currentTimeMillis() - keepAliveData.getTime() );
