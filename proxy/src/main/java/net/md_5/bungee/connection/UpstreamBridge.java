@@ -150,7 +150,7 @@ public class UpstreamBridge extends PacketHandler
         for ( int index = 0, length = chat.getMessage().length(); index < length; index++ )
         {
             char c = chat.getMessage().charAt( index );
-            if ( c == '\u00A7' || c < ' ' || c == 127 )
+            if ( c == '\u00A7' || c < ' ' || c == 127 ) // Section symbol, control sequences, and delete
             {
                 con.disconnect( "illegal characters in chat" );
                 throw CancelSendSignal.INSTANCE;
