@@ -1,22 +1,24 @@
 package net.md_5.bungee.module.cmd.send;
 
-import com.google.common.base.Joiner;
+import com.google.common.base.CaseFormat;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import net.md_5.bungee.api.Callback;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerConnectRequest;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent;
@@ -26,10 +28,12 @@ import net.md_5.bungee.api.plugin.TabExecutor;
 public class CommandSend extends Command implements TabExecutor
 {
 
+    private static final int HOVER_NAMES_LIMIT = 100;
+
     protected static class SendCallback
     {
 
-        private final Map<ServerConnectRequest.Result, List<String>> results = new HashMap<>();
+        private final Map<ServerConnectRequest.Result, Set<String>> results = new HashMap<>();
         private final CommandSender sender;
         private int count = 0;
 
@@ -38,25 +42,74 @@ public class CommandSend extends Command implements TabExecutor
             this.sender = sender;
             for ( ServerConnectRequest.Result result : ServerConnectRequest.Result.values() )
             {
-                results.put( result, new ArrayList<String>() );
+                results.put( result, new LinkedHashSet<>() );
             }
         }
 
         public void lastEntryDone()
         {
-            sender.sendMessage( ChatColor.GREEN.toString() + ChatColor.BOLD + "Send Results:" );
-            for ( Map.Entry<ServerConnectRequest.Result, List<String>> entry : results.entrySet() )
+            ComponentBuilder text = new ComponentBuilder();
+            text.append( TextComponent.fromLegacyText( ProxyServer.getInstance().getTranslation( "command_send_results" ) ) );
+
+            boolean delimiterFlag = false;
+            BaseComponent[] delimiter = TextComponent.fromLegacyText( ProxyServer.getInstance().getTranslation( "command_send_delimiter" ) );
+            for ( Map.Entry<ServerConnectRequest.Result, Set<String>> entry : results.entrySet() )
             {
-                ComponentBuilder builder = new ComponentBuilder( "" );
-                if ( !entry.getValue().isEmpty() )
+                if ( entry.getValue().isEmpty() )
                 {
-                    builder.event( new HoverEvent( HoverEvent.Action.SHOW_TEXT,
-                            new ComponentBuilder( Joiner.on( ", " ).join( entry.getValue() ) ).color( ChatColor.YELLOW ).create() ) );
+                    continue;
                 }
-                builder.append( entry.getKey().name() + ": " ).color( ChatColor.GREEN );
-                builder.append( "" + entry.getValue().size() ).bold( true );
-                sender.sendMessage( builder.create() );
+
+                if ( !delimiterFlag )
+                {
+                    delimiterFlag = true;
+                } else
+                {
+                    text.append( delimiter, ComponentBuilder.FormatRetention.NONE );
+                }
+
+                // Add hover list of player names sent limited by defined constant.
+                Collection<String> serverNames = entry.getValue();
+                ComponentBuilder hoverBuilder = new ComponentBuilder();
+                BaseComponent[] hoverDelimiter = TextComponent.fromLegacyText(
+                        ProxyServer.getInstance().getTranslation( "command_send_hover_delimiter" ) );
+                BaseComponent[] hoverNamePrefix = TextComponent.fromLegacyText(
+                        ProxyServer.getInstance().getTranslation( "command_send_hover_name_prefix" ) );
+                int rem = ( serverNames.size() > HOVER_NAMES_LIMIT ) ? serverNames.size() - HOVER_NAMES_LIMIT : 0;
+                int i = 0;
+                for ( String serverName : serverNames )
+                {
+                    if ( i != 0 )
+                    {
+                        hoverBuilder.append( hoverDelimiter, ComponentBuilder.FormatRetention.NONE );
+                    }
+                    hoverBuilder.append( hoverNamePrefix, ComponentBuilder.FormatRetention.NONE )
+                            .append( serverName, ComponentBuilder.FormatRetention.NONE );
+                    if ( ++i == HOVER_NAMES_LIMIT )
+                    {
+                        break;
+                    }
+                }
+                if ( rem > 0 )
+                {
+                    hoverBuilder.append( hoverDelimiter, ComponentBuilder.FormatRetention.NONE )
+                            .append( hoverNamePrefix, ComponentBuilder.FormatRetention.NONE )
+                            .append( " and " + rem + " more", ComponentBuilder.FormatRetention.NONE );
+                }
+                //
+
+                ComponentBuilder serverText = new ComponentBuilder();
+                serverText.event( new HoverEvent( HoverEvent.Action.SHOW_TEXT, hoverBuilder.create() ) );
+                serverText.append( ProxyServer.getInstance().getTranslation( "command_send_result_title",
+                        CaseFormat.UPPER_UNDERSCORE.converterTo( CaseFormat.UPPER_CAMEL ).convert( entry.getKey().name() ) ),
+                        ComponentBuilder.FormatRetention.EVENTS );
+                serverText.append( TextComponent.fromLegacyText(
+                                ProxyServer.getInstance().getTranslation( "command_send_counter", entry.getValue().size() ) ),
+                        ComponentBuilder.FormatRetention.EVENTS );
+
+                text.append( serverText.create(), ComponentBuilder.FormatRetention.NONE );
             }
+            sender.sendMessage( text.create() );
         }
 
         public static class Entry implements Callback<ServerConnectRequest.Result>
@@ -111,10 +164,10 @@ public class CommandSend extends Command implements TabExecutor
             return;
         }
 
-        List<ProxiedPlayer> targets;
+        Set<ProxiedPlayer> targets = null;
         if ( args[0].equalsIgnoreCase( "all" ) )
         {
-            targets = new ArrayList<>( ProxyServer.getInstance().getPlayers() );
+            targets = new LinkedHashSet<>( ProxyServer.getInstance().getPlayers() );
         } else if ( args[0].equalsIgnoreCase( "current" ) )
         {
             if ( !( sender instanceof ProxiedPlayer ) )
@@ -123,38 +176,75 @@ public class CommandSend extends Command implements TabExecutor
                 return;
             }
             ProxiedPlayer player = (ProxiedPlayer) sender;
-            targets = new ArrayList<>( player.getServer().getInfo().getPlayers() );
+            targets = new LinkedHashSet<>( player.getServer().getInfo().getPlayers() );
         } else
         {
             // If we use a server name, send the entire server. This takes priority over players.
             ServerInfo serverTarget = ProxyServer.getInstance().getServerInfo( args[0] );
             if ( serverTarget != null )
             {
-                targets = new ArrayList<>( serverTarget.getPlayers() );
+                targets = new LinkedHashSet<>( serverTarget.getPlayers() );
             } else
             {
-                ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
-                if ( player == null )
+                // Support for comma separated list sending
+                if ( args[ 0 ].contains( "," ) )
+                {
+                    String[] names = args[ 0 ].split( "," );
+                    for ( String name : names )
+                    {
+                        ProxiedPlayer player = ProxyServer.getInstance().getPlayer( name );
+                        if ( player != null )
+                        {
+                            if ( targets == null )
+                            {
+                                targets = new LinkedHashSet<>();
+                            }
+                            targets.add( player );
+                        }
+                    }
+                } else
+                {
+                    // Single player selection
+                    ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
+                    if ( player != null )
+                    {
+                        targets = Collections.singleton( player );
+                    }
+                }
+
+                if ( targets == null )
                 {
                     sender.sendMessage( ProxyServer.getInstance().getTranslation( "user_not_online" ) );
                     return;
                 }
-                targets = Collections.singletonList( player );
             }
         }
 
+        if ( targets.isEmpty() )
+        {
+            sender.sendMessage( ProxyServer.getInstance().getTranslation( "command_send_no_players" ) );
+            return;
+        }
+
+        sender.sendMessage( ProxyServer.getInstance().getTranslation( "command_send_attempting",
+                ( targets.size() == 1 ) ? targets.iterator().next().getName() : targets.size() + " players",
+                server.getName() ) );
+
         final SendCallback callback = new SendCallback( sender );
+        Map<ProxiedPlayer, ServerConnectRequest> connections = new HashMap<>();
         for ( ProxiedPlayer player : targets )
         {
             ServerConnectRequest request = ServerConnectRequest.builder()
-                    .target( server )
-                    .reason( ServerConnectEvent.Reason.COMMAND )
-                    .callback( new SendCallback.Entry( callback, player, server ) )
-                    .build();
-            player.connect( request );
+                .target( server )
+                .reason( ServerConnectEvent.Reason.COMMAND )
+                .callback( new SendCallback.Entry( callback, player, server ) )
+                .build();
+            connections.put( player, request );
         }
-
-        sender.sendMessage( ChatColor.DARK_GREEN + "Attempting to send " + targets.size() + " players to " + server.getName() );
+        for ( Map.Entry<ProxiedPlayer, ServerConnectRequest> entry : connections.entrySet() )
+        {
+            entry.getKey().connect( entry.getValue() );
+        }
     }
 
     @Override
@@ -168,10 +258,23 @@ public class CommandSend extends Command implements TabExecutor
         Set<String> matches = new HashSet<>();
         if ( args.length == 1 )
         {
+            boolean flag = !Strings.isNullOrEmpty( args[0] ) && args[0].charAt( args[0].length() - 1 ) == ',';
             String search = args[0].toLowerCase( Locale.ROOT );
+            Set<String> existingNames = null;
             for ( ProxiedPlayer player : ProxyServer.getInstance().getPlayers() )
             {
-                if ( player.getName().toLowerCase( Locale.ROOT ).startsWith( search ) )
+                if ( flag )
+                {
+                    if ( existingNames == null )
+                    {
+                        existingNames = new HashSet<>();
+                        Collections.addAll( existingNames, search.split( "," ) );
+                    }
+                    if ( !existingNames.contains( player.getName().toLowerCase( Locale.ROOT ) ) )
+                    {
+                        matches.add( args[0] + player.getName() );
+                    }
+                } else if ( player.getName().toLowerCase( Locale.ROOT ).startsWith( search ) )
                 {
                     matches.add( player.getName() );
                 }
