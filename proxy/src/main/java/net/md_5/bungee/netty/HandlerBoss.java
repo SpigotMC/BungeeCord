@@ -12,7 +12,6 @@ import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.connection.CancelSendSignal;
-import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.connection.PingHandler;
 import net.md_5.bungee.protocol.BadPacketException;
@@ -159,7 +158,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                             handler, cause.getCause().getMessage()
                         } );
                     }
-                } else if ( cause instanceof IOException || ( ( cause instanceof IllegalStateException || cause instanceof IllegalArgumentException ) && !( handler instanceof DownstreamBridge ) ) )
+                } else if ( cause instanceof IOException || ( cause instanceof IllegalStateException && handler instanceof InitialHandler ) )
                 {
                     ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - {1}: {2}", new Object[]
                     {
