@@ -1,6 +1,5 @@
 package net.md_5.bungee.connection;
 
-import com.google.common.base.Preconditions;
 import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
@@ -131,7 +130,7 @@ public class UpstreamBridge extends PacketHandler
 
         if ( keepAliveData != null && alive.getRandomId() == keepAliveData.getId() )
         {
-            if( keepAliveData != con.getServer().getKeepAlives().poll() )
+            if ( keepAliveData != con.getServer().getKeepAlives().poll() )
             {
                 con.disconnect("keepalive queue mismatch");
                 throw CancelSendSignal.INSTANCE;
@@ -151,7 +150,7 @@ public class UpstreamBridge extends PacketHandler
         for ( int index = 0, length = chat.getMessage().length(); index < length; index++ )
         {
             char c = chat.getMessage().charAt( index );
-            if( c == '\u00A7' || c < ' ' || c == 127 )
+            if ( c == '\u00A7' || c < ' ' || c == 127 )
             {
                 con.disconnect( "illegal characters in chat" );
                 throw CancelSendSignal.INSTANCE;
