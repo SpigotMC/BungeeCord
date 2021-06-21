@@ -180,7 +180,7 @@ public class BungeeServerInfo implements ServerInfo
             }
         };
         new Bootstrap()
-                .channel( PipelineUtils.getChannel( socketAddress ) )
+                .channelFactory( PipelineUtils.getChannelFactory( socketAddress ) )
                 .group( BungeeCord.getInstance().eventLoops )
                 .handler( PipelineUtils.BASE )
                 .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, BungeeCord.getInstance().getConfig().getRemotePingTimeout() )

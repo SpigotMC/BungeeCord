@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
+import io.netty.channel.ChannelFactory;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -101,6 +102,10 @@ public class PipelineUtils
     public static final String LEGACY_KICKER = "legacy-kick";
 
     private static boolean epoll;
+    private static final ChannelFactory<? extends ServerChannel> serverChannelFactory;
+    private static final ChannelFactory<? extends ServerChannel> serverChannelDomainFactory;
+    private static final ChannelFactory<? extends Channel> channelFactory;
+    private static final ChannelFactory<? extends Channel> channelDomainFactory;
 
     static
     {
@@ -116,6 +121,10 @@ public class PipelineUtils
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "Epoll is not working, falling back to NIO: {0}", Util.exception( Epoll.unavailabilityCause() ) );
             }
         }
+        serverChannelFactory = epoll ? EpollServerSocketChannel::new : NioServerSocketChannel::new;
+        serverChannelDomainFactory = epoll ? EpollServerDomainSocketChannel::new : null;
+        channelFactory = epoll ? EpollSocketChannel::new : NioSocketChannel::new;
+        channelDomainFactory = epoll ? EpollDomainSocketChannel::new : null;
     }
 
     public static EventLoopGroup newEventLoopGroup(int threads, ThreadFactory factory)
@@ -123,28 +132,30 @@ public class PipelineUtils
         return epoll ? new EpollEventLoopGroup( threads, factory ) : new NioEventLoopGroup( threads, factory );
     }
 
-    public static Class<? extends ServerChannel> getServerChannel(SocketAddress address)
+    public static ChannelFactory<? extends ServerChannel> getServerChannelFactory(SocketAddress address)
     {
         if ( address instanceof DomainSocketAddress )
         {
-            Preconditions.checkState( epoll, "Epoll required to have UNIX sockets" );
+            ChannelFactory<? extends ServerChannel> factory = PipelineUtils.serverChannelDomainFactory;
+            Preconditions.checkState( factory != null, "Epoll required to have UNIX sockets" );
 
-            return EpollServerDomainSocketChannel.class;
+            return factory;
         }
 
-        return epoll ? EpollServerSocketChannel.class : NioServerSocketChannel.class;
+        return serverChannelFactory;
     }
 
-    public static Class<? extends Channel> getChannel(SocketAddress address)
+    public static ChannelFactory<? extends Channel> getChannelFactory(SocketAddress address)
     {
         if ( address instanceof DomainSocketAddress )
         {
-            Preconditions.checkState( epoll, "Epoll required to have UNIX sockets" );
+            ChannelFactory<? extends Channel> factory = PipelineUtils.channelDomainFactory;
+            Preconditions.checkState( factory != null, "Epoll required to have UNIX sockets" );
 
-            return EpollDomainSocketChannel.class;
+            return factory;
         }
 
-        return epoll ? EpollSocketChannel.class : NioSocketChannel.class;
+        return channelFactory;
     }
 
     public static Class<? extends DatagramChannel> getDatagramChannel()
