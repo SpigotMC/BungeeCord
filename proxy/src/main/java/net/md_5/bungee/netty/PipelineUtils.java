@@ -102,6 +102,7 @@ public class PipelineUtils
     private static final ChannelFactory<? extends ServerChannel> serverChannelDomainFactory;
     private static final ChannelFactory<? extends Channel> channelFactory;
     private static final ChannelFactory<? extends Channel> channelDomainFactory;
+    private static final ChannelFactory<? extends DatagramChannel> datagramChannelFactory;
 
     static
     {
@@ -121,6 +122,7 @@ public class PipelineUtils
         serverChannelDomainFactory = epoll ? EpollServerDomainSocketChannel::new : null;
         channelFactory = epoll ? EpollSocketChannel::new : NioSocketChannel::new;
         channelDomainFactory = epoll ? EpollDomainSocketChannel::new : null;
+        datagramChannelFactory = epoll ? EpollDatagramChannel::new : NioDatagramChannel::new;
     }
 
     public static EventLoopGroup newEventLoopGroup(int threads, ThreadFactory factory)
@@ -154,9 +156,9 @@ public class PipelineUtils
         return channelFactory;
     }
 
-    public static Class<? extends DatagramChannel> getDatagramChannel()
+    public static ChannelFactory<? extends DatagramChannel> getDatagramChannelFactory()
     {
-        return epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
+        return datagramChannelFactory;
     }
 
     private static final int LOW_MARK = Integer.getInteger( "net.md_5.bungee.low_mark", 2 << 18 ); // 0.5 mb
