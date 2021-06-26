@@ -18,7 +18,7 @@ public class BungeeSecurityManager extends SecurityManager
 
     private void checkRestricted(String text)
     {
-        ClassLoader loader = getClassContext()[0].getClassLoader();
+        ClassLoader loader = getClassContext()[2].getClassLoader();
 
         // Bungee / system can do everything
         if ( loader == ClassLoader.getSystemClassLoader() || loader == null )
