@@ -199,10 +199,7 @@ public final class PluginManager
             {
                 if ( proxy.getConfig().isLogCommands() )
                 {
-                    proxy.getLogger().log( Level.INFO, "{0} executed command: /{1}", new Object[]
-                    {
-                        sender.getName(), commandLine
-                    } );
+                    proxy.getLogger().log( Level.INFO, sender.getName() + " executed command: /" + commandLine );
                 }
                 command.execute( sender, args );
             } else if ( commandLine.contains( " " ) && command instanceof TabExecutor )
@@ -415,10 +412,7 @@ public final class PluginManager
         long elapsed = System.nanoTime() - start;
         if ( elapsed > 250000000 )
         {
-            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Event {0} took {1}ms to process!", new Object[]
-            {
-                event, elapsed / 1000000
-            } );
+            ProxyServer.getInstance().getLogger().warning( "Event " + event + " took " + elapsed / 1000000 + "ms to process!" );
         }
         return event;
     }

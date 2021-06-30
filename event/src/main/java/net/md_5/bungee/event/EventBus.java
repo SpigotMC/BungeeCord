@@ -3,7 +3,6 @@ package net.md_5.bungee.event;
 import com.google.common.collect.ImmutableSet;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,7 +52,7 @@ public class EventBus
                     throw new Error( "Method rejected target/argument: " + event, ex );
                 } catch ( InvocationTargetException ex )
                 {
-                    logger.log( Level.WARNING, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, method.getListener() ), ex.getCause() );
+                    logger.log( Level.WARNING, "Error dispatching event " + event + " to listener " + method.getListener(), ex.getCause() );
                 }
             }
         }

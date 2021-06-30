@@ -46,7 +46,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
 
             if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
             {
-                ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has connected", handler );
+                ProxyServer.getInstance().getLogger().info( handler + " has connected" );
             }
         }
     }
@@ -61,7 +61,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
 
             if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
             {
-                ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has disconnected", handler );
+                ProxyServer.getInstance().getLogger().info( handler + " has disconnected" );
             }
         }
     }
@@ -136,40 +136,25 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
             {
                 if ( cause instanceof ReadTimeoutException )
                 {
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - read timed out", handler );
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, handler + " - read timed out" );
                 } else if ( cause instanceof DecoderException )
                 {
                     if ( cause instanceof CorruptedFrameException )
                     {
-                        ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - corrupted frame: {1}", new Object[]
-                        {
-                            handler, cause.getMessage()
-                        } );
+                        ProxyServer.getInstance().getLogger().log( Level.WARNING, handler + " - corrupted frame: " + cause.getMessage() );
                     } else if ( cause.getCause() instanceof BadPacketException )
                     {
-                        ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - bad packet ID, are mods in use!? {1}", new Object[]
-                        {
-                            handler, cause.getCause().getMessage()
-                        } );
+                        ProxyServer.getInstance().getLogger().log( Level.WARNING, handler + " - bad packet ID, are mods in use!? " + cause.getCause().getMessage() );
                     } else if ( cause.getCause() instanceof OverflowPacketException )
                     {
-                        ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - overflow in packet detected! {1}", new Object[]
-                        {
-                            handler, cause.getCause().getMessage()
-                        } );
+                        ProxyServer.getInstance().getLogger().log( Level.WARNING, handler + " - overflow in packet detected! " + cause.getCause().getMessage() );
                     }
                 } else if ( cause instanceof IOException || ( cause instanceof IllegalStateException && handler instanceof InitialHandler ) )
                 {
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - {1}: {2}", new Object[]
-                    {
-                        handler, cause.getClass().getSimpleName(), cause.getMessage()
-                    } );
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, handler + " - " + cause.getClass().getSimpleName() + ": " + cause.getMessage() );
                 } else if ( cause instanceof QuietException )
                 {
-                    ProxyServer.getInstance().getLogger().log( Level.SEVERE, "{0} - encountered exception: {1}", new Object[]
-                    {
-                        handler, cause
-                    } );
+                    ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - encountered exception: " + cause );
                 } else
                 {
                     ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - encountered exception", cause );
