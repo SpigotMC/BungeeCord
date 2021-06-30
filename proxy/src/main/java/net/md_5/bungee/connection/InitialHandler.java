@@ -360,12 +360,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             return;
         }
 
-        if ( getName().length() > 16 )
-        {
-            disconnect( bungee.getTranslation( "name_too_long" ) );
-            return;
-        }
-
         int limit = BungeeCord.getInstance().config.getPlayerLimit();
         if ( limit > 0 && bungee.getOnlineCount() >= limit )
         {
