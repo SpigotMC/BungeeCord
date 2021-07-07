@@ -17,7 +17,7 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false, of =
     {
-        "x", "z"
+    "x", "z"
     })
 public class EmptyChunkPacket extends DefinedPacket
 {

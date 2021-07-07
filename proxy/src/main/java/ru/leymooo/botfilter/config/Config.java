@@ -42,7 +42,7 @@ public class Config
      * Probably throws some error if you supply non existing keys or invalid
      * values
      *
-     * @param key config node
+     * @param key   config node
      * @param value value
      */
     private void set(String key, Object value)
@@ -121,6 +121,7 @@ public class Config
         return YamlConfiguration.loadConfiguration( file ).getInt( "config-version", 0 );
     }
      */
+
     /**
      * Set all values in the file (load first to avoid overwriting)
      *
@@ -153,56 +154,6 @@ public class Config
         {
             BungeeCord.getInstance().getLogger().log( Level.WARNING, "Error:", e );
         }
-    }
-
-    /**
-     * Indicates that a field should be instantiated / created
-     */
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(
-            {
-                ElementType.FIELD
-            })
-    public @interface Create
-    {
-    }
-
-    /**
-     * Indicates that a field cannot be modified
-     */
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(
-            {
-                ElementType.FIELD
-            })
-    public @interface Final
-    {
-    }
-
-    /**
-     * Creates a comment
-     */
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(
-            {
-                ElementType.FIELD, ElementType.TYPE
-            })
-    public @interface Comment
-    {
-
-        String[] value();
-    }
-
-    /**
-     * Any field or class with is not part of the config
-     */
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(
-            {
-                ElementType.FIELD, ElementType.TYPE
-            })
-    public @interface Ignore
-    {
     }
 
     private String toYamlString(Object value, String spacing)
@@ -295,7 +246,7 @@ public class Config
      * Get the field for a specific config node and instance<br>
      * Note: As expiry can have multiple blocks there will be multiple instances
      *
-     * @param split the node (split by period)
+     * @param split    the node (split by period)
      * @param instance the instance
      * @return Field field
      */
@@ -309,9 +260,9 @@ public class Config
         } catch ( IllegalAccessException | NoSuchFieldException | SecurityException | NoSuchMethodException | InvocationTargetException e )
         {
             BungeeCord.getInstance().getLogger().log( Level.WARNING, "[BotFilter] Invalid config field: {0} for {1}", new Object[]
-            {
-                String.join( ".", split ), toNodeName( instance.getClass().getSimpleName() )
-            } );
+                {
+                    String.join( ".", split ), toNodeName( instance.getClass().getSimpleName() )
+                } );
             return null;
         }
     }
@@ -320,7 +271,7 @@ public class Config
      * Get the instance for a specific config node
      *
      * @param split the node (split by period)
-     * @param root the root class
+     * @param root  the root class
      * @return The instance or null
      */
     private Object getInstance(String[] split, Class root)
@@ -399,7 +350,7 @@ public class Config
      * Set some field to be accesible
      *
      * @param field to be accesible
-     * @throws NoSuchFieldException ...
+     * @throws NoSuchFieldException   ...
      * @throws IllegalAccessException ...
      */
     private void setAccessible(Field field) throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException
@@ -440,5 +391,55 @@ public class Config
             sb.append( s );
         }
         return sb.toString();
+    }
+
+    /**
+     * Indicates that a field should be instantiated / created
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(
+        {
+        ElementType.FIELD
+        })
+    public @interface Create
+    {
+    }
+
+    /**
+     * Indicates that a field cannot be modified
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(
+        {
+        ElementType.FIELD
+        })
+    public @interface Final
+    {
+    }
+
+    /**
+     * Creates a comment
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(
+        {
+        ElementType.FIELD, ElementType.TYPE
+        })
+    public @interface Comment
+    {
+
+        String[] value();
+    }
+
+    /**
+     * Any field or class with is not part of the config
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(
+        {
+        ElementType.FIELD, ElementType.TYPE
+        })
+    public @interface Ignore
+    {
     }
 }

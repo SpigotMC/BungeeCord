@@ -8,6 +8,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.ConnectTimeoutException;
 import io.netty.util.internal.PlatformDependent;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -364,10 +365,10 @@ public final class UserConnection implements ProxiedPlayer
                         connect( def, null, true, ServerConnectEvent.Reason.LOBBY_FALLBACK );
                     } else if ( dimensionChange )
                     {
-                        disconnect( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
+                        disconnect( bungee.getTranslation( "fallback_kick", connectionFailMessage( future.cause() ) ) );
                     } else
                     {
-                        sendMessage( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
+                        sendMessage( bungee.getTranslation( "fallback_kick", connectionFailMessage( future.cause() ) ) );
                     }
                 }
             }
@@ -384,6 +385,17 @@ public final class UserConnection implements ProxiedPlayer
             b.localAddress( getPendingConnection().getListener().getHost().getHostString(), 0 );
         }
         b.connect().addListener( listener );
+    }
+
+    private String connectionFailMessage(Throwable cause)
+    {
+        if ( cause instanceof ConnectTimeoutException )
+        {
+            return bungee.getTranslation( "timeout" );
+        } else
+        {
+            return cause.getClass().getName();
+        }
     }
 
     @Override

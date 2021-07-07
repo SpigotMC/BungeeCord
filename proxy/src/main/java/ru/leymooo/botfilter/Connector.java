@@ -34,7 +34,7 @@ import ru.leymooo.botfilter.utils.ManyChecksUtils;
  */
 @EqualsAndHashCode(callSuper = false, of =
     {
-        "name"
+    "name"
     })
 public class Connector extends MoveHandler
 {

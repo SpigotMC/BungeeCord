@@ -6,65 +6,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Constructor;
-import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 import net.md_5.bungee.jni.cipher.BungeeCipher;
 
 public final class NativeCode<T>
 {
 
     private final String name;
-    private final Callable<? extends T> javaImpl;
-    private final Callable<? extends T> nativeImpl;
+    private final Supplier<? extends T> javaImpl;
+    private final Supplier<? extends T> nativeImpl;
     //
     private boolean loaded;
 
-    public NativeCode(String name, Class<? extends T> javaImpl, Class<? extends T> nativeImpl)
-    {
-        this( name, new Callable<T>()
-        {
-            final Constructor<? extends T> constructor;
-
-            {
-                try
-                {
-                    Constructor<? extends T> constructor = this.constructor = javaImpl.getConstructor();
-                    constructor.setAccessible( true );
-                } catch ( NoSuchMethodException ex )
-                {
-                    throw new InternalError( ex );
-                }
-            }
-
-            @Override
-            public T call() throws Exception
-            {
-                return this.constructor.newInstance();
-            }
-        }, new Callable<T>()
-        {
-            final Constructor<? extends T> constructor;
-
-            {
-                try
-                {
-                    Constructor<? extends T> constructor = this.constructor = nativeImpl.getConstructor();
-                    constructor.setAccessible( true );
-                } catch ( NoSuchMethodException ex )
-                {
-                    throw new InternalError( ex );
-                }
-            }
-
-            @Override
-            public T call() throws Exception
-            {
-                return this.constructor.newInstance();
-            }
-        } );
-    }
-
-    public NativeCode(String name, Callable<? extends T> javaImpl, Callable<? extends T> nativeImpl)
+    public NativeCode(String name, Supplier<? extends T> javaImpl, Supplier<? extends T> nativeImpl)
     {
         this.name = name;
         this.javaImpl = javaImpl;
@@ -73,13 +27,7 @@ public final class NativeCode<T>
 
     public T newInstance()
     {
-        try
-        {
-            return ( loaded ) ? nativeImpl.call() : javaImpl.call();
-        } catch ( Exception ex )
-        {
-            throw new RuntimeException( "Error constructing instance", ex );
-        }
+        return ( loaded ) ? nativeImpl.get() : javaImpl.get();
     }
 
     public boolean load()

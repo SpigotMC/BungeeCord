@@ -271,7 +271,7 @@ public class BungeeCord extends ProxyServer
     public void start() throws Exception
     {
         System.setProperty( "io.netty.selectorAutoRebuildThreshold", "0" ); // Seems to cause Bungee to stop accepting connections
-        if ( System.getProperty( "io.netty.leakDetectionLevel" ) == null )
+        if ( System.getProperty( "io.netty.leakDetectionLevel" ) == null && System.getProperty( "io.netty.leakDetection.level" ) == null )
         {
             ResourceLeakDetector.setLevel( ResourceLeakDetector.Level.DISABLED ); // Eats performance
         }

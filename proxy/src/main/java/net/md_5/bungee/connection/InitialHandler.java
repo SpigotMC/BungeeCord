@@ -377,7 +377,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             disconnect( bungee.getTranslation( "name_invalid" ) );
             return;
         }
-
         int limit = BungeeCord.getInstance().config.getPlayerLimit();
         if ( limit > 0 && bungee.getOnlineCountBF( false ) >= limit )//BotFilter
         {
