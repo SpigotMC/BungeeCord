@@ -32,10 +32,12 @@ public class ModuleManager
         knownSources.put( "travis-ci", new TravisCiModuleSource() );
     }
 
+    // CHECKSTYLE:OFF
     @SuppressFBWarnings(
             {
                 "SF_SWITCH_FALLTHROUGH", "SF_SWITCH_NO_DEFAULT"
             })
+    // CHECKSTYLE:ON
     public void load(ProxyServer proxy, File moduleDirectory) throws Exception
     {
         moduleDirectory.mkdir();
