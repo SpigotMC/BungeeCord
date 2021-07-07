@@ -13,10 +13,12 @@ public class BungeeLogger extends Logger
 
     private final LogDispatcher dispatcher = new LogDispatcher( this );
 
+    // CHECKSTYLE:OFF
     @SuppressWarnings(
             {
                 "CallToPrintStackTrace", "CallToThreadStartDuringObjectConstruction"
             })
+    // CHECKSTYLE:ON
     @SuppressFBWarnings("SC_START_IN_CTOR")
     public BungeeLogger(String loggerName, String filePattern, ConsoleReader reader)
     {
