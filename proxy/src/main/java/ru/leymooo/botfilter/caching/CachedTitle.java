@@ -46,7 +46,7 @@ public class CachedTitle
                 PacketUtils.fillArray( this.subtitle, subTitlePacket, ProtocolConstants.MINECRAFT_1_8, ProtocolConstants.MINECRAFT_1_16_4, Protocol.GAME );
                 Subtitle subtitlePacket1 = new Subtitle();
                 subtitlePacket1.setText( subTitlePacket.getText() );
-                PacketUtils.fillArray( this.subtitle, subtitlePacket1, ProtocolConstants.MINECRAFT_1_17, ProtocolConstants.MINECRAFT_1_17, Protocol.GAME );
+                PacketUtils.fillArray( this.subtitle, subtitlePacket1, ProtocolConstants.MINECRAFT_1_17, ProtocolConstants.getLastSupportedProtocol(), Protocol.GAME );
             }
 
             if ( this.title != null || this.subtitle != null )
@@ -62,7 +62,7 @@ public class CachedTitle
                 times1.setFadeIn( in );
                 times1.setStay( stay );
                 times1.setFadeOut( out );
-                PacketUtils.fillArray( this.times, times1, ProtocolConstants.MINECRAFT_1_17, ProtocolConstants.MINECRAFT_1_17, Protocol.GAME );
+                PacketUtils.fillArray( this.times, times1, ProtocolConstants.MINECRAFT_1_17, ProtocolConstants.getLastSupportedProtocol(), Protocol.GAME );
 
             }
         }

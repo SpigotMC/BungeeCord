@@ -95,6 +95,11 @@ public class ProtocolConstants
         SUPPORTED_VERSION_IDS = supportedVersionIds.build();
     }
 
+    public static int getLastSupportedProtocol() //BotFilter
+    {
+        return SUPPORTED_VERSION_IDS.get( SUPPORTED_VERSION_IDS.size() - 1 );
+    }
+
     public enum Direction
     {
 

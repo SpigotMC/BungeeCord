@@ -29,6 +29,12 @@ public class SetSlot extends DefinedPacket
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int version)
     {
         buf.writeByte( this.windowId );
+
+        if ( version >= ProtocolConstants.MINECRAFT_1_17_1 )
+        {
+            DefinedPacket.writeVarInt( 0, buf );
+        }
+
         buf.writeShort( this.slot );
         int id = this.item == 358 ? getCapthcaId( version ) : this.item;
         boolean present = id > 0;
