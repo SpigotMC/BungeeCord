@@ -40,6 +40,7 @@ public class Connector extends MoveHandler
 {
 
     private static final Logger LOGGER = BungeeCord.getInstance().getLogger();
+    private static final int MAX_PLUGIN_MESSAGES_BYTES = 128000; //128 KB
 
     public static int TOTAL_TICKS = 100;
     private static long TOTAL_TIME = ( TOTAL_TICKS * 50 ) - 100; //TICKS * 50MS
@@ -63,6 +64,7 @@ public class Connector extends MoveHandler
     private long joinTime = System.currentTimeMillis();
     private long lastSend = 0, totalping = 9999;
     private boolean markDisconnected = false;
+    private int pluginMessagesBytes = 0;
 
     public Connector(UserConnection userConnection, BotFilter botFilter)
     {
@@ -310,6 +312,16 @@ public class Connector extends MoveHandler
     @Override
     public void handle(PluginMessage pluginMessage) throws Exception
     {
+
+        pluginMessagesBytes += ( pluginMessage.getTag().length() * 4 );
+        pluginMessagesBytes += ( pluginMessage.getData().length );
+
+        if ( pluginMessagesBytes > MAX_PLUGIN_MESSAGES_BYTES )
+        {
+            failed( KickType.BIG_PACKET, "Bad PluginMessage's" );
+            return;
+        }
+
         if ( PluginMessage.SHOULD_RELAY.apply( pluginMessage ) )
         {
             userConnection.getPendingConnection().getRelayMessages().add( pluginMessage );
