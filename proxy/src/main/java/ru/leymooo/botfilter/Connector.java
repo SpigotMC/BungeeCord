@@ -40,7 +40,7 @@ public class Connector extends MoveHandler
 {
 
     private static final Logger LOGGER = BungeeCord.getInstance().getLogger();
-    private static final int MAX_PLUGIN_MESSAGES_BYTES = 128000; //128 KB
+    private static final int MAX_PLUGIN_MESSAGES_BYTES = 160000; //160 KB
 
     public static int TOTAL_TICKS = 100;
     private static long TOTAL_TIME = ( TOTAL_TICKS * 50 ) - 100; //TICKS * 50MS
