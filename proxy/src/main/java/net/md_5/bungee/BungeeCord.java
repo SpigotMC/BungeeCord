@@ -38,6 +38,7 @@ import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -132,7 +133,7 @@ public class BungeeCord extends ProxyServer
      */
     private final Map<String, UserConnection> connections = new CaseInsensitiveMap<>();
     // Used to help with packet rewriting
-    private final Map<UUID, UserConnection> connectionsByOfflineUUID = new HashMap<>();
+    private final Map<UUID, UserConnection> connectionsByOfflineUUID = new ConcurrentHashMap<>();
     private final Map<UUID, UserConnection> connectionsByUUID = new HashMap<>();
     private final ReadWriteLock connectionLock = new ReentrantReadWriteLock();
     /**
@@ -602,14 +603,7 @@ public class BungeeCord extends ProxyServer
 
     public UserConnection getPlayerByOfflineUUID(UUID name)
     {
-        connectionLock.readLock().lock();
-        try
-        {
-            return connectionsByOfflineUUID.get( name );
-        } finally
-        {
-            connectionLock.readLock().unlock();
-        }
+        return connectionsByOfflineUUID.get( name );
     }
 
     @Override
