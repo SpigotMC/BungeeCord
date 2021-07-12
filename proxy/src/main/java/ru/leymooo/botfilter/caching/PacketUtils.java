@@ -51,6 +51,7 @@ public class PacketUtils
         final ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer();
         DefinedPacket.writeVarInt( id, buffer );
         packet.write( buffer, ProtocolConstants.Direction.TO_CLIENT, protocol );
+        buffer.capacity( buffer.readableBytes() );
         return buffer;
     }
 

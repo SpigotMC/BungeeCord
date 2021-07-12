@@ -46,6 +46,7 @@ public class MapDataPacket extends DefinedPacket
         buf.writeByte( data.getRows() );
         buf.writeByte( data.getX() );
         buf.writeByte( data.getY() );
+        buf.ensureWritable( 3 + data.getData().length );
         writeArray( data.getData(), buf );
     }
 
