@@ -21,20 +21,20 @@ public class CommandKick extends Command
     {
         if ( args.length == 0 )
         {
-            sender.sendMessage( ProxyServer.getInstance().getTranslation("username_needed") );
+            sender.sendMessage( ProxyServer.getInstance().getTranslation( "username_needed" ) );
         } else
         {
             ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
 
             if ( player == null )
             {
-                sender.sendMessage( ProxyServer.getInstance().getTranslation("user_not_online") );
+                sender.sendMessage( TextComponent.fromLegacyText( ProxyServer.getInstance().getTranslation( "user_not_online" ) ) );
                 return;
             }
 
             if ( args.length == 1 )
             {
-                player.disconnect( TextComponent.fromLegacyText( ProxyServer.getInstance().getTranslation( "kick_message") ) );
+                player.disconnect( TextComponent.fromLegacyText( ProxyServer.getInstance().getTranslation( "kick_message" ) ) );
             } else
             {
                 String[] reason = new String[ args.length - 1 ];
