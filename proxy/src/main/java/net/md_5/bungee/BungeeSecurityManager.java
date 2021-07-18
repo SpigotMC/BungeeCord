@@ -19,14 +19,14 @@ public class BungeeSecurityManager extends SecurityManager
     private void checkRestricted(String text)
     {
         Class[] context = getClassContext();
-        for ( int i = 2; i < context.length; i++ )
+        if ( 2 < context.length )
         {
-            ClassLoader loader = context[i].getClassLoader();
+            ClassLoader loader = context[2].getClassLoader();
 
             // Bungee / system can do everything
             if ( loader == ClassLoader.getSystemClassLoader() || loader == null )
             {
-                break;
+                return;
             }
 
             AccessControlException ex = new AccessControlException( "Plugin violation: " + text );
@@ -41,7 +41,6 @@ public class BungeeSecurityManager extends SecurityManager
             {
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "Plugin performed restricted action, please inform them to use proper API methods: " + text, ex );
             }
-            break;
         }
     }
 
