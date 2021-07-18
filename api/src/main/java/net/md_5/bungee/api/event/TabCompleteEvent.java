@@ -29,11 +29,25 @@ public class TabCompleteEvent extends TargetedEvent implements Cancellable
      * this list is empty, the request will be forwarded to the server.
      */
     private final List<String> suggestions;
+    /**
+     * The transaction id for 1.13+ clients.
+     */
+    private final int transactionId;
 
+    /**
+     * @deprecated Use {@link #TabCompleteEvent(Connection, Connection, String, List, int)} instead.
+     */
+    @Deprecated
     public TabCompleteEvent(Connection sender, Connection receiver, String cursor, List<String> suggestions)
+    {
+        this(sender, receiver, cursor, suggestions, 0);
+    }
+
+    public TabCompleteEvent(Connection sender, Connection receiver, String cursor, List<String> suggestions, int transactionId)
     {
         super( sender, receiver );
         this.cursor = cursor;
         this.suggestions = suggestions;
+        this.transactionId = transactionId;
     }
 }
