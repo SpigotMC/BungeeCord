@@ -70,6 +70,8 @@ import net.md_5.bungee.util.QuietException;
 public class InitialHandler extends PacketHandler implements PendingConnection
 {
 
+    private static final String NULL_DISCONNECT = ComponentSerializer.toString( new TextComponent( "Disconnected" ) );
+
     private final BungeeCord bungee;
     private ChannelWrapper ch;
     @Getter
@@ -577,7 +579,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( canSendKickMessage() )
         {
-            ch.delayedClose( new Kick( ComponentSerializer.toString( reason ) ) );
+            ch.delayedClose( new Kick( ( reason == null ) ? NULL_DISCONNECT : ComponentSerializer.toString( reason ) ) ); // check reason contains null?
         } else
         {
             ch.close();
