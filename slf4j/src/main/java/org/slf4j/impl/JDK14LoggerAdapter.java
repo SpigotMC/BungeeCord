@@ -585,6 +585,8 @@ public final class JDK14LoggerAdapter extends MarkerIgnoringBase implements Loca
     static String SELF = JDK14LoggerAdapter.class.getName();
     static String SUPER = MarkerIgnoringBase.class.getName();
 
+    private static final boolean fillCallerData = System.getProperty( "net.md_5.bungee.slf4j-caller-data" ) != null;
+
     /**
      * Fill in caller data if possible.
      * 
@@ -592,6 +594,9 @@ public final class JDK14LoggerAdapter extends MarkerIgnoringBase implements Loca
      *          The record to update
      */
     final private void fillCallerData(String callerFQCN, LogRecord record) {
+        if (!fillCallerData) {
+            return;
+        }
         StackTraceElement[] steArray = new Throwable().getStackTrace();
 
         int selfIndex = -1;
