@@ -320,14 +320,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 // Ping
                 if ( bungee.getConfig().isLogPings() )
                 {
-                    bungee.getLogger().log( Level.INFO, "{0} has pinged", this );
+                    bungee.getLogger().info( this + " has pinged" );
                 }
                 thisState = State.STATUS;
                 ch.setProtocol( Protocol.STATUS );
                 break;
             case 2:
                 // Login
-                bungee.getLogger().log( Level.INFO, "{0} has connected", this );
+                bungee.getLogger().info( this + " has connected" );
                 thisState = State.USERNAME;
                 ch.setProtocol( Protocol.LOGIN );
 

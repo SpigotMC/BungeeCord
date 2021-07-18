@@ -407,10 +407,7 @@ public final class UserConnection implements ProxiedPlayer
     {
         if ( !ch.isClosing() )
         {
-            bungee.getLogger().log( Level.INFO, "[{0}] disconnected with: {1}", new Object[]
-            {
-                getName(), BaseComponent.toLegacyText( reason )
-            } );
+            bungee.getLogger().log( Level.INFO, '[' + toString() + "] disconnected with: " + BaseComponent.toLegacyText( reason ) );
 
             ch.close( new Kick( ComponentSerializer.toString( reason ) ) );
 

@@ -230,6 +230,6 @@ public final class TextComponent extends BaseComponent
     @Override
     public String toString()
     {
-        return String.format( "TextComponent{text=%s, %s}", text, super.toString() );
+        return "TextComponent{text=" + text + ", " + super.toString() + '}';
     }
 }
