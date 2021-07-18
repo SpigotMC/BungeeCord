@@ -3,15 +3,15 @@ package net.md_5.bungee.util;
 import gnu.trove.map.hash.TCustomHashMap;
 import java.util.Map;
 
-public class CaseInsensitiveMap<V> extends TCustomHashMap<String, V>
+public class CaseInsensitiveHashMap<V> extends TCustomHashMap<String, V>
 {
 
-    public CaseInsensitiveMap()
+    public CaseInsensitiveHashMap()
     {
         super( CaseInsensitiveHashingStrategy.INSTANCE );
     }
 
-    public CaseInsensitiveMap(Map<? extends String, ? extends V> map)
+    public CaseInsensitiveHashMap(Map<? extends String, ? extends V> map)
     {
         super( CaseInsensitiveHashingStrategy.INSTANCE, map );
     }

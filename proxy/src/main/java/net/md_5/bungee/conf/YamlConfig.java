@@ -28,7 +28,8 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.util.CaseInsensitiveMap;
+import net.md_5.bungee.util.CaseInsensitiveHashMap;
+import net.md_5.bungee.util.CaseInsensitiveTreeMap;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.error.YAMLException;
@@ -76,10 +77,10 @@ public class YamlConfig implements ConfigurationAdapter
 
             if ( config == null )
             {
-                config = new CaseInsensitiveMap<>();
+                config = new CaseInsensitiveTreeMap<>();
             } else
             {
-                config = new CaseInsensitiveMap<>( config );
+                config = new CaseInsensitiveTreeMap<>( config );
             }
         } catch ( IOException ex )
         {
@@ -250,7 +251,7 @@ public class YamlConfig implements ConfigurationAdapter
             String host = get( "host", "0.0.0.0:25577", val );
             int tabListSize = get( "tab_size", 60, val );
             SocketAddress address = Util.getAddr( host );
-            Map<String, String> forced = new CaseInsensitiveMap<>( get( "forced_hosts", forcedDef, val ) );
+            Map<String, String> forced = new CaseInsensitiveHashMap<>( get( "forced_hosts", forcedDef, val ) );
             String tabListName = get( "tab_list", "GLOBAL_PING", val );
             DefaultTabList value = DefaultTabList.valueOf( tabListName.toUpperCase( Locale.ROOT ) );
             if ( value == null )

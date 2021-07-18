@@ -17,7 +17,7 @@ import java.util.jar.JarFile;
 import java.util.logging.Level;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.PluginDescription;
-import net.md_5.bungee.util.CaseInsensitiveMap;
+import net.md_5.bungee.util.CaseInsensitiveTreeMap;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -65,10 +65,10 @@ public class ModuleManager
 
         if ( config == null )
         {
-            config = new CaseInsensitiveMap<>();
+            config = new CaseInsensitiveTreeMap<>();
         } else
         {
-            config = new CaseInsensitiveMap<>( config );
+            config = new CaseInsensitiveTreeMap<>( config );
         }
         // End yaml
 
