@@ -9,6 +9,7 @@ import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableGraph;
 import java.io.File;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
 import java.util.Arrays;
@@ -57,11 +58,12 @@ public final class PluginManager
     private Map<String, PluginDescription> toLoad = new HashMap<>();
     private final Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
     private final Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
+    private final MethodHandles.Lookup lookup;
 
-    @SuppressWarnings("unchecked")
-    public PluginManager(ProxyServer proxy)
+    public PluginManager(ProxyServer proxy, MethodHandles.Lookup lookup)
     {
         this.proxy = proxy;
+        this.lookup = lookup;
 
         // Ignore unknown entries in the plugin descriptions
         Constructor yamlConstructor = new Constructor();
@@ -438,7 +440,7 @@ public final class PluginManager
             Preconditions.checkArgument( !method.isAnnotationPresent( Subscribe.class ),
                     "Listener %s has registered using deprecated subscribe annotation! Please update to @EventHandler.", listener );
         }
-        eventBus.register( listener );
+        eventBus.register( listener, lookup );
         listenersByPlugin.put( plugin, listener );
     }
 

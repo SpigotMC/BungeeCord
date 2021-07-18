@@ -21,7 +21,7 @@ import net.md_5.bungee.api.ProxyServer;
 final class PluginClassloader extends URLClassLoader
 {
 
-    private static final Set<PluginClassloader> allLoaders = new CopyOnWriteArraySet<>();
+    static final Set<PluginClassloader> allLoaders = new CopyOnWriteArraySet<>();
     //
     private final ProxyServer proxy;
     private final PluginDescription desc;
