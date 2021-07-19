@@ -5,6 +5,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
@@ -93,7 +95,6 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
-import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.fusesource.jansi.AnsiConsole;
 import org.slf4j.impl.JDK14LoggerFactory;
 
@@ -130,7 +131,7 @@ public class BungeeCord extends ProxyServer
     /**
      * Fully qualified connections.
      */
-    private final Map<String, UserConnection> connections = new CaseInsensitiveMap<>();
+    private final Multimap<String, UserConnection> connections = MultimapBuilder.hashKeys().arrayListValues( 2 ).build();
     // Used to help with packet rewriting
     private final Map<UUID, UserConnection> connectionsByOfflineUUID = new HashMap<>();
     private final Map<UUID, UserConnection> connectionsByUUID = new HashMap<>();
@@ -517,10 +518,7 @@ public class BungeeCord extends ProxyServer
         connectionLock.readLock().lock();
         try
         {
-            for ( UserConnection con : connections.values() )
-            {
-                con.unsafe().sendPacket( packet );
-            }
+            connections.values().forEach( con -> con.unsafe().sendPacket( packet ) );
         } finally
         {
             connectionLock.readLock().unlock();
@@ -574,7 +572,7 @@ public class BungeeCord extends ProxyServer
         connectionLock.readLock().lock();
         try
         {
-            return Collections.unmodifiableCollection( new HashSet( connections.values() ) );
+            return Collections.unmodifiableCollection( new HashSet<ProxiedPlayer>( connections.values() ) );
         } finally
         {
             connectionLock.readLock().unlock();
@@ -588,12 +586,45 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
+    public Collection<ProxiedPlayer> getPlayers(String name)
+    {
+        connectionLock.readLock().lock();
+        try
+        {
+            return connections.containsKey( name ) ? new ArrayList<ProxiedPlayer>( connections.get( name ) ) : null;
+        } finally
+        {
+            connectionLock.readLock().unlock();
+        }
+    }
+
+    @Override
     public ProxiedPlayer getPlayer(String name)
     {
         connectionLock.readLock().lock();
         try
         {
-            return connections.get( name );
+            return connections.get( name ).stream().findFirst().orElse( null );
+        } finally
+        {
+            connectionLock.readLock().unlock();
+        }
+    }
+
+
+    @Override
+    public ProxiedPlayer tryGetPlayer(String nameOrUUID)
+    {
+        connectionLock.readLock().lock();
+        try
+        {
+            try
+            {
+                return getPlayer( UUID.fromString( nameOrUUID ) );
+            } catch ( IllegalArgumentException e )
+            {
+                return getPlayer( nameOrUUID );
+            }
         } finally
         {
             connectionLock.readLock().unlock();
@@ -744,9 +775,9 @@ public class BungeeCord extends ProxyServer
         try
         {
             // TODO See #1218
-            if ( connections.get( con.getName() ) == con )
+            if ( connections.containsKey( con.getName() ) )
             {
-                connections.remove( con.getName() );
+                connections.remove( con.getName(), con );
                 connectionsByUUID.remove( con.getUniqueId() );
                 connectionsByOfflineUUID.remove( con.getPendingConnection().getOfflineId() );
             }
