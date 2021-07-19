@@ -291,6 +291,36 @@ public interface ProxiedPlayer extends Connection, CommandSender
     void sendTitle(Title title);
 
     /**
+     * Sends a resource pack to this player.
+     * <p>
+     * Hash is the SHA-1 digest of the resource pack. It's recommended to specify this.
+     * A hash can be identified by using the service http://onlinemd5.com/
+     * </p>
+     *
+     * @param url url of resource pack
+     * @param hash optional resource pack hash
+     * @throws IllegalArgumentException if hash is longer than 40 characters
+     */
+    void sendResourcePack(String url, String hash) throws IllegalArgumentException;
+
+    /**
+     * Gets the player's currently loaded resource pack hash that was applied by a proxy or server.
+     * <p>
+     * Hash is returned as a 40 digit lowercase hexadecimal SHA-1 value
+     * </p>
+     *
+     * @return hash if resource pack is set, otherwise null
+     */
+    String getResourcePackHash();
+
+    /**
+     * Returns if the client has a successfully loaded resource pack.
+     *
+     * @return true if has resource pack
+     */
+    boolean hasResourcePack();
+
+    /**
      * Gets whether this player is using a FML client.
      * <p>
      * This method is only reliable if BungeeCord links Minecraft 1.8 servers
