@@ -1,6 +1,8 @@
 package net.md_5.bungee.api.score;
 
 import com.google.common.base.Preconditions;
+
+import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,13 +16,14 @@ public class Scoreboard
 {
 
     /**
-     * Unique name for this scoreboard.
+     * Keeps track of the most recent scoreboard name and position sent by server.
      */
-    private String name;
+    @Deprecated
+    private Map.Entry<Position, String> lastEntry;
     /**
-     * Position of this scoreboard.
+     * The name of each scoreboard in their given positions.
      */
-    private Position position;
+    private final Map<Position, String> names = new HashMap<>();
     /**
      * Objectives for this scoreboard.
      */
@@ -33,6 +36,11 @@ public class Scoreboard
      * Teams on this board.
      */
     private final Map<String, Team> teams = new HashMap<>();
+
+    public Map<Position, String> getNames()
+    {
+        return Collections.unmodifiableMap( names );
+    }
 
     public Collection<Objective> getObjectives()
     {
@@ -47,6 +55,52 @@ public class Scoreboard
     public Collection<Team> getTeams()
     {
         return Collections.unmodifiableCollection( teams.values() );
+    }
+
+    /**
+     * Gets the name of the most recent scoreboard sent by server
+     *
+     * @return the name of the scoreboard
+     * @deprecated method retained for backwards compatibility
+     */
+    @Deprecated
+    public String getName()
+    {
+        return ( lastEntry == null ) ? null : lastEntry.getValue();
+    }
+
+    /**
+     * Gets the position of the most recent scoreboard sent by server
+     *
+     * @return the position of the scoreboard
+     * @deprecated method retained for backwards compatibility
+     */
+    @Deprecated
+    public Position getPosition()
+    {
+        return ( lastEntry == null ) ? null : lastEntry.getKey();
+    }
+
+    /**
+     * Gets the name of the scoreboard in a given position
+     *
+     * @return the name of the scoreboard
+     */
+    public String getName( Position position )
+    {
+        return names.get( position );
+    }
+
+    /**
+     * Updates the name of the scoreboard for a slot.
+     *
+     * @param name the new name
+     * @param position the position being updated
+     */
+    public void updateName( Position position, String name )
+    {
+        names.put( position, name );
+        lastEntry = new AbstractMap.SimpleEntry<>( position, name );
     }
 
     public void addObjective(Objective objective)
@@ -101,8 +155,8 @@ public class Scoreboard
 
     public void clear()
     {
-        name = null;
-        position = null;
+        lastEntry = null;
+        names.clear();
         objectives.clear();
         scores.clear();
         teams.clear();
