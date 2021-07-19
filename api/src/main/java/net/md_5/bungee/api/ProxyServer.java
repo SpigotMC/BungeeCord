@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 import lombok.Getter;
+import net.md_5.bungee.api.boss.BarColor;
+import net.md_5.bungee.api.boss.BarStyle;
+import net.md_5.bungee.api.boss.BossBar;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -310,5 +313,29 @@ public abstract class ProxyServer
      * @see Title
      */
     public abstract Title createTitle();
+
+    /**
+     * Creates a fresh new {@link BossBar}
+     *
+     * @param title the title which will be displayed
+     * @param color the color of the boss bar
+     * @param style the style of the boss bar
+     * @return boss bar
+     */
+    public BossBar createBossBar(BaseComponent[] title, BarColor color, BarStyle style)
+    {
+        return createBossBar( title, color, style, 1.0f );
+    }
+
+    /**
+     * Creates a fresh new {@link BossBar}
+     *
+     * @param title the title which will be displayed
+     * @param color the color of the boss bar
+     * @param style the style of the boss bar
+     * @param progress the progress of the boss bar
+     * @return boss bar
+     */
+    public abstract BossBar createBossBar(BaseComponent[] title, BarColor color, BarStyle style, float progress);
 
 }
