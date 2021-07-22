@@ -46,7 +46,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
 
             if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
             {
-                ProxyServer.getInstance().getLogger().info( handler + " has connected" );
+                ProxyServer.getInstance().getLogger().log( Level.INFO, handler + " has connected" );
             }
         }
     }
@@ -61,7 +61,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
 
             if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
             {
-                ProxyServer.getInstance().getLogger().info( handler + " has disconnected" );
+                ProxyServer.getInstance().getLogger().log( Level.INFO, handler + " has disconnected" );
             }
         }
     }
