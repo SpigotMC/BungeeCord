@@ -51,7 +51,8 @@ public class CommandSend extends Command implements TabExecutor
                 if ( !entry.getValue().isEmpty() )
                 {
                     builder.event( new HoverEvent( HoverEvent.Action.SHOW_TEXT,
-                            new ComponentBuilder( Joiner.on( ", " ).join( entry.getValue() ) ).color( ChatColor.YELLOW ).create() ) );
+                            new ComponentBuilder( Joiner.on( ", " ).join( entry.getValue() ) )
+                                .color( ChatColor.YELLOW ).create() ) );
                 }
                 builder.append( entry.getKey().name() + ": " ).color( ChatColor.GREEN );
                 builder.append( "" + entry.getValue().size() ).bold( true );
@@ -133,7 +134,8 @@ public class CommandSend extends Command implements TabExecutor
                 targets = new ArrayList<>( serverTarget.getPlayers() );
             } else
             {
-                ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
+                ProxiedPlayer player = ProxyServer.getInstance().tryGetPlayer( args[0] );
+
                 if ( player == null )
                 {
                     sender.sendMessage( ProxyServer.getInstance().getTranslation( "user_not_online" ) );

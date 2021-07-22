@@ -21,7 +21,7 @@ public class CommandFind extends PlayerCommand
             sender.sendMessage( ProxyServer.getInstance().getTranslation( "username_needed" ) );
         } else
         {
-            ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
+            ProxiedPlayer player = ProxyServer.getInstance().tryGetPlayer( args[0] );
             if ( player == null || player.getServer() == null )
             {
                 sender.sendMessage( ProxyServer.getInstance().getTranslation( "user_not_online" ) );
