@@ -145,6 +145,12 @@ public final class UserConnection implements ProxiedPlayer
         {
             ch.write( packet );
         }
+        
+        @Override
+        public ChannelWrapper getChannelWrapper()
+        {
+            return ch;
+        }
     };
 
     public void init()
