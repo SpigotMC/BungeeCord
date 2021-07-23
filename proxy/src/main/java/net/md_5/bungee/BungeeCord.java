@@ -303,8 +303,12 @@ public class BungeeCord extends ProxyServer
                 }
             }
         }, 0, TimeUnit.MINUTES.toMillis( 5 ) );
-        metricsThread.scheduleAtFixedRate( new Metrics(), 0, TimeUnit.MINUTES.toMillis( Metrics.PING_INTERVAL ) );
-
+        
+        if ( !Boolean.getBoolean( "net.md_5.bungee.metrics.disable" )
+        {
+            metricsThread.scheduleAtFixedRate( new Metrics(), 0, TimeUnit.MINUTES.toMillis( Metrics.PING_INTERVAL ) );
+        }
+        
         Runtime.getRuntime().addShutdownHook( new Thread()
         {
             @Override
