@@ -38,6 +38,12 @@ public class ServerConnection implements Server
         {
             ch.write( packet );
         }
+        
+        @Override
+        public ChannelWrapper getChannelWrapper()
+        {
+            return ch;
+        }
     };
 
     @Override
