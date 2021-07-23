@@ -82,7 +82,7 @@ public interface Connection
         /**
          * Get the ChannelWrapper of this connection.
          *
-         * @param packet the packet to send
+         * @return the ChannelWrapper of the connection
          */
         ChannelWrapper getChannelWrapper();
         
