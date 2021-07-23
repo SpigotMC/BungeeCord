@@ -44,6 +44,12 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-proxy</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport-native-unix-common</artifactId>
             <version>${netty.version}</version>
