@@ -488,9 +488,9 @@ public final class UserConnection implements ProxiedPlayer
     private void sendMessage(ChatMessageType position, UUID sender, BaseComponent... message)
     {
         if ( ( getChatMode() == ChatMode.HIDDEN && position != ChatMessageType.ACTION_BAR ) || ( getChatMode() == ChatMode.COMMANDS_ONLY && position == ChatMessageType.CHAT ) )
-    	{
-    		return;
-    	}
+        {
+            return;
+        }
         // transform score components
         message = ChatComponentTransformer.getInstance().transform( this, true, message );
 
