@@ -3,6 +3,7 @@ package net.md_5.bungee.api.connection;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.DefinedPacket;
 
 /**
@@ -78,6 +79,13 @@ public interface Connection
     interface Unsafe
     {
 
+        /**
+         * Get the ChannelWrapper of this connection.
+         *
+         * @param packet the packet to send
+         */
+        ChannelWrapper getChannelWrapper();
+        
         /**
          * Send a packet to this connection.
          *
