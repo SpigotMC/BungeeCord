@@ -55,7 +55,7 @@ public class ColouredWriter extends Handler
                 }
                 char predictedColorCode = msg.charAt( ++index );
                 int tableIndex = predictedColorCode - 48;
-                if ( tableIndex >= 0 && tableIndex < TABLE_SIZE ) 
+                if ( tableIndex >= 0 && tableIndex < TABLE_SIZE )
                 {
                     String ansi = ANSI_TABLE[ tableIndex ];
                     if ( ansi != null )
