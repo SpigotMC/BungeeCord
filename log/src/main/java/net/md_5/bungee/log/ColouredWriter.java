@@ -1,7 +1,6 @@
 package net.md_5.bungee.log;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import jline.console.ConsoleReader;
@@ -12,32 +11,32 @@ import org.fusesource.jansi.Ansi.Erase;
 public class ColouredWriter extends Handler
 {
 
-    private static final HashMap<Character, String> COLOR_CODE_TO_ANSI = new HashMap<>();
+    private static final String[] ANSI_TABLE = new String[67];
 
     static
     {
-        COLOR_CODE_TO_ANSI.put( ChatColor.BLACK.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLACK ).boldOff().toString() );
-        COLOR_CODE_TO_ANSI.put( ChatColor.DARK_BLUE.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLUE ).boldOff().toString() );
-        COLOR_CODE_TO_ANSI.put( ChatColor.DARK_GREEN.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.GREEN ).boldOff().toString() );
-        COLOR_CODE_TO_ANSI.put( ChatColor.DARK_AQUA.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.CYAN ).boldOff().toString() );
-        COLOR_CODE_TO_ANSI.put( ChatColor.DARK_RED.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.RED ).boldOff().toString() );
-        COLOR_CODE_TO_ANSI.put( ChatColor.DARK_PURPLE.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.MAGENTA ).boldOff().toString() );
-        COLOR_CODE_TO_ANSI.put( ChatColor.GOLD.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.YELLOW ).boldOff().toString() );
-        COLOR_CODE_TO_ANSI.put( ChatColor.GRAY.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.WHITE ).boldOff().toString() );
-        COLOR_CODE_TO_ANSI.put( ChatColor.DARK_GRAY.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLACK ).bold().toString() );
-        COLOR_CODE_TO_ANSI.put( ChatColor.BLUE.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLUE ).bold().toString() );
-        COLOR_CODE_TO_ANSI.put( ChatColor.GREEN.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.GREEN ).bold().toString() );
-        COLOR_CODE_TO_ANSI.put( ChatColor.AQUA.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.CYAN ).bold().toString() );
-        COLOR_CODE_TO_ANSI.put( ChatColor.RED.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.RED ).bold().toString() );
-        COLOR_CODE_TO_ANSI.put( ChatColor.LIGHT_PURPLE.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.MAGENTA ).bold().toString() );
-        COLOR_CODE_TO_ANSI.put( ChatColor.YELLOW.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.YELLOW ).bold().toString() );
-        COLOR_CODE_TO_ANSI.put( ChatColor.WHITE.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.WHITE ).bold().toString() );
-        COLOR_CODE_TO_ANSI.put( ChatColor.MAGIC.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.BLINK_SLOW ).toString() );
-        COLOR_CODE_TO_ANSI.put( ChatColor.BOLD.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.UNDERLINE_DOUBLE ).toString() );
-        COLOR_CODE_TO_ANSI.put( ChatColor.STRIKETHROUGH.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.STRIKETHROUGH_ON ).toString() );
-        COLOR_CODE_TO_ANSI.put( ChatColor.UNDERLINE.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.UNDERLINE ).toString() );
-        COLOR_CODE_TO_ANSI.put( ChatColor.ITALIC.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.ITALIC ).toString() );
-        COLOR_CODE_TO_ANSI.put( ChatColor.RESET.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).toString() );
+        ANSI_TABLE[ ChatColor.BLACK.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLACK ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.DARK_BLUE.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLUE ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.DARK_GREEN.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.GREEN ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.DARK_AQUA.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.CYAN ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.DARK_RED.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.RED ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.DARK_PURPLE.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.MAGENTA ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.GOLD.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.YELLOW ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.GRAY.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.WHITE ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.DARK_GRAY.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLACK ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.BLUE.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLUE ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.GREEN.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.GREEN ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.AQUA.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.CYAN ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.RED.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.RED ).bold().toString();
+        ANSI_TABLE[ ChatColor.LIGHT_PURPLE.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.MAGENTA ).bold().toString();
+        ANSI_TABLE[ ChatColor.YELLOW.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.YELLOW ).bold().toString();
+        ANSI_TABLE[ ChatColor.WHITE.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.WHITE ).bold().toString();
+        ANSI_TABLE[ ChatColor.MAGIC.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.BLINK_SLOW ).toString();
+        ANSI_TABLE[ ChatColor.BOLD.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.UNDERLINE_DOUBLE ).toString();
+        ANSI_TABLE[ ChatColor.STRIKETHROUGH.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.STRIKETHROUGH_ON ).toString();
+        ANSI_TABLE[ ChatColor.UNDERLINE.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.UNDERLINE ).toString();
+        ANSI_TABLE[ ChatColor.ITALIC.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.ITALIC ).toString();
+        ANSI_TABLE[ ChatColor.RESET.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.RESET ).toString();
     }
 
     private static final String formatAnsi(String msg)
@@ -49,8 +48,12 @@ public class ColouredWriter extends Handler
             char currentChar = msg.charAt( index );
             if ( currentChar == '§' )
             {
+                if ( index == len - 1 )
+                {
+                    return stringBuilder.append( '§' ).toString();
+                }
                 char predictedColorCode = msg.charAt( ++index );
-                String ansi = COLOR_CODE_TO_ANSI.get( predictedColorCode );
+                String ansi = ANSI_TABLE[ predictedColorCode - 48 ];
                 if ( ansi != null )
                 {
                     stringBuilder.append( ansi );
