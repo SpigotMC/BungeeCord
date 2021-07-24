@@ -11,8 +11,9 @@ import org.fusesource.jansi.Ansi.Erase;
 public class ColouredWriter extends Handler
 {
 
-    private static final String[] ANSI_TABLE = new String[67];
+    private static final int TABLE_SIZE = 67;
 
+    private static final String[] ANSI_TABLE = new String[ TABLE_SIZE ];
     static
     {
         ANSI_TABLE[ ChatColor.BLACK.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLACK ).boldOff().toString();
@@ -39,10 +40,10 @@ public class ColouredWriter extends Handler
         ANSI_TABLE[ ChatColor.RESET.toString().charAt( 1 ) - 48 ] = Ansi.ansi().a( Ansi.Attribute.RESET ).toString();
     }
 
+
     private static final String formatAnsi(String msg)
     {
         StringBuilder stringBuilder = new StringBuilder();
-
         for ( int index = 0, len = msg.length(); index < len; index++ )
         {
             char currentChar = msg.charAt( index );
@@ -53,10 +54,17 @@ public class ColouredWriter extends Handler
                     return stringBuilder.append( '§' ).toString();
                 }
                 char predictedColorCode = msg.charAt( ++index );
-                String ansi = ANSI_TABLE[ predictedColorCode - 48 ];
-                if ( ansi != null )
+                int tableIndex = predictedColorCode - 48;
+                if ( tableIndex >= 0 || tableIndex < TABLE_SIZE ) 
                 {
-                    stringBuilder.append( ansi );
+                    String ansi = ANSI_TABLE[ tableIndex ];
+                    if ( ansi != null )
+                    {
+                        stringBuilder.append( ansi );
+                    } else
+                    {
+                        stringBuilder.append( '§' ).append( predictedColorCode );
+                    }
                 } else
                 {
                     stringBuilder.append( '§' ).append( predictedColorCode );
@@ -66,7 +74,6 @@ public class ColouredWriter extends Handler
                 stringBuilder.append( currentChar );
             }
         }
-
         return stringBuilder.toString();
     }
     //
