@@ -13,44 +13,60 @@ import org.fusesource.jansi.Ansi.Erase;
 public class ColouredWriter extends Handler
 {
 
-    @Data
-    private static class ReplacementSpecification
-    {
+    private static final HashMap<Character, String> COLOR_CODE_TO_ANSI = new HashMap<>();
 
-        private final Pattern pattern;
-        private final String replacement;
+    static
+    {
+        COLOR_CODE_TO_ANSI.put( ChatColor.BLACK.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLACK ).boldOff().toString() );
+        COLOR_CODE_TO_ANSI.put( ChatColor.DARK_BLUE.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLUE ).boldOff().toString() );
+        COLOR_CODE_TO_ANSI.put( ChatColor.DARK_GREEN.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.GREEN ).boldOff().toString() );
+        COLOR_CODE_TO_ANSI.put( ChatColor.DARK_AQUA.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.CYAN ).boldOff().toString() );
+        COLOR_CODE_TO_ANSI.put( ChatColor.DARK_RED.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.RED ).boldOff().toString() );
+        COLOR_CODE_TO_ANSI.put( ChatColor.DARK_PURPLE.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.MAGENTA ).boldOff().toString() );
+        COLOR_CODE_TO_ANSI.put( ChatColor.GOLD.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.YELLOW ).boldOff().toString() );
+        COLOR_CODE_TO_ANSI.put( ChatColor.GRAY.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.WHITE ).boldOff().toString() );
+        COLOR_CODE_TO_ANSI.put( ChatColor.DARK_GRAY.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLACK ).bold().toString() );
+        COLOR_CODE_TO_ANSI.put( ChatColor.BLUE.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLUE ).bold().toString() );
+        COLOR_CODE_TO_ANSI.put( ChatColor.GREEN.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.GREEN ).bold().toString() );
+        COLOR_CODE_TO_ANSI.put( ChatColor.AQUA.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.CYAN ).bold().toString() );
+        COLOR_CODE_TO_ANSI.put( ChatColor.RED.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.RED ).bold().toString() );
+        COLOR_CODE_TO_ANSI.put( ChatColor.LIGHT_PURPLE.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.MAGENTA ).bold().toString() );
+        COLOR_CODE_TO_ANSI.put( ChatColor.YELLOW.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.YELLOW ).bold().toString() );
+        COLOR_CODE_TO_ANSI.put( ChatColor.WHITE.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.WHITE ).bold().toString() );
+        COLOR_CODE_TO_ANSI.put( ChatColor.MAGIC.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.BLINK_SLOW ).toString() );
+        COLOR_CODE_TO_ANSI.put( ChatColor.BOLD.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.UNDERLINE_DOUBLE ).toString() );
+        COLOR_CODE_TO_ANSI.put( ChatColor.STRIKETHROUGH.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.STRIKETHROUGH_ON ).toString() );
+        COLOR_CODE_TO_ANSI.put( ChatColor.UNDERLINE.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.UNDERLINE ).toString() );
+        COLOR_CODE_TO_ANSI.put( ChatColor.ITALIC.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.ITALIC ).toString() );
+        COLOR_CODE_TO_ANSI.put( ChatColor.RESET.toString().charAt( 1 ), Ansi.ansi().a( Ansi.Attribute.RESET ).toString() );
     }
 
-    private static ReplacementSpecification compile(ChatColor color, String ansi)
+    private static final String formatAnsi(String msg)
     {
-        return new ReplacementSpecification( Pattern.compile( "(?i)" + color.toString() ), ansi );
-    }
+        StringBuilder stringBuilder = new StringBuilder();
 
-    private static final ReplacementSpecification[] REPLACEMENTS = new ReplacementSpecification[]
-    {
-        compile( ChatColor.BLACK, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLACK ).boldOff().toString() ),
-        compile( ChatColor.DARK_BLUE, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLUE ).boldOff().toString() ),
-        compile( ChatColor.DARK_GREEN, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.GREEN ).boldOff().toString() ),
-        compile( ChatColor.DARK_AQUA, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.CYAN ).boldOff().toString() ),
-        compile( ChatColor.DARK_RED, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.RED ).boldOff().toString() ),
-        compile( ChatColor.DARK_PURPLE, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.MAGENTA ).boldOff().toString() ),
-        compile( ChatColor.GOLD, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.YELLOW ).boldOff().toString() ),
-        compile( ChatColor.GRAY, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.WHITE ).boldOff().toString() ),
-        compile( ChatColor.DARK_GRAY, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLACK ).bold().toString() ),
-        compile( ChatColor.BLUE, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLUE ).bold().toString() ),
-        compile( ChatColor.GREEN, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.GREEN ).bold().toString() ),
-        compile( ChatColor.AQUA, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.CYAN ).bold().toString() ),
-        compile( ChatColor.RED, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.RED ).bold().toString() ),
-        compile( ChatColor.LIGHT_PURPLE, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.MAGENTA ).bold().toString() ),
-        compile( ChatColor.YELLOW, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.YELLOW ).bold().toString() ),
-        compile( ChatColor.WHITE, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.WHITE ).bold().toString() ),
-        compile( ChatColor.MAGIC, Ansi.ansi().a( Ansi.Attribute.BLINK_SLOW ).toString() ),
-        compile( ChatColor.BOLD, Ansi.ansi().a( Ansi.Attribute.UNDERLINE_DOUBLE ).toString() ),
-        compile( ChatColor.STRIKETHROUGH, Ansi.ansi().a( Ansi.Attribute.STRIKETHROUGH_ON ).toString() ),
-        compile( ChatColor.UNDERLINE, Ansi.ansi().a( Ansi.Attribute.UNDERLINE ).toString() ),
-        compile( ChatColor.ITALIC, Ansi.ansi().a( Ansi.Attribute.ITALIC ).toString() ),
-        compile( ChatColor.RESET, Ansi.ansi().a( Ansi.Attribute.RESET ).toString() ),
-    };
+        for ( int index = 0, len = msg.length(); index < len; index++ )
+        {
+            char currentChar = msg.charAt( index );
+            if ( currentChar == '§' )
+            {
+                char predictedColorCode = msg.charAt( ++index );
+                String ansi = COLOR_CODE_TO_ANSI.get( predictedColorCode );
+                if ( ansi != null )
+                {
+                    stringBuilder.append( ansi );
+                } else
+                {
+                    stringBuilder.append( '§' ).append( predictedColorCode );
+                }
+            } else
+            {
+                stringBuilder.append( currentChar );
+            }
+        }
+
+        return stringBuilder.toString();
+    }
     //
     private final ConsoleReader console;
 
@@ -61,13 +77,9 @@ public class ColouredWriter extends Handler
 
     public void print(String s)
     {
-        for ( ReplacementSpecification replacement : REPLACEMENTS )
-        {
-            s = replacement.pattern.matcher( s ).replaceAll( replacement.replacement );
-        }
         try
         {
-            console.print( Ansi.ansi().eraseLine( Erase.ALL ).toString() + ConsoleReader.RESET_LINE + s + Ansi.ansi().reset().toString() );
+            console.print( Ansi.ansi().eraseLine( Erase.ALL ).toString() + ConsoleReader.RESET_LINE + formatAnsi( s ) + Ansi.ansi().reset().toString() );
             console.drawLine();
             console.flush();
         } catch ( IOException ex )
