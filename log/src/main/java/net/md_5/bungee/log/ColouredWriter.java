@@ -1,11 +1,10 @@
 package net.md_5.bungee.log;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
-import java.util.regex.Pattern;
 import jline.console.ConsoleReader;
-import lombok.Data;
 import net.md_5.bungee.api.ChatColor;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Erase;
