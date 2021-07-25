@@ -13,7 +13,9 @@ public class ColouredWriter extends Handler
 
     private static final int TABLE_SIZE = 67;
 
-    private static final byte OFFSET = (byte) '0';
+    private static final int OFFSET = '0';
+
+    private static final int UPPERCASE_OFFSET = 32;
 
     private static final String[] ANSI_TABLE = new String[ TABLE_SIZE ];
 
@@ -41,21 +43,35 @@ public class ColouredWriter extends Handler
         ANSI_TABLE[ ChatColor.UNDERLINE.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.UNDERLINE ).toString();
         ANSI_TABLE[ ChatColor.ITALIC.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.ITALIC ).toString();
         ANSI_TABLE[ ChatColor.RESET.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.RESET ).toString();
+
+        // Add uppercase chars for case insensitivity
+        for (int index = 0; index < TABLE_SIZE; index++)
+        {
+            if ( ANSI_TABLE[ index ] != null)
+            {
+                int colorCode = index + OFFSET;
+                if ( colorCode >= 'a' && colorCode <= 'r' )
+                {
+                    ANSI_TABLE[ colorCode - UPPERCASE_OFFSET - OFFSET ] = ANSI_TABLE[ index ];
+                }
+            }
+        }
     }
 
     private static final String formatAnsi(String msg)
     {
         StringBuilder stringBuilder = new StringBuilder();
-        for ( int index = 0, len = msg.length(); index < len; index++ )
+        char[] chars = msg.toCharArray();
+        for(int index = 0; index < chars.length; index++)
         {
-            char currentChar = msg.charAt( index );
+            char currentChar = chars[ index ];
             if ( currentChar == '§' )
             {
-                if ( index == len - 1 )
+                if ( index == chars.length - 1 )
                 {
                     return stringBuilder.append( '§' ).toString();
                 }
-                char predictedColorCode = msg.charAt( ++index );
+                char predictedColorCode = chars[++index];
                 int tableIndex = predictedColorCode - OFFSET;
                 if ( tableIndex >= 0 && tableIndex < TABLE_SIZE )
                 {
@@ -76,6 +92,7 @@ public class ColouredWriter extends Handler
                 stringBuilder.append( currentChar );
             }
         }
+
         return stringBuilder.toString();
     }
     //
