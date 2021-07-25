@@ -45,9 +45,9 @@ public class ColouredWriter extends Handler
         ANSI_TABLE[ ChatColor.RESET.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.RESET ).toString();
 
         // Add uppercase chars for case insensitivity
-        for (int index = 0; index < TABLE_SIZE; index++)
+        for ( int index = 0; index < TABLE_SIZE; index++ )
         {
-            if ( ANSI_TABLE[ index ] != null)
+            if ( ANSI_TABLE[ index ] != null )
             {
                 int colorCode = index + OFFSET;
                 if ( colorCode >= 'a' && colorCode <= 'r' )
@@ -62,7 +62,7 @@ public class ColouredWriter extends Handler
     {
         StringBuilder stringBuilder = new StringBuilder();
         char[] chars = msg.toCharArray();
-        for(int index = 0; index < chars.length; index++)
+        for ( int index = 0; index < chars.length; index++ )
         {
             char currentChar = chars[ index ];
             if ( currentChar == '§' )
