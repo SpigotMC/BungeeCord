@@ -9,7 +9,6 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
-
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -19,7 +18,7 @@ public class CommandKick extends Command implements TabExecutor
 
     public CommandKick()
     {
-        super("gkick", "bungeecord.command.kick");
+        super( "gkick", "bungeecord.command.kick" );
     }
 
     @Override
