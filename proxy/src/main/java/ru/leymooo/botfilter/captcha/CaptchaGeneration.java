@@ -100,6 +100,10 @@ public class CaptchaGeneration
         {
             return randomNotWhiteColor();
         }
+        if ( r == 247 && g == 233 && b == 163 )
+        {
+            return randomNotWhiteColor();
+        }
         return color;
     }
 
