@@ -57,9 +57,7 @@ public class TabCompleteResponse extends DefinedPacket
             }
 
             suggestions = new Suggestions( range, matches );
-        }
-
-        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_13 )
+        } else
         {
             commands = readStringArray( buf );
         }
@@ -84,9 +82,7 @@ public class TabCompleteResponse extends DefinedPacket
                     writeString( suggestion.getTooltip().getString(), buf );
                 }
             }
-        }
-
-        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_13 )
+        } else
         {
             writeStringArray( commands, buf );
         }

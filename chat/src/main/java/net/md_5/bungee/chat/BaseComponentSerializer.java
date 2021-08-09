@@ -85,7 +85,7 @@ public class BaseComponentSerializer
                     {
                         components = new BaseComponent[]
                         {
-                                context.deserialize( contents, BaseComponent.class )
+                            context.deserialize( contents, BaseComponent.class )
                         };
                     }
                     hoverEvent = new HoverEvent( action, components );
