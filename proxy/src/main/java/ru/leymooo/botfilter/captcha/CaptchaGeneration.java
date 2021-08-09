@@ -76,12 +76,27 @@ public class CaptchaGeneration
     {
         Color color = MapPalette.colors[rnd.nextInt( MapPalette.colors.length )];
 
-        if ( color.getRed() == 255 && color.getGreen() == 255 && color.getBlue() == 255 )
+        int r = color.getRed();
+        int g = color.getGreen();
+        int b = color.getBlue();
+
+        if ( r == 255 && g == 255 && b == 255 )
         {
             return randomNotWhiteColor();
         }
-
-        if ( color.getRed() == 220 && color.getGreen() == 220 && color.getBlue() == 220 )
+        if ( r == 220 && g == 220 && b == 220 )
+        {
+            return randomNotWhiteColor();
+        }
+        if ( r == 199 && g == 199 && b == 199 )
+        {
+            return randomNotWhiteColor();
+        }
+        if ( r == 255 && g == 252 && b == 245 )
+        {
+            return randomNotWhiteColor();
+        }
+        if ( r == 220 && g == 217 && b == 211 )
         {
             return randomNotWhiteColor();
         }
