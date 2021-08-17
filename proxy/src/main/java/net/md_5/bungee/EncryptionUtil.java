@@ -7,6 +7,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Random;
@@ -31,6 +32,8 @@ public class EncryptionUtil
     public static final KeyPair keys;
     @Getter
     private static final SecretKey secret = new SecretKeySpec( new byte[ 16 ], "AES" );
+    @Getter
+    private static final SecureRandom secretKeyGenerator = new SecureRandom();
     public static final NativeCode<BungeeCipher> nativeFactory = new NativeCode<>( "native-cipher", JavaCipher::new, NativeCipher::new );
 
     static
@@ -44,6 +47,22 @@ public class EncryptionUtil
         {
             throw new ExceptionInInitializerError( ex );
         }
+    }
+
+    public static EncryptionResponse encryptResponse(EncryptionRequest request, byte[] randomSecret)
+    {
+        try
+        {
+            PublicKey pubkey = getPubkey( request );
+            Cipher cipher = Cipher.getInstance( "RSA" );
+            cipher.init( Cipher.ENCRYPT_MODE, pubkey );
+            byte[] encrypted = cipher.doFinal( request.getVerifyToken() );
+            return new EncryptionResponse( cipher.doFinal( randomSecret ), encrypted );
+        } catch ( GeneralSecurityException e )
+        {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static EncryptionRequest encryptRequest()
