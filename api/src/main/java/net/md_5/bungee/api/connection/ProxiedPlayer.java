@@ -57,8 +57,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
     String getDisplayName();
 
     /**
-     * Sets this players display name to be used as their nametag and tab list
-     * name.
+     * Sets this player's display name to be used by proxy commands and plugins.
      *
      * @param name the name to set
      */
@@ -79,6 +78,22 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param message the message to send
      */
     public void sendMessage(ChatMessageType position, BaseComponent message);
+
+    /**
+     * Send a message to this player.
+     *
+     * @param sender the sender of the message
+     * @param message the message to send
+     */
+    public void sendMessage(UUID sender, BaseComponent... message);
+
+    /**
+     * Send a message to this player.
+     *
+     * @param sender the sender of the message
+     * @param message the message to send
+     */
+    public void sendMessage(UUID sender, BaseComponent message);
 
     /**
      * Connects / transfers this user to the specified connection, gracefully

@@ -8,6 +8,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.ConnectTimeoutException;
 import io.netty.util.internal.PlatformDependent;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -148,7 +149,10 @@ public final class UserConnection implements ProxiedPlayer
 
     public void init()
     {
-        this.entityRewrite = EntityMap.getEntityMap( getPendingConnection().getVersion() );
+        if ( getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_16_2 || !bungee.getConfig().isIpForward() )
+        {
+            this.entityRewrite = EntityMap.getEntityMap( getPendingConnection().getVersion() );
+        }
 
         this.displayName = name;
 
@@ -348,10 +352,10 @@ public final class UserConnection implements ProxiedPlayer
                         connect( def, null, true, ServerConnectEvent.Reason.LOBBY_FALLBACK );
                     } else if ( dimensionChange )
                     {
-                        disconnect( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
+                        disconnect( bungee.getTranslation( "fallback_kick", connectionFailMessage( future.cause() ) ) );
                     } else
                     {
-                        sendMessage( bungee.getTranslation( "fallback_kick", future.cause().getClass().getName() ) );
+                        sendMessage( bungee.getTranslation( "fallback_kick", connectionFailMessage( future.cause() ) ) );
                     }
                 }
             }
@@ -368,6 +372,17 @@ public final class UserConnection implements ProxiedPlayer
             b.localAddress( getPendingConnection().getListener().getHost().getHostString(), 0 );
         }
         b.connect().addListener( listener );
+    }
+
+    private String connectionFailMessage(Throwable cause)
+    {
+        if ( cause instanceof ConnectTimeoutException )
+        {
+            return bungee.getTranslation( "timeout" );
+        } else
+        {
+            return cause.getClass().getName();
+        }
     }
 
     @Override
@@ -441,24 +456,47 @@ public final class UserConnection implements ProxiedPlayer
         sendMessage( ChatMessageType.SYSTEM, message );
     }
 
-    private void sendMessage(ChatMessageType position, String message)
+    @Override
+    public void sendMessage(ChatMessageType position, BaseComponent... message)
     {
-        unsafe().sendPacket( new Chat( message, (byte) position.ordinal() ) );
+        sendMessage( position, null, message );
     }
 
     @Override
-    public void sendMessage(ChatMessageType position, BaseComponent... message)
+    public void sendMessage(ChatMessageType position, BaseComponent message)
+    {
+        sendMessage( position, (UUID) null, message );
+    }
+
+    @Override
+    public void sendMessage(UUID sender, BaseComponent... message)
+    {
+        sendMessage( ChatMessageType.CHAT, sender, message );
+    }
+
+    @Override
+    public void sendMessage(UUID sender, BaseComponent message)
+    {
+        sendMessage( ChatMessageType.CHAT, sender, message );
+    }
+
+    private void sendMessage(ChatMessageType position, UUID sender, String message)
+    {
+        unsafe().sendPacket( new Chat( message, (byte) position.ordinal(), sender ) );
+    }
+
+    private void sendMessage(ChatMessageType position, UUID sender, BaseComponent... message)
     {
         // transform score components
         message = ChatComponentTransformer.getInstance().transform( this, true, message );
 
-        if ( position == ChatMessageType.ACTION_BAR )
+        if ( position == ChatMessageType.ACTION_BAR && getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_17 )
         {
             // Versions older than 1.11 cannot send the Action bar with the new JSON formattings
             // Fix by converting to a legacy message, see https://bugs.mojang.com/browse/MC-119145
             if ( getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_10 )
             {
-                sendMessage( position, ComponentSerializer.toString( new TextComponent( BaseComponent.toLegacyText( message ) ) ) );
+                sendMessage( position, sender, ComponentSerializer.toString( new TextComponent( BaseComponent.toLegacyText( message ) ) ) );
             } else
             {
                 net.md_5.bungee.protocol.packet.Title title = new net.md_5.bungee.protocol.packet.Title();
@@ -468,22 +506,7 @@ public final class UserConnection implements ProxiedPlayer
             }
         } else
         {
-            sendMessage( position, ComponentSerializer.toString( message ) );
-        }
-    }
-
-    @Override
-    public void sendMessage(ChatMessageType position, BaseComponent message)
-    {
-        message = ChatComponentTransformer.getInstance().transform( this, true, message )[0];
-
-        // Action bar doesn't display the new JSON formattings, legacy works - send it using this for now
-        if ( position == ChatMessageType.ACTION_BAR )
-        {
-            sendMessage( position, ComponentSerializer.toString( new TextComponent( BaseComponent.toLegacyText( message ) ) ) );
-        } else
-        {
-            sendMessage( position, ComponentSerializer.toString( message ) );
+            sendMessage( position, sender, ComponentSerializer.toString( message ) );
         }
     }
 

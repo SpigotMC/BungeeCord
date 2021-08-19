@@ -95,6 +95,7 @@ import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.fusesource.jansi.AnsiConsole;
+import org.slf4j.impl.JDK14LoggerFactory;
 
 /**
  * Main BungeeCord proxy class.
@@ -215,6 +216,7 @@ public class BungeeCord extends ProxyServer
         consoleReader.addCompleter( new ConsoleCommandCompleter( this ) );
 
         logger = new BungeeLogger( "BungeeCord", "proxy.log", consoleReader );
+        JDK14LoggerFactory.LOGGER = logger;
         System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
         System.setOut( new PrintStream( new LoggingOutputStream( logger, Level.INFO ), true ) );
 
@@ -254,7 +256,7 @@ public class BungeeCord extends ProxyServer
     public void start() throws Exception
     {
         System.setProperty( "io.netty.selectorAutoRebuildThreshold", "0" ); // Seems to cause Bungee to stop accepting connections
-        if ( System.getProperty( "io.netty.leakDetectionLevel" ) == null )
+        if ( System.getProperty( "io.netty.leakDetectionLevel" ) == null && System.getProperty( "io.netty.leakDetection.level" ) == null )
         {
             ResourceLeakDetector.setLevel( ResourceLeakDetector.Level.DISABLED ); // Eats performance
         }

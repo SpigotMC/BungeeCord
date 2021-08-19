@@ -299,7 +299,10 @@ public class YamlConfig implements ConfigurationAdapter
     @SuppressWarnings("unchecked")
     public Collection<String> getGroups(String player)
     {
-        Collection<String> groups = get( "groups." + player, null );
+        // #1270: Do this to support player names with .
+        Map<String, Collection<String>> raw = get( "groups", Collections.emptyMap() );
+        Collection<String> groups = raw.get( player );
+
         Collection<String> ret = ( groups == null ) ? new HashSet<String>() : new HashSet<>( groups );
         ret.add( "default" );
         return ret;
