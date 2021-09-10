@@ -64,6 +64,7 @@ import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.BoundedArrayList;
 import net.md_5.bungee.util.BufUtil;
+import net.md_5.bungee.util.PlayerNameUtil;
 import net.md_5.bungee.util.QuietException;
 
 @RequiredArgsConstructor
@@ -354,7 +355,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( thisState == State.USERNAME, "Not expecting USERNAME" );
         this.loginRequest = loginRequest;
 
-        if ( getName().contains( " " ) )
+        if ( !PlayerNameUtil.isValid( onlineMode, getName() ) )
         {
             disconnect( bungee.getTranslation( "name_invalid" ) );
             return;
