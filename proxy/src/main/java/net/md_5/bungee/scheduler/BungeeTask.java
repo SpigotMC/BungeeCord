@@ -3,6 +3,8 @@ package net.md_5.bungee.scheduler;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 import lombok.Data;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -63,7 +65,11 @@ public class BungeeTask implements Runnable, ScheduledTask
                 task.run();
             } catch ( Throwable t )
             {
-                ProxyServer.getInstance().getLogger().log( Level.SEVERE, String.format( "Task %s encountered an exception", this ), t );
+                Logger logger = ProxyServer.getInstance().getLogger();
+                logger.log( log( t, "Task {0} encountered an exception", new Object[]
+                {
+                    this
+                }, logger ) );
             }
 
             // If we have a period of 0 or less, only run once
@@ -82,5 +88,14 @@ public class BungeeTask implements Runnable, ScheduledTask
         }
 
         cancel();
+    }
+
+    private static LogRecord log(Throwable t, String msg, Object[] parameters, Logger logger)
+    {
+        LogRecord logRecord = new LogRecord( Level.SEVERE, msg );
+        logRecord.setParameters( parameters );
+        logRecord.setThrown( t );
+        logRecord.setLoggerName( logger.getName() );
+        return logRecord;
     }
 }

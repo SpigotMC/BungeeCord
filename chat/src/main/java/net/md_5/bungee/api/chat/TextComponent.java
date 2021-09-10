@@ -198,7 +198,7 @@ public final class TextComponent extends BaseComponent
         {
             return;
         }
-        setExtra( new ArrayList<BaseComponent>( Arrays.asList( extras ) ) );
+        setExtra( new ArrayList<>( Arrays.asList( extras ) ) );
     }
 
     /**
@@ -230,6 +230,6 @@ public final class TextComponent extends BaseComponent
     @Override
     public String toString()
     {
-        return String.format( "TextComponent{text=%s, %s}", text, super.toString() );
+        return "TextComponent{text=" + text + ", " + super.toString() + '}';
     }
 }
