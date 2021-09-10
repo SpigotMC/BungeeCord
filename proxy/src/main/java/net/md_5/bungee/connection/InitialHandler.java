@@ -353,13 +353,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(LoginRequest loginRequest) throws Exception
     {
         Preconditions.checkState( thisState == State.USERNAME, "Not expecting USERNAME" );
-        
+
         if ( !PlayerNameUtil.isValid( onlineMode, getName() ) )
         {
             disconnect( bungee.getTranslation( "name_invalid" ) );
             return;
         }
-        
+
         this.loginRequest = loginRequest;
 
         int limit = BungeeCord.getInstance().config.getPlayerLimit();
