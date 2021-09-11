@@ -32,7 +32,6 @@ import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
-import net.md_5.bungee.util.AllowedCharacters;
 
 public class UpstreamBridge extends PacketHandler
 {
@@ -148,9 +147,10 @@ public class UpstreamBridge extends PacketHandler
         for ( int index = 0, length = chat.getMessage().length(); index < length; index++ )
         {
             char c = chat.getMessage().charAt( index );
-            if ( !AllowedCharacters.isChatAllowedCharacter( c ) )
+            // Section symbol, control sequences, and delete
+            if ( c == '\u00A7' || c < ' ' || c == 127 )
             {
-                con.disconnect( bungee.getTranslation( "illegal_chat_characters", Util.unicode( c ) ) );
+                con.disconnect( bungee.getTranslation( "illegal_chat_characters", String.format( "\\u%04x", (int) c ) ) );
                 throw CancelSendSignal.INSTANCE;
             }
         }
