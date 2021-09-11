@@ -62,6 +62,7 @@ import net.md_5.bungee.protocol.packet.PingPacket;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
+import net.md_5.bungee.util.AllowedCharacters;
 import net.md_5.bungee.util.BoundedArrayList;
 import net.md_5.bungee.util.BufUtil;
 import net.md_5.bungee.util.QuietException;
@@ -352,13 +353,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(LoginRequest loginRequest) throws Exception
     {
         Preconditions.checkState( thisState == State.USERNAME, "Not expecting USERNAME" );
-        this.loginRequest = loginRequest;
 
-        if ( getName().contains( " " ) )
+        if ( !AllowedCharacters.isValidName( loginRequest.getData(), onlineMode ) )
         {
             disconnect( bungee.getTranslation( "name_invalid" ) );
             return;
         }
+        this.loginRequest = loginRequest;
 
         int limit = BungeeCord.getInstance().config.getPlayerLimit();
         if ( limit > 0 && bungee.getOnlineCount() >= limit )
