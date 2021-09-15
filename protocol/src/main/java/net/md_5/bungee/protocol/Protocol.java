@@ -471,7 +471,7 @@ public enum Protocol
         private final int protocolVersion;
         private final TObjectIntMap<Class<? extends DefinedPacket>> packetMap = new TObjectIntHashMap<>( MAX_PACKET_ID );
         @SuppressWarnings("unchecked")
-        private final Supplier<? extends DefinedPacket>[] packetConstructors = new Supplier[ MAX_PACKET_ID ];
+        private final TIntObjectMap<Supplier<? extends DefinedPacket>> packetConstructors = new TIntObjectHashMap<>( MAX_PACKET_ID );
     }
 
     @Data
@@ -530,7 +530,7 @@ public enum Protocol
                 throw new BadPacketException( "Packet with id " + id + " outside of range" );
             }
 
-            Supplier<? extends DefinedPacket> constructor = protocolData.packetConstructors[id];
+            Supplier<? extends DefinedPacket> constructor = protocolData.packetConstructors.get( id );
             return ( constructor == null ) ? null : constructor.get();
         }
 
@@ -561,7 +561,7 @@ public enum Protocol
 
                 ProtocolData data = protocols.get( protocol );
                 data.packetMap.put( packetClass, mapping.packetID );
-                data.packetConstructors[mapping.packetID] = constructor;
+                data.packetConstructors.put( mapping.packetID, constructor );
             }
         }
 
