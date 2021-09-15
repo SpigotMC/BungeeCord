@@ -530,7 +530,7 @@ public enum Protocol
                 throw new BadPacketException( "Packet with id " + id + " outside of range" );
             }
 
-            Supplier<? extends DefinedPacket> constructor = protocolData.packetConstructors.get(id);
+            Supplier<? extends DefinedPacket> constructor = protocolData.packetConstructors.get( id );
             return ( constructor == null ) ? null : constructor.get();
         }
 
@@ -561,7 +561,7 @@ public enum Protocol
 
                 ProtocolData data = protocols.get( protocol );
                 data.packetMap.put( packetClass, mapping.packetID );
-                data.packetConstructors.put(mapping.packetID, constructor);
+                data.packetConstructors.put( mapping.packetID, constructor );
             }
         }
 
