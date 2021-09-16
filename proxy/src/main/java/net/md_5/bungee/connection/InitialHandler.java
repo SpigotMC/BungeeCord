@@ -115,12 +115,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private enum State
     {
 
-        HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, FINISHING, FINISHED;
+        HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, FINISHING;
     }
 
     private boolean canSendKickMessage()
     {
-        return thisState == State.USERNAME || thisState == State.ENCRYPT || thisState == State.FINISHING || thisState == State.FINISHED;
+        return thisState == State.USERNAME || thisState == State.ENCRYPT || thisState == State.FINISHING;
     }
 
     @Override
@@ -543,8 +543,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             }
 
                             userCon.connect( server, null, true, ServerConnectEvent.Reason.JOIN_PROXY );
-
-                            thisState = State.FINISHED;
                         }
                     }
                 } );
