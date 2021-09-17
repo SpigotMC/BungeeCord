@@ -115,12 +115,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private enum State
     {
 
-        HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, FINISHED;
+        HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, FINISHING;
     }
 
     private boolean canSendKickMessage()
     {
-        return thisState == State.USERNAME || thisState == State.ENCRYPT || thisState == State.FINISHED;
+        return thisState == State.USERNAME || thisState == State.ENCRYPT || thisState == State.FINISHING;
     }
 
     @Override
@@ -392,12 +392,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 }
                 if ( onlineMode )
                 {
+                    thisState = State.ENCRYPT;
                     unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
                 } else
                 {
+                    thisState = State.FINISHING;
                     finish();
                 }
-                thisState = State.ENCRYPT;
             }
         };
 
@@ -455,7 +456,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 }
             }
         };
-
+        thisState = State.FINISHING;
         HttpClient.get( authURL, ch.getHandle().eventLoop(), handler );
     }
 
@@ -542,8 +543,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             }
 
                             userCon.connect( server, null, true, ServerConnectEvent.Reason.JOIN_PROXY );
-
-                            thisState = State.FINISHED;
                         }
                     }
                 } );
