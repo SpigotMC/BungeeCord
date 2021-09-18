@@ -487,6 +487,14 @@ public final class UserConnection implements ProxiedPlayer
 
     private void sendMessage(ChatMessageType position, UUID sender, BaseComponent... message)
     {
+        if ( getChatMode() == ChatMode.HIDDEN && ( pendingConnection.getVersion() < ProtocolConstants.MINECRAFT_1_11 || position != ChatMessageType.ACTION_BAR ) )
+        {
+            return;
+        }
+        if ( getChatMode() == ChatMode.COMMANDS_ONLY && position == ChatMessageType.CHAT )
+        {
+            return;
+        }
         // transform score components
         message = ChatComponentTransformer.getInstance().transform( this, true, message );
 
