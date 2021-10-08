@@ -36,6 +36,7 @@ public class ProtocolConstants
     public static final int MINECRAFT_1_16_4 = 754;
     public static final int MINECRAFT_1_17 = 755;
     public static final int MINECRAFT_1_17_1 = 756;
+    public static final int MINECRAFT_1_18 = 1073741868;
     public static final List<String> SUPPORTED_VERSIONS;
     public static final List<Integer> SUPPORTED_VERSION_IDS;
 
@@ -87,8 +88,8 @@ public class ProtocolConstants
 
         if ( SNAPSHOT_SUPPORT )
         {
-            // supportedVersions.add( "1.17.x" );
-            // supportedVersionIds.add( ProtocolConstants.MINECRAFT_1_17 );
+            supportedVersions.add( "1.18.x" );
+            supportedVersionIds.add( ProtocolConstants.MINECRAFT_1_18 );
         }
 
         SUPPORTED_VERSIONS = supportedVersions.build();
