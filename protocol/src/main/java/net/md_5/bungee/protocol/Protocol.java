@@ -238,13 +238,13 @@ public enum Protocol
                     Subtitle.class,
                     Subtitle::new,
                     map( ProtocolConstants.MINECRAFT_1_17, 0x57 ),
-                    map( ProtocolConstants.MINECRAFT_1_17, 0x58 )
+                    map( ProtocolConstants.MINECRAFT_1_18, 0x58 )
             );
             TO_CLIENT.registerPacket(
                     TitleTimes.class,
                     TitleTimes::new,
                     map( ProtocolConstants.MINECRAFT_1_17, 0x5A ),
-                    map( ProtocolConstants.MINECRAFT_1_17, 0x5B )
+                    map( ProtocolConstants.MINECRAFT_1_18, 0x5B )
             );
             TO_CLIENT.registerPacket(
                     PlayerListHeaderFooter.class,
@@ -259,7 +259,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_15, 0x54 ),
                     map( ProtocolConstants.MINECRAFT_1_16, 0x53 ),
                     map( ProtocolConstants.MINECRAFT_1_17, 0x5E ),
-                    map( ProtocolConstants.MINECRAFT_1_17, 0x5F )
+                    map( ProtocolConstants.MINECRAFT_1_18, 0x5F )
             );
             TO_CLIENT.registerPacket(
                     EntityStatus.class,
