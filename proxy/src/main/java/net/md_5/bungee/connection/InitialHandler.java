@@ -152,16 +152,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void handle(PluginMessage pluginMessage) throws Exception
-    {
-        // TODO: Unregister?
-        if ( PluginMessage.SHOULD_RELAY.apply( pluginMessage ) )
-        {
-            relayMessages.add( pluginMessage );
-        }
-    }
-
-    @Override
     public void handle(LegacyHandshake legacyHandshake) throws Exception
     {
         this.legacy = true;
