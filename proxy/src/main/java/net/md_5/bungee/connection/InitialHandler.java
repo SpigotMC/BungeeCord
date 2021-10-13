@@ -72,7 +72,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 {
 
     private final static String MOJANG_SESSION_URL = System.getProperty("bungee.mojang.session.url",
-            "https://sessionserver.mojang.com/session/minecraft/hasJoined").concat("?username=%s?serverId=%s");
+            "https://sessionserver.mojang.com/session/minecraft/hasJoined").concat("?username=%s&serverId=%s");
     private final BungeeCord bungee;
     private ChannelWrapper ch;
     @Getter
