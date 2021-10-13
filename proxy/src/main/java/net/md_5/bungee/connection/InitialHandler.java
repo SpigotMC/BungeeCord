@@ -71,8 +71,8 @@ import net.md_5.bungee.util.QuietException;
 public class InitialHandler extends PacketHandler implements PendingConnection
 {
 
-    private final static String MOJANG_SESSION_URL = System.getProperty("bungee.mojang.session.url",
-            "https://sessionserver.mojang.com/session/minecraft/hasJoined").concat("?username=%s&serverId=%s");
+    private static final String MOJANG_SESSION_URL = System.getProperty( "bungee.mojang.session.url",
+            "https://sessionserver.mojang.com/session/minecraft/hasJoined" ).concat( "?username=%s&serverId=%s" );
     private final BungeeCord bungee;
     private ChannelWrapper ch;
     @Getter
@@ -433,7 +433,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
 
         String preventProxy = ( BungeeCord.getInstance().config.isPreventProxyConnections() && getSocketAddress() instanceof InetSocketAddress ) ? "&ip=" + URLEncoder.encode( getAddress().getAddress().getHostAddress(), "UTF-8" ) : "";
-        String authURL = String.format(MOJANG_SESSION_URL, encName, encodedHash) + preventProxy;
+        String authURL = String.format( MOJANG_SESSION_URL, encName, encodedHash ) + preventProxy;
 
         Callback<String> handler = new Callback<String>()
         {
