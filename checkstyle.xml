@@ -33,6 +33,7 @@
 
         <!-- See http://checkstyle.sourceforge.net/config_filters.html -->
         <module name="SuppressionCommentFilter"/>
+        <module name="SuppressWarningsHolder"/>
 
         <!-- See http://checkstyle.sourceforge.net/config_imports.html -->
         <module name="AvoidStarImport"/>
@@ -84,4 +85,6 @@
         <module name="Indentation"/>
         <module name="UpperEll"/>
     </module>
+
+    <module name="SuppressWarningsFilter"/>
 </module>

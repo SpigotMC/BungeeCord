@@ -64,6 +64,7 @@ import net.md_5.bungee.protocol.packet.PingPacket;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
+import net.md_5.bungee.util.AllowedCharacters;
 import net.md_5.bungee.util.BoundedArrayList;
 import net.md_5.bungee.util.QuietException;
 import ru.leymooo.botfilter.config.Settings;
@@ -121,12 +122,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private enum State
     {
 
-        HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, FINISHED;
+        HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, FINISHING;
     }
 
     private boolean canSendKickMessage()
     {
-        return thisState == State.USERNAME || thisState == State.ENCRYPT || thisState == State.FINISHED;
+        return thisState == State.USERNAME || thisState == State.ENCRYPT || thisState == State.FINISHING;
     }
 
     @Override
@@ -372,11 +373,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
     public void delayedHandleOfLoginRequset()
     {
-        if ( getName().contains( " " ) )
+        if ( !AllowedCharacters.isValidName( loginRequest.getData(), onlineMode ) )
         {
             disconnect( bungee.getTranslation( "name_invalid" ) );
             return;
         }
+
         int limit = BungeeCord.getInstance().config.getPlayerLimit();
         if ( limit > 0 && bungee.getOnlineCountBF( false ) >= limit )//BotFilter
         {
@@ -409,9 +411,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 }
                 if ( onlineMode )
                 {
+                    thisState = State.ENCRYPT;
                     unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
                 } else if ( isInEventLoop() )
                 {
+                    thisState = State.FINISHING;
                     finish();
                 } else
                 {
@@ -423,7 +427,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                         }
                     } );
                 }
-                thisState = State.ENCRYPT;
             }
         };
 
@@ -478,7 +481,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 }
             }
         };
-
+        thisState = State.FINISHING;
         HttpClient.get( authURL, ch.getHandle().eventLoop(), handler );
     }
 
@@ -613,7 +616,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             server = bungee.getServerInfo( listener.getDefaultServer() );
         }
         userCon.connect( server, null, true, ServerConnectEvent.Reason.JOIN_PROXY );
-        thisState = State.FINISHED;
     }
 
     private void sendLoginSuccess(boolean send)
