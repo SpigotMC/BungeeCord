@@ -213,7 +213,6 @@ public class ServerConnector extends PacketHandler
 
         if ( user.isNeedLogin() || !( login.getDimension() instanceof Integer ) ) //BotFilter
         {
-            user.setNeedLogin( false ); //BotFilter
             // Once again, first connection
             user.setClientEntityId( login.getEntityId() );
             user.setServerEntityId( login.getEntityId() );
@@ -224,7 +223,7 @@ public class ServerConnector extends PacketHandler
 
             user.unsafe().sendPacket( modLogin );
 
-            if ( !user.isNeedLogin() ) //BotFilter
+            if ( !user.isNeedLogin() ) //BotFilter //if false, means user came from captcha or server switch
             {
                 if ( user.getServer() != null ) //BotFilter
                 {
@@ -248,8 +247,9 @@ public class ServerConnector extends PacketHandler
                 {
                     user.getServer().disconnect( "Quitting" ); //BotFilter
                 }
-            } else if ( user.isNeedLogin() ) //BotFilters
+            } else if ( user.isNeedLogin() ) //BotFilter
             {
+                user.setNeedLogin( false ); //BotFilter
                 ByteBuf brand = ByteBufAllocator.DEFAULT.heapBuffer();
                 DefinedPacket.writeString( "BotFilter (https://vk.cc/8hr1pU)", brand );
                 user.unsafe().sendPacket( new PluginMessage( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ? "minecraft:brand" : "MC|Brand", DefinedPacket.toArray( brand ), handshakeHandler.isServerForge() ) );
