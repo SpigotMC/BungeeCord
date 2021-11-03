@@ -214,8 +214,8 @@ public class UpstreamBridge extends PacketHandler
         String[] split = tabComplete.getCursor().split( " ", 2 );
         if ( split.length != 0 )
         {
-            String rootCommand = split[0].startsWith("/") ? split[0].substring(1) : split[0];
-            if (bungee.getPluginManager().isExecutableCommand( rootCommand, con ))
+            String rootCommand = split[0].startsWith( "/" ) ? split[0].substring( 1 ) : split[0];
+            if ( bungee.getPluginManager().isExecutableCommand( rootCommand, con ) )
             {
                 throw CancelSendSignal.INSTANCE;
             }
