@@ -171,10 +171,11 @@ public class UpstreamBridge extends PacketHandler
     public void handle(TabCompleteRequest tabComplete) throws Exception
     {
         List<String> suggestions = new ArrayList<>();
+        boolean isRegisteredCommand = false;
 
         if ( tabComplete.getCursor().startsWith( "/" ) )
         {
-            bungee.getPluginManager().dispatchCommand( con, tabComplete.getCursor().substring( 1 ), suggestions );
+            isRegisteredCommand = bungee.getPluginManager().dispatchCommand( con, tabComplete.getCursor().substring( 1 ), suggestions );
         }
 
         TabCompleteEvent tabCompleteEvent = new TabCompleteEvent( con, con.getServer(), tabComplete.getCursor(), suggestions );
@@ -207,6 +208,12 @@ public class UpstreamBridge extends PacketHandler
 
                 con.unsafe().sendPacket( new TabCompleteResponse( tabComplete.getTransactionId(), new Suggestions( range, brigadier ) ) );
             }
+            throw CancelSendSignal.INSTANCE;
+        }
+
+        // Don't forward tab completions if the command is a registered bungee command
+        if ( isRegisteredCommand )
+        {
             throw CancelSendSignal.INSTANCE;
         }
     }
