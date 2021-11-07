@@ -7,8 +7,9 @@ import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import javax.crypto.SecretKey;
@@ -63,7 +64,7 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.AllowedCharacters;
-import net.md_5.bungee.util.BoundedArrayList;
+import net.md_5.bungee.util.BoundedHashSet;
 import net.md_5.bungee.util.BufUtil;
 import net.md_5.bungee.util.QuietException;
 
@@ -81,7 +82,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private LoginRequest loginRequest;
     private EncryptionRequest request;
     @Getter
-    private final List<PluginMessage> relayMessages = new BoundedArrayList<>( 128 );
+    private PluginMessage relayBrandMessage = null;
+    @Getter
+    private final Set<String> relayRegisteredChannels = new BoundedHashSet<>( 128 );
     private State thisState = State.HANDSHAKE;
     private final Unsafe unsafe = new Unsafe()
     {
@@ -154,11 +157,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(PluginMessage pluginMessage) throws Exception
     {
-        // TODO: Unregister?
-        if ( PluginMessage.SHOULD_RELAY.apply( pluginMessage ) )
-        {
-            relayMessages.add( pluginMessage );
-        }
+        this.relayMessage( pluginMessage );
     }
 
     @Override
@@ -667,5 +666,34 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public boolean isConnected()
     {
         return !ch.isClosed();
+    }
+
+    public void relayMessage(PluginMessage input) throws Exception
+    {
+        if ( input.getData().length >= Byte.MAX_VALUE )
+        {
+            return;
+        }
+
+        if ( input.getTag().equals( "REGISTER" ) || input.getTag().equals( "minecraft:register" ) )
+        {
+            String content = new String( input.getData(), StandardCharsets.UTF_8 );
+
+            for ( String id : content.split( "\0" ) )
+            {
+                relayRegisteredChannels.add( id );
+            }
+        } else if ( input.getTag().equals( "UNREGISTER" ) || input.getTag().equals( "minecraft:unregister" ) )
+        {
+            String content = new String( input.getData(), StandardCharsets.UTF_8 );
+
+            for ( String id : content.split( "\0" ) )
+            {
+                relayRegisteredChannels.remove( id );
+            }
+        } else if ( input.getTag().equals( "MC|Brand" ) || input.getTag().equals( "minecraft:brand" ) )
+        {
+            relayBrandMessage = input;
+        }
     }
 }
