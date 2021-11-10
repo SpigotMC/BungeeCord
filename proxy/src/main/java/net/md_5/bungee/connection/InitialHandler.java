@@ -678,7 +678,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             {
                 if ( registeredChannels.size() < 128 && id.length() < 128 )
                 {
-                    registeredChannels.add(id);
+                    registeredChannels.add( id );
                 }
             }
         } else if ( input.getTag().equals( "UNREGISTER" ) || input.getTag().equals( "minecraft:unregister" ) )
