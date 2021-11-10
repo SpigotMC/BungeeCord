@@ -195,15 +195,13 @@ public class ServerConnector extends PacketHandler
             }
         }
 
-        PluginMessage brandMessage = user.getPendingConnection().getRelayBrandMessage();
-
+        PluginMessage brandMessage = user.getPendingConnection().getBrandMessage();
         if ( brandMessage != null )
         {
             ch.write( brandMessage );
         }
 
-        Set<String> registeredChannels = user.getPendingConnection().getRelayRegisteredChannels();
-
+        Set<String> registeredChannels = user.getPendingConnection().getRegisteredChannels();
         if ( !registeredChannels.isEmpty() )
         {
             ch.write( new PluginMessage( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ? "minecraft:register" : "REGISTER", Joiner.on( "\0" ).join( registeredChannels ).getBytes( StandardCharsets.UTF_8 ), false ) );

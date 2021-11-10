@@ -82,9 +82,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private LoginRequest loginRequest;
     private EncryptionRequest request;
     @Getter
-    private PluginMessage relayBrandMessage = null;
+    private PluginMessage brandMessage;
     @Getter
-    private final Set<String> relayRegisteredChannels = new BoundedHashSet<>( 128 );
+    private final Set<String> registeredChannels = new BoundedHashSet<>( 128 );
     private State thisState = State.HANDSHAKE;
     private final Unsafe unsafe = new Unsafe()
     {
@@ -670,18 +670,16 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
     public void relayMessage(PluginMessage input) throws Exception
     {
-        if ( input.getData().length >= Byte.MAX_VALUE )
-        {
-            return;
-        }
-
         if ( input.getTag().equals( "REGISTER" ) || input.getTag().equals( "minecraft:register" ) )
         {
             String content = new String( input.getData(), StandardCharsets.UTF_8 );
 
             for ( String id : content.split( "\0" ) )
             {
-                relayRegisteredChannels.add( id );
+                if ( registeredChannels.size() < 128 && id.length() < 128 )
+                {
+                    registeredChannels.add(id);
+                }
             }
         } else if ( input.getTag().equals( "UNREGISTER" ) || input.getTag().equals( "minecraft:unregister" ) )
         {
@@ -689,11 +687,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
             for ( String id : content.split( "\0" ) )
             {
-                relayRegisteredChannels.remove( id );
+                registeredChannels.remove( id );
             }
         } else if ( input.getTag().equals( "MC|Brand" ) || input.getTag().equals( "minecraft:brand" ) )
         {
-            relayBrandMessage = input;
+            brandMessage = input;
         }
     }
 }
