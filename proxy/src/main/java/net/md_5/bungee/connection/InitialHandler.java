@@ -9,6 +9,7 @@ import java.net.SocketAddress;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -64,7 +65,6 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.AllowedCharacters;
-import net.md_5.bungee.util.BoundedHashSet;
 import net.md_5.bungee.util.BufUtil;
 import net.md_5.bungee.util.QuietException;
 
@@ -84,7 +84,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Getter
     private PluginMessage brandMessage;
     @Getter
-    private final Set<String> registeredChannels = new BoundedHashSet<>( 128 );
+    private final Set<String> registeredChannels = new HashSet<>();
     private State thisState = State.HANDSHAKE;
     private final Unsafe unsafe = new Unsafe()
     {
