@@ -677,7 +677,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             for ( String id : content.split( "\0" ) )
             {
                 Preconditions.checkState( registeredChannels.size() < 128, "Too many registered channels" );
-                Preconditions.checkArgument( id.length() < 128, "Channel name too long" );
+                Preconditions.checkArgument( id.length() < 128, "Channel name too long (%s)", id );
 
                 registeredChannels.add( id );
             }
