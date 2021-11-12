@@ -24,6 +24,7 @@ public class ClientSettings extends DefinedPacket
     private byte skinParts;
     private int mainHand;
     private boolean disableTextFiltering;
+    private boolean allowServerListing;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
@@ -40,6 +41,10 @@ public class ClientSettings extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_17 )
         {
             disableTextFiltering = buf.readBoolean();
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_18 )
+        {
+            allowServerListing = buf.readBoolean();
         }
     }
 
@@ -64,6 +69,10 @@ public class ClientSettings extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_17 )
         {
             buf.writeBoolean( disableTextFiltering );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_18 )
+        {
+            buf.writeBoolean( allowServerListing );
         }
     }
 
