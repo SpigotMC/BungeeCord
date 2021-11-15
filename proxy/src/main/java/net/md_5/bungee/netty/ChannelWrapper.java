@@ -1,10 +1,8 @@
 package net.md_5.bungee.netty;
 
 import com.google.common.base.Preconditions;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.*;
+
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
@@ -37,14 +35,16 @@ public class ChannelWrapper
 
     public void setProtocol(Protocol protocol)
     {
-        ch.pipeline().get( MinecraftDecoder.class ).setProtocol( protocol );
-        ch.pipeline().get( MinecraftEncoder.class ).setProtocol( protocol );
+        ChannelPipeline pipeline = ch.pipeline();
+        pipeline.get( MinecraftDecoder.class ).setProtocol( protocol );
+        pipeline.get( MinecraftEncoder.class ).setProtocol( protocol );
     }
 
     public void setVersion(int protocol)
     {
-        ch.pipeline().get( MinecraftDecoder.class ).setProtocolVersion( protocol );
-        ch.pipeline().get( MinecraftEncoder.class ).setProtocolVersion( protocol );
+        ChannelPipeline pipeline = ch.pipeline();
+        pipeline.get( MinecraftDecoder.class ).setProtocolVersion( protocol );
+        pipeline.get( MinecraftEncoder.class ).setProtocolVersion( protocol );
     }
 
     public void write(Object packet)
@@ -113,8 +113,9 @@ public class ChannelWrapper
     public void addBefore(String baseName, String name, ChannelHandler handler)
     {
         Preconditions.checkState( ch.eventLoop().inEventLoop(), "cannot add handler outside of event loop" );
-        ch.pipeline().flush();
-        ch.pipeline().addBefore( baseName, name, handler );
+        ChannelPipeline pipeline = ch.pipeline();
+        pipeline.flush();
+        pipeline.addBefore( baseName, name, handler );
     }
 
     public Channel getHandle()
@@ -124,25 +125,26 @@ public class ChannelWrapper
 
     public void setCompressionThreshold(int compressionThreshold)
     {
-        if ( ch.pipeline().get( PacketCompressor.class ) == null && compressionThreshold != -1 )
+        ChannelPipeline pipeline = ch.pipeline();
+        if ( pipeline.get( PacketCompressor.class ) == null && compressionThreshold != -1 )
         {
             addBefore( PipelineUtils.PACKET_ENCODER, "compress", new PacketCompressor() );
         }
         if ( compressionThreshold != -1 )
         {
-            ch.pipeline().get( PacketCompressor.class ).setThreshold( compressionThreshold );
+            pipeline.get( PacketCompressor.class ).setThreshold( compressionThreshold );
         } else
         {
-            ch.pipeline().remove( "compress" );
+            pipeline.remove( "compress" );
         }
 
-        if ( ch.pipeline().get( PacketDecompressor.class ) == null && compressionThreshold != -1 )
+        if ( pipeline.get( PacketDecompressor.class ) == null && compressionThreshold != -1 )
         {
             addBefore( PipelineUtils.PACKET_DECODER, "decompress", new PacketDecompressor() );
         }
         if ( compressionThreshold == -1 )
         {
-            ch.pipeline().remove( "decompress" );
+            pipeline.remove( "decompress" );
         }
     }
 }
