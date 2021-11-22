@@ -70,6 +70,21 @@
         </repository>
     </distributionManagement>
 
+    <!-- We really shouldn't depend on external repositories, but at least this is the Central staging one -->
+    <repositories>
+        <repository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <properties>
         <build.number>unknown</build.number>
         <lombok.version>1.18.20</lombok.version>
