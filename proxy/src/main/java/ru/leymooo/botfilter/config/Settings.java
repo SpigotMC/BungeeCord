@@ -204,6 +204,9 @@ public class Settings extends Config
             "0 - проверять", "1 - отключить проверку", "2 - проверять при каждом заходе"
             })
         public int CHECK_LOCALHOST = 0;
+
+        @Comment("Отключить ли проверку для клиентов с Geyser-standalone? Тип авторищации должен быть floodgate.")
+        public boolean SKIP_GEYSER = false;
         /*
         @Comment(
                 {

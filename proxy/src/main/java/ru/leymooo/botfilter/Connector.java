@@ -77,6 +77,11 @@ public class Connector extends MoveHandler
         this.userConnection.setClientEntityId( PacketUtils.CLIENTID );
         this.userConnection.setDimension( 0 );
         this.ip = IPUtils.getAddress( this.userConnection ).getHostAddress();
+
+        if ( Settings.IMP.PROTECTION.SKIP_GEYSER && botFilter.isGeyser( userConnection.getPendingConnection() ) )
+        {
+            this.state = CheckState.ONLY_CAPTCHA;
+        }
     }
 
 

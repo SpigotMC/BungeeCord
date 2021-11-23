@@ -263,6 +263,26 @@ public class BotFilter
             || !botFilterUser.getIp().equalsIgnoreCase( address.getHostAddress() );
     }
 
+    public boolean needCheck(InitialHandler connection)
+    {
+        if ( Settings.IMP.PROTECTION.ALWAYS_CHECK )
+        {
+            return true;
+        }
+
+        if ( Settings.IMP.PROTECTION.SKIP_GEYSER && isGeyser( connection ) )
+        {
+            return isUnderAttack();
+        }
+
+        return needCheck( connection.getName(), connection.getAddress().getAddress() );
+    }
+
+    public boolean isGeyser(InitialHandler connection)
+    {
+        return connection.getExtraDataInHandshake().contains( "Floodgate" );
+    }
+
     /**
      * Проверяет, находиться ли игрок на проверке
      *

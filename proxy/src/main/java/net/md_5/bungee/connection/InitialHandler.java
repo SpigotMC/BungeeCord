@@ -67,7 +67,6 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.AllowedCharacters;
 import net.md_5.bungee.util.BoundedArrayList;
 import net.md_5.bungee.util.QuietException;
-import ru.leymooo.botfilter.config.Settings;
 import ru.leymooo.botfilter.utils.FastException;
 import ru.leymooo.botfilter.utils.IPUtils;
 import ru.leymooo.botfilter.utils.PingLimiter;
@@ -550,7 +549,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         sendLoginSuccess( sendLoginSuccess );
 
-        if ( Settings.IMP.PROTECTION.ALWAYS_CHECK || bungee.getBotFilter().needCheck( getName(), getAddress().getAddress() ) )
+        if ( bungee.getBotFilter().needCheck( this ) )
         {
             sendLoginSuccess( !sendLoginSuccess ); //Send a loginSuccess if sendLoginSuccess is false
             bungee.getBotFilter().connectToBotFilter( userCon );
@@ -622,7 +621,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( send )
         {
-            unsafe.sendPacket( new LoginSuccess( getUniqueId(), getName() ) );
+            LoginSuccess packet = new LoginSuccess( getUniqueId(), getName() );
+            System.out.println( packet );
+            unsafe.sendPacket( packet );
         }
     }
 
