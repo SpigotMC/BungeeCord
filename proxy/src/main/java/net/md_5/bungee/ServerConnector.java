@@ -1,9 +1,11 @@
 package net.md_5.bungee;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Queue;
 import java.util.Set;
@@ -196,9 +198,16 @@ public class ServerConnector extends PacketHandler
             }
         }
 
-        for ( PluginMessage message : user.getPendingConnection().getRelayMessages() )
+        PluginMessage brandMessage = user.getPendingConnection().getBrandMessage();
+        if ( brandMessage != null )
         {
-            ch.write( message );
+            ch.write( brandMessage );
+        }
+
+        Set<String> registeredChannels = user.getPendingConnection().getRegisteredChannels();
+        if ( !registeredChannels.isEmpty() )
+        {
+            ch.write( new PluginMessage( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ? "minecraft:register" : "REGISTER", Joiner.on( "\0" ).join( registeredChannels ).getBytes( StandardCharsets.UTF_8 ), false ) );
         }
 
         if ( user.getSettings() != null )
