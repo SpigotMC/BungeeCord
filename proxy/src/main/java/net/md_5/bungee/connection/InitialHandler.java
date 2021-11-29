@@ -620,7 +620,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         if ( send )
         {
             LoginSuccess packet = new LoginSuccess( getUniqueId(), getName() );
-            System.out.println( packet );
             unsafe.sendPacket( packet );
         }
     }
