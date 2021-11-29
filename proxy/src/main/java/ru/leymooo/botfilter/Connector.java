@@ -329,7 +329,7 @@ public class Connector extends MoveHandler
 
         if ( !userConnection.getPendingConnection().relayMessage0( pluginMessage ) )
         {
-            userConnection.getDelayedPluginMessages().add( pluginMessage );
+            userConnection.addDelayedPluginMessage( pluginMessage );
         }
 
     }

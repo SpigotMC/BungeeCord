@@ -130,6 +130,10 @@ public class JoinGame extends DefinedPacket
         {
             writeVarInt( viewDistance, buf );
         }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_18 )
+        {
+            writeVarInt( viewDistance, buf );
+        }
         if ( protocolVersion >= 29 )
         {
             buf.writeBoolean( reducedDebugInfo );

@@ -100,22 +100,25 @@
         <dependency>
             <groupId>com.maxmind.geoip2</groupId>
             <artifactId>geoip2</artifactId>
-            <version>2.15.0</version>
+            <version>2.16.1</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>javatar</groupId>
             <artifactId>javatar</artifactId>
             <version>2.5</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
-            <version>3.34.0</version>
+            <version>3.36.0.3</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
-            <version>2.9.1</version>
+            <version>2.9.2</version>
             <scope>compile</scope>
         </dependency>
         <!-- add these back in as they are not exposed by the API -->

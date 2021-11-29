@@ -285,6 +285,8 @@ public class PacketUtils
                 return 27;
             case ProtocolConstants.MINECRAFT_1_17_1:
                 return 28;
+            case ProtocolConstants.MINECRAFT_1_18:
+                return 29;
             default:
                 throw new IllegalArgumentException( "Version is not supported" );
         }

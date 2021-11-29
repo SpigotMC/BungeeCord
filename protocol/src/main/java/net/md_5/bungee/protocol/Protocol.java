@@ -463,7 +463,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_14, 0x4E ),
                     map( ProtocolConstants.MINECRAFT_1_15, 0x4F ),
                     map( ProtocolConstants.MINECRAFT_1_16, 0x4E ),
-                    map( ProtocolConstants.MINECRAFT_1_17, 0x58 )
+                    map( ProtocolConstants.MINECRAFT_1_17, 0x58 ),
+                    map( ProtocolConstants.MINECRAFT_1_18, 0x59 )
             );
             TO_CLIENT.registerPacket(
                     PlayerPositionAndLook.class, PlayerPositionAndLook::new,

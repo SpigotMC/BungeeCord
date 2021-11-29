@@ -12,6 +12,7 @@ import io.netty.channel.ConnectTimeoutException;
 import io.netty.util.internal.PlatformDependent;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -63,7 +64,6 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
-import net.md_5.bungee.util.BoundedArrayList;
 import net.md_5.bungee.util.CaseInsensitiveSet;
 import net.md_5.bungee.util.ChatComponentTransformer;
 
@@ -79,7 +79,7 @@ public final class UserConnection implements ProxiedPlayer
     private boolean callSettingsEvent = false; //BotFilter
     @Getter
     @Setter
-    private List<PluginMessage> delayedPluginMessages = new BoundedArrayList<>( 128 + 56 ); //BotFilter
+    private List<PluginMessage> delayedPluginMessages = new ArrayList<>( ); //BotFilter
 
     /*========================================================================*/
     @NonNull
@@ -756,4 +756,15 @@ public final class UserConnection implements ProxiedPlayer
     {
         return serverSentScoreboard;
     }
+
+    //BotFilter start
+    public void addDelayedPluginMessage(PluginMessage message)
+    {
+        if ( delayedPluginMessages.size() >= 150 )
+        {
+            throw new IndexOutOfBoundsException();
+        }
+        delayedPluginMessages.add( message );
+    }
+    //BotFilter end
 }
