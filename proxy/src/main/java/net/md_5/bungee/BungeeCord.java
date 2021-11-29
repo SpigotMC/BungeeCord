@@ -221,7 +221,9 @@ public class BungeeCord extends ProxyServer
         System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
         System.setOut( new PrintStream( new LoggingOutputStream( logger, Level.INFO ), true ) );
 
-        pluginManager = new PluginManager( this, EventCallerClassLoader.getEventCallerLookup() );
+        pluginManager = new PluginManager( this, EventCallerClassLoader.getEventCallerLookup(), listener ->
+                EventCallerClassLoader.registerClassloader( listener.getClass().getClassLoader() )
+        );
         getPluginManager().registerCommand( null, new CommandReload() );
         getPluginManager().registerCommand( null, new CommandEnd() );
         getPluginManager().registerCommand( null, new CommandIP() );

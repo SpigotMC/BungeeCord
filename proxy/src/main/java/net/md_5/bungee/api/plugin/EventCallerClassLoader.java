@@ -3,7 +3,9 @@ package net.md_5.bungee.api.plugin;
 import com.google.common.io.ByteStreams;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Class loader which can delegate to all {@linkplain net.md_5.bungee.api.plugin.PluginClassloader PluginClassloader}
@@ -39,12 +41,21 @@ public final class EventCallerClassLoader extends ClassLoader
         return lookup;
     }
 
-    private final Set<PluginClassloader> classLoaders;
+    public static void registerClassloader(ClassLoader classLoader)
+    {
+        if ( classLoader instanceof PluginClassloader && pluginClassLoaders.contains( classLoader ) )
+        {
+            return;
+        }
+        additionalClassLoaders.add( classLoader );
+    }
+
+    private static final Set<PluginClassloader> pluginClassLoaders = PluginClassloader.allLoaders;
+    private static final Set<ClassLoader> additionalClassLoaders = Collections.newSetFromMap( new ConcurrentHashMap<>() );
     private final ClassLoader appClassLoader;
 
     private EventCallerClassLoader()
     {
-        this.classLoaders = PluginClassloader.allLoaders;
         this.appClassLoader = getClass().getClassLoader();
     }
 
@@ -102,7 +113,16 @@ public final class EventCallerClassLoader extends ClassLoader
                 throw new ClassNotFoundException( EVENT_CALLER_CLASS, ex );
             }
         }
-        for ( PluginClassloader classLoader : classLoaders )
+        for ( ClassLoader classLoader : pluginClassLoaders )
+        {
+            try
+            {
+                return classLoader.loadClass( name );
+            } catch ( ClassNotFoundException ignored )
+            {
+            }
+        }
+        for ( ClassLoader classLoader : additionalClassLoaders )
         {
             try
             {
