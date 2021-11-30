@@ -1,10 +1,12 @@
 package net.md_5.bungee;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Queue;
 import java.util.Set;
@@ -136,7 +138,8 @@ public class ServerConnector extends PacketHandler
             copiedHandshake.setHost( newHost );
         } else if ( !user.getExtraDataInHandshake().isEmpty() )
         {
-            // Restore the extra data
+            // Only restore the extra data if IP forwarding is off.
+            // TODO: Add support for this data with IP forwarding.
             copiedHandshake.setHost( copiedHandshake.getHost() + user.getExtraDataInHandshake() );
         }
 
@@ -215,9 +218,16 @@ public class ServerConnector extends PacketHandler
             }
         }
 
-        for ( PluginMessage message : user.getPendingConnection().getRelayMessages() )
+        PluginMessage brandMessage = user.getPendingConnection().getBrandMessage();
+        if ( brandMessage != null )
         {
-            ch.write( message );
+            ch.write( brandMessage );
+        }
+
+        Set<String> registeredChannels = user.getPendingConnection().getRegisteredChannels();
+        if ( !registeredChannels.isEmpty() )
+        {
+            ch.write( new PluginMessage( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ? "minecraft:register" : "REGISTER", Joiner.on( "\0" ).join( registeredChannels ).getBytes( StandardCharsets.UTF_8 ), false ) );
         }
 
         if ( user.getSettings() != null )
@@ -247,7 +257,7 @@ public class ServerConnector extends PacketHandler
             } else
             {
                 modLogin = new Login( login.getEntityId(), login.isHardcore(), login.getGameMode(), login.getPreviousGameMode(), login.getWorldNames(), login.getDimensions(), login.getDimension(), login.getWorldName(), login.getSeed(), login.getDifficulty(),
-                        (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.getViewDistance(), login.isReducedDebugInfo(), login.isNormalRespawn(), login.isDebug(), login.isFlat() );
+                        (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.getViewDistance(), login.getSimulationDistance(), login.isReducedDebugInfo(), login.isNormalRespawn(), login.isDebug(), login.isFlat() );
             }
 
             user.unsafe().sendPacket( modLogin );

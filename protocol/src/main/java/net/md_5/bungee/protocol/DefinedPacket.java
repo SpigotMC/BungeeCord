@@ -23,7 +23,7 @@ public abstract class DefinedPacket
     {
         if ( s.length() > Short.MAX_VALUE )
         {
-            throw new OverflowPacketException( String.format( "Cannot send string longer than Short.MAX_VALUE (got %s characters)", s.length() ) );
+            throw new OverflowPacketException( "Cannot send string longer than Short.MAX_VALUE (got " + s.length() + " characters)" );
         }
 
         byte[] b = s.getBytes( Charsets.UTF_8 );
@@ -41,7 +41,7 @@ public abstract class DefinedPacket
         int len = readVarInt( buf );
         if ( len > maxLen * 4 )
         {
-            throw new OverflowPacketException( String.format( "Cannot receive string longer than %d (got %d bytes)", maxLen * 4, len ) );
+            throw new OverflowPacketException( "Cannot receive string longer than " + maxLen * 4 + " (got " + len + " bytes)" );
         }
 
         byte[] b = new byte[ len ];
@@ -50,7 +50,7 @@ public abstract class DefinedPacket
         String s = new String( b, Charsets.UTF_8 );
         if ( s.length() > maxLen )
         {
-            throw new OverflowPacketException( String.format( "Cannot receive string longer than %d (got %d characters)", maxLen, s.length() ) );
+            throw new OverflowPacketException( "Cannot receive string longer than " + maxLen + " (got " + s.length() + " characters)" );
         }
 
         return s;
@@ -60,7 +60,7 @@ public abstract class DefinedPacket
     {
         if ( b.length > Short.MAX_VALUE )
         {
-            throw new OverflowPacketException( String.format( "Cannot send byte array longer than Short.MAX_VALUE (got %s bytes)", b.length ) );
+            throw new OverflowPacketException( "Cannot send byte array longer than Short.MAX_VALUE (got " + b.length + " bytes)" );
         }
         writeVarInt( b.length, buf );
         buf.writeBytes( b );
@@ -84,7 +84,7 @@ public abstract class DefinedPacket
         int len = readVarInt( buf );
         if ( len > limit )
         {
-            throw new OverflowPacketException( String.format( "Cannot receive byte array longer than %s (got %s bytes)", limit, len ) );
+            throw new OverflowPacketException( "Cannot receive byte array longer than " + limit + " (got " + len + " bytes)" );
         }
         byte[] ret = new byte[ len ];
         buf.readBytes( ret );

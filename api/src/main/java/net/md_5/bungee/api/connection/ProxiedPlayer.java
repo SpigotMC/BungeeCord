@@ -57,7 +57,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
     String getDisplayName();
 
     /**
-     * Sets this players display name to be used by bungeecord commands and plugins.
+     * Sets this player's display name to be used by proxy commands and plugins.
      *
      * @param name the name to set
      */
