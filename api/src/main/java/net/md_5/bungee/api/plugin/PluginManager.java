@@ -30,7 +30,9 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.CommandEvent;
 import net.md_5.bungee.event.EventBus;
 import net.md_5.bungee.event.EventHandler;
 import org.yaml.snakeyaml.Yaml;
@@ -170,6 +172,14 @@ public final class PluginManager
      */
     public boolean dispatchCommand(CommandSender sender, String commandLine, List<String> tabResults)
     {
+        CommandEvent commandEvent = this.callEvent( new CommandEvent( sender, commandLine ) );
+        commandLine = commandEvent.getCommand();
+
+        if ( commandEvent.isCancelled() )
+        {
+            return this.sendCommandEventMessage( sender, commandEvent, commandEvent.getCancelledMessage() );
+        }
+
         String[] split = commandLine.split( " ", -1 );
         // Check for chat that only contains " "
         if ( split.length == 0 || split[0].isEmpty() )
@@ -180,14 +190,24 @@ public final class PluginManager
         Command command = getCommandIfEnabled( split[0], sender );
         if ( command == null )
         {
-            return false;
+            return this.sendCommandEventMessage( sender, commandEvent, commandEvent.getNotFoundMessage() );
         }
 
         if ( !command.hasPermission( sender ) )
         {
             if ( tabResults == null )
             {
-                sender.sendMessage( ( command.getPermissionMessage() == null ) ? proxy.getTranslation( "no_permission" ) : command.getPermissionMessage() );
+                if ( !commandEvent.isSuppressMessages() )
+                {
+                    String noPermission = commandEvent.getNotPermittedMessage();
+
+                    if ( noPermission == null )
+                    {
+                        noPermission = command.getPermissionMessage() == null ? this.proxy.getTranslation( "no_permission" ) : command.getPermissionMessage();
+                    }
+
+                    sender.sendMessage( new ComponentBuilder( noPermission ).create() );
+                }
             }
             return true;
         }
@@ -218,6 +238,22 @@ public final class PluginManager
             ProxyServer.getInstance().getLogger().log( Level.WARNING, "Error in dispatching command", ex );
         }
         return true;
+    }
+
+    private boolean sendCommandEventMessage(CommandSender sender, CommandEvent commandEvent, String message)
+    {
+        if ( !commandEvent.isSuppressMessages() )
+        {
+            if ( message != null )
+            {
+                sender.sendMessage( new ComponentBuilder( message ).create() );
+                return true;
+            }
+        } else
+        {
+            return true;
+        }
+        return false;
     }
 
     /**
