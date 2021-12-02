@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.plugin.Cancellable;
 import net.md_5.bungee.api.plugin.Event;
 
@@ -29,17 +30,17 @@ public class CommandEvent extends Event implements Cancellable
     /**
      * Sent to sender when executed command is cancelled.
      */
-    private String cancelledMessage;
+    private BaseComponent cancelledMessage;
 
     /**
      * Sent to the sender when sender has no permission to execute the command.
      */
-    private String notPermittedMessage;
+    private BaseComponent notPermittedMessage;
 
     /**
      * Sent to the sender when executed command is unknown.
      */
-    private String notFoundMessage;
+    private BaseComponent notFoundMessage;
 
     /**
      * If true, no messages will be displayed to the sender.
@@ -92,7 +93,7 @@ public class CommandEvent extends Event implements Cancellable
      *
      * @param cancelledMessage New message that will be sent to the sender if the event is cancelled
      */
-    public void setCancelledMessage(String cancelledMessage)
+    public void setCancelledMessage(BaseComponent cancelledMessage)
     {
         this.cancelledMessage = cancelledMessage;
     }
@@ -102,7 +103,7 @@ public class CommandEvent extends Event implements Cancellable
      *
      * @param notPermittedMessage New message that will be sent to the sender if the sender is not permitted to execute the command.
      */
-    public void setNotPermittedMessage(String notPermittedMessage)
+    public void setNotPermittedMessage(BaseComponent notPermittedMessage)
     {
         this.notPermittedMessage = notPermittedMessage;
     }
@@ -112,7 +113,7 @@ public class CommandEvent extends Event implements Cancellable
      *
      * @param notFoundMessage New message that will be sent to the sender if the command could not be found.
      */
-    public void setNotFoundMessage(String notFoundMessage)
+    public void setNotFoundMessage(BaseComponent notFoundMessage)
     {
         this.notFoundMessage = notFoundMessage;
     }

@@ -30,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.CommandEvent;
@@ -199,14 +200,14 @@ public final class PluginManager
             {
                 if ( !commandEvent.isSuppressMessages() )
                 {
-                    String noPermission = commandEvent.getNotPermittedMessage();
+                    BaseComponent noPermission = commandEvent.getNotPermittedMessage();
 
                     if ( noPermission == null )
                     {
-                        noPermission = command.getPermissionMessage() == null ? this.proxy.getTranslation( "no_permission" ) : command.getPermissionMessage();
+                        noPermission = new ComponentBuilder( command.getPermissionMessage() == null ? this.proxy.getTranslation( "no_permission" ) : command.getPermissionMessage() ).getCurrentComponent();
                     }
 
-                    sender.sendMessage( new ComponentBuilder( noPermission ).create() );
+                    sender.sendMessage( noPermission );
                 }
             }
             return true;
@@ -240,13 +241,13 @@ public final class PluginManager
         return true;
     }
 
-    private boolean sendCommandEventMessage(CommandSender sender, CommandEvent commandEvent, String message)
+    private boolean sendCommandEventMessage(CommandSender sender, CommandEvent commandEvent, BaseComponent message)
     {
         if ( !commandEvent.isSuppressMessages() )
         {
             if ( message != null )
             {
-                sender.sendMessage( new ComponentBuilder( message ).create() );
+                sender.sendMessage( message );
                 return true;
             }
         } else
