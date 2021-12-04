@@ -42,6 +42,8 @@ public class EventBus
         {
             for ( EventHandlerMethod method : handlers )
             {
+                long start = System.nanoTime();
+
                 try
                 {
                     method.invoke( event );
@@ -54,6 +56,15 @@ public class EventBus
                 } catch ( InvocationTargetException ex )
                 {
                     logger.log( Level.WARNING, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, method.getListener() ), ex.getCause() );
+                }
+
+                long elapsed = System.nanoTime() - start;
+                if ( elapsed > 20000000 )
+                {
+                    logger.log( Level.WARNING, "Plugin listener {0} took {1}ms to process event {2}!", new Object[]
+                    {
+                        method.getListener().getClass().getName(), elapsed / 1000000, event
+                    } );
                 }
             }
         }
