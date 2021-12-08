@@ -60,7 +60,7 @@ public class CaptchaGeneration
                 Thread.sleep( 1000L );
             } catch ( InterruptedException ex1 )
             {
-                BungeeCord.getInstance().getLogger().log( Level.WARNING, "[BotFilter] Немогу сгенерировать капчу. Выключаю банджу", ex1 );
+                BungeeCord.getInstance().getLogger().log( Level.WARNING, "[BotFilter] Не могу сгенерировать капчу. Выключаю банджу", ex1 );
                 System.exit( 0 );
                 return;
             }
