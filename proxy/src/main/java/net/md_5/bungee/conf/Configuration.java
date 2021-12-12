@@ -66,6 +66,7 @@ public class Configuration implements ProxyConfig
     private boolean alwaysHandlePackets = false;
     private boolean preventProxyConnections;
     private boolean forgeSupport;
+    private int pluginChannelLimit = 128;
 
     public void load()
     {
@@ -102,6 +103,7 @@ public class Configuration implements ProxyConfig
         alwaysHandlePackets = adapter.getBoolean( "always_handle_packets", false );
         preventProxyConnections = adapter.getBoolean( "prevent_proxy_connections", preventProxyConnections );
         forgeSupport = adapter.getBoolean( "forge_support", forgeSupport );
+        pluginChannelLimit = adapter.getInt( "registered_plugin_channels_limit", pluginChannelLimit );
 
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
 
