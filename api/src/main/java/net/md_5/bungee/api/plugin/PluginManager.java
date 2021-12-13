@@ -9,6 +9,7 @@ import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableGraph;
 import java.io.File;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
 import java.util.Arrays;
@@ -23,6 +24,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
@@ -57,11 +59,14 @@ public final class PluginManager
     private Map<String, PluginDescription> toLoad = new HashMap<>();
     private final Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
     private final Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
+    private final MethodHandles.Lookup lookup;
+    private final Consumer<Object> additionalEventListenerRegistration;
 
-    @SuppressWarnings("unchecked")
-    public PluginManager(ProxyServer proxy)
+    public PluginManager(ProxyServer proxy, MethodHandles.Lookup lookup, Consumer<Object> additionalEventListenerRegistration)
     {
         this.proxy = proxy;
+        this.lookup = lookup;
+        this.additionalEventListenerRegistration = additionalEventListenerRegistration;
 
         // Ignore unknown entries in the plugin descriptions
         Constructor yamlConstructor = new Constructor();
@@ -438,7 +443,8 @@ public final class PluginManager
             Preconditions.checkArgument( !method.isAnnotationPresent( Subscribe.class ),
                     "Listener %s has registered using deprecated subscribe annotation! Please update to @EventHandler.", listener );
         }
-        eventBus.register( listener );
+        additionalEventListenerRegistration.accept( listener );
+        eventBus.register( listener, lookup );
         listenersByPlugin.put( plugin, listener );
     }
 

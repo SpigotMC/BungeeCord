@@ -1,7 +1,9 @@
 package net.md_5.bungee.event;
 
 import com.google.common.collect.ImmutableSet;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.invoke.LambdaMetafactory;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -13,13 +15,15 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BiConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement;
 
 public class EventBus
 {
 
-    private final Map<Class<?>, Map<Byte, Map<Object, Method[]>>> byListenerAndPriority = new HashMap<>();
+    private final Map<Class<?>, Map<Byte, Map<Object, BiConsumer<Object, Object>[]>>> byListenerAndPriority = new HashMap<>();
     private final Map<Class<?>, EventHandlerMethod[]> byEventBaked = new ConcurrentHashMap<>();
     private final Lock lock = new ReentrantLock();
     private final Logger logger;
@@ -47,15 +51,9 @@ public class EventBus
                 try
                 {
                     method.invoke( event );
-                } catch ( IllegalAccessException ex )
+                } catch ( Throwable t )
                 {
-                    throw new Error( "Method became inaccessible: " + event, ex );
-                } catch ( IllegalArgumentException ex )
-                {
-                    throw new Error( "Method rejected target/argument: " + event, ex );
-                } catch ( InvocationTargetException ex )
-                {
-                    logger.log( Level.WARNING, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, method.getListener() ), ex.getCause() );
+                    logger.log( Level.WARNING, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, method.getListener() ), t );
                 }
 
                 long elapsed = System.nanoTime() - start;
@@ -82,31 +80,50 @@ public class EventBus
                 Class<?>[] params = m.getParameterTypes();
                 if ( params.length != 1 )
                 {
-                    logger.log( Level.INFO, "Method {0} in class {1} annotated with {2} does not have single argument", new Object[]
+                    logger.log( Level.INFO, "Method {0} in class {1} annotated with {2} does not have exactly one argument", new Object[]
                     {
                         m, listener.getClass(), annotation
                     } );
                     continue;
                 }
-                Map<Byte, Set<Method>> prioritiesMap = handler.get( params[0] );
-                if ( prioritiesMap == null )
-                {
-                    prioritiesMap = new HashMap<>();
-                    handler.put( params[0], prioritiesMap );
-                }
-                Set<Method> priority = prioritiesMap.get( annotation.priority() );
-                if ( priority == null )
-                {
-                    priority = new HashSet<>();
-                    prioritiesMap.put( annotation.priority(), priority );
-                }
-                priority.add( m );
+                handler.computeIfAbsent( params[ 0 ], k -> new HashMap<>() )
+                        .computeIfAbsent( annotation.priority(), k -> new HashSet<>() )
+                        .add( m );
             }
         }
         return handler;
     }
 
+    private static final MethodType INVOKED_TYPE = MethodType.methodType( BiConsumer.class );
+    private static final MethodType SAM_METHOD_TYPE = MethodType.methodType( void.class, Object.class, Object.class );
+
+    @IgnoreJRERequirement
+    @SuppressWarnings("unchecked")
+    private BiConsumer<Object, Object> createMethodInvoker(MethodHandles.Lookup lookup, Object listener, Method method)
+    {
+        try
+        {
+            return (BiConsumer<Object, Object>) LambdaMetafactory.metafactory(
+                    lookup,
+                    "accept",
+                    INVOKED_TYPE,
+                    SAM_METHOD_TYPE,
+                    lookup.unreflect( method ),
+                    MethodType.methodType( void.class, listener.getClass(), method.getParameterTypes()[0] )
+            ).getTarget().invokeExact();
+        } catch ( Throwable t )
+        {
+            throw new RuntimeException( "Could not create invoker for method " + method + " of listener " + listener + " (" + listener.getClass() + ")", t );
+        }
+    }
+
     public void register(Object listener)
+    {
+        register( listener, MethodHandles.lookup() );
+    }
+
+    @SuppressWarnings("unchecked")
+    public void register(Object listener, MethodHandles.Lookup lookup)
     {
         Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers( listener );
         lock.lock();
@@ -114,21 +131,14 @@ public class EventBus
         {
             for ( Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet() )
             {
-                Map<Byte, Map<Object, Method[]>> prioritiesMap = byListenerAndPriority.get( e.getKey() );
-                if ( prioritiesMap == null )
-                {
-                    prioritiesMap = new HashMap<>();
-                    byListenerAndPriority.put( e.getKey(), prioritiesMap );
-                }
+                Map<Byte, Map<Object, BiConsumer<Object, Object>[]>> prioritiesMap = byListenerAndPriority.computeIfAbsent( e.getKey(), k -> new HashMap<>() );
                 for ( Map.Entry<Byte, Set<Method>> entry : e.getValue().entrySet() )
                 {
-                    Map<Object, Method[]> currentPriorityMap = prioritiesMap.get( entry.getKey() );
-                    if ( currentPriorityMap == null )
-                    {
-                        currentPriorityMap = new HashMap<>();
-                        prioritiesMap.put( entry.getKey(), currentPriorityMap );
-                    }
-                    currentPriorityMap.put( listener, entry.getValue().toArray( new Method[ 0 ] ) );
+                    BiConsumer<Object, Object>[] baked = entry.getValue().stream()
+                            .map( method -> createMethodInvoker( lookup, listener, method ) )
+                            .toArray( BiConsumer[]::new );
+                    prioritiesMap.computeIfAbsent( entry.getKey(), k -> new HashMap<>() )
+                            .put( listener, baked );
                 }
                 bakeHandlers( e.getKey() );
             }
@@ -146,26 +156,18 @@ public class EventBus
         {
             for ( Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet() )
             {
-                Map<Byte, Map<Object, Method[]>> prioritiesMap = byListenerAndPriority.get( e.getKey() );
-                if ( prioritiesMap != null )
+                byListenerAndPriority.computeIfPresent( e.getKey(), ( clazz, prioritiesMap ) ->
                 {
                     for ( Byte priority : e.getValue().keySet() )
                     {
-                        Map<Object, Method[]> currentPriority = prioritiesMap.get( priority );
-                        if ( currentPriority != null )
+                        prioritiesMap.computeIfPresent( priority, ( prio, currentPriority ) ->
                         {
                             currentPriority.remove( listener );
-                            if ( currentPriority.isEmpty() )
-                            {
-                                prioritiesMap.remove( priority );
-                            }
-                        }
+                            return currentPriority.isEmpty() ? null : currentPriority;
+                        } );
                     }
-                    if ( prioritiesMap.isEmpty() )
-                    {
-                        byListenerAndPriority.remove( e.getKey() );
-                    }
-                }
+                    return prioritiesMap.isEmpty() ? null : prioritiesMap;
+                } );
                 bakeHandlers( e.getKey() );
             }
         } finally
@@ -183,7 +185,7 @@ public class EventBus
      */
     private void bakeHandlers(Class<?> eventClass)
     {
-        Map<Byte, Map<Object, Method[]>> handlersByPriority = byListenerAndPriority.get( eventClass );
+        Map<Byte, Map<Object, BiConsumer<Object, Object>[]>> handlersByPriority = byListenerAndPriority.get( eventClass );
         if ( handlersByPriority != null )
         {
             List<EventHandlerMethod> handlersList = new ArrayList<>( handlersByPriority.size() * 2 );
@@ -193,12 +195,12 @@ public class EventBus
             byte value = Byte.MIN_VALUE;
             do
             {
-                Map<Object, Method[]> handlersByListener = handlersByPriority.get( value );
+                Map<Object, BiConsumer<Object, Object>[]> handlersByListener = handlersByPriority.get( value );
                 if ( handlersByListener != null )
                 {
-                    for ( Map.Entry<Object, Method[]> listenerHandlers : handlersByListener.entrySet() )
+                    for ( Map.Entry<Object, BiConsumer<Object, Object>[]> listenerHandlers : handlersByListener.entrySet() )
                     {
-                        for ( Method method : listenerHandlers.getValue() )
+                        for ( BiConsumer<Object, Object> method : listenerHandlers.getValue() )
                         {
                             EventHandlerMethod ehm = new EventHandlerMethod( listenerHandlers.getKey(), method );
                             handlersList.add( ehm );
