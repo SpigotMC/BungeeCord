@@ -1,16 +1,12 @@
 package net.md_5.bungee.command;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
+import java.util.stream.Collectors;
 import jline.console.completer.Completer;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.plugin.Command;
 
 @RequiredArgsConstructor
 public class ConsoleCommandCompleter implements Completer
@@ -25,21 +21,11 @@ public class ConsoleCommandCompleter implements Completer
         int lastSpace = buffer.lastIndexOf( ' ' );
         if ( lastSpace == -1 )
         {
-            Iterables.transform( Iterables.filter( ProxyServer.getInstance().getPluginManager().getCommands(), new Predicate<Map.Entry<String, Command>>()
-            {
-                @Override
-                public boolean apply(Map.Entry<String, Command> commandEntry)
-                {
-                    return commandEntry.getKey().toLowerCase( Locale.ROOT ).startsWith( buffer );
-                }
-            } ), new Function<Map.Entry<String, Command>, String>()
-            {
-                @Override
-                public String apply(Map.Entry<String, Command> entry)
-                {
-                    return entry.getKey();
-                }
-            } ).forEach( candidates::add );
+            String lowerCase = buffer.toLowerCase( Locale.ROOT );
+            candidates.addAll( ProxyServer.getInstance().getPluginManager().getCommands().stream()
+                    .map( entry -> entry.getKey() )
+                    .filter( name -> name.toLowerCase( Locale.ROOT ).startsWith( lowerCase ) )
+                    .collect( Collectors.toList() ) );
         } else
         {
             List<String> suggestions = new ArrayList<>();
