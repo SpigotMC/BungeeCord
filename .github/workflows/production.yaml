@@ -1,0 +1,36 @@
+name: Production
+on:
+  push:
+    branches:
+      - master
+jobs:
+  run:
+    name: Pipeline
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Set up JDK 1.15
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '15'
+      - name: Setup maven config
+        run: sed -i "s/token/${{ secrets.PACKAGES_TOKEN }}/g" settings.xml && cp settings.xml ~/.m2/settings.xml
+      - name: Setup maven cache
+        uses: actions/cache@v2.1.7
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Deploy project
+        run: mvn clean deploy
+      - name: Build docker image
+        run: |
+          echo ${{ secrets.DOCKER_TOKEN }} | docker login https://${{ secrets.DOCKER_URL }} -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker build -t ${{ secrets.DOCKER_URL }}/tricketynet/bungeecord:latest .
+      - name: Push docker image
+        run: docker push ${{ secrets.DOCKER_URL }}/bungeecord:latest

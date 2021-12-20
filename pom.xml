@@ -66,14 +66,14 @@
     </ciManagement>
 
     <distributionManagement>
-        <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        </snapshotRepository>
         <repository>
-            <id>sonatype-nexus-staging</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>tricketynet</id>
+            <url>https://maven.pkg.github.com/tricketynet/BungeeCord</url>
         </repository>
+        <snapshotRepository>
+            <id>tricketynet</id>
+            <url>https://maven.pkg.github.com/tricketynet/BungeeCord</url>
+        </snapshotRepository>
     </distributionManagement>
 
     <!-- We really shouldn't depend on external repositories, but at least this is the Central staging one -->

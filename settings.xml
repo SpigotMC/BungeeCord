@@ -1,0 +1,9 @@
+<settings>
+    <servers>
+        <server>
+            <id>tricketynet</id>
+            <username>GitHub</username>
+            <password>token</password>
+        </server>
+    </servers>
+</settings>

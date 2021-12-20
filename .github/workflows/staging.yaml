@@ -1,0 +1,28 @@
+name: Staging
+on:
+  push:
+    branches-ignore:
+      - master
+jobs:
+  run:
+    name: Pipeline
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v2
+      - name: Set up JDK 1.15
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '15'
+      - name: Setup maven config
+        run: sed -i "s/token/${{ secrets.PACKAGES_TOKEN }}/g" settings.xml && cp settings.xml ~/.m2/settings.xml
+      - name: Setup maven cache
+        uses: actions/cache@v2.1.7
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Build project
+        run: mvn clean test
