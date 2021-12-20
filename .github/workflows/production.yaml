@@ -33,4 +33,4 @@ jobs:
           echo ${{ secrets.DOCKER_TOKEN }} | docker login https://${{ secrets.DOCKER_URL }} -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
           docker build -t ${{ secrets.DOCKER_URL }}/tricketynet/bungeecord:latest .
       - name: Push docker image
-        run: docker push ${{ secrets.DOCKER_URL }}/bungeecord:latest
+        run: docker push ${{ secrets.DOCKER_URL }}/tricketynet/bungeecord:latest
