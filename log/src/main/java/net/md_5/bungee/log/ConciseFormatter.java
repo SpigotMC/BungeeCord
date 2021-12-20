@@ -27,6 +27,20 @@ public class ConciseFormatter extends Formatter
         formatted.append( " [" );
         appendLevel( formatted, record.getLevel() );
         formatted.append( "] " );
+
+        if ( record.getLoggerName() != null && !record.getLoggerName().equals( "BungeeCord" ) )
+        {
+            formatted.append( "[" );
+            if ( coloured )
+            {
+                formatted.append( ChatColor.GREEN ).append( record.getLoggerName() ).append( ChatColor.RESET );
+            } else
+            {
+                formatted.append( record.getLoggerName() );
+            }
+            formatted.append( "] " );
+        }
+
         formatted.append( formatMessage( record ) );
         formatted.append( '\n' );
 
