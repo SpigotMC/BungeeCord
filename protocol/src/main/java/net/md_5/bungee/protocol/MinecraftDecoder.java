@@ -50,7 +50,7 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
             if ( in.isReadable() )
             {
                 in.skipBytes( in.readableBytes() ); //BotFilter
-                throw new FastBadPacketException( "Did not read all bytes from packet " + packet.getClass() + " " + packetId + " Protocol " + protocol + " Direction " + prot.getDirection() );
+                throw new FastBadPacketException( "Packet " + protocol + ":" + prot.getDirection() + "/" + packetId + " (" + packet.getClass().getSimpleName() + ") larger than expected, extra bytes: " + in.readableBytes() );
             }
         } else
         {
