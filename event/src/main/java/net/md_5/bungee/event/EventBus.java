@@ -59,7 +59,7 @@ public class EventBus
                 }
 
                 long elapsed = System.nanoTime() - start;
-                if ( elapsed > 20000000 )
+                if ( elapsed > 50000000 )
                 {
                     logger.log( Level.WARNING, "Plugin listener {0} took {1}ms to process event {2}!", new Object[]
                     {
