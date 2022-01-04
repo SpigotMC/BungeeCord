@@ -224,7 +224,12 @@ public class UpstreamBridge extends PacketHandler
     {
         if ( resourcePack.isSuccess() )
         {
-            con.setCurrentResourcePack( resourcePack.getHash() );
+            String hash = resourcePack.getHash();
+            if ( hash == null )
+            {
+                hash = con.getRequestingResourcePack();
+            }
+            con.setCurrentResourcePack( hash );
         }
     }
 

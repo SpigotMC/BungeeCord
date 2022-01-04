@@ -258,11 +258,15 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(ResourcePack resourcePack) throws Exception
     {
-        if ( resourcePack.getHash().equals( con.getCurrentResourcePack() ) )
+        String requested = resourcePack.getHash();
+        if ( requested.equals( con.getCurrentResourcePack() ) )
         {
             resourcePack.setSuccess( true );
             con.getServer().unsafe().sendPacket( resourcePack );
             throw CancelSendSignal.INSTANCE;
+        } else
+        {
+            con.setRequestingResourcePack( requested );
         }
     }
 

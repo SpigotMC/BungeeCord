@@ -27,7 +27,18 @@ public class ResourcePack extends DefinedPacket
         {
             readString( buf );
         }
-        hash = readString( buf, 40 );
+        if ( protocolVersion <= ProtocolConstants.MINECRAFT_1_9_4 || request )
+        {
+            hash = readString( buf, 40 );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_17 && request )
+        {
+            buf.readBoolean();
+            if ( buf.readBoolean() )
+            {
+                throw new IllegalStateException( "ResourcePack message not supported" );
+            }
+        }
         if ( !request )
         {
             success = readVarInt( buf ) == 0;
@@ -45,7 +56,10 @@ public class ResourcePack extends DefinedPacket
         {
             throw new IllegalStateException( "only successful responses supported" );
         }
-        writeString( hash, buf );
+        if ( protocolVersion <= ProtocolConstants.MINECRAFT_1_9_4 )
+        {
+            writeString( hash, buf );
+        }
         writeVarInt( 0, buf );
     }
 

@@ -123,6 +123,9 @@ public final class UserConnection implements ProxiedPlayer
     @Setter
     private String currentResourcePack;
     @Getter
+    @Setter
+    private String requestingResourcePack;
+    @Getter
     private final Scoreboard serverSentScoreboard = new Scoreboard();
     @Getter
     private final Collection<UUID> sentBossBars = new HashSet<>();
