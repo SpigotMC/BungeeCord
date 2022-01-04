@@ -30,6 +30,7 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.ResourcePack;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.util.AllowedCharacters;
@@ -215,6 +216,15 @@ public class UpstreamBridge extends PacketHandler
         if ( isRegisteredCommand )
         {
             throw CancelSendSignal.INSTANCE;
+        }
+    }
+
+    @Override
+    public void handle(ResourcePack resourcePack) throws Exception
+    {
+        if ( resourcePack.isSuccess() )
+        {
+            con.setCurrentResourcePack( resourcePack.getHash() );
         }
     }
 
