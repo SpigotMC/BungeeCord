@@ -561,7 +561,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void finishLogin(UserConnection userCon, boolean ignoreLoginSuccess)
     {
 
-        Callback<LoginEvent> complete = ( result, error ) ->
+        Callback<LoginEvent> complete = (result, error) ->
         {
             if ( result.isCancelled() )
             {
