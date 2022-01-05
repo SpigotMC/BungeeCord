@@ -15,17 +15,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-java@v1
+    - uses: actions/setup-java@v2
       with:
+        distribution: 'temurin'
         java-version: ${{ matrix.java }}
-    - uses: actions/cache@v1.1.2
+    - uses: actions/cache@v2
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
-          ${{ runner.os }}-maven-    - run: java -version && mvn --version
+          ${{ runner.os }}-maven-
+    - run: java -version && mvn --version
     - run: mvn --activate-profiles dist --no-transfer-progress package
-    - uses: actions/upload-artifact@v2-preview
+    - uses: actions/upload-artifact@v2
       with:
         name: BungeeCord
         path: bootstrap/target/BungeeCord.jar
