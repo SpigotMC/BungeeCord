@@ -349,14 +349,14 @@ public abstract class EntityMap
         }
         int readerIndex = packet.readerIndex();
         int packetId = DefinedPacket.readVarInt( packet );
-        int packetIdLength = packet.readerIndex() - readerIndex;
+        int readerIndexAfterPID = packet.readerIndex();
 
         if ( ints[packetId] )
         {
-            rewriteInt( packet, oldId, newId, readerIndex + packetIdLength );
+            rewriteInt( packet, oldId, newId, readerIndexAfterPID );
         } else if ( varints[packetId] )
         {
-            rewriteVarInt( packet, oldId, newId, readerIndex + packetIdLength );
+            rewriteVarInt( packet, oldId, newId, readerIndexAfterPID );
         }
         packet.readerIndex( readerIndex );
     }

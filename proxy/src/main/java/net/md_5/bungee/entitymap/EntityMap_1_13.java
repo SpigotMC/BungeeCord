@@ -52,12 +52,11 @@ class EntityMap_1_13 extends EntityMap
         // Special cases
         int readerIndex = packet.readerIndex();
         int packetId = DefinedPacket.readVarInt( packet );
-        int packetIdLength = packet.readerIndex() - readerIndex;
-        int jumpIndex = packet.readerIndex();
+        int readerIndexAfterPID = packet.readerIndex();
         switch ( packetId )
         {
             case 0x40 /* Attach Entity : PacketPlayOutAttachEntity */:
-                rewriteInt( packet, oldId, newId, readerIndex + packetIdLength + 4 );
+                rewriteInt( packet, oldId, newId, readerIndexAfterPID + 4 );
                 break;
             case 0x4F /* Collect Item : PacketPlayOutCollect */:
                 DefinedPacket.skipVarInt( packet );
@@ -65,16 +64,16 @@ class EntityMap_1_13 extends EntityMap
                 break;
             case 0x46 /* Set Passengers : PacketPlayOutMount */:
                 DefinedPacket.skipVarInt( packet );
-                jumpIndex = packet.readerIndex();
+                readerIndexAfterPID = packet.readerIndex();
                 // Fall through on purpose to int array of IDs
             case 0x35 /* Destroy Entities : PacketPlayOutEntityDestroy */:
-                EntityMap_1_8.rewriteEntityIdArray( packet, oldId, newId, jumpIndex );
+                EntityMap_1_8.rewriteEntityIdArray( packet, oldId, newId, readerIndexAfterPID );
                 break;
             case 0x00 /* Spawn Object : PacketPlayOutSpawnEntity */:
                 EntityMap_1_9.rewriteSpawnObject( packet, oldId, newId );
                 break;
             case 0x05 /* Spawn Player : PacketPlayOutNamedEntitySpawn */:
-                EntityMap_1_8.rewriteSpawnPlayerUuid( packet, readerIndex, packetIdLength );
+                EntityMap_1_8.rewriteSpawnPlayerUuid( packet, readerIndex );
                 break;
             case 0x2F /* Combat Event : PacketPlayOutCombatEvent */:
                 EntityMap_1_8.rewriteCombatEvent( packet, oldId, newId );
@@ -97,11 +96,11 @@ class EntityMap_1_13 extends EntityMap
         // Special cases
         int readerIndex = packet.readerIndex();
         int packetId = DefinedPacket.readVarInt( packet );
-        int packetIdLength = packet.readerIndex() - readerIndex;
+        int readerIndexAfterPID = packet.readerIndex();
 
         if ( packetId == 0x28 /* Spectate : PacketPlayInSpectate */ && !BungeeCord.getInstance().getConfig().isIpForward() )
         {
-            EntityMap_1_8.rewriteSpectateUuid( packet, readerIndex, packetIdLength );
+            EntityMap_1_8.rewriteSpectateUuid( packet, readerIndex, readerIndexAfterPID );
         }
         packet.readerIndex( readerIndex );
     }

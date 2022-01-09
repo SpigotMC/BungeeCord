@@ -56,19 +56,18 @@ class EntityMap_1_8 extends EntityMap
         //Special cases
         int readerIndex = packet.readerIndex();
         int packetId = DefinedPacket.readVarInt( packet );
-        int packetIdLength = packet.readerIndex() - readerIndex;
+        int readerIndexAfterPID = packet.readerIndex();
         switch ( packetId )
         {
             case 0x1B /* Attach Entity */:
-                rewriteInt( packet, oldId, newId, readerIndex + packetIdLength + 4 );
+                rewriteInt( packet, oldId, newId, readerIndexAfterPID + 4 );
                 break;
             case 0x0D /* Collect Item */:
                 DefinedPacket.skipVarInt( packet );
                 rewriteVarInt( packet, oldId, newId, packet.readerIndex() );
                 break;
             case 0x13 /* Destroy Entities */:
-                int jumpIndex = readerIndex + packetIdLength;
-                rewriteEntityIdArray( packet, oldId, newId, jumpIndex );
+                rewriteEntityIdArray( packet, oldId, newId, readerIndexAfterPID );
                 break;
             case 0x0E /* Spawn Object */:
                 DefinedPacket.skipVarInt( packet );
@@ -100,7 +99,7 @@ class EntityMap_1_8 extends EntityMap
                 }
                 break;
             case 0x0C /* Spawn Player */:
-                rewriteSpawnPlayerUuid( packet, readerIndex, packetIdLength );
+                rewriteSpawnPlayerUuid( packet, readerIndex );
                 break;
             case 0x42 /* Combat Event */:
                 rewriteCombatEvent( packet, oldId, newId );
@@ -117,11 +116,11 @@ class EntityMap_1_8 extends EntityMap
         //Special cases
         int readerIndex = packet.readerIndex();
         int packetId = DefinedPacket.readVarInt( packet );
-        int packetIdLength = packet.readerIndex() - readerIndex;
+        int readerIndexAfterPID = packet.readerIndex();
 
         if ( packetId == 0x18 /* Spectate */ && !BungeeCord.getInstance().getConfig().isIpForward() )
         {
-            rewriteSpectateUuid( packet, readerIndex, packetIdLength );
+            rewriteSpectateUuid( packet, readerIndex, readerIndexAfterPID );
         }
         packet.readerIndex( readerIndex );
     }
@@ -147,23 +146,23 @@ class EntityMap_1_8 extends EntityMap
         }
     }
 
-    public static void rewriteSpawnPlayerUuid(ByteBuf packet, int readerIndex, int packetIdLength)
+    public static void rewriteSpawnPlayerUuid(ByteBuf packet, int readerIndex)
     {
         DefinedPacket.skipVarInt( packet ); // Entity ID
-        int idLength = packet.readerIndex() - readerIndex - packetIdLength;
+        int readerIndexAfterEID = packet.readerIndex();
         UUID uuid = DefinedPacket.readUUID( packet );
         ProxiedPlayer player;
         if ( ( player = BungeeCord.getInstance().getPlayerByOfflineUUID( uuid ) ) != null )
         {
             int previous = packet.writerIndex();
             packet.readerIndex( readerIndex );
-            packet.writerIndex( readerIndex + packetIdLength + idLength );
+            packet.writerIndex( readerIndexAfterEID );
             DefinedPacket.writeUUID( player.getUniqueId(), packet );
             packet.writerIndex( previous );
         }
     }
 
-    public static void rewriteEntityIdArray(ByteBuf packet, int oldId, int newId, int jumpIndex)
+    public static void rewriteEntityIdArray(ByteBuf packet, int oldId, int newId, int readerIndexAfterPID)
     {
         if ( oldId == newId )
         {
@@ -175,8 +174,8 @@ class EntityMap_1_8 extends EntityMap
         {
             ids[ i ] = DefinedPacket.readVarInt( packet );
         }
-        packet.readerIndex( jumpIndex );
-        packet.writerIndex( jumpIndex );
+        packet.readerIndex( readerIndexAfterPID );
+        packet.writerIndex( readerIndexAfterPID );
         DefinedPacket.writeVarInt( count, packet );
         for ( int id : ids )
         {
@@ -191,7 +190,7 @@ class EntityMap_1_8 extends EntityMap
         }
     }
 
-    public static void rewriteSpectateUuid(ByteBuf packet, int readerIndex, int packetIdLength)
+    public static void rewriteSpectateUuid(ByteBuf packet, int readerIndex, int readerIndexAfterPID)
     {
         UUID uuid = DefinedPacket.readUUID( packet );
         ProxiedPlayer player;
@@ -199,7 +198,7 @@ class EntityMap_1_8 extends EntityMap
         {
             int previous = packet.writerIndex();
             packet.readerIndex( readerIndex );
-            packet.writerIndex( readerIndex + packetIdLength );
+            packet.writerIndex( readerIndexAfterPID );
             DefinedPacket.writeUUID( ( (UserConnection) player ).getPendingConnection().getOfflineId(), packet );
             packet.writerIndex( previous );
         }
