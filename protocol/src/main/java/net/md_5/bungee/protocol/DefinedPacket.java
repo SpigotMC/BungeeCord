@@ -78,6 +78,22 @@ public abstract class DefinedPacket
         return ( string ) ? Either.left( readString( buf ) ) : Either.right( readBaseComponent( buf, protocolVersion ) );
     }
 
+    public static void skipString(ByteBuf buf)
+    {
+        skipString( buf, Short.MAX_VALUE );
+    }
+
+    public static void skipString(ByteBuf buf, int maxLen)
+    {
+        int len = readVarInt( buf );
+        if ( len > maxLen * 4 )
+        {
+            throw new OverflowPacketException( "Cannot receive string longer than " + maxLen * 4 + " (got " + len + " bytes)" );
+        }
+
+        buf.skipBytes( len );
+    }
+
     public static BaseComponent readBaseComponent(ByteBuf buf, int protocolVersion)
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
