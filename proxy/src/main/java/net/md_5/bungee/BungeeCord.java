@@ -625,12 +625,16 @@ public class BungeeCord extends ProxyServer
         }
     }
 
-    public UserConnection getPlayerByOfflineUUID(UUID name)
+    public UserConnection getPlayerByOfflineUUID(UUID uuid)
     {
+        if ( uuid.version() != 3 )
+        {
+            return null;
+        }
         connectionLock.readLock().lock();
         try
         {
-            return connectionsByOfflineUUID.get( name );
+            return connectionsByOfflineUUID.get( uuid );
         } finally
         {
             connectionLock.readLock().unlock();
