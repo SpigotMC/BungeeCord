@@ -7,6 +7,7 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 class EntityMap_1_8 extends EntityMap
@@ -49,9 +50,10 @@ class EntityMap_1_8 extends EntityMap
 
     @Override
     @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
-    public void rewriteClientbound(ByteBuf packet, int oldId, int newId)
+    public void rewriteClientbound(PacketWrapper wrapper, int oldId, int newId)
     {
-        super.rewriteClientbound( packet, oldId, newId );
+        super.rewriteClientbound( wrapper, oldId, newId );
+        ByteBuf packet = wrapper.buf;
 
         //Special cases
         int readerIndex = packet.readerIndex();
@@ -60,15 +62,15 @@ class EntityMap_1_8 extends EntityMap
         switch ( packetId )
         {
             case 0x1B /* Attach Entity */:
-                rewriteInt( packet, oldId, newId, readerIndex + packetIdLength + 4 );
+                rewriteInt( wrapper, oldId, newId, readerIndex + packetIdLength + 4 );
                 break;
             case 0x0D /* Collect Item */:
                 DefinedPacket.skipVarInt( packet );
-                rewriteVarInt( packet, oldId, newId, packet.readerIndex() );
+                rewriteVarInt( wrapper, oldId, newId, packet.readerIndex() );
                 break;
             case 0x13 /* Destroy Entities */:
                 int jumpIndex = readerIndex + packetIdLength;
-                rewriteDestroyEntities( packet, oldId, newId, jumpIndex );
+                rewriteDestroyEntities( wrapper, oldId, newId, jumpIndex );
                 break;
             case 0x0E /* Spawn Object */:
                 DefinedPacket.skipVarInt( packet );
@@ -100,19 +102,20 @@ class EntityMap_1_8 extends EntityMap
                 }
                 break;
             case 0x0C /* Spawn Player */:
-                rewriteSpawnPlayerUuid( packet, readerIndex, packetIdLength );
+                rewriteSpawnPlayerUuid( wrapper, readerIndex, packetIdLength );
                 break;
             case 0x42 /* Combat Event */:
-                rewriteCombatEvent( packet, oldId, newId );
+                rewriteCombatEvent( wrapper, oldId, newId );
                 break;
         }
         packet.readerIndex( readerIndex );
     }
 
     @Override
-    public void rewriteServerbound(ByteBuf packet, int oldId, int newId)
+    public void rewriteServerbound(PacketWrapper wrapper, int oldId, int newId)
     {
-        super.rewriteServerbound( packet, oldId, newId );
+        super.rewriteServerbound( wrapper, oldId, newId );
+        ByteBuf packet = wrapper.buf;
 
         //Special cases
         int readerIndex = packet.readerIndex();
@@ -121,36 +124,42 @@ class EntityMap_1_8 extends EntityMap
 
         if ( packetId == 0x18 /* Spectate */ && !BungeeCord.getInstance().getConfig().isIpForward() )
         {
-            rewriteSpectateUuid( packet, readerIndex, packetIdLength );
+            rewriteSpectateUuid( wrapper, readerIndex, packetIdLength );
         }
         packet.readerIndex( readerIndex );
     }
 
-    public static void rewriteCombatEvent(ByteBuf packet, int oldId, int newId)
+    public static void rewriteCombatEvent(PacketWrapper wrapper, int oldId, int newId)
     {
+        ByteBuf packet = wrapper.buf;
+
         int event = packet.readUnsignedByte();
         if ( event == 1 /* End Combat*/ )
         {
             DefinedPacket.skipVarInt( packet );
-            rewriteInt( packet, oldId, newId, packet.readerIndex() );
+            rewriteInt( wrapper, oldId, newId, packet.readerIndex() );
         } else if ( event == 2 /* Entity Dead */ )
         {
             int position = packet.readerIndex();
-            rewriteVarInt( packet, oldId, newId, packet.readerIndex() );
+            rewriteVarInt( wrapper, oldId, newId, packet.readerIndex() );
             packet.readerIndex( position );
             DefinedPacket.skipVarInt( packet );
-            rewriteInt( packet, oldId, newId, packet.readerIndex() );
+            rewriteInt( wrapper, oldId, newId, packet.readerIndex() );
         }
     }
 
-    public static void rewriteSpawnPlayerUuid(ByteBuf packet, int readerIndex, int packetIdLength)
+    public static void rewriteSpawnPlayerUuid(PacketWrapper wrapper, int readerIndex, int packetIdLength)
     {
+        ByteBuf packet = wrapper.buf;
+
         DefinedPacket.skipVarInt( packet ); // Entity ID
         int idLength = packet.readerIndex() - readerIndex - packetIdLength;
         UUID uuid = DefinedPacket.readUUID( packet );
         ProxiedPlayer player;
         if ( ( player = BungeeCord.getInstance().getPlayerByOfflineUUID( uuid ) ) != null )
         {
+            wrapper.destroyCompressed();
+
             int previous = packet.writerIndex();
             packet.readerIndex( readerIndex );
             packet.writerIndex( readerIndex + packetIdLength + idLength );
@@ -159,8 +168,11 @@ class EntityMap_1_8 extends EntityMap
         }
     }
 
-    public static void rewriteDestroyEntities(ByteBuf packet, int oldId, int newId, int jumpIndex)
+    public static void rewriteDestroyEntities(PacketWrapper wrapper, int oldId, int newId, int jumpIndex)
     {
+        wrapper.destroyCompressed();
+
+        ByteBuf packet = wrapper.buf;
         int count = DefinedPacket.readVarInt( packet );
         int[] ids = new int[ count ];
         for ( int i = 0; i < count; i++ )
@@ -183,12 +195,16 @@ class EntityMap_1_8 extends EntityMap
         }
     }
 
-    public static void rewriteSpectateUuid(ByteBuf packet, int readerIndex, int packetIdLength)
+    public static void rewriteSpectateUuid(PacketWrapper wrapper, int readerIndex, int packetIdLength)
     {
+        ByteBuf packet = wrapper.buf;
+
         UUID uuid = DefinedPacket.readUUID( packet );
         ProxiedPlayer player;
         if ( ( player = BungeeCord.getInstance().getPlayer( uuid ) ) != null )
         {
+            wrapper.destroyCompressed();
+
             int previous = packet.writerIndex();
             packet.readerIndex( readerIndex );
             packet.writerIndex( readerIndex + packetIdLength );

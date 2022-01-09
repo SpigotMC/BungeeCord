@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 class EntityMap_1_16_2 extends EntityMap
@@ -25,8 +26,10 @@ class EntityMap_1_16_2 extends EntityMap
 
     @Override
     @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
-    public void rewriteClientbound(ByteBuf packet, int oldId, int newId, int protocolVersion)
+    public void rewriteClientbound(PacketWrapper wrapper, int oldId, int newId, int protocolVersion)
     {
+        ByteBuf packet = wrapper.buf;
+
         // Special cases
         int readerIndex = packet.readerIndex();
         int packetId = DefinedPacket.readVarInt( packet );
@@ -34,14 +37,16 @@ class EntityMap_1_16_2 extends EntityMap
 
         if ( packetId == spawnPlayerId )
         {
-            EntityMap_1_8.rewriteSpawnPlayerUuid( packet, readerIndex, packetIdLength );
+            EntityMap_1_8.rewriteSpawnPlayerUuid( wrapper, readerIndex, packetIdLength );
         }
         packet.readerIndex( readerIndex );
     }
 
     @Override
-    public void rewriteServerbound(ByteBuf packet, int oldId, int newId)
+    public void rewriteServerbound(PacketWrapper wrapper, int oldId, int newId)
     {
+        ByteBuf packet = wrapper.buf;
+
         // Special cases
         int readerIndex = packet.readerIndex();
         int packetId = DefinedPacket.readVarInt( packet );
@@ -49,7 +54,7 @@ class EntityMap_1_16_2 extends EntityMap
 
         if ( packetId == spectateId && !BungeeCord.getInstance().getConfig().isIpForward() )
         {
-            EntityMap_1_8.rewriteSpectateUuid( packet, readerIndex, packetIdLength );
+            EntityMap_1_8.rewriteSpectateUuid( wrapper, readerIndex, packetIdLength );
         }
         packet.readerIndex( readerIndex );
     }

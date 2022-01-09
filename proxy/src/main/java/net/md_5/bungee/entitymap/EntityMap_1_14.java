@@ -4,6 +4,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 class EntityMap_1_14 extends EntityMap
@@ -44,9 +45,10 @@ class EntityMap_1_14 extends EntityMap
 
     @Override
     @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
-    public void rewriteClientbound(ByteBuf packet, int oldId, int newId, int protocolVersion)
+    public void rewriteClientbound(PacketWrapper wrapper, int oldId, int newId, int protocolVersion)
     {
-        super.rewriteClientbound( packet, oldId, newId );
+        super.rewriteClientbound( wrapper, oldId, newId );
+        ByteBuf packet = wrapper.buf;
 
         // Special cases
         int readerIndex = packet.readerIndex();
@@ -56,47 +58,48 @@ class EntityMap_1_14 extends EntityMap
         switch ( packetId )
         {
             case 0x44 /* Attach Entity : PacketPlayOutAttachEntity */:
-                rewriteInt( packet, oldId, newId, readerIndex + packetIdLength + 4 );
+                rewriteInt( wrapper, oldId, newId, readerIndex + packetIdLength + 4 );
                 break;
             case 0x55 /* Collect Item : PacketPlayOutCollect */:
                 DefinedPacket.skipVarInt( packet );
-                rewriteVarInt( packet, oldId, newId, packet.readerIndex() );
+                rewriteVarInt( wrapper, oldId, newId, packet.readerIndex() );
                 break;
             case 0x4A /* Set Passengers : PacketPlayOutMount */:
                 DefinedPacket.skipVarInt( packet );
                 jumpIndex = packet.readerIndex();
                 // Fall through on purpose to int array of IDs
             case 0x37 /* Destroy Entities : PacketPlayOutEntityDestroy */:
-                EntityMap_1_8.rewriteDestroyEntities( packet, oldId, newId, jumpIndex );
+                EntityMap_1_8.rewriteDestroyEntities( wrapper, oldId, newId, jumpIndex );
                 break;
             case 0x00 /* Spawn Object : PacketPlayOutSpawnEntity */:
-                rewriteSpawnObject( packet, oldId, newId, 2, 101, 71 );
+                rewriteSpawnObject( wrapper, oldId, newId, 2, 101, 71 );
                 break;
             case 0x05 /* Spawn Player : PacketPlayOutNamedEntitySpawn */:
-                EntityMap_1_8.rewriteSpawnPlayerUuid( packet, readerIndex, packetIdLength );
+                EntityMap_1_8.rewriteSpawnPlayerUuid( wrapper, readerIndex, packetIdLength );
                 break;
             case 0x32 /* Combat Event : PacketPlayOutCombatEvent */:
-                EntityMap_1_8.rewriteCombatEvent( packet, oldId, newId );
+                EntityMap_1_8.rewriteCombatEvent( wrapper, oldId, newId );
                 break;
             case 0x43 /* EntityMetadata : PacketPlayOutEntityMetadata */:
                 DefinedPacket.skipVarInt( packet ); // Entity ID
-                rewriteMetaVarInt( packet, oldId + 1, newId + 1, 7, protocolVersion ); // fishing hook
-                rewriteMetaVarInt( packet, oldId, newId, 8, protocolVersion ); // fireworks (et al)
-                rewriteMetaVarInt( packet, oldId, newId, 15, protocolVersion ); // guardian beam
+                rewriteMetaVarInt( wrapper, oldId + 1, newId + 1, 7, protocolVersion ); // fishing hook
+                rewriteMetaVarInt( wrapper, oldId, newId, 8, protocolVersion ); // fireworks (et al)
+                rewriteMetaVarInt( wrapper, oldId, newId, 15, protocolVersion ); // guardian beam
                 break;
             case 0x50 /* Entity Sound Effect : PacketPlayOutEntitySound */:
                 DefinedPacket.skipVarInt( packet );
                 DefinedPacket.skipVarInt( packet );
-                rewriteVarInt( packet, oldId, newId, packet.readerIndex() );
+                rewriteVarInt( wrapper, oldId, newId, packet.readerIndex() );
                 break;
         }
         packet.readerIndex( readerIndex );
     }
 
     @Override
-    public void rewriteServerbound(ByteBuf packet, int oldId, int newId)
+    public void rewriteServerbound(PacketWrapper wrapper, int oldId, int newId)
     {
-        super.rewriteServerbound( packet, oldId, newId );
+        super.rewriteServerbound( wrapper, oldId, newId );
+        ByteBuf packet = wrapper.buf;
 
         // Special cases
         int readerIndex = packet.readerIndex();
@@ -105,13 +108,15 @@ class EntityMap_1_14 extends EntityMap
 
         if ( packetId == 0x2B /* Spectate : PacketPlayInSpectate */ && !BungeeCord.getInstance().getConfig().isIpForward() )
         {
-            EntityMap_1_8.rewriteSpectateUuid( packet, readerIndex, packetIdLength );
+            EntityMap_1_8.rewriteSpectateUuid( wrapper, readerIndex, packetIdLength );
         }
         packet.readerIndex( readerIndex );
     }
 
-    public static void rewriteSpawnObject(ByteBuf packet, int oldId, int newId, int arrowId, int fishingBobberId, int spectralArrowId)
+    public static void rewriteSpawnObject(PacketWrapper wrapper, int oldId, int newId, int arrowId, int fishingBobberId, int spectralArrowId)
     {
+        ByteBuf packet = wrapper.buf;
+
         DefinedPacket.skipVarInt( packet );
         DefinedPacket.skipUUID( packet );
         int type = DefinedPacket.readVarInt( packet );
@@ -129,9 +134,11 @@ class EntityMap_1_14 extends EntityMap
             int readId = packet.readInt();
             if ( readId == oldId )
             {
+                wrapper.destroyCompressed();
                 packet.setInt( position, newId );
             } else if ( readId == newId )
             {
+                wrapper.destroyCompressed();
                 packet.setInt( position, oldId );
             }
         }

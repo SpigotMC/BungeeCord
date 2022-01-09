@@ -140,7 +140,7 @@ public class DownstreamBridge extends PacketHandler
         EntityMap rewrite = con.getEntityRewrite();
         if ( rewrite != null && con.getCh().getEncodeProtocol() == Protocol.GAME )
         {
-            rewrite.rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId(), con.getPendingConnection().getVersion() );
+            rewrite.rewriteClientbound( packet, con.getServerEntityId(), con.getClientEntityId(), con.getPendingConnection().getVersion() );
         }
         con.sendPacket( packet );
     }
