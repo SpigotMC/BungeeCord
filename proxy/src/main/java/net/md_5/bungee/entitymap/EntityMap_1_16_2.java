@@ -37,7 +37,7 @@ class EntityMap_1_16_2 extends EntityMap
 
         if ( packetId == spawnPlayerId )
         {
-            EntityMap_1_8.rewriteSpawnPlayerUuid( wrapper, readerIndex, packetIdLength );
+            EntityMap_1_8.rewriteSpawnPlayerUuid( wrapper, readerIndex );
         }
         packet.readerIndex( readerIndex );
     }
