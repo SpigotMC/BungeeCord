@@ -65,10 +65,10 @@ class EntityMap_1_14 extends EntityMap
                 break;
             case 0x4A /* Set Passengers : PacketPlayOutMount */:
                 DefinedPacket.skipVarInt( packet );
-                readerIndexAfterPID = packet.readerIndex();
-                // Fall through on purpose to int array of IDs
+                EntityMap_1_8.rewriteEntityIdArray( wrapper, oldId, newId, packet.readerIndex() );
+                break;
             case 0x37 /* Destroy Entities : PacketPlayOutEntityDestroy */:
-                EntityMap_1_8.rewriteDestroyEntities( wrapper, oldId, newId, readerIndexAfterPID );
+                EntityMap_1_8.rewriteEntityIdArray( wrapper, oldId, newId, readerIndexAfterPID );
                 break;
             case 0x00 /* Spawn Object : PacketPlayOutSpawnEntity */:
                 rewriteSpawnObject( wrapper, oldId, newId, 2, 101, 71 );

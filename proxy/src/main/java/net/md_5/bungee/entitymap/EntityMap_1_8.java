@@ -69,7 +69,7 @@ class EntityMap_1_8 extends EntityMap
                 rewriteVarInt( wrapper, oldId, newId, packet.readerIndex() );
                 break;
             case 0x13 /* Destroy Entities */:
-                rewriteDestroyEntities( wrapper, oldId, newId, readerIndexAfterPID );
+                rewriteEntityIdArray( wrapper, oldId, newId, readerIndexAfterPID );
                 break;
             case 0x0E /* Spawn Object */:
                 DefinedPacket.skipVarInt( packet );
@@ -171,12 +171,14 @@ class EntityMap_1_8 extends EntityMap
         }
     }
 
-    public static void rewriteDestroyEntities(PacketWrapper wrapper, int oldId, int newId, int readerIndexAfterPID)
+    public static void rewriteEntityIdArray(PacketWrapper wrapper, int oldId, int newId, int readerIndexAfterPID)
     {
         if ( oldId == newId )
         {
             return;
         }
+        // we don't do it conditionally if we changed something as this packet is not
+        // hard to compress again if we didn't do changes
         wrapper.destroyCompressed();
 
         ByteBuf packet = wrapper.buf;
