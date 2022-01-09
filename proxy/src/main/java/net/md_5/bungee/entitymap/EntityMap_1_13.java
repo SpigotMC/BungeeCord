@@ -64,8 +64,8 @@ class EntityMap_1_13 extends EntityMap
                 break;
             case 0x46 /* Set Passengers : PacketPlayOutMount */:
                 DefinedPacket.skipVarInt( packet );
-                readerIndexAfterPID = packet.readerIndex();
-                // Fall through on purpose to int array of IDs
+                EntityMap_1_8.rewriteEntityIdArray( packet, oldId, newId, packet.readerIndex() );
+                break;
             case 0x35 /* Destroy Entities : PacketPlayOutEntityDestroy */:
                 EntityMap_1_8.rewriteEntityIdArray( packet, oldId, newId, readerIndexAfterPID );
                 break;
