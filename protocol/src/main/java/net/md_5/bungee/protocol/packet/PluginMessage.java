@@ -21,7 +21,7 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @EqualsAndHashCode(callSuper = false)
 public class PluginMessage extends DefinedPacket
 {
-    
+
     public static final Function<String, String> MODERNISE = tag ->
     {
         // Transform as per Bukkit
