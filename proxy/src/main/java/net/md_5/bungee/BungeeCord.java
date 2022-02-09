@@ -772,7 +772,7 @@ public class BungeeCord extends ProxyServer
         }
         String lowerPartialName = partialName.toLowerCase( Locale.ROOT );
         return getPlayers().stream()
-                .filter( input -> ( input == null ) ? false : input.getName().toLowerCase( Locale.ROOT ).startsWith( lowerPartialName ) )
+                .filter( (input) -> ( input == null ) ? false : input.getName().toLowerCase( Locale.ROOT ).startsWith( lowerPartialName ) )
                 .collect( Collectors.toCollection( HashSet::new ) );
     }
 
