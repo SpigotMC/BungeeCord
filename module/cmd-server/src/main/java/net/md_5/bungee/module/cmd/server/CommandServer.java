@@ -83,7 +83,6 @@ public class CommandServer extends Command implements TabExecutor
     {
         final String lower = ( args.length == 0 ) ? "" : args[0].toLowerCase( Locale.ROOT );
         return ( args.length > 1 ) ? Collections.EMPTY_LIST : ProxyServer.getInstance().getServers().values().stream()
-                .filter( input -> input.getName().toLowerCase( Locale.ROOT ).startsWith( lower ) && input.canAccess( sender ) )
-                .map( input -> input.getName() ).collect( Collectors.toList() );
+                .filter( (input) -> input.getName().toLowerCase( Locale.ROOT ).startsWith( lower ) && input.canAccess( sender ) )
+                .map( (input) -> input.getName() ).collect( Collectors.toList() );
     }
-}
