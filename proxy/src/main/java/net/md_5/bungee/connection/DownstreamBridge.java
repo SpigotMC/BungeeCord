@@ -32,6 +32,8 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.api.event.ResourcePackRequestEvent;
+import net.md_5.bungee.api.event.ResourcePackResponseEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerDisconnectEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
@@ -55,6 +57,8 @@ import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.ResourcePackRequest;
+import net.md_5.bungee.protocol.packet.ResourcePackResponse;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
@@ -581,6 +585,21 @@ public class DownstreamBridge extends PacketHandler
     public void handle(SetCompression setCompression) throws Exception
     {
         server.getCh().setCompressionThreshold( setCompression.getThreshold() );
+    }
+
+    @Override
+    public void handle(ResourcePackRequest resourcePackRequest) throws Exception
+    {
+        ResourcePackRequestEvent requestEvent =
+            new ResourcePackRequestEvent( server, con, resourcePackRequest.getUrl(), resourcePackRequest.getHash(), resourcePackRequest.isForced(), resourcePackRequest.getPromptMessage() );
+
+        // If the event is cancelled or if two servers use the same resource pack, do not send the packet
+        if ( ( con.getResourcePackHash() != null && resourcePackRequest.getHash().equals( con.getRequestedResourcePackHash() ) ) || bungee.getPluginManager().callEvent( requestEvent ).isCancelled() )
+        {
+            throw CancelSendSignal.INSTANCE;
+        }
+
+        con.setRequestedResourcePackHash( resourcePackRequest.getHash() );
     }
 
     @Override

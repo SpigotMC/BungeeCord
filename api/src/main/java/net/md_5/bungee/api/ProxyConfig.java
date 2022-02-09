@@ -2,6 +2,7 @@ package net.md_5.bungee.api;
 
 import java.util.Collection;
 import java.util.Map;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 
@@ -125,4 +126,35 @@ public interface ProxyConfig
      * @return favicon
      */
     Favicon getFaviconObject();
+
+    /**
+     * Gets the URL of the default proxy resource pack. Will
+     * return empty string if not specified.
+     *
+     * @return default resource pack
+     */
+    String getResourcePack();
+
+    /**
+     * Gets the hash of the default proxy resource pack. Will
+     * return empty string if not specified.
+     *
+     * @return default resource pack hash
+     */
+    String getResourcePackHash();
+
+    /**
+     * Returns whether the default proxy resource pack shall be forced.
+     *
+     * @return true if forced
+     */
+    boolean isResourcePackForced();
+
+    /**
+     * Gets the prompt message of the default proxy resource
+     * pack. Will return {@code null} if not specified.
+     *
+     * @return default resource pack prompt message
+     */
+    BaseComponent[] getResourcePackPromptMessage();
 }
