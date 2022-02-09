@@ -86,3 +86,4 @@ public class CommandServer extends Command implements TabExecutor
                 .filter( (input) -> input.getName().toLowerCase( Locale.ROOT ).startsWith( lower ) && input.canAccess( sender ) )
                 .map( (input) -> input.getName() ).collect( Collectors.toList() );
     }
+}
