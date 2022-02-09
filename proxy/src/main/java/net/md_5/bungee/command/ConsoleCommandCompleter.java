@@ -24,7 +24,7 @@ public class ConsoleCommandCompleter implements Completer
             String lowerCase = buffer.toLowerCase( Locale.ROOT );
             candidates.addAll( proxy.getPluginManager().getCommands().stream()
                     .map( Map.Entry::getKey )
-                    .filter( name -> name.toLowerCase( Locale.ROOT ).startsWith( lowerCase ) )
+                    .filter( (name) -> name.toLowerCase( Locale.ROOT ).startsWith( lowerCase ) )
                     .collect( Collectors.toList() ) );
         } else
         {
