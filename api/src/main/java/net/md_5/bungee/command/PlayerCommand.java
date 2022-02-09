@@ -1,7 +1,6 @@
 package net.md_5.bungee.command;
 
 import java.util.Locale;
-import java.util.stream.Collectors;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -29,9 +28,8 @@ public abstract class PlayerCommand extends Command implements TabExecutor
     public Iterable<String> onTabComplete(CommandSender sender, String[] args)
     {
         final String lastArg = ( args.length > 0 ) ? args[args.length - 1].toLowerCase( Locale.ROOT ) : "";
-        return ProxyServer.getInstance().getPlayers().stream()
-                .map( ProxiedPlayer::getName )
-                .filter( (name) -> name.toLowerCase( Locale.ROOT ).startsWith( lastArg ) )
-                .collect( Collectors.toList() );
+        return () -> ProxyServer.getInstance().getPlayers().stream()
+                .filter( (player) -> player.getName().toLowerCase( Locale.ROOT ).startsWith( lastArg ) )
+                .map( ProxiedPlayer::getName ).iterator();
     }
 }
