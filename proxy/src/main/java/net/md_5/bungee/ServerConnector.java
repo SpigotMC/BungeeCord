@@ -10,7 +10,6 @@ import java.util.Locale;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
@@ -329,16 +328,6 @@ public class ServerConnector extends PacketHandler
         ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user, server ) );
 
         bungee.getPluginManager().callEvent( new ServerSwitchEvent( user, from ) );
-
-        if ( !bungee.getConfig().getResourcePack().isEmpty() )
-        {
-            // wait 3 seconds to make sure the client has settled
-            // if we don't wait then the client ignores the request
-            ch.getHandle().eventLoop().schedule( () ->
-            {
-                user.sendResourcePack( bungee.getConfig().getResourcePack(), bungee.getConfig().getResourcePackHash(), bungee.getConfig().isResourcePackForced(), bungee.getConfig().getResourcePackPromptMessage() );
-            }, 3, TimeUnit.SECONDS );
-        }
 
         thisState = State.FINISHED;
 

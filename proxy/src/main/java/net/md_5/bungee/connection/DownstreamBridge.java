@@ -63,6 +63,7 @@ import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
+import net.md_5.bungee.protocol.packet.ViewDistance;
 import net.md_5.bungee.tab.TabList;
 
 @RequiredArgsConstructor
@@ -598,6 +599,30 @@ public class DownstreamBridge extends PacketHandler
         }
 
         con.setRequestedResourcePackHash( resourcePackRequest.getHash() );
+    }
+
+    @Override
+    public void handle(ViewDistance viewDistance)
+    {
+        // Packet hierarchy shows that the server sends ViewDistance after the join message
+        // that is the perfect time to send bungee's resource pack if the client doesn't have it already.
+
+        // Firstly check if we have a specified resource pack in the config
+        if ( bungee.getConfig().getResourcePack().isEmpty() )
+        {
+            // We don't have a resource pack set, return.
+            return;
+        }
+
+        // Then check if the client already has a resource pack.
+        if ( con.getResourcePackHash() != null || con.getRequestedResourcePackHash() != null )
+        {
+            // We probably don't want to override a resource pack se(n)t by someone else.
+            return;
+        }
+
+        // Try to send our resource pack
+        con.sendResourcePack( bungee.getConfig().getResourcePack(), bungee.getConfig().getResourcePackHash(), bungee.getConfig().isResourcePackForced(), bungee.getConfig().getResourcePackPromptMessage() );
     }
 
     @Override
