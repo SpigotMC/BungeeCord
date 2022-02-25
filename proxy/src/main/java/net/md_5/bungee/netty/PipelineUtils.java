@@ -37,6 +37,7 @@ import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.event.ClientConnectEvent;
+import net.md_5.bungee.api.event.ConnectionThrottledEvent;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.protocol.KickStringWriter;
 import net.md_5.bungee.protocol.LegacyDecoder;
@@ -62,6 +63,7 @@ public class PipelineUtils
             if ( BungeeCord.getInstance().getConnectionThrottle() != null && BungeeCord.getInstance().getConnectionThrottle().throttle( remoteAddress ) )
             {
                 ch.close();
+                BungeeCord.getInstance().getPluginManager().callEvent( new ConnectionThrottledEvent( remoteAddress ) );
                 return;
             }
 
