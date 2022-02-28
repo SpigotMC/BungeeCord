@@ -55,11 +55,11 @@
         <module name="OperatorWrap"/>
         <module name="ParenPad">
             <property name="option" value="nospace"/>
-            <property name="tokens" value="ANNOTATION, CTOR_DEF, METHOD_DEF"/>
+            <property name="tokens" value="ANNOTATION, CTOR_DEF, METHOD_DEF, LAMBDA"/>
         </module>
         <module name="ParenPad">
             <property name="option" value="space"/>
-            <property name="tokens" value="ANNOTATION_FIELD_DEF, CTOR_CALL, DOT, ENUM_CONSTANT_DEF, EXPR, LITERAL_CATCH, LITERAL_DO, LITERAL_FOR, LITERAL_IF, LITERAL_NEW, LITERAL_SWITCH, LITERAL_SYNCHRONIZED, LITERAL_WHILE, METHOD_CALL, QUESTION, RESOURCE_SPECIFICATION, SUPER_CTOR_CALL, LAMBDA"/>
+            <property name="tokens" value="ANNOTATION_FIELD_DEF, CTOR_CALL, DOT, ENUM_CONSTANT_DEF, EXPR, LITERAL_CATCH, LITERAL_DO, LITERAL_FOR, LITERAL_IF, LITERAL_NEW, LITERAL_SWITCH, LITERAL_SYNCHRONIZED, LITERAL_WHILE, METHOD_CALL, QUESTION, RESOURCE_SPECIFICATION, SUPER_CTOR_CALL, RECORD_DEF"/>
         </module>
         <module name="SingleSpaceSeparator"/>
         <module name="TypecastParenPad"/>

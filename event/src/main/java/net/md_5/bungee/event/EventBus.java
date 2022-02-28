@@ -42,6 +42,8 @@ public class EventBus
         {
             for ( EventHandlerMethod method : handlers )
             {
+                long start = System.nanoTime();
+
                 try
                 {
                     method.invoke( event );
@@ -54,6 +56,15 @@ public class EventBus
                 } catch ( InvocationTargetException ex )
                 {
                     logger.log( Level.WARNING, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, method.getListener() ), ex.getCause() );
+                }
+
+                long elapsed = System.nanoTime() - start;
+                if ( elapsed > 50000000 )
+                {
+                    logger.log( Level.WARNING, "Plugin listener {0} took {1}ms to process event {2}!", new Object[]
+                    {
+                        method.getListener().getClass().getName(), elapsed / 1000000, event
+                    } );
                 }
             }
         }
@@ -77,18 +88,8 @@ public class EventBus
                     } );
                     continue;
                 }
-                Map<Byte, Set<Method>> prioritiesMap = handler.get( params[0] );
-                if ( prioritiesMap == null )
-                {
-                    prioritiesMap = new HashMap<>();
-                    handler.put( params[0], prioritiesMap );
-                }
-                Set<Method> priority = prioritiesMap.get( annotation.priority() );
-                if ( priority == null )
-                {
-                    priority = new HashSet<>();
-                    prioritiesMap.put( annotation.priority(), priority );
-                }
+                Map<Byte, Set<Method>> prioritiesMap = handler.computeIfAbsent( params[0], k -> new HashMap<>() );
+                Set<Method> priority = prioritiesMap.computeIfAbsent( annotation.priority(), k -> new HashSet<>() );
                 priority.add( m );
             }
         }
@@ -103,20 +104,10 @@ public class EventBus
         {
             for ( Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet() )
             {
-                Map<Byte, Map<Object, Method[]>> prioritiesMap = byListenerAndPriority.get( e.getKey() );
-                if ( prioritiesMap == null )
-                {
-                    prioritiesMap = new HashMap<>();
-                    byListenerAndPriority.put( e.getKey(), prioritiesMap );
-                }
+                Map<Byte, Map<Object, Method[]>> prioritiesMap = byListenerAndPriority.computeIfAbsent( e.getKey(), k -> new HashMap<>() );
                 for ( Map.Entry<Byte, Set<Method>> entry : e.getValue().entrySet() )
                 {
-                    Map<Object, Method[]> currentPriorityMap = prioritiesMap.get( entry.getKey() );
-                    if ( currentPriorityMap == null )
-                    {
-                        currentPriorityMap = new HashMap<>();
-                        prioritiesMap.put( entry.getKey(), currentPriorityMap );
-                    }
+                    Map<Object, Method[]> currentPriorityMap = prioritiesMap.computeIfAbsent( entry.getKey(), k -> new HashMap<>() );
                     currentPriorityMap.put( listener, entry.getValue().toArray( new Method[ 0 ] ) );
                 }
                 bakeHandlers( e.getKey() );

@@ -52,28 +52,28 @@
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-resolver-provider</artifactId>
-            <version>3.8.1</version>
+            <version>3.8.4</version>
             <!-- not part of the API proper -->
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.resolver</groupId>
             <artifactId>maven-resolver-connector-basic</artifactId>
-            <version>1.7.0</version>
+            <version>1.7.2</version>
             <!-- not part of the API proper -->
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.resolver</groupId>
             <artifactId>maven-resolver-transport-http</artifactId>
-            <version>1.7.0</version>
+            <version>1.7.2</version>
             <!-- not part of the API proper -->
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>1.30-SNAPSHOT</version>
+            <version>1.30</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
