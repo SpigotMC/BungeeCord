@@ -498,6 +498,20 @@ public class Commands extends DefinedPacket
                 return "brigadier:string";
             }
         };
+        private static final ArgumentSerializer<String> RAW_STRING = new ArgumentSerializer<String>()
+        {
+            @Override
+            protected String read(ByteBuf buf)
+            {
+                return DefinedPacket.readString( buf );
+            }
+
+            @Override
+            protected void write(ByteBuf buf, String t)
+            {
+                DefinedPacket.writeString( t, buf );
+            }
+        };
 
         static
         {
@@ -551,6 +565,8 @@ public class Commands extends DefinedPacket
             PROVIDERS.put( "minecraft:test_argument", VOID ); // 1.16, debug
             PROVIDERS.put( "minecraft:test_class", VOID ); // 1.16, debug
             PROVIDERS.put( "minecraft:angle", VOID ); // 1.16.2
+            PROVIDERS.put( "minecraft:resource", RAW_STRING ); // 1.18.2
+            PROVIDERS.put( "minecraft:resource_or_tag", RAW_STRING ); // 1.18.2
         }
 
         private static ArgumentType<?> read(String key, ByteBuf buf)
