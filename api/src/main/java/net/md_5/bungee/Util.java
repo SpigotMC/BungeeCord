@@ -89,10 +89,23 @@ public class Util
      */
     public static String exception(Throwable t)
     {
+        return exception( t, true );
+    }
+
+    /**
+     * Constructs a pretty one line version of a {@link Throwable}. Useful for
+     * debugging.
+     *
+     * @param t the {@link Throwable} to format.
+     * @param includeLineNumbers whether to include line numbers
+     * @return a string representing information about the {@link Throwable}
+     */
+    public static String exception(Throwable t, boolean includeLineNumbers)
+    {
         // TODO: We should use clear manually written exceptions
         StackTraceElement[] trace = t.getStackTrace();
         return t.getClass().getSimpleName() + " : " + t.getMessage()
-                + ( ( trace.length > 0 ) ? " @ " + t.getStackTrace()[0].getClassName() + ":" + t.getStackTrace()[0].getLineNumber() : "" );
+                + ( ( includeLineNumbers && trace.length > 0 ) ? " @ " + t.getStackTrace()[0].getClassName() + ":" + t.getStackTrace()[0].getLineNumber() : "" );
     }
 
     public static String csv(Iterable<?> objects)

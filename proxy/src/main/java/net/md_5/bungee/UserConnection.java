@@ -8,7 +8,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.ConnectTimeoutException;
 import io.netty.util.internal.PlatformDependent;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -386,13 +385,7 @@ public final class UserConnection implements ProxiedPlayer
 
     private String connectionFailMessage(Throwable cause)
     {
-        if ( cause instanceof ConnectTimeoutException )
-        {
-            return bungee.getTranslation( "timeout" );
-        } else
-        {
-            return cause.getClass().getName();
-        }
+        return Util.exception( cause, false );
     }
 
     @Override
