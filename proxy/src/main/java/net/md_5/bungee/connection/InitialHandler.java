@@ -358,7 +358,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             disconnect( bungee.getTranslation( "name_empty" ) );
             return;
         }
-        
+
         if ( !AllowedCharacters.isValidName( loginRequest.getData(), onlineMode ) )
         {
             disconnect( bungee.getTranslation( "name_invalid" ) );
