@@ -1,7 +1,6 @@
 package net.md_5.bungee.protocol.packet;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.io.ByteArrayInputStream;
 import java.io.DataInput;
@@ -13,6 +12,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.OverflowPacketException;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
@@ -61,7 +61,10 @@ public class PluginMessage extends DefinedPacket
     {
         tag = ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? MODERNISE.apply( readString( buf ) ) : readString( buf, 20 );
         int maxSize = direction == ProtocolConstants.Direction.TO_SERVER ? Short.MAX_VALUE : 0x100000;
-        Preconditions.checkArgument( buf.readableBytes() < maxSize );
+        if ( buf.readableBytes() > maxSize )
+        {
+            throw new OverflowPacketException( "Payload may not be larger than " + maxSize + " bytes" );
+        }
         data = new byte[ buf.readableBytes() ];
         buf.readBytes( data );
     }
