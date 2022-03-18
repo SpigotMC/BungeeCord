@@ -81,6 +81,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Getter
     private LoginRequest loginRequest;
     private EncryptionRequest request;
+    private boolean hasRequestedStatus;
     @Getter
     private PluginMessage brandMessage;
     @Getter
@@ -113,7 +114,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
     {
-        return !ch.isClosing();
+        return !ch.isClosing() && !legacy;
     }
 
     private enum State
@@ -231,8 +232,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(StatusRequest statusRequest) throws Exception
     {
-        Preconditions.checkState( thisState == State.STATUS, "Not expecting STATUS" );
+        Preconditions.checkState( thisState == State.STATUS && !hasRequestedStatus, "Not expecting STATUS" );
 
+        hasRequestedStatus = true;
         ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
         final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
         final int protocol = ( ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
@@ -259,6 +261,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                         {
                             bungee.getConnectionThrottle().unthrottle( getSocketAddress() );
                         }
+                        thisState = State.PING;
                     }
                 };
 
@@ -273,8 +276,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             pingBack.done( getPingInfo( motd, protocol ), null );
         }
-
-        thisState = State.PING;
     }
 
     @Override
@@ -351,7 +352,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(LoginRequest loginRequest) throws Exception
     {
-        Preconditions.checkState( thisState == State.USERNAME, "Not expecting USERNAME" );
+        Preconditions.checkState( thisState == State.USERNAME && this.loginRequest == null, "Not expecting USERNAME" );
 
         if ( !AllowedCharacters.isValidName( loginRequest.getData(), onlineMode ) )
         {
