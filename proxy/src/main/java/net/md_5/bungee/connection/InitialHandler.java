@@ -136,13 +136,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void exception(Throwable t) throws Exception
     {
-        if ( canSendKickMessage() )
-        {
-            disconnect( ChatColor.RED + Util.exception( t ) );
-        } else
-        {
-            ch.close();
-        }
+        // we only need to mark the channel as closed, the handler boss will close the channel for us
+        // normal disconnecting to send kick message is useless here because the handler boss don't wait like the
+        // delayed close method and a kick packet would never reach the client
+        ch.markClosed();
     }
 
     @Override
