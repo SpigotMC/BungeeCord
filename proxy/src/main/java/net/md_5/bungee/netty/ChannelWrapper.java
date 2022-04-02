@@ -5,6 +5,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelOption;
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
@@ -78,13 +79,17 @@ public class ChannelWrapper
         {
             closed = closing = true;
 
-            if ( packet != null && ch.isActive() )
+            // Only close the channel if isn't closed
+            if ( ch.isActive() )
             {
-                ch.writeAndFlush( packet ).addListeners( ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE, ChannelFutureListener.CLOSE );
-            } else
-            {
-                ch.flush();
-                ch.close();
+                if ( packet != null )
+                {
+                    ch.writeAndFlush( packet ).addListeners( ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE, ChannelFutureListener.CLOSE );
+                } else
+                {
+                    ch.flush();
+                    ch.close();
+                }
             }
         }
     }
@@ -95,18 +100,34 @@ public class ChannelWrapper
         {
             closing = true;
 
+            ch.config().setOption( ChannelOption.AUTO_READ, false );
+
+            // we need to remove the frame decoder here, otherwise it will
+            // automatically call the channel read because it's an ByteToMessageDecoder
+            // and the auto read disabling would not work
+            removeChannelHandler( PipelineUtils.FRAME_DECODER );
+
             // Minecraft client can take some time to switch protocols.
             // Sending the wrong disconnect packet whilst a protocol switch is in progress will crash it.
             // Delay 250ms to ensure that the protocol switch (if any) has definitely taken place.
             ch.eventLoop().schedule( new Runnable()
             {
-
                 @Override
                 public void run()
                 {
                     close( kick );
                 }
             }, 250, TimeUnit.MILLISECONDS );
+        }
+    }
+
+    public void removeChannelHandler(String name)
+    {
+        Preconditions.checkState( ch.eventLoop().inEventLoop(), "cannot remove handler outside of event loop" );
+        ch.pipeline().flush();
+        if ( ch.pipeline().get( name ) != null )
+        {
+            ch.pipeline().remove( name );
         }
     }
 
