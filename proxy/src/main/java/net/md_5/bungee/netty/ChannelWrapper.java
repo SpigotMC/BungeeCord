@@ -66,6 +66,7 @@ public class ChannelWrapper
     public void markClosed()
     {
         closed = closing = true;
+        stopReading();
     }
 
     public void close()
@@ -77,7 +78,7 @@ public class ChannelWrapper
     {
         if ( !closed )
         {
-            closed = closing = true;
+            markClosed();
 
             // Only close the channel if isn't closed
             if ( ch.isActive() )
@@ -99,13 +100,7 @@ public class ChannelWrapper
         if ( !closing )
         {
             closing = true;
-
-            ch.config().setOption( ChannelOption.AUTO_READ, false );
-
-            // we need to remove the frame decoder here, otherwise it will
-            // automatically call the channel read because it's an ByteToMessageDecoder
-            // and the auto read disabling would not work
-            removeChannelHandler( PipelineUtils.FRAME_DECODER );
+            stopReading();
 
             // Minecraft client can take some time to switch protocols.
             // Sending the wrong disconnect packet whilst a protocol switch is in progress will crash it.
@@ -121,10 +116,24 @@ public class ChannelWrapper
         }
     }
 
-    public void removeChannelHandler(String name)
+    private void stopReading()
     {
-        Preconditions.checkState( ch.eventLoop().inEventLoop(), "cannot remove handler outside of event loop" );
-        ch.pipeline().flush();
+        Preconditions.checkState( ch.eventLoop().inEventLoop(), "cannot stop reading outside of event loop" );
+        if ( ch.config().getOption( ChannelOption.AUTO_READ ) )
+        {
+            ch.config().setOption( ChannelOption.AUTO_READ, false );
+
+            // we need to remove the frame and legacy decoder here, otherwise it will
+            // automatically call the channel read because it's an ByteToMessageDecoder
+            // and the auto read disabling would not work
+            ch.pipeline().flush();
+            removeChannelHandler( PipelineUtils.FRAME_DECODER );
+            removeChannelHandler( PipelineUtils.LEGACY_DECODER );
+        }
+    }
+
+    private void removeChannelHandler(String name)
+    {
         if ( ch.pipeline().get( name ) != null )
         {
             ch.pipeline().remove( name );
