@@ -125,7 +125,7 @@ final class PluginClassloader extends URLClassLoader
             if ( dot != -1 )
             {
                 String pkgName = name.substring( 0, dot );
-                if ( getPackage( pkgName ) == null )
+                if ( getDefinedPackage( pkgName ) == null )
                 {
                     try
                     {
@@ -138,7 +138,7 @@ final class PluginClassloader extends URLClassLoader
                         }
                     } catch ( IllegalArgumentException ex )
                     {
-                        if ( getPackage( pkgName ) == null )
+                        if ( getDefinedPackage( pkgName ) == null )
                         {
                             throw new IllegalStateException( "Cannot find package " + pkgName );
                         }
