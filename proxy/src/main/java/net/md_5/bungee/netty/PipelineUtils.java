@@ -32,8 +32,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import lombok.val;
 import net.md_5.bungee.BungeeCord;
-import net.md_5.bungee.BungeeServerInfo;
-import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
@@ -51,8 +49,6 @@ public class PipelineUtils
 {
 
     public static final AttributeKey<ListenerInfo> LISTENER = AttributeKey.valueOf( "ListerInfo" );
-    public static final AttributeKey<UserConnection> USER = AttributeKey.valueOf( "User" );
-    public static final AttributeKey<BungeeServerInfo> TARGET = AttributeKey.valueOf( "Target" );
 
     public static final ChannelInitializer<Channel> SERVER_CHILD = new ChannelInitializer<Channel>()
     {
