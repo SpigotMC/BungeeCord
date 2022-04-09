@@ -118,8 +118,7 @@ public class ChannelWrapper
 
     private void stopReading()
     {
-        Preconditions.checkState( ch.eventLoop().inEventLoop(), "cannot stop reading outside of event loop" );
-        if ( ch.config().getOption( ChannelOption.AUTO_READ ) )
+        if ( ch.eventLoop().inEventLoop() && ch.config().getOption( ChannelOption.AUTO_READ ) )
         {
             ch.config().setOption( ChannelOption.AUTO_READ, false );
 
