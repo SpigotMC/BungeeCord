@@ -385,7 +385,7 @@ public final class UserConnection implements ProxiedPlayer
 
     private String connectionFailMessage(Throwable cause)
     {
-        return Util.exception( cause, false );
+        return groups.contains( "admin" ) ? Util.exception( cause, false ) : cause.getClass().getName();
     }
 
     @Override
