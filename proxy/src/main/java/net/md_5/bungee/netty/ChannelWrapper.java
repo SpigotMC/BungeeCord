@@ -69,7 +69,7 @@ public class ChannelWrapper
         {
             return;
         }
-        
+
         closed = closing = true;
         stopReading();
     }
