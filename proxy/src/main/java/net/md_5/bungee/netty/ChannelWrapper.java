@@ -65,6 +65,11 @@ public class ChannelWrapper
 
     public void markClosed()
     {
+        if ( closed && closing )
+        {
+            return;
+        }
+        
         closed = closing = true;
         stopReading();
     }
@@ -118,16 +123,26 @@ public class ChannelWrapper
 
     private void stopReading()
     {
-        if ( ch.eventLoop().inEventLoop() && ch.config().getOption( ChannelOption.AUTO_READ ) )
+        Runnable runnable = () ->
         {
-            ch.config().setOption( ChannelOption.AUTO_READ, false );
+            if ( ch.config().getOption( ChannelOption.AUTO_READ ) )
+            {
+                ch.config().setOption( ChannelOption.AUTO_READ, false );
 
-            // we need to remove the frame and legacy decoder here, otherwise it will
-            // automatically call the channel read because it's an ByteToMessageDecoder
-            // and the auto read disabling would not work
-            ch.pipeline().flush();
-            removeChannelHandler( PipelineUtils.FRAME_DECODER );
-            removeChannelHandler( PipelineUtils.LEGACY_DECODER );
+                // we need to remove the frame and legacy decoder here, otherwise it will
+                // automatically call the channel read because it's an ByteToMessageDecoder
+                // and the auto read disabling would not work
+                removeChannelHandler( PipelineUtils.FRAME_DECODER );
+                removeChannelHandler( PipelineUtils.LEGACY_DECODER );
+            }
+        };
+
+        if ( ch.eventLoop().inEventLoop() )
+        {
+            runnable.run();
+        } else
+        {
+            ch.eventLoop().execute( runnable );
         }
     }
 
