@@ -129,10 +129,13 @@ public class ChannelWrapper
             {
                 ch.config().setOption( ChannelOption.AUTO_READ, false );
 
-                // we need to remove the frame and legacy decoder here, otherwise it will
-                // automatically call the channel read because it's an ByteToMessageDecoder
-                // and the auto read disabling would not work
+                // we need to remove all handlers in reverse order because each would pass the data to the next one
+                // and this would cause that a connection causes multiple exceptions
+                removeChannelHandler( PipelineUtils.BOSS_HANDLER );
+                removeChannelHandler( PipelineUtils.PACKET_DECODER );
+                removeChannelHandler( "decompress" );
                 removeChannelHandler( PipelineUtils.FRAME_DECODER );
+                removeChannelHandler( PipelineUtils.DECRYPT_HANDLER );
                 removeChannelHandler( PipelineUtils.LEGACY_DECODER );
             }
         };
