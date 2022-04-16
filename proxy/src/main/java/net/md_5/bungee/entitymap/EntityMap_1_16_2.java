@@ -16,6 +16,7 @@ class EntityMap_1_16_2 extends EntityMap
 
     static final EntityMap_1_16_2 INSTANCE_1_16_2 = new EntityMap_1_16_2( 0x04, 0x2D );
     static final EntityMap_1_16_2 INSTANCE_1_17 = new EntityMap_1_16_2( 0x04, 0x2D );
+    static final EntityMap_1_16_2 INSTANCE_1_18 = new EntityMap_1_16_2( 0x04, 0x2D );
     //
     private final int spawnPlayerId;
     private final int spectateId;
@@ -55,7 +56,7 @@ class EntityMap_1_16_2 extends EntityMap
         int packetId = DefinedPacket.readVarInt( packet );
         int packetIdLength = packet.readerIndex() - readerIndex;
 
-        if ( packetId == spectateId )
+        if ( packetId == spectateId && !BungeeCord.getInstance().getConfig().isIpForward() )
         {
             UUID uuid = DefinedPacket.readUUID( packet );
             ProxiedPlayer player;

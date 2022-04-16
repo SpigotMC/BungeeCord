@@ -5,7 +5,7 @@
 
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-parent</artifactId>
-    <version>1.17-R0.1-SNAPSHOT</version>
+    <version>1.18-R0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>BungeeCord-Parent</name>
@@ -72,8 +72,8 @@
 
     <properties>
         <build.number>unknown</build.number>
-        <lombok.version>1.18.20</lombok.version>
-        <netty.version>4.1.65.Final</netty.version>
+        <lombok.version>1.18.22</lombok.version>
+        <netty.version>4.1.72.Final</netty.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -83,13 +83,13 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13.1</version>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>21.0</version>
+            <version>31.0.1-jre</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -150,7 +150,7 @@
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
                         <artifactId>checkstyle</artifactId>
-                        <version>8.44</version>
+                        <version>8.45.1</version>
                     </dependency>
                 </dependencies>
             </plugin>

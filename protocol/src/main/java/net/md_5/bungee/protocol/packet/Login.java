@@ -32,6 +32,7 @@ public class Login extends DefinedPacket
     private int maxPlayers;
     private String levelType;
     private int viewDistance;
+    private int simulationDistance;
     private boolean reducedDebugInfo;
     private boolean normalRespawn;
     private boolean debug;
@@ -99,6 +100,10 @@ public class Login extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_14 )
         {
             viewDistance = readVarInt( buf );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_18 )
+        {
+            simulationDistance = readVarInt( buf );
         }
         if ( protocolVersion >= 29 )
         {
@@ -176,6 +181,10 @@ public class Login extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_14 )
         {
             writeVarInt( viewDistance, buf );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_18 )
+        {
+            writeVarInt( simulationDistance, buf );
         }
         if ( protocolVersion >= 29 )
         {
