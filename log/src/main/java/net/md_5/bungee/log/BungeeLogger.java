@@ -20,7 +20,7 @@ public class BungeeLogger extends Logger
             })
     // CHECKSTYLE:ON
     @SuppressFBWarnings("SC_START_IN_CTOR")
-    public BungeeLogger(String loggerName, String filePattern, ConsoleReader reader)
+    public BungeeLogger(String loggerName, String filePattern, ConsoleReader reader, String logLevelFile, String logLevelConsole)
     {
         super( loggerName, null );
         setLevel( Level.ALL );
@@ -28,12 +28,12 @@ public class BungeeLogger extends Logger
         try
         {
             FileHandler fileHandler = new FileHandler( filePattern, 1 << 24, 8, true );
-            fileHandler.setLevel( Level.parse( System.getProperty( "net.md_5.bungee.file-log-level", "INFO" ) ) );
+            fileHandler.setLevel( Level.parse( logLevelFile ) );
             fileHandler.setFormatter( new ConciseFormatter( false ) );
             addHandler( fileHandler );
 
             ColouredWriter consoleHandler = new ColouredWriter( reader );
-            consoleHandler.setLevel( Level.parse( System.getProperty( "net.md_5.bungee.console-log-level", "INFO" ) ) );
+            consoleHandler.setLevel( Level.parse( logLevelConsole ) );
             consoleHandler.setFormatter( new ConciseFormatter( true ) );
             addHandler( consoleHandler );
         } catch ( IOException ex )

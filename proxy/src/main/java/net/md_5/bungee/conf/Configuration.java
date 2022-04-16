@@ -52,6 +52,8 @@ public class Configuration implements ProxyConfig
      */
     private boolean logCommands;
     private boolean logPings = true;
+    private String logLevelFile = Level.INFO.toString();
+    private String logLevelConsole = Level.INFO.toString();
     private int remotePingCache = -1;
     private int playerLimit = -1;
     private Collection<String> disabledCommands;
