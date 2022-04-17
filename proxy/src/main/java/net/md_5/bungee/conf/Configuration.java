@@ -52,8 +52,8 @@ public class Configuration implements ProxyConfig
      */
     private boolean logCommands;
     private boolean logPings = true;
-    private String logLevelFile = Level.INFO.toString();
-    private String logLevelConsole = Level.INFO.toString();
+    private Level logLevelFile = Level.INFO;
+    private Level logLevelConsole = Level.INFO;
     private int remotePingCache = -1;
     private int playerLimit = -1;
     private Collection<String> disabledCommands;
@@ -90,6 +90,8 @@ public class Configuration implements ProxyConfig
         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
         logCommands = adapter.getBoolean( "log_commands", logCommands );
         logPings = adapter.getBoolean( "log_pings", logPings );
+        logLevelFile = Level.parse( adapter.getString( "log_level_file", logLevelFile.toString() ) );
+        logLevelConsole = Level.parse( adapter.getString( "log_level_console", logLevelConsole.toString() ) );
         remotePingCache = adapter.getInt( "remote_ping_cache", remotePingCache );
         playerLimit = adapter.getInt( "player_limit", playerLimit );
         serverConnectTimeout = adapter.getInt( "server_connect_timeout", serverConnectTimeout );
