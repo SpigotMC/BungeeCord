@@ -90,8 +90,8 @@ public class Configuration implements ProxyConfig
         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
         logCommands = adapter.getBoolean( "log_commands", logCommands );
         logPings = adapter.getBoolean( "log_pings", logPings );
-        logLevelFile = Level.parse( adapter.getString( "log_level_file", logLevelFile.toString() ) );
-        logLevelConsole = Level.parse( adapter.getString( "log_level_console", logLevelConsole.toString() ) );
+        logLevelFile = Level.parse( adapter.getString( "log_level_file", System.getProperty( "net.md_5.bungee.file-log-level", logLevelFile.toString() ) ) );
+        logLevelConsole = Level.parse( adapter.getString( "log_level_console", System.getProperty( "net.md_5.bungee.console-log-level", logLevelConsole.toString() ) ) );
         remotePingCache = adapter.getInt( "remote_ping_cache", remotePingCache );
         playerLimit = adapter.getInt( "player_limit", playerLimit );
         serverConnectTimeout = adapter.getInt( "server_connect_timeout", serverConnectTimeout );
