@@ -88,24 +88,24 @@ public class PacketUtils
         titles[2] = new CachedTitle( Settings.IMP.MESSAGES.CHECKING_TITLE_SUS, 5, 20, 10 );
 
         DefinedPacket[] packets =
-        {
-            new JoinGame( CLIENTID ), //0
-            new EmptyChunkPacket( 0, 0 ), //1
-            new TimeUpdate( 1, 23700 ), //2
-            new PlayerAbilities( (byte) 6, 0f, 0f ), //3
-            new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 38f, 9876, false ), //4
-            new SetSlot( 0, 36, 358, 1, 0 ), //5 map 1.8+
-            new SetSlot( 0, 36, -1, 0, 0 ), //6 map reset
-            new KeepAlive( KEEPALIVE_ID ), //7
-            createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "2" ).replaceFirst( "%s", "попытки" ) ), //8
-            createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "1" ).replaceFirst( "%s", "попытка" ) ), //9
-            createMessagePacket( Settings.IMP.MESSAGES.CHECKING ), //10
-            createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA ), //11
-            createMessagePacket( Settings.IMP.MESSAGES.SUCCESSFULLY ), //12
-            new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 10f, 9876, false ), //13
-            new SetExp( 0, 0, 0 ), //14
-            createPluginMessage(), //15
-        };
+            {
+                new JoinGame( CLIENTID ), //0
+                new EmptyChunkPacket( 0, 0 ), //1
+                new TimeUpdate( 1, 23700 ), //2
+                new PlayerAbilities( (byte) 6, 0f, 0f ), //3
+                new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 38f, 9876, false ), //4
+                new SetSlot( 0, 36, 358, 1, 0 ), //5 map 1.8+
+                new SetSlot( 0, 36, -1, 0, 0 ), //6 map reset
+                new KeepAlive( KEEPALIVE_ID ), //7
+                createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "2" ).replaceFirst( "%s", "попытки" ) ), //8
+                createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "1" ).replaceFirst( "%s", "попытка" ) ), //9
+                createMessagePacket( Settings.IMP.MESSAGES.CHECKING ), //10
+                createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA ), //11
+                createMessagePacket( Settings.IMP.MESSAGES.SUCCESSFULLY ), //12
+                new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 10f, 9876, false ), //13
+                new SetExp( 0, 0, 0 ), //14
+                createPluginMessage(), //15
+            };
 
         for ( int i = 0; i < packets.length; i++ )
         {
@@ -289,6 +289,8 @@ public class PacketUtils
                 return 29;
             case ProtocolConstants.MINECRAFT_1_18_2:
                 return 30;
+            case ProtocolConstants.MINECRAFT_1_19:
+                return 31;
             default:
                 throw new IllegalArgumentException( "Version is not supported" );
         }

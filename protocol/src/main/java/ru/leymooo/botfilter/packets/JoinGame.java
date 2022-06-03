@@ -105,15 +105,12 @@ public class JoinGame extends DefinedPacket
 
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16 )
         {
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_18_2 )
-            {
-                buf.writeBytes( dimension1182 );
-            } else if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16_2 )
-            {
-                buf.writeBytes( dimension );
-            } else
-            {
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 || protocolVersion <= ProtocolConstants.MINECRAFT_1_16_1) {
                 writeString( (String) "minecraft:overworld", buf );
+            } else if (protocolVersion == ProtocolConstants.MINECRAFT_1_18_2) {
+                buf.writeBytes( dimension1182 );
+            }  else {
+                buf.writeBytes( dimension );
             }
             writeString( worldName, buf );
         } else if ( protocolVersion > ProtocolConstants.MINECRAFT_1_9 )
@@ -162,6 +159,10 @@ public class JoinGame extends DefinedPacket
         {
             buf.writeBoolean( debug );
             buf.writeBoolean( flat );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 )
+        {
+            buf.writeBoolean( false ); //lastDeathPos
         }
 
     }

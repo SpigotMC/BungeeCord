@@ -21,6 +21,11 @@ public class MapDataPacket extends DefinedPacket
     private byte scale;
     private MapData data;
 
+    //diffs:
+    //1.8
+    //1.9 - 1.13
+    //1.14 - 1.16
+    //1.17 - xxxx
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
