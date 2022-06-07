@@ -550,7 +550,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
                             userCon.init();
 
-                            unsafe.sendPacket( new LoginSuccess( getUniqueId(), getName(), loginProfile.getProperties() ) );
+                            unsafe.sendPacket( new LoginSuccess( getUniqueId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
                             ch.setProtocol( Protocol.GAME );
 
                             ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
