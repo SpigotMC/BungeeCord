@@ -6,6 +6,7 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.connection.LoginResult;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.Property;
 
 class EntityMap_1_7_6 extends EntityMap_1_7_2
 {
@@ -43,7 +44,7 @@ class EntityMap_1_7_6 extends EntityMap_1_7_2
                         DefinedPacket.writeString( player.getUniqueId().toString(), packet );
                         DefinedPacket.writeString( username, packet );
                         DefinedPacket.writeVarInt( profile.getProperties().length, packet );
-                        for ( LoginResult.Property property : profile.getProperties() )
+                        for ( Property property : profile.getProperties() )
                         {
                             DefinedPacket.writeString( property.getName(), packet );
                             DefinedPacket.writeString( property.getValue(), packet );
