@@ -7,37 +7,30 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.PlayerPublicKey;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class LoginRequest extends DefinedPacket
+public class SystemChat extends DefinedPacket
 {
 
-    private String data;
-    private PlayerPublicKey publicKey;
+    private String message;
+    private int position;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        data = readString( buf, 16 );
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 )
-        {
-            publicKey = readPublicKey( buf );
-        }
+        message = readString( buf, 262144 );
+        position = readVarInt( buf );
     }
 
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        writeString( data, buf );
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 )
-        {
-            writePublicKey( publicKey, buf );
-        }
+        writeString( message, buf );
+        writeVarInt( position, buf );
     }
 
     @Override

@@ -3,6 +3,8 @@ package net.md_5.bungee.protocol;
 import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClearTitles;
+import net.md_5.bungee.protocol.packet.ClientChat;
+import net.md_5.bungee.protocol.packet.ClientCommand;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.ClientStatus;
 import net.md_5.bungee.protocol.packet.Commands;
@@ -21,6 +23,7 @@ import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PingPacket;
+import net.md_5.bungee.protocol.packet.PlayerChat;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PluginMessage;
@@ -32,6 +35,7 @@ import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.protocol.packet.Subtitle;
+import net.md_5.bungee.protocol.packet.SystemChat;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.Team;
@@ -75,6 +79,22 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(Chat chat) throws Exception
+    {
+    }
+
+    public void handle(ClientChat chat) throws Exception
+    {
+    }
+
+    public void handle(PlayerChat chat) throws Exception
+    {
+    }
+
+    public void handle(SystemChat chat) throws Exception
+    {
+    }
+
+    public void handle(ClientCommand command) throws Exception
     {
     }
 
