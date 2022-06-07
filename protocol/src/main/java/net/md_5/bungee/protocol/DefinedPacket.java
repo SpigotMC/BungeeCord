@@ -216,6 +216,12 @@ public abstract class DefinedPacket
 
     public static void writeProperties(Property[] properties, ByteBuf buf)
     {
+        if ( properties == null )
+        {
+            writeVarInt( 0, buf );
+            return;
+        }
+
         writeVarInt( properties.length, buf );
         for ( Property prop : properties )
         {
