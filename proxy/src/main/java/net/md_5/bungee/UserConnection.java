@@ -487,6 +487,12 @@ public final class UserConnection implements ProxiedPlayer
     {
         if ( getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_19 )
         {
+            // Align with Spigot and remove client side formatting for now
+            if ( position == ChatMessageType.CHAT )
+            {
+                position = ChatMessageType.SYSTEM;
+            }
+
             unsafe().sendPacket( new SystemChat( message, position.ordinal() ) );
         } else
         {

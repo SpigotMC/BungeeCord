@@ -193,7 +193,7 @@ public class UpstreamBridge extends PacketHandler
                 return message;
             }
         }
-        return null;
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override
