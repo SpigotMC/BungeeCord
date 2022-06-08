@@ -50,6 +50,10 @@ public class Configuration implements ProxyConfig
      */
     private boolean onlineMode = true;
     /**
+     * Whether to check the authentication server public key.
+     */
+    private boolean enforceSecureProfile;
+    /**
      * Whether we log proxy commands to the proxy log
      */
     private boolean logCommands;
@@ -88,6 +92,7 @@ public class Configuration implements ProxyConfig
         timeout = adapter.getInt( "timeout", timeout );
         uuid = adapter.getString( "stats", uuid );
         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
+        enforceSecureProfile = adapter.getBoolean( "enforce_secure_profile", enforceSecureProfile );
         logCommands = adapter.getBoolean( "log_commands", logCommands );
         logPings = adapter.getBoolean( "log_pings", logPings );
         remotePingCache = adapter.getInt( "remote_ping_cache", remotePingCache );

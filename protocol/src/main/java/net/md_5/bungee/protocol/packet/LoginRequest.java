@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants.Direction;
+import net.md_5.bungee.protocol.PlayerPublicKey;
+import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
@@ -19,18 +21,28 @@ public class LoginRequest extends DefinedPacket
     public static final int EXPECTED_MAX_LENGTH = 1 + ( 32 * 4 ); //BotFilter
 
     private String data;
+    private PlayerPublicKey publicKey;
 
     @Override
     public void read(ByteBuf buf, Direction direction, int protocolVersion)
     {
         DefinedPacket.doLengthSanityChecks( buf, this, direction, protocolVersion, 0, EXPECTED_MAX_LENGTH ); //BotFilter
         data = readString( buf, 32 ); //BotFilter read 32 characters instead of 15
+
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 )
+        {
+            publicKey = readPublicKey( buf );
+        }
     }
 
     @Override
-    public void write(ByteBuf buf)
+    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         writeString( data, buf );
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 )
+        {
+            writePublicKey( publicKey, buf );
+        }
     }
 
     @Override

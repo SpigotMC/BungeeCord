@@ -25,6 +25,8 @@ import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
+import net.md_5.bungee.protocol.packet.ClientChat;
+import net.md_5.bungee.protocol.packet.ClientCommand;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
@@ -182,9 +184,33 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(Chat chat) throws Exception
     {
-        for ( int index = 0, length = chat.getMessage().length(); index < length; index++ )
+        String message = handleChat( chat.getMessage() );
+        if ( message != null )
         {
-            char c = chat.getMessage().charAt( index );
+            chat.setMessage( message );
+            con.getServer().unsafe().sendPacket( chat );
+        }
+
+        throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void handle(ClientChat chat) throws Exception
+    {
+        handleChat( chat.getMessage() );
+    }
+
+    @Override
+    public void handle(ClientCommand command) throws Exception
+    {
+        handleChat( "/" + command.getCommand() );
+    }
+
+    private String handleChat(String message)
+    {
+        for ( int index = 0, length = message.length(); index < length; index++ )
+        {
+            char c = message.charAt( index );
             if ( !AllowedCharacters.isChatAllowedCharacter( c ) )
             {
                 con.disconnect( bungee.getTranslation( "illegal_chat_characters", Util.unicode( c ) ) );
@@ -192,13 +218,13 @@ public class UpstreamBridge extends PacketHandler
             }
         }
 
-        ChatEvent chatEvent = new ChatEvent( con, con.getServer(), chat.getMessage() );
+        ChatEvent chatEvent = new ChatEvent( con, con.getServer(), message );
         if ( !bungee.getPluginManager().callEvent( chatEvent ).isCancelled() )
         {
-            chat.setMessage( chatEvent.getMessage() );
-            if ( !chatEvent.isCommand() || !bungee.getPluginManager().dispatchCommand( con, chat.getMessage().substring( 1 ) ) )
+            message = chatEvent.getMessage();
+            if ( !chatEvent.isCommand() || !bungee.getPluginManager().dispatchCommand( con, message.substring( 1 ) ) )
             {
-                con.getServer().unsafe().sendPacket( chat );
+                return message;
             }
         }
         throw CancelSendSignal.INSTANCE;

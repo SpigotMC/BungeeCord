@@ -9,6 +9,7 @@ import java.net.SocketAddress;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -16,6 +17,7 @@ import java.util.logging.Level;
 import javax.crypto.SecretKey;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.BungeeServerInfo;
 import net.md_5.bungee.EncryptionUtil;
@@ -50,6 +52,7 @@ import net.md_5.bungee.netty.cipher.CipherDecoder;
 import net.md_5.bungee.netty.cipher.CipherEncoder;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.protocol.PlayerPublicKey;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
@@ -368,6 +371,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         //BotFilter moved code to delayedHandleOfLoginRequset();
     }
 
+    @SneakyThrows
     public void delayedHandleOfLoginRequset()
     {
         if ( !AllowedCharacters.isValidName( loginRequest.getData(), onlineMode ) )
@@ -375,6 +379,29 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             disconnect( bungee.getTranslation( "name_invalid" ) );
             return;
         }
+
+        if ( BungeeCord.getInstance().config.isEnforceSecureProfile() )
+        {
+            PlayerPublicKey publicKey = loginRequest.getPublicKey();
+            if ( publicKey == null )
+            {
+                disconnect( bungee.getTranslation( "secure_profile_required" ) );
+                return;
+            }
+
+            if ( Instant.ofEpochMilli( publicKey.getExpiry() ).isBefore( Instant.now() ) )
+            {
+                disconnect( bungee.getTranslation( "secure_profile_expired" ) );
+                return;
+            }
+
+            if ( !EncryptionUtil.check( publicKey ) )
+            {
+                disconnect( bungee.getTranslation( "secure_profile_invalid" ) );
+                return;
+            }
+        }
+
 
         int limit = BungeeCord.getInstance().config.getPlayerLimit();
         if ( limit > 0 && bungee.getOnlineCountBF( false ) >= limit )//BotFilter
@@ -436,6 +463,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(final EncryptionResponse encryptResponse) throws Exception
     {
         checkState( thisState == State.ENCRYPT, "Not expecting ENCRYPT" ); //BotFilter
+        checkState( EncryptionUtil.check( loginRequest.getPublicKey(), encryptResponse, request ), "Invalid verification" );
 
         SecretKey sharedKey = EncryptionUtil.getSecret( encryptResponse, request );
         BungeeCipher decrypt = EncryptionUtil.getCipher( false, sharedKey );
@@ -619,7 +647,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( send )
         {
-            LoginSuccess packet = new LoginSuccess( getUniqueId(), getName() );
+            LoginSuccess packet = new LoginSuccess( getUniqueId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() );
             unsafe.sendPacket( packet );
         }
     }

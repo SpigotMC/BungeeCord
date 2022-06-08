@@ -96,8 +96,8 @@ public class ProtocolConstants
 
         if ( SNAPSHOT_SUPPORT )
         {
-            // supportedVersions.add( "1.18.x" );
-            // supportedVersionIds.add( ProtocolConstants.MINECRAFT_1_18 );
+            // supportedVersions.add( "1.19.x" );
+            // supportedVersionIds.add( ProtocolConstants.MINECRAFT_1_19 );
         }
 
         SUPPORTED_VERSIONS = supportedVersions.build();
