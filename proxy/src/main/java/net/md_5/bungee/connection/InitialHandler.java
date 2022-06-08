@@ -55,6 +55,7 @@ import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.PlayerPublicKey;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.Varint21FrameDecoder;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.Handshake;
@@ -334,6 +335,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 bungee.getBotFilter().getServerPingUtils().add( getAddress().getAddress() ); //BotFilter
                 break;
             case 2:
+                //botfilter
+                ch.getHandle().pipeline().get( Varint21FrameDecoder.class ).set119( handshake.getProtocolVersion() == ProtocolConstants.MINECRAFT_1_19 );
                 // Login
                 bungee.getLogger().log( Level.INFO, "{0} has connected", this.toString() ); // BotFilter, use toString()
                 thisState = State.USERNAME;

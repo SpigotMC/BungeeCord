@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import java.util.List;
+import lombok.Setter;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import ru.leymooo.botfilter.utils.FastCorruptedFrameException;
@@ -15,6 +16,8 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
     private boolean fromBackend;
     //see https://github.com/PaperMC/Waterfall/pull/609/
     private int packetCount;
+    @Setter
+    private boolean is119;
 
     public void setFromBackend(boolean fromBackend)
     {
@@ -56,7 +59,7 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
                     throw new FastCorruptedFrameException( "Empty Packet!" );
                 }
 
-                if ( !fromBackend && packetCount < 4 )
+                if ( !is119 && !fromBackend && packetCount < 4 )
                 {
                     checkPacketLength( packetLength );
                 }

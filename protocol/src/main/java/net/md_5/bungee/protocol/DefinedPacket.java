@@ -313,10 +313,15 @@ public abstract class DefinedPacket
         }
     }
 
-    //BotFilter start - see https://github.com/PaperMC/Waterfall/blob/master/BungeeCord-Patches/0060-Additional-DoS-mitigations.patch
+    //BotFilter start - see https://github.com/PaperMC/Waterfall/blob/master/BungeeCord-Patches/0057-Additional-DoS-mitigations.patch
     public static void doLengthSanityChecks(ByteBuf buf, DefinedPacket packet,
                                       ProtocolConstants.Direction direction, int protocolVersion, int expectedMinLen, int expectedMaxLen)
     {
+        //Temporary disable for 1.19
+        if ( protocolVersion > ProtocolConstants.MINECRAFT_1_19 )
+        {
+            return;
+        }
         int readable = buf.readableBytes();
         if ( readable > expectedMaxLen )
         {
