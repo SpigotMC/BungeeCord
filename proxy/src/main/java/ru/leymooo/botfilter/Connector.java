@@ -16,6 +16,7 @@ import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.Chat;
+import net.md_5.bungee.protocol.packet.ClientChat;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.PluginMessage;
@@ -190,7 +191,7 @@ public class Connector extends MoveHandler
         PacketUtils.titles[2].writeTitle( channel, version );
         channel.flush();
         botFilter.removeConnection( null, this );
-        sendMessage( PacketsPosition.CHECK_SUS );
+        sendMessage( PacketsPosition.CHECK_SUS_MSG );
         botFilter.saveUser( getName(), IPUtils.getAddress( userConnection ), true );
         PacketDecompressor packetDecompressor = channel.pipeline().get( PacketDecompressor.class );
         if ( packetDecompressor != null )
@@ -264,9 +265,20 @@ public class Connector extends MoveHandler
     @Override
     public void handle(Chat chat) throws Exception
     {
+        handleChat( chat.getMessage() );
+
+    }
+
+    @Override
+    public void handle(ClientChat chat) throws Exception
+    {
+        handleChat( chat.getMessage() );
+    }
+
+    private void handleChat(String message)
+    {
         if ( state != CheckState.CAPTCHA_ON_POSITION_FAILED )
         {
-            String message = chat.getMessage();
             if ( message.length() > 256 )
             {
                 failed( KickType.FAILED_CAPTCHA, "Too long message" );
@@ -277,8 +289,8 @@ public class Connector extends MoveHandler
                 completeCheck();
             } else if ( --attemps != 0 )
             {
-                ByteBuf buf = attemps == 2 ? PacketUtils.getCachedPacket( PacketsPosition.CAPTCHA_FAILED_2 ).get( version )
-                    : PacketUtils.getCachedPacket( PacketsPosition.CAPTCHA_FAILED_1 ).get( version );
+                ByteBuf buf = attemps == 2 ? PacketUtils.getCachedPacket( PacketsPosition.CAPTCHA_FAILED_2_MSG ).get( version )
+                    : PacketUtils.getCachedPacket( PacketsPosition.CAPTCHA_FAILED_1_MSG ).get( version );
                 if ( buf != null )
                 {
                     channel.write( buf, channel.voidPromise() );
@@ -386,11 +398,7 @@ public class Connector extends MoveHandler
 
     public void sendMessage(int index)
     {
-        ByteBuf buf = PacketUtils.getCachedPacket( index ).get( getVersion() );
-        if ( buf != null )
-        {
-            getChannel().write( buf, getChannel().voidPromise() );
-        }
+        PacketUtils.messages[index].write( getChannel(), getVersion() );
     }
 
 

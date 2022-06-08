@@ -638,6 +638,11 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_12, 0x03 ),
                     map( ProtocolConstants.MINECRAFT_1_12_1, 0x02 ),
                     map( ProtocolConstants.MINECRAFT_1_14, 0x03 ),
+                    map( ProtocolConstants.MINECRAFT_1_19, -1 )
+            );
+            TO_SERVER.registerPacket(
+                    ClientChat.class,
+                    ClientChat::new,
                     map( ProtocolConstants.MINECRAFT_1_19, 0x04 )
             );
             TO_SERVER.registerPacket(

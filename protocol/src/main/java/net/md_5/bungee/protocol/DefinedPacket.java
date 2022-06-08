@@ -318,7 +318,7 @@ public abstract class DefinedPacket
                                       ProtocolConstants.Direction direction, int protocolVersion, int expectedMinLen, int expectedMaxLen)
     {
         //Temporary disable for 1.19
-        if ( protocolVersion > ProtocolConstants.MINECRAFT_1_19 )
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 )
         {
             return;
         }

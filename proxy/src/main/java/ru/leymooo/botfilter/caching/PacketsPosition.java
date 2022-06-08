@@ -18,13 +18,16 @@ public final class PacketsPosition
     public static int SETSLOT_MAP = 5;
     public static int SETSLOT_RESET = 6;
     public static int KEEPALIVE = 7;
-    public static int CAPTCHA_FAILED_2 = 8;
-    public static int CAPTCHA_FAILED_1 = 9;
-    public static int CHECKING = 10;
-    public static int CHECKING_CAPTCHA = 11;
-    public static int CHECK_SUS = 12;
-    public static int PLAYERPOSANDLOOK = 13;
-    public static int SETEXP_RESET = 14;
-    public static int PLUGIN_MESSAGE = 15;
+    public static int PLAYERPOSANDLOOK = 8;
+    public static int SETEXP_RESET = 9;
+    public static int PLUGIN_MESSAGE = 10;
+
+
+
+    public static int CAPTCHA_FAILED_2_MSG = 0;
+    public static int CAPTCHA_FAILED_1_MSG = 1;
+    public static int CHECKING_MSG = 2;
+    public static int CHECKING_CAPTCHA_MSG = 3;
+    public static int CHECK_SUS_MSG = 4;
 
 }

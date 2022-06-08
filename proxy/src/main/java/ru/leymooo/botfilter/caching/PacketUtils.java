@@ -6,14 +6,12 @@ import io.netty.channel.Channel;
 import java.util.HashMap;
 import java.util.Random;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.PluginMessage;
@@ -33,7 +31,7 @@ public class PacketUtils
 {
 
     public static final CachedCaptcha captchas = new CachedCaptcha();
-    private static final CachedPacket[] cachedPackets = new CachedPacket[16];
+    private static final CachedPacket[] cachedPackets = new CachedPacket[11];
     private static final HashMap<KickType, CachedPacket> kickMessagesGame = new HashMap<>( 3 );
     private static final HashMap<KickType, CachedPacket> kickMessagesLogin = new HashMap<>( 4 );
     public static int PROTOCOLS_COUNT = ProtocolConstants.SUPPORTED_VERSION_IDS.size();
@@ -45,6 +43,7 @@ public class PacketUtils
      * 0 - Checking_fall, 1 - checking_captcha, 2 - sus
      */
     public static CachedTitle[] titles = new CachedTitle[3];
+    public static CachedMessage[] messages = new CachedMessage[3];
 
     public static ByteBuf createPacket(DefinedPacket packet, int id, int protocol)
     {
@@ -79,6 +78,13 @@ public class PacketUtils
         {
             packet.release();
         }
+        for ( CachedMessage message : messages )
+        {
+            if ( message != null )
+            {
+                message.release();
+            }
+        }
         kickMessagesGame.clear();
 
         expPackets = new CachedExpPackets();
@@ -88,29 +94,36 @@ public class PacketUtils
         titles[2] = new CachedTitle( Settings.IMP.MESSAGES.CHECKING_TITLE_SUS, 5, 20, 10 );
 
         DefinedPacket[] packets =
-            {
-                new JoinGame( CLIENTID ), //0
-                new EmptyChunkPacket( 0, 0 ), //1
-                new TimeUpdate( 1, 23700 ), //2
-                new PlayerAbilities( (byte) 6, 0f, 0f ), //3
-                new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 38f, 9876, false ), //4
-                new SetSlot( 0, 36, 358, 1, 0 ), //5 map 1.8+
-                new SetSlot( 0, 36, -1, 0, 0 ), //6 map reset
-                new KeepAlive( KEEPALIVE_ID ), //7
-                createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "2" ).replaceFirst( "%s", "попытки" ) ), //8
-                createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "1" ).replaceFirst( "%s", "попытка" ) ), //9
-                createMessagePacket( Settings.IMP.MESSAGES.CHECKING ), //10
-                createMessagePacket( Settings.IMP.MESSAGES.CHECKING_CAPTCHA ), //11
-                createMessagePacket( Settings.IMP.MESSAGES.SUCCESSFULLY ), //12
-                new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 10f, 9876, false ), //13
-                new SetExp( 0, 0, 0 ), //14
-                createPluginMessage(), //15
-            };
+        {
+            new JoinGame( CLIENTID ), //0
+            new EmptyChunkPacket( 0, 0 ), //1
+            new TimeUpdate( 1, 23700 ), //2
+            new PlayerAbilities( (byte) 6, 0f, 0f ), //3
+            new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 38f, 9876, false ), //4
+            new SetSlot( 0, 36, 358, 1, 0 ), //5 map 1.8+
+            new SetSlot( 0, 36, -1, 0, 0 ), //6 map reset
+            new KeepAlive( KEEPALIVE_ID ), //7
+            new PlayerPositionAndLook( 7.00, 450, 7.00, 90f, 10f, 9876, false ), //8
+            new SetExp( 0, 0, 0 ), //9
+            createPluginMessage(), //10
+        };
 
         for ( int i = 0; i < packets.length; i++ )
         {
             PacketUtils.cachedPackets[i] = new CachedPacket( packets[i], Protocol.BotFilter, Protocol.GAME );
         }
+
+
+        messages = new CachedMessage[]
+        {
+            new CachedMessage( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "2" ).replaceFirst( "%s", "попытки" ) ),
+            new CachedMessage( Settings.IMP.MESSAGES.CHECKING_CAPTCHA_WRONG.replaceFirst( "%s", "1" ).replaceFirst( "%s", "попытка" ) ),
+            new CachedMessage( Settings.IMP.MESSAGES.CHECKING ),
+            new CachedMessage( Settings.IMP.MESSAGES.CHECKING_CAPTCHA ),
+            new CachedMessage( Settings.IMP.MESSAGES.SUCCESSFULLY )
+        };
+
+
         Protocol kickGame = Protocol.GAME;
         Protocol kickLogin = Protocol.LOGIN;
 
@@ -134,17 +147,6 @@ public class PacketUtils
                     message.replace( "%prefix%", Settings.IMP.MESSAGES.PREFIX ).replace( "%nl%", "\n" ) ) ) ) );
     }
 
-    private static DefinedPacket createMessagePacket(String message)
-    {
-        if ( message.isEmpty() )
-        {
-            return null;
-        }
-        return new Chat( ComponentSerializer.toString(
-            TextComponent.fromLegacyText(
-                ChatColor.translateAlternateColorCodes( '&',
-                    message.replace( "%prefix%", Settings.IMP.MESSAGES.PREFIX ).replace( "%nl%", "\n" ) ) ) ), (byte) ChatMessageType.CHAT.ordinal() );
-    }
 
     private static DefinedPacket createPluginMessage()
     {

@@ -20,7 +20,7 @@ public class Settings extends Config
     @Final
     public final String HELP = "http://www.rubukkit.org/threads/137038/";
     @Final
-    public String BOT_FILTER_VERSION = "3.8.11";
+    public String BOT_FILTER_VERSION = "3.8.12-dev";
 
     @Create
     public MESSAGES MESSAGES;
