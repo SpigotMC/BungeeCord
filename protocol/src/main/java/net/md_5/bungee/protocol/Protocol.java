@@ -532,7 +532,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_16, 0x21 ),
                     map( ProtocolConstants.MINECRAFT_1_16_2, 0x20 ),
                     map( ProtocolConstants.MINECRAFT_1_17, 0x22 ),
-                    map( ProtocolConstants.MINECRAFT_1_18, 0x1F )
+                    map( ProtocolConstants.MINECRAFT_1_19, 0x1F )
             );
             TO_CLIENT.registerPacket(
                     SetSlot.class, SetSlot::new,
