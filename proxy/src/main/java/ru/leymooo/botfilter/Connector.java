@@ -289,12 +289,7 @@ public class Connector extends MoveHandler
                 completeCheck();
             } else if ( --attemps != 0 )
             {
-                ByteBuf buf = attemps == 2 ? PacketUtils.getCachedPacket( PacketsPosition.CAPTCHA_FAILED_2_MSG ).get( version )
-                    : PacketUtils.getCachedPacket( PacketsPosition.CAPTCHA_FAILED_1_MSG ).get( version );
-                if ( buf != null )
-                {
-                    channel.write( buf, channel.voidPromise() );
-                }
+                sendMessage( ( attemps == 2 ? PacketsPosition.CAPTCHA_FAILED_2_MSG : PacketsPosition.CAPTCHA_FAILED_1_MSG ) );
                 sendCaptcha();
             } else
             {
