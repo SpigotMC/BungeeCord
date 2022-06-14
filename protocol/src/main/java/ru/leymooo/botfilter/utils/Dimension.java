@@ -1,8 +1,10 @@
 package ru.leymooo.botfilter.utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -23,14 +25,22 @@ import se.llbit.nbt.Tag;
 //Изменил: BoomEaro
 @RequiredArgsConstructor
 @Getter
-public enum DimensionCreator
+public enum Dimension
 {
-    OVERWORLD( "minecraft:overworld", 0, false, true, 0.0f,
+    OVERWORLD( "minecraft:overworld", 0, 0, false, true, 0.0f,
             "minecraft:infiniburn_overworld", false, true, true,
             "minecraft:overworld", true, 0, 0,
-            256, 1.0f, false, false, 0, 256 );
-
+            256, 1.0f, false, false, 0, 256 ),
+    THE_NETHER( "minecraft:the_nether", -1, 2, false, true, 0.0f,
+                       "minecraft:infiniburn_nether", false, true, true,
+                       "minecraft:the_nether", true, 0, 0,
+                       256, 1.0f, false, false, 0, 256 ),
+    THE_END( "minecraft:the_end", 1, 3, false, true, 0.0f,
+                        "minecraft:infiniburn_end", false, true, true,
+                        "minecraft:the_end", true, 0, 0,
+                        256, 1.0f, false, false, 0, 256 );
     private final String key;
+    private final int dimensionId;
     private final int id;
 
     private final boolean piglinSafe;
@@ -150,7 +160,12 @@ public enum DimensionCreator
     {
         CompoundTag root = new CompoundTag();
         root.add( "type", new StringTag( "minecraft:worldgen/biome" ) );
-        root.add( "value", new ListTag( Tag.TAG_COMPOUND, Arrays.asList( encodeBiome( Biome.PLAINTS ), encodeBiome( Biome.SWAMP ), encodeBiome( Biome.SWAMP_HILLS ) ) ) );
+        List<CompoundTag> biomes = new ArrayList<>();
+        for ( Biome biome : Biome.values() )
+        {
+            biomes.add( encodeBiome( biome ) );
+        }
+        root.add( "value", new ListTag( Tag.TAG_COMPOUND, biomes ) );
         return root;
     }
 
@@ -175,36 +190,36 @@ public enum DimensionCreator
     {
         CompoundTag biomeTag = new CompoundTag();
 
-        biomeTag.add( "name", new StringTag( biome.name ) );
-        biomeTag.add( "id", new IntTag( biome.id ) );
+        biomeTag.add( "name", new StringTag( biome.getName() ) );
+        biomeTag.add( "id", new IntTag( biome.getId() ) );
 
         CompoundTag element = new CompoundTag();
-        element.add( "precipitation", new StringTag( biome.precipitation ) );
-        element.add( "depth", new FloatTag( biome.depth ) );
-        element.add( "temperature", new FloatTag( biome.temperature ) );
-        element.add( "scale", new FloatTag( biome.scale ) );
-        element.add( "downfall", new FloatTag( biome.downfall ) );
-        element.add( "category", new StringTag( biome.category ) );
+        element.add( "precipitation", new StringTag( biome.getPrecipitation() ) );
+        element.add( "depth", new FloatTag( biome.getDepth() ) );
+        element.add( "temperature", new FloatTag( biome.getTemperature() ) );
+        element.add( "scale", new FloatTag( biome.getScale() ) );
+        element.add( "downfall", new FloatTag( biome.getDownfall() ) );
+        element.add( "category", new StringTag( biome.getCategory() ) );
 
         CompoundTag effects = new CompoundTag();
-        effects.add( "sky_color", new IntTag( biome.sky_color ) );
-        effects.add( "water_fog_color", new IntTag( biome.water_fog_color ) );
-        effects.add( "fog_color", new IntTag( biome.fog_color ) );
-        effects.add( "water_color", new IntTag( biome.water_color ) );
-        if ( biome.grass_color_modiefer != null )
+        effects.add( "sky_color", new IntTag( biome.getSky_color() ) );
+        effects.add( "water_fog_color", new IntTag( biome.getWater_color() ) );
+        effects.add( "fog_color", new IntTag( biome.getFog_color() ) );
+        effects.add( "water_color", new IntTag( biome.getWater_color() ) );
+        if ( biome.getGrass_color_modiefer() != null )
         {
-            effects.add( "grass_color_modifier", new StringTag( biome.grass_color_modiefer ) );
+            effects.add( "grass_color_modifier", new StringTag( biome.getGrass_color_modiefer() ) );
         }
-        if ( biome.foliage_color != Integer.MIN_VALUE )
+        if ( biome.getFoliage_color() != Integer.MIN_VALUE )
         {
-            effects.add( "foliage_color", new IntTag( biome.foliage_color ) );
+            effects.add( "foliage_color", new IntTag( biome.getFoliage_color() ) );
         }
 
         CompoundTag moodSound = new CompoundTag();
-        moodSound.add( "tick_delay", new IntTag( biome.tick_delay ) );
-        moodSound.add( "offset", new DoubleTag( biome.offset ) );
-        moodSound.add( "block_search_extent", new IntTag( biome.block_search_extent ) );
-        moodSound.add( "sound", new StringTag( biome.sound ) );
+        moodSound.add( "tick_delay", new IntTag( biome.getTick_delay() ) );
+        moodSound.add( "offset", new DoubleTag( biome.getOffset() ) );
+        moodSound.add( "block_search_extent", new IntTag( biome.getBlock_search_extent() ) );
+        moodSound.add( "sound", new StringTag( biome.getSound() ) );
 
         effects.add( "mood_sound", moodSound );
 
@@ -212,65 +227,50 @@ public enum DimensionCreator
         biomeTag.add( "element", element );
         return biomeTag;
     }
-
-    public static class Biome
+    @RequiredArgsConstructor
+    @Getter
+    public enum Biome
     {
-
-        public static Biome PLAINTS = new Biome( "minecraft:plains", 1, "rain", 0.125f, 0.8f, 0.05f, 0.4f, "plains", 7907327, 329011,
-                12638463, 4159204, 6000, 2.0d, 8, "minecraft:ambient.cave", null, Integer.MIN_VALUE );
-
-        public static Biome SWAMP = new Biome( "minecraft:swamp", 6, "rain", -0.2f, 0.8f, 0.1f, 0.9f, "swamp", 7907327, 2302743,
-                12638463, 6388580, 6000, 2.0d, 8, "minecraft:ambient.cave", "swamp", 6975545 );
-
-        public static Biome SWAMP_HILLS = new Biome( "minecraft:swamp_hills", 134, "rain", -0.1f, 0.8f, 0.3f, 0.9f, "swamp", 7907327, 2302743,
-                12638463, 6388580, 6000, 2.0d, 8, "minecraft:ambient.cave", "swamp", 6975545 );
-
-        public final String name;
-        public final int id;
+        PLAINS( "minecraft:plains", 1, "rain", 0.125f, 0.8f, 0.05f,
+                0.4f, "plains", 7907327, 329011, 12638463,
+                4159204, 6000, 2.0d, 8, "minecraft:ambient.cave",
+                null, Integer.MIN_VALUE ),
+        SWAMP( "minecraft:swamp", 6, "rain", -0.2f, 0.8f, 0.1f, 0.9f,
+                "swamp", 7907327, 2302743, 12638463, 6388580,
+                6000, 2.0d, 8, "minecraft:ambient.cave", "swamp",
+                6975545 ),
+        SWAMP_HILLS( "minecraft:swamp_hills", 134, "rain", -0.1f, 0.8f, 0.3f,
+                0.9f, "swamp", 7907327, 2302743, 12638463,
+                6388580, 6000, 2.0d, 8, "minecraft:ambient.cave",
+                "swamp", 6975545 ),
+        NETHER_WASTES( "minecraft:nether_wastes", 8, "none", 0.1f, 2.0f, 0.2f,
+                0.0f, "nether", 7254527, 329011, 3344392,
+                4159204, 6000, 2.0d, 8, "minecraft:ambient.cave",
+                "swamp", 6975545 ),
+        THE_END( "minecraft:the_end", 9, "none", 0.1f, 0.5f, 0.2f,
+                             0.5f, "the_end", 7907327, 10518688, 12638463,
+                4159204, 6000, 2.0d, 8, "minecraft:ambient.cave",
+                             "swamp", 6975545 );
+        private final String name;
+        private final int id;
         //elements
-        public final String precipitation;
-        public final float depth;
-        public final float temperature;
-        public final float scale;
-        public final float downfall;
-        public final String category;
+        private final String precipitation;
+        private final float depth;
+        private final float temperature;
+        private final float scale;
+        private final float downfall;
+        private final String category;
         //effects
-        public final int sky_color;
-        public final int water_fog_color;
-        public final int fog_color;
-        public final int water_color;
+        private final int sky_color;
+        private final int water_fog_color;
+        private final int fog_color;
+        private final int water_color;
         //mood sound
-        public final int tick_delay;
-        public final double offset;
-        public final int block_search_extent;
-        public final String sound;
-        public final String grass_color_modiefer;
-        public final int foliage_color;
-
-        public Biome(String name, int id, String precipitation, float depth, float temperature,
-                     float scale, float downfall, String category, int sky_color, int water_fog_color,
-                     int fog_color,
-                     int water_color, int tick_delay, double offset, int block_search_extent, String sound,
-                     String grass_color_modifier, int foliage_color)
-        {
-            this.name = name;
-            this.id = id;
-            this.precipitation = precipitation;
-            this.depth = depth;
-            this.temperature = temperature;
-            this.scale = scale;
-            this.downfall = downfall;
-            this.category = category;
-            this.sky_color = sky_color;
-            this.water_fog_color = water_fog_color;
-            this.fog_color = fog_color;
-            this.water_color = water_color;
-            this.tick_delay = tick_delay;
-            this.offset = offset;
-            this.block_search_extent = block_search_extent;
-            this.sound = sound;
-            this.grass_color_modiefer = grass_color_modifier;
-            this.foliage_color = foliage_color;
-        }
+        private final int tick_delay;
+        private final double offset;
+        private final int block_search_extent;
+        private final String sound;
+        private final String grass_color_modiefer;
+        private final int foliage_color;
     }
 }

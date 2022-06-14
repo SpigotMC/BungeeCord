@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import ru.leymooo.botfilter.utils.DimensionCreator;
+import ru.leymooo.botfilter.utils.Dimension;
 import se.llbit.nbt.Tag;
 
 @Data
@@ -23,29 +23,43 @@ public class JoinGame extends DefinedPacket
     private short gameMode = 0;
     private short previousGameMode = 0;
     private Set<String> worldNames = new HashSet<>( Arrays.asList( "minecraft:overworld" ) );
-    //private Tag dimensions;
-    //private Object dimension;
     private String worldName = "minecraft:overworld";
+    private int dimensionId = 0;
     private long seed = 1;
     private short difficulty = 0;
     private short maxPlayers = 1;
     private String levelType = "flat";
-    private int viewDistance = 1;
+    private int viewDistance = 0;
     private boolean reducedDebugInfo = false;
     private boolean normalRespawn = true;
     private boolean debug = false;
     private boolean flat = true;
 
-    private Tag dimensions116 = DimensionCreator.OVERWORLD.getFullCodec( ProtocolConstants.MINECRAFT_1_16_1 );
-    private Tag dimensions1162 = DimensionCreator.OVERWORLD.getFullCodec( ProtocolConstants.MINECRAFT_1_16_2 );
-    private Tag dimensions1182 = DimensionCreator.OVERWORLD.getFullCodec( ProtocolConstants.MINECRAFT_1_18_2 );
-    private Tag dimensions119 = DimensionCreator.OVERWORLD.getFullCodec( ProtocolConstants.MINECRAFT_1_19 );
+    private Tag dimensions116;
+    private Tag dimensions1162;
+    private Tag dimensions1182;
+    private Tag dimensions119;
 
-    private Tag dimension = DimensionCreator.OVERWORLD.getAttributes( ProtocolConstants.MINECRAFT_1_16_2 );
-    private Tag dimension1182 = DimensionCreator.OVERWORLD.getAttributes( ProtocolConstants.MINECRAFT_1_18_2 );
+    private Tag dimension;
+    private Tag dimension1182;
     public JoinGame()
     {
-        entityId = 0;
+        this ( 0, Dimension.OVERWORLD );
+    }
+    public JoinGame(int entityId, Dimension dimension)
+    {
+        this.entityId = entityId;
+        this.dimensionId = dimension.getDimensionId();
+        this.worldName = dimension.getKey();
+        this.worldNames = new HashSet<>( Arrays.asList( dimension.getKey() ) );
+
+        this.dimensions116 = dimension.getFullCodec( ProtocolConstants.MINECRAFT_1_16_1 );
+        this.dimensions1162 = dimension.getFullCodec( ProtocolConstants.MINECRAFT_1_16_2 );
+        this.dimensions1182 = dimension.getFullCodec( ProtocolConstants.MINECRAFT_1_18_2 );
+        this.dimensions119 = dimension.getFullCodec( ProtocolConstants.MINECRAFT_1_19 );
+
+        this.dimension = dimension.getAttributes( ProtocolConstants.MINECRAFT_1_16_2 );
+        this.dimension1182 = dimension.getAttributes( ProtocolConstants.MINECRAFT_1_18_2 );
     }
 
     @Override
@@ -92,7 +106,7 @@ public class JoinGame extends DefinedPacket
         {
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 || protocolVersion <= ProtocolConstants.MINECRAFT_1_16_1 )
             {
-                writeString( (String) "minecraft:overworld", buf );
+                writeString( worldName, buf );
             } else if ( protocolVersion == ProtocolConstants.MINECRAFT_1_18_2 )
             {
                 writeTag( dimension1182, buf );
@@ -103,10 +117,10 @@ public class JoinGame extends DefinedPacket
             writeString( worldName, buf );
         } else if ( protocolVersion > ProtocolConstants.MINECRAFT_1_9 )
         {
-            buf.writeInt( 0 ); //dim
+            buf.writeInt( dimensionId ); //dim
         } else
         {
-            buf.writeByte( 0 ); //dim
+            buf.writeByte( dimensionId ); //dim
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_15 )
         {
