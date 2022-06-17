@@ -13,12 +13,15 @@ import net.md_5.bungee.ServerConnection.KeepAliveData;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
+import net.md_5.bungee.api.event.ChatPreviewRequestEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.SettingsChangedEvent;
 import net.md_5.bungee.api.event.TabCompleteEvent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.entitymap.EntityMap;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.netty.ChannelWrapper;
@@ -26,6 +29,8 @@ import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
+import net.md_5.bungee.protocol.packet.ChatPreviewRequest;
+import net.md_5.bungee.protocol.packet.ChatPreviewResponse;
 import net.md_5.bungee.protocol.packet.ClientChat;
 import net.md_5.bungee.protocol.packet.ClientCommand;
 import net.md_5.bungee.protocol.packet.ClientSettings;
@@ -35,6 +40,7 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.util.AllowedCharacters;
+import net.md_5.bungee.util.ChatComponentTransformer;
 
 public class UpstreamBridge extends PacketHandler
 {
@@ -292,6 +298,28 @@ public class UpstreamBridge extends PacketHandler
         }
 
         con.getPendingConnection().relayMessage( pluginMessage );
+    }
+
+    @Override
+    public void handle(ChatPreviewRequest request) throws Exception
+    {
+        if ( !con.isHandlingChatPreview() )
+        {
+            return;
+        }
+
+        ChatPreviewRequestEvent event = new ChatPreviewRequestEvent( con, request.getMessage() );
+        bungee.getPluginManager().callEvent( event );
+
+        if ( event.getPreview() == null )
+        {
+            return;
+        }
+
+        BaseComponent preview = ChatComponentTransformer.getInstance().transform( con, true, event.getPreview() )[0];
+
+        con.unsafe().sendPacket( new ChatPreviewResponse( request.getQueryId(), ComponentSerializer.toString( preview ) ) );
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override

@@ -61,6 +61,7 @@ import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.ServerData;
 import net.md_5.bungee.protocol.packet.SetCompression;
+import net.md_5.bungee.protocol.packet.SetDisplayChatPreview;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.tab.TabList;
 
@@ -684,7 +685,16 @@ public class DownstreamBridge extends PacketHandler
     {
         serverData.setMotd( null );
         serverData.setIcon( null );
-        con.unsafe().sendPacket( serverData );
+        con.setServerData( serverData );
+        con.sendServerDataUpdate();
+
+        throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void handle(SetDisplayChatPreview setDisplayChatPreview) throws Exception
+    {
+        con.setBackendHandlingChatPreview( setDisplayChatPreview.isEnabled() );
         throw CancelSendSignal.INSTANCE;
     }
 
