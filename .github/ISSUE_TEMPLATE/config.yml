@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Configuration help
+    url: https://www.spigotmc.org
+    about: Help for configuring bungeecord will only be answered in spigotmc.org forums.
+  - name: Questions
+    url: https://www.spigotmc.org
+    about: spigotmc.org forums are the best place to ask your questions regarding bungeecord.
+  - name: Plugin creation help
+    url: https://www.spigotmc.org
+    about: Plugin creation help can be recieved in spigotmc.org forums.
