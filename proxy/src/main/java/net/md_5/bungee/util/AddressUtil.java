@@ -11,7 +11,11 @@ public class AddressUtil
 
     public static String sanitizeAddress(InetSocketAddress addr)
     {
-        String string = addr.getHostString();
+        String string = null;
+        if ( addr.getAddress() != null )
+        {
+            string = addr.getAddress().getHostAddress();
+        }
 
         // Remove IPv6 scope if present
         if ( addr.getAddress() instanceof Inet6Address )
