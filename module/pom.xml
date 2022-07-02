@@ -21,6 +21,7 @@
     <modules>
         <module>cmd-alert</module>
         <module>cmd-find</module>
+        <module>cmd-kick</module>
         <module>cmd-list</module>
         <module>cmd-send</module>
         <module>cmd-server</module>
