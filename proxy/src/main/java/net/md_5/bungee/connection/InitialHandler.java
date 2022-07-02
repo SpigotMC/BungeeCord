@@ -208,14 +208,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                                     + "\00" + 127
                                     + '\00' + legacy.getVersion().getName()
                                     + '\00' + getFirstLine( legacy.getDescription() )
-                                    + '\00' + legacy.getPlayers().getOnline()
-                                    + '\00' + legacy.getPlayers().getMax();
+                                    + '\00' + ( ( legacy.getPlayers() != null ) ? legacy.getPlayers().getOnline() : "-1" )
+                                    + '\00' + ( ( legacy.getPlayers() != null ) ? legacy.getPlayers().getMax() : "-1" );
                         } else
                         {
                             // Clients <= 1.3 don't support colored motds because the color char is used as delimiter
                             kickMessage = ChatColor.stripColor( getFirstLine( legacy.getDescription() ) )
-                                    + '\u00a7' + legacy.getPlayers().getOnline()
-                                    + '\u00a7' + legacy.getPlayers().getMax();
+                                    + '\u00a7' + ( ( legacy.getPlayers() != null ) ? legacy.getPlayers().getOnline() : "-1" )
+                                    + '\u00a7' + ( ( legacy.getPlayers() != null ) ? legacy.getPlayers().getMax() : "-1" );
                         }
 
                         ch.close( kickMessage );
