@@ -29,8 +29,10 @@ public class CommandPlugins extends Command implements TabExecutor
         {
             StringBuilder pluginsList = new StringBuilder();
 
-            proxy.getPluginManager().getPlugins().stream().map( input -> input.getDescription().getName() ).
-                    forEach( pluginName -> pluginsList.append( ChatColor.GREEN ).append( pluginName ).append( ChatColor.WHITE ).append( ", " ) );
+            for ( Plugin plugin : proxy.getPluginManager().getPlugins() )
+            {
+                pluginsList.append( ChatColor.GREEN ).append( plugin.getDescription().getName() ).append( ChatColor.WHITE ).append( ", " );
+            }
 
             String plugins = pluginsList.substring( 0, pluginsList.lastIndexOf( "," ) - 1 );
             String translation = proxy.getTranslation( "command_plugins", proxy.getPluginManager().getPlugins().size(), plugins );
