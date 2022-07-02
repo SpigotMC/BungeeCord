@@ -120,12 +120,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private enum State
     {
 
-        HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, FINISHING;
+        HANDSHAKE, EVENT, STATUS, PING, USERNAME, ENCRYPT, FINISHING;
     }
 
     private boolean canSendKickMessage()
     {
-        return thisState == State.USERNAME || thisState == State.ENCRYPT || thisState == State.FINISHING;
+        return thisState == State.USERNAME || thisState == State.ENCRYPT || thisState == State.FINISHING || ( thisState == State.EVENT && loginRequest != null );
     }
 
     @Override
@@ -164,6 +164,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(LegacyHandshake legacyHandshake) throws Exception
     {
+        Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting LEGACY HANDSHAKE" );
         this.legacy = true;
         ch.close( bungee.getTranslation( "outdated_client", bungee.getGameVersion() ) );
     }
@@ -171,6 +172,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(LegacyPing ping) throws Exception
     {
+        Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting LEGACY PING" );
         this.legacy = true;
         final boolean v1_5 = ping.isV1_5();
 
@@ -222,6 +224,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     }
                 };
 
+                thisState = State.EVENT;
                 bungee.getPluginManager().callEvent( new ProxyPingEvent( InitialHandler.this, result, callback ) );
             }
         };
@@ -276,6 +279,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     public void done(ProxyPingEvent pingResult, Throwable error)
                     {
                         Gson gson = BungeeCord.getInstance().gson;
+                        thisState = State.PING;
                         unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
                         if ( bungee.getConnectionThrottle() != null )
                         {
@@ -288,6 +292,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             }
         };
 
+        thisState = State.EVENT;
         if ( forced != null && listener.isPingPassthrough() )
         {
             ( (BungeeServerInfo) forced ).ping( pingBack, handshake.getProtocolVersion() );
@@ -295,8 +300,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             pingBack.done( getPingInfo( motd, protocol ), null );
         }
-
-        thisState = State.PING;
     }
 
     @Override
@@ -447,6 +450,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             }
         };
 
+        thisState = State.EVENT;
         // fire pre login event
         bungee.getPluginManager().callEvent( new PreLoginEvent( InitialHandler.this, callback ) );
     }
