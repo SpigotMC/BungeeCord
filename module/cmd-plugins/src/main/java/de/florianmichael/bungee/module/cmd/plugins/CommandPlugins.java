@@ -1,5 +1,9 @@
 package de.florianmichael.bungee.module.cmd.plugins;
 
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableSet;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -8,11 +12,6 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.TabExecutor;
-
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class CommandPlugins extends Command implements TabExecutor
 {
@@ -43,7 +42,7 @@ public class CommandPlugins extends Command implements TabExecutor
             sender.sendMessage( TextComponent.fromLegacyText( translation ) );
         } else
         {
-            Plugin plugin = proxy.getPluginManager().getPlugin(args[0]);
+            Plugin plugin = proxy.getPluginManager().getPlugin( args[0] );
 
             if ( plugin == null )
             {
