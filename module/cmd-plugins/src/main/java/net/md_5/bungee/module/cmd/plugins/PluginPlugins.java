@@ -1,4 +1,4 @@
-package de.florianmichael.bungee.module.cmd.plugins;
+package net.md_5.bungee.module.cmd.plugins;
 
 import net.md_5.bungee.api.plugin.Plugin;
 
