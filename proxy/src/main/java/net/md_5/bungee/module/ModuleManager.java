@@ -87,12 +87,13 @@ public class ModuleManager
                 defaults.add( "jenkins://cmd_list" );
                 defaults.add( "jenkins://cmd_send" );
                 defaults.add( "jenkins://cmd_server" );
-                defaults.add( "jenkins://cmd_kick" );
             case 1:
                 defaults.add( "jenkins://reconnect_yaml" );
+            case 2:
+                defaults.add( "jenkins://cmd_kick" );
         }
         config.put( "modules", defaults );
-        config.put( "version", 2 );
+        config.put( "version", 3 );
 
         try ( FileWriter wr = new FileWriter( configFile ) )
         {
