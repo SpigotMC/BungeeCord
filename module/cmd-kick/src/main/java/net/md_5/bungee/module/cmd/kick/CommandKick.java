@@ -1,4 +1,4 @@
-package net.md_5.bungee.command;
+package net.md_5.bungee.module.cmd.kick;
 
 import com.google.common.base.Joiner;
 import java.util.stream.Stream;
