@@ -1,7 +1,6 @@
 package net.md_5.bungee.module.cmd.plugins;
 
 import com.google.common.collect.ImmutableSet;
-import java.io.File;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -27,13 +26,11 @@ public class CommandPlugins extends Command implements TabExecutor
 
         if ( args.length == 0 )
         {
-            File moduleFolder = new File( "modules" );
             StringBuilder pluginsList = new StringBuilder();
 
             for ( Plugin plugin : proxy.getPluginManager().getPlugins() )
             {
-                boolean isModule = plugin.getFile().getParentFile().equals( moduleFolder );
-                pluginsList.append( isModule ? ChatColor.BLUE : ChatColor.GREEN ).append( plugin.getDescription().getName() ).append( ChatColor.WHITE ).append( ", " );
+                pluginsList.append( ChatColor.GREEN ).append( plugin.getDescription().getName() ).append( ChatColor.WHITE ).append( ", " );
             }
 
             String plugins = pluginsList.substring( 0, pluginsList.lastIndexOf( "," ) - 1 );
