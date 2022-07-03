@@ -26,11 +26,13 @@ public class CommandPlugins extends Command implements TabExecutor
 
         if ( args.length == 0 )
         {
+            File moduleFolder = new File( "modules" );
             StringBuilder pluginsList = new StringBuilder();
 
             for ( Plugin plugin : proxy.getPluginManager().getPlugins() )
             {
-                pluginsList.append( ChatColor.GREEN ).append( plugin.getDescription().getName() ).append( ChatColor.WHITE ).append( ", " );
+                boolean isModule = plugin.getFile().getParentFile().equals( moduleFolder );
+                pluginsList.append( isModule ? ChatColor.BLUE : ChatColor.GREEN ).append( plugin.getDescription().getName() ).append( ChatColor.WHITE ).append( ", " );
             }
 
             String plugins = pluginsList.substring( 0, pluginsList.lastIndexOf( "," ) - 1 );
