@@ -8,6 +8,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.Connection;
 import net.md_5.bungee.api.plugin.Cancellable;
 import net.md_5.bungee.api.plugin.PluginManager;
+import net.md_5.bungee.protocol.DefinedPacket;
 
 /**
  * Event called when a player sends a message to a server.
@@ -26,11 +27,16 @@ public class ChatEvent extends TargetedEvent implements Cancellable
      * Text contained in this chat.
      */
     private String message;
+    /**
+     * The original packet, unchanged.
+     */
+    private DefinedPacket originalPacket;
 
-    public ChatEvent(Connection sender, Connection receiver, String message)
+    public ChatEvent(Connection sender, Connection receiver, String message, DefinedPacket originalPacket)
     {
         super( sender, receiver );
         this.message = message;
+        this.originalPacket = originalPacket;
     }
 
     /**

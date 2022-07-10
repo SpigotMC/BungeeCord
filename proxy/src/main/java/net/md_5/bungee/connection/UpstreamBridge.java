@@ -23,6 +23,7 @@ import net.md_5.bungee.entitymap.EntityMap;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
+import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
@@ -147,7 +148,7 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(Chat chat) throws Exception
     {
-        String message = handleChat( chat.getMessage() );
+        String message = handleChat( chat.getMessage(), chat );
         if ( message != null )
         {
             chat.setMessage( message );
@@ -160,16 +161,16 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(ClientChat chat) throws Exception
     {
-        handleChat( chat.getMessage() );
+        handleChat( chat.getMessage(), chat );
     }
 
     @Override
     public void handle(ClientCommand command) throws Exception
     {
-        handleChat( "/" + command.getCommand() );
+        handleChat( "/" + command.getCommand(), command );
     }
 
-    private String handleChat(String message)
+    private String handleChat(String message, DefinedPacket originalPacket)
     {
         for ( int index = 0, length = message.length(); index < length; index++ )
         {
@@ -181,7 +182,7 @@ public class UpstreamBridge extends PacketHandler
             }
         }
 
-        ChatEvent chatEvent = new ChatEvent( con, con.getServer(), message );
+        ChatEvent chatEvent = new ChatEvent( con, con.getServer(), message, originalPacket );
         if ( !bungee.getPluginManager().callEvent( chatEvent ).isCancelled() )
         {
             message = chatEvent.getMessage();
