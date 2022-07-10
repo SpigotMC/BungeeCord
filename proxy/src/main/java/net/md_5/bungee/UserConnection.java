@@ -32,6 +32,7 @@ import net.md_5.bungee.api.ServerConnectRequest;
 import net.md_5.bungee.api.SkinConfiguration;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.PlayerChatMessage;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -39,6 +40,7 @@ import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.chat.ComponentSerializer;
+import net.md_5.bungee.chat.PlayerChatMessageImpl;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.entitymap.EntityMap;
 import net.md_5.bungee.forge.ForgeClientHandler;
@@ -422,6 +424,23 @@ public final class UserConnection implements ProxiedPlayer
             throw new UnsupportedOperationException( "Cannot spoof chat on this client version!" );
         }
         server.getCh().write( new Chat( message ) );
+    }
+
+    @Override
+    public void chat(PlayerChatMessage message)
+    {
+        Preconditions.checkState( server != null, "Not connected to server" );
+        if ( !message.isSigned() && getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_19 )
+        {
+            throw new UnsupportedOperationException( "Cannot spoof chat on this client version!" );
+        }
+
+        if ( !( message instanceof PlayerChatMessageImpl ) )
+        {
+            throw new IllegalArgumentException( "Invalid chat message data provided!" );
+        }
+
+        server.getCh().write( ( (PlayerChatMessageImpl) message ).getPacket() );
     }
 
     @Override

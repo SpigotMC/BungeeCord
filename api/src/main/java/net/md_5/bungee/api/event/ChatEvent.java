@@ -5,10 +5,10 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.PlayerChatMessage;
 import net.md_5.bungee.api.connection.Connection;
 import net.md_5.bungee.api.plugin.Cancellable;
 import net.md_5.bungee.api.plugin.PluginManager;
-import net.md_5.bungee.protocol.DefinedPacket;
 
 /**
  * Event called when a player sends a message to a server.
@@ -28,15 +28,15 @@ public class ChatEvent extends TargetedEvent implements Cancellable
      */
     private String message;
     /**
-     * The original packet, unchanged.
+     * The player message data, with signature information.
      */
-    private DefinedPacket originalPacket;
+    private PlayerChatMessage chatMessage;
 
-    public ChatEvent(Connection sender, Connection receiver, String message, DefinedPacket originalPacket)
+    public ChatEvent(Connection sender, Connection receiver, String message, PlayerChatMessage chatMessage)
     {
         super( sender, receiver );
         this.message = message;
-        this.originalPacket = originalPacket;
+        this.chatMessage = chatMessage;
     }
 
     /**
