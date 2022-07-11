@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.Location;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import se.llbit.nbt.Tag;
 
@@ -27,13 +28,14 @@ public class Respawn extends DefinedPacket
     private boolean debug;
     private boolean flat;
     private boolean copyMeta;
+    private Location deathLocation;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16 )
         {
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16_2 )
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16_2 && protocolVersion < ProtocolConstants.MINECRAFT_1_19 )
             {
                 dimension = readTag( buf );
             } else
@@ -64,6 +66,13 @@ public class Respawn extends DefinedPacket
         {
             levelType = readString( buf );
         }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 )
+        {
+            if ( buf.readBoolean() )
+            {
+                deathLocation = new Location( readString( buf ), buf.readLong() );
+            }
+        }
     }
 
     @Override
@@ -71,7 +80,7 @@ public class Respawn extends DefinedPacket
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16 )
         {
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16_2 )
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16_2 && protocolVersion < ProtocolConstants.MINECRAFT_1_19 )
             {
                 writeTag( (Tag) dimension, buf );
             } else
@@ -101,6 +110,18 @@ public class Respawn extends DefinedPacket
         } else
         {
             writeString( levelType, buf );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 )
+        {
+            if ( deathLocation != null )
+            {
+                buf.writeBoolean( true );
+                writeString( deathLocation.getDimension(), buf );
+                buf.writeLong( deathLocation.getPos() );
+            } else
+            {
+                buf.writeBoolean( false );
+            }
         }
     }
 

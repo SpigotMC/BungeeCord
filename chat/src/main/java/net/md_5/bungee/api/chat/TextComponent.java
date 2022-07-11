@@ -44,7 +44,7 @@ public final class TextComponent extends BaseComponent
      */
     public static BaseComponent[] fromLegacyText(String message, ChatColor defaultColor)
     {
-        ArrayList<BaseComponent> components = new ArrayList<BaseComponent>();
+        ArrayList<BaseComponent> components = new ArrayList<>();
         StringBuilder builder = new StringBuilder();
         TextComponent component = new TextComponent();
         Matcher matcher = url.matcher( message );
@@ -111,15 +111,15 @@ public final class TextComponent extends BaseComponent
                 } else if ( format == ChatColor.MAGIC )
                 {
                     component.setObfuscated( true );
-                } else if ( format == ChatColor.RESET )
-                {
-                    format = defaultColor;
-                    component = new TextComponent();
-                    component.setColor( format );
                 } else
                 {
+                    if ( format == ChatColor.RESET )
+                    {
+                        format = defaultColor;
+                    }
                     component = new TextComponent();
                     component.setColor( format );
+                    component.setReset( true );
                 }
                 continue;
             }
