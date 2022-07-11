@@ -340,7 +340,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_15, 0x3A ),
                     map( ProtocolConstants.MINECRAFT_1_16, 0x39 ),
                     map( ProtocolConstants.MINECRAFT_1_16_2, 0x38 ),
-                    map( ProtocolConstants.MINECRAFT_1_17, 0x3C )
+                    map( ProtocolConstants.MINECRAFT_1_17, 0x3C ),
+                    map( ProtocolConstants.MINECRAFT_1_19, 0x3A )
             );
 
             TO_SERVER.registerPacket(
@@ -417,7 +418,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_13, 0x1D ),
                     map( ProtocolConstants.MINECRAFT_1_14, 0x1F ),
                     map( ProtocolConstants.MINECRAFT_1_16, 0x20 ),
-                    map( ProtocolConstants.MINECRAFT_1_16_2, 0x21 )
+                    map( ProtocolConstants.MINECRAFT_1_16_2, 0x21 ),
+                    map( ProtocolConstants.MINECRAFT_1_19, 0x23 )
             );
         }
     },
