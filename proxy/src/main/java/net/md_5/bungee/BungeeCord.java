@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.text.MessageFormat;
 import java.text.Format;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -558,7 +558,7 @@ public class BungeeCord extends ProxyServer
         cacheResourceBundle( cachedFormats, baseBundle );
         messageFormats = cachedFormats;
     }
-    
+
     private void cacheResourceBundle(Map<String, Format> map, ResourceBundle resourceBundle)
     {
         Enumeration<String> keys = resourceBundle.getKeys();
