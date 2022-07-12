@@ -564,7 +564,7 @@ public class BungeeCord extends ProxyServer
         Enumeration<String> keys = resourceBundle.getKeys();
         while ( keys.hasMoreElements() )
         {
-            map.computeIfAbsent( keys.nextElement(), ( key ) -> new MessageFormat( resourceBundle.getString( key ) ) );
+            map.computeIfAbsent( keys.nextElement(), (key) -> new MessageFormat( resourceBundle.getString( key ) ) );
         }
     }
 
