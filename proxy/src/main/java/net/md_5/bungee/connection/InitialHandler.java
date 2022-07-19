@@ -137,7 +137,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void exception(Throwable t) throws Exception
     {
         // we only need to mark the channel as closed, the handler boss will close the channel for us
-        // normal disconnecting to send kick message is useless here because the handler boss don't wait like the
+        // normal disconnecting to send kick message is useless here because the handler boss doesn't wait like the
         // delayed close method and a kick packet would never reach the client
         ch.markClosed();
     }
