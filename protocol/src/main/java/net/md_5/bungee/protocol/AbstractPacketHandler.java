@@ -209,7 +209,7 @@ public abstract class AbstractPacketHandler
     public void handle(GameState gameState) throws Exception
     {
     }
-    
+
     public void handle(ServerData serverData) throws Exception
     {
     }
