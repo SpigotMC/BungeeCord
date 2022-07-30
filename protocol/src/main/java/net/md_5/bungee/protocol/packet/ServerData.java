@@ -21,7 +21,6 @@ public class ServerData extends DefinedPacket
     private boolean preview;
     private boolean enforceSecure;
 
-
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
@@ -69,7 +68,6 @@ public class ServerData extends DefinedPacket
         {
             buf.writeBoolean( enforceSecure );
         }
-
     }
 
     @Override
