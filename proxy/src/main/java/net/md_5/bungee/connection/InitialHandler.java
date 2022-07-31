@@ -175,7 +175,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         this.legacy = true;
         final boolean v1_5 = ping.isV1_5();
 
-        makePingRequest( new Callback<ProxyPingEvent>()
+        makePingRequest(new Callback<ProxyPingEvent>()
         {
             @Override
             public void done(ProxyPingEvent result, Throwable error)
@@ -206,7 +206,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
                 ch.close( kickMessage );
             }
-        } );
+        });
     }
 
     private static String getFirstLine(String str)
@@ -229,7 +229,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.STATUS, "Not expecting STATUS" );
 
-        makePingRequest( new Callback<ProxyPingEvent>()
+        makePingRequest(new Callback<ProxyPingEvent>()
         {
             @Override
             public void done(ProxyPingEvent pingResult, Throwable error)
@@ -241,7 +241,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     bungee.getConnectionThrottle().unthrottle( getSocketAddress() );
                 }
             }
-        } );
+        });
 
         thisState = State.PING;
     }
