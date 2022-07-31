@@ -175,65 +175,38 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         this.legacy = true;
         final boolean v1_5 = ping.isV1_5();
 
-        ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
-        final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
-        final int protocol = bungee.getProtocolVersion();
-
-        Callback<ServerPing> pingBack = new Callback<ServerPing>()
+        makePingRequest(new Callback<ProxyPingEvent>()
         {
             @Override
-            public void done(ServerPing result, Throwable error)
+            public void done(ProxyPingEvent result, Throwable error)
             {
-                if ( error != null )
+                if ( ch.isClosed() )
                 {
-                    result = getPingInfo( bungee.getTranslation( "ping_cannot_connect" ), protocol );
-                    bungee.getLogger().log( Level.WARNING, "Error pinging remote server", error );
+                    return;
                 }
 
-                Callback<ProxyPingEvent> callback = new Callback<ProxyPingEvent>()
+                ServerPing legacy = result.getResponse();
+                String kickMessage;
+
+                if ( v1_5 )
                 {
-                    @Override
-                    public void done(ProxyPingEvent result, Throwable error)
-                    {
-                        if ( ch.isClosed() )
-                        {
-                            return;
-                        }
+                    kickMessage = ChatColor.DARK_BLUE
+                            + "\00" + 127
+                            + '\00' + legacy.getVersion().getName()
+                            + '\00' + getFirstLine( legacy.getDescription() )
+                            + '\00' + ( ( legacy.getPlayers() != null ) ? legacy.getPlayers().getOnline() : "-1" )
+                            + '\00' + ( ( legacy.getPlayers() != null ) ? legacy.getPlayers().getMax() : "-1" );
+                } else
+                {
+                    // Clients <= 1.3 don't support colored motds because the color char is used as delimiter
+                    kickMessage = ChatColor.stripColor( getFirstLine( legacy.getDescription() ) )
+                            + '\u00a7' + ( ( legacy.getPlayers() != null ) ? legacy.getPlayers().getOnline() : "-1" )
+                            + '\u00a7' + ( ( legacy.getPlayers() != null ) ? legacy.getPlayers().getMax() : "-1" );
+                }
 
-                        ServerPing legacy = result.getResponse();
-                        String kickMessage;
-
-                        if ( v1_5 )
-                        {
-                            kickMessage = ChatColor.DARK_BLUE
-                                    + "\00" + 127
-                                    + '\00' + legacy.getVersion().getName()
-                                    + '\00' + getFirstLine( legacy.getDescription() )
-                                    + '\00' + ( ( legacy.getPlayers() != null ) ? legacy.getPlayers().getOnline() : "-1" )
-                                    + '\00' + ( ( legacy.getPlayers() != null ) ? legacy.getPlayers().getMax() : "-1" );
-                        } else
-                        {
-                            // Clients <= 1.3 don't support colored motds because the color char is used as delimiter
-                            kickMessage = ChatColor.stripColor( getFirstLine( legacy.getDescription() ) )
-                                    + '\u00a7' + ( ( legacy.getPlayers() != null ) ? legacy.getPlayers().getOnline() : "-1" )
-                                    + '\u00a7' + ( ( legacy.getPlayers() != null ) ? legacy.getPlayers().getMax() : "-1" );
-                        }
-
-                        ch.close( kickMessage );
-                    }
-                };
-
-                bungee.getPluginManager().callEvent( new ProxyPingEvent( InitialHandler.this, result, callback ) );
+                ch.close( kickMessage );
             }
-        };
-
-        if ( forced != null && listener.isPingPassthrough() )
-        {
-            ( (BungeeServerInfo) forced ).ping( pingBack, bungee.getProtocolVersion() );
-        } else
-        {
-            pingBack.done( getPingInfo( motd, protocol ), null );
-        }
+        });
     }
 
     private static String getFirstLine(String str)
@@ -256,6 +229,25 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.STATUS, "Not expecting STATUS" );
 
+        makePingRequest(new Callback<ProxyPingEvent>()
+        {
+            @Override
+            public void done(ProxyPingEvent pingResult, Throwable error)
+            {
+                Gson gson = BungeeCord.getInstance().gson;
+                unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
+                if ( bungee.getConnectionThrottle() != null )
+                {
+                    bungee.getConnectionThrottle().unthrottle( getSocketAddress() );
+                }
+            }
+        });
+
+        thisState = State.PING;
+    }
+
+    public void makePingRequest(Callback<ProxyPingEvent> callback)
+    {
         ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
         final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
         final int protocol = ( ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
@@ -271,20 +263,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     bungee.getLogger().log( Level.WARNING, "Error pinging remote server", error );
                 }
 
-                Callback<ProxyPingEvent> callback = new Callback<ProxyPingEvent>()
-                {
-                    @Override
-                    public void done(ProxyPingEvent pingResult, Throwable error)
-                    {
-                        Gson gson = BungeeCord.getInstance().gson;
-                        unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
-                        if ( bungee.getConnectionThrottle() != null )
-                        {
-                            bungee.getConnectionThrottle().unthrottle( getSocketAddress() );
-                        }
-                    }
-                };
-
                 bungee.getPluginManager().callEvent( new ProxyPingEvent( InitialHandler.this, result, callback ) );
             }
         };
@@ -296,8 +274,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             pingBack.done( getPingInfo( motd, protocol ), null );
         }
-
-        thisState = State.PING;
     }
 
     @Override
