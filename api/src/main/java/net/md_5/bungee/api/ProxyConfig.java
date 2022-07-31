@@ -125,4 +125,18 @@ public interface ProxyConfig
      * @return favicon
      */
     Favicon getFaviconObject();
+
+    /**
+     * Gets the URL of the default proxy resource pack.
+     *
+     * @return default resource pack
+     */
+    String getResourcePack();
+
+    /**
+     * Gets the hash of the default proxy resource pack.
+     *
+     * @return default resource pack hash
+     */
+    String getResourcePackHash();
 }

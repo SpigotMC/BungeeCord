@@ -58,6 +58,7 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.ResourcePackRequest;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.SystemChat;
 import net.md_5.bungee.tab.ServerUnique;
@@ -124,6 +125,12 @@ public final class UserConnection implements ProxiedPlayer
     private final Scoreboard serverSentScoreboard = new Scoreboard();
     @Getter
     private final Collection<UUID> sentBossBars = new HashSet<>();
+    @Getter
+    @Setter
+    private String resourcePackHash;
+    @Getter
+    @Setter
+    private String requestedResourcePackHash;
     /*========================================================================*/
     @Getter
     private String displayName;
@@ -752,5 +759,27 @@ public final class UserConnection implements ProxiedPlayer
     public Scoreboard getScoreboard()
     {
         return serverSentScoreboard;
+    }
+
+    @Override
+    public void sendResourcePack(String url, String hash) throws IllegalArgumentException
+    {
+        if ( hash != null )
+        {
+            Preconditions.checkArgument( hash.length() <= 40, "Hash must be at least 40 characters" );
+
+            if ( hash.equals( resourcePackHash ) )
+            {
+                return;
+            }
+        }
+
+        unsafe().sendPacket( new ResourcePackRequest( url, hash ) );
+    }
+
+    @Override
+    public boolean hasResourcePack()
+    {
+        return resourcePackHash != null;
     }
 }
