@@ -682,23 +682,6 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(ServerData serverData) throws Exception
     {
-        con.getPendingConnection().makePingRequest( new Callback<ProxyPingEvent>()
-        {
-            @Override
-            public void done(ProxyPingEvent pingResult, Throwable error)
-            {
-                Gson gson = BungeeCord.getInstance().gson;
-                serverData.setMotd( gson.toJson( pingResult.getResponse().getDescriptionComponent() ) );
-
-                String favicon = pingResult.getResponse().getFavicon();
-                if(favicon != null)
-                {
-                    serverData.setIcon( favicon );
-                }
-                con.unsafe().sendPacket( serverData );
-            }
-        });
-
         throw CancelSendSignal.INSTANCE;
     }
 
