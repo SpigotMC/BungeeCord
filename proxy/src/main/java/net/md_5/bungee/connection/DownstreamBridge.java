@@ -695,13 +695,13 @@ public class DownstreamBridge extends PacketHandler
                 serverData.setMotd( gson.toJson( pingResult.getResponse().getDescriptionComponent() ) );
 
                 String favicon = pingResult.getResponse().getFavicon();
-                if ( favicon != null )
+                if(favicon != null)
                 {
                     serverData.setIcon( favicon );
                 }
                 con.unsafe().sendPacket( serverData );
             }
-        } );
+        });
 
         throw CancelSendSignal.INSTANCE;
     }
