@@ -9,6 +9,7 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 import java.util.function.Supplier;
 import lombok.Data;
 import lombok.Getter;
+import net.md_5.bungee.protocol.packet.ActionBar;
 import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClearTitles;
@@ -337,6 +338,10 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_17, 0x4A ),
                     map( ProtocolConstants.MINECRAFT_1_19, 0x49 ),
                     map( ProtocolConstants.MINECRAFT_1_19_1, 0x4C )
+            );
+            TO_CLIENT.registerPacket(
+                    ActionBar.class,
+                    map( ProtocolConstants.MINECRAFT_1_17, 0x41 )
             );
 
             TO_SERVER.registerPacket(

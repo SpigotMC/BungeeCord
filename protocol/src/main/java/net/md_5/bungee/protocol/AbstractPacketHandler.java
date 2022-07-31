@@ -1,5 +1,6 @@
 package net.md_5.bungee.protocol;
 
+import net.md_5.bungee.protocol.packet.ActionBar;
 import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClearTitles;
@@ -206,6 +207,10 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(GameState gameState) throws Exception
+    {
+    }
+
+    public void handle(ActionBar actionBar) throws Exception
     {
     }
 }
