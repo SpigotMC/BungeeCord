@@ -214,6 +214,73 @@ public abstract class DefinedPacket
         return new UUID( input.readLong(), input.readLong() );
     }
 
+    public static void writeProperties(Property[] properties, ByteBuf buf)
+    {
+        if ( properties == null )
+        {
+            writeVarInt( 0, buf );
+            return;
+        }
+
+        writeVarInt( properties.length, buf );
+        for ( Property prop : properties )
+        {
+            writeString( prop.getName(), buf );
+            writeString( prop.getValue(), buf );
+            if ( prop.getSignature() != null )
+            {
+                buf.writeBoolean( true );
+                writeString( prop.getSignature(), buf );
+            } else
+            {
+                buf.writeBoolean( false );
+            }
+        }
+    }
+
+    public static Property[] readProperties(ByteBuf buf)
+    {
+        Property[] properties = new Property[ DefinedPacket.readVarInt( buf ) ];
+        for ( int j = 0; j < properties.length; j++ )
+        {
+            String name = readString( buf );
+            String value = readString( buf );
+            if ( buf.readBoolean() )
+            {
+                properties[j] = new Property( name, value, DefinedPacket.readString( buf ) );
+            } else
+            {
+                properties[j] = new Property( name, value );
+            }
+        }
+
+        return properties;
+    }
+
+    public static void writePublicKey(PlayerPublicKey publicKey, ByteBuf buf)
+    {
+        if ( publicKey != null )
+        {
+            buf.writeBoolean( true );
+            buf.writeLong( publicKey.getExpiry() );
+            writeArray( publicKey.getKey(), buf );
+            writeArray( publicKey.getSignature(), buf );
+        } else
+        {
+            buf.writeBoolean( false );
+        }
+    }
+
+    public static PlayerPublicKey readPublicKey(ByteBuf buf)
+    {
+        if ( buf.readBoolean() )
+        {
+            return new PlayerPublicKey( buf.readLong(), readArray( buf ), readArray( buf ) );
+        }
+
+        return null;
+    }
+
     public static Tag readTag(ByteBuf input)
     {
         Tag tag = NamedTag.read( new DataInputStream( new ByteBufInputStream( input ) ) );

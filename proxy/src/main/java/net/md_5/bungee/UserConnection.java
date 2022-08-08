@@ -59,6 +59,7 @@ import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.SetCompression;
+import net.md_5.bungee.protocol.packet.SystemChat;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
 import net.md_5.bungee.util.CaseInsensitiveSet;
@@ -416,6 +417,10 @@ public final class UserConnection implements ProxiedPlayer
     public void chat(String message)
     {
         Preconditions.checkState( server != null, "Not connected to server" );
+        if ( getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_19 )
+        {
+            throw new UnsupportedOperationException( "Cannot spoof chat on this client version!" );
+        }
         server.getCh().write( new Chat( message ) );
     }
 
@@ -472,7 +477,19 @@ public final class UserConnection implements ProxiedPlayer
 
     private void sendMessage(ChatMessageType position, UUID sender, String message)
     {
-        unsafe().sendPacket( new Chat( message, (byte) position.ordinal(), sender ) );
+        if ( getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_19 )
+        {
+            // Align with Spigot and remove client side formatting for now
+            if ( position == ChatMessageType.CHAT )
+            {
+                position = ChatMessageType.SYSTEM;
+            }
+
+            unsafe().sendPacket( new SystemChat( message, position.ordinal() ) );
+        } else
+        {
+            unsafe().sendPacket( new Chat( message, (byte) position.ordinal(), sender ) );
+        }
     }
 
     private void sendMessage(ChatMessageType position, UUID sender, BaseComponent... message)

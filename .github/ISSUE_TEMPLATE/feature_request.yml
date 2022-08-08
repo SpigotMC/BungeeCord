@@ -1,0 +1,36 @@
+name: Feature request
+description: Suggest a feature which bungeecord should include.
+body:
+  - type: textarea
+    id: the-feature
+    attributes:
+      label: Feature description
+      description: Please describe your feature or improvement. Please include **details**.
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal of the feature
+      description: What is the goal of your feature?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Unfitting alternatives
+      description: What alternatives have you considered and why are they not sufficient for your use case?
+    validations:
+      required: true
+  - type: checkboxes
+    id: checkboxes
+    attributes:
+      label: Checking
+      options:
+        - label: This is not a question or plugin creation help request.
+          required: true
+        - label: This is a **feature or improvement request**.
+          required: true
+        - label: I have not read these checkboxes and therefore I just ticked them all.
+        - label: I did not use this form to report a bug.
+          required: true

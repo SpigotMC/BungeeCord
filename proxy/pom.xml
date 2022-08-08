@@ -6,13 +6,13 @@
     <parent>
         <groupId>net.md-5</groupId>
         <artifactId>bungeecord-parent</artifactId>
-        <version>1.18-R0.1-SNAPSHOT</version>
+        <version>1.19-R0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-proxy</artifactId>
-    <version>1.18-R0.1-SNAPSHOT</version>
+    <version>1.19-R0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>BungeeCord-Proxy</name>
@@ -47,6 +47,13 @@
             <artifactId>netty-transport-native-epoll</artifactId>
             <version>${netty.version}</version>
             <classifier>linux-x86_64</classifier>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-native-epoll</artifactId>
+            <version>${netty.version}</version>
+            <classifier>linux-aarch_64</classifier>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -94,36 +101,27 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.27</version>
+            <version>8.0.29</version>
             <scope>runtime</scope>
         </dependency>
         <!-- add these back in as they are not exposed by the API -->
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-resolver-provider</artifactId>
-            <version>3.8.4</version>
+            <version>3.8.5</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.resolver</groupId>
             <artifactId>maven-resolver-connector-basic</artifactId>
-            <version>1.7.2</version>
+            <version>1.7.3</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.resolver</groupId>
             <artifactId>maven-resolver-transport-http</artifactId>
-            <version>1.7.2</version>
+            <version>1.7.3</version>
             <scope>runtime</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-    </build>
 </project>
