@@ -21,12 +21,22 @@ public abstract class DefinedPacket
 
     public static void writeString(String s, ByteBuf buf)
     {
-        if ( s.length() > Short.MAX_VALUE )
+        writeString( s, buf, Short.MAX_VALUE );
+    }
+
+    public static void writeString(String s, ByteBuf buf, int maxLength)
+    {
+        if ( s.length() > maxLength )
         {
-            throw new OverflowPacketException( "Cannot send string longer than Short.MAX_VALUE (got " + s.length() + " characters)" );
+            throw new OverflowPacketException( "Cannot send string longer than " + maxLength + " (got " + s.length() + " characters)" );
         }
 
         byte[] b = s.getBytes( Charsets.UTF_8 );
+        if ( b.length > maxLength * 3 )
+        {
+            throw new OverflowPacketException( "Cannot send string longer than " + ( maxLength * 3 ) + " (got " + b.length + " bytes)" );
+        }
+
         writeVarInt( b.length, buf );
         buf.writeBytes( b );
     }
@@ -39,9 +49,9 @@ public abstract class DefinedPacket
     public static String readString(ByteBuf buf, int maxLen)
     {
         int len = readVarInt( buf );
-        if ( len > maxLen * 4 )
+        if ( len > maxLen * 3 )
         {
-            throw new OverflowPacketException( "Cannot receive string longer than " + maxLen * 4 + " (got " + len + " bytes)" );
+            throw new OverflowPacketException( "Cannot receive string longer than " + maxLen * 3 + " (got " + len + " bytes)" );
         }
 
         byte[] b = new byte[ len ];
