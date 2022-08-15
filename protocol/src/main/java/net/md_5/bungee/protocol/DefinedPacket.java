@@ -55,7 +55,7 @@ public abstract class DefinedPacket
         }
 
         String s = buf.toString( buf.readerIndex(), len, Charsets.UTF_8 );
-        buf.readerIndex(buf.readerIndex() + len);
+        buf.readerIndex( buf.readerIndex() + len );
 
         if ( s.length() > maxLen )
         {
