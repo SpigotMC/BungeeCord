@@ -404,6 +404,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     disconnect( bungee.getTranslation( "secure_profile_invalid" ) );
                     return;
                 }
+            } else
+            {
+                UUID uuid = loginRequest.getUuid();
+                if ( uuid == null || !EncryptionUtil.check( publicKey, uuid ) )
+                {
+                    disconnect( bungee.getTranslation( "secure_profile_invalid" ) );
+                    return;
+                }
             }
         }
 
@@ -521,21 +529,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         if ( BungeeCord.getInstance().config.isEnforceSecureProfile() )
         {
-            if ( getVersion() >= ProtocolConstants.MINECRAFT_1_19_1 )
+            if ( getVersion() >= ProtocolConstants.MINECRAFT_1_19_1 && !uniqueId.equals( loginRequest.getUuid() ) )
             {
-                boolean secure = false;
-                try
-                {
-                    secure = EncryptionUtil.check( loginRequest.getPublicKey(), uniqueId );
-                } catch ( GeneralSecurityException ex )
-                {
-                }
-
-                if ( !secure )
-                {
-                    disconnect( bungee.getTranslation( "secure_profile_invalid" ) );
-                    return;
-                }
+                disconnect( bungee.getTranslation( "secure_profile_invalid" ) );
+                return;
             }
         }
 
