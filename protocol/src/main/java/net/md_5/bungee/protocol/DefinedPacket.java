@@ -275,7 +275,7 @@ public abstract class DefinedPacket
     {
         if ( buf.readBoolean() )
         {
-            return new PlayerPublicKey( buf.readLong(), readArray( buf ), readArray( buf ) );
+            return new PlayerPublicKey( buf.readLong(), readArray( buf, 512 ), readArray( buf, 4096 ) );
         }
 
         return null;
