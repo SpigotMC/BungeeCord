@@ -47,7 +47,7 @@ public class ServerData extends DefinedPacket
         if ( motd != null )
         {
             buf.writeBoolean( true );
-            writeString( motd, buf );
+            writeString( motd, buf, 262144 );
         } else
         {
             buf.writeBoolean( false );
