@@ -99,6 +99,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Getter
     private boolean onlineMode = BungeeCord.getInstance().config.isOnlineMode();
     @Getter
+    private boolean enforceSecureProfile = BungeeCord.getInstance().config.isEnforceSecureProfile();
+    @Getter
     private InetSocketAddress virtualHost;
     private String name;
     @Getter
@@ -382,7 +384,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             return;
         }
 
-        if ( BungeeCord.getInstance().config.isEnforceSecureProfile() )
+        if ( isEnforceSecureProfile() )
         {
             PlayerPublicKey publicKey = loginRequest.getPublicKey();
             if ( publicKey == null )
@@ -519,7 +521,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             uniqueId = offlineId;
         }
 
-        if ( BungeeCord.getInstance().config.isEnforceSecureProfile() )
+        if ( isEnforceSecureProfile() )
         {
             if ( getVersion() >= ProtocolConstants.MINECRAFT_1_19_1 )
             {
@@ -699,6 +701,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.USERNAME, "Can only set online mode status whilst state is username" );
         this.onlineMode = onlineMode;
+    }
+
+    @Override
+    public void setEnforceSecureProfile(boolean enforceSecureProfile)
+    {
+        Preconditions.checkState( handshake.getRequestedProtocol() == 2, "Can only set enforce secure profile status in login process" );
+        this.enforceSecureProfile = enforceSecureProfile;
     }
 
     @Override
