@@ -17,7 +17,7 @@ public final class AllowedCharacters
     {
         if ( onlineMode )
         {
-            return ( c >= 'a' && c <= 'z' ) || ( c >= '0' && c <= '9' ) || ( c >= 'A' && c <= 'Z' ) || c == '_' || c == '.' || c == '-';
+            return c > ' ' && c <= 255 && c != '\u00A7' && c != 127;
         } else
         {
             // Don't allow spaces, Yaml config doesn't support them
