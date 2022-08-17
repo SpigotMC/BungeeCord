@@ -82,7 +82,7 @@ public interface PendingConnection extends Connection
      */
     void setOnlineMode(boolean onlineMode);
 
-     /**
+    /**
      * Get this connection's enforce secure profile status.
      * <br>
      * See {@link #setEnforceSecureProfile(boolean)} for a description of how this option
