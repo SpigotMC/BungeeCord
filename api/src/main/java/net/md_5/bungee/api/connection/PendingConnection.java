@@ -82,6 +82,27 @@ public interface PendingConnection extends Connection
      */
     void setOnlineMode(boolean onlineMode);
 
+     /**
+     * Get this connection's enforce secure profile status.
+     * <br>
+     * See {@link #setEnforceSecureProfile(boolean)} for a description of how this option
+     * works.
+     *
+     * @return the enforce secure profile state
+     */
+    boolean isEnforceSecureProfile();
+
+    /**
+     * Set this connection's enforce secure profile status.
+     * <br>
+     * May be called only during the PlayerHandshakeEvent to set the enforce secure profile status
+     * configuration setting for this connection only (i.e. whether or not the
+     * client will be treated as if it needs a secure profile).
+     *
+     * @param enforceSecureProfile status
+     */
+    void setEnforceSecureProfile(boolean enforceSecureProfile);
+
     /**
      * Check if the client is using the older unsupported Minecraft protocol
      * used by Minecraft clients older than 1.7.
