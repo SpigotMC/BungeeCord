@@ -8,7 +8,7 @@ import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.connection.PendingConnection;
 
 /**
- * Called when the proxy is pinged with packet 0xFE from the server list.
+ * Called when the proxy is pinged with legacy server list ping packet ( 0xFE ), or status packet ( 0x00 ).
  */
 @Data
 @ToString(callSuper = false)
