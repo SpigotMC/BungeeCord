@@ -49,7 +49,7 @@ public class ClientChat extends DefinedPacket
         buf.writeBoolean( signedPreview );
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_1 )
         {
-            chain.write( buf );
+            chain.write( buf, direction, protocolVersion );
         }
     }
 
