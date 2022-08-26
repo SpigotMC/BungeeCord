@@ -36,6 +36,7 @@ import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
+import net.md_5.bungee.protocol.packet.ServerData;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
@@ -337,6 +338,12 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_17, 0x4A ),
                     map( ProtocolConstants.MINECRAFT_1_19, 0x49 ),
                     map( ProtocolConstants.MINECRAFT_1_19_1, 0x4C )
+            );
+            TO_CLIENT.registerPacket(
+                    ServerData.class,
+                    ServerData::new,
+                    map( ProtocolConstants.MINECRAFT_1_19, 0x3F ),
+                    map( ProtocolConstants.MINECRAFT_1_19_1, 0x42 )
             );
 
             TO_SERVER.registerPacket(

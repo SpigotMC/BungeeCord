@@ -30,7 +30,7 @@ public class SystemChat extends DefinedPacket
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        writeString( message, buf );
+        writeString( message, buf, 262144 );
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_1 )
         {
             buf.writeBoolean( position == ChatMessageType.ACTION_BAR.ordinal() );
