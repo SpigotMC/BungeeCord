@@ -85,6 +85,7 @@ import net.md_5.bungee.conf.Configuration;
 import net.md_5.bungee.conf.YamlConfig;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.log.BungeeLogger;
+import net.md_5.bungee.log.LoggingForwardHandler;
 import net.md_5.bungee.log.LoggingOutputStream;
 import net.md_5.bungee.module.ModuleManager;
 import net.md_5.bungee.netty.PipelineUtils;
@@ -215,6 +216,21 @@ public class BungeeCord extends ProxyServer
 
         logger = new BungeeLogger( "BungeeCord", "proxy.log", consoleReader );
         JDK14LoggerFactory.LOGGER = logger;
+
+        // Before we can set the Err and Out streams to our LoggingOutputStream we also have to remove
+        // the default ConsoleHandler from the root logger, which writes to the err stream.
+        // But we still want to log these records, so we add our own handler which forwards the LogRecord to the BungeeLogger.
+        // This way we skip the err stream and the problem of only getting a string without context, and can handle the LogRecord itself.
+        // Thus improving the default bahavior for projects that log on other Logger instances not created by BungeeCord.
+        Logger rootLogger = Logger.getLogger( "" );
+        for ( Handler handler : rootLogger.getHandlers() )
+        {
+            rootLogger.removeHandler( handler );
+        }
+        rootLogger.addHandler( new LoggingForwardHandler( logger ) );
+
+        // We want everything that reaches these output streams to be handled by our logger
+        // since it applies a nice looking format and also writes to the logfile.
         System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
         System.setOut( new PrintStream( new LoggingOutputStream( logger, Level.INFO ), true ) );
 
