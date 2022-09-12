@@ -3,6 +3,8 @@ package net.md_5.bungee;
 import com.google.common.io.ByteStreams;
 import com.google.common.primitives.Longs;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.Key;
@@ -17,6 +19,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Random;
+import java.util.UUID;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -73,12 +76,23 @@ public class EncryptionUtil
         return new EncryptionRequest( hash, pubKey, verify );
     }
 
-    public static boolean check(PlayerPublicKey publicKey) throws GeneralSecurityException
+    public static boolean check(PlayerPublicKey publicKey, UUID uuid) throws GeneralSecurityException
     {
         Signature signature = Signature.getInstance( "SHA1withRSA" );
         signature.initVerify( MOJANG_KEY );
 
-        signature.update( ( publicKey.getExpiry() + "-----BEGIN RSA PUBLIC KEY-----\n" + MIME_ENCODER.encodeToString( getPubkey( publicKey.getKey() ).getEncoded() ) + "\n-----END RSA PUBLIC KEY-----\n" ).getBytes( StandardCharsets.US_ASCII ) );
+        byte[] check;
+        if ( uuid != null )
+        {
+            byte[] encoded = getPubkey( publicKey.getKey() ).getEncoded();
+            check = new byte[ 24 + encoded.length ];
+
+            ByteBuffer.wrap( check ).order( ByteOrder.BIG_ENDIAN ).putLong( uuid.getMostSignificantBits() ).putLong( uuid.getLeastSignificantBits() ).putLong( publicKey.getExpiry() ).put( encoded );
+        } else
+        {
+            check = ( publicKey.getExpiry() + "-----BEGIN RSA PUBLIC KEY-----\n" + MIME_ENCODER.encodeToString( getPubkey( publicKey.getKey() ).getEncoded() ) + "\n-----END RSA PUBLIC KEY-----\n" ).getBytes( StandardCharsets.US_ASCII );
+        }
+        signature.update( check );
 
         return signature.verify( publicKey.getSignature() );
     }
