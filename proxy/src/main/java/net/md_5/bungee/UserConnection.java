@@ -319,7 +319,7 @@ public final class UserConnection implements ProxiedPlayer
 
         pendingConnects.add( target );
 
-        ChannelInitializer initializer = new ChannelInitializer()
+        ChannelInitializer<Channel> initializer = new ChannelInitializer<Channel>()
         {
             @Override
             protected void initChannel(Channel ch) throws Exception

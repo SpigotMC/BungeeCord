@@ -22,6 +22,11 @@
             <url>https://github.com/SpigotMC/BungeeCord/blob/master/LICENSE</url>
             <distribution>repo</distribution>
         </license>
+        <license>
+            <name>Apache License Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+            <comments>Applies only to original versions of files in proxy/src/main/java/net/md_5/bungee/netty/flush/</comments>
+        </license>
     </licenses>
 
     <developers>
