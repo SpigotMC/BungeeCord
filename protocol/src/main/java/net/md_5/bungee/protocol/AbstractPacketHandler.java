@@ -23,7 +23,6 @@ import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
 import net.md_5.bungee.protocol.packet.PingPacket;
-import net.md_5.bungee.protocol.packet.PlayerChat;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PluginMessage;
@@ -31,6 +30,7 @@ import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
+import net.md_5.bungee.protocol.packet.ServerData;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
@@ -83,10 +83,6 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(ClientChat chat) throws Exception
-    {
-    }
-
-    public void handle(PlayerChat chat) throws Exception
     {
     }
 
@@ -211,6 +207,10 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(GameState gameState) throws Exception
+    {
+    }
+
+    public void handle(ServerData serverData) throws Exception
     {
     }
 }

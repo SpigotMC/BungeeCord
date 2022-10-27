@@ -79,6 +79,12 @@ public abstract class BaseComponent
     private HoverEvent hoverEvent;
 
     /**
+     * Whether this component rejects previous formatting
+     */
+    @Getter
+    private transient boolean reset;
+
+    /**
      * Default constructor.
      *
      * @deprecated for use by internal classes only, will be removed.

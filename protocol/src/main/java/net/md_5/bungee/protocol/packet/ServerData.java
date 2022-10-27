@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
-import net.md_5.bungee.protocol.ChatChain;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
@@ -14,42 +13,60 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class ClientChat extends DefinedPacket
+public class ServerData extends DefinedPacket
 {
 
-    private String message;
-    private long timestamp;
-    private long salt;
-    private byte[] signature;
-    private boolean signedPreview;
-    private ChatChain chain;
+    private String motd;
+    private String icon;
+    private boolean preview;
+    private boolean enforceSecure;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        message = readString( buf, 256 );
-        timestamp = buf.readLong();
-        salt = buf.readLong();
-        signature = readArray( buf );
-        signedPreview = buf.readBoolean();
+        if ( buf.readBoolean() )
+        {
+            motd = readString( buf, 262144 );
+        }
+        if ( buf.readBoolean() )
+        {
+            icon = readString( buf );
+        }
+
+        preview = buf.readBoolean();
+
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_1 )
         {
-            chain = new ChatChain();
-            chain.read( buf, direction, protocolVersion );
+            enforceSecure = buf.readBoolean();
         }
     }
 
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        writeString( message, buf );
-        buf.writeLong( timestamp );
-        buf.writeLong( salt );
-        writeArray( signature, buf );
-        buf.writeBoolean( signedPreview );
+        if ( motd != null )
+        {
+            buf.writeBoolean( true );
+            writeString( motd, buf, 262144 );
+        } else
+        {
+            buf.writeBoolean( false );
+        }
+
+        if ( icon != null )
+        {
+            buf.writeBoolean( true );
+            writeString( icon, buf );
+        } else
+        {
+            buf.writeBoolean( false );
+        }
+
+        buf.writeBoolean( preview );
+
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_1 )
         {
-            chain.write( buf, direction, protocolVersion );
+            buf.writeBoolean( enforceSecure );
         }
     }
 

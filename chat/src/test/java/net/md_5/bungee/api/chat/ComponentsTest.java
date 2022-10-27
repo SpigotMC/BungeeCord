@@ -572,7 +572,37 @@ public class ComponentsTest
         Assert.assertArrayEquals( hexColored, reColored );
     }
 
-    private String fromAndToLegacyText(String legacyText)
+    /**
+     * In legacy chat, colors and reset both reset all formatting.
+     * Make sure it works in combination with ComponentBuilder.
+     */
+    @Test
+    public void testLegacyResetInBuilder()
+    {
+        ComponentBuilder builder = new ComponentBuilder();
+        BaseComponent[] a = TextComponent.fromLegacyText( "§4§n44444§rdd§6§l6666" );
+
+        String expected = "{\"extra\":[{\"underlined\":true,\"color\":\"dark_red\",\"text\":\"44444\"},{\"color\":"
+                + "\"white\",\"text\":\"dd\"},{\"bold\":true,\"color\":\"gold\",\"text\":\"6666\"}],\"text\":\"\"}";
+        Assert.assertEquals( expected, ComponentSerializer.toString( a ) );
+
+        builder.append( a );
+
+        String test1 = ComponentSerializer.toString( builder.create() );
+        Assert.assertEquals( expected, test1 );
+
+        BaseComponent[] b = TextComponent.fromLegacyText( "§rrrrr" );
+        builder.append( b );
+
+        String test2 = ComponentSerializer.toString( builder.create() );
+        Assert.assertEquals(
+                "{\"extra\":[{\"underlined\":true,\"color\":\"dark_red\",\"text\":\"44444\"},"
+                        + "{\"color\":\"white\",\"text\":\"dd\"},{\"bold\":true,\"color\":\"gold\",\"text\":\"6666\"},"
+                        + "{\"color\":\"white\",\"text\":\"rrrr\"}],\"text\":\"\"}",
+                test2 );
+    }
+
+    private static String fromAndToLegacyText(String legacyText)
     {
         return BaseComponent.toLegacyText( TextComponent.fromLegacyText( legacyText ) );
     }
