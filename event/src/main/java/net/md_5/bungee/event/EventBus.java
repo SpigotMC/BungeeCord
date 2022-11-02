@@ -90,6 +90,7 @@ public class EventBus
                 }
                 Map<Byte, Set<Method>> prioritiesMap = handler.computeIfAbsent( params[0], k -> new HashMap<>() );
                 Set<Method> priority = prioritiesMap.computeIfAbsent( annotation.priority(), k -> new HashSet<>() );
+                m.setAccessible(true);
                 priority.add( m );
             }
         }
