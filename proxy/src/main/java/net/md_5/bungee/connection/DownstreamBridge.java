@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.ServerConnection.KeepAliveData;
 import net.md_5.bungee.UserConnection;
@@ -684,6 +685,7 @@ public class DownstreamBridge extends PacketHandler
     {
         serverData.setMotd( null );
         serverData.setIcon( null );
+        serverData.setEnforceSecure( BungeeCord.getInstance().config.isEnforceSecureProfile() );
         con.unsafe().sendPacket( serverData );
         throw CancelSendSignal.INSTANCE;
     }
