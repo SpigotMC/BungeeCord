@@ -24,10 +24,12 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.text.Format;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -113,10 +115,9 @@ public class BungeeCord extends ProxyServer
     @Getter
     public final Configuration config = new Configuration();
     /**
-     * Localization bundle.
+     * Localization formats.
      */
-    private ResourceBundle baseBundle;
-    private ResourceBundle customBundle;
+    private Map<String, Format> messageFormats;
     public EventLoopGroup eventLoops;
     /**
      * locations.yml save thread.
@@ -189,13 +190,6 @@ public class BungeeCord extends ProxyServer
         // Java uses ! to indicate a resource inside of a jar/zip/other container. Running Bungee from within a directory that has a ! will cause this to muck up.
         Preconditions.checkState( new File( "." ).getAbsolutePath().indexOf( '!' ) == -1, "Cannot use BungeeCord in directory with ! in path." );
 
-        try
-        {
-            baseBundle = ResourceBundle.getBundle( "messages" );
-        } catch ( MissingResourceException ex )
-        {
-            baseBundle = ResourceBundle.getBundle( "messages", Locale.ENGLISH );
-        }
         reloadMessages();
 
         // This is a workaround for quite possibly the weirdest bug I have ever encountered in my life!
@@ -537,32 +531,49 @@ public class BungeeCord extends ProxyServer
         return ( BungeeCord.class.getPackage().getImplementationVersion() == null ) ? "unknown" : BungeeCord.class.getPackage().getImplementationVersion();
     }
 
-    public void reloadMessages()
+    public final void reloadMessages()
     {
+        Map<String, Format> cachedFormats = new HashMap<>();
+
         File file = new File( "messages.properties" );
         if ( file.isFile() )
         {
             try ( FileReader rd = new FileReader( file ) )
             {
-                customBundle = new PropertyResourceBundle( rd );
+                cacheResourceBundle( cachedFormats, new PropertyResourceBundle( rd ) );
             } catch ( IOException ex )
             {
                 getLogger().log( Level.SEVERE, "Could not load custom messages.properties", ex );
             }
+        }
+
+        ResourceBundle baseBundle;
+        try
+        {
+            baseBundle = ResourceBundle.getBundle( "messages" );
+        } catch ( MissingResourceException ex )
+        {
+            baseBundle = ResourceBundle.getBundle( "messages", Locale.ENGLISH );
+        }
+        cacheResourceBundle( cachedFormats, baseBundle );
+
+        messageFormats = Collections.unmodifiableMap( cachedFormats );
+    }
+
+    private void cacheResourceBundle(Map<String, Format> map, ResourceBundle resourceBundle)
+    {
+        Enumeration<String> keys = resourceBundle.getKeys();
+        while ( keys.hasMoreElements() )
+        {
+            map.computeIfAbsent( keys.nextElement(), (key) -> new MessageFormat( resourceBundle.getString( key ) ) );
         }
     }
 
     @Override
     public String getTranslation(String name, Object... args)
     {
-        String translation = "<translation '" + name + "' missing>";
-        try
-        {
-            translation = MessageFormat.format( customBundle != null && customBundle.containsKey( name ) ? customBundle.getString( name ) : baseBundle.getString( name ), args );
-        } catch ( MissingResourceException ex )
-        {
-        }
-        return translation;
+        Format format = messageFormats.get( name );
+        return ( format != null ) ? format.format( args ) : "<translation '" + name + "' missing>";
     }
 
     @Override
