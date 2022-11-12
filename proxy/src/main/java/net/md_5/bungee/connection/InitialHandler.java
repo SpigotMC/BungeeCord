@@ -383,7 +383,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             return;
         }
 
-        if ( BungeeCord.getInstance().config.isEnforceSecureProfile() )
+        if ( BungeeCord.getInstance().config.isEnforceSecureProfile() && getVersion() >= ProtocolConstants.MINECRAFT_1_19 )
         {
             PlayerPublicKey publicKey = loginRequest.getPublicKey();
             if ( publicKey == null )
