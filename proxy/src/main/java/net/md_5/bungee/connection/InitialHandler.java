@@ -99,6 +99,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Getter
     private boolean onlineMode = BungeeCord.getInstance().config.isOnlineMode();
     @Getter
+    private boolean enforceSecureProfile = BungeeCord.getInstance().config.isEnforceSecureProfile();
+    @Getter
     private InetSocketAddress virtualHost;
     private String name;
     @Getter
@@ -383,31 +385,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             return;
         }
 
-        if ( BungeeCord.getInstance().config.isEnforceSecureProfile() )
-        {
-            PlayerPublicKey publicKey = loginRequest.getPublicKey();
-            if ( publicKey == null )
-            {
-                disconnect( bungee.getTranslation( "secure_profile_required" ) );
-                return;
-            }
-
-            if ( Instant.ofEpochMilli( publicKey.getExpiry() ).isBefore( Instant.now() ) )
-            {
-                disconnect( bungee.getTranslation( "secure_profile_expired" ) );
-                return;
-            }
-
-            if ( getVersion() < ProtocolConstants.MINECRAFT_1_19_1 )
-            {
-                if ( !EncryptionUtil.check( publicKey, null ) )
-                {
-                    disconnect( bungee.getTranslation( "secure_profile_invalid" ) );
-                    return;
-                }
-            }
-        }
-
         this.loginRequest = loginRequest;
 
         int limit = BungeeCord.getInstance().config.getPlayerLimit();
@@ -441,6 +418,41 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 {
                     return;
                 }
+
+                if ( enforceSecureProfile )
+                {
+                    PlayerPublicKey publicKey = loginRequest.getPublicKey();
+                    if ( publicKey == null )
+                    {
+                        disconnect( bungee.getTranslation( "secure_profile_required" ) );
+                        return;
+                    }
+
+                    if ( Instant.ofEpochMilli( publicKey.getExpiry() ).isBefore( Instant.now() ) )
+                    {
+                        disconnect( bungee.getTranslation( "secure_profile_expired" ) );
+                        return;
+                    }
+
+                    if ( getVersion() < ProtocolConstants.MINECRAFT_1_19_1 )
+                    {
+
+                        boolean secure = false;
+                        try
+                        {
+                            secure = EncryptionUtil.check( publicKey, null );
+                        } catch ( GeneralSecurityException ex )
+                        {
+                        }
+
+                        if ( !secure )
+                        {
+                            disconnect( bungee.getTranslation( "secure_profile_invalid" ) );
+                            return;
+                        }
+                    }
+                }
+
                 if ( onlineMode )
                 {
                     thisState = State.ENCRYPT;
@@ -520,7 +532,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             uniqueId = offlineId;
         }
 
-        if ( BungeeCord.getInstance().config.isEnforceSecureProfile() )
+        if ( isEnforceSecureProfile() )
         {
             if ( getVersion() >= ProtocolConstants.MINECRAFT_1_19_1 )
             {
@@ -700,6 +712,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.USERNAME, "Can only set online mode status whilst state is username" );
         this.onlineMode = onlineMode;
+    }
+
+    @Override
+    public void setEnforceSecureProfile(boolean enforceSecureProfile)
+    {
+        Preconditions.checkState( thisState == State.USERNAME, "Can only set enforce secure profile status whilst state is username" );
+        this.enforceSecureProfile = enforceSecureProfile;
     }
 
     @Override
