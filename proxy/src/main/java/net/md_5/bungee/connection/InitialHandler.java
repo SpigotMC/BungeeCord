@@ -716,7 +716,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void setEnforceSecureProfile(boolean enforceSecureProfile)
     {
-        Preconditions.checkState( handshake.getRequestedProtocol() == 2 && thisState != State.FINISHING, "Can only set enforce secure profile status in login process" );
+        Preconditions.checkState( thisState == State.USERNAME, "Can only set enforce secure profile status whilst state is username" );
         this.enforceSecureProfile = enforceSecureProfile;
     }
 
