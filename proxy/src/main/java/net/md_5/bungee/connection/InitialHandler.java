@@ -384,31 +384,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             return;
         }
 
-        if ( isEnforceSecureProfile() )
-        {
-            PlayerPublicKey publicKey = loginRequest.getPublicKey();
-            if ( publicKey == null )
-            {
-                disconnect( bungee.getTranslation( "secure_profile_required" ) );
-                return;
-            }
-
-            if ( Instant.ofEpochMilli( publicKey.getExpiry() ).isBefore( Instant.now() ) )
-            {
-                disconnect( bungee.getTranslation( "secure_profile_expired" ) );
-                return;
-            }
-
-            if ( getVersion() < ProtocolConstants.MINECRAFT_1_19_1 )
-            {
-                if ( !EncryptionUtil.check( publicKey, null ) )
-                {
-                    disconnect( bungee.getTranslation( "secure_profile_invalid" ) );
-                    return;
-                }
-            }
-        }
-
         this.loginRequest = loginRequest;
 
         int limit = BungeeCord.getInstance().config.getPlayerLimit();
@@ -442,6 +417,41 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 {
                     return;
                 }
+
+                if ( enforceSecureProfile )
+                {
+                    PlayerPublicKey publicKey = loginRequest.getPublicKey();
+                    if ( publicKey == null )
+                    {
+                        disconnect( bungee.getTranslation( "secure_profile_required" ) );
+                        return;
+                    }
+
+                    if ( Instant.ofEpochMilli( publicKey.getExpiry() ).isBefore( Instant.now() ) )
+                    {
+                        disconnect( bungee.getTranslation( "secure_profile_expired" ) );
+                        return;
+                    }
+
+                    if ( getVersion() < ProtocolConstants.MINECRAFT_1_19_1 )
+                    {
+
+                        boolean secure = false;
+                        try
+                        {
+                            secure = EncryptionUtil.check( publicKey, null );
+                        } catch ( GeneralSecurityException ex )
+                        {
+                        }
+
+                        if ( !secure )
+                        {
+                            disconnect( bungee.getTranslation( "secure_profile_invalid" ) );
+                            return;
+                        }
+                    }
+                }
+
                 if ( onlineMode )
                 {
                     thisState = State.ENCRYPT;
