@@ -16,6 +16,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import lombok.ToString;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.event.EventLookup;
 
 @ToString(of = "desc")
 final class PluginClassloader extends URLClassLoader
@@ -51,6 +52,11 @@ final class PluginClassloader extends URLClassLoader
         this.libraryLoader = libraryLoader;
 
         allLoaders.add( this );
+
+        Class<?> lookupClass = EventLookup.class;
+        byte[] classData = ByteStreams.toByteArray( lookupClass.getClassLoader().getResourceAsStream( lookupClass.getName().replace( '.', '/' ) + ".class" ) );
+        // Load the EventLookup class into this PluginClassloader
+        defineClass( lookupClass.getName(), classData, 0, classData.length );
     }
 
     @Override
