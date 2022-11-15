@@ -108,13 +108,13 @@ public class BungeeServerInfo implements ServerInfo
     {
         Preconditions.checkNotNull( channel, "channel" );
         Preconditions.checkNotNull( data, "data" );
-        
+
         Server server;
         synchronized ( players )
         {
             server = ( players.isEmpty() ) ? null : players.iterator().next().getServer();
         }
-        
+
         if ( server != null )
         {
             server.sendData( channel, data );
