@@ -5,6 +5,8 @@ import java.lang.invoke.MethodHandles;
 public class EventLookup
 {
 
-    public static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
-
+    static
+    {
+        EventBus.LOOKUPS.put( EventLookup.class.getClassLoader(), MethodHandles.lookup() );
+    }
 }
