@@ -209,6 +209,6 @@ public class EventBus
                 MethodType.methodType( void.class, method.getParameterTypes()[0] ) )
                 .getTarget().invokeWithArguments( listener );
 
-        return new EventHandlerMethod( listener, (Consumer<Object>) consumer);
+        return new EventHandlerMethod( listener, (Consumer<Object>) consumer );
     }
 }
