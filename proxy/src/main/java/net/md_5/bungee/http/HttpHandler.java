@@ -51,7 +51,8 @@ public class HttpHandler extends SimpleChannelInboundHandler<HttpObject>
                 throw new IllegalStateException( "Expected HTTP response 200 OK, got " + response.status() );
             }
 
-            buffer = new StringBuilder( response.headers().contains( "Content-Length" ) ? Integer.parseInt( response.headers().get( "Content-Length" ) ) : 0x600 );
+            String length = response.headers().get( "Content-Length" );
+            buffer = new StringBuilder( length != null ? Math.min( Integer.parseInt( length ), 0xA00000 ) : 0x600 );
         }
         if ( msg instanceof HttpContent )
         {
