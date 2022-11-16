@@ -38,7 +38,7 @@ final class PluginClassloader extends URLClassLoader
         ClassLoader.registerAsParallelCapable();
     }
 
-    public PluginClassloader(ProxyServer proxy, PluginDescription desc, File file, ClassLoader libraryLoader) throws IOException
+    public PluginClassloader(ProxyServer proxy, PluginDescription desc, File file, ClassLoader libraryLoader) throws IOException, ClassNotFoundException
     {
         super( new URL[]
         {
