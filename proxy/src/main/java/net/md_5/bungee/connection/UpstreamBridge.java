@@ -34,7 +34,6 @@ import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
-import net.md_5.bungee.protocol.packet.Title;
 import net.md_5.bungee.util.AllowedCharacters;
 
 public class UpstreamBridge extends PacketHandler
