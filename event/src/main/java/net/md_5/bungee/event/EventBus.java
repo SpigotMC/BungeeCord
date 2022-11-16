@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 public class EventBus
 {
 
+    public static final HashMap<ClassLoader, MethodHandles.Lookup> LOOKUPS = new HashMap<>();
     private final Map<Class<?>, Map<Byte, Map<Object, Method[]>>> byListenerAndPriority = new HashMap<>();
     private final Map<Class<?>, EventHandlerMethod[]> byEventBaked = new ConcurrentHashMap<>();
     private final Lock lock = new ReentrantLock();
@@ -198,18 +199,16 @@ public class EventBus
 
     private EventHandlerMethod createEventHandlerMethod(Object listener, Method method) throws Throwable
     {
-
         // Get the MethodHandles.Lookup created by the PluginClassloader of the listeners Plugin
-        MethodHandles.Lookup lookup = (MethodHandles.Lookup) listener.getClass().getClassLoader().loadClass( EventLookup.class.getName() ).getFields()[0].get( null );
-
+        MethodHandles.Lookup lookup = LOOKUPS.get( listener.getClass().getClassLoader() );
         Object consumer = LambdaMetafactory.metafactory( lookup,
                 "accept",
                 MethodType.methodType( Consumer.class, listener.getClass() ),
                 MethodType.methodType( void.class, Object.class ),
                 lookup.unreflect( method ),
-                MethodType.methodType( void.class, method.getParameterTypes()[0] ) ).getTarget()
-                .invokeWithArguments( listener );
+                MethodType.methodType( void.class, method.getParameterTypes()[0] ) )
+                .getTarget().invokeWithArguments( listener );
 
-        return new EventHandlerMethod( listener, (Consumer<Object>) consumer );
+        return new EventHandlerMethod( listener, (Consumer<Object>) consumer);
     }
 }
