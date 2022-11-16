@@ -200,7 +200,7 @@ public class EventBus
     private EventHandlerMethod createEventHandlerMethod(Object listener, Method method) throws Throwable
     {
         // Get the MethodHandles.Lookup created by the PluginClassloader of the listeners Plugin
-        MethodHandles.Lookup lookup = LOOKUPS.get( listener.getClass().getClassLoader() );
+        MethodHandles.Lookup lookup = LOOKUPS.computeIfAbsent( listener.getClass().getClassLoader(), classLoader -> MethodHandles.lookup() );
         Object consumer = LambdaMetafactory.metafactory( lookup,
                 "accept",
                 MethodType.methodType( Consumer.class, listener.getClass() ),
