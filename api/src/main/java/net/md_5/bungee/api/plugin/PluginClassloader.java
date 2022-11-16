@@ -54,9 +54,11 @@ final class PluginClassloader extends URLClassLoader
         allLoaders.add( this );
 
         Class<?> lookupClass = EventLookup.class;
-        byte[] classData = ByteStreams.toByteArray( lookupClass.getClassLoader().getResourceAsStream( lookupClass.getName().replace( '.', '/' ) + ".class" ) );
-        // Load the EventLookup class into this PluginClassloader
+        byte[] classData = ByteStreams.toByteArray( lookupClass.getClassLoader().getResourceAsStream( lookupClass.getName().replace( '.', '/' ).concat( ".class" ) ) );
+
+        // Load the EventLookup class into this PluginClassloader and initialize the class
         defineClass( lookupClass.getName(), classData, 0, classData.length );
+        Class.forName( lookupClass.getName(), true, this );
     }
 
     @Override
