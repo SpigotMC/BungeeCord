@@ -15,7 +15,7 @@ import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.score.Scoreboard;
 
 /**
- * Represents a player who's connection is being connected to somewhere else,
+ * Represents a player whose connection is being connected to somewhere else,
  * whether it be a remote or embedded server.
  */
 public interface ProxiedPlayer extends Connection, CommandSender
