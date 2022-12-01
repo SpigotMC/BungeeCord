@@ -9,6 +9,9 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Event;
 
+/** Called when the player is disconnected from the instance.
+ * If the player is kicked from the instance, ServerKickEvent will instead be called.
+ */
 @Data
 @AllArgsConstructor
 @ToString(callSuper = false)
