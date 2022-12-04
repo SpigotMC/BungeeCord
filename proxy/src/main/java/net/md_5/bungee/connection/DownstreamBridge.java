@@ -688,7 +688,7 @@ public class DownstreamBridge extends PacketHandler
             serverData.setIcon( null );
             con.unsafe().sendPacket( serverData );
         }
-        
+
         throw CancelSendSignal.INSTANCE;
     }
 
