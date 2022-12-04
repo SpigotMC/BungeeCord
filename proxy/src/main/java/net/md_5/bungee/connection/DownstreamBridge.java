@@ -682,9 +682,13 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(ServerData serverData) throws Exception
     {
-        serverData.setMotd( null );
-        serverData.setIcon( null );
-        con.unsafe().sendPacket( serverData );
+        if ( serverData.isEnforceSecure() )
+        {
+            serverData.setMotd( null );
+            serverData.setIcon( null );
+            con.unsafe().sendPacket( serverData );
+        }
+        
         throw CancelSendSignal.INSTANCE;
     }
 
