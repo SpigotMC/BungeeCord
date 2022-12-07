@@ -23,13 +23,11 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
@@ -309,7 +307,8 @@ public class Commands extends DefinedPacket
     {
 
         private static final Map<String, ArgumentSerializer> PROVIDERS = new HashMap<>();
-        private static final List<ArgumentSerializer> PROVIDER_LIST = new ArrayList<>();
+        private static final ArgumentSerializer[] IDS_1_19;
+        private static final ArgumentSerializer[] IDS_1_19_3;
         private static final Map<Class<?>, ProperArgumentSerializer<?>> PROPER_PROVIDERS = new HashMap<>();
         //
         private static final ArgumentSerializer<Void> VOID = new ArgumentSerializer<Void>()
@@ -575,13 +574,124 @@ public class Commands extends DefinedPacket
             register( "minecraft:template_rotation", VOID ); // 1.19
             register( "minecraft:uuid", VOID ); // 1.16
 
+            register( "minecraft:gamemode", VOID ); // 1.19.3
+            register( "minecraft:resource_or_tag_key", RAW_STRING ); // 1.19.3
+            register( "minecraft:resource_key", RAW_STRING ); // 1.19.3
+
             register( "minecraft:nbt", VOID ); // 1.13 // removed
+            IDS_1_19 = new ArgumentSerializer[]
+            {
+                get( "brigadier:bool" ),
+                get( "brigadier:float" ),
+                get( "brigadier:double" ),
+                get( "brigadier:integer" ),
+                get( "brigadier:long" ),
+                get( "brigadier:string" ),
+                get( "minecraft:entity" ),
+                get( "minecraft:game_profile" ),
+                get( "minecraft:block_pos" ),
+                get( "minecraft:column_pos" ),
+                get( "minecraft:vec3" ),
+                get( "minecraft:vec2" ),
+                get( "minecraft:block_state" ),
+                get( "minecraft:block_predicate" ),
+                get( "minecraft:item_stack" ),
+                get( "minecraft:item_predicate" ),
+                get( "minecraft:color" ),
+                get( "minecraft:component" ),
+                get( "minecraft:message" ),
+                get( "minecraft:nbt_compound_tag" ),
+                get( "minecraft:nbt_tag" ),
+                get( "minecraft:nbt_path" ),
+                get( "minecraft:objective" ),
+                get( "minecraft:objective_criteria" ),
+                get( "minecraft:operation" ),
+                get( "minecraft:particle" ),
+                get( "minecraft:angle" ),
+                get( "minecraft:rotation" ),
+                get( "minecraft:scoreboard_slot" ),
+                get( "minecraft:score_holder" ),
+                get( "minecraft:swizzle" ),
+                get( "minecraft:team" ),
+                get( "minecraft:item_slot" ),
+                get( "minecraft:resource_location" ),
+                get( "minecraft:mob_effect" ),
+                get( "minecraft:function" ),
+                get( "minecraft:entity_anchor" ),
+                get( "minecraft:int_range" ),
+                get( "minecraft:float_range" ),
+                get( "minecraft:item_enchantment" ),
+                get( "minecraft:entity_summon" ),
+                get( "minecraft:dimension" ),
+                get( "minecraft:time" ),
+                get( "minecraft:resource_or_tag" ),
+                get( "minecraft:resource" ),
+                get( "minecraft:template_mirror" ),
+                get( "minecraft:template_rotation" ),
+                get( "minecraft:uuid" )
+            };
+
+            IDS_1_19_3 = new ArgumentSerializer[]
+            {
+                get( "brigadier:bool" ),
+                get( "brigadier:float" ),
+                get( "brigadier:double" ),
+                get( "brigadier:integer" ),
+                get( "brigadier:long" ),
+                get( "brigadier:string" ),
+                get( "minecraft:entity" ),
+                get( "minecraft:game_profile" ),
+                get( "minecraft:block_pos" ),
+                get( "minecraft:column_pos" ),
+                get( "minecraft:vec3" ),
+                get( "minecraft:vec2" ),
+                get( "minecraft:block_state" ),
+                get( "minecraft:block_predicate" ),
+                get( "minecraft:item_stack" ),
+                get( "minecraft:item_predicate" ),
+                get( "minecraft:color" ),
+                get( "minecraft:component" ),
+                get( "minecraft:message" ),
+                get( "minecraft:nbt_compound_tag" ),
+                get( "minecraft:nbt_tag" ),
+                get( "minecraft:nbt_path" ),
+                get( "minecraft:objective" ),
+                get( "minecraft:objective_criteria" ),
+                get( "minecraft:operation" ),
+                get( "minecraft:particle" ),
+                get( "minecraft:angle" ),
+                get( "minecraft:rotation" ),
+                get( "minecraft:scoreboard_slot" ),
+                get( "minecraft:score_holder" ),
+                get( "minecraft:swizzle" ),
+                get( "minecraft:team" ),
+                get( "minecraft:item_slot" ),
+                get( "minecraft:resource_location" ),
+                get( "minecraft:function" ),
+                get( "minecraft:entity_anchor" ),
+                get( "minecraft:int_range" ),
+                get( "minecraft:float_range" ),
+                get( "minecraft:dimension" ),
+                get( "minecraft:gamemode" ),
+                get( "minecraft:time" ),
+                get( "minecraft:resource_or_tag" ),
+                get( "minecraft:resource_or_tag_key" ),
+                get( "minecraft:resource" ),
+                get( "minecraft:resource_key" ),
+                get( "minecraft:template_mirror" ),
+                get( "minecraft:template_rotation" ),
+                get( "minecraft:uuid" )
+            };
         }
 
         private static void register(String name, ArgumentSerializer serializer)
         {
             PROVIDERS.put( name, serializer );
-            PROVIDER_LIST.add( serializer );
+        }
+
+        private static ArgumentSerializer get(String name)
+        {
+            return PROVIDERS.get( name );
         }
 
         private static ArgumentType<?> read(ByteBuf buf, int protocolVersion)
@@ -592,7 +702,14 @@ public class Commands extends DefinedPacket
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 )
             {
                 key = readVarInt( buf );
-                reader = PROVIDER_LIST.get( (Integer) key );
+
+                if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_3 )
+                {
+                    reader = IDS_1_19_3[(Integer) key];
+                } else
+                {
+                    reader = IDS_1_19[(Integer) key];
+                }
             } else
             {
                 key = readString( buf );
