@@ -38,7 +38,7 @@ public class ServerUnique extends TabList
     @Override
     public void onUpdate(PlayerListItemRemove playerListItem)
     {
-        for ( UUID uuid : uuids )
+        for ( UUID uuid : playerListItem.getUuids() )
         {
             uuids.remove( uuid );
         }
