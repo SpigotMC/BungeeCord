@@ -19,6 +19,7 @@ import net.md_5.bungee.protocol.packet.Commands;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.EntityStatus;
+import net.md_5.bungee.protocol.packet.ExperimentalFeatures;
 import net.md_5.bungee.protocol.packet.GameState;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.KeepAlive;
@@ -379,7 +380,11 @@ public enum Protocol
                     PlayerListItemUpdate::new,
                     map( ProtocolConstants.MINECRAFT_1_19_3, 0x36 )
             );
-
+            TO_CLIENT.registerPacket(
+                    ExperimentalFeatures.class,
+                    ExperimentalFeatures::new,
+                    map( ProtocolConstants.MINECRAFT_1_19_3, 0x67 )
+            );
             TO_SERVER.registerPacket(
                     KeepAlive.class,
                     KeepAlive::new,
