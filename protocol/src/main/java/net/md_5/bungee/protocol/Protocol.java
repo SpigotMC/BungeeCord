@@ -395,7 +395,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_16_2, 0x38 ),
                     map( ProtocolConstants.MINECRAFT_1_17, 0x3C ),
                     map( ProtocolConstants.MINECRAFT_1_19, 0x3A ),
-                    map( ProtocolConstants.MINECRAFT_1_19_1, 0x3D )
+                    map( ProtocolConstants.MINECRAFT_1_19_1, 0x3D ),
+                    map( ProtocolConstants.MINECRAFT_1_19_3, 0x3C )
             );
 
             TO_SERVER.registerPacket(
