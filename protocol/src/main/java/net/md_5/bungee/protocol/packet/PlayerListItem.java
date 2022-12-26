@@ -123,21 +123,26 @@ public class PlayerListItem extends DefinedPacket
     {
 
         // ALL
-        private UUID uuid;
+        UUID uuid;
 
         // ADD_PLAYER
-        private String username;
-        private Property[] properties;
-        private PlayerPublicKey publicKey;
+        String username;
+        Property[] properties;
+
+        UUID chatSessionId;
+        PlayerPublicKey publicKey;
+
+        // UPDATE_LISTED
+        Boolean listed;
 
         // ADD_PLAYER & UPDATE_GAMEMODE
-        private int gamemode;
+        Integer gamemode;
 
         // ADD_PLAYER & UPDATE_LATENCY
-        private int ping;
+        Integer ping;
 
         // ADD_PLAYER & UPDATE_DISPLAY_NAME
-        private String displayName;
+        String displayName;
 
     }
 }

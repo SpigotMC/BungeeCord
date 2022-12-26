@@ -33,7 +33,10 @@ public class ServerData extends DefinedPacket
             icon = readString( buf );
         }
 
-        preview = buf.readBoolean();
+        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_19_3 )
+        {
+            preview = buf.readBoolean();
+        }
 
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_1 )
         {
@@ -62,7 +65,10 @@ public class ServerData extends DefinedPacket
             buf.writeBoolean( false );
         }
 
-        buf.writeBoolean( preview );
+        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_19_3 )
+        {
+            buf.writeBoolean( preview );
+        }
 
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_1 )
         {
