@@ -15,7 +15,7 @@ public class ColouredWriter extends Handler
 {
 
     private static final HashMap<Character, String> ANSI_COLOR_MAP = new HashMap<>();
-    private static final HashMap<Byte, ChatColor> COLOR_RGB_MAP  = new HashMap<>();
+    private static final HashMap<Byte, ChatColor> COLOR_RGB_MAP = new HashMap<>();
     private static final IndexColorModel COLOR_MODEL;
 
     static
@@ -25,7 +25,7 @@ public class ColouredWriter extends Handler
         byte index = 0;
         for ( ChatColor value : ChatColor.values() )
         {
-            if( value.getColor() != null )
+            if ( value.getColor() != null )
             {
                 COLOR_RGB_MAP.put( index, value );
                 colorMap[ index ] = value.getColor().getRGB();
@@ -34,7 +34,7 @@ public class ColouredWriter extends Handler
         }
 
         int bits = (int) Math.ceil( Math.log( colorMap.length ) / Math.log( 2 ) );
-        COLOR_MODEL = new IndexColorModel(bits, colorMap.length, colorMap, 0, false, -1, DataBuffer.TYPE_BYTE);
+        COLOR_MODEL = new IndexColorModel( bits, colorMap.length, colorMap, 0, false, -1, DataBuffer.TYPE_BYTE );
 
         ANSI_COLOR_MAP.put( getChar( ChatColor.BLACK ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLACK ).boldOff().toString() );
         ANSI_COLOR_MAP.put( getChar( ChatColor.DARK_BLUE ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLUE ).boldOff().toString() );
