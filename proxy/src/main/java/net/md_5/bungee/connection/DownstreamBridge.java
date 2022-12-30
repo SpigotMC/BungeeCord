@@ -78,7 +78,6 @@ public class DownstreamBridge extends PacketHandler
     private final ProxyServer bungee;
     private final UserConnection con;
     private final ServerConnection server;
-    private boolean enforceSecure;
 
     @Override
     public void exception(Throwable t) throws Exception
@@ -683,11 +682,12 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(ServerData serverData) throws Exception
     {
-        if ( enforceSecure ^ ( enforceSecure = serverData.isEnforceSecure() ) )
+        if ( con.isEnforceSecure() ^ serverData.isEnforceSecure() )
         {
             serverData.setMotd( null );
             serverData.setIcon( null );
             con.unsafe().sendPacket( serverData );
+            con.setEnforceSecure( serverData.isEnforceSecure() );
         }
 
         throw CancelSendSignal.INSTANCE;
