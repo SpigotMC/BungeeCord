@@ -1,6 +1,7 @@
 package net.md_5.bungee.log;
 
-import java.awt.Color;
+import java.awt.image.DataBuffer;
+import java.awt.image.IndexColorModel;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.logging.Handler;
@@ -14,9 +15,27 @@ public class ColouredWriter extends Handler
 {
 
     private static final HashMap<Character, String> ANSI_COLOR_MAP = new HashMap<>();
+    private static final HashMap<Byte, ChatColor> COLOR_RGB_MAP  = new HashMap<>();
+    private static final IndexColorModel COLOR_MODEL;
 
     static
     {
+        final int[] colorMap = new int[ 16 ];
+
+        byte index = 0;
+        for ( ChatColor value : ChatColor.values() )
+        {
+            if( value.getColor() != null )
+            {
+                COLOR_RGB_MAP.put( index, value );
+                colorMap[ index ] = value.getColor().getRGB();
+                index++;
+            }
+        }
+
+        int bits = (int) Math.ceil( Math.log( colorMap.length ) / Math.log( 2 ) );
+        COLOR_MODEL = new IndexColorModel(bits, colorMap.length, colorMap, 0, false, -1, DataBuffer.TYPE_BYTE);
+
         ANSI_COLOR_MAP.put( getChar( ChatColor.BLACK ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLACK ).boldOff().toString() );
         ANSI_COLOR_MAP.put( getChar( ChatColor.DARK_BLUE ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLUE ).boldOff().toString() );
         ANSI_COLOR_MAP.put( getChar( ChatColor.DARK_GREEN ), Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.GREEN ).boldOff().toString() );
@@ -48,7 +67,7 @@ public class ColouredWriter extends Handler
         return color.toString().charAt( 1 );
     }
 
-    private static final String formatAnsi(String msg)
+    private static String formatAnsi(String msg)
     {
         StringBuilder stringBuilder = new StringBuilder();
         char[] chars = msg.toCharArray();
@@ -78,7 +97,7 @@ public class ColouredWriter extends Handler
                     try
                     {
                         // Ansi can't support all colors, so we get a close one
-                        ChatColor closest = getClosestChatColor( ChatColor.of( hex.toString() ).getColor().getRGB() );
+                        ChatColor closest = getClosestChatColor( ChatColor.of( hex.toString() ) );
                         //  Hex color codes are resetting special effects like boldness
                         stringBuilder.append( ANSI_COLOR_MAP.get( 'r' ) ).append( ANSI_COLOR_MAP.get( getChar( closest ) ) );
                         index += 12;
@@ -106,44 +125,10 @@ public class ColouredWriter extends Handler
         return stringBuilder.toString();
     }
 
-    // from ViaBackwards https://github.com/ViaVersion/ViaBackwards/blob/master/common/src/main/java/com/viaversion/viabackwards/protocol/protocol1_15_2to1_16/chat/TranslatableRewriter1_16.java
-    private static ChatColor getClosestChatColor(int rgb)
+    private static ChatColor getClosestChatColor(ChatColor chatColor)
     {
-        int r = ( rgb >> 16 ) & 0xFF;
-        int g = ( rgb >> 8 ) & 0xFF;
-        int b = rgb & 0xFF;
-
-        ChatColor closest = null;
-        int smallestDiff = 0;
-
-        for ( ChatColor color : ChatColor.values() )
-        {
-            Color javaColor = color.getColor();
-            if ( javaColor == null )
-            {
-                continue;
-            }
-
-            if ( javaColor.getRGB() == rgb )
-            {
-                return color;
-            }
-
-            // Check by the greatest diff of the 3 values
-            int rAverage = ( javaColor.getRed() + r ) / 2;
-            int rDiff = javaColor.getRed() - r;
-            int gDiff = javaColor.getGreen() - g;
-            int bDiff = javaColor.getBlue() - b;
-            int diff = ( ( 2 + ( rAverage >> 8 ) ) * rDiff * rDiff )
-                    + ( 4 * gDiff * gDiff )
-                    + ( ( 2 + ( ( 255 - rAverage ) >> 8 ) ) * bDiff * bDiff );
-            if ( closest == null || diff < smallestDiff )
-            {
-                closest = color;
-                smallestDiff = diff;
-            }
-        }
-        return closest;
+        byte index = ( (byte[]) COLOR_MODEL.getDataElements( chatColor.getColor().getRGB(), null ) )[ 0 ];
+        return COLOR_RGB_MAP.get( index );
     }
 
     //
