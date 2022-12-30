@@ -130,6 +130,9 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     private EntityMap entityRewrite;
     private Locale locale;
+    @Getter
+    @Setter
+    private boolean enforceSecure;
     /*========================================================================*/
     @Getter
     @Setter
