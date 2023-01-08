@@ -27,7 +27,7 @@ public class CommandList extends Command
     {
         for ( ServerInfo server : ProxyServer.getInstance().getServers().values() )
         {
-            if ( !server.canAccess( sender ) )
+            if ( !server.canAccess( sender ) || server.getPlayers().isEmpty() )
             {
                 continue;
             }
