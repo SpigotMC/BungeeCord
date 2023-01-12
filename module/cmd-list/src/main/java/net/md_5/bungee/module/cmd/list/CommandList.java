@@ -10,11 +10,12 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.plugin.TabExecutor;
 
 /**
  * Command to list all players connected to the proxy.
  */
-public class CommandList extends Command
+public class CommandList extends Command implements TabExecutor
 {
 
     public CommandList()
@@ -25,9 +26,11 @@ public class CommandList extends Command
     @Override
     public void execute(CommandSender sender, String[] args)
     {
+        boolean hideEmptyServers = args.length == 0 || !args[0].equalsIgnoreCase( "all" );
+
         for ( ServerInfo server : ProxyServer.getInstance().getServers().values() )
         {
-            if ( !server.canAccess( sender ) || server.getPlayers().isEmpty() )
+            if ( !server.canAccess( sender ) || ( server.getPlayers().isEmpty() && hideEmptyServers ) )
             {
                 continue;
             }
@@ -43,5 +46,11 @@ public class CommandList extends Command
         }
 
         sender.sendMessage( ProxyServer.getInstance().getTranslation( "total_players", ProxyServer.getInstance().getOnlineCount() ) );
+    }
+
+    @Override
+    public Iterable<String> onTabComplete(CommandSender sender, String[] args)
+    {
+        return args.length > 1 ? Collections.emptyList() : Collections.singletonList( "all" );
     }
 }
