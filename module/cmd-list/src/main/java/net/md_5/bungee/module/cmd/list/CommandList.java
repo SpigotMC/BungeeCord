@@ -30,7 +30,7 @@ public class CommandList extends Command implements TabExecutor
 
         for ( ServerInfo server : ProxyServer.getInstance().getServers().values() )
         {
-            if ( !server.canAccess( sender ) || ( server.getPlayers().isEmpty() && hideEmptyServers ) )
+            if ( !server.canAccess( sender ) || ( hideEmptyServers && server.getPlayers().isEmpty() ) )
             {
                 continue;
             }
