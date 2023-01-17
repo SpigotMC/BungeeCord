@@ -3,8 +3,9 @@ package net.md_5.bungee.command;
 import java.util.Collections;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class CommandIP extends PlayerCommand
@@ -29,10 +30,14 @@ public class CommandIP extends PlayerCommand
             sender.sendMessage( ProxyServer.getInstance().getTranslation( "user_not_online" ) );
         } else
         {
-            ComponentBuilder builder = new ComponentBuilder( ProxyServer.getInstance().getTranslation( "command_ip", user.getName(), user.getSocketAddress() ) );
-            builder.event( new ClickEvent( ClickEvent.Action.COPY_TO_CLIPBOARD, user.getSocketAddress().toString() ) );
+            BaseComponent[] components = TextComponent.fromLegacyText( ProxyServer.getInstance().getTranslation( "command_ip", user.getName(), user.getSocketAddress() ) );
 
-            sender.sendMessage( builder.create() );
+            for ( BaseComponent component : components )
+            {
+                component.setClickEvent( new ClickEvent( ClickEvent.Action.COPY_TO_CLIPBOARD, user.getSocketAddress().toString() ) );
+            }
+
+            sender.sendMessage( components );
         }
     }
 
