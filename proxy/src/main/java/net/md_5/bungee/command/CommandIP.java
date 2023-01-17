@@ -30,7 +30,7 @@ public class CommandIP extends PlayerCommand
         } else
         {
             ComponentBuilder builder = new ComponentBuilder( ProxyServer.getInstance().getTranslation( "command_ip", user.getName(), user.getSocketAddress() ) );
-            builder.event( new ClickEvent( ClickEvent.Action.COPY_TO_CLIPBOARD, user.getAddress().getAddress().getHostAddress() ) );
+            builder.event( new ClickEvent( ClickEvent.Action.COPY_TO_CLIPBOARD, user.getSocketAddress() ) );
 
             sender.sendMessage( builder.create() );
         }
