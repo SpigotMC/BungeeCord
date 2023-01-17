@@ -1,5 +1,6 @@
 package net.md_5.bungee.module.cmd.find;
 
+import java.util.Collections;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -33,18 +34,25 @@ public class CommandFind extends PlayerCommand
             {
                 boolean moduleLoaded = ProxyServer.getInstance().getPluginManager().getPlugin( "cmd_server" ) != null;
                 ServerInfo server = player.getServer().getInfo();
-                ComponentBuilder componentBuilder = new ComponentBuilder( ProxyServer.getInstance().getTranslation( "user_online_at", player.getName(), server.getName() ) );
+                ComponentBuilder componentBuilder = new ComponentBuilder().appendLegacy( ProxyServer.getInstance().getTranslation( "user_online_at", player.getName(), server.getName() ) );
 
                 if ( moduleLoaded && server.canAccess( sender ) )
                 {
                     componentBuilder.event( new HoverEvent(
                             HoverEvent.Action.SHOW_TEXT,
-                            new ComponentBuilder( ProxyServer.getInstance().getTranslation( "click_to_connect" ) ).create() )
+                            new ComponentBuilder().appendLegacy( ProxyServer.getInstance().getTranslation( "click_to_connect" ) ).create() )
                     );
                     componentBuilder.event( new ClickEvent( ClickEvent.Action.RUN_COMMAND, "/server " + server.getName() ) );
                 }
+
                 sender.sendMessage( componentBuilder.create() );
             }
         }
+    }
+
+    @Override
+    public Iterable<String> onTabComplete(CommandSender sender, String[] args)
+    {
+        return args.length == 1 ? super.onTabComplete( sender, args ) : Collections.emptyList();
     }
 }
