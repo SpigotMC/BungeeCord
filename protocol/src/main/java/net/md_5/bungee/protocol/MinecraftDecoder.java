@@ -37,11 +37,17 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
             DefinedPacket packet = prot.createPacket( packetId, protocolVersion );
             if ( packet != null )
             {
-                packet.read( in, prot.getDirection(), protocolVersion );
+                try
+                {
+                    packet.read( in, prot.getDirection(), protocolVersion );
+                } catch ( RuntimeException ex )
+                {
+                    throw new BadPacketException( "Packet " + protocol + ":" + prot.getDirection() + "/" + packetId + " (" + packet.getClass().getSimpleName() + " v" + protocolVersion + ") could not be read: " + ex.getMessage() );
+                }
 
                 if ( in.isReadable() )
                 {
-                    throw new BadPacketException( "Packet " + protocol + ":" + prot.getDirection() + "/" + packetId + " (" + packet.getClass().getSimpleName() + ") larger than expected, extra bytes: " + in.readableBytes() );
+                    throw new BadPacketException( "Packet " + protocol + ":" + prot.getDirection() + "/" + packetId + " (" + packet.getClass().getSimpleName() + " v" + protocolVersion + ") larger than expected, extra bytes: " + in.readableBytes() );
                 }
             } else
             {
