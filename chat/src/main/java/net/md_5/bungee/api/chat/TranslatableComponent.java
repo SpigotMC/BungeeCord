@@ -87,24 +87,6 @@ public final class TranslatableComponent extends BaseComponent
     }
 
     /**
-     * Creates a translatable component with the passed substitutions and a fallback string
-     *
-     * @param translate the translation key
-     * @param fallback the fallback text
-     * @param with the {@link java.lang.String}s and
-     * {@link net.md_5.bungee.api.chat.BaseComponent}s to use into the
-     * translation
-     * @see #translate
-     * @see #fallback
-     * @see #setWith(java.util.List)
-     */
-    public TranslatableComponent(String translate, String fallback, Object... with)
-    {
-        this( translate, with );
-        setFallback( fallback );
-    }
-
-    /**
      * Creates a duplicate of this TranslatableComponent.
      *
      * @return the duplicate of this TranslatableComponent.
