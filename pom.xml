@@ -72,7 +72,7 @@
 
     <properties>
         <build.number>unknown</build.number>
-        <lombok.version>1.18.22</lombok.version>
+        <lombok.version>1.18.26</lombok.version>
         <netty.version>4.1.85.Final</netty.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
