@@ -23,7 +23,7 @@ public class EncryptionRequest extends DefinedPacket
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        serverId = readString( buf );
+        serverId = readString( buf, 20 );
         publicKey = readArray( buf );
         verifyToken = readArray( buf );
     }
