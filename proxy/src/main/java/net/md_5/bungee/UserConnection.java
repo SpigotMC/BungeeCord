@@ -58,7 +58,9 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.ServerData;
 import net.md_5.bungee.protocol.packet.SetCompression;
+import net.md_5.bungee.protocol.packet.SetDisplayChatPreview;
 import net.md_5.bungee.protocol.packet.SystemChat;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
@@ -137,6 +139,14 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     @Setter
     private ForgeServerHandler forgeServerHandler;
+    /*========================================================================*/
+    @Getter
+    private boolean handlingChatPreview;
+    @Getter
+    private boolean backendHandlingChatPreview;
+    @Getter
+    @Setter
+    private ServerData serverData;
     /*========================================================================*/
     private final Unsafe unsafe = new Unsafe()
     {
@@ -752,5 +762,50 @@ public final class UserConnection implements ProxiedPlayer
     public Scoreboard getScoreboard()
     {
         return serverSentScoreboard;
+    }
+
+    @Override
+    public void setHandlingChatPreview(boolean enabled)
+    {
+        if ( handlingChatPreview == enabled )
+        {
+            return;
+        }
+        handlingChatPreview = enabled;
+        sendServerDataUpdate();
+    }
+
+    public void setBackendHandlingChatPreview(boolean enabled)
+    {
+        if ( backendHandlingChatPreview == enabled )
+        {
+            return;
+        }
+        backendHandlingChatPreview = enabled;
+        sendServerDataUpdate();
+    }
+
+    public void sendServerDataUpdate()
+    {
+        if ( getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_19 )
+        {
+            return;
+        }
+        if ( serverData == null )
+        {
+            serverData = new ServerData();
+        }
+        ServerData serverDataToSend = serverData.copy();
+        boolean chatPreviewEnabled = handlingChatPreview || backendHandlingChatPreview;
+        boolean sendSetDisplayChatPreview = false;
+        if ( chatPreviewEnabled )
+        {
+            serverDataToSend.setPreview( true );
+        }
+        unsafe().sendPacket( serverDataToSend );
+        if ( sendSetDisplayChatPreview )
+        {
+            unsafe().sendPacket( new SetDisplayChatPreview( chatPreviewEnabled ) );
+        }
     }
 }

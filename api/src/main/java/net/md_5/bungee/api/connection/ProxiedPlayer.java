@@ -336,4 +336,11 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @return this player's {@link Scoreboard}
      */
     Scoreboard getScoreboard();
+
+    /**
+     * Tell the client whether or not we handle chat preview requests.
+     *
+     * @param enabled true if we handle chat preview requests.
+     */
+    void setHandlingChatPreview(boolean enabled);
 }

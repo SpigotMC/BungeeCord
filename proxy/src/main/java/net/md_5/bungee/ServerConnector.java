@@ -322,6 +322,7 @@ public class ServerConnector extends PacketHandler
         user.getPendingConnects().remove( target );
         user.setServerJoinQueue( null );
         user.setDimensionChange( false );
+        user.setBackendHandlingChatPreview( false );
 
         ServerInfo from = ( user.getServer() == null ) ? null : user.getServer().getInfo();
         user.setServer( server );

@@ -76,6 +76,11 @@ public class ServerData extends DefinedPacket
         }
     }
 
+    public ServerData copy()
+    {
+        return new ServerData( motd, icon, preview, enforceSecure );
+    }
+
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {

@@ -2,6 +2,8 @@ package net.md_5.bungee.protocol;
 
 import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.Chat;
+import net.md_5.bungee.protocol.packet.ChatPreviewRequest;
+import net.md_5.bungee.protocol.packet.ChatPreviewResponse;
 import net.md_5.bungee.protocol.packet.ClearTitles;
 import net.md_5.bungee.protocol.packet.ClientChat;
 import net.md_5.bungee.protocol.packet.ClientCommand;
@@ -34,6 +36,7 @@ import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.ServerData;
 import net.md_5.bungee.protocol.packet.SetCompression;
+import net.md_5.bungee.protocol.packet.SetDisplayChatPreview;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.protocol.packet.Subtitle;
@@ -221,6 +224,18 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(ServerData serverData) throws Exception
+    {
+    }
+
+    public void handle(SetDisplayChatPreview setDisplayChatPreview) throws Exception
+    {
+    }
+
+    public void handle(ChatPreviewRequest chatPreviewRequest) throws Exception
+    {
+    }
+
+    public void handle(ChatPreviewResponse chatPreviewResponse) throws Exception
     {
     }
 }
