@@ -749,11 +749,15 @@ public class BungeeCord extends ProxyServer
         }
     }
 
-    public void addConnection(UserConnection con)
+    public boolean addConnection(UserConnection con)
     {
         connectionLock.writeLock().lock();
         try
         {
+            if ( connections.get( con.getName() ) != null || connectionsByUUID.get( con.getUniqueId() ) != null )
+            {
+                return true;
+            }
             connections.put( con.getName(), con );
             connectionsByUUID.put( con.getUniqueId(), con );
             connectionsByOfflineUUID.put( con.getPendingConnection().getOfflineId(), con );
@@ -761,6 +765,7 @@ public class BungeeCord extends ProxyServer
         {
             connectionLock.writeLock().unlock();
         }
+        return false;
     }
 
     public void removeConnection(UserConnection con)

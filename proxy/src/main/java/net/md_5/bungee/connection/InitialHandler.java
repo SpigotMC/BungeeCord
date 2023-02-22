@@ -600,7 +600,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             unsafe.sendPacket( new LoginSuccess( getUniqueId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
                             ch.setProtocol( Protocol.GAME );
 
-                            ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
+                            UpstreamBridge newUpstreamBridge = new UpstreamBridge( bungee, userCon );
+                            if ( newUpstreamBridge.init() )
+                            {
+                                disconnect( bungee.getTranslation( "already_connected_proxy" ) );
+                                return;
+                            }
+
+                            ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( newUpstreamBridge );
                             bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
                             ServerInfo server;
                             if ( bungee.getReconnectHandler() != null )

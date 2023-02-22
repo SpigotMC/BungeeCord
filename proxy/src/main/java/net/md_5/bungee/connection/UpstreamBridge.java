@@ -48,10 +48,17 @@ public class UpstreamBridge extends PacketHandler
     {
         this.bungee = bungee;
         this.con = con;
+    }
 
-        BungeeCord.getInstance().addConnection( con );
+    public boolean init()
+    {
+        if ( BungeeCord.getInstance().addConnection( con ) )
+        {
+            return true;
+        }
         con.getTabListHandler().onConnect();
         con.unsafe().sendPacket( BungeeCord.getInstance().registerChannels( con.getPendingConnection().getVersion() ) );
+        return false;
     }
 
     @Override
