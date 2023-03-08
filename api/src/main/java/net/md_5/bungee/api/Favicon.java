@@ -1,5 +1,6 @@
 package net.md_5.bungee.api;
 
+import com.google.common.base.Preconditions;
 import com.google.common.io.BaseEncoding;
 import com.google.gson.TypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
@@ -59,6 +60,7 @@ public class Favicon
      */
     public static Favicon create(BufferedImage image)
     {
+        Preconditions.checkArgument( image != null, "image is null" );
         // check size
         if ( image.getWidth() != 64 || image.getHeight() != 64 )
         {
