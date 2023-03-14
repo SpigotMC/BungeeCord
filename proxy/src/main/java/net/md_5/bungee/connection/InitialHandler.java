@@ -548,14 +548,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             if ( oldName != null )
             {
                 // TODO See #1218
-                oldName.disconnect( bungee.getTranslation( "already_connected_proxy" ) );
+                disconnect( bungee.getTranslation( "already_connected_proxy" ) );
             }
             // And then also for their old UUID
             ProxiedPlayer oldID = bungee.getPlayer( getUniqueId() );
             if ( oldID != null )
             {
                 // TODO See #1218
-                oldID.disconnect( bungee.getTranslation( "already_connected_proxy" ) );
+                disconnect( bungee.getTranslation( "already_connected_proxy" ) );
             }
         } else
         {
