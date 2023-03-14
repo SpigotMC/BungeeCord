@@ -33,6 +33,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.event.EventBus;
 import net.md_5.bungee.event.EventHandler;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.introspector.PropertyUtils;
@@ -64,7 +65,7 @@ public final class PluginManager
         this.proxy = proxy;
 
         // Ignore unknown entries in the plugin descriptions
-        Constructor yamlConstructor = new Constructor();
+        Constructor yamlConstructor = new Constructor( new LoaderOptions() );
         PropertyUtils propertyUtils = yamlConstructor.getPropertyUtils();
         propertyUtils.setSkipMissingProperties( true );
         yamlConstructor.setPropertyUtils( propertyUtils );

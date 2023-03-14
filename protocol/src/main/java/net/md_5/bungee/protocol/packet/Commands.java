@@ -309,6 +309,7 @@ public class Commands extends DefinedPacket
         private static final Map<String, ArgumentSerializer> PROVIDERS = new HashMap<>();
         private static final ArgumentSerializer[] IDS_1_19;
         private static final ArgumentSerializer[] IDS_1_19_3;
+        private static final ArgumentSerializer[] IDS_1_19_4;
         private static final Map<Class<?>, ProperArgumentSerializer<?>> PROPER_PROVIDERS = new HashMap<>();
         //
         private static final ArgumentSerializer<Void> VOID = new ArgumentSerializer<Void>()
@@ -352,7 +353,7 @@ public class Commands extends DefinedPacket
                 buf.writeByte( t );
             }
         };
-        private static final ArgumentSerializer<FloatArgumentType> FLOAT = new ArgumentSerializer<FloatArgumentType>()
+        private static final ArgumentSerializer<FloatArgumentType> FLOAT_RANGE = new ArgumentSerializer<FloatArgumentType>()
         {
             @Override
             protected FloatArgumentType read(ByteBuf buf)
@@ -381,7 +382,7 @@ public class Commands extends DefinedPacket
                 }
             }
         };
-        private static final ArgumentSerializer<DoubleArgumentType> DOUBLE = new ArgumentSerializer<DoubleArgumentType>()
+        private static final ArgumentSerializer<DoubleArgumentType> DOUBLE_RANGE = new ArgumentSerializer<DoubleArgumentType>()
         {
             @Override
             protected DoubleArgumentType read(ByteBuf buf)
@@ -410,7 +411,7 @@ public class Commands extends DefinedPacket
                 }
             }
         };
-        private static final ArgumentSerializer<IntegerArgumentType> INTEGER = new ArgumentSerializer<IntegerArgumentType>()
+        private static final ArgumentSerializer<IntegerArgumentType> INTEGER_RANGE = new ArgumentSerializer<IntegerArgumentType>()
         {
             @Override
             protected IntegerArgumentType read(ByteBuf buf)
@@ -439,7 +440,21 @@ public class Commands extends DefinedPacket
                 }
             }
         };
-        private static final ArgumentSerializer<LongArgumentType> LONG = new ArgumentSerializer<LongArgumentType>()
+        private static final ArgumentSerializer<Integer> INTEGER = new ArgumentSerializer<Integer>()
+        {
+            @Override
+            protected Integer read(ByteBuf buf)
+            {
+                return buf.readInt();
+            }
+
+            @Override
+            protected void write(ByteBuf buf, Integer t)
+            {
+                buf.writeInt( t );
+            }
+        };
+        private static final ArgumentSerializer<LongArgumentType> LONG_RANGE = new ArgumentSerializer<LongArgumentType>()
         {
             @Override
             protected LongArgumentType read(ByteBuf buf)
@@ -523,10 +538,10 @@ public class Commands extends DefinedPacket
         static
         {
             register( "brigadier:bool", VOID );
-            register( "brigadier:float", FLOAT );
-            register( "brigadier:double", DOUBLE );
-            register( "brigadier:integer", INTEGER );
-            register( "brigadier:long", LONG );
+            register( "brigadier:float", FLOAT_RANGE );
+            register( "brigadier:double", DOUBLE_RANGE );
+            register( "brigadier:integer", INTEGER_RANGE );
+            register( "brigadier:long", LONG_RANGE );
 
             register( "brigadier:string", STRING );
             PROPER_PROVIDERS.put( StringArgumentType.class, STRING );
@@ -567,7 +582,7 @@ public class Commands extends DefinedPacket
             register( "minecraft:item_enchantment", VOID );
             register( "minecraft:entity_summon", VOID );
             register( "minecraft:dimension", VOID );
-            register( "minecraft:time", VOID ); // 1.14
+            register( "minecraft:time_legacy", VOID ); // 1.14
             register( "minecraft:resource_or_tag", RAW_STRING ); // 1.18.2
             register( "minecraft:resource", RAW_STRING ); // 1.18.2
             register( "minecraft:template_mirror", VOID ); // 1.19
@@ -577,6 +592,9 @@ public class Commands extends DefinedPacket
             register( "minecraft:gamemode", VOID ); // 1.19.3
             register( "minecraft:resource_or_tag_key", RAW_STRING ); // 1.19.3
             register( "minecraft:resource_key", RAW_STRING ); // 1.19.3
+
+            register( "minecraft:heightmap", VOID ); // 1.19.4
+            register( "minecraft:time", INTEGER ); // 1.19.4
 
             register( "minecraft:nbt", VOID ); // 1.13 // removed
             IDS_1_19 = new ArgumentSerializer[]
@@ -623,7 +641,7 @@ public class Commands extends DefinedPacket
                 get( "minecraft:item_enchantment" ),
                 get( "minecraft:entity_summon" ),
                 get( "minecraft:dimension" ),
-                get( "minecraft:time" ),
+                get( "minecraft:time_legacy" ),
                 get( "minecraft:resource_or_tag" ),
                 get( "minecraft:resource" ),
                 get( "minecraft:template_mirror" ),
@@ -673,7 +691,7 @@ public class Commands extends DefinedPacket
                 get( "minecraft:float_range" ),
                 get( "minecraft:dimension" ),
                 get( "minecraft:gamemode" ),
-                get( "minecraft:time" ),
+                get( "minecraft:time_legacy" ),
                 get( "minecraft:resource_or_tag" ),
                 get( "minecraft:resource_or_tag_key" ),
                 get( "minecraft:resource" ),
@@ -681,6 +699,59 @@ public class Commands extends DefinedPacket
                 get( "minecraft:template_mirror" ),
                 get( "minecraft:template_rotation" ),
                 get( "minecraft:uuid" )
+            };
+
+            IDS_1_19_4 = new ArgumentSerializer[]
+            {
+                get( "brigadier:bool" ),
+                get( "brigadier:float" ),
+                get( "brigadier:double" ),
+                get( "brigadier:integer" ),
+                get( "brigadier:long" ),
+                get( "brigadier:string" ),
+                get( "minecraft:entity" ),
+                get( "minecraft:game_profile" ),
+                get( "minecraft:block_pos" ),
+                get( "minecraft:column_pos" ),
+                get( "minecraft:vec3" ),
+                get( "minecraft:vec2" ),
+                get( "minecraft:block_state" ),
+                get( "minecraft:block_predicate" ),
+                get( "minecraft:item_stack" ),
+                get( "minecraft:item_predicate" ),
+                get( "minecraft:color" ),
+                get( "minecraft:component" ),
+                get( "minecraft:message" ),
+                get( "minecraft:nbt_compound_tag" ),
+                get( "minecraft:nbt_tag" ),
+                get( "minecraft:nbt_path" ),
+                get( "minecraft:objective" ),
+                get( "minecraft:objective_criteria" ),
+                get( "minecraft:operation" ),
+                get( "minecraft:particle" ),
+                get( "minecraft:angle" ),
+                get( "minecraft:rotation" ),
+                get( "minecraft:scoreboard_slot" ),
+                get( "minecraft:score_holder" ),
+                get( "minecraft:swizzle" ),
+                get( "minecraft:team" ),
+                get( "minecraft:item_slot" ),
+                get( "minecraft:resource_location" ),
+                get( "minecraft:function" ),
+                get( "minecraft:entity_anchor" ),
+                get( "minecraft:int_range" ),
+                get( "minecraft:float_range" ),
+                get( "minecraft:dimension" ),
+                get( "minecraft:gamemode" ),
+                get( "minecraft:time" ),
+                get( "minecraft:resource_or_tag" ),
+                get( "minecraft:resource_or_tag_key" ),
+                get( "minecraft:resource" ),
+                get( "minecraft:resource_key" ),
+                get( "minecraft:template_mirror" ),
+                get( "minecraft:template_rotation" ),
+                get( "minecraft:uuid" ),
+                get( "minecraft:heightmap" )
             };
         }
 
@@ -703,7 +774,10 @@ public class Commands extends DefinedPacket
             {
                 key = readVarInt( buf );
 
-                if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_3 )
+                if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_4 )
+                {
+                    reader = IDS_1_19_4[(Integer) key];
+                } else if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_3 )
                 {
                     reader = IDS_1_19_3[(Integer) key];
                 } else
