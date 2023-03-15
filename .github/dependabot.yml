@@ -1,0 +1,31 @@
+version: 2
+
+updates:
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 50
+    ignore:
+        # Synchronised with Minecraft
+      - dependency-name: "com.google.code.gson:gson"
+        # 9.x has performance issues (see, eg, checkstyle/checkstyle#10934) and 10.x is incompatible
+      - dependency-name: "com.puppycrawl.tools:checkstyle"
+        # Newer versions have issues, see #1909 and #2050
+      - dependency-name: "jline:jline"
+        # Later versions of these Maven dependencies are incompatible and require careful management
+      - dependency-name: "org.apache.maven.resolver:maven-resolver-connector-basic"
+      - dependency-name: "org.apache.maven.resolver:maven-resolver-transport-http"
+      - dependency-name: "org.apache.maven:maven-resolver-provider"
+        # Used with above maven-resolver dependencies
+      - dependency-name: "org.slf4j:slf4j-api"
+        update-types: ["version-update:semver-major"]
+        # 2.0 update is substantively breaking
+      - dependency-name: "org.yaml:snakeyaml"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 50
