@@ -601,7 +601,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                             ch.setProtocol( Protocol.GAME );
 
                             UpstreamBridge newUpstreamBridge = new UpstreamBridge( bungee, userCon );
-                            if ( newUpstreamBridge.init() )
+                            if ( !newUpstreamBridge.init() )
                             {
                                 disconnect( bungee.getTranslation( "already_connected_proxy" ) );
                                 return;

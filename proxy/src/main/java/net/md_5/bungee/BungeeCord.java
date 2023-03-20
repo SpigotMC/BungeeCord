@@ -756,7 +756,7 @@ public class BungeeCord extends ProxyServer
         {
             if ( connections.get( con.getName() ) != null || connectionsByUUID.get( con.getUniqueId() ) != null )
             {
-                return true;
+                return false;
             }
             connections.put( con.getName(), con );
             connectionsByUUID.put( con.getUniqueId(), con );
@@ -765,7 +765,7 @@ public class BungeeCord extends ProxyServer
         {
             connectionLock.writeLock().unlock();
         }
-        return false;
+        return true;
     }
 
     public void removeConnection(UserConnection con)

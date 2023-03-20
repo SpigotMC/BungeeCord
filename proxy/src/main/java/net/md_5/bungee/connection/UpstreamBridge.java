@@ -52,13 +52,13 @@ public class UpstreamBridge extends PacketHandler
 
     public boolean init()
     {
-        if ( BungeeCord.getInstance().addConnection( con ) )
+        if ( !BungeeCord.getInstance().addConnection( con ) )
         {
-            return true;
+            return false;
         }
         con.getTabListHandler().onConnect();
         con.unsafe().sendPacket( BungeeCord.getInstance().registerChannels( con.getPendingConnection().getVersion() ) );
-        return false;
+        return true;
     }
 
     @Override
