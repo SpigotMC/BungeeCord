@@ -53,8 +53,7 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
                 {
                     if ( in.hasMemoryAddress() )
                     {
-                        out.add( in.slice( in.readerIndex(), length ).retain() );
-                        in.skipBytes( length );
+                        out.add( in.readRetainedSlice( length ) );
                     } else
                     {
                         if ( !DIRECT_WARNING )
