@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -49,7 +48,7 @@ public class CommandList extends Command implements TabExecutor
             }
             Collections.sort( players, String.CASE_INSENSITIVE_ORDER );
 
-            sender.sendMessage( ProxyServer.getInstance().getTranslation( "command_list", server.getName(), players.size(), Util.format( players, ChatColor.RESET + ", " ) ) );
+            sender.sendMessage( ProxyServer.getInstance().getTranslation( "command_list", server.getName(), players.size(), String.join( ChatColor.RESET + ", ", players ) ) );
         }
 
         sender.sendMessage( ProxyServer.getInstance().getTranslation( "total_players", ProxyServer.getInstance().getOnlineCount() ) );
