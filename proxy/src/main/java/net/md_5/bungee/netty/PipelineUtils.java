@@ -30,6 +30,8 @@ import java.net.SocketAddress;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
@@ -42,6 +44,7 @@ import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.Varint21FrameDecoder;
+import net.md_5.bungee.protocol.Varint21LengthFieldExtraBufPrepender;
 import net.md_5.bungee.protocol.Varint21LengthFieldPrepender;
 
 public class PipelineUtils
@@ -82,9 +85,11 @@ public class PipelineUtils
             }
         }
     };
-    public static final Base BASE = new Base();
+    public static final Base BASE = new Base( false );
+    public static final Base BASE_SERVERSIDE = new Base( true );
     private static final KickStringWriter legacyKicker = new KickStringWriter();
     private static final Varint21LengthFieldPrepender framePrepender = new Varint21LengthFieldPrepender();
+    private static final Varint21LengthFieldExtraBufPrepender serverFramePrepender = new Varint21LengthFieldExtraBufPrepender();
     public static final String TIMEOUT_HANDLER = "timeout";
     public static final String PACKET_DECODER = "packet-decoder";
     public static final String PACKET_ENCODER = "packet-encoder";
@@ -152,8 +157,12 @@ public class PipelineUtils
     private static final int HIGH_MARK = Integer.getInteger( "net.md_5.bungee.high_mark", 2 << 20 ); // 2 mb
     private static final WriteBufferWaterMark MARK = new WriteBufferWaterMark( LOW_MARK, HIGH_MARK );
 
+    @NoArgsConstructor // for backwards compatibility
+    @AllArgsConstructor
     public static final class Base extends ChannelInitializer<Channel>
     {
+
+        private boolean toServer = false;
 
         @Override
         public void initChannel(Channel ch) throws Exception
@@ -170,7 +179,9 @@ public class PipelineUtils
 
             ch.pipeline().addLast( FRAME_DECODER, new Varint21FrameDecoder() );
             ch.pipeline().addLast( TIMEOUT_HANDLER, new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
-            ch.pipeline().addLast( FRAME_PREPENDER, framePrepender );
+            // No encryption bungee -> server, therefore use extra buffer to avoid copying everything for length prepending
+            // Not used bungee -> client as header would need to be encrypted separately through expensive JNI call
+            ch.pipeline().addLast( FRAME_PREPENDER, ( toServer ) ? serverFramePrepender : framePrepender );
 
             ch.pipeline().addLast( BOSS_HANDLER, new HandlerBoss() );
         }
