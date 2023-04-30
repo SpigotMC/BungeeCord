@@ -70,33 +70,7 @@ class EntityMap_1_8 extends EntityMap
                 rewriteEntityIdArray( packet, oldId, newId, readerIndexAfterPID );
                 break;
             case 0x0E /* Spawn Object */:
-                DefinedPacket.skipVarInt( packet );
-                int type = packet.readUnsignedByte();
-
-                if ( type == 60 || type == 90 )
-                {
-                    packet.skipBytes( 14 );
-                    int position = packet.readerIndex();
-                    int readId = packet.readInt();
-                    int changedId = readId;
-
-                    if ( readId == oldId )
-                    {
-                        packet.setInt( position, changedId = newId );
-                    } else if ( readId == newId )
-                    {
-                        packet.setInt( position, changedId = oldId );
-                    }
-
-                    if ( readId > 0 && changedId <= 0 )
-                    {
-                        packet.writerIndex( packet.writerIndex() - 6 );
-                    } else if ( changedId > 0 && readId <= 0 )
-                    {
-                        packet.ensureWritable( 6 );
-                        packet.writerIndex( packet.writerIndex() + 6 );
-                    }
-                }
+                rewriteSpawnObject( packet, oldId, newId );
                 break;
             case 0x0C /* Spawn Player */:
                 rewriteSpawnPlayerUuid( packet, readerIndex );
@@ -159,6 +133,41 @@ class EntityMap_1_8 extends EntityMap
             packet.writerIndex( readerIndexAfterEID );
             DefinedPacket.writeUUID( player.getUniqueId(), packet );
             packet.writerIndex( previous );
+        }
+    }
+
+    private static void rewriteSpawnObject(ByteBuf packet, int oldId, int newId)
+    {
+        if ( oldId == newId )
+        {
+            return;
+        }
+        DefinedPacket.skipVarInt( packet );
+        int type = packet.readUnsignedByte();
+
+        if ( type == 60 || type == 90 )
+        {
+            packet.skipBytes( 14 );
+            int position = packet.readerIndex();
+            int readId = packet.readInt();
+            int changedId = readId;
+
+            if ( readId == oldId )
+            {
+                packet.setInt( position, changedId = newId );
+            } else if ( readId == newId )
+            {
+                packet.setInt( position, changedId = oldId );
+            }
+
+            if ( readId > 0 && changedId <= 0 )
+            {
+                packet.writerIndex( packet.writerIndex() - 6 );
+            } else if ( changedId > 0 && readId <= 0 )
+            {
+                packet.ensureWritable( 6 );
+                packet.writerIndex( packet.writerIndex() + 6 );
+            }
         }
     }
 
