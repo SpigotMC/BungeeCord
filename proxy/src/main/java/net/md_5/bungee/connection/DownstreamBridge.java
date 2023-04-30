@@ -404,8 +404,10 @@ public class DownstreamBridge extends PacketHandler
                 }
                 case "GetPlayerServer":
                 {
-                    ProxiedPlayer player = bungee.getPlayer( in.readUTF() );
-                    out.writeUTF( "GetServer" );
+                    String name = in.readUTF();
+                    ProxiedPlayer player = bungee.getPlayer( name );
+                    out.writeUTF( "GetPlayerServer" );
+                    out.writeUTF( name );
                     if ( player == null )
                     {
                         out.writeUTF( "" );
