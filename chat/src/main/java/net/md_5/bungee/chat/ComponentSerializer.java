@@ -91,7 +91,7 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
             JsonArray array = new JsonArray();
             for ( BaseComponent component : components )
             {
-                array.add( JSON_PARSER.parse( ComponentSerializer.toString( component ) ) );
+                array.add( gson.toJsonTree( component ) );
             }
             return array.toString();
         }
