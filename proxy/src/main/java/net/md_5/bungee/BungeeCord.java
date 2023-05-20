@@ -625,12 +625,16 @@ public class BungeeCord extends ProxyServer
         }
     }
 
-    public UserConnection getPlayerByOfflineUUID(UUID name)
+    public UserConnection getPlayerByOfflineUUID(UUID uuid)
     {
+        if ( uuid.version() != 3 )
+        {
+            return null;
+        }
         connectionLock.readLock().lock();
         try
         {
-            return connectionsByOfflineUUID.get( name );
+            return connectionsByOfflineUUID.get( uuid );
         } finally
         {
             connectionLock.readLock().unlock();
@@ -751,12 +755,17 @@ public class BungeeCord extends ProxyServer
 
     public void addConnection(UserConnection con)
     {
+        UUID offlineId = con.getPendingConnection().getOfflineId();
+        if ( offlineId != null && offlineId.version() != 3 )
+        {
+            throw new IllegalArgumentException( "Offline UUID must be a name-based UUID" );
+        }
         connectionLock.writeLock().lock();
         try
         {
             connections.put( con.getName(), con );
             connectionsByUUID.put( con.getUniqueId(), con );
-            connectionsByOfflineUUID.put( con.getPendingConnection().getOfflineId(), con );
+            connectionsByOfflineUUID.put( offlineId, con );
         } finally
         {
             connectionLock.writeLock().unlock();
