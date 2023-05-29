@@ -24,6 +24,7 @@ public class BungeeLogger extends Logger
     {
         super( loggerName, null );
         setLevel( Level.ALL );
+        setUseParentHandlers( false );
 
         try
         {

@@ -17,23 +17,32 @@ public class ServerData extends DefinedPacket
 {
 
     private String motd;
-    private String icon;
+    private Object icon;
     private boolean preview;
     private boolean enforceSecure;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        if ( buf.readBoolean() )
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_4 || buf.readBoolean() )
         {
             motd = readString( buf, 262144 );
         }
         if ( buf.readBoolean() )
         {
-            icon = readString( buf );
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_4 )
+            {
+                icon = DefinedPacket.readArray( buf );
+            } else
+            {
+                icon = readString( buf );
+            }
         }
 
-        preview = buf.readBoolean();
+        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_19_3 )
+        {
+            preview = buf.readBoolean();
+        }
 
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_1 )
         {
@@ -46,23 +55,40 @@ public class ServerData extends DefinedPacket
     {
         if ( motd != null )
         {
-            buf.writeBoolean( true );
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_4 )
+            {
+                buf.writeBoolean( true );
+            }
             writeString( motd, buf, 262144 );
         } else
         {
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_4 )
+            {
+                throw new IllegalArgumentException( "MOTD required for this version" );
+            }
+
             buf.writeBoolean( false );
         }
 
         if ( icon != null )
         {
             buf.writeBoolean( true );
-            writeString( icon, buf );
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_4 )
+            {
+                DefinedPacket.writeArray( (byte[]) icon, buf );
+            } else
+            {
+                writeString( (String) icon, buf );
+            }
         } else
         {
             buf.writeBoolean( false );
         }
 
-        buf.writeBoolean( preview );
+        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_19_3 )
+        {
+            buf.writeBoolean( preview );
+        }
 
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_1 )
         {

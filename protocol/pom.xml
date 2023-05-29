@@ -49,7 +49,6 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec</artifactId>
-            <version>${netty.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

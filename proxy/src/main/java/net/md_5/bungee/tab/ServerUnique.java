@@ -6,12 +6,13 @@ import java.util.UUID;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
+import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
+import net.md_5.bungee.protocol.packet.PlayerListItemUpdate;
 
 public class ServerUnique extends TabList
 {
 
     private final Collection<UUID> uuids = new HashSet<>();
-    private final Collection<String> usernames = new HashSet<>(); // Support for <=1.7.9
 
     public ServerUnique(ProxiedPlayer player)
     {
@@ -25,21 +26,35 @@ public class ServerUnique extends TabList
         {
             if ( playerListItem.getAction() == PlayerListItem.Action.ADD_PLAYER )
             {
-                if ( item.getUuid() != null )
-                {
-                    uuids.add( item.getUuid() );
-                } else
-                {
-                    usernames.add( item.getUsername() );
-                }
+                uuids.add( item.getUuid() );
             } else if ( playerListItem.getAction() == PlayerListItem.Action.REMOVE_PLAYER )
             {
-                if ( item.getUuid() != null )
+                uuids.remove( item.getUuid() );
+            }
+        }
+        player.unsafe().sendPacket( playerListItem );
+    }
+
+    @Override
+    public void onUpdate(PlayerListItemRemove playerListItem)
+    {
+        for ( UUID uuid : playerListItem.getUuids() )
+        {
+            uuids.remove( uuid );
+        }
+        player.unsafe().sendPacket( playerListItem );
+    }
+
+    @Override
+    public void onUpdate(PlayerListItemUpdate playerListItem)
+    {
+        for ( PlayerListItem.Item item : playerListItem.getItems() )
+        {
+            for ( PlayerListItemUpdate.Action action : playerListItem.getActions() )
+            {
+                if ( action == PlayerListItemUpdate.Action.ADD_PLAYER )
                 {
-                    uuids.remove( item.getUuid() );
-                } else
-                {
-                    usernames.remove( item.getUsername() );
+                    uuids.add( item.getUuid() );
                 }
             }
         }
@@ -55,42 +70,26 @@ public class ServerUnique extends TabList
     @Override
     public void onServerChange()
     {
-        PlayerListItem packet = new PlayerListItem();
-        packet.setAction( PlayerListItem.Action.REMOVE_PLAYER );
-        PlayerListItem.Item[] items = new PlayerListItem.Item[ uuids.size() + usernames.size() ];
-        int i = 0;
-        for ( UUID uuid : uuids )
+        if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_19_3 )
         {
-            PlayerListItem.Item item = items[i++] = new PlayerListItem.Item();
-            item.setUuid( uuid );
-        }
-        for ( String username : usernames )
-        {
-            PlayerListItem.Item item = items[i++] = new PlayerListItem.Item();
-            item.setUsername( username );
-            item.setDisplayName( username );
-        }
-        packet.setItems( items );
-        if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
-        {
+            PlayerListItemRemove packet = new PlayerListItemRemove();
+            packet.setUuids( uuids.stream().toArray( UUID[]::new ) );
             player.unsafe().sendPacket( packet );
         } else
         {
-            // Split up the packet
-            for ( PlayerListItem.Item item : packet.getItems() )
+            PlayerListItem packet = new PlayerListItem();
+            packet.setAction( PlayerListItem.Action.REMOVE_PLAYER );
+            PlayerListItem.Item[] items = new PlayerListItem.Item[ uuids.size() ];
+            int i = 0;
+            for ( UUID uuid : uuids )
             {
-                PlayerListItem p2 = new PlayerListItem();
-                p2.setAction( packet.getAction() );
-
-                p2.setItems( new PlayerListItem.Item[]
-                {
-                    item
-                } );
-                player.unsafe().sendPacket( p2 );
+                PlayerListItem.Item item = items[i++] = new PlayerListItem.Item();
+                item.setUuid( uuid );
             }
+            packet.setItems( items );
+            player.unsafe().sendPacket( packet );
         }
         uuids.clear();
-        usernames.clear();
     }
 
     @Override
@@ -104,4 +103,5 @@ public class ServerUnique extends TabList
     {
 
     }
+
 }

@@ -22,45 +22,31 @@ public class EncryptionResponse extends DefinedPacket
 
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_8 )
+        sharedSecret = readArray( buf, 128 );
+        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_19 || protocolVersion >= ProtocolConstants.MINECRAFT_1_19_3 || buf.readBoolean() )
         {
-            sharedSecret = readArrayLegacy( buf );
-            verifyToken = readArrayLegacy( buf );
+            verifyToken = readArray( buf, 128 );
         } else
         {
-            sharedSecret = readArray( buf, 128 );
-            if ( protocolVersion < ProtocolConstants.MINECRAFT_1_19 || buf.readBoolean() )
-            {
-                verifyToken = readArray( buf, 128 );
-            } else
-            {
-                encryptionData = new EncryptionData( buf.readLong(), readArray( buf ) );
-            }
+            encryptionData = new EncryptionData( buf.readLong(), readArray( buf ) );
         }
     }
 
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        if ( protocolVersion < ProtocolConstants.MINECRAFT_1_8 )
+        writeArray( sharedSecret, buf );
+        if ( verifyToken != null )
         {
-            writeArrayLegacy( sharedSecret, buf, false );
-            writeArrayLegacy( verifyToken, buf, false );
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 && protocolVersion <= ProtocolConstants.MINECRAFT_1_19_3 )
+            {
+                buf.writeBoolean( true );
+            }
+            writeArray( verifyToken, buf );
         } else
         {
-            writeArray( sharedSecret, buf );
-            if ( verifyToken != null )
-            {
-                if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 )
-                {
-                    buf.writeBoolean( true );
-                }
-                writeArray( verifyToken, buf );
-            } else
-            {
-                buf.writeLong( encryptionData.getSalt() );
-                writeArray( encryptionData.getSignature(), buf );
-            }
+            buf.writeLong( encryptionData.getSalt() );
+            writeArray( encryptionData.getSignature(), buf );
         }
     }
 
@@ -73,6 +59,7 @@ public class EncryptionResponse extends DefinedPacket
     @Data
     public static class EncryptionData
     {
+
         private final long salt;
         private final byte[] signature;
     }

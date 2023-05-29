@@ -46,27 +46,26 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport-native-unix-common</artifactId>
-            <version>${netty.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-resolver-provider</artifactId>
-            <version>3.8.5</version>
+            <version>3.9.2</version>
             <!-- not part of the API proper -->
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.resolver</groupId>
             <artifactId>maven-resolver-connector-basic</artifactId>
-            <version>1.7.3</version>
+            <version>1.9.10</version>
             <!-- not part of the API proper -->
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.resolver</groupId>
             <artifactId>maven-resolver-transport-http</artifactId>
-            <version>1.7.3</version>
+            <version>1.9.10</version>
             <!-- not part of the API proper -->
             <scope>provided</scope>
         </dependency>

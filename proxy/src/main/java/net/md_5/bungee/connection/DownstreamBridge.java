@@ -54,6 +54,8 @@ import net.md_5.bungee.protocol.packet.Commands;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
+import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
+import net.md_5.bungee.protocol.packet.PlayerListItemUpdate;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
@@ -148,6 +150,20 @@ public class DownstreamBridge extends PacketHandler
 
     @Override
     public void handle(PlayerListItem playerList) throws Exception
+    {
+        con.getTabListHandler().onUpdate( TabList.rewrite( playerList ) );
+        throw CancelSendSignal.INSTANCE; // Always throw because of profile rewriting
+    }
+
+    @Override
+    public void handle(PlayerListItemRemove playerList) throws Exception
+    {
+        con.getTabListHandler().onUpdate( TabList.rewrite( playerList ) );
+        throw CancelSendSignal.INSTANCE; // Always throw because of profile rewriting
+    }
+
+    @Override
+    public void handle(PlayerListItemUpdate playerList) throws Exception
     {
         con.getTabListHandler().onUpdate( TabList.rewrite( playerList ) );
         throw CancelSendSignal.INSTANCE; // Always throw because of profile rewriting
@@ -694,9 +710,10 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(ServerData serverData) throws Exception
     {
-        serverData.setMotd( null );
-        serverData.setIcon( null );
-        con.unsafe().sendPacket( serverData );
+        // 1.19.4 doesn't allow empty MOTD and we probably don't want to simulate a ping event to get the "correct" one
+        // serverData.setMotd( null );
+        // serverData.setIcon( null );
+        // con.unsafe().sendPacket( serverData );
         throw CancelSendSignal.INSTANCE;
     }
 

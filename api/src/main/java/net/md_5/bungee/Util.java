@@ -113,6 +113,16 @@ public class Util
         return format( objects, ", " );
     }
 
+    /**
+     * Returns a string of objects, each separated by a separator.
+     *
+     * @param objects the objects to join
+     * @param separators the separator
+     * @return joined string
+     * @see String#join(java.lang.CharSequence, java.lang.Iterable)
+     * @deprecated use {@link String} join methods
+     */
+    @Deprecated
     public static String format(Iterable<?> objects, String separators)
     {
         return Joiner.on( separators ).join( objects );

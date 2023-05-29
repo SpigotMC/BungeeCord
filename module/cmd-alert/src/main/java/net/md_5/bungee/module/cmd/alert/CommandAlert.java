@@ -1,5 +1,6 @@
 package net.md_5.bungee.module.cmd.alert;
 
+import java.util.Locale;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -23,10 +24,10 @@ public class CommandAlert extends Command
         } else
         {
             StringBuilder builder = new StringBuilder();
-            if ( args[0].startsWith( "&h" ) )
+            if ( args[0].toLowerCase( Locale.ROOT ).startsWith( "&h" ) )
             {
                 // Remove &h
-                args[0] = args[0].substring( 2, args[0].length() );
+                args[0] = args[0].substring( 2 );
             } else
             {
                 builder.append( ProxyServer.getInstance().getTranslation( "alert" ) );

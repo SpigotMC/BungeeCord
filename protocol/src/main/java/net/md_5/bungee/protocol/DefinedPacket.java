@@ -9,6 +9,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -336,6 +339,53 @@ public abstract class DefinedPacket
         {
             throw new RuntimeException( "Exception writing tag", ex );
         }
+    }
+
+    public static <E extends Enum<E>> void writeEnumSet(EnumSet<E> enumset, Class<E> oclass, ByteBuf buf)
+    {
+        E[] enums = oclass.getEnumConstants();
+        BitSet bits = new BitSet( enums.length );
+
+        for ( int i = 0; i < enums.length; ++i )
+        {
+            bits.set( i, enumset.contains( enums[i] ) );
+        }
+
+        writeFixedBitSet( bits, enums.length, buf );
+    }
+
+    public static <E extends Enum<E>> EnumSet<E> readEnumSet(Class<E> oclass, ByteBuf buf)
+    {
+        E[] enums = oclass.getEnumConstants();
+        BitSet bits = readFixedBitSet( enums.length, buf );
+        EnumSet<E> set = EnumSet.noneOf( oclass );
+
+        for ( int i = 0; i < enums.length; ++i )
+        {
+            if ( bits.get( i ) )
+            {
+                set.add( enums[i] );
+            }
+        }
+
+        return set;
+    }
+
+    public static BitSet readFixedBitSet(int i, ByteBuf buf)
+    {
+        byte[] bits = new byte[ ( i + 8 ) >> 3 ];
+        buf.readBytes( bits );
+
+        return BitSet.valueOf( bits );
+    }
+
+    public static void writeFixedBitSet(BitSet bits, int size, ByteBuf buf)
+    {
+        if ( bits.length() > size )
+        {
+            throw new OverflowPacketException( "BitSet too large (expected " + size + " got " + bits.size() + ")" );
+        }
+        buf.writeBytes( Arrays.copyOf( bits.toByteArray(), ( size + 8 ) >> 3 ) );
     }
 
     public void read(ByteBuf buf)

@@ -8,6 +8,7 @@ import io.netty.channel.Channel;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.ServerConnection.KeepAliveData;
 import net.md_5.bungee.UserConnection;
@@ -31,6 +32,7 @@ import net.md_5.bungee.protocol.packet.ClientCommand;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
+import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
@@ -75,19 +77,29 @@ public class UpstreamBridge extends PacketHandler
             // TODO: This should only done with server_unique
             //       tab list (which is the only one supported
             //       currently)
-            PlayerListItem packet = new PlayerListItem();
-            packet.setAction( PlayerListItem.Action.REMOVE_PLAYER );
+            PlayerListItem oldPacket = new PlayerListItem();
+            oldPacket.setAction( PlayerListItem.Action.REMOVE_PLAYER );
             PlayerListItem.Item item = new PlayerListItem.Item();
             item.setUuid( con.getUniqueId() );
-            packet.setItems( new PlayerListItem.Item[]
+            oldPacket.setItems( new PlayerListItem.Item[]
             {
                 item
             } );
+
+            PlayerListItemRemove newPacket = new PlayerListItemRemove();
+            newPacket.setUuids( new UUID[]
+            {
+                con.getUniqueId()
+            } );
+
             for ( ProxiedPlayer player : con.getServer().getInfo().getPlayers() )
             {
-                if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_8 )
+                if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_19_3 )
                 {
-                    player.unsafe().sendPacket( packet );
+                    player.unsafe().sendPacket( newPacket );
+                } else
+                {
+                    player.unsafe().sendPacket( oldPacket );
                 }
             }
             con.getServer().disconnect( "Quitting" );
@@ -113,7 +125,7 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
     {
-        return bungee.getConfig().getAlwaysHandlePackets() || con.getServer() != null || packet.packet instanceof PluginMessage;
+        return con.getServer() != null || packet.packet instanceof PluginMessage;
     }
 
     @Override

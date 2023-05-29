@@ -1,9 +1,10 @@
 package net.md_5.bungee.api;
 
+import com.google.common.base.Preconditions;
 import com.google.common.io.BaseEncoding;
 import com.google.gson.TypeAdapter;
-import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -26,13 +27,26 @@ public class Favicon
         @Override
         public void write(JsonWriter out, Favicon value) throws IOException
         {
-            TypeAdapters.STRING.write( out, value == null ? null : value.getEncoded() );
+            if ( value == null )
+            {
+                out.nullValue();
+            } else
+            {
+                out.value( value.getEncoded() );
+            }
         }
 
         @Override
         public Favicon read(JsonReader in) throws IOException
         {
-            String enc = TypeAdapters.STRING.read( in );
+            JsonToken peek = in.peek();
+            if ( peek == JsonToken.NULL )
+            {
+                in.nextNull();
+                return null;
+            }
+
+            String enc = in.nextString();
             return enc == null ? null : create( enc );
         }
     };
@@ -59,6 +73,7 @@ public class Favicon
      */
     public static Favicon create(BufferedImage image)
     {
+        Preconditions.checkArgument( image != null, "image is null" );
         // check size
         if ( image.getWidth() != 64 || image.getHeight() != 64 )
         {

@@ -42,6 +42,8 @@ public class ProtocolConstants
     public static final int MINECRAFT_1_18_2 = 758;
     public static final int MINECRAFT_1_19 = 759;
     public static final int MINECRAFT_1_19_1 = 760;
+    public static final int MINECRAFT_1_19_3 = 761;
+    public static final int MINECRAFT_1_19_4 = 762;
     public static final List<String> SUPPORTED_VERSIONS;
     public static final List<Integer> SUPPORTED_VERSION_IDS;
 
@@ -97,7 +99,9 @@ public class ProtocolConstants
                 ProtocolConstants.MINECRAFT_1_18,
                 ProtocolConstants.MINECRAFT_1_18_2,
                 ProtocolConstants.MINECRAFT_1_19,
-                ProtocolConstants.MINECRAFT_1_19_1
+                ProtocolConstants.MINECRAFT_1_19_1,
+                ProtocolConstants.MINECRAFT_1_19_3,
+                ProtocolConstants.MINECRAFT_1_19_4
         );
 
         if ( SNAPSHOT_SUPPORT )

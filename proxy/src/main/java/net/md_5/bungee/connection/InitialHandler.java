@@ -314,6 +314,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting HANDSHAKE" );
         this.handshake = handshake;
         ch.setVersion( handshake.getProtocolVersion() );
+        ch.getHandle().pipeline().remove( PipelineUtils.LEGACY_KICKER );
 
         // Starting with FML 1.8, a "\0FML\0" token is appended to the handshake. This interferes
         // with Bungee's IP forwarding, so we detect it, and remove it from the host string, for now.
@@ -382,7 +383,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             return;
         }
 
-        if ( BungeeCord.getInstance().config.isEnforceSecureProfile() )
+        if ( BungeeCord.getInstance().config.isEnforceSecureProfile() && getVersion() < ProtocolConstants.MINECRAFT_1_19_3 )
         {
             PlayerPublicKey publicKey = loginRequest.getPublicKey();
             if ( publicKey == null )
@@ -521,7 +522,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         if ( BungeeCord.getInstance().config.isEnforceSecureProfile() )
         {
-            if ( getVersion() >= ProtocolConstants.MINECRAFT_1_19_1 )
+            if ( getVersion() >= ProtocolConstants.MINECRAFT_1_19_1 && getVersion() < ProtocolConstants.MINECRAFT_1_19_3 )
             {
                 boolean secure = false;
                 try
@@ -547,14 +548,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             if ( oldName != null )
             {
                 // TODO See #1218
-                oldName.disconnect( bungee.getTranslation( "already_connected_proxy" ) );
+                disconnect( bungee.getTranslation( "already_connected_proxy" ) );
             }
             // And then also for their old UUID
             ProxiedPlayer oldID = bungee.getPlayer( getUniqueId() );
             if ( oldID != null )
             {
                 // TODO See #1218
-                oldID.disconnect( bungee.getTranslation( "already_connected_proxy" ) );
+                disconnect( bungee.getTranslation( "already_connected_proxy" ) );
             }
         } else
         {
