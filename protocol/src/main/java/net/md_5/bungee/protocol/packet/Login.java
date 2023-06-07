@@ -39,6 +39,13 @@ public class Login extends DefinedPacket
     private boolean debug;
     private boolean flat;
     private Location deathLocation;
+    private int portalCooldown;
+
+    @Deprecated
+    public Login(int entityId, boolean hardcore, short gameMode, short previousGameMode, Set<String> worldNames, Tag dimensions, Object dimension, String worldName, long seed, short difficulty, int maxPlayers, String levelType, int viewDistance, int simulationDistance, boolean reducedDebugInfo, boolean normalRespawn, boolean debug, boolean flat, Location deathLocation)
+    {
+        this( entityId, hardcore, gameMode, previousGameMode, worldNames, dimensions, dimension, worldName, seed, difficulty, maxPlayers, levelType, viewDistance, simulationDistance, reducedDebugInfo, normalRespawn, debug, flat, deathLocation, 0 );
+    }
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
@@ -126,6 +133,10 @@ public class Login extends DefinedPacket
             {
                 deathLocation = new Location( readString( buf ), buf.readLong() );
             }
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20 )
+        {
+            portalCooldown = readVarInt( buf );
         }
     }
 
@@ -219,6 +230,10 @@ public class Login extends DefinedPacket
             {
                 buf.writeBoolean( false );
             }
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20 )
+        {
+            writeVarInt( portalCooldown, buf );
         }
     }
 
