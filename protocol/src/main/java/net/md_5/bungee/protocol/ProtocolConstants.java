@@ -42,6 +42,7 @@ public class ProtocolConstants
     public static final int MINECRAFT_1_19_1 = 760;
     public static final int MINECRAFT_1_19_3 = 761;
     public static final int MINECRAFT_1_19_4 = 762;
+    public static final int MINECRAFT_1_20 = 763;
     public static final List<String> SUPPORTED_VERSIONS;
     public static final List<Integer> SUPPORTED_VERSION_IDS;
 
@@ -59,7 +60,8 @@ public class ProtocolConstants
                 "1.16.x",
                 "1.17.x",
                 "1.18.x",
-                "1.19.x"
+                "1.19.x",
+                "1.20.x"
         );
         ImmutableList.Builder<Integer> supportedVersionIds = ImmutableList.<Integer>builder().add(
                 ProtocolConstants.MINECRAFT_1_8,
@@ -96,13 +98,14 @@ public class ProtocolConstants
                 ProtocolConstants.MINECRAFT_1_19,
                 ProtocolConstants.MINECRAFT_1_19_1,
                 ProtocolConstants.MINECRAFT_1_19_3,
-                ProtocolConstants.MINECRAFT_1_19_4
+                ProtocolConstants.MINECRAFT_1_19_4,
+                ProtocolConstants.MINECRAFT_1_20
         );
 
         if ( SNAPSHOT_SUPPORT )
         {
-            // supportedVersions.add( "1.19.x" );
-            // supportedVersionIds.add( ProtocolConstants.MINECRAFT_1_19 );
+            // supportedVersions.add( "1.20.x" );
+            // supportedVersionIds.add( ProtocolConstants.MINECRAFT_1_20 );
         }
 
         SUPPORTED_VERSIONS = supportedVersions.build();

@@ -19,9 +19,6 @@ updates:
         # Used with maven-resolver dependencies; 2.0 update breaks other providers
       - dependency-name: "org.slf4j:slf4j-api"
         update-types: ["version-update:semver-major"]
-        # 2.0 update is substantively breaking
-      - dependency-name: "org.yaml:snakeyaml"
-        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
