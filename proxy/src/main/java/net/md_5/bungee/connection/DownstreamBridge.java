@@ -562,6 +562,16 @@ public class DownstreamBridge extends PacketHandler
                     }
                     break;
                 }
+                case "KickPlayerRaw":
+                {
+                    ProxiedPlayer player = bungee.getPlayer( in.readUTF() );
+                    if ( player != null )
+                    {
+                        BaseComponent[] kickReason = ComponentSerializer.parse( in.readUTF() );
+                        player.disconnect( kickReason );
+                    }
+                    break;
+                }
             }
 
             // Check we haven't set out to null, and we have written data, if so reply back back along the BungeeCord channel
