@@ -73,7 +73,7 @@ public class ServerConnector extends PacketHandler
     private enum State
     {
 
-        LOGIN_SUCCESS, ENCRYPT_RESPONSE, LOGIN, FINISHED;
+        LOGIN_SUCCESS, LOGIN, FINISHED;
     }
 
     @Override
@@ -84,13 +84,13 @@ public class ServerConnector extends PacketHandler
             return;
         }
 
-        String message = "Exception Connecting:" + Util.exception( t );
+        String message = ChatColor.RED + "Exception Connecting: " + Util.exception( t );
         if ( user.getServer() == null )
         {
             user.disconnect( message );
         } else
         {
-            user.sendMessage( ChatColor.RED + message );
+            user.sendMessage( message );
         }
     }
 
