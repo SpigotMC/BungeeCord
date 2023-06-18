@@ -13,9 +13,10 @@ updates:
       - dependency-name: "com.puppycrawl.tools:checkstyle"
         # Newer versions have issues, see #1909 and #2050
       - dependency-name: "jline:jline"
-        # Needs to be synchronised with maven-resolver-provider dependencies
+        # Later versions of these Maven dependencies are incompatible and require careful management - see SPIGOT-7400
       - dependency-name: "org.apache.maven.resolver:maven-resolver-connector-basic"
       - dependency-name: "org.apache.maven.resolver:maven-resolver-transport-http"
+      - dependency-name: "org.apache.maven:maven-resolver-provider"
         # Used with maven-resolver dependencies; 2.0 update breaks other providers
       - dependency-name: "org.slf4j:slf4j-api"
         update-types: ["version-update:semver-major"]
