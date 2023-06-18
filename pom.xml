@@ -204,7 +204,7 @@
                             </rules>
                         </configuration>
                         <goals>
-                            <goal>enforce</goal>
+                            <!--<goal>enforce</goal>--> <!-- Disabled until maven-resolver is upgraded again. -->
                         </goals>
                     </execution>
                 </executions>
