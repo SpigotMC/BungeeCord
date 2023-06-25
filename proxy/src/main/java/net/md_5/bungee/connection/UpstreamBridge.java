@@ -18,6 +18,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.api.event.ResourcePackResponseEvent;
 import net.md_5.bungee.api.event.SettingsChangedEvent;
 import net.md_5.bungee.api.event.TabCompleteEvent;
 import net.md_5.bungee.entitymap.EntityMap;
@@ -34,6 +35,7 @@ import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.ResourcePackResponse;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.util.AllowedCharacters;
@@ -206,6 +208,19 @@ public class UpstreamBridge extends PacketHandler
             }
         }
         throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void handle(ResourcePackResponse resourcePackResponse) throws Exception
+    {
+        if ( resourcePackResponse.getResult() == ResourcePackResponseEvent.Response.SUCCESSFULLY_LOADED.ordinal() )
+        {
+            con.setResourcePackHash( con.getRequestedResourcePackHash() );
+            con.setRequestedResourcePackHash( null );
+        }
+
+        ResourcePackResponseEvent.Response response = ResourcePackResponseEvent.Response.values()[resourcePackResponse.getResult()];
+        bungee.getPluginManager().callEvent( new ResourcePackResponseEvent( con, con.getServer(), response, resourcePackResponse.getHash() ) );
     }
 
     @Override

@@ -28,6 +28,8 @@ import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
 import net.md_5.bungee.protocol.packet.PlayerListItemUpdate;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.ResourcePackRequest;
+import net.md_5.bungee.protocol.packet.ResourcePackResponse;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
@@ -193,6 +195,14 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(BossBar bossBar) throws Exception
+    {
+    }
+
+    public void handle(ResourcePackRequest resourcePackRequest) throws Exception
+    {
+    }
+
+    public void handle(ResourcePackResponse resourcePackResponse) throws Exception
     {
     }
 

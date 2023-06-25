@@ -36,6 +36,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
+import net.md_5.bungee.api.event.ResourcePackRequestEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -58,6 +59,7 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.ResourcePackRequest;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.SystemChat;
 import net.md_5.bungee.tab.ServerUnique;
@@ -124,6 +126,12 @@ public final class UserConnection implements ProxiedPlayer
     private final Scoreboard serverSentScoreboard = new Scoreboard();
     @Getter
     private final Collection<UUID> sentBossBars = new HashSet<>();
+    @Getter
+    @Setter
+    private String resourcePackHash;
+    @Getter
+    @Setter
+    private String requestedResourcePackHash;
     /*========================================================================*/
     @Getter
     private String displayName;
@@ -752,5 +760,37 @@ public final class UserConnection implements ProxiedPlayer
     public Scoreboard getScoreboard()
     {
         return serverSentScoreboard;
+    }
+
+    @Override
+    public void sendResourcePack(String url, String hash, boolean forced, BaseComponent[] promptMessage) throws IllegalArgumentException
+    {
+        if ( hash.isEmpty() )
+        {
+            hash = null;
+        }
+        if ( hash != null )
+        {
+            Preconditions.checkArgument( hash.length() == 40, "Hash must be 40 characters." );
+
+            if ( hash.equalsIgnoreCase( resourcePackHash ) )
+            {
+                return;
+            }
+        }
+
+        if ( bungee.getPluginManager().callEvent( new ResourcePackRequestEvent( this, this, url, hash, forced, promptMessage ) ).isCancelled() )
+        {
+            return;
+        }
+
+        setRequestedResourcePackHash( hash );
+        unsafe().sendPacket( new ResourcePackRequest( url, hash, forced, promptMessage ) );
+    }
+
+    @Override
+    public boolean hasResourcePack()
+    {
+        return resourcePackHash != null;
     }
 }

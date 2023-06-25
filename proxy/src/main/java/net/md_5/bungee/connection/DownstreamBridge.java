@@ -33,6 +33,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.api.event.ResourcePackRequestEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerDisconnectEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
@@ -58,6 +59,7 @@ import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
 import net.md_5.bungee.protocol.packet.PlayerListItemUpdate;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.ResourcePackRequest;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
@@ -65,6 +67,7 @@ import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.ServerData;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
+import net.md_5.bungee.protocol.packet.ViewDistance;
 import net.md_5.bungee.tab.TabList;
 
 @RequiredArgsConstructor
@@ -630,6 +633,45 @@ public class DownstreamBridge extends PacketHandler
     public void handle(SetCompression setCompression) throws Exception
     {
         server.getCh().setCompressionThreshold( setCompression.getThreshold() );
+    }
+
+    @Override
+    public void handle(ResourcePackRequest resourcePackRequest) throws Exception
+    {
+        ResourcePackRequestEvent requestEvent =
+            new ResourcePackRequestEvent( server, con, resourcePackRequest.getUrl(), resourcePackRequest.getHash(), resourcePackRequest.isForced(), resourcePackRequest.getPromptMessage() );
+
+        // If the event is cancelled or if two servers use the same resource pack, do not send the packet
+        if ( ( con.getResourcePackHash() != null && resourcePackRequest.getHash().equals( con.getRequestedResourcePackHash() ) ) || bungee.getPluginManager().callEvent( requestEvent ).isCancelled() )
+        {
+            throw CancelSendSignal.INSTANCE;
+        }
+
+        con.setRequestedResourcePackHash( resourcePackRequest.getHash() );
+    }
+
+    @Override
+    public void handle(ViewDistance viewDistance)
+    {
+        // Packet hierarchy shows that the server sends ViewDistance after the join message
+        // that is the perfect time to send bungee's resource pack if the client doesn't have it already.
+
+        // Firstly check if we have a specified resource pack in the config
+        if ( bungee.getConfig().getResourcePack().isEmpty() )
+        {
+            // We don't have a resource pack set, return.
+            return;
+        }
+
+        // Then check if the client already has a resource pack.
+        if ( con.getResourcePackHash() != null || con.getRequestedResourcePackHash() != null )
+        {
+            // We probably don't want to override a resource pack se(n)t by someone else.
+            return;
+        }
+
+        // Try to send our resource pack
+        con.sendResourcePack( bungee.getConfig().getResourcePack(), bungee.getConfig().getResourcePackHash(), bungee.getConfig().isResourcePackForced(), bungee.getConfig().getResourcePackPromptMessage() );
     }
 
     @Override

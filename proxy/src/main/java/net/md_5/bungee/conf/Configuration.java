@@ -11,9 +11,12 @@ import java.util.UUID;
 import java.util.logging.Level;
 import javax.imageio.ImageIO;
 import lombok.Getter;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ProxyConfig;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -55,6 +58,10 @@ public class Configuration implements ProxyConfig
      * Whether we log proxy commands to the proxy log
      */
     private boolean logCommands;
+    private String resourcePack = "";
+    private String resourcePackHash = "";
+    private boolean resourcePackForced = false;
+    private BaseComponent[] resourcePackPromptMessage;
     private boolean logPings = true;
     private int remotePingCache = -1;
     private int playerLimit = -1;
@@ -102,9 +109,18 @@ public class Configuration implements ProxyConfig
         ipForward = adapter.getBoolean( "ip_forward", ipForward );
         compressionThreshold = adapter.getInt( "network_compression_threshold", compressionThreshold );
         preventProxyConnections = adapter.getBoolean( "prevent_proxy_connections", preventProxyConnections );
+        resourcePack = adapter.getString( "resource_pack", resourcePack );
+        resourcePackHash = adapter.getString( "resource_pack_sha1", resourcePackHash );
+        resourcePackForced = adapter.getBoolean( "resource_pack_forced", resourcePackForced );
         forgeSupport = adapter.getBoolean( "forge_support", forgeSupport );
 
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
+
+        String rpPromptMessage = adapter.getString( "resource_pack_prompt_message", "" );
+        if ( rpPromptMessage != null && !rpPromptMessage.isEmpty() )
+        {
+            resourcePackPromptMessage = TextComponent.fromLegacyText( ChatColor.translateAlternateColorCodes( '&', rpPromptMessage ) );
+        }
 
         Preconditions.checkArgument( listeners != null && !listeners.isEmpty(), "No listeners defined." );
 

@@ -291,6 +291,105 @@ public interface ProxiedPlayer extends Connection, CommandSender
     void sendTitle(Title title);
 
     /**
+     * Sends a resource pack to this player.
+     * <p>
+     * Hash is the SHA-1 digest of the resource pack. It's
+     * recommended to specify this. A hash can be identified by
+     * using the service http://onlinemd5.com/
+     * </p>
+     *
+     * @param url url of resource pack
+     * @param hash optional resource pack hash
+     * @throws IllegalArgumentException if hash is longer than 40
+     * digits
+     */
+    default void sendResourcePack(String url, String hash) throws IllegalArgumentException
+    {
+        sendResourcePack( url, hash, false );
+    }
+
+    /**
+     * Sends a resource pack to this player.
+     * <p>
+     * Hash is the SHA-1 digest of the resource pack. It's
+     * recommended to specify this. A hash can be identified by
+     * using the service http://onlinemd5.com/
+     * </p>
+     *
+     * @param url url of resource pack
+     * @param hash optional resource pack hash
+     * @param forced whether the notchian client will be forced
+     * to use the resource pack. Works 1.17+ only
+     * @throws IllegalArgumentException if hash is longer than 40
+     * digits
+     */
+    default void sendResourcePack(String url, String hash, boolean forced) throws IllegalArgumentException
+    {
+        sendResourcePack( url, hash, forced, (BaseComponent[]) null );
+    }
+
+    /**
+     * Sends a resource pack to this player.
+     * <p>
+     * Hash is the SHA-1 digest of the resource pack. It's
+     * recommended to specify this. A hash can be identified by
+     * using the service http://onlinemd5.com/
+     * </p>
+     *
+     * @param url url of resource pack
+     * @param hash optional resource pack hash
+     * @param promptMessage the message shown in the prompt
+     * making the client accept or decline the resource pack.
+     * Works 1.17+ only
+     * @throws IllegalArgumentException if hash is longer than 40
+     * digits
+     */
+    default void sendResourcePack(String url, String hash, BaseComponent... promptMessage) throws IllegalArgumentException
+    {
+        sendResourcePack( url, hash, false, promptMessage );
+    }
+
+    /**
+     * Sends a resource pack to this player.
+     * <p>
+     * Hash is the SHA-1 digest of the resource pack. It's
+     * recommended to specify this. A hash can be identified by
+     * using the service http://onlinemd5.com/
+     * </p>
+     *
+     * @param url url of resource pack
+     * @param hash optional resource pack hash
+     * @param forced whether the notchian client will be forced
+     * to use the resource pack. Works 1.17+ only
+     * @param promptMessage the message shown in the prompt
+     * making the client accept or decline the resource pack.
+     * Works 1.17+ only
+     * @throws IllegalArgumentException if hash is longer than 40
+     * digits
+     */
+    void sendResourcePack(String url, String hash, boolean forced, BaseComponent... promptMessage) throws IllegalArgumentException;
+
+    /**
+     * Gets the player's currently loaded resource pack hash that
+     * was applied by a proxy or server.
+     * <p>
+     * Hash is returned as a 40 digit lowercase hexadecimal SHA-1
+     * value
+     * </p>
+     *
+     * @return hash if resource pack is set, otherwise null
+     */
+    String getResourcePackHash();
+
+    /**
+     * Returns if the client has a successfully loaded resource
+     * pack.
+     *
+     * @return true if it has resource pack
+     */
+    boolean hasResourcePack();
+
+    /**
      * Gets whether this player is using a FML client.
      * <p>
      * This method is only reliable if BungeeCord links Minecraft 1.8 servers
