@@ -35,7 +35,7 @@ public class CommandPlugins extends Command implements TabExecutor
             }
 
             String plugins = pluginsList.substring( 0, pluginsList.lastIndexOf( "," ) - 1 );
-            String translation = proxy.getTranslation( "command_plugins", proxy.getPluginManager().getPlugins().size(), plugins );
+            String translation = proxy.getTranslation( "plugin_list", proxy.getPluginManager().getPlugins().size(), plugins );
 
             sender.sendMessage( translation );
         } else
@@ -44,11 +44,11 @@ public class CommandPlugins extends Command implements TabExecutor
 
             if ( plugin == null )
             {
-                sender.sendMessage( ProxyServer.getInstance().getTranslation( "plugin_null" ) );
+                sender.sendMessage( ProxyServer.getInstance().getTranslation( "plugin_not_found" ) );
             } else
             {
                 boolean module = plugin.getFile().getParent().equals( "modules" );
-                sender.sendMessage( ProxyServer.getInstance().getTranslation( "plugin_success",
+                sender.sendMessage( ProxyServer.getInstance().getTranslation( "plugin_display",
                         ( module ? ChatColor.BLUE : ChatColor.GREEN ) + plugin.getDescription().getName(), plugin.getDescription().getVersion(), plugin.getDescription().getAuthor() ) );
                 if ( plugin.getDescription().getDescription() != null )
                 {
