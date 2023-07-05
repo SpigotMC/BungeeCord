@@ -213,8 +213,9 @@ public class UpstreamBridge extends PacketHandler
     {
         List<String> suggestions = new ArrayList<>();
         boolean isRegisteredCommand = false;
+        boolean isCommand = tabComplete.getCursor().startsWith( "/" );
 
-        if ( tabComplete.getCursor().startsWith( "/" ) )
+        if ( isCommand )
         {
             isRegisteredCommand = bungee.getPluginManager().dispatchCommand( con, tabComplete.getCursor().substring( 1 ), suggestions );
         }
@@ -256,6 +257,15 @@ public class UpstreamBridge extends PacketHandler
         if ( isRegisteredCommand )
         {
             throw CancelSendSignal.INSTANCE;
+        }
+
+        if ( isCommand && con.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_13 )
+        {
+            int lastSpace = tabComplete.getCursor().lastIndexOf( ' ' );
+            if ( lastSpace == -1 )
+            {
+                con.setLastCommandTabbed( tabComplete.getCursor().substring( 1 ) );
+            }
         }
     }
 
