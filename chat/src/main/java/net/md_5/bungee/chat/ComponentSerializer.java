@@ -27,7 +27,6 @@ import net.md_5.bungee.api.chat.hover.content.TextSerializer;
 public class ComponentSerializer implements JsonDeserializer<BaseComponent>
 {
 
-    private static final JsonParser JSON_PARSER = new JsonParser();
     private static final Gson gson = new GsonBuilder().
             registerTypeAdapter( BaseComponent.class, new ComponentSerializer() ).
             registerTypeAdapter( TextComponent.class, new TextComponentSerializer() ).
@@ -43,9 +42,25 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
 
     public static final ThreadLocal<Set<BaseComponent>> serializedComponents = new ThreadLocal<Set<BaseComponent>>();
 
+    /**
+     * Parse a JSON-compliant String as an array of base components. The input
+     * can be one of either an array of components, or a single component object.
+     * If the input is an array, each component will be parsed individually and
+     * returned in the order that they were parsed. If the input is a single
+     * component object, a single-valued array with the component will be returned.
+     * <p>
+     * <strong>NOTE:</strong> {@link #deserialize(String)} is preferred as it will
+     * parse only one component as opposed to an array of components which is non-
+     * standard behavior. This method is still appropriate for parsing multiple
+     * components at once, although such use case is rarely (if at all) exhibited
+     * in vanilla Minecraft.
+     *
+     * @param json the component json to parse
+     * @return an array of all parsed components
+     */
     public static BaseComponent[] parse(String json)
     {
-        JsonElement jsonElement = JSON_PARSER.parse( json );
+        JsonElement jsonElement = JsonParser.parseString( json );
 
         if ( jsonElement.isJsonArray() )
         {
@@ -57,6 +72,26 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
                 gson.fromJson( jsonElement, BaseComponent.class )
             };
         }
+    }
+
+    /**
+     * Deserialize a JSON-compliant String as a single component. The input is
+     * expected to be a JSON object that represents only one component.
+     *
+     * @param json the component json to parse
+     * @return the deserialized component
+     * @throws IllegalArgumentException if anything other than a JSON object is
+     * passed as input
+     */
+    public static BaseComponent deserialize(String json)
+    {
+        JsonElement jsonElement = JsonParser.parseString( json );
+        if ( !jsonElement.isJsonObject() )
+        {
+            throw new IllegalArgumentException( "Malformatted JSON. Expected object, got array for input \"" + json + "\"." );
+        }
+
+        return gson.fromJson( jsonElement, BaseComponent.class );
     }
 
     public static String toString(Object object)

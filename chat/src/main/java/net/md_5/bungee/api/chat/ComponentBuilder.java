@@ -455,8 +455,31 @@ public final class ComponentBuilder
     }
 
     /**
+     * Returns the component built by this builder. If this builder is
+     * empty, an empty text component will be returned.
+     *
+     * @return the component
+     */
+    public BaseComponent build()
+    {
+        TextComponent base = new TextComponent();
+        if ( !parts.isEmpty() )
+        {
+            List<BaseComponent> cloned = new ArrayList<>( parts );
+            cloned.replaceAll( BaseComponent::duplicate );
+            base.setExtra( cloned );
+        }
+        return base;
+    }
+
+    /**
      * Returns the components needed to display the message created by this
      * builder.git
+     * <p>
+     * <strong>NOTE:</strong> {@link #build()} is preferred as it will
+     * consolidate all components into a single BaseComponent with extra
+     * contents as opposed to an array of components which is non-standard
+     * and may result in unexpected behavior.
      *
      * @return the created components
      */

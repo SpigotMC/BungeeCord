@@ -1,6 +1,7 @@
 package net.md_5.bungee.api.chat;
 
 import java.awt.Color;
+import java.util.List;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.hover.content.Item;
 import net.md_5.bungee.api.chat.hover.content.Text;
@@ -18,10 +19,24 @@ public class ComponentsTest
         Assert.assertEquals( TextComponent.toLegacyText( parsed ), TextComponent.toLegacyText( components ) );
     }
 
-    public static void testDissembleReassemble(String json)
+    public static void testDissembleReassemble(BaseComponent components)
     {
+        String json = ComponentSerializer.toString( components );
         BaseComponent[] parsed = ComponentSerializer.parse( json );
-        Assert.assertEquals( json, ComponentSerializer.toString( parsed ) );
+        Assert.assertEquals( TextComponent.toLegacyText( parsed ), TextComponent.toLegacyText( components ) );
+    }
+
+    public static void testDissembleReassemble(String json, boolean modern)
+    {
+        if ( modern )
+        {
+            BaseComponent deserialized = ComponentSerializer.deserialize( json );
+            Assert.assertEquals( json , ComponentSerializer.toString( deserialized ) );
+        } else
+        {
+            BaseComponent[] parsed = ComponentSerializer.parse( json );
+            Assert.assertEquals( json, ComponentSerializer.toString( parsed ) );
+        }
     }
 
     @Test
@@ -41,8 +56,10 @@ public class ComponentsTest
         {
             textComponent
         } );
+        testDissembleReassemble ( textComponent );
         json = "{\"hoverEvent\":{\"action\":\"show_item\",\"value\":[{\"text\":\"{id:\\\"minecraft:netherrack\\\",Count:47b}\"}]},\"text\":\"Test\"}";
-        testDissembleReassemble( json );
+        testDissembleReassemble( json, false );
+        testDissembleReassemble( json, true );
         //////////
         String hoverVal = "{\"text\":\"{id:\\\"minecraft:dirt\\\",Count:1b}\"}";
         json = "{\"extra\":[{\"text\":\"[\"},{\"extra\":[{\"translate\":\"block.minecraft.dirt\"}],\"text\":\"\"},{\"text\":\"]\"}],\"hoverEvent\":{\"action\":\"show_item\",\"value\":[" + hoverVal + "]},\"text\":\"\"}";
@@ -66,7 +83,7 @@ public class ComponentsTest
     }
 
     @Test
-    public void testEmptyComponentBuilder()
+    public void testEmptyComponentBuilderCreate()
     {
         ComponentBuilder builder = new ComponentBuilder();
 
@@ -78,6 +95,22 @@ public class ComponentsTest
             builder.append( "part:" + i );
             parts = builder.create();
             Assert.assertEquals( parts.length, i + 1 );
+        }
+    }
+
+    @Test
+    public void testEmptyComponentBuilderBuild()
+    {
+        ComponentBuilder builder = new ComponentBuilder();
+
+        BaseComponent component = builder.build();
+        Assert.assertNull( component.getExtra() );
+
+        for ( int i = 0; i < 3; i++ )
+        {
+            builder.append( "part:" + i );
+            component = builder.build();
+            Assert.assertEquals( component.getExtra().size(), i + 1 );
         }
     }
 
@@ -213,7 +246,7 @@ public class ComponentsTest
     }
 
     @Test
-    public void testHoverEventContents()
+    public void testHoverEventContentsCreate()
     {
         // First do the text using the newer contents system
         HoverEvent hoverEvent = new HoverEvent(
@@ -252,7 +285,38 @@ public class ComponentsTest
     }
 
     @Test
-    public void testFormatRetentionCopyFormatting()
+    public void testHoverEventContentsBuild()
+    {
+        // First do the text using the newer contents system
+        HoverEvent hoverEvent = new HoverEvent(
+                HoverEvent.Action.SHOW_TEXT,
+                new Text( new ComponentBuilder( "First" ).build() ),
+                new Text( new ComponentBuilder( "Second" ).build() )
+        );
+
+        TextComponent component = new TextComponent( "Sample text" );
+        component.setHoverEvent( hoverEvent );
+        Assert.assertEquals( hoverEvent.getContents().size(), 2 );
+        Assert.assertFalse( hoverEvent.isLegacy() );
+        String serialized = ComponentSerializer.toString( component );
+        BaseComponent deserialized = ComponentSerializer.deserialize( serialized );
+        Assert.assertEquals( component.getHoverEvent(), deserialized.getHoverEvent() );
+
+        // Test single content:
+        String json = "{\"italic\":true,\"color\":\"gray\",\"translate\":\"chat.type.admin\",\"with\":[{\"text\":\"@\"}"
+                + ",{\"translate\":\"commands.give.success.single\",\"with\":[\"1\",{\"color\":\"white\""
+                + ",\"hoverEvent\":{\"action\":\"show_item\",\"contents\":{\"id\":\"minecraft:diamond_sword\",\"tag\":\""
+                + "{Damage:0,display:{Lore:['\\\"test lore'!\\\"'],Name:'\\\"test\\\"'}}\"}},"
+                + "\"extra\":[{\"italic\":true,\"extra\":[{\"text\":\"test\"}],\"text\":\"\"},{\"text\":\"]\"}],"
+                + "\"text\":\"[\"},{\"insertion\":\"Name\",\"clickEvent\":{\"action\":\"suggest_command\",\"value\":"
+                + "\"/tell Name \"},\"hoverEvent\":{\"action\":\"show_entity\",\"contents\":"
+                + "{\"type\":\"minecraft:player\",\"id\":\"00000000-0000-0000-0000-00000000000000\",\"name\":"
+                + "{\"text\":\"Name\"}}},\"text\":\"Name\"}]}]}";
+        testDissembleReassemble( ComponentSerializer.deserialize( json ) );
+    }
+
+    @Test
+    public void testFormatRetentionCopyFormattingCreate()
     {
         TextComponent first = new TextComponent( "Hello" );
         first.setBold( true );
@@ -269,7 +333,24 @@ public class ComponentsTest
     }
 
     @Test
-    public void testBuilderClone()
+    public void testFormatRetentionCopyFormattingBuild()
+    {
+        TextComponent first = new TextComponent( "Hello" );
+        first.setBold( true );
+        first.setColor( ChatColor.RED );
+        first.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, "test" ) );
+        first.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder( "Test" ).build()) ) );
+
+        TextComponent second = new TextComponent( " world" );
+        second.copyFormatting( first, ComponentBuilder.FormatRetention.ALL, true );
+        Assert.assertEquals( first.isBold(), second.isBold() );
+        Assert.assertEquals( first.getColor(), second.getColor() );
+        Assert.assertEquals( first.getClickEvent(), second.getClickEvent() );
+        Assert.assertEquals( first.getHoverEvent(), second.getHoverEvent() );
+    }
+
+    @Test
+    public void testBuilderCloneCreate()
     {
         ComponentBuilder builder = new ComponentBuilder( "Hello " ).color( ChatColor.RED ).append( "world" ).color( ChatColor.DARK_RED );
         ComponentBuilder cloned = new ComponentBuilder( builder );
@@ -278,7 +359,16 @@ public class ComponentsTest
     }
 
     @Test
-    public void testBuilderAppendMixedComponents()
+    public void testBuilderCloneBuild()
+    {
+        ComponentBuilder builder = new ComponentBuilder( "Hello " ).color( ChatColor.RED ).append( "world" ).color( ChatColor.DARK_RED );
+        ComponentBuilder cloned = new ComponentBuilder( builder );
+
+        Assert.assertEquals( TextComponent.toLegacyText( builder.build() ), TextComponent.toLegacyText( cloned.build() ) );
+    }
+
+    @Test
+    public void testBuilderAppendCreateMixedComponents()
     {
         ComponentBuilder builder = new ComponentBuilder( "Hello " );
         TextComponent textComponent = new TextComponent( "world " );
@@ -299,6 +389,28 @@ public class ComponentsTest
     }
 
     @Test
+    public void testBuilderAppendBuildMixedComponents()
+    {
+        ComponentBuilder builder = new ComponentBuilder( "Hello " );
+        TextComponent textComponent = new TextComponent( "world " );
+        TranslatableComponent translatableComponent = new TranslatableComponent( "item.swordGold.name" );
+        // array based BaseComponent append
+        builder.append( new BaseComponent[]
+        {
+            textComponent,
+            translatableComponent
+        } );
+        ScoreComponent scoreComponent = new ScoreComponent( "myscore", "myobjective" );
+        builder.append( scoreComponent ); // non array based BaseComponent append
+        BaseComponent component = builder.build();
+        List<BaseComponent> extra = component.getExtra();
+        Assert.assertEquals( "Hello ", extra.get( 0 ).toPlainText() );
+        Assert.assertEquals( textComponent.toPlainText(), extra.get( 1 ).toPlainText() );
+        Assert.assertEquals( translatableComponent.toPlainText(), extra.get( 2 ).toPlainText() );
+        Assert.assertEquals( scoreComponent.toPlainText(), extra.get( 3 ).toPlainText() );
+    }
+
+    @Test
     public void testScore()
     {
         BaseComponent[] component = ComponentSerializer.parse( "{\"score\":{\"name\":\"@p\",\"objective\":\"TEST\",\"value\":\"hello\"}}" );
@@ -309,7 +421,7 @@ public class ComponentsTest
     }
 
     @Test
-    public void testBuilderAppend()
+    public void testBuilderAppendCreate()
     {
         ClickEvent clickEvent = new ClickEvent( ClickEvent.Action.RUN_COMMAND, "/help " );
         HoverEvent hoverEvent = new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( "Hello world" ).create() );
@@ -326,7 +438,25 @@ public class ComponentsTest
     }
 
     @Test
-    public void testBuilderAppendLegacy()
+    public void testBuilderAppendBuild()
+    {
+        ClickEvent clickEvent = new ClickEvent( ClickEvent.Action.RUN_COMMAND, "/help " );
+        HoverEvent hoverEvent = new HoverEvent( HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder( "Hello world" ).build()) );
+
+        ComponentBuilder builder = new ComponentBuilder( "Hello " ).color( ChatColor.YELLOW );
+        builder.append( new ComponentBuilder( "world!" ).color( ChatColor.GREEN ).event( hoverEvent ).event( clickEvent ).create() );
+
+        BaseComponent component = builder.build();
+
+        Assert.assertEquals( component.getExtra().get( 1 ).getHoverEvent(), hoverEvent );
+        Assert.assertEquals( component.getExtra().get( 1 ).getClickEvent(), clickEvent );
+        Assert.assertEquals( "Hello world!", BaseComponent.toPlainText( component ) );
+        // An extra format code is appended to the beginning because there is an empty TextComponent at the start of every component
+        Assert.assertEquals( ChatColor.WHITE.toString() + ChatColor.YELLOW + "Hello " + ChatColor.GREEN + "world!", BaseComponent.toLegacyText( component ) );
+    }
+
+    @Test
+    public void testBuilderAppendLegacyCreate()
     {
         ComponentBuilder builder = new ComponentBuilder( "Hello " ).color( ChatColor.YELLOW );
         builder.appendLegacy( "§aworld!" );
@@ -335,6 +465,19 @@ public class ComponentsTest
 
         Assert.assertEquals( "Hello world!", BaseComponent.toPlainText( components ) );
         Assert.assertEquals( ChatColor.YELLOW + "Hello " + ChatColor.GREEN + "world!", BaseComponent.toLegacyText( components ) );
+    }
+
+    @Test
+    public void testBuilderAppendLegacyBuild()
+    {
+        ComponentBuilder builder = new ComponentBuilder( "Hello " ).color( ChatColor.YELLOW );
+        builder.appendLegacy( "§aworld!" );
+
+        BaseComponent component = builder.build();
+
+        Assert.assertEquals( "Hello world!", BaseComponent.toPlainText( component ) );
+        // An extra format code is appended to the beginning because there is an empty TextComponent at the start of every component
+        Assert.assertEquals( ChatColor.WHITE.toString() + ChatColor.YELLOW + "Hello " + ChatColor.GREEN + "world!", BaseComponent.toLegacyText( component ) );
     }
 
     @Test
@@ -397,7 +540,7 @@ public class ComponentsTest
     }
 
     @Test
-    public void testBuilder()
+    public void testBuilderCreate()
     {
         BaseComponent[] components = new ComponentBuilder( "Hello " ).color( ChatColor.RED ).
                 append( "World" ).bold( true ).color( ChatColor.BLUE ).
@@ -409,7 +552,7 @@ public class ComponentsTest
     }
 
     @Test
-    public void testBuilderReset()
+    public void testBuilderCreateReset()
     {
         BaseComponent[] components = new ComponentBuilder( "Hello " ).color( ChatColor.RED )
                 .append( "World" ).reset().create();
@@ -419,7 +562,7 @@ public class ComponentsTest
     }
 
     @Test
-    public void testBuilderFormatRetention()
+    public void testBuilderCreateFormatRetention()
     {
         BaseComponent[] noneRetention = new ComponentBuilder( "Hello " ).color( ChatColor.RED )
                 .append( "World", ComponentBuilder.FormatRetention.NONE ).create();
@@ -448,6 +591,63 @@ public class ComponentsTest
         Assert.assertEquals( eventRetention[1].getColor(), ChatColor.WHITE );
         Assert.assertEquals( eventRetention[1].getHoverEvent(), testEvent );
         Assert.assertEquals( eventRetention[1].getClickEvent(), testClickEvent );
+    }
+
+    @Test
+    public void testBuilderBuild()
+    {
+        BaseComponent component = new ComponentBuilder( "Hello " ).color( ChatColor.RED ).
+                append( "World" ).bold( true ).color( ChatColor.BLUE ).
+                append( "!" ).color( ChatColor.YELLOW ).build();
+
+        Assert.assertEquals( "Hello World!", BaseComponent.toPlainText( component ) );
+        // An extra format code is appended to the beginning because there is an empty TextComponent at the start of every component
+        Assert.assertEquals( ChatColor.WHITE.toString() + ChatColor.RED + "Hello " + ChatColor.BLUE + ChatColor.BOLD
+                + "World" + ChatColor.YELLOW + ChatColor.BOLD + "!", BaseComponent.toLegacyText( component ) );
+    }
+
+    @Test
+    public void testBuilderBuildReset()
+    {
+        BaseComponent component = new ComponentBuilder( "Hello " ).color( ChatColor.RED )
+                .append( "World" ).reset().build();
+
+        Assert.assertEquals( component.getExtra().get( 0 ).getColor(), ChatColor.RED );
+        Assert.assertEquals( component.getExtra().get( 1 ).getColor(), ChatColor.WHITE );
+    }
+
+    @Test
+    public void testBuilderBuildFormatRetention()
+    {
+        BaseComponent noneRetention = new ComponentBuilder( "Hello " ).color( ChatColor.RED )
+                .append( "World", ComponentBuilder.FormatRetention.NONE ).build();
+
+        Assert.assertEquals( noneRetention.getExtra().get( 0 ).getColor(), ChatColor.RED );
+        Assert.assertEquals( noneRetention.getExtra().get( 1 ).getColor(), ChatColor.WHITE );
+
+        HoverEvent testEvent = new HoverEvent( HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder( "test" ).build()) );
+
+        BaseComponent formattingRetention = new ComponentBuilder( "Hello " ).color( ChatColor.RED )
+                .event( testEvent ).append( "World", ComponentBuilder.FormatRetention.FORMATTING ).build();
+
+        List<BaseComponent> formattingRetentionExtra = formattingRetention.getExtra();
+        Assert.assertEquals( formattingRetentionExtra.get( 0 ).getColor(), ChatColor.RED );
+        Assert.assertEquals( formattingRetentionExtra.get( 0 ).getHoverEvent(), testEvent );
+        Assert.assertEquals( formattingRetentionExtra.get( 1 ).getColor(), ChatColor.RED );
+        Assert.assertNull( formattingRetentionExtra.get( 1 ).getHoverEvent() );
+
+        ClickEvent testClickEvent = new ClickEvent( ClickEvent.Action.OPEN_URL, "http://www.example.com" );
+
+        BaseComponent eventRetention = new ComponentBuilder( "Hello " ).color( ChatColor.RED )
+                .event( testEvent ).event( testClickEvent ).append( "World", ComponentBuilder.FormatRetention.EVENTS ).build();
+
+        List<BaseComponent> eventRetentionExtra = eventRetention.getExtra();
+        Assert.assertEquals( eventRetentionExtra.get( 0 ).getColor(), ChatColor.RED );
+        Assert.assertEquals( eventRetentionExtra.get( 0 ).getHoverEvent(), testEvent );
+        Assert.assertEquals( eventRetentionExtra.get( 0 ).getClickEvent(), testClickEvent );
+        Assert.assertEquals( eventRetentionExtra.get( 1 ).getColor(), ChatColor.WHITE );
+        Assert.assertEquals( eventRetentionExtra.get( 1 ).getHoverEvent(), testEvent );
+        Assert.assertEquals( eventRetentionExtra.get( 1 ).getClickEvent(), testClickEvent );
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -577,7 +777,7 @@ public class ComponentsTest
      * Make sure it works in combination with ComponentBuilder.
      */
     @Test
-    public void testLegacyResetInBuilder()
+    public void testLegacyResetInBuilderCreate()
     {
         ComponentBuilder builder = new ComponentBuilder();
         BaseComponent[] a = TextComponent.fromLegacyText( "§4§n44444§rdd§6§l6666" );
@@ -595,6 +795,36 @@ public class ComponentsTest
         builder.append( b );
 
         String test2 = ComponentSerializer.toString( builder.create() );
+        Assert.assertEquals(
+                "{\"extra\":[{\"underlined\":true,\"color\":\"dark_red\",\"text\":\"44444\"},"
+                        + "{\"color\":\"white\",\"text\":\"dd\"},{\"bold\":true,\"color\":\"gold\",\"text\":\"6666\"},"
+                        + "{\"color\":\"white\",\"text\":\"rrrr\"}],\"text\":\"\"}",
+                test2 );
+    }
+
+    /**
+     * In legacy chat, colors and reset both reset all formatting.
+     * Make sure it works in combination with ComponentBuilder.
+     */
+    @Test
+    public void testLegacyResetInBuilderBuild()
+    {
+        ComponentBuilder builder = new ComponentBuilder();
+        BaseComponent[] a = TextComponent.fromLegacyText( "§4§n44444§rdd§6§l6666" );
+
+        String expected = "{\"extra\":[{\"underlined\":true,\"color\":\"dark_red\",\"text\":\"44444\"},{\"color\":"
+                + "\"white\",\"text\":\"dd\"},{\"bold\":true,\"color\":\"gold\",\"text\":\"6666\"}],\"text\":\"\"}";
+        Assert.assertEquals( expected, ComponentSerializer.toString( a ) );
+
+        builder.append( a );
+
+        String test1 = ComponentSerializer.toString( builder.build() );
+        Assert.assertEquals( expected, test1 );
+
+        BaseComponent[] b = TextComponent.fromLegacyText( "§rrrrr" );
+        builder.append( b );
+
+        String test2 = ComponentSerializer.toString( builder.build() );
         Assert.assertEquals(
                 "{\"extra\":[{\"underlined\":true,\"color\":\"dark_red\",\"text\":\"44444\"},"
                         + "{\"color\":\"white\",\"text\":\"dd\"},{\"bold\":true,\"color\":\"gold\",\"text\":\"6666\"},"
