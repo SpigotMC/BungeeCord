@@ -19,14 +19,14 @@ public class ComponentsTest
         Assert.assertEquals( TextComponent.toLegacyText( parsed ), TextComponent.toLegacyText( components ) );
     }
 
-    public static void testDissembleReassemble(BaseComponent components)
+    public static void testDissembleReassemble(BaseComponent component)
     {
-        String json = ComponentSerializer.toString( components );
+        String json = ComponentSerializer.toString( component );
         BaseComponent[] parsed = ComponentSerializer.parse( json );
-        Assert.assertEquals( TextComponent.toLegacyText( parsed ), TextComponent.toLegacyText( components ) );
+        Assert.assertEquals( TextComponent.toLegacyText( parsed ), TextComponent.toLegacyText( component ) );
     }
 
-    public static void testDissembleReassemble(String json, boolean modern)
+    public static void testAssembleDissemble(String json, boolean modern)
     {
         if ( modern )
         {
@@ -58,8 +58,8 @@ public class ComponentsTest
         } );
         testDissembleReassemble ( textComponent );
         json = "{\"hoverEvent\":{\"action\":\"show_item\",\"value\":[{\"text\":\"{id:\\\"minecraft:netherrack\\\",Count:47b}\"}]},\"text\":\"Test\"}";
-        testDissembleReassemble( json, false );
-        testDissembleReassemble( json, true );
+        testAssembleDissemble( json, false );
+        testAssembleDissemble( json, true );
         //////////
         String hoverVal = "{\"text\":\"{id:\\\"minecraft:dirt\\\",Count:1b}\"}";
         json = "{\"extra\":[{\"text\":\"[\"},{\"extra\":[{\"translate\":\"block.minecraft.dirt\"}],\"text\":\"\"},{\"text\":\"]\"}],\"hoverEvent\":{\"action\":\"show_item\",\"value\":[" + hoverVal + "]},\"text\":\"\"}";
