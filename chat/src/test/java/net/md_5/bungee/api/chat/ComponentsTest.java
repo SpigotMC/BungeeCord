@@ -35,7 +35,7 @@ public class ComponentsTest
         if ( modern )
         {
             BaseComponent deserialized = ComponentSerializer.deserialize( json );
-            Assert.assertEquals( json , ComponentSerializer.toString( deserialized ) );
+            Assert.assertEquals( json, ComponentSerializer.toString( deserialized ) );
         } else
         {
             BaseComponent[] parsed = ComponentSerializer.parse( json );
@@ -60,7 +60,7 @@ public class ComponentsTest
         {
             textComponent
         } );
-        testDissembleReassemble ( textComponent );
+        testDissembleReassemble( textComponent );
         json = "{\"hoverEvent\":{\"action\":\"show_item\",\"value\":[{\"text\":\"{id:\\\"minecraft:netherrack\\\",Count:47b}\"}]},\"text\":\"Test\"}";
         testAssembleDissemble( json, false );
         testAssembleDissemble( json, true );
@@ -91,8 +91,8 @@ public class ComponentsTest
     {
         this.testEmptyComponentBuilder(
                 ComponentBuilder::create,
-                ( components ) -> Assert.assertEquals( components.length, 0 ),
-                ( components, size ) -> Assert.assertEquals( size, components.length )
+                (components) -> Assert.assertEquals( components.length, 0 ),
+                (components, size) -> Assert.assertEquals( size, components.length )
         );
     }
 
@@ -101,8 +101,8 @@ public class ComponentsTest
     {
         this.testEmptyComponentBuilder(
                 ComponentBuilder::build,
-                ( component ) -> Assert.assertNull( component.getExtra() ),
-                ( component, size ) -> Assert.assertEquals( component.getExtra().size(), size)
+                (component) -> Assert.assertNull( component.getExtra() ),
+                (component, size) -> Assert.assertEquals( component.getExtra().size(), size )
         );
     }
 
@@ -265,7 +265,7 @@ public class ComponentsTest
         this.testHoverEventContents(
                 hoverEvent,
                 ComponentSerializer::parse,
-                ( components ) -> components[0].getHoverEvent(),
+                (components) -> components[0].getHoverEvent(),
                 ComponentsTest::testDissembleReassemble // BaseComponent
         );
 
@@ -376,7 +376,7 @@ public class ComponentsTest
     {
         this.testBuilderAppendMixedComponents(
                 ComponentBuilder::create,
-                ( components, index ) -> components[index]
+                (components, index) -> components[index]
         );
     }
 
@@ -385,7 +385,7 @@ public class ComponentsTest
     {
         this.testBuilderAppendMixedComponents(
                 ComponentBuilder::build,
-                ( component, index ) -> component.getExtra().get( index )
+                (component, index) -> component.getExtra().get( index )
         );
     }
 
@@ -425,7 +425,7 @@ public class ComponentsTest
         this.testBuilderAppend(
                 () -> new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( "Hello world" ).create() ),
                 ComponentBuilder::create,
-                ( components, index ) -> components[index],
+                (components, index) -> components[index],
                 BaseComponent::toPlainText,
                 ChatColor.YELLOW + "Hello " + ChatColor.GREEN + "world!",
                 BaseComponent::toLegacyText
@@ -438,11 +438,11 @@ public class ComponentsTest
         this.testBuilderAppend(
                 () -> new HoverEvent( HoverEvent.Action.SHOW_TEXT, new Text( new ComponentBuilder( "Hello world" ).build() ) ),
                 ComponentBuilder::build,
-                ( component, index ) -> component.getExtra().get( index ),
-                ( component ) -> BaseComponent.toPlainText( component ),
+                (component, index) -> component.getExtra().get( index ),
+                (component) -> BaseComponent.toPlainText( component ),
                 // An extra format code is appended to the beginning because there is an empty TextComponent at the start of every component
                 ChatColor.WHITE.toString() + ChatColor.YELLOW + "Hello " + ChatColor.GREEN + "world!",
-                ( component ) -> BaseComponent.toLegacyText( component )
+                (component) -> BaseComponent.toLegacyText( component )
         );
     }
 
@@ -478,10 +478,10 @@ public class ComponentsTest
     {
         this.testBuilderAppendLegacy(
                 ComponentBuilder::build,
-                ( component ) -> BaseComponent.toPlainText( component ),
+                (component) -> BaseComponent.toPlainText( component ),
                 // An extra format code is appended to the beginning because there is an empty TextComponent at the start of every component
                 ChatColor.WHITE.toString() + ChatColor.YELLOW + "Hello " + ChatColor.GREEN + "world!",
-                ( component ) -> BaseComponent.toLegacyText( component )
+                (component) -> BaseComponent.toLegacyText( component )
         );
     }
 
@@ -572,11 +572,11 @@ public class ComponentsTest
     {
         this.testBuilder(
                 ComponentBuilder::build,
-                ( component ) -> BaseComponent.toPlainText( component ),
+                (component) -> BaseComponent.toPlainText( component ),
                 // An extra format code is appended to the beginning because there is an empty TextComponent at the start of every component
                 ChatColor.WHITE.toString() + ChatColor.RED + "Hello " + ChatColor.BLUE + ChatColor.BOLD
                     + "World" + ChatColor.YELLOW + ChatColor.BOLD + "!",
-                ( component ) -> BaseComponent.toLegacyText( component )
+                (component) -> BaseComponent.toLegacyText( component )
         );
     }
 
@@ -595,7 +595,7 @@ public class ComponentsTest
     {
         this.testBuilderReset(
                 ComponentBuilder::create,
-                ( components, index ) -> components[index]
+                (components, index) -> components[index]
         );
     }
 
@@ -604,7 +604,7 @@ public class ComponentsTest
     {
         this.testBuilderReset(
                 ComponentBuilder::build,
-                ( component, index ) -> component.getExtra().get( index )
+                (component, index) -> component.getExtra().get( index )
         );
     }
 
@@ -622,7 +622,7 @@ public class ComponentsTest
     {
         this.testBuilderFormatRetention(
                 ComponentBuilder::create,
-                ( components, index ) -> components[index]
+                (components, index) -> components[index]
         );
     }
 
@@ -631,7 +631,7 @@ public class ComponentsTest
     {
         this.testBuilderFormatRetention(
                 ComponentBuilder::build,
-                ( component, index ) -> component.getExtra().get( index )
+                (component, index) -> component.getExtra().get( index )
         );
     }
 
@@ -643,7 +643,7 @@ public class ComponentsTest
         Assert.assertEquals( ChatColor.RED, extraGetter.apply( noneRetention, 0 ).getColor() );
         Assert.assertEquals( ChatColor.WHITE, extraGetter.apply( noneRetention, 1 ).getColor() );
 
-        HoverEvent testEvent = new HoverEvent( HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder( "test" ).build()) );
+        HoverEvent testEvent = new HoverEvent( HoverEvent.Action.SHOW_TEXT, new Text( new ComponentBuilder( "test" ).build() ) );
 
         T formattingRetention = componentBuilder.apply( new ComponentBuilder( "Hello " ).color( ChatColor.RED )
                 .event( testEvent ).append( "World", ComponentBuilder.FormatRetention.FORMATTING ) );
@@ -806,7 +806,7 @@ public class ComponentsTest
         );
     }
 
-    /**
+    /*
      * In legacy chat, colors and reset both reset all formatting.
      * Make sure it works in combination with ComponentBuilder.
      */
