@@ -96,7 +96,7 @@
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
-            <version>8.0.33</version>
+            <version>8.1.0</version>
             <scope>runtime</scope>
         </dependency>
         <!-- add these back in as they are not exposed by the API -->
