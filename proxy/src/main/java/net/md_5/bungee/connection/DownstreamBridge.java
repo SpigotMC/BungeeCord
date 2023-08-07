@@ -60,6 +60,7 @@ import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
 import net.md_5.bungee.protocol.packet.PlayerListItemUpdate;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.ResourcePack;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
@@ -271,6 +272,21 @@ public class DownstreamBridge extends PacketHandler
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    public void handle(ResourcePack resourcePack) throws Exception
+    {
+        String requested = resourcePack.getHash();
+        if ( requested.equals( con.getCurrentResourcePack() ) )
+        {
+            resourcePack.setSuccess( true );
+            con.getServer().unsafe().sendPacket( resourcePack );
+            throw CancelSendSignal.INSTANCE;
+        } else
+        {
+            con.setRequestingResourcePack( requested );
         }
     }
 

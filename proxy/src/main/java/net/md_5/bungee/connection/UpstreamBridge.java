@@ -34,6 +34,7 @@ import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.ResourcePack;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.util.AllowedCharacters;
@@ -266,6 +267,20 @@ public class UpstreamBridge extends PacketHandler
             {
                 con.setLastCommandTabbed( tabComplete.getCursor().substring( 1 ) );
             }
+        }
+    }
+
+    @Override
+    public void handle(ResourcePack resourcePack) throws Exception
+    {
+        if ( resourcePack.isSuccess() )
+        {
+            String hash = resourcePack.getHash();
+            if ( hash == null )
+            {
+                hash = con.getRequestingResourcePack();
+            }
+            con.setCurrentResourcePack( hash );
         }
     }
 

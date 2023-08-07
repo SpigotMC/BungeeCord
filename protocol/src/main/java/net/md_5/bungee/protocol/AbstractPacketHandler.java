@@ -28,6 +28,7 @@ import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
 import net.md_5.bungee.protocol.packet.PlayerListItemUpdate;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.ResourcePack;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
@@ -49,6 +50,10 @@ public abstract class AbstractPacketHandler
 {
 
     public void handle(LegacyPing ping) throws Exception
+    {
+    }
+
+    public void handle(ResourcePack resourcePack) throws Exception
     {
     }
 
