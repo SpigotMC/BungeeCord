@@ -99,27 +99,30 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                 proxy.release();
             }
             return;
-        }
-
-        if ( handler != null )
+        } else if ( msg instanceof PacketWrapper )
         {
             PacketWrapper packet = (PacketWrapper) msg;
-            boolean sendPacket = handler.shouldHandle( packet );
+            
             try
             {
-                if ( sendPacket && packet.packet != null )
+                if ( handler != null )
                 {
-                    try
+                    boolean sendPacket = handler.shouldHandle( packet );
+                    
+                    if ( sendPacket && packet.packet != null )
                     {
-                        packet.packet.handle( handler );
-                    } catch ( CancelSendSignal ex )
-                    {
-                        sendPacket = false;
+                        try
+                        {
+                            packet.packet.handle( handler );
+                        } catch ( CancelSendSignal ex )
+                        {
+                            sendPacket = false;
+                        }
                     }
-                }
-                if ( sendPacket )
-                {
-                    handler.handle( packet );
+                    if ( sendPacket )
+                    {
+                        handler.handle( packet );
+                    }
                 }
             } finally
             {
