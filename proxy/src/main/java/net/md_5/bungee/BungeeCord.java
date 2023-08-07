@@ -96,7 +96,7 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
-import net.md_5.bungee.util.CaseInsensitiveMap;
+import net.md_5.bungee.util.CaseInsensitiveHashMap;
 import org.fusesource.jansi.AnsiConsole;
 import org.slf4j.impl.JDK14LoggerFactory;
 
@@ -132,7 +132,7 @@ public class BungeeCord extends ProxyServer
     /**
      * Fully qualified connections.
      */
-    private final Map<String, UserConnection> connections = new CaseInsensitiveMap<>();
+    private final Map<String, UserConnection> connections = new CaseInsensitiveHashMap<>();
     // Used to help with packet rewriting
     private final Map<UUID, UserConnection> connectionsByOfflineUUID = new HashMap<>();
     private final Map<UUID, UserConnection> connectionsByUUID = new HashMap<>();

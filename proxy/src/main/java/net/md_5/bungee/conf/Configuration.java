@@ -1,7 +1,6 @@
 package net.md_5.bungee.conf;
 
 import com.google.common.base.Preconditions;
-import gnu.trove.map.TMap;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -17,8 +16,8 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.util.CaseInsensitiveMap;
-import net.md_5.bungee.util.CaseInsensitiveSet;
+import net.md_5.bungee.util.CaseInsensitiveTreeMap;
+import net.md_5.bungee.util.CaseInsensitiveTreeSet;
 
 /**
  * Core configuration for the proxy.
@@ -42,7 +41,7 @@ public class Configuration implements ProxyConfig
     /**
      * Set of all servers.
      */
-    private TMap<String, ServerInfo> servers;
+    private Map<String, ServerInfo> servers;
     /**
      * Should we check minecraft.net auth.
      */
@@ -104,7 +103,7 @@ public class Configuration implements ProxyConfig
         preventProxyConnections = adapter.getBoolean( "prevent_proxy_connections", preventProxyConnections );
         forgeSupport = adapter.getBoolean( "forge_support", forgeSupport );
 
-        disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
+        disabledCommands = new CaseInsensitiveTreeSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
 
         Preconditions.checkArgument( listeners != null && !listeners.isEmpty(), "No listeners defined." );
 
@@ -113,7 +112,7 @@ public class Configuration implements ProxyConfig
 
         if ( servers == null )
         {
-            servers = new CaseInsensitiveMap<>( newServers );
+            servers = new CaseInsensitiveTreeMap<>( newServers );
         } else
         {
             for ( ServerInfo oldServer : servers.values() )

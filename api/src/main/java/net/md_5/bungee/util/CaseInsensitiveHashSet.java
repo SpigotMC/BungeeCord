@@ -3,15 +3,15 @@ package net.md_5.bungee.util;
 import gnu.trove.set.hash.TCustomHashSet;
 import java.util.Collection;
 
-public class CaseInsensitiveSet extends TCustomHashSet<String>
+public class CaseInsensitiveHashSet extends TCustomHashSet<String>
 {
 
-    public CaseInsensitiveSet()
+    public CaseInsensitiveHashSet()
     {
         super( CaseInsensitiveHashingStrategy.INSTANCE );
     }
 
-    public CaseInsensitiveSet(Collection<? extends String> collection)
+    public CaseInsensitiveHashSet(Collection<? extends String> collection)
     {
         super( CaseInsensitiveHashingStrategy.INSTANCE, collection );
     }

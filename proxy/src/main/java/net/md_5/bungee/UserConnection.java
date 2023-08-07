@@ -62,7 +62,7 @@ import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.SystemChat;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
-import net.md_5.bungee.util.CaseInsensitiveSet;
+import net.md_5.bungee.util.CaseInsensitiveHashSet;
 import net.md_5.bungee.util.ChatComponentTransformer;
 
 @RequiredArgsConstructor
@@ -109,8 +109,8 @@ public final class UserConnection implements ProxiedPlayer
     @Setter
     private Queue<String> serverJoinQueue;
     /*========================================================================*/
-    private final Collection<String> groups = new CaseInsensitiveSet();
-    private final Collection<String> permissions = new CaseInsensitiveSet();
+    private final Collection<String> groups = new CaseInsensitiveHashSet();
+    private final Collection<String> permissions = new CaseInsensitiveHashSet();
     /*========================================================================*/
     @Getter
     @Setter
