@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 public class EventBus
 {
 
-    private static final int slowEventThreshold = Integer.getInteger( "net.md_5.bungee.slowEventThreshold", 50 );
+    private static final int slowEventThreshold = Math.min( Integer.getInteger( "net.md_5.bungee.slowEventThreshold", 50 ), 50 );
     private final Map<Class<?>, Map<Byte, Map<Object, Method[]>>> byListenerAndPriority = new HashMap<>();
     private final Map<Class<?>, EventHandlerMethod[]> byEventBaked = new ConcurrentHashMap<>();
     private final Lock lock = new ReentrantLock();
