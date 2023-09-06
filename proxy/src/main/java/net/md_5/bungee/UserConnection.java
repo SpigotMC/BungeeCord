@@ -72,6 +72,7 @@ public final class UserConnection implements ProxiedPlayer
     /*========================================================================*/
     @NonNull
     private final ProxyServer bungee;
+    @Getter
     @NonNull
     private final ChannelWrapper ch;
     @Getter

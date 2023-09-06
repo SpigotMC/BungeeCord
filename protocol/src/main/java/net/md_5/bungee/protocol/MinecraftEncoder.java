@@ -4,12 +4,14 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.Setter;
 
 @AllArgsConstructor
 public class MinecraftEncoder extends MessageToByteEncoder<DefinedPacket>
 {
 
+    @Getter
     @Setter
     private Protocol protocol;
     private boolean server;

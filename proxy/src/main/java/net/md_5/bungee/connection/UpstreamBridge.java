@@ -25,15 +25,18 @@ import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientChat;
 import net.md_5.bungee.protocol.packet.ClientCommand;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.KeepAlive;
+import net.md_5.bungee.protocol.packet.LoginAcknowledged;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.StartConfiguration;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.util.AllowedCharacters;
@@ -51,7 +54,6 @@ public class UpstreamBridge extends PacketHandler
 
         BungeeCord.getInstance().addConnection( con );
         con.getTabListHandler().onConnect();
-        con.unsafe().sendPacket( BungeeCord.getInstance().registerChannels( con.getPendingConnection().getVersion() ) );
     }
 
     @Override
@@ -134,7 +136,7 @@ public class UpstreamBridge extends PacketHandler
         if ( con.getServer() != null )
         {
             EntityMap rewrite = con.getEntityRewrite();
-            if ( rewrite != null )
+            if ( rewrite != null && con.getServer().getCh().getEncodeProtocol() == Protocol.GAME )
             {
                 rewrite.rewriteServerbound( packet.buf, con.getClientEntityId(), con.getServerEntityId(), con.getPendingConnection().getVersion() );
             }
@@ -317,6 +319,19 @@ public class UpstreamBridge extends PacketHandler
         }
 
         con.getPendingConnection().relayMessage( pluginMessage );
+    }
+
+    @Override
+    public void handle(StartConfiguration startConfiguration) throws Exception
+    {
+        ChannelWrapper ch = con.getServer().getCh();
+        if ( ch.getDecodeProtocol() == Protocol.LOGIN )
+        {
+            ch.setDecodeProtocol( Protocol.CONFIGURATION );
+            ch.write( new LoginAcknowledged() );
+            ch.setEncodeProtocol( Protocol.CONFIGURATION );
+            throw CancelSendSignal.INSTANCE;
+        }
     }
 
     @Override

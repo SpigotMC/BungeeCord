@@ -17,6 +17,7 @@ import net.md_5.bungee.connection.PingHandler;
 import net.md_5.bungee.protocol.BadPacketException;
 import net.md_5.bungee.protocol.OverflowPacketException;
 import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.util.QuietException;
 
 /**
@@ -101,9 +102,18 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
             return;
         }
 
+        PacketWrapper packet = (PacketWrapper) msg;
+        if ( packet.packet != null )
+        {
+            Protocol nextProtocol = packet.packet.nextProtocol();
+            if ( nextProtocol != null )
+            {
+                channel.setDecodeProtocol( nextProtocol );
+            }
+        }
+
         if ( handler != null )
         {
-            PacketWrapper packet = (PacketWrapper) msg;
             boolean sendPacket = handler.shouldHandle( packet );
             try
             {
