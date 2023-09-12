@@ -99,7 +99,7 @@ public class ColouredWriter extends Handler
                         // Ansi can't support all colors, so we get a close one
                         ChatColor closest = getClosestChatColor( ChatColor.of( hex.toString() ) );
                         //  Hex color codes are resetting special effects like boldness
-                        stringBuilder.append( ANSI_COLOR_MAP.get( 'r' ) ).append( ANSI_COLOR_MAP.get( getChar( closest ) ) );
+                        stringBuilder.append( ANSI_COLOR_MAP.get( getChar( closest ) ) );
                         index += 12;
                         continue;
                     } catch ( IllegalArgumentException ex )
