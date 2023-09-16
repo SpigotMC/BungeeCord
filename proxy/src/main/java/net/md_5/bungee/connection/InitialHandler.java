@@ -59,6 +59,7 @@ import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.LegacyHandshake;
 import net.md_5.bungee.protocol.packet.LegacyPing;
+import net.md_5.bungee.protocol.packet.LoginAcknowledged;
 import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
@@ -111,6 +112,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private boolean legacy;
     @Getter
     private String extraDataInHandshake = "";
+    private UserConnection userCon;
 
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
@@ -121,12 +123,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private enum State
     {
 
-        HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, FINISHING;
+        HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, FINISHING, CONFIGURING;
     }
 
     private boolean canSendKickMessage()
     {
-        return thisState == State.USERNAME || thisState == State.ENCRYPT || thisState == State.FINISHING;
+        return thisState == State.USERNAME || thisState == State.ENCRYPT || thisState == State.FINISHING || thisState == State.CONFIGURING;
     }
 
     @Override
@@ -593,29 +595,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     {
                         if ( !ch.isClosing() )
                         {
-                            UserConnection userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
+                            userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
                             userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
-                            userCon.init();
 
                             unsafe.sendPacket( new LoginSuccess( getUniqueId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
-                            ch.setProtocol( Protocol.GAME );
-
-                            ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
-                            bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
-                            ServerInfo server;
-                            if ( bungee.getReconnectHandler() != null )
+                            if ( getVersion() >= ProtocolConstants.MINECRAFT_1_20_2 )
                             {
-                                server = bungee.getReconnectHandler().getServer( userCon );
+                                thisState = State.CONFIGURING;
                             } else
                             {
-                                server = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
+                                ch.setProtocol( Protocol.GAME );
+                                finish2();
                             }
-                            if ( server == null )
-                            {
-                                server = bungee.getServerInfo( listener.getDefaultServer() );
-                            }
-
-                            userCon.connect( server, null, true, ServerConnectEvent.Reason.JOIN_PROXY );
                         }
                     }
                 } );
@@ -624,6 +615,37 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         // fire login event
         bungee.getPluginManager().callEvent( new LoginEvent( InitialHandler.this, complete ) );
+    }
+
+    @Override
+    public void handle(LoginAcknowledged loginAcknowledged) throws Exception
+    {
+        Preconditions.checkState( thisState == State.CONFIGURING, "Not expecting CONFIGURING" );
+
+        finish2();
+        ch.setEncodeProtocol( Protocol.CONFIGURATION );
+    }
+
+    private void finish2()
+    {
+        userCon.init();
+
+        ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
+        bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
+        ServerInfo server;
+        if ( bungee.getReconnectHandler() != null )
+        {
+            server = bungee.getReconnectHandler().getServer( userCon );
+        } else
+        {
+            server = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
+        }
+        if ( server == null )
+        {
+            server = bungee.getServerInfo( listener.getDefaultServer() );
+        }
+
+        userCon.connect( server, null, true, ServerConnectEvent.Reason.JOIN_PROXY );
     }
 
     @Override
