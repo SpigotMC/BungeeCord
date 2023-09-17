@@ -37,7 +37,7 @@ public final class SelectorComponent extends BaseComponent
      * The separator of multiple entities
      * the default is '{"color": "gray", "text": ", "}'
      */
-    private String separator;
+    private BaseComponent[] separator;
 
 
     /**
@@ -59,7 +59,7 @@ public final class SelectorComponent extends BaseComponent
      */
     public SelectorComponent(String selector)
     {
-        setSelector( selector );
+        setSelector(selector);
     }
 
     @Override
