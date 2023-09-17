@@ -59,7 +59,7 @@ public final class SelectorComponent extends BaseComponent
      */
     public SelectorComponent(String selector)
     {
-        setSelector(selector);
+        setSelector( selector );
     }
 
     @Override
