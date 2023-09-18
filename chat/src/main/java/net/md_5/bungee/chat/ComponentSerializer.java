@@ -2,6 +2,7 @@ package net.md_5.bungee.chat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -41,7 +42,7 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
             registerTypeAdapter( ItemTag.class, new ItemTag.Serializer() ).
             create();
 
-    public static final ThreadLocal<Set<BaseComponent>> serializedComponents = new ThreadLocal<Set<BaseComponent>>();
+    public static final ThreadLocal<Set<BaseComponent>> serializedComponents = new ThreadLocal<>();
 
     public static BaseComponent[] parse(String json)
     {
@@ -52,8 +53,7 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
             return gson.fromJson( jsonElement, BaseComponent[].class );
         } else
         {
-            return new BaseComponent[]
-            {
+            return new BaseComponent[] {
                 gson.fromJson( jsonElement, BaseComponent.class )
             };
         }
@@ -61,7 +61,16 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
 
     public static String toString(Object object)
     {
-        return gson.toJson( object );
+        if ( object instanceof BaseComponent )
+        {
+            return toString( (BaseComponent) object );
+        } else if ( object instanceof BaseComponent[] )
+        {
+            return toString( (BaseComponent[]) object );
+        } else
+        {
+            return gson.toJson( object );
+        }
     }
 
     public static String toString(BaseComponent component)
@@ -71,12 +80,20 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
 
     public static String toString(BaseComponent... components)
     {
-        if ( components.length == 1 )
+        if ( components.length == 0 )
         {
-            return gson.toJson( components[0] );
+            return new JsonArray().toString();
+        } else if ( components.length == 1 )
+        {
+            return ComponentSerializer.toString( components[0] );
         } else
         {
-            return gson.toJson( new TextComponent( components ) );
+            JsonArray array = new JsonArray();
+            for ( BaseComponent component : components )
+            {
+                array.add( gson.toJsonTree( component ) );
+            }
+            return array.toString();
         }
     }
 
@@ -87,6 +104,7 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
         {
             return new TextComponent( json.getAsString() );
         }
+
         JsonObject object = json.getAsJsonObject();
         if ( object.has( "translate" ) )
         {
