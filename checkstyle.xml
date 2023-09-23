@@ -36,7 +36,6 @@
         <module name="SuppressWarningsHolder"/>
 
         <!-- See http://checkstyle.sourceforge.net/config_imports.html -->
-        <module name="AvoidStarImport"/>
         <module name="ImportOrder">
             <property name="option" value="above"/>
             <property name="ordered" value="true"/>

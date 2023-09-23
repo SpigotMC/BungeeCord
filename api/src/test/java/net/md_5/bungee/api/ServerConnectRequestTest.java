@@ -1,12 +1,13 @@
 package net.md_5.bungee.api;
 
+import static org.junit.jupiter.api.Assertions.*;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Collection;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ServerConnectRequestTest
 {
@@ -78,15 +79,15 @@ public class ServerConnectRequestTest
         }
     };
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testNullTarget()
     {
-        ServerConnectRequest.builder().target( null ).reason( ServerConnectEvent.Reason.JOIN_PROXY ).build();
+        assertThrows( NullPointerException.class, () -> ServerConnectRequest.builder().target( null ).reason( ServerConnectEvent.Reason.JOIN_PROXY ).build() );
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testNullReason()
     {
-        ServerConnectRequest.builder().target( DUMMY_INFO ).reason( null ).build();
+        assertThrows( NullPointerException.class, () -> ServerConnectRequest.builder().target( DUMMY_INFO ).reason( null ).build() );
     }
 }

@@ -1,13 +1,13 @@
 package net.md_5.bungee.scheduler;
 
+import static org.junit.jupiter.api.Assertions.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import net.md_5.bungee.api.plugin.DummyPlugin;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.api.scheduler.TaskScheduler;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SchedulerTest
 {
@@ -31,7 +31,7 @@ public class SchedulerTest
 
         latch.await( 5, TimeUnit.SECONDS );
 
-        Assert.assertEquals( 0, latch.getCount() );
+        assertEquals( 0, latch.getCount() );
     }
 
     @Test
@@ -43,17 +43,17 @@ public class SchedulerTest
         ScheduledTask task = setup( scheduler, b );
         scheduler.cancel( task.getId() );
         Thread.sleep( 250 );
-        Assert.assertFalse( b.get() );
+        assertFalse( b.get() );
 
         task = setup( scheduler, b );
         scheduler.cancel( task );
         Thread.sleep( 250 );
-        Assert.assertFalse( b.get() );
+        assertFalse( b.get() );
 
         task = setup( scheduler, b );
         scheduler.cancel( task.getOwner() );
         Thread.sleep( 250 );
-        Assert.assertFalse( b.get() );
+        assertFalse( b.get() );
     }
 
     @Test
@@ -64,11 +64,11 @@ public class SchedulerTest
 
         setup( scheduler, b );
         Thread.sleep( 250 );
-        Assert.assertTrue( b.get() );
+        assertTrue( b.get() );
 
         b.set( false );
         Thread.sleep( 250 );
-        Assert.assertTrue( b.get() );
+        assertTrue( b.get() );
     }
 
     private ScheduledTask setup(TaskScheduler scheduler, final AtomicBoolean hasRun)

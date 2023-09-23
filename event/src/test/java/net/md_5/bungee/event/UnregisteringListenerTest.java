@@ -1,7 +1,7 @@
 package net.md_5.bungee.event;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.Test;
 
 public class UnregisteringListenerTest
 {
@@ -19,7 +19,7 @@ public class UnregisteringListenerTest
     @EventHandler
     public void onEvent(TestEvent evt)
     {
-        Assert.fail( "Event listener wasn't unregistered" );
+        fail( "Event listener wasn't unregistered" );
     }
 
     public static class TestEvent

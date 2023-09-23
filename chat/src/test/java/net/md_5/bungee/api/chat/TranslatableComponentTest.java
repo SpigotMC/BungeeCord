@@ -1,8 +1,8 @@
 package net.md_5.bungee.api.chat;
 
+import static org.junit.jupiter.api.Assertions.*;
 import net.md_5.bungee.chat.ComponentSerializer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TranslatableComponentTest
 {
@@ -11,8 +11,8 @@ public class TranslatableComponentTest
     public void testMissingPlaceholdersAdded()
     {
         TranslatableComponent testComponent = new TranslatableComponent( "Test string with %s placeholders: %s", 2, "aoeu" );
-        Assert.assertEquals( "Test string with 2 placeholders: aoeu", testComponent.toPlainText() );
-        Assert.assertEquals( "§fTest string with §f2§f placeholders: §faoeu", testComponent.toLegacyText() );
+        assertEquals( "Test string with 2 placeholders: aoeu", testComponent.toPlainText() );
+        assertEquals( "§fTest string with §f2§f placeholders: §faoeu", testComponent.toLegacyText() );
     }
 
     @Test
@@ -22,7 +22,7 @@ public class TranslatableComponentTest
         String jsonString = ComponentSerializer.toString( testComponent );
         BaseComponent[] baseComponents = ComponentSerializer.parse( jsonString );
 
-        Assert.assertEquals( "Test string with a placeholder", TextComponent.toPlainText( baseComponents ) );
-        Assert.assertEquals( "§fTest string with §fa§f placeholder", TextComponent.toLegacyText( baseComponents ) );
+        assertEquals( "Test string with a placeholder", TextComponent.toPlainText( baseComponents ) );
+        assertEquals( "§fTest string with §fa§f placeholder", TextComponent.toLegacyText( baseComponents ) );
     }
 }

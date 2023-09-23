@@ -1,5 +1,6 @@
 package net.md_5.bungee;
 
+import static org.junit.jupiter.api.Assertions.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Random;
@@ -9,12 +10,11 @@ import net.md_5.bungee.jni.NativeCode;
 import net.md_5.bungee.jni.cipher.BungeeCipher;
 import net.md_5.bungee.jni.cipher.JavaCipher;
 import net.md_5.bungee.jni.cipher.NativeCipher;
-import org.junit.Assert;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(MethodOrderer.MethodName.class)
 public class NativeCipherTest
 {
 
@@ -34,7 +34,7 @@ public class NativeCipherTest
         if ( NativeCode.isSupported() )
         {
             boolean loaded = factory.load();
-            Assert.assertTrue( "Native cipher failed to load!", loaded );
+            assertTrue( loaded, "Native cipher failed to load!" );
 
             NativeCipher cipher = new NativeCipher();
             System.out.println( "Testing native cipher..." );
@@ -48,7 +48,7 @@ public class NativeCipherTest
         if ( NativeCode.isSupported() )
         {
             boolean loaded = factory.load();
-            Assert.assertTrue( "Native cipher failed to load!", loaded );
+            assertTrue( loaded, "Native cipher failed to load!" );
 
             NativeCipher cipher = new NativeCipher();
 
@@ -98,7 +98,7 @@ public class NativeCipherTest
         // Encrypt
         cipher.init( true, secret );
         cipher.cipher( nativePlain, out );
-        Assert.assertEquals( nativeCiphered, out );
+        assertEquals( nativeCiphered, out );
 
         out.clear();
 
@@ -106,7 +106,7 @@ public class NativeCipherTest
         cipher.init( false, secret );
         cipher.cipher( nativeCiphered, out );
         nativePlain.resetReaderIndex();
-        Assert.assertEquals( nativePlain, out );
+        assertEquals( nativePlain, out );
 
         System.out.println( "This cipher works correctly!" );
     }
