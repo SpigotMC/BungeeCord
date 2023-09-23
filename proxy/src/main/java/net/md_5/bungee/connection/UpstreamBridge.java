@@ -331,6 +331,9 @@ public class UpstreamBridge extends PacketHandler
             ch.setDecodeProtocol( Protocol.CONFIGURATION );
             ch.write( new LoginAcknowledged() );
             ch.setEncodeProtocol( Protocol.CONFIGURATION );
+
+            con.getServer().sendQueuedPackets();
+
             throw CancelSendSignal.INSTANCE;
         }
     }

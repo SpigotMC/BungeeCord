@@ -15,6 +15,7 @@ public class MinecraftEncoder extends MessageToByteEncoder<DefinedPacket>
     @Setter
     private Protocol protocol;
     private boolean server;
+    @Getter
     @Setter
     private int protocolVersion;
 

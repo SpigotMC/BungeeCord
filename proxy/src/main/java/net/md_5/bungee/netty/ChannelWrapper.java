@@ -69,6 +69,11 @@ public class ChannelWrapper
         ch.pipeline().get( MinecraftEncoder.class ).setProtocolVersion( protocol );
     }
 
+    public int getEncodeVersion()
+    {
+        return ch.pipeline().get( MinecraftEncoder.class ).getProtocolVersion();
+    }
+
     public void write(Object packet)
     {
         if ( !closed )
