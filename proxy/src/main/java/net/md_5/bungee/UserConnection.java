@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import lombok.Getter;
 import lombok.NonNull;
@@ -142,6 +143,7 @@ public final class UserConnection implements ProxiedPlayer
     @Setter
     private ForgeServerHandler forgeServerHandler;
     /*========================================================================*/
+    private final Queue<DefinedPacket> packetQueue = new ConcurrentLinkedQueue<>();
     private final Unsafe unsafe = new Unsafe()
     {
         @Override
@@ -175,6 +177,27 @@ public final class UserConnection implements ProxiedPlayer
     public void sendPacket(PacketWrapper packet)
     {
         ch.write( packet );
+    }
+
+    public void sendPacketQueued(DefinedPacket packet)
+    {
+        Protocol encodeProtocol = ch.getEncodeProtocol();
+        if ( encodeProtocol != Protocol.GAME && !encodeProtocol.TO_CLIENT.hasPacket( packet.getClass(), getPendingConnection().getVersion() ) )
+        {
+            packetQueue.add( packet );
+        } else
+        {
+            unsafe().sendPacket( packet );
+        }
+    }
+
+    public void sendQueuedPackets()
+    {
+        DefinedPacket packet;
+        while ( ( packet = packetQueue.poll() ) != null )
+        {
+            unsafe().sendPacket( packet );
+        }
     }
 
     @Deprecated
@@ -489,10 +512,10 @@ public final class UserConnection implements ProxiedPlayer
                 position = ChatMessageType.SYSTEM;
             }
 
-            unsafe().sendPacket( new SystemChat( message, position.ordinal() ) );
+            sendPacketQueued( new SystemChat( message, position.ordinal() ) );
         } else
         {
-            unsafe().sendPacket( new Chat( message, (byte) position.ordinal(), sender ) );
+            sendPacketQueued( new Chat( message, (byte) position.ordinal(), sender ) );
         }
     }
 
@@ -513,7 +536,7 @@ public final class UserConnection implements ProxiedPlayer
                 net.md_5.bungee.protocol.packet.Title title = new net.md_5.bungee.protocol.packet.Title();
                 title.setAction( net.md_5.bungee.protocol.packet.Title.Action.ACTIONBAR );
                 title.setText( ComponentSerializer.toString( message ) );
-                unsafe.sendPacket( title );
+                sendPacketQueued( title );
             }
         } else
         {
@@ -524,7 +547,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendData(String channel, byte[] data)
     {
-        unsafe().sendPacket( new PluginMessage( channel, data, forgeClientHandler.isForgeUser() ) );
+        sendPacketQueued( new PluginMessage( channel, data, forgeClientHandler.isForgeUser() ) );
     }
 
     @Override
@@ -700,7 +723,7 @@ public final class UserConnection implements ProxiedPlayer
         header = ChatComponentTransformer.getInstance().transform( this, true, header )[0];
         footer = ChatComponentTransformer.getInstance().transform( this, true, footer )[0];
 
-        unsafe().sendPacket( new PlayerListHeaderFooter(
+        sendPacketQueued( new PlayerListHeaderFooter(
                 ComponentSerializer.toString( header ),
                 ComponentSerializer.toString( footer )
         ) );
@@ -712,7 +735,7 @@ public final class UserConnection implements ProxiedPlayer
         header = ChatComponentTransformer.getInstance().transform( this, true, header );
         footer = ChatComponentTransformer.getInstance().transform( this, true, footer );
 
-        unsafe().sendPacket( new PlayerListHeaderFooter(
+        sendPacketQueued( new PlayerListHeaderFooter(
                 ComponentSerializer.toString( header ),
                 ComponentSerializer.toString( footer )
         ) );

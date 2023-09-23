@@ -31,6 +31,7 @@ import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientChat;
 import net.md_5.bungee.protocol.packet.ClientCommand;
 import net.md_5.bungee.protocol.packet.ClientSettings;
+import net.md_5.bungee.protocol.packet.FinishConfiguration;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.LoginAcknowledged;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
@@ -332,6 +333,14 @@ public class UpstreamBridge extends PacketHandler
             ch.setEncodeProtocol( Protocol.CONFIGURATION );
             throw CancelSendSignal.INSTANCE;
         }
+    }
+
+    @Override
+    public void handle(FinishConfiguration finishConfiguration) throws Exception
+    {
+        con.sendQueuedPackets();
+
+        super.handle( finishConfiguration );
     }
 
     @Override
