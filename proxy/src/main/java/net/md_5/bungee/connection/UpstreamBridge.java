@@ -128,6 +128,28 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
     {
+        if( con.getCh().getEncodeProtocol() == Protocol.CONFIGURATION || con.getCh().getDecodeProtocol() == Protocol.CONFIGURATION )
+        {
+            if( packet.packet == null )
+            {
+                return false;
+            }
+
+            DefinedPacket definedPacket = packet.packet;
+            if( con.getCh().getEncodeProtocol() == Protocol.CONFIGURATION )
+            {
+                if( definedPacket instanceof StartConfiguration || definedPacket instanceof ClientSettings || definedPacket instanceof KeepAlive || definedPacket instanceof PluginMessage )
+                {
+                    if ( con.getServer() != null )
+                    {
+                        return true;
+                    }
+                } else
+                {
+                    return false;
+                }
+            }
+        }
         return con.getServer() != null || packet.packet instanceof PluginMessage;
     }
 
