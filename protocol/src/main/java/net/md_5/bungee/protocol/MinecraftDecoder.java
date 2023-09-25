@@ -50,7 +50,7 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
                 in.skipBytes( in.readableBytes() );
             }
 
-            out.add( new PacketWrapper( packet, slice ) );
+            out.add( new PacketWrapper( packet, slice, protocol ) );
             slice = null;
         } finally
         {

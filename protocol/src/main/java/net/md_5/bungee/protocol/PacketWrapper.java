@@ -10,6 +10,7 @@ public class PacketWrapper
 
     public final DefinedPacket packet;
     public final ByteBuf buf;
+    public final Protocol protocol;
     @Setter
     private boolean released;
 
