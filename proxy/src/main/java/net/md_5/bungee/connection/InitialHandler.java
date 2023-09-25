@@ -622,8 +622,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.CONFIGURING, "Not expecting CONFIGURING" );
 
-        finish2();
         ch.setEncodeProtocol( Protocol.CONFIGURATION );
+        finish2();
     }
 
     private void finish2()
