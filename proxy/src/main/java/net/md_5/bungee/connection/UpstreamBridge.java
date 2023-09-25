@@ -99,10 +99,10 @@ public class UpstreamBridge extends PacketHandler
             {
                 if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_19_3 )
                 {
-                    player.unsafe().sendPacket( newPacket );
+                    ( (UserConnection) player ).sendPacketQueued( newPacket );
                 } else
                 {
-                    player.unsafe().sendPacket( oldPacket );
+                     player.unsafe().sendPacket( oldPacket );
                 }
             }
             con.getServer().disconnect( "Quitting" );
