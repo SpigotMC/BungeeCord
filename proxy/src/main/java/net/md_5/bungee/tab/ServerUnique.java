@@ -87,7 +87,7 @@ public class ServerUnique extends TabList
                 item.setUuid( uuid );
             }
             packet.setItems( items );
-            player.unsafe().sendPacket( packet );
+            ( (UserConnection) player ).sendPacketQueued( packet );
         }
         uuids.clear();
     }
