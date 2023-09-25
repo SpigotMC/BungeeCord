@@ -103,7 +103,7 @@ public class UpstreamBridge extends PacketHandler
                     ( (UserConnection) player ).sendPacketQueued( newPacket );
                 } else
                 {
-                     player.unsafe().sendPacket( oldPacket );
+                    player.unsafe().sendPacket( oldPacket );
                 }
             }
             con.getServer().disconnect( "Quitting" );
@@ -129,17 +129,17 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
     {
-        if( con.getCh().getEncodeProtocol() == Protocol.CONFIGURATION || con.getCh().getDecodeProtocol() == Protocol.CONFIGURATION )
+        if ( con.getCh().getEncodeProtocol() == Protocol.CONFIGURATION || con.getCh().getDecodeProtocol() == Protocol.CONFIGURATION )
         {
-            if( packet.packet == null )
+            if ( packet.packet == null )
             {
                 return false;
             }
 
             DefinedPacket definedPacket = packet.packet;
-            if( con.getCh().getEncodeProtocol() == Protocol.CONFIGURATION )
+            if ( con.getCh().getEncodeProtocol() == Protocol.CONFIGURATION )
             {
-                if( definedPacket instanceof StartConfiguration || definedPacket instanceof ClientSettings || definedPacket instanceof KeepAlive || definedPacket instanceof PluginMessage )
+                if ( definedPacket instanceof StartConfiguration || definedPacket instanceof ClientSettings || definedPacket instanceof KeepAlive || definedPacket instanceof PluginMessage )
                 {
                     if ( con.getServer() != null )
                     {
