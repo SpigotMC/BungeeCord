@@ -174,7 +174,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                     {
                         ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - could not decode packet! {1}", new Object[]
                         {
-                            handler, cause.getCause() != null ? cause.getCause() : cause
+                            handler, cause
                         } );
                     }
                 } else if ( cause instanceof IOException || ( cause instanceof IllegalStateException && handler instanceof InitialHandler ) )
