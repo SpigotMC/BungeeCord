@@ -128,7 +128,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
     private boolean canSendKickMessage()
     {
-        return thisState == State.USERNAME || thisState == State.ENCRYPT || thisState == State.FINISHING || thisState == State.CONFIGURING || thisState == EVENT_LOGIN;
+        return thisState == State.USERNAME || thisState == State.ENCRYPT || thisState == State.FINISHING || thisState == State.CONFIGURING || thisState == State.EVENT_LOGIN;
     }
 
     @Override
