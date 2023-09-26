@@ -178,7 +178,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting LEGACY PING" );
 
-        this.thisState = State.EVENT_PING;
+        thisState = State.EVENT_PING;
         this.legacy = true;
         final boolean v1_5 = ping.isV1_5();
 
@@ -460,7 +460,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             }
         };
 
-        this.thisState = State.EVENT_LOGIN;
+        thisState = State.EVENT_LOGIN;
         // fire pre login event
         bungee.getPluginManager().callEvent( new PreLoginEvent( InitialHandler.this, callback ) );
     }
