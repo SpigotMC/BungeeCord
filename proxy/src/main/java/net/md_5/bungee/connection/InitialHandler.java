@@ -123,12 +123,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private enum State
     {
 
-        HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, FINISHING, CONFIGURING, EVENT_LOGIN, EVENT_PING;
+        HANDSHAKE, STATUS, PING_EVENT, PING, USERNAME, ENCRYPT, FINISHING, CONFIGURING
     }
 
     private boolean canSendKickMessage()
     {
-        return thisState == State.USERNAME || thisState == State.ENCRYPT || thisState == State.FINISHING || thisState == State.CONFIGURING || thisState == State.EVENT_LOGIN;
+        return thisState == State.USERNAME || thisState == State.ENCRYPT || thisState == State.FINISHING || thisState == State.CONFIGURING;
     }
 
     @Override
@@ -178,7 +178,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting LEGACY PING" );
 
-        thisState = State.EVENT_PING;
+        thisState = State.PING_EVENT;
         this.legacy = true;
         final boolean v1_5 = ping.isV1_5();
 
@@ -263,7 +263,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.STATUS, "Not expecting STATUS" );
 
-        thisState = State.EVENT_PING;
+        thisState = State.PING_EVENT;
         ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
         final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
         final int protocol = ( ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
@@ -454,13 +454,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
                 } else
                 {
-                    thisState = State.FINISHING;
                     finish();
                 }
             }
         };
 
-        thisState = State.EVENT_LOGIN;
+        thisState = State.FINISHING;
         // fire pre login event
         bungee.getPluginManager().callEvent( new PreLoginEvent( InitialHandler.this, callback ) );
     }
