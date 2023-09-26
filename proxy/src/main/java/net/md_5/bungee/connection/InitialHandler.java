@@ -168,7 +168,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(LegacyHandshake legacyHandshake) throws Exception
     {
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting LEGACY HANDSHAKE" );
-        
+
         this.legacy = true;
         ch.close( bungee.getTranslation( "outdated_client", bungee.getGameVersion() ) );
     }
