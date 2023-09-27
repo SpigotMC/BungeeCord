@@ -26,6 +26,7 @@ import net.md_5.bungee.entitymap.EntityMap;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
+import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
