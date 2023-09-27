@@ -324,7 +324,7 @@ public class ServerConnector extends PacketHandler
         }
     }
 
-    private void cutThrough(ServerConnection server)
+    private void cutThrough(ServerConnection server) throws Exception
     {
         if ( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_2 )
         {
