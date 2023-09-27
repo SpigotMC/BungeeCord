@@ -136,6 +136,11 @@ public class UpstreamBridge extends PacketHandler
     {
         if ( con.getServer() != null )
         {
+            if ( con.getServer().getCh().isClosed() )
+            {
+                return;
+            }
+
             Protocol serverEncode = con.getServer().getCh().getEncodeProtocol();
             // #3527: May still have old packets from client in game state when switching server to configuration state - discard those
             if ( packet.protocol != serverEncode )
