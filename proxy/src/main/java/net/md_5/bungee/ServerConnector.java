@@ -365,6 +365,7 @@ public class ServerConnector extends PacketHandler
 
         ServerInfo from = ( user.getServer() == null ) ? null : user.getServer().getInfo();
         user.setServer( server );
+        user.getUpstream().handleQueued();
         ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user, server ) );
 
         bungee.getPluginManager().callEvent( new ServerSwitchEvent( user, from ) );
