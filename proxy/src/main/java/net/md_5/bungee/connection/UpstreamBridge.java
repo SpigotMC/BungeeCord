@@ -151,7 +151,7 @@ public class UpstreamBridge extends PacketHandler
     {
         if ( con.getServer() == null && packet.protocol == Protocol.CONFIGURATION && packet.packet != null )
         {
-            Preconditions.checkState( clientConfigurationQueue.size() < 128, "Configuration Packet Queue to big" );
+            Preconditions.checkState( clientConfigurationQueue.size() < 128, "Configuration Packet Queue too big" );
             clientConfigurationQueue.add( packet.packet );
             return false;
         }
