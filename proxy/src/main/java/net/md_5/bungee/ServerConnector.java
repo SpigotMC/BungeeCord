@@ -43,7 +43,6 @@ import net.md_5.bungee.protocol.packet.GameState;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Login;
-import net.md_5.bungee.protocol.packet.LoginAcknowledged;
 import net.md_5.bungee.protocol.packet.LoginPayloadRequest;
 import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
 import net.md_5.bungee.protocol.packet.LoginRequest;
@@ -334,9 +333,9 @@ public class ServerConnector extends PacketHandler
                 user.unsafe().sendPacket( new StartConfiguration() );
             } else
             {
-                ch.setDecodeProtocol( Protocol.CONFIGURATION );
-                ch.write( new LoginAcknowledged() );
-                ch.setEncodeProtocol( Protocol.CONFIGURATION );
+                LoginResult loginProfile = user.getPendingConnection().getLoginProfile();
+                user.unsafe().sendPacket( new LoginSuccess( user.getUniqueId(), user.getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
+                user.getCh().setEncodeProtocol( Protocol.CONFIGURATION );
             }
         }
 
