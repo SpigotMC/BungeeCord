@@ -47,6 +47,7 @@ public class UpstreamBridge extends PacketHandler
 
     private final ProxyServer bungee;
     private final UserConnection con;
+    private final Queue<DefinedPacket> clientConfigurationQueue = new ConcurrentLinkedQueue<>();
 
     public UpstreamBridge(ProxyServer bungee, UserConnection con)
     {
@@ -125,9 +126,31 @@ public class UpstreamBridge extends PacketHandler
         }
     }
 
+    public void handleQueued() throws Exception
+    {
+        DefinedPacket packet;
+        while ( ( packet = clientConfigurationQueue.poll() ) != null )
+        {
+            try
+            {
+                packet.handle( this );
+                con.getServer().unsafe().sendPacket( packet );
+            } catch ( CancelSendSignal ignored )
+            {
+
+            }
+        }
+    }
+
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
     {
+        if ( con.getServer() == null && packet.protocol == Protocol.CONFIGURATION && packet.packet != null )
+        {
+            Preconditions.checkState( clientConfigurationQueue.size() < 128, "Configuration Packet Queue to big" );
+            clientConfigurationQueue.add( packet.packet );
+            return false;
+        }
         return con.getServer() != null || packet.packet instanceof PluginMessage;
     }
 
@@ -349,8 +372,6 @@ public class UpstreamBridge extends PacketHandler
     public void handle(FinishConfiguration finishConfiguration) throws Exception
     {
         con.sendQueuedPackets();
-
-        super.handle( finishConfiguration );
     }
 
     @Override
