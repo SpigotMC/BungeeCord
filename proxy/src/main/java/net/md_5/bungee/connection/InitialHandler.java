@@ -33,12 +33,7 @@ import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.LoginEvent;
-import net.md_5.bungee.api.event.PlayerHandshakeEvent;
-import net.md_5.bungee.api.event.PostLoginEvent;
-import net.md_5.bungee.api.event.PreLoginEvent;
-import net.md_5.bungee.api.event.ProxyPingEvent;
-import net.md_5.bungee.api.event.ServerConnectEvent;
+import net.md_5.bungee.api.event.*;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.http.HttpClient;
 import net.md_5.bungee.jni.cipher.BungeeCipher;
@@ -577,14 +572,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             @Override
             public void done(LoginEvent result, Throwable error)
             {
+                userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
+
                 if ( result.isCancelled() )
                 {
                     BaseComponent[] reason = result.getCancelReasonComponents();
                     disconnect( ( reason != null ) ? reason : TextComponent.fromLegacyText( bungee.getTranslation( "kick_message" ) ) );
+                    callPlayerDisconnectEvent();
                     return;
                 }
                 if ( ch.isClosed() )
                 {
+                    callPlayerDisconnectEvent();
                     return;
                 }
 
@@ -595,7 +594,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     {
                         if ( !ch.isClosing() )
                         {
-                            userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
                             userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
 
                             unsafe.sendPacket( new LoginSuccess( getUniqueId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
@@ -607,6 +605,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                                 ch.setProtocol( Protocol.GAME );
                                 finish2();
                             }
+                        } else
+                        {
+                            callPlayerDisconnectEvent();
                         }
                     }
                 } );
@@ -788,5 +789,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             brandMessage = input;
         }
+    }
+
+    private void callPlayerDisconnectEvent() {
+        PlayerDisconnectEvent event = new PlayerDisconnectEvent( userCon );
+        bungee.getPluginManager().callEvent( event );
     }
 }
