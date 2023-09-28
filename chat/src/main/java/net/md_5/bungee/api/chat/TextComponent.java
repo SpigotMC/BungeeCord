@@ -27,6 +27,47 @@ public final class TextComponent extends BaseComponent
      * @param message the text to convert
      * @return the components needed to print the message to the client
      */
+    public static BaseComponent fromLegacy(String message)
+    {
+        return fromLegacy( message, ChatColor.WHITE );
+    }
+
+    /**
+     * Converts the old formatting system that used
+     * {@link net.md_5.bungee.api.ChatColor#COLOR_CHAR} into the new json based
+     * system.
+     *
+     * @param message the text to convert
+     * @param defaultColor color to use when no formatting is to be applied
+     * (i.e. after ChatColor.RESET).
+     * @return the components needed to print the message to the client
+     */
+    public static BaseComponent fromLegacy(String message, ChatColor defaultColor)
+    {
+        TextComponent component = new TextComponent();
+
+        BaseComponent[] components = fromLegacyText( message, defaultColor );
+        if ( components.length > 0 )
+        {
+            component.setExtra( Arrays.asList( components ) );
+        }
+
+        return component;
+    }
+
+    /**
+     * Converts the old formatting system that used
+     * {@link net.md_5.bungee.api.ChatColor#COLOR_CHAR} into the new json based
+     * system.
+     *
+     * @param message the text to convert
+     * @return the components needed to print the message to the client
+     * @deprecated {@link #fromLegacy(String)} is preferred as it will
+     * consolidate all components into a single BaseComponent with extra
+     * contents as opposed to an array of components which is non-standard
+     * and may result in unexpected behavior.
+     */
+    @Deprecated
     public static BaseComponent[] fromLegacyText(String message)
     {
         return fromLegacyText( message, ChatColor.WHITE );
@@ -41,7 +82,12 @@ public final class TextComponent extends BaseComponent
      * @param defaultColor color to use when no formatting is to be applied
      * (i.e. after ChatColor.RESET).
      * @return the components needed to print the message to the client
+     * @deprecated {@link #fromLegacy(String, ChatColor)} is preferred as it will
+     * consolidate all components into a single BaseComponent with extra
+     * contents as opposed to an array of components which is non-standard
+     * and may result in unexpected behavior.
      */
+    @Deprecated
     public static BaseComponent[] fromLegacyText(String message, ChatColor defaultColor)
     {
         ArrayList<BaseComponent> components = new ArrayList<>();
