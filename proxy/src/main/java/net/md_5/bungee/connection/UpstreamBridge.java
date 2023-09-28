@@ -332,7 +332,18 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
+    public void handle(LoginAcknowledged loginAcknowledged) throws Exception
+    {
+        configureServer();
+    }
+
+    @Override
     public void handle(StartConfiguration startConfiguration) throws Exception
+    {
+        configureServer();
+    }
+
+    private void configureServer()
     {
         ChannelWrapper ch = con.getServer().getCh();
         if ( ch.getDecodeProtocol() == Protocol.LOGIN )
