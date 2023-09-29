@@ -362,8 +362,6 @@ public class UpstreamBridge extends PacketHandler
     public void handle(FinishConfiguration finishConfiguration) throws Exception
     {
         con.sendQueuedPackets();
-
-        super.handle( finishConfiguration );
     }
 
     @Override
