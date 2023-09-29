@@ -29,7 +29,9 @@ import net.md_5.bungee.ServerConnection.KeepAliveData;
 import net.md_5.bungee.ServerConnector;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
+import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.ServerConnectRequest;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -89,7 +91,7 @@ public class DownstreamBridge extends PacketHandler
     private boolean receivedLogin;
 
     @Override
-    public void exception(Throwable t) throws Exception
+    public void exception(final Throwable t) throws Exception
     {
         if ( server.isObsolete() )
         {
@@ -97,12 +99,33 @@ public class DownstreamBridge extends PacketHandler
             return;
         }
 
-        ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
+        final ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
         if ( def != null )
         {
             server.setObsolete( true );
-            con.connectNow( def, ServerConnectEvent.Reason.SERVER_DOWN_REDIRECT );
-            con.sendMessage( bungee.getTranslation( "server_went_down" ) );
+
+            Callback<ServerConnectRequest.Result> callback = new Callback<ServerConnectRequest.Result>()
+            {
+                @Override
+                public void done(ServerConnectRequest.Result result, Throwable error)
+                {
+                    if ( result == ServerConnectRequest.Result.SUCCESS )
+                    {
+                        con.sendMessage( bungee.getTranslation( "server_went_down", server.getInfo().getName(), def.getName() ) );
+                    } else
+                    {
+                        con.disconnect( Util.exception( t ) );
+                    }
+                }
+            };
+            ServerConnectRequest connectRequest = ServerConnectRequest.builder()
+                    .callback( callback )
+                    .retry( false )
+                    .reason( ServerConnectEvent.Reason.SERVER_DOWN_REDIRECT )
+                    .target( def )
+                    .build();
+            con.connect( connectRequest );
+            con.setDimensionChange( true ); // NOTE: Dim Change Connect
         } else
         {
             con.disconnect( Util.exception( t ) );
@@ -619,11 +642,37 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(Kick kick) throws Exception
     {
-        ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
-        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTED ) );
+        final ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
+        final ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTED ) );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
-            con.connectNow( event.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT );
+            if ( event.getCancelServer().equals( server.getInfo() ) )
+            {
+                // Just in case a plugin tries to do this. No point trying to reconnect to same server.
+                // This also prevents the code setting the connection to obsolete from reoccurring.
+                throw CancelSendSignal.INSTANCE;
+            }
+            Callback<ServerConnectRequest.Result> callback = new Callback<ServerConnectRequest.Result>() {
+                @Override
+                public void done(ServerConnectRequest.Result result, Throwable error)
+                {
+                    if ( result == ServerConnectRequest.Result.SUCCESS )
+                    {
+                        con.sendMessage( bungee.getTranslation( "server_went_down", server.getInfo().getName(), def.getName() ) );
+                    } else
+                    {
+                        con.disconnect0( event.getKickReasonComponent() );
+                    }
+                }
+            };
+            ServerConnectRequest connectRequest = ServerConnectRequest.builder()
+                .callback( callback )
+                .retry( false )
+                .reason( ServerConnectEvent.Reason.SERVER_DOWN_REDIRECT )
+                .target( def )
+                .build();
+            con.connect( connectRequest );
+            con.setDimensionChange( true ); // NOTE: Dim Change Connect
         } else
         {
             con.disconnect0( event.getKickReasonComponent() ); // TODO: Prefix our own stuff.
