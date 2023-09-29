@@ -138,6 +138,15 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
+    public void disconnected(ChannelWrapper channel) throws Exception {
+        if ( this.thisState == State.FINISHING )
+        {
+            PlayerDisconnectEvent event = new PlayerDisconnectEvent( getUserConnection() );
+            bungee.getPluginManager().callEvent( event );
+        }
+    }
+
+    @Override
     public void exception(Throwable t) throws Exception
     {
         if ( canSendKickMessage() )
@@ -577,18 +586,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             @Override
             public void done(LoginEvent result, Throwable error)
             {
-                userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
-
                 if ( result.isCancelled() )
                 {
                     BaseComponent[] reason = result.getCancelReasonComponents();
                     disconnect( ( reason != null ) ? reason : TextComponent.fromLegacyText( bungee.getTranslation( "kick_message" ) ) );
-                    callPlayerDisconnectEvent();
                     return;
                 }
                 if ( ch.isClosed() )
                 {
-                    callPlayerDisconnectEvent();
                     return;
                 }
 
@@ -599,6 +604,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     {
                         if ( !ch.isClosing() )
                         {
+                            userCon = getUserConnection();
                             userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
 
                             if ( getVersion() < ProtocolConstants.MINECRAFT_1_20_2 )
@@ -607,9 +613,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                                 ch.setProtocol( Protocol.GAME );
                             }
                             finish2();
-                        } else
-                        {
-                            callPlayerDisconnectEvent();
                         }
                     }
                 } );
@@ -784,8 +787,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
     }
 
-    private void callPlayerDisconnectEvent() {
-        PlayerDisconnectEvent event = new PlayerDisconnectEvent( userCon );
-        bungee.getPluginManager().callEvent( event );
+    private UserConnection getUserConnection() {
+        return userCon == null ? new UserConnection( bungee, ch, getName(), InitialHandler.this ) : userCon;
     }
 }
