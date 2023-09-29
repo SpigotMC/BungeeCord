@@ -25,7 +25,7 @@ public class SelectorComponentSerializer extends BaseComponentSerializer impleme
 
         if ( object.has( "separator" ) )
         {
-            component.setSeparator( ComponentSerializer.parse( object.get( "separator" ).getAsString() ) );
+            component.setSeparator( ComponentSerializer.deserialize( object.get( "separator" ).getAsString() ) );
         }
 
         deserialize( object, component, context );
