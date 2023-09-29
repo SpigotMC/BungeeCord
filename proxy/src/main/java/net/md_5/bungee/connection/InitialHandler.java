@@ -113,6 +113,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Getter
     private String extraDataInHandshake = "";
     private UserConnection userCon;
+    private boolean loginEventFired;
 
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
@@ -139,7 +140,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
     @Override
     public void disconnected(ChannelWrapper channel) throws Exception {
-        if ( this.thisState == State.FINISHING )
+        if ( this.loginEventFired )
         {
             PlayerDisconnectEvent event = new PlayerDisconnectEvent( getUserConnection() );
             bungee.getPluginManager().callEvent( event );
@@ -621,6 +622,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         // fire login event
         bungee.getPluginManager().callEvent( new LoginEvent( InitialHandler.this, complete ) );
+
+        loginEventFired = true;
     }
 
     private void finish2()
@@ -788,6 +791,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     private UserConnection getUserConnection() {
-        return userCon == null ? new UserConnection( bungee, ch, getName(), InitialHandler.this ) : userCon;
+        return userCon == null ? new UserConnection( bungee, ch, getName(), this ) : userCon;
     }
 }
