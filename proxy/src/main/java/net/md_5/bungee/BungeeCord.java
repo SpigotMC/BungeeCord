@@ -66,6 +66,7 @@ import net.md_5.bungee.api.chat.TranslatableComponent;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
@@ -129,6 +130,7 @@ public class BungeeCord extends ProxyServer
      * Server socket listener.
      */
     private final Collection<Channel> listeners = new HashSet<>();
+    private final Map<String, PendingConnection> pendingConnections = new CaseInsensitiveMap<>();
     /**
      * Fully qualified connections.
      */
@@ -136,6 +138,7 @@ public class BungeeCord extends ProxyServer
     // Used to help with packet rewriting
     private final Map<UUID, UserConnection> connectionsByOfflineUUID = new HashMap<>();
     private final Map<UUID, UserConnection> connectionsByUUID = new HashMap<>();
+    private final ReadWriteLock pendingConnectionLock = new ReentrantReadWriteLock();
     private final ReadWriteLock connectionLock = new ReentrantReadWriteLock();
     /**
      * Lock to protect the shutdown process from being triggered simultaneously
@@ -625,6 +628,18 @@ public class BungeeCord extends ProxyServer
         }
     }
 
+    public PendingConnection getPendingConnection(String name)
+    {
+        pendingConnectionLock.readLock().lock();
+        try
+        {
+            return pendingConnections.get( name );
+        } finally
+        {
+            pendingConnectionLock.readLock().unlock();
+        }
+    }
+
     public UserConnection getPlayerByOfflineUUID(UUID uuid)
     {
         if ( uuid.version() != 3 )
@@ -753,6 +768,18 @@ public class BungeeCord extends ProxyServer
         }
     }
 
+    public void addPendingConnection(String name, PendingConnection con)
+    {
+        pendingConnectionLock.writeLock().lock();
+        try
+        {
+            pendingConnections.put( name, con );
+        } finally
+        {
+            pendingConnectionLock.writeLock().unlock();
+        }
+    }
+
     public void addConnection(UserConnection con)
     {
         UUID offlineId = con.getPendingConnection().getOfflineId();
@@ -787,6 +814,18 @@ public class BungeeCord extends ProxyServer
         } finally
         {
             connectionLock.writeLock().unlock();
+        }
+    }
+
+    public void removePendingConnection(String name)
+    {
+        pendingConnectionLock.writeLock().lock();
+        try
+        {
+            pendingConnections.remove( name );
+        } finally
+        {
+            pendingConnectionLock.writeLock().unlock();
         }
     }
 
