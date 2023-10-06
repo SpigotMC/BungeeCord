@@ -282,6 +282,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     @Override
                     public void done(ProxyPingEvent pingResult, Throwable error)
                     {
+                        if ( ch.isClosed() )
+                        {
+                            return;
+                        }
                         Gson gson = BungeeCord.getInstance().gson;
                         unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
                         if ( bungee.getConnectionThrottle() != null )
@@ -342,6 +346,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         this.virtualHost = InetSocketAddress.createUnresolved( handshake.getHost(), handshake.getPort() );
 
         bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
+
+        if ( ch.isClosing() )
+        {
+            return;
+        }
 
         switch ( handshake.getRequestedProtocol() )
         {
@@ -442,7 +451,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     disconnect( ( reason != null ) ? reason : TextComponent.fromLegacyText( bungee.getTranslation( "kick_message" ) ) );
                     return;
                 }
-                if ( ch.isClosed() )
+                if ( ch.isClosing() )
                 {
                     return;
                 }
@@ -496,6 +505,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             {
                 if ( error == null )
                 {
+                    if ( ch.isClosing() )
+                    {
+                        return;
+                    }
                     LoginResult obj = BungeeCord.getInstance().gson.fromJson( result, LoginResult.class );
                     if ( obj != null && obj.getId() != null )
                     {
@@ -586,7 +599,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     disconnect( ( reason != null ) ? reason : TextComponent.fromLegacyText( bungee.getTranslation( "kick_message" ) ) );
                     return;
                 }
-                if ( ch.isClosed() )
+                if ( ch.isClosing() )
                 {
                     return;
                 }
@@ -596,18 +609,19 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     @Override
                     public void run()
                     {
-                        if ( !ch.isClosing() )
+                        if ( ch.isClosing() )
                         {
-                            userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
-                            userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
-
-                            if ( getVersion() < ProtocolConstants.MINECRAFT_1_20_2 )
-                            {
-                                unsafe.sendPacket( new LoginSuccess( getUniqueId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
-                                ch.setProtocol( Protocol.GAME );
-                            }
-                            finish2();
+                            return;
                         }
+                        userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
+                        userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
+
+                        if ( getVersion() < ProtocolConstants.MINECRAFT_1_20_2 )
+                        {
+                            unsafe.sendPacket( new LoginSuccess( getUniqueId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
+                            ch.setProtocol( Protocol.GAME );
+                        }
+                        finish2();
                     }
                 } );
             }
