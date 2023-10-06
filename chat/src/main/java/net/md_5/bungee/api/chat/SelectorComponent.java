@@ -34,6 +34,13 @@ public final class SelectorComponent extends BaseComponent
     private String selector;
 
     /**
+     * The separator of multiple selected entities.
+     * <br>
+     * The default is {@code {"color": "gray", "text": ", "}}.
+     */
+    private BaseComponent separator;
+
+    /**
      * Creates a selector component from the original to clone it.
      *
      * @param original the original for the new selector component
@@ -42,6 +49,17 @@ public final class SelectorComponent extends BaseComponent
     {
         super( original );
         setSelector( original.getSelector() );
+        setSeparator( original.getSeparator() );
+    }
+
+    /**
+     * Creates a selector component from the selector
+     *
+     * @param selector the selector as a String
+     */
+    public SelectorComponent(String selector)
+    {
+        setSelector( selector );
     }
 
     @Override

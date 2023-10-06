@@ -121,7 +121,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
     private enum State
     {
-
         HANDSHAKE, STATUS, PING_EVENT, PING, USERNAME, ENCRYPT, FINISHING;
     }
 
