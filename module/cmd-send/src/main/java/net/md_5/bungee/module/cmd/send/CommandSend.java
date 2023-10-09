@@ -50,8 +50,12 @@ public class CommandSend extends Command implements TabExecutor
                 ComponentBuilder builder = new ComponentBuilder( "" );
                 if ( !entry.getValue().isEmpty() )
                 {
-                    builder.event( new HoverEvent( HoverEvent.Action.SHOW_TEXT,
-                            new ComponentBuilder( Joiner.on( ", " ).join( entry.getValue() ) ).color( ChatColor.YELLOW ).create() ) );
+                    String text;
+                    synchronized ( entry.getValue() )
+                    {
+                        text = Joiner.on( ", " ).join( entry.getValue() );
+                    }
+                    builder.event( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( text ).color( ChatColor.YELLOW ).create() ) );  
                 }
                 builder.append( entry.getKey().name() + ": " ).color( ChatColor.GREEN );
                 builder.append( "" + entry.getValue().size() ).bold( true );
