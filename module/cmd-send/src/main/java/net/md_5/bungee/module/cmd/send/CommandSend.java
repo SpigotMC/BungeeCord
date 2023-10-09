@@ -55,7 +55,7 @@ public class CommandSend extends Command implements TabExecutor
                     {
                         text = Joiner.on( ", " ).join( entry.getValue() );
                     }
-                    builder.event( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( text ).color( ChatColor.YELLOW ).create() ) );  
+                    builder.event( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( text ).color( ChatColor.YELLOW ).create() ) );
                 }
                 builder.append( entry.getKey().name() + ": " ).color( ChatColor.GREEN );
                 builder.append( "" + entry.getValue().size() ).bold( true );
