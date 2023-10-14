@@ -325,9 +325,18 @@ public abstract class DefinedPacket
 
     public static void writeTag(Tag tag, ByteBuf output, int protocolVersion)
     {
+        DataOutputStream out = new DataOutputStream( new ByteBufOutputStream( output ) );
         try
         {
-            tag.write( new DataOutputStream( new ByteBufOutputStream( output ) ) );
+            if ( tag instanceof SpecificTag )
+            {
+                SpecificTag specificTag = (SpecificTag) tag;
+                specificTag.writeType( out );
+                specificTag.write( out );
+            } else
+            {
+                tag.write( out );
+            }
         } catch ( IOException ex )
         {
             throw new RuntimeException( "Exception writing tag", ex );
