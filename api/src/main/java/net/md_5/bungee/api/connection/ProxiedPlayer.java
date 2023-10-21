@@ -334,6 +334,9 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * Get the {@link Scoreboard} that belongs to this player.
      *
      * @return this player's {@link Scoreboard}
+     * @deprecated for internal use only, setters will not have the expected
+     * effect, will not update client state, and may corrupt proxy state
      */
+    @Deprecated
     Scoreboard getScoreboard();
 }
