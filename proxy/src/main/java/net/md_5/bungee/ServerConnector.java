@@ -24,6 +24,7 @@ import net.md_5.bungee.api.score.Objective;
 import net.md_5.bungee.api.score.Score;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.api.score.Team;
+import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.connection.LoginResult;
@@ -278,7 +279,7 @@ public class ServerConnector extends PacketHandler
             Scoreboard serverScoreboard = user.getServerSentScoreboard();
             for ( Objective objective : serverScoreboard.getObjectives() )
             {
-                user.unsafe().sendPacket( new ScoreboardObjective( objective.getName(), objective.getValue(), ScoreboardObjective.HealthDisplay.fromString( objective.getType() ), (byte) 1 ) );
+                user.unsafe().sendPacket( new ScoreboardObjective( objective.getName(), ComponentSerializer.deserialize( objective.getValue() ), ScoreboardObjective.HealthDisplay.fromString( objective.getType() ), (byte) 1 ) );
             }
             for ( Score score : serverScoreboard.getScores() )
             {
