@@ -33,6 +33,7 @@ import net.md_5.bungee.api.ServerConnectRequest;
 import net.md_5.bungee.api.SkinConfiguration;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -406,13 +407,13 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void disconnect(String reason)
     {
-        disconnect0( TextComponent.fromLegacyText( reason ) );
+        disconnect( TextComponent.fromLegacyText( reason ) );
     }
 
     @Override
     public void disconnect(BaseComponent... reason)
     {
-        disconnect0( reason );
+        disconnect( new ComponentBuilder().append( reason ).build() );
     }
 
     @Override
@@ -421,7 +422,7 @@ public final class UserConnection implements ProxiedPlayer
         disconnect0( reason );
     }
 
-    public void disconnect0(final BaseComponent... reason)
+    public void disconnect0(final BaseComponent reason)
     {
         if ( !ch.isClosing() )
         {
@@ -430,7 +431,7 @@ public final class UserConnection implements ProxiedPlayer
                 getName(), BaseComponent.toLegacyText( reason )
             } );
 
-            ch.close( new Kick( ComponentSerializer.toString( reason ) ) );
+            ch.close( new Kick( reason ) );
 
             if ( server != null )
             {
@@ -481,7 +482,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendMessage(ChatMessageType position, BaseComponent... message)
     {
-        sendMessage( position, null, message );
+        sendMessage( position, null, new ComponentBuilder().append( message ).build() );
     }
 
     @Override
@@ -493,7 +494,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendMessage(UUID sender, BaseComponent... message)
     {
-        sendMessage( ChatMessageType.CHAT, sender, message );
+        sendMessage( ChatMessageType.CHAT, sender, new ComponentBuilder().append( message ).build() );
     }
 
     @Override
@@ -502,8 +503,29 @@ public final class UserConnection implements ProxiedPlayer
         sendMessage( ChatMessageType.CHAT, sender, message );
     }
 
-    private void sendMessage(ChatMessageType position, UUID sender, String message)
+    private void sendMessage(ChatMessageType position, UUID sender, BaseComponent message)
     {
+        // transform score components
+        message = ChatComponentTransformer.getInstance().transform( this, true, message );
+
+        if ( position == ChatMessageType.ACTION_BAR && getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_17 )
+        {
+            // Versions older than 1.11 cannot send the Action bar with the new JSON formattings
+            // Fix by converting to a legacy message, see https://bugs.mojang.com/browse/MC-119145
+            if ( getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_10 )
+            {
+                sendMessage( position, sender, new TextComponent( BaseComponent.toLegacyText( message ) ) );
+            } else
+            {
+                net.md_5.bungee.protocol.packet.Title title = new net.md_5.bungee.protocol.packet.Title();
+                title.setAction( net.md_5.bungee.protocol.packet.Title.Action.ACTIONBAR );
+                title.setText( message );
+                sendPacketQueued( title );
+            }
+
+            return;
+        }
+
         if ( getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_19 )
         {
             // Align with Spigot and remove client side formatting for now
@@ -515,32 +537,7 @@ public final class UserConnection implements ProxiedPlayer
             sendPacketQueued( new SystemChat( message, position.ordinal() ) );
         } else
         {
-            sendPacketQueued( new Chat( message, (byte) position.ordinal(), sender ) );
-        }
-    }
-
-    private void sendMessage(ChatMessageType position, UUID sender, BaseComponent... message)
-    {
-        // transform score components
-        message = ChatComponentTransformer.getInstance().transform( this, true, message );
-
-        if ( position == ChatMessageType.ACTION_BAR && getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_17 )
-        {
-            // Versions older than 1.11 cannot send the Action bar with the new JSON formattings
-            // Fix by converting to a legacy message, see https://bugs.mojang.com/browse/MC-119145
-            if ( getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_10 )
-            {
-                sendMessage( position, sender, ComponentSerializer.toString( new TextComponent( BaseComponent.toLegacyText( message ) ) ) );
-            } else
-            {
-                net.md_5.bungee.protocol.packet.Title title = new net.md_5.bungee.protocol.packet.Title();
-                title.setAction( net.md_5.bungee.protocol.packet.Title.Action.ACTIONBAR );
-                title.setText( ComponentSerializer.toString( message ) );
-                sendPacketQueued( title );
-            }
-        } else
-        {
-            sendMessage( position, sender, ComponentSerializer.toString( message ) );
+            sendPacketQueued( new Chat( ComponentSerializer.toString( message ), (byte) position.ordinal(), sender ) );
         }
     }
 
@@ -720,25 +717,19 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void setTabHeader(BaseComponent header, BaseComponent footer)
     {
-        header = ChatComponentTransformer.getInstance().transform( this, true, header )[0];
-        footer = ChatComponentTransformer.getInstance().transform( this, true, footer )[0];
+        header = ChatComponentTransformer.getInstance().transform( this, true, header );
+        footer = ChatComponentTransformer.getInstance().transform( this, true, footer );
 
         sendPacketQueued( new PlayerListHeaderFooter(
-                ComponentSerializer.toString( header ),
-                ComponentSerializer.toString( footer )
+                header,
+                footer
         ) );
     }
 
     @Override
     public void setTabHeader(BaseComponent[] header, BaseComponent[] footer)
     {
-        header = ChatComponentTransformer.getInstance().transform( this, true, header );
-        footer = ChatComponentTransformer.getInstance().transform( this, true, footer );
-
-        sendPacketQueued( new PlayerListHeaderFooter(
-                ComponentSerializer.toString( header ),
-                ComponentSerializer.toString( footer )
-        ) );
+        setTabHeader( new ComponentBuilder().append( header ).build(), new ComponentBuilder().append( footer ).build() );
     }
 
     @Override

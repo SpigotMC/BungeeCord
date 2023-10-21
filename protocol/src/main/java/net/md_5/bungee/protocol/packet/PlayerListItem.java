@@ -5,6 +5,7 @@ import java.util.UUID;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PlayerPublicKey;
@@ -38,7 +39,7 @@ public class PlayerListItem extends DefinedPacket
                     item.ping = DefinedPacket.readVarInt( buf );
                     if ( buf.readBoolean() )
                     {
-                        item.displayName = DefinedPacket.readString( buf );
+                        item.displayName = DefinedPacket.readBaseComponent( buf, protocolVersion );
                     }
                     if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 )
                     {
@@ -54,7 +55,7 @@ public class PlayerListItem extends DefinedPacket
                 case UPDATE_DISPLAY_NAME:
                     if ( buf.readBoolean() )
                     {
-                        item.displayName = DefinedPacket.readString( buf );
+                        item.displayName = DefinedPacket.readBaseComponent( buf, protocolVersion );
                     }
             }
         }
@@ -78,7 +79,7 @@ public class PlayerListItem extends DefinedPacket
                     buf.writeBoolean( item.displayName != null );
                     if ( item.displayName != null )
                     {
-                        DefinedPacket.writeString( item.displayName, buf );
+                        DefinedPacket.writeBaseComponent( item.displayName, buf, protocolVersion );
                     }
                     if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 )
                     {
@@ -95,7 +96,7 @@ public class PlayerListItem extends DefinedPacket
                     buf.writeBoolean( item.displayName != null );
                     if ( item.displayName != null )
                     {
-                        DefinedPacket.writeString( item.displayName, buf );
+                        DefinedPacket.writeBaseComponent( item.displayName, buf, protocolVersion );
                     }
                     break;
             }
@@ -142,7 +143,7 @@ public class PlayerListItem extends DefinedPacket
         Integer ping;
 
         // ADD_PLAYER & UPDATE_DISPLAY_NAME
-        String displayName;
+        BaseComponent displayName;
 
     }
 }

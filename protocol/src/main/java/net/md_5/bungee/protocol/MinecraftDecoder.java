@@ -39,7 +39,7 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
             DefinedPacket packet = prot.createPacket( packetId, protocolVersion );
             if ( packet != null )
             {
-                packet.read( in, prot.getDirection(), protocolVersion );
+                packet.read( in, protocol, prot.getDirection(), protocolVersion );
 
                 if ( in.isReadable() )
                 {

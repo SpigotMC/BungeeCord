@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
@@ -17,20 +18,20 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 public class SystemChat extends DefinedPacket
 {
 
-    private String message;
+    private BaseComponent message;
     private int position;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        message = readString( buf, 262144 );
+        message = readBaseComponent( buf, protocolVersion );
         position = ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_1 ) ? ( ( buf.readBoolean() ) ? ChatMessageType.ACTION_BAR.ordinal() : 0 ) : readVarInt( buf );
     }
 
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        writeString( message, buf, 262144 );
+        writeBaseComponent( message, buf, protocolVersion );
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_1 )
         {
             buf.writeBoolean( position == ChatMessageType.ACTION_BAR.ordinal() );

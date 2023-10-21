@@ -2,6 +2,7 @@ package net.md_5.bungee.api.score;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import net.md_5.bungee.api.chat.BaseComponent;
 
 /**
  * Represents an objective entry.
@@ -18,7 +19,7 @@ public class Objective
     /**
      * Value of the objective.
      */
-    private String value;
+    private BaseComponent value;
     /**
      * Type; integer or hearts
      */

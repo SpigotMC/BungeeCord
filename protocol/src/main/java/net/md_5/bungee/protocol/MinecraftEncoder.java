@@ -24,6 +24,6 @@ public class MinecraftEncoder extends MessageToByteEncoder<DefinedPacket>
     {
         Protocol.DirectionData prot = ( server ) ? protocol.TO_CLIENT : protocol.TO_SERVER;
         DefinedPacket.writeVarInt( prot.getId( msg.getClass(), protocolVersion ), out );
-        msg.write( out, prot.getDirection(), protocolVersion );
+        msg.write( out, protocol, prot.getDirection(), protocolVersion );
     }
 }

@@ -18,11 +18,10 @@ public class TextComponentSerializer extends BaseComponentSerializer implements 
     {
         TextComponent component = new TextComponent();
         JsonObject object = json.getAsJsonObject();
-        if ( !object.has( "text" ) )
+        if ( object.has( "text" ) )
         {
-            throw new JsonParseException( "Could not parse JSON: missing 'text' property" );
+            component.setText( object.get( "text" ).getAsString() );
         }
-        component.setText( object.get( "text" ).getAsString() );
         deserialize( object, component, context );
         return component;
     }

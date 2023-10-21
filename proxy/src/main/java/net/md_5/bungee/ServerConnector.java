@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
@@ -23,7 +24,6 @@ import net.md_5.bungee.api.score.Objective;
 import net.md_5.bungee.api.score.Score;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.api.score.Team;
-import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.connection.LoginResult;
@@ -383,7 +383,10 @@ public class ServerConnector extends PacketHandler
     public void handle(Kick kick) throws Exception
     {
         ServerInfo def = user.updateAndGetNextServer( target );
-        ServerKickEvent event = new ServerKickEvent( user, target, ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTING );
+        ServerKickEvent event = new ServerKickEvent( user, target, new BaseComponent[]
+        {
+            kick.getMessage()
+        }, def, ServerKickEvent.State.CONNECTING );
         if ( event.getKickReason().toLowerCase( Locale.ROOT ).contains( "outdated" ) && def != null )
         {
             // Pre cancel the event if we are going to try another server

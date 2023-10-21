@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import lombok.Data;
 import lombok.NonNull;
+import net.md_5.bungee.api.chat.BaseComponent;
 
 @Data
 public class Team
@@ -13,9 +14,9 @@ public class Team
 
     @NonNull
     private final String name;
-    private String displayName;
-    private String prefix;
-    private String suffix;
+    private BaseComponent displayName;
+    private BaseComponent prefix;
+    private BaseComponent suffix;
     private byte friendlyFire;
     private String nameTagVisibility;
     private String collisionRule;

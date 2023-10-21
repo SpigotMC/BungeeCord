@@ -1,6 +1,6 @@
 package net.md_5.bungee.protocol.packet;
 
-import com.mojang.brigadier.LiteralMessage;
+import com.mojang.brigadier.Message;
 import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
@@ -10,6 +10,7 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
@@ -51,9 +52,9 @@ public class TabCompleteResponse extends DefinedPacket
             for ( int i = 0; i < cnt; i++ )
             {
                 String match = readString( buf );
-                String tooltip = buf.readBoolean() ? readString( buf ) : null;
+                BaseComponent tooltip = buf.readBoolean() ? readBaseComponent( buf, protocolVersion ) : null;
 
-                matches.add( new Suggestion( range, match, new LiteralMessage( tooltip ) ) );
+                matches.add( new Suggestion( range, match, ( tooltip != null ) ? new ComponentMessage( tooltip ) : null ) );
             }
 
             suggestions = new Suggestions( range, matches );
@@ -76,10 +77,10 @@ public class TabCompleteResponse extends DefinedPacket
             for ( Suggestion suggestion : suggestions.getList() )
             {
                 writeString( suggestion.getText(), buf );
-                buf.writeBoolean( suggestion.getTooltip() != null && suggestion.getTooltip().getString() != null );
-                if ( suggestion.getTooltip() != null && suggestion.getTooltip().getString() != null )
+                buf.writeBoolean( suggestion.getTooltip() != null );
+                if ( suggestion.getTooltip() != null )
                 {
-                    writeString( suggestion.getTooltip().getString(), buf );
+                    writeBaseComponent( ( (ComponentMessage) suggestion.getTooltip() ).getComponent(), buf, protocolVersion );
                 }
             }
         } else
@@ -92,5 +93,18 @@ public class TabCompleteResponse extends DefinedPacket
     public void handle(AbstractPacketHandler handler) throws Exception
     {
         handler.handle( this );
+    }
+
+    @Data
+    private static class ComponentMessage implements Message
+    {
+
+        private final BaseComponent component;
+
+        @Override
+        public String getString()
+        {
+            return component.toPlainText();
+        }
     }
 }
