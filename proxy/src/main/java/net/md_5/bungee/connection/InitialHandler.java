@@ -33,6 +33,7 @@ import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.LoginAbortEvent;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.PlayerHandshakeEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
@@ -112,6 +113,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Getter
     private String extraDataInHandshake = "";
     private UserConnection userCon;
+    private boolean loginEventFired;
+    private boolean discarded;
 
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
@@ -134,6 +137,15 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void connected(ChannelWrapper channel) throws Exception
     {
         this.ch = channel;
+    }
+
+    @Override
+    public void disconnected(ChannelWrapper channel) throws Exception
+    {
+        if ( !this.loginEventFired && !this.discarded )
+        {
+            bungee.removePendingConnection( getName() );
+        }
     }
 
     @Override
@@ -571,46 +583,68 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         }
 
+        if ( bungee.getPendingConnection( getName() ) != null )
+        {
+            disconnect( bungee.getTranslation( "already_connected_proxy" ) );
+            discarded = true;
+            return;
+        }
+
+        bungee.addPendingConnection( getName(), this );
+
         Callback<LoginEvent> complete = new Callback<LoginEvent>()
         {
             @Override
             public void done(LoginEvent result, Throwable error)
             {
-                if ( result.isCancelled() )
+                try
                 {
-                    BaseComponent[] reason = result.getCancelReasonComponents();
-                    disconnect( ( reason != null ) ? reason : TextComponent.fromLegacyText( bungee.getTranslation( "kick_message" ) ) );
-                    return;
-                }
-                if ( ch.isClosed() )
-                {
-                    return;
-                }
-
-                ch.getHandle().eventLoop().execute( new Runnable()
-                {
-                    @Override
-                    public void run()
+                    if ( result.isCancelled() )
                     {
-                        if ( !ch.isClosing() )
-                        {
-                            userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
-                            userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
-
-                            if ( getVersion() < ProtocolConstants.MINECRAFT_1_20_2 )
-                            {
-                                unsafe.sendPacket( new LoginSuccess( getUniqueId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
-                                ch.setProtocol( Protocol.GAME );
-                            }
-                            finish2();
-                        }
+                        BaseComponent[] reason = result.getCancelReasonComponents();
+                        disconnect( ( reason != null ) ? reason : TextComponent.fromLegacyText( bungee.getTranslation( "kick_message" ) ) );
+                        callLoginAbortEvent();
+                        return;
                     }
-                } );
+                    if ( ch.isClosed() )
+                    {
+                        callLoginAbortEvent();
+                        return;
+                    }
+
+                    ch.getHandle().eventLoop().execute( new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            if ( !ch.isClosing() )
+                            {
+                                userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
+                                userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
+
+                                if ( getVersion() < ProtocolConstants.MINECRAFT_1_20_2 )
+                                {
+                                    unsafe.sendPacket( new LoginSuccess( getUniqueId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
+                                    ch.setProtocol( Protocol.GAME );
+                                }
+                                finish2();
+                            } else
+                            {
+                                callLoginAbortEvent();
+                            }
+                        }
+                    } );
+                } finally
+                {
+                    bungee.removePendingConnection( getName() );
+                }
             }
         };
 
         // fire login event
         bungee.getPluginManager().callEvent( new LoginEvent( InitialHandler.this, complete ) );
+
+        loginEventFired = true;
     }
 
     private void finish2()
@@ -775,5 +809,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             brandMessage = input;
         }
+    }
+
+    private void callLoginAbortEvent()
+    {
+        bungee.getPluginManager().callEvent( new LoginAbortEvent( this ) );
     }
 }
