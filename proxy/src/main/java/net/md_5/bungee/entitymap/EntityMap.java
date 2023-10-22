@@ -130,6 +130,10 @@ public abstract class EntityMap
 
     protected static void rewriteInt(ByteBuf packet, int oldId, int newId, int offset)
     {
+        if ( oldId == newId )
+        {
+            return;
+        }
         int readId = packet.getInt( offset );
         if ( readId == oldId )
         {
@@ -143,9 +147,13 @@ public abstract class EntityMap
     @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
     protected static void rewriteVarInt(ByteBuf packet, int oldId, int newId, int offset)
     {
+        if ( oldId == newId )
+        {
+            return;
+        }
         // Need to rewrite the packet because VarInts are variable length
         int readId = DefinedPacket.readVarInt( packet );
-        int readIdLength = packet.readerIndex() - offset;
+        // int readIdLength = packet.readerIndex() - offset;
         if ( readId == oldId || readId == newId )
         {
             ByteBuf data = packet.copy();
@@ -164,6 +172,10 @@ public abstract class EntityMap
 
     protected static void rewriteMetaVarInt(ByteBuf packet, int oldId, int newId, int metaIndex, int protocolVersion)
     {
+        if ( oldId == newId )
+        {
+            return;
+        }
         int readerIndex = packet.readerIndex();
 
         short index;
@@ -177,7 +189,7 @@ public abstract class EntityMap
                     case 5: // optional chat
                         if ( packet.readBoolean() )
                         {
-                            DefinedPacket.readString( packet );
+                            DefinedPacket.skipString( packet );
                         }
                         continue;
                     case 15: // particle
@@ -189,7 +201,7 @@ public abstract class EntityMap
                             {
                                 case 3: // minecraft:block
                                 case 23: // minecraft:falling_dust
-                                    DefinedPacket.readVarInt( packet ); // block state
+                                    DefinedPacket.skipVarInt( packet ); // block state
                                     break;
                                 case 14: // minecraft:dust
                                     packet.skipBytes( 16 ); // float, float, float, flat
@@ -204,7 +216,7 @@ public abstract class EntityMap
                             {
                                 case 3: // minecraft:block
                                 case 20: // minecraft:falling_dust
-                                    DefinedPacket.readVarInt( packet ); // block state
+                                    DefinedPacket.skipVarInt( packet ); // block state
                                     break;
                                 case 11: // minecraft:dust
                                     packet.skipBytes( 16 ); // float, float, float, flat
@@ -236,14 +248,14 @@ public abstract class EntityMap
                         rewriteVarInt( packet, oldId, newId, position );
                         packet.readerIndex( position );
                     }
-                    DefinedPacket.readVarInt( packet );
+                    DefinedPacket.skipVarInt( packet );
                     break;
                 case 2:
                     packet.skipBytes( 4 ); // float
                     break;
                 case 3:
                 case 4:
-                    DefinedPacket.readString( packet );
+                    DefinedPacket.skipString( packet );
                     break;
                 case 5:
                     readSkipSlot( packet, protocolVersion );
@@ -264,7 +276,7 @@ public abstract class EntityMap
                     }
                     break;
                 case 10:
-                    DefinedPacket.readVarInt( packet );
+                    DefinedPacket.skipVarInt( packet );
                     break;
                 case 11:
                     if ( packet.readBoolean() )
@@ -273,7 +285,7 @@ public abstract class EntityMap
                     }
                     break;
                 case 12:
-                    DefinedPacket.readVarInt( packet );
+                    DefinedPacket.skipVarInt( packet );
                     break;
                 case 13:
                     Tag tag = NamedTag.read( new DataInputStream( new ByteBufInputStream( packet ) ) );
@@ -283,9 +295,9 @@ public abstract class EntityMap
                     }
                     break;
                 case 15:
-                    DefinedPacket.readVarInt( packet );
-                    DefinedPacket.readVarInt( packet );
-                    DefinedPacket.readVarInt( packet );
+                    DefinedPacket.skipVarInt( packet );
+                    DefinedPacket.skipVarInt( packet );
+                    DefinedPacket.skipVarInt( packet );
                     break;
                 case 16:
                     if ( index == metaIndex )
@@ -294,10 +306,10 @@ public abstract class EntityMap
                         rewriteVarInt( packet, oldId + 1, newId + 1, position );
                         packet.readerIndex( position );
                     }
-                    DefinedPacket.readVarInt( packet );
+                    DefinedPacket.skipVarInt( packet );
                     break;
                 case 17:
-                    DefinedPacket.readVarInt( packet );
+                    DefinedPacket.skipVarInt( packet );
                     break;
                 default:
                     throw new IllegalArgumentException( "Unknown meta type " + type );
@@ -313,7 +325,7 @@ public abstract class EntityMap
         {
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13_2 )
             {
-                DefinedPacket.readVarInt( packet );
+                DefinedPacket.skipVarInt( packet );
             }
             packet.skipBytes( ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? 1 : 3 ); // byte vs byte, short
 
@@ -334,16 +346,20 @@ public abstract class EntityMap
     // Handles simple packets
     private static void rewrite(ByteBuf packet, int oldId, int newId, boolean[] ints, boolean[] varints)
     {
+        if ( oldId == newId )
+        {
+            return;
+        }
         int readerIndex = packet.readerIndex();
         int packetId = DefinedPacket.readVarInt( packet );
-        int packetIdLength = packet.readerIndex() - readerIndex;
+        int readerIndexAfterPID = packet.readerIndex();
 
         if ( ints[packetId] )
         {
-            rewriteInt( packet, oldId, newId, readerIndex + packetIdLength );
+            rewriteInt( packet, oldId, newId, readerIndexAfterPID );
         } else if ( varints[packetId] )
         {
-            rewriteVarInt( packet, oldId, newId, readerIndex + packetIdLength );
+            rewriteVarInt( packet, oldId, newId, readerIndexAfterPID );
         }
         packet.readerIndex( readerIndex );
     }

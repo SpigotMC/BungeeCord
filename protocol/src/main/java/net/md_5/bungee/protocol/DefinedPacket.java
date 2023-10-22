@@ -70,6 +70,22 @@ public abstract class DefinedPacket
         return s;
     }
 
+    public static void skipString(ByteBuf buf)
+    {
+        skipString( buf, Short.MAX_VALUE );
+    }
+
+    public static void skipString(ByteBuf buf, int maxLen)
+    {
+        int len = readVarInt( buf );
+        if ( len > maxLen * 3 )
+        {
+            throw new OverflowPacketException( "Cannot receive string longer than " + maxLen * 3 + " (got " + len + " bytes)" );
+        }
+
+        buf.skipBytes( len );
+    }
+
     public static void writeArray(byte[] b, ByteBuf buf)
     {
         if ( b.length > Short.MAX_VALUE )
@@ -168,6 +184,28 @@ public abstract class DefinedPacket
         return out;
     }
 
+    public static void skipVarInt(ByteBuf input)
+    {
+        skipVarInt( input, 5 );
+    }
+
+    public static void skipVarInt(ByteBuf input, int maxBytes)
+    {
+        int bytes = 0;
+        while ( true )
+        {
+            if ( ++bytes > maxBytes )
+            {
+                throw new RuntimeException( "VarInt too big" );
+            }
+
+            if ( ( input.readByte() & 0x80 ) != 0x80 )
+            {
+                break;
+            }
+        }
+    }
+
     public static void writeVarInt(int value, ByteBuf output)
     {
         int part;
@@ -226,6 +264,11 @@ public abstract class DefinedPacket
     public static UUID readUUID(ByteBuf input)
     {
         return new UUID( input.readLong(), input.readLong() );
+    }
+
+    public static void skipUUID(ByteBuf input)
+    {
+        input.skipBytes( 16 );
     }
 
     public static void writeProperties(Property[] properties, ByteBuf buf)
