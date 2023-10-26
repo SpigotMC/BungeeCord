@@ -45,7 +45,7 @@ public class PreLoginEvent extends AsyncEvent<PreLoginEvent> implements Cancella
 
     /**
      * @return reason to be displayed
-     * @deprecated use {@link #getReason()} instead
+     * @deprecated use component methods instead
      */
     @Deprecated
     public String getCancelReason()
@@ -55,7 +55,7 @@ public class PreLoginEvent extends AsyncEvent<PreLoginEvent> implements Cancella
 
     /**
      * @param cancelReason reason to be displayed
-     * @deprecated Use {@link #setReason(BaseComponent)} instead
+     * @deprecated Use component methods instead
      */
     @Deprecated
     public void setCancelReason(String cancelReason)
@@ -65,7 +65,7 @@ public class PreLoginEvent extends AsyncEvent<PreLoginEvent> implements Cancella
 
     /**
      * @return the cancel reason
-     * @deprecated Use {@link #getReason()} instead
+     * @deprecated Use component methods instead
      */
     @Deprecated
     public BaseComponent[] getCancelReasonComponents()
@@ -75,7 +75,7 @@ public class PreLoginEvent extends AsyncEvent<PreLoginEvent> implements Cancella
 
     /**
      * @param cancelReason the cancel reason
-     * @deprecated Use {@link #setReason(BaseComponent)} instead
+     * @deprecated Use component methods instead
      */
     @Deprecated
     public void setCancelReason(BaseComponent... cancelReason)

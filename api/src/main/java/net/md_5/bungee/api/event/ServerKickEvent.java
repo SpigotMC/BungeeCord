@@ -81,7 +81,7 @@ public class ServerKickEvent extends Event implements Cancellable
 
     /**
      * @return the kick reason
-     * @deprecated Use {@link #getReason()} instead
+     * @deprecated Use component methods instead
      */
     @Deprecated
     public String getKickReason()
@@ -91,7 +91,7 @@ public class ServerKickEvent extends Event implements Cancellable
 
     /**
      * @param reason the kick reason
-     * @deprecated Use {@link #setReason(BaseComponent)} instead
+     * @deprecated Use component methods instead
      */
     @Deprecated
     public void setKickReason(String reason)
@@ -101,7 +101,7 @@ public class ServerKickEvent extends Event implements Cancellable
 
     /**
      * @return the kick reason
-     * @deprecated Use {@link #getReason()} instead
+     * @deprecated Use component methods instead
      */
     @Deprecated
     public BaseComponent[] getKickReasonComponent()
@@ -111,7 +111,7 @@ public class ServerKickEvent extends Event implements Cancellable
 
     /**
      * @param kickReasonComponent the kick reason
-     * @deprecated Use {@link #setReason(BaseComponent)} instead
+     * @deprecated Use component methods instead
      */
     @Deprecated
     public void setKickReasonComponent(BaseComponent[] kickReasonComponent)

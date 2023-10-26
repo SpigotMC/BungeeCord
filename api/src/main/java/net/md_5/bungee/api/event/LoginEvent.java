@@ -40,7 +40,7 @@ public class LoginEvent extends AsyncEvent<LoginEvent> implements Cancellable
 
     /**
      * @return reason to be displayed
-     * @deprecated Use {@link #getReason()} instead
+     * @deprecated Use component methods instead
      */
     @Deprecated
     public String getCancelReason()
@@ -50,7 +50,7 @@ public class LoginEvent extends AsyncEvent<LoginEvent> implements Cancellable
 
     /**
      * @param cancelReason reason to be displayed
-     * @deprecated Use {@link #setReason(BaseComponent)} instead
+     * @deprecated Use component methods instead
      */
     @Deprecated
     public void setCancelReason(String cancelReason)
@@ -60,7 +60,7 @@ public class LoginEvent extends AsyncEvent<LoginEvent> implements Cancellable
 
     /**
      * @return the cancel reason
-     * @deprecated Use {@link #getCancelReason()} instead.
+     * @deprecated Use component methods instead.
      */
     @Deprecated
     public BaseComponent[] getCancelReasonComponents()
@@ -70,7 +70,7 @@ public class LoginEvent extends AsyncEvent<LoginEvent> implements Cancellable
 
     /**
      * @param cancelReason the cancel reason
-     * @deprecated Use {@link #setReason(BaseComponent)} instead
+     * @deprecated Use component methods instead
      */
     @Deprecated
     public void setCancelReason(BaseComponent... cancelReason)
