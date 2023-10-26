@@ -33,18 +33,18 @@ public class CommandKick extends Command implements TabExecutor
 
             if ( player == null )
             {
-                sender.sendMessage( TextComponent.fromLegacyText( ProxyServer.getInstance().getTranslation( "user_not_online" ) ) );
+                sender.sendMessage( TextComponent.fromLegacy( ProxyServer.getInstance().getTranslation( "user_not_online" ) ) );
                 return;
             }
 
             if ( args.length == 1 )
             {
-                player.disconnect( TextComponent.fromLegacyText( ProxyServer.getInstance().getTranslation( "kick_message" ) ) );
+                player.disconnect( TextComponent.fromLegacy( ProxyServer.getInstance().getTranslation( "kick_message" ) ) );
             } else
             {
                 String[] reason = new String[ args.length - 1 ];
                 System.arraycopy( args, 1, reason, 0, reason.length );
-                player.disconnect( TextComponent.fromLegacyText( ChatColor.translateAlternateColorCodes( '&', Joiner.on( ' ' ).join( reason ) ) ) );
+                player.disconnect( TextComponent.fromLegacy( ChatColor.translateAlternateColorCodes( '&', Joiner.on( ' ' ).join( reason ) ) ) );
             }
         }
     }

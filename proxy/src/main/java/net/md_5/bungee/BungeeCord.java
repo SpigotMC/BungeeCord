@@ -730,13 +730,13 @@ public class BungeeCord extends ProxyServer
     @Override
     public void broadcast(String message)
     {
-        broadcast( TextComponent.fromLegacyText( message ) );
+        broadcast( TextComponent.fromLegacy( message ) );
     }
 
     @Override
     public void broadcast(BaseComponent... message)
     {
-        getConsole().sendMessage( BaseComponent.toLegacyText( message ) );
+        getConsole().sendMessage( message );
         for ( ProxiedPlayer player : getPlayers() )
         {
             player.sendMessage( message );
@@ -746,7 +746,7 @@ public class BungeeCord extends ProxyServer
     @Override
     public void broadcast(BaseComponent message)
     {
-        getConsole().sendMessage( message.toLegacyText() );
+        getConsole().sendMessage( message );
         for ( ProxiedPlayer player : getPlayers() )
         {
             player.sendMessage( message );

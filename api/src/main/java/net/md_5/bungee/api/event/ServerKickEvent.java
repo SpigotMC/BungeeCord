@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -35,7 +36,7 @@ public class ServerKickEvent extends Event implements Cancellable
     /**
      * Kick reason.
      */
-    private BaseComponent[] kickReasonComponent;
+    private BaseComponent reason;
     /**
      * Server to send player to if this event is cancelled.
      */
@@ -63,24 +64,58 @@ public class ServerKickEvent extends Event implements Cancellable
         this( player, player.getServer().getInfo(), kickReasonComponent, cancelServer, state );
     }
 
+    @Deprecated
     public ServerKickEvent(ProxiedPlayer player, ServerInfo kickedFrom, BaseComponent[] kickReasonComponent, ServerInfo cancelServer, State state)
+    {
+        this( player, kickedFrom, new ComponentBuilder().append( kickReasonComponent ).build(), cancelServer, state );
+    }
+
+    public ServerKickEvent(ProxiedPlayer player, ServerInfo kickedFrom, BaseComponent reason, ServerInfo cancelServer, State state)
     {
         this.player = player;
         this.kickedFrom = kickedFrom;
-        this.kickReasonComponent = kickReasonComponent;
+        this.reason = reason;
         this.cancelServer = cancelServer;
         this.state = state;
     }
 
+    /**
+     * @return the kick reason
+     * @deprecated Use {@link #getReason()} instead
+     */
     @Deprecated
     public String getKickReason()
     {
-        return BaseComponent.toLegacyText( kickReasonComponent );
+        return BaseComponent.toLegacyText( getReason() );
     }
 
+    /**
+     * @param reason the kick reason
+     * @deprecated Use {@link #setReason(BaseComponent)} instead
+     */
     @Deprecated
     public void setKickReason(String reason)
     {
-        kickReasonComponent = TextComponent.fromLegacyText( reason );
+        this.setReason( TextComponent.fromLegacy( reason ) );
+    }
+
+    /**
+     * @return the kick reason
+     * @deprecated Use {@link #getReason()} instead
+     */
+    @Deprecated
+    public BaseComponent[] getKickReasonComponent()
+    {
+        return new BaseComponent[] {getReason()};
+    }
+
+    /**
+     * @param kickReasonComponent the kick reason
+     * @deprecated Use {@link #setReason(BaseComponent)} instead
+     */
+    @Deprecated
+    public void setKickReasonComponent(BaseComponent[] kickReasonComponent)
+    {
+        this.setReason( new ComponentBuilder().append( kickReasonComponent ).build() );
     }
 }
