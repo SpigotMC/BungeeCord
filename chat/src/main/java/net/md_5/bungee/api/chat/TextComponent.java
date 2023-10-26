@@ -2,6 +2,7 @@ package net.md_5.bungee.api.chat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
@@ -44,15 +45,9 @@ public final class TextComponent extends BaseComponent
      */
     public static BaseComponent fromLegacy(String message, ChatColor defaultColor)
     {
-        TextComponent component = new TextComponent();
-
-        BaseComponent[] components = fromLegacyText( message, defaultColor );
-        if ( components.length > 0 )
-        {
-            component.setExtra( Arrays.asList( components ) );
-        }
-
-        return component;
+        ComponentBuilder componentBuilder = new ComponentBuilder();
+        populateComponentStructure( message, defaultColor, componentBuilder::append );
+        return componentBuilder.build();
     }
 
     /**
@@ -91,6 +86,12 @@ public final class TextComponent extends BaseComponent
     public static BaseComponent[] fromLegacyText(String message, ChatColor defaultColor)
     {
         ArrayList<BaseComponent> components = new ArrayList<>();
+        populateComponentStructure( message, defaultColor, components::add );
+        return components.toArray( new BaseComponent[ 0 ] );
+    }
+
+    private static void populateComponentStructure(String message, ChatColor defaultColor, Consumer<BaseComponent> appender)
+    {
         StringBuilder builder = new StringBuilder();
         TextComponent component = new TextComponent();
         Matcher matcher = url.matcher( message );
@@ -140,7 +141,7 @@ public final class TextComponent extends BaseComponent
                     component = new TextComponent( old );
                     old.setText( builder.toString() );
                     builder = new StringBuilder();
-                    components.add( old );
+                    appender.accept( old );
                 }
                 if ( format == ChatColor.BOLD )
                 {
@@ -183,7 +184,7 @@ public final class TextComponent extends BaseComponent
                     component = new TextComponent( old );
                     old.setText( builder.toString() );
                     builder = new StringBuilder();
-                    components.add( old );
+                    appender.accept( old );
                 }
 
                 TextComponent old = component;
@@ -192,7 +193,7 @@ public final class TextComponent extends BaseComponent
                 component.setText( urlString );
                 component.setClickEvent( new ClickEvent( ClickEvent.Action.OPEN_URL,
                         urlString.startsWith( "http" ) ? urlString : "http://" + urlString ) );
-                components.add( component );
+                appender.accept( component );
                 i += pos - i - 1;
                 component = old;
                 continue;
@@ -201,9 +202,7 @@ public final class TextComponent extends BaseComponent
         }
 
         component.setText( builder.toString() );
-        components.add( component );
-
-        return components.toArray( new BaseComponent[ 0 ] );
+        appender.accept( component );
     }
 
     /**
