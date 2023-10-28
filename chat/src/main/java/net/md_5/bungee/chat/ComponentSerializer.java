@@ -44,16 +44,17 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
 
     /**
      * Parse a JSON-compliant String as an array of base components. The input
-     * can be one of either an array of components, or a single component object.
-     * If the input is an array, each component will be parsed individually and
-     * returned in the order that they were parsed. If the input is a single
-     * component object, a single-valued array with the component will be returned.
+     * can be one of either an array of components, or a single component
+     * object. If the input is an array, each component will be parsed
+     * individually and returned in the order that they were parsed. If the
+     * input is a single component object, a single-valued array with the
+     * component will be returned.
      * <p>
-     * <strong>NOTE:</strong> {@link #deserialize(String)} is preferred as it will
-     * parse only one component as opposed to an array of components which is non-
-     * standard behavior. This method is still appropriate for parsing multiple
-     * components at once, although such use case is rarely (if at all) exhibited
-     * in vanilla Minecraft.
+     * <strong>NOTE:</strong> {@link #deserialize(String)} is preferred as it
+     * will parse only one component as opposed to an array of components which
+     * is non- standard behavior. This method is still appropriate for parsing
+     * multiple components at once, although such use case is rarely (if at all)
+     * exhibited in vanilla Minecraft.
      *
      * @param json the component json to parse
      * @return an array of all parsed components

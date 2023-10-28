@@ -561,8 +561,7 @@ public class ComponentsTest
         this.testBuilder(
                 ComponentBuilder::create,
                 BaseComponent::toPlainText,
-                ChatColor.RED + "Hello " + ChatColor.BLUE + ChatColor.BOLD
-                    + "World" + ChatColor.YELLOW + ChatColor.BOLD + "!",
+                ChatColor.RED + "Hello " + ChatColor.BLUE + ChatColor.BOLD + "World" + ChatColor.YELLOW + ChatColor.BOLD + "!",
                 BaseComponent::toLegacyText
         );
     }
@@ -574,8 +573,7 @@ public class ComponentsTest
                 ComponentBuilder::build,
                 (component) -> BaseComponent.toPlainText( component ),
                 // An extra format code is appended to the beginning because there is an empty TextComponent at the start of every component
-                ChatColor.WHITE.toString() + ChatColor.RED + "Hello " + ChatColor.BLUE + ChatColor.BOLD
-                    + "World" + ChatColor.YELLOW + ChatColor.BOLD + "!",
+                ChatColor.WHITE.toString() + ChatColor.RED + "Hello " + ChatColor.BLUE + ChatColor.BOLD + "World" + ChatColor.YELLOW + ChatColor.BOLD + "!",
                 (component) -> BaseComponent.toLegacyText( component )
         );
     }
@@ -830,8 +828,8 @@ public class ComponentsTest
         String test2 = componentSerializer.apply( componentBuilder.apply( builder ) );
         assertEquals(
                 "{\"extra\":[{\"underlined\":true,\"color\":\"dark_red\",\"text\":\"44444\"},"
-                        + "{\"color\":\"white\",\"text\":\"dd\"},{\"bold\":true,\"color\":\"gold\",\"text\":\"6666\"},"
-                        + "{\"color\":\"white\",\"text\":\"rrrr\"}],\"text\":\"\"}",
+                + "{\"color\":\"white\",\"text\":\"dd\"},{\"bold\":true,\"color\":\"gold\",\"text\":\"6666\"},"
+                + "{\"color\":\"white\",\"text\":\"rrrr\"}],\"text\":\"\"}",
                 test2 );
     }
 

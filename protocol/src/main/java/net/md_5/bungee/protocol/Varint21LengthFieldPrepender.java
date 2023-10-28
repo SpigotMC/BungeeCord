@@ -6,7 +6,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
 /**
- * Prepend length of the message as a Varint21 by writing length and data to a new buffer
+ * Prepend length of the message as a Varint21 by writing length and data to a
+ * new buffer
  */
 @ChannelHandler.Sharable
 public class Varint21LengthFieldPrepender extends MessageToByteEncoder<ByteBuf>

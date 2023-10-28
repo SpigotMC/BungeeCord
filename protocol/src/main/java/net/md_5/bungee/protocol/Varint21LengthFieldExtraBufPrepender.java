@@ -7,7 +7,8 @@ import io.netty.handler.codec.MessageToMessageEncoder;
 import java.util.List;
 
 /**
- * Prepend length of the message as a Varint21 using an extra buffer for the length, avoiding copying packet data
+ * Prepend length of the message as a Varint21 using an extra buffer for the
+ * length, avoiding copying packet data
  */
 @ChannelHandler.Sharable
 public class Varint21LengthFieldExtraBufPrepender extends MessageToMessageEncoder<ByteBuf>

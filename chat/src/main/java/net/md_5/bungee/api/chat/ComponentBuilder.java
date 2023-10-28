@@ -455,8 +455,8 @@ public final class ComponentBuilder
     }
 
     /**
-     * Returns the component built by this builder. If this builder is
-     * empty, an empty text component will be returned.
+     * Returns the component built by this builder. If this builder is empty, an
+     * empty text component will be returned.
      *
      * @return the component
      */
@@ -478,8 +478,8 @@ public final class ComponentBuilder
      * <p>
      * <strong>NOTE:</strong> {@link #build()} is preferred as it will
      * consolidate all components into a single BaseComponent with extra
-     * contents as opposed to an array of components which is non-standard
-     * and may result in unexpected behavior.
+     * contents as opposed to an array of components which is non-standard and
+     * may result in unexpected behavior.
      *
      * @return the created components
      */
