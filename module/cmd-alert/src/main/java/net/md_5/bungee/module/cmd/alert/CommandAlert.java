@@ -41,7 +41,7 @@ public class CommandAlert extends Command
 
             String message = builder.substring( 0, builder.length() - 1 );
 
-            ProxyServer.getInstance().broadcast( TextComponent.fromLegacyText( message ) );
+            ProxyServer.getInstance().broadcast( TextComponent.fromLegacy( message ) );
         }
     }
 }

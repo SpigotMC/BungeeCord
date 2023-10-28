@@ -406,7 +406,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void disconnect(String reason)
     {
-        disconnect( TextComponent.fromLegacyText( reason ) );
+        disconnect( TextComponent.fromLegacy( reason ) );
     }
 
     @Override
@@ -454,7 +454,7 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void sendMessage(String message)
     {
-        sendMessage( TextComponent.fromLegacyText( message ) );
+        sendMessage( TextComponent.fromLegacy( message ) );
     }
 
     @Override

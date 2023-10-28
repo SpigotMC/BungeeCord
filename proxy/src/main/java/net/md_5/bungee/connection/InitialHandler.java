@@ -433,8 +433,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             {
                 if ( result.isCancelled() )
                 {
-                    BaseComponent[] reason = result.getCancelReasonComponents();
-                    disconnect( ( reason != null ) ? reason : TextComponent.fromLegacyText( bungee.getTranslation( "kick_message" ) ) );
+                    BaseComponent reason = result.getReason();
+                    disconnect( ( reason != null ) ? reason : TextComponent.fromLegacy( bungee.getTranslation( "kick_message" ) ) );
                     return;
                 }
                 if ( ch.isClosed() )
@@ -577,8 +577,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             {
                 if ( result.isCancelled() )
                 {
-                    BaseComponent[] reason = result.getCancelReasonComponents();
-                    disconnect( ( reason != null ) ? reason : TextComponent.fromLegacyText( bungee.getTranslation( "kick_message" ) ) );
+                    BaseComponent reason = result.getReason();
+                    disconnect( ( reason != null ) ? reason : TextComponent.fromLegacy( bungee.getTranslation( "kick_message" ) ) );
                     return;
                 }
                 if ( ch.isClosed() )
@@ -645,7 +645,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( canSendKickMessage() )
         {
-            disconnect( TextComponent.fromLegacyText( reason ) );
+            disconnect( TextComponent.fromLegacy( reason ) );
         } else
         {
             ch.close();
