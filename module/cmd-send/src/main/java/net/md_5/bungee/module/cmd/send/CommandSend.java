@@ -49,17 +49,16 @@ public class CommandSend extends Command implements TabExecutor
             for ( Map.Entry<ServerConnectRequest.Result, List<String>> entry : results.entrySet() )
             {
                 ComponentBuilder builder = new ComponentBuilder( "" );
-                if ( !entry.getValue().isEmpty() )
+                List<String> list = entry.getValue();
+                synchronized ( list )
                 {
-                    String text;
-                    synchronized ( entry.getValue() )
+                    if ( !list.isEmpty() )
                     {
-                        text = Joiner.on( ", " ).join( entry.getValue() );
+                        builder.event( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( Joiner.on( ", " ).join( list ) ).color( ChatColor.YELLOW ).create() ) );
                     }
-                    builder.event( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( text ).color( ChatColor.YELLOW ).create() ) );
+                    builder.append( entry.getKey().name() + ": " ).color( ChatColor.GREEN );
+                    builder.append( "" + list.size() ).bold( true );
                 }
-                builder.append( entry.getKey().name() + ": " ).color( ChatColor.GREEN );
-                builder.append( "" + entry.getValue().size() ).bold( true );
                 sender.sendMessage( builder.create() );
             }
         }
