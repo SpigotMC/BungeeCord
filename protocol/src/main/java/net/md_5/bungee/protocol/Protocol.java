@@ -451,7 +451,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_19_1, 0x12 ),
                     map( ProtocolConstants.MINECRAFT_1_19_3, 0x11 ),
                     map( ProtocolConstants.MINECRAFT_1_19_4, 0x12 ),
-                    map( ProtocolConstants.MINECRAFT_1_20_2, 0x14 )
+                    map( ProtocolConstants.MINECRAFT_1_20_2, 0x14 ),
+                    map( ProtocolConstants.MINECRAFT_1_20_3, 0x15 )
             );
             TO_SERVER.registerPacket( Chat.class,
                     Chat::new,
@@ -517,7 +518,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_19_1, 0x0D ),
                     map( ProtocolConstants.MINECRAFT_1_19_3, 0x0C ),
                     map( ProtocolConstants.MINECRAFT_1_19_4, 0x0D ),
-                    map( ProtocolConstants.MINECRAFT_1_20_2, 0x0F )
+                    map( ProtocolConstants.MINECRAFT_1_20_2, 0x0F ),
+                    map( ProtocolConstants.MINECRAFT_1_20_3, 0x10 )
             );
             TO_SERVER.registerPacket(
                     StartConfiguration.class,

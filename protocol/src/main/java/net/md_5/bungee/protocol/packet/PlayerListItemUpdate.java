@@ -58,7 +58,7 @@ public class PlayerListItemUpdate extends DefinedPacket
                     case UPDATE_DISPLAY_NAME:
                         if ( buf.readBoolean() )
                         {
-                            item.displayName = DefinedPacket.readString( buf );
+                            item.displayName = DefinedPacket.readBaseComponent( buf, protocolVersion );
                         }
                         break;
                 }
@@ -106,7 +106,7 @@ public class PlayerListItemUpdate extends DefinedPacket
                         buf.writeBoolean( item.displayName != null );
                         if ( item.displayName != null )
                         {
-                            DefinedPacket.writeString( item.displayName, buf );
+                            DefinedPacket.writeBaseComponent( item.displayName, buf, protocolVersion );
                         }
                         break;
                 }

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
@@ -16,7 +17,7 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 public class ServerData extends DefinedPacket
 {
 
-    private String motd;
+    private BaseComponent motd;
     private Object icon;
     private boolean preview;
     private boolean enforceSecure;
@@ -26,7 +27,7 @@ public class ServerData extends DefinedPacket
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_4 || buf.readBoolean() )
         {
-            motd = readString( buf, 262144 );
+            motd = readBaseComponent( buf, protocolVersion );
         }
         if ( buf.readBoolean() )
         {
@@ -59,7 +60,7 @@ public class ServerData extends DefinedPacket
             {
                 buf.writeBoolean( true );
             }
-            writeString( motd, buf, 262144 );
+            writeBaseComponent( motd, buf, protocolVersion );
         } else
         {
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_4 )

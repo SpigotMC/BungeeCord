@@ -161,6 +161,28 @@ public final class TextComponent extends BaseComponent
     }
 
     /**
+     * Internal compatibility method to transform an array of components to a
+     * single component.
+     *
+     * @param components array
+     * @return single component
+     */
+    public static BaseComponent fromArray(BaseComponent... components)
+    {
+        if ( components == null )
+        {
+            return null;
+        }
+
+        if ( components.length == 1 )
+        {
+            return components[0];
+        }
+
+        return new TextComponent( components );
+    }
+
+    /**
      * The text of the component that will be displayed to the client
      */
     private String text;

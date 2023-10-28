@@ -2,6 +2,7 @@ package net.md_5.bungee.protocol;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
+import com.google.gson.JsonElement;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
@@ -15,6 +16,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import se.llbit.nbt.ErrorTag;
 import se.llbit.nbt.NamedTag;
 import se.llbit.nbt.SpecificTag;
@@ -68,6 +71,38 @@ public abstract class DefinedPacket
         }
 
         return s;
+    }
+
+    public static BaseComponent readBaseComponent(ByteBuf buf, int protocolVersion)
+    {
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
+        {
+            SpecificTag nbt = (SpecificTag) readTag( buf, protocolVersion );
+            JsonElement json = TagUtil.toJson( nbt );
+
+            return ComponentSerializer.deserialize( json );
+        } else
+        {
+            String string = readString( buf );
+
+            return ComponentSerializer.deserialize( string );
+        }
+    }
+
+    public static void writeBaseComponent(BaseComponent message, ByteBuf buf, int protocolVersion)
+    {
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
+        {
+            JsonElement json = ComponentSerializer.toJson( message );
+            SpecificTag nbt = TagUtil.fromJson( json );
+
+            writeTag( nbt, buf, protocolVersion );
+        } else
+        {
+            String string = ComponentSerializer.toString( message );
+
+            writeString( string, buf );
+        }
     }
 
     public static void writeArray(byte[] b, ByteBuf buf)
@@ -395,6 +430,11 @@ public abstract class DefinedPacket
         throw new UnsupportedOperationException( "Packet must implement read method" );
     }
 
+    public void read(ByteBuf buf, Protocol protocol, ProtocolConstants.Direction direction, int protocolVersion)
+    {
+        read( buf, direction, protocolVersion );
+    }
+
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         read( buf );
@@ -403,6 +443,11 @@ public abstract class DefinedPacket
     public void write(ByteBuf buf)
     {
         throw new UnsupportedOperationException( "Packet must implement write method" );
+    }
+
+    public void write(ByteBuf buf, Protocol protocol, ProtocolConstants.Direction direction, int protocolVersion)
+    {
+        write( buf, direction, protocolVersion );
     }
 
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)

@@ -183,7 +183,7 @@ public class DownstreamBridge extends PacketHandler
         switch ( objective.getAction() )
         {
             case 0:
-                serverScoreboard.addObjective( new Objective( objective.getName(), objective.getValue(), objective.getType().toString() ) );
+                serverScoreboard.addObjective( new Objective( objective.getName(), ComponentSerializer.toString( objective.getValue() ), objective.getType().toString() ) );
                 break;
             case 1:
                 serverScoreboard.removeObjective( objective.getName() );
@@ -192,7 +192,7 @@ public class DownstreamBridge extends PacketHandler
                 Objective oldObjective = serverScoreboard.getObjective( objective.getName() );
                 if ( oldObjective != null )
                 {
-                    oldObjective.setValue( objective.getValue() );
+                    oldObjective.setValue( ComponentSerializer.toString( objective.getValue() ) );
                     oldObjective.setType( objective.getType().toString() );
                 }
                 break;
@@ -254,9 +254,9 @@ public class DownstreamBridge extends PacketHandler
         {
             if ( team.getMode() == 0 || team.getMode() == 2 )
             {
-                t.setDisplayName( team.getDisplayName() );
-                t.setPrefix( team.getPrefix() );
-                t.setSuffix( team.getSuffix() );
+                t.setDisplayName( ComponentSerializer.toString( team.getDisplayName() ) );
+                t.setPrefix( ComponentSerializer.toString( team.getPrefix() ) );
+                t.setSuffix( ComponentSerializer.toString( team.getSuffix() ) );
                 t.setFriendlyFire( team.getFriendlyFire() );
                 t.setNameTagVisibility( team.getNameTagVisibility() );
                 t.setCollisionRule( team.getCollisionRule() );
@@ -620,13 +620,16 @@ public class DownstreamBridge extends PacketHandler
     public void handle(Kick kick) throws Exception
     {
         ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
-        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTED ) );
+        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), new BaseComponent[]
+        {
+            kick.getMessage()
+        }, def, ServerKickEvent.State.CONNECTED ) );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
             con.connectNow( event.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT );
         } else
         {
-            con.disconnect0( event.getKickReasonComponent() ); // TODO: Prefix our own stuff.
+            con.disconnect( event.getKickReasonComponent() ); // TODO: Prefix our own stuff.
         }
         server.setObsolete( true );
         throw CancelSendSignal.INSTANCE;

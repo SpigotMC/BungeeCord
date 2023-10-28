@@ -1,9 +1,9 @@
 package net.md_5.bungee.util;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -34,30 +34,25 @@ public final class ChatComponentTransformer
      */
     private static final Pattern SELECTOR_PATTERN = Pattern.compile( "^@([pares])(?:\\[([^ ]*)\\])?$" );
 
-    public BaseComponent[] legacyHoverTransform(ProxiedPlayer player, BaseComponent... components)
+    public BaseComponent legacyHoverTransform(ProxiedPlayer player, BaseComponent next)
     {
         if ( player.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_16 )
         {
-            for ( int i = 0; i < components.length; i++ )
+            if ( next.getHoverEvent() == null || next.getHoverEvent().isLegacy() )
             {
-                BaseComponent next = components[i];
-                if ( next.getHoverEvent() == null || next.getHoverEvent().isLegacy() )
-                {
-                    continue;
-                }
-                next = next.duplicate();
-                next.getHoverEvent().setLegacy( true );
-                if ( next.getHoverEvent().getContents().size() > 1 )
-                {
-                    Content exception = next.getHoverEvent().getContents().get( 0 );
-                    next.getHoverEvent().getContents().clear();
-                    next.getHoverEvent().getContents().add( exception );
-                }
-                components[i] = next;
+                return next;
+            }
+            next = next.duplicate();
+            next.getHoverEvent().setLegacy( true );
+            if ( next.getHoverEvent().getContents().size() > 1 )
+            {
+                Content exception = next.getHoverEvent().getContents().get( 0 );
+                next.getHoverEvent().getContents().clear();
+                next.getHoverEvent().getContents().add( exception );
             }
         }
 
-        return components;
+        return next;
     }
 
     public static ChatComponentTransformer getInstance()
@@ -77,7 +72,7 @@ public final class ChatComponentTransformer
      * TextComponent if the components are null or empty
      * @throws IllegalArgumentException if an entity selector pattern is present
      */
-    public BaseComponent[] transform(ProxiedPlayer player, BaseComponent... components)
+    public BaseComponent transform(ProxiedPlayer player, BaseComponent components)
     {
         return transform( player, false, components );
     }
@@ -91,40 +86,35 @@ public final class ChatComponentTransformer
      * @param player player
      * @param transformHover if the hover event should replace contents with
      * value
-     * @param components the component to transform
+     * @param root the component to transform
      * @return the transformed component, or an array containing a single empty
      * TextComponent if the components are null or empty
      * @throws IllegalArgumentException if an entity selector pattern is present
      */
-    public BaseComponent[] transform(ProxiedPlayer player, boolean transformHover, BaseComponent... components)
+    public BaseComponent transform(ProxiedPlayer player, boolean transformHover, BaseComponent root)
     {
-        if ( components == null || components.length < 1 || ( components.length == 1 && components[0] == null ) )
+        if ( root == null )
         {
-            return new BaseComponent[]
-            {
-                new TextComponent( "" )
-            };
+            return new TextComponent( "" );
         }
 
         if ( transformHover )
         {
-            components = legacyHoverTransform( player, components );
+            root = legacyHoverTransform( player, root );
         }
 
-        for ( BaseComponent root : components )
+        if ( root.getExtra() != null && !root.getExtra().isEmpty() )
         {
-            if ( root.getExtra() != null && !root.getExtra().isEmpty() )
-            {
-                List<BaseComponent> list = Lists.newArrayList( transform( player, transformHover, root.getExtra().toArray( new BaseComponent[ 0 ] ) ) );
-                root.setExtra( list );
-            }
-
-            if ( root instanceof ScoreComponent )
-            {
-                transformScoreComponent( player, (ScoreComponent) root );
-            }
+            List<BaseComponent> list = root.getExtra().stream().map( (extra) -> transform( player, transformHover, extra ) ).collect( Collectors.toList() );
+            root.setExtra( list );
         }
-        return components;
+
+        if ( root instanceof ScoreComponent )
+        {
+            transformScoreComponent( player, (ScoreComponent) root );
+        }
+
+        return root;
     }
 
     /**

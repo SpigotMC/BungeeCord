@@ -5,8 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
@@ -15,18 +19,30 @@ import net.md_5.bungee.protocol.DefinedPacket;
 public class Kick extends DefinedPacket
 {
 
-    private String message;
+    private BaseComponent message;
 
     @Override
-    public void read(ByteBuf buf)
+    public void read(ByteBuf buf, Protocol protocol, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        message = readString( buf );
+        if ( protocol == Protocol.LOGIN )
+        {
+            message = ComponentSerializer.deserialize( readString( buf ) );
+        } else
+        {
+            message = readBaseComponent( buf, protocolVersion );
+        }
     }
 
     @Override
-    public void write(ByteBuf buf)
+    public void write(ByteBuf buf, Protocol protocol, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        writeString( message, buf );
+        if ( protocol == Protocol.LOGIN )
+        {
+            writeString( ComponentSerializer.toString( message ), buf );
+        } else
+        {
+            writeBaseComponent( message, buf, protocolVersion );
+        }
     }
 
     @Override

@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
@@ -17,7 +18,7 @@ public class Title extends DefinedPacket
     private Action action;
 
     // TITLE & SUBTITLE
-    private String text;
+    private BaseComponent text;
 
     // TIMES
     private int fadeIn;
@@ -34,7 +35,7 @@ public class Title extends DefinedPacket
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_17 )
         {
-            text = readString( buf );
+            text = readBaseComponent( buf, protocolVersion );
             return;
         }
 
@@ -52,7 +53,7 @@ public class Title extends DefinedPacket
             case TITLE:
             case SUBTITLE:
             case ACTIONBAR:
-                text = readString( buf );
+                text = readBaseComponent( buf, protocolVersion );
                 break;
             case TIMES:
                 fadeIn = buf.readInt();
@@ -67,7 +68,7 @@ public class Title extends DefinedPacket
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_17 )
         {
-            writeString( text, buf );
+            writeBaseComponent( text, buf, protocolVersion );
             return;
         }
 
@@ -85,7 +86,7 @@ public class Title extends DefinedPacket
             case TITLE:
             case SUBTITLE:
             case ACTIONBAR:
-                writeString( text, buf );
+                writeBaseComponent( text, buf, protocolVersion );
                 break;
             case TIMES:
                 buf.writeInt( fadeIn );

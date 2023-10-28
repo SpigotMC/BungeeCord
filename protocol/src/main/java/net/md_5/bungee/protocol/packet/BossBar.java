@@ -5,6 +5,7 @@ import java.util.UUID;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
@@ -17,7 +18,7 @@ public class BossBar extends DefinedPacket
 
     private UUID uuid;
     private int action;
-    private String title;
+    private BaseComponent title;
     private float health;
     private int color;
     private int division;
@@ -39,7 +40,7 @@ public class BossBar extends DefinedPacket
         {
             // Add
             case 0:
-                title = readString( buf );
+                title = readBaseComponent( buf, protocolVersion );
                 health = buf.readFloat();
                 color = readVarInt( buf );
                 division = readVarInt( buf );
@@ -51,7 +52,7 @@ public class BossBar extends DefinedPacket
                 break;
             // Title
             case 3:
-                title = readString( buf );
+                title = readBaseComponent( buf, protocolVersion );
                 break;
             // Style
             case 4:
@@ -75,7 +76,7 @@ public class BossBar extends DefinedPacket
         {
             // Add
             case 0:
-                writeString( title, buf );
+                writeBaseComponent( title, buf, protocolVersion );
                 buf.writeFloat( health );
                 writeVarInt( color, buf );
                 writeVarInt( division, buf );
@@ -87,7 +88,7 @@ public class BossBar extends DefinedPacket
                 break;
             // Title
             case 3:
-                writeString( title, buf );
+                writeBaseComponent( title, buf, protocolVersion );
                 break;
             // Style
             case 4:
