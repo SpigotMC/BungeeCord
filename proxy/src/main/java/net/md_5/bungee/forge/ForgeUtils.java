@@ -1,9 +1,9 @@
 package net.md_5.bungee.forge;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -22,7 +22,7 @@ public class ForgeUtils
      */
     public static Set<String> readRegisteredChannels(PluginMessage pluginMessage)
     {
-        String channels = new String( pluginMessage.getData(), Charsets.UTF_8 );
+        String channels = new String( pluginMessage.getData(), StandardCharsets.UTF_8 );
         String[] split = channels.split( "\0" );
         Set<String> channelSet = ImmutableSet.copyOf( split );
         return channelSet;
