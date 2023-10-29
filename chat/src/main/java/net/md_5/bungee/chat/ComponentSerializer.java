@@ -2,6 +2,7 @@ package net.md_5.bungee.chat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -77,13 +78,12 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
     }
 
     /**
-     * Deserialize a JSON-compliant String as a single component. The input is
-     * expected to be a JSON object that represents only one component.
+     * Deserialize a JSON-compliant String as a single component.
      *
      * @param json the component json to parse
      * @return the deserialized component
-     * @throws IllegalArgumentException if anything other than a JSON object is
-     * passed as input
+     * @throws IllegalArgumentException if anything other than a valid JSON
+     * component string is passed as input
      */
     public static BaseComponent deserialize(String json)
     {
@@ -93,13 +93,12 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
     }
 
     /**
-     * Deserialize a JSON element as a single component. The input is expected
-     * to be a JSON object that represents only one component.
+     * Deserialize a JSON element as a single component.
      *
      * @param jsonElement the component json to parse
      * @return the deserialized component
-     * @throws IllegalArgumentException if anything other than a JSON object is
-     * passed as input
+     * @throws IllegalArgumentException if anything other than a valid JSON
+     * component is passed as input
      */
     public static BaseComponent deserialize(JsonElement jsonElement)
     {
@@ -110,11 +109,10 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
             {
                 return new TextComponent( primitive.getAsString() );
             }
-        }
-
-        if ( !jsonElement.isJsonObject() )
+        } else if ( jsonElement instanceof JsonArray )
         {
-            throw new IllegalArgumentException( "Malformatted JSON. Expected object, got array for input \"" + jsonElement + "\"." );
+            BaseComponent[] array = gson.fromJson( jsonElement, BaseComponent[].class );
+            return TextComponent.fromArray( array );
         }
 
         return gson.fromJson( jsonElement, BaseComponent.class );
