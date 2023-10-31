@@ -1,11 +1,11 @@
 package net.md_5.bungee.chat;
 
-import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -102,7 +102,7 @@ public final class TranslationRegistry
 
         public JsonProvider(String resourcePath) throws IOException
         {
-            try ( InputStreamReader rd = new InputStreamReader( JsonProvider.class.getResourceAsStream( resourcePath ), Charsets.UTF_8 ) )
+            try ( InputStreamReader rd = new InputStreamReader( JsonProvider.class.getResourceAsStream( resourcePath ), StandardCharsets.UTF_8 ) )
             {
                 JsonObject obj = new Gson().fromJson( rd, JsonObject.class );
                 for ( Map.Entry<String, JsonElement> entries : obj.entrySet() )

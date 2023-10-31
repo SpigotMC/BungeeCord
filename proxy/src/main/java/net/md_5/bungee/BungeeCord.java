@@ -1,6 +1,5 @@
 package net.md_5.bungee;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -24,6 +23,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.text.Format;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -691,10 +691,10 @@ public class BungeeCord extends ProxyServer
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
         {
-            return new PluginMessage( "minecraft:register", String.join( "\00", Iterables.transform( pluginChannels, PluginMessage.MODERNISE ) ).getBytes( Charsets.UTF_8 ), false );
+            return new PluginMessage( "minecraft:register", String.join( "\00", Iterables.transform( pluginChannels, PluginMessage.MODERNISE ) ).getBytes( StandardCharsets.UTF_8 ), false );
         }
 
-        return new PluginMessage( "REGISTER", String.join( "\00", pluginChannels ).getBytes( Charsets.UTF_8 ), false );
+        return new PluginMessage( "REGISTER", String.join( "\00", pluginChannels ).getBytes( StandardCharsets.UTF_8 ), false );
     }
 
     @Override

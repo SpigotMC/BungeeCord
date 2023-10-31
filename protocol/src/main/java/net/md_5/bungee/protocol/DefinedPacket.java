@@ -1,6 +1,5 @@
 package net.md_5.bungee.protocol;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonElement;
 import io.netty.buffer.ByteBuf;
@@ -9,6 +8,7 @@ import io.netty.buffer.ByteBufOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -39,7 +39,7 @@ public abstract class DefinedPacket
             throw new OverflowPacketException( "Cannot send string longer than " + maxLength + " (got " + s.length() + " characters)" );
         }
 
-        byte[] b = s.getBytes( Charsets.UTF_8 );
+        byte[] b = s.getBytes( StandardCharsets.UTF_8 );
         if ( b.length > maxLength * 3 )
         {
             throw new OverflowPacketException( "Cannot send string longer than " + ( maxLength * 3 ) + " (got " + b.length + " bytes)" );
@@ -62,7 +62,7 @@ public abstract class DefinedPacket
             throw new OverflowPacketException( "Cannot receive string longer than " + maxLen * 3 + " (got " + len + " bytes)" );
         }
 
-        String s = buf.toString( buf.readerIndex(), len, Charsets.UTF_8 );
+        String s = buf.toString( buf.readerIndex(), len, StandardCharsets.UTF_8 );
         buf.readerIndex( buf.readerIndex() + len );
 
         if ( s.length() > maxLen )
