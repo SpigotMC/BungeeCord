@@ -54,7 +54,6 @@ public class UpstreamBridge extends PacketHandler
         this.bungee = bungee;
         this.con = con;
 
-        BungeeCord.getInstance().addConnection( con );
         con.getTabListHandler().onConnect();
     }
 

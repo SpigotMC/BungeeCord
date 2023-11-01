@@ -613,7 +613,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
     private void finish2()
     {
-        userCon.init();
+        if ( !userCon.init() )
+        {
+            disconnect( bungee.getTranslation( "already_connected_proxy" ) );
+            return;
+        }
 
         ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
         bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );

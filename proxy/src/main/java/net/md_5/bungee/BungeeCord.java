@@ -753,7 +753,7 @@ public class BungeeCord extends ProxyServer
         }
     }
 
-    public void addConnection(UserConnection con)
+    public boolean addConnection(UserConnection con)
     {
         UUID offlineId = con.getPendingConnection().getOfflineId();
         if ( offlineId != null && offlineId.version() != 3 )
@@ -763,6 +763,10 @@ public class BungeeCord extends ProxyServer
         connectionLock.writeLock().lock();
         try
         {
+            if ( connections.containsKey( con.getName() ) || connectionsByUUID.containsKey( con.getUniqueId() ) || connectionsByOfflineUUID.containsKey( offlineId ) )
+            {
+                return false;
+            }
             connections.put( con.getName(), con );
             connectionsByUUID.put( con.getUniqueId(), con );
             connectionsByOfflineUUID.put( offlineId, con );
@@ -770,6 +774,7 @@ public class BungeeCord extends ProxyServer
         {
             connectionLock.writeLock().unlock();
         }
+        return true;
     }
 
     public void removeConnection(UserConnection con)
