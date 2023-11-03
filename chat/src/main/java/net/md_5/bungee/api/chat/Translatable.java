@@ -3,7 +3,8 @@ package net.md_5.bungee.api.chat;
 /**
  * An object capable of being translated by the client in a {@link TranslatableComponent}.
  */
-public interface Translatable {
+public interface Translatable
+{
 
     /**
      * Get the translation key.
@@ -19,7 +20,7 @@ public interface Translatable {
      */
     default TranslatableComponent asTranslatableComponent()
     {
-        return asTranslatableComponent((Object[]) null);
+        return asTranslatableComponent( (Object[]) null );
     }
 
     /**
@@ -31,7 +32,7 @@ public interface Translatable {
      */
     default TranslatableComponent asTranslatableComponent(Object... with)
     {
-        return new TranslatableComponent(this, with);
+        return new TranslatableComponent( this, with );
     }
 
 }

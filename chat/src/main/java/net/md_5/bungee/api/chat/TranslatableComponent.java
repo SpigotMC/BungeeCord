@@ -98,7 +98,7 @@ public final class TranslatableComponent extends BaseComponent
      */
     public TranslatableComponent(Translatable translatable, Object... with)
     {
-        this(translatable.getTranslationKey(), with);
+        this( translatable.getTranslationKey(), with );
     }
 
     /**
