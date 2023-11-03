@@ -205,6 +205,33 @@ public final class ComponentBuilder
     }
 
     /**
+     * Appends the {@link Translatable} object to the builder and makes the
+     * last element the current target for formatting. The components will have
+     * all the formatting from previous part.
+     *
+     * @param translatable the translatable object to append
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder append(Translatable translatable)
+    {
+        return append( translatable, FormatRetention.ALL );
+    }
+
+    /**
+     * Appends the {@link Translatable} object to the builder and makes the
+     * last element the current target for formatting. You can specify the
+     * amount of formatting retained from previous part.
+     *
+     * @param translatable the translatable object to append
+     * @param retention the formatting to retain
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder append(Translatable translatable, FormatRetention retention)
+    {
+        return append( translatable.asTranslatableComponent(), retention );
+    }
+
+    /**
      * Appends the text to the builder and makes it the current target for
      * formatting. The text will have all the formatting from previous part.
      *
