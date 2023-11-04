@@ -3,7 +3,7 @@ package net.md_5.bungee.api.chat;
 /**
  * An object capable of being translated by the client in a {@link TranslatableComponent}.
  */
-public interface Translatable
+public interface TranslationProvider
 {
 
     /**

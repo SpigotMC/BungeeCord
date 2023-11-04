@@ -96,7 +96,7 @@ public final class TranslatableComponent extends BaseComponent
      * @see #translate
      * @see #setWith(java.util.List)
      */
-    public TranslatableComponent(Translatable translatable, Object... with)
+    public TranslatableComponent(TranslationProvider translatable, Object... with)
     {
         this( translatable.getTranslationKey(), with );
     }
