@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.Either;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
@@ -22,9 +23,9 @@ public class Team extends DefinedPacket
      * 0 - create, 1 remove, 2 info update, 3 player add, 4 player remove.
      */
     private byte mode;
-    private BaseComponent displayName;
-    private BaseComponent prefix;
-    private BaseComponent suffix;
+    private Either<String, BaseComponent> displayName;
+    private Either<String, BaseComponent> prefix;
+    private Either<String, BaseComponent> suffix;
     private String nameTagVisibility;
     private String collisionRule;
     private int color;
@@ -49,11 +50,14 @@ public class Team extends DefinedPacket
         mode = buf.readByte();
         if ( mode == 0 || mode == 2 )
         {
-            displayName = readBaseComponent( buf, protocolVersion );
             if ( protocolVersion < ProtocolConstants.MINECRAFT_1_13 )
             {
-                prefix = readBaseComponent( buf, protocolVersion );
-                suffix = readBaseComponent( buf, protocolVersion );
+                displayName = readEitherBaseComponent( buf, protocolVersion, true );
+                prefix = readEitherBaseComponent( buf, protocolVersion, true );
+                suffix = readEitherBaseComponent( buf, protocolVersion, true );
+            } else
+            {
+                displayName = readEitherBaseComponent( buf, protocolVersion, false );
             }
             friendlyFire = buf.readByte();
             nameTagVisibility = readString( buf );
@@ -64,8 +68,8 @@ public class Team extends DefinedPacket
             color = ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? readVarInt( buf ) : buf.readByte();
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
-                prefix = readBaseComponent( buf, protocolVersion );
-                suffix = readBaseComponent( buf, protocolVersion );
+                prefix = readEitherBaseComponent( buf, protocolVersion, false );
+                suffix = readEitherBaseComponent( buf, protocolVersion, false );
             }
         }
         if ( mode == 0 || mode == 3 || mode == 4 )
@@ -86,11 +90,11 @@ public class Team extends DefinedPacket
         buf.writeByte( mode );
         if ( mode == 0 || mode == 2 )
         {
-            writeBaseComponent( displayName, buf, protocolVersion );
+            writeEitherBaseComponent( displayName, buf, protocolVersion );
             if ( protocolVersion < ProtocolConstants.MINECRAFT_1_13 )
             {
-                writeBaseComponent( prefix, buf, protocolVersion );
-                writeBaseComponent( suffix, buf, protocolVersion );
+                writeEitherBaseComponent( prefix, buf, protocolVersion );
+                writeEitherBaseComponent( suffix, buf, protocolVersion );
             }
             buf.writeByte( friendlyFire );
             writeString( nameTagVisibility, buf );
@@ -102,8 +106,8 @@ public class Team extends DefinedPacket
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
                 writeVarInt( color, buf );
-                writeBaseComponent( prefix, buf, protocolVersion );
-                writeBaseComponent( suffix, buf, protocolVersion );
+                writeEitherBaseComponent( prefix, buf, protocolVersion );
+                writeEitherBaseComponent( suffix, buf, protocolVersion );
             } else
             {
                 buf.writeByte( color );

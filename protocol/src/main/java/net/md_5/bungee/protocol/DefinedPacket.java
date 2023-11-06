@@ -73,6 +73,11 @@ public abstract class DefinedPacket
         return s;
     }
 
+    public static Either<String, BaseComponent> readEitherBaseComponent(ByteBuf buf, int protocolVersion, boolean string)
+    {
+        return ( string ) ? Either.left( readString( buf ) ) : Either.right( readBaseComponent( buf, protocolVersion ) );
+    }
+
     public static BaseComponent readBaseComponent(ByteBuf buf, int protocolVersion)
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
@@ -86,6 +91,17 @@ public abstract class DefinedPacket
             String string = readString( buf );
 
             return ComponentSerializer.deserialize( string );
+        }
+    }
+
+    public static void writeEitherBaseComponent(Either<String, BaseComponent> message, ByteBuf buf, int protocolVersion)
+    {
+        if ( message.isLeft() )
+        {
+            writeString( message.getLeft(), buf );
+        } else
+        {
+            writeBaseComponent( message.getRight(), buf, protocolVersion );
         }
     }
 

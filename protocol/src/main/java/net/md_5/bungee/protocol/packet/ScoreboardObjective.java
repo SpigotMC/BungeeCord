@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.Either;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
@@ -19,7 +20,7 @@ public class ScoreboardObjective extends DefinedPacket
 {
 
     private String name;
-    private BaseComponent value;
+    private Either<String, BaseComponent> value;
     private HealthDisplay type;
     /**
      * 0 to create, 1 to remove, 2 to update display text.
@@ -33,12 +34,13 @@ public class ScoreboardObjective extends DefinedPacket
         action = buf.readByte();
         if ( action == 0 || action == 2 )
         {
-            value = readBaseComponent( buf, protocolVersion );
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
+                value = readEitherBaseComponent( buf, protocolVersion, false );
                 type = HealthDisplay.values()[readVarInt( buf )];
             } else
             {
+                value = readEitherBaseComponent( buf, protocolVersion, true );
                 type = HealthDisplay.fromString( readString( buf ) );
             }
         }
@@ -51,7 +53,7 @@ public class ScoreboardObjective extends DefinedPacket
         buf.writeByte( action );
         if ( action == 0 || action == 2 )
         {
-            writeBaseComponent( value, buf, protocolVersion );
+            writeEitherBaseComponent( value, buf, protocolVersion );
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
                 writeVarInt( type.ordinal(), buf );
