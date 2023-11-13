@@ -24,7 +24,7 @@ public class SystemChat extends DefinedPacket
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        message = readBaseComponent( buf, protocolVersion );
+        message = readBaseComponent( buf, 262144, protocolVersion );
         position = ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_1 ) ? ( ( buf.readBoolean() ) ? ChatMessageType.ACTION_BAR.ordinal() : 0 ) : readVarInt( buf );
     }
 

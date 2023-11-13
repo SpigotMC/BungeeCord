@@ -80,6 +80,11 @@ public abstract class DefinedPacket
 
     public static BaseComponent readBaseComponent(ByteBuf buf, int protocolVersion)
     {
+        return readBaseComponent( buf, Short.MAX_VALUE, protocolVersion );
+    }
+
+    public static BaseComponent readBaseComponent(ByteBuf buf, int maxStringLength, int protocolVersion)
+    {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
         {
             SpecificTag nbt = (SpecificTag) readTag( buf, protocolVersion );
@@ -88,7 +93,7 @@ public abstract class DefinedPacket
             return ComponentSerializer.deserialize( json );
         } else
         {
-            String string = readString( buf );
+            String string = readString( buf, maxStringLength );
 
             return ComponentSerializer.deserialize( string );
         }
