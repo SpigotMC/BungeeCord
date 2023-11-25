@@ -53,6 +53,7 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
+import net.md_5.bungee.protocol.packet.ScoreboardScoreReset;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.StartConfiguration;
 import net.md_5.bungee.protocol.packet.ViewDistance;
@@ -284,12 +285,18 @@ public class ServerConnector extends PacketHandler
                         objective.getName(),
                         ( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ) ? Either.right( ComponentSerializer.deserialize( objective.getValue() ) ) : Either.left( objective.getValue() ),
                         ScoreboardObjective.HealthDisplay.fromString( objective.getType() ),
-                        (byte) 1 )
+                        (byte) 1, null )
                 );
             }
             for ( Score score : serverScoreboard.getScores() )
             {
-                user.unsafe().sendPacket( new ScoreboardScore( score.getItemName(), (byte) 1, score.getScoreName(), score.getValue() ) );
+                if ( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_3 )
+                {
+                    user.unsafe().sendPacket( new ScoreboardScoreReset( score.getItemName(), null ) );
+                } else
+                {
+                    user.unsafe().sendPacket( new ScoreboardScore( score.getItemName(), (byte) 1, score.getScoreName(), score.getValue(), null, null ) );
+                }
             }
             for ( Team team : serverScoreboard.getTeams() )
             {

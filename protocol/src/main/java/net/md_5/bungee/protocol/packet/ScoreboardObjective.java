@@ -10,6 +10,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Either;
+import net.md_5.bungee.protocol.NumberFormat;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
@@ -26,6 +27,7 @@ public class ScoreboardObjective extends DefinedPacket
      * 0 to create, 1 to remove, 2 to update display text.
      */
     private byte action;
+    private NumberFormat numberFormat;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
@@ -42,6 +44,10 @@ public class ScoreboardObjective extends DefinedPacket
             {
                 value = readEitherBaseComponent( buf, protocolVersion, true );
                 type = HealthDisplay.fromString( readString( buf ) );
+            }
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
+            {
+                numberFormat = readNullable( (b) -> readNumberFormat( b, protocolVersion ), buf );
             }
         }
     }
@@ -60,6 +66,10 @@ public class ScoreboardObjective extends DefinedPacket
             } else
             {
                 writeString( type.toString(), buf );
+            }
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
+            {
+                writeNullable( numberFormat, (s, b) -> DefinedPacket.writeNumberFormat( s, b, protocolVersion ), buf );
             }
         }
     }

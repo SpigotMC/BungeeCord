@@ -67,6 +67,7 @@ import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
+import net.md_5.bungee.protocol.packet.ScoreboardScoreReset;
 import net.md_5.bungee.protocol.packet.ServerData;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
@@ -217,6 +218,18 @@ public class DownstreamBridge extends PacketHandler
                 break;
             default:
                 throw new IllegalArgumentException( "Unknown scoreboard action: " + score.getAction() );
+        }
+    }
+
+    @Override
+    public void handle(ScoreboardScoreReset scoreboardScoreReset) throws Exception
+    {
+        Scoreboard serverScoreboard = con.getServerSentScoreboard();
+
+        // TODO: Expand score API to handle objective values. Shouldn't matter currently as only used for removing score entries.
+        if ( scoreboardScoreReset.getScoreName() == null )
+        {
+            serverScoreboard.removeScore( scoreboardScoreReset.getItemName() );
         }
     }
 
