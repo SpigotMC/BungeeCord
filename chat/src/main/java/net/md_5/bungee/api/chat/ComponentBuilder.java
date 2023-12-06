@@ -424,6 +424,18 @@ public final class ComponentBuilder
     }
 
     /**
+     * Applies the provided {@link ComponentStyle} to the current part.
+     *
+     * @param style the style to apply
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder style(ComponentStyle style)
+    {
+        getCurrentComponent().applyStyle( style );
+        return this;
+    }
+
+    /**
      * Sets the insertion text for the current part.
      *
      * @param insertion the insertion text
