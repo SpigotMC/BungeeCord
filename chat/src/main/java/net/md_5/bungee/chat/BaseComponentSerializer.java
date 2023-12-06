@@ -5,6 +5,7 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,27 +21,51 @@ import net.md_5.bungee.api.chat.hover.content.Content;
 public class BaseComponentSerializer
 {
 
+    private static boolean getAsBoolean(JsonElement el)
+    {
+        if ( el.isJsonPrimitive() )
+        {
+            JsonPrimitive primitive = (JsonPrimitive) el;
+
+            if ( primitive.isBoolean() )
+            {
+                return primitive.getAsBoolean();
+            }
+
+            if ( primitive.isNumber() )
+            {
+                Number number = primitive.getAsNumber();
+                if ( number instanceof Byte )
+                {
+                    return number.byteValue() != 0;
+                }
+            }
+        }
+
+        return false;
+    }
+
     protected void deserialize(JsonObject object, BaseComponent component, JsonDeserializationContext context)
     {
         if ( object.has( "bold" ) )
         {
-            component.setBold( object.get( "bold" ).getAsBoolean() );
+            component.setBold( getAsBoolean( object.get( "bold" ) ) );
         }
         if ( object.has( "italic" ) )
         {
-            component.setItalic( object.get( "italic" ).getAsBoolean() );
+            component.setItalic( getAsBoolean( object.get( "italic" ) ) );
         }
         if ( object.has( "underlined" ) )
         {
-            component.setUnderlined( object.get( "underlined" ).getAsBoolean() );
+            component.setUnderlined( getAsBoolean( object.get( "underlined" ) ) );
         }
         if ( object.has( "strikethrough" ) )
         {
-            component.setStrikethrough( object.get( "strikethrough" ).getAsBoolean() );
+            component.setStrikethrough( getAsBoolean( object.get( "strikethrough" ) ) );
         }
         if ( object.has( "obfuscated" ) )
         {
-            component.setObfuscated( object.get( "obfuscated" ).getAsBoolean() );
+            component.setObfuscated( getAsBoolean( object.get( "obfuscated" ) ) );
         }
         if ( object.has( "color" ) )
         {
