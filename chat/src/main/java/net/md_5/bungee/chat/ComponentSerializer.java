@@ -13,6 +13,7 @@ import com.google.gson.JsonPrimitive;
 import java.lang.reflect.Type;
 import java.util.Set;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentStyle;
 import net.md_5.bungee.api.chat.ItemTag;
 import net.md_5.bungee.api.chat.KeybindComponent;
 import net.md_5.bungee.api.chat.ScoreComponent;
@@ -36,6 +37,7 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
             registerTypeAdapter( KeybindComponent.class, new KeybindComponentSerializer() ).
             registerTypeAdapter( ScoreComponent.class, new ScoreComponentSerializer() ).
             registerTypeAdapter( SelectorComponent.class, new SelectorComponentSerializer() ).
+            registerTypeAdapter( ComponentStyle.class, new ComponentStyleSerializer() ).
             registerTypeAdapter( Entity.class, new EntitySerializer() ).
             registerTypeAdapter( Text.class, new TextSerializer() ).
             registerTypeAdapter( Item.class, new ItemSerializer() ).

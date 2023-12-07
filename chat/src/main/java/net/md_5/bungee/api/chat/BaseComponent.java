@@ -238,6 +238,24 @@ public abstract class BaseComponent
         return builder.toString();
     }
 
+    /**
+     * Set the {@link ComponentStyle} for this component.
+     * <p>
+     * Unlike {@link #applyStyle(ComponentStyle)}, this method will overwrite all
+     * style values on this component.
+     *
+     * @param style the style to set, or null to set all style values to default
+     */
+    public void setStyle(ComponentStyle style)
+    {
+        this.style = ( style != null ) ? style.clone() : new ComponentStyle();
+    }
+
+    /**
+     * Set this component's color.
+     *
+     * @param color the component color, or null to use the default
+     */
     public void setColor(ChatColor color)
     {
         this.style.setColor( color );
@@ -274,6 +292,11 @@ public abstract class BaseComponent
         return style.getColor();
     }
 
+    /**
+     * Set this component's font.
+     *
+     * @param font the font to set, or null to use the default
+     */
     public void setFont(String font)
     {
         this.style.setFont( font );
@@ -309,6 +332,11 @@ public abstract class BaseComponent
         return style.getFont();
     }
 
+    /**
+     * Set whether or not this component is bold.
+     *
+     * @param bold the new bold state, or null to use the default
+     */
     public void setBold(Boolean bold)
     {
         this.style.setBold( bold );
@@ -341,6 +369,11 @@ public abstract class BaseComponent
         return style.isBoldRaw();
     }
 
+    /**
+     * Set whether or not this component is italic.
+     *
+     * @param italic the new italic state, or null to use the default
+     */
     public void setItalic(Boolean italic)
     {
         this.style.setItalic( italic );
@@ -373,6 +406,11 @@ public abstract class BaseComponent
         return style.isItalicRaw();
     }
 
+    /**
+     * Set whether or not this component is underlined.
+     *
+     * @param underlined the new underlined state, or null to use the default
+     */
     public void setUnderlined(Boolean underlined)
     {
         this.style.setUnderlined( underlined );
@@ -405,6 +443,11 @@ public abstract class BaseComponent
         return style.isUnderlinedRaw();
     }
 
+    /**
+     * Set whether or not this component is strikethrough.
+     *
+     * @param strikethrough the new strikethrough state, or null to use the default
+     */
     public void setStrikethrough(Boolean strikethrough)
     {
         this.style.setStrikethrough( strikethrough );
@@ -437,6 +480,11 @@ public abstract class BaseComponent
         return style.isStrikethroughRaw();
     }
 
+    /**
+     * Set whether or not this component is obfuscated.
+     *
+     * @param obfuscated the new obfuscated state, or null to use the default
+     */
     public void setObfuscated(Boolean obfuscated)
     {
         this.style.setObfuscated( obfuscated );
@@ -547,13 +595,23 @@ public abstract class BaseComponent
     }
 
     /**
+     * Returns whether the component has any styling applied to it.
+     *
+     * @return Whether any styling is applied
+     */
+    public boolean hasStyle()
+    {
+        return !style.isEmpty();
+    }
+
+    /**
      * Returns whether the component has any formatting or events applied to it
      *
      * @return Whether any formatting or events are applied
      */
     public boolean hasFormatting()
     {
-        return !style.isEmpty() || insertion != null
+        return hasStyle() || insertion != null
                 || hoverEvent != null || clickEvent != null;
     }
 
