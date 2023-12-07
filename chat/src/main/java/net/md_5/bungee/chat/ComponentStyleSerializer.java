@@ -5,6 +5,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
@@ -14,6 +15,30 @@ import net.md_5.bungee.api.chat.ComponentStyleBuilder;
 
 public class ComponentStyleSerializer implements JsonSerializer<ComponentStyle>, JsonDeserializer<ComponentStyle>
 {
+
+    private static boolean getAsBoolean(JsonElement el)
+    {
+        if ( el.isJsonPrimitive() )
+        {
+            JsonPrimitive primitive = (JsonPrimitive) el;
+
+            if ( primitive.isBoolean() )
+            {
+                return primitive.getAsBoolean();
+            }
+
+            if ( primitive.isNumber() )
+            {
+                Number number = primitive.getAsNumber();
+                if ( number instanceof Byte )
+                {
+                    return number.byteValue() != 0;
+                }
+            }
+        }
+
+        return false;
+    }
 
     static void serializeTo(ComponentStyle style, JsonObject object)
     {
@@ -54,23 +79,23 @@ public class ComponentStyleSerializer implements JsonSerializer<ComponentStyle>,
         JsonObject object = json.getAsJsonObject();
         if ( object.has( "bold" ) )
         {
-            builder.bold( BaseComponentSerializer.getAsBoolean( object.get( "bold" ) ) );
+            builder.bold( getAsBoolean( object.get( "bold" ) ) );
         }
         if ( object.has( "italic" ) )
         {
-            builder.italic( BaseComponentSerializer.getAsBoolean( object.get( "italic" ) ) );
+            builder.italic( getAsBoolean( object.get( "italic" ) ) );
         }
         if ( object.has( "underlined" ) )
         {
-            builder.underlined( BaseComponentSerializer.getAsBoolean( object.get( "underlined" ) ) );
+            builder.underlined( getAsBoolean( object.get( "underlined" ) ) );
         }
         if ( object.has( "strikethrough" ) )
         {
-            builder.strikethrough( BaseComponentSerializer.getAsBoolean( object.get( "strikethrough" ) ) );
+            builder.strikethrough( getAsBoolean( object.get( "strikethrough" ) ) );
         }
         if ( object.has( "obfuscated" ) )
         {
-            builder.obfuscated( BaseComponentSerializer.getAsBoolean( object.get( "obfuscated" ) ) );
+            builder.obfuscated( getAsBoolean( object.get( "obfuscated" ) ) );
         }
         if ( object.has( "color" ) )
         {
