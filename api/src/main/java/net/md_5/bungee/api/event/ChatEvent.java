@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.PlayerChatMessage;
 import net.md_5.bungee.api.connection.Connection;
 import net.md_5.bungee.api.plugin.Cancellable;
 import net.md_5.bungee.api.plugin.PluginManager;
@@ -26,11 +27,16 @@ public class ChatEvent extends TargetedEvent implements Cancellable
      * Text contained in this chat.
      */
     private String message;
+    /**
+     * The player message data, with signature information.
+     */
+    private PlayerChatMessage chatMessage;
 
-    public ChatEvent(Connection sender, Connection receiver, String message)
+    public ChatEvent(Connection sender, Connection receiver, String message, PlayerChatMessage chatMessage)
     {
         super( sender, receiver );
         this.message = message;
+        this.chatMessage = chatMessage;
     }
 
     /**

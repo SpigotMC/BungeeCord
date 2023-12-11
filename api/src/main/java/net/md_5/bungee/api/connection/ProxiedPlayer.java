@@ -10,6 +10,7 @@ import net.md_5.bungee.api.ServerConnectRequest;
 import net.md_5.bungee.api.SkinConfiguration;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.PlayerChatMessage;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.score.Scoreboard;
@@ -187,6 +188,13 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param message the message to say
      */
     void chat(String message);
+
+    /**
+     * Make this player chat (say something), to the server he is currently on.
+     *
+     * @param message the message to say
+     */
+    void chat(PlayerChatMessage message);
 
     /**
      * Get the server which this player will be sent to next time the log in.
