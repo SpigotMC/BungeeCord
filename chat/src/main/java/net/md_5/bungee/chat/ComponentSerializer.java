@@ -120,9 +120,42 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
         return gson.fromJson( jsonElement, BaseComponent.class );
     }
 
+    /**
+     * Deserialize a JSON-compliant String as a component style.
+     *
+     * @param json the component style json to parse
+     * @return the deserialized component style
+     * @throws IllegalArgumentException if anything other than a valid JSON
+     * component style string is passed as input
+     */
+    public static ComponentStyle deserializeStyle(String json)
+    {
+        JsonElement jsonElement = JsonParser.parseString( json );
+
+        return deserializeStyle( jsonElement );
+    }
+
+    /**
+     * Deserialize a JSON element as a component style.
+     *
+     * @param jsonElement the component style json to parse
+     * @return the deserialized component style
+     * @throws IllegalArgumentException if anything other than a valid JSON
+     * component style is passed as input
+     */
+    public static ComponentStyle deserializeStyle(JsonElement jsonElement)
+    {
+        return gson.fromJson( jsonElement, ComponentStyle.class );
+    }
+
     public static JsonElement toJson(BaseComponent component)
     {
         return gson.toJsonTree( component );
+    }
+
+    public static JsonElement toJson(ComponentStyle style)
+    {
+        return gson.toJsonTree( style );
     }
 
     public static String toString(Object object)
@@ -144,6 +177,11 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
         {
             return gson.toJson( new TextComponent( components ) );
         }
+    }
+
+    public static String toString(ComponentStyle style)
+    {
+        return gson.toJson( style );
     }
 
     @Override
