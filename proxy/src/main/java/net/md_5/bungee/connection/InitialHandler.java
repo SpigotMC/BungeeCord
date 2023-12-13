@@ -121,7 +121,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
     private enum State
     {
-        HANDSHAKE, STATUS, PING_EVENT, PING, USERNAME, ENCRYPT, FINISHING;
+        HANDSHAKE, STATUS, PROCESSING_PING, PING, USERNAME, ENCRYPT, FINISHING;
     }
 
     private boolean canSendKickMessage()
@@ -176,7 +176,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting LEGACY PING" );
 
-        thisState = State.PING_EVENT;
+        thisState = State.PROCESSING_PING;
         this.legacy = true;
         final boolean v1_5 = ping.isV1_5();
 
@@ -264,7 +264,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
         final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
         final int protocol = ( ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
-        thisState = State.PING_EVENT;
+        thisState = State.PROCESSING_PING;
 
         Callback<ServerPing> pingBack = new Callback<ServerPing>()
         {
