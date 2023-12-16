@@ -231,7 +231,7 @@ public abstract class DefinedPacket
 
             if ( bytes > maxBytes )
             {
-                throw new RuntimeException( "VarInt too big" );
+                throw new OverflowPacketException( "VarInt too big (max " + maxBytes + ")" );
             }
 
             if ( ( in & 0x80 ) != 0x80 )
