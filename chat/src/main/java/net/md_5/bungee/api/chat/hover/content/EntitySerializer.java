@@ -25,10 +25,10 @@ public class EntitySerializer implements JsonSerializer<Entity>, JsonDeserialize
         {
             JsonArray array = uuidElement.getAsJsonArray();
             Preconditions.checkState( array.size() == 4, "UUID don't have array size of 4 (size: " + array.size() + ")" );
-            int byte0 = array.get(0).getAsInt();
-            int byte1 = array.get(1).getAsInt();
-            int byte2 = array.get(2).getAsInt();
-            int byte3 = array.get(3).getAsInt();
+            int byte0 = array.get( 0 ).getAsInt();
+            int byte1 = array.get( 1 ).getAsInt();
+            int byte2 = array.get( 2 ).getAsInt();
+            int byte3 = array.get( 3 ).getAsInt();
             return new UUID(
                     (long) byte0 << 32 | ( (long) byte1 & 0xffffffffL ),
                     (long) byte2 << 32 | ( (long) byte3 & 0xffffffffL )
