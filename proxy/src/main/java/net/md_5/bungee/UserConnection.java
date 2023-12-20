@@ -144,7 +144,7 @@ public final class UserConnection implements ProxiedPlayer
     private ForgeServerHandler forgeServerHandler;
     /*========================================================================*/
     private final Queue<DefinedPacket> packetQueue = new ConcurrentLinkedQueue<>();
-    private final boolean possibleQueueing = getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_2;
+    private boolean possibleQueueing;
     private final Unsafe unsafe = new Unsafe()
     {
         @Override
@@ -162,6 +162,8 @@ public final class UserConnection implements ProxiedPlayer
 
     public boolean init()
     {
+        this.possibleQueueing = getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_2;
+
         this.entityRewrite = EntityMap.getEntityMap( getPendingConnection().getVersion() );
 
         this.displayName = name;
