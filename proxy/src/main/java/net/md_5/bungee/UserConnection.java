@@ -196,7 +196,7 @@ public final class UserConnection implements ProxiedPlayer
             packetQueue.add( packet );
         } else
         {
-            unsafe().sendPacket( packet );
+            ch.write( packet );
         }
     }
 
