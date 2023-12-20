@@ -60,9 +60,22 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
             channel.markClosed();
             handler.disconnected( channel );
 
-            if ( !( handler instanceof InitialHandler || handler instanceof PingHandler ) )
+            if ( !( handler instanceof PingHandler ) )
             {
-                ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has disconnected", handler );
+                if ( handler instanceof InitialHandler )
+                {
+                    InitialHandler initialHandler = (InitialHandler) handler;
+                    if ( initialHandler.getDisconnectMessage() != null )
+                    {
+                        ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has disconnected: {1}", new Object[]
+                        {
+                            handler, initialHandler.getDisconnectMessage().toPlainText()
+                        } );
+                    }
+                } else
+                {
+                    ProxyServer.getInstance().getLogger().log( Level.INFO, "{0} has disconnected", handler );
+                }
             }
         }
     }
