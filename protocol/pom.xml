@@ -6,38 +6,32 @@
     <parent>
         <groupId>net.md-5</groupId>
         <artifactId>bungeecord-parent</artifactId>
-        <version>1.18-R0.1-SNAPSHOT</version>
+        <version>1.20-R0.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-protocol</artifactId>
-    <version>1.18-R0.1-SNAPSHOT</version>
+    <version>1.20-R0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>BungeeCord-Protocol</name>
     <description>Minimal implementation of the Minecraft protocol for use in BungeeCord</description>
 
-    <!-- We really shouldn't depend on external repositories, but at least this is the Central staging one -->
+    <!-- We really shouldn't depend on external repositories -->
     <repositories>
         <repository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sonatype Nexus Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
+            <id>minecraft-libraries</id>
+            <name>Minecraft Libraries</name>
+            <url>https://libraries.minecraft.net/</url>
         </repository>
     </repositories>
 
     <dependencies>
         <dependency>
-            <groupId>net.md-5</groupId>
+            <groupId>com.mojang</groupId>
             <artifactId>brigadier</artifactId>
-            <version>1.0.16-SNAPSHOT</version>
+            <version>1.2.9</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -49,7 +43,6 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec</artifactId>
-            <version>${netty.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

@@ -5,12 +5,14 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.Setter;
 
 @AllArgsConstructor
 public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
 {
 
+    @Getter
     @Setter
     private Protocol protocol;
     private final boolean server;
@@ -37,7 +39,7 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
             DefinedPacket packet = prot.createPacket( packetId, protocolVersion );
             if ( packet != null )
             {
-                packet.read( in, prot.getDirection(), protocolVersion );
+                packet.read( in, protocol, prot.getDirection(), protocolVersion );
 
                 if ( in.isReadable() )
                 {
@@ -48,7 +50,7 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
                 in.skipBytes( in.readableBytes() );
             }
 
-            out.add( new PacketWrapper( packet, slice ) );
+            out.add( new PacketWrapper( packet, slice, protocol ) );
             slice = null;
         } finally
         {

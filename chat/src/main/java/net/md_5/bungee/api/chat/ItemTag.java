@@ -43,7 +43,7 @@ public final class ItemTag
         private final int level;
         private final int id;
     }
-    */
+     */
 
     private ItemTag(String nbt)
     {

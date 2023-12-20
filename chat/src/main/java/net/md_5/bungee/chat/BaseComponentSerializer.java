@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,27 +20,51 @@ import net.md_5.bungee.api.chat.hover.content.Content;
 public class BaseComponentSerializer
 {
 
+    private static boolean getAsBoolean(JsonElement el)
+    {
+        if ( el.isJsonPrimitive() )
+        {
+            JsonPrimitive primitive = (JsonPrimitive) el;
+
+            if ( primitive.isBoolean() )
+            {
+                return primitive.getAsBoolean();
+            }
+
+            if ( primitive.isNumber() )
+            {
+                Number number = primitive.getAsNumber();
+                if ( number instanceof Byte )
+                {
+                    return number.byteValue() != 0;
+                }
+            }
+        }
+
+        return false;
+    }
+
     protected void deserialize(JsonObject object, BaseComponent component, JsonDeserializationContext context)
     {
         if ( object.has( "bold" ) )
         {
-            component.setBold( object.get( "bold" ).getAsBoolean() );
+            component.setBold( getAsBoolean( object.get( "bold" ) ) );
         }
         if ( object.has( "italic" ) )
         {
-            component.setItalic( object.get( "italic" ).getAsBoolean() );
+            component.setItalic( getAsBoolean( object.get( "italic" ) ) );
         }
         if ( object.has( "underlined" ) )
         {
-            component.setUnderlined( object.get( "underlined" ).getAsBoolean() );
+            component.setUnderlined( getAsBoolean( object.get( "underlined" ) ) );
         }
         if ( object.has( "strikethrough" ) )
         {
-            component.setStrikethrough( object.get( "strikethrough" ).getAsBoolean() );
+            component.setStrikethrough( getAsBoolean( object.get( "strikethrough" ) ) );
         }
         if ( object.has( "obfuscated" ) )
         {
-            component.setObfuscated( object.get( "obfuscated" ).getAsBoolean() );
+            component.setObfuscated( getAsBoolean( object.get( "obfuscated" ) ) );
         }
         if ( object.has( "color" ) )
         {
@@ -65,49 +89,42 @@ public class BaseComponentSerializer
             HoverEvent hoverEvent = null;
             HoverEvent.Action action = HoverEvent.Action.valueOf( event.get( "action" ).getAsString().toUpperCase( Locale.ROOT ) );
 
-            for ( String type : Arrays.asList( "value", "contents" ) )
+            if ( event.has( "value" ) )
             {
-                if ( !event.has( type ) )
-                {
-                    continue;
-                }
-                JsonElement contents = event.get( type );
-                try
-                {
+                JsonElement contents = event.get( "value" );
 
-                    // Plugins previously had support to pass BaseComponent[] into any action.
-                    // If the GSON is possible to be parsed as BaseComponent, attempt to parse as so.
-                    BaseComponent[] components;
-                    if ( contents.isJsonArray() )
-                    {
-                        components = context.deserialize( contents, BaseComponent[].class );
-                    } else
-                    {
-                        components = new BaseComponent[]
-                        {
-                            context.deserialize( contents, BaseComponent.class )
-                        };
-                    }
-                    hoverEvent = new HoverEvent( action, components );
-                } catch ( JsonParseException ex )
+                // Plugins previously had support to pass BaseComponent[] into any action.
+                // If the GSON is possible to be parsed as BaseComponent, attempt to parse as so.
+                BaseComponent[] components;
+                if ( contents.isJsonArray() )
                 {
-                    Content[] list;
-                    if ( contents.isJsonArray() )
+                    components = context.deserialize( contents, BaseComponent[].class );
+                } else
+                {
+                    components = new BaseComponent[]
                     {
-                        list = context.deserialize( contents, HoverEvent.getClass( action, true ) );
-                    } else
-                    {
-                        list = new Content[]
-                        {
-                            context.deserialize( contents, HoverEvent.getClass( action, false ) )
-                        };
-                    }
-                    hoverEvent = new HoverEvent( action, new ArrayList<>( Arrays.asList( list ) ) );
+                        context.deserialize( contents, BaseComponent.class )
+                    };
                 }
+                hoverEvent = new HoverEvent( action, components );
+            } else if ( event.has( "contents" ) )
+            {
+                JsonElement contents = event.get( "contents" );
 
-                // stop the loop as soon as either one is found
-                break;
+                Content[] list;
+                if ( contents.isJsonArray() )
+                {
+                    list = context.deserialize( contents, HoverEvent.getClass( action, true ) );
+                } else
+                {
+                    list = new Content[]
+                    {
+                        context.deserialize( contents, HoverEvent.getClass( action, false ) )
+                    };
+                }
+                hoverEvent = new HoverEvent( action, new ArrayList<>( Arrays.asList( list ) ) );
             }
+
             if ( hoverEvent != null )
             {
                 component.setHoverEvent( hoverEvent );

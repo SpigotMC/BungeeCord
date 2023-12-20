@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
@@ -34,6 +35,7 @@ import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.Either;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
@@ -51,7 +53,9 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
+import net.md_5.bungee.protocol.packet.ScoreboardScoreReset;
 import net.md_5.bungee.protocol.packet.SetCompression;
+import net.md_5.bungee.protocol.packet.StartConfiguration;
 import net.md_5.bungee.protocol.packet.ViewDistance;
 import net.md_5.bungee.util.AddressUtil;
 import net.md_5.bungee.util.BufUtil;
@@ -73,7 +77,7 @@ public class ServerConnector extends PacketHandler
     private enum State
     {
 
-        LOGIN_SUCCESS, ENCRYPT_RESPONSE, LOGIN, FINISHED;
+        LOGIN_SUCCESS, LOGIN, FINISHED;
     }
 
     @Override
@@ -84,13 +88,13 @@ public class ServerConnector extends PacketHandler
             return;
         }
 
-        String message = "Exception Connecting:" + Util.exception( t );
+        String message = ChatColor.RED + "Exception Connecting: " + Util.exception( t );
         if ( user.getServer() == null )
         {
             user.disconnect( message );
         } else
         {
-            user.sendMessage( ChatColor.RED + message );
+            user.sendMessage( message );
         }
     }
 
@@ -123,7 +127,7 @@ public class ServerConnector extends PacketHandler
         channel.write( copiedHandshake );
 
         channel.setProtocol( Protocol.LOGIN );
-        channel.write( new LoginRequest( user.getName() ) );
+        channel.write( new LoginRequest( user.getName(), null, user.getUniqueId() ) );
     }
 
     @Override
@@ -145,8 +149,15 @@ public class ServerConnector extends PacketHandler
     public void handle(LoginSuccess loginSuccess) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not expecting LOGIN_SUCCESS" );
-        ch.setProtocol( Protocol.GAME );
-        thisState = State.LOGIN;
+        if ( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_2 )
+        {
+            ServerConnection server = new ServerConnection( ch, target );
+            cutThrough( server );
+        } else
+        {
+            ch.setProtocol( Protocol.GAME );
+            thisState = State.LOGIN;
+        }
 
         // Only reset the Forge client when:
         // 1) The user is switching servers (so has a current server)
@@ -182,6 +193,12 @@ public class ServerConnector extends PacketHandler
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
 
         ServerConnection server = new ServerConnection( ch, target );
+        handleLogin( bungee, ch, user, target, handshakeHandler, server, login );
+        cutThrough( server );
+    }
+
+    public static void handleLogin(ProxyServer bungee, ChannelWrapper ch, UserConnection user, BungeeServerInfo target, ForgeServerHandler handshakeHandler, ServerConnection server, Login login) throws Exception
+    {
         ServerConnectedEvent event = new ServerConnectedEvent( user, server );
         bungee.getPluginManager().callEvent( event );
 
@@ -225,13 +242,13 @@ public class ServerConnector extends PacketHandler
 
             // Set tab list size, TODO: what shall we do about packet mutability
             Login modLogin = new Login( login.getEntityId(), login.isHardcore(), login.getGameMode(), login.getPreviousGameMode(), login.getWorldNames(), login.getDimensions(), login.getDimension(), login.getWorldName(), login.getSeed(), login.getDifficulty(),
-                    (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.getViewDistance(), login.getSimulationDistance(), login.isReducedDebugInfo(), login.isNormalRespawn(), login.isDebug(), login.isFlat() );
+                    (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.getViewDistance(), login.getSimulationDistance(), login.isReducedDebugInfo(), login.isNormalRespawn(), login.isLimitedCrafting(), login.isDebug(), login.isFlat(), login.getDeathLocation(),
+                    login.getPortalCooldown() );
 
             user.unsafe().sendPacket( modLogin );
 
-            if ( user.getServer() != null )
+            if ( user.getDimension() != null )
             {
-                user.getServer().setObsolete( true );
                 user.getTabListHandler().onServerChange();
 
                 user.getServerSentScoreboard().clear();
@@ -243,13 +260,15 @@ public class ServerConnector extends PacketHandler
                 }
                 user.getSentBossBars().clear();
 
-                user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getWorldName(), login.getSeed(), login.getDifficulty(), login.getGameMode(), login.getPreviousGameMode(), login.getLevelType(), login.isDebug(), login.isFlat(), false ) );
-                user.getServer().disconnect( "Quitting" );
+                user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getWorldName(), login.getSeed(), login.getDifficulty(), login.getGameMode(), login.getPreviousGameMode(), login.getLevelType(), login.isDebug(), login.isFlat(), (byte) 0, login.getDeathLocation(),
+                        login.getPortalCooldown() ) );
             } else
             {
+                user.unsafe().sendPacket( BungeeCord.getInstance().registerChannels( user.getPendingConnection().getVersion() ) );
+
                 ByteBuf brand = ByteBufAllocator.DEFAULT.heapBuffer();
                 DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")", brand );
-                user.unsafe().sendPacket( new PluginMessage( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ? "minecraft:brand" : "MC|Brand", DefinedPacket.toArray( brand ), handshakeHandler.isServerForge() ) );
+                user.unsafe().sendPacket( new PluginMessage( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ? "minecraft:brand" : "MC|Brand", DefinedPacket.toArray( brand ), handshakeHandler != null && handshakeHandler.isServerForge() ) );
                 brand.release();
             }
 
@@ -262,11 +281,22 @@ public class ServerConnector extends PacketHandler
             Scoreboard serverScoreboard = user.getServerSentScoreboard();
             for ( Objective objective : serverScoreboard.getObjectives() )
             {
-                user.unsafe().sendPacket( new ScoreboardObjective( objective.getName(), objective.getValue(), ScoreboardObjective.HealthDisplay.fromString( objective.getType() ), (byte) 1 ) );
+                user.unsafe().sendPacket( new ScoreboardObjective(
+                        objective.getName(),
+                        ( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ) ? Either.right( ComponentSerializer.deserialize( objective.getValue() ) ) : Either.left( objective.getValue() ),
+                        ScoreboardObjective.HealthDisplay.fromString( objective.getType() ),
+                        (byte) 1, null )
+                );
             }
             for ( Score score : serverScoreboard.getScores() )
             {
-                user.unsafe().sendPacket( new ScoreboardScore( score.getItemName(), (byte) 1, score.getScoreName(), score.getValue() ) );
+                if ( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_3 )
+                {
+                    user.unsafe().sendPacket( new ScoreboardScoreReset( score.getItemName(), null ) );
+                } else
+                {
+                    user.unsafe().sendPacket( new ScoreboardScore( score.getItemName(), (byte) 1, score.getScoreName(), score.getValue(), null, null ) );
+                }
             }
             for ( Team team : serverScoreboard.getTeams() )
             {
@@ -292,18 +322,41 @@ public class ServerConnector extends PacketHandler
             user.setDimensionChange( true );
             if ( login.getDimension() == user.getDimension() )
             {
-                user.unsafe().sendPacket( new Respawn( (Integer) login.getDimension() >= 0 ? -1 : 0, login.getWorldName(), login.getSeed(), login.getDifficulty(), login.getGameMode(), login.getPreviousGameMode(), login.getLevelType(), login.isDebug(), login.isFlat(), false ) );
+                user.unsafe().sendPacket( new Respawn( (Integer) login.getDimension() >= 0 ? -1 : 0, login.getWorldName(), login.getSeed(), login.getDifficulty(), login.getGameMode(), login.getPreviousGameMode(), login.getLevelType(), login.isDebug(), login.isFlat(),
+                        (byte) 0, login.getDeathLocation(), login.getPortalCooldown() ) );
             }
 
             user.setServerEntityId( login.getEntityId() );
-            user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getWorldName(), login.getSeed(), login.getDifficulty(), login.getGameMode(), login.getPreviousGameMode(), login.getLevelType(), login.isDebug(), login.isFlat(), false ) );
+            user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getWorldName(), login.getSeed(), login.getDifficulty(), login.getGameMode(), login.getPreviousGameMode(), login.getLevelType(), login.isDebug(), login.isFlat(),
+                    (byte) 0, login.getDeathLocation(), login.getPortalCooldown() ) );
             if ( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_14 )
             {
                 user.unsafe().sendPacket( new ViewDistance( login.getViewDistance() ) );
             }
             user.setDimension( login.getDimension() );
+        }
+    }
 
-            // Remove from old servers
+    private void cutThrough(ServerConnection server)
+    {
+        if ( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_2 )
+        {
+            if ( user.getServer() != null )
+            {
+                // Begin config mode
+                user.unsafe().sendPacket( new StartConfiguration() );
+            } else
+            {
+                LoginResult loginProfile = user.getPendingConnection().getLoginProfile();
+                user.unsafe().sendPacket( new LoginSuccess( user.getUniqueId(), user.getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
+                user.getCh().setEncodeProtocol( Protocol.CONFIGURATION );
+            }
+        }
+
+        // Remove from old servers
+        if ( user.getServer() != null )
+        {
+            user.getServer().setObsolete( true );
             user.getServer().disconnect( "Quitting" );
         }
 
@@ -344,7 +397,10 @@ public class ServerConnector extends PacketHandler
     public void handle(Kick kick) throws Exception
     {
         ServerInfo def = user.updateAndGetNextServer( target );
-        ServerKickEvent event = new ServerKickEvent( user, target, ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTING );
+        ServerKickEvent event = new ServerKickEvent( user, target, new BaseComponent[]
+        {
+            kick.getMessage()
+        }, def, ServerKickEvent.State.CONNECTING );
         if ( event.getKickReason().toLowerCase( Locale.ROOT ).contains( "outdated" ) && def != null )
         {
             // Pre cancel the event if we are going to try another server

@@ -23,4 +23,4 @@ Binaries
 --------
 Precompiled binaries are available for end users on [Jenkins](https://www.spigotmc.org/go/bungeecord-dl).
 
-(c) 2012-2022 SpigotMC Pty. Ltd.
+(c) 2012-2023 SpigotMC Pty. Ltd.

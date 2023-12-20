@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.compress.PacketCompressor;
 import net.md_5.bungee.compress.PacketDecompressor;
+import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.PacketWrapper;
@@ -35,10 +36,31 @@ public class ChannelWrapper
         this.remoteAddress = ( this.ch.remoteAddress() == null ) ? this.ch.parent().localAddress() : this.ch.remoteAddress();
     }
 
-    public void setProtocol(Protocol protocol)
+    public Protocol getDecodeProtocol()
+    {
+        return ch.pipeline().get( MinecraftDecoder.class ).getProtocol();
+    }
+
+    public void setDecodeProtocol(Protocol protocol)
     {
         ch.pipeline().get( MinecraftDecoder.class ).setProtocol( protocol );
+    }
+
+    public Protocol getEncodeProtocol()
+    {
+        return ch.pipeline().get( MinecraftEncoder.class ).getProtocol();
+
+    }
+
+    public void setEncodeProtocol(Protocol protocol)
+    {
         ch.pipeline().get( MinecraftEncoder.class ).setProtocol( protocol );
+    }
+
+    public void setProtocol(Protocol protocol)
+    {
+        setDecodeProtocol( protocol );
+        setEncodeProtocol( protocol );
     }
 
     public void setVersion(int protocol)
@@ -47,17 +69,38 @@ public class ChannelWrapper
         ch.pipeline().get( MinecraftEncoder.class ).setProtocolVersion( protocol );
     }
 
+    public int getEncodeVersion()
+    {
+        return ch.pipeline().get( MinecraftEncoder.class ).getProtocolVersion();
+    }
+
     public void write(Object packet)
     {
         if ( !closed )
         {
+            DefinedPacket defined = null;
             if ( packet instanceof PacketWrapper )
             {
-                ( (PacketWrapper) packet ).setReleased( true );
-                ch.writeAndFlush( ( (PacketWrapper) packet ).buf, ch.voidPromise() );
+                PacketWrapper wrapper = (PacketWrapper) packet;
+                wrapper.setReleased( true );
+                ch.writeAndFlush( wrapper.buf, ch.voidPromise() );
+                defined = wrapper.packet;
             } else
             {
                 ch.writeAndFlush( packet, ch.voidPromise() );
+                if ( packet instanceof DefinedPacket )
+                {
+                    defined = (DefinedPacket) packet;
+                }
+            }
+
+            if ( defined != null )
+            {
+                Protocol nextProtocol = defined.nextProtocol();
+                if ( nextProtocol != null )
+                {
+                    setEncodeProtocol( nextProtocol );
+                }
             }
         }
     }
@@ -124,11 +167,11 @@ public class ChannelWrapper
 
     public void setCompressionThreshold(int compressionThreshold)
     {
-        if ( ch.pipeline().get( PacketCompressor.class ) == null && compressionThreshold != -1 )
+        if ( ch.pipeline().get( PacketCompressor.class ) == null && compressionThreshold >= 0 )
         {
             addBefore( PipelineUtils.PACKET_ENCODER, "compress", new PacketCompressor() );
         }
-        if ( compressionThreshold != -1 )
+        if ( compressionThreshold >= 0 )
         {
             ch.pipeline().get( PacketCompressor.class ).setThreshold( compressionThreshold );
         } else
@@ -136,11 +179,11 @@ public class ChannelWrapper
             ch.pipeline().remove( "compress" );
         }
 
-        if ( ch.pipeline().get( PacketDecompressor.class ) == null && compressionThreshold != -1 )
+        if ( ch.pipeline().get( PacketDecompressor.class ) == null && compressionThreshold >= 0 )
         {
             addBefore( PipelineUtils.PACKET_DECODER, "decompress", new PacketDecompressor() );
         }
-        if ( compressionThreshold == -1 )
+        if ( compressionThreshold < 0 )
         {
             ch.pipeline().remove( "decompress" );
         }

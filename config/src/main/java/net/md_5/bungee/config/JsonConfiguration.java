@@ -1,6 +1,5 @@
 package net.md_5.bungee.config;
 
-import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -16,6 +15,7 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.AccessLevel;
@@ -37,7 +37,7 @@ public class JsonConfiguration extends ConfigurationProvider
     @Override
     public void save(Configuration config, File file) throws IOException
     {
-        try ( Writer writer = new OutputStreamWriter( new FileOutputStream( file ), Charsets.UTF_8 ) )
+        try ( Writer writer = new OutputStreamWriter( new FileOutputStream( file ), StandardCharsets.UTF_8 ) )
         {
             save( config, writer );
         }
@@ -91,7 +91,7 @@ public class JsonConfiguration extends ConfigurationProvider
     @Override
     public Configuration load(InputStream is, Configuration defaults)
     {
-        return load( new InputStreamReader( is, Charsets.UTF_8 ), defaults );
+        return load( new InputStreamReader( is, StandardCharsets.UTF_8 ), defaults );
     }
 
     @Override

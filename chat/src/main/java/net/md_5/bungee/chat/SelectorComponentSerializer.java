@@ -22,6 +22,12 @@ public class SelectorComponentSerializer extends BaseComponentSerializer impleme
             throw new JsonParseException( "Could not parse JSON: missing 'selector' property" );
         }
         SelectorComponent component = new SelectorComponent( object.get( "selector" ).getAsString() );
+
+        if ( object.has( "separator" ) )
+        {
+            component.setSeparator( ComponentSerializer.deserialize( object.get( "separator" ).getAsString() ) );
+        }
+
         deserialize( object, component, context );
         return component;
     }
@@ -32,6 +38,11 @@ public class SelectorComponentSerializer extends BaseComponentSerializer impleme
         JsonObject object = new JsonObject();
         serialize( object, component, context );
         object.addProperty( "selector", component.getSelector() );
+
+        if ( component.getSeparator() != null )
+        {
+            object.addProperty( "separator", ComponentSerializer.toString( component.getSeparator() ) );
+        }
         return object;
     }
 }

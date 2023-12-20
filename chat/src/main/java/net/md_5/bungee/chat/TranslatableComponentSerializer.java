@@ -28,7 +28,11 @@ public class TranslatableComponentSerializer extends BaseComponentSerializer imp
         component.setTranslate( object.get( "translate" ).getAsString() );
         if ( object.has( "with" ) )
         {
-            component.setWith( Arrays.asList( context.<BaseComponent[]>deserialize( object.get( "with" ), BaseComponent[].class ) ) );
+            component.setWith( Arrays.asList( context.deserialize( object.get( "with" ), BaseComponent[].class ) ) );
+        }
+        if ( object.has( "fallback" ) )
+        {
+            component.setFallback( object.get( "fallback" ).getAsString() );
         }
         return component;
     }
@@ -42,6 +46,10 @@ public class TranslatableComponentSerializer extends BaseComponentSerializer imp
         if ( src.getWith() != null )
         {
             object.add( "with", context.serialize( src.getWith() ) );
+        }
+        if ( src.getFallback() != null )
+        {
+            object.addProperty( "fallback", src.getFallback() );
         }
         return object;
     }

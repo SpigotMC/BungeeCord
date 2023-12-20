@@ -1,0 +1,5 @@
+name: ${project.name}
+main: net.md_5.bungee.module.cmd.kick.PluginKick
+version: ${describe}
+description: ${project.description}
+author: ${module.author}

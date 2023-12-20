@@ -26,6 +26,7 @@ public class HttpHandler extends SimpleChannelInboundHandler<HttpObject>
             callback.done( null, cause );
         } finally
         {
+            ctx.channel().pipeline().remove( this );
             ctx.channel().close();
         }
     }
@@ -68,6 +69,7 @@ public class HttpHandler extends SimpleChannelInboundHandler<HttpObject>
             callback.done( buffer.toString(), null );
         } finally
         {
+            ctx.channel().pipeline().remove( this );
             ctx.channel().close();
         }
     }

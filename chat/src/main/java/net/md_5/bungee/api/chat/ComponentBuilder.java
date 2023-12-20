@@ -161,7 +161,7 @@ public final class ComponentBuilder
             previous = dummy;
             dummy = null;
         }
-        if ( previous != null )
+        if ( previous != null && !component.isReset() )
         {
             component.copyFormatting( previous, retention, false );
         }
@@ -202,6 +202,33 @@ public final class ComponentBuilder
         }
 
         return this;
+    }
+
+    /**
+     * Appends the {@link TranslationProvider} object to the builder and makes
+     * the last element the current target for formatting. The components will
+     * have all the formatting from previous part.
+     *
+     * @param translatable the translatable object to append
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder append(TranslationProvider translatable)
+    {
+        return append( translatable, FormatRetention.ALL );
+    }
+
+    /**
+     * Appends the {@link TranslationProvider} object to the builder and makes
+     * the last element the current target for formatting. You can specify the
+     * amount of formatting retained from previous part.
+     *
+     * @param translatable the translatable object to append
+     * @param retention the formatting to retain
+     * @return this ComponentBuilder for chaining
+     */
+    public ComponentBuilder append(TranslationProvider translatable, FormatRetention retention)
+    {
+        return append( translatable.asTranslatableComponent(), retention );
     }
 
     /**
@@ -455,8 +482,31 @@ public final class ComponentBuilder
     }
 
     /**
+     * Returns the component built by this builder. If this builder is empty, an
+     * empty text component will be returned.
+     *
+     * @return the component
+     */
+    public BaseComponent build()
+    {
+        TextComponent base = new TextComponent();
+        if ( !parts.isEmpty() )
+        {
+            List<BaseComponent> cloned = new ArrayList<>( parts );
+            cloned.replaceAll( BaseComponent::duplicate );
+            base.setExtra( cloned );
+        }
+        return base;
+    }
+
+    /**
      * Returns the components needed to display the message created by this
      * builder.git
+     * <p>
+     * <strong>NOTE:</strong> {@link #build()} is preferred as it will
+     * consolidate all components into a single BaseComponent with extra
+     * contents as opposed to an array of components which is non-standard and
+     * may result in unexpected behavior.
      *
      * @return the created components
      */

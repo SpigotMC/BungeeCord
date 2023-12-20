@@ -3,8 +3,8 @@ package net.md_5.bungee;
 import lombok.Data;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.ClearTitles;
@@ -53,21 +53,14 @@ public class BungeeTitle implements Title
             title = new TitlePacketHolder<>( packet, packet );
         }
 
-        title.oldPacket.setText( ComponentSerializer.toString( text ) ); // = newPacket
+        title.oldPacket.setText( text ); // = newPacket
         return this;
     }
 
     @Override
     public Title title(BaseComponent... text)
     {
-        if ( title == null )
-        {
-            net.md_5.bungee.protocol.packet.Title packet = new net.md_5.bungee.protocol.packet.Title( Action.TITLE );
-            title = new TitlePacketHolder<>( packet, packet );
-        }
-
-        title.oldPacket.setText( ComponentSerializer.toString( text ) ); // = newPacket
-        return this;
+        return title( TextComponent.fromArray( text ) );
     }
 
     @Override
@@ -78,24 +71,15 @@ public class BungeeTitle implements Title
             subtitle = new TitlePacketHolder<>( new net.md_5.bungee.protocol.packet.Title( Action.SUBTITLE ), new Subtitle() );
         }
 
-        String serialized = ComponentSerializer.toString( text );
-        subtitle.oldPacket.setText( serialized );
-        subtitle.newPacket.setText( serialized );
+        subtitle.oldPacket.setText( text );
+        subtitle.newPacket.setText( text );
         return this;
     }
 
     @Override
     public Title subTitle(BaseComponent... text)
     {
-        if ( subtitle == null )
-        {
-            subtitle = new TitlePacketHolder<>( new net.md_5.bungee.protocol.packet.Title( Action.SUBTITLE ), new Subtitle() );
-        }
-
-        String serialized = ComponentSerializer.toString( text );
-        subtitle.oldPacket.setText( serialized );
-        subtitle.newPacket.setText( serialized );
-        return this;
+        return subTitle( TextComponent.fromArray( text ) );
     }
 
     @Override
@@ -172,7 +156,7 @@ public class BungeeTitle implements Title
         {
             if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_17 )
             {
-                player.unsafe().sendPacket( packet.newPacket );
+                ( (UserConnection) player ).sendPacketQueued( packet.newPacket );
             } else
             {
                 player.unsafe().sendPacket( packet.oldPacket );

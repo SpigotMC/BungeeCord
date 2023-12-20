@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
@@ -14,18 +15,18 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 public class Subtitle extends DefinedPacket
 {
 
-    private String text;
+    private BaseComponent text;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        text = readString( buf );
+        text = readBaseComponent( buf, protocolVersion );
     }
 
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        writeString( text, buf );
+        writeBaseComponent( text, buf, protocolVersion );
     }
 
     @Override

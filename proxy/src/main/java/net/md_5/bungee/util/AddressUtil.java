@@ -1,5 +1,6 @@
 package net.md_5.bungee.util;
 
+import com.google.common.base.Preconditions;
 import java.net.Inet6Address;
 import java.net.InetSocketAddress;
 import lombok.AccessLevel;
@@ -11,7 +12,8 @@ public class AddressUtil
 
     public static String sanitizeAddress(InetSocketAddress addr)
     {
-        String string = addr.getHostString();
+        Preconditions.checkArgument( !addr.isUnresolved(), "Unresolved address" );
+        String string = addr.getAddress().getHostAddress();
 
         // Remove IPv6 scope if present
         if ( addr.getAddress() instanceof Inet6Address )

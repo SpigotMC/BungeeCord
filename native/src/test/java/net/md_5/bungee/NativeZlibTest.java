@@ -1,5 +1,6 @@
 package net.md_5.bungee;
 
+import static org.junit.jupiter.api.Assertions.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Arrays;
@@ -9,8 +10,7 @@ import net.md_5.bungee.jni.NativeCode;
 import net.md_5.bungee.jni.zlib.BungeeZlib;
 import net.md_5.bungee.jni.zlib.JavaZlib;
 import net.md_5.bungee.jni.zlib.NativeZlib;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class NativeZlibTest
 {
@@ -22,7 +22,7 @@ public class NativeZlibTest
     {
         if ( NativeCode.isSupported() )
         {
-            Assert.assertTrue( "Native code failed to load!", factory.load() );
+            assertTrue( factory.load(), "Native code failed to load!" );
             test( factory.newInstance() );
         }
         test( new JavaZlib() );
@@ -64,6 +64,6 @@ public class NativeZlibTest
         long elapsed = System.currentTimeMillis() - start;
         System.out.println( "Took: " + elapsed + "ms" );
 
-        Assert.assertTrue( "Results do not match", Arrays.equals( dataBuf, check ) );
+        assertTrue( Arrays.equals( dataBuf, check ), "Results do not match" );
     }
 }

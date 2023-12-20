@@ -20,10 +20,13 @@ import java.io.DataInput;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.ServerConnection.KeepAliveData;
+import net.md_5.bungee.ServerConnector;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
@@ -31,6 +34,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerDisconnectEvent;
@@ -48,17 +52,23 @@ import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.Commands;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Kick;
+import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
+import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
+import net.md_5.bungee.protocol.packet.PlayerListItemUpdate;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
+import net.md_5.bungee.protocol.packet.ScoreboardScoreReset;
+import net.md_5.bungee.protocol.packet.ServerData;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.tab.TabList;
@@ -77,6 +87,7 @@ public class DownstreamBridge extends PacketHandler
     private final ProxyServer bungee;
     private final UserConnection con;
     private final ServerConnection server;
+    private boolean receivedLogin;
 
     @Override
     public void exception(Throwable t) throws Exception
@@ -128,7 +139,7 @@ public class DownstreamBridge extends PacketHandler
     public void handle(PacketWrapper packet) throws Exception
     {
         EntityMap rewrite = con.getEntityRewrite();
-        if ( rewrite != null )
+        if ( rewrite != null && con.getCh().getEncodeProtocol() == Protocol.GAME )
         {
             rewrite.rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId(), con.getPendingConnection().getVersion() );
         }
@@ -153,13 +164,27 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
+    public void handle(PlayerListItemRemove playerList) throws Exception
+    {
+        con.getTabListHandler().onUpdate( TabList.rewrite( playerList ) );
+        throw CancelSendSignal.INSTANCE; // Always throw because of profile rewriting
+    }
+
+    @Override
+    public void handle(PlayerListItemUpdate playerList) throws Exception
+    {
+        con.getTabListHandler().onUpdate( TabList.rewrite( playerList ) );
+        throw CancelSendSignal.INSTANCE; // Always throw because of profile rewriting
+    }
+
+    @Override
     public void handle(ScoreboardObjective objective) throws Exception
     {
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
         switch ( objective.getAction() )
         {
             case 0:
-                serverScoreboard.addObjective( new Objective( objective.getName(), objective.getValue(), objective.getType().toString() ) );
+                serverScoreboard.addObjective( new Objective( objective.getName(), ( objective.getValue().isLeft() ) ? objective.getValue().getLeft() : ComponentSerializer.toString( objective.getValue().getRight() ), objective.getType().toString() ) );
                 break;
             case 1:
                 serverScoreboard.removeObjective( objective.getName() );
@@ -168,7 +193,7 @@ public class DownstreamBridge extends PacketHandler
                 Objective oldObjective = serverScoreboard.getObjective( objective.getName() );
                 if ( oldObjective != null )
                 {
-                    oldObjective.setValue( objective.getValue() );
+                    oldObjective.setValue( ( objective.getValue().isLeft() ) ? objective.getValue().getLeft() : ComponentSerializer.toString( objective.getValue().getRight() ) );
                     oldObjective.setType( objective.getType().toString() );
                 }
                 break;
@@ -193,6 +218,18 @@ public class DownstreamBridge extends PacketHandler
                 break;
             default:
                 throw new IllegalArgumentException( "Unknown scoreboard action: " + score.getAction() );
+        }
+    }
+
+    @Override
+    public void handle(ScoreboardScoreReset scoreboardScoreReset) throws Exception
+    {
+        Scoreboard serverScoreboard = con.getServerSentScoreboard();
+
+        // TODO: Expand score API to handle objective values. Shouldn't matter currently as only used for removing score entries.
+        if ( scoreboardScoreReset.getScoreName() == null )
+        {
+            serverScoreboard.removeScore( scoreboardScoreReset.getItemName() );
         }
     }
 
@@ -230,9 +267,9 @@ public class DownstreamBridge extends PacketHandler
         {
             if ( team.getMode() == 0 || team.getMode() == 2 )
             {
-                t.setDisplayName( team.getDisplayName() );
-                t.setPrefix( team.getPrefix() );
-                t.setSuffix( team.getSuffix() );
+                t.setDisplayName( ComponentSerializer.toString( team.getDisplayName() ) );
+                t.setPrefix( ComponentSerializer.toString( team.getPrefix() ) );
+                t.setSuffix( ComponentSerializer.toString( team.getSuffix() ) );
                 t.setFriendlyFire( team.getFriendlyFire() );
                 t.setNameTagVisibility( team.getNameTagVisibility() );
                 t.setCollisionRule( team.getCollisionRule() );
@@ -381,6 +418,27 @@ public class DownstreamBridge extends PacketHandler
                         {
                             player.connect( server );
                         }
+                    }
+                    break;
+                }
+                case "GetPlayerServer":
+                {
+                    String name = in.readUTF();
+                    ProxiedPlayer player = bungee.getPlayer( name );
+                    out.writeUTF( "GetPlayerServer" );
+                    out.writeUTF( name );
+                    if ( player == null )
+                    {
+                        out.writeUTF( "" );
+                        break;
+                    }
+                    Server srv = player.getServer();
+                    if ( srv == null )
+                    {
+                        out.writeUTF( "" );
+                    } else
+                    {
+                        out.writeUTF( srv.getInfo().getName() );
                     }
                     break;
                 }
@@ -545,6 +603,16 @@ public class DownstreamBridge extends PacketHandler
                     }
                     break;
                 }
+                case "KickPlayerRaw":
+                {
+                    ProxiedPlayer player = bungee.getPlayer( in.readUTF() );
+                    if ( player != null )
+                    {
+                        BaseComponent[] kickReason = ComponentSerializer.parse( in.readUTF() );
+                        player.disconnect( kickReason );
+                    }
+                    break;
+                }
             }
 
             // Check we haven't set out to null, and we have written data, if so reply back back along the BungeeCord channel
@@ -565,13 +633,16 @@ public class DownstreamBridge extends PacketHandler
     public void handle(Kick kick) throws Exception
     {
         ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
-        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), ComponentSerializer.parse( kick.getMessage() ), def, ServerKickEvent.State.CONNECTED ) );
+        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), new BaseComponent[]
+        {
+            kick.getMessage()
+        }, def, ServerKickEvent.State.CONNECTED ) );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
             con.connectNow( event.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT );
         } else
         {
-            con.disconnect0( event.getKickReasonComponent() ); // TODO: Prefix our own stuff.
+            con.disconnect( event.getKickReasonComponent() ); // TODO: Prefix our own stuff.
         }
         server.setObsolete( true );
         throw CancelSendSignal.INSTANCE;
@@ -597,6 +668,23 @@ public class DownstreamBridge extends PacketHandler
                     return input.getText();
                 }
             } );
+        } else
+        {
+            String last = con.getLastCommandTabbed();
+            if ( last != null )
+            {
+                String commandName = last.toLowerCase( Locale.ROOT );
+                commands.addAll( bungee.getPluginManager().getCommands().stream()
+                        .filter( (entry) ->
+                        {
+                            String lowerCase = entry.getKey().toLowerCase( Locale.ROOT );
+                            return lowerCase.startsWith( commandName ) && entry.getValue().hasPermission( con ) && !bungee.getDisabledCommands().contains( lowerCase );
+                        } )
+                        .map( (stringCommandEntry) -> '/' + stringCommandEntry.getKey() )
+                        .collect( Collectors.toList() ) );
+                commands.sort( null );
+                con.setLastCommandTabbed( null );
+            }
         }
 
         TabCompleteResponseEvent tabCompleteResponseEvent = new TabCompleteResponseEvent( server, con, new ArrayList<>( commands ) );
@@ -676,6 +764,27 @@ public class DownstreamBridge extends PacketHandler
             con.unsafe().sendPacket( commands );
             throw CancelSendSignal.INSTANCE;
         }
+    }
+
+    @Override
+    public void handle(ServerData serverData) throws Exception
+    {
+        // 1.19.4 doesn't allow empty MOTD and we probably don't want to simulate a ping event to get the "correct" one
+        // serverData.setMotd( null );
+        // serverData.setIcon( null );
+        // con.unsafe().sendPacket( serverData );
+        throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void handle(Login login) throws Exception
+    {
+        Preconditions.checkState( !receivedLogin, "Not expecting login" );
+
+        receivedLogin = true;
+        ServerConnector.handleLogin( bungee, server.getCh(), con, server.getInfo(), null, server, login );
+
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override

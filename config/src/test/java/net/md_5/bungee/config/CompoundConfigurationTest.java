@@ -1,148 +1,138 @@
 package net.md_5.bungee.config;
 
+import static org.junit.jupiter.api.Assertions.*;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @RequiredArgsConstructor
-@RunWith(Parameterized.class)
 public class CompoundConfigurationTest
 {
 
-    @Parameters(name = "{0}")
-    public static Iterable<Object[]> data()
+    public static Stream<Arguments> data()
     {
-        // CHECKSTYLE:OFF
-        return Arrays.asList( new Object[][]
-        {
-            {
-                // provider
-                YamlConfiguration.class,
-                // testDocument
-                ""
-                + "receipt:     Oz-Ware Purchase Invoice\n"
-                + "date:        2012-08-06\n"
-                + "customer:\n"
-                + "    given:   Dorothy\n"
-                + "    family:  Gale\n"
-                + "\n"
-                + "items:\n"
-                + "    - part_no:   A4786\n"
-                + "      descrip:   Water Bucket (Filled)\n"
-                + "      price:     1.47\n"
-                + "      quantity:  4\n"
-                + "\n"
-                + "    - part_no:   E1628\n"
-                + "      descrip:   High Heeled \"Ruby\" Slippers\n"
-                + "      size:      8\n"
-                + "      price:     100.27\n"
-                + "      quantity:  1\n"
-                + "\n"
-                + "bill-to:  &id001\n"
-                + "    street: |\n"
-                + "            123 Tornado Alley\n"
-                + "            Suite 16\n"
-                + "    city:   East Centerville\n"
-                + "    state:  KS\n"
-                + "\n"
-                + "ship-to:  *id001\n"
-                + "\n"
-                + "specialDelivery:  >\n"
-                + "    Follow the Yellow Brick\n"
-                + "    Road to the Emerald City.\n"
-                + "    Pay no attention to the\n"
-                + "    man behind the curtain.",
-                // numberTest
-                ""
-                + "someKey:\n"
-                + "    1: 1\n"
-                + "    2: 2\n"
-                + "    3: 3\n"
-                + "    4: 4",
-                // nullTest
-                ""
-                + "null:\n"
-                + "    null: object\n"
-                + "    object: null\n"
-            },
-            {
-                // provider
-                JsonConfiguration.class,
-                // testDocument
-                ""
-                + "{\n"
-                + "  \"customer\": {\n"
-                + "    \"given\": \"Dorothy\", \n"
-                + "    \"family\": \"Gale\"\n"
-                + "  }, \n"
-                + "  \"ship-to\": {\n"
-                + "    \"city\": \"East Centerville\", \n"
-                + "    \"state\": \"KS\", \n"
-                + "    \"street\": \"123 Tornado Alley\\nSuite 16\\n\"\n"
-                + "  }, \n"
-                + "  \"bill-to\": {\n"
-                + "    \"city\": \"East Centerville\", \n"
-                + "    \"state\": \"KS\", \n"
-                + "    \"street\": \"123 Tornado Alley\\nSuite 16\\n\"\n"
-                + "  }, \n"
-                + "  \"date\": \"2012-08-06\", \n"
-                + "  \"items\": [\n"
-                + "    {\n"
-                + "      \"part_no\": \"A4786\", \n"
-                + "      \"price\": 1.47, \n"
-                + "      \"descrip\": \"Water Bucket (Filled)\", \n"
-                + "      \"quantity\": 4\n"
-                + "    }, \n"
-                + "    {\n"
-                + "      \"part_no\": \"E1628\", \n"
-                + "      \"descrip\": \"High Heeled \\\"Ruby\\\" Slippers\", \n"
-                + "      \"price\": 100.27, \n"
-                + "      \"quantity\": 1, \n"
-                + "      \"size\": 8\n"
-                + "    }\n"
-                + "  ], \n"
-                + "  \"receipt\": \"Oz-Ware Purchase Invoice\", \n"
-                + "  \"specialDelivery\": \"Follow the Yellow Brick Road to the Emerald City. Pay no attention to the man behind the curtain.\"\n"
-                + "}",
-                // numberTest
-                ""
-                + "{\n"
-                + "  \"someKey\": {\n"
-                + "    \"1\": 1, \n"
-                + "    \"2\": 2, \n"
-                + "    \"3\": 3, \n"
-                + "    \"4\": 4\n"
-                + "  }\n"
-                + "}",
-                // nullTest
-                ""
-                + "{\n"
-                + "  \"null\": {\n"
-                + "    \"null\": \"object\", \n"
-                + "    \"object\": null\n"
-                + "  }\n"
-                + "}"
-            }
-        } );
-        // CHECKSTYLE:ON
+        return Stream.of(
+                Arguments.of(
+                        // provider
+                        YamlConfiguration.class,
+                        // testDocument
+                        ""
+                        + "receipt:     Oz-Ware Purchase Invoice\n"
+                        + "date:        2012-08-06\n"
+                        + "customer:\n"
+                        + "    given:   Dorothy\n"
+                        + "    family:  Gale\n"
+                        + "\n"
+                        + "items:\n"
+                        + "    - part_no:   A4786\n"
+                        + "      descrip:   Water Bucket (Filled)\n"
+                        + "      price:     1.47\n"
+                        + "      quantity:  4\n"
+                        + "\n"
+                        + "    - part_no:   E1628\n"
+                        + "      descrip:   High Heeled \"Ruby\" Slippers\n"
+                        + "      size:      8\n"
+                        + "      price:     100.27\n"
+                        + "      quantity:  1\n"
+                        + "\n"
+                        + "bill-to:  &id001\n"
+                        + "    street: |\n"
+                        + "            123 Tornado Alley\n"
+                        + "            Suite 16\n"
+                        + "    city:   East Centerville\n"
+                        + "    state:  KS\n"
+                        + "\n"
+                        + "ship-to:  *id001\n"
+                        + "\n"
+                        + "specialDelivery:  >\n"
+                        + "    Follow the Yellow Brick\n"
+                        + "    Road to the Emerald City.\n"
+                        + "    Pay no attention to the\n"
+                        + "    man behind the curtain.",
+                        // numberTest
+                        ""
+                        + "someKey:\n"
+                        + "    1: 1\n"
+                        + "    2: 2\n"
+                        + "    3: 3\n"
+                        + "    4: 4",
+                        // nullTest
+                        ""
+                        + "null:\n"
+                        + "    null: object\n"
+                        + "    object: null\n"
+                ),
+                Arguments.of(
+                        // provider
+                        JsonConfiguration.class,
+                        // testDocument
+                        ""
+                        + "{\n"
+                        + "  \"customer\": {\n"
+                        + "    \"given\": \"Dorothy\", \n"
+                        + "    \"family\": \"Gale\"\n"
+                        + "  }, \n"
+                        + "  \"ship-to\": {\n"
+                        + "    \"city\": \"East Centerville\", \n"
+                        + "    \"state\": \"KS\", \n"
+                        + "    \"street\": \"123 Tornado Alley\\nSuite 16\\n\"\n"
+                        + "  }, \n"
+                        + "  \"bill-to\": {\n"
+                        + "    \"city\": \"East Centerville\", \n"
+                        + "    \"state\": \"KS\", \n"
+                        + "    \"street\": \"123 Tornado Alley\\nSuite 16\\n\"\n"
+                        + "  }, \n"
+                        + "  \"date\": \"2012-08-06\", \n"
+                        + "  \"items\": [\n"
+                        + "    {\n"
+                        + "      \"part_no\": \"A4786\", \n"
+                        + "      \"price\": 1.47, \n"
+                        + "      \"descrip\": \"Water Bucket (Filled)\", \n"
+                        + "      \"quantity\": 4\n"
+                        + "    }, \n"
+                        + "    {\n"
+                        + "      \"part_no\": \"E1628\", \n"
+                        + "      \"descrip\": \"High Heeled \\\"Ruby\\\" Slippers\", \n"
+                        + "      \"price\": 100.27, \n"
+                        + "      \"quantity\": 1, \n"
+                        + "      \"size\": 8\n"
+                        + "    }\n"
+                        + "  ], \n"
+                        + "  \"receipt\": \"Oz-Ware Purchase Invoice\", \n"
+                        + "  \"specialDelivery\": \"Follow the Yellow Brick Road to the Emerald City. Pay no attention to the man behind the curtain.\"\n"
+                        + "}",
+                        // numberTest
+                        ""
+                        + "{\n"
+                        + "  \"someKey\": {\n"
+                        + "    \"1\": 1, \n"
+                        + "    \"2\": 2, \n"
+                        + "    \"3\": 3, \n"
+                        + "    \"4\": 4\n"
+                        + "  }\n"
+                        + "}",
+                        // nullTest
+                        ""
+                        + "{\n"
+                        + "  \"null\": {\n"
+                        + "    \"null\": \"object\", \n"
+                        + "    \"object\": null\n"
+                        + "  }\n"
+                        + "}"
+                )
+        );
     }
-    //
-    private final Class<? extends ConfigurationProvider> provider;
-    private final String testDocument;
-    private final String numberTest;
-    private final String nullTest;
 
-    @Test
-    public void testConfig() throws Exception
+    @ParameterizedTest
+    @MethodSource("data")
+    public void testConfig(Class<? extends ConfigurationProvider> provider, String testDocument, String numberTest, String nullTest) throws Exception
     {
         Configuration conf = ConfigurationProvider.getProvider( provider ).load( testDocument );
         testSection( conf );
@@ -151,7 +141,7 @@ public class CompoundConfigurationTest
         ConfigurationProvider.getProvider( provider ).save( conf, sw );
 
         // Check nulls were saved, see #1094
-        Assert.assertFalse( "Config contains null", sw.toString().contains( "null" ) );
+        assertFalse( sw.toString().contains( "null" ), "Config contains null" );
 
         conf = ConfigurationProvider.getProvider( provider ).load( new StringReader( sw.toString() ) );
         conf.set( "receipt", "Oz-Ware Purchase Invoice" ); // Add it back
@@ -160,37 +150,38 @@ public class CompoundConfigurationTest
 
     private void testSection(Configuration conf)
     {
-        Assert.assertEquals( "receipt", "Oz-Ware Purchase Invoice", conf.getString( "receipt" ) );
-        // Assert.assertEquals( "date", "2012-08-06", conf.get( "date" ).toString() );
+        assertEquals( "Oz-Ware Purchase Invoice", conf.getString( "receipt" ), "receipt" );
+        // assertEquals( "2012-08-06", conf.get( "date" ).toString(), "date" );
 
         Configuration customer = conf.getSection( "customer" );
-        Assert.assertEquals( "customer.given", "Dorothy", customer.getString( "given" ) );
-        Assert.assertEquals( "customer.given", "Dorothy", conf.getString( "customer.given" ) );
+        assertEquals( "Dorothy", customer.getString( "given" ), "customer.given" );
+        assertEquals( "Dorothy", conf.getString( "customer.given" ), "customer.given" );
 
         List items = conf.getList( "items" );
         Map item = (Map) items.get( 0 );
-        Assert.assertEquals( "items[0].part_no", "A4786", item.get( "part_no" ) );
+        assertEquals( "A4786", item.get( "part_no" ), "items[0].part_no" );
 
         conf.set( "receipt", null );
-        Assert.assertEquals( null, conf.get( "receipt" ) );
-        Assert.assertEquals( "foo", conf.get( "receipt", "foo" ) );
+        assertEquals( null, conf.get( "receipt" ) );
+        assertEquals( "foo", conf.get( "receipt", "foo" ) );
 
         Configuration newSection = conf.getSection( "new.section" );
         newSection.set( "value", "foo" );
-        Assert.assertEquals( "foo", conf.get( "new.section.value" ) );
+        assertEquals( "foo", conf.get( "new.section.value" ) );
 
         conf.set( "other.new.section", "bar" );
-        Assert.assertEquals( "bar", conf.get( "other.new.section" ) );
+        assertEquals( "bar", conf.get( "other.new.section" ) );
 
-        Assert.assertTrue( conf.contains( "customer.given" ) );
-        Assert.assertTrue( customer.contains( "given" ) );
+        assertTrue( conf.contains( "customer.given" ) );
+        assertTrue( customer.contains( "given" ) );
 
-        Assert.assertFalse( conf.contains( "customer.foo" ) );
-        Assert.assertFalse( customer.contains( "foo" ) );
+        assertFalse( conf.contains( "customer.foo" ) );
+        assertFalse( customer.contains( "foo" ) );
     }
 
-    @Test
-    public void testNumberedKeys()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void testNumberedKeys(Class<? extends ConfigurationProvider> provider, String testDocument, String numberTest, String nullTest)
     {
         Configuration conf = ConfigurationProvider.getProvider( provider ).load( numberTest );
 
@@ -201,29 +192,31 @@ public class CompoundConfigurationTest
         }
     }
 
-    @Test
-    public void testNull()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void testNull(Class<? extends ConfigurationProvider> provider, String testDocument, String numberTest, String nullTest)
     {
         Configuration conf = ConfigurationProvider.getProvider( provider ).load( nullTest );
 
-        Assert.assertEquals( "object", conf.get( "null.null" ) );
-        Assert.assertEquals( "object", conf.getSection( "null" ).get( "null" ) );
+        assertEquals( "object", conf.get( "null.null" ) );
+        assertEquals( "object", conf.getSection( "null" ).get( "null" ) );
 
-        Assert.assertEquals( null, conf.get( "null.object" ) );
-        Assert.assertEquals( "", conf.getString( "null.object" ) );
+        assertEquals( null, conf.get( "null.object" ) );
+        assertEquals( "", conf.getString( "null.object" ) );
     }
 
-    @Test
-    public void testMapAddition()
+    @ParameterizedTest
+    @MethodSource("data")
+    public void testMapAddition(Class<? extends ConfigurationProvider> provider, String testDocument, String numberTest, String nullTest)
     {
         Configuration conf = ConfigurationProvider.getProvider( provider ).load( testDocument );
 
         conf.set( "addition", Collections.singletonMap( "foo", "bar" ) );
 
         // Order matters
-        Assert.assertEquals( "bar", conf.getSection( "addition" ).getString( "foo" ) );
-        Assert.assertEquals( "bar", conf.getString( "addition.foo" ) );
+        assertEquals( "bar", conf.getSection( "addition" ).getString( "foo" ) );
+        assertEquals( "bar", conf.getString( "addition.foo" ) );
 
-        Assert.assertTrue( conf.get( "addition" ) instanceof Configuration );
+        assertTrue( conf.get( "addition" ) instanceof Configuration );
     }
 }

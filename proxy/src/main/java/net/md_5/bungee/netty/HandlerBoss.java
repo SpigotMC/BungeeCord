@@ -17,6 +17,7 @@ import net.md_5.bungee.connection.PingHandler;
 import net.md_5.bungee.protocol.BadPacketException;
 import net.md_5.bungee.protocol.OverflowPacketException;
 import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.util.QuietException;
 
 /**
@@ -101,9 +102,18 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
             return;
         }
 
+        PacketWrapper packet = (PacketWrapper) msg;
+        if ( packet.packet != null )
+        {
+            Protocol nextProtocol = packet.packet.nextProtocol();
+            if ( nextProtocol != null )
+            {
+                channel.setDecodeProtocol( nextProtocol );
+            }
+        }
+
         if ( handler != null )
         {
-            PacketWrapper packet = (PacketWrapper) msg;
             boolean sendPacket = handler.shouldHandle( packet );
             try
             {
@@ -150,7 +160,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                         } );
                     } else if ( cause.getCause() instanceof BadPacketException )
                     {
-                        ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - bad packet ID, are mods in use!? {1}", new Object[]
+                        ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - bad packet, are mods in use!? {1}", new Object[]
                         {
                             handler, cause.getCause().getMessage()
                         } );
@@ -160,6 +170,9 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                         {
                             handler, cause.getCause().getMessage()
                         } );
+                    } else
+                    {
+                        ProxyServer.getInstance().getLogger().log( Level.WARNING, handler + " - could not decode packet!", cause );
                     }
                 } else if ( cause instanceof IOException || ( cause instanceof IllegalStateException && handler instanceof InitialHandler ) )
                 {

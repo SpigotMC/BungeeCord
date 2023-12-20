@@ -1,7 +1,7 @@
 package net.md_5.bungee.config;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class DefaultConfigurationTest
 {
@@ -16,8 +16,8 @@ public class DefaultConfigurationTest
 
         Configuration actualConfig = new Configuration( defaultConfig );
 
-        Assert.assertEquals( 10, actualConfig.getInt( "setting" ) );
-        Assert.assertEquals( 11, actualConfig.getInt( "nested.setting" ) );
-        Assert.assertEquals( 12, actualConfig.getInt( "double.nested.setting" ) );
+        assertEquals( 10, actualConfig.getInt( "setting" ) );
+        assertEquals( 11, actualConfig.getInt( "nested.setting" ) );
+        assertEquals( 12, actualConfig.getInt( "double.nested.setting" ) );
     }
 }

@@ -30,6 +30,10 @@ public final class TranslatableComponent extends BaseComponent
      * The components to substitute into the translation
      */
     private List<BaseComponent> with;
+    /**
+     * The fallback, if the translation is not found
+     */
+    private String fallback;
 
     /**
      * Creates a translatable component from the original to clone it.
@@ -80,6 +84,21 @@ public final class TranslatableComponent extends BaseComponent
             }
             setWith( temp );
         }
+    }
+
+    /**
+     * Creates a translatable component with the passed substitutions
+     *
+     * @param translatable the translatable object
+     * @param with the {@link java.lang.String}s and
+     * {@link net.md_5.bungee.api.chat.BaseComponent}s to use into the
+     * translation
+     * @see #translate
+     * @see #setWith(java.util.List)
+     */
+    public TranslatableComponent(TranslationProvider translatable, Object... with)
+    {
+        this( translatable.getTranslationKey(), with );
     }
 
     /**
@@ -152,6 +171,11 @@ public final class TranslatableComponent extends BaseComponent
     private void convert(StringBuilder builder, boolean applyFormat)
     {
         String trans = TranslationRegistry.INSTANCE.translate( translate );
+
+        if ( trans.equals( translate ) && fallback != null )
+        {
+            trans = fallback;
+        }
 
         Matcher matcher = format.matcher( trans );
         int position = 0;

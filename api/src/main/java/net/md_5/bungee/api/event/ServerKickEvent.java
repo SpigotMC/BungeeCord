@@ -35,7 +35,7 @@ public class ServerKickEvent extends Event implements Cancellable
     /**
      * Kick reason.
      */
-    private BaseComponent[] kickReasonComponent;
+    private BaseComponent reason;
     /**
      * Server to send player to if this event is cancelled.
      */
@@ -63,24 +63,61 @@ public class ServerKickEvent extends Event implements Cancellable
         this( player, player.getServer().getInfo(), kickReasonComponent, cancelServer, state );
     }
 
+    @Deprecated
     public ServerKickEvent(ProxiedPlayer player, ServerInfo kickedFrom, BaseComponent[] kickReasonComponent, ServerInfo cancelServer, State state)
+    {
+        this( player, kickedFrom, TextComponent.fromArray( kickReasonComponent ), cancelServer, state );
+    }
+
+    public ServerKickEvent(ProxiedPlayer player, ServerInfo kickedFrom, BaseComponent reason, ServerInfo cancelServer, State state)
     {
         this.player = player;
         this.kickedFrom = kickedFrom;
-        this.kickReasonComponent = kickReasonComponent;
+        this.reason = reason;
         this.cancelServer = cancelServer;
         this.state = state;
     }
 
+    /**
+     * @return the kick reason
+     * @deprecated use component methods instead
+     */
     @Deprecated
     public String getKickReason()
     {
-        return BaseComponent.toLegacyText( kickReasonComponent );
+        return BaseComponent.toLegacyText( getReason() );
     }
 
+    /**
+     * @param reason the kick reason
+     * @deprecated use component methods instead
+     */
     @Deprecated
     public void setKickReason(String reason)
     {
-        kickReasonComponent = TextComponent.fromLegacyText( reason );
+        this.setReason( TextComponent.fromLegacy( reason ) );
+    }
+
+    /**
+     * @return the kick reason
+     * @deprecated use single component methods instead
+     */
+    @Deprecated
+    public BaseComponent[] getKickReasonComponent()
+    {
+        return new BaseComponent[]
+        {
+            getReason()
+        };
+    }
+
+    /**
+     * @param kickReasonComponent the kick reason
+     * @deprecated use single component methods instead
+     */
+    @Deprecated
+    public void setKickReasonComponent(BaseComponent[] kickReasonComponent)
+    {
+        this.setReason( TextComponent.fromArray( kickReasonComponent ) );
     }
 }

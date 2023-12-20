@@ -23,6 +23,15 @@ public class Text extends Content
         this.value = value;
     }
 
+    public Text(BaseComponent value)
+    {
+        // For legacy serialization reasons, this has to be an array of components
+        this( new BaseComponent[]
+        {
+            value
+        } );
+    }
+
     public Text(String value)
     {
         this.value = value;
