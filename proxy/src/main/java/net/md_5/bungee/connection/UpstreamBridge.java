@@ -50,6 +50,7 @@ public class UpstreamBridge extends PacketHandler
 
     private final ProxyServer bungee;
     private final UserConnection con;
+    private PlayerSession playerSession;
 
     public UpstreamBridge(ProxyServer bungee, UserConnection con)
     {
