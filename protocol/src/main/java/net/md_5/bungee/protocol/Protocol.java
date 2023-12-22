@@ -545,6 +545,12 @@ public enum Protocol
                     StartConfiguration::new,
                     map( ProtocolConstants.MINECRAFT_1_20_2, 0x0B )
             );
+            TO_SERVER.registerPacket(
+                    PlayerSession.class,
+                    PlayerSession::new,
+                    map( ProtocolConstants.MINECRAFT_1_19_3, 0x20 ),
+                    map( ProtocolConstants.MINECRAFT_1_19_4, 0x06 )
+            );
         }
     },
     // 1
