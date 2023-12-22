@@ -30,7 +30,9 @@ public class PlayerSession extends DefinedPacket
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         writeUUID( sessionId, buf );
-        writePublicKey( publicKey, buf );
+        buf.writeLong( publicKey.getExpiry() );
+        writeArray( publicKey.getKey(), buf );
+        writeArray( publicKey.getSignature(), buf );
     }
 
     @Override
