@@ -187,7 +187,7 @@ public final class TagUtil
                         if ( compound.size() == 1 )
                         {
                             SpecificTag first = (SpecificTag) compound.get( "" );
-                            if ( first != null )
+                            if ( !first.isError() )
                             {
                                 jsonList.add( toJson( first ) );
                                 continue;
