@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.EncryptionUtil;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.ServerConnection.KeepAliveData;
 import net.md_5.bungee.UserConnection;
@@ -37,6 +38,7 @@ import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.LoginAcknowledged;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
+import net.md_5.bungee.protocol.packet.PlayerSession;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StartConfiguration;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
@@ -197,6 +199,22 @@ public class UpstreamBridge extends PacketHandler
 
     private String handleChat(String message)
     {
+
+        if ( BungeeCord.getInstance().config.isEnforceSecureProfile() && con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_19_3 )
+        {
+            if ( playerSession == null )
+            {
+                con.disconnect( bungee.getTranslation( "secure_profile_invalid" ) );
+                throw CancelSendSignal.INSTANCE;
+            }
+
+            if ( Instant.ofEpochMilli( playerSession.getPublicKey().getExpiry() ).isBefore( Instant.now() ) )
+            {
+                con.disconnect( bungee.getTranslation( "secure_profile_expired" ) );
+                throw CancelSendSignal.INSTANCE;
+            }
+        }
+
         for ( int index = 0, length = message.length(); index < length; index++ )
         {
             char c = message.charAt( index );
@@ -361,6 +379,35 @@ public class UpstreamBridge extends PacketHandler
     public void handle(FinishConfiguration finishConfiguration) throws Exception
     {
         con.sendQueuedPackets();
+    }
+
+    @Override
+    public void handle(PlayerSession playerSession) throws Exception
+    {
+        if ( !BungeeCord.getInstance().config.isEnforceSecureProfile() )
+        {
+            return;
+        }
+
+        if ( Instant.ofEpochMilli( playerSession.getPublicKey().getExpiry() ).isBefore( Instant.now() ) )
+        {
+            con.disconnect( bungee.getTranslation( "secure_profile_expired" ) );
+            throw CancelSendSignal.INSTANCE;
+        }
+
+        try
+        {
+            if ( EncryptionUtil.check( playerSession.getPublicKey(), con.getUniqueId() ) )
+            {
+                this.playerSession = playerSession;
+                return;
+            }
+        } catch ( GeneralSecurityException ex )
+        {
+        }
+
+        con.disconnect( bungee.getTranslation( "secure_profile_invalid" ) );
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override
