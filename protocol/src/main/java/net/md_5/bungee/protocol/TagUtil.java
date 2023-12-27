@@ -124,9 +124,11 @@ public final class TagUtil
                     for ( JsonElement jsonEl : jsonArray )
                     {
                         SpecificTag subTag = fromJson( jsonEl );
-                        if ( subTag.tagType() != listType )
+                        if ( !( subTag instanceof CompoundTag ) )
                         {
-                            throw new IllegalArgumentException( "Cannot convert mixed JsonArray to Tag" );
+                            CompoundTag wrapper = new CompoundTag();
+                            wrapper.add( "", subTag );
+                            subTag = wrapper;
                         }
 
                         tagItems.add( subTag );
@@ -179,6 +181,20 @@ public final class TagUtil
                 JsonArray jsonList = new JsonArray( items.size() );
                 for ( SpecificTag subTag : items )
                 {
+                    if ( subTag instanceof CompoundTag )
+                    {
+                        CompoundTag compound = (CompoundTag) subTag;
+                        if ( compound.size() == 1 )
+                        {
+                            SpecificTag first = (SpecificTag) compound.get( "" );
+                            if ( !first.isError() )
+                            {
+                                jsonList.add( toJson( first ) );
+                                continue;
+                            }
+                        }
+                    }
+
                     jsonList.add( toJson( subTag ) );
                 }
 

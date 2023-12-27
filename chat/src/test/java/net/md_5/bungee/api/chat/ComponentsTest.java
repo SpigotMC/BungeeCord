@@ -8,6 +8,7 @@ import java.util.function.Function;
 import java.util.function.ObjIntConsumer;
 import java.util.function.Supplier;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.hover.content.Entity;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.junit.jupiter.api.Test;
@@ -86,6 +87,14 @@ public class ComponentsTest
         assertEquals( contentItem.getId(), parsedContentItem.getId() );
         assertEquals( nbt, parsedContentItem.getTag().getNbt() );
          */
+    }
+
+    @Test
+    public void testArrayUUIDParse()
+    {
+        BaseComponent[] uuidComponent = ComponentSerializer.parse( "{\"translate\":\"multiplayer.player.joined\",\"with\":[{\"text\":\"Rexcantor64\",\"hoverEvent\":{\"contents\":{\"type\":\"minecraft:player\",\"id\":[1328556382,-2138814985,-1895806765,-1039963041],\"name\":\"Rexcantor64\"},\"action\":\"show_entity\"},\"insertion\":\"Rexcantor64\",\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"/tell Rexcantor64 \"}}],\"color\":\"yellow\"}" );
+        assertEquals( "4f30295e-8084-45f7-8f00-48d3c2036c5f", ( (Entity) ( (TranslatableComponent) uuidComponent[0] ).getWith().get( 0 ).getHoverEvent().getContents().get( 0 ) ).getId() );
+        testDissembleReassemble( uuidComponent );
     }
 
     @Test
