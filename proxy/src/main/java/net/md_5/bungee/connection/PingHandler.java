@@ -63,12 +63,6 @@ public class PingHandler extends PacketHandler
     }
 
     @Override
-    public void protocolChanged(ChannelWrapper channel, Protocol oldProtocol, Protocol newProtocol, ProtocolChangedEvent.Direction direction)
-    {
-        BungeeCord.getInstance().getPluginManager().callEvent( new ProtocolChangedEvent( oldProtocol, newProtocol, this, direction ) );
-    }
-
-    @Override
     @SuppressFBWarnings("UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
     public void handle(StatusResponse statusResponse) throws Exception
     {
