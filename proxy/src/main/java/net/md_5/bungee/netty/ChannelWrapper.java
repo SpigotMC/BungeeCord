@@ -9,6 +9,7 @@ import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.Setter;
+import net.md_5.bungee.api.event.ProtocolChangedEvent;
 import net.md_5.bungee.compress.PacketCompressor;
 import net.md_5.bungee.compress.PacketDecompressor;
 import net.md_5.bungee.protocol.DefinedPacket;
@@ -43,7 +44,13 @@ public class ChannelWrapper
 
     public void setDecodeProtocol(Protocol protocol)
     {
+        Protocol oldProtocol = getDecodeProtocol();
         ch.pipeline().get( MinecraftDecoder.class ).setProtocol( protocol );
+        HandlerBoss handlerBoss = ch.pipeline().get( HandlerBoss.class );
+        if ( oldProtocol != protocol && handlerBoss != null )
+        {
+            handlerBoss.getHandler().protocolChanged( this, oldProtocol, protocol, ProtocolChangedEvent.Direction.DECODE );
+        }
     }
 
     public Protocol getEncodeProtocol()
@@ -54,7 +61,13 @@ public class ChannelWrapper
 
     public void setEncodeProtocol(Protocol protocol)
     {
+        Protocol oldProtocol = getEncodeProtocol();
         ch.pipeline().get( MinecraftEncoder.class ).setProtocol( protocol );
+        HandlerBoss handlerBoss = ch.pipeline().get( HandlerBoss.class );
+        if ( oldProtocol != protocol && handlerBoss != null )
+        {
+            handlerBoss.getHandler().protocolChanged( this, oldProtocol, protocol, ProtocolChangedEvent.Direction.ENCODE );
+        }
     }
 
     public void setProtocol(Protocol protocol)
