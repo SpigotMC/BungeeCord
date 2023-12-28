@@ -9,6 +9,7 @@ import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.event.ProtocolChangedEvent;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.netty.PipelineUtils;
@@ -59,6 +60,12 @@ public class PingHandler extends PacketHandler
         {
             throw new QuietException( "Unexpected packet received during ping process! " + BufUtil.dump( packet.buf, 16 ) );
         }
+    }
+
+    @Override
+    public void protocolChanged(ChannelWrapper channel, Protocol oldProtocol, Protocol newProtocol, ProtocolChangedEvent.Direction direction)
+    {
+        BungeeCord.getInstance().getPluginManager().callEvent( new ProtocolChangedEvent( oldProtocol, newProtocol, this, direction ) );
     }
 
     @Override
