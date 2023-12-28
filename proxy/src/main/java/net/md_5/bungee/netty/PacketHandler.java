@@ -1,6 +1,8 @@
 package net.md_5.bungee.netty;
 
+import net.md_5.bungee.api.event.ProtocolChangedEvent;
 import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.protocol.Protocol;
 
 public abstract class PacketHandler extends net.md_5.bungee.protocol.AbstractPacketHandler
 {
@@ -31,5 +33,10 @@ public abstract class PacketHandler extends net.md_5.bungee.protocol.AbstractPac
 
     public void writabilityChanged(ChannelWrapper channel) throws Exception
     {
+    }
+
+    public void protocolChanged(ChannelWrapper channel, Protocol oldProtocol, Protocol newProtocol, ProtocolChangedEvent.Direction direction)
+    {
+
     }
 }
