@@ -4,72 +4,25 @@ import com.google.common.base.Preconditions;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Locale;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentStyle;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.hover.content.Content;
 
 public class BaseComponentSerializer
 {
 
-    private static boolean getAsBoolean(JsonElement el)
-    {
-        if ( el.isJsonPrimitive() )
-        {
-            JsonPrimitive primitive = (JsonPrimitive) el;
-
-            if ( primitive.isBoolean() )
-            {
-                return primitive.getAsBoolean();
-            }
-
-            if ( primitive.isNumber() )
-            {
-                Number number = primitive.getAsNumber();
-                if ( number instanceof Byte )
-                {
-                    return number.byteValue() != 0;
-                }
-            }
-        }
-
-        return false;
-    }
-
     protected void deserialize(JsonObject object, BaseComponent component, JsonDeserializationContext context)
     {
-        if ( object.has( "bold" ) )
-        {
-            component.setBold( getAsBoolean( object.get( "bold" ) ) );
-        }
-        if ( object.has( "italic" ) )
-        {
-            component.setItalic( getAsBoolean( object.get( "italic" ) ) );
-        }
-        if ( object.has( "underlined" ) )
-        {
-            component.setUnderlined( getAsBoolean( object.get( "underlined" ) ) );
-        }
-        if ( object.has( "strikethrough" ) )
-        {
-            component.setStrikethrough( getAsBoolean( object.get( "strikethrough" ) ) );
-        }
-        if ( object.has( "obfuscated" ) )
-        {
-            component.setObfuscated( getAsBoolean( object.get( "obfuscated" ) ) );
-        }
-        if ( object.has( "color" ) )
-        {
-            component.setColor( ChatColor.of( object.get( "color" ).getAsString() ) );
-        }
+        component.applyStyle( context.deserialize( object, ComponentStyle.class ) );
+
         if ( object.has( "insertion" ) )
         {
             component.setInsertion( object.get( "insertion" ).getAsString() );
@@ -131,10 +84,6 @@ public class BaseComponentSerializer
             }
         }
 
-        if ( object.has( "font" ) )
-        {
-            component.setFont( object.get( "font" ).getAsString() );
-        }
         if ( object.has( "extra" ) )
         {
             component.setExtra( Arrays.asList( context.<BaseComponent[]>deserialize( object.get( "extra" ), BaseComponent[].class ) ) );
@@ -153,30 +102,9 @@ public class BaseComponentSerializer
         {
             Preconditions.checkArgument( !ComponentSerializer.serializedComponents.get().contains( component ), "Component loop" );
             ComponentSerializer.serializedComponents.get().add( component );
-            if ( component.isBoldRaw() != null )
-            {
-                object.addProperty( "bold", component.isBoldRaw() );
-            }
-            if ( component.isItalicRaw() != null )
-            {
-                object.addProperty( "italic", component.isItalicRaw() );
-            }
-            if ( component.isUnderlinedRaw() != null )
-            {
-                object.addProperty( "underlined", component.isUnderlinedRaw() );
-            }
-            if ( component.isStrikethroughRaw() != null )
-            {
-                object.addProperty( "strikethrough", component.isStrikethroughRaw() );
-            }
-            if ( component.isObfuscatedRaw() != null )
-            {
-                object.addProperty( "obfuscated", component.isObfuscatedRaw() );
-            }
-            if ( component.getColorRaw() != null )
-            {
-                object.addProperty( "color", component.getColorRaw().getName() );
-            }
+
+            ComponentStyleSerializer.serializeTo( component.getStyle(), object );
+
             if ( component.getInsertion() != null )
             {
                 object.addProperty( "insertion", component.getInsertion() );
@@ -205,10 +133,6 @@ public class BaseComponentSerializer
                 object.add( "hoverEvent", hoverEvent );
             }
 
-            if ( component.getFontRaw() != null )
-            {
-                object.addProperty( "font", component.getFontRaw() );
-            }
             if ( component.getExtra() != null )
             {
                 object.add( "extra", context.serialize( component.getExtra() ) );

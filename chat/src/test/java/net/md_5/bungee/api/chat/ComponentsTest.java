@@ -431,6 +431,16 @@ public class ComponentsTest
     }
 
     @Test
+    public void testStyle()
+    {
+        ComponentStyle style = ComponentSerializer.deserializeStyle( "{\"color\":\"red\",\"font\":\"minecraft:example\",\"bold\":true,\"italic\":false,\"obfuscated\":true}" );
+        String text = ComponentSerializer.toString( style );
+        ComponentStyle reparsed = ComponentSerializer.deserializeStyle( text );
+
+        assertEquals( style, reparsed );
+    }
+
+    @Test
     public void testBuilderAppendCreate()
     {
         this.testBuilderAppend(

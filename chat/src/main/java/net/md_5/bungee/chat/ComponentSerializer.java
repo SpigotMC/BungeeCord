@@ -13,6 +13,7 @@ import com.google.gson.JsonPrimitive;
 import java.lang.reflect.Type;
 import java.util.Set;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentStyle;
 import net.md_5.bungee.api.chat.ItemTag;
 import net.md_5.bungee.api.chat.KeybindComponent;
 import net.md_5.bungee.api.chat.ScoreComponent;
@@ -36,6 +37,7 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
             registerTypeAdapter( KeybindComponent.class, new KeybindComponentSerializer() ).
             registerTypeAdapter( ScoreComponent.class, new ScoreComponentSerializer() ).
             registerTypeAdapter( SelectorComponent.class, new SelectorComponentSerializer() ).
+            registerTypeAdapter( ComponentStyle.class, new ComponentStyleSerializer() ).
             registerTypeAdapter( Entity.class, new EntitySerializer() ).
             registerTypeAdapter( Text.class, new TextSerializer() ).
             registerTypeAdapter( Item.class, new ItemSerializer() ).
@@ -118,9 +120,42 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
         return gson.fromJson( jsonElement, BaseComponent.class );
     }
 
+    /**
+     * Deserialize a JSON-compliant String as a component style.
+     *
+     * @param json the component style json to parse
+     * @return the deserialized component style
+     * @throws IllegalArgumentException if anything other than a valid JSON
+     * component style string is passed as input
+     */
+    public static ComponentStyle deserializeStyle(String json)
+    {
+        JsonElement jsonElement = JsonParser.parseString( json );
+
+        return deserializeStyle( jsonElement );
+    }
+
+    /**
+     * Deserialize a JSON element as a component style.
+     *
+     * @param jsonElement the component style json to parse
+     * @return the deserialized component style
+     * @throws IllegalArgumentException if anything other than a valid JSON
+     * component style is passed as input
+     */
+    public static ComponentStyle deserializeStyle(JsonElement jsonElement)
+    {
+        return gson.fromJson( jsonElement, ComponentStyle.class );
+    }
+
     public static JsonElement toJson(BaseComponent component)
     {
         return gson.toJsonTree( component );
+    }
+
+    public static JsonElement toJson(ComponentStyle style)
+    {
+        return gson.toJsonTree( style );
     }
 
     public static String toString(Object object)
@@ -142,6 +177,11 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
         {
             return gson.toJson( new TextComponent( components ) );
         }
+    }
+
+    public static String toString(ComponentStyle style)
+    {
+        return gson.toJson( style );
     }
 
     @Override
