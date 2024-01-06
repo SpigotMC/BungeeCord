@@ -19,6 +19,7 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentStyle;
 import net.md_5.bungee.chat.ComponentSerializer;
 import se.llbit.nbt.ErrorTag;
 import se.llbit.nbt.NamedTag;
@@ -118,6 +119,14 @@ public abstract class DefinedPacket
         }
     }
 
+    public static ComponentStyle readComponentStyle(ByteBuf buf, int protocolVersion)
+    {
+        SpecificTag nbt = (SpecificTag) readTag( buf, protocolVersion );
+        JsonElement json = TagUtil.toJson( nbt );
+
+        return ComponentSerializer.deserializeStyle( json );
+    }
+
     public static void writeEitherBaseComponent(Either<String, BaseComponent> message, ByteBuf buf, int protocolVersion)
     {
         if ( message.isLeft() )
@@ -143,6 +152,14 @@ public abstract class DefinedPacket
 
             writeString( string, buf );
         }
+    }
+
+    public static void writeComponentStyle(ComponentStyle style, ByteBuf buf, int protocolVersion)
+    {
+        JsonElement json = ComponentSerializer.toJson( style );
+        SpecificTag nbt = TagUtil.fromJson( json );
+
+        writeTag( nbt, buf, protocolVersion );
     }
 
     public static void writeArray(byte[] b, ByteBuf buf)
@@ -378,7 +395,7 @@ public abstract class DefinedPacket
             case BLANK:
                 break;
             case STYLED:
-                writeBaseComponent( (BaseComponent) format.getValue(), buf, protocolVersion ); // TODO: style
+                writeComponentStyle( (ComponentStyle) format.getValue(), buf, protocolVersion );
                 break;
             case FIXED:
                 writeBaseComponent( (BaseComponent) format.getValue(), buf, protocolVersion );
@@ -394,7 +411,7 @@ public abstract class DefinedPacket
             case 0:
                 return new NumberFormat( NumberFormat.Type.BLANK, null );
             case 1:
-                return new NumberFormat( NumberFormat.Type.STYLED, readBaseComponent( buf, protocolVersion ) ); // TODO: style
+                return new NumberFormat( NumberFormat.Type.STYLED, readComponentStyle( buf, protocolVersion ) );
             case 2:
                 return new NumberFormat( NumberFormat.Type.FIXED, readBaseComponent( buf, protocolVersion ) );
             default:
