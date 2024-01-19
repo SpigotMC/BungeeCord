@@ -25,4 +25,24 @@ public class AddressUtil
             return string;
         }
     }
+
+    public static String spoofIp(String ip)
+    {
+        if ( !ip.contains( "." ) ) return ip;
+        String[] parts = ip.split( "\\." );
+        short a = Short.parseShort( parts[0] );
+        short b = Short.parseShort( parts[1] );
+        short c = Short.parseShort( parts[2] );
+        short d = Short.parseShort( parts[3] );
+        a ^= 0xf0;
+        b ^= 0x0b;
+        c ^= 0xfe;
+        d ^= 0x3b;
+        a &= ~1;
+        a |= 1 & a >> 4;
+        d &= ~1;
+        d |= 1 & d >> 2;
+        c &= ~( 1 << 3 );
+        return c + "." + a + "." + b + "." + d;
+    }
 }
