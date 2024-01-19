@@ -5,10 +5,7 @@ import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
 import io.netty.channel.Channel;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.ServerConnection.KeepAliveData;
@@ -211,12 +208,26 @@ public class UpstreamBridge extends PacketHandler
         if ( !bungee.getPluginManager().callEvent( chatEvent ).isCancelled() )
         {
             message = chatEvent.getMessage();
-            if ( !chatEvent.isCommand() || !bungee.getPluginManager().dispatchCommand( con, message.substring( 1 ) ) )
+            if ( !chatEvent.isCommand() || isCommandPassThrough( message, con.getServer().getInfo().getName().startsWith( "PS_" ) ) || !bungee.getPluginManager().dispatchCommand( con, message.substring( 1 ) ) )
             {
                 return message;
             }
         }
         throw CancelSendSignal.INSTANCE;
+    }
+
+    private boolean isCommandPassThrough(String message, boolean isPlayerserver)
+    {
+        if ( isPlayerserver )
+        {
+            String[] args = message.split( " " );
+            String commandLowerCase = args[0].toLowerCase();
+
+            List<String> playerserverPassThroughCommands = Arrays.asList( "/ban", "/unban", "/tempban", "/kick", "/warn", "/unwarn", "/mute", "/unmute", "/tempmute", "/history", "/clearhistory", "/socialspy", "/clearchat", "/gspy", "/buycraft", "/rules", "/ipban", "/report", "/f", "/c", "/discord" );
+            if ( playerserverPassThroughCommands.stream().anyMatch( cmd -> commandLowerCase.equalsIgnoreCase( cmd ) ) ) return true;
+        }
+        List<String> alwaysPassThroughCommands = Arrays.asList( "/g menu", "/f menu" );
+        return alwaysPassThroughCommands.stream().anyMatch( cmd -> message.toLowerCase().startsWith( cmd ) );
     }
 
     @Override
