@@ -24,3 +24,6 @@ Binaries
 Precompiled binaries are available for end users on [Jenkins](https://www.spigotmc.org/go/bungeecord-dl).
 
 (c) 2012-2023 SpigotMC Pty. Ltd.
+
+# CubedCraft changes
+Changes applied are an ip spoofing patch that spoofs all ips presented to attached servers. Additionally command forwarding has been added to forward any bungeecord registered commands to playerservers
