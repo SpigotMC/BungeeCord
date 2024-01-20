@@ -347,7 +347,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param cookie the resource location of the cookie, for example "bungeecord:my_cookie"
      *
      * @return a {@link CompletableFuture} that will be completed when the Cookie response is received
-     * @apiNote Only useable for 1.20.5 clients or newer,
+     * Only useable for 1.20.5 clients or newer,
      * if the cookie is not set in the client, the {@link CompletableFuture} will complete with a null value
      */
     CompletableFuture<byte[]> retrieveCookie(String cookie);
@@ -359,7 +359,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * @param cookie the resource location of the cookie, for example "bungeecord:my_cookie"
      * @param data the data to store in the cookie
      *
-     * @apiNote Only useable for 1.20.5 clients or newer
+     * Only useable for 1.20.5 clients or newer
      */
     void storeCookie(String cookie, byte[] data);
 }
