@@ -2,17 +2,20 @@ package de.luca.betterbungee.updater;
 
 import net.md_5.bungee.api.ProxyServer;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.BufferedReader;
+
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+
 import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
@@ -40,11 +43,11 @@ public class BungeeUpdaterAPI {
 	private LogLevel loglevel = LogLevel.NONE;
 
 	private final long filesize = calculcatefilesize();
-	
+
 	private boolean onlyempty = false;
-	
+
 	private boolean hibernat = false;
-	
+
 	private long timesinceempty = System.currentTimeMillis();
 
 	public BungeeUpdaterAPI(String uuid, String key) {
@@ -156,16 +159,16 @@ public class BungeeUpdaterAPI {
 
 		if (type == UpdateType.SIMPLECLOUDV2) {
 			File parentfile = new File("");
-						
+
 			String absolutpath = parentfile.getAbsolutePath();
 			log("temp service Location: " + absolutpath);
 
 			String foldername = absolutpath.substring(absolutpath.lastIndexOf("/") + 1, absolutpath.length());
 			log("temp service Name: " + foldername);
-			
+
 			String tmpfolder = new File(new File("../").toURI().normalize().getPath()).getName().toLowerCase();
 			log("temp folder name: " + tmpfolder);
-			
+
 			if (foldername.contains("-") && tmpfolder.contains("tmp")) {
 				log("detected simplecloud service");
 				String groupname = foldername.split("-")[0];
@@ -256,7 +259,7 @@ public class BungeeUpdaterAPI {
 						.getAbsolutePath();
 
 				File globaldir = new File(globalpathtemplates);
-				
+
 				for (String templates : globaldir.list()) {
 					File pluginfile = new File(globaldir.getAbsolutePath() + "/" + templates + "/plugins/" + thisfile.getName());
 					if (pluginfile.exists()) {
@@ -265,7 +268,7 @@ public class BungeeUpdaterAPI {
 						locations.add(pluginfile.getAbsolutePath());
 					}
 				}
-				
+
 //				String globalpath = new File(
 //						new File("../../../local/templates/Global/server/plugins/" + thisfile.getName()).toURI().normalize().getPath()).getAbsolutePath();
 //
@@ -296,7 +299,7 @@ public class BungeeUpdaterAPI {
 				}
 			}
 		}
-		
+
 		return locations;
 	}
 
@@ -350,7 +353,7 @@ public class BungeeUpdaterAPI {
 	public enum LogLevel {
 		NONE, DEBUG
 	}
-	
+
 	public void log(String message) {
 		if (loglevel == LogLevel.DEBUG) {
 			System.out.println(message);
