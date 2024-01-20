@@ -81,6 +81,7 @@ import net.md_5.bungee.command.CommandBungee;
 import net.md_5.bungee.command.CommandEnd;
 import net.md_5.bungee.command.CommandIP;
 import net.md_5.bungee.command.CommandPerms;
+import net.md_5.bungee.command.CommandPlugins;
 import net.md_5.bungee.command.CommandReload;
 import net.md_5.bungee.command.ConsoleCommandCompleter;
 import net.md_5.bungee.command.ConsoleCommandSender;
@@ -237,6 +238,7 @@ public class BungeeCord extends ProxyServer
         getPluginManager().registerCommand( null, new CommandIP() );
         getPluginManager().registerCommand( null, new CommandBungee() );
         getPluginManager().registerCommand( null, new CommandPerms() );
+        getPluginManager().registerCommand( null, new CommandPlugins() );
 
         if ( !Boolean.getBoolean( "net.md_5.bungee.native.disable" ) )
         {
