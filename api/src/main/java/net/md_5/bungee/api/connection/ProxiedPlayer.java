@@ -362,4 +362,14 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * Only useable for 1.20.5 clients or newer
      */
     void storeCookie(String cookie, byte[] data);
+
+    /**
+     * Transfers this player to a different server specified by host and port.
+     *
+     * @param host the host of the server to transfer to
+     * @param port the port of the server to transfer to
+     *
+     * Only useable for 1.20.5 clients or newer
+     */
+    void transfer(String host, int port);
 }

@@ -62,6 +62,7 @@ import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.SystemChat;
+import net.md_5.bungee.protocol.packet.Transfer;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
 import net.md_5.bungee.util.CaseInsensitiveSet;
@@ -783,5 +784,12 @@ public final class UserConnection implements ProxiedPlayer
     public void storeCookie(String cookie, byte[] data)
     {
         pendingConnection.storeCookie( cookie, data );
+    }
+
+    @Override
+    public void transfer(String host, int port)
+    {
+        Preconditions.checkState( getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_5, "Transfers are only supported in 1.20.5 and above" );
+        unsafe().sendPacket( new Transfer( host, port ) );
     }
 }
