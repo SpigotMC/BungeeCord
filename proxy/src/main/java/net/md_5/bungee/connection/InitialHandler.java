@@ -109,6 +109,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private boolean legacy;
     @Getter
     private String extraDataInHandshake = "";
+    @Getter
+    private boolean transferred;
     private UserConnection userCon;
 
     @Override
@@ -349,6 +351,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 ch.setProtocol( Protocol.STATUS );
                 break;
             case 2:
+            case 3: // transferred
+                this.transferred = handshake.getRequestedProtocol() == 3;
                 // Login
                 bungee.getLogger().log( Level.INFO, "{0} has connected", this );
                 thisState = State.USERNAME;

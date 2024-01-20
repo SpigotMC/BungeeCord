@@ -40,6 +40,7 @@ import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.StartConfiguration;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
+import net.md_5.bungee.protocol.packet.StoreCookie;
 import net.md_5.bungee.protocol.packet.Subtitle;
 import net.md_5.bungee.protocol.packet.SystemChat;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
@@ -47,6 +48,7 @@ import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.Team;
 import net.md_5.bungee.protocol.packet.Title;
 import net.md_5.bungee.protocol.packet.TitleTimes;
+import net.md_5.bungee.protocol.packet.Transfer;
 import net.md_5.bungee.protocol.packet.ViewDistance;
 
 public abstract class AbstractPacketHandler
@@ -241,6 +243,14 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(FinishConfiguration finishConfiguration) throws Exception
+    {
+    }
+
+    public void handle(Transfer transfer) throws Exception
+    {
+    }
+
+    public void handle(StoreCookie storeCookie) throws Exception
     {
     }
 }
