@@ -16,6 +16,8 @@ import net.md_5.bungee.protocol.packet.ClientChat;
 import net.md_5.bungee.protocol.packet.ClientCommand;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.Commands;
+import net.md_5.bungee.protocol.packet.CookieRequest;
+import net.md_5.bungee.protocol.packet.CookieResponse;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.EntityStatus;
@@ -481,6 +483,11 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_20_5, 0x68 )
             );
             TO_CLIENT.registerPacket(
+                    CookieRequest.class,
+                    CookieRequest::new,
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x16 )
+            );
+            TO_CLIENT.registerPacket(
                     StoreCookie.class,
                     StoreCookie::new,
                     map( ProtocolConstants.MINECRAFT_1_20_5, 0x6A )
@@ -583,6 +590,11 @@ public enum Protocol
                     StartConfiguration::new,
                     map( ProtocolConstants.MINECRAFT_1_20_2, 0x0B )
             );
+            TO_SERVER.registerPacket(
+                    CookieResponse.class,
+                    CookieResponse::new,
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x10 )
+            );
         }
     },
     // 1
@@ -643,6 +655,11 @@ public enum Protocol
                     LoginPayloadRequest::new,
                     map( ProtocolConstants.MINECRAFT_1_13, 0x04 )
             );
+            TO_CLIENT.registerPacket(
+                    CookieRequest.class,
+                    CookieRequest::new,
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x05 )
+            );
 
             TO_SERVER.registerPacket(
                     LoginRequest.class,
@@ -664,6 +681,11 @@ public enum Protocol
                     LoginAcknowledged::new,
                     map( ProtocolConstants.MINECRAFT_1_20_2, 0x03 )
             );
+            TO_SERVER.registerPacket(
+                    CookieResponse.class,
+                    CookieResponse::new,
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x04 )
+            );
         }
     },
     // 3
@@ -672,7 +694,11 @@ public enum Protocol
 
         {
 
-            // 1.20.5 0 cookie request clientbound 1 serverbound increment other by 1
+            TO_CLIENT.registerPacket(
+                    CookieRequest.class,
+                    CookieRequest::new,
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x00 )
+            );
             TO_CLIENT.registerPacket(
                     PluginMessage.class,
                     PluginMessage::new,

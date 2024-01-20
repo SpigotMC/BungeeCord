@@ -8,6 +8,8 @@ import net.md_5.bungee.protocol.packet.ClientCommand;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.ClientStatus;
 import net.md_5.bungee.protocol.packet.Commands;
+import net.md_5.bungee.protocol.packet.CookieRequest;
+import net.md_5.bungee.protocol.packet.CookieResponse;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.EntityStatus;
@@ -251,6 +253,14 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(StoreCookie storeCookie) throws Exception
+    {
+    }
+
+    public void handle(CookieRequest cookieRequest) throws Exception
+    {
+    }
+
+    public void handle(CookieResponse cookieResponse) throws Exception
     {
     }
 }
