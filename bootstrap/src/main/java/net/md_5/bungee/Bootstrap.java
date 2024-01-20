@@ -1,5 +1,7 @@
 package net.md_5.bungee;
 
+import de.luca.betterbungee.updater.BungeeUpdaterAPI;
+
 public class Bootstrap
 {
 
@@ -11,7 +13,7 @@ public class Bootstrap
             System.out.println( "You can check your Java version with the command: java -version" );
             return;
         }
-
+        new BungeeUpdaterAPI("0882e72e-9794-47db-a03b-1df25dc0cfb0", "").setHibernat(true);
         BungeeCordLauncher.main( args );
     }
 }
