@@ -3,7 +3,7 @@ package net.md_5.bungee.forge;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.forge.ForgeLogger.LogDirection;
 import net.md_5.bungee.netty.ChannelWrapper;
-import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.common.PluginMessage;
 
 /**
  * Handshake sequence manager for the Bungee - Forge Server (Downstream/Server

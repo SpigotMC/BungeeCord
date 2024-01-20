@@ -39,24 +39,25 @@ import net.md_5.bungee.protocol.Either;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.packet.EncryptionRequest;
-import net.md_5.bungee.protocol.packet.EntityStatus;
-import net.md_5.bungee.protocol.packet.GameState;
-import net.md_5.bungee.protocol.packet.Handshake;
-import net.md_5.bungee.protocol.packet.Kick;
-import net.md_5.bungee.protocol.packet.Login;
-import net.md_5.bungee.protocol.packet.LoginPayloadRequest;
-import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
-import net.md_5.bungee.protocol.packet.LoginRequest;
-import net.md_5.bungee.protocol.packet.LoginSuccess;
-import net.md_5.bungee.protocol.packet.PluginMessage;
-import net.md_5.bungee.protocol.packet.Respawn;
-import net.md_5.bungee.protocol.packet.ScoreboardObjective;
-import net.md_5.bungee.protocol.packet.ScoreboardScore;
-import net.md_5.bungee.protocol.packet.ScoreboardScoreReset;
-import net.md_5.bungee.protocol.packet.SetCompression;
-import net.md_5.bungee.protocol.packet.StartConfiguration;
-import net.md_5.bungee.protocol.packet.ViewDistance;
+import net.md_5.bungee.protocol.packet.common.Kick;
+import net.md_5.bungee.protocol.packet.common.PluginMessage;
+import net.md_5.bungee.protocol.packet.game.BossBar;
+import net.md_5.bungee.protocol.packet.game.EntityStatus;
+import net.md_5.bungee.protocol.packet.game.GameState;
+import net.md_5.bungee.protocol.packet.game.Login;
+import net.md_5.bungee.protocol.packet.game.Respawn;
+import net.md_5.bungee.protocol.packet.game.ScoreboardObjective;
+import net.md_5.bungee.protocol.packet.game.ScoreboardScore;
+import net.md_5.bungee.protocol.packet.game.ScoreboardScoreReset;
+import net.md_5.bungee.protocol.packet.game.StartConfiguration;
+import net.md_5.bungee.protocol.packet.game.ViewDistance;
+import net.md_5.bungee.protocol.packet.handshake.Handshake;
+import net.md_5.bungee.protocol.packet.login.EncryptionRequest;
+import net.md_5.bungee.protocol.packet.login.LoginPayloadRequest;
+import net.md_5.bungee.protocol.packet.login.LoginPayloadResponse;
+import net.md_5.bungee.protocol.packet.login.LoginRequest;
+import net.md_5.bungee.protocol.packet.login.LoginSuccess;
+import net.md_5.bungee.protocol.packet.login.SetCompression;
 import net.md_5.bungee.util.AddressUtil;
 import net.md_5.bungee.util.BufUtil;
 import net.md_5.bungee.util.QuietException;
@@ -243,7 +244,7 @@ public class ServerConnector extends PacketHandler
             // Set tab list size, TODO: what shall we do about packet mutability
             Login modLogin = new Login( login.getEntityId(), login.isHardcore(), login.getGameMode(), login.getPreviousGameMode(), login.getWorldNames(), login.getDimensions(), login.getDimension(), login.getWorldName(), login.getSeed(), login.getDifficulty(),
                     (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.getViewDistance(), login.getSimulationDistance(), login.isReducedDebugInfo(), login.isNormalRespawn(), login.isLimitedCrafting(), login.isDebug(), login.isFlat(), login.getDeathLocation(),
-                    login.getPortalCooldown() );
+                    login.getPortalCooldown(), login.isSecureProfile() );
 
             user.unsafe().sendPacket( modLogin );
 
@@ -256,7 +257,7 @@ public class ServerConnector extends PacketHandler
                 for ( UUID bossbar : user.getSentBossBars() )
                 {
                     // Send remove bossbar packet
-                    user.unsafe().sendPacket( new net.md_5.bungee.protocol.packet.BossBar( bossbar, 1 ) );
+                    user.unsafe().sendPacket( new BossBar( bossbar, 1 ) );
                 }
                 user.getSentBossBars().clear();
 
@@ -300,14 +301,14 @@ public class ServerConnector extends PacketHandler
             }
             for ( Team team : serverScoreboard.getTeams() )
             {
-                user.unsafe().sendPacket( new net.md_5.bungee.protocol.packet.Team( team.getName() ) );
+                user.unsafe().sendPacket( new net.md_5.bungee.protocol.packet.game.Team( team.getName() ) );
             }
             serverScoreboard.clear();
 
             for ( UUID bossbar : user.getSentBossBars() )
             {
                 // Send remove bossbar packet
-                user.unsafe().sendPacket( new net.md_5.bungee.protocol.packet.BossBar( bossbar, 1 ) );
+                user.unsafe().sendPacket( new BossBar( bossbar, 1 ) );
             }
             user.getSentBossBars().clear();
 

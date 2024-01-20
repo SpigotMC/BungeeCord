@@ -51,19 +51,19 @@ import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.PlayerPublicKey;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.packet.EncryptionRequest;
-import net.md_5.bungee.protocol.packet.EncryptionResponse;
-import net.md_5.bungee.protocol.packet.Handshake;
-import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.LegacyHandshake;
 import net.md_5.bungee.protocol.packet.LegacyPing;
-import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
-import net.md_5.bungee.protocol.packet.LoginRequest;
-import net.md_5.bungee.protocol.packet.LoginSuccess;
-import net.md_5.bungee.protocol.packet.PingPacket;
-import net.md_5.bungee.protocol.packet.PluginMessage;
-import net.md_5.bungee.protocol.packet.StatusRequest;
-import net.md_5.bungee.protocol.packet.StatusResponse;
+import net.md_5.bungee.protocol.packet.common.Kick;
+import net.md_5.bungee.protocol.packet.common.PluginMessage;
+import net.md_5.bungee.protocol.packet.handshake.Handshake;
+import net.md_5.bungee.protocol.packet.login.EncryptionRequest;
+import net.md_5.bungee.protocol.packet.login.EncryptionResponse;
+import net.md_5.bungee.protocol.packet.login.LoginPayloadResponse;
+import net.md_5.bungee.protocol.packet.login.LoginRequest;
+import net.md_5.bungee.protocol.packet.login.LoginSuccess;
+import net.md_5.bungee.protocol.packet.status.PingPacket;
+import net.md_5.bungee.protocol.packet.status.StatusRequest;
+import net.md_5.bungee.protocol.packet.status.StatusResponse;
 import net.md_5.bungee.util.AllowedCharacters;
 import net.md_5.bungee.util.BufUtil;
 import net.md_5.bungee.util.QuietException;
@@ -110,6 +110,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Getter
     private String extraDataInHandshake = "";
     private UserConnection userCon;
+    private boolean transferred;
 
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
@@ -349,6 +350,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 ch.setProtocol( Protocol.STATUS );
                 break;
             case 2:
+            case 3:
+                transferred = handshake.getRequestedProtocol() == 3;
                 // Login
                 bungee.getLogger().log( Level.INFO, "{0} has connected", this );
                 thisState = State.USERNAME;

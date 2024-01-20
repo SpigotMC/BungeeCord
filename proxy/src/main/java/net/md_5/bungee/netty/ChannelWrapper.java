@@ -16,7 +16,7 @@ import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
-import net.md_5.bungee.protocol.packet.Kick;
+import net.md_5.bungee.protocol.packet.common.Kick;
 
 public class ChannelWrapper
 {

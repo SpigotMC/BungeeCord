@@ -6,9 +6,9 @@ import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.connection.LoginResult;
 import net.md_5.bungee.protocol.Property;
-import net.md_5.bungee.protocol.packet.PlayerListItem;
-import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
-import net.md_5.bungee.protocol.packet.PlayerListItemUpdate;
+import net.md_5.bungee.protocol.packet.game.PlayerListItem;
+import net.md_5.bungee.protocol.packet.game.PlayerListItemRemove;
+import net.md_5.bungee.protocol.packet.game.PlayerListItemUpdate;
 
 @RequiredArgsConstructor
 public abstract class TabList

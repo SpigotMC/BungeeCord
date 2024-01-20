@@ -3,7 +3,7 @@ package net.md_5.bungee.forge;
 import java.util.Map;
 import net.md_5.bungee.ServerConnector;
 import net.md_5.bungee.UserConnection;
-import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.common.PluginMessage;
 
 /**
  * Handshake sequence manager for the Bungee - Forge Client (Upstream) link.

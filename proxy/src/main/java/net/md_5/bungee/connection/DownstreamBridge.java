@@ -54,23 +54,23 @@ import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.packet.BossBar;
-import net.md_5.bungee.protocol.packet.Commands;
-import net.md_5.bungee.protocol.packet.KeepAlive;
-import net.md_5.bungee.protocol.packet.Kick;
-import net.md_5.bungee.protocol.packet.Login;
-import net.md_5.bungee.protocol.packet.PlayerListItem;
-import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
-import net.md_5.bungee.protocol.packet.PlayerListItemUpdate;
-import net.md_5.bungee.protocol.packet.PluginMessage;
-import net.md_5.bungee.protocol.packet.Respawn;
-import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
-import net.md_5.bungee.protocol.packet.ScoreboardObjective;
-import net.md_5.bungee.protocol.packet.ScoreboardScore;
-import net.md_5.bungee.protocol.packet.ScoreboardScoreReset;
-import net.md_5.bungee.protocol.packet.ServerData;
-import net.md_5.bungee.protocol.packet.SetCompression;
-import net.md_5.bungee.protocol.packet.TabCompleteResponse;
+import net.md_5.bungee.protocol.packet.common.KeepAlive;
+import net.md_5.bungee.protocol.packet.common.Kick;
+import net.md_5.bungee.protocol.packet.common.PluginMessage;
+import net.md_5.bungee.protocol.packet.game.BossBar;
+import net.md_5.bungee.protocol.packet.game.Commands;
+import net.md_5.bungee.protocol.packet.game.Login;
+import net.md_5.bungee.protocol.packet.game.PlayerListItem;
+import net.md_5.bungee.protocol.packet.game.PlayerListItemRemove;
+import net.md_5.bungee.protocol.packet.game.PlayerListItemUpdate;
+import net.md_5.bungee.protocol.packet.game.Respawn;
+import net.md_5.bungee.protocol.packet.game.ScoreboardDisplay;
+import net.md_5.bungee.protocol.packet.game.ScoreboardObjective;
+import net.md_5.bungee.protocol.packet.game.ScoreboardScore;
+import net.md_5.bungee.protocol.packet.game.ScoreboardScoreReset;
+import net.md_5.bungee.protocol.packet.game.ServerData;
+import net.md_5.bungee.protocol.packet.game.TabCompleteResponse;
+import net.md_5.bungee.protocol.packet.login.SetCompression;
 import net.md_5.bungee.tab.TabList;
 
 @RequiredArgsConstructor
@@ -242,7 +242,7 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(net.md_5.bungee.protocol.packet.Team team) throws Exception
+    public void handle(net.md_5.bungee.protocol.packet.game.Team team) throws Exception
     {
         Scoreboard serverScoreboard = con.getServerSentScoreboard();
         // Remove team and move on

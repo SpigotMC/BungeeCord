@@ -29,8 +29,8 @@ import net.md_5.bungee.jni.cipher.BungeeCipher;
 import net.md_5.bungee.jni.cipher.JavaCipher;
 import net.md_5.bungee.jni.cipher.NativeCipher;
 import net.md_5.bungee.protocol.PlayerPublicKey;
-import net.md_5.bungee.protocol.packet.EncryptionRequest;
-import net.md_5.bungee.protocol.packet.EncryptionResponse;
+import net.md_5.bungee.protocol.packet.login.EncryptionRequest;
+import net.md_5.bungee.protocol.packet.login.EncryptionResponse;
 
 /**
  * Class containing all encryption related methods for the proxy.
@@ -73,7 +73,7 @@ public class EncryptionUtil
         byte[] pubKey = keys.getPublic().getEncoded();
         byte[] verify = new byte[ 4 ];
         random.nextBytes( verify );
-        return new EncryptionRequest( hash, pubKey, verify );
+        return new EncryptionRequest( hash, pubKey, verify, true );
     }
 
     public static boolean check(PlayerPublicKey publicKey, UUID uuid) throws GeneralSecurityException

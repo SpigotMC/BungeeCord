@@ -11,7 +11,6 @@ public class Bootstrap
             System.out.println( "You can check your Java version with the command: java -version" );
             return;
         }
-
         BungeeCordLauncher.main( args );
     }
 }

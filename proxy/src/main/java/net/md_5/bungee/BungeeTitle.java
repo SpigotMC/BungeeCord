@@ -7,15 +7,15 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.packet.ClearTitles;
-import net.md_5.bungee.protocol.packet.Subtitle;
-import net.md_5.bungee.protocol.packet.Title.Action;
-import net.md_5.bungee.protocol.packet.TitleTimes;
+import net.md_5.bungee.protocol.packet.game.ClearTitles;
+import net.md_5.bungee.protocol.packet.game.Subtitle;
+import net.md_5.bungee.protocol.packet.game.Title.Action;
+import net.md_5.bungee.protocol.packet.game.TitleTimes;
 
 public class BungeeTitle implements Title
 {
 
-    private TitlePacketHolder<net.md_5.bungee.protocol.packet.Title> title;
+    private TitlePacketHolder<net.md_5.bungee.protocol.packet.game.Title> title;
     private TitlePacketHolder<Subtitle> subtitle;
     private TitlePacketHolder<TitleTimes> times;
     private TitlePacketHolder<ClearTitles> clear;
@@ -25,13 +25,13 @@ public class BungeeTitle implements Title
     private static class TitlePacketHolder<T extends DefinedPacket>
     {
 
-        private final net.md_5.bungee.protocol.packet.Title oldPacket;
+        private final net.md_5.bungee.protocol.packet.game.Title oldPacket;
         private final T newPacket;
     }
 
     private static TitlePacketHolder<TitleTimes> createAnimationPacket()
     {
-        TitlePacketHolder<TitleTimes> title = new TitlePacketHolder<>( new net.md_5.bungee.protocol.packet.Title( Action.TIMES ), new TitleTimes() );
+        TitlePacketHolder<TitleTimes> title = new TitlePacketHolder<>( new net.md_5.bungee.protocol.packet.game.Title( Action.TIMES ), new TitleTimes() );
 
         title.oldPacket.setFadeIn( 20 );
         title.oldPacket.setStay( 60 );
@@ -49,7 +49,7 @@ public class BungeeTitle implements Title
     {
         if ( title == null )
         {
-            net.md_5.bungee.protocol.packet.Title packet = new net.md_5.bungee.protocol.packet.Title( Action.TITLE );
+            net.md_5.bungee.protocol.packet.game.Title packet = new net.md_5.bungee.protocol.packet.game.Title( Action.TITLE );
             title = new TitlePacketHolder<>( packet, packet );
         }
 
@@ -68,7 +68,7 @@ public class BungeeTitle implements Title
     {
         if ( subtitle == null )
         {
-            subtitle = new TitlePacketHolder<>( new net.md_5.bungee.protocol.packet.Title( Action.SUBTITLE ), new Subtitle() );
+            subtitle = new TitlePacketHolder<>( new net.md_5.bungee.protocol.packet.game.Title( Action.SUBTITLE ), new Subtitle() );
         }
 
         subtitle.oldPacket.setText( text );
@@ -126,7 +126,7 @@ public class BungeeTitle implements Title
     {
         if ( clear == null )
         {
-            clear = new TitlePacketHolder<>( new net.md_5.bungee.protocol.packet.Title( Action.CLEAR ), new ClearTitles() );
+            clear = new TitlePacketHolder<>( new net.md_5.bungee.protocol.packet.game.Title( Action.CLEAR ), new ClearTitles() );
         }
 
         title = null; // No need to send title if we clear it after that again
@@ -139,7 +139,7 @@ public class BungeeTitle implements Title
     {
         if ( reset == null )
         {
-            reset = new TitlePacketHolder<>( new net.md_5.bungee.protocol.packet.Title( Action.RESET ), new ClearTitles( true ) );
+            reset = new TitlePacketHolder<>( new net.md_5.bungee.protocol.packet.game.Title( Action.RESET ), new ClearTitles( true ) );
         }
 
         // No need to send these packets if we reset them later

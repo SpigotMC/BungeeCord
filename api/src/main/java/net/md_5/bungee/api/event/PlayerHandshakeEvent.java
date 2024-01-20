@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.plugin.Event;
-import net.md_5.bungee.protocol.packet.Handshake;
+import net.md_5.bungee.protocol.packet.handshake.Handshake;
 
 /**
  * Event called to represent a player first making their presence and username

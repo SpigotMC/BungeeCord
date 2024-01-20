@@ -1,7 +1,7 @@
 package net.md_5.bungee.forge;
 
 import java.util.regex.Pattern;
-import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.common.PluginMessage;
 
 public class ForgeConstants
 {

@@ -1,53 +1,55 @@
 package net.md_5.bungee.protocol;
 
-import net.md_5.bungee.protocol.packet.BossBar;
-import net.md_5.bungee.protocol.packet.Chat;
-import net.md_5.bungee.protocol.packet.ClearTitles;
-import net.md_5.bungee.protocol.packet.ClientChat;
-import net.md_5.bungee.protocol.packet.ClientCommand;
-import net.md_5.bungee.protocol.packet.ClientSettings;
-import net.md_5.bungee.protocol.packet.ClientStatus;
-import net.md_5.bungee.protocol.packet.Commands;
-import net.md_5.bungee.protocol.packet.EncryptionRequest;
-import net.md_5.bungee.protocol.packet.EncryptionResponse;
-import net.md_5.bungee.protocol.packet.EntityStatus;
-import net.md_5.bungee.protocol.packet.FinishConfiguration;
-import net.md_5.bungee.protocol.packet.GameState;
-import net.md_5.bungee.protocol.packet.Handshake;
-import net.md_5.bungee.protocol.packet.KeepAlive;
-import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.LegacyHandshake;
 import net.md_5.bungee.protocol.packet.LegacyPing;
-import net.md_5.bungee.protocol.packet.Login;
-import net.md_5.bungee.protocol.packet.LoginAcknowledged;
-import net.md_5.bungee.protocol.packet.LoginPayloadRequest;
-import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
-import net.md_5.bungee.protocol.packet.LoginRequest;
-import net.md_5.bungee.protocol.packet.LoginSuccess;
-import net.md_5.bungee.protocol.packet.PingPacket;
-import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
-import net.md_5.bungee.protocol.packet.PlayerListItem;
-import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
-import net.md_5.bungee.protocol.packet.PlayerListItemUpdate;
-import net.md_5.bungee.protocol.packet.PluginMessage;
-import net.md_5.bungee.protocol.packet.Respawn;
-import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
-import net.md_5.bungee.protocol.packet.ScoreboardObjective;
-import net.md_5.bungee.protocol.packet.ScoreboardScore;
-import net.md_5.bungee.protocol.packet.ScoreboardScoreReset;
-import net.md_5.bungee.protocol.packet.ServerData;
-import net.md_5.bungee.protocol.packet.SetCompression;
-import net.md_5.bungee.protocol.packet.StartConfiguration;
-import net.md_5.bungee.protocol.packet.StatusRequest;
-import net.md_5.bungee.protocol.packet.StatusResponse;
-import net.md_5.bungee.protocol.packet.Subtitle;
-import net.md_5.bungee.protocol.packet.SystemChat;
-import net.md_5.bungee.protocol.packet.TabCompleteRequest;
-import net.md_5.bungee.protocol.packet.TabCompleteResponse;
-import net.md_5.bungee.protocol.packet.Team;
-import net.md_5.bungee.protocol.packet.Title;
-import net.md_5.bungee.protocol.packet.TitleTimes;
-import net.md_5.bungee.protocol.packet.ViewDistance;
+import net.md_5.bungee.protocol.packet.common.ClientSettings;
+import net.md_5.bungee.protocol.packet.common.KeepAlive;
+import net.md_5.bungee.protocol.packet.common.Kick;
+import net.md_5.bungee.protocol.packet.common.PluginMessage;
+import net.md_5.bungee.protocol.packet.common.StoreCookie;
+import net.md_5.bungee.protocol.packet.common.Transfer;
+import net.md_5.bungee.protocol.packet.configuration.FinishConfiguration;
+import net.md_5.bungee.protocol.packet.game.BossBar;
+import net.md_5.bungee.protocol.packet.game.Chat;
+import net.md_5.bungee.protocol.packet.game.ClearTitles;
+import net.md_5.bungee.protocol.packet.game.ClientChat;
+import net.md_5.bungee.protocol.packet.game.ClientCommand;
+import net.md_5.bungee.protocol.packet.game.ClientStatus;
+import net.md_5.bungee.protocol.packet.game.Commands;
+import net.md_5.bungee.protocol.packet.game.EntityStatus;
+import net.md_5.bungee.protocol.packet.game.GameState;
+import net.md_5.bungee.protocol.packet.game.Login;
+import net.md_5.bungee.protocol.packet.game.PlayerListHeaderFooter;
+import net.md_5.bungee.protocol.packet.game.PlayerListItem;
+import net.md_5.bungee.protocol.packet.game.PlayerListItemRemove;
+import net.md_5.bungee.protocol.packet.game.PlayerListItemUpdate;
+import net.md_5.bungee.protocol.packet.game.Respawn;
+import net.md_5.bungee.protocol.packet.game.ScoreboardDisplay;
+import net.md_5.bungee.protocol.packet.game.ScoreboardObjective;
+import net.md_5.bungee.protocol.packet.game.ScoreboardScore;
+import net.md_5.bungee.protocol.packet.game.ScoreboardScoreReset;
+import net.md_5.bungee.protocol.packet.game.ServerData;
+import net.md_5.bungee.protocol.packet.game.StartConfiguration;
+import net.md_5.bungee.protocol.packet.game.Subtitle;
+import net.md_5.bungee.protocol.packet.game.SystemChat;
+import net.md_5.bungee.protocol.packet.game.TabCompleteRequest;
+import net.md_5.bungee.protocol.packet.game.TabCompleteResponse;
+import net.md_5.bungee.protocol.packet.game.Team;
+import net.md_5.bungee.protocol.packet.game.Title;
+import net.md_5.bungee.protocol.packet.game.TitleTimes;
+import net.md_5.bungee.protocol.packet.game.ViewDistance;
+import net.md_5.bungee.protocol.packet.handshake.Handshake;
+import net.md_5.bungee.protocol.packet.login.EncryptionRequest;
+import net.md_5.bungee.protocol.packet.login.EncryptionResponse;
+import net.md_5.bungee.protocol.packet.login.LoginAcknowledged;
+import net.md_5.bungee.protocol.packet.login.LoginPayloadRequest;
+import net.md_5.bungee.protocol.packet.login.LoginPayloadResponse;
+import net.md_5.bungee.protocol.packet.login.LoginRequest;
+import net.md_5.bungee.protocol.packet.login.LoginSuccess;
+import net.md_5.bungee.protocol.packet.login.SetCompression;
+import net.md_5.bungee.protocol.packet.status.PingPacket;
+import net.md_5.bungee.protocol.packet.status.StatusRequest;
+import net.md_5.bungee.protocol.packet.status.StatusResponse;
 
 public abstract class AbstractPacketHandler
 {
@@ -241,6 +243,14 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(FinishConfiguration finishConfiguration) throws Exception
+    {
+    }
+
+    public void handle(Transfer transfer) throws Exception
+    {
+    }
+
+    public void handle(StoreCookie storeCookie) throws Exception
     {
     }
 }

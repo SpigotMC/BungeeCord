@@ -54,13 +54,13 @@ import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.packet.Chat;
-import net.md_5.bungee.protocol.packet.ClientSettings;
-import net.md_5.bungee.protocol.packet.Kick;
-import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
-import net.md_5.bungee.protocol.packet.PluginMessage;
-import net.md_5.bungee.protocol.packet.SetCompression;
-import net.md_5.bungee.protocol.packet.SystemChat;
+import net.md_5.bungee.protocol.packet.common.ClientSettings;
+import net.md_5.bungee.protocol.packet.common.Kick;
+import net.md_5.bungee.protocol.packet.common.PluginMessage;
+import net.md_5.bungee.protocol.packet.game.Chat;
+import net.md_5.bungee.protocol.packet.game.PlayerListHeaderFooter;
+import net.md_5.bungee.protocol.packet.game.SystemChat;
+import net.md_5.bungee.protocol.packet.login.SetCompression;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
 import net.md_5.bungee.util.CaseInsensitiveSet;
@@ -518,8 +518,8 @@ public final class UserConnection implements ProxiedPlayer
                 message = new TextComponent( BaseComponent.toLegacyText( message ) );
             } else
             {
-                net.md_5.bungee.protocol.packet.Title title = new net.md_5.bungee.protocol.packet.Title();
-                title.setAction( net.md_5.bungee.protocol.packet.Title.Action.ACTIONBAR );
+                net.md_5.bungee.protocol.packet.game.Title title = new net.md_5.bungee.protocol.packet.game.Title();
+                title.setAction( net.md_5.bungee.protocol.packet.game.Title.Action.ACTIONBAR );
                 title.setText( message );
                 sendPacketQueued( title );
                 return;

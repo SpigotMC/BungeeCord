@@ -1,6 +1,7 @@
 package net.md_5.bungee.protocol.packet;
 
 import static org.junit.jupiter.api.Assertions.*;
+import net.md_5.bungee.protocol.packet.common.PluginMessage;
 import org.junit.jupiter.api.Test;
 
 public class PluginMessageTest

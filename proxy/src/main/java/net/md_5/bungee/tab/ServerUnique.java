@@ -5,9 +5,9 @@ import java.util.HashSet;
 import java.util.UUID;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.packet.PlayerListItem;
-import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
-import net.md_5.bungee.protocol.packet.PlayerListItemUpdate;
+import net.md_5.bungee.protocol.packet.game.PlayerListItem;
+import net.md_5.bungee.protocol.packet.game.PlayerListItemRemove;
+import net.md_5.bungee.protocol.packet.game.PlayerListItemUpdate;
 
 public class ServerUnique extends TabList
 {
