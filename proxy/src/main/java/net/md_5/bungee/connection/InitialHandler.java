@@ -351,8 +351,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 ch.setProtocol( Protocol.STATUS );
                 break;
             case 2:
-            case 3: // transferred
-                this.transferred = handshake.getRequestedProtocol() == 3;
+            case 3:
+                transferred = handshake.getRequestedProtocol() == 3;
                 // Login
                 bungee.getLogger().log( Level.INFO, "{0} has connected", this );
                 thisState = State.USERNAME;
@@ -367,6 +367,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     {
                         disconnect( bungee.getTranslation( "outdated_client", bungee.getGameVersion() ) );
                     }
+                    return;
+                }
+
+                if ( transferred && bungee.config.isRejectTransfers() )
+                {
+                    disconnect( bungee.getTranslation( "reject_transfer" ) );
                     return;
                 }
                 break;
