@@ -11,12 +11,19 @@ import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import javax.crypto.SecretKey;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.BungeeServerInfo;
 import net.md_5.bungee.EncryptionUtil;
@@ -51,6 +58,8 @@ import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.PlayerPublicKey;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.packet.CookieRequest;
+import net.md_5.bungee.protocol.packet.CookieResponse;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.Handshake;
@@ -64,6 +73,7 @@ import net.md_5.bungee.protocol.packet.PingPacket;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
+import net.md_5.bungee.protocol.packet.StoreCookie;
 import net.md_5.bungee.util.AllowedCharacters;
 import net.md_5.bungee.util.BufUtil;
 import net.md_5.bungee.util.QuietException;
@@ -86,6 +96,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Getter
     private final Set<String> registeredChannels = new HashSet<>();
     private State thisState = State.HANDSHAKE;
+    private final Queue<CookieFuture> requestedCookies = new ConcurrentLinkedQueue<>();
+
+    @Data
+    @ToString
+    @EqualsAndHashCode
+    @AllArgsConstructor
+    public static class CookieFuture
+    {
+        private String cookie;
+        private CompletableFuture<byte[]> future;
+    }
+
     private final Unsafe unsafe = new Unsafe()
     {
         @Override
@@ -654,6 +676,19 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
+    public void handle(CookieResponse cookieResponse)
+    {
+        // be careful spigot could also make the client send a cookie response
+        CookieFuture future = requestedCookies.peek();
+        if ( future != null && future.cookie.equals( cookieResponse.getCookie() ) )
+        {
+            requestedCookies.remove();
+            future.getFuture().complete( cookieResponse.getData() );
+            throw CancelSendSignal.INSTANCE;
+        }
+    }
+
+    @Override
     public void disconnect(String reason)
     {
         if ( canSendKickMessage() )
@@ -784,5 +819,27 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             brandMessage = input;
         }
+    }
+
+    public CompletableFuture<byte[]> retrieveCookie(String cookie)
+    {
+        Preconditions.checkState( getVersion() >= ProtocolConstants.MINECRAFT_1_20_5, "Cookies are only supported in 1.20.5 and above" );
+        Preconditions.checkState( loginRequest != null, "Cannot retrieve cookies for Status or legacy connections" );
+        if ( cookie.indexOf( ':' ) == -1 )
+        {
+            // if we request an invalid resource location (no prefix) the client will respond with minecraft: prefix
+            cookie = "minecraft:" + cookie;
+        }
+        CompletableFuture<byte[]> future = new CompletableFuture<>();
+        requestedCookies.add( new CookieFuture( cookie, future ) );
+        unsafe.sendPacket( new CookieRequest( cookie ) );
+        return future;
+    }
+
+    public void storeCookie(String cookie, byte[] data)
+    {
+        Preconditions.checkState( getVersion() >= ProtocolConstants.MINECRAFT_1_20_5, "Cookies are only supported in 1.20.5 and above" );
+        Preconditions.checkState( loginRequest != null, "Cannot retrieve cookies for Status or legacy connections" );
+        unsafe().sendPacket( new StoreCookie( cookie, data ) );
     }
 }

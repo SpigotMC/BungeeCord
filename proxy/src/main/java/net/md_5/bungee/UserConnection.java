@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import lombok.Getter;
@@ -770,5 +771,17 @@ public final class UserConnection implements ProxiedPlayer
     public Scoreboard getScoreboard()
     {
         return serverSentScoreboard;
+    }
+
+    @Override
+    public CompletableFuture<byte[]> retrieveCookie(String cookie)
+    {
+        return pendingConnection.retrieveCookie( cookie );
+    }
+
+    @Override
+    public void storeCookie(String cookie, byte[] data)
+    {
+        pendingConnection.storeCookie( cookie, data );
     }
 }

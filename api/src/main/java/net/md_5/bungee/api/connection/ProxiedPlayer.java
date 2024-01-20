@@ -3,6 +3,7 @@ package net.md_5.bungee.api.connection;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.CommandSender;
@@ -339,4 +340,26 @@ public interface ProxiedPlayer extends Connection, CommandSender
      */
     @Deprecated
     Scoreboard getScoreboard();
+
+    /**
+     * Retrieves a cookie from this player.
+     *
+     * @param cookie the resource location of the cookie, for example "bungeecord:my_cookie"
+     *
+     * @return a {@link CompletableFuture} that will be completed when the Cookie response is received
+     * @apiNote Only useable for 1.20.5 clients or newer,
+     * if the cookie is not set in the client, the {@link CompletableFuture} will complete with a null value
+     */
+    CompletableFuture<byte[]> retrieveCookie(String cookie);
+
+
+    /**
+     * Stores a cookie in this player's client.
+     *
+     * @param cookie the resource location of the cookie, for example "bungeecord:my_cookie"
+     * @param data the data to store in the cookie
+     *
+     * @apiNote Only useable for 1.20.5 clients or newer
+     */
+    void storeCookie(String cookie, byte[] data);
 }
