@@ -403,7 +403,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_19_3, 0x19 ),
                     map( ProtocolConstants.MINECRAFT_1_19_4, 0x1C ),
                     map( ProtocolConstants.MINECRAFT_1_20_2, 0x1D ),
-                    map( ProtocolConstants.MINECRAFT_1_20_3, 0x1E )
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x1E )
             );
             TO_CLIENT.registerPacket(
                     Commands.class,
