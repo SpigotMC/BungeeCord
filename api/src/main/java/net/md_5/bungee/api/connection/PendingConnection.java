@@ -2,6 +2,7 @@ package net.md_5.bungee.api.connection;
 
 import java.net.InetSocketAddress;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import net.md_5.bungee.api.config.ListenerInfo;
 
 /**
@@ -89,4 +90,15 @@ public interface PendingConnection extends Connection
      * @return Whether the client is using a legacy client.
      */
     boolean isLegacy();
+
+    /**
+     * Retrieves a cookie from this pending connection.
+     *
+     * @param cookie the resource location of the cookie, for example "bungeecord:my_cookie"
+     *
+     * @return a {@link CompletableFuture} that will be completed when the Cookie response is received
+     * Only useable for 1.20.5 clients or newer during the login, config or game phase
+     * if the cookie is not set in the client, the {@link CompletableFuture} will complete with a null value
+     */
+    CompletableFuture<byte[]> retrieveCookie(String cookie);
 }

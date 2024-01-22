@@ -820,13 +820,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
     }
 
+    @Override
     public CompletableFuture<byte[]> retrieveCookie(String cookie)
     {
         Preconditions.checkState( getVersion() >= ProtocolConstants.MINECRAFT_1_20_5, "Cookies are only supported in 1.20.5 and above" );
-        Preconditions.checkState( loginRequest != null, "Cannot retrieve cookies for Status or legacy connections" );
+        Preconditions.checkState( loginRequest != null, "Cannot retrieve cookies for status or legacy connections" );
         if ( cookie.indexOf( ':' ) == -1 )
         {
-            // if we request an invalid resource location (no prefix) the client will respond with minecraft: prefix
+            // if we request an invalid resource location (no prefix) the client will respond with "minecraft:" prefix
             cookie = "minecraft:" + cookie;
         }
         CompletableFuture<byte[]> future = new CompletableFuture<>();
