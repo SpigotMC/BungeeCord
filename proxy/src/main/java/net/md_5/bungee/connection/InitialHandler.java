@@ -73,7 +73,6 @@ import net.md_5.bungee.protocol.packet.PingPacket;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
-import net.md_5.bungee.protocol.packet.StoreCookie;
 import net.md_5.bungee.util.AllowedCharacters;
 import net.md_5.bungee.util.BufUtil;
 import net.md_5.bungee.util.QuietException;
@@ -834,12 +833,5 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         requestedCookies.add( new CookieFuture( cookie, future ) );
         unsafe.sendPacket( new CookieRequest( cookie ) );
         return future;
-    }
-
-    public void storeCookie(String cookie, byte[] data)
-    {
-        Preconditions.checkState( getVersion() >= ProtocolConstants.MINECRAFT_1_20_5, "Cookies are only supported in 1.20.5 and above" );
-        Preconditions.checkState( loginRequest != null, "Cannot retrieve cookies for Status or legacy connections" );
-        unsafe().sendPacket( new StoreCookie( cookie, data ) );
     }
 }
