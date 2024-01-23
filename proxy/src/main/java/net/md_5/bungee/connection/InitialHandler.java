@@ -495,7 +495,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     {
                         loginProfile = obj;
                         name = obj.getName();
-                        uniqueId = Util.getUUID( obj.getId() );
+                        if ( onlineMode && !bungee.config.isIpForward() )
+                        {
+                            // otherwise we get kicked for invalid signature on vanilla
+                            uniqueId = UUID.nameUUIDFromBytes( ( "OfflinePlayer:" + getLoginRequest().getData() ).getBytes( StandardCharsets.UTF_8 ) );
+                        } else
+                        {
+                            uniqueId = Util.getUUID( obj.getId() );
+                        }
                         finish();
                         return;
                     }
