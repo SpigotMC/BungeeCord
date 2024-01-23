@@ -5,7 +5,7 @@
 
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-parent</artifactId>
-    <version>1.20-R0.2-SNAPSHOT</version>
+    <version>1.20-R0.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>BungeeCord-Parent</name>
@@ -83,7 +83,7 @@
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-bom</artifactId>
-                <version>4.1.104.Final</version>
+                <version>4.1.106.Final</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
