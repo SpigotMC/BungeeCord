@@ -353,7 +353,6 @@ public interface ProxiedPlayer extends Connection, CommandSender
     @ApiStatus.Experimental
     CompletableFuture<byte[]> retrieveCookie(String cookie);
 
-
     /**
      * Stores a cookie in this player's client.
      *
