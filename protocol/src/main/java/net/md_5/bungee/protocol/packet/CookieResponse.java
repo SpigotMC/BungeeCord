@@ -23,24 +23,14 @@ public class CookieResponse extends DefinedPacket
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         cookie = readString( buf );
-        if ( buf.readBoolean() )
-        {
-            data = readArray( buf );
-        }
+        data = readNullable( DefinedPacket::readArray, buf );
     }
 
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         writeString( cookie, buf );
-        if ( data != null )
-        {
-            buf.writeBoolean( true );
-            writeArray( data, buf );
-        } else
-        {
-            buf.writeBoolean( false );
-        }
+        writeNullable( data, DefinedPacket::writeArray, buf );
     }
 
     @Override

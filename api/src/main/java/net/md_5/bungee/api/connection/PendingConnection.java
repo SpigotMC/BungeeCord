@@ -4,6 +4,7 @@ import java.net.InetSocketAddress;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import net.md_5.bungee.api.config.ListenerInfo;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Represents a user attempting to log into the proxy.
@@ -95,10 +96,10 @@ public interface PendingConnection extends Connection
      * Retrieves a cookie from this pending connection.
      *
      * @param cookie the resource location of the cookie, for example "bungeecord:my_cookie"
-     *
      * @return a {@link CompletableFuture} that will be completed when the Cookie response is received
-     * Only useable for 1.20.5 clients or newer during the login, config or game phase
      * if the cookie is not set in the client, the {@link CompletableFuture} will complete with a null value
+     * @throws IllegalStateException if the players version is not at least 1.20.5
      */
+    @ApiStatus.Experimental
     CompletableFuture<byte[]> retrieveCookie(String cookie);
 }

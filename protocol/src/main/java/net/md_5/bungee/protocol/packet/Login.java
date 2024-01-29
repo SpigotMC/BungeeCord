@@ -136,13 +136,7 @@ public class Login extends DefinedPacket
             dimension = readString( buf );
             worldName = readString( buf );
             seed = buf.readLong();
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
-            {
-                gameMode = buf.readByte();
-            } else
-            {
-                gameMode = buf.readUnsignedByte();
-            }
+            gameMode = buf.readUnsignedByte();
             previousGameMode = buf.readByte();
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16 )

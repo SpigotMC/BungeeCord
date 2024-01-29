@@ -14,6 +14,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.score.Scoreboard;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Represents a player whose connection is being connected to somewhere else,
@@ -345,11 +346,11 @@ public interface ProxiedPlayer extends Connection, CommandSender
      * Retrieves a cookie from this player.
      *
      * @param cookie the resource location of the cookie, for example "bungeecord:my_cookie"
-     *
      * @return a {@link CompletableFuture} that will be completed when the Cookie response is received
-     * Only useable for 1.20.5 clients or newer,
      * if the cookie is not set in the client, the {@link CompletableFuture} will complete with a null value
+     * @throws IllegalStateException if the players version is not at least 1.20.5
      */
+    @ApiStatus.Experimental
     CompletableFuture<byte[]> retrieveCookie(String cookie);
 
 
@@ -358,18 +359,19 @@ public interface ProxiedPlayer extends Connection, CommandSender
      *
      * @param cookie the resource location of the cookie, for example "bungeecord:my_cookie"
      * @param data the data to store in the cookie
-     *
-     * Only useable for 1.20.5 clients or newer
+     * @throws IllegalStateException if the players version is not at least 1.20.5
      */
+    @ApiStatus.Experimental
     void storeCookie(String cookie, byte[] data);
 
     /**
-     * Transfers this player to a different server specified by host and port.
+     * Requests this player to connect to a different server specified by host and port.
+     * This is a client side transfer, host and port should not specify a BungeeCord Backend Server.
      *
      * @param host the host of the server to transfer to
      * @param port the port of the server to transfer to
-     *
-     * Only useable for 1.20.5 clients or newer
+     * @throws IllegalStateException if the players version is not at least 1.20.5
      */
+    @ApiStatus.Experimental
     void transfer(String host, int port);
 }

@@ -70,7 +70,6 @@ public class Configuration implements ProxyConfig
     private boolean forgeSupport;
     private boolean rejectTransfers;
 
-
     public void load()
     {
         ConfigurationAdapter adapter = ProxyServer.getInstance().getConfigurationAdapter();
