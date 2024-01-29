@@ -41,6 +41,7 @@ public class Login extends DefinedPacket
     private boolean flat;
     private Location deathLocation;
     private int portalCooldown;
+    private boolean secureProfile;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
@@ -153,6 +154,11 @@ public class Login extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20 )
         {
             portalCooldown = readVarInt( buf );
+        }
+
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
+        {
+            secureProfile = buf.readBoolean();
         }
     }
 
@@ -274,6 +280,11 @@ public class Login extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20 )
         {
             writeVarInt( portalCooldown, buf );
+        }
+
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
+        {
+            buf.writeBoolean( secureProfile );
         }
     }
 

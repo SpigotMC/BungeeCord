@@ -73,7 +73,8 @@ public class EncryptionUtil
         byte[] pubKey = keys.getPublic().getEncoded();
         byte[] verify = new byte[ 4 ];
         random.nextBytes( verify );
-        return new EncryptionRequest( hash, pubKey, verify );
+        // always auth for now
+        return new EncryptionRequest( hash, pubKey, verify, true );
     }
 
     public static boolean check(PlayerPublicKey publicKey, UUID uuid) throws GeneralSecurityException
