@@ -825,6 +825,16 @@ public class ComponentsTest
         );
     }
 
+    @Test
+    public void testHasFormatting()
+    {
+        BaseComponent component = new TextComponent();
+        assertFalse( component.hasFormatting() );
+
+        component.setBold( true );
+        assertTrue( component.hasFormatting() );
+    }
+
     /*
      * In legacy chat, colors and reset both reset all formatting.
      * Make sure it works in combination with ComponentBuilder.
