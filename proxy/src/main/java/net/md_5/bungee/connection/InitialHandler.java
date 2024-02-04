@@ -653,6 +653,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
         bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
+
+        // #3612: Don't progress further if disconnected during event
+        if ( ch.isClosed() )
+        {
+            return;
+        }
+
         ServerInfo server;
         if ( bungee.getReconnectHandler() != null )
         {
