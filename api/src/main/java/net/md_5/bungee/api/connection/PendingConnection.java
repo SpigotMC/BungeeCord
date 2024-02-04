@@ -93,6 +93,14 @@ public interface PendingConnection extends Connection
     boolean isLegacy();
 
     /**
+     * Gets if this connection has been transferred from another server.
+     *
+     * @return true if the connection has been transferred
+     */
+    @ApiStatus.Experimental
+    boolean isTransferred();
+
+    /**
      * Retrieves a cookie from this pending connection.
      *
      * @param cookie the resource location of the cookie, for example
