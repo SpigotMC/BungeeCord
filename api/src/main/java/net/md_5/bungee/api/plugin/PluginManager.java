@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
@@ -58,6 +59,7 @@ public final class PluginManager
     private Map<String, PluginDescription> toLoad = new HashMap<>();
     private final Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
     private final Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
+    private HashMap<String,URLClassLoader> pluginloaders = new HashMap<>();
 
     @SuppressWarnings("unchecked")
     public PluginManager(ProxyServer proxy)
@@ -124,6 +126,42 @@ public final class PluginManager
             Command command = it.next();
             while ( commandMap.values().remove( command ) );
             it.remove();
+        }
+    }
+
+    /**
+     * This will Unload the given plugin
+     *
+     * @param plugin to unload
+     */
+    public void unloadPlugin(Plugin plugin)
+    {
+        plugin.onDisable();
+        this.unregisterListeners(plugin);
+        this.unregisterCommands(plugin);
+        this.proxy.getScheduler().cancel(plugin);
+
+        for ( Handler handler : plugin.getLogger().getHandlers())
+        {
+            handler.close();
+        }
+
+        try
+        {
+            pluginloaders.get(plugin.getDescription().getName()).close();
+        }catch (Exception exception)
+        {
+            exception.printStackTrace();
+        }
+
+        if(this.plugins.containsKey(plugin.getDescription().getName()))
+        {
+            this.plugins.remove(plugin.getDescription().getName());
+        }
+
+        if(this.pluginloaders.containsKey(plugin.getDescription().getName()))
+        {
+            this.pluginloaders.remove(plugin.getDescription().getName());
         }
     }
 
@@ -342,6 +380,7 @@ public final class PluginManager
                 Plugin clazz = (Plugin) main.getDeclaredConstructor().newInstance();
 
                 plugins.put( plugin.getName(), clazz );
+                pluginloaders.put(plugin.getName(),loader);
                 clazz.onLoad();
                 ProxyServer.getInstance().getLogger().log( Level.INFO, "Loaded plugin {0} version {1} by {2}", new Object[]
                 {
