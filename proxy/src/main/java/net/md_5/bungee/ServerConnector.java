@@ -40,6 +40,8 @@ import net.md_5.bungee.protocol.Either;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.packet.CookieRequest;
+import net.md_5.bungee.protocol.packet.CookieResponse;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.EntityStatus;
 import net.md_5.bungee.protocol.packet.GameState;
@@ -186,6 +188,12 @@ public class ServerConnector extends PacketHandler
     public void handle(SetCompression setCompression) throws Exception
     {
         ch.setCompressionThreshold( setCompression.getThreshold() );
+    }
+
+    @Override
+    public void handle(CookieRequest cookieRequest) throws Exception
+    {
+        user.retrieveCookie( cookieRequest.getCookie() ).thenAccept( (cookie) -> ch.write( new CookieResponse( cookieRequest.getCookie(), cookie ) ) );
     }
 
     @Override
