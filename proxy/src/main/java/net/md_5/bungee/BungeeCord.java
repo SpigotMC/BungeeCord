@@ -68,6 +68,7 @@ import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.ProxyInitializeEvent;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -374,6 +375,7 @@ public class BungeeCord extends ProxyServer
                     @Override
                     public void operationComplete(ChannelFuture future) throws Exception
                     {
+                        getPluginManager().callEvent(new ProxyInitializeEvent(future.isSuccess()));
                         if ( future.isSuccess() )
                         {
                             listeners.add( future.channel() );
