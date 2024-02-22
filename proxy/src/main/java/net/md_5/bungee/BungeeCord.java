@@ -375,7 +375,7 @@ public class BungeeCord extends ProxyServer
                     @Override
                     public void operationComplete(ChannelFuture future) throws Exception
                     {
-                        getPluginManager().callEvent(new ProxyInitializeEvent(future.isSuccess()));
+                        getPluginManager().callEvent( new ProxyInitializeEvent( future.isSuccess() ) );
                         if ( future.isSuccess() )
                         {
                             listeners.add( future.channel() );

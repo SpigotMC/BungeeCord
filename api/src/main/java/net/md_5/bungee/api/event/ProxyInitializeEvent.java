@@ -2,7 +2,8 @@ package net.md_5.bungee.api.event;
 
 import net.md_5.bungee.api.plugin.Event;
 
-public class ProxyInitializeEvent extends Event {
+public class ProxyInitializeEvent extends Event
+{
 
     private final boolean isListening;
 
@@ -10,11 +11,13 @@ public class ProxyInitializeEvent extends Event {
      * Constructor
      * @param isListening Is Proxy Listening? (Did desired game-port open?)
      */
-    public ProxyInitializeEvent(boolean isListening) {
+    public ProxyInitializeEvent(boolean isListening)
+    {
         this.isListening = isListening;
     }
 
-    public boolean isListening() {
+    public boolean isListening()
+    {
         return this.isListening;
     }
 }
