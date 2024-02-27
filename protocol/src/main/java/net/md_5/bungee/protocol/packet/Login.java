@@ -133,7 +133,13 @@ public class Login extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_2 )
         {
             limitedCrafting = buf.readBoolean();
-            dimension = readString( buf );
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
+            {
+                dimension = readVarInt( buf );
+            } else
+            {
+                dimension = readString( buf );
+            }
             worldName = readString( buf );
             seed = buf.readLong();
             gameMode = buf.readUnsignedByte();
@@ -254,7 +260,13 @@ public class Login extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_2 )
         {
             buf.writeBoolean( limitedCrafting );
-            writeString( (String) dimension, buf );
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
+            {
+                writeVarInt( (Integer) dimension, buf );
+            } else
+            {
+                writeString( (String) dimension, buf );
+            }
             writeString( worldName, buf );
             buf.writeLong( seed );
             buf.writeByte( gameMode );

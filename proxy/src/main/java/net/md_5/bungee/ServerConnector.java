@@ -243,7 +243,7 @@ public class ServerConnector extends PacketHandler
             user.getForgeClientHandler().setHandshakeComplete();
         }
 
-        if ( user.getServer() == null || !( login.getDimension() instanceof Integer ) )
+        if ( user.getServer() == null || user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_16 )
         {
             // Once again, first connection
             user.setClientEntityId( login.getEntityId() );
