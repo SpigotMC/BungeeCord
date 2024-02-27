@@ -26,4 +26,28 @@ public class TranslatableComponentTest
         assertEquals( "Test string with a placeholder", BaseComponent.toPlainText( parsed ) );
         assertEquals( "Test string with " + WHITE + "a placeholder", BaseComponent.toLegacyText( parsed ) );
     }
+
+    @Test
+    public void testTranslateComponent()
+    {
+        TranslatableComponent item = new TranslatableComponent( "item.swordGold.name" );
+        item.setColor( AQUA );
+        TranslatableComponent component = new TranslatableComponent( "commands.give.success", item, "5",
+                "thinkofdeath" );
+
+        assertEquals( "Given Golden Sword * 5 to thinkofdeath", component.toPlainText() );
+        assertEquals( "Given " + AQUA + "Golden Sword * " + WHITE + "5 to " + WHITE + "thinkofdeath", component.toLegacyText() );
+
+        BaseComponent legacyColorTest = new ComponentBuilder( "Test " ).color( RED ).append( component ).build();
+        assertEquals( RED + "Test " + RED + "Given " + AQUA + "Golden Sword" + RED + " * " + RED + "5" + RED + " to "
+                + RED + "thinkofdeath", legacyColorTest.toLegacyText() );
+
+        TranslatableComponent positional = new TranslatableComponent( "book.pageIndicator", "5", "50" );
+
+        assertEquals( "Page 5 of 50", positional.toPlainText() );
+        assertEquals( "Page " + WHITE + "5 of " + WHITE + "50", positional.toLegacyText() );
+
+        TranslatableComponent one_four_two = new TranslatableComponent( "filled_map.buried_treasure" );
+        assertEquals( "Buried Treasure Map", one_four_two.toPlainText() );
+    }
 }
