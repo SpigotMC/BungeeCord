@@ -405,7 +405,7 @@ public final class UserConnection implements ProxiedPlayer
 
     private String connectionFailMessage(Throwable cause)
     {
-        return groups.contains( "admin" ) ? Util.exception( cause, false ) : cause.getClass().getName();
+        return hasPermission( "bungeecord.detailed-connection-fail-message" ) ? Util.exception( cause, false ) : cause.getClass().getName();
     }
 
     @Override
