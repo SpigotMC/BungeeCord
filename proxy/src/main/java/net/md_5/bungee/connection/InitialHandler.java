@@ -652,28 +652,42 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
-        bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
 
-        // #3612: Don't progress further if disconnected during event
-        if ( ch.isClosed() )
+        Callback<PostLoginEvent> complete = new Callback<PostLoginEvent>()
         {
-            return;
-        }
+            @Override
+            public void done(PostLoginEvent result, Throwable error)
+            {
+                // #3612: Don't progress further if disconnected during event
+                if ( ch.isClosed() )
+                {
+                    return;
+                }
 
-        ServerInfo server;
-        if ( bungee.getReconnectHandler() != null )
-        {
-            server = bungee.getReconnectHandler().getServer( userCon );
-        } else
-        {
-            server = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
-        }
-        if ( server == null )
-        {
-            server = bungee.getServerInfo( listener.getDefaultServer() );
-        }
+                ServerInfo server;
+                if ( bungee.getReconnectHandler() != null )
+                {
+                    server = bungee.getReconnectHandler().getServer( userCon );
+                } else
+                {
+                    server = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
+                }
+                if ( server == null )
+                {
+                    server = bungee.getServerInfo( listener.getDefaultServer() );
+                }
 
-        userCon.connect( server, null, true, ServerConnectEvent.Reason.JOIN_PROXY );
+                if ( result.getTargetServer() != null )
+                {
+                    server = result.getTargetServer();
+                }
+
+                userCon.connect( server, null, true, ServerConnectEvent.Reason.JOIN_PROXY );
+            }
+        };
+
+        // fire post-login event
+        bungee.getPluginManager().callEvent( new PostLoginEvent( userCon, complete ) );
     }
 
     @Override
