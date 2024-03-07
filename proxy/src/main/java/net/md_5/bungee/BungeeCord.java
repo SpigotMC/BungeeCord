@@ -329,6 +329,7 @@ public class BungeeCord extends ProxyServer
 
     public void startListeners()
     {
+        ProxyInitializeEvent.setNumberOfListenersToWaitFor(config.getListeners().size());
         for ( final ListenerInfo info : config.getListeners() )
         {
             if ( info.isProxyProtocol() )
@@ -375,7 +376,7 @@ public class BungeeCord extends ProxyServer
                     @Override
                     public void operationComplete(ChannelFuture future) throws Exception
                     {
-                        getPluginManager().callEvent( new ProxyInitializeEvent( future.isSuccess() ) );
+                        ProxyInitializeEvent.setListenerAsInitialized(info, future.isSuccess());
                         if ( future.isSuccess() )
                         {
                             listeners.add( future.channel() );
