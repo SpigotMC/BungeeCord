@@ -1,6 +1,5 @@
 package net.md_5.bungee.api.event;
 
-import jdk.vm.ci.meta.TriState;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.plugin.Event;
 
@@ -11,14 +10,14 @@ public class ProxyInitializeEvent extends Event
 {
 
     private static int amountOfListenersToWaitFor = 0;
-    private static Map<ListenerInfo, TriState> listenersToWaitFor = new ConcurrentHashMap<>();
+    private static Map<ListenerInfo, Boolean> listenersToWaitFor = new ConcurrentHashMap<>();
 
     public static void setListenerAsInitialized(ListenerInfo listenerInfo, boolean success) {
         if(listenerInfo == null) {
             throw new NullPointerException("ListenerInfo may not be null!");
         }
 
-        listenersToWaitFor.put(listenerInfo, (success ? TriState.TRUE : TriState.FALSE));
+        listenersToWaitFor.put(listenerInfo, success);
     }
 
     public static void setNumberOfListenersToWaitFor(int number) {
@@ -46,7 +45,7 @@ public class ProxyInitializeEvent extends Event
 
     }
 
-    public Map<ListenerInfo, TriState> getInitializationState() {
+    public Map<ListenerInfo, Boolean> getInitializationState() {
         return new ConcurrentHashMap<>(ProxyInitializeEvent.listenersToWaitFor);
     }
 
