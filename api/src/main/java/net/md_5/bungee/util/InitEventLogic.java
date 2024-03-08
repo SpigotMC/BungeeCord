@@ -1,10 +1,11 @@
 package net.md_5.bungee.util;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.event.ProxyInitializeEvent;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.concurrent.locks.ReentrantLock;
+
 
 /**
  * This class contains the necessary code to fire the ProxyInitializeEvent, as soon as all listeners
@@ -27,9 +28,9 @@ public class InitEventLogic
      * @param listenerInfo ListenerInfo to assign a state to.
      * @param success True: Port has opened. False: Port failed to open.
      */
-    public static void setListenerAsInitialized( ListenerInfo listenerInfo, boolean success )
+    public static void setListenerAsInitialized(ListenerInfo listenerInfo, boolean success)
     {
-        if( listenerInfo == null )
+        if ( listenerInfo == null )
         {
             throw new NullPointerException( "ListenerInfo may not be null!" );
         }
@@ -49,16 +50,16 @@ public class InitEventLogic
      * @throws IllegalArgumentException Thrown if passed number is negative.
      * @throws IllegalStateException Thrown if function is called more than once.
      */
-    public static void setNumberOfListenersToWaitFor( int number )
+    public static void setNumberOfListenersToWaitFor(int number)
     {
-        if(number <= 0)
+        if ( number <= 0 )
         {
-            throw new IllegalArgumentException("The amount of listeners that have to be waited needs to be larger than zero.");
+            throw new IllegalArgumentException( "The amount of listeners that have to be waited needs to be larger than zero." );
         }
 
-        if(InitEventLogic.amountOfListenersToWaitFor > 0)
+        if ( InitEventLogic.amountOfListenersToWaitFor > 0 )
         {
-            throw new IllegalStateException("The amount of listeners cannot be set twice!");
+            throw new IllegalStateException( "The amount of listeners cannot be set twice!" );
         }
 
         InitEventLogic.amountOfListenersToWaitFor = number;
@@ -68,7 +69,7 @@ public class InitEventLogic
      * Checks if the amount of entries in the internal Map is equals to the previously set amount.
      * <br><br>
      * Requires a previous call to {@link InitEventLogic#setNumberOfListenersToWaitFor(int)}.<br>
-     * <bImportant:</b>Will return false if the above-mentioned function was not called before,
+     * <b>Important:</b>Will return false if the above-mentioned function was not called before,
      * even if entries were set via {@link InitEventLogic#setListenerAsInitialized(ListenerInfo, boolean)}
      * @return Have all Listeners a defined state?
      */
@@ -77,7 +78,7 @@ public class InitEventLogic
 
         // Check if all listeners declared have initialized:
 
-        if( InitEventLogic.amountOfListenersToWaitFor == -1 )
+        if ( InitEventLogic.amountOfListenersToWaitFor == -1 )
         {
             return false;
         }
@@ -92,19 +93,19 @@ public class InitEventLogic
      * @return null if this function has already been called or the listeners are not ready yet.
      * Otherwise, returns valid event object.
      */
-    public static ProxyInitializeEvent generateEvent( )
+    public static ProxyInitializeEvent generateEvent()
     {
-        if( InitEventLogic.amountOfListenersToWaitFor == -1 )
+        if ( InitEventLogic.amountOfListenersToWaitFor == -1 )
         {
             return null;
         }
 
-        if( !InitEventLogic.areAllListenersInitialized( ) )
+        if ( !InitEventLogic.areAllListenersInitialized( ) )
         {
             return null;
         }
 
-        if( InitEventLogic.initializeEvent != null )
+        if ( InitEventLogic.initializeEvent != null )
         {
             return null;
         }
