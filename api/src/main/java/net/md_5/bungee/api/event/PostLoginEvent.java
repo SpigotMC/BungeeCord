@@ -27,9 +27,10 @@ public class PostLoginEvent extends AsyncEvent<PostLoginEvent>
      */
     private ServerInfo targetServer;
 
-    public PostLoginEvent(ProxiedPlayer player, Callback<PostLoginEvent> done)
+    public PostLoginEvent(ProxiedPlayer player, ServerInfo targetServer, Callback<PostLoginEvent> done)
     {
         super( done );
         this.player = player;
+        this.targetServer = targetServer;
     }
 }

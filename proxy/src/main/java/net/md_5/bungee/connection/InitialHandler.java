@@ -653,6 +653,19 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
 
+        ServerInfo initialServer;
+        if ( bungee.getReconnectHandler() != null )
+        {
+            initialServer = bungee.getReconnectHandler().getServer( userCon );
+        } else
+        {
+            initialServer = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
+        }
+        if ( initialServer == null )
+        {
+            initialServer = bungee.getServerInfo( listener.getDefaultServer() );
+        }
+
         Callback<PostLoginEvent> complete = new Callback<PostLoginEvent>()
         {
             @Override
@@ -664,30 +677,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     return;
                 }
 
-                ServerInfo server;
-                if ( bungee.getReconnectHandler() != null )
-                {
-                    server = bungee.getReconnectHandler().getServer( userCon );
-                } else
-                {
-                    server = AbstractReconnectHandler.getForcedHost( InitialHandler.this );
-                }
-                if ( server == null )
-                {
-                    server = bungee.getServerInfo( listener.getDefaultServer() );
-                }
-
-                if ( result.getTargetServer() != null )
-                {
-                    server = result.getTargetServer();
-                }
-
-                userCon.connect( server, null, true, ServerConnectEvent.Reason.JOIN_PROXY );
+                userCon.connect( result.getTargetServer(), null, true, ServerConnectEvent.Reason.JOIN_PROXY );
             }
         };
 
         // fire post-login event
-        bungee.getPluginManager().callEvent( new PostLoginEvent( userCon, complete ) );
+        bungee.getPluginManager().callEvent( new PostLoginEvent( userCon, initialServer, complete ) );
     }
 
     @Override
