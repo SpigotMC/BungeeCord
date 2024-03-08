@@ -2,16 +2,16 @@ package net.md_5.bungee.util;
 
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.event.ProxyInitializeEvent;
-
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This class contains the necessary code to fire the ProxyInitializeEvent, as soon as all listeners
  * have a defined state (port opened/port closed).
  */
-public class InitEventLogic {
+public class InitEventLogic
+{
 
     private static Map<ListenerInfo, Boolean> knownListenersState = new HashMap<>();
 
@@ -27,16 +27,16 @@ public class InitEventLogic {
      * @param listenerInfo ListenerInfo to assign a state to.
      * @param success True: Port has opened. False: Port failed to open.
      */
-    public static void setListenerAsInitialized(ListenerInfo listenerInfo, boolean success)
+    public static void setListenerAsInitialized( ListenerInfo listenerInfo, boolean success )
     {
-        if(listenerInfo == null)
+        if( listenerInfo == null )
         {
-            throw new NullPointerException("ListenerInfo may not be null!");
+            throw new NullPointerException( "ListenerInfo may not be null!" );
         }
 
         mapLock.lock();
 
-        knownListenersState.put(listenerInfo, success);
+        knownListenersState.put( listenerInfo, success );
 
         mapLock.unlock();
     }
@@ -49,7 +49,7 @@ public class InitEventLogic {
      * @throws IllegalArgumentException Thrown if passed number is negative.
      * @throws IllegalStateException Thrown if function is called more than once.
      */
-    public static void setNumberOfListenersToWaitFor(int number)
+    public static void setNumberOfListenersToWaitFor( int number )
     {
         if(number <= 0)
         {
@@ -82,7 +82,7 @@ public class InitEventLogic {
             return false;
         }
 
-        return InitEventLogic.amountOfListenersToWaitFor == InitEventLogic.knownListenersState.size();
+        return InitEventLogic.amountOfListenersToWaitFor == InitEventLogic.knownListenersState.size( );
     }
 
     /**
@@ -92,14 +92,14 @@ public class InitEventLogic {
      * @return null if this function has already been called or the listeners are not ready yet.
      * Otherwise, returns valid event object.
      */
-    public static ProxyInitializeEvent generateEvent()
+    public static ProxyInitializeEvent generateEvent( )
     {
         if( InitEventLogic.amountOfListenersToWaitFor == -1 )
         {
             return null;
         }
 
-        if( !InitEventLogic.areAllListenersInitialized() )
+        if( !InitEventLogic.areAllListenersInitialized( ) )
         {
             return null;
         }
