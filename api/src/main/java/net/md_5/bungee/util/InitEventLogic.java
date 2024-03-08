@@ -3,8 +3,9 @@ package net.md_5.bungee.util;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.event.ProxyInitializeEvent;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This class contains the necessary code to fire the ProxyInitializeEvent, as soon as all listeners
@@ -12,14 +13,17 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class InitEventLogic {
 
-    private static Map<ListenerInfo, Boolean> knownListenersState = new ConcurrentHashMap<>();
+    private static Map<ListenerInfo, Boolean> knownListenersState = new HashMap<>();
+
+    private static ReentrantLock mapLock = new ReentrantLock();
 
     private static ProxyInitializeEvent initializeEvent;
 
     private static int amountOfListenersToWaitFor = -1;
 
     /**
-     * Sets a given Listener via its {@link ListenerInfo} to a result.
+     * Sets a given Listener via its {@link ListenerInfo} to a result. <br><br>
+     * Thread-safe.
      * @param listenerInfo ListenerInfo to assign a state to.
      * @param success True: Port has opened. False: Port failed to open.
      */
@@ -30,7 +34,11 @@ public class InitEventLogic {
             throw new NullPointerException("ListenerInfo may not be null!");
         }
 
+        mapLock.lock();
+
         knownListenersState.put(listenerInfo, success);
+
+        mapLock.unlock();
     }
 
     /**
@@ -75,7 +83,6 @@ public class InitEventLogic {
         }
 
         return InitEventLogic.amountOfListenersToWaitFor == InitEventLogic.knownListenersState.size();
-
     }
 
     /**
