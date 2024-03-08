@@ -330,7 +330,7 @@ public class BungeeCord extends ProxyServer
 
     public void startListeners()
     {
-        InitEventLogic.setNumberOfListenersToWaitFor(config.getListeners().size());
+        InitEventLogic.setNumberOfListenersToWaitFor( config.getListeners().size() );
         for ( final ListenerInfo info : config.getListeners() )
         {
             if ( info.isProxyProtocol() )
