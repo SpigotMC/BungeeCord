@@ -9,44 +9,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ProxyInitializeEvent extends Event
 {
 
-    private static int amountOfListenersToWaitFor = 0;
-    private static Map<ListenerInfo, Boolean> listenersToWaitFor = new ConcurrentHashMap<>();
+    private final Map<ListenerInfo, Boolean> listenerState;
 
-    public static void setListenerAsInitialized(ListenerInfo listenerInfo, boolean success) {
-        if(listenerInfo == null) {
-            throw new NullPointerException("ListenerInfo may not be null!");
-        }
-
-        listenersToWaitFor.put(listenerInfo, success);
+    public ProxyInitializeEvent(Map<ListenerInfo, Boolean> listenerState) {
+        this.listenerState = listenerState;
     }
 
-    public static void setNumberOfListenersToWaitFor(int number) {
-        if(number <= 0) {
-            throw new IllegalArgumentException("The amount of listeners that have to be waited needs to be larger than zero.");
-        }
-
-        if(ProxyInitializeEvent.amountOfListenersToWaitFor > 0) {
-            throw new IllegalStateException("The amount of listeners cannot be set twice!");
-        }
-
-        ProxyInitializeEvent.amountOfListenersToWaitFor = number;
+    public Map<ListenerInfo, Boolean> getListenerState() {
+        return listenerState;
     }
-
-
-    public boolean areAllInitialized() {
-
-        // Check if all listeners declared have initialized:
-
-        if(amountOfListenersToWaitFor == 0) {
-            return false;
-        }
-
-        return ProxyInitializeEvent.amountOfListenersToWaitFor == ProxyInitializeEvent.listenersToWaitFor.size();
-
-    }
-
-    public Map<ListenerInfo, Boolean> getInitializationState() {
-        return new ConcurrentHashMap<>(ProxyInitializeEvent.listenersToWaitFor);
-    }
-
 }
