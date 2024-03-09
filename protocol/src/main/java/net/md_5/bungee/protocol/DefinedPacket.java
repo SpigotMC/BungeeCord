@@ -3,6 +3,7 @@ package net.md_5.bungee.protocol;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
@@ -93,17 +94,37 @@ public abstract class DefinedPacket
         return s;
     }
 
-    public static Either<String, BaseComponent> readEitherBaseComponent(ByteBuf buf, int protocolVersion, boolean string)
+    public static Either<String, Deserializable<Either<String, SpecificTag>, BaseComponent>> readEitherBaseComponent(ByteBuf buf, int protocolVersion, boolean string)
     {
         return ( string ) ? Either.left( readString( buf ) ) : Either.right( readBaseComponent( buf, protocolVersion ) );
     }
 
-    public static BaseComponent readBaseComponent(ByteBuf buf, int protocolVersion)
+    public static Deserializable<Either<String, SpecificTag>, BaseComponent> readBaseComponent(ByteBuf buf, int protocolVersion)
     {
         return readBaseComponent( buf, Short.MAX_VALUE, protocolVersion );
     }
 
-    public static BaseComponent readBaseComponent(ByteBuf buf, int maxStringLength, int protocolVersion)
+    public static Deserializable<Either<String, SpecificTag>, BaseComponent> readBaseComponent(ByteBuf buf, int maxStringLength, int protocolVersion)
+    {
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
+        {
+            SpecificTag nbt = (SpecificTag) readTag( buf, protocolVersion );
+
+            return new FunctionDeserializable<>( Either.right( nbt ), (ov) -> ComponentSerializer.deserialize( TagUtil.toJson( ov.getRight() ) ) );
+        } else
+        {
+            String string = readString( buf, maxStringLength );
+
+            return new FunctionDeserializable<>( Either.left( string ), (ov) -> ComponentSerializer.deserialize( ov.getLeft() ) );
+        }
+    }
+
+    public static BaseComponent readRawComponent(ByteBuf buf, int protocolVersion)
+    {
+        return readRawComponent( buf, Short.MAX_VALUE, protocolVersion );
+    }
+
+    public static BaseComponent readRawComponent(ByteBuf buf, int maxStringLength, int protocolVersion)
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
         {
@@ -127,7 +148,7 @@ public abstract class DefinedPacket
         return ComponentSerializer.deserializeStyle( json );
     }
 
-    public static void writeEitherBaseComponent(Either<String, BaseComponent> message, ByteBuf buf, int protocolVersion)
+    public static void writeEitherBaseComponent(Either<String, Deserializable<Either<String, SpecificTag>, BaseComponent>> message, ByteBuf buf, int protocolVersion)
     {
         if ( message.isLeft() )
         {
@@ -138,7 +159,56 @@ public abstract class DefinedPacket
         }
     }
 
-    public static void writeBaseComponent(BaseComponent message, ByteBuf buf, int protocolVersion)
+    public static void writeBaseComponent(Deserializable<Either<String, SpecificTag>, BaseComponent> message, ByteBuf buf, int protocolVersion)
+    {
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
+        {
+            if ( message.hasDeserialized() )
+            {
+                BaseComponent baseComponent = message.get();
+                JsonElement json = ComponentSerializer.toJson( baseComponent );
+                SpecificTag nbt = TagUtil.fromJson( json );
+
+                writeTag( nbt, buf, protocolVersion );
+            } else
+            {
+                Either<String, SpecificTag> eitherStrJsonElem = message.original();
+                if ( eitherStrJsonElem.isLeft() )
+                {
+                    writeTag( TagUtil.fromJson( JsonParser.parseString( eitherStrJsonElem.getLeft() ) ), buf, protocolVersion );
+                } else
+                {
+                    writeTag( eitherStrJsonElem.getRight(), buf, protocolVersion );
+                }
+            }
+            JsonElement json = ComponentSerializer.toJson( message.get() );
+            SpecificTag nbt = TagUtil.fromJson( json );
+
+            writeTag( nbt, buf, protocolVersion );
+        } else
+        {
+            if ( message.hasDeserialized() )
+            {
+                String string = ComponentSerializer.toString( message.get() );
+
+                writeString( string, buf );
+            } else
+            {
+                Either<String, SpecificTag> eitherStrJsonElem = message.original();
+                if ( eitherStrJsonElem.isLeft() )
+                {
+                    writeString( eitherStrJsonElem.getLeft(), buf );
+                } else
+                {
+                    String string = ComponentSerializer.toString( TagUtil.toJson( eitherStrJsonElem.getRight() ) );
+
+                    writeString( string, buf );
+                }
+            }
+        }
+    }
+
+    public static void writeRawComponent(BaseComponent message, ByteBuf buf, int protocolVersion)
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
         {
@@ -398,7 +468,7 @@ public abstract class DefinedPacket
                 writeComponentStyle( (ComponentStyle) format.getValue(), buf, protocolVersion );
                 break;
             case FIXED:
-                writeBaseComponent( (BaseComponent) format.getValue(), buf, protocolVersion );
+                writeRawComponent( (BaseComponent) format.getValue(), buf, protocolVersion );
                 break;
         }
     }
@@ -413,7 +483,7 @@ public abstract class DefinedPacket
             case 1:
                 return new NumberFormat( NumberFormat.Type.STYLED, readComponentStyle( buf, protocolVersion ) );
             case 2:
-                return new NumberFormat( NumberFormat.Type.FIXED, readBaseComponent( buf, protocolVersion ) );
+                return new NumberFormat( NumberFormat.Type.FIXED, readRawComponent( buf, protocolVersion ) );
             default:
                 throw new IllegalArgumentException( "Unknown number format " + format );
         }

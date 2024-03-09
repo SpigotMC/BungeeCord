@@ -304,7 +304,7 @@ public class ServerConnector extends PacketHandler
                     user.unsafe().sendPacket( new ScoreboardScoreReset( score.getItemName(), null ) );
                 } else
                 {
-                    user.unsafe().sendPacket( new ScoreboardScore( score.getItemName(), (byte) 1, score.getScoreName(), score.getValue(), null, null ) );
+                    user.unsafe().sendPacket( new ScoreboardScore( score.getItemName(), (byte) 1, score.getScoreName(), score.getValue(), (BaseComponent) null, null ) );
                 }
             }
             for ( Team team : serverScoreboard.getTeams() )

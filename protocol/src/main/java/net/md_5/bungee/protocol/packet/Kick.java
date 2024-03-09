@@ -9,8 +9,13 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.Deserializable;
+import net.md_5.bungee.protocol.Either;
+import net.md_5.bungee.protocol.FunctionDeserializable;
+import net.md_5.bungee.protocol.NoOrigDeserializable;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import se.llbit.nbt.SpecificTag;
 
 @Data
 @NoArgsConstructor
@@ -19,17 +24,18 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 public class Kick extends DefinedPacket
 {
 
-    private BaseComponent message;
+    private Deserializable<Either<String, SpecificTag>, BaseComponent> messageRaw;
 
     @Override
     public void read(ByteBuf buf, Protocol protocol, ProtocolConstants.Direction direction, int protocolVersion)
     {
         if ( protocol == Protocol.LOGIN )
         {
-            message = ComponentSerializer.deserialize( readString( buf ) );
+            String json = readString( buf );
+            messageRaw = new FunctionDeserializable<>( Either.left( json ), (ov) -> ComponentSerializer.deserialize( ov.getLeft() ) );
         } else
         {
-            message = readBaseComponent( buf, protocolVersion );
+            messageRaw = readBaseComponent( buf, protocolVersion );
         }
     }
 
@@ -38,10 +44,10 @@ public class Kick extends DefinedPacket
     {
         if ( protocol == Protocol.LOGIN )
         {
-            writeString( ComponentSerializer.toString( message ), buf );
+            writeString( ComponentSerializer.toString( messageRaw.get() ), buf );
         } else
         {
-            writeBaseComponent( message, buf, protocolVersion );
+            writeBaseComponent( messageRaw, buf, protocolVersion );
         }
     }
 
@@ -49,5 +55,20 @@ public class Kick extends DefinedPacket
     public void handle(AbstractPacketHandler handler) throws Exception
     {
         handler.handle( this );
+    }
+
+    public Kick(BaseComponent message)
+    {
+        setMessage( message );
+    }
+
+    public BaseComponent getMessage()
+    {
+        return messageRaw.get();
+    }
+
+    public void setMessage(BaseComponent message)
+    {
+        this.messageRaw = new NoOrigDeserializable<>( message );
     }
 }

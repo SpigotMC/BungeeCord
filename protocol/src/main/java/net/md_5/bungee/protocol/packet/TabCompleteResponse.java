@@ -13,7 +13,10 @@ import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.Deserializable;
+import net.md_5.bungee.protocol.Either;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import se.llbit.nbt.SpecificTag;
 
 @Data
 @NoArgsConstructor
@@ -52,7 +55,7 @@ public class TabCompleteResponse extends DefinedPacket
             for ( int i = 0; i < cnt; i++ )
             {
                 String match = readString( buf );
-                BaseComponent tooltip = buf.readBoolean() ? readBaseComponent( buf, protocolVersion ) : null;
+                Deserializable<Either<String, SpecificTag>, BaseComponent> tooltip = buf.readBoolean() ? readBaseComponent( buf, protocolVersion ) : null;
 
                 matches.add( new Suggestion( range, match, ( tooltip != null ) ? new ComponentMessage( tooltip ) : null ) );
             }
@@ -80,7 +83,7 @@ public class TabCompleteResponse extends DefinedPacket
                 buf.writeBoolean( suggestion.getTooltip() != null );
                 if ( suggestion.getTooltip() != null )
                 {
-                    writeBaseComponent( ( (ComponentMessage) suggestion.getTooltip() ).getComponent(), buf, protocolVersion );
+                    writeBaseComponent( ( (ComponentMessage) suggestion.getTooltip() ).getComponentRaw(), buf, protocolVersion );
                 }
             }
         } else
@@ -99,12 +102,17 @@ public class TabCompleteResponse extends DefinedPacket
     private static class ComponentMessage implements Message
     {
 
-        private final BaseComponent component;
+        private final Deserializable<Either<String, SpecificTag>, BaseComponent> componentRaw;
+
+        public BaseComponent getComponent()
+        {
+            return componentRaw.get();
+        }
 
         @Override
         public String getString()
         {
-            return component.toPlainText();
+            return getComponent().toPlainText();
         }
     }
 }
