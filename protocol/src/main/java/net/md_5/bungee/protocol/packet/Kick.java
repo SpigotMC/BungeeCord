@@ -6,11 +6,16 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.ChatSerializer;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.util.Deserializable;
+import net.md_5.bungee.protocol.util.Either;
+import net.md_5.bungee.protocol.util.FunctionDeserializable;
+import net.md_5.bungee.protocol.util.NoOrigDeserializable;
 
 @Data
 @NoArgsConstructor
@@ -19,17 +24,18 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 public class Kick extends DefinedPacket
 {
 
-    private BaseComponent message;
+    private Deserializable<Either<String, TypedTag>, BaseComponent> messageRaw;
 
     @Override
     public void read(ByteBuf buf, Protocol protocol, ProtocolConstants.Direction direction, int protocolVersion)
     {
         if ( protocol == Protocol.LOGIN )
         {
-            message = ChatSerializer.forVersion( protocolVersion ).deserialize( readString( buf ) );
+            String json = readString( buf );
+            messageRaw = new FunctionDeserializable<>( Either.left( json ), (ov) -> ChatSerializer.forVersion( protocolVersion ).deserialize( ov.getLeft() ) );
         } else
         {
-            message = readBaseComponent( buf, protocolVersion );
+            messageRaw = readBaseComponent( buf, protocolVersion );
         }
     }
 
@@ -38,10 +44,10 @@ public class Kick extends DefinedPacket
     {
         if ( protocol == Protocol.LOGIN )
         {
-            writeString( ChatSerializer.forVersion( protocolVersion ).toString( message ), buf );
+            writeString( ChatSerializer.forVersion( protocolVersion ).toString( messageRaw.get() ), buf );
         } else
         {
-            writeBaseComponent( message, buf, protocolVersion );
+            writeBaseComponent( messageRaw, buf, protocolVersion );
         }
     }
 
@@ -49,5 +55,29 @@ public class Kick extends DefinedPacket
     public void handle(AbstractPacketHandler handler) throws Exception
     {
         handler.handle( this );
+    }
+
+    public Kick(BaseComponent message)
+    {
+        setMessage( message );
+    }
+
+    public BaseComponent getMessage()
+    {
+        if ( messageRaw == null )
+        {
+            return null;
+        }
+        return messageRaw.get();
+    }
+
+    public void setMessage(BaseComponent message)
+    {
+        if ( message == null )
+        {
+            this.messageRaw = null;
+            return;
+        }
+        this.messageRaw = new NoOrigDeserializable<>( message );
     }
 }

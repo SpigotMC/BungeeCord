@@ -7,11 +7,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.data.NumberFormat;
+import net.md_5.bungee.protocol.util.Deserializable;
 import net.md_5.bungee.protocol.util.Either;
+import net.md_5.bungee.protocol.util.NoOrigDeserializable;
 
 @Data
 @NoArgsConstructor
@@ -21,8 +24,8 @@ public class ScoreboardObjective extends DefinedPacket
 {
 
     private String name;
-    private Either<String, BaseComponent> value;
     private HealthDisplay type;
+    private Either<String, Deserializable<Either<String, TypedTag>, BaseComponent>> valueRaw;
     /**
      * 0 to create, 1 to remove, 2 to update display text.
      */
@@ -38,11 +41,11 @@ public class ScoreboardObjective extends DefinedPacket
         {
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
-                value = readEitherBaseComponent( buf, protocolVersion, false );
+                valueRaw = readEitherBaseComponent( buf, protocolVersion, false );
                 type = HealthDisplay.values()[readVarInt( buf )];
             } else
             {
-                value = readEitherBaseComponent( buf, protocolVersion, true );
+                valueRaw = readEitherBaseComponent( buf, protocolVersion, true );
                 type = HealthDisplay.fromString( readString( buf ) );
             }
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
@@ -59,7 +62,7 @@ public class ScoreboardObjective extends DefinedPacket
         buf.writeByte( action );
         if ( action == 0 || action == 2 )
         {
-            writeEitherBaseComponent( value, buf, protocolVersion );
+            writeEitherBaseComponent( valueRaw, buf, protocolVersion );
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
                 writeVarInt( type.ordinal(), buf );
@@ -96,4 +99,45 @@ public class ScoreboardObjective extends DefinedPacket
             return valueOf( s.toUpperCase( Locale.ROOT ) );
         }
     }
+
+    public ScoreboardObjective(String name, Either<String, BaseComponent> value, HealthDisplay type, byte action, NumberFormat numberFormat)
+    {
+        this.name = name;
+        setValue( value );
+        this.type = type;
+        this.action = action;
+        this.numberFormat = numberFormat;
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public Either<String, BaseComponent> getValue()
+    {
+        if ( valueRaw == null )
+        {
+            return null;
+        }
+        if ( valueRaw.isLeft() )
+        {
+            return (Either) valueRaw;
+        } else
+        {
+            return Either.right( valueRaw.getRight().get() );
+        }
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public void setValue(Either<String, BaseComponent> value)
+    {
+        if ( value == null )
+        {
+            valueRaw = null;
+        } else if ( value.isLeft() )
+        {
+            valueRaw = (Either) value;
+        } else
+        {
+            valueRaw = Either.right( new NoOrigDeserializable<>( value.getRight() ) );
+        }
+    }
+
 }

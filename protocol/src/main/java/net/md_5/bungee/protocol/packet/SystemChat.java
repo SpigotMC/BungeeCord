@@ -7,9 +7,13 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.util.Deserializable;
+import net.md_5.bungee.protocol.util.Either;
+import net.md_5.bungee.protocol.util.NoOrigDeserializable;
 
 @Data
 @NoArgsConstructor
@@ -18,20 +22,20 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 public class SystemChat extends DefinedPacket
 {
 
-    private BaseComponent message;
+    private Deserializable<Either<String, TypedTag>, BaseComponent> messageRaw;
     private int position;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        message = readBaseComponent( buf, 262144, protocolVersion );
+        messageRaw = readBaseComponent( buf, 262144, protocolVersion );
         position = ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_1 ) ? ( ( buf.readBoolean() ) ? ChatMessageType.ACTION_BAR.ordinal() : 0 ) : readVarInt( buf );
     }
 
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        writeBaseComponent( message, buf, protocolVersion );
+        writeBaseComponent( messageRaw, buf, protocolVersion );
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_1 )
         {
             buf.writeBoolean( position == ChatMessageType.ACTION_BAR.ordinal() );
@@ -46,4 +50,30 @@ public class SystemChat extends DefinedPacket
     {
         handler.handle( this );
     }
+
+    public SystemChat(BaseComponent message, int position)
+    {
+        this.messageRaw = new NoOrigDeserializable<>( message );
+        this.position = position;
+    }
+
+    public BaseComponent getMessage()
+    {
+        if ( messageRaw == null )
+        {
+            return null;
+        }
+        return messageRaw.get();
+    }
+
+    public void setMessage(BaseComponent message)
+    {
+        if ( message == null )
+        {
+            this.messageRaw = null;
+            return;
+        }
+        this.messageRaw = new NoOrigDeserializable<>( message );
+    }
+
 }
