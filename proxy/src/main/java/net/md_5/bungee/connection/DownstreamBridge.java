@@ -267,9 +267,9 @@ public class DownstreamBridge extends PacketHandler
         {
             if ( team.getMode() == 0 || team.getMode() == 2 )
             {
-                t.setDisplayName( ComponentSerializer.toString( team.getDisplayName() ) );
-                t.setPrefix( ComponentSerializer.toString( team.getPrefix() ) );
-                t.setSuffix( ComponentSerializer.toString( team.getSuffix() ) );
+                t.setDisplayName( team.getDisplayName().getLeftOrCompute( ComponentSerializer::toString ) );
+                t.setPrefix( team.getPrefix().getLeftOrCompute( ComponentSerializer::toString ) );
+                t.setSuffix( team.getSuffix().getLeftOrCompute( ComponentSerializer::toString ) );
                 t.setFriendlyFire( team.getFriendlyFire() );
                 t.setNameTagVisibility( team.getNameTagVisibility() );
                 t.setCollisionRule( team.getCollisionRule() );
