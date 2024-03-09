@@ -280,9 +280,9 @@ public class DownstreamBridge extends PacketHandler
         {
             if ( team.getMode() == 0 || team.getMode() == 2 )
             {
-                t.setDisplayName( team.getDisplayName().getLeftOrCompute( (component) -> con.getChatSerializer().toString( component ) ) );
-                t.setPrefix( team.getPrefix().getLeftOrCompute( (component) -> con.getChatSerializer().toString( component ) ) );
-                t.setSuffix( team.getSuffix().getLeftOrCompute( (component) -> con.getChatSerializer().toString( component ) ) );
+                t.setDisplayName( team.getDisplayNameRaw().getLeftOrCompute( (component) -> con.getChatSerializer().toString( component.get() ) ) );
+                t.setPrefix( team.getPrefixRaw().getLeftOrCompute( (component) -> con.getChatSerializer().toString( component.get() ) ) );
+                t.setSuffix( team.getSuffixRaw().getLeftOrCompute( (component) -> con.getChatSerializer().toString( component.get() ) ) );
                 t.setFriendlyFire( team.getFriendlyFire() );
                 t.setNameTagVisibility( team.getNameTagVisibility().isLeft() ? team.getNameTagVisibility().getLeft() : team.getNameTagVisibility().getRight().getKey() );
                 t.setColor( team.getColor() );

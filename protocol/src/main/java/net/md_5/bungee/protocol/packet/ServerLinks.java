@@ -6,9 +6,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.util.Deserializable;
 import net.md_5.bungee.protocol.util.Either;
 
 @Data
@@ -27,7 +29,7 @@ public class ServerLinks extends DefinedPacket
         links = new Link[ len ];
         for ( int i = 0; i < len; i++ )
         {
-            Either<LinkType, BaseComponent> type;
+            Either<LinkType, Deserializable<Either<String, TypedTag>, BaseComponent>> type;
             if ( buf.readBoolean() )
             {
                 type = Either.left( LinkType.values()[readVarInt( buf )] );
@@ -47,7 +49,7 @@ public class ServerLinks extends DefinedPacket
         writeVarInt( links.length, buf );
         for ( Link link : links )
         {
-            Either<LinkType, BaseComponent> type = link.getType();
+            Either<LinkType, Deserializable<Either<String, TypedTag>, BaseComponent>> type = link.getTypeRaw();
             if ( type.isLeft() )
             {
                 buf.writeBoolean( true );
@@ -86,7 +88,7 @@ public class ServerLinks extends DefinedPacket
     public static class Link
     {
 
-        private final Either<LinkType, BaseComponent> type;
+        private final Either<LinkType, Deserializable<Either<String, TypedTag>, BaseComponent>> typeRaw;
         private final String url;
     }
 }
