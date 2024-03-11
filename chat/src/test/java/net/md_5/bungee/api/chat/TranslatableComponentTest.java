@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.chat;
 
+import static net.md_5.bungee.api.ChatColor.*;
 import static org.junit.jupiter.api.Assertions.*;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.junit.jupiter.api.Test;
@@ -12,17 +13,41 @@ public class TranslatableComponentTest
     {
         TranslatableComponent testComponent = new TranslatableComponent( "Test string with %s placeholders: %s", 2, "aoeu" );
         assertEquals( "Test string with 2 placeholders: aoeu", testComponent.toPlainText() );
-        assertEquals( "§fTest string with §f2§f placeholders: §faoeu", testComponent.toLegacyText() );
+        assertEquals( "Test string with " + WHITE + "2 placeholders: " + WHITE + "aoeu", testComponent.toLegacyText() );
     }
 
     @Test
     public void testJsonSerialisation()
     {
-        TranslatableComponent testComponent = new TranslatableComponent( "Test string with %s placeholder", "a" );
-        String jsonString = ComponentSerializer.toString( testComponent );
-        BaseComponent[] baseComponents = ComponentSerializer.parse( jsonString );
+        TranslatableComponent translatable = new TranslatableComponent( "Test string with %s placeholder", "a" );
+        String jsonString = ComponentSerializer.toString( translatable );
+        BaseComponent[] parsed = ComponentSerializer.parse( jsonString );
 
-        assertEquals( "Test string with a placeholder", TextComponent.toPlainText( baseComponents ) );
-        assertEquals( "§fTest string with §fa§f placeholder", TextComponent.toLegacyText( baseComponents ) );
+        assertEquals( "Test string with a placeholder", BaseComponent.toPlainText( parsed ) );
+        assertEquals( "Test string with " + WHITE + "a placeholder", BaseComponent.toLegacyText( parsed ) );
+    }
+
+    @Test
+    public void testTranslateComponent()
+    {
+        TranslatableComponent item = new TranslatableComponent( "item.swordGold.name" );
+        item.setColor( AQUA );
+        TranslatableComponent component = new TranslatableComponent( "commands.give.success", item, "5",
+                "thinkofdeath" );
+
+        assertEquals( "Given Golden Sword * 5 to thinkofdeath", component.toPlainText() );
+        assertEquals( "Given " + AQUA + "Golden Sword * " + WHITE + "5 to " + WHITE + "thinkofdeath", component.toLegacyText() );
+
+        BaseComponent legacyColorTest = new ComponentBuilder( "Test " ).color( RED ).append( component ).build();
+        assertEquals( RED + "Test " + RED + "Given " + AQUA + "Golden Sword" + RED + " * " + RED + "5" + RED + " to "
+                + RED + "thinkofdeath", legacyColorTest.toLegacyText() );
+
+        TranslatableComponent positional = new TranslatableComponent( "book.pageIndicator", "5", "50" );
+
+        assertEquals( "Page 5 of 50", positional.toPlainText() );
+        assertEquals( "Page " + WHITE + "5 of " + WHITE + "50", positional.toLegacyText() );
+
+        TranslatableComponent one_four_two = new TranslatableComponent( "filled_map.buried_treasure" );
+        assertEquals( "Buried Treasure Map", one_four_two.toPlainText() );
     }
 }
