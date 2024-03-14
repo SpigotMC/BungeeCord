@@ -143,8 +143,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
     private enum State
     {
-
-        HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, FINISHING;
+        HANDSHAKE, STATUS, PROCESSING_PING, PING, USERNAME, ENCRYPT, FINISHING;
     }
 
     private boolean canSendKickMessage()
@@ -188,6 +187,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(LegacyHandshake legacyHandshake) throws Exception
     {
+        Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting LEGACY HANDSHAKE" );
+
         this.legacy = true;
         ch.close( bungee.getTranslation( "outdated_client", bungee.getGameVersion() ) );
     }
@@ -195,6 +196,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(LegacyPing ping) throws Exception
     {
+        Preconditions.checkState( thisState == State.HANDSHAKE, "Not expecting LEGACY PING" );
+
+        thisState = State.PROCESSING_PING;
         this.legacy = true;
         final boolean v1_5 = ping.isV1_5();
 
@@ -282,6 +286,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
         final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
         final int protocol = ( ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) ) ? handshake.getProtocolVersion() : bungee.getProtocolVersion();
+        thisState = State.PROCESSING_PING;
 
         Callback<ServerPing> pingBack = new Callback<ServerPing>()
         {
@@ -299,12 +304,17 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     @Override
                     public void done(ProxyPingEvent pingResult, Throwable error)
                     {
+                        if ( ch.isClosed() )
+                        {
+                            return;
+                        }
                         Gson gson = BungeeCord.getInstance().gson;
                         unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
                         if ( bungee.getConnectionThrottle() != null )
                         {
                             bungee.getConnectionThrottle().unthrottle( getSocketAddress() );
                         }
+                        thisState = State.PING;
                     }
                 };
 
@@ -319,8 +329,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             pingBack.done( getPingInfo( motd, protocol ), null );
         }
-
-        thisState = State.PING;
     }
 
     @Override
@@ -360,6 +368,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         this.virtualHost = InetSocketAddress.createUnresolved( handshake.getHost(), handshake.getPort() );
 
         bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
+
+        if ( ch.isClosing() )
+        {
+            return;
+        }
 
         switch ( handshake.getRequestedProtocol() )
         {
@@ -468,7 +481,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     disconnect( ( reason != null ) ? reason : TextComponent.fromLegacy( bungee.getTranslation( "kick_message" ) ) );
                     return;
                 }
-                if ( ch.isClosed() )
+                if ( ch.isClosing() )
                 {
                     return;
                 }
@@ -478,12 +491,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
                 } else
                 {
-                    thisState = State.FINISHING;
                     finish();
                 }
             }
         };
 
+        thisState = State.FINISHING;
         // fire pre login event
         bungee.getPluginManager().callEvent( new PreLoginEvent( InitialHandler.this, callback ) );
     }
@@ -522,6 +535,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             {
                 if ( error == null )
                 {
+                    if ( ch.isClosing() )
+                    {
+                        return;
+                    }
                     LoginResult obj = BungeeCord.getInstance().gson.fromJson( result, LoginResult.class );
                     if ( obj != null && obj.getId() != null )
                     {
@@ -612,7 +629,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     disconnect( ( reason != null ) ? reason : TextComponent.fromLegacy( bungee.getTranslation( "kick_message" ) ) );
                     return;
                 }
-                if ( ch.isClosed() )
+                if ( ch.isClosing() )
                 {
                     return;
                 }
@@ -622,18 +639,19 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     @Override
                     public void run()
                     {
-                        if ( !ch.isClosing() )
+                        if ( ch.isClosing() )
                         {
-                            userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
-                            userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
-
-                            if ( getVersion() < ProtocolConstants.MINECRAFT_1_20_2 )
-                            {
-                                unsafe.sendPacket( new LoginSuccess( getUniqueId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
-                                ch.setProtocol( Protocol.GAME );
-                            }
-                            finish2();
+                            return;
                         }
+                        userCon = new UserConnection( bungee, ch, getName(), InitialHandler.this );
+                        userCon.setCompressionThreshold( BungeeCord.getInstance().config.getCompressionThreshold() );
+
+                        if ( getVersion() < ProtocolConstants.MINECRAFT_1_20_2 )
+                        {
+                            unsafe.sendPacket( new LoginSuccess( getUniqueId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
+                            ch.setProtocol( Protocol.GAME );
+                        }
+                        finish2();
                     }
                 } );
             }
