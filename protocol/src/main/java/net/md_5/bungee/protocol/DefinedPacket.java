@@ -262,23 +262,47 @@ public abstract class DefinedPacket
 
     public static void writeVarInt(int value, ByteBuf output)
     {
-        int part;
-        while ( true )
+        if ( ( value & 0xFFFFFF80 ) == 0 )
         {
-            part = value & 0x7F;
+            output.writeByte( value );
+        } else if ( ( value & 0xFFFFC000 ) == 0 )
+        {
+            output.writeShort( ( value & 0x7F | 0x80 ) << 8 | ( value >>> 7 & 0x7F ) );
+        } else if ( ( value & 0xFFE00000 ) == 0 )
+        {
+            output.writeMedium( ( value & 0x7F | 0x80 ) << 16 | ( value >>> 7 & 0x7F | 0x80 ) << 8 | ( value >>> 14 & 0x7F ) );
+        } else if ( ( value & 0xF0000000 ) == 0 )
+        {
+            output.writeInt( ( value & 0x7F | 0x80 ) << 24 | ( value >>> 7 & 0x7F | 0x80 ) << 16 | ( value >>> 14 & 0x7F | 0x80 ) << 8 | ( value >>> 21 & 0x7F ) );
+        } else
+        {
+            output.writeInt( ( value & 0x7F | 0x80 ) << 24 | ( value >>> 7 & 0x7F | 0x80 ) << 16 | ( value >>> 14 & 0x7F | 0x80 ) << 8 | ( value >>> 21 & 0x7F | 0x80 ) );
+            output.writeByte( value >>> 28 );
+        }
+    }
 
-            value >>>= 7;
-            if ( value != 0 )
-            {
-                part |= 0x80;
-            }
-
-            output.writeByte( part );
-
-            if ( value == 0 )
-            {
+    public static void writeVarInt(int value, ByteBuf output, int len)
+    {
+        switch ( len )
+        {
+            case 1:
+                output.writeByte( value );
                 break;
-            }
+            case 2:
+                output.writeShort( ( value & 0x7F | 0x80 ) << 8 | ( value >>> 7 & 0x7F ) );
+                break;
+            case 3:
+                output.writeMedium( ( value & 0x7F | 0x80 ) << 16 | ( value >>> 7 & 0x7F | 0x80 ) << 8 | ( value >>> 14 & 0x7F ) );
+                break;
+            case 4:
+                output.writeInt( ( value & 0x7F | 0x80 ) << 24 | ( value >>> 7 & 0x7F | 0x80 ) << 16 | ( value >>> 14 & 0x7F | 0x80 ) << 8 | ( value >>> 21 & 0x7F ) );
+                break;
+            case 5:
+                output.writeInt( ( value & 0x7F | 0x80 ) << 24 | ( value >>> 7 & 0x7F | 0x80 ) << 16 | ( value >>> 14 & 0x7F | 0x80 ) << 8 | ( value >>> 21 & 0x7F | 0x80 ) );
+                output.writeByte( value >>> 28 );
+                break;
+            default:
+                throw new IllegalArgumentException( "Invalid varint len: " + len );
         }
     }
 
