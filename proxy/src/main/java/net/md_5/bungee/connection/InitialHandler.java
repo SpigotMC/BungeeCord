@@ -134,6 +134,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Getter
     private boolean transferred;
     private UserConnection userCon;
+    @Getter
+    private BaseComponent disconnectMessage;
 
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
@@ -161,13 +163,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void exception(Throwable t) throws Exception
     {
-        if ( canSendKickMessage() )
-        {
-            disconnect( ChatColor.RED + Util.exception( t ) );
-        } else
-        {
-            ch.close();
-        }
+        // if the connection is a login attempt, directly send a Kick with the Exception to the client
+        // we can't use disconnect() here as the method delays the Kick packet sending by 250ms and the HandlerBoss
+        // will close the channel before the packet is sent
+        // also we don't want to print the exception twice
+        ch.close( canSendKickMessage() ? new Kick( TextComponent.fromLegacy( ChatColor.RED + Util.exception( t ) ) ) : null );
     }
 
     @Override
@@ -733,7 +733,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( canSendKickMessage() )
         {
-            ch.delayedClose( new Kick( reason ) );
+            ch.delayedClose( new Kick( this.disconnectMessage = reason ) );
         } else
         {
             ch.close();
