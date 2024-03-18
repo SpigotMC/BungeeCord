@@ -106,6 +106,10 @@ public class TabCompleteResponse extends DefinedPacket
 
         public BaseComponent getComponent()
         {
+            if ( componentRaw == null )
+            {
+                return null;
+            }
             return componentRaw.get();
         }
 

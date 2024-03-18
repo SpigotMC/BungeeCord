@@ -117,11 +117,20 @@ public class ServerData extends DefinedPacket
 
     public BaseComponent getMotd()
     {
+        if ( motdRaw == null )
+        {
+            return null;
+        }
         return motdRaw.get();
     }
 
     public void setMotd(BaseComponent motd)
     {
+        if ( motd == null )
+        {
+            this.motdRaw = null;
+            return;
+        }
         this.motdRaw = new NoOrigDeserializable<>( motd );
     }
 }

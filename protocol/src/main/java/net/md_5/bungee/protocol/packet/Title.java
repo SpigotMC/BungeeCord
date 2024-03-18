@@ -128,11 +128,20 @@ public class Title extends DefinedPacket
 
     public BaseComponent getText()
     {
+        if ( textRaw == null )
+        {
+            return null;
+        }
         return textRaw.get();
     }
 
     public void setText(BaseComponent text)
     {
+        if ( text == null )
+        {
+            this.textRaw = null;
+            return;
+        }
         this.textRaw = new NoOrigDeserializable<>( text );
     }
 }

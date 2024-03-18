@@ -52,21 +52,39 @@ public class PlayerListHeaderFooter extends DefinedPacket
 
     public BaseComponent getHeader()
     {
+        if ( headerRaw == null )
+        {
+            return null;
+        }
         return headerRaw.get();
     }
 
     public void setHeader(BaseComponent header)
     {
+        if ( header == null )
+        {
+            this.headerRaw = null;
+            return;
+        }
         this.headerRaw = new NoOrigDeserializable<>( header );
     }
 
     public BaseComponent getFooter()
     {
+        if ( footerRaw == null )
+        {
+            return null;
+        }
         return footerRaw.get();
     }
 
     public void setFooter(BaseComponent footer)
     {
+        if ( footer == null )
+        {
+            this.footerRaw = null;
+            return;
+        }
         this.footerRaw = new NoOrigDeserializable<>( footer );
     }
 }

@@ -151,11 +151,20 @@ public class PlayerListItem extends DefinedPacket
 
         public BaseComponent getDisplayName()
         {
+            if ( displayNameRaw == null )
+            {
+                return null;
+            }
             return displayNameRaw.get();
         }
 
         public void setDisplayName(BaseComponent displayName)
         {
+            if ( displayName == null )
+            {
+                this.displayNameRaw = null;
+                return;
+            }
             this.displayNameRaw = new NoOrigDeserializable<>( displayName );
         }
     }

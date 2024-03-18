@@ -129,6 +129,10 @@ public class Team extends DefinedPacket
     @SuppressWarnings("unchecked")
     public Either<String, BaseComponent> getDisplayName()
     {
+        if ( displayNameRaw == null )
+        {
+            return null;
+        }
         if ( displayNameRaw.isLeft() )
         {
             return (Either) displayNameRaw;
@@ -141,6 +145,11 @@ public class Team extends DefinedPacket
     @SuppressWarnings("unchecked")
     public void setDisplayName(Either<String, BaseComponent> displayName)
     {
+        if ( displayName == null )
+        {
+            displayNameRaw = null;
+            return;
+        }
         if ( displayName.isLeft() )
         {
             displayNameRaw = (Either) displayName;
@@ -153,6 +162,10 @@ public class Team extends DefinedPacket
     @SuppressWarnings("unchecked")
     public Either<String, BaseComponent> getPrefix()
     {
+        if ( prefixRaw == null )
+        {
+            return null;
+        }
         if ( prefixRaw.isLeft() )
         {
             return (Either) prefixRaw;
@@ -165,6 +178,11 @@ public class Team extends DefinedPacket
     @SuppressWarnings("unchecked")
     public void setPrefix(Either<String, BaseComponent> prefix)
     {
+        if ( prefix == null )
+        {
+            prefixRaw = null;
+            return;
+        }
         if ( prefix.isLeft() )
         {
             prefixRaw = (Either) prefix;
@@ -177,6 +195,10 @@ public class Team extends DefinedPacket
     @SuppressWarnings("unchecked")
     public Either<String, BaseComponent> getSuffix()
     {
+        if ( suffixRaw == null )
+        {
+            return null;
+        }
         if ( suffixRaw.isLeft() )
         {
             return (Either) suffixRaw;
@@ -189,6 +211,11 @@ public class Team extends DefinedPacket
     @SuppressWarnings("unchecked")
     public void setSuffix(Either<String, BaseComponent> suffix)
     {
+        if ( suffix == null )
+        {
+            suffixRaw = null;
+            return;
+        }
         if ( suffix.isLeft() )
         {
             suffixRaw = (Either) suffix;

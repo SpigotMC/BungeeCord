@@ -59,11 +59,20 @@ public class SystemChat extends DefinedPacket
 
     public BaseComponent getMessage()
     {
+        if ( messageRaw == null )
+        {
+            return null;
+        }
         return messageRaw.get();
     }
 
     public void setMessage(BaseComponent message)
     {
+        if ( message == null )
+        {
+            this.messageRaw = null;
+            return;
+        }
         this.messageRaw = new NoOrigDeserializable<>( message );
     }
 

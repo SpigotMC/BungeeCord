@@ -114,11 +114,20 @@ public class BossBar extends DefinedPacket
 
     public BaseComponent getTitle()
     {
+        if ( title == null )
+        {
+            return null;
+        }
         return title.get();
     }
 
     public void setTitle(BaseComponent title)
     {
+        if ( title == null )
+        {
+            this.title = null;
+            return;
+        }
         this.title = new NoOrigDeserializable<>( title );
     }
 }
