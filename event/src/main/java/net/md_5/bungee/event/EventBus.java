@@ -1,7 +1,9 @@
 package net.md_5.bungee.event;
 
 import com.google.common.collect.ImmutableSet;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.invoke.LambdaMetafactory;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -13,12 +15,14 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class EventBus
 {
 
+    public static final HashMap<ClassLoader, MethodHandles.Lookup> LOOKUPS = new HashMap<>();
     private final Map<Class<?>, Map<Byte, Map<Object, Method[]>>> byListenerAndPriority = new HashMap<>();
     private final Map<Class<?>, EventHandlerMethod[]> byEventBaked = new ConcurrentHashMap<>();
     private final Lock lock = new ReentrantLock();
@@ -47,15 +51,9 @@ public class EventBus
                 try
                 {
                     method.invoke( event );
-                } catch ( IllegalAccessException ex )
+                } catch ( Throwable ex )
                 {
-                    throw new Error( "Method became inaccessible: " + event, ex );
-                } catch ( IllegalArgumentException ex )
-                {
-                    throw new Error( "Method rejected target/argument: " + event, ex );
-                } catch ( InvocationTargetException ex )
-                {
-                    logger.log( Level.WARNING, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, method.getListener() ), ex.getCause() );
+                    logger.log( Level.WARNING, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, method.getListener() ), ex );
                 }
 
                 long elapsed = System.nanoTime() - start;
@@ -180,8 +178,14 @@ public class EventBus
                     {
                         for ( Method method : listenerHandlers.getValue() )
                         {
-                            EventHandlerMethod ehm = new EventHandlerMethod( listenerHandlers.getKey(), method );
-                            handlersList.add( ehm );
+                            try
+                            {
+                                EventHandlerMethod ehm = createEventHandlerMethod( listenerHandlers.getKey(), method );
+                                handlersList.add( ehm );
+                            } catch ( Throwable ex )
+                            {
+                                logger.log( Level.WARNING, "Can't create EventHandlerMethod", ex );
+                            }
                         }
                     }
                 }
@@ -191,5 +195,20 @@ public class EventBus
         {
             byEventBaked.remove( eventClass );
         }
+    }
+
+    private EventHandlerMethod createEventHandlerMethod(Object listener, Method method) throws Throwable
+    {
+        // Get the MethodHandles.Lookup created by the PluginClassloader of the listeners Plugin
+        MethodHandles.Lookup lookup = LOOKUPS.computeIfAbsent( listener.getClass().getClassLoader(), classLoader -> MethodHandles.lookup() );
+        Object consumer = LambdaMetafactory.metafactory( lookup,
+                "accept",
+                MethodType.methodType( Consumer.class, listener.getClass() ),
+                MethodType.methodType( void.class, Object.class ),
+                lookup.unreflect( method ),
+                MethodType.methodType( void.class, method.getParameterTypes()[0] ) )
+                .getTarget().invokeWithArguments( listener );
+
+        return new EventHandlerMethod( listener, (Consumer<Object>) consumer );
     }
 }
