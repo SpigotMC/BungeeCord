@@ -39,6 +39,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
+import net.md_5.bungee.api.event.ServerConnectFailEvent;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.connection.InitialHandler;
@@ -374,17 +375,22 @@ public final class UserConnection implements ProxiedPlayer
                     future.channel().close();
                     pendingConnects.remove( target );
 
-                    ServerInfo def = updateAndGetNextServer( target );
-                    if ( request.isRetry() && def != null && ( getServer() == null || def != getServer().getInfo() ) )
+                    ServerConnection server = getServer();
+                    ServerConnectFailEvent event = new ServerConnectFailEvent( UserConnection.this, server, request );
+                    if ( !bungee.getPluginManager().callEvent( event ).isCancelled() )
                     {
-                        sendMessage( bungee.getTranslation( "fallback_lobby" ) );
-                        connect( def, null, true, ServerConnectEvent.Reason.LOBBY_FALLBACK );
-                    } else if ( dimensionChange )
-                    {
-                        disconnect( bungee.getTranslation( "fallback_kick", connectionFailMessage( future.cause() ) ) );
-                    } else
-                    {
-                        sendMessage( bungee.getTranslation( "fallback_kick", connectionFailMessage( future.cause() ) ) );
+                        ServerInfo def = updateAndGetNextServer( target );
+                        if ( request.isRetry() && def != null && ( server == null || def != server.getInfo() ) )
+                        {
+                            sendMessage( bungee.getTranslation( "fallback_lobby" ) );
+                            connect( def, null, true, ServerConnectEvent.Reason.LOBBY_FALLBACK );
+                        } else if ( dimensionChange )
+                        {
+                            disconnect( bungee.getTranslation( "fallback_kick", connectionFailMessage( future.cause() ) ) );
+                        } else
+                        {
+                            sendMessage( bungee.getTranslation( "fallback_kick", connectionFailMessage( future.cause() ) ) );
+                        }
                     }
                 }
             }
