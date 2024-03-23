@@ -853,7 +853,10 @@ public class Commands extends DefinedPacket
                 get( "minecraft:template_mirror", VOID ),
                 get( "minecraft:template_rotation", VOID ),
                 get( "minecraft:uuid", VOID ),
-                get( "minecraft:heightmap", VOID )
+                get( "minecraft:heightmap", VOID ),
+                get( "minecraft:loot_table", VOID ),
+                get( "minecraft:loot_predicate", VOID ),
+                get( "minecraft:loot_modifier", VOID )
             };
         }
 
