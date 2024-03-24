@@ -147,17 +147,26 @@ public final class UserConnection implements ProxiedPlayer
     private ForgeServerHandler forgeServerHandler;
     /*========================================================================*/
     private final Queue<DefinedPacket> packetQueue = new ConcurrentLinkedQueue<>();
+    private boolean possibleQueueing;
     private final Unsafe unsafe = new Unsafe()
     {
         @Override
         public void sendPacket(DefinedPacket packet)
         {
-            ch.write( packet );
+            if ( possibleQueueing )
+            {
+                sendPacketQueued( packet );
+            } else
+            {
+                ch.write( packet );
+            }
         }
     };
 
     public boolean init()
     {
+        this.possibleQueueing = getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_2;
+
         this.entityRewrite = EntityMap.getEntityMap( getPendingConnection().getVersion() );
 
         this.displayName = name;
@@ -192,7 +201,7 @@ public final class UserConnection implements ProxiedPlayer
             packetQueue.add( packet );
         } else
         {
-            unsafe().sendPacket( packet );
+            ch.write( packet );
         }
     }
 
