@@ -9,8 +9,12 @@ import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Event;
 
 /**
- * This event is called when a connection to a server fails.
- * This can occur when the server is offline, the player cannot login due to version mismatch, or the server is full.
+ * This event is called when a connection to a server fails (e.g. the server is down).
+ * Only called when the server cannot be connected to, and is not called when kicked from a server (e.g. the server is full).
+ * Cancelling this event will cancel the transfer to the fallback lobby and prevent the default error message from being shown.
+ * <p>
+ * If you are using {@link ProxiedPlayer#connect}, this event will be called after the callback is called.
+ * So, you can't cancel the callback by cancelling this event.
  */
 @Data
 @ToString(callSuper = false)
