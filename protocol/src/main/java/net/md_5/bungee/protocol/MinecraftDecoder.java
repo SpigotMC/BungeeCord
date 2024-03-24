@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @AllArgsConstructor
-public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
+public class MinecraftDecoder extends MessageToMessageDecoder<Object>
 {
 
     @Getter
@@ -20,7 +20,13 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
     private int protocolVersion;
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
+    public boolean acceptInboundMessage(Object msg) throws Exception
+    {
+        return msg instanceof ByteBuf || msg instanceof PacketWrapper;
+    }
+
+    @Override
+    protected void decode(ChannelHandlerContext ctx, Object inObj, List<Object> out) throws Exception
     {
         // See Varint21FrameDecoder for the general reasoning. We add this here as ByteToMessageDecoder#handlerRemoved()
         // will fire any cumulated data through the pipeline, so we want to try and stop it here.
@@ -28,6 +34,9 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
         {
             return;
         }
+        boolean isByteBuf = inObj instanceof ByteBuf;
+
+        ByteBuf in = isByteBuf ? (ByteBuf) inObj : ( (PacketWrapper) inObj ).buf;
 
         Protocol.DirectionData prot = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
         ByteBuf slice = in.copy(); // Can't slice this one due to EntityMap :(
@@ -50,13 +59,31 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
                 in.skipBytes( in.readableBytes() );
             }
 
-            out.add( new PacketWrapper( packet, slice, protocol ) );
+            if ( isByteBuf )
+            {
+                out.add( new PacketWrapper( packet, slice, protocol ) );
+            } else
+            {
+                PacketWrapper wrapper = (PacketWrapper) inObj;
+                if ( packet != null )
+                {
+                    wrapper.destroyCompressed();
+                }
+                wrapper.packet = packet;
+                wrapper.buf = slice;
+                out.add( wrapper );
+            }
             slice = null;
         } finally
         {
             if ( slice != null )
             {
                 slice.release();
+            }
+            if ( !isByteBuf )
+            {
+                // manual release required (if in instanceof ReferenceCounted like ByteBuf, MessageToMessageDecoder releases for us)
+                in.release();
             }
         }
     }

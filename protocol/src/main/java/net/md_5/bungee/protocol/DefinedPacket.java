@@ -98,6 +98,22 @@ public abstract class DefinedPacket
         return ( string ) ? Either.left( readString( buf ) ) : Either.right( readBaseComponent( buf, protocolVersion ) );
     }
 
+    public static void skipString(ByteBuf buf)
+    {
+        skipString( buf, Short.MAX_VALUE );
+    }
+
+    public static void skipString(ByteBuf buf, int maxLen)
+    {
+        int len = readVarInt( buf );
+        if ( len > maxLen * 4 )
+        {
+            throw new OverflowPacketException( "Cannot receive string longer than " + maxLen * 4 + " (got " + len + " bytes)" );
+        }
+
+        buf.skipBytes( len );
+    }
+
     public static BaseComponent readBaseComponent(ByteBuf buf, int protocolVersion)
     {
         return readBaseComponent( buf, Short.MAX_VALUE, protocolVersion );
@@ -260,6 +276,28 @@ public abstract class DefinedPacket
         return out;
     }
 
+    public static void skipVarInt(ByteBuf input)
+    {
+        skipVarInt( input, 5 );
+    }
+
+    public static void skipVarInt(ByteBuf input, int maxBytes)
+    {
+        int bytes = 0;
+        while ( true )
+        {
+            if ( ++bytes > maxBytes )
+            {
+                throw new RuntimeException( "VarInt too big" );
+            }
+
+            if ( ( input.readByte() & 0x80 ) != 0x80 )
+            {
+                break;
+            }
+        }
+    }
+
     public static void writeVarInt(int value, ByteBuf output)
     {
         int part;
@@ -318,6 +356,11 @@ public abstract class DefinedPacket
     public static UUID readUUID(ByteBuf input)
     {
         return new UUID( input.readLong(), input.readLong() );
+    }
+
+    public static void skipUUID(ByteBuf input)
+    {
+        input.skipBytes( 16 );
     }
 
     public static void writeProperties(Property[] properties, ByteBuf buf)

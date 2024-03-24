@@ -7,8 +7,9 @@ import java.util.zip.Deflater;
 import lombok.Setter;
 import net.md_5.bungee.jni.zlib.BungeeZlib;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 
-public class PacketCompressor extends MessageToByteEncoder<ByteBuf>
+public class PacketCompressor extends MessageToByteEncoder<Object>
 {
 
     private final BungeeZlib zlib = CompressFactory.zlib.newInstance();
@@ -28,18 +29,57 @@ public class PacketCompressor extends MessageToByteEncoder<ByteBuf>
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) throws Exception
+    public boolean acceptOutboundMessage(Object msg) throws Exception
     {
-        int origSize = msg.readableBytes();
-        if ( origSize < threshold )
+        return msg instanceof ByteBuf || msg instanceof PacketWrapper;
+    }
+
+    @Override
+    protected void encode(ChannelHandlerContext ctx, Object msgObj, ByteBuf out) throws Exception
+    {
+        boolean isByteBuf = msgObj instanceof ByteBuf;
+        if ( isByteBuf )
         {
-            DefinedPacket.writeVarInt( 0, out );
-            out.writeBytes( msg );
+            ByteBuf msg = (ByteBuf) msgObj;
+            int origSize = msg.readableBytes();
+            if ( origSize < threshold )
+            {
+                DefinedPacket.writeVarInt( 0, out );
+                out.writeBytes( msg );
+            } else
+            {
+                DefinedPacket.writeVarInt( origSize, out );
+
+                zlib.process( msg, out );
+            }
         } else
         {
-            DefinedPacket.writeVarInt( origSize, out );
+            PacketWrapper wrapper = (PacketWrapper) msgObj;
+            ByteBuf msg = wrapper.buf;
+            try
+            {
+                int origSize = msg.readableBytes();
+                if ( origSize < threshold )
+                {
+                    DefinedPacket.writeVarInt( 0, out );
+                    out.writeBytes( msg );
+                } else
+                {
+                    DefinedPacket.writeVarInt( origSize, out );
 
-            zlib.process( msg, out );
+                    if ( wrapper.packet == null && wrapper.compressed != null )
+                    {
+                        out.writeBytes( wrapper.compressed );
+                    } else
+                    {
+                        zlib.process( msg, out );
+                    }
+                }
+            } finally
+            {
+                msg.release();
+                wrapper.destroyCompressed();
+            }
         }
     }
 }

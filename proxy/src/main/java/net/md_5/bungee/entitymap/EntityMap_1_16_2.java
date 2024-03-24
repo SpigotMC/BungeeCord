@@ -2,13 +2,11 @@ package net.md_5.bungee.entitymap;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.BungeeCord;
-import net.md_5.bungee.UserConnection;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 class EntityMap_1_16_2 extends EntityMap
@@ -29,8 +27,10 @@ class EntityMap_1_16_2 extends EntityMap
 
     @Override
     @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
-    public void rewriteClientbound(ByteBuf packet, int oldId, int newId, int protocolVersion)
+    public void rewriteClientbound(PacketWrapper wrapper, int oldId, int newId, int protocolVersion)
     {
+        ByteBuf packet = wrapper.buf;
+
         // Special cases
         int readerIndex = packet.readerIndex();
         int packetId = DefinedPacket.readVarInt( packet );
@@ -38,25 +38,16 @@ class EntityMap_1_16_2 extends EntityMap
 
         if ( packetId == spawnPlayerId )
         {
-            DefinedPacket.readVarInt( packet ); // Entity ID
-            int idLength = packet.readerIndex() - readerIndex - packetIdLength;
-            UUID uuid = DefinedPacket.readUUID( packet );
-            ProxiedPlayer player;
-            if ( ( player = BungeeCord.getInstance().getPlayerByOfflineUUID( uuid ) ) != null )
-            {
-                int previous = packet.writerIndex();
-                packet.readerIndex( readerIndex );
-                packet.writerIndex( readerIndex + packetIdLength + idLength );
-                DefinedPacket.writeUUID( player.getUniqueId(), packet );
-                packet.writerIndex( previous );
-            }
+            EntityMap_1_8.rewriteSpawnPlayerUuid( wrapper, readerIndex );
         }
         packet.readerIndex( readerIndex );
     }
 
     @Override
-    public void rewriteServerbound(ByteBuf packet, int oldId, int newId)
+    public void rewriteServerbound(PacketWrapper wrapper, int oldId, int newId)
     {
+        ByteBuf packet = wrapper.buf;
+
         // Special cases
         int readerIndex = packet.readerIndex();
         int packetId = DefinedPacket.readVarInt( packet );
@@ -64,16 +55,7 @@ class EntityMap_1_16_2 extends EntityMap
 
         if ( packetId == spectateId && !BungeeCord.getInstance().getConfig().isIpForward() )
         {
-            UUID uuid = DefinedPacket.readUUID( packet );
-            ProxiedPlayer player;
-            if ( ( player = BungeeCord.getInstance().getPlayer( uuid ) ) != null )
-            {
-                int previous = packet.writerIndex();
-                packet.readerIndex( readerIndex );
-                packet.writerIndex( readerIndex + packetIdLength );
-                DefinedPacket.writeUUID( ( (UserConnection) player ).getPendingConnection().getOfflineId(), packet );
-                packet.writerIndex( previous );
-            }
+            EntityMap_1_8.rewriteSpectateUuid( wrapper, readerIndex, packetIdLength );
         }
         packet.readerIndex( readerIndex );
     }

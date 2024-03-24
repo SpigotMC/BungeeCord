@@ -5,13 +5,20 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import net.md_5.bungee.jni.zlib.BungeeZlib;
+import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 
+@RequiredArgsConstructor
 public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
 {
-
+    private final ChannelWrapper ch;
     private final BungeeZlib zlib = CompressFactory.zlib.newInstance();
+    @Setter
+    private int threshold = 256;
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception
@@ -38,10 +45,18 @@ public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
 
             try
             {
+                ByteBuf slice = in.slice();
                 zlib.process( in, decompressed );
                 Preconditions.checkState( decompressed.readableBytes() == size, "Decompressed packet size mismatch" );
 
-                out.add( decompressed );
+                if ( size < threshold )
+                {
+                    // no need to retain compressed data
+                    out.add( decompressed );
+                } else
+                {
+                    out.add( new PacketWrapper( null, decompressed, ch.getDecodeProtocol(), slice.retain() ) );
+                }
                 decompressed = null;
             } finally
             {
