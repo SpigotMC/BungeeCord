@@ -30,12 +30,12 @@ public class BungeeLogger extends Logger
         {
             FileHandler fileHandler = new FileHandler( filePattern, 1 << 24, 8, true );
             fileHandler.setLevel( Level.parse( System.getProperty( "net.md_5.bungee.file-log-level", "INFO" ) ) );
-            fileHandler.setFormatter( new ConciseFormatter( false ) );
+            fileHandler.setFormatter( new ConciseFormatter( false, loggerName ) );
             addHandler( fileHandler );
 
             ColouredWriter consoleHandler = new ColouredWriter( reader );
             consoleHandler.setLevel( Level.parse( System.getProperty( "net.md_5.bungee.console-log-level", "INFO" ) ) );
-            consoleHandler.setFormatter( new ConciseFormatter( true ) );
+            consoleHandler.setFormatter( new ConciseFormatter( true, loggerName ) );
             addHandler( consoleHandler );
         } catch ( IOException ex )
         {
