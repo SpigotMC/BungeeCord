@@ -527,7 +527,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     {
                         loginProfile = obj;
                         name = obj.getName();
-                        uniqueId = Util.getUUID( obj.getId() );
+                        // only use online uuid if ip-forwarding is enabled for vanilla compatibility
+                        if ( bungee.config.isIpForward() )
+                        {
+                            uniqueId = Util.getUUID( obj.getId() );
+                        }
                         finish();
                         return;
                     }
