@@ -218,7 +218,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     @Override
                     public void done(ProxyPingEvent result, Throwable error)
                     {
-                        if ( ch.isClosed() )
+                        if ( ch.isClosing() )
                         {
                             return;
                         }
@@ -361,6 +361,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
 
+        // return if the connection was closed during the event
+        if ( ch.isClosing() )
+        {
+            return;
+        }
+
         switch ( handshake.getRequestedProtocol() )
         {
             case 1:
@@ -468,7 +474,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     disconnect( ( reason != null ) ? reason : TextComponent.fromLegacy( bungee.getTranslation( "kick_message" ) ) );
                     return;
                 }
-                if ( ch.isClosed() )
+                if ( ch.isClosing() )
                 {
                     return;
                 }
@@ -612,7 +618,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     disconnect( ( reason != null ) ? reason : TextComponent.fromLegacy( bungee.getTranslation( "kick_message" ) ) );
                     return;
                 }
-                if ( ch.isClosed() )
+                if ( ch.isClosing() )
                 {
                     return;
                 }
@@ -655,7 +661,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         bungee.getPluginManager().callEvent( new PostLoginEvent( userCon ) );
 
         // #3612: Don't progress further if disconnected during event
-        if ( ch.isClosed() )
+        if ( ch.isClosing() )
         {
             return;
         }
