@@ -99,6 +99,7 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import net.md_5.bungee.util.CaseInsensitiveMap;
+import net.md_5.bungee.util.InitEventLogic;
 import org.fusesource.jansi.AnsiConsole;
 import org.slf4j.impl.JDK14LoggerFactory;
 
@@ -328,6 +329,7 @@ public class BungeeCord extends ProxyServer
 
     public void startListeners()
     {
+        InitEventLogic.setNumberOfListenersToWaitFor( config.getListeners().size() );
         for ( final ListenerInfo info : config.getListeners() )
         {
             if ( info.isProxyProtocol() )
@@ -353,6 +355,11 @@ public class BungeeCord extends ProxyServer
                     } else
                     {
                         getLogger().log( Level.WARNING, "Could not bind to host " + info.getSocketAddress(), future.cause() );
+                    }
+                    InitEventLogic.setListenerAsInitialized( info, future.isSuccess() );
+                    if ( InitEventLogic.areAllListenersInitialized() )
+                    {
+                        getPluginManager().callEvent( InitEventLogic.generateEvent() );
                     }
                 }
             };
