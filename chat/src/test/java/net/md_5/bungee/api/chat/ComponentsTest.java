@@ -20,14 +20,14 @@ public class ComponentsTest
     {
         String json = ComponentSerializer.toString( components );
         BaseComponent[] parsed = ComponentSerializer.parse( json );
-        assertEquals( TextComponent.toLegacyText( parsed ), TextComponent.toLegacyText( components ) );
+        assertEquals( BaseComponent.toLegacyText( parsed ), BaseComponent.toLegacyText( components ) );
     }
 
     public static void testDissembleReassemble(BaseComponent component)
     {
         String json = ComponentSerializer.toString( component );
         BaseComponent[] parsed = ComponentSerializer.parse( json );
-        assertEquals( TextComponent.toLegacyText( parsed ), TextComponent.toLegacyText( component ) );
+        assertEquals( BaseComponent.toLegacyText( parsed ), BaseComponent.toLegacyText( component ) );
     }
 
     public static void testAssembleDissemble(String json, boolean modern)
@@ -177,7 +177,7 @@ public class ComponentsTest
     public void testToLegacyFromLegacy()
     {
         String text = "§a§lHello §f§kworld§7!";
-        assertEquals( text, TextComponent.toLegacyText( TextComponent.fromLegacyText( text ) ) );
+        assertEquals( text, BaseComponent.toLegacyText( TextComponent.fromLegacyText( text ) ) );
     }
 
     @Test
@@ -337,16 +337,16 @@ public class ComponentsTest
     @Test
     public void testFormatRetentionCopyFormattingCreate()
     {
-        this.testFormatRetentionCopyFormatting( () -> new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( "Test" ).create() ) );
+        ComponentsTest.testFormatRetentionCopyFormatting( () -> new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( "Test" ).create() ) );
     }
 
     @Test
     public void testFormatRetentionCopyFormattingBuild()
     {
-        this.testFormatRetentionCopyFormatting( () -> new HoverEvent( HoverEvent.Action.SHOW_TEXT, new Text( new ComponentBuilder( "Test" ).build() ) ) );
+        testFormatRetentionCopyFormatting( () -> new HoverEvent( HoverEvent.Action.SHOW_TEXT, new Text( new ComponentBuilder( "Test" ).build() ) ) );
     }
 
-    private void testFormatRetentionCopyFormatting(Supplier<HoverEvent> hoverEventSupplier)
+    private static void testFormatRetentionCopyFormatting(Supplier<HoverEvent> hoverEventSupplier)
     {
         TextComponent first = new TextComponent( "Hello" );
         first.setBold( true );
@@ -365,16 +365,16 @@ public class ComponentsTest
     @Test
     public void testBuilderCloneCreate()
     {
-        this.testBuilderClone( (builder) -> TextComponent.toLegacyText( builder.create() ) );
+        testBuilderClone( (builder) -> BaseComponent.toLegacyText( builder.create() ) );
     }
 
     @Test
     public void testBuilderCloneBuild()
     {
-        this.testBuilderClone( (builder) -> TextComponent.toLegacyText( builder.build() ) );
+        testBuilderClone( (builder) -> BaseComponent.toLegacyText( builder.build() ) );
     }
 
-    private void testBuilderClone(Function<ComponentBuilder, String> legacyTextFunction)
+    private static void testBuilderClone(Function<ComponentBuilder, String> legacyTextFunction)
     {
         ComponentBuilder builder = new ComponentBuilder( "Hello " ).color( ChatColor.RED ).append( "world" ).color( ChatColor.DARK_RED );
         ComponentBuilder cloned = new ComponentBuilder( builder );
@@ -385,7 +385,7 @@ public class ComponentsTest
     @Test
     public void testBuilderAppendCreateMixedComponents()
     {
-        this.testBuilderAppendMixedComponents(
+        testBuilderAppendMixedComponents(
                 ComponentBuilder::create,
                 (components, index) -> components[index]
         );
@@ -394,13 +394,13 @@ public class ComponentsTest
     @Test
     public void testBuilderAppendBuildMixedComponents()
     {
-        this.testBuilderAppendMixedComponents(
+        testBuilderAppendMixedComponents(
                 ComponentBuilder::build,
                 (component, index) -> component.getExtra().get( index )
         );
     }
 
-    private <T> void testBuilderAppendMixedComponents(Function<ComponentBuilder, T> componentBuilder, BiFunction<T, Integer, BaseComponent> extraGetter)
+    private static <T> void testBuilderAppendMixedComponents(Function<ComponentBuilder, T> componentBuilder, BiFunction<T, Integer, BaseComponent> extraGetter)
     {
         ComponentBuilder builder = new ComponentBuilder( "Hello " );
         TextComponent textComponent = new TextComponent( "world " );
@@ -443,7 +443,7 @@ public class ComponentsTest
     @Test
     public void testBuilderAppendCreate()
     {
-        this.testBuilderAppend(
+        testBuilderAppend(
                 () -> new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( "Hello world" ).create() ),
                 ComponentBuilder::create,
                 (components, index) -> components[index],
@@ -456,7 +456,7 @@ public class ComponentsTest
     @Test
     public void testBuilderAppendBuild()
     {
-        this.testBuilderAppend(
+        testBuilderAppend(
                 () -> new HoverEvent( HoverEvent.Action.SHOW_TEXT, new Text( new ComponentBuilder( "Hello world" ).build() ) ),
                 ComponentBuilder::build,
                 (component, index) -> component.getExtra().get( index ),
@@ -467,7 +467,7 @@ public class ComponentsTest
         );
     }
 
-    private <T> void testBuilderAppend(Supplier<HoverEvent> hoverEventSupplier, Function<ComponentBuilder, T> componentBuilder, BiFunction<T, Integer, BaseComponent> extraGetter, Function<T, String> toPlainTextFunction, String expectedLegacyText, Function<T, String> toLegacyTextFunction)
+    private static <T> void testBuilderAppend(Supplier<HoverEvent> hoverEventSupplier, Function<ComponentBuilder, T> componentBuilder, BiFunction<T, Integer, BaseComponent> extraGetter, Function<T, String> toPlainTextFunction, String expectedLegacyText, Function<T, String> toLegacyTextFunction)
     {
         ClickEvent clickEvent = new ClickEvent( ClickEvent.Action.RUN_COMMAND, "/help " );
         HoverEvent hoverEvent = hoverEventSupplier.get();
@@ -486,7 +486,7 @@ public class ComponentsTest
     @Test
     public void testBuilderAppendLegacyCreate()
     {
-        this.testBuilderAppendLegacy(
+        testBuilderAppendLegacy(
                 ComponentBuilder::create,
                 BaseComponent::toPlainText,
                 ChatColor.YELLOW + "Hello " + ChatColor.GREEN + "world!",
@@ -497,7 +497,7 @@ public class ComponentsTest
     @Test
     public void testBuilderAppendLegacyBuild()
     {
-        this.testBuilderAppendLegacy(
+        testBuilderAppendLegacy(
                 ComponentBuilder::build,
                 (component) -> BaseComponent.toPlainText( component ),
                 // An extra format code is appended to the beginning because there is an empty TextComponent at the start of every component
@@ -506,7 +506,7 @@ public class ComponentsTest
         );
     }
 
-    private <T> void testBuilderAppendLegacy(Function<ComponentBuilder, T> componentBuilder, Function<T, String> toPlainTextFunction, String expectedLegacyString, Function<T, String> toLegacyTextFunction)
+    private static <T> void testBuilderAppendLegacy(Function<ComponentBuilder, T> componentBuilder, Function<T, String> toPlainTextFunction, String expectedLegacyString, Function<T, String> toLegacyTextFunction)
     {
         ComponentBuilder builder = new ComponentBuilder( "Hello " ).color( ChatColor.YELLOW );
         builder.appendLegacy( "§aworld!" );
@@ -579,7 +579,7 @@ public class ComponentsTest
     @Test
     public void testBuilderCreate()
     {
-        this.testBuilder(
+        testBuilder(
                 ComponentBuilder::create,
                 BaseComponent::toPlainText,
                 ChatColor.RED + "Hello " + ChatColor.BLUE + ChatColor.BOLD + "World" + ChatColor.YELLOW + ChatColor.BOLD + "!",
@@ -590,7 +590,7 @@ public class ComponentsTest
     @Test
     public void testBuilderBuild()
     {
-        this.testBuilder(
+        testBuilder(
                 ComponentBuilder::build,
                 (component) -> BaseComponent.toPlainText( component ),
                 // An extra format code is appended to the beginning because there is an empty TextComponent at the start of every component
@@ -599,7 +599,7 @@ public class ComponentsTest
         );
     }
 
-    private <T> void testBuilder(Function<ComponentBuilder, T> componentBuilder, Function<T, String> toPlainTextFunction, String expectedLegacyString, Function<T, String> toLegacyTextFunction)
+    private static <T> void testBuilder(Function<ComponentBuilder, T> componentBuilder, Function<T, String> toPlainTextFunction, String expectedLegacyString, Function<T, String> toLegacyTextFunction)
     {
         T component = componentBuilder.apply( new ComponentBuilder( "Hello " ).color( ChatColor.RED ).
                 append( "World" ).bold( true ).color( ChatColor.BLUE ).
@@ -612,7 +612,7 @@ public class ComponentsTest
     @Test
     public void testBuilderCreateReset()
     {
-        this.testBuilderReset(
+        testBuilderReset(
                 ComponentBuilder::create,
                 (components, index) -> components[index]
         );
@@ -621,13 +621,13 @@ public class ComponentsTest
     @Test
     public void testBuilderBuildReset()
     {
-        this.testBuilderReset(
+        testBuilderReset(
                 ComponentBuilder::build,
                 (component, index) -> component.getExtra().get( index )
         );
     }
 
-    private <T> void testBuilderReset(Function<ComponentBuilder, T> componentBuilder, BiFunction<T, Integer, BaseComponent> extraGetter)
+    private static <T> void testBuilderReset(Function<ComponentBuilder, T> componentBuilder, BiFunction<T, Integer, BaseComponent> extraGetter)
     {
         T component = componentBuilder.apply( new ComponentBuilder( "Hello " ).color( ChatColor.RED )
                 .append( "World" ).reset() );
@@ -639,7 +639,7 @@ public class ComponentsTest
     @Test
     public void testBuilderCreateFormatRetention()
     {
-        this.testBuilderFormatRetention(
+        testBuilderFormatRetention(
                 ComponentBuilder::create,
                 (components, index) -> components[index]
         );
@@ -648,13 +648,13 @@ public class ComponentsTest
     @Test
     public void testBuilderBuildFormatRetention()
     {
-        this.testBuilderFormatRetention(
+        testBuilderFormatRetention(
                 ComponentBuilder::build,
                 (component, index) -> component.getExtra().get( index )
         );
     }
 
-    private <T> void testBuilderFormatRetention(Function<ComponentBuilder, T> componentBuilder, BiFunction<T, Integer, BaseComponent> extraGetter)
+    private static <T> void testBuilderFormatRetention(Function<ComponentBuilder, T> componentBuilder, BiFunction<T, Integer, BaseComponent> extraGetter)
     {
         T noneRetention = componentBuilder.apply( new ComponentBuilder( "Hello " ).color( ChatColor.RED )
                 .append( "World", ComponentBuilder.FormatRetention.NONE ) );
@@ -800,7 +800,7 @@ public class ComponentsTest
     public void testLegacyHack()
     {
         BaseComponent[] hexColored = new ComponentBuilder().color( ChatColor.of( Color.GRAY ) ).append( "Test" ).create();
-        String legacy = TextComponent.toLegacyText( hexColored );
+        String legacy = BaseComponent.toLegacyText( hexColored );
 
         BaseComponent[] reColored = TextComponent.fromLegacyText( legacy );
 
@@ -810,7 +810,7 @@ public class ComponentsTest
     @Test
     public void testLegacyResetInBuilderCreate()
     {
-        this.testLegacyResetInBuilder(
+        testLegacyResetInBuilder(
                 ComponentBuilder::create,
                 ComponentSerializer::toString
         );
@@ -819,7 +819,7 @@ public class ComponentsTest
     @Test
     public void testLegacyResetInBuilderBuild()
     {
-        this.testLegacyResetInBuilder(
+        testLegacyResetInBuilder(
                 ComponentBuilder::build,
                 ComponentSerializer::toString
         );
@@ -851,7 +851,7 @@ public class ComponentsTest
      * In legacy chat, colors and reset both reset all formatting.
      * Make sure it works in combination with ComponentBuilder.
      */
-    private <T> void testLegacyResetInBuilder(Function<ComponentBuilder, T> componentBuilder, Function<T, String> componentSerializer)
+    private static <T> void testLegacyResetInBuilder(Function<ComponentBuilder, T> componentBuilder, Function<T, String> componentSerializer)
     {
         ComponentBuilder builder = new ComponentBuilder();
         BaseComponent[] a = TextComponent.fromLegacyText( "§4§n44444§rdd§6§l6666" );

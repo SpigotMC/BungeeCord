@@ -17,22 +17,29 @@ public class ScoreComponentSerializer extends BaseComponentSerializer implements
     public ScoreComponent deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
     {
         JsonObject json = element.getAsJsonObject();
-        if ( !json.has( "score" ) )
+        JsonObject score = json.getAsJsonObject( "score" );
+        if ( score == null )
         {
             throw new JsonParseException( "Could not parse JSON: missing 'score' property" );
         }
-        JsonObject score = json.get( "score" ).getAsJsonObject();
-        if ( !score.has( "name" ) || !score.has( "objective" ) )
+        JsonElement nameJson = score.get( "name" );
+        if ( nameJson == null )
+        {
+            throw new JsonParseException( "A score component needs at least a name (and an objective)" );
+        }
+        JsonElement objectiveJson = score.get( "objective" );
+        if ( objectiveJson == null )
         {
             throw new JsonParseException( "A score component needs at least a name and an objective" );
         }
 
-        String name = score.get( "name" ).getAsString();
-        String objective = score.get( "objective" ).getAsString();
+        String name = nameJson.getAsString();
+        String objective = objectiveJson.getAsString();
         ScoreComponent component = new ScoreComponent( name, objective );
-        if ( score.has( "value" ) && !score.get( "value" ).getAsString().isEmpty() )
+        JsonElement value = score.get( "value" );
+        if ( value != null && !value.getAsString().isEmpty() )
         {
-            component.setValue( score.get( "value" ).getAsString() );
+            component.setValue( value.getAsString() );
         }
 
         deserialize( json, component, context );

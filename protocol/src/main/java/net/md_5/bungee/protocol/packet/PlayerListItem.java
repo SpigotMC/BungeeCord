@@ -8,9 +8,13 @@ import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.Deserializable;
+import net.md_5.bungee.protocol.Either;
+import net.md_5.bungee.protocol.NoOrigDeserializable;
 import net.md_5.bungee.protocol.PlayerPublicKey;
 import net.md_5.bungee.protocol.Property;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import se.llbit.nbt.SpecificTag;
 
 @Data
 @NoArgsConstructor
@@ -39,7 +43,7 @@ public class PlayerListItem extends DefinedPacket
                     item.ping = DefinedPacket.readVarInt( buf );
                     if ( buf.readBoolean() )
                     {
-                        item.displayName = DefinedPacket.readBaseComponent( buf, protocolVersion );
+                        item.displayNameRaw = DefinedPacket.readBaseComponent( buf, protocolVersion );
                     }
                     if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 )
                     {
@@ -55,7 +59,7 @@ public class PlayerListItem extends DefinedPacket
                 case UPDATE_DISPLAY_NAME:
                     if ( buf.readBoolean() )
                     {
-                        item.displayName = DefinedPacket.readBaseComponent( buf, protocolVersion );
+                        item.displayNameRaw = DefinedPacket.readBaseComponent( buf, protocolVersion );
                     }
             }
         }
@@ -76,10 +80,10 @@ public class PlayerListItem extends DefinedPacket
                     DefinedPacket.writeProperties( item.properties, buf );
                     DefinedPacket.writeVarInt( item.gamemode, buf );
                     DefinedPacket.writeVarInt( item.ping, buf );
-                    buf.writeBoolean( item.displayName != null );
-                    if ( item.displayName != null )
+                    buf.writeBoolean( item.displayNameRaw != null );
+                    if ( item.displayNameRaw != null )
                     {
-                        DefinedPacket.writeBaseComponent( item.displayName, buf, protocolVersion );
+                        DefinedPacket.writeBaseComponent( item.displayNameRaw, buf, protocolVersion );
                     }
                     if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 )
                     {
@@ -93,10 +97,10 @@ public class PlayerListItem extends DefinedPacket
                     DefinedPacket.writeVarInt( item.ping, buf );
                     break;
                 case UPDATE_DISPLAY_NAME:
-                    buf.writeBoolean( item.displayName != null );
-                    if ( item.displayName != null )
+                    buf.writeBoolean( item.displayNameRaw != null );
+                    if ( item.displayNameRaw != null )
                     {
-                        DefinedPacket.writeBaseComponent( item.displayName, buf, protocolVersion );
+                        DefinedPacket.writeBaseComponent( item.displayNameRaw, buf, protocolVersion );
                     }
                     break;
             }
@@ -143,7 +147,25 @@ public class PlayerListItem extends DefinedPacket
         Integer ping;
 
         // ADD_PLAYER & UPDATE_DISPLAY_NAME
-        BaseComponent displayName;
+        Deserializable<Either<String, SpecificTag>, BaseComponent> displayNameRaw;
 
+        public BaseComponent getDisplayName()
+        {
+            if ( displayNameRaw == null )
+            {
+                return null;
+            }
+            return displayNameRaw.get();
+        }
+
+        public void setDisplayName(BaseComponent displayName)
+        {
+            if ( displayName == null )
+            {
+                this.displayNameRaw = null;
+                return;
+            }
+            this.displayNameRaw = new NoOrigDeserializable<>( displayName );
+        }
     }
 }
