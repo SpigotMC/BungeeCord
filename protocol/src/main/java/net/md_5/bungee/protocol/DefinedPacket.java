@@ -181,10 +181,6 @@ public abstract class DefinedPacket
                     writeTag( eitherStrJsonElem.getRight(), buf, protocolVersion );
                 }
             }
-            JsonElement json = ComponentSerializer.toJson( message.get() );
-            SpecificTag nbt = TagUtil.fromJson( json );
-
-            writeTag( nbt, buf, protocolVersion );
         } else
         {
             if ( message.hasDeserialized() )
