@@ -14,6 +14,7 @@ import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClearTitles;
 import net.md_5.bungee.protocol.packet.ClientChat;
 import net.md_5.bungee.protocol.packet.ClientCommand;
+import net.md_5.bungee.protocol.packet.ClientCommandSigned;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.Commands;
 import net.md_5.bungee.protocol.packet.CookieRequest;
@@ -513,7 +514,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_19_4, 0x12 ),
                     map( ProtocolConstants.MINECRAFT_1_20_2, 0x14 ),
                     map( ProtocolConstants.MINECRAFT_1_20_3, 0x15 ),
-                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x17 )
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x18 )
             );
             TO_SERVER.registerPacket( Chat.class,
                     Chat::new,
@@ -531,10 +532,16 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_19_1, 0x04 )
             );
             TO_SERVER.registerPacket(
+                    ClientCommandSigned.class,
+                    ClientCommandSigned::new,
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x05 )
+            );
+            TO_SERVER.registerPacket(
                     ClientChat.class,
                     ClientChat::new,
                     map( ProtocolConstants.MINECRAFT_1_19, 0x04 ),
-                    map( ProtocolConstants.MINECRAFT_1_19_1, 0x05 )
+                    map( ProtocolConstants.MINECRAFT_1_19_1, 0x05 ),
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x06 )
             );
             TO_SERVER.registerPacket(
                     TabCompleteRequest.class,
@@ -549,7 +556,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_19_1, 0x09 ),
                     map( ProtocolConstants.MINECRAFT_1_19_3, 0x08 ),
                     map( ProtocolConstants.MINECRAFT_1_19_4, 0x09 ),
-                    map( ProtocolConstants.MINECRAFT_1_20_2, 0x0A )
+                    map( ProtocolConstants.MINECRAFT_1_20_2, 0x0A ),
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x0B )
             );
             TO_SERVER.registerPacket(
                     ClientSettings.class,
@@ -563,7 +571,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_19_1, 0x08 ),
                     map( ProtocolConstants.MINECRAFT_1_19_3, 0x07 ),
                     map( ProtocolConstants.MINECRAFT_1_19_4, 0x08 ),
-                    map( ProtocolConstants.MINECRAFT_1_20_2, 0x09 )
+                    map( ProtocolConstants.MINECRAFT_1_20_2, 0x09 ),
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x0A )
             );
             TO_SERVER.registerPacket(
                     PluginMessage.class,
@@ -581,17 +590,18 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_19_4, 0x0D ),
                     map( ProtocolConstants.MINECRAFT_1_20_2, 0x0F ),
                     map( ProtocolConstants.MINECRAFT_1_20_3, 0x10 ),
-                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x11 )
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x12 )
             );
             TO_SERVER.registerPacket(
                     StartConfiguration.class,
                     StartConfiguration::new,
-                    map( ProtocolConstants.MINECRAFT_1_20_2, 0x0B )
+                    map( ProtocolConstants.MINECRAFT_1_20_2, 0x0B ),
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x0C )
             );
             TO_SERVER.registerPacket(
                     CookieResponse.class,
                     CookieResponse::new,
-                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x10 )
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x11 )
             );
         }
     },
@@ -724,12 +734,12 @@ public enum Protocol
             TO_CLIENT.registerPacket(
                     StoreCookie.class,
                     StoreCookie::new,
-                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x09 )
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x0A )
             );
             TO_CLIENT.registerPacket(
                     Transfer.class,
                     Transfer::new,
-                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x0A )
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x0B )
             );
 
             TO_SERVER.registerPacket(

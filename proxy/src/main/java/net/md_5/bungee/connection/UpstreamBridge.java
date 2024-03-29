@@ -31,6 +31,7 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClientChat;
 import net.md_5.bungee.protocol.packet.ClientCommand;
+import net.md_5.bungee.protocol.packet.ClientCommandSigned;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.CookieResponse;
 import net.md_5.bungee.protocol.packet.FinishConfiguration;
@@ -192,6 +193,12 @@ public class UpstreamBridge extends PacketHandler
 
     @Override
     public void handle(ClientCommand command) throws Exception
+    {
+        handleChat( "/" + command.getCommand() );
+    }
+
+    @Override
+    public void handle(ClientCommandSigned command) throws Exception
     {
         handleChat( "/" + command.getCommand() );
     }
