@@ -156,6 +156,17 @@ public class ComponentsTest
     }
 
     @Test
+    public void testFormatNotColor()
+    {
+        BaseComponent[] component = new ComponentBuilder().color( ChatColor.BOLD ).append( "Test" ).create();
+
+        String json = ComponentSerializer.toString( component );
+        BaseComponent[] parsed = ComponentSerializer.parse( json );
+
+        assertNull( parsed[0].getColorRaw(), "Format should not be preserved as color" );
+    }
+
+    @Test
     public void testComponentParting()
     {
         ComponentBuilder builder = new ComponentBuilder();
