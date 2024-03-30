@@ -20,7 +20,7 @@ public final class ComponentStyle implements Cloneable
      * The color of this style.
      * <p>
      * <b>Warning: This should be a color, not formatting code (ie,
-     * {@link ChatColor#getColor()} should not be null).</b>
+     * {@link ChatColor#color} should not be null).</b>
      */
     private ChatColor color;
     /**
