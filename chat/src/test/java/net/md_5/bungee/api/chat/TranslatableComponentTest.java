@@ -22,7 +22,7 @@ public class TranslatableComponentTest
         String jsonString = ComponentSerializer.toString( testComponent );
         BaseComponent[] baseComponents = ComponentSerializer.parse( jsonString );
 
-        assertEquals( "Test string with a placeholder", TextComponent.toPlainText( baseComponents ) );
-        assertEquals( "§fTest string with §fa§f placeholder", TextComponent.toLegacyText( baseComponents ) );
+        assertEquals( "Test string with a placeholder", BaseComponent.toPlainText( baseComponents ) );
+        assertEquals( "§fTest string with §fa§f placeholder", BaseComponent.toLegacyText( baseComponents ) );
     }
 }
