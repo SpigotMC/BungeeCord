@@ -63,7 +63,7 @@ public class ComponentStyleSerializer implements JsonSerializer<ComponentStyle>,
         {
             object.addProperty( "obfuscated", style.isObfuscatedRaw() );
         }
-        if ( style.hasColor() )
+        if ( style.hasColor() && style.getColor().getColor() != null )
         {
             object.addProperty( "color", style.getColor().getName() );
         }
