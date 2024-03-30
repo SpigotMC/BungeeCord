@@ -853,8 +853,8 @@ public class ComponentsTest
         assertTrue( style.isEmpty() );
 
         style = ComponentStyle.builder()
-            .bold( true )
-            .build();
+                .bold( true )
+                .build();
         assertFalse( style.isEmpty() );
     }
 

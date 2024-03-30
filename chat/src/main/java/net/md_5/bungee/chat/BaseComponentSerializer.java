@@ -74,7 +74,7 @@ public class BaseComponentSerializer
                     {
                         list = new Content[]
                         {
-                                context.deserialize( contents, HoverEvent.getClass( action, false ) )
+                            context.deserialize( contents, HoverEvent.getClass( action, false ) )
                         };
                     }
                     hoverEvent = new HoverEvent( action, new ArrayList<>( Arrays.asList( list ) ) );
