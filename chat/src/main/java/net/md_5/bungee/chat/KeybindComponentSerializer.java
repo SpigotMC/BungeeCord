@@ -17,13 +17,14 @@ public class KeybindComponentSerializer extends BaseComponentSerializer implemen
     public KeybindComponent deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
         JsonObject object = json.getAsJsonObject();
-        if ( !object.has( "keybind" ) )
+        JsonElement keybind = object.get( "keybind" );
+        if ( keybind == null )
         {
             throw new JsonParseException( "Could not parse JSON: missing 'keybind' property" );
         }
         KeybindComponent component = new KeybindComponent();
         deserialize( object, component, context );
-        component.setKeybind( object.get( "keybind" ).getAsString() );
+        component.setKeybind( keybind.getAsString() );
         return component;
     }
 

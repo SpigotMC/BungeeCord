@@ -18,9 +18,10 @@ public class TextComponentSerializer extends BaseComponentSerializer implements 
     {
         TextComponent component = new TextComponent();
         JsonObject object = json.getAsJsonObject();
-        if ( object.has( "text" ) )
+        JsonElement text = object.get( "text" );
+        if ( text != null )
         {
-            component.setText( object.get( "text" ).getAsString() );
+            component.setText( text.getAsString() );
         }
         deserialize( object, component, context );
         return component;
