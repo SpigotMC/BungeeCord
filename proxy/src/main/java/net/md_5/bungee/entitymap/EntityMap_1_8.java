@@ -7,6 +7,7 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 class EntityMap_1_8 extends EntityMap
@@ -49,128 +50,175 @@ class EntityMap_1_8 extends EntityMap
 
     @Override
     @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
-    public void rewriteClientbound(ByteBuf packet, int oldId, int newId)
+    public void rewriteClientbound(PacketWrapper wrapper, int oldId, int newId)
     {
-        super.rewriteClientbound( packet, oldId, newId );
+        super.rewriteClientbound( wrapper, oldId, newId );
+        ByteBuf packet = wrapper.buf;
 
         //Special cases
         int readerIndex = packet.readerIndex();
         int packetId = DefinedPacket.readVarInt( packet );
-        int packetIdLength = packet.readerIndex() - readerIndex;
-        if ( packetId == 0x0D /* Collect Item */ )
+        int readerIndexAfterPID = packet.readerIndex();
+        switch ( packetId )
         {
-            DefinedPacket.readVarInt( packet );
-            rewriteVarInt( packet, oldId, newId, packet.readerIndex() );
-        } else if ( packetId == 0x1B /* Attach Entity */ )
-        {
-            rewriteInt( packet, oldId, newId, readerIndex + packetIdLength + 4 );
-        } else if ( packetId == 0x13 /* Destroy Entities */ )
-        {
-            int count = DefinedPacket.readVarInt( packet );
-            int[] ids = new int[ count ];
-            for ( int i = 0; i < count; i++ )
-            {
-                ids[i] = DefinedPacket.readVarInt( packet );
-            }
-            packet.readerIndex( readerIndex + packetIdLength );
-            packet.writerIndex( readerIndex + packetIdLength );
-            DefinedPacket.writeVarInt( count, packet );
-            for ( int id : ids )
-            {
-                if ( id == oldId )
+            case 0x1B /* Attach Entity */:
+                rewriteInt( wrapper, oldId, newId, readerIndexAfterPID + 4 );
+                break;
+            case 0x0D /* Collect Item */:
+                DefinedPacket.skipVarInt( packet );
+                rewriteVarInt( wrapper, oldId, newId, packet.readerIndex() );
+                break;
+            case 0x13 /* Destroy Entities */:
+                rewriteEntityIdArray( wrapper, oldId, newId, readerIndexAfterPID );
+                break;
+            case 0x0E /* Spawn Object */:
+                DefinedPacket.skipVarInt( packet );
+                int type = packet.readUnsignedByte();
+
+                if ( type == 60 || type == 90 )
                 {
-                    id = newId;
-                } else if ( id == newId )
-                {
-                    id = oldId;
+                    packet.skipBytes( 14 );
+                    int position = packet.readerIndex();
+                    int readId = packet.readInt();
+                    int changedId = readId;
+
+                    if ( readId == oldId )
+                    {
+                        packet.setInt( position, changedId = newId );
+                    } else if ( readId == newId )
+                    {
+                        packet.setInt( position, changedId = oldId );
+                    }
+
+                    if ( readId > 0 && changedId <= 0 )
+                    {
+                        packet.writerIndex( packet.writerIndex() - 6 );
+                    } else if ( changedId > 0 && readId <= 0 )
+                    {
+                        packet.ensureWritable( 6 );
+                        packet.writerIndex( packet.writerIndex() + 6 );
+                    }
                 }
-                DefinedPacket.writeVarInt( id, packet );
-            }
-        } else if ( packetId == 0x0E /* Spawn Object */ )
-        {
-
-            DefinedPacket.readVarInt( packet );
-            int type = packet.readUnsignedByte();
-
-            if ( type == 60 || type == 90 )
-            {
-                packet.skipBytes( 14 );
-                int position = packet.readerIndex();
-                int readId = packet.readInt();
-                int changedId = readId;
-
-                if ( readId == oldId )
-                {
-                    packet.setInt( position, changedId = newId );
-                } else if ( readId == newId )
-                {
-                    packet.setInt( position, changedId = oldId );
-                }
-
-                if ( readId > 0 && changedId <= 0 )
-                {
-                    packet.writerIndex( packet.writerIndex() - 6 );
-                } else if ( changedId > 0 && readId <= 0 )
-                {
-                    packet.ensureWritable( 6 );
-                    packet.writerIndex( packet.writerIndex() + 6 );
-                }
-            }
-        } else if ( packetId == 0x0C /* Spawn Player */ )
-        {
-            DefinedPacket.readVarInt( packet ); // Entity ID
-            int idLength = packet.readerIndex() - readerIndex - packetIdLength;
-            UUID uuid = DefinedPacket.readUUID( packet );
-            ProxiedPlayer player;
-            if ( ( player = BungeeCord.getInstance().getPlayerByOfflineUUID( uuid ) ) != null )
-            {
-                int previous = packet.writerIndex();
-                packet.readerIndex( readerIndex );
-                packet.writerIndex( readerIndex + packetIdLength + idLength );
-                DefinedPacket.writeUUID( player.getUniqueId(), packet );
-                packet.writerIndex( previous );
-            }
-        } else if ( packetId == 0x42 /* Combat Event */ )
-        {
-            int event = packet.readUnsignedByte();
-            if ( event == 1 /* End Combat*/ )
-            {
-                DefinedPacket.readVarInt( packet );
-                rewriteInt( packet, oldId, newId, packet.readerIndex() );
-            } else if ( event == 2 /* Entity Dead */ )
-            {
-                int position = packet.readerIndex();
-                rewriteVarInt( packet, oldId, newId, packet.readerIndex() );
-                packet.readerIndex( position );
-                DefinedPacket.readVarInt( packet );
-                rewriteInt( packet, oldId, newId, packet.readerIndex() );
-            }
+                break;
+            case 0x0C /* Spawn Player */:
+                rewriteSpawnPlayerUuid( wrapper, readerIndex );
+                break;
+            case 0x42 /* Combat Event */:
+                rewriteCombatEvent( wrapper, oldId, newId );
+                break;
         }
         packet.readerIndex( readerIndex );
     }
 
     @Override
-    public void rewriteServerbound(ByteBuf packet, int oldId, int newId)
+    public void rewriteServerbound(PacketWrapper wrapper, int oldId, int newId)
     {
-        super.rewriteServerbound( packet, oldId, newId );
+        super.rewriteServerbound( wrapper, oldId, newId );
+        ByteBuf packet = wrapper.buf;
+
         //Special cases
         int readerIndex = packet.readerIndex();
         int packetId = DefinedPacket.readVarInt( packet );
-        int packetIdLength = packet.readerIndex() - readerIndex;
+        int readerIndexAfterPID = packet.readerIndex();
 
         if ( packetId == 0x18 /* Spectate */ && !BungeeCord.getInstance().getConfig().isIpForward() )
         {
-            UUID uuid = DefinedPacket.readUUID( packet );
-            ProxiedPlayer player;
-            if ( ( player = BungeeCord.getInstance().getPlayer( uuid ) ) != null )
-            {
-                int previous = packet.writerIndex();
-                packet.readerIndex( readerIndex );
-                packet.writerIndex( readerIndex + packetIdLength );
-                DefinedPacket.writeUUID( ( (UserConnection) player ).getPendingConnection().getOfflineId(), packet );
-                packet.writerIndex( previous );
-            }
+            rewriteSpectateUuid( wrapper, readerIndex, readerIndexAfterPID );
         }
         packet.readerIndex( readerIndex );
+    }
+
+    public static void rewriteCombatEvent(PacketWrapper wrapper, int oldId, int newId)
+    {
+        if ( oldId == newId )
+        {
+            return;
+        }
+        ByteBuf packet = wrapper.buf;
+
+        int event = packet.readUnsignedByte();
+        if ( event == 1 /* End Combat*/ )
+        {
+            DefinedPacket.skipVarInt( packet );
+            rewriteInt( wrapper, oldId, newId, packet.readerIndex() );
+        } else if ( event == 2 /* Entity Dead */ )
+        {
+            int position = packet.readerIndex();
+            rewriteVarInt( wrapper, oldId, newId, packet.readerIndex() );
+            packet.readerIndex( position );
+            DefinedPacket.skipVarInt( packet );
+            rewriteInt( wrapper, oldId, newId, packet.readerIndex() );
+        }
+    }
+
+    public static void rewriteSpawnPlayerUuid(PacketWrapper wrapper, int readerIndex)
+    {
+        ByteBuf packet = wrapper.buf;
+
+        DefinedPacket.skipVarInt( packet ); // Entity ID
+        int readerIndexAfterEID = packet.readerIndex();
+        UUID uuid = DefinedPacket.readUUID( packet );
+        ProxiedPlayer player;
+        if ( ( player = BungeeCord.getInstance().getPlayerByOfflineUUID( uuid ) ) != null )
+        {
+            wrapper.destroyCompressed();
+
+            int previous = packet.writerIndex();
+            packet.readerIndex( readerIndex );
+            packet.writerIndex( readerIndexAfterEID );
+            DefinedPacket.writeUUID( player.getUniqueId(), packet );
+            packet.writerIndex( previous );
+        }
+    }
+
+    public static void rewriteEntityIdArray(PacketWrapper wrapper, int oldId, int newId, int readerIndexAfterPID)
+    {
+        if ( oldId == newId )
+        {
+            return;
+        }
+        // we don't do it conditionally if we changed something as this packet is not
+        // hard to compress again if we didn't do changes
+        wrapper.destroyCompressed();
+
+        ByteBuf packet = wrapper.buf;
+        int count = DefinedPacket.readVarInt( packet );
+        int[] ids = new int[ count ];
+        for ( int i = 0; i < count; i++ )
+        {
+            ids[ i ] = DefinedPacket.readVarInt( packet );
+        }
+        packet.readerIndex( readerIndexAfterPID );
+        packet.writerIndex( readerIndexAfterPID );
+        DefinedPacket.writeVarInt( count, packet );
+        for ( int id : ids )
+        {
+            if ( id == oldId )
+            {
+                id = newId;
+            } else if ( id == newId )
+            {
+                id = oldId;
+            }
+            DefinedPacket.writeVarInt( id, packet );
+        }
+    }
+
+    public static void rewriteSpectateUuid(PacketWrapper wrapper, int readerIndex, int readerIndexAfterPID)
+    {
+        ByteBuf packet = wrapper.buf;
+
+        UUID uuid = DefinedPacket.readUUID( packet );
+        ProxiedPlayer player;
+        if ( ( player = BungeeCord.getInstance().getPlayer( uuid ) ) != null )
+        {
+            wrapper.destroyCompressed();
+
+            int previous = packet.writerIndex();
+            packet.readerIndex( readerIndex );
+            packet.writerIndex( readerIndexAfterPID );
+            DefinedPacket.writeUUID( ( (UserConnection) player ).getPendingConnection().getOfflineId(), packet );
+            packet.writerIndex( previous );
+        }
     }
 }

@@ -83,7 +83,7 @@ public class ChannelWrapper
             {
                 PacketWrapper wrapper = (PacketWrapper) packet;
                 wrapper.setReleased( true );
-                ch.writeAndFlush( wrapper.buf, ch.voidPromise() );
+                ch.writeAndFlush( wrapper, ch.voidPromise() );
                 defined = wrapper.packet;
             } else
             {
@@ -167,25 +167,26 @@ public class ChannelWrapper
 
     public void setCompressionThreshold(int compressionThreshold)
     {
-        if ( ch.pipeline().get( PacketCompressor.class ) == null && compressionThreshold >= 0 )
-        {
-            addBefore( PipelineUtils.PACKET_ENCODER, "compress", new PacketCompressor() );
-        }
         if ( compressionThreshold >= 0 )
         {
-            ch.pipeline().get( PacketCompressor.class ).setThreshold( compressionThreshold );
+            PacketCompressor compressor = ch.pipeline().get( PacketCompressor.class );
+            if ( compressor == null )
+            {
+                compressor = new PacketCompressor();
+                addBefore( PipelineUtils.PACKET_ENCODER, "compress", compressor );
+            }
+            compressor.setThreshold( compressionThreshold );
+            PacketDecompressor decompressor = ch.pipeline().get( PacketDecompressor.class );
+            if ( decompressor == null )
+            {
+                decompressor = new PacketDecompressor( this );
+                addBefore( PipelineUtils.PACKET_DECODER, "decompress", decompressor );
+            }
+            decompressor.setThreshold( compressionThreshold );
         } else
         {
-            ch.pipeline().remove( "compress" );
-        }
-
-        if ( ch.pipeline().get( PacketDecompressor.class ) == null && compressionThreshold >= 0 )
-        {
-            addBefore( PipelineUtils.PACKET_DECODER, "decompress", new PacketDecompressor() );
-        }
-        if ( compressionThreshold < 0 )
-        {
             ch.pipeline().remove( "decompress" );
+            ch.pipeline().remove( "compress" );
         }
     }
 }
