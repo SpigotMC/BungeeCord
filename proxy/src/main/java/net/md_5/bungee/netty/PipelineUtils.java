@@ -24,6 +24,11 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.channel.unix.DomainSocketAddress;
 import io.netty.handler.codec.haproxy.HAProxyMessageDecoder;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.incubator.channel.uring.IOUring;
+import io.netty.incubator.channel.uring.IOUringDatagramChannel;
+import io.netty.incubator.channel.uring.IOUringEventLoopGroup;
+import io.netty.incubator.channel.uring.IOUringServerSocketChannel;
+import io.netty.incubator.channel.uring.IOUringSocketChannel;
 import io.netty.util.AttributeKey;
 import io.netty.util.internal.PlatformDependent;
 import java.net.SocketAddress;
@@ -102,26 +107,42 @@ public class PipelineUtils
     public static final String LEGACY_KICKER = "legacy-kick";
 
     private static boolean epoll;
+    private static boolean io_uring;
 
     static
     {
-        if ( !PlatformDependent.isWindows() && Boolean.parseBoolean( System.getProperty( "bungee.epoll", "true" ) ) )
+        if ( !PlatformDependent.isWindows() )
         {
-            ProxyServer.getInstance().getLogger().info( "Not on Windows, attempting to use enhanced EpollEventLoop" );
+            // disable by default (experimental)
+            if ( Boolean.parseBoolean( System.getProperty( "bungee.io_uring", "false" ) ) )
+            {
+                ProxyServer.getInstance().getLogger().info( "Not on Windows, attempting to use enhanced IOUringEventLoopGroup" );
+                if ( io_uring = IOUring.isAvailable() )
+                {
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "io_uring is enabled and working, utilising it! (experimental feature)" );
+                } else
+                {
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "io_uring is not working: {0}", Util.exception( IOUring.unavailabilityCause() ) );
+                }
+            }
 
-            if ( epoll = Epoll.isAvailable() )
+            if ( !io_uring && Boolean.parseBoolean( System.getProperty( "bungee.epoll", "true" ) ) )
             {
-                ProxyServer.getInstance().getLogger().info( "Epoll is working, utilising it!" );
-            } else
-            {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Epoll is not working, falling back to NIO: {0}", Util.exception( Epoll.unavailabilityCause() ) );
+                ProxyServer.getInstance().getLogger().info( "Not on Windows, attempting to use enhanced EpollEventLoop" );
+                if ( epoll = Epoll.isAvailable() )
+                {
+                    ProxyServer.getInstance().getLogger().info( "Epoll is working, utilising it!" );
+                } else
+                {
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "Epoll is not working, falling back to NIO: {0}", Util.exception( Epoll.unavailabilityCause() ) );
+                }
             }
         }
     }
 
     public static EventLoopGroup newEventLoopGroup(int threads, ThreadFactory factory)
     {
-        return epoll ? new EpollEventLoopGroup( threads, factory ) : new NioEventLoopGroup( threads, factory );
+        return io_uring ? new IOUringEventLoopGroup( threads, factory ) : epoll ? new EpollEventLoopGroup( threads, factory ) : new NioEventLoopGroup( threads, factory );
     }
 
     public static Class<? extends ServerChannel> getServerChannel(SocketAddress address)
@@ -133,7 +154,7 @@ public class PipelineUtils
             return EpollServerDomainSocketChannel.class;
         }
 
-        return epoll ? EpollServerSocketChannel.class : NioServerSocketChannel.class;
+        return io_uring ? IOUringServerSocketChannel.class : epoll ? EpollServerSocketChannel.class : NioServerSocketChannel.class;
     }
 
     public static Class<? extends Channel> getChannel(SocketAddress address)
@@ -145,12 +166,12 @@ public class PipelineUtils
             return EpollDomainSocketChannel.class;
         }
 
-        return epoll ? EpollSocketChannel.class : NioSocketChannel.class;
+        return io_uring ? IOUringSocketChannel.class : epoll ? EpollSocketChannel.class : NioSocketChannel.class;
     }
 
     public static Class<? extends DatagramChannel> getDatagramChannel()
     {
-        return epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
+        return io_uring ? IOUringDatagramChannel.class : epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
     }
 
     private static final int LOW_MARK = Integer.getInteger( "net.md_5.bungee.low_mark", 2 << 18 ); // 0.5 mb
