@@ -28,8 +28,10 @@ public class InitEventLogic
      * @param listenerInfo ListenerInfo to assign a state to.
      * @param success True: Port has opened. False: Port failed to open.
      */
-    public static void setListenerAsInitialized(ListenerInfo listenerInfo, boolean success)
+    public static ProxyInitializeEvent setListenerAsInitialized(ListenerInfo listenerInfo, boolean success)
     {
+        ProxyInitializeEvent result = null;
+
         if ( listenerInfo == null )
         {
             throw new NullPointerException( "ListenerInfo may not be null!" );
@@ -39,7 +41,13 @@ public class InitEventLogic
 
         knownListenersState.put( listenerInfo, success );
 
+        if(areAllListenersInitialized()) {
+            result = generateEvent();
+        }
+
         mapLock.unlock();
+
+        return result;
     }
 
     /**
@@ -93,18 +101,8 @@ public class InitEventLogic
      * @return null if this function has already been called or the listeners are not ready yet.
      * Otherwise, returns valid event object.
      */
-    public static ProxyInitializeEvent generateEvent()
+    private static ProxyInitializeEvent generateEvent()
     {
-        if ( InitEventLogic.amountOfListenersToWaitFor == -1 )
-        {
-            return null;
-        }
-
-        if ( !InitEventLogic.areAllListenersInitialized( ) )
-        {
-            return null;
-        }
-
         if ( InitEventLogic.initializeEvent != null )
         {
             return null;
