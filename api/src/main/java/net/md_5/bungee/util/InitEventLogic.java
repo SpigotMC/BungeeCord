@@ -18,8 +18,6 @@ public class InitEventLogic
 
     private static ReentrantLock mapLock = new ReentrantLock();
 
-    private static ProxyInitializeEvent initializeEvent;
-
     private static int amountOfListenersToWaitFor = -1;
 
     /**
@@ -27,6 +25,7 @@ public class InitEventLogic
      * Thread-safe.
      * @param listenerInfo ListenerInfo to assign a state to.
      * @param success True: Port has opened. False: Port failed to open.
+     * @return Object of ProxyInitializeEvent if this was the last listeners to be ready, otherwise null.
      */
     public static ProxyInitializeEvent setListenerAsInitialized(ListenerInfo listenerInfo, boolean success)
     {
@@ -43,14 +42,12 @@ public class InitEventLogic
             knownListenersState.put( listenerInfo, success );
 
             if(areAllListenersInitialized()) {
-                result = generateEvent();
+                result = new ProxyInitializeEvent( InitEventLogic.knownListenersState );
             }
 
         } finally {
             mapLock.unlock(); // Ensure map gets unlocked in case of error...
         }
-
-
 
         return result;
     }
@@ -88,7 +85,6 @@ public class InitEventLogic
      */
     public static boolean areAllListenersInitialized()
     {
-
         // Check if all listeners declared have initialized:
 
         if ( InitEventLogic.amountOfListenersToWaitFor == -1 )
@@ -99,22 +95,4 @@ public class InitEventLogic
         return InitEventLogic.amountOfListenersToWaitFor == InitEventLogic.knownListenersState.size( );
     }
 
-    /**
-     * Generates a {@link ProxyInitializeEvent} <b>once</b>!<br>
-     * Since this event is emitted only a single time after startup, it should only be fired once!<br>
-     *
-     * @return null if this function has already been called or the listeners are not ready yet.
-     * Otherwise, returns valid event object.
-     */
-    private static ProxyInitializeEvent generateEvent()
-    {
-        if ( InitEventLogic.initializeEvent != null )
-        {
-            return null;
-        }
-
-        InitEventLogic.initializeEvent = new ProxyInitializeEvent( InitEventLogic.knownListenersState );
-
-        return InitEventLogic.initializeEvent;
-    }
 }
