@@ -39,13 +39,18 @@ public class InitEventLogic
 
         mapLock.lock();
 
-        knownListenersState.put( listenerInfo, success );
+        try {
+            knownListenersState.put( listenerInfo, success );
 
-        if(areAllListenersInitialized()) {
-            result = generateEvent();
+            if(areAllListenersInitialized()) {
+                result = generateEvent();
+            }
+
+        } finally {
+            mapLock.unlock(); // Ensure map gets unlocked in case of error...
         }
 
-        mapLock.unlock();
+
 
         return result;
     }
