@@ -31,6 +31,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.AsyncEvent;
 import net.md_5.bungee.event.EventBus;
 import net.md_5.bungee.event.EventHandler;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -410,16 +411,22 @@ public final class PluginManager
         Preconditions.checkNotNull( event, "event" );
 
         long start = System.nanoTime();
-        eventBus.post( event );
-        event.postCall();
+        if ( event instanceof AsyncEvent )
+        {
+            AsyncEvent<?> asyncEvent = (AsyncEvent<?>) event;
+            eventBus.postAsync( asyncEvent );
+        } else
+        {
+            eventBus.post( event );
+        }
 
         long elapsed = System.nanoTime() - start;
         if ( elapsed > 250000000 )
         {
             ProxyServer.getInstance().getLogger().log( Level.WARNING, "Event {0} took {1}ms to process!", new Object[]
-            {
+                {
                 event, elapsed / 1000000
-            } );
+                } );
         }
         return event;
     }
