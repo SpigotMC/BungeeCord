@@ -4,12 +4,6 @@
 #include <zlib.h>
 #include "net_md_5_bungee_jni_zlib_NativeCompressImpl.h"
 
-// Support for CentOS 6
-__asm__(".symver memcpy,memcpy@GLIBC_2.2.5");
-extern "C" void *__wrap_memcpy(void *dest, const void *src, size_t n) {
-    return memcpy(dest, src, n);
-}
-
 typedef unsigned char byte;
 
 static jfieldID consumedID;
