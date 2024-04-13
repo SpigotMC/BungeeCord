@@ -635,7 +635,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
                             if ( getVersion() < ProtocolConstants.MINECRAFT_1_20_2 )
                             {
-                                unsafe.sendPacket( new LoginSuccess( getUniqueId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
+                                if ( !bungee.getConfig().isIpForward() && bungee.getConfig().isOnlineMode() )
+                                {
+                                    unsafe.sendPacket( new LoginSuccess( getOfflineId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
+                                } else
+                                {
+                                    unsafe.sendPacket( new LoginSuccess( getUniqueId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
+                                }
                                 ch.setProtocol( Protocol.GAME );
                             }
                             finish2();
