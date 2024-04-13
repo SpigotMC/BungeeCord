@@ -365,7 +365,13 @@ public class ServerConnector extends PacketHandler
             } else
             {
                 LoginResult loginProfile = user.getPendingConnection().getLoginProfile();
-                user.unsafe().sendPacket( new LoginSuccess( user.getUniqueId(), user.getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
+                if ( !bungee.getConfig().isIpForward() && bungee.getConfig().isOnlineMode() )
+                {
+                    user.unsafe().sendPacket( new LoginSuccess( user.getPendingConnection().getOfflineId(), user.getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
+                } else
+                {
+                    user.unsafe().sendPacket( new LoginSuccess( user.getUniqueId(), user.getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
+                }
                 user.getCh().setEncodeProtocol( Protocol.CONFIGURATION );
             }
         }
