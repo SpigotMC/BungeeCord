@@ -10,7 +10,6 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
@@ -81,7 +80,7 @@ public class TabCompleteResponse extends DefinedPacket
                 buf.writeBoolean( suggestion.getTooltip() != null );
                 if ( suggestion.getTooltip() != null )
                 {
-                    writeBaseComponent( ( (ComponentMessage) suggestion.getTooltip() ).getComponentRaw(), buf, protocolVersion );
+                    writeBaseComponent( ( (ComponentMessage) suggestion.getTooltip() ).getComponent(), buf, protocolVersion );
                 }
             }
         } else
@@ -100,21 +99,12 @@ public class TabCompleteResponse extends DefinedPacket
     private static class ComponentMessage implements Message
     {
 
-        private final ChatDeserializable componentRaw;
-
-        public BaseComponent getComponent()
-        {
-            if ( componentRaw == null )
-            {
-                return null;
-            }
-            return componentRaw.get();
-        }
+        private final ChatDeserializable component;
 
         @Override
         public String getString()
         {
-            return getComponent().toPlainText();
+            return component.get().toPlainText();
         }
     }
 }

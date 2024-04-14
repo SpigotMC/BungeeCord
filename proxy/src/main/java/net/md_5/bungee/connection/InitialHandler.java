@@ -78,6 +78,7 @@ import net.md_5.bungee.protocol.packet.PingPacket;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
+import net.md_5.bungee.protocol.util.ChatComponentDeserializable;
 import net.md_5.bungee.util.AllowedCharacters;
 import net.md_5.bungee.util.BufUtil;
 import net.md_5.bungee.util.QuietException;
@@ -745,7 +746,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( canSendKickMessage() )
         {
-            ch.delayedClose( new Kick( reason ) );
+            ch.delayedClose( new Kick( new ChatComponentDeserializable( reason ) ) );
         } else
         {
             ch.close();

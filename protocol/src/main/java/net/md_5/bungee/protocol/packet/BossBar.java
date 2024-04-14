@@ -5,11 +5,9 @@ import java.util.UUID;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.util.ChatComponentDeserializable;
 import net.md_5.bungee.protocol.util.ChatDeserializable;
 
 @Data
@@ -108,24 +106,5 @@ public class BossBar extends DefinedPacket
     public void handle(AbstractPacketHandler handler) throws Exception
     {
         handler.handle( this );
-    }
-
-    public BaseComponent getTitle()
-    {
-        if ( title == null )
-        {
-            return null;
-        }
-        return title.get();
-    }
-
-    public void setTitle(BaseComponent title)
-    {
-        if ( title == null )
-        {
-            this.title = null;
-            return;
-        }
-        this.title = new ChatComponentDeserializable( title );
     }
 }
