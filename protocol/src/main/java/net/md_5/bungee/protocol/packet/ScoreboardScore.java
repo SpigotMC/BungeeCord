@@ -5,12 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.data.NumberFormat;
-import net.md_5.bungee.protocol.util.ChatComponentDeserializable;
 import net.md_5.bungee.protocol.util.ChatDeserializable;
 
 @Data
@@ -27,7 +25,7 @@ public class ScoreboardScore extends DefinedPacket
     private byte action;
     private String scoreName;
     private int value;
-    private ChatDeserializable displayNameRaw;
+    private ChatDeserializable displayName;
     private NumberFormat numberFormat;
 
     @Override
@@ -48,7 +46,7 @@ public class ScoreboardScore extends DefinedPacket
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
         {
-            displayNameRaw = readNullable( (b) -> readBaseComponent( b, protocolVersion ), buf );
+            displayName = readNullable( (b) -> readBaseComponent( b, protocolVersion ), buf );
             numberFormat = readNullable( (b) -> readNumberFormat( b, protocolVersion ), buf );
         }
     }
@@ -68,7 +66,7 @@ public class ScoreboardScore extends DefinedPacket
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
         {
-            writeNullable( displayNameRaw, (s, b) -> DefinedPacket.writeBaseComponent( s, b, protocolVersion ), buf );
+            writeNullable( displayName, (s, b) -> DefinedPacket.writeBaseComponent( s, b, protocolVersion ), buf );
             writeNullable( numberFormat, (s, b) -> DefinedPacket.writeNumberFormat( s, b, protocolVersion ), buf );
         }
     }
@@ -77,34 +75,5 @@ public class ScoreboardScore extends DefinedPacket
     public void handle(AbstractPacketHandler handler) throws Exception
     {
         handler.handle( this );
-    }
-
-    public ScoreboardScore(String itemName, byte action, String scoreName, int value, BaseComponent displayName, NumberFormat numberFormat)
-    {
-        this.itemName = itemName;
-        this.action = action;
-        this.scoreName = scoreName;
-        this.value = value;
-        setDisplayName( displayName );
-        this.numberFormat = numberFormat;
-    }
-
-    public BaseComponent getDisplayName()
-    {
-        if ( displayNameRaw == null )
-        {
-            return null;
-        }
-        return displayNameRaw.get();
-    }
-
-    public void setDisplayName(BaseComponent displayName)
-    {
-        if ( displayName == null )
-        {
-            this.displayNameRaw = null;
-            return;
-        }
-        this.displayNameRaw = new ChatComponentDeserializable( displayName );
     }
 }

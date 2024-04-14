@@ -4,11 +4,9 @@ import io.netty.buffer.ByteBuf;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.util.ChatComponentDeserializable;
 import net.md_5.bungee.protocol.util.ChatDeserializable;
 
 @Data
@@ -20,7 +18,7 @@ public class Title extends DefinedPacket
     private Action action;
 
     // TITLE & SUBTITLE
-    private ChatDeserializable textRaw;
+    private ChatDeserializable text;
 
     // TIMES
     private int fadeIn;
@@ -37,7 +35,7 @@ public class Title extends DefinedPacket
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_17 )
         {
-            textRaw = readBaseComponent( buf, protocolVersion );
+            text = readBaseComponent( buf, protocolVersion );
             return;
         }
 
@@ -55,7 +53,7 @@ public class Title extends DefinedPacket
             case TITLE:
             case SUBTITLE:
             case ACTIONBAR:
-                textRaw = readBaseComponent( buf, protocolVersion );
+                text = readBaseComponent( buf, protocolVersion );
                 break;
             case TIMES:
                 fadeIn = buf.readInt();
@@ -70,7 +68,7 @@ public class Title extends DefinedPacket
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_17 )
         {
-            writeBaseComponent( textRaw, buf, protocolVersion );
+            writeBaseComponent( text, buf, protocolVersion );
             return;
         }
 
@@ -88,7 +86,7 @@ public class Title extends DefinedPacket
             case TITLE:
             case SUBTITLE:
             case ACTIONBAR:
-                writeBaseComponent( textRaw, buf, protocolVersion );
+                writeBaseComponent( text, buf, protocolVersion );
                 break;
             case TIMES:
                 buf.writeInt( fadeIn );
@@ -113,33 +111,5 @@ public class Title extends DefinedPacket
         TIMES,
         CLEAR,
         RESET
-    }
-
-    public Title(Action action, BaseComponent text, int fadeIn, int stay, int fadeOut)
-    {
-        setText( text );
-        this.fadeIn = fadeIn;
-        this.stay = stay;
-        this.fadeOut = fadeOut;
-        this.action = action;
-    }
-
-    public BaseComponent getText()
-    {
-        if ( textRaw == null )
-        {
-            return null;
-        }
-        return textRaw.get();
-    }
-
-    public void setText(BaseComponent text)
-    {
-        if ( text == null )
-        {
-            this.textRaw = null;
-            return;
-        }
-        this.textRaw = new ChatComponentDeserializable( text );
     }
 }

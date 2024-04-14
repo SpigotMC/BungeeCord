@@ -280,9 +280,9 @@ public class DownstreamBridge extends PacketHandler
         {
             if ( team.getMode() == 0 || team.getMode() == 2 )
             {
-                t.setDisplayName( team.getDisplayNameRaw().getLeftOrCompute( (component) -> con.getChatSerializer().toString( component.get() ) ) );
-                t.setPrefix( team.getPrefixRaw().getLeftOrCompute( (component) -> con.getChatSerializer().toString( component.get() ) ) );
-                t.setSuffix( team.getSuffixRaw().getLeftOrCompute( (component) -> con.getChatSerializer().toString( component.get() ) ) );
+                t.setDisplayName( team.getDisplayName().getLeftOrCompute( (component) -> con.getChatSerializer().toString( component.get() ) ) );
+                t.setPrefix( team.getPrefix().getLeftOrCompute( (component) -> con.getChatSerializer().toString( component.get() ) ) );
+                t.setSuffix( team.getSuffix().getLeftOrCompute( (component) -> con.getChatSerializer().toString( component.get() ) ) );
                 t.setFriendlyFire( team.getFriendlyFire() );
                 t.setNameTagVisibility( team.getNameTagVisibility().isLeft() ? team.getNameTagVisibility().getLeft() : team.getNameTagVisibility().getRight().getKey() );
                 t.setColor( team.getColor() );
@@ -649,16 +649,14 @@ public class DownstreamBridge extends PacketHandler
     public void handle(Kick kick) throws Exception
     {
         ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
-        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(), new BaseComponent[]
-        {
-            kick.getMessage()
-        }, def, ServerKickEvent.State.CONNECTED ) );
+        ServerKickEvent event = bungee.getPluginManager().callEvent( new ServerKickEvent( con, server.getInfo(),
+                kick.getMessage().get(), def, ServerKickEvent.State.CONNECTED ) );
         if ( event.isCancelled() && event.getCancelServer() != null )
         {
             con.connectNow( event.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT );
         } else
         {
-            con.disconnect( event.getKickReasonComponent() ); // TODO: Prefix our own stuff.
+            con.disconnect( event.getReason() ); // TODO: Prefix our own stuff.
         }
         server.setObsolete( true );
         throw CancelSendSignal.INSTANCE;

@@ -5,11 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.util.ChatComponentDeserializable;
 import net.md_5.bungee.protocol.util.ChatDeserializable;
 
 @Data
@@ -19,7 +17,7 @@ import net.md_5.bungee.protocol.util.ChatDeserializable;
 public class ServerData extends DefinedPacket
 {
 
-    private ChatDeserializable motdRaw;
+    private ChatDeserializable motd;
     private Object icon;
     private boolean preview;
     private boolean enforceSecure;
@@ -29,7 +27,7 @@ public class ServerData extends DefinedPacket
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_4 || buf.readBoolean() )
         {
-            motdRaw = readBaseComponent( buf, protocolVersion );
+            motd = readBaseComponent( buf, protocolVersion );
         }
         if ( buf.readBoolean() )
         {
@@ -56,13 +54,13 @@ public class ServerData extends DefinedPacket
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        if ( motdRaw != null )
+        if ( motd != null )
         {
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_4 )
             {
                 buf.writeBoolean( true );
             }
-            writeBaseComponent( motdRaw, buf, protocolVersion );
+            writeBaseComponent( motd, buf, protocolVersion );
         } else
         {
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_4 )
@@ -103,32 +101,5 @@ public class ServerData extends DefinedPacket
     public void handle(AbstractPacketHandler handler) throws Exception
     {
         handler.handle( this );
-    }
-
-    public ServerData(BaseComponent motd, Object icon, boolean preview, boolean enforceSecure)
-    {
-        setMotd( motd );
-        this.icon = icon;
-        this.preview = preview;
-        this.enforceSecure = enforceSecure;
-    }
-
-    public BaseComponent getMotd()
-    {
-        if ( motdRaw == null )
-        {
-            return null;
-        }
-        return motdRaw.get();
-    }
-
-    public void setMotd(BaseComponent motd)
-    {
-        if ( motd == null )
-        {
-            this.motdRaw = null;
-            return;
-        }
-        this.motdRaw = new ChatComponentDeserializable( motd );
     }
 }

@@ -1,13 +1,18 @@
 package net.md_5.bungee.protocol.util;
 
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.nbt.TypedTag;
 
+@ToString
+@EqualsAndHashCode
 @RequiredArgsConstructor
 public abstract class ChatCapturingDeserializable implements ChatDeserializable
 {
+    @NonNull
     private final Either<String, TypedTag> original;
     private BaseComponent deserialized;
 

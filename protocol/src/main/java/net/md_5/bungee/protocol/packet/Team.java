@@ -7,11 +7,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.util.ChatComponentDeserializable;
 import net.md_5.bungee.protocol.util.ChatDeserializable;
 import net.md_5.bungee.protocol.util.Either;
 
@@ -27,9 +25,9 @@ public class Team extends DefinedPacket
      * 0 - create, 1 remove, 2 info update, 3 player add, 4 player remove.
      */
     private byte mode;
-    private Either<String, ChatDeserializable> displayNameRaw;
-    private Either<String, ChatDeserializable> prefixRaw;
-    private Either<String, ChatDeserializable> suffixRaw;
+    private Either<String, ChatDeserializable> displayName;
+    private Either<String, ChatDeserializable> prefix;
+    private Either<String, ChatDeserializable> suffix;
     //
     private Either<String, NameTagVisibility> nameTagVisibility;
     private Either<String, CollisionRule> collisionRule;
@@ -58,12 +56,12 @@ public class Team extends DefinedPacket
         {
             if ( protocolVersion < ProtocolConstants.MINECRAFT_1_13 )
             {
-                displayNameRaw = readEitherBaseComponent( buf, protocolVersion, true );
-                prefixRaw = readEitherBaseComponent( buf, protocolVersion, true );
-                suffixRaw = readEitherBaseComponent( buf, protocolVersion, true );
+                displayName = readEitherBaseComponent( buf, protocolVersion, true );
+                prefix = readEitherBaseComponent( buf, protocolVersion, true );
+                suffix = readEitherBaseComponent( buf, protocolVersion, true );
             } else
             {
-                displayNameRaw = readEitherBaseComponent( buf, protocolVersion, false );
+                displayName = readEitherBaseComponent( buf, protocolVersion, false );
             }
             friendlyFire = buf.readByte();
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_5 )
@@ -81,8 +79,8 @@ public class Team extends DefinedPacket
             color = ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? readVarInt( buf ) : buf.readByte();
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
-                prefixRaw = readEitherBaseComponent( buf, protocolVersion, false );
-                suffixRaw = readEitherBaseComponent( buf, protocolVersion, false );
+                prefix = readEitherBaseComponent( buf, protocolVersion, false );
+                suffix = readEitherBaseComponent( buf, protocolVersion, false );
             }
         }
         if ( mode == 0 || mode == 3 || mode == 4 )
@@ -103,11 +101,11 @@ public class Team extends DefinedPacket
         buf.writeByte( mode );
         if ( mode == 0 || mode == 2 )
         {
-            writeEitherBaseComponent( displayNameRaw, buf, protocolVersion );
+            writeEitherBaseComponent( displayName, buf, protocolVersion );
             if ( protocolVersion < ProtocolConstants.MINECRAFT_1_13 )
             {
-                writeEitherBaseComponent( prefixRaw, buf, protocolVersion );
-                writeEitherBaseComponent( suffixRaw, buf, protocolVersion );
+                writeEitherBaseComponent( prefix, buf, protocolVersion );
+                writeEitherBaseComponent( suffix, buf, protocolVersion );
             }
             buf.writeByte( friendlyFire );
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_5 )
@@ -126,8 +124,8 @@ public class Team extends DefinedPacket
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
                 writeVarInt( color, buf );
-                writeEitherBaseComponent( prefixRaw, buf, protocolVersion );
-                writeEitherBaseComponent( suffixRaw, buf, protocolVersion );
+                writeEitherBaseComponent( prefix, buf, protocolVersion );
+                writeEitherBaseComponent( suffix, buf, protocolVersion );
             } else
             {
                 buf.writeByte( color );
@@ -140,105 +138,6 @@ public class Team extends DefinedPacket
             {
                 writeString( player, buf );
             }
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public Either<String, BaseComponent> getDisplayName()
-    {
-        if ( displayNameRaw == null )
-        {
-            return null;
-        }
-        if ( displayNameRaw.isLeft() )
-        {
-            return (Either) displayNameRaw;
-        } else
-        {
-            return Either.right( displayNameRaw.getRight().get() );
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public void setDisplayName(Either<String, BaseComponent> displayName)
-    {
-        if ( displayName == null )
-        {
-            displayNameRaw = null;
-            return;
-        }
-        if ( displayName.isLeft() )
-        {
-            displayNameRaw = (Either) displayName;
-        } else
-        {
-            displayNameRaw = Either.right( new ChatComponentDeserializable( displayName.getRight() ) );
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public Either<String, BaseComponent> getPrefix()
-    {
-        if ( prefixRaw == null )
-        {
-            return null;
-        }
-        if ( prefixRaw.isLeft() )
-        {
-            return (Either) prefixRaw;
-        } else
-        {
-            return Either.right( prefixRaw.getRight().get() );
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public void setPrefix(Either<String, BaseComponent> prefix)
-    {
-        if ( prefix == null )
-        {
-            prefixRaw = null;
-            return;
-        }
-        if ( prefix.isLeft() )
-        {
-            prefixRaw = (Either) prefix;
-        } else
-        {
-            prefixRaw = Either.right( new ChatComponentDeserializable( prefix.getRight() ) );
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public Either<String, BaseComponent> getSuffix()
-    {
-        if ( suffixRaw == null )
-        {
-            return null;
-        }
-        if ( suffixRaw.isLeft() )
-        {
-            return (Either) suffixRaw;
-        } else
-        {
-            return Either.right( suffixRaw.getRight().get() );
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public void setSuffix(Either<String, BaseComponent> suffix)
-    {
-        if ( suffix == null )
-        {
-            suffixRaw = null;
-            return;
-        }
-        if ( suffix.isLeft() )
-        {
-            suffixRaw = (Either) suffix;
-        } else
-        {
-            suffixRaw = Either.right( new ChatComponentDeserializable( suffix.getRight() ) );
         }
     }
 
