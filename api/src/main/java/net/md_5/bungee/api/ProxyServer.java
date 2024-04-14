@@ -60,6 +60,15 @@ public abstract class ProxyServer
     public abstract String getTranslation(String name, Object... args);
 
     /**
+     * Gets a localized string from the .properties file.
+     *
+     * @param name translation name
+     * @param args translation arguments
+     * @return the localized string
+     */
+    public abstract BaseComponent getTranslationComponent(String name, Object... args);
+
+    /**
      * Gets the main logger which can be used as a suitable replacement for
      * {@link System#out} and {@link System#err}.
      *

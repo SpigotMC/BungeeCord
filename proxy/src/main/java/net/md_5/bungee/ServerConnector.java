@@ -422,7 +422,7 @@ public class ServerConnector extends PacketHandler
             throw CancelSendSignal.INSTANCE;
         }
 
-        String message = bungee.getTranslation( "connect_kick", target.getName(), event.getKickReason() );
+        BaseComponent message = bungee.getTranslationComponent( "connect_kick", target.getName(), event.getReason() );
         if ( user.isDimensionChange() )
         {
             user.disconnect( message );
