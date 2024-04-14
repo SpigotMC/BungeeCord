@@ -7,13 +7,11 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.util.Deserializable;
-import net.md_5.bungee.protocol.util.Either;
-import net.md_5.bungee.protocol.util.NoOrigDeserializable;
+import net.md_5.bungee.protocol.util.ChatComponentDeserializable;
+import net.md_5.bungee.protocol.util.ChatDeserializable;
 
 @Data
 @NoArgsConstructor
@@ -22,7 +20,7 @@ import net.md_5.bungee.protocol.util.NoOrigDeserializable;
 public class SystemChat extends DefinedPacket
 {
 
-    private Deserializable<Either<String, TypedTag>, BaseComponent> messageRaw;
+    private ChatDeserializable messageRaw;
     private int position;
 
     @Override
@@ -53,7 +51,7 @@ public class SystemChat extends DefinedPacket
 
     public SystemChat(BaseComponent message, int position)
     {
-        this.messageRaw = new NoOrigDeserializable<>( message );
+        this.messageRaw = new ChatComponentDeserializable( message );
         this.position = position;
     }
 
@@ -73,7 +71,7 @@ public class SystemChat extends DefinedPacket
             this.messageRaw = null;
             return;
         }
-        this.messageRaw = new NoOrigDeserializable<>( message );
+        this.messageRaw = new ChatComponentDeserializable( message );
     }
 
 }

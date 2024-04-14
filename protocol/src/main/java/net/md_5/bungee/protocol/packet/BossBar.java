@@ -6,13 +6,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.util.Deserializable;
-import net.md_5.bungee.protocol.util.Either;
-import net.md_5.bungee.protocol.util.NoOrigDeserializable;
+import net.md_5.bungee.protocol.util.ChatComponentDeserializable;
+import net.md_5.bungee.protocol.util.ChatDeserializable;
 
 @Data
 @NoArgsConstructor
@@ -22,7 +20,7 @@ public class BossBar extends DefinedPacket
 
     private UUID uuid;
     private int action;
-    private Deserializable<Either<String, TypedTag>, BaseComponent> title;
+    private ChatDeserializable title;
     private float health;
     private int color;
     private int division;
@@ -128,6 +126,6 @@ public class BossBar extends DefinedPacket
             this.title = null;
             return;
         }
-        this.title = new NoOrigDeserializable<>( title );
+        this.title = new ChatComponentDeserializable( title );
     }
 }

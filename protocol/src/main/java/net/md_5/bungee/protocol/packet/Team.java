@@ -8,13 +8,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.util.Deserializable;
+import net.md_5.bungee.protocol.util.ChatComponentDeserializable;
+import net.md_5.bungee.protocol.util.ChatDeserializable;
 import net.md_5.bungee.protocol.util.Either;
-import net.md_5.bungee.protocol.util.NoOrigDeserializable;
 
 @Data
 @NoArgsConstructor
@@ -28,9 +27,9 @@ public class Team extends DefinedPacket
      * 0 - create, 1 remove, 2 info update, 3 player add, 4 player remove.
      */
     private byte mode;
-    private Either<String, Deserializable<Either<String, TypedTag>, BaseComponent>> displayNameRaw;
-    private Either<String, Deserializable<Either<String, TypedTag>, BaseComponent>> prefixRaw;
-    private Either<String, Deserializable<Either<String, TypedTag>, BaseComponent>> suffixRaw;
+    private Either<String, ChatDeserializable> displayNameRaw;
+    private Either<String, ChatDeserializable> prefixRaw;
+    private Either<String, ChatDeserializable> suffixRaw;
     //
     private Either<String, NameTagVisibility> nameTagVisibility;
     private Either<String, CollisionRule> collisionRule;
@@ -173,7 +172,7 @@ public class Team extends DefinedPacket
             displayNameRaw = (Either) displayName;
         } else
         {
-            displayNameRaw = Either.right( new NoOrigDeserializable<>( displayName.getRight() ) );
+            displayNameRaw = Either.right( new ChatComponentDeserializable( displayName.getRight() ) );
         }
     }
 
@@ -206,7 +205,7 @@ public class Team extends DefinedPacket
             prefixRaw = (Either) prefix;
         } else
         {
-            prefixRaw = Either.right( new NoOrigDeserializable<>( prefix.getRight() ) );
+            prefixRaw = Either.right( new ChatComponentDeserializable( prefix.getRight() ) );
         }
     }
 
@@ -239,7 +238,7 @@ public class Team extends DefinedPacket
             suffixRaw = (Either) suffix;
         } else
         {
-            suffixRaw = Either.right( new NoOrigDeserializable<>( suffix.getRight() ) );
+            suffixRaw = Either.right( new ChatComponentDeserializable( suffix.getRight() ) );
         }
     }
 

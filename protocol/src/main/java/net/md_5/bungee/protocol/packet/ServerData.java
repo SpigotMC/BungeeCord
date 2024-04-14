@@ -6,13 +6,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.util.Deserializable;
-import net.md_5.bungee.protocol.util.Either;
-import net.md_5.bungee.protocol.util.NoOrigDeserializable;
+import net.md_5.bungee.protocol.util.ChatComponentDeserializable;
+import net.md_5.bungee.protocol.util.ChatDeserializable;
 
 @Data
 @NoArgsConstructor
@@ -21,7 +19,7 @@ import net.md_5.bungee.protocol.util.NoOrigDeserializable;
 public class ServerData extends DefinedPacket
 {
 
-    private Deserializable<Either<String, TypedTag>, BaseComponent> motdRaw;
+    private ChatDeserializable motdRaw;
     private Object icon;
     private boolean preview;
     private boolean enforceSecure;
@@ -131,6 +129,6 @@ public class ServerData extends DefinedPacket
             this.motdRaw = null;
             return;
         }
-        this.motdRaw = new NoOrigDeserializable<>( motd );
+        this.motdRaw = new ChatComponentDeserializable( motd );
     }
 }

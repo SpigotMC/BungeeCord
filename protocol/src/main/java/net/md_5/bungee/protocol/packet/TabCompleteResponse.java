@@ -11,12 +11,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.util.Deserializable;
-import net.md_5.bungee.protocol.util.Either;
+import net.md_5.bungee.protocol.util.ChatDeserializable;
 
 @Data
 @NoArgsConstructor
@@ -55,7 +53,7 @@ public class TabCompleteResponse extends DefinedPacket
             for ( int i = 0; i < cnt; i++ )
             {
                 String match = readString( buf );
-                Deserializable<Either<String, TypedTag>, BaseComponent> tooltip = buf.readBoolean() ? readBaseComponent( buf, protocolVersion ) : null;
+                ChatDeserializable tooltip = buf.readBoolean() ? readBaseComponent( buf, protocolVersion ) : null;
 
                 matches.add( new Suggestion( range, match, ( tooltip != null ) ? new ComponentMessage( tooltip ) : null ) );
             }
@@ -102,7 +100,7 @@ public class TabCompleteResponse extends DefinedPacket
     private static class ComponentMessage implements Message
     {
 
-        private final Deserializable<Either<String, TypedTag>, BaseComponent> componentRaw;
+        private final ChatDeserializable componentRaw;
 
         public BaseComponent getComponent()
         {

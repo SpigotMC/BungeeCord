@@ -2,12 +2,14 @@ package net.md_5.bungee.protocol.util;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.nbt.TypedTag;
 
 @RequiredArgsConstructor
-public abstract class SimpleDeserializable<OV, D> implements Deserializable<OV, D>
+public abstract class ChatCapturingDeserializable implements ChatDeserializable
 {
-    private final OV original;
-    private D deserialized;
+    private final Either<String, TypedTag> original;
+    private BaseComponent deserialized;
 
     /**
      * Method called to get the deserialized value. Called only once unless multiple threads are calling get() at the
@@ -15,10 +17,10 @@ public abstract class SimpleDeserializable<OV, D> implements Deserializable<OV, 
      * @return the deserialized value
      */
     @NonNull
-    protected abstract D deserialize();
+    protected abstract BaseComponent deserialize();
 
     @Override
-    public final D get()
+    public final BaseComponent get()
     {
         if ( !hasDeserialized() )
         {
@@ -34,7 +36,7 @@ public abstract class SimpleDeserializable<OV, D> implements Deserializable<OV, 
     }
 
     @Override
-    public final OV original()
+    public final Either<String, TypedTag> original()
     {
         return original;
     }

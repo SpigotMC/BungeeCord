@@ -6,13 +6,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.util.Deserializable;
-import net.md_5.bungee.protocol.util.Either;
-import net.md_5.bungee.protocol.util.NoOrigDeserializable;
+import net.md_5.bungee.protocol.util.ChatComponentDeserializable;
+import net.md_5.bungee.protocol.util.ChatDeserializable;
 
 @Data
 @NoArgsConstructor
@@ -21,8 +19,8 @@ import net.md_5.bungee.protocol.util.NoOrigDeserializable;
 public class PlayerListHeaderFooter extends DefinedPacket
 {
 
-    private Deserializable<Either<String, TypedTag>, BaseComponent> headerRaw;
-    private Deserializable<Either<String, TypedTag>, BaseComponent> footerRaw;
+    private ChatDeserializable headerRaw;
+    private ChatDeserializable footerRaw;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
@@ -66,7 +64,7 @@ public class PlayerListHeaderFooter extends DefinedPacket
             this.headerRaw = null;
             return;
         }
-        this.headerRaw = new NoOrigDeserializable<>( header );
+        this.headerRaw = new ChatComponentDeserializable( header );
     }
 
     public BaseComponent getFooter()
@@ -85,6 +83,6 @@ public class PlayerListHeaderFooter extends DefinedPacket
             this.footerRaw = null;
             return;
         }
-        this.footerRaw = new NoOrigDeserializable<>( footer );
+        this.footerRaw = new ChatComponentDeserializable( footer );
     }
 }

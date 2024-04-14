@@ -1,20 +1,22 @@
 package net.md_5.bungee.protocol.util;
 
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.nbt.TypedTag;
 
 @RequiredArgsConstructor
-public class NoOrigDeserializable<OV, D> implements Deserializable<OV, D>
+public class ChatComponentDeserializable implements ChatDeserializable
 {
-    private final D value;
+    private final BaseComponent value;
 
     @Override
-    public D get()
+    public BaseComponent get()
     {
         return value;
     }
 
     @Override
-    public OV original()
+    public Either<String, TypedTag> original()
     {
         return null;
     }
