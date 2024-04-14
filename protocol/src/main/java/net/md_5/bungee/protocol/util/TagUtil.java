@@ -1,4 +1,4 @@
-package net.md_5.bungee.protocol;
+package net.md_5.bungee.protocol.util;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

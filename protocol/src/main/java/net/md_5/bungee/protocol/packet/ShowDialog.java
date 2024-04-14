@@ -11,9 +11,9 @@ import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.ChatSerializer;
 import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.Either;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.TagUtil;
+import net.md_5.bungee.protocol.util.Either;
+import net.md_5.bungee.protocol.util.TagUtil;
 
 @Data
 @NoArgsConstructor
