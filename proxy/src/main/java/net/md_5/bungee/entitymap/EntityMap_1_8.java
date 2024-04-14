@@ -118,17 +118,21 @@ class EntityMap_1_8 extends EntityMap
             }
         } else if ( packetId == 0x0C /* Spawn Player */ )
         {
-            DefinedPacket.readVarInt( packet ); // Entity ID
-            int idLength = packet.readerIndex() - readerIndex - packetIdLength;
-            UUID uuid = DefinedPacket.readUUID( packet );
-            ProxiedPlayer player;
-            if ( ( player = BungeeCord.getInstance().getPlayerByOfflineUUID( uuid ) ) != null )
+            boolean supportVanilla = !BungeeCord.getInstance().getConfig().isIpForward() && BungeeCord.getInstance().getConfig().isOnlineMode();
+            if ( !supportVanilla )
             {
-                int previous = packet.writerIndex();
-                packet.readerIndex( readerIndex );
-                packet.writerIndex( readerIndex + packetIdLength + idLength );
-                DefinedPacket.writeUUID( player.getUniqueId(), packet );
-                packet.writerIndex( previous );
+                DefinedPacket.readVarInt( packet ); // Entity ID
+                int idLength = packet.readerIndex() - readerIndex - packetIdLength;
+                UUID uuid = DefinedPacket.readUUID( packet );
+                ProxiedPlayer player;
+                if ( ( player = BungeeCord.getInstance().getPlayerByOfflineUUID( uuid ) ) != null )
+                {
+                    int previous = packet.writerIndex();
+                    packet.readerIndex( readerIndex );
+                    packet.writerIndex( readerIndex + packetIdLength + idLength );
+                    DefinedPacket.writeUUID( player.getUniqueId(), packet );
+                    packet.writerIndex( previous );
+                }
             }
         } else if ( packetId == 0x42 /* Combat Event */ )
         {
