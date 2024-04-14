@@ -31,27 +31,31 @@ class EntityMap_1_16_2 extends EntityMap
     @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
     public void rewriteClientbound(ByteBuf packet, int oldId, int newId, int protocolVersion)
     {
-        // Special cases
-        int readerIndex = packet.readerIndex();
-        int packetId = DefinedPacket.readVarInt( packet );
-        int packetIdLength = packet.readerIndex() - readerIndex;
-
-        if ( packetId == spawnPlayerId )
+        boolean supportVanilla = !BungeeCord.getInstance().getConfig().isIpForward() && BungeeCord.getInstance().getConfig().isOnlineMode();
+        if ( !supportVanilla )
         {
-            DefinedPacket.readVarInt( packet ); // Entity ID
-            int idLength = packet.readerIndex() - readerIndex - packetIdLength;
-            UUID uuid = DefinedPacket.readUUID( packet );
-            ProxiedPlayer player;
-            if ( ( player = BungeeCord.getInstance().getPlayerByOfflineUUID( uuid ) ) != null )
+            // Special cases
+            int readerIndex = packet.readerIndex();
+            int packetId = DefinedPacket.readVarInt( packet );
+            int packetIdLength = packet.readerIndex() - readerIndex;
+
+            if ( packetId == spawnPlayerId )
             {
-                int previous = packet.writerIndex();
-                packet.readerIndex( readerIndex );
-                packet.writerIndex( readerIndex + packetIdLength + idLength );
-                DefinedPacket.writeUUID( player.getUniqueId(), packet );
-                packet.writerIndex( previous );
+                DefinedPacket.readVarInt( packet ); // Entity ID
+                int idLength = packet.readerIndex() - readerIndex - packetIdLength;
+                UUID uuid = DefinedPacket.readUUID( packet );
+                ProxiedPlayer player;
+                if ( ( player = BungeeCord.getInstance().getPlayerByOfflineUUID( uuid ) ) != null )
+                {
+                    int previous = packet.writerIndex();
+                    packet.readerIndex( readerIndex );
+                    packet.writerIndex( readerIndex + packetIdLength + idLength );
+                    DefinedPacket.writeUUID( player.getUniqueId(), packet );
+                    packet.writerIndex( previous );
+                }
             }
+            packet.readerIndex( readerIndex );
         }
-        packet.readerIndex( readerIndex );
     }
 
     @Override
