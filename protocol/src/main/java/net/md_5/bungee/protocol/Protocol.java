@@ -445,7 +445,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_19_4, 0x4F ),
                     map( ProtocolConstants.MINECRAFT_1_20_2, 0x51 ),
                     map( ProtocolConstants.MINECRAFT_1_20_3, 0x53 ),
-                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x62 )
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x55 )
             );
             TO_CLIENT.registerPacket(
                     ServerData.class,
