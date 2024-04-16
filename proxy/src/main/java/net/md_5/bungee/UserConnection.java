@@ -796,4 +796,9 @@ public final class UserConnection implements ProxiedPlayer
 
         unsafe().sendPacket( new Transfer( host, port ) );
     }
+
+    public UUID getRewriteId()
+    {
+        return getPendingConnection().getRewriteId();
+    }
 }

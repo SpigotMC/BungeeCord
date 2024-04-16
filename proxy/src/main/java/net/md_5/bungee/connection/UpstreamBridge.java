@@ -85,7 +85,7 @@ public class UpstreamBridge extends PacketHandler
             PlayerListItem oldPacket = new PlayerListItem();
             oldPacket.setAction( PlayerListItem.Action.REMOVE_PLAYER );
             PlayerListItem.Item item = new PlayerListItem.Item();
-            item.setUuid( con.getUniqueId() );
+            item.setUuid( con.getRewriteId() );
             oldPacket.setItems( new PlayerListItem.Item[]
             {
                 item
@@ -94,7 +94,7 @@ public class UpstreamBridge extends PacketHandler
             PlayerListItemRemove newPacket = new PlayerListItemRemove();
             newPacket.setUuids( new UUID[]
             {
-                con.getUniqueId()
+                con.getRewriteId()
             } );
 
             for ( ProxiedPlayer player : con.getServer().getInfo().getPlayers() )

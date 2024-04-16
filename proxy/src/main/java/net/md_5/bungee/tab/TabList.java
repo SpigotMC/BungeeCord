@@ -46,7 +46,7 @@ public abstract class TabList
             UserConnection player = BungeeCord.getInstance().getPlayerByOfflineUUID( playerListItem.getUuids()[i] );
             if ( player != null )
             {
-                playerListItem.getUuids()[i] = player.getUniqueId();
+                playerListItem.getUuids()[i] = player.getRewriteId();
 
             }
         }
@@ -72,7 +72,7 @@ public abstract class TabList
         UserConnection player = BungeeCord.getInstance().getPlayerByOfflineUUID( item.getUuid() );
         if ( player != null )
         {
-            item.setUuid( player.getUniqueId() );
+            item.setUuid( player.getRewriteId() );
 
             if ( item.getProperties() != null )
             {
