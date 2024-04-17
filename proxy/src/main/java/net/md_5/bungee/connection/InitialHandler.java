@@ -126,6 +126,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Getter
     private UUID offlineId;
     @Getter
+    private UUID rewriteId;
+    @Getter
     private LoginResult loginProfile;
     @Getter
     private boolean legacy;
@@ -556,6 +558,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             uniqueId = offlineId;
         }
+        rewriteId = ( bungee.config.isIpForward() ) ? uniqueId : offlineId;
 
         if ( BungeeCord.getInstance().config.isEnforceSecureProfile() )
         {
@@ -635,7 +638,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
                             if ( getVersion() < ProtocolConstants.MINECRAFT_1_20_2 )
                             {
-                                unsafe.sendPacket( new LoginSuccess( getUniqueId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
+                                unsafe.sendPacket( new LoginSuccess( getRewriteId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
                                 ch.setProtocol( Protocol.GAME );
                             }
                             finish2();

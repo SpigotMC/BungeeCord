@@ -642,6 +642,11 @@ public final class UserConnection implements ProxiedPlayer
         return getPendingConnection().getUniqueId();
     }
 
+    public UUID getRewriteId()
+    {
+        return getPendingConnection().getRewriteId();
+    }
+
     public void setSettings(ClientSettings settings)
     {
         this.settings = settings;
