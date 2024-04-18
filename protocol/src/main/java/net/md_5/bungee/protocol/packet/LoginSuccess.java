@@ -40,6 +40,8 @@ public class LoginSuccess extends DefinedPacket
         // remove in next minecraft release
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
         {
+            // This boolean specifies whether the client should
+            // disconnect on its own if it receives invalid data from the server
             buf.readBoolean();
         }
     }
@@ -63,6 +65,8 @@ public class LoginSuccess extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
         {
             // vanilla sends true so we also send true ( chocolate > vanilla )
+            // This boolean specifies whether the client should
+            // disconnect on its own if it receives invalid data from the server
             buf.writeBoolean( true );
         }
     }
