@@ -37,6 +37,11 @@ public class LoginSuccess extends DefinedPacket
         {
             properties = readProperties( buf );
         }
+        // remove in next minecraft release
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
+        {
+            buf.readBoolean();
+        }
     }
 
     @Override
@@ -53,6 +58,12 @@ public class LoginSuccess extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 )
         {
             writeProperties( properties, buf );
+        }
+        // remove in next minecraft release
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
+        {
+            // vanilla sends true so we also send true ( chocolate > vanilla )
+            buf.writeBoolean( true );
         }
     }
 
