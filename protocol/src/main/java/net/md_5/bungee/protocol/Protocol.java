@@ -14,7 +14,6 @@ import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClearTitles;
 import net.md_5.bungee.protocol.packet.ClientChat;
 import net.md_5.bungee.protocol.packet.ClientCommand;
-import net.md_5.bungee.protocol.packet.ClientCommandSigned;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.Commands;
 import net.md_5.bungee.protocol.packet.CookieRequest;
@@ -58,6 +57,7 @@ import net.md_5.bungee.protocol.packet.Team;
 import net.md_5.bungee.protocol.packet.Title;
 import net.md_5.bungee.protocol.packet.TitleTimes;
 import net.md_5.bungee.protocol.packet.Transfer;
+import net.md_5.bungee.protocol.packet.UnsignedClientCommand;
 import net.md_5.bungee.protocol.packet.ViewDistance;
 
 public enum Protocol
@@ -529,12 +529,13 @@ public enum Protocol
                     ClientCommand.class,
                     ClientCommand::new,
                     map( ProtocolConstants.MINECRAFT_1_19, 0x03 ),
-                    map( ProtocolConstants.MINECRAFT_1_19_1, 0x04 )
+                    map( ProtocolConstants.MINECRAFT_1_19_1, 0x04 ),
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x05 )
             );
             TO_SERVER.registerPacket(
-                    ClientCommandSigned.class,
-                    ClientCommandSigned::new,
-                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x05 )
+                    UnsignedClientCommand.class,
+                    UnsignedClientCommand::new,
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x04 )
             );
             TO_SERVER.registerPacket(
                     ClientChat.class,
