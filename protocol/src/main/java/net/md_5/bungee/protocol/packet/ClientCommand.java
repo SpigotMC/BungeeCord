@@ -33,11 +33,6 @@ public class ClientCommand extends DefinedPacket
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         command = readString( buf, 256 );
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
-        {
-            return;
-        }
-
         timestamp = buf.readLong();
         salt = buf.readLong();
 
@@ -79,11 +74,6 @@ public class ClientCommand extends DefinedPacket
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         writeString( command, buf );
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
-        {
-            return;
-        }
-
         buf.writeLong( timestamp );
         buf.writeLong( salt );
 

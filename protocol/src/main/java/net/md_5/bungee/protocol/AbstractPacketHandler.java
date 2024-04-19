@@ -5,7 +5,6 @@ import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClearTitles;
 import net.md_5.bungee.protocol.packet.ClientChat;
 import net.md_5.bungee.protocol.packet.ClientCommand;
-import net.md_5.bungee.protocol.packet.ClientCommandSigned;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.ClientStatus;
 import net.md_5.bungee.protocol.packet.Commands;
@@ -52,6 +51,7 @@ import net.md_5.bungee.protocol.packet.Team;
 import net.md_5.bungee.protocol.packet.Title;
 import net.md_5.bungee.protocol.packet.TitleTimes;
 import net.md_5.bungee.protocol.packet.Transfer;
+import net.md_5.bungee.protocol.packet.UnsignedClientCommand;
 import net.md_5.bungee.protocol.packet.ViewDistance;
 
 public abstract class AbstractPacketHandler
@@ -105,7 +105,7 @@ public abstract class AbstractPacketHandler
     {
     }
 
-    public void handle(ClientCommandSigned command) throws Exception
+    public void handle(UnsignedClientCommand command) throws Exception
     {
     }
 
