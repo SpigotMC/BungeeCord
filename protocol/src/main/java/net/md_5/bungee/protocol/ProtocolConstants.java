@@ -45,7 +45,7 @@ public class ProtocolConstants
     public static final int MINECRAFT_1_20 = 763;
     public static final int MINECRAFT_1_20_2 = 764;
     public static final int MINECRAFT_1_20_3 = 765;
-    public static final int MINECRAFT_1_20_5 = 1073742013;
+    public static final int MINECRAFT_1_20_5 = 1073742014;
     public static final List<String> SUPPORTED_VERSIONS;
     public static final List<Integer> SUPPORTED_VERSION_IDS;
 
