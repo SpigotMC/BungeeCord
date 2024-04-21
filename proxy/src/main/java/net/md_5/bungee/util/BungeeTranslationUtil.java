@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class BungeeTranslationUtil
 {
-    // support only simple translations, rip escaping and specialized formatting
+    // support only simple translations, no escaping and ignore specialized formatting
     private static final Pattern TRANSLATE_FORMAT = Pattern.compile( "\\{(\\d*)(?:,[^}]+)?}" );
 
     public static @NotNull BaseComponent getTranslationComponent0(String trans, Object... args)
