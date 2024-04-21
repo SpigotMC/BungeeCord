@@ -348,7 +348,7 @@ public class ComponentsTest
     @Test
     public void testFormatRetentionCopyFormattingCreate()
     {
-        ComponentsTest.testFormatRetentionCopyFormatting( () -> new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( "Test" ).create() ) );
+        testFormatRetentionCopyFormatting( () -> new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( "Test" ).create() ) );
     }
 
     @Test
