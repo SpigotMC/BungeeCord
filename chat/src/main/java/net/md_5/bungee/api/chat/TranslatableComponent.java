@@ -19,7 +19,7 @@ import net.md_5.bungee.chat.TranslationRegistry;
 public final class TranslatableComponent extends BaseComponent
 {
 
-    private final Pattern format = Pattern.compile( "%(?:(\\d+)\\$)?([A-Za-z%]|$)" );
+    private static final Pattern FORMAT = Pattern.compile( "%(?:(\\d+)\\$)?([A-Za-z%]|$)" );
 
     /**
      * The key into the Minecraft locale files to use for the translation. The
@@ -177,7 +177,7 @@ public final class TranslatableComponent extends BaseComponent
             trans = fallback;
         }
 
-        Matcher matcher = format.matcher( trans );
+        Matcher matcher = FORMAT.matcher( trans );
         int position = 0;
         int i = 0;
         while ( matcher.find( position ) )
