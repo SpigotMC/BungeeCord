@@ -62,4 +62,17 @@ public class Text extends Content
     {
         return ( value instanceof BaseComponent[] ) ? Arrays.hashCode( (BaseComponent[]) value ) : value.hashCode();
     }
+
+    public String toString()
+    {
+        if ( value instanceof BaseComponent[] )
+        {
+            return "Text{" + "value=" + Arrays.toString( (BaseComponent[]) value ) + '}';
+        }
+        if ( value instanceof Object[] )
+        {
+            return "Text{" + "value=" + Arrays.toString( (Object[]) value ) + '}';
+        }
+        return "Text{" + "value=" + value + '}';
+    }
 }
