@@ -100,7 +100,7 @@ public class ComponentsTest
     @Test
     public void testEmptyComponentBuilderCreate()
     {
-        this.testEmptyComponentBuilder(
+        testEmptyComponentBuilder(
                 ComponentBuilder::create,
                 (components) -> assertEquals( components.length, 0 ),
                 (components, size) -> assertEquals( size, components.length )
@@ -110,14 +110,14 @@ public class ComponentsTest
     @Test
     public void testEmptyComponentBuilderBuild()
     {
-        this.testEmptyComponentBuilder(
+        testEmptyComponentBuilder(
                 ComponentBuilder::build,
                 (component) -> assertNull( component.getExtra() ),
                 (component, size) -> assertEquals( component.getExtra().size(), size )
         );
     }
 
-    private <T> void testEmptyComponentBuilder(Function<ComponentBuilder, T> componentBuilder, Consumer<T> emptyAssertion, ObjIntConsumer<T> sizedAssertion)
+    private static <T> void testEmptyComponentBuilder(Function<ComponentBuilder, T> componentBuilder, Consumer<T> emptyAssertion, ObjIntConsumer<T> sizedAssertion)
     {
         ComponentBuilder builder = new ComponentBuilder();
 
