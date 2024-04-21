@@ -44,10 +44,11 @@ public final class TranslatableComponent extends BaseComponent
     {
         super( original );
         setTranslate( original.getTranslate() );
+        setFallback( original.getFallback() );
 
         if ( original.getWith() != null )
         {
-            List<BaseComponent> temp = new ArrayList<BaseComponent>();
+            List<BaseComponent> temp = new ArrayList<>();
             for ( BaseComponent baseComponent : original.getWith() )
             {
                 temp.add( baseComponent.duplicate() );
