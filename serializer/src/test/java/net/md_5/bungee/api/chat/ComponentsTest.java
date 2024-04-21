@@ -124,7 +124,8 @@ public class ComponentsTest
         T component = componentBuilder.apply( builder );
         emptyAssertion.accept( component );
 
-        for ( int i = 0; i < 3; i++ )
+        builder.append( "part: 0" ); // build() with one part will not be nested
+        for ( int i = 1; i < 3; i++ )
         {
             builder.append( "part:" + i );
             component = componentBuilder.apply( builder );
