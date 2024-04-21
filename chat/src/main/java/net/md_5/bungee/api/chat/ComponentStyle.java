@@ -201,6 +201,61 @@ public final class ComponentStyle implements Cloneable
     }
 
     @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder( "ComponentStyle{" );
+        toString( builder, false );
+        return builder.append( "}" ).toString();
+    }
+
+    boolean toString(StringBuilder builder, boolean comma)
+    {
+        if ( color != null )
+        {
+            if ( comma ) builder.append( ", " );
+            comma = true;
+            builder.append( "color=" ).append( color );
+        }
+        if ( font != null )
+        {
+            if ( comma ) builder.append( ", " );
+            comma = true;
+            builder.append( "font=" ).append( font ).append( ", " );
+        }
+        if ( bold != null )
+        {
+            if ( comma ) builder.append( ", " );
+            comma = true;
+            builder.append( "bold=" ).append( bold );
+        }
+        if ( italic != null )
+        {
+            if ( comma ) builder.append( ", " );
+            comma = true;
+            builder.append( "italic=" ).append( italic );
+        }
+        if ( underlined != null )
+        {
+            if ( comma ) builder.append( ", " );
+            comma = true;
+            builder.append( "underlined=" ).append( underlined );
+        }
+        if ( strikethrough != null )
+        {
+            if ( comma ) builder.append( ", " );
+            comma = true;
+            builder.append( "strikethrough=" ).append( strikethrough );
+        }
+        if ( obfuscated != null )
+        {
+            if ( comma ) builder.append( ", " );
+            comma = true;
+            builder.append( "obfuscated=" ).append( obfuscated );
+        }
+        return comma;
+    }
+
+    @Override
     public ComponentStyle clone()
     {
         return new ComponentStyle( color, font, bold, italic, underlined, strikethrough, obfuscated );
