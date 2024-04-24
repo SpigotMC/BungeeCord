@@ -136,6 +136,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Getter
     private boolean transferred;
     private UserConnection userCon;
+    private boolean authenticate;
 
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
@@ -483,7 +484,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 if ( onlineMode )
                 {
                     thisState = State.ENCRYPT;
-                    unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
+                    unsafe().sendPacket( request = EncryptionUtil.encryptRequest( result.isAuthenticate() ) );
                 } else
                 {
                     thisState = State.FINISHING;
@@ -502,11 +503,31 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( thisState == State.ENCRYPT, "Not expecting ENCRYPT" );
         Preconditions.checkState( EncryptionUtil.check( loginRequest.getPublicKey(), encryptResponse, request ), "Invalid verification" );
 
+        thisState = State.FINISHING;
+
         SecretKey sharedKey = EncryptionUtil.getSecret( encryptResponse, request );
         BungeeCipher decrypt = EncryptionUtil.getCipher( false, sharedKey );
         ch.addBefore( PipelineUtils.FRAME_DECODER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
         BungeeCipher encrypt = EncryptionUtil.getCipher( true, sharedKey );
         ch.addBefore( PipelineUtils.FRAME_PREPENDER, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
+
+        if ( !authenticate )
+        {
+            bungee.getPluginManager().callEvent( new CustomAuthenticationEvent( this, (event, error) ->
+            {
+                if ( ch.isClosing() )
+                {
+                    return;
+                }
+                Preconditions.checkNotNull( event.getName(), "Name cannot be null" );
+                Preconditions.checkNotNull( event.getUuid(), "UUID cannot be null" );
+                name = event.getName();
+                uniqueId = event.getUuid();
+                loginProfile = new LoginResult( uniqueId.toString().replace( "-", "" ), name, event.getProperties() );
+                finish();
+            } ) );
+            return;
+        }
 
         String encName = URLEncoder.encode( InitialHandler.this.getName(), "UTF-8" );
 
@@ -519,7 +540,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             sha.update( bit );
         }
         String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
-
         String preventProxy = ( BungeeCord.getInstance().config.isPreventProxyConnections() && getSocketAddress() instanceof InetSocketAddress ) ? "&ip=" + URLEncoder.encode( getAddress().getAddress().getHostAddress(), "UTF-8" ) : "";
         String authURL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" + encName + "&serverId=" + encodedHash + preventProxy;
 
@@ -547,7 +567,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 }
             }
         };
-        thisState = State.FINISHING;
         HttpClient.get( authURL, ch.getHandle().eventLoop(), handler );
     }
 
