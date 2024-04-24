@@ -485,7 +485,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 if ( onlineMode )
                 {
                     thisState = State.ENCRYPT;
-                    unsafe().sendPacket( request = EncryptionUtil.encryptRequest( result.isAuthenticate() ) );
+                    unsafe().sendPacket( request = EncryptionUtil.encryptRequest( authenticate = result.isAuthenticate() ) );
                 } else
                 {
                     thisState = State.FINISHING;
