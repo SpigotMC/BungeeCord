@@ -67,14 +67,14 @@ public class EncryptionUtil
         }
     }
 
-    public static EncryptionRequest encryptRequest()
+    public static EncryptionRequest encryptRequest(boolean auth)
     {
         String hash = Long.toString( random.nextLong(), 16 );
         byte[] pubKey = keys.getPublic().getEncoded();
         byte[] verify = new byte[ 4 ];
         random.nextBytes( verify );
         // always auth for now
-        return new EncryptionRequest( hash, pubKey, verify, true );
+        return new EncryptionRequest( hash, pubKey, verify, auth );
     }
 
     public static boolean check(PlayerPublicKey publicKey, UUID uuid) throws GeneralSecurityException
