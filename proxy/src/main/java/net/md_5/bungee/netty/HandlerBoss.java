@@ -94,6 +94,9 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                     } );
 
                     channel.setRemoteAddress( newAddress );
+                } else
+                {
+                    channel.close();
                 }
             } finally
             {
