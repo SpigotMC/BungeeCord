@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.chat;
 
+import static net.md_5.bungee.api.ChatColor.*;
 import static org.junit.jupiter.api.Assertions.*;
 import java.awt.Color;
 import java.util.function.BiFunction;
@@ -7,7 +8,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.ObjIntConsumer;
 import java.util.function.Supplier;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.hover.content.Entity;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -100,7 +100,7 @@ public class ComponentsTest
     @Test
     public void testEmptyComponentBuilderCreate()
     {
-        this.testEmptyComponentBuilder(
+        testEmptyComponentBuilder(
                 ComponentBuilder::create,
                 (components) -> assertEquals( components.length, 0 ),
                 (components, size) -> assertEquals( size, components.length )
@@ -110,14 +110,14 @@ public class ComponentsTest
     @Test
     public void testEmptyComponentBuilderBuild()
     {
-        this.testEmptyComponentBuilder(
+        testEmptyComponentBuilder(
                 ComponentBuilder::build,
                 (component) -> assertNull( component.getExtra() ),
                 (component, size) -> assertEquals( component.getExtra().size(), size )
         );
     }
 
-    private <T> void testEmptyComponentBuilder(Function<ComponentBuilder, T> componentBuilder, Consumer<T> emptyAssertion, ObjIntConsumer<T> sizedAssertion)
+    private static <T> void testEmptyComponentBuilder(Function<ComponentBuilder, T> componentBuilder, Consumer<T> emptyAssertion, ObjIntConsumer<T> sizedAssertion)
     {
         ComponentBuilder builder = new ComponentBuilder();
 
@@ -137,9 +137,9 @@ public class ComponentsTest
     {
         ComponentBuilder builder = new ComponentBuilder();
         assertNotNull( builder.getCurrentComponent() );
-        builder.color( ChatColor.GREEN );
+        builder.color( GREEN );
         builder.append( "test ", ComponentBuilder.FormatRetention.ALL );
-        assertEquals( builder.getCurrentComponent().getColor(), ChatColor.GREEN );
+        assertEquals( builder.getCurrentComponent().getColor(), GREEN );
     }
 
     @Test
@@ -158,7 +158,7 @@ public class ComponentsTest
     @Test
     public void testFormatNotColor()
     {
-        BaseComponent[] component = new ComponentBuilder().color( ChatColor.BOLD ).append( "Test" ).create();
+        BaseComponent[] component = new ComponentBuilder().color( BOLD ).append( "Test" ).create();
 
         String json = ComponentSerializer.toString( component );
         BaseComponent[] parsed = ComponentSerializer.parse( json );
@@ -187,7 +187,7 @@ public class ComponentsTest
     @Test
     public void testToLegacyFromLegacy()
     {
-        String text = "§a§lHello §f§kworld§7!";
+        String text = "" + GREEN + BOLD + "Hello " + WHITE + MAGIC + "world" + GRAY + "!";
         assertEquals( text, BaseComponent.toLegacyText( TextComponent.fromLegacyText( text ) ) );
     }
 
@@ -229,7 +229,7 @@ public class ComponentsTest
     @Test
     public void testLegacyComponentBuilderAppend()
     {
-        String text = "§a§lHello §r§kworld§7!";
+        String text = "" + GREEN + BOLD + "Hello " + RESET + MAGIC + "world" + GRAY + "!";
         BaseComponent[] components = TextComponent.fromLegacyText( text );
         BaseComponent[] builderComponents = new ComponentBuilder().append( components ).create();
         assertArrayEquals( components, builderComponents );
@@ -348,7 +348,7 @@ public class ComponentsTest
     @Test
     public void testFormatRetentionCopyFormattingCreate()
     {
-        ComponentsTest.testFormatRetentionCopyFormatting( () -> new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( "Test" ).create() ) );
+        testFormatRetentionCopyFormatting( () -> new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( "Test" ).create() ) );
     }
 
     @Test
@@ -361,7 +361,7 @@ public class ComponentsTest
     {
         TextComponent first = new TextComponent( "Hello" );
         first.setBold( true );
-        first.setColor( ChatColor.RED );
+        first.setColor( RED );
         first.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, "test" ) );
         first.setHoverEvent( hoverEventSupplier.get() );
 
@@ -387,7 +387,7 @@ public class ComponentsTest
 
     private static void testBuilderClone(Function<ComponentBuilder, String> legacyTextFunction)
     {
-        ComponentBuilder builder = new ComponentBuilder( "Hello " ).color( ChatColor.RED ).append( "world" ).color( ChatColor.DARK_RED );
+        ComponentBuilder builder = new ComponentBuilder( "Hello " ).color( RED ).append( "world" ).color( DARK_RED );
         ComponentBuilder cloned = new ComponentBuilder( builder );
 
         assertEquals( legacyTextFunction.apply( builder ), legacyTextFunction.apply( cloned ) );
@@ -459,7 +459,7 @@ public class ComponentsTest
                 ComponentBuilder::create,
                 (components, index) -> components[index],
                 BaseComponent::toPlainText,
-                ChatColor.YELLOW + "Hello " + ChatColor.GREEN + "world!",
+                YELLOW + "Hello " + GREEN + "world!",
                 BaseComponent::toLegacyText
         );
     }
@@ -473,7 +473,7 @@ public class ComponentsTest
                 (component, index) -> component.getExtra().get( index ),
                 (component) -> BaseComponent.toPlainText( component ),
                 // An extra format code is appended to the beginning because there is an empty TextComponent at the start of every component
-                ChatColor.WHITE.toString() + ChatColor.YELLOW + "Hello " + ChatColor.GREEN + "world!",
+                WHITE.toString() + YELLOW + "Hello " + GREEN + "world!",
                 (component) -> BaseComponent.toLegacyText( component )
         );
     }
@@ -483,8 +483,8 @@ public class ComponentsTest
         ClickEvent clickEvent = new ClickEvent( ClickEvent.Action.RUN_COMMAND, "/help " );
         HoverEvent hoverEvent = hoverEventSupplier.get();
 
-        ComponentBuilder builder = new ComponentBuilder( "Hello " ).color( ChatColor.YELLOW );
-        builder.append( new ComponentBuilder( "world!" ).color( ChatColor.GREEN ).event( hoverEvent ).event( clickEvent ).create() ); // Intentionally using create() to append multiple individual components
+        ComponentBuilder builder = new ComponentBuilder( "Hello " ).color( YELLOW );
+        builder.append( new ComponentBuilder( "world!" ).color( GREEN ).event( hoverEvent ).event( clickEvent ).create() ); // Intentionally using create() to append multiple individual components
 
         T component = componentBuilder.apply( builder );
 
@@ -500,7 +500,7 @@ public class ComponentsTest
         testBuilderAppendLegacy(
                 ComponentBuilder::create,
                 BaseComponent::toPlainText,
-                ChatColor.YELLOW + "Hello " + ChatColor.GREEN + "world!",
+                YELLOW + "Hello " + GREEN + "world!",
                 BaseComponent::toLegacyText
         );
     }
@@ -512,15 +512,15 @@ public class ComponentsTest
                 ComponentBuilder::build,
                 (component) -> BaseComponent.toPlainText( component ),
                 // An extra format code is appended to the beginning because there is an empty TextComponent at the start of every component
-                ChatColor.WHITE.toString() + ChatColor.YELLOW + "Hello " + ChatColor.GREEN + "world!",
+                WHITE.toString() + YELLOW + "Hello " + GREEN + "world!",
                 (component) -> BaseComponent.toLegacyText( component )
         );
     }
 
     private static <T> void testBuilderAppendLegacy(Function<ComponentBuilder, T> componentBuilder, Function<T, String> toPlainTextFunction, String expectedLegacyString, Function<T, String> toLegacyTextFunction)
     {
-        ComponentBuilder builder = new ComponentBuilder( "Hello " ).color( ChatColor.YELLOW );
-        builder.appendLegacy( "§aworld!" );
+        ComponentBuilder builder = new ComponentBuilder( "Hello " ).color( YELLOW );
+        builder.appendLegacy( GREEN + "world!" );
 
         T component = componentBuilder.apply( builder );
 
@@ -532,26 +532,26 @@ public class ComponentsTest
     public void testBasicComponent()
     {
         TextComponent textComponent = new TextComponent( "Hello world" );
-        textComponent.setColor( ChatColor.RED );
+        textComponent.setColor( RED );
 
         assertEquals( "Hello world", textComponent.toPlainText() );
-        assertEquals( ChatColor.RED + "Hello world", textComponent.toLegacyText() );
+        assertEquals( RED + "Hello world", textComponent.toLegacyText() );
     }
 
     @Test
     public void testLegacyConverter()
     {
-        BaseComponent[] test1 = TextComponent.fromLegacyText( ChatColor.AQUA + "Aqua " + ChatColor.RED + ChatColor.BOLD + "RedBold" );
+        BaseComponent[] test1 = TextComponent.fromLegacyText( AQUA + "Aqua " + RED + BOLD + "RedBold" );
 
         assertEquals( "Aqua RedBold", BaseComponent.toPlainText( test1 ) );
-        assertEquals( ChatColor.AQUA + "Aqua " + ChatColor.RED + ChatColor.BOLD + "RedBold", BaseComponent.toLegacyText( test1 ) );
+        assertEquals( AQUA + "Aqua " + RED + BOLD + "RedBold", BaseComponent.toLegacyText( test1 ) );
 
-        BaseComponent[] test2 = TextComponent.fromLegacyText( "Text http://spigotmc.org " + ChatColor.GREEN + "google.com/test" );
+        BaseComponent[] test2 = TextComponent.fromLegacyText( "Text http://spigotmc.org " + GREEN + "google.com/test" );
 
         assertEquals( "Text http://spigotmc.org google.com/test", BaseComponent.toPlainText( test2 ) );
         //The extra ChatColor instances are sometimes inserted when not needed but it doesn't change the result
-        assertEquals( ChatColor.WHITE + "Text " + ChatColor.WHITE + "http://spigotmc.org" + ChatColor.WHITE
-                + " " + ChatColor.GREEN + "google.com/test" + ChatColor.GREEN, BaseComponent.toLegacyText( test2 ) );
+        assertEquals( WHITE + "Text " + WHITE + "http://spigotmc.org" + WHITE
+                + " " + GREEN + "google.com/test" + GREEN, BaseComponent.toLegacyText( test2 ) );
 
         ClickEvent url1 = test2[1].getClickEvent();
         assertNotNull( url1 );
@@ -565,35 +565,12 @@ public class ComponentsTest
     }
 
     @Test
-    public void testTranslateComponent()
-    {
-        TranslatableComponent item = new TranslatableComponent( "item.swordGold.name" );
-        item.setColor( ChatColor.AQUA );
-        TranslatableComponent translatableComponent = new TranslatableComponent( "commands.give.success",
-                item, "5",
-                "thinkofdeath" );
-
-        assertEquals( "Given Golden Sword * 5 to thinkofdeath", translatableComponent.toPlainText() );
-        assertEquals( ChatColor.WHITE + "Given " + ChatColor.AQUA + "Golden Sword" + ChatColor.WHITE
-                + " * " + ChatColor.WHITE + "5" + ChatColor.WHITE + " to " + ChatColor.WHITE + "thinkofdeath",
-                translatableComponent.toLegacyText() );
-
-        TranslatableComponent positional = new TranslatableComponent( "book.pageIndicator", "5", "50" );
-
-        assertEquals( "Page 5 of 50", positional.toPlainText() );
-        assertEquals( ChatColor.WHITE + "Page " + ChatColor.WHITE + "5" + ChatColor.WHITE + " of " + ChatColor.WHITE + "50", positional.toLegacyText() );
-
-        TranslatableComponent one_four_two = new TranslatableComponent( "filled_map.buried_treasure" );
-        assertEquals( "Buried Treasure Map", one_four_two.toPlainText() );
-    }
-
-    @Test
     public void testBuilderCreate()
     {
         testBuilder(
                 ComponentBuilder::create,
                 BaseComponent::toPlainText,
-                ChatColor.RED + "Hello " + ChatColor.BLUE + ChatColor.BOLD + "World" + ChatColor.YELLOW + ChatColor.BOLD + "!",
+                RED + "Hello " + BLUE + BOLD + "World" + YELLOW + BOLD + "!",
                 BaseComponent::toLegacyText
         );
     }
@@ -605,16 +582,16 @@ public class ComponentsTest
                 ComponentBuilder::build,
                 (component) -> BaseComponent.toPlainText( component ),
                 // An extra format code is appended to the beginning because there is an empty TextComponent at the start of every component
-                ChatColor.WHITE.toString() + ChatColor.RED + "Hello " + ChatColor.BLUE + ChatColor.BOLD + "World" + ChatColor.YELLOW + ChatColor.BOLD + "!",
+                WHITE.toString() + RED + "Hello " + BLUE + BOLD + "World" + YELLOW + BOLD + "!",
                 (component) -> BaseComponent.toLegacyText( component )
         );
     }
 
     private static <T> void testBuilder(Function<ComponentBuilder, T> componentBuilder, Function<T, String> toPlainTextFunction, String expectedLegacyString, Function<T, String> toLegacyTextFunction)
     {
-        T component = componentBuilder.apply( new ComponentBuilder( "Hello " ).color( ChatColor.RED ).
-                append( "World" ).bold( true ).color( ChatColor.BLUE ).
-                append( "!" ).color( ChatColor.YELLOW ) );
+        T component = componentBuilder.apply( new ComponentBuilder( "Hello " ).color( RED ).
+                append( "World" ).bold( true ).color( BLUE ).
+                append( "!" ).color( YELLOW ) );
 
         assertEquals( "Hello World!", toPlainTextFunction.apply( component ) );
         assertEquals( expectedLegacyString, toLegacyTextFunction.apply( component ) );
@@ -640,11 +617,11 @@ public class ComponentsTest
 
     private static <T> void testBuilderReset(Function<ComponentBuilder, T> componentBuilder, BiFunction<T, Integer, BaseComponent> extraGetter)
     {
-        T component = componentBuilder.apply( new ComponentBuilder( "Hello " ).color( ChatColor.RED )
+        T component = componentBuilder.apply( new ComponentBuilder( "Hello " ).color( RED )
                 .append( "World" ).reset() );
 
-        assertEquals( ChatColor.RED, extraGetter.apply( component, 0 ).getColor() );
-        assertEquals( ChatColor.WHITE, extraGetter.apply( component, 1 ).getColor() );
+        assertEquals( RED, extraGetter.apply( component, 0 ).getColor() );
+        assertEquals( WHITE, extraGetter.apply( component, 1 ).getColor() );
     }
 
     @Test
@@ -667,31 +644,31 @@ public class ComponentsTest
 
     private static <T> void testBuilderFormatRetention(Function<ComponentBuilder, T> componentBuilder, BiFunction<T, Integer, BaseComponent> extraGetter)
     {
-        T noneRetention = componentBuilder.apply( new ComponentBuilder( "Hello " ).color( ChatColor.RED )
+        T noneRetention = componentBuilder.apply( new ComponentBuilder( "Hello " ).color( RED )
                 .append( "World", ComponentBuilder.FormatRetention.NONE ) );
 
-        assertEquals( ChatColor.RED, extraGetter.apply( noneRetention, 0 ).getColor() );
-        assertEquals( ChatColor.WHITE, extraGetter.apply( noneRetention, 1 ).getColor() );
+        assertEquals( RED, extraGetter.apply( noneRetention, 0 ).getColor() );
+        assertEquals( WHITE, extraGetter.apply( noneRetention, 1 ).getColor() );
 
         HoverEvent testEvent = new HoverEvent( HoverEvent.Action.SHOW_TEXT, new Text( new ComponentBuilder( "test" ).build() ) );
 
-        T formattingRetention = componentBuilder.apply( new ComponentBuilder( "Hello " ).color( ChatColor.RED )
+        T formattingRetention = componentBuilder.apply( new ComponentBuilder( "Hello " ).color( RED )
                 .event( testEvent ).append( "World", ComponentBuilder.FormatRetention.FORMATTING ) );
 
-        assertEquals( ChatColor.RED, extraGetter.apply( formattingRetention, 0 ).getColor() );
+        assertEquals( RED, extraGetter.apply( formattingRetention, 0 ).getColor() );
         assertEquals( testEvent, extraGetter.apply( formattingRetention, 0 ).getHoverEvent() );
-        assertEquals( ChatColor.RED, extraGetter.apply( formattingRetention, 1 ).getColor() );
+        assertEquals( RED, extraGetter.apply( formattingRetention, 1 ).getColor() );
         assertNull( extraGetter.apply( formattingRetention, 1 ).getHoverEvent() );
 
         ClickEvent testClickEvent = new ClickEvent( ClickEvent.Action.OPEN_URL, "http://www.example.com" );
 
-        T eventRetention = componentBuilder.apply( new ComponentBuilder( "Hello " ).color( ChatColor.RED )
+        T eventRetention = componentBuilder.apply( new ComponentBuilder( "Hello " ).color( RED )
                 .event( testEvent ).event( testClickEvent ).append( "World", ComponentBuilder.FormatRetention.EVENTS ) );
 
-        assertEquals( ChatColor.RED, extraGetter.apply( eventRetention, 0 ).getColor() );
+        assertEquals( RED, extraGetter.apply( eventRetention, 0 ).getColor() );
         assertEquals( testEvent, extraGetter.apply( eventRetention, 0 ).getHoverEvent() );
         assertEquals( testClickEvent, extraGetter.apply( eventRetention, 0 ).getClickEvent() );
-        assertEquals( ChatColor.WHITE, extraGetter.apply( eventRetention, 1 ).getColor() );
+        assertEquals( WHITE, extraGetter.apply( eventRetention, 1 ).getColor() );
         assertEquals( testEvent, extraGetter.apply( eventRetention, 1 ).getHoverEvent() );
         assertEquals( testClickEvent, extraGetter.apply( eventRetention, 1 ).getClickEvent() );
     }
@@ -709,9 +686,9 @@ public class ComponentsTest
     {
         TextComponent a = new TextComponent( "A" );
         TextComponent b = new TextComponent( "B" );
-        b.setColor( ChatColor.AQUA );
+        b.setColor( AQUA );
         TextComponent c = new TextComponent( "C" );
-        c.setColor( ChatColor.RED );
+        c.setColor( RED );
         a.addExtra( b );
         b.addExtra( c );
         c.addExtra( a );
@@ -723,7 +700,7 @@ public class ComponentsTest
     {
         TextComponent a = new TextComponent( "A" );
         TextComponent b = new TextComponent( "B" );
-        b.setColor( ChatColor.AQUA );
+        b.setColor( AQUA );
         a.addExtra( b );
         a.addExtra( b );
         ComponentSerializer.toString( a );
@@ -734,9 +711,9 @@ public class ComponentsTest
     {
         TextComponent a = new TextComponent( "A" );
         TextComponent b = new TextComponent( "B" );
-        b.setColor( ChatColor.AQUA );
+        b.setColor( AQUA );
         TextComponent c = new TextComponent( "C" );
-        c.setColor( ChatColor.RED );
+        c.setColor( RED );
         a.addExtra( b );
         a.addExtra( c );
         c.addExtra( a );
@@ -752,15 +729,15 @@ public class ComponentsTest
         // collect all invalid color codes (e.g. §z, §g, ...)
         for ( char alphChar : "0123456789abcdefghijklmnopqrstuvwxyz".toCharArray() )
         {
-            if ( ChatColor.ALL_CODES.indexOf( alphChar ) == -1 )
+            if ( ALL_CODES.indexOf( alphChar ) == -1 )
             {
-                allInvalidColorCodes.append( ChatColor.COLOR_CHAR );
+                allInvalidColorCodes.append( COLOR_CHAR );
                 allInvalidColorCodes.append( alphChar );
             }
         }
 
         // last char is a single '§'
-        allInvalidColorCodes.append( ChatColor.COLOR_CHAR );
+        allInvalidColorCodes.append( COLOR_CHAR );
 
         String invalidColorCodesLegacyText = fromAndToLegacyText( allInvalidColorCodes.toString() );
         String emptyLegacyText = fromAndToLegacyText( "" );
@@ -772,10 +749,10 @@ public class ComponentsTest
     @Test
     public void testFormattingOnlyTextConversion()
     {
-        String text = "§a";
+        String text = "" + GREEN;
 
         BaseComponent[] converted = TextComponent.fromLegacyText( text );
-        assertEquals( ChatColor.GREEN, converted[0].getColor() );
+        assertEquals( GREEN, converted[0].getColor() );
 
         String roundtripLegacyText = BaseComponent.toLegacyText( converted );
 
@@ -810,7 +787,7 @@ public class ComponentsTest
     @Test
     public void testLegacyHack()
     {
-        BaseComponent[] hexColored = new ComponentBuilder().color( ChatColor.of( Color.GRAY ) ).append( "Test" ).create();
+        BaseComponent[] hexColored = new ComponentBuilder().color( of( Color.GRAY ) ).append( "Test" ).create();
         String legacy = BaseComponent.toLegacyText( hexColored );
 
         BaseComponent[] reColored = TextComponent.fromLegacyText( legacy );
@@ -865,7 +842,7 @@ public class ComponentsTest
     private static <T> void testLegacyResetInBuilder(Function<ComponentBuilder, T> componentBuilder, Function<T, String> componentSerializer)
     {
         ComponentBuilder builder = new ComponentBuilder();
-        BaseComponent[] a = TextComponent.fromLegacyText( "§4§n44444§rdd§6§l6666" );
+        BaseComponent[] a = TextComponent.fromLegacyText( "" + DARK_RED + UNDERLINE + "44444" + RESET + "dd" + GOLD + BOLD + "6666" );
 
         String expected = "{\"extra\":[{\"underlined\":true,\"color\":\"dark_red\",\"text\":\"44444\"},{\"color\":"
                 + "\"white\",\"text\":\"dd\"},{\"bold\":true,\"color\":\"gold\",\"text\":\"6666\"}],\"text\":\"\"}";
@@ -876,7 +853,7 @@ public class ComponentsTest
         String test1 = componentSerializer.apply( componentBuilder.apply( builder ) );
         assertEquals( expected, test1 );
 
-        BaseComponent[] b = TextComponent.fromLegacyText( "§rrrrr" );
+        BaseComponent[] b = TextComponent.fromLegacyText( RESET + "rrrr" );
         builder.append( b );
 
         String test2 = componentSerializer.apply( componentBuilder.apply( builder ) );
