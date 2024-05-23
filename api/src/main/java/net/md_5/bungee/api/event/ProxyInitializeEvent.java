@@ -11,12 +11,12 @@ public class ProxyInitializeEvent extends Event
     private final boolean success;
 
 
-    public ProxyInitializeEvent(ListenerInfo info, boolean success )
+    public ProxyInitializeEvent( ListenerInfo info, boolean success )
     {
 
         if(info == null)
         {
-            throw new NullPointerException("ListenerInfo cannot be null!");
+            throw new NullPointerException( "ListenerInfo cannot be null!" );
         }
 
         this.info = info;
