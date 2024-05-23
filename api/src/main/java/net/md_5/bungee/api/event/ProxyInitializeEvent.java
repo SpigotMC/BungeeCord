@@ -1,21 +1,35 @@
 package net.md_5.bungee.api.event;
 
-import java.util.Map;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.plugin.Event;
 
 public class ProxyInitializeEvent extends Event
 {
 
-    private final Map<ListenerInfo, Boolean> listenerState;
+    private final ListenerInfo info;
 
-    public ProxyInitializeEvent(Map<ListenerInfo, Boolean> listenerState)
+    private final boolean success;
+
+
+    public ProxyInitializeEvent(ListenerInfo info, boolean success )
     {
-        this.listenerState = listenerState;
+
+        if(info == null)
+        {
+            throw new NullPointerException("ListenerInfo cannot be null!");
+        }
+
+        this.info = info;
+        this.success = success;
     }
 
-    public Map<ListenerInfo, Boolean> getListenerState()
+    public ListenerInfo getInfo()
     {
-        return listenerState;
+        return info;
+    }
+
+    public boolean getSuccess()
+    {
+        return success;
     }
 }
