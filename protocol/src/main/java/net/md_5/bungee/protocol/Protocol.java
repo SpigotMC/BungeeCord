@@ -18,6 +18,7 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.Commands;
 import net.md_5.bungee.protocol.packet.CookieRequest;
 import net.md_5.bungee.protocol.packet.CookieResponse;
+import net.md_5.bungee.protocol.packet.DisconnectReportDetails;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
 import net.md_5.bungee.protocol.packet.EntityStatus;
@@ -44,6 +45,7 @@ import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.ScoreboardScoreReset;
 import net.md_5.bungee.protocol.packet.ServerData;
+import net.md_5.bungee.protocol.packet.ServerLinks;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.StartConfiguration;
 import net.md_5.bungee.protocol.packet.StatusRequest;
@@ -496,6 +498,16 @@ public enum Protocol
                     Transfer::new,
                     map( ProtocolConstants.MINECRAFT_1_20_5, 0x73 )
             );
+            TO_CLIENT.registerPacket(
+                    DisconnectReportDetails.class,
+                    DisconnectReportDetails::new,
+                    map( ProtocolConstants.MINECRAFT_1_21, 0x7A )
+            );
+            TO_CLIENT.registerPacket(
+                    ServerLinks.class,
+                    ServerLinks::new,
+                    map( ProtocolConstants.MINECRAFT_1_21, 0x7B )
+            );
 
             TO_SERVER.registerPacket(
                     KeepAlive.class,
@@ -741,6 +753,16 @@ public enum Protocol
                     Transfer.class,
                     Transfer::new,
                     map( ProtocolConstants.MINECRAFT_1_20_5, 0x0B )
+            );
+            TO_CLIENT.registerPacket(
+                    DisconnectReportDetails.class,
+                    DisconnectReportDetails::new,
+                    map( ProtocolConstants.MINECRAFT_1_21, 0x0F )
+            );
+            TO_CLIENT.registerPacket(
+                    ServerLinks.class,
+                    ServerLinks::new,
+                    map( ProtocolConstants.MINECRAFT_1_21, 0x10 )
             );
 
             TO_SERVER.registerPacket(
