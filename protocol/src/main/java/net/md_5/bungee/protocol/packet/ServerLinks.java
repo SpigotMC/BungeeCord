@@ -69,7 +69,17 @@ public class ServerLinks extends DefinedPacket
 
     public enum LinkType
     {
-        REPORT_BUG;
+
+        REPORT_BUG,
+        COMMUNITY_GUIDELINES,
+        SUPPORT,
+        STATUS,
+        FEEDBACK,
+        COMMUNITY,
+        WEBSITE,
+        FORUMS,
+        NEWS,
+        ANNOUNCEMENTS;
     }
 
     @Data
