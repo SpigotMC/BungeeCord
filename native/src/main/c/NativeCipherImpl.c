@@ -14,19 +14,17 @@ struct crypto_context {
 
 jlong JNICALL Java_net_md_15_bungee_jni_cipher_NativeCipherImpl_init(JNIEnv* env, jobject obj, jboolean forEncryption, jbyteArray key) {
     jsize keyLen = (*env)->GetArrayLength(env, key);
-    jbyte *keyBytes = (*env)->GetByteArrayElements(env, key, NULL);
 
     crypto_context *crypto = (crypto_context*) malloc(sizeof (crypto_context));
-    mbedtls_aes_init(&crypto->cipher);
-
-    mbedtls_aes_setkey_enc(&crypto->cipher, (byte*) keyBytes, keyLen * 8);
-
     crypto->key = (byte*) malloc(keyLen);
-    memcpy(crypto->key, keyBytes, keyLen);
+
+    (*env)->GetByteArrayRegion(env, key, 0, keyLen, (jbyte*)crypto->key);
+
+    mbedtls_aes_init(&crypto->cipher);
+    mbedtls_aes_setkey_enc(&crypto->cipher, (byte*) keyBytes, keyLen * 8);
 
     crypto->mode = (forEncryption) ? MBEDTLS_AES_ENCRYPT : MBEDTLS_AES_DECRYPT;
 
-    (*env)->ReleaseByteArrayElements(env, key, keyBytes, JNI_ABORT);
     return (jlong) crypto;
 }
 
