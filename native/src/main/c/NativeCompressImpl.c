@@ -15,6 +15,10 @@ void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_initFields(JNIEnv
     finishedID = (*env)->GetFieldID(env, clazz, "finished", "Z");
 }
 
+static void throwOutOfMemoryError(JNIEnv* env, const char* msg) {
+    (*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/OutOfMemoryError"), msg);
+}
+
 jint throwException(JNIEnv *env, const char* message, int err) {
     // These can't be static for some unknown reason
     jclass exceptionClass = (*env)->FindClass(env, "net/md_5/bungee/jni/NativeCodeException");
@@ -48,10 +52,17 @@ void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_end(JNIEnv* env, 
 
 jlong JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_init(JNIEnv* env, jobject obj, jboolean compress, jint level) {
     z_stream* stream = (z_stream*) calloc(1, sizeof (z_stream));
+    if(!stream) {
+        throwOutOfMemoryError(env, "Failed to calloc new z_stream");
+        return 0;
+    }
+
     int ret = (compress) ? deflateInit(stream, level) : inflateInit(stream);
 
     if (ret != Z_OK) {
+        free(stream);
         throwException(env, "Could not init z_stream", ret);
+        return 0;
     }
 
     return (jlong) stream;
@@ -76,6 +87,7 @@ jint JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_process(JNIEnv* e
             break;
         default:
             throwException(env, "Unknown z_stream return code", ret);
+            return -1;
     }
 
     (*env)->SetIntField(env, obj, consumedID, inLength - stream->avail_in);

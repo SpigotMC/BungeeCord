@@ -12,11 +12,25 @@ struct crypto_context {
     byte *key;
 };
 
+static void throwOutOfMemoryError(JNIEnv* env, const char* msg) {
+    (*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/OutOfMemoryError"), msg);
+}
+
 jlong JNICALL Java_net_md_15_bungee_jni_cipher_NativeCipherImpl_init(JNIEnv* env, jobject obj, jboolean forEncryption, jbyteArray key) {
     jsize keyLen = (*env)->GetArrayLength(env, key);
 
     crypto_context *crypto = (crypto_context*) malloc(sizeof (crypto_context));
+    if(!crypto) {
+        throwOutOfMemoryError(env, "Failed to malloc new crypto_context");
+        return 0;
+    }
+
     crypto->key = (byte*) malloc(keyLen);
+    if(!crypto->key) {
+        free(crypto);
+        throwOutOfMemoryError(env, "Failed to malloc new crypto_context.key");
+        return 0;
+    }
 
     (*env)->GetByteArrayRegion(env, key, 0, keyLen, (jbyte*)crypto->key);
 
