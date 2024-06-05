@@ -11,19 +11,19 @@ static jfieldID finishedID;
 
 void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_initFields(JNIEnv* env, jclass clazz) {
     // We trust that these fields will be there
-    consumedID = env->GetFieldID(clazz, "consumed", "I");
-    finishedID = env->GetFieldID(clazz, "finished", "Z");
+    consumedID = (*env)->GetFieldID(env, clazz, "consumed", "I");
+    finishedID = (*env)->GetFieldID(env, clazz, "finished", "Z");
 }
 
 jint throwException(JNIEnv *env, const char* message, int err) {
     // These can't be static for some unknown reason
-    jclass exceptionClass = env->FindClass("net/md_5/bungee/jni/NativeCodeException");
-    jmethodID exceptionInitID = env->GetMethodID(exceptionClass, "<init>", "(Ljava/lang/String;I)V");
+    jclass exceptionClass = (*env)->FindClass(env, "net/md_5/bungee/jni/NativeCodeException");
+    jmethodID exceptionInitID = (*env)->GetMethodID(env, exceptionClass, "<init>", "(Ljava/lang/String;I)V");
 
-    jstring jMessage = env->NewStringUTF(message);
+    jstring jMessage = (*env)->NewStringUTF(env, message);
 
-    jthrowable throwable = (jthrowable) env->NewObject(exceptionClass, exceptionInitID, jMessage, err);
-    return env->Throw(throwable);
+    jthrowable throwable = (jthrowable) (*env)->NewObject(env, exceptionClass, exceptionInitID, jMessage, err);
+    return (*env)->Throw(env, throwable);
 }
 
 void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_reset(JNIEnv* env, jobject obj, jlong ctx, jboolean compress) {
@@ -70,7 +70,7 @@ jint JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_process(JNIEnv* e
 
     switch (ret) {
         case Z_STREAM_END:
-            env->SetBooleanField(obj, finishedID, true);
+            (*env)->SetBooleanField(env, obj, finishedID, true);
             break;
         case Z_OK:
             break;
@@ -78,7 +78,7 @@ jint JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_process(JNIEnv* e
             throwException(env, "Unknown z_stream return code", ret);
     }
 
-    env->SetIntField(obj, consumedID, inLength - stream->avail_in);
+    (*env)->SetIntField(env, obj, consumedID, inLength - stream->avail_in);
 
     return outLength - stream->avail_out;
 }

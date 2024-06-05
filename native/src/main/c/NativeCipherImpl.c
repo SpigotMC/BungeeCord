@@ -13,8 +13,8 @@ struct crypto_context {
 };
 
 jlong JNICALL Java_net_md_15_bungee_jni_cipher_NativeCipherImpl_init(JNIEnv* env, jobject obj, jboolean forEncryption, jbyteArray key) {
-    jsize keyLen = env->GetArrayLength(key);
-    jbyte *keyBytes = env->GetByteArrayElements(key, NULL);
+    jsize keyLen = (*env)->GetArrayLength(env, key);
+    jbyte *keyBytes = (*env)->GetByteArrayElements(env, key, NULL);
 
     crypto_context *crypto = (crypto_context*) malloc(sizeof (crypto_context));
     mbedtls_aes_init(&crypto->cipher);
@@ -26,7 +26,7 @@ jlong JNICALL Java_net_md_15_bungee_jni_cipher_NativeCipherImpl_init(JNIEnv* env
 
     crypto->mode = (forEncryption) ? MBEDTLS_AES_ENCRYPT : MBEDTLS_AES_DECRYPT;
 
-    env->ReleaseByteArrayElements(key, keyBytes, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, key, keyBytes, JNI_ABORT);
     return (jlong) crypto;
 }
 
