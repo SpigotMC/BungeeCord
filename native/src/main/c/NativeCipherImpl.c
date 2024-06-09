@@ -6,11 +6,11 @@
 
 typedef unsigned char byte;
 
-struct crypto_context {
+typedef struct crypto_context {
     int mode;
     mbedtls_aes_context cipher;
     byte *key;
-};
+} crypto_context;
 
 static void throwOutOfMemoryError(JNIEnv* env, const char* msg) {
     (*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/OutOfMemoryError"), msg);
@@ -35,7 +35,7 @@ jlong JNICALL Java_net_md_15_bungee_jni_cipher_NativeCipherImpl_init(JNIEnv* env
     (*env)->GetByteArrayRegion(env, key, 0, keyLen, (jbyte*)crypto->key);
 
     mbedtls_aes_init(&crypto->cipher);
-    mbedtls_aes_setkey_enc(&crypto->cipher, (byte*) keyBytes, keyLen * 8);
+    mbedtls_aes_setkey_enc(&crypto->cipher, (byte*) crypto->key, keyLen * 8);
 
     crypto->mode = (forEncryption) ? MBEDTLS_AES_ENCRYPT : MBEDTLS_AES_DECRYPT;
 

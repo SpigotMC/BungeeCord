@@ -81,7 +81,7 @@ jint JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_process(JNIEnv* e
 
     switch (ret) {
         case Z_STREAM_END:
-            (*env)->SetBooleanField(env, obj, finishedID, true);
+            (*env)->SetBooleanField(env, obj, finishedID, JNI_TRUE);
             break;
         case Z_OK:
             break;
