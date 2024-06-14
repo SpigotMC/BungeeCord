@@ -388,6 +388,10 @@ public class ServerConnector extends PacketHandler
         user.setServer( server );
         ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new DownstreamBridge( bungee, user, server ) );
 
+        // Updates the flush handler connections (the get/set methods add the channel handlers if needed)
+        ch.setFlushSignalingTarget( user.getCh().getFlushConsolidationHandler( false ) );
+        user.getCh().setFlushSignalingTarget( ch.getFlushConsolidationHandler( true ) );
+
         bungee.getPluginManager().callEvent( new ServerSwitchEvent( user, from ) );
 
         thisState = State.FINISHED;
