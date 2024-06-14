@@ -120,13 +120,14 @@ public class DownstreamBridge extends PacketHandler
             bungee.getReconnectHandler().setServer( con );
         }
 
-        if ( !server.isObsolete() )
-        {
-            con.disconnect( bungee.getTranslation( "lost_connection" ) );
-        }
-
         ServerDisconnectEvent serverDisconnectEvent = new ServerDisconnectEvent( con, server.getInfo() );
         bungee.getPluginManager().callEvent( serverDisconnectEvent );
+
+        if ( !server.isObsolete() )
+        {
+            server.setObsolete( true );
+            con.connect( con.updateAndGetNextServer( server.getInfo() ), ServerConnectEvent.Reason.KICK_REDIRECT );
+        }
     }
 
     @Override
