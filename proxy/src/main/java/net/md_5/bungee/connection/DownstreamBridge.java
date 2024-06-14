@@ -123,10 +123,21 @@ public class DownstreamBridge extends PacketHandler
         ServerDisconnectEvent serverDisconnectEvent = new ServerDisconnectEvent( con, server.getInfo() );
         bungee.getPluginManager().callEvent( serverDisconnectEvent );
 
-        if ( !server.isObsolete() )
+        if ( server.isObsolete() )
+        {
+            // do not perform any actions if the user has already moved
+            return;
+        }
+
+        ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
+        if ( def != null )
         {
             server.setObsolete( true );
-            con.connect( con.updateAndGetNextServer( server.getInfo() ), ServerConnectEvent.Reason.KICK_REDIRECT );
+            con.connectNow( def, ServerConnectEvent.Reason.SERVER_DOWN_REDIRECT );
+            con.sendMessage( bungee.getTranslation( "server_went_down" ) );
+        } else
+        {
+            con.disconnect( bungee.getTranslation( "lost_connection" ) );
         }
     }
 
