@@ -103,7 +103,7 @@ public class DownstreamBridge extends PacketHandler
         {
             server.setObsolete( true );
             con.connectNow( def, ServerConnectEvent.Reason.SERVER_DOWN_REDIRECT );
-            con.sendMessage( bungee.getTranslation( "server_went_down" ) );
+            con.sendMessage( bungee.getTranslation( "server_went_down", def.getName() ) );
         } else
         {
             con.disconnect( Util.exception( t ) );
@@ -134,7 +134,7 @@ public class DownstreamBridge extends PacketHandler
         {
             server.setObsolete( true );
             con.connectNow( def, ServerConnectEvent.Reason.SERVER_DOWN_REDIRECT );
-            con.sendMessage( bungee.getTranslation( "server_went_down" ) );
+            con.sendMessage( bungee.getTranslation( "server_went_down", def.getName() ) );
         } else
         {
             con.disconnect( bungee.getTranslation( "lost_connection" ) );
