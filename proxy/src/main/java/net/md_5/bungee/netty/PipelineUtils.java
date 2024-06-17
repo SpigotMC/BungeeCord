@@ -89,7 +89,7 @@ public class PipelineUtils
             {
                 ch.pipeline().addFirst( new HAProxyMessageDecoder() );
             }
-            BungeeCord.getInstance().getPluginManager().callEvent( new ChannelInitializeEvent( ch ) );
+            BungeeCord.getInstance().getPluginManager().callEvent( new ChannelInitializeEvent( ch, true ) );
         }
     };
     public static final Base BASE = new Base( false );
