@@ -13,8 +13,8 @@ import org.jetbrains.annotations.ApiStatus;
  */
 
 @Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = false)
+@EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
 @ApiStatus.Experimental
 public class ChannelInitializeEvent extends Event
