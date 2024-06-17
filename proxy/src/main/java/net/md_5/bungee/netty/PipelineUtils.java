@@ -89,6 +89,7 @@ public class PipelineUtils
             {
                 ch.pipeline().addFirst( new HAProxyMessageDecoder() );
             }
+            BungeeCord.getInstance().getPluginManager().callEvent( new ChannelInitializeEvent( ch ) );
         }
     };
     public static final Base BASE = new Base( false );
@@ -189,7 +190,6 @@ public class PipelineUtils
         @Override
         public void initChannel(Channel ch) throws Exception
         {
-            BungeeCord.getInstance().getPluginManager().callEvent( new ChannelInitializeEvent( ch ) );
             try
             {
                 ch.config().setOption( ChannelOption.IP_TOS, 0x18 );
