@@ -41,6 +41,7 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
+import net.md_5.bungee.api.event.ChannelInitializeEvent;
 import net.md_5.bungee.api.event.ClientConnectEvent;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.protocol.KickStringWriter;
@@ -188,6 +189,7 @@ public class PipelineUtils
         @Override
         public void initChannel(Channel ch) throws Exception
         {
+            BungeeCord.getInstance().getPluginManager().callEvent( new ChannelInitializeEvent( ch ) );
             try
             {
                 ch.config().setOption( ChannelOption.IP_TOS, 0x18 );
