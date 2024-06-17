@@ -1,0 +1,26 @@
+package net.md_5.bungee.api.event;
+
+import io.netty.channel.Channel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import net.md_5.bungee.api.plugin.Event;
+import org.jetbrains.annotations.ApiStatus;
+
+/*
+ * This event is called for every minecraft connection related channel that is initialized by BungeeCord
+ */
+
+@Data
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@AllArgsConstructor
+@ApiStatus.Experimental
+public class ChannelInitializeEvent extends Event
+{
+    /**
+     * The raw netty channel that is being initialized
+     */
+    private Channel channel;
+}
