@@ -23,4 +23,8 @@ public class ChannelInitializeEvent extends Event
      * The raw netty channel that is being initialized
      */
     private Channel channel;
+    /**
+     * Channel decodes packets directed to server
+     */
+    private boolean server;
 }
