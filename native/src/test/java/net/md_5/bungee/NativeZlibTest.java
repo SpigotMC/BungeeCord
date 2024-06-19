@@ -18,17 +18,28 @@ public class NativeZlibTest
     private final NativeCode<BungeeZlib> factory = new NativeCode<>( "native-compress", JavaZlib::new, NativeZlib::new );
 
     @Test
-    public void doTest() throws DataFormatException
+    public void testCompression() throws DataFormatException
     {
         if ( NativeCode.isSupported() )
         {
             assertTrue( factory.load(), "Native code failed to load!" );
-            test( factory.newInstance() );
+            testCompressionImpl( factory.newInstance() );
         }
-        test( new JavaZlib() );
+        testCompressionImpl( new JavaZlib() );
     }
 
-    private void test(BungeeZlib zlib) throws DataFormatException
+    @Test
+    public void testException() throws DataFormatException
+    {
+        if ( NativeCode.isSupported() )
+        {
+            assertTrue( factory.load(), "Native code failed to load!" );
+            testExceptionImpl( factory.newInstance() );
+        }
+        testExceptionImpl( new JavaZlib() );
+    }
+
+    private void testCompressionImpl(BungeeZlib zlib) throws DataFormatException
     {
         System.out.println( "Testing: " + zlib );
         long start = System.currentTimeMillis();
@@ -65,5 +76,23 @@ public class NativeZlibTest
         System.out.println( "Took: " + elapsed + "ms" );
 
         assertTrue( Arrays.equals( dataBuf, check ), "Results do not match" );
+    }
+
+    private void testExceptionImpl(BungeeZlib zlib) throws DataFormatException
+    {
+        System.out.println( "Testing Exception: " + zlib );
+        long start = System.currentTimeMillis();
+
+        byte[] dataBuf = new byte[ 1 << 12 ]; // 4096 random bytes
+        new Random().nextBytes( dataBuf );
+
+        zlib.init( false, 0 );
+
+        ByteBuf originalBuf = Unpooled.directBuffer();
+        originalBuf.writeBytes( dataBuf );
+
+        ByteBuf decompressed = Unpooled.directBuffer();
+
+        assertThrows( DataFormatException.class, () -> zlib.process( originalBuf, decompressed ), "Decompressing random bytes did not result in a DataFormatException!" );
     }
 }
