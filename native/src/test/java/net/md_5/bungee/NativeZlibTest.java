@@ -18,14 +18,14 @@ public class NativeZlibTest
     private final NativeCode<BungeeZlib> factory = new NativeCode<>( "native-compress", JavaZlib::new, NativeZlib::new );
 
     @Test
-    public void testCompression() throws DataFormatException
+    public void doTest() throws DataFormatException
     {
         if ( NativeCode.isSupported() )
         {
             assertTrue( factory.load(), "Native code failed to load!" );
-            testCompressionImpl( factory.newInstance() );
+            test( factory.newInstance() );
         }
-        testCompressionImpl( new JavaZlib() );
+        test( new JavaZlib() );
     }
 
     @Test
@@ -39,7 +39,7 @@ public class NativeZlibTest
         testExceptionImpl( new JavaZlib() );
     }
 
-    private void testCompressionImpl(BungeeZlib zlib) throws DataFormatException
+    private void test(BungeeZlib zlib) throws DataFormatException
     {
         System.out.println( "Testing: " + zlib );
         long start = System.currentTimeMillis();
