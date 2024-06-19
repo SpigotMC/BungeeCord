@@ -7,23 +7,22 @@
 
 typedef unsigned char byte;
 
+static jclass classID;
 static jfieldID consumedID;
 static jfieldID finishedID;
+static jmethodID makeExceptionID;
 
 void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_initFields(JNIEnv* env, jclass clazz) {
-    // We trust that these fields will be there
+    classID = clazz;
+    // We trust that these will be there
     consumedID = (*env)->GetFieldID(env, clazz, "consumed", "I");
     finishedID = (*env)->GetFieldID(env, clazz, "finished", "Z");
+    makeExceptionID = (*env)->GetMethodID(env, clazz, "makeException", "(Ljava/lang/String;I)Lnet/md_5/bungee/jni/NativeCodeException;");
 }
 
 jint throwException(JNIEnv *env, const char* message, int err) {
-    // These can't be static for some unknown reason
-    jclass exceptionClass = (*env)->FindClass(env, "net/md_5/bungee/jni/NativeCodeException");
-    jmethodID exceptionInitID = (*env)->GetMethodID(env, exceptionClass, "<init>", "(Ljava/lang/String;I)V");
-
     jstring jMessage = (*env)->NewStringUTF(env, message);
-
-    jthrowable throwable = (jthrowable) (*env)->NewObject(env, exceptionClass, exceptionInitID, jMessage, err);
+    jthrowable throwable = (jthrowable) (*env)->CallStaticObjectMethod(env, classID, makeExceptionID, jMessage, err);
     return (*env)->Throw(env, throwable);
 }
 

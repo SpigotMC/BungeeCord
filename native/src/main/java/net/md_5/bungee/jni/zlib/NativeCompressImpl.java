@@ -1,5 +1,7 @@
 package net.md_5.bungee.jni.zlib;
 
+import net.md_5.bungee.jni.NativeCodeException;
+
 public class NativeCompressImpl
 {
 
@@ -20,4 +22,9 @@ public class NativeCompressImpl
     native long init(boolean compress, int compressionLevel);
 
     native int process(long ctx, long in, int inLength, long out, int outLength, boolean compress);
+
+    NativeCodeException makeException(String message, int err)
+    {
+        return new NativeCodeException( message, err );
+    }
 }
