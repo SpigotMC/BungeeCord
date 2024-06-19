@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include <mbedtls/aes.h>
+#include "shared.h"
 #include "net_md_5_bungee_jni_cipher_NativeCipherImpl.h"
 
 typedef unsigned char byte;
@@ -11,10 +12,6 @@ typedef struct crypto_context {
     mbedtls_aes_context cipher;
     byte key[];
 } crypto_context;
-
-static void throwOutOfMemoryError(JNIEnv* env, const char* msg) {
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/OutOfMemoryError"), msg);
-}
 
 jlong JNICALL Java_net_md_15_bungee_jni_cipher_NativeCipherImpl_init(JNIEnv* env, jobject obj, jboolean forEncryption, jbyteArray key) {
     jsize keyLen = (*env)->GetArrayLength(env, key);

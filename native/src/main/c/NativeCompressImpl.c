@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include <zlib.h>
+#include "shared.h"
 #include "net_md_5_bungee_jni_zlib_NativeCompressImpl.h"
 
 typedef unsigned char byte;
@@ -13,10 +14,6 @@ void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_initFields(JNIEnv
     // We trust that these fields will be there
     consumedID = (*env)->GetFieldID(env, clazz, "consumed", "I");
     finishedID = (*env)->GetFieldID(env, clazz, "finished", "Z");
-}
-
-static void throwOutOfMemoryError(JNIEnv* env, const char* msg) {
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/OutOfMemoryError"), msg);
 }
 
 jint throwException(JNIEnv *env, const char* message, int err) {
