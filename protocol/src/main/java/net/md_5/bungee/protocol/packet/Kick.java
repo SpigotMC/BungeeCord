@@ -11,8 +11,7 @@ import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.util.ChatDeserializable;
-import net.md_5.bungee.protocol.util.ChatFunctionDeserializable;
-import net.md_5.bungee.protocol.util.Either;
+import net.md_5.bungee.protocol.util.ChatDeserializableJson;
 
 @Data
 @NoArgsConstructor
@@ -28,8 +27,7 @@ public class Kick extends DefinedPacket
     {
         if ( protocol == Protocol.LOGIN )
         {
-            String json = readString( buf );
-            message = new ChatFunctionDeserializable( Either.left( json ), (ov) -> ChatSerializer.forVersion( protocolVersion ).deserialize( ov.getLeft() ) );
+            message = new ChatDeserializableJson( protocolVersion, readString( buf ) );
         } else
         {
             message = readBaseComponent( buf, protocolVersion );
