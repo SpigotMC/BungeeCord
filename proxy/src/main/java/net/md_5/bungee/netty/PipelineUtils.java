@@ -41,7 +41,7 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
-import net.md_5.bungee.api.event.ChannelInitializeEvent;
+import net.md_5.bungee.api.event.UnsafeChannelInitializeEvent;
 import net.md_5.bungee.api.event.ClientConnectEvent;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.protocol.KickStringWriter;
@@ -89,7 +89,7 @@ public class PipelineUtils
             {
                 ch.pipeline().addFirst( new HAProxyMessageDecoder() );
             }
-            BungeeCord.getInstance().getPluginManager().callEvent( new ChannelInitializeEvent( ch, true ) );
+            BungeeCord.getInstance().getPluginManager().callEvent( new UnsafeChannelInitializeEvent( ch, true ) );
         }
     };
     public static final Base BASE = new Base( false );
