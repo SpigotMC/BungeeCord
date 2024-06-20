@@ -5,4 +5,8 @@ import net.md_5.bungee.nbt.TypedTag;
 
 public interface ChatDeserializable extends Deserializable<Either<String, TypedTag>, BaseComponent>
 {
+    default ChatNewDeserializable cloneAsNew()
+    {
+        return new ChatNewComponentDeserializable( get() );
+    }
 }
