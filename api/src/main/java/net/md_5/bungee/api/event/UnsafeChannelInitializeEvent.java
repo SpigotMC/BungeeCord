@@ -17,7 +17,7 @@ import org.jetbrains.annotations.ApiStatus;
 @EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
 @ApiStatus.Experimental
-public class ChannelInitializeEvent extends Event
+public class UnsafeChannelInitializeEvent extends Event
 {
     /**
      * The raw netty channel that is being initialized
