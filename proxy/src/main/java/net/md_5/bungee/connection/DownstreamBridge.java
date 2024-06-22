@@ -103,7 +103,7 @@ public class DownstreamBridge extends PacketHandler
         {
             server.setObsolete( true );
             con.connectNow( def, ServerConnectEvent.Reason.SERVER_DOWN_REDIRECT );
-            con.sendMessage( bungee.getTranslation( "server_went_down" ) );
+            con.sendMessage( bungee.getTranslation( "server_went_down", def.getName() ) );
         } else
         {
             con.disconnect( Util.exception( t ) );
@@ -120,13 +120,25 @@ public class DownstreamBridge extends PacketHandler
             bungee.getReconnectHandler().setServer( con );
         }
 
-        if ( !server.isObsolete() )
+        ServerDisconnectEvent serverDisconnectEvent = new ServerDisconnectEvent( con, server.getInfo() );
+        bungee.getPluginManager().callEvent( serverDisconnectEvent );
+
+        if ( server.isObsolete() )
+        {
+            // do not perform any actions if the user has already moved
+            return;
+        }
+
+        ServerInfo def = con.updateAndGetNextServer( server.getInfo() );
+        if ( def != null )
+        {
+            server.setObsolete( true );
+            con.connectNow( def, ServerConnectEvent.Reason.SERVER_DOWN_REDIRECT );
+            con.sendMessage( bungee.getTranslation( "server_went_down", def.getName() ) );
+        } else
         {
             con.disconnect( bungee.getTranslation( "lost_connection" ) );
         }
-
-        ServerDisconnectEvent serverDisconnectEvent = new ServerDisconnectEvent( con, server.getInfo() );
-        bungee.getPluginManager().callEvent( serverDisconnectEvent );
     }
 
     @Override
