@@ -2,31 +2,33 @@
 #include <string.h>
 
 #include <mbedtls/aes.h>
+#include "shared.h"
 #include "net_md_5_bungee_jni_cipher_NativeCipherImpl.h"
 
 typedef unsigned char byte;
 
-struct crypto_context {
+typedef struct crypto_context {
     int mode;
     mbedtls_aes_context cipher;
-    byte *key;
-};
+    byte key[];
+} crypto_context;
 
 jlong JNICALL Java_net_md_15_bungee_jni_cipher_NativeCipherImpl_init(JNIEnv* env, jobject obj, jboolean forEncryption, jbyteArray key) {
-    jsize keyLen = env->GetArrayLength(key);
-    jbyte *keyBytes = env->GetByteArrayElements(key, NULL);
+    jsize keyLen = (*env)->GetArrayLength(env, key);
 
-    crypto_context *crypto = (crypto_context*) malloc(sizeof (crypto_context));
+    crypto_context *crypto = (crypto_context*) malloc(sizeof (crypto_context) + (size_t) keyLen);
+    if (!crypto) {
+        throwOutOfMemoryError(env, "Failed to malloc new crypto_context");
+        return 0;
+    }
+
+    (*env)->GetByteArrayRegion(env, key, 0, keyLen, (jbyte*) &crypto->key);
+
     mbedtls_aes_init(&crypto->cipher);
-
-    mbedtls_aes_setkey_enc(&crypto->cipher, (byte*) keyBytes, keyLen * 8);
-
-    crypto->key = (byte*) malloc(keyLen);
-    memcpy(crypto->key, keyBytes, keyLen);
+    mbedtls_aes_setkey_enc(&crypto->cipher, (byte*) &crypto->key, keyLen * 8);
 
     crypto->mode = (forEncryption) ? MBEDTLS_AES_ENCRYPT : MBEDTLS_AES_DECRYPT;
 
-    env->ReleaseByteArrayElements(key, keyBytes, JNI_ABORT);
     return (jlong) crypto;
 }
 
@@ -34,7 +36,6 @@ void Java_net_md_15_bungee_jni_cipher_NativeCipherImpl_free(JNIEnv* env, jobject
     crypto_context *crypto = (crypto_context*) ctx;
 
     mbedtls_aes_free(&crypto->cipher);
-    free(crypto->key);
     free(crypto);
 }
 

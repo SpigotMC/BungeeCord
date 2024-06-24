@@ -2,28 +2,28 @@
 #include <string.h>
 
 #include <zlib.h>
+#include "shared.h"
 #include "net_md_5_bungee_jni_zlib_NativeCompressImpl.h"
 
 typedef unsigned char byte;
 
+static jclass classID;
 static jfieldID consumedID;
 static jfieldID finishedID;
+static jmethodID makeExceptionID;
 
 void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_initFields(JNIEnv* env, jclass clazz) {
-    // We trust that these fields will be there
-    consumedID = env->GetFieldID(clazz, "consumed", "I");
-    finishedID = env->GetFieldID(clazz, "finished", "Z");
+    classID = clazz;
+    // We trust that these will be there
+    consumedID = (*env)->GetFieldID(env, clazz, "consumed", "I");
+    finishedID = (*env)->GetFieldID(env, clazz, "finished", "Z");
+    makeExceptionID = (*env)->GetMethodID(env, clazz, "makeException", "(Ljava/lang/String;I)Lnet/md_5/bungee/jni/NativeCodeException;");
 }
 
 jint throwException(JNIEnv *env, const char* message, int err) {
-    // These can't be static for some unknown reason
-    jclass exceptionClass = env->FindClass("net/md_5/bungee/jni/NativeCodeException");
-    jmethodID exceptionInitID = env->GetMethodID(exceptionClass, "<init>", "(Ljava/lang/String;I)V");
-
-    jstring jMessage = env->NewStringUTF(message);
-
-    jthrowable throwable = (jthrowable) env->NewObject(exceptionClass, exceptionInitID, jMessage, err);
-    return env->Throw(throwable);
+    jstring jMessage = (*env)->NewStringUTF(env, message);
+    jthrowable throwable = (jthrowable) (*env)->CallStaticObjectMethod(env, classID, makeExceptionID, jMessage, err);
+    return (*env)->Throw(env, throwable);
 }
 
 void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_reset(JNIEnv* env, jobject obj, jlong ctx, jboolean compress) {
@@ -48,10 +48,17 @@ void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_end(JNIEnv* env, 
 
 jlong JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_init(JNIEnv* env, jobject obj, jboolean compress, jint level) {
     z_stream* stream = (z_stream*) calloc(1, sizeof (z_stream));
+    if (!stream) {
+        throwOutOfMemoryError(env, "Failed to calloc new z_stream");
+        return 0;
+    }
+
     int ret = (compress) ? deflateInit(stream, level) : inflateInit(stream);
 
     if (ret != Z_OK) {
+        free(stream);
         throwException(env, "Could not init z_stream", ret);
+        return 0;
     }
 
     return (jlong) stream;
@@ -70,15 +77,16 @@ jint JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_process(JNIEnv* e
 
     switch (ret) {
         case Z_STREAM_END:
-            env->SetBooleanField(obj, finishedID, true);
+            (*env)->SetBooleanField(env, obj, finishedID, JNI_TRUE);
             break;
         case Z_OK:
             break;
         default:
             throwException(env, "Unknown z_stream return code", ret);
+            return -1;
     }
 
-    env->SetIntField(obj, consumedID, inLength - stream->avail_in);
+    (*env)->SetIntField(env, obj, consumedID, inLength - stream->avail_in);
 
     return outLength - stream->avail_out;
 }

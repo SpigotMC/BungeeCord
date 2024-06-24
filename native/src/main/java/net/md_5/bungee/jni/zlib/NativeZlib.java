@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.zip.DataFormatException;
 import lombok.Getter;
+import net.md_5.bungee.jni.NativeCodeException;
 
 public class NativeZlib implements BungeeZlib
 {
@@ -48,7 +49,14 @@ public class NativeZlib implements BungeeZlib
         {
             out.ensureWritable( 8192 );
 
-            int processed = nativeCompress.process( ctx, in.memoryAddress() + in.readerIndex(), in.readableBytes(), out.memoryAddress() + out.writerIndex(), out.writableBytes(), compress );
+            int processed;
+            try
+            {
+                processed = nativeCompress.process( ctx, in.memoryAddress() + in.readerIndex(), in.readableBytes(), out.memoryAddress() + out.writerIndex(), out.writableBytes(), compress );
+            } catch ( NativeCodeException exception )
+            {
+                throw (DataFormatException) new DataFormatException( "Failed to decompress via Zlib!" ).initCause( exception );
+            }
 
             in.readerIndex( in.readerIndex() + nativeCompress.consumed );
             out.writerIndex( out.writerIndex() + processed );
