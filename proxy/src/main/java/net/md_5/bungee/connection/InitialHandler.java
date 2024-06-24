@@ -43,6 +43,7 @@ import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.PlayerHandshakeEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.PreLoginEvent;
+import net.md_5.bungee.api.event.ProtocolChangedEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.http.HttpClient;
@@ -179,6 +180,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             throw new QuietException( "Unexpected packet received during login process! " + BufUtil.dump( packet.buf, 16 ) );
         }
+    }
+
+    @Override
+    public void protocolChanged(ChannelWrapper channel, Protocol oldProtocol, Protocol newProtocol, ProtocolChangedEvent.Direction direction)
+    {
+        bungee.getPluginManager().callEvent( new ProtocolChangedEvent( oldProtocol, newProtocol, this, direction ) );
     }
 
     @Override

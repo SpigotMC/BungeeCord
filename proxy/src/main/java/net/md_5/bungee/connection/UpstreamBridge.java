@@ -19,6 +19,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.api.event.ProtocolChangedEvent;
 import net.md_5.bungee.api.event.SettingsChangedEvent;
 import net.md_5.bungee.api.event.TabCompleteEvent;
 import net.md_5.bungee.entitymap.EntityMap;
@@ -153,6 +154,12 @@ public class UpstreamBridge extends PacketHandler
             }
             server.getCh().write( packet );
         }
+    }
+
+    @Override
+    public void protocolChanged(ChannelWrapper channel, Protocol oldProtocol, Protocol newProtocol, ProtocolChangedEvent.Direction direction)
+    {
+        BungeeCord.getInstance().getPluginManager().callEvent( new ProtocolChangedEvent( oldProtocol, newProtocol, con, direction ) );
     }
 
     @Override
