@@ -794,7 +794,7 @@ public class DownstreamBridge extends PacketHandler
         Preconditions.checkState( !receivedLogin, "Not expecting login" );
 
         receivedLogin = true;
-        // check if the player is in online-mode, spoof value to true to bypass the unsecure chat popup
+        // check if the players connection is ip-forwarded, spoof value to true to bypass the unsecure chat popup
         if ( !con.getRewriteId().equals( con.getPendingConnection().getOfflineId() ) )
         {
             login.setSecureProfile( true );
