@@ -123,9 +123,9 @@ public class DownstreamBridge extends PacketHandler
         ServerDisconnectEvent serverDisconnectEvent = new ServerDisconnectEvent( con, server.getInfo() );
         bungee.getPluginManager().callEvent( serverDisconnectEvent );
 
-        if ( server.isObsolete() || !con.isConnected() )
+        if ( server.isObsolete() )
         {
-            // do not perform any actions if the user has already moved or disconnected
+            // do not perform any actions if the user has already moved
             return;
         }
 

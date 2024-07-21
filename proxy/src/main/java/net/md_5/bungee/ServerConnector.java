@@ -373,7 +373,6 @@ public class ServerConnector extends PacketHandler
         // Remove from old servers
         if ( user.getServer() != null )
         {
-            user.getServer().setObsolete( true );
             user.getServer().disconnect( "Quitting" );
         }
 
