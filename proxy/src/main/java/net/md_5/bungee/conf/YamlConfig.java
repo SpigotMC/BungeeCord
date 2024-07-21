@@ -91,11 +91,11 @@ public class YamlConfig implements ConfigurationAdapter
         {
             set( "permissions.default", Arrays.asList( new String[]
             {
-                "bungeecord.command.server", "bungeecord.command.list", "bungeecord.command.find"
+                "bungeecord.command.server", "bungeecord.command.list"
             } ) );
             set( "permissions.admin", Arrays.asList( new String[]
             {
-                "bungeecord.command.alert", "bungeecord.command.end", "bungeecord.command.ip", "bungeecord.command.reload", "bungeecord.command.kick", "bungeecord.command.send"
+                "bungeecord.command.alert", "bungeecord.command.end", "bungeecord.command.ip", "bungeecord.command.reload", "bungeecord.command.kick", "bungeecord.command.send", "bungeecord.command.find"
             } ) );
         }
 
