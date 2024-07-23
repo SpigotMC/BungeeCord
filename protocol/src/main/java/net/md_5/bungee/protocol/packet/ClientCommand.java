@@ -32,7 +32,7 @@ public class ClientCommand extends DefinedPacket
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        command = readString( buf, 256 );
+        command = readString( buf, 32767 );
         timestamp = buf.readLong();
         salt = buf.readLong();
 
