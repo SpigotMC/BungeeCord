@@ -35,7 +35,8 @@ public class ClientCommand extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
         {
             command = readString( buf, 32767 );
-        } else {
+        } else
+        {
             command = readString( buf, 256 );
         }
         timestamp = buf.readLong();
