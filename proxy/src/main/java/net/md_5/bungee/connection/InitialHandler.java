@@ -165,10 +165,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( canSendKickMessage() )
         {
-            disconnect( ChatColor.RED + Util.exception( t ) );
-        } else
-        {
-            ch.close();
+            unsafe.sendPacket( new Kick( TextComponent.fromLegacy( ChatColor.RED + Util.exception( t ) ) ) );
         }
     }
 
