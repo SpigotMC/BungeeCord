@@ -32,7 +32,12 @@ public class ClientCommand extends DefinedPacket
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        command = readString( buf, 32767 );
+        if (protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5)
+        {
+            command = readString( buf, 32767 );
+        } else {
+            command = readString( buf, 256 );
+        }
         timestamp = buf.readLong();
         salt = buf.readLong();
 
