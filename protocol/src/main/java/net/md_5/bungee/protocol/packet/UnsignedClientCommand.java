@@ -21,7 +21,7 @@ public class UnsignedClientCommand extends DefinedPacket
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        command = readString( buf, 256 );
+        command = readString( buf, ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 ) ? 32767 : 256 );
     }
 
     @Override
