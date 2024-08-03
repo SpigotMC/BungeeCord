@@ -9,8 +9,8 @@
 // static function here instead of requiring the mbedtls makefile to be modified to add
 // additional source files.
 
-#ifndef _INCLUDE_MBEDTLS_CONFIG_H
-#define _INCLUDE_MBEDTLS_CONFIG_H
+#ifndef _INCLUDE_MBEDTLS_CUSTOM_CONFIG_H
+#define _INCLUDE_MBEDTLS_CUSTOM_CONFIG_H
 
 #include <string.h>
 
@@ -27,5 +27,5 @@ static void mbedtls_platform_zeroize_impl(void *buf, size_t len) {
     }
 }
 
-#endif
+#endif // _INCLUDE_MBEDTLS_CUSTOM_CONFIG_H
 
