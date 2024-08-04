@@ -15,6 +15,8 @@ public class NativeCompressImpl
 
     static native void initFields();
 
+    native boolean checkSupported();
+
     native void end(long ctx, boolean compress);
 
     native void reset(long ctx, boolean compress);

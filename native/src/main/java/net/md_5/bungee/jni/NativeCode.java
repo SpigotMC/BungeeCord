@@ -17,6 +17,7 @@ public final class NativeCode<T>
     private final Supplier<? extends T> nativeImpl;
     //
     private boolean loaded;
+    private boolean initializationFailed;
 
     public NativeCode(String name, Supplier<? extends T> javaImpl, Supplier<? extends T> nativeImpl)
     {
@@ -27,12 +28,26 @@ public final class NativeCode<T>
 
     public T newInstance()
     {
-        return ( loaded ) ? nativeImpl.get() : javaImpl.get();
+        if ( loaded )
+        {
+            try
+            {
+                return nativeImpl.get();
+            } catch ( NativeCodeException ex )
+            {
+                // To catch the compatibility exception from the zlib library
+                System.out.println( "Could not init native " + name + " library: " + ex.getMessage() );
+                loaded = false;
+                initializationFailed = true;
+            }
+        }
+
+        return javaImpl.get();
     }
 
     public boolean load()
     {
-        if ( !loaded && isSupported() )
+        if ( !loaded && !initializationFailed && isSupported() )
         {
             String fullName = "bungeecord-" + name;
 
