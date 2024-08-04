@@ -15,6 +15,7 @@ public final class NativeCode<T>
     private final String name;
     private final Supplier<? extends T> javaImpl;
     private final Supplier<? extends T> nativeImpl;
+    private final boolean enableNativeFlag;
     //
     private boolean loaded;
     private boolean initializationFailed;
@@ -24,6 +25,7 @@ public final class NativeCode<T>
         this.name = name;
         this.javaImpl = javaImpl;
         this.nativeImpl = nativeImpl;
+        this.enableNativeFlag = Boolean.parseBoolean( System.getProperty( "net.md_5.bungee.jni." + name + ".enable", "true" ) );
     }
 
     public T newInstance()
@@ -47,7 +49,7 @@ public final class NativeCode<T>
 
     public boolean load()
     {
-        if ( !loaded && !initializationFailed && isSupported() )
+        if ( enableNativeFlag && !loaded && !initializationFailed && isSupported() )
         {
             String fullName = "bungeecord-" + name;
 
