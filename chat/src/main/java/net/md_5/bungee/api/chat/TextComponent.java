@@ -18,7 +18,7 @@ import net.md_5.bungee.api.ChatColor;
 public final class TextComponent extends BaseComponent
 {
 
-    private static final Pattern url = Pattern.compile( "^(?:(https?)://)?([-\\w_\\.]{2,}\\.[a-z-]{2,24})(/\\S*)?$" );
+    private static final Pattern url = Pattern.compile( "^(?:https?://([-\\w_\\.]+\\.[a-z-]{2,24})|([-\\w_\\.]{2,}\\.[a-z]{2,4}))(/\\S*)?$" );
 
     /**
      * Converts the old formatting system that used
