@@ -18,8 +18,9 @@ public class Varint21LengthFieldExtraBufPrepender extends MessageToMessageEncode
     protected void encode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception
     {
         int bodyLen = msg.readableBytes();
-        ByteBuf lenBuf = ctx.alloc().ioBuffer( Varint21LengthFieldPrepender.varintSize( bodyLen ) );
-        DefinedPacket.writeVarInt( bodyLen, lenBuf );
+        int headerLen = Varint21LengthFieldPrepender.varintSize( bodyLen );
+        ByteBuf lenBuf = ctx.alloc().ioBuffer( headerLen );
+        DefinedPacket.writeVarInt( bodyLen, lenBuf, headerLen );
         out.add( lenBuf );
         out.add( msg.retain() );
     }
