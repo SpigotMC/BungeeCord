@@ -105,6 +105,8 @@ public class PipelineUtils
     public static final String FRAME_PREPENDER = "frame-prepender";
     public static final String LEGACY_DECODER = "legacy-decoder";
     public static final String LEGACY_KICKER = "legacy-kick";
+    public static final String FLUSH_CONSOLIDATION = "flush-consolidation";
+    public static final String FLUSH_SIGNALING = "flush-signaling";
 
     private static boolean epoll;
     private static boolean io_uring;
