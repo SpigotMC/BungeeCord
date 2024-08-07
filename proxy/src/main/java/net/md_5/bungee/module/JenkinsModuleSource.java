@@ -7,6 +7,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import lombok.Data;
 import net.md_5.bungee.Util;
+import net.md_5.bungee.api.ProxyServer;
 
 @Data
 public class JenkinsModuleSource implements ModuleSource
@@ -15,7 +16,7 @@ public class JenkinsModuleSource implements ModuleSource
     @Override
     public void retrieve(ModuleSpec module, ModuleVersion version)
     {
-        System.out.println( "Attempting to Jenkins download module " + module.getName() + " v" + version.getBuild() );
+        ProxyServer.getInstance().getLogger().info( "Attempting to Jenkins download module " + module.getName() + " v" + version.getBuild() );
         try
         {
             URL website = new URL( "https://ci.md-5.net/job/BungeeCord/" + version.getBuild() + "/artifact/module/" + module.getName().replace( '_', '-' ) + "/target/" + module.getName() + ".jar" );
@@ -25,10 +26,10 @@ public class JenkinsModuleSource implements ModuleSource
             con.setReadTimeout( 15000 );
 
             Files.write( ByteStreams.toByteArray( con.getInputStream() ), module.getFile() );
-            System.out.println( "Download complete" );
+            ProxyServer.getInstance().getLogger().info( "Download complete" );
         } catch ( IOException ex )
         {
-            System.out.println( "Failed to download: " + Util.exception( ex ) );
+            ProxyServer.getInstance().getLogger().warning( "Failed to download: " + Util.exception( ex ) );
         }
     }
 }
