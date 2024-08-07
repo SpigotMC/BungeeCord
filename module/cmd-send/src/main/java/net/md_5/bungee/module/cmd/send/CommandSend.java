@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -31,7 +32,7 @@ public class CommandSend extends Command implements TabExecutor
 
         private final Map<ServerConnectRequest.Result, List<String>> results = new HashMap<>();
         private final CommandSender sender;
-        private int count = 0;
+        private final AtomicInteger count = new AtomicInteger( 0 );
 
         public SendCallback(CommandSender sender)
         {
@@ -48,13 +49,16 @@ public class CommandSend extends Command implements TabExecutor
             for ( Map.Entry<ServerConnectRequest.Result, List<String>> entry : results.entrySet() )
             {
                 ComponentBuilder builder = new ComponentBuilder( "" );
-                if ( !entry.getValue().isEmpty() )
+                List<String> list = entry.getValue();
+                synchronized ( list )
                 {
-                    builder.event( new HoverEvent( HoverEvent.Action.SHOW_TEXT,
-                            new ComponentBuilder( Joiner.on( ", " ).join( entry.getValue() ) ).color( ChatColor.YELLOW ).create() ) );
+                    if ( !list.isEmpty() )
+                    {
+                        builder.event( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( Joiner.on( ", " ).join( list ) ).color( ChatColor.YELLOW ).create() ) );
+                    }
+                    builder.append( entry.getKey().name() + ": " ).color( ChatColor.GREEN );
+                    builder.append( "" + list.size() ).bold( true );
                 }
-                builder.append( entry.getKey().name() + ": " ).color( ChatColor.GREEN );
-                builder.append( "" + entry.getValue().size() ).bold( true );
                 sender.sendMessage( builder.create() );
             }
         }
@@ -71,7 +75,7 @@ public class CommandSend extends Command implements TabExecutor
                 this.callback = callback;
                 this.player = player;
                 this.target = target;
-                this.callback.count++;
+                this.callback.count.incrementAndGet();
             }
 
             @Override
@@ -83,7 +87,7 @@ public class CommandSend extends Command implements TabExecutor
                     player.sendMessage( ProxyServer.getInstance().getTranslation( "you_got_summoned", target.getName(), callback.sender.getName() ) );
                 }
 
-                if ( --callback.count == 0 )
+                if ( callback.count.decrementAndGet() == 0 )
                 {
                     callback.lastEntryDone();
                 }
