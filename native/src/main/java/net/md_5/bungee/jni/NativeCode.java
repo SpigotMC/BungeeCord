@@ -16,40 +16,32 @@ public final class NativeCode<T>
     private final Supplier<? extends T> javaImpl;
     private final Supplier<? extends T> nativeImpl;
     private final boolean enableNativeFlag;
+    private final boolean extendedSupportCheck;
     //
     private boolean loaded;
-    private boolean initializationFailed;
 
     public NativeCode(String name, Supplier<? extends T> javaImpl, Supplier<? extends T> nativeImpl)
+    {
+        this( name, javaImpl, nativeImpl, false );
+    }
+
+    public NativeCode(String name, Supplier<? extends T> javaImpl, Supplier<? extends T> nativeImpl, boolean extendedSupportCheck)
     {
         this.name = name;
         this.javaImpl = javaImpl;
         this.nativeImpl = nativeImpl;
         this.enableNativeFlag = Boolean.parseBoolean( System.getProperty( "net.md_5.bungee.jni." + name + ".enable", "true" ) );
+        this.extendedSupportCheck = extendedSupportCheck;
     }
 
     public T newInstance()
     {
-        if ( loaded )
-        {
-            try
-            {
-                return nativeImpl.get();
-            } catch ( NativeCodeException ex )
-            {
-                // To catch the compatibility exception from the zlib library
-                System.out.println( "Could not init native " + name + " library: " + ex.getMessage() );
-                loaded = false;
-                initializationFailed = true;
-            }
-        }
-
-        return javaImpl.get();
+        return ( loaded ) ? nativeImpl.get() : javaImpl.get();
     }
 
     public boolean load()
     {
-        if ( enableNativeFlag && !loaded && !initializationFailed && isSupported() )
+        if ( enableNativeFlag && !loaded && isSupported() )
         {
             String fullName = "bungeecord-" + name;
 
@@ -76,6 +68,13 @@ public final class NativeCode<T>
                     }
 
                     System.load( temp.getPath() );
+
+                    if ( extendedSupportCheck )
+                    {
+                        // Should throw NativeCodeException if incompatible
+                        nativeImpl.get();
+                    }
+
                     loaded = true;
                 } catch ( IOException ex )
                 {
@@ -83,6 +82,9 @@ public final class NativeCode<T>
                 } catch ( UnsatisfiedLinkError ex )
                 {
                     System.out.println( "Could not load native library: " + ex.getMessage() );
+                } catch ( NativeCodeException ex )
+                {
+                    System.out.println( "Native library " + name + " is incompatible: " + ex.getMessage() );
                 }
             }
         }
