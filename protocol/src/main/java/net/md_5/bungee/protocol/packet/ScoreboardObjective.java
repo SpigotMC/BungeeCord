@@ -6,12 +6,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.Either;
-import net.md_5.bungee.protocol.NumberFormat;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.data.NumberFormat;
+import net.md_5.bungee.protocol.util.ChatDeserializable;
+import net.md_5.bungee.protocol.util.Either;
 
 @Data
 @NoArgsConstructor
@@ -21,7 +21,7 @@ public class ScoreboardObjective extends DefinedPacket
 {
 
     private String name;
-    private Either<String, BaseComponent> value;
+    private Either<String, ChatDeserializable> value;
     private HealthDisplay type;
     /**
      * 0 to create, 1 to remove, 2 to update display text.

@@ -5,12 +5,12 @@ import java.util.UUID;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.PlayerPublicKey;
-import net.md_5.bungee.protocol.Property;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.data.PlayerPublicKey;
+import net.md_5.bungee.protocol.data.Property;
+import net.md_5.bungee.protocol.util.ChatDeserializable;
 
 @Data
 @NoArgsConstructor
@@ -143,7 +143,6 @@ public class PlayerListItem extends DefinedPacket
         Integer ping;
 
         // ADD_PLAYER & UPDATE_DISPLAY_NAME
-        BaseComponent displayName;
-
+        ChatDeserializable displayName;
     }
 }

@@ -55,9 +55,9 @@ import net.md_5.bungee.netty.cipher.CipherDecoder;
 import net.md_5.bungee.netty.cipher.CipherEncoder;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
-import net.md_5.bungee.protocol.PlayerPublicKey;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.data.PlayerPublicKey;
 import net.md_5.bungee.protocol.packet.CookieRequest;
 import net.md_5.bungee.protocol.packet.CookieResponse;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
@@ -73,6 +73,7 @@ import net.md_5.bungee.protocol.packet.PingPacket;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
+import net.md_5.bungee.protocol.util.ChatComponentDeserializable;
 import net.md_5.bungee.util.AllowedCharacters;
 import net.md_5.bungee.util.BufUtil;
 import net.md_5.bungee.util.QuietException;
@@ -751,7 +752,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         if ( canSendKickMessage() )
         {
-            ch.delayedClose( new Kick( reason ) );
+            ch.delayedClose( new Kick( new ChatComponentDeserializable( reason ) ) );
         } else
         {
             ch.close();

@@ -3,6 +3,7 @@ package net.md_5.bungee.protocol;
 import static org.junit.jupiter.api.Assertions.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import net.md_5.bungee.protocol.util.TagUtil;
 import org.junit.jupiter.api.Test;
 import se.llbit.nbt.SpecificTag;
 
