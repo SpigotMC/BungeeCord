@@ -5,11 +5,15 @@
 #include "shared.h"
 #include "net_md_5_bungee_jni_cipher_NativeCipherImpl.h"
 
+// Hack to keep the compiler from optimizing the memset away
+static void *(*const volatile memset_func)(void *, int, size_t) = memset;
+
 typedef unsigned char byte;
 
 typedef struct crypto_context {
     int mode;
     mbedtls_aes_context cipher;
+    int keyLen;
     byte key[];
 } crypto_context;
 
@@ -22,6 +26,7 @@ jlong JNICALL Java_net_md_15_bungee_jni_cipher_NativeCipherImpl_init(JNIEnv* env
         return 0;
     }
 
+    crypto->keyLen = (int) keyLen;
     (*env)->GetByteArrayRegion(env, key, 0, keyLen, (jbyte*) &crypto->key);
 
     mbedtls_aes_init(&crypto->cipher);
@@ -36,6 +41,7 @@ void Java_net_md_15_bungee_jni_cipher_NativeCipherImpl_free(JNIEnv* env, jobject
     crypto_context *crypto = (crypto_context*) ctx;
 
     mbedtls_aes_free(&crypto->cipher);
+    memset_func(crypto->key, 0, (size_t) crypto->keyLen);
     free(crypto);
 }
 

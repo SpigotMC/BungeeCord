@@ -2,8 +2,10 @@
 
 set -eu
 
+CWD=$(pwd)
+
 echo "Compiling mbedtls"
-(cd mbedtls && make no_test)
+(cd mbedtls && CFLAGS="-fPIC -I$CWD/src/main/c -DMBEDTLS_USER_CONFIG_FILE='<mbedtls_custom_config.h>'" make no_test)
 
 echo "Compiling zlib"
 (cd zlib && CFLAGS=-fPIC ./configure --static && make)
