@@ -7,4 +7,10 @@ public class NativeCodeException extends RuntimeException
     {
         super( message + " : " + reason );
     }
+
+    public NativeCodeException(String message)
+    {
+        super( message );
+    }
+
 }

@@ -17,6 +17,14 @@ JNIEXPORT void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_initFie
 
 /*
  * Class:     net_md_5_bungee_jni_zlib_NativeCompressImpl
+ * Method:    checkSupported
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_checkSupported
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     net_md_5_bungee_jni_zlib_NativeCompressImpl
  * Method:    end
  * Signature: (JZ)V
  */

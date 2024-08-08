@@ -3,6 +3,7 @@
 
 #include <zlib.h>
 #include "shared.h"
+#include "cpuid_helper.h"
 #include "net_md_5_bungee_jni_zlib_NativeCompressImpl.h"
 
 typedef unsigned char byte;
@@ -24,6 +25,10 @@ jint throwException(JNIEnv *env, const char* message, int err) {
     jstring jMessage = (*env)->NewStringUTF(env, message);
     jthrowable throwable = (jthrowable) (*env)->CallStaticObjectMethod(env, classID, makeExceptionID, jMessage, err);
     return (*env)->Throw(env, throwable);
+}
+
+JNIEXPORT jboolean JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_checkSupported(JNIEnv* env, jobject obj) {
+    return (jboolean) checkCompressionNativesSupport();
 }
 
 void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_reset(JNIEnv* env, jobject obj, jlong ctx, jboolean compress) {

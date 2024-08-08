@@ -15,14 +15,23 @@ public final class NativeCode<T>
     private final String name;
     private final Supplier<? extends T> javaImpl;
     private final Supplier<? extends T> nativeImpl;
+    private final boolean enableNativeFlag;
+    private final boolean extendedSupportCheck;
     //
     private boolean loaded;
 
     public NativeCode(String name, Supplier<? extends T> javaImpl, Supplier<? extends T> nativeImpl)
     {
+        this( name, javaImpl, nativeImpl, false );
+    }
+
+    public NativeCode(String name, Supplier<? extends T> javaImpl, Supplier<? extends T> nativeImpl, boolean extendedSupportCheck)
+    {
         this.name = name;
         this.javaImpl = javaImpl;
         this.nativeImpl = nativeImpl;
+        this.enableNativeFlag = Boolean.parseBoolean( System.getProperty( "net.md_5.bungee.jni." + name + ".enable", "true" ) );
+        this.extendedSupportCheck = extendedSupportCheck;
     }
 
     public T newInstance()
@@ -32,7 +41,7 @@ public final class NativeCode<T>
 
     public boolean load()
     {
-        if ( !loaded && isSupported() )
+        if ( enableNativeFlag && !loaded && isSupported() )
         {
             String fullName = "bungeecord-" + name;
 
@@ -59,6 +68,13 @@ public final class NativeCode<T>
                     }
 
                     System.load( temp.getPath() );
+
+                    if ( extendedSupportCheck )
+                    {
+                        // Should throw NativeCodeException if incompatible
+                        nativeImpl.get();
+                    }
+
                     loaded = true;
                 } catch ( IOException ex )
                 {
@@ -66,6 +82,9 @@ public final class NativeCode<T>
                 } catch ( UnsatisfiedLinkError ex )
                 {
                     System.out.println( "Could not load native library: " + ex.getMessage() );
+                } catch ( NativeCodeException ex )
+                {
+                    System.out.println( "Native library " + name + " is incompatible: " + ex.getMessage() );
                 }
             }
         }

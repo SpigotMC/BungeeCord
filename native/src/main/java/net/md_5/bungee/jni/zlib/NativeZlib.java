@@ -15,6 +15,14 @@ public class NativeZlib implements BungeeZlib
     private boolean compress;
     private long ctx;
 
+    public NativeZlib()
+    {
+        if ( !nativeCompress.checkSupported() )
+        {
+            throw new NativeCodeException( "This CPU does not support the required SSE 4.2 and/or PCLMUL extensions!" );
+        }
+    }
+
     @Override
     public void init(boolean compress, int level)
     {
