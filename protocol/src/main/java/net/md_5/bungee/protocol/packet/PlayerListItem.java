@@ -145,5 +145,8 @@ public class PlayerListItem extends DefinedPacket
         // ADD_PLAYER & UPDATE_DISPLAY_NAME
         BaseComponent displayName;
 
+        // UPDATE_LIST_ORDER 1.21.2
+        Integer listOrder;
+
     }
 }
