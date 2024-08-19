@@ -162,7 +162,7 @@ public class Login extends DefinedPacket
         {
             portalCooldown = readVarInt( buf );
         }
-        if( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
         {
             seaLevel = readVarInt( buf );
         }
@@ -297,7 +297,7 @@ public class Login extends DefinedPacket
         {
             writeVarInt( portalCooldown, buf );
         }
-        if( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
         {
             writeVarInt( seaLevel, buf );
         }

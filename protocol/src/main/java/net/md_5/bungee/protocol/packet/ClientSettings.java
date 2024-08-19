@@ -47,7 +47,7 @@ public class ClientSettings extends DefinedPacket
         {
             allowServerListing = buf.readBoolean();
         }
-        if( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
         {
             particleStatus = ParticleStatus.values()[buf.readByte()];
         }
@@ -79,9 +79,9 @@ public class ClientSettings extends DefinedPacket
         {
             buf.writeBoolean( allowServerListing );
         }
-        if( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
         {
-            buf.writeByte(particleStatus.ordinal());
+            buf.writeByte( particleStatus.ordinal() );
         }
     }
 
@@ -91,7 +91,8 @@ public class ClientSettings extends DefinedPacket
         handler.handle( this );
     }
 
-    public enum ParticleStatus {
+    public enum ParticleStatus
+    {
         ALL,
         DECREASED,
         MINIMAL;

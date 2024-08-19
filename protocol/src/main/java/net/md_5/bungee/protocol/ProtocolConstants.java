@@ -114,7 +114,7 @@ public class ProtocolConstants
 
         if ( SNAPSHOT_SUPPORT )
         {
-             supportedVersionIds.add( ProtocolConstants.MINECRAFT_1_21_2 );
+            supportedVersionIds.add( ProtocolConstants.MINECRAFT_1_21_2 );
         }
 
         SUPPORTED_VERSIONS = supportedVersions.build();
