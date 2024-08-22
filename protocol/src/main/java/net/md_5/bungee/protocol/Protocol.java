@@ -233,7 +233,8 @@ public enum Protocol
                     ScoreboardScoreReset.class,
                     ScoreboardScoreReset::new,
                     map( ProtocolConstants.MINECRAFT_1_20_3, 0x42 ),
-                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x44 )
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x44 ),
+                    map( ProtocolConstants.MINECRAFT_1_21_2, 0x45 )
             );
             TO_CLIENT.registerPacket(
                     ScoreboardDisplay.class,
