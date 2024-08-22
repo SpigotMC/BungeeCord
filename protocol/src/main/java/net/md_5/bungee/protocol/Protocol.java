@@ -146,7 +146,8 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_19_4, 0x41 ),
                     map( ProtocolConstants.MINECRAFT_1_20_2, 0x43 ),
                     map( ProtocolConstants.MINECRAFT_1_20_3, 0x45 ),
-                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x47 )
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x47 ),
+                    map( ProtocolConstants.MINECRAFT_1_21_2, 0x48 )
             );
             TO_CLIENT.registerPacket(
                     BossBar.class,
@@ -574,7 +575,8 @@ public enum Protocol
                     ClientChat::new,
                     map( ProtocolConstants.MINECRAFT_1_19, 0x04 ),
                     map( ProtocolConstants.MINECRAFT_1_19_1, 0x05 ),
-                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x06 )
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x06 ),
+                    map( ProtocolConstants.MINECRAFT_1_21_2, 0x07 )
             );
             TO_SERVER.registerPacket(
                     TabCompleteRequest.class,
@@ -591,7 +593,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_19_4, 0x09 ),
                     map( ProtocolConstants.MINECRAFT_1_20_2, 0x0A ),
                     map( ProtocolConstants.MINECRAFT_1_20_5, 0x0B ),
-                    map( ProtocolConstants.MINECRAFT_1_21_2, 0x10 )
+                    map( ProtocolConstants.MINECRAFT_1_21_2, 0x0D )
             );
             TO_SERVER.registerPacket(
                     ClientSettings.class,

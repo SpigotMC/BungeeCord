@@ -49,7 +49,7 @@ public class ClientSettings extends DefinedPacket
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
         {
-            particleStatus = ParticleStatus.values()[buf.readByte()];
+            particleStatus = ParticleStatus.values()[readVarInt( buf )];
         }
     }
 
@@ -81,7 +81,7 @@ public class ClientSettings extends DefinedPacket
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
         {
-            buf.writeByte( particleStatus.ordinal() );
+            writeVarInt( particleStatus.ordinal(), buf );
         }
     }
 

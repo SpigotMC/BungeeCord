@@ -30,6 +30,7 @@ public class Respawn extends DefinedPacket
     private byte copyMeta;
     private Location deathLocation;
     private int portalCooldown;
+    private int seaLevel;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
@@ -83,6 +84,10 @@ public class Respawn extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20 )
         {
             portalCooldown = readVarInt( buf );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
+        {
+            seaLevel = readVarInt( buf );
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_2 )
         {
@@ -147,6 +152,10 @@ public class Respawn extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20 )
         {
             writeVarInt( portalCooldown, buf );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
+        {
+            writeVarInt( seaLevel, buf );
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_2 )
         {
