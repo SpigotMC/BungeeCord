@@ -718,7 +718,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         // if there is no userCon we can't have a connection to a backend server that could have requested this cookie
-        // witch means that this cookie is invalid as the proxy also has not requested it
+        // which means that this cookie is invalid as the proxy also has not requested it
         Preconditions.checkState( userCon != null, "not requested cookie received" );
     }
 
