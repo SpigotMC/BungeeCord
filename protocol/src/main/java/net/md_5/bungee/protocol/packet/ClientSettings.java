@@ -25,6 +25,7 @@ public class ClientSettings extends DefinedPacket
     private int mainHand;
     private boolean disableTextFiltering;
     private boolean allowServerListing;
+    private ParticleStatus particleStatus;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
@@ -45,6 +46,10 @@ public class ClientSettings extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_18 )
         {
             allowServerListing = buf.readBoolean();
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
+        {
+            particleStatus = ParticleStatus.values()[readVarInt( buf )];
         }
     }
 
@@ -74,11 +79,22 @@ public class ClientSettings extends DefinedPacket
         {
             buf.writeBoolean( allowServerListing );
         }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
+        {
+            writeVarInt( particleStatus.ordinal(), buf );
+        }
     }
 
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {
         handler.handle( this );
+    }
+
+    public enum ParticleStatus
+    {
+        ALL,
+        DECREASED,
+        MINIMAL;
     }
 }
