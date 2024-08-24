@@ -23,7 +23,7 @@ public class CookieResponse extends DefinedPacket
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         cookie = readString( buf );
-        data = readNullable( DefinedPacket::readArray, buf );
+        data = readNullable( read -> DefinedPacket.readArray( read, 5120 ), buf );
     }
 
     @Override
