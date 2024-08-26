@@ -10,6 +10,7 @@ import io.netty.handler.timeout.ReadTimeoutException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.logging.Level;
+import lombok.Setter;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.InitialHandler;
