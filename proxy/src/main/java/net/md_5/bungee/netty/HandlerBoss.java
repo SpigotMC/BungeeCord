@@ -18,6 +18,7 @@ import net.md_5.bungee.protocol.BadPacketException;
 import net.md_5.bungee.protocol.OverflowPacketException;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.util.PacketLimiter;
 import net.md_5.bungee.util.QuietException;
 
 /**
@@ -28,6 +29,7 @@ import net.md_5.bungee.util.QuietException;
 public class HandlerBoss extends ChannelInboundHandlerAdapter
 {
 
+    private PacketLimiter limiter = new PacketLimiter( BungeeCord.getInstance().getConfig().getMaxPacketsPerSecond() );
     private ChannelWrapper channel;
     private PacketHandler handler;
     private boolean healthCheck;
@@ -118,6 +120,12 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
 
         if ( handler != null )
         {
+
+            if ( limiter.getLimit() > 0 && ( handler instanceof InitialHandler || handler instanceof UpstreamBridge ) )
+            {
+                limiter.received();
+            }
+
             boolean sendPacket = handler.shouldHandle( packet );
             try
             {
