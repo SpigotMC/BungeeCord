@@ -31,7 +31,8 @@ import net.md_5.bungee.util.QuietException;
 public class HandlerBoss extends ChannelInboundHandlerAdapter
 {
 
-    private PacketLimiter limiter = new PacketLimiter( BungeeCord.getInstance().getConfig().getMaxPacketsPerSecond() );
+    @Setter
+    private PacketLimiter limiter;
     private ChannelWrapper channel;
     private PacketHandler handler;
     private boolean healthCheck;
@@ -84,6 +85,11 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
     {
+        if ( limiter != null )
+        {
+            limiter.received();
+        }
+
         if ( msg instanceof HAProxyMessage )
         {
             HAProxyMessage proxy = (HAProxyMessage) msg;
@@ -122,12 +128,6 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
 
         if ( handler != null )
         {
-
-            if ( limiter.getLimit() > 0 && ( handler instanceof InitialHandler || handler instanceof UpstreamBridge ) )
-            {
-                limiter.received();
-            }
-
             boolean sendPacket = handler.shouldHandle( packet );
             try
             {
