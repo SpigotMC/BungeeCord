@@ -87,7 +87,7 @@ public class PipelineUtils
             HandlerBoss handlerBoss = ch.pipeline().get( HandlerBoss.class );
             handlerBoss.setHandler( new InitialHandler( BungeeCord.getInstance(), listener ) );
             int packetLimit = BungeeCord.getInstance().getConfig().getMaxPacketsPerSecond();
-            if( packetLimit > 0 )
+            if ( packetLimit > 0 )
             {
                 handlerBoss.setLimiter( new PacketLimiter( packetLimit ) );
             }
