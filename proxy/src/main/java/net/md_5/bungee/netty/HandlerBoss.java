@@ -15,6 +15,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.connection.PingHandler;
+import net.md_5.bungee.connection.UpstreamBridge;
 import net.md_5.bungee.protocol.BadPacketException;
 import net.md_5.bungee.protocol.OverflowPacketException;
 import net.md_5.bungee.protocol.PacketWrapper;
