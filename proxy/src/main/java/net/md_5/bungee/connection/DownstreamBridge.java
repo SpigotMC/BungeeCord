@@ -36,6 +36,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.api.event.ProtocolChangedEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerDisconnectEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
@@ -156,6 +157,12 @@ public class DownstreamBridge extends PacketHandler
             rewrite.rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId(), con.getPendingConnection().getVersion() );
         }
         con.sendPacket( packet );
+    }
+
+    @Override
+    public void protocolChanged(ChannelWrapper channel, Protocol oldProtocol, Protocol newProtocol, ProtocolChangedEvent.Direction direction)
+    {
+        bungee.getPluginManager().callEvent( new ProtocolChangedEvent( oldProtocol, newProtocol, server, direction ) );
     }
 
     @Override
