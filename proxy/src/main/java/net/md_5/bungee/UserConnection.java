@@ -344,6 +344,16 @@ public final class UserConnection implements ProxiedPlayer
             sendMessage( bungee.getTranslation( "already_connecting" ) );
             return;
         }
+        if ( request.isRequireAccess() && !target.canAccess( this ) )
+        {
+            if ( callback != null )
+            {
+                callback.done( ServerConnectRequest.Result.UNAUTHORISED, null );
+            }
+
+            sendMessage( ProxyServer.getInstance().getTranslation( "no_server_permission" ) );
+            return;
+        }
 
         pendingConnects.add( target );
 
