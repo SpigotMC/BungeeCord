@@ -120,7 +120,8 @@ public interface PendingConnection extends Connection
      * @param channel the channel to send this data via
      * @param data the data to send
      * @return a {@link CompletableFuture} that will be completed when the
-     * Login Payload response is received.
+     * Login Payload response is received. If the client doesn't know the channel,
+     * the {@link CompletableFuture} will complete with a null value
      * @throws IllegalStateException if the player's version is not at least
      * 1.13
      */
