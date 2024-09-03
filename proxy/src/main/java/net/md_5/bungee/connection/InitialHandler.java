@@ -902,12 +902,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( getVersion() >= ProtocolConstants.MINECRAFT_1_13, "LoginPayloads are only supported in 1.13 and above" );
         Preconditions.checkState( loginRequest != null, "Cannot send login data for status or legacy connections" );
 
-        if ( channel.indexOf( ':' ) == -1 )
-        {
-            // if we request an invalid resource location (no prefix) the client will respond with "minecraft:" prefix
-            channel = "minecraft:" + channel;
-        }
-
         CompletableFuture<byte[]> future = new CompletableFuture<>();
         final int id;
         synchronized ( requestedLoginPayloads )
