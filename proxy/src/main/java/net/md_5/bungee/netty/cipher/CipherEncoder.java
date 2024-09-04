@@ -3,6 +3,7 @@ package net.md_5.bungee.netty.cipher;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.jni.cipher.BungeeCipher;
 
@@ -10,6 +11,7 @@ import net.md_5.bungee.jni.cipher.BungeeCipher;
 public class CipherEncoder extends MessageToByteEncoder<ByteBuf>
 {
 
+    @Getter
     private final BungeeCipher cipher;
 
     @Override
