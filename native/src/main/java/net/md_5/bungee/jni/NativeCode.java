@@ -43,6 +43,7 @@ public final class NativeCode<T>
     {
         if ( enableNativeFlag && !loaded && isSupported() )
         {
+            String name = this.name + ( isAarch64() ? "-arm" : "" );
             String fullName = "bungeecord-" + name;
 
             try
@@ -94,6 +95,16 @@ public final class NativeCode<T>
 
     public static boolean isSupported()
     {
-        return "Linux".equals( System.getProperty( "os.name" ) ) && "amd64".equals( System.getProperty( "os.arch" ) );
+        return "Linux".equals( System.getProperty( "os.name" ) ) && ( isAmd64() || isAarch64() );
+    }
+
+    private static boolean isAmd64()
+    {
+        return "amd64".equals( System.getProperty( "os.arch" ) );
+    }
+
+    private static boolean isAarch64()
+    {
+        return "aarch64".equals( System.getProperty( "os.arch" ) );
     }
 }
