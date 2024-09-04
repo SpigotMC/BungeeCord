@@ -3,25 +3,27 @@ package net.md_5.bungee.protocol;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToByteEncoder;
+import io.netty.handler.codec.MessageToMessageEncoder;
+import java.util.List;
 
 /**
  * Prepend length of the message as a Varint21 by writing length and data to a
  * new buffer
  */
 @ChannelHandler.Sharable
-public class Varint21LengthFieldPrepender extends MessageToByteEncoder<ByteBuf>
+public class Varint21LengthFieldPrepender extends MessageToMessageEncoder<ByteBuf>
 {
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) throws Exception
+    protected void encode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> list) throws Exception
     {
         int bodyLen = msg.readableBytes();
         int headerLen = varintSize( bodyLen );
-        out.ensureWritable( headerLen + bodyLen );
 
-        DefinedPacket.writeVarInt( bodyLen, out );
-        out.writeBytes( msg );
+        ByteBuf lenBuf = ctx.alloc().ioBuffer( headerLen );
+        DefinedPacket.writeVarInt( bodyLen, lenBuf );
+        // create a virtual buffer to avoid copying of data
+        list.add( ctx.alloc().compositeBuffer( 2 ).addComponents( true, lenBuf, msg.retain() ) );
     }
 
     static int varintSize(int paramInt)
@@ -44,4 +46,5 @@ public class Varint21LengthFieldPrepender extends MessageToByteEncoder<ByteBuf>
         }
         return 5;
     }
+
 }

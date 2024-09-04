@@ -2,13 +2,14 @@ package net.md_5.bungee.compress;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToByteEncoder;
+import io.netty.handler.codec.MessageToMessageEncoder;
+import java.util.List;
 import java.util.zip.Deflater;
 import lombok.Setter;
 import net.md_5.bungee.jni.zlib.BungeeZlib;
 import net.md_5.bungee.protocol.DefinedPacket;
 
-public class PacketCompressor extends MessageToByteEncoder<ByteBuf>
+public class PacketCompressor extends MessageToMessageEncoder<ByteBuf>
 {
 
     private final BungeeZlib zlib = CompressFactory.zlib.newInstance();
@@ -28,18 +29,20 @@ public class PacketCompressor extends MessageToByteEncoder<ByteBuf>
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) throws Exception
+    protected void encode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception
     {
         int origSize = msg.readableBytes();
         if ( origSize < threshold )
         {
-            DefinedPacket.writeVarInt( 0, out );
-            out.writeBytes( msg );
+            // create a virtual buffer to avoid copying of data
+            out.add( ctx.alloc().compositeBuffer( 2 ).addComponents( true, ctx.alloc().ioBuffer( 1 ).writeByte( 0 ), msg.retain() ) );
         } else
         {
-            DefinedPacket.writeVarInt( origSize, out );
-
-            zlib.process( msg, out );
+            // native impl ensureWritable( 8192 )
+            ByteBuf buf = ctx.alloc().ioBuffer( 8192 );
+            DefinedPacket.writeVarInt( origSize, buf );
+            zlib.process( msg, buf );
+            out.add( buf );
         }
     }
 }
