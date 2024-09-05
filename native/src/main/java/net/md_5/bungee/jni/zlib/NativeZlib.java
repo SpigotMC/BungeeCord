@@ -74,4 +74,10 @@ public class NativeZlib implements BungeeZlib
         nativeCompress.consumed = 0;
         nativeCompress.finished = false;
     }
+
+    @Override
+    public boolean allowComposite()
+    {
+        return false;
+    }
 }
