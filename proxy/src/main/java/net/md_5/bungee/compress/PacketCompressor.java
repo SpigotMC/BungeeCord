@@ -1,13 +1,10 @@
 package net.md_5.bungee.compress;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;
 import java.util.List;
 import java.util.zip.Deflater;
-
-import io.netty.util.concurrent.FastThreadLocal;
 import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.jni.zlib.BungeeZlib;
