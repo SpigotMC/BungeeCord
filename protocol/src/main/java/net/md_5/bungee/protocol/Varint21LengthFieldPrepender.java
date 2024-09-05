@@ -55,5 +55,4 @@ public class Varint21LengthFieldPrepender extends MessageToMessageEncoder<ByteBu
         }
         return 5;
     }
-
 }
