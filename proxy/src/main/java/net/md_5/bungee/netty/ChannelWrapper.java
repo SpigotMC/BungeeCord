@@ -199,15 +199,15 @@ public class ChannelWrapper
         PacketCompressor packetCompressor = ch.pipeline().get( PacketCompressor.class );
         Varint21LengthFieldPrepender prepender = ch.pipeline().get( Varint21LengthFieldPrepender.class );
         boolean compressorCompose = cipherEncoder == null || cipherEncoder.getCipher().allowComposite();
-        boolean frameDecoderCompose = compressorCompose && ( packetCompressor == null || packetCompressor.getZlib().allowComposite() );
+        boolean prependerCompose = compressorCompose && ( packetCompressor == null || packetCompressor.getZlib().allowComposite() );
 
         if ( prepender != null )
         {
             ProxyServer.getInstance().getLogger().log( Level.FINE, "set prepender compose to {0} for {1}", new Object[]
             {
-                frameDecoderCompose, ch
+                prependerCompose, ch
             } );
-            prepender.setCompose( frameDecoderCompose );
+            prepender.setCompose( prependerCompose );
         }
         if ( packetCompressor != null )
         {
