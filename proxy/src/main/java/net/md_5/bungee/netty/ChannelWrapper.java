@@ -11,6 +11,8 @@ import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.compress.PacketCompressor;
 import net.md_5.bungee.compress.PacketDecompressor;
+import net.md_5.bungee.netty.flush.BungeeFlushConsolidationHandler;
+import net.md_5.bungee.netty.flush.FlushSignalingHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
@@ -67,6 +69,37 @@ public class ChannelWrapper
     {
         ch.pipeline().get( MinecraftDecoder.class ).setProtocolVersion( protocol );
         ch.pipeline().get( MinecraftEncoder.class ).setProtocolVersion( protocol );
+    }
+
+    /**
+     * Set the {@link FlushSignalingHandler} target. If the handler is absent, one will be added.
+     * @param target the (new) target for the flush signaling handler
+     */
+    public void setFlushSignalingTarget(BungeeFlushConsolidationHandler target)
+    {
+        FlushSignalingHandler handler = ch.pipeline().get( FlushSignalingHandler.class );
+        if ( handler == null )
+        {
+            ch.pipeline().addFirst( PipelineUtils.FLUSH_SIGNALING, new FlushSignalingHandler( target ) );
+        } else
+        {
+            handler.setTarget( target );
+        }
+    }
+
+    /**
+     * Get the flush consolidation handler of this channel. If none is present, one will be added.
+     * @param toClient whether this channel is a bungee-client connection
+     * @return the flush consolidation handler for this channel
+     */
+    public BungeeFlushConsolidationHandler getFlushConsolidationHandler(boolean toClient)
+    {
+        BungeeFlushConsolidationHandler handler = ch.pipeline().get( BungeeFlushConsolidationHandler.class );
+        if ( handler == null )
+        {
+            ch.pipeline().addFirst( PipelineUtils.FLUSH_CONSOLIDATION, handler = BungeeFlushConsolidationHandler.newInstance( toClient ) );
+        }
+        return handler;
     }
 
     public int getEncodeVersion()
