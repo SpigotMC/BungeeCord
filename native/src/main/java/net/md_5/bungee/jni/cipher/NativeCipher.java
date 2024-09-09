@@ -71,4 +71,10 @@ public class NativeCipher implements BungeeCipher
 
         return heapOut;
     }
+
+    @Override
+    public boolean allowComposite()
+    {
+        return false;
+    }
 }

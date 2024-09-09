@@ -55,7 +55,7 @@ public class NativeZlib implements BungeeZlib
 
         while ( !nativeCompress.finished && ( compress || in.isReadable() ) )
         {
-            out.ensureWritable( 8192 );
+            out.ensureWritable( OUTPUT_BUFFER_SIZE );
 
             int processed;
             try
@@ -73,5 +73,11 @@ public class NativeZlib implements BungeeZlib
         nativeCompress.reset( ctx, compress );
         nativeCompress.consumed = 0;
         nativeCompress.finished = false;
+    }
+
+    @Override
+    public boolean allowComposite()
+    {
+        return false;
     }
 }

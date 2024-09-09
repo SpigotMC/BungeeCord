@@ -93,7 +93,6 @@ public class PipelineUtils
     public static final Base BASE = new Base( false );
     public static final Base BASE_SERVERSIDE = new Base( true );
     private static final KickStringWriter legacyKicker = new KickStringWriter();
-    private static final Varint21LengthFieldPrepender framePrepender = new Varint21LengthFieldPrepender();
     private static final Varint21LengthFieldExtraBufPrepender serverFramePrepender = new Varint21LengthFieldExtraBufPrepender();
     public static final String TIMEOUT_HANDLER = "timeout";
     public static final String PACKET_DECODER = "packet-decoder";
@@ -202,7 +201,7 @@ public class PipelineUtils
             ch.pipeline().addLast( TIMEOUT_HANDLER, new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
             // No encryption bungee -> server, therefore use extra buffer to avoid copying everything for length prepending
             // Not used bungee -> client as header would need to be encrypted separately through expensive JNI call
-            ch.pipeline().addLast( FRAME_PREPENDER, ( toServer ) ? serverFramePrepender : framePrepender );
+            ch.pipeline().addLast( FRAME_PREPENDER, ( toServer ) ? serverFramePrepender : new Varint21LengthFieldPrepender() );
 
             ch.pipeline().addLast( BOSS_HANDLER, new HandlerBoss() );
         }
