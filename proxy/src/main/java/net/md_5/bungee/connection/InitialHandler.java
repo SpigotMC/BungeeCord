@@ -10,8 +10,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
@@ -67,6 +69,7 @@ import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.LegacyHandshake;
 import net.md_5.bungee.protocol.packet.LegacyPing;
 import net.md_5.bungee.protocol.packet.LoginAcknowledged;
+import net.md_5.bungee.protocol.packet.LoginPayloadRequest;
 import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
@@ -96,6 +99,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Getter
     private final Set<String> registeredChannels = new HashSet<>();
     private State thisState = State.HANDSHAKE;
+    private int loginPayloadId;
+    private final Map<Integer, CompletableFuture<byte[]>> requestedLoginPayloads = new HashMap<>();
     private final Queue<CookieFuture> requestedCookies = new LinkedList<>();
 
     @Data
@@ -690,7 +695,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(LoginPayloadResponse response) throws Exception
     {
-        disconnect( "Unexpected custom LoginPayloadResponse" );
+        CompletableFuture<byte[]> future;
+        synchronized ( requestedLoginPayloads )
+        {
+            future = requestedLoginPayloads.remove( response.getId() );
+        }
+        Preconditions.checkState( future != null, "Unexpected custom LoginPayloadResponse" );
+        future.complete( response.getData() );
     }
 
     @Override
@@ -884,6 +895,24 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
         unsafe.sendPacket( new CookieRequest( cookie ) );
 
+        return future;
+    }
+
+    @Override
+    public CompletableFuture<byte[]> sendData(String channel, byte[] data)
+    {
+        Preconditions.checkState( getVersion() >= ProtocolConstants.MINECRAFT_1_13, "LoginPayloads are only supported in 1.13 and above" );
+        Preconditions.checkState( loginRequest != null, "Cannot send login data for status or legacy connections" );
+
+        CompletableFuture<byte[]> future = new CompletableFuture<>();
+        final int id;
+        synchronized ( requestedLoginPayloads )
+        {
+            // thread safe loginPayloadId
+            id = loginPayloadId++;
+            requestedLoginPayloads.put( id, future );
+        }
+        unsafe.sendPacket( new LoginPayloadRequest( id, channel, data ) );
         return future;
     }
 }
