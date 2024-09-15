@@ -137,6 +137,15 @@ public class ServerConnector extends PacketHandler
     public void disconnected(ChannelWrapper channel) throws Exception
     {
         user.getPendingConnects().remove( target );
+
+        if ( !obsolete && user.getPendingConnects().isEmpty() && thisState == State.LOGIN_SUCCESS )
+        {
+            // this is called if we get disconnected but not have received any response after we send the handshake
+            // in this case probably an exception was thrown because the handshake could not be read correctly
+            // because of the extra ip forward data, also we skip the disconnect if another server is also in the
+            // pendingConnects queue because we don't want to lose the player
+            user.disconnect( "probably miss configured ip-forwarding" );
+        }
     }
 
     @Override
