@@ -2,7 +2,9 @@ package net.md_5.bungee.api.connection;
 
 import java.net.InetSocketAddress;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import net.md_5.bungee.api.config.ListenerInfo;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Represents a user attempting to log into the proxy.
@@ -89,4 +91,40 @@ public interface PendingConnection extends Connection
      * @return Whether the client is using a legacy client.
      */
     boolean isLegacy();
+
+    /**
+     * Gets if this connection has been transferred from another server.
+     *
+     * @return true if the connection has been transferred
+     */
+    @ApiStatus.Experimental
+    boolean isTransferred();
+
+    /**
+     * Retrieves a cookie from this pending connection.
+     *
+     * @param cookie the resource location of the cookie, for example
+     * "bungeecord:my_cookie"
+     * @return a {@link CompletableFuture} that will be completed when the
+     * Cookie response is received. If the cookie is not set in the client, the
+     * {@link CompletableFuture} will complete with a null value
+     * @throws IllegalStateException if the player's version is not at least
+     * 1.20.5
+     */
+    @ApiStatus.Experimental
+    CompletableFuture<byte[]> retrieveCookie(String cookie);
+
+    /**
+     * Sends a login payload request to the client.
+     *
+     * @param channel the channel to send this data via
+     * @param data the data to send
+     * @return a {@link CompletableFuture} that will be completed when the Login
+     * Payload response is received. If the Vanilla client doesn't know the
+     * channel, the {@link CompletableFuture} will complete with a null value
+     * @throws IllegalStateException if the player's version is not at least
+     * 1.13
+     */
+    @ApiStatus.Experimental
+    CompletableFuture<byte[]> sendData(String channel, byte[] data);
 }

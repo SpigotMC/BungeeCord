@@ -9,6 +9,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
+import java.util.Map;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentStyle;
 import net.md_5.bungee.api.chat.ComponentStyleBuilder;
@@ -62,7 +63,7 @@ public class ComponentStyleSerializer implements JsonSerializer<ComponentStyle>,
         {
             object.addProperty( "obfuscated", style.isObfuscatedRaw() );
         }
-        if ( style.hasColor() )
+        if ( style.hasColor() && style.getColor().getColor() != null )
         {
             object.addProperty( "color", style.getColor().getName() );
         }
@@ -77,33 +78,34 @@ public class ComponentStyleSerializer implements JsonSerializer<ComponentStyle>,
     {
         ComponentStyleBuilder builder = ComponentStyle.builder();
         JsonObject object = json.getAsJsonObject();
-        if ( object.has( "bold" ) )
+        for ( Map.Entry<String, JsonElement> entry : object.entrySet() )
         {
-            builder.bold( getAsBoolean( object.get( "bold" ) ) );
-        }
-        if ( object.has( "italic" ) )
-        {
-            builder.italic( getAsBoolean( object.get( "italic" ) ) );
-        }
-        if ( object.has( "underlined" ) )
-        {
-            builder.underlined( getAsBoolean( object.get( "underlined" ) ) );
-        }
-        if ( object.has( "strikethrough" ) )
-        {
-            builder.strikethrough( getAsBoolean( object.get( "strikethrough" ) ) );
-        }
-        if ( object.has( "obfuscated" ) )
-        {
-            builder.obfuscated( getAsBoolean( object.get( "obfuscated" ) ) );
-        }
-        if ( object.has( "color" ) )
-        {
-            builder.color( ChatColor.of( object.get( "color" ).getAsString() ) );
-        }
-        if ( object.has( "font" ) )
-        {
-            builder.font( object.get( "font" ).getAsString() );
+            String name = entry.getKey();
+            JsonElement value = entry.getValue();
+            switch ( name )
+            {
+                case "bold":
+                    builder.bold( getAsBoolean( value ) );
+                    break;
+                case "italic":
+                    builder.italic( getAsBoolean( value ) );
+                    break;
+                case "underlined":
+                    builder.underlined( getAsBoolean( value ) );
+                    break;
+                case "strikethrough":
+                    builder.strikethrough( getAsBoolean( value ) );
+                    break;
+                case "obfuscated":
+                    builder.obfuscated( getAsBoolean( value ) );
+                    break;
+                case "color":
+                    builder.color( ChatColor.of( value.getAsString() ) );
+                    break;
+                case "font":
+                    builder.font( value.getAsString() );
+                    break;
+            }
         }
         return builder.build();
     }

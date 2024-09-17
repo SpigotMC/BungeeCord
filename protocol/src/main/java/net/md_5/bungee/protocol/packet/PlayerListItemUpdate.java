@@ -61,6 +61,9 @@ public class PlayerListItemUpdate extends DefinedPacket
                             item.displayName = DefinedPacket.readBaseComponent( buf, protocolVersion );
                         }
                         break;
+                    case UPDATE_LIST_ORDER:
+                        item.listOrder = DefinedPacket.readVarInt( buf );
+                        break;
                 }
             }
         }
@@ -109,6 +112,9 @@ public class PlayerListItemUpdate extends DefinedPacket
                             DefinedPacket.writeBaseComponent( item.displayName, buf, protocolVersion );
                         }
                         break;
+                    case UPDATE_LIST_ORDER:
+                        DefinedPacket.writeVarInt( item.listOrder, buf );
+                        break;
                 }
             }
         }
@@ -128,6 +134,7 @@ public class PlayerListItemUpdate extends DefinedPacket
         UPDATE_GAMEMODE,
         UPDATE_LISTED,
         UPDATE_LATENCY,
-        UPDATE_DISPLAY_NAME;
+        UPDATE_DISPLAY_NAME,
+        UPDATE_LIST_ORDER;
     }
 }

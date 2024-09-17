@@ -23,7 +23,6 @@ import java.util.UUID;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import lombok.Getter;
 import net.md_5.bungee.jni.NativeCode;
 import net.md_5.bungee.jni.cipher.BungeeCipher;
 import net.md_5.bungee.jni.cipher.JavaCipher;
@@ -41,8 +40,6 @@ public class EncryptionUtil
     private static final Random random = new Random();
     private static final Base64.Encoder MIME_ENCODER = Base64.getMimeEncoder( 76, "\n".getBytes( StandardCharsets.UTF_8 ) );
     public static final KeyPair keys;
-    @Getter
-    private static final SecretKey secret = new SecretKeySpec( new byte[ 16 ], "AES" );
     public static final NativeCode<BungeeCipher> nativeFactory = new NativeCode<>( "native-cipher", JavaCipher::new, NativeCipher::new );
     private static final PublicKey MOJANG_KEY;
 
@@ -73,7 +70,8 @@ public class EncryptionUtil
         byte[] pubKey = keys.getPublic().getEncoded();
         byte[] verify = new byte[ 4 ];
         random.nextBytes( verify );
-        return new EncryptionRequest( hash, pubKey, verify );
+        // always auth for now
+        return new EncryptionRequest( hash, pubKey, verify, true );
     }
 
     public static boolean check(PlayerPublicKey publicKey, UUID uuid) throws GeneralSecurityException

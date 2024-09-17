@@ -3,6 +3,7 @@ package net.md_5.bungee.api.connection;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.CommandSender;
@@ -13,6 +14,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.score.Scoreboard;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Represents a player whose connection is being connected to somewhere else,
@@ -339,4 +341,45 @@ public interface ProxiedPlayer extends Connection, CommandSender
      */
     @Deprecated
     Scoreboard getScoreboard();
+
+    /**
+     * Retrieves a cookie from this player.
+     *
+     * @param cookie the resource location of the cookie, for example
+     * "bungeecord:my_cookie"
+     * @return a {@link CompletableFuture} that will be completed when the
+     * Cookie response is received. If the cookie is not set in the client, the
+     * {@link CompletableFuture} will complete with a null value
+     * @throws IllegalStateException if the player's version is not at least
+     * 1.20.5
+     */
+    @ApiStatus.Experimental
+    CompletableFuture<byte[]> retrieveCookie(String cookie);
+
+    /**
+     * Stores a cookie in this player's client.
+     *
+     * @param cookie the resource location of the cookie, for example
+     * "bungeecord:my_cookie"
+     * @param data the data to store in the cookie
+     * @throws IllegalStateException if the player's version is not at least
+     * 1.20.5
+     */
+    @ApiStatus.Experimental
+    void storeCookie(String cookie, byte[] data);
+
+    /**
+     * Requests this player to connect to a different server specified by host
+     * and port.
+     *
+     * This is a client-side transfer - host and port should not specify a
+     * BungeeCord backend server.
+     *
+     * @param host the host of the server to transfer to
+     * @param port the port of the server to transfer to
+     * @throws IllegalStateException if the players version is not at least
+     * 1.20.5
+     */
+    @ApiStatus.Experimental
+    void transfer(String host, int port);
 }

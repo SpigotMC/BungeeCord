@@ -18,4 +18,10 @@ public interface BungeeCipher
     void cipher(ByteBuf in, ByteBuf out) throws GeneralSecurityException;
 
     ByteBuf cipher(ChannelHandlerContext ctx, ByteBuf in) throws GeneralSecurityException;
+
+    /*
+     * This indicates whether the input ByteBuf is allowed to be a CompositeByteBuf.
+     * If you need access to a memory address, you should not allow composite buffers.
+     */
+    boolean allowComposite();
 }

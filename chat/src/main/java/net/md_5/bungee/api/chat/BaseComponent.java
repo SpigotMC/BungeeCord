@@ -253,6 +253,9 @@ public abstract class BaseComponent
 
     /**
      * Set this component's color.
+     * <p>
+     * <b>Warning: This should be a color, not formatting code (ie,
+     * {@link ChatColor#color} should not be null).</b>
      *
      * @param color the component color, or null to use the default
      */

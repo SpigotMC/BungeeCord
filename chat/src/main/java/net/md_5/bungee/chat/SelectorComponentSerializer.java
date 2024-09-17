@@ -17,15 +17,17 @@ public class SelectorComponentSerializer extends BaseComponentSerializer impleme
     public SelectorComponent deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
     {
         JsonObject object = element.getAsJsonObject();
-        if ( !object.has( "selector" ) )
+        JsonElement selector = object.get( "selector" );
+        if ( selector == null )
         {
             throw new JsonParseException( "Could not parse JSON: missing 'selector' property" );
         }
-        SelectorComponent component = new SelectorComponent( object.get( "selector" ).getAsString() );
+        SelectorComponent component = new SelectorComponent( selector.getAsString() );
 
-        if ( object.has( "separator" ) )
+        JsonElement separator = object.get( "separator" );
+        if ( separator != null )
         {
-            component.setSeparator( ComponentSerializer.deserialize( object.get( "separator" ).getAsString() ) );
+            component.setSeparator( ComponentSerializer.deserialize( separator.getAsString() ) );
         }
 
         deserialize( object, component, context );

@@ -30,13 +30,17 @@ public class Respawn extends DefinedPacket
     private byte copyMeta;
     private Location deathLocation;
     private int portalCooldown;
+    private int seaLevel;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16 )
         {
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16_2 && protocolVersion < ProtocolConstants.MINECRAFT_1_19 )
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
+            {
+                dimension = readVarInt( buf );
+            } else if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16_2 && protocolVersion < ProtocolConstants.MINECRAFT_1_19 )
             {
                 dimension = readTag( buf, protocolVersion );
             } else
@@ -81,6 +85,10 @@ public class Respawn extends DefinedPacket
         {
             portalCooldown = readVarInt( buf );
         }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
+        {
+            seaLevel = readVarInt( buf );
+        }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_2 )
         {
             copyMeta = buf.readByte();
@@ -92,7 +100,10 @@ public class Respawn extends DefinedPacket
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16 )
         {
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16_2 && protocolVersion < ProtocolConstants.MINECRAFT_1_19 )
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
+            {
+                writeVarInt( (Integer) dimension, buf );
+            } else if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16_2 && protocolVersion < ProtocolConstants.MINECRAFT_1_19 )
             {
                 writeTag( (Tag) dimension, buf, protocolVersion );
             } else
@@ -141,6 +152,10 @@ public class Respawn extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20 )
         {
             writeVarInt( portalCooldown, buf );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
+        {
+            writeVarInt( seaLevel, buf );
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_2 )
         {

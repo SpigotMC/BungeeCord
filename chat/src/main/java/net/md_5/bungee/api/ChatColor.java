@@ -244,7 +244,7 @@ public final class ChatColor
     public static ChatColor of(String string)
     {
         Preconditions.checkArgument( string != null, "string cannot be null" );
-        if ( string.startsWith( "#" ) && string.length() == 7 )
+        if ( string.length() == 7 && string.charAt( 0 ) == '#' )
         {
             int rgb;
             try

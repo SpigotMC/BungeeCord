@@ -30,6 +30,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
 
     private ChannelWrapper channel;
     private PacketHandler handler;
+    private boolean healthCheck;
 
     public void setHandler(PacketHandler handler)
     {
@@ -94,6 +95,9 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                     } );
 
                     channel.setRemoteAddress( newAddress );
+                } else
+                {
+                    healthCheck = true;
                 }
             } finally
             {
@@ -143,7 +147,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     {
         if ( ctx.channel().isActive() )
         {
-            boolean logExceptions = !( handler instanceof PingHandler );
+            boolean logExceptions = !( handler instanceof PingHandler ) && !healthCheck;
 
             if ( logExceptions )
             {
