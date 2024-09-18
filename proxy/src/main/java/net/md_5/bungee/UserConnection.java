@@ -395,11 +395,11 @@ public final class UserConnection implements ProxiedPlayer
             }
         };
         Bootstrap b = new Bootstrap()
-            .channel( PipelineUtils.getChannel( target.getAddress() ) )
-            .group( ch.getHandle().eventLoop() )
-            .handler( initializer )
-            .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, request.getConnectTimeout() )
-            .remoteAddress( target.getAddress() );
+                .channel( PipelineUtils.getChannel( target.getAddress() ) )
+                .group( ch.getHandle().eventLoop() )
+                .handler( initializer )
+                .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, request.getConnectTimeout() )
+                .remoteAddress( target.getAddress() );
         // Windows is bugged, multi homed users will just have to live with random connecting IPs
         if ( getPendingConnection().getListener().isSetLocalAddress() && !PlatformDependent.isWindows() && getPendingConnection().getListener().getSocketAddress() instanceof InetSocketAddress )
         {
