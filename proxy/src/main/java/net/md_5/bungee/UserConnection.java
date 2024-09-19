@@ -320,10 +320,6 @@ public final class UserConnection implements ProxiedPlayer
                 callback.done( ServerConnectRequest.Result.EVENT_CANCEL, null );
             }
 
-            if ( getServer() == null && !ch.isClosing() )
-            {
-                throw new IllegalStateException( "Cancelled ServerConnectEvent with no server or disconnect." );
-            }
             return;
         }
 
