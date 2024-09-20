@@ -37,7 +37,7 @@ public class LoginSuccess extends DefinedPacket
         {
             properties = readProperties( buf );
         }
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 && protocolVersion < ProtocolConstants.MINECRAFT_1_21_2 )
         {
             // Whether the client should disconnect on its own if it receives invalid data from the server
             buf.readBoolean();
@@ -59,7 +59,7 @@ public class LoginSuccess extends DefinedPacket
         {
             writeProperties( properties, buf );
         }
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 && protocolVersion < ProtocolConstants.MINECRAFT_1_21_2 )
         {
             // Whether the client should disconnect on its own if it receives invalid data from the server
             // Vanilla sends true so we also send true
