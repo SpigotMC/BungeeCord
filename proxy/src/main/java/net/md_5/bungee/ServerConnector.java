@@ -361,7 +361,10 @@ public class ServerConnector extends PacketHandler
             if ( user.getServer() != null )
             {
                 // Begin config mode
-                user.unsafe().sendPacket( new StartConfiguration() );
+                if ( user.getCh().getEncodeProtocol() != Protocol.CONFIGURATION )
+                {
+                    user.unsafe().sendPacket( new StartConfiguration() );
+                }
             } else
             {
                 LoginResult loginProfile = user.getPendingConnection().getLoginProfile();
