@@ -31,6 +31,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.ProxyCommandEvent;
 import net.md_5.bungee.event.EventBus;
 import net.md_5.bungee.event.EventHandler;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -205,7 +206,9 @@ public final class PluginManager
                         sender.getName(), commandLine
                     } );
                 }
-                command.execute( sender, args );
+                ProxyCommandEvent event = new ProxyCommandEvent( sender, commandLine );
+                if ( !callEvent( event ).isCancelled() )
+                    command.execute( sender, args );
             } else if ( commandLine.contains( " " ) && command instanceof TabExecutor )
             {
                 for ( String s : ( (TabExecutor) command ).onTabComplete( sender, args ) )
