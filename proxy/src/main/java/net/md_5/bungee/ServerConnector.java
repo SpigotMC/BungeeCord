@@ -138,7 +138,7 @@ public class ServerConnector extends PacketHandler
     {
         user.getPendingConnects().remove( target );
 
-        if ( !obsolete && user.getPendingConnects().isEmpty() && thisState == State.LOGIN_SUCCESS )
+        if ( user.getServer() == null && !obsolete && user.getPendingConnects().isEmpty() && thisState == State.LOGIN_SUCCESS )
         {
             // this is called if we get disconnected but not have received any response after we send the handshake
             // in this case probably an exception was thrown because the handshake could not be read correctly
