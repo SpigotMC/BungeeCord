@@ -124,6 +124,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     };
     @Getter
     private boolean onlineMode = BungeeCord.getInstance().config.isOnlineMode();
+    private boolean encryptInOfflineMode = BungeeCord.getInstance().config.isEncryptInOfflineMode();
     @Getter
     private InetSocketAddress virtualHost;
     private String name;
@@ -488,10 +489,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 {
                     return;
                 }
-                if ( onlineMode )
+                if ( onlineMode || ( encryptInOfflineMode && getVersion() >= ProtocolConstants.MINECRAFT_1_20_5 ) )
                 {
                     thisState = State.ENCRYPT;
-                    unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
+                    unsafe().sendPacket( request = EncryptionUtil.encryptRequest( onlineMode ) );
                 } else
                 {
                     thisState = State.FINISHING;
@@ -518,47 +519,55 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         // disable use of composite buffers if we use natives
         ch.updateComposite();
 
-        String encName = URLEncoder.encode( InitialHandler.this.getName(), "UTF-8" );
-
-        MessageDigest sha = MessageDigest.getInstance( "SHA-1" );
-        for ( byte[] bit : new byte[][]
+        if ( onlineMode )
         {
-            request.getServerId().getBytes( "ISO_8859_1" ), sharedKey.getEncoded(), EncryptionUtil.keys.getPublic().getEncoded()
-        } )
-        {
-            sha.update( bit );
-        }
-        String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
+            String encName = URLEncoder.encode( InitialHandler.this.getName(), "UTF-8" );
 
-        String preventProxy = ( BungeeCord.getInstance().config.isPreventProxyConnections() && getSocketAddress() instanceof InetSocketAddress ) ? "&ip=" + URLEncoder.encode( getAddress().getAddress().getHostAddress(), "UTF-8" ) : "";
-        String authURL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" + encName + "&serverId=" + encodedHash + preventProxy;
-
-        Callback<String> handler = new Callback<String>()
-        {
-            @Override
-            public void done(String result, Throwable error)
+            MessageDigest sha = MessageDigest.getInstance( "SHA-1" );
+            for ( byte[] bit : new byte[][]
             {
-                if ( error == null )
-                {
-                    LoginResult obj = BungeeCord.getInstance().gson.fromJson( result, LoginResult.class );
-                    if ( obj != null && obj.getId() != null )
-                    {
-                        loginProfile = obj;
-                        name = obj.getName();
-                        uniqueId = Util.getUUID( obj.getId() );
-                        finish();
-                        return;
-                    }
-                    disconnect( bungee.getTranslation( "offline_mode_player" ) );
-                } else
-                {
-                    disconnect( bungee.getTranslation( "mojang_fail" ) );
-                    bungee.getLogger().log( Level.SEVERE, "Error authenticating " + getName() + " with minecraft.net", error );
-                }
+                request.getServerId().getBytes( "ISO_8859_1" ), sharedKey.getEncoded(), EncryptionUtil.keys.getPublic().getEncoded()
+            } )
+            {
+                sha.update( bit );
             }
-        };
-        thisState = State.FINISHING;
-        HttpClient.get( authURL, ch.getHandle().eventLoop(), handler );
+            String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
+
+            String preventProxy = ( BungeeCord.getInstance().config.isPreventProxyConnections() && getSocketAddress() instanceof InetSocketAddress ) ? "&ip=" + URLEncoder.encode( getAddress().getAddress().getHostAddress(), "UTF-8" ) : "";
+            String authURL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" + encName + "&serverId=" + encodedHash + preventProxy;
+
+            Callback<String> handler = new Callback<String>()
+            {
+                @Override
+                public void done(String result, Throwable error)
+                {
+                    if ( error == null )
+                    {
+                        LoginResult obj = BungeeCord.getInstance().gson.fromJson( result, LoginResult.class );
+                        if ( obj != null && obj.getId() != null )
+                        {
+                            loginProfile = obj;
+                            name = obj.getName();
+                            uniqueId = Util.getUUID( obj.getId() );
+                            finish();
+                            return;
+                        }
+                        disconnect( bungee.getTranslation( "offline_mode_player" ) );
+                    } else
+                    {
+                        disconnect( bungee.getTranslation( "mojang_fail" ) );
+                        bungee.getLogger().log( Level.SEVERE, "Error authenticating " + getName() + " with minecraft.net", error );
+                    }
+                }
+            };
+
+            thisState = State.FINISHING;
+            HttpClient.get( authURL, ch.getHandle().eventLoop(), handler );
+        } else
+        {
+            thisState = State.FINISHING;
+            finish();
+        }
     }
 
     private void finish()
