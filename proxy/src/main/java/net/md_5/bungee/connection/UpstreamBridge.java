@@ -101,7 +101,8 @@ public class UpstreamBridge extends PacketHandler
             {
                 if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_19_3 )
                 {
-                    player.unsafe().sendPacket( newPacket );
+                    // need to queue, because players in config state could receive it
+                    ( (UserConnection) player ).sendPacketQueued( newPacket );
                 } else
                 {
                     player.unsafe().sendPacket( oldPacket );
