@@ -660,8 +660,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             return;
         }
 
-        ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
-
         ServerInfo initialServer;
         if ( bungee.getReconnectHandler() != null )
         {
@@ -686,6 +684,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     return;
                 }
 
+                ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
                 userCon.connect( result.getTarget(), null, true, ServerConnectEvent.Reason.JOIN_PROXY );
             }
         };
@@ -904,7 +903,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public CompletableFuture<byte[]> sendData(String channel, byte[] data)
     {
         Preconditions.checkState( getVersion() >= ProtocolConstants.MINECRAFT_1_13, "LoginPayloads are only supported in 1.13 and above" );
-        Preconditions.checkState( loginRequest != null, "Cannot send login data for status or legacy connections" );
+        Preconditions.checkState( ch.getEncodeProtocol() == Protocol.LOGIN, "LoginPayloads are only supported in the login phase" );
 
         CompletableFuture<byte[]> future = new CompletableFuture<>();
         final int id;
