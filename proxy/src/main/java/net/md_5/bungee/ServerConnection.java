@@ -46,6 +46,10 @@ public class ServerConnection implements Server
     public void sendPacketQueued(DefinedPacket packet)
     {
         Protocol encodeProtocol = ch.getEncodeProtocol();
+        if ( encodeProtocol == null )
+        {
+            return;
+        }
         if ( !encodeProtocol.TO_SERVER.hasPacket( packet.getClass(), ch.getEncodeVersion() ) )
         {
             packetQueue.add( packet );

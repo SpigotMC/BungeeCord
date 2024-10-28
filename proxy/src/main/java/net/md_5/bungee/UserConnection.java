@@ -187,6 +187,10 @@ public final class UserConnection implements ProxiedPlayer
     public void sendPacketQueued(DefinedPacket packet)
     {
         Protocol encodeProtocol = ch.getEncodeProtocol();
+        if ( encodeProtocol == null )
+        {
+            return;
+        }
         if ( !encodeProtocol.TO_CLIENT.hasPacket( packet.getClass(), getPendingConnection().getVersion() ) )
         {
             packetQueue.add( packet );

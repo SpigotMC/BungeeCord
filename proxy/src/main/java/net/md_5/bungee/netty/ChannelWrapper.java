@@ -42,23 +42,32 @@ public class ChannelWrapper
 
     public Protocol getDecodeProtocol()
     {
-        return ch.pipeline().get( MinecraftDecoder.class ).getProtocol();
+        MinecraftDecoder minecraftDecoder = getMinecraftDecoder();
+        if ( minecraftDecoder == null )
+        {
+            return null;
+        }
+        return minecraftDecoder.getProtocol();
     }
 
     public void setDecodeProtocol(Protocol protocol)
     {
-        ch.pipeline().get( MinecraftDecoder.class ).setProtocol( protocol );
+        getMinecraftDecoder().setProtocol( protocol );
     }
 
     public Protocol getEncodeProtocol()
     {
-        return ch.pipeline().get( MinecraftEncoder.class ).getProtocol();
-
+        MinecraftEncoder minecraftEncoder = getMinecraftEncoder();
+        if ( minecraftEncoder == null )
+        {
+            return null;
+        }
+        return minecraftEncoder.getProtocol();
     }
 
     public void setEncodeProtocol(Protocol protocol)
     {
-        ch.pipeline().get( MinecraftEncoder.class ).setProtocol( protocol );
+        getMinecraftEncoder().setProtocol( protocol );
     }
 
     public void setProtocol(Protocol protocol)
@@ -69,13 +78,23 @@ public class ChannelWrapper
 
     public void setVersion(int protocol)
     {
-        ch.pipeline().get( MinecraftDecoder.class ).setProtocolVersion( protocol );
-        ch.pipeline().get( MinecraftEncoder.class ).setProtocolVersion( protocol );
+        getMinecraftDecoder().setProtocolVersion( protocol );
+        getMinecraftEncoder().setProtocolVersion( protocol );
+    }
+
+    public MinecraftDecoder getMinecraftDecoder()
+    {
+        return ch.pipeline().get( MinecraftDecoder.class );
+    }
+
+    public MinecraftEncoder getMinecraftEncoder()
+    {
+        return ch.pipeline().get( MinecraftEncoder.class );
     }
 
     public int getEncodeVersion()
     {
-        return ch.pipeline().get( MinecraftEncoder.class ).getProtocolVersion();
+        return getMinecraftEncoder().getProtocolVersion();
     }
 
     public void write(Object packet)
