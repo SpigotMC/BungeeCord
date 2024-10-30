@@ -808,15 +808,15 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void setOnlineMode(boolean onlineMode)
     {
-        Preconditions.checkState( thisState == State.USERNAME, "Can only set online mode status whilst state is username" );
+        //Preconditions.checkState( thisState == State.USERNAME, "Can only set online mode status whilst state is username" );
         this.onlineMode = onlineMode;
     }
 
     @Override
     public void setUniqueId(UUID uuid)
     {
-        Preconditions.checkState( thisState == State.USERNAME, "Can only set uuid while state is username" );
-        Preconditions.checkState( !onlineMode, "Can only set uuid when online mode is false" );
+        //Preconditions.checkState( thisState == State.USERNAME, "Can only set uuid while state is username" );
+        //Preconditions.checkState( !onlineMode, "Can only set uuid when online mode is false" );
         this.uniqueId = uuid;
     }
 
