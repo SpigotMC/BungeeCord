@@ -11,12 +11,12 @@ import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Random;
 import java.util.UUID;
@@ -108,17 +108,17 @@ public class EncryptionUtil
             return signature.verify( resp.getEncryptionData().getSignature() );
         } else
         {
-            Cipher cipher = Cipher.getInstance( "RSA" );
+            Cipher cipher = Cipher.getInstance( "RSA/ECB/PKCS1Padding" );
             cipher.init( Cipher.DECRYPT_MODE, keys.getPrivate() );
             byte[] decrypted = cipher.doFinal( resp.getVerifyToken() );
 
-            return Arrays.equals( request.getVerifyToken(), decrypted );
+            return MessageDigest.isEqual( request.getVerifyToken(), decrypted );
         }
     }
 
     public static SecretKey getSecret(EncryptionResponse resp, EncryptionRequest request) throws GeneralSecurityException
     {
-        Cipher cipher = Cipher.getInstance( "RSA" );
+        Cipher cipher = Cipher.getInstance( "RSA/ECB/PKCS1Padding" );
         cipher.init( Cipher.DECRYPT_MODE, keys.getPrivate() );
         return new SecretKeySpec( cipher.doFinal( resp.getSharedSecret() ), "AES" );
     }
@@ -143,7 +143,7 @@ public class EncryptionUtil
 
     public static byte[] encrypt(Key key, byte[] b) throws GeneralSecurityException
     {
-        Cipher hasher = Cipher.getInstance( "RSA" );
+        Cipher hasher = Cipher.getInstance( "RSA/ECB/PKCS1Padding" );
         hasher.init( Cipher.ENCRYPT_MODE, key );
         return hasher.doFinal( b );
     }

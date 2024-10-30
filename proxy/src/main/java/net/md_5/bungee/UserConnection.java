@@ -306,6 +306,11 @@ public final class UserConnection implements ProxiedPlayer
     {
         Preconditions.checkNotNull( request, "request" );
 
+        ch.getHandle().eventLoop().execute( () -> connect0( request ) );
+    }
+
+    private void connect0(final ServerConnectRequest request)
+    {
         final Callback<ServerConnectRequest.Result> callback = request.getCallback();
         ServerConnectEvent event = new ServerConnectEvent( this, request.getTarget(), request.getReason(), request );
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
@@ -315,10 +320,6 @@ public final class UserConnection implements ProxiedPlayer
                 callback.done( ServerConnectRequest.Result.EVENT_CANCEL, null );
             }
 
-            if ( getServer() == null && !ch.isClosing() )
-            {
-                throw new IllegalStateException( "Cancelled ServerConnectEvent with no server or disconnect." );
-            }
             return;
         }
 
