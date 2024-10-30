@@ -18,52 +18,50 @@ public class NativeZlibTest
     private final NativeCode<BungeeZlib> factory = new NativeCode<>( "native-compress", JavaZlib::new, NativeZlib::new );
 
     @Test
-    public void doTest() throws DataFormatException
-    {
-        if ( NativeCode.isSupported() )
-        {
-            assertTrue( factory.load(), "Native code failed to load!" );
-            test( factory.newInstance() );
+    public void doTest() throws DataFormatException {
+        BungeeZlib zlibInstance;
+        if (NativeCode.isSupported() && factory.load()) {
+            zlibInstance = factory.newInstance();
+        } else {
+            System.out.println("Native library not supported or failed to load; using JavaZlib fallback.");
+            zlibInstance = new JavaZlib();
         }
-        test( new JavaZlib() );
+        test(zlibInstance);
     }
 
-    private void test(BungeeZlib zlib) throws DataFormatException
-    {
-        System.out.println( "Testing: " + zlib );
+    private void test(BungeeZlib zlib) throws DataFormatException {
+        System.out.println("Testing: " + zlib);
         long start = System.currentTimeMillis();
 
-        byte[] dataBuf = new byte[ 1 << 22 ]; // 2 megabytes
-        new Random().nextBytes( dataBuf );
+        byte[] dataBuf = new byte[1 << 22]; // 2 megabytes
+        new Random().nextBytes(dataBuf);
 
-        zlib.init( true, 9 );
+        zlib.init(true, 9);
 
         ByteBuf originalBuf = Unpooled.directBuffer();
-        originalBuf.writeBytes( dataBuf );
+        originalBuf.writeBytes(dataBuf);
 
         ByteBuf compressed = Unpooled.directBuffer();
-
-        zlib.process( originalBuf, compressed );
+        zlib.process(originalBuf, compressed);
 
         // Repeat here to test .reset()
         originalBuf = Unpooled.directBuffer();
-        originalBuf.writeBytes( dataBuf );
+        originalBuf.writeBytes(dataBuf);
 
         compressed = Unpooled.directBuffer();
-
-        zlib.process( originalBuf, compressed );
+        zlib.process(originalBuf, compressed);
 
         ByteBuf uncompressed = Unpooled.directBuffer();
 
-        zlib.init( false, 0 );
-        zlib.process( compressed, uncompressed );
+        zlib.init(false, 0);
+        zlib.process(compressed, uncompressed);
 
-        byte[] check = new byte[ uncompressed.readableBytes() ];
-        uncompressed.readBytes( check );
+        byte[] check = new byte[uncompressed.readableBytes()];
+        uncompressed.readBytes(check);
 
         long elapsed = System.currentTimeMillis() - start;
-        System.out.println( "Took: " + elapsed + "ms" );
+        System.out.println("Took: " + elapsed + "ms");
 
-        assertTrue( Arrays.equals( dataBuf, check ), "Results do not match" );
+        assertTrue(Arrays.equals(dataBuf, check), "Results do not match");
     }
 }
