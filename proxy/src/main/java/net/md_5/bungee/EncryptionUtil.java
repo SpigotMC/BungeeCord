@@ -11,19 +11,18 @@ import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Random;
 import java.util.UUID;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import lombok.Getter;
 import net.md_5.bungee.jni.NativeCode;
 import net.md_5.bungee.jni.cipher.BungeeCipher;
 import net.md_5.bungee.jni.cipher.JavaCipher;
@@ -41,8 +40,6 @@ public class EncryptionUtil
     private static final Random random = new Random();
     private static final Base64.Encoder MIME_ENCODER = Base64.getMimeEncoder( 76, "\n".getBytes( StandardCharsets.UTF_8 ) );
     public static final KeyPair keys;
-    @Getter
-    private static final SecretKey secret = new SecretKeySpec( new byte[ 16 ], "AES" );
     public static final NativeCode<BungeeCipher> nativeFactory = new NativeCode<>( "native-cipher", JavaCipher::new, NativeCipher::new );
     private static final PublicKey MOJANG_KEY;
 
@@ -73,7 +70,8 @@ public class EncryptionUtil
         byte[] pubKey = keys.getPublic().getEncoded();
         byte[] verify = new byte[ 4 ];
         random.nextBytes( verify );
-        return new EncryptionRequest( hash, pubKey, verify );
+        // always auth for now
+        return new EncryptionRequest( hash, pubKey, verify, true );
     }
 
     public static boolean check(PlayerPublicKey publicKey, UUID uuid) throws GeneralSecurityException
@@ -110,17 +108,17 @@ public class EncryptionUtil
             return signature.verify( resp.getEncryptionData().getSignature() );
         } else
         {
-            Cipher cipher = Cipher.getInstance( "RSA" );
+            Cipher cipher = Cipher.getInstance( "RSA/ECB/PKCS1Padding" );
             cipher.init( Cipher.DECRYPT_MODE, keys.getPrivate() );
             byte[] decrypted = cipher.doFinal( resp.getVerifyToken() );
 
-            return Arrays.equals( request.getVerifyToken(), decrypted );
+            return MessageDigest.isEqual( request.getVerifyToken(), decrypted );
         }
     }
 
     public static SecretKey getSecret(EncryptionResponse resp, EncryptionRequest request) throws GeneralSecurityException
     {
-        Cipher cipher = Cipher.getInstance( "RSA" );
+        Cipher cipher = Cipher.getInstance( "RSA/ECB/PKCS1Padding" );
         cipher.init( Cipher.DECRYPT_MODE, keys.getPrivate() );
         return new SecretKeySpec( cipher.doFinal( resp.getSharedSecret() ), "AES" );
     }
@@ -145,7 +143,7 @@ public class EncryptionUtil
 
     public static byte[] encrypt(Key key, byte[] b) throws GeneralSecurityException
     {
-        Cipher hasher = Cipher.getInstance( "RSA" );
+        Cipher hasher = Cipher.getInstance( "RSA/ECB/PKCS1Padding" );
         hasher.init( Cipher.ENCRYPT_MODE, key );
         return hasher.doFinal( b );
     }

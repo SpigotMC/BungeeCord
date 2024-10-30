@@ -7,15 +7,19 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import lombok.Getter;
 import lombok.Setter;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.compress.PacketCompressor;
 import net.md_5.bungee.compress.PacketDecompressor;
+import net.md_5.bungee.netty.cipher.CipherEncoder;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.Varint21LengthFieldPrepender;
 import net.md_5.bungee.protocol.packet.Kick;
 
 public class ChannelWrapper
@@ -186,6 +190,37 @@ public class ChannelWrapper
         if ( compressionThreshold < 0 )
         {
             ch.pipeline().remove( "decompress" );
+        }
+        // disable use of composite buffers if we use natives
+        updateComposite();
+    }
+
+    /*
+     * Should be called on encryption add and on compressor add or remove
+     */
+    public void updateComposite()
+    {
+        CipherEncoder cipherEncoder = ch.pipeline().get( CipherEncoder.class );
+        PacketCompressor packetCompressor = ch.pipeline().get( PacketCompressor.class );
+        Varint21LengthFieldPrepender prepender = ch.pipeline().get( Varint21LengthFieldPrepender.class );
+        boolean compressorCompose = cipherEncoder == null || cipherEncoder.getCipher().allowComposite();
+        boolean prependerCompose = compressorCompose && ( packetCompressor == null || packetCompressor.getZlib().allowComposite() );
+
+        if ( prepender != null )
+        {
+            ProxyServer.getInstance().getLogger().log( Level.FINE, "set prepender compose to {0} for {1}", new Object[]
+            {
+                prependerCompose, ch
+            } );
+            prepender.setCompose( prependerCompose );
+        }
+        if ( packetCompressor != null )
+        {
+            ProxyServer.getInstance().getLogger().log( Level.FINE, "set packetCompressor compose to {0} for {1}", new Object[]
+            {
+                compressorCompose, ch
+            } );
+            packetCompressor.setCompose( compressorCompose );
         }
     }
 }

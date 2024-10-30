@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import lombok.Getter;
@@ -60,7 +61,9 @@ import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.SetCompression;
+import net.md_5.bungee.protocol.packet.StoreCookie;
 import net.md_5.bungee.protocol.packet.SystemChat;
+import net.md_5.bungee.protocol.packet.Transfer;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
 import net.md_5.bungee.util.CaseInsensitiveSet;
@@ -303,6 +306,11 @@ public final class UserConnection implements ProxiedPlayer
     {
         Preconditions.checkNotNull( request, "request" );
 
+        ch.getHandle().eventLoop().execute( () -> connect0( request ) );
+    }
+
+    private void connect0(final ServerConnectRequest request)
+    {
         final Callback<ServerConnectRequest.Result> callback = request.getCallback();
         ServerConnectEvent event = new ServerConnectEvent( this, request.getTarget(), request.getReason(), request );
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
@@ -312,10 +320,6 @@ public final class UserConnection implements ProxiedPlayer
                 callback.done( ServerConnectRequest.Result.EVENT_CANCEL, null );
             }
 
-            if ( getServer() == null && !ch.isClosing() )
-            {
-                throw new IllegalStateException( "Cancelled ServerConnectEvent with no server or disconnect." );
-            }
             return;
         }
 
@@ -436,7 +440,6 @@ public final class UserConnection implements ProxiedPlayer
 
             if ( server != null )
             {
-                server.setObsolete( true );
                 server.disconnect( "Quitting" );
             }
         }
@@ -639,6 +642,11 @@ public final class UserConnection implements ProxiedPlayer
         return getPendingConnection().getUniqueId();
     }
 
+    public UUID getRewriteId()
+    {
+        return getPendingConnection().getRewriteId();
+    }
+
     public void setSettings(ClientSettings settings)
     {
         this.settings = settings;
@@ -770,5 +778,27 @@ public final class UserConnection implements ProxiedPlayer
     public Scoreboard getScoreboard()
     {
         return serverSentScoreboard;
+    }
+
+    @Override
+    public CompletableFuture<byte[]> retrieveCookie(String cookie)
+    {
+        return pendingConnection.retrieveCookie( cookie );
+    }
+
+    @Override
+    public void storeCookie(String cookie, byte[] data)
+    {
+        Preconditions.checkState( getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_5, "Cookies are only supported in 1.20.5 and above" );
+
+        unsafe().sendPacket( new StoreCookie( cookie, data ) );
+    }
+
+    @Override
+    public void transfer(String host, int port)
+    {
+        Preconditions.checkState( getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_5, "Transfers are only supported in 1.20.5 and above" );
+
+        unsafe().sendPacket( new Transfer( host, port ) );
     }
 }

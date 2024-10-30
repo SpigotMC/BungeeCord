@@ -81,6 +81,7 @@ public class ServerConnection implements Server
     {
         Preconditions.checkArgument( reason.length == 0, "Server cannot have disconnect reason" );
 
+        isObsolete = true;
         ch.close();
     }
 

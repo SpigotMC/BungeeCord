@@ -121,13 +121,13 @@ class EntityMap_1_13 extends EntityMap
                 DefinedPacket.readVarInt( packet ); // Entity ID
                 int idLength = packet.readerIndex() - readerIndex - packetIdLength;
                 UUID uuid = DefinedPacket.readUUID( packet );
-                ProxiedPlayer player;
+                UserConnection player;
                 if ( ( player = BungeeCord.getInstance().getPlayerByOfflineUUID( uuid ) ) != null )
                 {
                     int previous = packet.writerIndex();
                     packet.readerIndex( readerIndex );
                     packet.writerIndex( readerIndex + packetIdLength + idLength );
-                    DefinedPacket.writeUUID( player.getUniqueId(), packet );
+                    DefinedPacket.writeUUID( player.getRewriteId(), packet );
                     packet.writerIndex( previous );
                 }
                 break;
@@ -165,7 +165,7 @@ class EntityMap_1_13 extends EntityMap
         int packetId = DefinedPacket.readVarInt( packet );
         int packetIdLength = packet.readerIndex() - readerIndex;
 
-        if ( packetId == 0x28 /* Spectate : PacketPlayInSpectate */ && !BungeeCord.getInstance().getConfig().isIpForward() )
+        if ( packetId == 0x28 /* Spectate : PacketPlayInSpectate */ )
         {
             UUID uuid = DefinedPacket.readUUID( packet );
             ProxiedPlayer player;
@@ -174,7 +174,7 @@ class EntityMap_1_13 extends EntityMap
                 int previous = packet.writerIndex();
                 packet.readerIndex( readerIndex );
                 packet.writerIndex( readerIndex + packetIdLength );
-                DefinedPacket.writeUUID( ( (UserConnection) player ).getPendingConnection().getOfflineId(), packet );
+                DefinedPacket.writeUUID( ( (UserConnection) player ).getRewriteId(), packet );
                 packet.writerIndex( previous );
             }
         }

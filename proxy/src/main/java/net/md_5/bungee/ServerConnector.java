@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Level;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
@@ -39,6 +40,8 @@ import net.md_5.bungee.protocol.Either;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.packet.CookieRequest;
+import net.md_5.bungee.protocol.packet.CookieResponse;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.EntityStatus;
 import net.md_5.bungee.protocol.packet.GameState;
@@ -127,13 +130,22 @@ public class ServerConnector extends PacketHandler
         channel.write( copiedHandshake );
 
         channel.setProtocol( Protocol.LOGIN );
-        channel.write( new LoginRequest( user.getName(), null, user.getUniqueId() ) );
+        channel.write( new LoginRequest( user.getName(), null, user.getRewriteId() ) );
     }
 
     @Override
     public void disconnected(ChannelWrapper channel) throws Exception
     {
         user.getPendingConnects().remove( target );
+
+        if ( user.getServer() == null && !obsolete && user.getPendingConnects().isEmpty() && thisState == State.LOGIN_SUCCESS )
+        {
+            // this is called if we get disconnected but not have received any response after we send the handshake
+            // in this case probably an exception was thrown because the handshake could not be read correctly
+            // because of the extra ip forward data, also we skip the disconnect if another server is also in the
+            // pendingConnects queue because we don't want to lose the player
+            user.disconnect( "Unexpected disconnect during server login, did you forget to enable BungeeCord / IP forwarding on your server?" );
+        }
     }
 
     @Override
@@ -188,6 +200,12 @@ public class ServerConnector extends PacketHandler
     }
 
     @Override
+    public void handle(CookieRequest cookieRequest) throws Exception
+    {
+        user.retrieveCookie( cookieRequest.getCookie() ).thenAccept( (cookie) -> ch.write( new CookieResponse( cookieRequest.getCookie(), cookie ) ) );
+    }
+
+    @Override
     public void handle(Login login) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN, "Not expecting LOGIN" );
@@ -234,7 +252,7 @@ public class ServerConnector extends PacketHandler
             user.getForgeClientHandler().setHandshakeComplete();
         }
 
-        if ( user.getServer() == null || !( login.getDimension() instanceof Integer ) )
+        if ( user.getServer() == null || user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_16 )
         {
             // Once again, first connection
             user.setClientEntityId( login.getEntityId() );
@@ -243,7 +261,7 @@ public class ServerConnector extends PacketHandler
             // Set tab list size, TODO: what shall we do about packet mutability
             Login modLogin = new Login( login.getEntityId(), login.isHardcore(), login.getGameMode(), login.getPreviousGameMode(), login.getWorldNames(), login.getDimensions(), login.getDimension(), login.getWorldName(), login.getSeed(), login.getDifficulty(),
                     (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.getViewDistance(), login.getSimulationDistance(), login.isReducedDebugInfo(), login.isNormalRespawn(), login.isLimitedCrafting(), login.isDebug(), login.isFlat(), login.getDeathLocation(),
-                    login.getPortalCooldown() );
+                    login.getPortalCooldown(), login.getSeaLevel(), login.isSecureProfile() );
 
             user.unsafe().sendPacket( modLogin );
 
@@ -261,7 +279,7 @@ public class ServerConnector extends PacketHandler
                 user.getSentBossBars().clear();
 
                 user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getWorldName(), login.getSeed(), login.getDifficulty(), login.getGameMode(), login.getPreviousGameMode(), login.getLevelType(), login.isDebug(), login.isFlat(), (byte) 0, login.getDeathLocation(),
-                        login.getPortalCooldown() ) );
+                        login.getPortalCooldown(), login.getSeaLevel() ) );
             } else
             {
                 user.unsafe().sendPacket( BungeeCord.getInstance().registerChannels( user.getPendingConnection().getVersion() ) );
@@ -323,12 +341,12 @@ public class ServerConnector extends PacketHandler
             if ( login.getDimension() == user.getDimension() )
             {
                 user.unsafe().sendPacket( new Respawn( (Integer) login.getDimension() >= 0 ? -1 : 0, login.getWorldName(), login.getSeed(), login.getDifficulty(), login.getGameMode(), login.getPreviousGameMode(), login.getLevelType(), login.isDebug(), login.isFlat(),
-                        (byte) 0, login.getDeathLocation(), login.getPortalCooldown() ) );
+                        (byte) 0, login.getDeathLocation(), login.getPortalCooldown(), login.getSeaLevel() ) );
             }
 
             user.setServerEntityId( login.getEntityId() );
             user.unsafe().sendPacket( new Respawn( login.getDimension(), login.getWorldName(), login.getSeed(), login.getDifficulty(), login.getGameMode(), login.getPreviousGameMode(), login.getLevelType(), login.isDebug(), login.isFlat(),
-                    (byte) 0, login.getDeathLocation(), login.getPortalCooldown() ) );
+                    (byte) 0, login.getDeathLocation(), login.getPortalCooldown(), login.getSeaLevel() ) );
             if ( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_14 )
             {
                 user.unsafe().sendPacket( new ViewDistance( login.getViewDistance() ) );
@@ -339,16 +357,27 @@ public class ServerConnector extends PacketHandler
 
     private void cutThrough(ServerConnection server)
     {
+        // TODO: Fix this?
+        if ( !user.isActive() )
+        {
+            server.disconnect( "Quitting" );
+            bungee.getLogger().log( Level.WARNING, "[{0}] No client connected for pending server!", user );
+            return;
+        }
+
         if ( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_2 )
         {
             if ( user.getServer() != null )
             {
                 // Begin config mode
-                user.unsafe().sendPacket( new StartConfiguration() );
+                if ( user.getCh().getEncodeProtocol() != Protocol.CONFIGURATION )
+                {
+                    user.unsafe().sendPacket( new StartConfiguration() );
+                }
             } else
             {
                 LoginResult loginProfile = user.getPendingConnection().getLoginProfile();
-                user.unsafe().sendPacket( new LoginSuccess( user.getUniqueId(), user.getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
+                user.unsafe().sendPacket( new LoginSuccess( user.getRewriteId(), user.getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
                 user.getCh().setEncodeProtocol( Protocol.CONFIGURATION );
             }
         }
@@ -356,17 +385,7 @@ public class ServerConnector extends PacketHandler
         // Remove from old servers
         if ( user.getServer() != null )
         {
-            user.getServer().setObsolete( true );
             user.getServer().disconnect( "Quitting" );
-        }
-
-        // TODO: Fix this?
-        if ( !user.isActive() )
-        {
-            server.disconnect( "Quitting" );
-            // Silly server admins see stack trace and die
-            bungee.getLogger().warning( "No client connected for pending server!" );
-            return;
         }
 
         // Add to new server

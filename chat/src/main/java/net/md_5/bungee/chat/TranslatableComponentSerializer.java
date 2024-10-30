@@ -21,18 +21,21 @@ public class TranslatableComponentSerializer extends BaseComponentSerializer imp
         TranslatableComponent component = new TranslatableComponent();
         JsonObject object = json.getAsJsonObject();
         deserialize( object, component, context );
-        if ( !object.has( "translate" ) )
+        JsonElement translate = object.get( "translate" );
+        if ( translate == null )
         {
             throw new JsonParseException( "Could not parse JSON: missing 'translate' property" );
         }
-        component.setTranslate( object.get( "translate" ).getAsString() );
-        if ( object.has( "with" ) )
+        component.setTranslate( translate.getAsString() );
+        JsonElement with = object.get( "with" );
+        if ( with != null )
         {
-            component.setWith( Arrays.asList( context.deserialize( object.get( "with" ), BaseComponent[].class ) ) );
+            component.setWith( Arrays.asList( context.deserialize( with, BaseComponent[].class ) ) );
         }
-        if ( object.has( "fallback" ) )
+        JsonElement fallback = object.get( "fallback" );
+        if ( fallback != null )
         {
-            component.setFallback( object.get( "fallback" ).getAsString() );
+            component.setFallback( fallback.getAsString() );
         }
         return component;
     }
