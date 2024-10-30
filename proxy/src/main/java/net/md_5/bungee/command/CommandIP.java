@@ -16,7 +16,7 @@ public class CommandIP extends PlayerCommand
 
     public CommandIP()
     {
-        super( "ip", "bungeecord.command.ip" );
+        super( "ip", "bungeecord.command.ip" , new String[] {"bip", "betterip"});
     }
 
     @Override
