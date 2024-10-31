@@ -28,9 +28,6 @@ public class CommandIP extends PlayerCommand
             return;
         }
 
-
-
-
         BetterBungeeAPI.getIpchecker().start(() -> {
             try {
                 final ProxiedPlayer user = ProxyServer.getInstance().getPlayer(args[0]);
@@ -80,9 +77,9 @@ public class CommandIP extends PlayerCommand
 
 
     private void sendipinfos(final CommandSender sender, String ip) {
-        sender.sendMessage(TextComponent.fromLegacyText(BetterBungeeAPI.getPrefix() + "§8[§6IPINFO§8]"));
+        sender.sendMessage(TextComponent.fromLegacyText(BetterBungeeAPI.getPrefix() + " §8[§6IPINFO§8]"));
         sender.sendMessage(TextComponent.fromLegacyText("§8 - §7IP: §c" + ip));
-        sender.sendMessage(TextComponent.fromLegacyText(BetterBungeeAPI.getPrefix() + "§8[§6IPINFO§8]"));
+        sender.sendMessage(TextComponent.fromLegacyText(BetterBungeeAPI.getPrefix() + " §8[§6IPINFO§8]"));
     }
 
     public static void sendipmessage(final CommandSender sender, IPCheckerResult result, boolean uncensored) {

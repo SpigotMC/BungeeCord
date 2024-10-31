@@ -8,5 +8,11 @@ public class BetterBungeeAPI {
     private static IPChecker ipchecker = new IPChecker();
 
     @Getter
-    private static String prefix = "§6BetterBungee §7- §e ";
+    private static String prefix = "§6BetterBungee";
+
+    @Getter
+    private static String BetterBungeeVersion = "1.0";
+
+    @Getter
+    private static String bungeecordversion = "4886c4be017761333dc67b9c300acc7481354a7d";
 }
