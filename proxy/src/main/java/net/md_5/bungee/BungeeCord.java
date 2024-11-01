@@ -17,13 +17,13 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.ResourceLeakDetector;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintStream;
+
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.Format;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
-import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.Timer;
@@ -550,33 +549,42 @@ public class BungeeCord extends ProxyServer
         return ( BungeeCord.class.getPackage().getImplementationVersion() == null ) ? "unknown" : BungeeCord.class.getPackage().getImplementationVersion();
     }
 
-    public final void reloadMessages()
-    {
+    public final void reloadMessages() {
         Map<String, Format> cachedFormats = new HashMap<>();
 
-        File file = new File( "messages.properties" );
-        if ( file.isFile() )
-        {
-            try ( FileReader rd = new FileReader( file ) )
-            {
-                cacheResourceBundle( cachedFormats, new PropertyResourceBundle( rd ) );
-            } catch ( IOException ex )
-            {
-                getLogger().log( Level.SEVERE, "Could not load custom messages.properties", ex );
+        // Define the target file path where messages.properties should reside
+        File targetFile = new File("messages.properties");
+
+        // Check if the target file already exists
+        if (!targetFile.exists()) {
+            // Copy the messages.properties file from the Resource Bundle to the local directory if it does not exist
+            try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("messages.properties")) {
+                if (inputStream == null) {
+                    getLogger().log(Level.SEVERE, "messages.properties could not be found in the Resource Bundle");
+                } else {
+                    // Copy the file to the specified path
+                    Files.copy(inputStream, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                }
+            } catch (IOException ex) {
+                getLogger().log(Level.SEVERE, "Could not copy messages.properties", ex);
             }
+        } else {
+            getLogger().log(Level.INFO, "Using existing messages.properties from local directory");
         }
 
-        ResourceBundle baseBundle;
-        try
-        {
-            baseBundle = ResourceBundle.getBundle( "messages" );
-        } catch ( MissingResourceException ex )
-        {
-            baseBundle = ResourceBundle.getBundle( "messages", Locale.ENGLISH );
+        // Load the file from the local directory
+        if (targetFile.isFile()) {
+            try (FileReader rd = new FileReader(targetFile)) {
+                // Load properties from the file in the local directory
+                cacheResourceBundle(cachedFormats, new PropertyResourceBundle(rd));
+            } catch (IOException ex) {
+                getLogger().log(Level.SEVERE, "Could not load messages.properties from local directory", ex);
+            }
+        } else {
+            getLogger().log(Level.SEVERE, "messages.properties file was not found in the local directory");
         }
-        cacheResourceBundle( cachedFormats, baseBundle );
 
-        messageFormats = Collections.unmodifiableMap( cachedFormats );
+        messageFormats = Collections.unmodifiableMap(cachedFormats);
     }
 
     private void cacheResourceBundle(Map<String, Format> map, ResourceBundle resourceBundle)
