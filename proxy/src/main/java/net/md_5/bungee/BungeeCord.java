@@ -193,8 +193,6 @@ public class BungeeCord extends ProxyServer
         // Java uses ! to indicate a resource inside of a jar/zip/other container. Running Bungee from within a directory that has a ! will cause this to muck up.
         Preconditions.checkState( new File( "." ).getAbsolutePath().indexOf( '!' ) == -1, "Cannot use BungeeCord in directory with ! in path." );
 
-        reloadMessages();
-
         // This is a workaround for quite possibly the weirdest bug I have ever encountered in my life!
         // When jansi attempts to extract its natives, by default it tries to extract a specific version,
         // using the loading class's implementation version. Normally this works completely fine,
@@ -212,6 +210,8 @@ public class BungeeCord extends ProxyServer
 
         logger = new BungeeLogger( "BungeeCord", "proxy.log", consoleReader );
         JDK14LoggerFactory.LOGGER = logger;
+
+        reloadMessages();
 
         // Before we can set the Err and Out streams to our LoggingOutputStream we also have to remove
         // the default ConsoleHandler from the root logger, which writes to the err stream.
