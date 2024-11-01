@@ -105,21 +105,29 @@ public class BungeeUpdaterAPI {
 
 	private void start(int updatetime, TimeUnit unit) {
 		scheduler.scheduleAtFixedRate(() -> {
-			pauseupdating();
+			try {
+				pauseupdating();
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
 		}, 5, 5, TimeUnit.SECONDS);
 		scheduler.scheduleAtFixedRate(() -> {
-			if (pauseupdating()) {
-				return;
-			}
-			String restrequest = restrequest(SERVERURL + "/getupdate?uuid=" + uuid + "&size=" + getFilesize());
-			if (restrequest.equals("Update")) {
-				plugincheck();
-				filelocation().parallelStream().forEach(locations -> {
-					download(SERVERURL + "/downloadupdate?uuid=" + uuid + "&size=" + getFilesize() + "&key=" + key,
-							locations);
-				});
-				ProxyServer.getInstance().stop();
-				scheduler.shutdown();
+			try {
+				if (pauseupdating()) {
+					return;
+				}
+				String restrequest = restrequest(SERVERURL + "/getupdate?uuid=" + uuid + "&size=" + getFilesize());
+				if (restrequest.equals("Update")) {
+					plugincheck();
+					filelocation().parallelStream().forEach(locations -> {
+						download(SERVERURL + "/downloadupdate?uuid=" + uuid + "&size=" + getFilesize() + "&key=" + key,
+								locations);
+					});
+					ProxyServer.getInstance().stop();
+					scheduler.shutdown();
+				}
+			} catch (Exception exception) {
+				exception.printStackTrace();
 			}
 		}, updatetime, updatetime, unit);
 	}
