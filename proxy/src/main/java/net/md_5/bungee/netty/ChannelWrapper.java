@@ -42,12 +42,7 @@ public class ChannelWrapper
 
     public Protocol getDecodeProtocol()
     {
-        MinecraftDecoder minecraftDecoder = getMinecraftDecoder();
-        if ( minecraftDecoder == null )
-        {
-            return null;
-        }
-        return minecraftDecoder.getProtocol();
+        return getMinecraftDecoder().getProtocol();
     }
 
     public void setDecodeProtocol(Protocol protocol)
@@ -57,12 +52,7 @@ public class ChannelWrapper
 
     public Protocol getEncodeProtocol()
     {
-        MinecraftEncoder minecraftEncoder = getMinecraftEncoder();
-        if ( minecraftEncoder == null )
-        {
-            return null;
-        }
-        return minecraftEncoder.getProtocol();
+        return getMinecraftEncoder().getProtocol();
     }
 
     public void setEncodeProtocol(Protocol protocol)
@@ -241,5 +231,16 @@ public class ChannelWrapper
             } );
             packetCompressor.setCompose( compressorCompose );
         }
+    }
+
+    public void scheduleIfNecessary(Runnable task)
+    {
+        if ( ch.eventLoop().inEventLoop() )
+        {
+            task.run();
+            return;
+        }
+
+        ch.eventLoop().execute( task );
     }
 }

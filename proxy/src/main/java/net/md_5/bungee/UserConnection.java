@@ -21,7 +21,6 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import lombok.Getter;
 import lombok.NonNull;
@@ -146,7 +145,7 @@ public final class UserConnection implements ProxiedPlayer
     @Setter
     private ForgeServerHandler forgeServerHandler;
     /*========================================================================*/
-    private final Queue<DefinedPacket> packetQueue = new ConcurrentLinkedQueue<>();
+    private final Queue<DefinedPacket> packetQueue = new LinkedList<>();
     private final Unsafe unsafe = new Unsafe()
     {
         @Override
@@ -186,27 +185,37 @@ public final class UserConnection implements ProxiedPlayer
 
     public void sendPacketQueued(DefinedPacket packet)
     {
-        Protocol encodeProtocol = ch.getEncodeProtocol();
-        if ( encodeProtocol == null )
+        ch.scheduleIfNecessary( () ->
         {
-            return;
-        }
-        if ( !encodeProtocol.TO_CLIENT.hasPacket( packet.getClass(), getPendingConnection().getVersion() ) )
-        {
-            packetQueue.add( packet );
-        } else
-        {
-            unsafe().sendPacket( packet );
-        }
+            if ( ch.isClosed() )
+            {
+                return;
+            }
+            Protocol encodeProtocol = ch.getEncodeProtocol();
+            if ( !encodeProtocol.TO_CLIENT.hasPacket( packet.getClass(), getPendingConnection().getVersion() ) )
+            {
+                packetQueue.add( packet );
+            } else
+            {
+                unsafe().sendPacket( packet );
+            }
+        } );
     }
 
     public void sendQueuedPackets()
     {
-        DefinedPacket packet;
-        while ( ( packet = packetQueue.poll() ) != null )
+        ch.scheduleIfNecessary( () ->
         {
-            unsafe().sendPacket( packet );
-        }
+            if ( ch.isClosed() )
+            {
+                return;
+            }
+            DefinedPacket packet;
+            while ( ( packet = packetQueue.poll() ) != null )
+            {
+                unsafe().sendPacket( packet );
+            }
+        } );
     }
 
     @Deprecated
