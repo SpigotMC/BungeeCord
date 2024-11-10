@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayDeque;
-import java.util.LinkedList;
 import java.util.Queue;
 import lombok.Data;
 import lombok.Getter;
@@ -32,7 +31,7 @@ public class ServerConnection implements Server
     private final boolean forgeServer = false;
     @Getter
     private final Queue<KeepAliveData> keepAlives = new ArrayDeque<>();
-    private final Queue<DefinedPacket> packetQueue = new LinkedList<>();
+    private final Queue<DefinedPacket> packetQueue = new ArrayDeque<>();
 
     private final Unsafe unsafe = new Unsafe()
     {

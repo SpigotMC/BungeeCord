@@ -11,6 +11,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.util.internal.PlatformDependent;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -145,7 +146,7 @@ public final class UserConnection implements ProxiedPlayer
     @Setter
     private ForgeServerHandler forgeServerHandler;
     /*========================================================================*/
-    private final Queue<DefinedPacket> packetQueue = new LinkedList<>();
+    private final Queue<DefinedPacket> packetQueue = new ArrayDeque<>();
     private final Unsafe unsafe = new Unsafe()
     {
         @Override
