@@ -660,6 +660,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             return;
         }
 
+        ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
+
         ServerInfo initialServer;
         if ( bungee.getReconnectHandler() != null )
         {
@@ -684,7 +686,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     return;
                 }
 
-                ch.getHandle().pipeline().get( HandlerBoss.class ).setHandler( new UpstreamBridge( bungee, userCon ) );
                 userCon.connect( result.getTarget(), null, true, ServerConnectEvent.Reason.JOIN_PROXY );
             }
         };
