@@ -5,7 +5,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayDeque;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +31,7 @@ public class ServerConnection implements Server
     private final boolean forgeServer = false;
     @Getter
     private final Queue<KeepAliveData> keepAlives = new ArrayDeque<>();
-    private final Queue<DefinedPacket> packetQueue = new ConcurrentLinkedQueue<>();
+    private final Queue<DefinedPacket> packetQueue = new ArrayDeque<>();
 
     private final Unsafe unsafe = new Unsafe()
     {
@@ -45,23 +44,37 @@ public class ServerConnection implements Server
 
     public void sendPacketQueued(DefinedPacket packet)
     {
-        Protocol encodeProtocol = ch.getEncodeProtocol();
-        if ( !encodeProtocol.TO_SERVER.hasPacket( packet.getClass(), ch.getEncodeVersion() ) )
+        ch.scheduleIfNecessary( () ->
         {
-            packetQueue.add( packet );
-        } else
-        {
-            unsafe().sendPacket( packet );
-        }
+            if ( ch.isClosed() )
+            {
+                return;
+            }
+            Protocol encodeProtocol = ch.getEncodeProtocol();
+            if ( !encodeProtocol.TO_SERVER.hasPacket( packet.getClass(), ch.getEncodeVersion() ) )
+            {
+                packetQueue.add( packet );
+            } else
+            {
+                unsafe().sendPacket( packet );
+            }
+        } );
     }
 
     public void sendQueuedPackets()
     {
-        DefinedPacket packet;
-        while ( ( packet = packetQueue.poll() ) != null )
+        ch.scheduleIfNecessary( () ->
         {
-            unsafe().sendPacket( packet );
-        }
+            if ( ch.isClosed() )
+            {
+                return;
+            }
+            DefinedPacket packet;
+            while ( ( packet = packetQueue.poll() ) != null )
+            {
+                unsafe().sendPacket( packet );
+            }
+        } );
     }
 
     @Override
