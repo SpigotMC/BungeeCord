@@ -704,6 +704,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
         Preconditions.checkState( future != null, "Unexpected custom LoginPayloadResponse" );
         future.complete( response.getData() );
+
+        // we should never pass this to the backend
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override
