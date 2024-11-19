@@ -8,7 +8,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Event;
 
 /**
- * Called when the player enters Configuration mode
+ * Called when the player enters or leaves configuration mode
  */
 @Data
 @AllArgsConstructor
@@ -17,7 +17,7 @@ import net.md_5.bungee.api.plugin.Event;
 public class PlayerConfigurationEvent extends Event
 {
     /**
-     * The player that has entered the config mode
+     * The player that has entered or left the configuration mode
      */
     private final ProxiedPlayer player;
     /**
