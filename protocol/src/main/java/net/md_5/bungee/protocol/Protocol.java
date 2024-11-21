@@ -1,7 +1,6 @@
 package net.md_5.bungee.protocol;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -912,7 +911,7 @@ public enum Protocol
             ProtocolData protocol = protocols.get( version );
             if ( protocol == null && ( protocolPhase != Protocol.GAME ) )
             {
-                protocol = Iterables.getFirst( protocols.valueCollection(), null );
+                protocol = protocols.valueCollection().stream().findFirst().orElse( null );
             }
             return protocol;
         }
