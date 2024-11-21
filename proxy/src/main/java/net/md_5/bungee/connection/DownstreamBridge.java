@@ -19,6 +19,7 @@ import io.netty.channel.unix.DomainSocketAddress;
 import java.io.DataInput;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -36,6 +37,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.api.event.ProxyDefineCommandsEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerDisconnectEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
@@ -755,13 +757,32 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(Commands commands) throws Exception
     {
+        final Collection<Map.Entry<String, Command>> unmodifiedCommandMap = bungee.getPluginManager().getCommands();
+        final ProxyDefineCommandsEvent event = new ProxyDefineCommandsEvent( server, con, unmodifiedCommandMap );
+        bungee.getPluginManager().callEvent( event );
+
         boolean modified = false;
 
-        for ( Map.Entry<String, Command> command : bungee.getPluginManager().getCommands() )
+        // If an event handler REMOVED OR CHANGED a command then set modified.
+        for ( Map.Entry<String, Command> unmodifiedCommand : unmodifiedCommandMap )
         {
+            if ( event.getCommands().get( unmodifiedCommand.getKey() ) != unmodifiedCommand.getValue() )
+            {
+                modified = true;
+            }
+        }
+
+        for ( Map.Entry<String, Command> command : event.getCommands().entrySet() )
+        {
+            // If an event handler ADDED a command then set modified.
+            if ( unmodifiedCommandMap.stream().noneMatch( entry -> entry.getKey().equals( command.getKey() ) ) )
+            {
+                modified = true;
+            }
+
             if ( !bungee.getDisabledCommands().contains( command.getKey() ) && commands.getRoot().getChild( command.getKey() ) == null && command.getValue().hasPermission( con ) )
             {
-                CommandNode dummy = LiteralArgumentBuilder.literal( command.getKey() ).executes( DUMMY_COMMAND )
+                CommandNode<?> dummy = LiteralArgumentBuilder.literal( command.getKey() ).executes( DUMMY_COMMAND )
                         .then( RequiredArgumentBuilder.argument( "args", StringArgumentType.greedyString() )
                                 .suggests( Commands.SuggestionRegistry.ASK_SERVER ).executes( DUMMY_COMMAND ) )
                         .build();
