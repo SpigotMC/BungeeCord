@@ -7,7 +7,7 @@ import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.Callback;
 
@@ -16,7 +16,7 @@ public class HttpHandler extends SimpleChannelInboundHandler<HttpObject>
 {
 
     private final Callback<String> callback;
-    private final StringBuilder buffer = new StringBuilder();
+    private StringBuilder buffer;
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
@@ -41,6 +41,7 @@ public class HttpHandler extends SimpleChannelInboundHandler<HttpObject>
 
             if ( responseCode == HttpResponseStatus.NO_CONTENT.code() )
             {
+                buffer = new StringBuilder( 0 );
                 done( ctx );
                 return;
             }
@@ -49,11 +50,14 @@ public class HttpHandler extends SimpleChannelInboundHandler<HttpObject>
             {
                 throw new IllegalStateException( "Expected HTTP response 200 OK, got " + response.status() );
             }
+
+            String length = response.headers().get( "Content-Length" );
+            buffer = new StringBuilder( length != null ? Math.min( Integer.parseInt( length ), 0xA00000 ) : 0x600 );
         }
         if ( msg instanceof HttpContent )
         {
             HttpContent content = (HttpContent) msg;
-            buffer.append( content.content().toString( Charset.forName( "UTF-8" ) ) );
+            buffer.append( content.content().toString( StandardCharsets.UTF_8 ) );
 
             if ( msg instanceof LastHttpContent )
             {
