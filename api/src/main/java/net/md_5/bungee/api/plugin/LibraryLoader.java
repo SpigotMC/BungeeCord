@@ -17,6 +17,7 @@ import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory;
 import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.graph.DependencyFilter;
 import org.eclipse.aether.impl.DefaultServiceLocator;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.RemoteRepository;
@@ -91,10 +92,33 @@ class LibraryLoader
             dependencies.add( dependency );
         }
 
+        List<Artifact> excludedArtifacts = new ArrayList<>();
+        if ( !desc.getExcludedTransitiveLibraries().isEmpty() )
+        {
+            for ( String library : desc.getExcludedTransitiveLibraries() )
+            {
+                excludedArtifacts.add( new DefaultArtifact( library ) );
+            }
+        }
+        DependencyFilter filter = (node, parents) ->
+        {
+            if ( excludedArtifacts.isEmpty() || node.getArtifact() == null )
+            {
+                return true;
+            }
+            for ( Artifact artifact : excludedArtifacts )
+            {
+                if ( artifactsMatching( artifact, node.getArtifact() ) )
+                {
+                    return false;
+                }
+            }
+            return true;
+        };
         DependencyResult result;
         try
         {
-            result = repository.resolveDependencies( session, new DependencyRequest( new CollectRequest( (Dependency) null, dependencies, repositories ), null ) );
+            result = repository.resolveDependencies( session, new DependencyRequest( new CollectRequest( (Dependency) null, dependencies, repositories ), filter ) );
         } catch ( DependencyResolutionException ex )
         {
             throw new RuntimeException( "Error resolving libraries", ex );
@@ -124,5 +148,18 @@ class LibraryLoader
         URLClassLoader loader = new URLClassLoader( jarFiles.toArray( new URL[ 0 ] ) );
 
         return loader;
+    }
+
+    private boolean artifactsMatching(Artifact artifact1, Artifact artifact2)
+    {
+        if ( !artifact1.getGroupId().equalsIgnoreCase( artifact2.getGroupId() ) )
+        {
+            return false;
+        }
+        if ( !artifact1.getArtifactId().equalsIgnoreCase( artifact2.getArtifactId() ) )
+        {
+            return false;
+        }
+        return artifact1.getVersion().equalsIgnoreCase( artifact2.getVersion() );
     }
 }
