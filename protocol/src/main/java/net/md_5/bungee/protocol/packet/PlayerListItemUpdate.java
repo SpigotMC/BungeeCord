@@ -64,6 +64,9 @@ public class PlayerListItemUpdate extends DefinedPacket
                     case UPDATE_LIST_ORDER:
                         item.listOrder = DefinedPacket.readVarInt( buf );
                         break;
+                    case UPDATE_HAT:
+                        item.showHat = buf.readBoolean();
+                        break;
                 }
             }
         }
@@ -115,6 +118,9 @@ public class PlayerListItemUpdate extends DefinedPacket
                     case UPDATE_LIST_ORDER:
                         DefinedPacket.writeVarInt( item.listOrder, buf );
                         break;
+                    case UPDATE_HAT:
+                        buf.writeBoolean( item.showHat );
+                        break;
                 }
             }
         }
@@ -135,6 +141,7 @@ public class PlayerListItemUpdate extends DefinedPacket
         UPDATE_LISTED,
         UPDATE_LATENCY,
         UPDATE_DISPLAY_NAME,
-        UPDATE_LIST_ORDER;
+        UPDATE_LIST_ORDER,
+        UPDATE_HAT;
     }
 }

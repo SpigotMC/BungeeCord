@@ -24,6 +24,7 @@ class EntityMap_1_16_2 extends EntityMap
     static final EntityMap_1_16_2 INSTANCE_1_20_3 = new EntityMap_1_16_2( -1, 0x34 );
     static final EntityMap_1_16_2 INSTANCE_1_20_5 = new EntityMap_1_16_2( -1, 0x37 );
     static final EntityMap_1_16_2 INSTANCE_1_21_2 = new EntityMap_1_16_2( -1, 0x39 );
+    static final EntityMap_1_16_2 INSTANCE_1_21_4 = new EntityMap_1_16_2( -1, 0x3B );
     //
     private final int spawnPlayerId;
     private final int spectateId;
