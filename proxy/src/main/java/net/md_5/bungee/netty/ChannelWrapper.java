@@ -42,23 +42,22 @@ public class ChannelWrapper
 
     public Protocol getDecodeProtocol()
     {
-        return ch.pipeline().get( MinecraftDecoder.class ).getProtocol();
+        return getMinecraftDecoder().getProtocol();
     }
 
     public void setDecodeProtocol(Protocol protocol)
     {
-        ch.pipeline().get( MinecraftDecoder.class ).setProtocol( protocol );
+        getMinecraftDecoder().setProtocol( protocol );
     }
 
     public Protocol getEncodeProtocol()
     {
-        return ch.pipeline().get( MinecraftEncoder.class ).getProtocol();
-
+        return getMinecraftEncoder().getProtocol();
     }
 
     public void setEncodeProtocol(Protocol protocol)
     {
-        ch.pipeline().get( MinecraftEncoder.class ).setProtocol( protocol );
+        getMinecraftEncoder().setProtocol( protocol );
     }
 
     public void setProtocol(Protocol protocol)
@@ -69,13 +68,23 @@ public class ChannelWrapper
 
     public void setVersion(int protocol)
     {
-        ch.pipeline().get( MinecraftDecoder.class ).setProtocolVersion( protocol );
-        ch.pipeline().get( MinecraftEncoder.class ).setProtocolVersion( protocol );
+        getMinecraftDecoder().setProtocolVersion( protocol );
+        getMinecraftEncoder().setProtocolVersion( protocol );
+    }
+
+    public MinecraftDecoder getMinecraftDecoder()
+    {
+        return ch.pipeline().get( MinecraftDecoder.class );
+    }
+
+    public MinecraftEncoder getMinecraftEncoder()
+    {
+        return ch.pipeline().get( MinecraftEncoder.class );
     }
 
     public int getEncodeVersion()
     {
-        return ch.pipeline().get( MinecraftEncoder.class ).getProtocolVersion();
+        return getMinecraftEncoder().getProtocolVersion();
     }
 
     public void write(Object packet)
@@ -222,5 +231,16 @@ public class ChannelWrapper
             } );
             packetCompressor.setCompose( compressorCompose );
         }
+    }
+
+    public void scheduleIfNecessary(Runnable task)
+    {
+        if ( ch.eventLoop().inEventLoop() )
+        {
+            task.run();
+            return;
+        }
+
+        ch.eventLoop().execute( task );
     }
 }

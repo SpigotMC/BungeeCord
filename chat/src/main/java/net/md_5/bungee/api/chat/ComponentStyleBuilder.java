@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.chat;
 
+import java.awt.Color;
 import net.md_5.bungee.api.ChatColor;
 
 /**
@@ -26,6 +27,7 @@ public final class ComponentStyleBuilder
 {
 
     private ChatColor color;
+    private Color shadowColor;
     private String font;
     private Boolean bold, italic, underlined, strikethrough, obfuscated;
 
@@ -38,6 +40,18 @@ public final class ComponentStyleBuilder
     public ComponentStyleBuilder color(ChatColor color)
     {
         this.color = color;
+        return this;
+    }
+
+    /**
+     * Set the style shadow color.
+     *
+     * @param shadowColor the shadow color to set, or null to use the default
+     * @return this ComponentStyleBuilder for chaining
+     */
+    public ComponentStyleBuilder shadowColor(Color shadowColor)
+    {
+        this.shadowColor = shadowColor;
         return this;
     }
 
@@ -121,6 +135,6 @@ public final class ComponentStyleBuilder
      */
     public ComponentStyle build()
     {
-        return new ComponentStyle( color, font, bold, italic, underlined, strikethrough, obfuscated );
+        return new ComponentStyle( color, shadowColor, font, bold, italic, underlined, strikethrough, obfuscated );
     }
 }

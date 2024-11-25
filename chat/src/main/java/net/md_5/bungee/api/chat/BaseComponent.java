@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.chat;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -129,6 +130,10 @@ public abstract class BaseComponent
             {
                 setColor( component.getColorRaw() );
             }
+            if ( replace || !style.hasShadowColor() )
+            {
+                setShadowColor( component.getShadowColorRaw() );
+            }
             if ( replace || !style.hasFont() )
             {
                 setFont( component.getFontRaw() );
@@ -175,6 +180,7 @@ public abstract class BaseComponent
         if ( retention == FormatRetention.EVENTS || retention == FormatRetention.NONE )
         {
             setColor( null );
+            setShadowColor( null );
             setBold( null );
             setItalic( null );
             setUnderlined( null );
@@ -293,6 +299,46 @@ public abstract class BaseComponent
     public ChatColor getColorRaw()
     {
         return style.getColor();
+    }
+
+    /**
+     * Set this component's shadow color.
+     *
+     * @param color the component shadow color, or null to use the default
+     */
+    public void setShadowColor(Color color)
+    {
+        this.style.setShadowColor( color );
+    }
+
+    /**
+     * Returns the shadow color of this component. This uses the parent's shadow color if this
+     * component doesn't have one. null is returned if no shadow color is found.
+     *
+     * @return the shadow color of this component
+     */
+    public Color getShadowColor()
+    {
+        if ( !style.hasShadowColor() )
+        {
+            if ( parent == null )
+            {
+                return null;
+            }
+            return parent.getShadowColor();
+        }
+        return style.getShadowColor();
+    }
+
+    /**
+     * Returns the shadow color of this component without checking the parents
+     * shadow color. May return null
+     *
+     * @return the shadow color of this component
+     */
+    public Color getShadowColorRaw()
+    {
+        return style.getShadowColor();
     }
 
     /**
@@ -535,6 +581,10 @@ public abstract class BaseComponent
         if ( style.hasColor() )
         {
             setColor( style.getColor() );
+        }
+        if ( style.hasShadowColor() )
+        {
+            setShadowColor( style.getShadowColor() );
         }
         if ( style.hasFont() )
         {

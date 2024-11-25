@@ -36,6 +36,7 @@ import net.md_5.bungee.protocol.packet.CookieResponse;
 import net.md_5.bungee.protocol.packet.FinishConfiguration;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.LoginAcknowledged;
+import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
 import net.md_5.bungee.protocol.packet.PluginMessage;
@@ -376,6 +377,12 @@ public class UpstreamBridge extends PacketHandler
     public void handle(CookieResponse cookieResponse) throws Exception
     {
         con.getPendingConnection().handle( cookieResponse );
+    }
+
+    @Override
+    public void handle(LoginPayloadResponse loginPayloadResponse) throws Exception
+    {
+        con.getPendingConnection().handle( loginPayloadResponse );
     }
 
     @Override

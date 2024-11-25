@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.chat;
 
+import java.awt.Color;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,10 @@ public final class ComponentStyle implements Cloneable
      * {@link ChatColor#color} should not be null).</b>
      */
     private ChatColor color;
+    /**
+     * The shadow color of this style.
+     */
+    private Color shadowColor;
     /**
      * The font of this style.
      */
@@ -66,6 +71,26 @@ public final class ComponentStyle implements Cloneable
     public boolean hasColor()
     {
         return ( color != null );
+    }
+
+    /**
+     * Returns the shadow color of this style. May return null.
+     *
+     * @return the shadow color of this style, or null if default color
+     */
+    public Color getShadowColor()
+    {
+        return shadowColor;
+    }
+
+    /**
+     * Returns whether or not this style has a shadow color set.
+     *
+     * @return whether a shadow color is set
+     */
+    public boolean hasShadowColor()
+    {
+        return ( shadowColor != null );
     }
 
     /**
@@ -195,7 +220,7 @@ public final class ComponentStyle implements Cloneable
      */
     public boolean isEmpty()
     {
-        return color == null && font == null && bold == null
+        return color == null && shadowColor == null && font == null && bold == null
                 && italic == null && underlined == null
                 && strikethrough == null && obfuscated == null;
     }
@@ -203,7 +228,7 @@ public final class ComponentStyle implements Cloneable
     @Override
     public ComponentStyle clone()
     {
-        return new ComponentStyle( color, font, bold, italic, underlined, strikethrough, obfuscated );
+        return new ComponentStyle( color, shadowColor, font, bold, italic, underlined, strikethrough, obfuscated );
     }
 
     /**
@@ -227,6 +252,7 @@ public final class ComponentStyle implements Cloneable
     {
         return new ComponentStyleBuilder()
                 .color( other.color )
+                .shadowColor( other.shadowColor )
                 .font( other.font )
                 .bold( other.bold )
                 .italic( other.italic )
