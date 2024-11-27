@@ -14,5 +14,5 @@ public class BetterBungeeAPI {
     private static String BetterBungeeVersion = "1.0";
 
     @Getter
-    private static String bungeecordversion = "373dab05ad456bdb72b3d70e533ef7c281453c78";
+    private static String bungeecordversion = "b376f61578655c58340e6e99b874dbf110649dc2";
 }
