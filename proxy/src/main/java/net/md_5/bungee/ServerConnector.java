@@ -365,17 +365,19 @@ public class ServerConnector extends PacketHandler
             return;
         }
 
-        if ( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_2 )
+        if ( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_2 && !user.getConfiguring().get() )
         {
             if ( user.getServer() != null )
             {
                 // Begin config mode
                 if ( user.getCh().getEncodeProtocol() != Protocol.CONFIGURATION )
                 {
+                    user.getConfiguring().set( true );
                     user.unsafe().sendPacket( new StartConfiguration() );
                 }
             } else
             {
+                user.getConfiguring().set( true );
                 LoginResult loginProfile = user.getPendingConnection().getLoginProfile();
                 user.unsafe().sendPacket( new LoginSuccess( user.getRewriteId(), user.getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
                 user.getCh().setEncodeProtocol( Protocol.CONFIGURATION );
