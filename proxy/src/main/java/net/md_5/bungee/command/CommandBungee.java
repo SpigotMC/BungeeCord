@@ -1,5 +1,6 @@
 package net.md_5.bungee.command;
 
+import java.util.concurrent.CompletableFuture;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -15,13 +16,12 @@ import net.md_5.bungee.util.BuildVersionRetriever;
 public class CommandBungee extends Command
 {
     private final BuildVersionRetriever versionRetriever = new BuildVersionRetriever();
-    private final ModuleVersion moduleVersion;
     private int currentVersion = -1;
 
     public CommandBungee(ProxyServer proxy)
     {
         super( "bungee" );
-        moduleVersion = ModuleVersion.parse( proxy.getVersion() );
+        ModuleVersion moduleVersion = ModuleVersion.parse( proxy.getVersion() );
         try
         {
             if ( moduleVersion != null )
@@ -44,14 +44,21 @@ public class CommandBungee extends Command
         component.addExtra( " by md_5" );
         sender.sendMessage( component );
 
-        versionRetriever.retrieveLatestBuild().thenAccept( latest ->
+        // return if custom build or no permission
+        if ( currentVersion == -1 || !sender.hasPermission( "bungeecord.command.bungee.versioncheck" ) )
         {
-            // custom build or spammed command while retrieving
-            if ( moduleVersion == null || currentVersion == -1 || latest == 0 )
-            {
-                return;
-            }
+            return;
+        }
 
+        CompletableFuture<Integer> future = versionRetriever.retrieveLatestBuild();
+
+        if ( !future.isDone() )
+        {
+            sender.sendMessage( ChatColor.YELLOW + "Checking latest version..." );
+        }
+
+        future.thenAccept( latest ->
+        {
             if ( currentVersion >= latest )
             {
                 sender.sendMessage( ChatColor.GREEN + "This server is running the latest build of BungeeCord" );

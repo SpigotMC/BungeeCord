@@ -6,31 +6,48 @@ import com.google.gson.JsonObject;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class BuildVersionRetriever
 {
     private static final Gson GSON = new GsonBuilder().create();
+
     private final Executor executor = Executors.newSingleThreadExecutor();
-
     private int cachedLatestBuildVersion;
-    private Instant lastLatestBuildRetrieve;
+    private long lastLatestBuildRetrieve;
+    private CompletableFuture<Integer> currentRetrievingFuture;
 
-    public CompletableFuture<Integer> retrieveLatestBuild()
+    public synchronized CompletableFuture<Integer> retrieveLatestBuild()
     {
-        // cache result for 5 minutes
-        if ( lastLatestBuildRetrieve != null && Instant.now().isBefore( lastLatestBuildRetrieve.plusSeconds( 300 ) ) )
+        // return the awaiting retrieving future is there is any right now
+        if ( currentRetrievingFuture != null && !currentRetrievingFuture.isDone() )
         {
+            return currentRetrievingFuture;
+        }
+
+        // cache result for 15 minutes
+        if ( System.currentTimeMillis() < lastLatestBuildRetrieve + TimeUnit.MINUTES.toMillis( 15 ) )
+        {
+            // if retrieving failed this is 0, so we try again.
+            if ( cachedLatestBuildVersion == 0 )
+            {
+                return retrieveLatestBuild0();
+            }
             return CompletableFuture.completedFuture( cachedLatestBuildVersion );
         }
 
-        lastLatestBuildRetrieve = Instant.now();
-        CompletableFuture<Integer> completableFuture = new CompletableFuture<>();
+        return retrieveLatestBuild0();
+    }
+
+    private CompletableFuture<Integer> retrieveLatestBuild0()
+    {
+        CompletableFuture<Integer> completableFuture = currentRetrievingFuture = new CompletableFuture<>();
         executor.execute( () ->
         {
+            lastLatestBuildRetrieve = System.currentTimeMillis();
             try
             {
                 URL restApi = new URL( "https://ci.md-5.net/job/BungeeCord/api/json" );
