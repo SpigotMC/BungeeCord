@@ -22,7 +22,6 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import lombok.Getter;
 import lombok.NonNull;
