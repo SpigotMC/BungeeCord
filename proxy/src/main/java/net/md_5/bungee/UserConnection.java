@@ -133,8 +133,6 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     @Setter
     private String lastCommandTabbed;
-    @Getter
-    private final AtomicBoolean configuring = new AtomicBoolean( false );
     /*========================================================================*/
     @Getter
     private String displayName;

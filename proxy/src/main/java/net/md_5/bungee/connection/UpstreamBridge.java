@@ -354,7 +354,6 @@ public class UpstreamBridge extends PacketHandler
 
     private void configureServer()
     {
-        con.getConfiguring().set( true );
         ChannelWrapper ch = con.getServer().getCh();
         if ( ch.getDecodeProtocol() == Protocol.LOGIN )
         {
@@ -371,7 +370,6 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(FinishConfiguration finishConfiguration) throws Exception
     {
-        con.getConfiguring().set( false );
         con.sendQueuedPackets();
     }
 
