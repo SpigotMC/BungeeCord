@@ -45,6 +45,10 @@ public class EncryptionResponse extends DefinedPacket
             writeArray( verifyToken, buf );
         } else
         {
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 && protocolVersion <= ProtocolConstants.MINECRAFT_1_19_3 )
+            {
+                buf.writeBoolean( false );
+            }
             buf.writeLong( encryptionData.getSalt() );
             writeArray( encryptionData.getSignature(), buf );
         }
