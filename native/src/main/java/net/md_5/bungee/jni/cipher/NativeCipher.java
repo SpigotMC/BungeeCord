@@ -37,9 +37,6 @@ public class NativeCipher implements BungeeCipher
     @Override
     public void cipher(ByteBuf in, ByteBuf out) throws GeneralSecurityException
     {
-        // Smoke tests
-        in.memoryAddress();
-        out.memoryAddress();
         Preconditions.checkState( ctx != 0, "Invalid pointer to AES key!" );
 
         // Store how many bytes we can cipher
