@@ -370,7 +370,7 @@ public class ServerConnector extends PacketHandler
             if ( user.getServer() != null )
             {
                 // Begin config mode
-                if ( user.getCh().getEncodeProtocol() != Protocol.CONFIGURATION )
+                if ( user.getCh().getDecodeProtocol() != Protocol.CONFIGURATION )
                 {
                     user.unsafe().sendPacket( new StartConfiguration() );
                 }
