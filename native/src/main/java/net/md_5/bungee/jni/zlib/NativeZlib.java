@@ -48,9 +48,6 @@ public class NativeZlib implements BungeeZlib
     @Override
     public void process(ByteBuf in, ByteBuf out) throws DataFormatException
     {
-        // Smoke tests
-        in.memoryAddress();
-        out.memoryAddress();
         Preconditions.checkState( ctx != 0, "Invalid pointer to compress!" );
 
         while ( !nativeCompress.finished && ( compress || in.isReadable() ) )
