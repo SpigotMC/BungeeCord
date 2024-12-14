@@ -48,6 +48,11 @@ public class Configuration implements ProxyConfig
      */
     private boolean onlineMode = true;
     /**
+     * Should player connections be encrypted if {@link #onlineMode} is false?
+     * Only supported for versions 1.20.5 and newer
+     */
+    private boolean encryptInOfflineMode = false;
+    /**
      * Whether to check the authentication server public key.
      */
     private boolean enforceSecureProfile;
@@ -91,6 +96,7 @@ public class Configuration implements ProxyConfig
         timeout = adapter.getInt( "timeout", timeout );
         uuid = adapter.getString( "stats", uuid );
         onlineMode = adapter.getBoolean( "online_mode", onlineMode );
+        encryptInOfflineMode = adapter.getBoolean( "encrypt_in_offline_mode", encryptInOfflineMode );
         enforceSecureProfile = adapter.getBoolean( "enforce_secure_profile", enforceSecureProfile );
         logCommands = adapter.getBoolean( "log_commands", logCommands );
         logPings = adapter.getBoolean( "log_pings", logPings );
