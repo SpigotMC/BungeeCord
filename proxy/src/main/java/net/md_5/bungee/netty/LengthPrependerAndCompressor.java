@@ -45,6 +45,7 @@ public class LengthPrependerAndCompressor extends MessageToMessageEncoder<ByteBu
     protected void encode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception
     {
         int oldBodyLen = msg.readableBytes();
+        final byte flags = this.flags;
         if ( ( flags & FLAG_COMPRESS ) != 0 )
         {
             if ( oldBodyLen < threshold )
