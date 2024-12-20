@@ -85,11 +85,9 @@ public class LengthPrependerAndCompressor extends MessageToMessageEncoder<ByteBu
                 int compressedLen = writerIndex - MAX_SUPPORTED_VARINT_LENGTH_LEN;
                 byte lengthLen = varintSize( compressedLen );
                 int lengthStart = MAX_SUPPORTED_VARINT_LENGTH_LEN - lengthLen;
-                buf.writerIndex( lengthStart );
-                DefinedPacket.writeVarInt( compressedLen, buf );
+                DefinedPacket.setVarInt( compressedLen, buf, lengthStart, lengthLen );
 
                 buf.readerIndex( lengthStart ); // set start of buffer to ignore potential unused bytes before length
-                buf.writerIndex( writerIndex ); // set end of buffer back to end of compressed data
                 out.add( buf );
             }
         } else
@@ -164,27 +162,27 @@ public class LengthPrependerAndCompressor extends MessageToMessageEncoder<ByteBu
         }
     }
 
-    private static byte varintSize(int paramInt)
+    private static byte varintSize(int value)
     {
-        if ( ( paramInt & 0xFFFFFF80 ) == 0 )
+        if ( ( value & 0xFFFFFF80 ) == 0 )
         {
             return 1;
         }
-        if ( ( paramInt & 0xFFFFC000 ) == 0 )
+        if ( ( value & 0xFFFFC000 ) == 0 )
         {
             return 2;
         }
-        if ( ( paramInt & 0xFFE00000 ) == 0 )
+        if ( ( value & 0xFFE00000 ) == 0 )
         {
             return 3;
         }
-        if ( ( paramInt & 0xF0000000 ) == 0 )
+        if ( ( value & 0xF0000000 ) == 0 )
         {
             return 4;
         }
         if ( MAX_SUPPORTED_VARINT_LENGTH_LEN < 5 )
         {
-            throw new IllegalArgumentException( "Packet length " + paramInt + " longer than supported (max. 268435455 for 4 byte varint)" );
+            throw new IllegalArgumentException( "Packet length " + value + " longer than supported (max. 268435455 for 4 byte varint)" );
         }
         return 5;
     }
