@@ -831,4 +831,9 @@ public class BungeeCord extends ProxyServer
     {
         return new BungeeTitle();
     }
+
+    @Override
+    public boolean isRunning() {
+        return this.isRunning;
+    }
 }
