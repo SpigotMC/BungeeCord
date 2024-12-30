@@ -833,7 +833,8 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public boolean isRunning() {
+    public boolean isRunning()
+    {
         return this.isRunning;
     }
 }
