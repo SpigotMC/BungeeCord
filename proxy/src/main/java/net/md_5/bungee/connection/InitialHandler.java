@@ -10,16 +10,12 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import javax.crypto.SecretKey;
+
+import de.luca.betterbungee.BetterBungeeConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -531,7 +527,22 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
 
         String preventProxy = ( BungeeCord.getInstance().config.isPreventProxyConnections() && getSocketAddress() instanceof InetSocketAddress ) ? "&ip=" + URLEncoder.encode( getAddress().getAddress().getHostAddress(), "UTF-8" ) : "";
-        String authURL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" + encName + "&serverId=" + encodedHash + preventProxy;
+
+        BetterBungeeConfig.Hostnames config = BetterBungeeConfig.getHostnameconfig();
+
+        String joinHost = this.getVirtualHost().getHostString().toLowerCase(Locale.ROOT);
+        //System.out.println(joinHost);
+
+        String baseURL = config.getDefaulturl();
+
+        if (config.getHostnames().containsKey(joinHost)) {
+            baseURL = config.getHostnames().get(joinHost);
+            //System.out.println(baseURL);
+        }
+
+        String authURL = baseURL + "?username=" + encName + "&serverId=" + encodedHash + preventProxy;
+        //System.out.println(authURL);
+
 
         Callback<String> handler = new Callback<String>()
         {

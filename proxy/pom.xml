@@ -111,6 +111,27 @@
             <version>8.4.0</version>
             <scope>runtime</scope>
         </dependency>
+
+        <!-- Jackson -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.14.3</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.14.3</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.14.3</version>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- add these back in as they are not exposed by the API -->
         <dependency>
             <groupId>org.apache.maven</groupId>

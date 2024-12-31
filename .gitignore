@@ -3,6 +3,8 @@
 .project
 .settings/
 
+bootstrap/src/main/java/net/md_5/bungee/Bootstrap.java
+
 # netbeans
 nbproject/
 nbactions.xml
