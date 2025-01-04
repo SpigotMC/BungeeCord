@@ -15,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import javax.crypto.SecretKey;
 
+import de.luca.betterbungee.BetterBungeeAPI;
 import de.luca.betterbungee.BetterBungeeConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -350,11 +351,21 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         // We know FML appends \00FML\00. However, we need to also consider that other systems might
         // add their own data to the end of the string. So, we just take everything from the \0 character
         // and save it for later.
+        String proxyip = BetterBungeeAPI.getRealAdress(this.ch);
         if ( handshake.getHost().contains( "\0" ) )
         {
-            String[] split = handshake.getHost().split( "\0", 2 );
+            String[] split = handshake.getHost().split( "\0", 3 );
             handshake.setHost( split[0] );
-            extraDataInHandshake = "\0" + split[1];
+            if (split.length == 2) {
+                extraDataInHandshake = "\0" + split[1];
+            } else {
+                extraDataInHandshake = "\0" + split[2];
+                String handshakeip = split[1];
+                BetterBungeeConfig.IPForwardIps config = BetterBungeeConfig.getIpforwardips();
+                if (config.getIpforwardips().contains(proxyip)) {
+                    this.ch.setRemoteAddress(new InetSocketAddress(handshakeip, handshake.getPort()));
+                }
+            }
         }
 
         // SRV records can end with a . depending on DNS / client.

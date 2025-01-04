@@ -12,6 +12,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -21,6 +24,10 @@ public class BetterBungeeConfig {
     public static final String CONFIGS_HOSTNAMES_JSON = "configs/hostnames.json";
 
     private static @Getter Hostnames hostnameconfig = loadConfig(CONFIGS_HOSTNAMES_JSON, Hostnames.class, new Hostnames());
+
+    public static final String CONFIGS_IPFORWARDIPS_JSON = "configs/ipforwardips.json";
+
+    private static @Getter IPForwardIps ipforwardips = loadConfig(CONFIGS_IPFORWARDIPS_JSON, IPForwardIps.class, new IPForwardIps());
 
     public static final String CONFIGS_CONFIG_JSON = "configs/config.json";
 
@@ -77,6 +84,15 @@ public class BetterBungeeConfig {
         private ConcurrentHashMap<String, String> hostnames = (ConcurrentHashMap<String, String>) Stream.of(new String[][] {
                 {"hut.mcserver.com", "https://api.minehut.com/mitm/proxy/session/minecraft/hasJoined"},
         }).collect(Collectors.toConcurrentMap(data -> data[0], data -> data[1]));
+    }
+
+    @NoArgsConstructor
+    @Getter @Setter
+    public static class IPForwardIps {
+        public void save() {
+            saveConfig(CONFIGS_IPFORWARDIPS_JSON, Hostnames.class);
+        }
+        private List<String> ipforwardips = Arrays.asList("127.0.0.1");
     }
 
     @NoArgsConstructor
