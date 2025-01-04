@@ -22,6 +22,10 @@ public class BetterBungeeConfig {
 
     private static @Getter Hostnames hostnameconfig = loadConfig(CONFIGS_HOSTNAMES_JSON, Hostnames.class, new Hostnames());
 
+    public static final String CONFIGS_CONFIG_JSON = "configs/config.json";
+
+    private static @Getter ConfigJson configJson = loadConfig(CONFIGS_CONFIG_JSON, ConfigJson.class, new ConfigJson());
+
     public static <T> T loadConfig(String path, Class<T> valueType, T defaultobject) {
         File file = new File(path);
         file.getParentFile().mkdirs();
@@ -73,5 +77,14 @@ public class BetterBungeeConfig {
         private ConcurrentHashMap<String, String> hostnames = (ConcurrentHashMap<String, String>) Stream.of(new String[][] {
                 {"hut.mcserver.com", "https://api.minehut.com/mitm/proxy/session/minecraft/hasJoined"},
         }).collect(Collectors.toConcurrentMap(data -> data[0], data -> data[1]));
+    }
+
+    @NoArgsConstructor
+    @Getter @Setter
+    public static class ConfigJson {
+        public void save() {
+            saveConfig(CONFIGS_CONFIG_JSON, ConfigJson.class);
+        }
+        private boolean allowBungeeConnections = false;
     }
 }
