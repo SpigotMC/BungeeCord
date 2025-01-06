@@ -102,5 +102,15 @@ public class BetterBungeeConfig {
             saveConfig(CONFIGS_CONFIG_JSON, ConfigJson.class);
         }
         private boolean allowBungeeConnections = false;
+        private LoginCacheSettings loginCacheSettings = new LoginCacheSettings();
     }
+    
+    @NoArgsConstructor
+    @Getter @Setter
+    public static class LoginCacheSettings {
+        boolean enabled = true;
+        int cacheTimeInMinutes = 300;
+    }
+
+
 }

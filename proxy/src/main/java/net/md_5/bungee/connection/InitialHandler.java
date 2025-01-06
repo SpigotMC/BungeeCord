@@ -525,6 +525,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         // disable use of composite buffers if we use natives
         ch.updateComposite();
 
+        // Using the Login Cache in the BetterBungeeAPI to login the player without contacting the Mojang API every time
+        if (BetterBungeeConfig.getConfigJson().getLoginCacheSettings().isEnabled()) {
+            LoginResult loginResult = BetterBungeeAPI.getSessionCache().getCachedResult(ch.getRemoteAddress());
+            if (loginResult != null && loginResult.getName().equals(getName())) {
+                loginProfile = loginResult;
+                name = loginResult.getName();
+                uniqueId = Util.getUUID(loginResult.getId());
+                finish();
+                return;
+            }
+        }
+        
         String encName = URLEncoder.encode( InitialHandler.this.getName(), "UTF-8" );
 
         MessageDigest sha = MessageDigest.getInstance( "SHA-1" );

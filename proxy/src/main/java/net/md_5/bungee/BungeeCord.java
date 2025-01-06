@@ -8,6 +8,8 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import de.luca.betterbungee.BetterBungeeAPI;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -470,8 +472,10 @@ public class BungeeCord extends ProxyServer
             reconnectHandler.save();
             reconnectHandler.close();
         }
+
         saveThread.cancel();
         metricsThread.cancel();
+        BetterBungeeAPI.getSessionCache().getTimer().cancel();
 
         getLogger().info( "Disabling plugins" );
         for ( Plugin plugin : Lists.reverse( new ArrayList<>( pluginManager.getPlugins() ) ) )
