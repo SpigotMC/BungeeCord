@@ -180,26 +180,32 @@ public class ChannelWrapper
 
     public void setCompressionThreshold(int compressionThreshold)
     {
-        if ( ch.pipeline().get( PacketCompressor.class ) == null && compressionThreshold >= 0 )
-        {
-            addBefore( PipelineUtils.PACKET_ENCODER, "compress", new PacketCompressor() );
-        }
+        PacketCompressor compressor = ch.pipeline().get( PacketCompressor.class );
+        PacketDecompressor decompressor = ch.pipeline().get( PacketDecompressor.class );
         if ( compressionThreshold >= 0 )
         {
-            ch.pipeline().get( PacketCompressor.class ).setThreshold( compressionThreshold );
+            if ( compressor == null )
+            {
+                addBefore( PipelineUtils.PACKET_ENCODER, "compress", compressor = new PacketCompressor() );
+            }
+            compressor.setThreshold( compressionThreshold );
+
+            if ( decompressor == null )
+            {
+                addBefore( PipelineUtils.PACKET_DECODER, "decompress", decompressor = new PacketDecompressor() );
+            }
         } else
         {
-            ch.pipeline().remove( "compress" );
+            if ( compressor != null )
+            {
+                ch.pipeline().remove( "compress" );
+            }
+            if ( decompressor != null )
+            {
+                ch.pipeline().remove( "decompress" );
+            }
         }
 
-        if ( ch.pipeline().get( PacketDecompressor.class ) == null && compressionThreshold >= 0 )
-        {
-            addBefore( PipelineUtils.PACKET_DECODER, "decompress", new PacketDecompressor() );
-        }
-        if ( compressionThreshold < 0 )
-        {
-            ch.pipeline().remove( "decompress" );
-        }
         // disable use of composite buffers if we use natives
         updateComposite();
     }
