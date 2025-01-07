@@ -311,4 +311,9 @@ public abstract class ProxyServer
      */
     public abstract Title createTitle();
 
+    /**
+     * Gets the operation state of the proxy.
+     * @return true if the proxy is running
+     */
+    public abstract boolean isRunning();
 }
