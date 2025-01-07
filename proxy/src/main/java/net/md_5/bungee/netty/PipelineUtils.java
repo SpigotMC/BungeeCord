@@ -49,8 +49,6 @@ import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.Varint21FrameDecoder;
-import net.md_5.bungee.protocol.Varint21LengthFieldExtraBufPrepender;
-import net.md_5.bungee.protocol.Varint21LengthFieldPrepender;
 
 public class PipelineUtils
 {
@@ -80,8 +78,8 @@ public class PipelineUtils
             BASE.initChannel( ch );
             ch.pipeline().addBefore( FRAME_DECODER, LEGACY_DECODER, new LegacyDecoder() );
             ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
-            ch.pipeline().addAfter( FRAME_PREPENDER, PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
-            ch.pipeline().addBefore( FRAME_PREPENDER, LEGACY_KICKER, legacyKicker );
+            ch.pipeline().addAfter( FRAME_PREPENDER_AND_COMPRESS, PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
+            ch.pipeline().addBefore( FRAME_PREPENDER_AND_COMPRESS, LEGACY_KICKER, legacyKicker );
             ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( BungeeCord.getInstance(), listener ) );
 
             if ( listener.isProxyProtocol() )
@@ -93,7 +91,6 @@ public class PipelineUtils
     public static final Base BASE = new Base( false );
     public static final Base BASE_SERVERSIDE = new Base( true );
     private static final KickStringWriter legacyKicker = new KickStringWriter();
-    private static final Varint21LengthFieldExtraBufPrepender serverFramePrepender = new Varint21LengthFieldExtraBufPrepender();
     public static final String TIMEOUT_HANDLER = "timeout";
     public static final String PACKET_DECODER = "packet-decoder";
     public static final String PACKET_ENCODER = "packet-encoder";
@@ -101,7 +98,7 @@ public class PipelineUtils
     public static final String ENCRYPT_HANDLER = "encrypt";
     public static final String DECRYPT_HANDLER = "decrypt";
     public static final String FRAME_DECODER = "frame-decoder";
-    public static final String FRAME_PREPENDER = "frame-prepender";
+    public static final String FRAME_PREPENDER_AND_COMPRESS = "frame-prepender-compress";
     public static final String LEGACY_DECODER = "legacy-decoder";
     public static final String LEGACY_KICKER = "legacy-kick";
 
@@ -201,8 +198,8 @@ public class PipelineUtils
             ch.pipeline().addLast( TIMEOUT_HANDLER, new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
             // No encryption bungee -> server, therefore use extra buffer to avoid copying everything for length prepending
             // Not used bungee -> client as header would need to be encrypted separately through expensive JNI call
-            ch.pipeline().addLast( FRAME_PREPENDER, ( toServer ) ? serverFramePrepender : new Varint21LengthFieldPrepender() );
-
+            //TODO evaluate difference compose vs two buffers
+            ch.pipeline().addLast( FRAME_PREPENDER_AND_COMPRESS, new LengthPrependerAndCompressor( true, toServer ) );
             ch.pipeline().addLast( BOSS_HANDLER, new HandlerBoss() );
         }
     }
