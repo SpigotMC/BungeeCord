@@ -23,7 +23,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -61,7 +63,8 @@ public final class PluginManager
     private final Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
     private final Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
 
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final ReadWriteLock commandsLock = new ReentrantReadWriteLock();
+    private final Lock listenersLock = new ReentrantLock();
 
     @SuppressWarnings("unchecked")
     public PluginManager(ProxyServer proxy)
@@ -97,7 +100,7 @@ public final class PluginManager
      */
     public void registerCommand(Plugin plugin, Command command)
     {
-        lock.writeLock().lock();
+        commandsLock.writeLock().lock();
         try
         {
             commandMap.put( command.getName().toLowerCase( Locale.ROOT ), command );
@@ -108,7 +111,7 @@ public final class PluginManager
             commandsByPlugin.put( plugin, command );
         } finally
         {
-            lock.writeLock().unlock();
+            commandsLock.writeLock().unlock();
         }
     }
 
@@ -119,14 +122,14 @@ public final class PluginManager
      */
     public void unregisterCommand(Command command)
     {
-        lock.writeLock().lock();
+        commandsLock.writeLock().lock();
         try
         {
             while ( commandMap.values().remove( command ) );
             commandsByPlugin.values().remove( command );
         } finally
         {
-            lock.writeLock().unlock();
+            commandsLock.writeLock().unlock();
         }
     }
 
@@ -137,7 +140,7 @@ public final class PluginManager
      */
     public void unregisterCommands(Plugin plugin)
     {
-        lock.writeLock().lock();
+        commandsLock.writeLock().lock();
         try
         {
             for ( Iterator<Command> it = commandsByPlugin.get( plugin ).iterator(); it.hasNext(); )
@@ -148,7 +151,7 @@ public final class PluginManager
             }
         } finally
         {
-            lock.writeLock().unlock();
+            commandsLock.writeLock().unlock();
         }
     }
 
@@ -162,13 +165,13 @@ public final class PluginManager
             return null;
         }
 
-        lock.readLock().lock();
+        commandsLock.readLock().lock();
         try
         {
             return commandMap.get( commandLower );
         } finally
         {
-            lock.readLock().unlock();
+            commandsLock.readLock().unlock();
         }
     }
 
@@ -466,7 +469,7 @@ public final class PluginManager
      */
     public void registerListener(Plugin plugin, Listener listener)
     {
-        lock.writeLock().lock();
+        listenersLock.lock();
         try
         {
             for ( Method method : listener.getClass().getDeclaredMethods() )
@@ -478,7 +481,7 @@ public final class PluginManager
             listenersByPlugin.put( plugin, listener );
         } finally
         {
-            lock.writeLock().unlock();
+            listenersLock.unlock();
         }
     }
 
@@ -489,14 +492,14 @@ public final class PluginManager
      */
     public void unregisterListener(Listener listener)
     {
-        lock.writeLock().lock();
+        listenersLock.lock();
         try
         {
             eventBus.unregister( listener );
             listenersByPlugin.values().remove( listener );
         } finally
         {
-            lock.writeLock().unlock();
+            listenersLock.unlock();
         }
     }
 
@@ -507,7 +510,7 @@ public final class PluginManager
      */
     public void unregisterListeners(Plugin plugin)
     {
-        lock.writeLock().lock();
+        listenersLock.lock();
         try
         {
             for ( Iterator<Listener> it = listenersByPlugin.get( plugin ).iterator(); it.hasNext(); )
@@ -517,7 +520,7 @@ public final class PluginManager
             }
         } finally
         {
-            lock.writeLock().unlock();
+            listenersLock.unlock();
         }
     }
 
@@ -528,13 +531,13 @@ public final class PluginManager
      */
     public Collection<Map.Entry<String, Command>> getCommands()
     {
-        lock.readLock().lock();
+        commandsLock.readLock().lock();
         try
         {
             return Collections.unmodifiableCollection( commandMap.entrySet() );
         } finally
         {
-            lock.readLock().unlock();
+            commandsLock.readLock().unlock();
         }
     }
 
