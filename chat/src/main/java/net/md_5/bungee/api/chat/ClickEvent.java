@@ -25,7 +25,7 @@ public final class ClickEvent
     private final String value;
 
     /**
-     * Returns whether this hover event is prior to 1.16
+     * Returns whether this click event is used for version above 1.21.4
      */
     @Setter
     private boolean v1_21_5 = false;

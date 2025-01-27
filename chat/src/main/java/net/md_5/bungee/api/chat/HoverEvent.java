@@ -37,7 +37,7 @@ public final class HoverEvent
     private boolean legacy = false;
 
     /**
-     * Returns whether this hover event is prior to 1.16
+     * Returns whether this hover event is used for version above 1.21.4
      */
     private boolean v1_21_5 = false;
 
