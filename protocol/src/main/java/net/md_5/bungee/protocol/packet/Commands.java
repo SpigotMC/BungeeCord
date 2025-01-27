@@ -312,6 +312,7 @@ public class Commands extends DefinedPacket
         private static final ArgumentSerializer[] IDS_1_19_4;
         private static final ArgumentSerializer[] IDS_1_20_3;
         private static final ArgumentSerializer[] IDS_1_20_5;
+        private static final ArgumentSerializer[] IDS_1_21_5;
         private static final Map<Class<?>, ProperArgumentSerializer<?>> PROPER_PROVIDERS = new HashMap<>();
         //
         private static final ArgumentSerializer<Void> VOID = new ArgumentSerializer<Void>()
@@ -858,6 +859,65 @@ public class Commands extends DefinedPacket
                 get( "minecraft:loot_predicate", VOID ),
                 get( "minecraft:loot_modifier", VOID )
             };
+
+            IDS_1_21_5 = new ArgumentSerializer[]
+            {
+                get( "brigadier:bool", VOID ),
+                get( "brigadier:float", FLOAT_RANGE ),
+                get( "brigadier:double", DOUBLE_RANGE ),
+                get( "brigadier:integer", INTEGER_RANGE ),
+                get( "brigadier:long", LONG_RANGE ),
+                get( "brigadier:string", STRING ),
+                get( "minecraft:entity", BYTE ),
+                get( "minecraft:game_profile", VOID ),
+                get( "minecraft:block_pos", VOID ),
+                get( "minecraft:column_pos", VOID ),
+                get( "minecraft:vec3", VOID ),
+                get( "minecraft:vec2", VOID ),
+                get( "minecraft:block_state", VOID ),
+                get( "minecraft:block_predicate", VOID ),
+                get( "minecraft:item_stack", VOID ),
+                get( "minecraft:item_predicate", VOID ),
+                get( "minecraft:color", VOID ),
+                get( "minecraft:component", VOID ),
+                get( "minecraft:style", VOID ),
+                get( "minecraft:message", VOID ),
+                get( "minecraft:nbt_compound_tag", VOID ),
+                get( "minecraft:nbt_tag", VOID ),
+                get( "minecraft:nbt_path", VOID ),
+                get( "minecraft:objective", VOID ),
+                get( "minecraft:objective_criteria", VOID ),
+                get( "minecraft:operation", VOID ),
+                get( "minecraft:particle", VOID ),
+                get( "minecraft:angle", VOID ),
+                get( "minecraft:rotation", VOID ),
+                get( "minecraft:scoreboard_slot", VOID ),
+                get( "minecraft:score_holder", BYTE ),
+                get( "minecraft:swizzle", VOID ),
+                get( "minecraft:team", VOID ),
+                get( "minecraft:item_slot", VOID ),
+                get( "minecraft:item_slots", VOID ),
+                get( "minecraft:resource_location", VOID ),
+                get( "minecraft:function", VOID ),
+                get( "minecraft:entity_anchor", VOID ),
+                get( "minecraft:int_range", VOID ),
+                get( "minecraft:float_range", VOID ),
+                get( "minecraft:dimension", VOID ),
+                get( "minecraft:gamemode", VOID ),
+                get( "minecraft:time", INTEGER ),
+                get( "minecraft:resource_or_tag", RAW_STRING ),
+                get( "minecraft:resource_or_tag_key", RAW_STRING ),
+                get( "minecraft:resource", RAW_STRING ),
+                get( "minecraft:resource_key", RAW_STRING ),
+                get( "minecraft:resource_selector", RAW_STRING ),
+                get( "minecraft:template_mirror", VOID ),
+                get( "minecraft:template_rotation", VOID ),
+                get( "minecraft:uuid", VOID ),
+                get( "minecraft:heightmap", VOID ),
+                get( "minecraft:loot_table", VOID ),
+                get( "minecraft:loot_predicate", VOID ),
+                get( "minecraft:loot_modifier", VOID )
+            };
         }
 
         private static void register(String name, ArgumentSerializer serializer)
@@ -879,7 +939,10 @@ public class Commands extends DefinedPacket
             {
                 key = readVarInt( buf );
 
-                if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
+                if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_5 )
+                {
+                    reader = IDS_1_21_5[(Integer) key];
+                } else if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
                 {
                     reader = IDS_1_20_5[(Integer) key];
                 } else if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )

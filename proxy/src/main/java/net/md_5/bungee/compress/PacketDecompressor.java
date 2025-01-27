@@ -7,10 +7,12 @@ import io.netty.handler.codec.MessageToMessageDecoder;
 import java.util.List;
 import net.md_5.bungee.jni.zlib.BungeeZlib;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.OverflowPacketException;
 
 public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
 {
 
+    private static final int MAX_DECOMPRESSED_LEN = 1 << 23;
     private final BungeeZlib zlib = CompressFactory.zlib.newInstance();
 
     @Override
@@ -34,8 +36,12 @@ public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
             out.add( in.retain() );
         } else
         {
-            ByteBuf decompressed = ctx.alloc().directBuffer();
+            if ( size > MAX_DECOMPRESSED_LEN )
+            {
+                throw new OverflowPacketException( "Packet may not be larger than " + MAX_DECOMPRESSED_LEN + " bytes" );
+            }
 
+            ByteBuf decompressed = ctx.alloc().directBuffer( size, size );
             try
             {
                 zlib.process( in, decompressed );
