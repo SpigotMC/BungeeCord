@@ -37,6 +37,28 @@ public final class HoverEvent
     private boolean legacy = false;
 
     /**
+     * Returns whether this hover event is prior to 1.16
+     */
+    private boolean v1_21_5 = false;
+
+    /**
+     * Set the compatibility to 1.21.5, also modifies the underlying Entity's
+     *
+     * @param v1_21_5 the compatibility to set
+     */
+    public void setV1_21_5(boolean v1_21_5)
+    {
+        this.v1_21_5 = v1_21_5;
+        for ( Content content : contents )
+        {
+            if ( content instanceof Entity )
+            {
+                ( (Entity) content ).setV1_21_5( v1_21_5 );
+            }
+        }
+    }
+
+    /**
      * Creates event with an action and a list of contents.
      *
      * @param action action of this event

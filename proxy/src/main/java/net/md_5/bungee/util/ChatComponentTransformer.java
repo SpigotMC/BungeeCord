@@ -50,6 +50,21 @@ public final class ChatComponentTransformer
                 next.getHoverEvent().getContents().clear();
                 next.getHoverEvent().getContents().add( exception );
             }
+        } else if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_21_5 )
+        {
+            if ( next.getHoverEvent() != null && !next.getHoverEvent().isV1_21_5() )
+            {
+                next = next.duplicate();
+                next.getHoverEvent().setV1_21_5( true );
+            }
+
+            if ( next.getClickEvent() != null && !next.getClickEvent().isV1_21_5() )
+            {
+                next = next.duplicate();
+                next.getClickEvent().setV1_21_5( true );
+                System.out.println("BBBQ");
+            }
+
         }
 
         return next;

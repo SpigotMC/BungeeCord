@@ -16,6 +16,20 @@ public class Entity extends Content
 {
 
     /**
+     * Required for backwards compatibility.
+     * @param type the type of the entity, for example 'minecraft:pig'
+     * @param id for example '6cb1b229-ce5c-4179-af8d-eea185c25963'
+     * @param name the name of the entity
+     */
+    public Entity(String type, @NonNull String id, BaseComponent name)
+    {
+        this.type = type;
+        this.id = id;
+        this.name = name;
+        this.v1_21_5 = false;
+    }
+
+    /**
      * Namespaced entity ID.
      *
      * Will use 'minecraft:pig' if null.
@@ -34,6 +48,11 @@ public class Entity extends Content
      * This is optional and will be hidden if null.
      */
     private BaseComponent name;
+
+    /**
+     * True if this entity is for 1.21.5 or later
+     */
+    private boolean v1_21_5;
 
     @Override
     public HoverEvent.Action requiredAction()

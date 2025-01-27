@@ -3,6 +3,7 @@ package net.md_5.bungee.api.chat;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @Getter
@@ -22,6 +23,12 @@ public final class ClickEvent
      * @see Action
      */
     private final String value;
+
+    /**
+     * Returns whether this hover event is prior to 1.16
+     */
+    @Setter
+    private boolean v1_21_5 = false;
 
     public enum Action
     {
