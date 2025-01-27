@@ -62,7 +62,6 @@ public final class ChatComponentTransformer
             {
                 next = next.duplicate();
                 next.getClickEvent().setV1_21_5( true );
-                System.out.println("BBBQ");
             }
 
         }
