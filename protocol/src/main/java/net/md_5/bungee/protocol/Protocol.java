@@ -303,7 +303,6 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_19_4, 0x17 ),
                     map( ProtocolConstants.MINECRAFT_1_20_2, 0x18 ),
                     map( ProtocolConstants.MINECRAFT_1_20_5, 0x19 ),
-                    map( ProtocolConstants.MINECRAFT_1_21_5, 0x2B ),
                     map( ProtocolConstants.MINECRAFT_1_21_5, 0x18 )
             );
             TO_CLIENT.registerPacket(
@@ -994,6 +993,8 @@ public enum Protocol
                 }
 
                 ProtocolData data = protocols.get( protocol );
+                Preconditions.checkState( data.packetConstructors[mapping.packetID] == null, "Duplicate packet mapping (%s)", mapping.packetID );
+
                 data.packetMap.put( packetClass, mapping.packetID );
                 data.packetConstructors[mapping.packetID] = constructor;
             }
