@@ -30,42 +30,65 @@ public class BaseComponentSerializer
         }
 
         //Events
-        JsonObject clickEvent = object.getAsJsonObject( "clickEvent" );
+        JsonObject clickEvent;
+        boolean newClickEvent = ( clickEvent = object.getAsJsonObject( "click_event" ) ) != null;
+        if ( !newClickEvent )
+        {
+            clickEvent = object.getAsJsonObject( "clickEvent" );
+        }
         if ( clickEvent != null )
         {
-            component.setClickEvent( new ClickEvent(
-                    ClickEvent.Action.valueOf( clickEvent.get( "action" ).getAsString().toUpperCase( Locale.ROOT ) ),
-                    ( clickEvent.has( "value" ) ) ? clickEvent.get( "value" ).getAsString() : "" ) );
+            ClickEvent.Action action = ClickEvent.Action.valueOf( clickEvent.get( "action" ).getAsString().toUpperCase( Locale.ROOT ) );
+            if ( newClickEvent )
+            {
+                switch ( action )
+                {
+                    case OPEN_URL:
+                        component.setClickEvent( new ClickEvent( action, clickEvent.get( "url" ).getAsString() ) );
+                        break;
+                    case RUN_COMMAND:
+                    case SUGGEST_COMMAND:
+                        component.setClickEvent( new ClickEvent( action, clickEvent.get( "command" ).getAsString() ) );
+                        break;
+                    case CHANGE_PAGE:
+                        int page = clickEvent.get( "page" ).getAsInt();
+                        Preconditions.checkArgument( page >= 0, "Page number has to be positive" );
+                        component.setClickEvent( new ClickEvent( action, Integer.toString( page ) ) );
+                        break;
+                    default:
+                        component.setClickEvent( new ClickEvent( action, ( clickEvent.has( "value" ) ) ? clickEvent.get( "value" ).getAsString() : "" ) );
+                        break;
+                }
+                component.getClickEvent().setV1_21_5( true );
+            } else
+            {
+                component.setClickEvent( new ClickEvent( action, ( clickEvent.has( "value" ) ) ? clickEvent.get( "value" ).getAsString() : "" ) );
+            }
         }
-        JsonObject hoverEventJson = object.getAsJsonObject( "hoverEvent" );
+
+        JsonObject hoverEventJson;
+        boolean newHoverEvent = ( hoverEventJson = object.getAsJsonObject( "hover_event" ) ) != null;
+        if ( !newHoverEvent )
+        {
+            hoverEventJson = object.getAsJsonObject( "hoverEvent" );
+        }
+
         if ( hoverEventJson != null )
         {
             HoverEvent hoverEvent = null;
             HoverEvent.Action action = HoverEvent.Action.valueOf( hoverEventJson.get( "action" ).getAsString().toUpperCase( Locale.ROOT ) );
 
-            JsonElement value = hoverEventJson.get( "value" );
-            if ( value != null )
+            if ( newHoverEvent || hoverEventJson.has( "contents" ) )
             {
-
-                // Plugins previously had support to pass BaseComponent[] into any action.
-                // If the GSON is possible to be parsed as BaseComponent, attempt to parse as so.
-                BaseComponent[] components;
-                if ( value.isJsonArray() )
+                // value is only used for text in >= 1.21.5 (its inlined now)
+                JsonElement contents = hoverEventJson.get( newHoverEvent ? "value" : "contents" );
+                if ( contents != null || ( newHoverEvent && ( action == HoverEvent.Action.SHOW_ITEM || action == HoverEvent.Action.SHOW_ENTITY ) ) )
                 {
-                    components = context.deserialize( value, BaseComponent[].class );
-                } else
-                {
-                    components = new BaseComponent[]
+                    if ( contents == null )
                     {
-                        context.deserialize( value, BaseComponent.class )
-                    };
-                }
-                hoverEvent = new HoverEvent( action, components );
-            } else
-            {
-                JsonElement contents = hoverEventJson.get( "contents" );
-                if ( contents != null )
-                {
+                        // this is the new inline for SHOW_ITEM and SHOW_ENTITY
+                        contents = hoverEventJson;
+                    }
                     Content[] list;
                     if ( contents.isJsonArray() )
                     {
@@ -78,6 +101,27 @@ public class BaseComponentSerializer
                         };
                     }
                     hoverEvent = new HoverEvent( action, new ArrayList<>( Arrays.asList( list ) ) );
+                    hoverEvent.setV1_21_5( newHoverEvent );
+                }
+            } else
+            {
+                JsonElement value = hoverEventJson.get( "value" );
+                if ( value != null )
+                {
+                    // Plugins previously had support to pass BaseComponent[] into any action.
+                    // If the GSON is possible to be parsed as BaseComponent, attempt to parse as so.
+                    BaseComponent[] components;
+                    if ( value.isJsonArray() )
+                    {
+                        components = context.deserialize( value, BaseComponent[].class );
+                    } else
+                    {
+                        components = new BaseComponent[]
+                        {
+                            context.deserialize( value, BaseComponent.class )
+                        };
+                    }
+                    hoverEvent = new HoverEvent( action, components );
                 }
             }
 
@@ -118,23 +162,65 @@ public class BaseComponentSerializer
             if ( component.getClickEvent() != null )
             {
                 JsonObject clickEvent = new JsonObject();
-                clickEvent.addProperty( "action", component.getClickEvent().getAction().toString().toLowerCase( Locale.ROOT ) );
-                clickEvent.addProperty( "value", component.getClickEvent().getValue() );
-                object.add( "clickEvent", clickEvent );
+                String actionName = component.getClickEvent().getAction().toString().toLowerCase( Locale.ROOT );
+                clickEvent.addProperty( "action", actionName.toLowerCase( Locale.ROOT ) );
+                if ( component.getClickEvent().isV1_21_5() )
+                {
+                    ClickEvent.Action action = ClickEvent.Action.valueOf( actionName.toUpperCase( Locale.ROOT ) );
+                    switch ( action )
+                    {
+                        case OPEN_URL:
+                            clickEvent.addProperty( "url", component.getClickEvent().getValue() );
+                            break;
+                        case RUN_COMMAND:
+                        case SUGGEST_COMMAND:
+                            clickEvent.addProperty( "command", component.getClickEvent().getValue() );
+                            break;
+                        case CHANGE_PAGE:
+                            clickEvent.addProperty( "page", Integer.parseInt( component.getClickEvent().getValue() ) );
+                            break;
+                        default:
+                            clickEvent.addProperty( "value", component.getClickEvent().getValue() );
+                            break;
+                    }
+                    object.add( "click_event", clickEvent );
+                } else
+                {
+                    clickEvent.addProperty( "value", component.getClickEvent().getValue() );
+                    object.add( "clickEvent", clickEvent );
+                }
+
             }
             if ( component.getHoverEvent() != null )
             {
                 JsonObject hoverEvent = new JsonObject();
                 hoverEvent.addProperty( "action", component.getHoverEvent().getAction().toString().toLowerCase( Locale.ROOT ) );
+                boolean newFormat = component.getHoverEvent().isV1_21_5();
                 if ( component.getHoverEvent().isLegacy() )
                 {
                     hoverEvent.add( "value", context.serialize( component.getHoverEvent().getContents().get( 0 ) ) );
                 } else
                 {
-                    hoverEvent.add( "contents", context.serialize( ( component.getHoverEvent().getContents().size() == 1 )
-                            ? component.getHoverEvent().getContents().get( 0 ) : component.getHoverEvent().getContents() ) );
+                    if ( newFormat )
+                    {
+                        if ( component.getHoverEvent().getAction() == HoverEvent.Action.SHOW_ITEM || component.getHoverEvent().getAction() == HoverEvent.Action.SHOW_ENTITY )
+                        {
+                            JsonObject inlined = context.serialize( ( component.getHoverEvent().getContents().size() == 1 )
+                                    ? component.getHoverEvent().getContents().get( 0 ) : component.getHoverEvent().getContents() ).getAsJsonObject();
+                            inlined.entrySet().forEach( entry -> hoverEvent.add( entry.getKey(), entry.getValue() ) );
+                        } else
+                        {
+                            hoverEvent.add( "value", context.serialize( ( component.getHoverEvent().getContents().size() == 1 )
+                                    ? component.getHoverEvent().getContents().get( 0 ) : component.getHoverEvent().getContents() ) );
+                        }
+                    } else
+                    {
+                        hoverEvent.add( "contents", context.serialize( ( component.getHoverEvent().getContents().size() == 1 )
+                                ? component.getHoverEvent().getContents().get( 0 ) : component.getHoverEvent().getContents() ) );
+                    }
+
                 }
-                object.add( "hoverEvent", hoverEvent );
+                object.add( newFormat ? "hover_event" : "hoverEvent", hoverEvent );
             }
 
             if ( component.getExtra() != null )

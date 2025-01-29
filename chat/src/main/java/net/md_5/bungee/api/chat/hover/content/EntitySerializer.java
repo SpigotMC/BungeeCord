@@ -19,20 +19,23 @@ public class EntitySerializer implements JsonSerializer<Entity>, JsonDeserialize
     {
         JsonObject value = element.getAsJsonObject();
 
+        boolean newEntity = value.has( "uuid" );
+
         String idString;
-        JsonElement id = value.get( "id" );
-        if ( id.isJsonArray() )
+        JsonElement uuid = value.get( newEntity ? "uuid" : "id" );
+        if ( uuid.isJsonArray() )
         {
-            idString = parseUUID( context.deserialize( id, int[].class ) ).toString();
+            idString = parseUUID( context.deserialize( uuid, int[].class ) ).toString();
         } else
         {
-            idString = id.getAsString();
+            idString = uuid.getAsString();
         }
 
         return new Entity(
-                ( value.has( "type" ) ) ? value.get( "type" ).getAsString() : null,
+                ( value.has( newEntity ? "id" : "type" ) ) ? value.get( newEntity ? "id" : "type" ).getAsString() : null,
                 idString,
-                ( value.has( "name" ) ) ? context.deserialize( value.get( "name" ), BaseComponent.class ) : null
+                ( value.has( "name" ) ) ? context.deserialize( value.get( "name" ), BaseComponent.class ) : null,
+                newEntity
         );
     }
 
@@ -40,8 +43,9 @@ public class EntitySerializer implements JsonSerializer<Entity>, JsonDeserialize
     public JsonElement serialize(Entity content, Type type, JsonSerializationContext context)
     {
         JsonObject object = new JsonObject();
-        object.addProperty( "type", ( content.getType() != null ) ? content.getType() : "minecraft:pig" );
-        object.addProperty( "id", content.getId() );
+
+        object.addProperty( content.isV1_21_5() ? "id" : "type", ( content.getType() != null ) ? content.getType() : "minecraft:pig" );
+        object.addProperty( content.isV1_21_5() ? "uuid" : "id", content.getId() );
         if ( content.getName() != null )
         {
             object.add( "name", context.serialize( content.getName() ) );
