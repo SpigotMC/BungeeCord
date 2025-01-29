@@ -23,6 +23,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
@@ -59,6 +63,9 @@ public final class PluginManager
     private final Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
     private final Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
 
+    private final ReadWriteLock commandsLock = new ReentrantReadWriteLock();
+    private final Lock listenersLock = new ReentrantLock();
+
     @SuppressWarnings("unchecked")
     public PluginManager(ProxyServer proxy)
     {
@@ -93,12 +100,19 @@ public final class PluginManager
      */
     public void registerCommand(Plugin plugin, Command command)
     {
-        commandMap.put( command.getName().toLowerCase( Locale.ROOT ), command );
-        for ( String alias : command.getAliases() )
+        commandsLock.writeLock().lock();
+        try
         {
-            commandMap.put( alias.toLowerCase( Locale.ROOT ), command );
+            commandMap.put( command.getName().toLowerCase( Locale.ROOT ), command );
+            for ( String alias : command.getAliases() )
+            {
+                commandMap.put( alias.toLowerCase( Locale.ROOT ), command );
+            }
+            commandsByPlugin.put( plugin, command );
+        } finally
+        {
+            commandsLock.writeLock().unlock();
         }
-        commandsByPlugin.put( plugin, command );
     }
 
     /**
@@ -108,8 +122,15 @@ public final class PluginManager
      */
     public void unregisterCommand(Command command)
     {
-        while ( commandMap.values().remove( command ) );
-        commandsByPlugin.values().remove( command );
+        commandsLock.writeLock().lock();
+        try
+        {
+            while ( commandMap.values().remove( command ) );
+            commandsByPlugin.values().remove( command );
+        } finally
+        {
+            commandsLock.writeLock().unlock();
+        }
     }
 
     /**
@@ -119,11 +140,18 @@ public final class PluginManager
      */
     public void unregisterCommands(Plugin plugin)
     {
-        for ( Iterator<Command> it = commandsByPlugin.get( plugin ).iterator(); it.hasNext(); )
+        commandsLock.writeLock().lock();
+        try
         {
-            Command command = it.next();
-            while ( commandMap.values().remove( command ) );
-            it.remove();
+            for ( Iterator<Command> it = commandsByPlugin.get( plugin ).iterator(); it.hasNext(); )
+            {
+                Command command = it.next();
+                while ( commandMap.values().remove( command ) );
+                it.remove();
+            }
+        } finally
+        {
+            commandsLock.writeLock().unlock();
         }
     }
 
@@ -137,7 +165,14 @@ public final class PluginManager
             return null;
         }
 
-        return commandMap.get( commandLower );
+        commandsLock.readLock().lock();
+        try
+        {
+            return commandMap.get( commandLower );
+        } finally
+        {
+            commandsLock.readLock().unlock();
+        }
     }
 
     /**
@@ -434,13 +469,20 @@ public final class PluginManager
      */
     public void registerListener(Plugin plugin, Listener listener)
     {
-        for ( Method method : listener.getClass().getDeclaredMethods() )
+        listenersLock.lock();
+        try
         {
-            Preconditions.checkArgument( !method.isAnnotationPresent( Subscribe.class ),
+            for ( Method method : listener.getClass().getDeclaredMethods() )
+            {
+                Preconditions.checkArgument( !method.isAnnotationPresent( Subscribe.class ),
                     "Listener %s has registered using deprecated subscribe annotation! Please update to @EventHandler.", listener );
+            }
+            eventBus.register( listener );
+            listenersByPlugin.put( plugin, listener );
+        } finally
+        {
+            listenersLock.unlock();
         }
-        eventBus.register( listener );
-        listenersByPlugin.put( plugin, listener );
     }
 
     /**
@@ -450,8 +492,15 @@ public final class PluginManager
      */
     public void unregisterListener(Listener listener)
     {
-        eventBus.unregister( listener );
-        listenersByPlugin.values().remove( listener );
+        listenersLock.lock();
+        try
+        {
+            eventBus.unregister( listener );
+            listenersByPlugin.values().remove( listener );
+        } finally
+        {
+            listenersLock.unlock();
+        }
     }
 
     /**
@@ -461,10 +510,17 @@ public final class PluginManager
      */
     public void unregisterListeners(Plugin plugin)
     {
-        for ( Iterator<Listener> it = listenersByPlugin.get( plugin ).iterator(); it.hasNext(); )
+        listenersLock.lock();
+        try
         {
-            eventBus.unregister( it.next() );
-            it.remove();
+            for ( Iterator<Listener> it = listenersByPlugin.get( plugin ).iterator(); it.hasNext(); )
+            {
+                eventBus.unregister( it.next() );
+                it.remove();
+            }
+        } finally
+        {
+            listenersLock.unlock();
         }
     }
 
@@ -475,7 +531,14 @@ public final class PluginManager
      */
     public Collection<Map.Entry<String, Command>> getCommands()
     {
-        return Collections.unmodifiableCollection( commandMap.entrySet() );
+        commandsLock.readLock().lock();
+        try
+        {
+            return Collections.unmodifiableCollection( commandMap.entrySet() );
+        } finally
+        {
+            commandsLock.readLock().unlock();
+        }
     }
 
     boolean isTransitiveDepend(PluginDescription plugin, PluginDescription depend)
