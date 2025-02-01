@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import lombok.RequiredArgsConstructor;
@@ -67,6 +68,15 @@ public abstract class DefinedPacket
 
         writeVarInt( b.length, buf );
         buf.writeBytes( b );
+    }
+
+    public static <T> T readStringMapKey(ByteBuf buf, Map<String, T> map)
+    {
+        String string = readString( buf );
+        T result = map.get( string );
+        Preconditions.checkArgument( result != null, "Unknown string key %s", string );
+
+        return result;
     }
 
     public static String readString(ByteBuf buf)

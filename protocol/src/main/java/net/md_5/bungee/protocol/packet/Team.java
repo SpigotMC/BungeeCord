@@ -1,6 +1,8 @@
 package net.md_5.bungee.protocol.packet;
 
+import com.google.common.collect.ImmutableMap;
 import io.netty.buffer.ByteBuf;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,8 +28,8 @@ public class Team extends DefinedPacket
     private Either<String, BaseComponent> displayName;
     private Either<String, BaseComponent> prefix;
     private Either<String, BaseComponent> suffix;
-    private String nameTagVisibility;
-    private String collisionRule;
+    private NameTagVisibility nameTagVisibility;
+    private CollisionRule collisionRule;
     private int color;
     private byte friendlyFire;
     private String[] players;
@@ -60,10 +62,18 @@ public class Team extends DefinedPacket
                 displayName = readEitherBaseComponent( buf, protocolVersion, false );
             }
             friendlyFire = buf.readByte();
-            nameTagVisibility = readString( buf );
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_5 )
             {
-                collisionRule = readString( buf );
+                nameTagVisibility = NameTagVisibility.values()[readVarInt( buf )];
+                collisionRule = CollisionRule.values()[readVarInt( buf )];
+            } else
+            {
+                nameTagVisibility = readStringMapKey( buf, NameTagVisibility.BY_NAME );
+
+                if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
+                {
+                    collisionRule = readStringMapKey( buf, CollisionRule.BY_NAME );
+                }
             }
             color = ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? readVarInt( buf ) : buf.readByte();
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
@@ -97,10 +107,17 @@ public class Team extends DefinedPacket
                 writeEitherBaseComponent( suffix, buf, protocolVersion );
             }
             buf.writeByte( friendlyFire );
-            writeString( nameTagVisibility, buf );
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_5 )
             {
-                writeString( collisionRule, buf );
+                writeVarInt( nameTagVisibility.ordinal(), buf );
+                writeVarInt( collisionRule.ordinal(), buf );
+            } else
+            {
+                writeString( nameTagVisibility.getKey(), buf );
+                if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
+                {
+                    writeString( collisionRule.getKey(), buf );
+                }
             }
 
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
@@ -127,5 +144,77 @@ public class Team extends DefinedPacket
     public void handle(AbstractPacketHandler handler) throws Exception
     {
         handler.handle( this );
+    }
+
+    public enum NameTagVisibility
+    {
+
+        ALWAYS( "always" ),
+        NEVER( "never" ),
+        HIDE_FOR_OTHER_TEAMS( "hideForOtherTeams" ),
+        HIDE_FOR_OWN_TEAM( "hideForOwnTeam" );
+        //
+        private final String key;
+        //
+        private static final Map<String, NameTagVisibility> BY_NAME;
+
+        static
+        {
+            NameTagVisibility[] values = NameTagVisibility.values();
+            ImmutableMap.Builder<String, NameTagVisibility> builder = ImmutableMap.builderWithExpectedSize( values.length );
+
+            for ( NameTagVisibility e : values )
+            {
+                builder.put( e.key, e );
+            }
+
+            BY_NAME = builder.build();
+        }
+
+        private NameTagVisibility(String name)
+        {
+            this.key = name;
+        }
+
+        public String getKey()
+        {
+            return this.key;
+        }
+    }
+
+    public enum CollisionRule
+    {
+
+        ALWAYS( "always" ),
+        NEVER( "never" ),
+        PUSH_OTHER_TEAMS( "pushOtherTeams" ),
+        PUSH_OWN_TEAM( "pushOwnTeam" );
+        //
+        private final String key;
+        //
+        private static final Map<String, CollisionRule> BY_NAME;
+
+        static
+        {
+            CollisionRule[] values = CollisionRule.values();
+            ImmutableMap.Builder<String, CollisionRule> builder = ImmutableMap.builderWithExpectedSize( values.length );
+
+            for ( CollisionRule e : values )
+            {
+                builder.put( e.key, e );
+            }
+
+            BY_NAME = builder.build();
+        }
+
+        private CollisionRule(String name)
+        {
+            this.key = name;
+        }
+
+        public String getKey()
+        {
+            return this.key;
+        }
     }
 }
