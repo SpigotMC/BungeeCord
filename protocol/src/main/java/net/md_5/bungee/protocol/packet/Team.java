@@ -6,7 +6,9 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
@@ -146,6 +148,8 @@ public class Team extends DefinedPacket
         handler.handle( this );
     }
 
+    @Getter
+    @RequiredArgsConstructor
     public enum NameTagVisibility
     {
 
@@ -170,18 +174,10 @@ public class Team extends DefinedPacket
 
             BY_NAME = builder.build();
         }
-
-        private NameTagVisibility(String name)
-        {
-            this.key = name;
-        }
-
-        public String getKey()
-        {
-            return this.key;
-        }
     }
 
+    @Getter
+    @RequiredArgsConstructor
     public enum CollisionRule
     {
 
@@ -205,16 +201,6 @@ public class Team extends DefinedPacket
             }
 
             BY_NAME = builder.build();
-        }
-
-        private CollisionRule(String name)
-        {
-            this.key = name;
-        }
-
-        public String getKey()
-        {
-            return this.key;
         }
     }
 }
