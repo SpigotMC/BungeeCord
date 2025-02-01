@@ -1,5 +1,6 @@
 package net.md_5.bungee.protocol.holder;
 
+import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import lombok.Data;
@@ -19,6 +20,7 @@ public class ChannelInitializerHolder
 
     public ChannelInitializerHolder(ChannelInitializer<Channel> channelInitializer)
     {
+        Preconditions.checkNotNull( channelInitializer, "channelInitializer" );
         this.channelInitializer = channelInitializer;
     }
 
