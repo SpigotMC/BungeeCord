@@ -6,11 +6,11 @@ import io.netty.channel.ChannelInitializer;
 import lombok.Data;
 
 /*
- * This class is used to hold a ChannelInitializer<Channel> object.
- * This could be very usefully for plugins like Geyser or ViaVersion
- * That require to access the ChannelInitializer to modify the pipeline
+ * Holder class for frontend and backend channel initializers. BungeeCord will set these values
+ * on startup, and they can be used by third party plugins to modify the channel pipeline.
  *
- * THIS IS VERY UNSAFE AND SHOULD BE USED WITH CAUTION
+ * Please note that this API is unsafe and doesn't provide any guarantees about the stability of the
+ * channel pipeline. Use at your own risk.
  */
 @Data
 public class ChannelInitializerHolder
