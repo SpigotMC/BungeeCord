@@ -43,20 +43,14 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.event.ClientConnectEvent;
 import net.md_5.bungee.connection.InitialHandler;
-import net.md_5.bungee.protocol.KickStringWriter;
-import net.md_5.bungee.protocol.LegacyDecoder;
-import net.md_5.bungee.protocol.MinecraftDecoder;
-import net.md_5.bungee.protocol.MinecraftEncoder;
-import net.md_5.bungee.protocol.Protocol;
-import net.md_5.bungee.protocol.Varint21FrameDecoder;
-import net.md_5.bungee.protocol.Varint21LengthFieldExtraBufPrepender;
-import net.md_5.bungee.protocol.Varint21LengthFieldPrepender;
+import net.md_5.bungee.protocol.*;
+import net.md_5.bungee.protocol.holder.ChannelInitializerHolder;
 
 public class PipelineUtils
 {
 
     public static final AttributeKey<ListenerInfo> LISTENER = AttributeKey.valueOf( "ListerInfo" );
-    public static final ChannelInitializer<Channel> SERVER_CHILD = new ChannelInitializer<Channel>()
+    private static final ChannelInitializer<Channel> SERVER_CHILD = new ChannelInitializer<Channel>()
     {
         @Override
         protected void initChannel(Channel ch) throws Exception
@@ -90,6 +84,16 @@ public class PipelineUtils
             }
         }
     };
+    private static final ChannelInitializer<Channel> BACKEND_CONNECTOR = new ChannelInitializer<Channel>()
+    {
+        @Override
+        protected void initChannel(Channel ch) throws Exception
+        {
+            PipelineUtils.BASE_SERVERSIDE.initChannel( ch );
+            ch.pipeline().addAfter( PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, false, ProxyServer.getInstance().getProtocolVersion() ) );
+            ch.pipeline().addAfter( PipelineUtils.FRAME_PREPENDER, PipelineUtils.PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, false, ProxyServer.getInstance().getProtocolVersion() ) );
+        }
+    };
     public static final Base BASE = new Base( false );
     public static final Base BASE_SERVERSIDE = new Base( true );
     private static final KickStringWriter legacyKicker = new KickStringWriter();
@@ -110,6 +114,9 @@ public class PipelineUtils
 
     static
     {
+        ChannelInitializerHolder.serverChildHolder = new ChannelInitializerHolder( SERVER_CHILD );
+        ChannelInitializerHolder.backendConnectorHolder = new ChannelInitializerHolder( BACKEND_CONNECTOR );
+
         if ( !PlatformDependent.isWindows() )
         {
             // disable by default (experimental)

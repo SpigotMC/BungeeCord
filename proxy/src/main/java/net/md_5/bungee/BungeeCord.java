@@ -95,6 +95,7 @@ import net.md_5.bungee.module.ModuleManager;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.holder.ChannelInitializerHolder;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
@@ -360,7 +361,7 @@ public class BungeeCord extends ProxyServer
                     .channel( PipelineUtils.getServerChannel( info.getSocketAddress() ) )
                     .option( ChannelOption.SO_REUSEADDR, true ) // TODO: Move this elsewhere!
                     .childAttr( PipelineUtils.LISTENER, info )
-                    .childHandler( PipelineUtils.SERVER_CHILD )
+                    .childHandler( ChannelInitializerHolder.serverChildHolder.getChannelInitializer() )
                     .group( eventLoops )
                     .localAddress( info.getSocketAddress() )
                     .bind().addListener( listener );
