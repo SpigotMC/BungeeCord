@@ -363,17 +363,6 @@ public final class UserConnection implements ProxiedPlayer
 
         pendingConnects.add( target );
 
-        ChannelInitializer initializer = new ChannelInitializer()
-        {
-            @Override
-            protected void initChannel(Channel ch) throws Exception
-            {
-                PipelineUtils.BASE_SERVERSIDE.initChannel( ch );
-                ch.pipeline().addAfter( PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, false, getPendingConnection().getVersion() ) );
-                ch.pipeline().addAfter( PipelineUtils.FRAME_PREPENDER, PipelineUtils.PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, false, getPendingConnection().getVersion() ) );
-                ch.pipeline().get( HandlerBoss.class ).setHandler( new ServerConnector( bungee, UserConnection.this, target ) );
-            }
-        };
         ChannelFutureListener listener = new ChannelFutureListener()
         {
             @Override
