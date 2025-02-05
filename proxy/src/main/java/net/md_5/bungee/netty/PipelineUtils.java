@@ -43,7 +43,14 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.event.ClientConnectEvent;
 import net.md_5.bungee.connection.InitialHandler;
-import net.md_5.bungee.protocol.*;
+import net.md_5.bungee.protocol.KickStringWriter;
+import net.md_5.bungee.protocol.LegacyDecoder;
+import net.md_5.bungee.protocol.MinecraftDecoder;
+import net.md_5.bungee.protocol.MinecraftEncoder;
+import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.Varint21FrameDecoder;
+import net.md_5.bungee.protocol.Varint21LengthFieldExtraBufPrepender;
+import net.md_5.bungee.protocol.Varint21LengthFieldPrepender;
 import net.md_5.bungee.protocol.holder.ChannelInitializerHolder;
 
 public class PipelineUtils
