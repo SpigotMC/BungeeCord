@@ -29,6 +29,7 @@ import net.md_5.bungee.connection.PingHandler;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.channel.BungeeChannelInitializer;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
 // CHECKSTYLE:OFF
@@ -186,7 +187,7 @@ public class BungeeServerInfo implements ServerInfo
         new Bootstrap()
                 .channel( PipelineUtils.getChannel( socketAddress ) )
                 .group( BungeeCord.getInstance().eventLoops )
-                .handler( PipelineUtils.BASE_SERVERSIDE )
+                .handler( BungeeChannelInitializer.getServerInfoHolder().getChannelInitializer() )
                 .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, BungeeCord.getInstance().getConfig().getRemotePingTimeout() )
                 .remoteAddress( socketAddress )
                 .connect()
