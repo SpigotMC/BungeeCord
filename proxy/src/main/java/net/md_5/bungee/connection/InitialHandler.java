@@ -899,19 +899,25 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     // otherwise netty will schedule any pipeline related call by itself, this decreases performance
     private <T> Callback<T> eventLoopCallback(Callback<T> callback)
     {
-        EventLoop eventLoop = ch.getHandle().eventLoop();
-        return eventLoop.inEventLoop() ? (result, error) ->
+        return (result, error) ->
         {
-            if ( !ch.isClosing() )
+            EventLoop eventLoop = ch.getHandle().eventLoop();
+            if ( eventLoop.inEventLoop() )
             {
-                callback.done( result, error );
+                if ( !ch.isClosing() )
+                {
+                    callback.done( result, error );
+                }
+                return;
             }
-        } : (result, error) -> eventLoop.execute( () ->
-        {
-            if ( !ch.isClosing() )
+
+            eventLoop.execute( () ->
             {
-                callback.done( result, error );
-            }
-        } );
+                if ( !ch.isClosing() )
+                {
+                    callback.done( result, error );
+                }
+            } );
+        };
     }
 }
