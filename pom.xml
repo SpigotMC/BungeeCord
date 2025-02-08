@@ -276,6 +276,15 @@
             </build>
         </profile>
         <profile>
+            <id>jdk-21-proc</id>
+            <activation>
+                <jdk>[21,)</jdk>
+            </activation>
+            <properties>
+                <maven.compiler.proc>full</maven.compiler.proc>
+            </properties>
+        </profile>        
+        <profile>
             <id>dist</id>
             <build>
                 <plugins>
