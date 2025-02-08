@@ -16,6 +16,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.api.scheduler.TaskScheduler;
+import net.md_5.bungee.protocol.channel.BungeeChannelInitializer;
 
 public abstract class ProxyServer
 {
@@ -310,5 +311,57 @@ public abstract class ProxyServer
      * @see Title
      */
     public abstract Title createTitle();
+
+    /**
+     * Get the unsafe methods of this class.
+     *
+     * @return the unsafe method interface
+     */
+    public abstract Unsafe unsafe();
+
+    public interface Unsafe
+    {
+        /**
+         * Gets the frontend channel initializer
+         *
+         * @return the frontend channel initializer
+         */
+        BungeeChannelInitializer getFrontendChannelInitializer();
+
+        /**
+         * Gets the backend channel initializer
+         *
+         * @return the backend channel initializer
+         */
+        BungeeChannelInitializer getBackendChannelInitializer();
+
+        /**
+         * Gets the server info channel initializer
+         *
+         * @return the server info channel initializer
+         */
+        BungeeChannelInitializer getServerInfoChannelInitializer();
+
+        /**
+         * Set the frontend channel initializer of this proxy
+         *
+         * @param channelInitializer the frontend channelInitializer to set
+         */
+        void setFrontendChannelInitializer(BungeeChannelInitializer channelInitializer);
+
+        /**
+         * Set the backend channel initializer of this proxy
+         *
+         * @param channelInitializer the backend channelInitializer to set
+         */
+        void setBackendChannelInitializer(BungeeChannelInitializer channelInitializer);
+
+        /**
+         * Set the server info channel initializer of this proxy
+         *
+         * @param channelInitializer the server info channelInitializer to set
+         */
+        void setServerInfoChannelInitializer(BungeeChannelInitializer channelInitializer);
+    }
 
 }

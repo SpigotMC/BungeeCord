@@ -189,6 +189,21 @@ public class BungeeCord extends ProxyServer
         return (BungeeCord) ProxyServer.getInstance();
     }
 
+    private final Unsafe unsafe = new Unsafe()
+    {
+        @Getter
+        @Setter
+        private BungeeChannelInitializer frontendChannelInitializer;
+
+        @Getter
+        @Setter
+        private BungeeChannelInitializer backendChannelInitializer;
+
+        @Getter
+        @Setter
+        private BungeeChannelInitializer serverInfoChannelInitializer;
+    };
+
     @SuppressFBWarnings("DM_DEFAULT_ENCODING")
     public BungeeCord() throws IOException
     {
@@ -361,7 +376,7 @@ public class BungeeCord extends ProxyServer
                     .channel( PipelineUtils.getServerChannel( info.getSocketAddress() ) )
                     .option( ChannelOption.SO_REUSEADDR, true ) // TODO: Move this elsewhere!
                     .childAttr( PipelineUtils.LISTENER, info )
-                    .childHandler( BungeeChannelInitializer.getFrontendHolder().getChannelInitializer() )
+                    .childHandler( ProxyServer.getInstance().unsafe().getFrontendChannelInitializer().getChannelInitializer() )
                     .group( eventLoops )
                     .localAddress( info.getSocketAddress() )
                     .bind().addListener( listener );
@@ -831,5 +846,11 @@ public class BungeeCord extends ProxyServer
     public Title createTitle()
     {
         return new BungeeTitle();
+    }
+
+    @Override
+    public Unsafe unsafe()
+    {
+        return unsafe;
     }
 }

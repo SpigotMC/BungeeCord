@@ -60,7 +60,7 @@ public class PipelineUtils
 
     private static void setChannelInitializerHolders()
     {
-        BungeeChannelInitializer.setFrontendHolder( BungeeChannelInitializer.create( ch ->
+        ProxyServer.getInstance().unsafe().setFrontendChannelInitializer( BungeeChannelInitializer.create( ch ->
         {
             SocketAddress remoteAddress = ( ch.remoteAddress() == null ) ? ch.parent().localAddress() : ch.remoteAddress();
 
@@ -90,7 +90,7 @@ public class PipelineUtils
             return true;
         } ) );
 
-        BungeeChannelInitializer.setBackendHolder( BungeeChannelInitializer.create( ch ->
+        ProxyServer.getInstance().unsafe().setBackendChannelInitializer( BungeeChannelInitializer.create( ch ->
         {
             PipelineUtils.BASE_SERVERSIDE.accept( ch );
             ch.pipeline().addAfter( PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, false, ProxyServer.getInstance().getProtocolVersion() ) );
@@ -98,7 +98,7 @@ public class PipelineUtils
             return true;
         } ) );
 
-        BungeeChannelInitializer.setServerInfoHolder( BungeeChannelInitializer.create( BASE_SERVERSIDE ) );
+        ProxyServer.getInstance().unsafe().setServerInfoChannelInitializer( BungeeChannelInitializer.create( BASE_SERVERSIDE ) );
     }
 
     private static final ChannelAcceptor BASE = new Base( false );
