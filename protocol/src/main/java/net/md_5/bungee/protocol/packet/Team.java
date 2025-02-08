@@ -2,6 +2,7 @@ package net.md_5.bungee.protocol.packet;
 
 import com.google.common.collect.ImmutableMap;
 import io.netty.buffer.ByteBuf;
+import java.util.Arrays;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -66,8 +67,8 @@ public class Team extends DefinedPacket
             friendlyFire = buf.readByte();
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_5 )
             {
-                nameTagVisibility = NameTagVisibility.values()[readVarInt( buf )];
-                collisionRule = CollisionRule.values()[readVarInt( buf )];
+                nameTagVisibility = NameTagVisibility.BY_ID[readVarInt( buf )];
+                collisionRule = CollisionRule.BY_ID[readVarInt( buf )];
             } else
             {
                 nameTagVisibility = readStringMapKey( buf, NameTagVisibility.BY_NAME );
@@ -156,11 +157,15 @@ public class Team extends DefinedPacket
         ALWAYS( "always" ),
         NEVER( "never" ),
         HIDE_FOR_OTHER_TEAMS( "hideForOtherTeams" ),
-        HIDE_FOR_OWN_TEAM( "hideForOwnTeam" );
+        HIDE_FOR_OWN_TEAM( "hideForOwnTeam" ),
+        // 1.9 (and possibly other versions) appear to treat unknown values differently (always render rather than subject to spectator mode, friendly invisibles, etc).
+        // we allow the empty value to achieve this in case it is potentially useful even though this is unsupported and its usage may be a bug (#3780).
+        UNKNOWN( "" );
         //
         private final String key;
         //
         private static final Map<String, NameTagVisibility> BY_NAME;
+        private static final NameTagVisibility[] BY_ID;
 
         static
         {
@@ -173,6 +178,7 @@ public class Team extends DefinedPacket
             }
 
             BY_NAME = builder.build();
+            BY_ID = Arrays.copyOf( values, values.length - 1 ); // Ignore dummy UNKNOWN value
         }
     }
 
@@ -189,10 +195,11 @@ public class Team extends DefinedPacket
         private final String key;
         //
         private static final Map<String, CollisionRule> BY_NAME;
+        private static final CollisionRule[] BY_ID;
 
         static
         {
-            CollisionRule[] values = CollisionRule.values();
+            CollisionRule[] values = BY_ID = CollisionRule.values();
             ImmutableMap.Builder<String, CollisionRule> builder = ImmutableMap.builderWithExpectedSize( values.length );
 
             for ( CollisionRule e : values )
