@@ -186,7 +186,7 @@ public class BungeeServerInfo implements ServerInfo
         new Bootstrap()
                 .channel( PipelineUtils.getChannel( socketAddress ) )
                 .group( BungeeCord.getInstance().eventLoops )
-                .handler( PipelineUtils.BASE_SERVERSIDE )
+                .handler( ProxyServer.getInstance().unsafe().getServerInfoChannelInitializer().getChannelInitializer() )
                 .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, BungeeCord.getInstance().getConfig().getRemotePingTimeout() )
                 .remoteAddress( socketAddress )
                 .connect()
