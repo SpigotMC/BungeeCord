@@ -22,19 +22,21 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 public class PluginMessage extends DefinedPacket
 {
 
+    public static final String BUNGEE_CHANNEL_LEGACY = "BungeeCord";
+    public static final String BUNGEE_CHANNEL_MODERN = "bungeecord:main";
     public static final Function<String, String> MODERNISE = new Function<String, String>()
     {
         @Override
         public String apply(String tag)
         {
             // Transform as per Bukkit
-            if ( tag.equals( "BungeeCord" ) )
+            if ( tag.equals( PluginMessage.BUNGEE_CHANNEL_LEGACY ) )
             {
-                return "bungeecord:main";
+                return PluginMessage.BUNGEE_CHANNEL_MODERN;
             }
-            if ( tag.equals( "bungeecord:main" ) )
+            if ( tag.equals( PluginMessage.BUNGEE_CHANNEL_MODERN ) )
             {
-                return "BungeeCord";
+                return PluginMessage.BUNGEE_CHANNEL_LEGACY;
             }
 
             // Code that gets to here is UNLIKELY to be viable on the Bukkit side of side things,

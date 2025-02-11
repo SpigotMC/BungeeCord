@@ -9,8 +9,8 @@ public class PluginMessageTest
     @Test
     public void testModerniseChannel()
     {
-        assertEquals( "bungeecord:main", PluginMessage.MODERNISE.apply( "BungeeCord" ) );
-        assertEquals( "BungeeCord", PluginMessage.MODERNISE.apply( "bungeecord:main" ) );
+        assertEquals( PluginMessage.BUNGEE_CHANNEL_MODERN, PluginMessage.MODERNISE.apply( PluginMessage.BUNGEE_CHANNEL_LEGACY ) );
+        assertEquals( PluginMessage.BUNGEE_CHANNEL_LEGACY, PluginMessage.MODERNISE.apply( PluginMessage.BUNGEE_CHANNEL_MODERN ) );
         assertEquals( "legacy:foo", PluginMessage.MODERNISE.apply( "FoO" ) );
         assertEquals( "foo:bar", PluginMessage.MODERNISE.apply( "foo:bar" ) );
     }

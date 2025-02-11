@@ -180,7 +180,7 @@ public class BungeeCord extends ProxyServer
 
     {
         // TODO: Proper fallback when we interface the manager
-        registerChannel( "BungeeCord" );
+        registerChannel( PluginMessage.BUNGEE_CHANNEL_LEGACY );
     }
 
     public static BungeeCord getInstance()
