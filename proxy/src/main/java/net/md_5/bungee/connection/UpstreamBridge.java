@@ -17,6 +17,7 @@ import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
+import net.md_5.bungee.api.event.PlayerConfigurationEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.SettingsChangedEvent;
@@ -343,12 +344,14 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(LoginAcknowledged loginAcknowledged) throws Exception
     {
+        bungee.getPluginManager().callEvent( new PlayerConfigurationEvent( con, PlayerConfigurationEvent.Status.INITIAL_START ) );
         configureServer();
     }
 
     @Override
     public void handle(StartConfiguration startConfiguration) throws Exception
     {
+        bungee.getPluginManager().callEvent( new PlayerConfigurationEvent( con, PlayerConfigurationEvent.Status.START ) );
         configureServer();
     }
 
@@ -370,6 +373,7 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(FinishConfiguration finishConfiguration) throws Exception
     {
+        bungee.getPluginManager().callEvent( new PlayerConfigurationEvent( con, PlayerConfigurationEvent.Status.FINISH ) );
         con.sendQueuedPackets();
     }
 
