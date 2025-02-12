@@ -69,7 +69,7 @@ public class Configuration implements ProxyConfig
     private boolean preventProxyConnections;
     private boolean forgeSupport;
     private boolean rejectTransfers;
-    private int maxPacketsPerSecond = 1 << 11;
+    private int maxPacketsPerSecond = 1 << 12;
     private int maxPacketDataPerSecond = 1 << 25;
 
     public void load()
