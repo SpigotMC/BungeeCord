@@ -86,10 +86,12 @@ public class PipelineUtils
 
             HandlerBoss handlerBoss = ch.pipeline().get( HandlerBoss.class );
             handlerBoss.setHandler( new InitialHandler( BungeeCord.getInstance(), listener ) );
+
             int packetLimit = BungeeCord.getInstance().getConfig().getMaxPacketsPerSecond();
-            if ( packetLimit > 0 )
+            int packetDataLimit = BungeeCord.getInstance().getConfig().getMaxPacketDataPerSecond();
+            if ( packetLimit > 0 || packetDataLimit > 0 )
             {
-                handlerBoss.setLimiter( new PacketLimiter( packetLimit ) );
+                handlerBoss.setLimiter( new PacketLimiter( packetLimit, packetDataLimit ) );
             }
 
             if ( listener.isProxyProtocol() )

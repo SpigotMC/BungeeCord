@@ -84,11 +84,6 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
     {
-        if ( limiter != null )
-        {
-            limiter.received();
-        }
-
         if ( msg instanceof HAProxyMessage )
         {
             HAProxyMessage proxy = (HAProxyMessage) msg;
@@ -116,6 +111,12 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
         }
 
         PacketWrapper packet = (PacketWrapper) msg;
+
+        if ( limiter != null )
+        {
+            limiter.received( packet.buf.readableBytes() );
+        }
+
         if ( packet.packet != null )
         {
             Protocol nextProtocol = packet.packet.nextProtocol();

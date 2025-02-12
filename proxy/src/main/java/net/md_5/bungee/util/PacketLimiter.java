@@ -7,12 +7,19 @@ public class PacketLimiter
 {
     // max amount of packets allowed per second
     private final int limit;
+    // max amount of data allowed per second
+    private final int dataLimit;
+
     private int counter;
+    private int dataCounter;
     private long nextSecond;
 
-    public void received()
+    public void received(int size)
     {
-        if ( ++counter == limit )
+        counter++;
+        dataCounter += size;
+
+        if ( ( limit > 0 && counter > limit ) || ( dataLimit > 0 && dataCounter > dataLimit ) )
         {
             long now = System.currentTimeMillis();
             if ( nextSecond > now )
@@ -21,6 +28,7 @@ public class PacketLimiter
             }
             nextSecond = now + 1000;
             counter = 0;
+            dataLimit = 0;
         }
     }
 }
