@@ -28,7 +28,7 @@ public class PacketLimiter
             }
             nextSecond = now + 1000;
             counter = 0;
-            dataLimit = 0;
+            dataCounter = 0;
         }
     }
 }
