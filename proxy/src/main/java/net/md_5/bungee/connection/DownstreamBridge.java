@@ -12,6 +12,9 @@ import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.tree.CommandNode;
+
+import de.luca.betterbungee.BetterBungeeConfig;
+import de.luca.betterbungee.BetterBungeeConfig.ConfigJson;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
@@ -320,11 +323,13 @@ public class DownstreamBridge extends PacketHandler
 
         if ( pluginMessage.getTag().equals( con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ? "minecraft:brand" : "MC|Brand" ) )
         {
+            ConfigJson config = BetterBungeeConfig.getConfigJson();
             ByteBuf brand = Unpooled.wrappedBuffer( pluginMessage.getData() );
             String serverBrand = DefinedPacket.readString( brand );
             brand.release();
 
-            Preconditions.checkState( !serverBrand.contains( bungee.getName() ), "Cannot connect proxy to itself!" );
+            // Made it possible to connect to the proxy itself by another proxy if the config enables it
+            Preconditions.checkState( !serverBrand.contains( bungee.getName()) || config.isAllowBungeeConnections(), "Cannot connect proxy to itself!" );
 
             brand = ByteBufAllocator.DEFAULT.heapBuffer();
             DefinedPacket.writeString( bungee.getName() + " (" + bungee.getVersion() + ")" + " <- " + serverBrand, brand );

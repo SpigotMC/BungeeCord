@@ -11,16 +11,13 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import javax.crypto.SecretKey;
+
+import de.luca.betterbungee.BetterBungeeAPI;
+import de.luca.betterbungee.BetterBungeeConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -350,11 +347,21 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         // We know FML appends \00FML\00. However, we need to also consider that other systems might
         // add their own data to the end of the string. So, we just take everything from the \0 character
         // and save it for later.
+        String proxyip = BetterBungeeAPI.getRealAdress(this.ch);
         if ( handshake.getHost().contains( "\0" ) )
         {
-            String[] split = handshake.getHost().split( "\0", 2 );
+            String[] split = handshake.getHost().split( "\0", 3 );
             handshake.setHost( split[0] );
-            extraDataInHandshake = "\0" + split[1];
+            if (split.length == 2) {
+                extraDataInHandshake = "\0" + split[1];
+            } else {
+                extraDataInHandshake = "\0" + split[2];
+                String handshakeip = split[1];
+                BetterBungeeConfig.IPForwardIps config = BetterBungeeConfig.getIpforwardips();
+                if (config.getIpforwardips().contains(proxyip)) {
+                    this.ch.setRemoteAddress(new InetSocketAddress(handshakeip, handshake.getPort()));
+                }
+            }
         }
 
         // SRV records can end with a . depending on DNS / client.
@@ -510,6 +517,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         // disable use of composite buffers if we use natives
         ch.updateComposite();
 
+        // Using the Login Cache in the BetterBungeeAPI to login the player without contacting the Mojang API every time
+        if (BetterBungeeConfig.getConfigJson().getLoginCacheSettings().isEnabled()) {
+            LoginResult loginResult = BetterBungeeAPI.getSessionCache().getCachedResult(ch.getRemoteAddress());
+            if (loginResult != null && loginResult.getName().equals(getName())) {
+                loginProfile = loginResult;
+                name = loginResult.getName();
+                uniqueId = Util.getUUID(loginResult.getId());
+                finish();
+                return;
+            }
+        }
+        
         String encName = URLEncoder.encode( InitialHandler.this.getName(), "UTF-8" );
 
         MessageDigest sha = MessageDigest.getInstance( "SHA-1" );
@@ -523,7 +542,22 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
 
         String preventProxy = ( BungeeCord.getInstance().config.isPreventProxyConnections() && getSocketAddress() instanceof InetSocketAddress ) ? "&ip=" + URLEncoder.encode( getAddress().getAddress().getHostAddress(), "UTF-8" ) : "";
-        String authURL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" + encName + "&serverId=" + encodedHash + preventProxy;
+
+        BetterBungeeConfig.Hostnames config = BetterBungeeConfig.getHostnameconfig();
+
+        String joinHost = this.getVirtualHost().getHostString().toLowerCase(Locale.ROOT);
+        //System.out.println(joinHost);
+
+        String baseURL = config.getDefaulturl();
+
+        if (config.getHostnames().containsKey(joinHost)) {
+            baseURL = config.getHostnames().get(joinHost);
+            //System.out.println(baseURL);
+        }
+
+        String authURL = baseURL + "?username=" + encName + "&serverId=" + encodedHash + preventProxy;
+        //System.out.println(authURL);
+
 
         Callback<String> handler = new Callback<String>()
         {
@@ -783,15 +817,15 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void setOnlineMode(boolean onlineMode)
     {
-        Preconditions.checkState( thisState == State.USERNAME, "Can only set online mode status whilst state is username" );
+        //Preconditions.checkState( thisState == State.USERNAME, "Can only set online mode status whilst state is username" );
         this.onlineMode = onlineMode;
     }
 
     @Override
     public void setUniqueId(UUID uuid)
     {
-        Preconditions.checkState( thisState == State.USERNAME, "Can only set uuid while state is username" );
-        Preconditions.checkState( !onlineMode, "Can only set uuid when online mode is false" );
+        //Preconditions.checkState( thisState == State.USERNAME, "Can only set uuid while state is username" );
+        //Preconditions.checkState( !onlineMode, "Can only set uuid when online mode is false" );
         this.uniqueId = uuid;
     }
 

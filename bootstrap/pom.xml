@@ -16,13 +16,13 @@
     <packaging>jar</packaging>
 
     <name>BungeeCord-Bootstrap</name>
-    <description>Java 1.6 loader for BungeeCord</description>
+    <description>Java 1.8 loader for BungeeCord</description>
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
-        <maven.compiler.source>1.6</maven.compiler.source>
-        <maven.compiler.target>1.6</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
     </properties>
 
@@ -77,6 +77,14 @@
                     </filters>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -87,7 +95,7 @@
                 <jdk>[9,)</jdk>
             </activation>
             <properties>
-                <maven.compiler.release>6</maven.compiler.release>
+                <maven.compiler.release>8</maven.compiler.release>
             </properties>
         </profile>
         <profile>
@@ -96,7 +104,7 @@
                 <jdk>[12,)</jdk>
             </activation>
             <properties>
-                <maven.compiler.release>7</maven.compiler.release>
+                <maven.compiler.release>8</maven.compiler.release>
             </properties>
         </profile>
         <profile>

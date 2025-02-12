@@ -2,6 +2,9 @@
 .classpath
 .project
 .settings/
+.vscode/
+
+bootstrap/src/main/java/net/md_5/bungee/Bootstrap.java
 
 # netbeans
 nbproject/
