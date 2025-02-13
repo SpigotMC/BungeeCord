@@ -69,6 +69,8 @@ public class Configuration implements ProxyConfig
     private boolean preventProxyConnections;
     private boolean forgeSupport;
     private boolean rejectTransfers;
+    private int maxPacketsPerSecond = 1 << 12;
+    private int maxPacketDataPerSecond = 1 << 25;
 
     public void load()
     {
@@ -105,6 +107,8 @@ public class Configuration implements ProxyConfig
         preventProxyConnections = adapter.getBoolean( "prevent_proxy_connections", preventProxyConnections );
         forgeSupport = adapter.getBoolean( "forge_support", forgeSupport );
         rejectTransfers = adapter.getBoolean( "reject_transfers", rejectTransfers );
+        maxPacketsPerSecond = adapter.getInt( "max_packets_per_second", maxPacketsPerSecond );
+        maxPacketDataPerSecond = adapter.getInt( "max_packets_data_per_second", maxPacketDataPerSecond );
 
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
 
