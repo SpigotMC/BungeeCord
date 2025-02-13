@@ -22,7 +22,7 @@ public class PacketLimiter
      * @param size size of the packet
      * @return return false if the player should be kicked
      */
-    public boolean received(int size)
+    public boolean incrementAndCheck(int size)
     {
         counter++;
         dataCounter += size;

@@ -118,10 +118,10 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
         try
         {
             // check if the player exceeds packet limits, put inside try final, so we always release.
-            if ( limiter != null && !limiter.received( packet.buf.readableBytes() ) )
+            if ( limiter != null && !limiter.incrementAndCheck( packet.buf.readableBytes() ) )
             {
                 // we shouldn't tell the player what limits he exceeds by default
-                // but if someone applies custom mess we should allow them to display counter and bytes
+                // but if someone applies custom message we should allow them to display counter and bytes
                 channel.close( handler instanceof UpstreamBridge ? new Kick( TextComponent.fromLegacy( ProxyServer.getInstance().getTranslation( "packet_limit_kick", limiter.getCounter(), limiter.getDataCounter() ) ) ) : null );
                 // but the server admin should know
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} exceeded packet limit ({1} packets and {2} bytes per second)", new Object[]
