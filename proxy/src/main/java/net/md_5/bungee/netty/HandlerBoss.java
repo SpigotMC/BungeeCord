@@ -143,6 +143,15 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     }
 
     @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception
+    {
+        if ( handler != null )
+        {
+            handler.channelReadComplete( channel );
+        }
+    }
+
+    @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
     {
         if ( ctx.channel().isActive() )
