@@ -24,7 +24,7 @@ import net.md_5.bungee.protocol.packet.Kick;
 
 public class ChannelWrapper
 {
-    private static final int MAX_CONSOLIDATION = Integer.getInteger("net.md_5.bungee.flush-consolidation-limit", 20);
+    private static final int MAX_CONSOLIDATION = Integer.getInteger( "net.md_5.bungee.flush-consolidation-limit", 20 );
 
     private final Channel ch;
     @Getter
