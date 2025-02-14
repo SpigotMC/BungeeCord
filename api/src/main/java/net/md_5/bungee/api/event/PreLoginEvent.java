@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.event;
 
+import com.google.common.base.Preconditions;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -8,6 +9,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.plugin.Cancellable;
+import net.md_5.bungee.protocol.ProtocolConstants;
 
 /**
  * Event called to represent a player first making their presence and username
@@ -35,6 +37,10 @@ public class PreLoginEvent extends AsyncEvent<PreLoginEvent> implements Cancella
      * Connection attempting to login.
      */
     private final PendingConnection connection;
+    /**
+     * Whether the client should authenticate
+     */
+    private boolean authenticate = true;
 
     public PreLoginEvent(PendingConnection connection, Callback<PreLoginEvent> done)
     {
@@ -83,5 +89,16 @@ public class PreLoginEvent extends AsyncEvent<PreLoginEvent> implements Cancella
     public void setCancelReason(BaseComponent... cancelReason)
     {
         setReason( TextComponent.fromArray( cancelReason ) );
+    }
+
+    /**
+     * @param authenticate whether the client should authenticate
+     * only available for 1.20.5 clients and above
+     * if set to false BungeeCord needs to have an CustomAuthenticationEvent listener registered
+     */
+    public void setAuthenticate(boolean authenticate)
+    {
+        Preconditions.checkArgument( connection.getVersion() >= ProtocolConstants.MINECRAFT_1_20_5, "authenticate can only be set for 1.20.5 clients and above" );
+        this.authenticate = authenticate;
     }
 }
