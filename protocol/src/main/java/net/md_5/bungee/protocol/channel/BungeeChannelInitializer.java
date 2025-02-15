@@ -2,8 +2,9 @@ package net.md_5.bungee.protocol.channel;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 /**
  * This class hold a netty channel initializer that calls the given {@link ChannelAcceptor}.
@@ -13,28 +14,13 @@ import lombok.Setter;
  * the stability of the channel pipeline or the API itself. Use at your own
  * risk.
  */
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class BungeeChannelInitializer
 {
 
     public abstract ChannelAcceptor getChannelAcceptor();
 
     public abstract ChannelInitializer<Channel> getChannelInitializer();
-
-    /**
-     * Replaces the existing {@link ChannelAcceptor}.
-     *
-     * @apiNote Please note that this API is unsafe. Use at your own risk.
-     * @param acceptor The new {@link ChannelAcceptor}.
-     */
-    public abstract void setChannelAcceptor(ChannelAcceptor acceptor);
-
-    /**
-     * Replaces the existing {@link ChannelInitializer}.
-     *
-     * @apiNote Please note that this API is unsafe. Use at your own risk.
-     * @param channelInitializer The new {@link ChannelInitializer}.
-     */
-    public abstract void setChannelInitializer(ChannelInitializer<Channel> channelInitializer);
 
     /**
      * Creates a new instance of BungeeChannelInitializer
@@ -49,12 +35,10 @@ public abstract class BungeeChannelInitializer
         return new BungeeChannelInitializer()
         {
             @Getter
-            @Setter
-            private ChannelAcceptor channelAcceptor = acceptor;
+            private final ChannelAcceptor channelAcceptor = acceptor;
 
             @Getter // cache the ChannelInitializer
-            @Setter
-            private ChannelInitializer<Channel> channelInitializer = new ChannelInitializer<Channel>()
+            private final ChannelInitializer<Channel> channelInitializer = new ChannelInitializer<Channel>()
             {
                 @Override
                 protected void initChannel(Channel channel) throws Exception
