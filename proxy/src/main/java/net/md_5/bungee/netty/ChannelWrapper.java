@@ -11,7 +11,6 @@ import java.util.logging.Level;
 import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.compress.PacketCompressor;
 import net.md_5.bungee.compress.PacketDecompressor;
 import net.md_5.bungee.netty.cipher.CipherEncoder;
 import net.md_5.bungee.protocol.DefinedPacket;
@@ -19,7 +18,6 @@ import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
-import net.md_5.bungee.protocol.Varint21LengthFieldPrepender;
 import net.md_5.bungee.protocol.packet.Kick;
 
 public class ChannelWrapper
@@ -180,13 +178,13 @@ public class ChannelWrapper
 
     public void setCompressionThreshold(int compressionThreshold)
     {
-        PacketCompressor compressor = ch.pipeline().get( PacketCompressor.class );
+        LengthPrependerAndCompressor compressor = ch.pipeline().get( LengthPrependerAndCompressor.class );
         PacketDecompressor decompressor = ch.pipeline().get( PacketDecompressor.class );
         if ( compressionThreshold >= 0 )
         {
-            if ( compressor == null )
+            if ( !compressor.isCompress() )
             {
-                addBefore( PipelineUtils.PACKET_ENCODER, "compress", compressor = new PacketCompressor() );
+                compressor.setCompress( true );
             }
             compressor.setThreshold( compressionThreshold );
 
@@ -196,10 +194,7 @@ public class ChannelWrapper
             }
         } else
         {
-            if ( compressor != null )
-            {
-                ch.pipeline().remove( "compress" );
-            }
+            compressor.setCompress( false );
             if ( decompressor != null )
             {
                 ch.pipeline().remove( "decompress" );
@@ -216,26 +211,16 @@ public class ChannelWrapper
     public void updateComposite()
     {
         CipherEncoder cipherEncoder = ch.pipeline().get( CipherEncoder.class );
-        PacketCompressor packetCompressor = ch.pipeline().get( PacketCompressor.class );
-        Varint21LengthFieldPrepender prepender = ch.pipeline().get( Varint21LengthFieldPrepender.class );
+        LengthPrependerAndCompressor prependerAndCompressor = ch.pipeline().get( LengthPrependerAndCompressor.class );
         boolean compressorCompose = cipherEncoder == null || cipherEncoder.getCipher().allowComposite();
-        boolean prependerCompose = compressorCompose && ( packetCompressor == null || packetCompressor.getZlib().allowComposite() );
 
-        if ( prepender != null )
+        if ( prependerAndCompressor != null )
         {
             ProxyServer.getInstance().getLogger().log( Level.FINE, "set prepender compose to {0} for {1}", new Object[]
             {
-                prependerCompose, ch
-            } );
-            prepender.setCompose( prependerCompose );
-        }
-        if ( packetCompressor != null )
-        {
-            ProxyServer.getInstance().getLogger().log( Level.FINE, "set packetCompressor compose to {0} for {1}", new Object[]
-            {
                 compressorCompose, ch
             } );
-            packetCompressor.setCompose( compressorCompose );
+            prependerAndCompressor.setCompose( compressorCompose );
         }
     }
 
