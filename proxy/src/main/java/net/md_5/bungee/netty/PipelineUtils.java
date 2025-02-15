@@ -50,6 +50,7 @@ import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.Varint21FrameDecoder;
 import net.md_5.bungee.protocol.channel.BungeeChannelInitializer;
 import net.md_5.bungee.protocol.channel.ChannelAcceptor;
+import net.md_5.bungee.util.PacketLimiter;
 
 public class PipelineUtils
 {
@@ -79,8 +80,16 @@ public class PipelineUtils
             ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
             ch.pipeline().addAfter( FRAME_PREPENDER_AND_COMPRESS, PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
             ch.pipeline().addBefore( FRAME_PREPENDER_AND_COMPRESS, LEGACY_KICKER, legacyKicker );
-            ch.pipeline().get( HandlerBoss.class ).setHandler( new InitialHandler( BungeeCord.getInstance(), listener ) );
 
+            HandlerBoss handlerBoss = ch.pipeline().get( HandlerBoss.class );
+            handlerBoss.setHandler( new InitialHandler( BungeeCord.getInstance(), listener ) );
+
+            int packetLimit = BungeeCord.getInstance().getConfig().getMaxPacketsPerSecond();
+            int packetDataLimit = BungeeCord.getInstance().getConfig().getMaxPacketDataPerSecond();
+            if ( packetLimit > 0 || packetDataLimit > 0 )
+            {
+                handlerBoss.setLimiter( new PacketLimiter( packetLimit, packetDataLimit ) );
+            }
             if ( listener.isProxyProtocol() )
             {
                 ch.pipeline().addFirst( new HAProxyMessageDecoder() );
