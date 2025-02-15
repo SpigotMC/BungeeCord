@@ -5,6 +5,7 @@ import io.netty.channel.ChannelInitializer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * This class hold a netty channel initializer that calls the given {@link ChannelAcceptor}.
@@ -23,6 +24,20 @@ public abstract class BungeeChannelInitializer
     public abstract ChannelInitializer<Channel> getChannelInitializer();
 
     /**
+     * Replaces the existing {@link ChannelAcceptor}.
+     *
+     * @apiNote Please note that this API is unsafe. Use at your own risk.
+     */
+    public abstract void setChannelAcceptor(ChannelAcceptor acceptor);
+
+    /**
+     * Replaces the existing {@link ChannelInitializer}.
+     *
+     * @apiNote Please note that this API is unsafe. Use at your own risk.
+     */
+    public abstract void setChannelInitializer(ChannelInitializer<Channel> channelInitializer);
+
+    /**
      * Creates a new instance of BungeeChannelInitializer
      *
      * @param acceptor the {@link ChannelAcceptor} that will accept the channel
@@ -35,10 +50,12 @@ public abstract class BungeeChannelInitializer
         return new BungeeChannelInitializer()
         {
             @Getter
-            private final ChannelAcceptor channelAcceptor = acceptor;
+            @Setter
+            private ChannelAcceptor channelAcceptor = acceptor;
 
             @Getter // cache the ChannelInitializer
-            private final ChannelInitializer<Channel> channelInitializer = new ChannelInitializer<Channel>()
+            @Setter
+            private ChannelInitializer<Channel> channelInitializer = new ChannelInitializer<Channel>()
             {
                 @Override
                 protected void initChannel(Channel channel) throws Exception
