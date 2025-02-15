@@ -114,6 +114,16 @@ public class LengthPrependerAndCompressor extends MessageToMessageEncoder<ByteBu
         }
     }
 
+    @Override
+    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception
+    {
+        if ( zlib != null )
+        {
+            zlib.free();
+            zlib = null;
+        }
+    }
+
     public void setCompose(boolean compose)
     {
         if ( compose )
@@ -147,6 +157,7 @@ public class LengthPrependerAndCompressor extends MessageToMessageEncoder<ByteBu
             if ( zlib != null )
             {
                 zlib.free();
+                zlib = null;
             }
         }
     }
@@ -180,10 +191,6 @@ public class LengthPrependerAndCompressor extends MessageToMessageEncoder<ByteBu
         {
             return 4;
         }
-        if ( MAX_SUPPORTED_VARINT_LENGTH_LEN < 5 )
-        {
-            throw new IllegalArgumentException( "Packet length " + value + " longer than supported (max. 268435455 for 4 byte varint)" );
-        }
-        return 5;
+        throw new IllegalArgumentException( "Packet length " + value + " longer than supported (max. 268435455 for 4 byte varint)" );
     }
 }
