@@ -95,6 +95,7 @@ import net.md_5.bungee.module.ModuleManager;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.channel.BungeeChannelInitializer;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
@@ -187,6 +188,21 @@ public class BungeeCord extends ProxyServer
     {
         return (BungeeCord) ProxyServer.getInstance();
     }
+
+    private final Unsafe unsafe = new Unsafe()
+    {
+        @Getter
+        @Setter
+        private BungeeChannelInitializer frontendChannelInitializer;
+
+        @Getter
+        @Setter
+        private BungeeChannelInitializer backendChannelInitializer;
+
+        @Getter
+        @Setter
+        private BungeeChannelInitializer serverInfoChannelInitializer;
+    };
 
     @SuppressFBWarnings("DM_DEFAULT_ENCODING")
     public BungeeCord() throws IOException
@@ -360,7 +376,7 @@ public class BungeeCord extends ProxyServer
                     .channel( PipelineUtils.getServerChannel( info.getSocketAddress() ) )
                     .option( ChannelOption.SO_REUSEADDR, true ) // TODO: Move this elsewhere!
                     .childAttr( PipelineUtils.LISTENER, info )
-                    .childHandler( PipelineUtils.SERVER_CHILD )
+                    .childHandler( unsafe().getFrontendChannelInitializer().getChannelInitializer() )
                     .group( eventLoops )
                     .localAddress( info.getSocketAddress() )
                     .bind().addListener( listener );
@@ -830,5 +846,11 @@ public class BungeeCord extends ProxyServer
     public Title createTitle()
     {
         return new BungeeTitle();
+    }
+
+    @Override
+    public Unsafe unsafe()
+    {
+        return unsafe;
     }
 }

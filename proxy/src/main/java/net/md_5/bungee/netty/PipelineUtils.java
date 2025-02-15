@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
-import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
@@ -51,33 +50,33 @@ import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.Varint21FrameDecoder;
 import net.md_5.bungee.protocol.Varint21LengthFieldExtraBufPrepender;
 import net.md_5.bungee.protocol.Varint21LengthFieldPrepender;
+import net.md_5.bungee.protocol.channel.BungeeChannelInitializer;
+import net.md_5.bungee.protocol.channel.ChannelAcceptor;
 
 public class PipelineUtils
 {
 
     public static final AttributeKey<ListenerInfo> LISTENER = AttributeKey.valueOf( "ListerInfo" );
-    public static final ChannelInitializer<Channel> SERVER_CHILD = new ChannelInitializer<Channel>()
+
+    private static void setChannelInitializerHolders()
     {
-        @Override
-        protected void initChannel(Channel ch) throws Exception
+        ProxyServer.getInstance().unsafe().setFrontendChannelInitializer( BungeeChannelInitializer.create( ch ->
         {
             SocketAddress remoteAddress = ( ch.remoteAddress() == null ) ? ch.parent().localAddress() : ch.remoteAddress();
 
             if ( BungeeCord.getInstance().getConnectionThrottle() != null && BungeeCord.getInstance().getConnectionThrottle().throttle( remoteAddress ) )
             {
-                ch.close();
-                return;
+                return false;
             }
 
             ListenerInfo listener = ch.attr( LISTENER ).get();
 
             if ( BungeeCord.getInstance().getPluginManager().callEvent( new ClientConnectEvent( remoteAddress, listener ) ).isCancelled() )
             {
-                ch.close();
-                return;
+                return false;
             }
 
-            BASE.initChannel( ch );
+            BASE.accept( ch );
             ch.pipeline().addBefore( FRAME_DECODER, LEGACY_DECODER, new LegacyDecoder() );
             ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
             ch.pipeline().addAfter( FRAME_PREPENDER, PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
@@ -88,10 +87,24 @@ public class PipelineUtils
             {
                 ch.pipeline().addFirst( new HAProxyMessageDecoder() );
             }
-        }
-    };
-    public static final Base BASE = new Base( false );
-    public static final Base BASE_SERVERSIDE = new Base( true );
+
+            return true;
+        } ) );
+
+        ProxyServer.getInstance().unsafe().setBackendChannelInitializer( BungeeChannelInitializer.create( ch ->
+        {
+            PipelineUtils.BASE_SERVERSIDE.accept( ch );
+            ch.pipeline().addAfter( PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, false, ProxyServer.getInstance().getProtocolVersion() ) );
+            ch.pipeline().addAfter( PipelineUtils.FRAME_PREPENDER, PipelineUtils.PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, false, ProxyServer.getInstance().getProtocolVersion() ) );
+
+            return true;
+        } ) );
+
+        ProxyServer.getInstance().unsafe().setServerInfoChannelInitializer( BungeeChannelInitializer.create( BASE_SERVERSIDE ) );
+    }
+
+    private static final ChannelAcceptor BASE = new Base( false );
+    private static final ChannelAcceptor BASE_SERVERSIDE = new Base( true );
     private static final KickStringWriter legacyKicker = new KickStringWriter();
     private static final Varint21LengthFieldExtraBufPrepender serverFramePrepender = new Varint21LengthFieldExtraBufPrepender();
     public static final String TIMEOUT_HANDLER = "timeout";
@@ -137,6 +150,8 @@ public class PipelineUtils
                 }
             }
         }
+
+        setChannelInitializerHolders();
     }
 
     public static EventLoopGroup newEventLoopGroup(int threads, ThreadFactory factory)
@@ -179,13 +194,13 @@ public class PipelineUtils
 
     @NoArgsConstructor // for backwards compatibility
     @AllArgsConstructor
-    public static final class Base extends ChannelInitializer<Channel>
+    public static final class Base implements ChannelAcceptor
     {
 
         private boolean toServer = false;
 
         @Override
-        public void initChannel(Channel ch) throws Exception
+        public boolean accept(Channel ch)
         {
             try
             {
@@ -204,6 +219,8 @@ public class PipelineUtils
             ch.pipeline().addLast( FRAME_PREPENDER, ( toServer ) ? serverFramePrepender : new Varint21LengthFieldPrepender() );
 
             ch.pipeline().addLast( BOSS_HANDLER, new HandlerBoss() );
+
+            return true;
         }
     }
 }
