@@ -251,7 +251,7 @@ public class BungeeCord extends ProxyServer
         getPluginManager().registerCommand( null, new CommandReload() );
         getPluginManager().registerCommand( null, new CommandEnd() );
         getPluginManager().registerCommand( null, new CommandIP() );
-        getPluginManager().registerCommand( null, new CommandBungee() );
+        getPluginManager().registerCommand( null, new CommandBungee( this ) );
         getPluginManager().registerCommand( null, new CommandPerms() );
 
         if ( !Boolean.getBoolean( "net.md_5.bungee.native.disable" ) )
