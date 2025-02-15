@@ -74,6 +74,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
         if ( handler != null )
         {
             handler.writabilityChanged( channel );
+            channel.forceFlush();
         }
     }
 
