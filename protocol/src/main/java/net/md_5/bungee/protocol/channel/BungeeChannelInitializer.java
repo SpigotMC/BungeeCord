@@ -24,6 +24,7 @@ public abstract class BungeeChannelInitializer
      * Replaces the existing {@link ChannelAcceptor}.
      *
      * @apiNote Please note that this API is unsafe. Use at your own risk.
+     * @param acceptor The new {@link ChannelAcceptor}.
      */
     public abstract void setChannelAcceptor(ChannelAcceptor acceptor);
 
@@ -31,6 +32,7 @@ public abstract class BungeeChannelInitializer
      * Replaces the existing {@link ChannelInitializer}.
      *
      * @apiNote Please note that this API is unsafe. Use at your own risk.
+     * @param channelInitializer The new {@link ChannelInitializer}.
      */
     public abstract void setChannelInitializer(ChannelInitializer<Channel> channelInitializer);
 
