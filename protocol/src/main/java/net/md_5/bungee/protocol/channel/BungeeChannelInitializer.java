@@ -2,9 +2,7 @@ package net.md_5.bungee.protocol.channel;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -15,7 +13,6 @@ import lombok.Setter;
  * the stability of the channel pipeline or the API itself. Use at your own
  * risk.
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public abstract class BungeeChannelInitializer
 {
 
