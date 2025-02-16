@@ -128,6 +128,14 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                 {
                     handler, limiter.getCounter(), limiter.getDataCounter()
                 } );
+
+                // somehow sometimes if you spam big packets fast enough the channel will not be closed immediately
+                // it seems that this only happens on linux, the PacketLimiter will trigger a kick multiple times
+                // but the connection will still be active
+                if ( channel.getHandle().isActive() )
+                {
+                    ctx.close();
+                }
                 return;
             }
 
