@@ -140,9 +140,6 @@ public class ChannelWrapper
 
             closed = closing = true;
 
-            // disable auto read so the pipeline doesn't read more traffic
-            ch.config().setAutoRead( false );
-
             if ( packet != null && ch.isActive() )
             {
                 ch.writeAndFlush( packet ).addListeners( ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE, ChannelFutureListener.CLOSE );
