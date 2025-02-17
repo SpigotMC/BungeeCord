@@ -460,7 +460,7 @@ public class BungeeCord extends ProxyServer
         isRunning = false;
 
         getPluginManager().callEvent( new ProxyShutdownEvent() );
-        
+
         stopListeners();
         getLogger().info( "Closing pending connections" );
 
