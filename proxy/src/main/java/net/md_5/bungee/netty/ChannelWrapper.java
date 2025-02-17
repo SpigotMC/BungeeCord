@@ -170,7 +170,6 @@ public class ChannelWrapper
     /**
      * Disable auto read so the pipeline doesn't read more traffic
      * Also discard all inbound traffic to free the tcp read buffer
-     * This clears the tcp read buffer
      */
     private void discardInbound()
     {
