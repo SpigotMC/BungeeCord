@@ -18,6 +18,7 @@ import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.Varint21FrameDecoder;
 import net.md_5.bungee.protocol.packet.Kick;
 
 public class ChannelWrapper
@@ -130,6 +131,13 @@ public class ChannelWrapper
     {
         if ( !closed )
         {
+            // do not do it twice
+            if ( !closing )
+            {
+                // clear tcp read buffer
+                discardInbound();
+            }
+
             closed = closing = true;
 
             // disable auto read so the pipeline doesn't read more traffic
@@ -152,21 +160,31 @@ public class ChannelWrapper
         {
             closing = true;
 
+            // clear tcp read buffer
+            discardInbound();
+
             // disable auto read so the pipeline doesn't read more traffic
             ch.config().setAutoRead( false );
 
             // Minecraft client can take some time to switch protocols.
             // Sending the wrong disconnect packet whilst a protocol switch is in progress will crash it.
             // Delay 250ms to ensure that the protocol switch (if any) has definitely taken place.
-            ch.eventLoop().schedule( new Runnable()
-            {
+            ch.eventLoop().schedule( () -> close( kick ), 250, TimeUnit.MILLISECONDS );
+        }
+    }
 
-                @Override
-                public void run()
-                {
-                    close( kick );
-                }
-            }, 250, TimeUnit.MILLISECONDS );
+    /**
+     * Disable auto read so the pipeline doesn't read more traffic
+     * Also discard all inbound traffic to free the tcp read buffer
+     * This clears the tcp read buffer
+     */
+    private void discardInbound()
+    {
+        ch.config().setAutoRead( false );
+        Varint21FrameDecoder frameDecoder = ch.pipeline().get( Varint21FrameDecoder.class );
+        if ( frameDecoder != null )
+        {
+            frameDecoder.setDiscard( true );
         }
     }
 

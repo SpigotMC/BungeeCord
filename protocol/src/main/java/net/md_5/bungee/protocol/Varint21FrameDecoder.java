@@ -6,11 +6,17 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.CorruptedFrameException;
 import java.util.List;
+import lombok.Setter;
 
 public class Varint21FrameDecoder extends ByteToMessageDecoder
 {
 
     private static boolean DIRECT_WARNING;
+
+    // discard will be set to true before we close a connection to ensure
+    // that no packets will be handled anymore
+    @Setter
+    private boolean discard;
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
@@ -19,7 +25,7 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
         // the Netty ByteToMessageDecoder will continue to frame more packets and potentially call fireChannelRead()
         // on them, likely with more invalid packets. Therefore, check if the connection is no longer active and if so
         // sliently discard the packet.
-        if ( !ctx.channel().isActive() )
+        if ( !ctx.channel().isActive() || discard )
         {
             in.skipBytes( in.readableBytes() );
             return;
