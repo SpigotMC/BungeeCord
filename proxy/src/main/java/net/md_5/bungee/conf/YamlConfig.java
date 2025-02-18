@@ -189,7 +189,9 @@ public class YamlConfig implements ConfigurationAdapter
     @Override
     public int getInt(String path, int def)
     {
-        return get( path, def );
+        // #3791: Sometimes third-party tools rewrite large ints into doubles
+        Number number = get( path, def );
+        return number.intValue();
     }
 
     @Override
