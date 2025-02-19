@@ -66,7 +66,7 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
         }
     }
 
-    private static int getVarInt(ByteBuf byteBuf, int varIntIndex)
+    private static int getVarInt(ByteBuf byteBuf, int varIntOffset)
     {
         int readerIndex = byteBuf.readerIndex();
         if ( varIntIndex == 0 )
