@@ -36,15 +36,14 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
             throw new CorruptedFrameException( "length wider than 21-bit" );
         }
 
-        int varIntIndex = ( endIdx - in.readerIndex() );
-        int varIntLen = varIntIndex + 1;
-
-        int length = getVarInt( in, varIntIndex );
+        int varIntOffset = ( endIdx - in.readerIndex() );
+        int length = getVarInt( in, varIntOffset );
         if ( length == 0 )
         {
             throw new CorruptedFrameException( "Empty Packet!" );
         }
 
+        int varIntLen = varIntOffset + 1;
         if ( in.readableBytes() - varIntLen >= length )
         {
             in.skipBytes( varIntLen );
