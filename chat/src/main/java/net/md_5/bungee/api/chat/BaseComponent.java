@@ -78,6 +78,7 @@ public abstract class BaseComponent
                 addExtra( extra.duplicate() );
             }
         }
+        setReset( old.isReset() );
     }
 
     /**
