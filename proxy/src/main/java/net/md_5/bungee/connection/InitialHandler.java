@@ -170,12 +170,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void exception(Throwable t) throws Exception
     {
+        // Note: after this method is executed the HandlerBoss will instantly close the connection
+        // that means we can't schedule something here
         if ( canSendKickMessage() )
         {
-            disconnect( ChatColor.RED + Util.exception( t ) );
-        } else
-        {
-            ch.close();
+            unsafe.sendPacket( new Kick( TextComponent.fromLegacy( ChatColor.RED + Util.exception( t ) ) ) );
         }
     }
 
