@@ -171,7 +171,7 @@ public class ChannelWrapper
      * Disable auto read so the pipeline doesn't read more traffic
      * Also discard all inbound traffic to free the tcp read buffer
      */
-    private void discardInbound()
+    void discardInbound()
     {
         ch.config().setAutoRead( false );
         Varint21FrameDecoder frameDecoder = ch.pipeline().get( Varint21FrameDecoder.class );
