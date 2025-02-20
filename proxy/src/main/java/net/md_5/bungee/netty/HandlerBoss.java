@@ -218,6 +218,8 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                 }
             }
 
+            channel.discardInbound();
+
             if ( handler != null )
             {
                 try
