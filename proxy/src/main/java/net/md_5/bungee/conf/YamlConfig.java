@@ -112,58 +112,71 @@ public class YamlConfig implements ConfigurationAdapter
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T get(String path, T def, Map submap) {
-        int index = path.indexOf('.');
-        if (index == -1) {
-            Object val = submap.get(path);
-            if (val == null && def != null) {
+    private <T> T get(String path, T def, Map submap)
+    {
+        int index = path.indexOf( '.' );
+        if ( index == -1 )
+        {
+            Object val = submap.get( path );
+            if ( val == null && def != null )
+            {
                 val = def;
-                submap.put(path, def);
+                submap.put( path, def );
                 save();
             }
-            return convertValue(val, def);
-        } else {
-            String first = path.substring(0, index);
-            String second = path.substring(index + 1);
-            Map sub = (Map) submap.get(first);
-            if (sub == null) {
+            return convertValue( val, def );
+        } else
+        {
+            String first = path.substring( 0, index );
+            String second = path.substring( index + 1 );
+            Map sub = (Map) submap.get( first );
+            if ( sub == null )
+            {
                 sub = new LinkedHashMap();
-                submap.put(first, sub);
+                submap.put( first, sub );
             }
-            return get(second, def, sub);
+            return get( second, def, sub );
         }
     }
-    
-    private <T> T convertValue(Object value, T defaultValue) {
-        if (value == null) {
+
+    private <T> T convertValue(Object value, T defaultValue)
+    {
+        if ( value == null )
+        {
             return defaultValue;
         }
-    
-        if (defaultValue instanceof Integer) {
-            return (T) convertToInteger(value);
+
+        if ( defaultValue instanceof Integer )
+        {
+            return (T) convertToInteger( value );
         }
-    
-        if (defaultValue instanceof Double) {
-            return (T) convertToDouble(value);
+
+        if ( defaultValue instanceof Double )
+        {
+            return (T) convertToDouble( value );
         }
-    
+
         // Add more type conversions as needed
-    
+
         return (T) value;
     }
-    
-    private Integer convertToInteger(Object value) {
-        if (value instanceof Number) {
-            return ((Number) value).intValue();
+
+    private Integer convertToInteger(Object value)
+    {
+        if ( value instanceof Number )
+        {
+            return ( (Number) value ).intValue();
         }
-        return Integer.valueOf(value.toString());
+        return Integer.valueOf( value.toString() );
     }
-    
-    private Double convertToDouble(Object value) {
-        if (value instanceof Number) {
-            return ((Number) value).doubleValue();
+
+    private Double convertToDouble(Object value)
+    {
+        if ( value instanceof Number )
+        {
+            return ( (Number) value ).doubleValue();
         }
-        return Double.valueOf(value.toString());
+        return Double.valueOf( value.toString() );
     }
 
     private void set(String path, Object val)
