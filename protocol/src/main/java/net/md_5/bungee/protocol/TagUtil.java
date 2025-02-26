@@ -140,7 +140,6 @@ public final class TagUtil
                         SpecificTag subTag = fromJson( jsonEl );
                         if ( listType == Tag.TAG_COMPOUND && !( subTag instanceof CompoundTag ) )
                         {
-                            listType = Tag.TAG_COMPOUND;
                             CompoundTag wrapper = new CompoundTag();
                             wrapper.add( "", subTag );
                             subTag = wrapper;
