@@ -82,13 +82,27 @@ public final class TagUtil
         {
             List<JsonElement> jsonArray = ( (JsonArray) json ).asList();
 
-            if ( jsonArray.isEmpty() )
+            Integer listType = null;
+
+            for ( JsonElement jsonEl : jsonArray )
+            {
+                int type = fromJson( jsonEl ).tagType();
+                if ( listType == null )
+                {
+                    listType = type;
+                } else if ( listType != type )
+                {
+                    listType = Tag.TAG_COMPOUND;
+                    break;
+                }
+            }
+
+            if ( listType == null )
             {
                 return new ListTag( Tag.TAG_END, Collections.emptyList() );
             }
 
             SpecificTag listTag;
-            int listType = fromJson( jsonArray.get( 0 ) ).tagType();
             switch ( listType )
             {
                 case Tag.TAG_BYTE:
@@ -124,7 +138,7 @@ public final class TagUtil
                     for ( JsonElement jsonEl : jsonArray )
                     {
                         SpecificTag subTag = fromJson( jsonEl );
-                        if ( !( subTag instanceof CompoundTag ) )
+                        if ( listType == Tag.TAG_COMPOUND && !( subTag instanceof CompoundTag ) )
                         {
                             CompoundTag wrapper = new CompoundTag();
                             wrapper.add( "", subTag );
