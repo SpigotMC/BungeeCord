@@ -130,6 +130,11 @@ public class ChannelWrapper
     {
         if ( !closed )
         {
+            if ( !closing )
+            {
+                ch.config().setAutoRead( false );
+            }
+
             closed = closing = true;
 
             if ( packet != null && ch.isActive() )
@@ -148,6 +153,7 @@ public class ChannelWrapper
         if ( !closing )
         {
             closing = true;
+            ch.config().setAutoRead( false );
 
             // Minecraft client can take some time to switch protocols.
             // Sending the wrong disconnect packet whilst a protocol switch is in progress will crash it.
