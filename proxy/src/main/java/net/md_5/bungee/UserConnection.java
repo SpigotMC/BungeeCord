@@ -198,7 +198,7 @@ public final class UserConnection implements ProxiedPlayer
             if ( !encodeProtocol.TO_CLIENT.hasPacket( packet.getClass(), getPendingConnection().getVersion() ) )
             {
                 // we should limit this so bad api usage won't oom the server.
-                Preconditions.checkState( packetQueue.size() <= 2 << 11, "too many queued packets" );
+                Preconditions.checkState( packetQueue.size() <= 4096, "too many queued packets" );
                 packetQueue.add( packet );
             } else
             {
