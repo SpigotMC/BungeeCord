@@ -154,7 +154,13 @@ public final class UserConnection implements ProxiedPlayer
         @Override
         public void sendPacketQueued(DefinedPacket packet)
         {
-            UserConnection.this.sendPacketQueued( packet );
+            if ( pendingConnection.getVersion() >= ProtocolConstants.MINECRAFT_1_20_2 )
+            {
+                UserConnection.this.sendPacketQueued( packet );
+            } else
+            {
+                sendPacket( packet );
+            }
         }
     };
 

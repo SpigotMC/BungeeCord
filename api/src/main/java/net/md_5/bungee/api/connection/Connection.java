@@ -89,8 +89,6 @@ public interface Connection
          * Queue a packet to this connection.
          * If the packet is not registered for the connections current encoder protocol, it will be queued until it is,
          * otherwise it will be sent immediately.
-         * <p>
-         * If the version of this connection is less than 1.20.2 you should not use this method.
          *
          * @param packet the packet to queued
          * @throws UnsupportedOperationException if used for a PendingConnection

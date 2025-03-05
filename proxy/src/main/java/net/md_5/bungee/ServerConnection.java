@@ -14,6 +14,7 @@ import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
 @RequiredArgsConstructor
@@ -44,7 +45,13 @@ public class ServerConnection implements Server
         @Override
         public void sendPacketQueued(DefinedPacket packet)
         {
-            ServerConnection.this.sendPacketQueued( packet );
+            if ( ch.getEncodeVersion() >= ProtocolConstants.MINECRAFT_1_20_2 )
+            {
+                ServerConnection.this.sendPacketQueued( packet );
+            } else
+            {
+                sendPacket( packet );
+            }
         }
     };
 
