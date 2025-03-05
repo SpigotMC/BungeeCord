@@ -40,6 +40,12 @@ public class ServerConnection implements Server
         {
             ch.write( packet );
         }
+
+        @Override
+        public void sendPacketQueued(DefinedPacket packet)
+        {
+            ServerConnection.this.sendPacketQueued( packet );
+        }
     };
 
     public void sendPacketQueued(DefinedPacket packet)
@@ -53,6 +59,8 @@ public class ServerConnection implements Server
             Protocol encodeProtocol = ch.getEncodeProtocol();
             if ( !encodeProtocol.TO_SERVER.hasPacket( packet.getClass(), ch.getEncodeVersion() ) )
             {
+                // we should limit this so bad api usage won't oom the server.
+                Preconditions.checkState( packetQueue.size() <= 2 << 11, "too many queued packets" );
                 packetQueue.add( packet );
             } else
             {
