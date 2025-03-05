@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Signal send through the channel pipeline indicating that compression state has changed.
+ * Signal send through the channel pipeline indicating that the compression state has changed.
  */
 @Getter
 @ToString(callSuper = false)
