@@ -93,9 +93,6 @@ public interface Connection
          * @param packet the packet to queued
          * @throws UnsupportedOperationException if used for a PendingConnection
          */
-        default void sendPacketQueued(DefinedPacket packet)
-        {
-            throw new UnsupportedOperationException( "Not supported." );
-        }
+        void sendPacketQueued(DefinedPacket packet);
     }
 }
