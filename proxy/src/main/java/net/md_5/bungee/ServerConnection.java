@@ -14,6 +14,7 @@ import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
 @RequiredArgsConstructor
@@ -40,6 +41,18 @@ public class ServerConnection implements Server
         {
             ch.write( packet );
         }
+
+        @Override
+        public void sendPacketQueued(DefinedPacket packet)
+        {
+            if ( ch.getEncodeVersion() >= ProtocolConstants.MINECRAFT_1_20_2 )
+            {
+                ServerConnection.this.sendPacketQueued( packet );
+            } else
+            {
+                sendPacket( packet );
+            }
+        }
     };
 
     public void sendPacketQueued(DefinedPacket packet)
@@ -53,6 +66,8 @@ public class ServerConnection implements Server
             Protocol encodeProtocol = ch.getEncodeProtocol();
             if ( !encodeProtocol.TO_SERVER.hasPacket( packet.getClass(), ch.getEncodeVersion() ) )
             {
+                // we should limit this so bad api usage won't oom the server.
+                Preconditions.checkState( packetQueue.size() <= 4096, "too many queued packets" );
                 packetQueue.add( packet );
             } else
             {
