@@ -34,7 +34,7 @@ public class Team extends DefinedPacket
     private NameTagVisibility nameTagVisibility;
     private CollisionRule collisionRule;
     // Pre 1.21.5, do not "parse" these values as the Strings may be invalid
-    // If they are invalid the vanilla client just ignores them
+    // If they are invalid the vanilla client just ignores them, see #3799
     private String nameTagVisibilityString;
     private String collisionRuleString;
     //
