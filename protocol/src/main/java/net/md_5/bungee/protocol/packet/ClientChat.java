@@ -25,6 +25,7 @@ public class ClientChat extends DefinedPacket
     private boolean signedPreview;
     private ChatChain chain;
     private SeenMessages seenMessages;
+    private byte checksum;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
@@ -57,6 +58,11 @@ public class ClientChat extends DefinedPacket
             chain = new ChatChain();
             chain.read( buf, direction, protocolVersion );
         }
+
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_5 )
+        {
+            checksum = buf.readByte();
+        }
     }
 
     @Override
@@ -86,6 +92,11 @@ public class ClientChat extends DefinedPacket
         } else if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_1 )
         {
             chain.write( buf, direction, protocolVersion );
+        }
+
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_5 )
+        {
+            buf.writeByte( checksum );
         }
     }
 
