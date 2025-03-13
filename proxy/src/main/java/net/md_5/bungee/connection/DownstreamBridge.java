@@ -311,6 +311,11 @@ public class DownstreamBridge extends PacketHandler
     public void handle(PluginMessage pluginMessage) throws Exception
     {
         DataInput in = pluginMessage.getStream();
+        if ( !bungee.getChannels().contains( pluginMessage.getTag() ) )
+        {
+            throw CancelSendSignal.INSTANCE;
+        }
+
         PluginMessageEvent event = new PluginMessageEvent( server, con, pluginMessage.getTag(), pluginMessage.getData().clone() );
 
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
@@ -335,7 +340,7 @@ public class DownstreamBridge extends PacketHandler
             throw CancelSendSignal.INSTANCE;
         }
 
-        if ( pluginMessage.getTag().equals( PluginMessage.BUNGEE_CHANNEL_LEGACY ) )
+        if ( pluginMessage.getTag().equals( PluginMessage.BUNGEE_CHANNEL_LEGACY ) || pluginMessage.getTag().equals( PluginMessage.BUNGEE_CHANNEL_MODERN ) )
         {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             String subChannel = in.readUTF();
