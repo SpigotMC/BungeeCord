@@ -302,6 +302,11 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(PluginMessage pluginMessage) throws Exception
     {
+        if ( !bungee.getChannels().contains( pluginMessage.getTag() ) )
+        {
+            throw CancelSendSignal.INSTANCE;
+        }
+
         if ( pluginMessage.getTag().equals( PluginMessage.BUNGEE_CHANNEL_LEGACY ) || pluginMessage.getTag().equals( PluginMessage.BUNGEE_CHANNEL_MODERN ) )
         {
             throw CancelSendSignal.INSTANCE;
