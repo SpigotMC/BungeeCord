@@ -804,7 +804,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public String getUUID()
     {
-        return uniqueId.toString().replace( "-", "" );
+        return Util.undashUUID( uniqueId );
     }
 
     @Override
