@@ -1,4 +1,4 @@
-package net.md_5.bungee.nbt;
+package net.md_5.bungee.nbt.type;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -6,12 +6,14 @@ import java.io.IOException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.md_5.bungee.nbt.Tag;
+import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.nbt.limit.NbtLimiter;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LongTag implements Tag
+public class LongTag implements TypedTag
 {
     private long value;
 

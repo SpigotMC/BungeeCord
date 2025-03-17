@@ -1,16 +1,16 @@
 package net.md_5.bungee.nbt;
 
-import net.md_5.bungee.nbt.limit.NbtLimiter;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Objects;
+import net.md_5.bungee.nbt.limit.NbtLimiter;
+import net.md_5.bungee.nbt.type.CompoundTag;
+import org.junit.jupiter.api.Test;
 
 public class PlayerDataTest
 {
@@ -21,7 +21,8 @@ public class PlayerDataTest
         File file = new File( Objects.requireNonNull( classLoader.getResource( "playerdata" ) ).toURI() );
         FileInputStream fileInputStream = new FileInputStream( file );
         DataInputStream dis = new DataInputStream( fileInputStream );
-        NamedTag namedTag = NamedTag.read( dis, NbtLimiter.unlimitedSize() );
+        NamedTag namedTag = new NamedTag();
+        namedTag.read( dis, NbtLimiter.unlimitedSize() );
         assertInstanceOf( CompoundTag.class, namedTag.getTag() );
         assertEquals( namedTag.getName(), "" );
     }

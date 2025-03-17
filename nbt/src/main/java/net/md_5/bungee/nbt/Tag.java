@@ -10,6 +10,19 @@ import java.io.IOException;
 import java.util.function.Supplier;
 import net.md_5.bungee.nbt.exception.NbtFormatException;
 import net.md_5.bungee.nbt.limit.NbtLimiter;
+import net.md_5.bungee.nbt.type.ByteArrayTag;
+import net.md_5.bungee.nbt.type.ByteTag;
+import net.md_5.bungee.nbt.type.CompoundTag;
+import net.md_5.bungee.nbt.type.DoubleTag;
+import net.md_5.bungee.nbt.type.EndTag;
+import net.md_5.bungee.nbt.type.FloatTag;
+import net.md_5.bungee.nbt.type.IntArrayTag;
+import net.md_5.bungee.nbt.type.IntTag;
+import net.md_5.bungee.nbt.type.ListTag;
+import net.md_5.bungee.nbt.type.LongArrayTag;
+import net.md_5.bungee.nbt.type.LongTag;
+import net.md_5.bungee.nbt.type.ShortTag;
+import net.md_5.bungee.nbt.type.StringTag;
 
 public interface Tag
 {
@@ -19,7 +32,7 @@ public interface Tag
     int STRING_SIZE = 28;
     int OBJECT_REFERENCE = 4;
 
-    Supplier<? extends Tag>[] CONSTRUCTORS = new Supplier[]
+    Supplier<? extends TypedTag>[] CONSTRUCTORS = new Supplier[]
     {
         EndTag::new,
         ByteTag::new,
@@ -66,13 +79,6 @@ public interface Tag
     void write(DataOutput output) throws IOException;
 
     /**
-     * Gets the id of this tags type
-     *
-     * @return the id related to this tags type
-     */
-    byte getId();
-
-    /**
      * Reads the data of the {@link DataInput} and parses it into a {@link Tag}
      *
      * @param id      the nbt type
@@ -80,18 +86,25 @@ public interface Tag
      * @param limiter limitation of the read data
      * @return the initialized {@link Tag}
      */
-    static Tag readById(byte id, DataInput input, NbtLimiter limiter) throws IOException
+    static TypedTag readById(byte id, DataInput input, NbtLimiter limiter) throws IOException
     {
         if ( id < END || id > LONG_ARRAY )
         {
             throw new NbtFormatException( "Invalid tag id: " + id );
         }
-        Tag tag = CONSTRUCTORS[id].get();
+        TypedTag tag = CONSTRUCTORS[id].get();
         tag.read( input, limiter );
         return tag;
     }
 
-    static byte[] toByteArray(Tag tag) throws IOException
+    static NamedTag readNamedTag(DataInput input, NbtLimiter limiter) throws IOException
+    {
+        NamedTag namedTag = new NamedTag();
+        namedTag.read( input, limiter );
+        return namedTag;
+    }
+
+    static byte[] toByteArray(TypedTag tag) throws IOException
     {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         DataOutputStream dataOutputStream = new DataOutputStream( byteArrayOutputStream );
@@ -100,10 +113,10 @@ public interface Tag
         return byteArrayOutputStream.toByteArray();
     }
 
-    static Tag fromByteArray(byte[] data) throws IOException
+    static TypedTag fromByteArray(byte[] data) throws IOException
     {
         DataInputStream stream = new DataInputStream( new ByteArrayInputStream( data ) );
         byte type = stream.readByte();
-        return Tag.readById( type, stream, NbtLimiter.unlimitedSize() );
+        return readById( type, stream, NbtLimiter.unlimitedSize() );
     }
 }

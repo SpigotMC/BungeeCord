@@ -1,17 +1,20 @@
-package net.md_5.bungee.nbt;
+package net.md_5.bungee.nbt.type;
 
+import com.google.common.base.Preconditions;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.md_5.bungee.nbt.Tag;
+import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.nbt.limit.NbtLimiter;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class StringTag implements Tag
+public class StringTag implements TypedTag
 {
     private String value;
 
@@ -27,6 +30,7 @@ public class StringTag implements Tag
     @Override
     public void write(DataOutput output) throws IOException
     {
+        Preconditions.checkNotNull( value, "string value cannot be null" );
         output.writeUTF( value );
     }
 

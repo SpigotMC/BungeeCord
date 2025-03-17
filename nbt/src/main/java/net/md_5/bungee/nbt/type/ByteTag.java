@@ -1,4 +1,4 @@
-package net.md_5.bungee.nbt;
+package net.md_5.bungee.nbt.type;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -6,31 +6,33 @@ import java.io.IOException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.md_5.bungee.nbt.Tag;
+import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.nbt.limit.NbtLimiter;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class FloatTag implements Tag
+public class ByteTag implements TypedTag
 {
-    private float value;
+    private byte value;
 
     @Override
     public void read(DataInput input, NbtLimiter limiter) throws IOException
     {
-        limiter.countBytes( OBJECT_HEADER + Float.BYTES );
-        value = input.readFloat();
+        limiter.countBytes( OBJECT_HEADER + Byte.BYTES );
+        value = input.readByte();
     }
 
     @Override
     public void write(DataOutput output) throws IOException
     {
-        output.writeFloat( value );
+        output.write( value );
     }
 
     @Override
     public byte getId()
     {
-        return Tag.FLOAT;
+        return Tag.BYTE;
     }
 }

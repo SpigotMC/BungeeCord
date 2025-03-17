@@ -1,44 +1,47 @@
 package net.md_5.bungee.nbt;
 
+import com.google.common.base.Preconditions;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import net.md_5.bungee.nbt.limit.NbtLimiter;
+import net.md_5.bungee.nbt.type.CompoundTag;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class NamedTag
+public class NamedTag implements Tag
 {
     private String name;
-    private Tag tag;
+    private TypedTag tag;
 
     /**
-     * Reads the data of the {@link DataInput} and parses it into a {@link NamedTag}
+     * Reads the data of the {@link DataInput} and parses it into this {@link NamedTag}
      *
      * @param input input to read from
      * @param limiter limitation of the read data
-     * @return the initialized {@link Tag}
      */
-    public static NamedTag read(@NonNull DataInput input, @NonNull NbtLimiter limiter) throws IOException
+    public void read(DataInput input, NbtLimiter limiter) throws IOException
     {
         byte type = input.readByte();
-        return new NamedTag( CompoundTag.readString( input, limiter ), Tag.readById( type, input, limiter ) );
+        name = CompoundTag.readString( input, limiter );
+        tag = Tag.readById( type, input, limiter );
     }
 
     /**
-     * Write ta {@link NamedTag} into a {@link DataOutput}
-     * @param tag the NamedTag to write
+     * Write this {@link NamedTag} into a {@link DataOutput}
      * @param output the output to write to
      */
-    public static void write(@NonNull NamedTag tag, @NonNull DataOutput output) throws IOException
+    @Override
+    public void write(DataOutput output) throws IOException
     {
-        output.writeByte( tag.getTag().getId() );
-        CompoundTag.writeString( tag.getName(), output );
-        tag.tag.write( output );
+        Preconditions.checkNotNull( name, "name cannot be null" );
+        Preconditions.checkNotNull( tag, "tag cannot be null" );
+        output.writeByte( tag.getId() );
+        CompoundTag.writeString( name, output );
+        tag.write( output );
     }
 }

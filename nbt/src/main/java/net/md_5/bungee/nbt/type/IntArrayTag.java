@@ -1,30 +1,33 @@
-package net.md_5.bungee.nbt;
+package net.md_5.bungee.nbt.type;
 
+import com.google.common.base.Preconditions;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.md_5.bungee.nbt.Tag;
+import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.nbt.limit.NbtLimiter;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LongArrayTag implements Tag
+public class IntArrayTag implements TypedTag
 {
-    private long[] value;
+    private int[] value;
 
     @Override
     public void read(DataInput input, NbtLimiter limiter) throws IOException
     {
         limiter.countBytes( OBJECT_HEADER + ARRAY_HEADER + Integer.BYTES );
         int length = input.readInt();
-        limiter.countBytes( length, Long.BYTES );
-        long[] data = new long[length];
+        limiter.countBytes( length, Integer.BYTES );
+        int[] data = new int[length];
         for ( int i = 0; i < length; i++ )
         {
-            data[i] = input.readLong();
+            data[i] = input.readInt();
         }
         value = data;
     }
@@ -32,16 +35,17 @@ public class LongArrayTag implements Tag
     @Override
     public void write(DataOutput output) throws IOException
     {
+        Preconditions.checkNotNull( value, "int array value cannot be null" );
         output.writeInt( value.length );
-        for ( long i : value )
+        for ( int i : value )
         {
-            output.writeLong( i );
+            output.writeInt( i );
         }
     }
 
     @Override
     public byte getId()
     {
-        return Tag.LONG_ARRAY;
+        return Tag.INT_ARRAY;
     }
 }

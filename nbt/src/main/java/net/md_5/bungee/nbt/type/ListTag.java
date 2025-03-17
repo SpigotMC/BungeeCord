@@ -1,25 +1,35 @@
-package net.md_5.bungee.nbt;
+package net.md_5.bungee.nbt.type;
 
+import com.google.common.base.Preconditions;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import net.md_5.bungee.nbt.Tag;
+import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.nbt.exception.NbtFormatException;
 import net.md_5.bungee.nbt.limit.NbtLimiter;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class ListTag implements Tag
+public class ListTag implements TypedTag
 {
     public static final int LIST_HEADER = 12;
 
-    private List<Tag> value;
+    private List<TypedTag> value;
     private byte listType;
+
+    public ListTag(List<TypedTag> value, byte listType)
+    {
+        this.value = value;
+        this.listType = listType;
+    }
+
+    public ListTag()
+    {
+        this( new ArrayList<>(), Tag.END );
+    }
 
     @Override
     public void read(DataInput input, NbtLimiter limiter) throws IOException
@@ -35,7 +45,7 @@ public class ListTag implements Tag
         }
 
         limiter.countBytes( length, OBJECT_REFERENCE );
-        List<Tag> tagList = new ArrayList<>( length );
+        List<TypedTag> tagList = new ArrayList<>( length );
         for ( int i = 0; i < length; i++ )
         {
             tagList.add( Tag.readById( listType, input, limiter ) );
@@ -48,13 +58,14 @@ public class ListTag implements Tag
     @Override
     public void write(DataOutput output) throws IOException
     {
+        Preconditions.checkNotNull( value, "list value cannot be null" );
         if ( listType == Tag.END && !value.isEmpty() )
         {
             throw new NbtFormatException( "Missing type in ListTag" );
         }
         output.writeByte( listType );
         output.writeInt( value.size() );
-        for ( Tag tag : value )
+        for ( TypedTag tag : value )
         {
             if ( tag.getId() != listType )
             {
@@ -68,5 +79,15 @@ public class ListTag implements Tag
     public byte getId()
     {
         return Tag.LIST;
+    }
+
+    public TypedTag get(int index)
+    {
+        return value.get( index );
+    }
+
+    public int size()
+    {
+        return value.size();
     }
 }

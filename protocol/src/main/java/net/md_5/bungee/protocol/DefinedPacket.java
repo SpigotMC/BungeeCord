@@ -19,13 +19,15 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentStyle;
 import net.md_5.bungee.chat.ComponentSerializer;
-import se.llbit.nbt.ErrorTag;
-import se.llbit.nbt.NamedTag;
-import se.llbit.nbt.SpecificTag;
-import se.llbit.nbt.Tag;
+import net.md_5.bungee.nbt.NamedTag;
+import net.md_5.bungee.nbt.Tag;
+import net.md_5.bungee.nbt.TypedTag;
+import net.md_5.bungee.nbt.limit.NbtLimiter;
+import net.md_5.bungee.nbt.type.EndTag;
 
 @RequiredArgsConstructor
 public abstract class DefinedPacket
@@ -117,7 +119,7 @@ public abstract class DefinedPacket
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
         {
-            SpecificTag nbt = (SpecificTag) readTag( buf, protocolVersion );
+            TypedTag nbt = (TypedTag) readTag( buf, protocolVersion );
             JsonElement json = TagUtil.toJson( nbt );
 
             return ComponentSerializer.deserialize( json );
@@ -131,7 +133,7 @@ public abstract class DefinedPacket
 
     public static ComponentStyle readComponentStyle(ByteBuf buf, int protocolVersion)
     {
-        SpecificTag nbt = (SpecificTag) readTag( buf, protocolVersion );
+        TypedTag nbt = (TypedTag) readTag( buf, protocolVersion );
         JsonElement json = TagUtil.toJson( nbt );
 
         return ComponentSerializer.deserializeStyle( json );
@@ -153,7 +155,7 @@ public abstract class DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
         {
             JsonElement json = ComponentSerializer.toJson( message );
-            SpecificTag nbt = TagUtil.fromJson( json );
+            TypedTag nbt = TagUtil.fromJson( json );
 
             writeTag( nbt, buf, protocolVersion );
         } else
@@ -167,7 +169,7 @@ public abstract class DefinedPacket
     public static void writeComponentStyle(ComponentStyle style, ByteBuf buf, int protocolVersion)
     {
         JsonElement json = ComponentSerializer.toJson( style );
-        SpecificTag nbt = TagUtil.fromJson( json );
+        TypedTag nbt = TagUtil.fromJson( json );
 
         writeTag( nbt, buf, protocolVersion );
     }
@@ -454,32 +456,24 @@ public abstract class DefinedPacket
         }
     }
 
+    @SneakyThrows
     public static Tag readTag(ByteBuf input, int protocolVersion)
     {
         DataInputStream in = new DataInputStream( new ByteBufInputStream( input ) );
-        Tag tag;
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_2 )
         {
-            try
+            byte type = in.readByte();
+            if ( type == 0 )
             {
-                byte type = in.readByte();
-                if ( type == 0 )
-                {
-                    return Tag.END;
-                } else
-                {
-                    tag = SpecificTag.read( type, in );
-                }
-            } catch ( IOException ex )
+                return EndTag.INSTANCE;
+            } else
             {
-                tag = new ErrorTag( "IOException while reading tag type:\n" + ex.getMessage() );
+                return Tag.readById( type, in, NbtLimiter.unlimitedSize() );
             }
-        } else
-        {
-            tag = NamedTag.read( in );
         }
-        Preconditions.checkArgument( !tag.isError(), "Error reading tag: %s", tag.error() );
-        return tag;
+        NamedTag namedTag = new NamedTag();
+        namedTag.read( in, NbtLimiter.unlimitedSize() );
+        return namedTag;
     }
 
     public static void writeTag(Tag tag, ByteBuf output, int protocolVersion)
@@ -487,11 +481,11 @@ public abstract class DefinedPacket
         DataOutputStream out = new DataOutputStream( new ByteBufOutputStream( output ) );
         try
         {
-            if ( tag instanceof SpecificTag )
+            if ( tag instanceof TypedTag )
             {
-                SpecificTag specificTag = (SpecificTag) tag;
-                specificTag.writeType( out );
-                specificTag.write( out );
+                TypedTag typedTag = (TypedTag) tag;
+                out.writeByte( typedTag.getId() );
+                typedTag.write( out );
             } else
             {
                 tag.write( out );

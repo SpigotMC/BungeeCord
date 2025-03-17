@@ -1,14 +1,16 @@
-package net.md_5.bungee.nbt;
+package net.md_5.bungee.nbt.type;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.md_5.bungee.nbt.Tag;
+import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.nbt.limit.NbtLimiter;
 
 @Data
 @NoArgsConstructor
-public class EndTag implements Tag
+public class EndTag implements TypedTag
 {
     public static final EndTag INSTANCE = new EndTag();
 
