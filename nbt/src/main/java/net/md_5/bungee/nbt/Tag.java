@@ -68,6 +68,7 @@ public interface Tag
      *
      * @param input   the input to read from
      * @param limiter the limiter for this read operation
+     * @throws IOException if an exception occurs during io operations
      */
     void read(DataInput input, NbtLimiter limiter) throws IOException;
 
@@ -75,6 +76,7 @@ public interface Tag
      * Writes this tag into a {@link DataOutput}
      *
      * @param output the output to write to
+     * @throws IOException if an exception occurs during io operations
      */
     void write(DataOutput output) throws IOException;
 
@@ -85,6 +87,7 @@ public interface Tag
      * @param input   input to read from
      * @param limiter limitation of the read data
      * @return the initialized {@link Tag}
+     * @throws IOException if an exception occurs during io operations
      */
     static TypedTag readById(byte id, DataInput input, NbtLimiter limiter) throws IOException
     {
