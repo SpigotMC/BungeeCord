@@ -202,8 +202,11 @@ public final class TagUtil
                         if ( compound.getValue().size() == 1 )
                         {
                             TypedTag first = compound.getValue().get( "" );
-                            jsonList.add( toJson( first ) );
-                            continue;
+                            if ( first != null )
+                            {
+                                jsonList.add( toJson( first ) );
+                                continue;
+                            }
                         }
                     }
 
