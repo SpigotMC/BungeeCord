@@ -468,11 +468,11 @@ public abstract class DefinedPacket
                 return EndTag.INSTANCE;
             } else
             {
-                return Tag.readById( type, in, NbtLimiter.unlimitedSize() );
+                return Tag.readById( type, in, new NbtLimiter( 1 << 21 ) );
             }
         }
         NamedTag namedTag = new NamedTag();
-        namedTag.read( in, NbtLimiter.unlimitedSize() );
+        namedTag.read( in, new NbtLimiter( 1 << 21 ) );
         return namedTag;
     }
 
