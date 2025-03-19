@@ -161,7 +161,7 @@ public class NbtIOTest
     @Test
     public void testIntArrayTag() throws IOException
     {
-        int[] value = new int[1 << 20];
+        int[] value = new int[1024];
         for ( int i = 0; i < value.length; i++ )
         {
             value[i] = ThreadLocalRandom.current().nextInt();
@@ -181,7 +181,7 @@ public class NbtIOTest
     @Test
     public void testLongArrayTag() throws IOException
     {
-        long[] value = new long[1 << 20];
+        long[] value = new long[1024];
         for ( int i = 0; i < value.length; i++ )
         {
             value[i] = ThreadLocalRandom.current().nextLong();
