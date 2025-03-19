@@ -386,6 +386,15 @@ public class UpstreamBridge extends PacketHandler
     }
 
     @Override
+    public void channelReadComplete(ChannelWrapper channel) throws Exception
+    {
+        if ( con.getServer() != null && con.getServer().isConnected() )
+        {
+            con.getServer().getCh().forceFlush();
+        }
+    }
+
+    @Override
     public String toString()
     {
         return "[" + con.getName() + "] -> UpstreamBridge";
