@@ -118,8 +118,13 @@ public interface Tag
 
     static TypedTag fromByteArray(byte[] data) throws IOException
     {
+        return fromByteArray( data, NbtLimiter.unlimitedSize() );
+    }
+
+    static TypedTag fromByteArray(byte[] data, NbtLimiter limiter) throws IOException
+    {
         DataInputStream stream = new DataInputStream( new ByteArrayInputStream( data ) );
         byte type = stream.readByte();
-        return readById( type, stream, NbtLimiter.unlimitedSize() );
+        return readById( type, stream, limiter );
     }
 }

@@ -30,7 +30,7 @@ public class NbtLimiter
         {
             throw new NbtLimitException( "NBT limiter tried to count negative byte amount" );
         }
-        if ( usedBytes > ( usedBytes = Math.addExact( usedBytes, amount ) ) )
+        if ( ( usedBytes = Math.addExact( usedBytes, amount ) ) > maxBytes )
         {
             throw new NbtLimitException( "NBT tag is to big, bytes > " + maxBytes );
         }
