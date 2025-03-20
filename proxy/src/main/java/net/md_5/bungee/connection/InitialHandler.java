@@ -277,13 +277,16 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         return pos == -1 ? str : str.substring( 0, pos );
     }
 
-    private ServerPing getPingInfo(String motd, int protocol)
-    {
-        return new ServerPing(
-                new ServerPing.Protocol( bungee.getName() + " " + bungee.getGameVersion(), protocol ),
-                new ServerPing.Players( listener.getMaxPlayers(), bungee.getOnlineCount(), null ),
-                motd, BungeeCord.getInstance().config.getFaviconObject()
-        );
+    private final ServerPing.Protocol cachedProtocol = new ServerPing.Protocol(
+    bungee.getName() + " " + bungee.getGameVersion(), bungee.getProtocolVersion()
+    );
+    private final ServerPing.Players cachedPlayers = new ServerPing.Players(
+    listener.getMaxPlayers(), bungee.getOnlineCount(), null
+    );
+    private final String cachedFavicon = BungeeCord.getInstance().config.getFaviconObject();
+
+    private ServerPing getPingInfo(String motd, int protocol) {
+    return new ServerPing(cachedProtocol, cachedPlayers, motd, cachedFavicon);
     }
 
     @Override
@@ -356,10 +359,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         // We know FML appends \00FML\00. However, we need to also consider that other systems might
         // add their own data to the end of the string. So, we just take everything from the \0 character
         // and save it for later.
-        if ( handshake.getHost().contains( "\0" ) )
-        {
-            String[] split = handshake.getHost().split( "\0", 2 );
-            handshake.setHost( split[0] );
+        String host = handshake.getHost(); // Cache host
+        if (host.contains("\0")) {
+            String[] split = host.split("\0", 2);
+            handshake.setHost(split[0]);
             extraDataInHandshake = "\0" + split[1];
         }
 
@@ -518,15 +521,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         String encName = URLEncoder.encode( InitialHandler.this.getName(), "UTF-8" );
 
-        MessageDigest sha = MessageDigest.getInstance( "SHA-1" );
-        for ( byte[] bit : new byte[][]
-        {
-            request.getServerId().getBytes( "ISO_8859_1" ), sharedKey.getEncoded(), EncryptionUtil.keys.getPublic().getEncoded()
-        } )
-        {
-            sha.update( bit );
-        }
-        String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
+        MessageDigest sha = MessageDigest.getInstance("SHA-1");
+        ByteBuffer buffer = ByteBuffer.allocate(1024);
+        buffer.put(request.getServerId().getBytes(StandardCharsets.ISO_8859_1));
+        buffer.put(sharedKey.getEncoded());
+        buffer.put(EncryptionUtil.keys.getPublic().getEncoded());
+        sha.update(buffer.array());
+        String encodedHash = URLEncoder.encode(new BigInteger(sha.digest()).toString(16), StandardCharsets.UTF_8);
+
 
         String preventProxy = ( BungeeCord.getInstance().config.isPreventProxyConnections() && getSocketAddress() instanceof InetSocketAddress ) ? "&ip=" + URLEncoder.encode( getAddress().getAddress().getHostAddress(), "UTF-8" ) : "";
         String authURL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" + encName + "&serverId=" + encodedHash + preventProxy;
