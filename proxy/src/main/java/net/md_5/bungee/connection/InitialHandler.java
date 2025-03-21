@@ -195,12 +195,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     }
 
     @Override
-    public void handle(PluginMessage pluginMessage) throws Exception
-    {
-        this.relayMessage( pluginMessage );
-    }
-
-    @Override
     public void handle(LegacyHandshake legacyHandshake) throws Exception
     {
         Preconditions.checkState( !this.legacy, "Not expecting LegacyHandshake" );
