@@ -23,6 +23,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.channel.unix.DomainSocketAddress;
 import io.netty.handler.codec.haproxy.HAProxyMessageDecoder;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 import io.netty.incubator.channel.uring.IOUring;
 import io.netty.incubator.channel.uring.IOUringDatagramChannel;
 import io.netty.incubator.channel.uring.IOUringEventLoopGroup;
@@ -114,6 +115,7 @@ public class PipelineUtils
     private static final ChannelAcceptor BASE_SERVERSIDE = new Base( true );
     private static final KickStringWriter legacyKicker = new KickStringWriter();
     public static final String TIMEOUT_HANDLER = "timeout";
+    public static final String WRITE_TIMEOUT_HANDLER = "write-timeout";
     public static final String PACKET_DECODER = "packet-decoder";
     public static final String PACKET_ENCODER = "packet-encoder";
     public static final String BOSS_HANDLER = "inbound-boss";
@@ -220,6 +222,7 @@ public class PipelineUtils
 
             ch.pipeline().addLast( FRAME_DECODER, new Varint21FrameDecoder() );
             ch.pipeline().addLast( TIMEOUT_HANDLER, new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
+            ch.pipeline().addLast( WRITE_TIMEOUT_HANDLER, new WriteTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
             // No encryption bungee -> server, therefore use extra buffer to avoid copying everything for length prepending
             // Not used bungee -> client as header would need to be encrypted separately through expensive JNI call
             // TODO: evaluate difference compose vs two buffers
