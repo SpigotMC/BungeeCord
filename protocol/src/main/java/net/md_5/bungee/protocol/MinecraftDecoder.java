@@ -45,7 +45,6 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
                 {
                     throw new BadPacketException( "Packet " + protocol + ":" + prot.getDirection() + "/" + packetId + " (" + packet.getClass().getSimpleName() + ") larger than expected, extra bytes: " + in.readableBytes() );
                 }
-                System.out.println( packet );
             } else
             {
                 in.skipBytes( in.readableBytes() );
