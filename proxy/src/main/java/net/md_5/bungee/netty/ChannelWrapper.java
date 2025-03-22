@@ -18,6 +18,7 @@ import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.channel.CompressionThresholdSignal;
 import net.md_5.bungee.protocol.packet.Kick;
 
 public class ChannelWrapper
@@ -209,6 +210,7 @@ public class ChannelWrapper
 
         // disable use of composite buffers if we use natives
         updateComposite();
+        ch.pipeline().fireUserEventTriggered( new CompressionThresholdSignal( compressionThreshold ) );
     }
 
     /*
