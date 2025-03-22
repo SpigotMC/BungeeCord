@@ -9,6 +9,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Either;
+import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
@@ -88,5 +89,11 @@ public class ServerLinks extends DefinedPacket
 
         private final Either<LinkType, BaseComponent> type;
         private final String url;
+    }
+
+    @Override
+    public boolean decodable(Protocol protocol, ProtocolConstants.Direction direction, int protocolVersion)
+    {
+        return false;
     }
 }
