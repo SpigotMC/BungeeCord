@@ -41,6 +41,7 @@ import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.event.ClientConnectEvent;
+import net.md_5.bungee.compress.PacketDecompressor;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.protocol.KickStringWriter;
 import net.md_5.bungee.protocol.LegacyDecoder;
@@ -77,7 +78,7 @@ public class PipelineUtils
 
             BASE.accept( ch );
             ch.pipeline().addBefore( FRAME_DECODER, LEGACY_DECODER, new LegacyDecoder() );
-            ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
+            ch.pipeline().addAfter( DECOMPRESS, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
             ch.pipeline().addAfter( FRAME_PREPENDER_AND_COMPRESS, PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion() ) );
             ch.pipeline().addBefore( FRAME_PREPENDER_AND_COMPRESS, LEGACY_KICKER, legacyKicker );
 
@@ -101,7 +102,7 @@ public class PipelineUtils
         ProxyServer.getInstance().unsafe().setBackendChannelInitializer( BungeeChannelInitializer.create( ch ->
         {
             PipelineUtils.BASE_SERVERSIDE.accept( ch );
-            ch.pipeline().addAfter( PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, false, ProxyServer.getInstance().getProtocolVersion() ) );
+            ch.pipeline().addAfter( PipelineUtils.DECOMPRESS, PipelineUtils.PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, false, ProxyServer.getInstance().getProtocolVersion() ) );
             ch.pipeline().addAfter( PipelineUtils.FRAME_PREPENDER_AND_COMPRESS, PipelineUtils.PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, false, ProxyServer.getInstance().getProtocolVersion() ) );
 
             return true;
@@ -121,6 +122,7 @@ public class PipelineUtils
     public static final String DECRYPT_HANDLER = "decrypt";
     public static final String FRAME_DECODER = "frame-decoder";
     public static final String FRAME_PREPENDER_AND_COMPRESS = "frame-prepender-compress";
+    public static final String DECOMPRESS = "decompress";
     public static final String LEGACY_DECODER = "legacy-decoder";
     public static final String LEGACY_KICKER = "legacy-kick";
 
@@ -219,6 +221,7 @@ public class PipelineUtils
             ch.config().setWriteBufferWaterMark( MARK );
 
             ch.pipeline().addLast( FRAME_DECODER, new Varint21FrameDecoder() );
+            ch.pipeline().addAfter( FRAME_DECODER, DECOMPRESS, new PacketDecompressor() );
             ch.pipeline().addLast( TIMEOUT_HANDLER, new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
             // No encryption bungee -> server, therefore use extra buffer to avoid copying everything for length prepending
             // Not used bungee -> client as header would need to be encrypted separately through expensive JNI call
