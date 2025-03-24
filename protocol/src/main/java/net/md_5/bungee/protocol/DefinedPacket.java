@@ -584,12 +584,6 @@ public abstract class DefinedPacket
         return null;
     }
 
-    // if we never handle this packet, we don't need to decode it, sending the packet will still work
-    public boolean decodable(Protocol protocol, ProtocolConstants.Direction direction, int protocolVersion)
-    {
-        return true;
-    }
-
     public abstract void handle(AbstractPacketHandler handler) throws Exception;
 
     @Override

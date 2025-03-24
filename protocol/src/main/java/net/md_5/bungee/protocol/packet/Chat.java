@@ -7,7 +7,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
@@ -70,11 +69,5 @@ public class Chat extends DefinedPacket
     public void handle(AbstractPacketHandler handler) throws Exception
     {
         handler.handle( this );
-    }
-
-    @Override
-    public boolean decodable(Protocol protocol, ProtocolConstants.Direction direction, int protocolVersion)
-    {
-        return direction == ProtocolConstants.Direction.TO_SERVER;
     }
 }
