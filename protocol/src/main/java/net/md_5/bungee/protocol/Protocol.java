@@ -2,7 +2,6 @@ package net.md_5.bungee.protocol;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import gnu.trove.impl.Constants;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -897,7 +896,7 @@ public enum Protocol
     {
 
         private final int protocolVersion;
-        private final TObjectIntMap<Class<? extends DefinedPacket>> packetMap = new TObjectIntHashMap<>( MAX_PACKET_ID, Constants.DEFAULT_LOAD_FACTOR, -1 );
+        private final TObjectIntMap<Class<? extends DefinedPacket>> packetMap = new TObjectIntHashMap<>( MAX_PACKET_ID );
         @SuppressWarnings("unchecked")
         private final Supplier<? extends DefinedPacket>[] packetConstructors = new Supplier[ MAX_PACKET_ID ];
     }
@@ -1002,7 +1001,7 @@ public enum Protocol
 
                 ProtocolData data = protocols.get( protocol );
                 Preconditions.checkState( data.packetConstructors[mapping.packetID] == null, "Duplicate packet mapping (%s)", mapping.packetID );
-                Preconditions.checkState( data.packetMap.get( packetClass ) == data.packetMap.getNoEntryValue(), "Duplicate packet mapping (%s)", mapping.packetID );
+                Preconditions.checkState( !data.packetMap.containsKey( packetClass ), "Duplicate packet mapping (%s)", mapping.packetID );
                 data.packetMap.put( packetClass, mapping.packetID );
                 if ( !mapping.isEncodeOnly() )
                 {
