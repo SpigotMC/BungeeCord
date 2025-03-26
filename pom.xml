@@ -43,6 +43,7 @@
         <module>query</module>
         <module>slf4j</module>
         <module>native</module>
+        <module>nbt</module>
     </modules>
 
     <scm>
