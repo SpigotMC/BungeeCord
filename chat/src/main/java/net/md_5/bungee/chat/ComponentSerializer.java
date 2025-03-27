@@ -1,51 +1,16 @@
 package net.md_5.bungee.chat;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
 import java.lang.reflect.Type;
-import java.util.Set;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentStyle;
-import net.md_5.bungee.api.chat.ItemTag;
-import net.md_5.bungee.api.chat.KeybindComponent;
-import net.md_5.bungee.api.chat.ScoreComponent;
-import net.md_5.bungee.api.chat.SelectorComponent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.TranslatableComponent;
 import net.md_5.bungee.api.chat.hover.content.Content;
-import net.md_5.bungee.api.chat.hover.content.Entity;
-import net.md_5.bungee.api.chat.hover.content.EntitySerializer;
-import net.md_5.bungee.api.chat.hover.content.Item;
-import net.md_5.bungee.api.chat.hover.content.ItemSerializer;
-import net.md_5.bungee.api.chat.hover.content.Text;
-import net.md_5.bungee.api.chat.hover.content.TextSerializer;
 
 public class ComponentSerializer implements JsonDeserializer<BaseComponent>
 {
-
-    private static final Gson gson = new GsonBuilder().
-            registerTypeAdapter( BaseComponent.class, new ComponentSerializer() ).
-            registerTypeAdapter( TextComponent.class, new TextComponentSerializer() ).
-            registerTypeAdapter( TranslatableComponent.class, new TranslatableComponentSerializer() ).
-            registerTypeAdapter( KeybindComponent.class, new KeybindComponentSerializer() ).
-            registerTypeAdapter( ScoreComponent.class, new ScoreComponentSerializer() ).
-            registerTypeAdapter( SelectorComponent.class, new SelectorComponentSerializer() ).
-            registerTypeAdapter( ComponentStyle.class, new ComponentStyleSerializer() ).
-            registerTypeAdapter( Entity.class, new EntitySerializer() ).
-            registerTypeAdapter( Text.class, new TextSerializer() ).
-            registerTypeAdapter( Item.class, new ItemSerializer() ).
-            registerTypeAdapter( ItemTag.class, new ItemTag.Serializer() ).
-            create();
-
-    public static final ThreadLocal<Set<BaseComponent>> serializedComponents = new ThreadLocal<Set<BaseComponent>>();
 
     /**
      * Parse a JSON-compliant String as an array of base components. The input
@@ -66,18 +31,7 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
      */
     public static BaseComponent[] parse(String json)
     {
-        JsonElement jsonElement = JsonParser.parseString( json );
-
-        if ( jsonElement.isJsonArray() )
-        {
-            return gson.fromJson( jsonElement, BaseComponent[].class );
-        } else
-        {
-            return new BaseComponent[]
-            {
-                gson.fromJson( jsonElement, BaseComponent.class )
-            };
-        }
+        return VersionedComponentSerializer.getDefault().parse( json );
     }
 
     /**
@@ -90,9 +44,7 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
      */
     public static BaseComponent deserialize(String json)
     {
-        JsonElement jsonElement = JsonParser.parseString( json );
-
-        return deserialize( jsonElement );
+        return VersionedComponentSerializer.getDefault().deserialize( json );
     }
 
     /**
@@ -105,20 +57,7 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
      */
     public static BaseComponent deserialize(JsonElement jsonElement)
     {
-        if ( jsonElement instanceof JsonPrimitive )
-        {
-            JsonPrimitive primitive = (JsonPrimitive) jsonElement;
-            if ( primitive.isString() )
-            {
-                return new TextComponent( primitive.getAsString() );
-            }
-        } else if ( jsonElement instanceof JsonArray )
-        {
-            BaseComponent[] array = gson.fromJson( jsonElement, BaseComponent[].class );
-            return TextComponent.fromArray( array );
-        }
-
-        return gson.fromJson( jsonElement, BaseComponent.class );
+        return VersionedComponentSerializer.getDefault().deserialize( jsonElement );
     }
 
     /**
@@ -131,9 +70,7 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
      */
     public static ComponentStyle deserializeStyle(String json)
     {
-        JsonElement jsonElement = JsonParser.parseString( json );
-
-        return deserializeStyle( jsonElement );
+        return VersionedComponentSerializer.getDefault().deserializeStyle( json );
     }
 
     /**
@@ -146,17 +83,17 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
      */
     public static ComponentStyle deserializeStyle(JsonElement jsonElement)
     {
-        return gson.fromJson( jsonElement, ComponentStyle.class );
+        return VersionedComponentSerializer.getDefault().deserializeStyle( jsonElement );
     }
 
     public static JsonElement toJson(BaseComponent component)
     {
-        return gson.toJsonTree( component );
+        return VersionedComponentSerializer.getDefault().toJson( component );
     }
 
     public static JsonElement toJson(ComponentStyle style)
     {
-        return gson.toJsonTree( style );
+        return VersionedComponentSerializer.getDefault().toJson( style );
     }
 
     /**
@@ -167,7 +104,7 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
     @Deprecated
     public static String toString(Object object)
     {
-        return gson.toJson( object );
+        return VersionedComponentSerializer.getDefault().toString( object );
     }
 
     /**
@@ -178,54 +115,27 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
     @Deprecated
     public static String toString(Content content)
     {
-        return gson.toJson( content );
+        return VersionedComponentSerializer.getDefault().toString( content );
     }
 
     public static String toString(BaseComponent component)
     {
-        return gson.toJson( component );
+        return VersionedComponentSerializer.getDefault().toString( component );
     }
 
     public static String toString(BaseComponent... components)
     {
-        if ( components.length == 1 )
-        {
-            return gson.toJson( components[0] );
-        } else
-        {
-            return gson.toJson( new TextComponent( components ) );
-        }
+        return VersionedComponentSerializer.getDefault().toString( components );
     }
 
     public static String toString(ComponentStyle style)
     {
-        return gson.toJson( style );
+        return VersionedComponentSerializer.getDefault().toString( style );
     }
 
     @Override
     public BaseComponent deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        if ( json.isJsonPrimitive() )
-        {
-            return new TextComponent( json.getAsString() );
-        }
-        JsonObject object = json.getAsJsonObject();
-        if ( object.has( "translate" ) )
-        {
-            return context.deserialize( json, TranslatableComponent.class );
-        }
-        if ( object.has( "keybind" ) )
-        {
-            return context.deserialize( json, KeybindComponent.class );
-        }
-        if ( object.has( "score" ) )
-        {
-            return context.deserialize( json, ScoreComponent.class );
-        }
-        if ( object.has( "selector" ) )
-        {
-            return context.deserialize( json, SelectorComponent.class );
-        }
-        return context.deserialize( json, TextComponent.class );
+        return VersionedComponentSerializer.getDefault().deserialize( json, typeOfT, context );
     }
 }

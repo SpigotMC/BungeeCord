@@ -10,9 +10,16 @@ import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
 import java.util.UUID;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.chat.BaseComponentSerializer;
+import net.md_5.bungee.chat.VersionedComponentSerializer;
 
-public class EntitySerializer implements JsonSerializer<Entity>, JsonDeserializer<Entity>
+public class EntitySerializer extends BaseComponentSerializer implements JsonSerializer<Entity>, JsonDeserializer<Entity>
 {
+
+    public EntitySerializer(VersionedComponentSerializer serializer)
+    {
+        super( serializer );
+    }
 
     @Override
     public Entity deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
@@ -34,8 +41,7 @@ public class EntitySerializer implements JsonSerializer<Entity>, JsonDeserialize
         return new Entity(
                 ( value.has( newEntity ? "id" : "type" ) ) ? value.get( newEntity ? "id" : "type" ).getAsString() : null,
                 idString,
-                ( value.has( "name" ) ) ? context.deserialize( value.get( "name" ), BaseComponent.class ) : null,
-                newEntity
+                ( value.has( "name" ) ) ? context.deserialize( value.get( "name" ), BaseComponent.class ) : null
         );
     }
 
@@ -44,8 +50,20 @@ public class EntitySerializer implements JsonSerializer<Entity>, JsonDeserialize
     {
         JsonObject object = new JsonObject();
 
-        object.addProperty( content.isV1_21_5() ? "id" : "type", ( content.getType() != null ) ? content.getType() : "minecraft:pig" );
-        object.addProperty( content.isV1_21_5() ? "uuid" : "id", content.getId() );
+        switch ( serializer.getVersion() )
+        {
+            case V1_21_5:
+                object.addProperty( "id", ( content.getType() != null ) ? content.getType() : "minecraft:pig" );
+                object.addProperty( "uuid", content.getId() );
+                break;
+            case V1_16:
+                object.addProperty( "type", ( content.getType() != null ) ? content.getType() : "minecraft:pig" );
+                object.addProperty( "id", content.getId() );
+                break;
+            default:
+                throw new IllegalArgumentException( "Unknown version " + serializer.getVersion() );
+        }
+
         if ( content.getName() != null )
         {
             object.add( "name", context.serialize( content.getName() ) );

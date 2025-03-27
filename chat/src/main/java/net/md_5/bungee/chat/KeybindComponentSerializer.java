@@ -13,6 +13,11 @@ import net.md_5.bungee.api.chat.KeybindComponent;
 public class KeybindComponentSerializer extends BaseComponentSerializer implements JsonSerializer<KeybindComponent>, JsonDeserializer<KeybindComponent>
 {
 
+    public KeybindComponentSerializer(VersionedComponentSerializer serializer)
+    {
+        super( serializer );
+    }
+
     @Override
     public KeybindComponent deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {

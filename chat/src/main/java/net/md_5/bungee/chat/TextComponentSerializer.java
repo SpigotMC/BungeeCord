@@ -13,6 +13,11 @@ import net.md_5.bungee.api.chat.TextComponent;
 public class TextComponentSerializer extends BaseComponentSerializer implements JsonSerializer<TextComponent>, JsonDeserializer<TextComponent>
 {
 
+    public TextComponentSerializer(VersionedComponentSerializer serializer)
+    {
+        super( serializer );
+    }
+
     @Override
     public TextComponent deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {

@@ -13,6 +13,11 @@ import net.md_5.bungee.api.chat.ScoreComponent;
 public class ScoreComponentSerializer extends BaseComponentSerializer implements JsonSerializer<ScoreComponent>, JsonDeserializer<ScoreComponent>
 {
 
+    public ScoreComponentSerializer(VersionedComponentSerializer serializer)
+    {
+        super( serializer );
+    }
+
     @Override
     public ScoreComponent deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
     {
