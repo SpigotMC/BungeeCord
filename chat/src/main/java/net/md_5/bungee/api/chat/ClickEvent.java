@@ -3,9 +3,7 @@ package net.md_5.bungee.api.chat;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
-import org.jetbrains.annotations.ApiStatus;
 
 @Getter
 @ToString
@@ -24,13 +22,6 @@ public final class ClickEvent
      * @see Action
      */
     private final String value;
-
-    /**
-     * Returns whether this click event is used for version above 1.21.4
-     */
-    @Setter
-    @ApiStatus.Internal
-    private boolean v1_21_5 = false;
 
     public enum Action
     {

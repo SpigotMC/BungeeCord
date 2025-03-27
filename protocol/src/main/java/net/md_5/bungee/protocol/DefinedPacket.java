@@ -21,7 +21,6 @@ import java.util.function.BiConsumer;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentStyle;
-import net.md_5.bungee.chat.ComponentSerializer;
 import se.llbit.nbt.ErrorTag;
 import se.llbit.nbt.NamedTag;
 import se.llbit.nbt.SpecificTag;
@@ -120,12 +119,12 @@ public abstract class DefinedPacket
             SpecificTag nbt = (SpecificTag) readTag( buf, protocolVersion );
             JsonElement json = TagUtil.toJson( nbt );
 
-            return ComponentSerializer.deserialize( json );
+            return ChatSerializer.forVersion( protocolVersion ).deserialize( json );
         } else
         {
             String string = readString( buf, maxStringLength );
 
-            return ComponentSerializer.deserialize( string );
+            return ChatSerializer.forVersion( protocolVersion ).deserialize( string );
         }
     }
 
@@ -134,7 +133,7 @@ public abstract class DefinedPacket
         SpecificTag nbt = (SpecificTag) readTag( buf, protocolVersion );
         JsonElement json = TagUtil.toJson( nbt );
 
-        return ComponentSerializer.deserializeStyle( json );
+        return ChatSerializer.forVersion( protocolVersion ).deserializeStyle( json );
     }
 
     public static void writeEitherBaseComponent(Either<String, BaseComponent> message, ByteBuf buf, int protocolVersion)
@@ -152,13 +151,13 @@ public abstract class DefinedPacket
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
         {
-            JsonElement json = ComponentSerializer.toJson( message );
+            JsonElement json = ChatSerializer.forVersion( protocolVersion ).toJson( message );
             SpecificTag nbt = TagUtil.fromJson( json );
 
             writeTag( nbt, buf, protocolVersion );
         } else
         {
-            String string = ComponentSerializer.toString( message );
+            String string = ChatSerializer.forVersion( protocolVersion ).toString( message );
 
             writeString( string, buf );
         }
@@ -166,7 +165,7 @@ public abstract class DefinedPacket
 
     public static void writeComponentStyle(ComponentStyle style, ByteBuf buf, int protocolVersion)
     {
-        JsonElement json = ComponentSerializer.toJson( style );
+        JsonElement json = ChatSerializer.forVersion( protocolVersion ).toJson( style );
         SpecificTag nbt = TagUtil.fromJson( json );
 
         writeTag( nbt, buf, protocolVersion );

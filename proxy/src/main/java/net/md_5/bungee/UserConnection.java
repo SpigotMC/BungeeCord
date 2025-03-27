@@ -38,7 +38,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.score.Scoreboard;
-import net.md_5.bungee.chat.ComponentSerializer;
+import net.md_5.bungee.chat.VersionedComponentSerializer;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.entitymap.EntityMap;
 import net.md_5.bungee.forge.ForgeClientHandler;
@@ -47,6 +47,7 @@ import net.md_5.bungee.forge.ForgeServerHandler;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PipelineUtils;
+import net.md_5.bungee.protocol.ChatSerializer;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
@@ -133,6 +134,8 @@ public final class UserConnection implements ProxiedPlayer
     private String displayName;
     @Getter
     private EntityMap entityRewrite;
+    @Getter
+    private VersionedComponentSerializer chatSerializer;
     private Locale locale;
     /*========================================================================*/
     @Getter
@@ -167,6 +170,7 @@ public final class UserConnection implements ProxiedPlayer
     public boolean init()
     {
         this.entityRewrite = EntityMap.getEntityMap( getPendingConnection().getVersion() );
+        this.chatSerializer = ChatSerializer.forVersion( getPendingConnection().getVersion() );
 
         this.displayName = name;
 
@@ -556,7 +560,7 @@ public final class UserConnection implements ProxiedPlayer
             sendPacketQueued( new SystemChat( message, position.ordinal() ) );
         } else
         {
-            sendPacketQueued( new Chat( ComponentSerializer.toString( message ), (byte) position.ordinal(), sender ) );
+            sendPacketQueued( new Chat( chatSerializer.toString( message ), (byte) position.ordinal(), sender ) );
         }
     }
 

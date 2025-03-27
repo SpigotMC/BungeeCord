@@ -6,8 +6,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -52,31 +50,17 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ReconnectHandler;
-import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentStyle;
-import net.md_5.bungee.api.chat.KeybindComponent;
-import net.md_5.bungee.api.chat.ScoreComponent;
-import net.md_5.bungee.api.chat.SelectorComponent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.TranslatableComponent;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
-import net.md_5.bungee.chat.ComponentSerializer;
-import net.md_5.bungee.chat.ComponentStyleSerializer;
-import net.md_5.bungee.chat.KeybindComponentSerializer;
-import net.md_5.bungee.chat.ScoreComponentSerializer;
-import net.md_5.bungee.chat.SelectorComponentSerializer;
-import net.md_5.bungee.chat.TextComponentSerializer;
-import net.md_5.bungee.chat.TranslatableComponentSerializer;
 import net.md_5.bungee.command.CommandBungee;
 import net.md_5.bungee.command.CommandEnd;
 import net.md_5.bungee.command.CommandIP;
@@ -165,16 +149,6 @@ public class BungeeCord extends ProxyServer
     private final ConsoleReader consoleReader;
     @Getter
     private final Logger logger;
-    public final Gson gson = new GsonBuilder()
-            .registerTypeAdapter( BaseComponent.class, new ComponentSerializer() )
-            .registerTypeAdapter( TextComponent.class, new TextComponentSerializer() )
-            .registerTypeAdapter( TranslatableComponent.class, new TranslatableComponentSerializer() )
-            .registerTypeAdapter( KeybindComponent.class, new KeybindComponentSerializer() )
-            .registerTypeAdapter( ScoreComponent.class, new ScoreComponentSerializer() )
-            .registerTypeAdapter( SelectorComponent.class, new SelectorComponentSerializer() )
-            .registerTypeAdapter( ComponentStyle.class, new ComponentStyleSerializer() )
-            .registerTypeAdapter( ServerPing.PlayerInfo.class, new PlayerInfoSerializer() )
-            .registerTypeAdapter( Favicon.class, Favicon.getFaviconTypeAdapter() ).create();
     @Getter
     private ConnectionThrottle connectionThrottle;
     private final ModuleManager moduleManager = new ModuleManager();

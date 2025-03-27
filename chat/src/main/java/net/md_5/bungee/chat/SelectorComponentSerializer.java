@@ -13,6 +13,11 @@ import net.md_5.bungee.api.chat.SelectorComponent;
 public class SelectorComponentSerializer extends BaseComponentSerializer implements JsonSerializer<SelectorComponent>, JsonDeserializer<SelectorComponent>
 {
 
+    public SelectorComponentSerializer(VersionedComponentSerializer serializer)
+    {
+        super( serializer );
+    }
+
     @Override
     public SelectorComponent deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
     {
@@ -27,7 +32,7 @@ public class SelectorComponentSerializer extends BaseComponentSerializer impleme
         JsonElement separator = object.get( "separator" );
         if ( separator != null )
         {
-            component.setSeparator( ComponentSerializer.deserialize( separator.getAsString() ) );
+            component.setSeparator( serializer.deserialize( separator.getAsString() ) );
         }
 
         deserialize( object, component, context );
@@ -43,7 +48,7 @@ public class SelectorComponentSerializer extends BaseComponentSerializer impleme
 
         if ( component.getSeparator() != null )
         {
-            object.addProperty( "separator", ComponentSerializer.toString( component.getSeparator() ) );
+            object.addProperty( "separator", serializer.toString( component.getSeparator() ) );
         }
         return object;
     }
