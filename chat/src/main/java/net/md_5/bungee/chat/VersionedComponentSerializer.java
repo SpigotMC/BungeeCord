@@ -75,6 +75,8 @@ public class VersionedComponentSerializer implements JsonDeserializer<BaseCompon
         }
     }
 
+    @Deprecated
+    @ApiStatus.Internal
     public static VersionedComponentSerializer getDefault()
     {
         return v1_16;
