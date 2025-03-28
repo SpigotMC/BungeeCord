@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.md_5.bungee.api.ChatColor;
@@ -64,7 +65,15 @@ public class BungeeCordLauncher
         BungeeCord bungee = new BungeeCord();
         ProxyServer.setInstance( bungee );
         bungee.getLogger().info( "Enabled BungeeCord version " + bungee.getVersion() );
-        bungee.start();
+        try
+        {
+            bungee.start();
+        } catch ( Exception e )
+        {
+            bungee.getLogger().log( Level.SEVERE, "Exception encountered while starting BungeeCord", e );
+            bungee.stop();
+            return;
+        }
 
         if ( !options.has( "noconsole" ) )
         {
