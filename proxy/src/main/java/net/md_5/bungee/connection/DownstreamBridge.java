@@ -798,7 +798,19 @@ public class DownstreamBridge extends PacketHandler
         receivedLogin = true;
         ServerConnector.handleLogin( bungee, server.getCh(), con, server.getInfo(), null, server, login );
 
+        con.getCh().setConsolidate( true );
+        server.getCh().setConsolidate( true );
+
         throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void channelReadComplete(ChannelWrapper channel) throws Exception
+    {
+        if ( con.isConnected() )
+        {
+            con.getCh().forceFlush();
+        }
     }
 
     @Override

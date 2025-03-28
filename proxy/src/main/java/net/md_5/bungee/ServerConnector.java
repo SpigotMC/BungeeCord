@@ -161,6 +161,7 @@ public class ServerConnector extends PacketHandler
     public void handle(LoginSuccess loginSuccess) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not expecting LOGIN_SUCCESS" );
+        user.getCh().setConsolidate( false );
         if ( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_2 )
         {
             ServerConnection server = new ServerConnection( ch, target );

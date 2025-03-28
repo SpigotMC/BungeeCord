@@ -82,6 +82,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
         if ( handler != null )
         {
             handler.writabilityChanged( channel );
+            channel.forceFlush();
         }
     }
 
@@ -162,6 +163,15 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
         } finally
         {
             packet.trySingleRelease();
+        }
+    }
+
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception
+    {
+        if ( handler != null )
+        {
+            handler.channelReadComplete( channel );
         }
     }
 
