@@ -24,6 +24,7 @@ public class PluginMessage extends DefinedPacket
 
     public static final String BUNGEE_CHANNEL_LEGACY = "BungeeCord";
     public static final String BUNGEE_CHANNEL_MODERN = "bungeecord:main";
+    public static int MAX_CLIENT_PAYLOAD_SIZE = Integer.getInteger( "net.md_5.bungee.max_client_payload_size", Short.MAX_VALUE );
     public static final Function<String, String> MODERNISE = new Function<String, String>()
     {
         @Override
@@ -62,7 +63,7 @@ public class PluginMessage extends DefinedPacket
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         tag = ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? MODERNISE.apply( readString( buf ) ) : readString( buf, 20 );
-        int maxSize = ( direction == ProtocolConstants.Direction.TO_SERVER ) ? Short.MAX_VALUE : 0x100000;
+        int maxSize = ( direction == ProtocolConstants.Direction.TO_SERVER ) ? MAX_CLIENT_PAYLOAD_SIZE : 0x100000;
         Preconditions.checkArgument( buf.readableBytes() <= maxSize, "Payload too large" );
         data = new byte[ buf.readableBytes() ];
         buf.readBytes( data );
