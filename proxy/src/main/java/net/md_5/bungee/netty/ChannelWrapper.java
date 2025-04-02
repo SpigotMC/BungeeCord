@@ -238,6 +238,17 @@ public class ChannelWrapper
             return;
         }
 
-        ch.eventLoop().execute( task );
+        ch.eventLoop().submit( task ).addListener( future ->
+        {
+            if ( isClosing() )
+            {
+                return;
+            }
+
+            if ( !future.isSuccess() )
+            {
+                ch.pipeline().fireExceptionCaught( future.cause() );
+            }
+        } );
     }
 }
