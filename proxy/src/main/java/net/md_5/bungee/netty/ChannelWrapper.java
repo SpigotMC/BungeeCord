@@ -240,11 +240,6 @@ public class ChannelWrapper
 
         ch.eventLoop().submit( task ).addListener( future ->
         {
-            if ( isClosing() )
-            {
-                return;
-            }
-
             if ( !future.isSuccess() )
             {
                 ch.pipeline().fireExceptionCaught( future.cause() );
