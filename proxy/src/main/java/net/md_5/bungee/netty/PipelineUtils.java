@@ -135,7 +135,7 @@ public class PipelineUtils
         if ( !PlatformDependent.isWindows() )
         {
             // disable by default
-            // todo: maybe make it the new default?
+            // TODO: maybe make it the new default?
             if ( Boolean.parseBoolean( System.getProperty( "bungee.io_uring", "false" ) ) )
             {
                 ProxyServer.getInstance().getLogger().info( "Not on Windows, attempting to use enhanced IOUringEventLoopGroup" );
