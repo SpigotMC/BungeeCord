@@ -2,7 +2,6 @@ package net.md_5.bungee.connection;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
-import io.netty.channel.EventLoop;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -901,17 +900,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         return (result, error) ->
         {
-            EventLoop eventLoop = ch.getHandle().eventLoop();
-            if ( eventLoop.inEventLoop() )
-            {
-                if ( !ch.isClosing() )
-                {
-                    callback.done( result, error );
-                }
-                return;
-            }
-
-            eventLoop.execute( () ->
+            ch.scheduleIfNecessary( () ->
             {
                 if ( !ch.isClosing() )
                 {
