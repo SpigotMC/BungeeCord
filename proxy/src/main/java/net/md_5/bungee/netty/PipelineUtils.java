@@ -6,29 +6,30 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
 import io.netty.channel.ServerChannel;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollDatagramChannel;
 import io.netty.channel.epoll.EpollDomainSocketChannel;
-import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollIoHandler;
 import io.netty.channel.epoll.EpollServerDomainSocketChannel;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.channel.unix.DomainSocketAddress;
+import io.netty.channel.uring.IoUring;
+import io.netty.channel.uring.IoUringDatagramChannel;
+import io.netty.channel.uring.IoUringIoHandler;
+import io.netty.channel.uring.IoUringServerSocketChannel;
+import io.netty.channel.uring.IoUringSocketChannel;
 import io.netty.handler.codec.haproxy.HAProxyMessageDecoder;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
-import io.netty.incubator.channel.uring.IOUring;
-import io.netty.incubator.channel.uring.IOUringDatagramChannel;
-import io.netty.incubator.channel.uring.IOUringEventLoopGroup;
-import io.netty.incubator.channel.uring.IOUringServerSocketChannel;
-import io.netty.incubator.channel.uring.IOUringSocketChannel;
 import io.netty.util.AttributeKey;
 import io.netty.util.internal.PlatformDependent;
 import java.net.SocketAddress;
@@ -133,16 +134,17 @@ public class PipelineUtils
     {
         if ( !PlatformDependent.isWindows() )
         {
-            // disable by default (experimental)
+            // disable by default
+            // TODO: maybe make it the new default?
             if ( Boolean.parseBoolean( System.getProperty( "bungee.io_uring", "false" ) ) )
             {
                 ProxyServer.getInstance().getLogger().info( "Not on Windows, attempting to use enhanced IOUringEventLoopGroup" );
-                if ( io_uring = IOUring.isAvailable() )
+                if ( io_uring = IoUring.isAvailable() )
                 {
                     ProxyServer.getInstance().getLogger().log( Level.WARNING, "io_uring is enabled and working, utilising it! (experimental feature)" );
                 } else
                 {
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "io_uring is not working: {0}", Util.exception( IOUring.unavailabilityCause() ) );
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "io_uring is not working: {0}", Util.exception( IoUring.unavailabilityCause() ) );
                 }
             }
 
@@ -164,7 +166,7 @@ public class PipelineUtils
 
     public static EventLoopGroup newEventLoopGroup(int threads, ThreadFactory factory)
     {
-        return io_uring ? new IOUringEventLoopGroup( threads, factory ) : epoll ? new EpollEventLoopGroup( threads, factory ) : new NioEventLoopGroup( threads, factory );
+        return new MultiThreadIoEventLoopGroup( threads, factory, io_uring ? IoUringIoHandler.newFactory() : epoll ? EpollIoHandler.newFactory() : NioIoHandler.newFactory() );
     }
 
     public static Class<? extends ServerChannel> getServerChannel(SocketAddress address)
@@ -176,7 +178,7 @@ public class PipelineUtils
             return EpollServerDomainSocketChannel.class;
         }
 
-        return io_uring ? IOUringServerSocketChannel.class : epoll ? EpollServerSocketChannel.class : NioServerSocketChannel.class;
+        return io_uring ? IoUringServerSocketChannel.class : epoll ? EpollServerSocketChannel.class : NioServerSocketChannel.class;
     }
 
     public static Class<? extends Channel> getChannel(SocketAddress address)
@@ -188,12 +190,12 @@ public class PipelineUtils
             return EpollDomainSocketChannel.class;
         }
 
-        return io_uring ? IOUringSocketChannel.class : epoll ? EpollSocketChannel.class : NioSocketChannel.class;
+        return io_uring ? IoUringSocketChannel.class : epoll ? EpollSocketChannel.class : NioSocketChannel.class;
     }
 
     public static Class<? extends DatagramChannel> getDatagramChannel()
     {
-        return io_uring ? IOUringDatagramChannel.class : epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
+        return io_uring ? IoUringDatagramChannel.class : epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
     }
 
     private static final int LOW_MARK = Integer.getInteger( "net.md_5.bungee.low_mark", 2 << 18 ); // 0.5 mb
@@ -217,6 +219,8 @@ public class PipelineUtils
             {
                 // IP_TOS is not supported (Windows XP / Windows Server 2003)
             }
+            // https://github.com/netty/netty/wiki/Netty-4.2-Migration-Guide
+            // TODO: check for AdaptiveByteBufAllocator
             ch.config().setAllocator( PooledByteBufAllocator.DEFAULT );
             ch.config().setWriteBufferWaterMark( MARK );
 
