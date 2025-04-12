@@ -283,6 +283,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(StatusRequest statusRequest) throws Exception
     {
         Preconditions.checkState( thisState == State.STATUS, "Not expecting STATUS" );
+        thisState = null; // don't accept multiple status requests and set state to ping in async event callback
 
         ServerInfo forced = AbstractReconnectHandler.getForcedHost( this );
         final String motd = ( forced != null ) ? forced.getMotd() : listener.getMotd();
@@ -306,10 +307,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                     {
                         Gson gson = PingHandler.gson;
                         unsafe.sendPacket( new StatusResponse( gson.toJson( pingResult.getResponse() ) ) );
-                        if ( bungee.getConnectionThrottle() != null )
-                        {
-                            bungee.getConnectionThrottle().unthrottle( getSocketAddress() );
-                        }
+                        thisState = State.PING;
                     }
                 };
 
@@ -324,8 +322,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         {
             pingBack.done( getPingInfo( motd, protocol ), null );
         }
-
-        thisState = State.PING;
     }
 
     @Override
@@ -334,6 +330,10 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( thisState == State.PING, "Not expecting PING" );
         unsafe.sendPacket( ping );
         disconnect( "" );
+        if ( bungee.getConnectionThrottle() != null )
+        {
+            bungee.getConnectionThrottle().unthrottle( getSocketAddress() );
+        }
     }
 
     @Override
