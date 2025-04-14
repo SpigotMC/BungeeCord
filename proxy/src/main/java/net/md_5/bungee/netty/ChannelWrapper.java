@@ -22,6 +22,7 @@ import net.md_5.bungee.protocol.packet.Kick;
 
 public class ChannelWrapper
 {
+    private static final int MAX_CONSOLIDATION = Integer.getInteger( "net.md_5.bungee.flush-consolidation-limit", 20 );
 
     private final Channel ch;
     @Getter
@@ -31,11 +32,19 @@ public class ChannelWrapper
     private volatile boolean closed;
     @Getter
     private volatile boolean closing;
+    private boolean consolidate;
+    private int consolidationCounter;
 
     public ChannelWrapper(ChannelHandlerContext ctx)
     {
         this.ch = ctx.channel();
         this.remoteAddress = ( this.ch.remoteAddress() == null ) ? this.ch.parent().localAddress() : this.ch.remoteAddress();
+    }
+
+    public void setConsolidate(boolean enabled)
+    {
+        consolidate = enabled;
+        forceFlush();
     }
 
     public Protocol getDecodeProtocol()
@@ -55,6 +64,8 @@ public class ChannelWrapper
 
     public void setEncodeProtocol(Protocol protocol)
     {
+        // before changing the encoder protocol we should always flush to ensure no wrong states
+        forceFlush();
         getMinecraftEncoder().setProtocol( protocol );
     }
 
@@ -87,6 +98,15 @@ public class ChannelWrapper
 
     public void write(Object packet)
     {
+        // ensure netty context to for less context schedules
+        // by default we are mostly in netty context anyway, but plugins can use ProxiedPlayer.unsafe().sendPacket()
+        // in non netty context
+        if ( !ch.eventLoop().inEventLoop() )
+        {
+            ch.eventLoop().execute( () -> write( packet ) );
+            return;
+        }
+
         if ( !closed )
         {
             DefinedPacket defined = null;
@@ -94,11 +114,11 @@ public class ChannelWrapper
             {
                 PacketWrapper wrapper = (PacketWrapper) packet;
                 wrapper.setReleased( true );
-                ch.writeAndFlush( wrapper.buf, ch.voidPromise() );
+                ch.write( wrapper.buf, ch.voidPromise() );
                 defined = wrapper.packet;
             } else
             {
-                ch.writeAndFlush( packet, ch.voidPromise() );
+                ch.write( packet, ch.voidPromise() );
                 if ( packet instanceof DefinedPacket )
                 {
                     defined = (DefinedPacket) packet;
@@ -111,10 +131,31 @@ public class ChannelWrapper
                 if ( nextProtocol != null )
                 {
                     setEncodeProtocol( nextProtocol );
+                    return;
                 }
             }
+            signalFlush();
         }
     }
+
+
+
+    private void signalFlush()
+    {
+        if ( !consolidate || consolidationCounter++ >= MAX_CONSOLIDATION )
+        {
+            forceFlush();
+        }
+
+    }
+
+    public void forceFlush()
+    {
+        ch.flush();
+        consolidationCounter = 0;
+    }
+
+
 
     public void markClosed()
     {

@@ -32,4 +32,8 @@ public abstract class PacketHandler extends net.md_5.bungee.protocol.AbstractPac
     public void writabilityChanged(ChannelWrapper channel) throws Exception
     {
     }
+
+    public void channelReadComplete(ChannelWrapper channel) throws Exception
+    {
+    }
 }
