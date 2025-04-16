@@ -13,7 +13,6 @@ import java.util.UUID;
 import java.util.WeakHashMap;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Synchronized;
 import lombok.ToString;
 import net.md_5.bungee.api.boss.BarColor;
 import net.md_5.bungee.api.boss.BarFlag;
@@ -205,7 +204,6 @@ public class BungeeBossBar implements net.md_5.bungee.api.boss.BossBar
         }
     }
 
-    @Synchronized
     @Override
     public void removeFlag(BarFlag flag)
     {
