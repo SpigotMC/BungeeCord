@@ -2,6 +2,7 @@ package net.md_5.bungee.api.chat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,41 @@ public final class TextComponent extends BaseComponent
      * @param message the text to convert
      * @return the components needed to print the message to the client
      */
+    public static BaseComponent fromLegacy(String message)
+    {
+        return fromLegacy( message, ChatColor.WHITE );
+    }
+
+    /**
+     * Converts the old formatting system that used
+     * {@link net.md_5.bungee.api.ChatColor#COLOR_CHAR} into the new json based
+     * system.
+     *
+     * @param message the text to convert
+     * @param defaultColor color to use when no formatting is to be applied
+     * (i.e. after ChatColor.RESET).
+     * @return the components needed to print the message to the client
+     */
+    public static BaseComponent fromLegacy(String message, ChatColor defaultColor)
+    {
+        ComponentBuilder componentBuilder = new ComponentBuilder();
+        populateComponentStructure( message, defaultColor, componentBuilder::append );
+        return componentBuilder.build();
+    }
+
+    /**
+     * Converts the old formatting system that used
+     * {@link net.md_5.bungee.api.ChatColor#COLOR_CHAR} into the new json based
+     * system.
+     *
+     * @param message the text to convert
+     * @return the components needed to print the message to the client
+     * @deprecated {@link #fromLegacy(String)} is preferred as it will
+     * consolidate all components into a single BaseComponent with extra
+     * contents as opposed to an array of components which is non-standard and
+     * may result in unexpected behavior.
+     */
+    @Deprecated
     public static BaseComponent[] fromLegacyText(String message)
     {
         return fromLegacyText( message, ChatColor.WHITE );
@@ -41,10 +77,21 @@ public final class TextComponent extends BaseComponent
      * @param defaultColor color to use when no formatting is to be applied
      * (i.e. after ChatColor.RESET).
      * @return the components needed to print the message to the client
+     * @deprecated {@link #fromLegacy(String, ChatColor)} is preferred as it
+     * will consolidate all components into a single BaseComponent with extra
+     * contents as opposed to an array of components which is non-standard and
+     * may result in unexpected behavior.
      */
+    @Deprecated
     public static BaseComponent[] fromLegacyText(String message, ChatColor defaultColor)
     {
-        ArrayList<BaseComponent> components = new ArrayList<BaseComponent>();
+        ArrayList<BaseComponent> components = new ArrayList<>();
+        populateComponentStructure( message, defaultColor, components::add );
+        return components.toArray( new BaseComponent[ 0 ] );
+    }
+
+    private static void populateComponentStructure(String message, ChatColor defaultColor, Consumer<BaseComponent> appender)
+    {
         StringBuilder builder = new StringBuilder();
         TextComponent component = new TextComponent();
         Matcher matcher = url.matcher( message );
@@ -94,7 +141,7 @@ public final class TextComponent extends BaseComponent
                     component = new TextComponent( old );
                     old.setText( builder.toString() );
                     builder = new StringBuilder();
-                    components.add( old );
+                    appender.accept( old );
                 }
                 if ( format == ChatColor.BOLD )
                 {
@@ -111,15 +158,15 @@ public final class TextComponent extends BaseComponent
                 } else if ( format == ChatColor.MAGIC )
                 {
                     component.setObfuscated( true );
-                } else if ( format == ChatColor.RESET )
-                {
-                    format = defaultColor;
-                    component = new TextComponent();
-                    component.setColor( format );
                 } else
                 {
+                    if ( format == ChatColor.RESET )
+                    {
+                        format = defaultColor;
+                    }
                     component = new TextComponent();
                     component.setColor( format );
+                    component.setReset( true );
                 }
                 continue;
             }
@@ -137,7 +184,7 @@ public final class TextComponent extends BaseComponent
                     component = new TextComponent( old );
                     old.setText( builder.toString() );
                     builder = new StringBuilder();
-                    components.add( old );
+                    appender.accept( old );
                 }
 
                 TextComponent old = component;
@@ -146,7 +193,7 @@ public final class TextComponent extends BaseComponent
                 component.setText( urlString );
                 component.setClickEvent( new ClickEvent( ClickEvent.Action.OPEN_URL,
                         urlString.startsWith( "http" ) ? urlString : "http://" + urlString ) );
-                components.add( component );
+                appender.accept( component );
                 i += pos - i - 1;
                 component = old;
                 continue;
@@ -155,9 +202,29 @@ public final class TextComponent extends BaseComponent
         }
 
         component.setText( builder.toString() );
-        components.add( component );
+        appender.accept( component );
+    }
 
-        return components.toArray( new BaseComponent[ components.size() ] );
+    /**
+     * Internal compatibility method to transform an array of components to a
+     * single component.
+     *
+     * @param components array
+     * @return single component
+     */
+    public static BaseComponent fromArray(BaseComponent... components)
+    {
+        if ( components == null )
+        {
+            return null;
+        }
+
+        if ( components.length == 1 )
+        {
+            return components[0];
+        }
+
+        return new TextComponent( components );
     }
 
     /**
@@ -230,6 +297,6 @@ public final class TextComponent extends BaseComponent
     @Override
     public String toString()
     {
-        return String.format( "TextComponent{text=%s, %s}", text, super.toString() );
+        return "TextComponent{text=" + text + ", " + super.toString() + '}';
     }
 }

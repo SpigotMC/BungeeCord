@@ -13,19 +13,23 @@ public class BungeeLogger extends Logger
 
     private final LogDispatcher dispatcher = new LogDispatcher( this );
 
+    // CHECKSTYLE:OFF
     @SuppressWarnings(
             {
                 "CallToPrintStackTrace", "CallToThreadStartDuringObjectConstruction"
             })
+    // CHECKSTYLE:ON
     @SuppressFBWarnings("SC_START_IN_CTOR")
     public BungeeLogger(String loggerName, String filePattern, ConsoleReader reader)
     {
         super( loggerName, null );
         setLevel( Level.ALL );
+        setUseParentHandlers( false );
 
         try
         {
             FileHandler fileHandler = new FileHandler( filePattern, 1 << 24, 8, true );
+            fileHandler.setLevel( Level.parse( System.getProperty( "net.md_5.bungee.file-log-level", "INFO" ) ) );
             fileHandler.setFormatter( new ConciseFormatter( false ) );
             addHandler( fileHandler );
 

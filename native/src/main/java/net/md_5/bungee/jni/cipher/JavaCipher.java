@@ -2,6 +2,7 @@ package net.md_5.bungee.jni.cipher;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.concurrent.FastThreadLocal;
 import java.security.GeneralSecurityException;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -12,10 +13,10 @@ public class JavaCipher implements BungeeCipher
 {
 
     private final Cipher cipher;
-    private static final ThreadLocal<byte[]> heapInLocal = new EmptyByteThreadLocal();
-    private static final ThreadLocal<byte[]> heapOutLocal = new EmptyByteThreadLocal();
+    private static final FastThreadLocal<byte[]> heapInLocal = new EmptyByteThreadLocal();
+    private static final FastThreadLocal<byte[]> heapOutLocal = new EmptyByteThreadLocal();
 
-    private static class EmptyByteThreadLocal extends ThreadLocal<byte[]>
+    private static class EmptyByteThreadLocal extends FastThreadLocal<byte[]>
     {
 
         @Override
@@ -25,9 +26,15 @@ public class JavaCipher implements BungeeCipher
         }
     }
 
-    public JavaCipher() throws GeneralSecurityException
+    public JavaCipher()
     {
-        this.cipher = Cipher.getInstance( "AES/CFB8/NoPadding" );
+        try
+        {
+            this.cipher = Cipher.getInstance( "AES/CFB8/NoPadding" );
+        } catch ( GeneralSecurityException ex )
+        {
+            throw new RuntimeException( ex );
+        }
     }
 
     @Override
@@ -81,5 +88,11 @@ public class JavaCipher implements BungeeCipher
         }
         in.readBytes( heapIn, 0, readableBytes );
         return heapIn;
+    }
+
+    @Override
+    public boolean allowComposite()
+    {
+        return true;
     }
 }

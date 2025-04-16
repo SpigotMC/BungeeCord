@@ -1,14 +1,11 @@
 package net.md_5.bungee;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -24,10 +21,13 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.text.Format;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -50,32 +50,20 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ReconnectHandler;
-import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.boss.BarColor;
 import net.md_5.bungee.api.boss.BarStyle;
 import net.md_5.bungee.api.boss.BossBar;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.KeybindComponent;
-import net.md_5.bungee.api.chat.ScoreComponent;
-import net.md_5.bungee.api.chat.SelectorComponent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.TranslatableComponent;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
-import net.md_5.bungee.chat.ComponentSerializer;
-import net.md_5.bungee.chat.KeybindComponentSerializer;
-import net.md_5.bungee.chat.ScoreComponentSerializer;
-import net.md_5.bungee.chat.SelectorComponentSerializer;
-import net.md_5.bungee.chat.TextComponentSerializer;
-import net.md_5.bungee.chat.TranslatableComponentSerializer;
 import net.md_5.bungee.command.CommandBungee;
 import net.md_5.bungee.command.CommandEnd;
 import net.md_5.bungee.command.CommandIP;
@@ -88,17 +76,19 @@ import net.md_5.bungee.conf.Configuration;
 import net.md_5.bungee.conf.YamlConfig;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.log.BungeeLogger;
+import net.md_5.bungee.log.LoggingForwardHandler;
 import net.md_5.bungee.log.LoggingOutputStream;
 import net.md_5.bungee.module.ModuleManager;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.packet.Chat;
+import net.md_5.bungee.protocol.channel.BungeeChannelInitializer;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.fusesource.jansi.AnsiConsole;
+import org.slf4j.impl.JDK14LoggerFactory;
 
 /**
  * Main BungeeCord proxy class.
@@ -116,10 +106,9 @@ public class BungeeCord extends ProxyServer
     @Getter
     public final Configuration config = new Configuration();
     /**
-     * Localization bundle.
+     * Localization formats.
      */
-    private ResourceBundle baseBundle;
-    private ResourceBundle customBundle;
+    private Map<String, Format> messageFormats;
     public EventLoopGroup eventLoops;
     /**
      * locations.yml save thread.
@@ -163,22 +152,13 @@ public class BungeeCord extends ProxyServer
     private final ConsoleReader consoleReader;
     @Getter
     private final Logger logger;
-    public final Gson gson = new GsonBuilder()
-            .registerTypeAdapter( BaseComponent.class, new ComponentSerializer() )
-            .registerTypeAdapter( TextComponent.class, new TextComponentSerializer() )
-            .registerTypeAdapter( TranslatableComponent.class, new TranslatableComponentSerializer() )
-            .registerTypeAdapter( KeybindComponent.class, new KeybindComponentSerializer() )
-            .registerTypeAdapter( ScoreComponent.class, new ScoreComponentSerializer() )
-            .registerTypeAdapter( SelectorComponent.class, new SelectorComponentSerializer() )
-            .registerTypeAdapter( ServerPing.PlayerInfo.class, new PlayerInfoSerializer() )
-            .registerTypeAdapter( Favicon.class, Favicon.getFaviconTypeAdapter() ).create();
     @Getter
     private ConnectionThrottle connectionThrottle;
     private final ModuleManager moduleManager = new ModuleManager();
 
     {
         // TODO: Proper fallback when we interface the manager
-        registerChannel( "BungeeCord" );
+        registerChannel( PluginMessage.BUNGEE_CHANNEL_LEGACY );
     }
 
     public static BungeeCord getInstance()
@@ -186,21 +166,27 @@ public class BungeeCord extends ProxyServer
         return (BungeeCord) ProxyServer.getInstance();
     }
 
+    private final Unsafe unsafe = new Unsafe()
+    {
+        @Getter
+        @Setter
+        private BungeeChannelInitializer frontendChannelInitializer;
+
+        @Getter
+        @Setter
+        private BungeeChannelInitializer backendChannelInitializer;
+
+        @Getter
+        @Setter
+        private BungeeChannelInitializer serverInfoChannelInitializer;
+    };
+
     @SuppressFBWarnings("DM_DEFAULT_ENCODING")
     public BungeeCord() throws IOException
     {
         // Java uses ! to indicate a resource inside of a jar/zip/other container. Running Bungee from within a directory that has a ! will cause this to muck up.
         Preconditions.checkState( new File( "." ).getAbsolutePath().indexOf( '!' ) == -1, "Cannot use BungeeCord in directory with ! in path." );
 
-        System.setSecurityManager( new BungeeSecurityManager() );
-
-        try
-        {
-            baseBundle = ResourceBundle.getBundle( "messages" );
-        } catch ( MissingResourceException ex )
-        {
-            baseBundle = ResourceBundle.getBundle( "messages", Locale.ENGLISH );
-        }
         reloadMessages();
 
         // This is a workaround for quite possibly the weirdest bug I have ever encountered in my life!
@@ -219,6 +205,22 @@ public class BungeeCord extends ProxyServer
         consoleReader.addCompleter( new ConsoleCommandCompleter( this ) );
 
         logger = new BungeeLogger( "BungeeCord", "proxy.log", consoleReader );
+        JDK14LoggerFactory.LOGGER = logger;
+
+        // Before we can set the Err and Out streams to our LoggingOutputStream we also have to remove
+        // the default ConsoleHandler from the root logger, which writes to the err stream.
+        // But we still want to log these records, so we add our own handler which forwards the LogRecord to the BungeeLogger.
+        // This way we skip the err stream and the problem of only getting a string without context, and can handle the LogRecord itself.
+        // Thus improving the default bahavior for projects that log on other Logger instances not created by BungeeCord.
+        Logger rootLogger = Logger.getLogger( "" );
+        for ( Handler handler : rootLogger.getHandlers() )
+        {
+            rootLogger.removeHandler( handler );
+        }
+        rootLogger.addHandler( new LoggingForwardHandler( logger ) );
+
+        // We want everything that reaches these output streams to be handled by our logger
+        // since it applies a nice looking format and also writes to the logfile.
         System.setErr( new PrintStream( new LoggingOutputStream( logger, Level.SEVERE ), true ) );
         System.setOut( new PrintStream( new LoggingOutputStream( logger, Level.INFO ), true ) );
 
@@ -258,7 +260,7 @@ public class BungeeCord extends ProxyServer
     public void start() throws Exception
     {
         System.setProperty( "io.netty.selectorAutoRebuildThreshold", "0" ); // Seems to cause Bungee to stop accepting connections
-        if ( System.getProperty( "io.netty.leakDetectionLevel" ) == null )
+        if ( System.getProperty( "io.netty.leakDetectionLevel" ) == null && System.getProperty( "io.netty.leakDetection.level" ) == null )
         {
             ResourceLeakDetector.setLevel( ResourceLeakDetector.Level.DISABLED ); // Eats performance
         }
@@ -351,7 +353,7 @@ public class BungeeCord extends ProxyServer
                     .channel( PipelineUtils.getServerChannel( info.getSocketAddress() ) )
                     .option( ChannelOption.SO_REUSEADDR, true ) // TODO: Move this elsewhere!
                     .childAttr( PipelineUtils.LISTENER, info )
-                    .childHandler( PipelineUtils.SERVER_CHILD )
+                    .childHandler( unsafe().getFrontendChannelInitializer().getChannelInitializer() )
                     .group( eventLoops )
                     .localAddress( info.getSocketAddress() )
                     .bind().addListener( listener );
@@ -541,32 +543,49 @@ public class BungeeCord extends ProxyServer
         return ( BungeeCord.class.getPackage().getImplementationVersion() == null ) ? "unknown" : BungeeCord.class.getPackage().getImplementationVersion();
     }
 
-    public void reloadMessages()
+    public final void reloadMessages()
     {
+        Map<String, Format> cachedFormats = new HashMap<>();
+
         File file = new File( "messages.properties" );
         if ( file.isFile() )
         {
             try ( FileReader rd = new FileReader( file ) )
             {
-                customBundle = new PropertyResourceBundle( rd );
+                cacheResourceBundle( cachedFormats, new PropertyResourceBundle( rd ) );
             } catch ( IOException ex )
             {
                 getLogger().log( Level.SEVERE, "Could not load custom messages.properties", ex );
             }
+        }
+
+        ResourceBundle baseBundle;
+        try
+        {
+            baseBundle = ResourceBundle.getBundle( "messages" );
+        } catch ( MissingResourceException ex )
+        {
+            baseBundle = ResourceBundle.getBundle( "messages", Locale.ENGLISH );
+        }
+        cacheResourceBundle( cachedFormats, baseBundle );
+
+        messageFormats = Collections.unmodifiableMap( cachedFormats );
+    }
+
+    private void cacheResourceBundle(Map<String, Format> map, ResourceBundle resourceBundle)
+    {
+        Enumeration<String> keys = resourceBundle.getKeys();
+        while ( keys.hasMoreElements() )
+        {
+            map.computeIfAbsent( keys.nextElement(), (key) -> new MessageFormat( resourceBundle.getString( key ) ) );
         }
     }
 
     @Override
     public String getTranslation(String name, Object... args)
     {
-        String translation = "<translation '" + name + "' missing>";
-        try
-        {
-            translation = MessageFormat.format( customBundle != null && customBundle.containsKey( name ) ? customBundle.getString( name ) : baseBundle.getString( name ), args );
-        } catch ( MissingResourceException ex )
-        {
-        }
-        return translation;
+        Format format = messageFormats.get( name );
+        return ( format != null ) ? format.format( args ) : "<translation '" + name + "' missing>";
     }
 
     @Override
@@ -602,12 +621,16 @@ public class BungeeCord extends ProxyServer
         }
     }
 
-    public UserConnection getPlayerByOfflineUUID(UUID name)
+    public UserConnection getPlayerByOfflineUUID(UUID uuid)
     {
+        if ( uuid.version() != 3 )
+        {
+            return null;
+        }
         connectionLock.readLock().lock();
         try
         {
-            return connectionsByOfflineUUID.get( name );
+            return connectionsByOfflineUUID.get( uuid );
         } finally
         {
             connectionLock.readLock().unlock();
@@ -664,10 +687,10 @@ public class BungeeCord extends ProxyServer
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
         {
-            return new PluginMessage( "minecraft:register", Util.format( Iterables.transform( pluginChannels, PluginMessage.MODERNISE ), "\00" ).getBytes( Charsets.UTF_8 ), false );
+            return new PluginMessage( "minecraft:register", String.join( "\00", Iterables.transform( pluginChannels, PluginMessage.MODERNISE ) ).getBytes( StandardCharsets.UTF_8 ), false );
         }
 
-        return new PluginMessage( "REGISTER", Util.format( pluginChannels, "\00" ).getBytes( Charsets.UTF_8 ), false );
+        return new PluginMessage( "REGISTER", String.join( "\00", pluginChannels ).getBytes( StandardCharsets.UTF_8 ), false );
     }
 
     @Override
@@ -703,35 +726,51 @@ public class BungeeCord extends ProxyServer
     @Override
     public void broadcast(String message)
     {
-        broadcast( TextComponent.fromLegacyText( message ) );
+        broadcast( TextComponent.fromLegacy( message ) );
     }
 
     @Override
     public void broadcast(BaseComponent... message)
     {
-        getConsole().sendMessage( BaseComponent.toLegacyText( message ) );
-        broadcast( new Chat( ComponentSerializer.toString( message ) ) );
+        getConsole().sendMessage( message );
+        for ( ProxiedPlayer player : getPlayers() )
+        {
+            player.sendMessage( message );
+        }
     }
 
     @Override
     public void broadcast(BaseComponent message)
     {
-        getConsole().sendMessage( message.toLegacyText() );
-        broadcast( new Chat( ComponentSerializer.toString( message ) ) );
+        getConsole().sendMessage( message );
+        for ( ProxiedPlayer player : getPlayers() )
+        {
+            player.sendMessage( message );
+        }
     }
 
-    public void addConnection(UserConnection con)
+    public boolean addConnection(UserConnection con)
     {
+        UUID offlineId = con.getPendingConnection().getOfflineId();
+        if ( offlineId != null && offlineId.version() != 3 )
+        {
+            throw new IllegalArgumentException( "Offline UUID must be a name-based UUID" );
+        }
         connectionLock.writeLock().lock();
         try
         {
+            if ( connections.containsKey( con.getName() ) || connectionsByUUID.containsKey( con.getUniqueId() ) || connectionsByOfflineUUID.containsKey( offlineId ) )
+            {
+                return false;
+            }
             connections.put( con.getName(), con );
             connectionsByUUID.put( con.getUniqueId(), con );
-            connectionsByOfflineUUID.put( con.getPendingConnection().getOfflineId(), con );
+            connectionsByOfflineUUID.put( offlineId, con );
         } finally
         {
             connectionLock.writeLock().unlock();
         }
+        return true;
     }
 
     public void removeConnection(UserConnection con)
@@ -790,5 +829,11 @@ public class BungeeCord extends ProxyServer
     public BossBar createBossBar(BaseComponent[] title, BarColor color, BarStyle division, float health)
     {
         return new BungeeBossBar( title, color, division, health );
+    }
+    
+    @Override
+    public Unsafe unsafe()
+    {
+        return unsafe;
     }
 }

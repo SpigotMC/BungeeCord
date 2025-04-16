@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
@@ -17,16 +18,27 @@ public class Title extends DefinedPacket
     private Action action;
 
     // TITLE & SUBTITLE
-    private String text;
+    private BaseComponent text;
 
     // TIMES
     private int fadeIn;
     private int stay;
     private int fadeOut;
 
+    public Title(Action action)
+    {
+        this.action = action;
+    }
+
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_17 )
+        {
+            text = readBaseComponent( buf, protocolVersion );
+            return;
+        }
+
         int index = readVarInt( buf );
 
         // If we're working on 1.10 or lower, increment the value of the index so we pull out the correct value.
@@ -41,7 +53,7 @@ public class Title extends DefinedPacket
             case TITLE:
             case SUBTITLE:
             case ACTIONBAR:
-                text = readString( buf );
+                text = readBaseComponent( buf, protocolVersion );
                 break;
             case TIMES:
                 fadeIn = buf.readInt();
@@ -54,6 +66,12 @@ public class Title extends DefinedPacket
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_17 )
+        {
+            writeBaseComponent( text, buf, protocolVersion );
+            return;
+        }
+
         int index = action.ordinal();
 
         // If we're working on 1.10 or lower, increment the value of the index so we pull out the correct value.
@@ -68,7 +86,7 @@ public class Title extends DefinedPacket
             case TITLE:
             case SUBTITLE:
             case ACTIONBAR:
-                writeString( text, buf );
+                writeBaseComponent( text, buf, protocolVersion );
                 break;
             case TIMES:
                 buf.writeInt( fadeIn );

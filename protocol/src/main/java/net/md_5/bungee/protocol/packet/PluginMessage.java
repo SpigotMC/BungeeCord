@@ -2,7 +2,6 @@ package net.md_5.bungee.protocol.packet;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import io.netty.buffer.ByteBuf;
 import java.io.ByteArrayInputStream;
 import java.io.DataInput;
@@ -23,19 +22,21 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 public class PluginMessage extends DefinedPacket
 {
 
+    public static final String BUNGEE_CHANNEL_LEGACY = "BungeeCord";
+    public static final String BUNGEE_CHANNEL_MODERN = "bungeecord:main";
     public static final Function<String, String> MODERNISE = new Function<String, String>()
     {
         @Override
         public String apply(String tag)
         {
             // Transform as per Bukkit
-            if ( tag.equals( "BungeeCord" ) )
+            if ( tag.equals( PluginMessage.BUNGEE_CHANNEL_LEGACY ) )
             {
-                return "bungeecord:main";
+                return PluginMessage.BUNGEE_CHANNEL_MODERN;
             }
-            if ( tag.equals( "bungeecord:main" ) )
+            if ( tag.equals( PluginMessage.BUNGEE_CHANNEL_MODERN ) )
             {
-                return "BungeeCord";
+                return PluginMessage.BUNGEE_CHANNEL_LEGACY;
             }
 
             // Code that gets to here is UNLIKELY to be viable on the Bukkit side of side things,
@@ -46,14 +47,6 @@ public class PluginMessage extends DefinedPacket
             }
 
             return "legacy:" + tag.toLowerCase( Locale.ROOT );
-        }
-    };
-    public static final Predicate<PluginMessage> SHOULD_RELAY = new Predicate<PluginMessage>()
-    {
-        @Override
-        public boolean apply(PluginMessage input)
-        {
-            return ( input.getTag().equals( "REGISTER" ) || input.getTag().equals( "minecraft:register" ) || input.getTag().equals( "MC|Brand" ) || input.getTag().equals( "minecraft:brand" ) ) && input.getData().length < Byte.MAX_VALUE;
         }
     };
     //
@@ -68,9 +61,9 @@ public class PluginMessage extends DefinedPacket
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        tag = ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? MODERNISE.apply( readString( buf ) ) : readString( buf );
-        int maxSize = direction == ProtocolConstants.Direction.TO_SERVER ? Short.MAX_VALUE : 0x100000;
-        Preconditions.checkArgument( buf.readableBytes() < maxSize );
+        tag = ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? MODERNISE.apply( readString( buf ) ) : readString( buf, 20 );
+        int maxSize = ( direction == ProtocolConstants.Direction.TO_SERVER ) ? Short.MAX_VALUE : 0x100000;
+        Preconditions.checkArgument( buf.readableBytes() <= maxSize, "Payload too large" );
         data = new byte[ buf.readableBytes() ];
         buf.readBytes( data );
     }

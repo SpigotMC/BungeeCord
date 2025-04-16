@@ -1,7 +1,7 @@
 package net.md_5.bungee.protocol.packet;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class PluginMessageTest
 {
@@ -9,9 +9,9 @@ public class PluginMessageTest
     @Test
     public void testModerniseChannel()
     {
-        Assert.assertEquals( "bungeecord:main", PluginMessage.MODERNISE.apply( "BungeeCord" ) );
-        Assert.assertEquals( "BungeeCord", PluginMessage.MODERNISE.apply( "bungeecord:main" ) );
-        Assert.assertEquals( "legacy:foo", PluginMessage.MODERNISE.apply( "FoO" ) );
-        Assert.assertEquals( "foo:bar", PluginMessage.MODERNISE.apply( "foo:bar" ) );
+        assertEquals( PluginMessage.BUNGEE_CHANNEL_MODERN, PluginMessage.MODERNISE.apply( PluginMessage.BUNGEE_CHANNEL_LEGACY ) );
+        assertEquals( PluginMessage.BUNGEE_CHANNEL_LEGACY, PluginMessage.MODERNISE.apply( PluginMessage.BUNGEE_CHANNEL_MODERN ) );
+        assertEquals( "legacy:foo", PluginMessage.MODERNISE.apply( "FoO" ) );
+        assertEquals( "foo:bar", PluginMessage.MODERNISE.apply( "foo:bar" ) );
     }
 }

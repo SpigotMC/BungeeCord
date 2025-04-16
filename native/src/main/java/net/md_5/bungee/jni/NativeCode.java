@@ -6,39 +6,44 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.function.Supplier;
 import net.md_5.bungee.jni.cipher.BungeeCipher;
 
 public final class NativeCode<T>
 {
 
     private final String name;
-    private final Class<? extends T> javaImpl;
-    private final Class<? extends T> nativeImpl;
+    private final Supplier<? extends T> javaImpl;
+    private final Supplier<? extends T> nativeImpl;
+    private final boolean enableNativeFlag;
+    private final boolean extendedSupportCheck;
     //
     private boolean loaded;
 
-    public NativeCode(String name, Class<? extends T> javaImpl, Class<? extends T> nativeImpl)
+    public NativeCode(String name, Supplier<? extends T> javaImpl, Supplier<? extends T> nativeImpl)
+    {
+        this( name, javaImpl, nativeImpl, false );
+    }
+
+    public NativeCode(String name, Supplier<? extends T> javaImpl, Supplier<? extends T> nativeImpl, boolean extendedSupportCheck)
     {
         this.name = name;
         this.javaImpl = javaImpl;
         this.nativeImpl = nativeImpl;
+        this.enableNativeFlag = Boolean.parseBoolean( System.getProperty( "net.md_5.bungee.jni." + name + ".enable", "true" ) );
+        this.extendedSupportCheck = extendedSupportCheck;
     }
 
     public T newInstance()
     {
-        try
-        {
-            return ( loaded ) ? nativeImpl.getDeclaredConstructor().newInstance() : javaImpl.getDeclaredConstructor().newInstance();
-        } catch ( ReflectiveOperationException ex )
-        {
-            throw new RuntimeException( "Error getting instance", ex );
-        }
+        return ( loaded ) ? nativeImpl.get() : javaImpl.get();
     }
 
     public boolean load()
     {
-        if ( !loaded && isSupported() )
+        if ( enableNativeFlag && !loaded && isSupported() )
         {
+            String name = this.name + ( isAarch64() ? "-arm" : "" );
             String fullName = "bungeecord-" + name;
 
             try
@@ -64,6 +69,13 @@ public final class NativeCode<T>
                     }
 
                     System.load( temp.getPath() );
+
+                    if ( extendedSupportCheck )
+                    {
+                        // Should throw NativeCodeException if incompatible
+                        nativeImpl.get();
+                    }
+
                     loaded = true;
                 } catch ( IOException ex )
                 {
@@ -71,6 +83,9 @@ public final class NativeCode<T>
                 } catch ( UnsatisfiedLinkError ex )
                 {
                     System.out.println( "Could not load native library: " + ex.getMessage() );
+                } catch ( NativeCodeException ex )
+                {
+                    System.out.println( "Native library " + name + " is incompatible: " + ex.getMessage() );
                 }
             }
         }
@@ -80,6 +95,16 @@ public final class NativeCode<T>
 
     public static boolean isSupported()
     {
-        return "Linux".equals( System.getProperty( "os.name" ) ) && "amd64".equals( System.getProperty( "os.arch" ) );
+        return "Linux".equals( System.getProperty( "os.name" ) ) && ( isAmd64() || isAarch64() );
+    }
+
+    private static boolean isAmd64()
+    {
+        return "amd64".equals( System.getProperty( "os.arch" ) );
+    }
+
+    private static boolean isAarch64()
+    {
+        return "aarch64".equals( System.getProperty( "os.arch" ) );
     }
 }

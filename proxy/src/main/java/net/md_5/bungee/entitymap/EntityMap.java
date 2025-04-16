@@ -62,7 +62,39 @@ public abstract class EntityMap
             case ProtocolConstants.MINECRAFT_1_15_2:
                 return EntityMap_1_15.INSTANCE;
             case ProtocolConstants.MINECRAFT_1_16:
+            case ProtocolConstants.MINECRAFT_1_16_1:
                 return EntityMap_1_16.INSTANCE;
+            case ProtocolConstants.MINECRAFT_1_16_2:
+            case ProtocolConstants.MINECRAFT_1_16_3:
+            case ProtocolConstants.MINECRAFT_1_16_4:
+                return EntityMap_1_16_2.INSTANCE_1_16_2;
+            case ProtocolConstants.MINECRAFT_1_17:
+            case ProtocolConstants.MINECRAFT_1_17_1:
+                return EntityMap_1_16_2.INSTANCE_1_17;
+            case ProtocolConstants.MINECRAFT_1_18:
+            case ProtocolConstants.MINECRAFT_1_18_2:
+                return EntityMap_1_16_2.INSTANCE_1_18;
+            case ProtocolConstants.MINECRAFT_1_19:
+                return EntityMap_1_16_2.INSTANCE_1_19;
+            case ProtocolConstants.MINECRAFT_1_19_1:
+            case ProtocolConstants.MINECRAFT_1_19_3:
+                return EntityMap_1_16_2.INSTANCE_1_19_1;
+            case ProtocolConstants.MINECRAFT_1_19_4:
+            case ProtocolConstants.MINECRAFT_1_20:
+                return EntityMap_1_16_2.INSTANCE_1_19_4;
+            case ProtocolConstants.MINECRAFT_1_20_2:
+                return EntityMap_1_16_2.INSTANCE_1_20_2;
+            case ProtocolConstants.MINECRAFT_1_20_3:
+                return EntityMap_1_16_2.INSTANCE_1_20_3;
+            case ProtocolConstants.MINECRAFT_1_20_5:
+            case ProtocolConstants.MINECRAFT_1_21:
+                return EntityMap_1_16_2.INSTANCE_1_20_5;
+            case ProtocolConstants.MINECRAFT_1_21_2:
+                return EntityMap_1_16_2.INSTANCE_1_21_2;
+            case ProtocolConstants.MINECRAFT_1_21_4:
+                return EntityMap_1_16_2.INSTANCE_1_21_4;
+            case ProtocolConstants.MINECRAFT_1_21_5:
+                return EntityMap_1_16_2.INSTANCE_1_21_5;
         }
         throw new RuntimeException( "Version " + version + " has no entity map" );
     }

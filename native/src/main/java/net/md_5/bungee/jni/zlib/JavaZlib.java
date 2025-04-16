@@ -73,4 +73,10 @@ public class JavaZlib implements BungeeZlib
             inflater.reset();
         }
     }
+
+    @Override
+    public boolean allowComposite()
+    {
+        return true;
+    }
 }

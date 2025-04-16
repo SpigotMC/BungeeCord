@@ -7,16 +7,23 @@ import io.netty.handler.codec.CorruptedFrameException;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.haproxy.HAProxyMessage;
 import io.netty.handler.timeout.ReadTimeoutException;
+import io.netty.handler.timeout.WriteTimeoutException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.logging.Level;
+import lombok.Setter;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.connection.PingHandler;
+import net.md_5.bungee.connection.UpstreamBridge;
 import net.md_5.bungee.protocol.BadPacketException;
 import net.md_5.bungee.protocol.OverflowPacketException;
 import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.packet.Kick;
+import net.md_5.bungee.util.PacketLimiter;
 import net.md_5.bungee.util.QuietException;
 
 /**
@@ -27,8 +34,11 @@ import net.md_5.bungee.util.QuietException;
 public class HandlerBoss extends ChannelInboundHandlerAdapter
 {
 
+    @Setter
+    private PacketLimiter limiter;
     private ChannelWrapper channel;
     private PacketHandler handler;
+    private boolean healthCheck;
 
     public void setHandler(PacketHandler handler)
     {
@@ -81,23 +91,59 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
         if ( msg instanceof HAProxyMessage )
         {
             HAProxyMessage proxy = (HAProxyMessage) msg;
-            InetSocketAddress newAddress = new InetSocketAddress( proxy.sourceAddress(), proxy.sourcePort() );
-
-            ProxyServer.getInstance().getLogger().log( Level.FINE, "Set remote address via PROXY {0} -> {1}", new Object[]
+            try
             {
-                channel.getRemoteAddress(), newAddress
-            } );
+                if ( proxy.sourceAddress() != null )
+                {
+                    InetSocketAddress newAddress = new InetSocketAddress( proxy.sourceAddress(), proxy.sourcePort() );
 
-            channel.setRemoteAddress( newAddress );
+                    ProxyServer.getInstance().getLogger().log( Level.FINE, "Set remote address via PROXY {0} -> {1}", new Object[]
+                    {
+                        channel.getRemoteAddress(), newAddress
+                    } );
+
+                    channel.setRemoteAddress( newAddress );
+                } else
+                {
+                    healthCheck = true;
+                }
+            } finally
+            {
+                proxy.release();
+            }
             return;
         }
 
-        if ( handler != null )
+        PacketWrapper packet = (PacketWrapper) msg;
+
+        try
         {
-            PacketWrapper packet = (PacketWrapper) msg;
-            boolean sendPacket = handler.shouldHandle( packet );
-            try
+            // check if the player exceeds packet limits, put inside try final, so we always release.
+            if ( limiter != null && !limiter.incrementAndCheck( packet.buf.readableBytes() ) )
             {
+                // we shouldn't tell the player what limits he exceeds by default
+                // but if someone applies custom message we should allow them to display counter and bytes
+                channel.close( handler instanceof UpstreamBridge ? new Kick( TextComponent.fromLegacy( ProxyServer.getInstance().getTranslation( "packet_limit_kick", limiter.getCounter(), limiter.getDataCounter() ) ) ) : null );
+                // but the server admin should know
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} exceeded packet limit ({1} packets and {2} bytes per second)", new Object[]
+                {
+                    handler, limiter.getCounter(), limiter.getDataCounter()
+                } );
+                return;
+            }
+
+            if ( packet.packet != null )
+            {
+                Protocol nextProtocol = packet.packet.nextProtocol();
+                if ( nextProtocol != null )
+                {
+                    channel.setDecodeProtocol( nextProtocol );
+                }
+            }
+
+            if ( handler != null )
+            {
+                boolean sendPacket = handler.shouldHandle( packet );
                 if ( sendPacket && packet.packet != null )
                 {
                     try
@@ -112,10 +158,10 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                 {
                     handler.handle( packet );
                 }
-            } finally
-            {
-                packet.trySingleRelease();
             }
+        } finally
+        {
+            packet.trySingleRelease();
         }
     }
 
@@ -124,13 +170,16 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     {
         if ( ctx.channel().isActive() )
         {
-            boolean logExceptions = !( handler instanceof PingHandler );
+            boolean logExceptions = !( handler instanceof PingHandler ) && !healthCheck;
 
             if ( logExceptions )
             {
                 if ( cause instanceof ReadTimeoutException )
                 {
                     ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - read timed out", handler );
+                } else if ( cause instanceof WriteTimeoutException )
+                {
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - write timed out", handler );
                 } else if ( cause instanceof DecoderException )
                 {
                     if ( cause instanceof CorruptedFrameException )
@@ -141,7 +190,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                         } );
                     } else if ( cause.getCause() instanceof BadPacketException )
                     {
-                        ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - bad packet ID, are mods in use!? {1}", new Object[]
+                        ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - bad packet, are mods in use!? {1}", new Object[]
                         {
                             handler, cause.getCause().getMessage()
                         } );
@@ -151,6 +200,9 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                         {
                             handler, cause.getCause().getMessage()
                         } );
+                    } else
+                    {
+                        ProxyServer.getInstance().getLogger().log( Level.WARNING, handler + " - could not decode packet!", cause );
                     }
                 } else if ( cause instanceof IOException || ( cause instanceof IllegalStateException && handler instanceof InitialHandler ) )
                 {

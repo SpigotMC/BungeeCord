@@ -105,13 +105,13 @@ public class ServerPing
     @Deprecated
     public ServerPing(Protocol version, Players players, String description, String favicon)
     {
-        this( version, players, new TextComponent( TextComponent.fromLegacyText( description ) ), favicon == null ? null : Favicon.create( favicon ) );
+        this( version, players, TextComponent.fromLegacy( description ), favicon == null ? null : Favicon.create( favicon ) );
     }
 
     @Deprecated
     public ServerPing(Protocol version, Players players, String description, Favicon favicon)
     {
-        this( version, players, new TextComponent( TextComponent.fromLegacyText( description ) ), favicon );
+        this( version, players, TextComponent.fromLegacy( description ), favicon );
     }
 
     @Deprecated
@@ -139,7 +139,7 @@ public class ServerPing
     @Deprecated
     public void setDescription(String description)
     {
-        this.description = new TextComponent( TextComponent.fromLegacyText( description ) );
+        this.description = TextComponent.fromLegacy( description );
     }
 
     @Deprecated

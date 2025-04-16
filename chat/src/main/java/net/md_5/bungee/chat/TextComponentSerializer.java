@@ -8,32 +8,35 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
-import java.util.List;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class TextComponentSerializer extends BaseComponentSerializer implements JsonSerializer<TextComponent>, JsonDeserializer<TextComponent>
 {
+
+    public TextComponentSerializer(VersionedComponentSerializer serializer)
+    {
+        super( serializer );
+    }
 
     @Override
     public TextComponent deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
         TextComponent component = new TextComponent();
         JsonObject object = json.getAsJsonObject();
+        JsonElement text = object.get( "text" );
+        if ( text != null )
+        {
+            component.setText( text.getAsString() );
+        }
         deserialize( object, component, context );
-        component.setText( object.get( "text" ).getAsString() );
         return component;
     }
 
     @Override
     public JsonElement serialize(TextComponent src, Type typeOfSrc, JsonSerializationContext context)
     {
-        List<BaseComponent> extra = src.getExtra();
         JsonObject object = new JsonObject();
-        if ( src.hasFormatting() || ( extra != null && !extra.isEmpty() ) )
-        {
-            serialize( object, src, context );
-        }
+        serialize( object, src, context );
         object.addProperty( "text", src.getText() );
         return object;
     }

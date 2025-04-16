@@ -5,7 +5,7 @@
 
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-parent</artifactId>
-    <version>1.16-R0.1-SNAPSHOT</version>
+    <version>1.21-R0.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>BungeeCord-Parent</name>
@@ -18,8 +18,8 @@
     </organization>
     <licenses>
         <license>
-            <name>The BSD 3-Clause License</name>
-            <url>http://opensource.org/licenses/BSD-3-Clause</url>
+            <name>Modified BSD 3-Clause License</name>
+            <url>https://github.com/SpigotMC/BungeeCord/blob/master/LICENSE</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -41,6 +41,7 @@
         <module>protocol</module>
         <module>proxy</module>
         <module>query</module>
+        <module>slf4j</module>
         <module>native</module>
     </modules>
 
@@ -71,23 +72,34 @@
 
     <properties>
         <build.number>unknown</build.number>
-        <netty.version>4.1.49.Final</netty.version>
+        <lombok.version>1.18.38</lombok.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-bom</artifactId>
+                <version>4.2.0.Final</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>21.0</version>
+            <version>33.3.1-jre</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -97,19 +109,34 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations-java5</artifactId>
+            <version>24.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.10</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.6.3</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>net.md-5</groupId>
                 <artifactId>scriptus</artifactId>
-                <version>0.3.2</version>
+                <version>0.5.0</version>
                 <configuration>
                     <format>git:${project.name}:${project.version}:%s:${build.number}</format>
                 </configuration>
@@ -124,8 +151,13 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.6.0</version>
                 <executions>
                     <execution>
                         <phase>process-classes</phase>
@@ -143,14 +175,14 @@
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
                         <artifactId>checkstyle</artifactId>
-                        <version>8.29</version>
+                        <version>8.45.1</version>
                     </dependency>
                 </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <version>1.18</version>
+                <version>1.23</version>
                 <executions>
                     <execution>
                         <phase>process-classes</phase>
@@ -167,10 +199,91 @@
                     </signature>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.4.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce</id>
+                        <configuration>
+                            <rules>
+                                <dependencyConvergence>
+                                    <excludes>
+                                        <!-- org.apache.maven:maven-resolver-provider is inconsistent -->
+                                        <exclude>org.apache.commons:commons-lang3</exclude>
+                                        <!-- org.apache.maven:maven-resolver-transport-http is inconsistent -->
+                                        <exclude>org.apache.httpcomponents:httpcore</exclude>
+                                    </excludes>
+                                </dependencyConvergence>
+                            </rules>
+                        </configuration>
+                        <goals>
+                            <!--<goal>enforce</goal>--> <!-- Disabled until maven-resolver is upgraded again. -->
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
     <profiles>
+        <profile>
+            <id>jdk-9-release</id>
+            <activation>
+                <jdk>[9,)</jdk>
+            </activation>
+            <properties>
+                <maven.compiler.release>8</maven.compiler.release>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk-9-javadoc</id>
+            <activation>
+                <jdk>[9,)</jdk>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-javadoc-plugin</artifactId>
+                            <configuration>
+                                <additionalOptions>-html5</additionalOptions>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        <profile>
+            <id>jdk-15-javadoc</id>
+            <activation>
+                <jdk>[15,)</jdk>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-javadoc-plugin</artifactId>
+                            <configuration>
+                                <doclint>none</doclint>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        <profile>
+            <id>jdk-21-proc</id>
+            <activation>
+                <jdk>[21,)</jdk>
+            </activation>
+            <properties>
+                <maven.compiler.proc>full</maven.compiler.proc>
+            </properties>
+        </profile>        
         <profile>
             <id>dist</id>
             <build>
@@ -178,7 +291,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>3.2.1</version>
+                        <version>3.3.1</version>
                         <executions>
                             <execution>
                                 <phase>package</phase>
@@ -191,7 +304,7 @@
                     <plugin>
                         <groupId>org.projectlombok</groupId>
                         <artifactId>lombok-maven-plugin</artifactId>
-                        <version>1.18.10.0</version>
+                        <version>1.18.20.0</version>
                         <executions>
                             <execution>
                                 <phase>package</phase>
@@ -205,11 +318,17 @@
                             <outputDirectory>${project.build.directory}/delombok</outputDirectory>
                             <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
                         </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </dependency>
+                        </dependencies>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.1.1</version>
                         <executions>
                             <!-- Execute Javadoc once normally to catch any warnings -->
                             <execution>
@@ -236,6 +355,26 @@
                             <quiet>true</quiet>
                             <failOnWarnings>true</failOnWarnings>
                         </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>3.2.4</version>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

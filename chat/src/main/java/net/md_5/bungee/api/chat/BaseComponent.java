@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.chat;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -20,38 +21,10 @@ public abstract class BaseComponent
     BaseComponent parent;
 
     /**
-     * The color of this component and any child components (unless overridden)
+     * The component's style.
      */
-    private ChatColor color;
-    /**
-     * The font of this component and any child components (unless overridden)
-     */
-    private String font;
-    /**
-     * Whether this component and any child components (unless overridden) is
-     * bold
-     */
-    private Boolean bold;
-    /**
-     * Whether this component and any child components (unless overridden) is
-     * italic
-     */
-    private Boolean italic;
-    /**
-     * Whether this component and any child components (unless overridden) is
-     * underlined
-     */
-    private Boolean underlined;
-    /**
-     * Whether this component and any child components (unless overridden) is
-     * strikethrough
-     */
-    private Boolean strikethrough;
-    /**
-     * Whether this component and any child components (unless overridden) is
-     * obfuscated
-     */
-    private Boolean obfuscated;
+    @Getter
+    private ComponentStyle style = new ComponentStyle();
     /**
      * The text to insert into the chat when this component (and child
      * components) are clicked while pressing the shift key
@@ -77,6 +50,12 @@ public abstract class BaseComponent
      */
     @Getter
     private HoverEvent hoverEvent;
+
+    /**
+     * Whether this component rejects previous formatting
+     */
+    @Getter
+    private transient boolean reset;
 
     /**
      * Default constructor.
@@ -147,31 +126,35 @@ public abstract class BaseComponent
         }
         if ( retention == FormatRetention.FORMATTING || retention == FormatRetention.ALL )
         {
-            if ( replace || color == null )
+            if ( replace || !style.hasColor() )
             {
                 setColor( component.getColorRaw() );
             }
-            if ( replace || font == null )
+            if ( replace || !style.hasShadowColor() )
+            {
+                setShadowColor( component.getShadowColorRaw() );
+            }
+            if ( replace || !style.hasFont() )
             {
                 setFont( component.getFontRaw() );
             }
-            if ( replace || bold == null )
+            if ( replace || style.isBoldRaw() == null )
             {
                 setBold( component.isBoldRaw() );
             }
-            if ( replace || italic == null )
+            if ( replace || style.isItalicRaw() == null )
             {
                 setItalic( component.isItalicRaw() );
             }
-            if ( replace || underlined == null )
+            if ( replace || style.isUnderlinedRaw() == null )
             {
                 setUnderlined( component.isUnderlinedRaw() );
             }
-            if ( replace || strikethrough == null )
+            if ( replace || style.isStrikethroughRaw() == null )
             {
                 setStrikethrough( component.isStrikethroughRaw() );
             }
-            if ( replace || obfuscated == null )
+            if ( replace || style.isObfuscatedRaw() == null )
             {
                 setObfuscated( component.isObfuscatedRaw() );
             }
@@ -197,6 +180,7 @@ public abstract class BaseComponent
         if ( retention == FormatRetention.EVENTS || retention == FormatRetention.NONE )
         {
             setColor( null );
+            setShadowColor( null );
             setBold( null );
             setItalic( null );
             setUnderlined( null );
@@ -261,6 +245,32 @@ public abstract class BaseComponent
     }
 
     /**
+     * Set the {@link ComponentStyle} for this component.
+     * <p>
+     * Unlike {@link #applyStyle(ComponentStyle)}, this method will overwrite
+     * all style values on this component.
+     *
+     * @param style the style to set, or null to set all style values to default
+     */
+    public void setStyle(ComponentStyle style)
+    {
+        this.style = ( style != null ) ? style.clone() : new ComponentStyle();
+    }
+
+    /**
+     * Set this component's color.
+     * <p>
+     * <b>Warning: This should be a color, not formatting code (ie,
+     * {@link ChatColor#color} should not be null).</b>
+     *
+     * @param color the component color, or null to use the default
+     */
+    public void setColor(ChatColor color)
+    {
+        this.style.setColor( color );
+    }
+
+    /**
      * Returns the color of this component. This uses the parent's color if this
      * component doesn't have one. {@link net.md_5.bungee.api.ChatColor#WHITE}
      * is returned if no color is found.
@@ -269,7 +279,7 @@ public abstract class BaseComponent
      */
     public ChatColor getColor()
     {
-        if ( color == null )
+        if ( !style.hasColor() )
         {
             if ( parent == null )
             {
@@ -277,7 +287,7 @@ public abstract class BaseComponent
             }
             return parent.getColor();
         }
-        return color;
+        return style.getColor();
     }
 
     /**
@@ -288,7 +298,57 @@ public abstract class BaseComponent
      */
     public ChatColor getColorRaw()
     {
-        return color;
+        return style.getColor();
+    }
+
+    /**
+     * Set this component's shadow color.
+     *
+     * @param color the component shadow color, or null to use the default
+     */
+    public void setShadowColor(Color color)
+    {
+        this.style.setShadowColor( color );
+    }
+
+    /**
+     * Returns the shadow color of this component. This uses the parent's shadow color if this
+     * component doesn't have one. null is returned if no shadow color is found.
+     *
+     * @return the shadow color of this component
+     */
+    public Color getShadowColor()
+    {
+        if ( !style.hasShadowColor() )
+        {
+            if ( parent == null )
+            {
+                return null;
+            }
+            return parent.getShadowColor();
+        }
+        return style.getShadowColor();
+    }
+
+    /**
+     * Returns the shadow color of this component without checking the parents
+     * shadow color. May return null
+     *
+     * @return the shadow color of this component
+     */
+    public Color getShadowColorRaw()
+    {
+        return style.getShadowColor();
+    }
+
+    /**
+     * Set this component's font.
+     *
+     * @param font the font to set, or null to use the default
+     */
+    public void setFont(String font)
+    {
+        this.style.setFont( font );
     }
 
     /**
@@ -299,7 +359,7 @@ public abstract class BaseComponent
      */
     public String getFont()
     {
-        if ( color == null )
+        if ( !style.hasFont() )
         {
             if ( parent == null )
             {
@@ -307,7 +367,7 @@ public abstract class BaseComponent
             }
             return parent.getFont();
         }
-        return font;
+        return style.getFont();
     }
 
     /**
@@ -318,7 +378,17 @@ public abstract class BaseComponent
      */
     public String getFontRaw()
     {
-        return font;
+        return style.getFont();
+    }
+
+    /**
+     * Set whether or not this component is bold.
+     *
+     * @param bold the new bold state, or null to use the default
+     */
+    public void setBold(Boolean bold)
+    {
+        this.style.setBold( bold );
     }
 
     /**
@@ -330,11 +400,11 @@ public abstract class BaseComponent
      */
     public boolean isBold()
     {
-        if ( bold == null )
+        if ( style.isBoldRaw() == null )
         {
             return parent != null && parent.isBold();
         }
-        return bold;
+        return style.isBold();
     }
 
     /**
@@ -345,7 +415,17 @@ public abstract class BaseComponent
      */
     public Boolean isBoldRaw()
     {
-        return bold;
+        return style.isBoldRaw();
+    }
+
+    /**
+     * Set whether or not this component is italic.
+     *
+     * @param italic the new italic state, or null to use the default
+     */
+    public void setItalic(Boolean italic)
+    {
+        this.style.setItalic( italic );
     }
 
     /**
@@ -357,11 +437,11 @@ public abstract class BaseComponent
      */
     public boolean isItalic()
     {
-        if ( italic == null )
+        if ( style.isItalicRaw() == null )
         {
             return parent != null && parent.isItalic();
         }
-        return italic;
+        return style.isItalic();
     }
 
     /**
@@ -372,7 +452,17 @@ public abstract class BaseComponent
      */
     public Boolean isItalicRaw()
     {
-        return italic;
+        return style.isItalicRaw();
+    }
+
+    /**
+     * Set whether or not this component is underlined.
+     *
+     * @param underlined the new underlined state, or null to use the default
+     */
+    public void setUnderlined(Boolean underlined)
+    {
+        this.style.setUnderlined( underlined );
     }
 
     /**
@@ -384,11 +474,11 @@ public abstract class BaseComponent
      */
     public boolean isUnderlined()
     {
-        if ( underlined == null )
+        if ( style.isUnderlinedRaw() == null )
         {
             return parent != null && parent.isUnderlined();
         }
-        return underlined;
+        return style.isUnderlined();
     }
 
     /**
@@ -399,7 +489,18 @@ public abstract class BaseComponent
      */
     public Boolean isUnderlinedRaw()
     {
-        return underlined;
+        return style.isUnderlinedRaw();
+    }
+
+    /**
+     * Set whether or not this component is strikethrough.
+     *
+     * @param strikethrough the new strikethrough state, or null to use the
+     * default
+     */
+    public void setStrikethrough(Boolean strikethrough)
+    {
+        this.style.setStrikethrough( strikethrough );
     }
 
     /**
@@ -411,11 +512,11 @@ public abstract class BaseComponent
      */
     public boolean isStrikethrough()
     {
-        if ( strikethrough == null )
+        if ( style.isStrikethroughRaw() == null )
         {
             return parent != null && parent.isStrikethrough();
         }
-        return strikethrough;
+        return style.isStrikethrough();
     }
 
     /**
@@ -426,7 +527,17 @@ public abstract class BaseComponent
      */
     public Boolean isStrikethroughRaw()
     {
-        return strikethrough;
+        return style.isStrikethroughRaw();
+    }
+
+    /**
+     * Set whether or not this component is obfuscated.
+     *
+     * @param obfuscated the new obfuscated state, or null to use the default
+     */
+    public void setObfuscated(Boolean obfuscated)
+    {
+        this.style.setObfuscated( obfuscated );
     }
 
     /**
@@ -438,11 +549,11 @@ public abstract class BaseComponent
      */
     public boolean isObfuscated()
     {
-        if ( obfuscated == null )
+        if ( style.isObfuscatedRaw() == null )
         {
             return parent != null && parent.isObfuscated();
         }
-        return obfuscated;
+        return style.isObfuscated();
     }
 
     /**
@@ -453,7 +564,52 @@ public abstract class BaseComponent
      */
     public Boolean isObfuscatedRaw()
     {
-        return obfuscated;
+        return style.isObfuscatedRaw();
+    }
+
+    /**
+     * Apply the style from the given {@link ComponentStyle} to this component.
+     * <p>
+     * Any style values that have been explicitly set in the style will be
+     * applied to this component. If a value is not set in the style, it will
+     * not override the style set in this component.
+     *
+     * @param style the style to apply
+     */
+    public void applyStyle(ComponentStyle style)
+    {
+        if ( style.hasColor() )
+        {
+            setColor( style.getColor() );
+        }
+        if ( style.hasShadowColor() )
+        {
+            setShadowColor( style.getShadowColor() );
+        }
+        if ( style.hasFont() )
+        {
+            setFont( style.getFont() );
+        }
+        if ( style.isBoldRaw() != null )
+        {
+            setBold( style.isBoldRaw() );
+        }
+        if ( style.isItalicRaw() != null )
+        {
+            setItalic( style.isItalicRaw() );
+        }
+        if ( style.isUnderlinedRaw() != null )
+        {
+            setUnderlined( style.isUnderlinedRaw() );
+        }
+        if ( style.isStrikethroughRaw() != null )
+        {
+            setStrikethrough( style.isStrikethroughRaw() );
+        }
+        if ( style.isObfuscatedRaw() != null )
+        {
+            setObfuscated( style.isObfuscatedRaw() );
+        }
     }
 
     public void setExtra(List<BaseComponent> components)
@@ -493,16 +649,24 @@ public abstract class BaseComponent
     }
 
     /**
+     * Returns whether the component has any styling applied to it.
+     *
+     * @return Whether any styling is applied
+     */
+    public boolean hasStyle()
+    {
+        return !style.isEmpty();
+    }
+
+    /**
      * Returns whether the component has any formatting or events applied to it
      *
      * @return Whether any formatting or events are applied
      */
     public boolean hasFormatting()
     {
-        return color != null || font != null || bold != null
-                || italic != null || underlined != null
-                || strikethrough != null || obfuscated != null
-                || insertion != null || hoverEvent != null || clickEvent != null;
+        return hasStyle() || insertion != null
+                || hoverEvent != null || clickEvent != null;
     }
 
     /**

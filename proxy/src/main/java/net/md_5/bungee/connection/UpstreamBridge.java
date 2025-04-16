@@ -8,7 +8,9 @@ import io.netty.channel.Channel;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.ServerConnection.KeepAliveData;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
@@ -19,18 +21,30 @@ import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.SettingsChangedEvent;
 import net.md_5.bungee.api.event.TabCompleteEvent;
+import net.md_5.bungee.entitymap.EntityMap;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
+import net.md_5.bungee.protocol.packet.ClientChat;
+import net.md_5.bungee.protocol.packet.ClientCommand;
 import net.md_5.bungee.protocol.packet.ClientSettings;
+import net.md_5.bungee.protocol.packet.CookieResponse;
+import net.md_5.bungee.protocol.packet.FinishConfiguration;
 import net.md_5.bungee.protocol.packet.KeepAlive;
+import net.md_5.bungee.protocol.packet.LoginAcknowledged;
+import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
+import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.StartConfiguration;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
+import net.md_5.bungee.protocol.packet.UnsignedClientCommand;
+import net.md_5.bungee.util.AllowedCharacters;
 
 public class UpstreamBridge extends PacketHandler
 {
@@ -43,9 +57,7 @@ public class UpstreamBridge extends PacketHandler
         this.bungee = bungee;
         this.con = con;
 
-        BungeeCord.getInstance().addConnection( con );
         con.getTabListHandler().onConnect();
-        con.unsafe().sendPacket( BungeeCord.getInstance().registerChannels( con.getPendingConnection().getVersion() ) );
     }
 
     @Override
@@ -71,17 +83,31 @@ public class UpstreamBridge extends PacketHandler
             // TODO: This should only done with server_unique
             //       tab list (which is the only one supported
             //       currently)
-            PlayerListItem packet = new PlayerListItem();
-            packet.setAction( PlayerListItem.Action.REMOVE_PLAYER );
+            PlayerListItem oldPacket = new PlayerListItem();
+            oldPacket.setAction( PlayerListItem.Action.REMOVE_PLAYER );
             PlayerListItem.Item item = new PlayerListItem.Item();
-            item.setUuid( con.getUniqueId() );
-            packet.setItems( new PlayerListItem.Item[]
+            item.setUuid( con.getRewriteId() );
+            oldPacket.setItems( new PlayerListItem.Item[]
             {
                 item
             } );
+
+            PlayerListItemRemove newPacket = new PlayerListItemRemove();
+            newPacket.setUuids( new UUID[]
+            {
+                con.getRewriteId()
+            } );
+
             for ( ProxiedPlayer player : con.getServer().getInfo().getPlayers() )
             {
-                player.unsafe().sendPacket( packet );
+                if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_19_3 )
+                {
+                    // need to queue, because players in config state could receive it
+                    player.unsafe().sendPacketQueued( newPacket );
+                } else
+                {
+                    player.unsafe().sendPacket( oldPacket );
+                }
             }
             con.getServer().disconnect( "Quitting" );
         }
@@ -106,16 +132,28 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
     {
-        return con.getServer() != null || packet.packet instanceof PluginMessage;
+        return con.getServer() != null || packet.packet instanceof PluginMessage || packet.packet instanceof CookieResponse || packet.packet instanceof LoginPayloadResponse;
     }
 
     @Override
     public void handle(PacketWrapper packet) throws Exception
     {
-        if ( con.getServer() != null )
+        ServerConnection server = con.getServer();
+        if ( server != null && server.isConnected() )
         {
-            con.getEntityRewrite().rewriteServerbound( packet.buf, con.getClientEntityId(), con.getServerEntityId(), con.getPendingConnection().getVersion() );
-            con.getServer().getCh().write( packet );
+            Protocol serverEncode = server.getCh().getEncodeProtocol();
+            // #3527: May still have old packets from client in game state when switching server to configuration state - discard those
+            if ( packet.protocol != serverEncode )
+            {
+                return;
+            }
+
+            EntityMap rewrite = con.getEntityRewrite();
+            if ( rewrite != null && serverEncode == Protocol.GAME )
+            {
+                rewrite.rewriteServerbound( packet.buf, con.getClientEntityId(), con.getServerEntityId(), con.getPendingConnection().getVersion() );
+            }
+            server.getCh().write( packet );
         }
     }
 
@@ -139,16 +177,53 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(Chat chat) throws Exception
     {
-        int maxLength = ( con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_11 ) ? 256 : 100;
-        Preconditions.checkArgument( chat.getMessage().length() <= maxLength, "Chat message too long" ); // Mojang limit, check on updates
+        String message = handleChat( chat.getMessage() );
+        if ( message != null )
+        {
+            chat.setMessage( message );
+            con.getServer().unsafe().sendPacket( chat );
+        }
 
-        ChatEvent chatEvent = new ChatEvent( con, con.getServer(), chat.getMessage() );
+        throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void handle(ClientChat chat) throws Exception
+    {
+        handleChat( chat.getMessage() );
+    }
+
+    @Override
+    public void handle(ClientCommand command) throws Exception
+    {
+        handleChat( "/" + command.getCommand() );
+    }
+
+    @Override
+    public void handle(UnsignedClientCommand command) throws Exception
+    {
+        handleChat( "/" + command.getCommand() );
+    }
+
+    private String handleChat(String message)
+    {
+        for ( int index = 0, length = message.length(); index < length; index++ )
+        {
+            char c = message.charAt( index );
+            if ( !AllowedCharacters.isChatAllowedCharacter( c ) )
+            {
+                con.disconnect( bungee.getTranslation( "illegal_chat_characters", Util.unicode( c ) ) );
+                throw CancelSendSignal.INSTANCE;
+            }
+        }
+
+        ChatEvent chatEvent = new ChatEvent( con, con.getServer(), message );
         if ( !bungee.getPluginManager().callEvent( chatEvent ).isCancelled() )
         {
-            chat.setMessage( chatEvent.getMessage() );
-            if ( !chatEvent.isCommand() || !bungee.getPluginManager().dispatchCommand( con, chat.getMessage().substring( 1 ) ) )
+            message = chatEvent.getMessage();
+            if ( !chatEvent.isCommand() || !bungee.getPluginManager().dispatchCommand( con, message.substring( 1 ) ) )
             {
-                con.getServer().unsafe().sendPacket( chat );
+                return message;
             }
         }
         throw CancelSendSignal.INSTANCE;
@@ -158,10 +233,12 @@ public class UpstreamBridge extends PacketHandler
     public void handle(TabCompleteRequest tabComplete) throws Exception
     {
         List<String> suggestions = new ArrayList<>();
+        boolean isRegisteredCommand = false;
+        boolean isCommand = tabComplete.getCursor().startsWith( "/" );
 
-        if ( tabComplete.getCursor().startsWith( "/" ) )
+        if ( isCommand )
         {
-            bungee.getPluginManager().dispatchCommand( con, tabComplete.getCursor().substring( 1 ), suggestions );
+            isRegisteredCommand = bungee.getPluginManager().dispatchCommand( con, tabComplete.getCursor().substring( 1 ), suggestions );
         }
 
         TabCompleteEvent tabCompleteEvent = new TabCompleteEvent( con, con.getServer(), tabComplete.getCursor(), suggestions );
@@ -196,6 +273,21 @@ public class UpstreamBridge extends PacketHandler
             }
             throw CancelSendSignal.INSTANCE;
         }
+
+        // Don't forward tab completions if the command is a registered bungee command
+        if ( isRegisteredCommand )
+        {
+            throw CancelSendSignal.INSTANCE;
+        }
+
+        if ( isCommand && con.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_13 )
+        {
+            int lastSpace = tabComplete.getCursor().lastIndexOf( ' ' );
+            if ( lastSpace == -1 )
+            {
+                con.setLastCommandTabbed( tabComplete.getCursor().substring( 1 ) );
+            }
+        }
     }
 
     @Override
@@ -210,7 +302,7 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(PluginMessage pluginMessage) throws Exception
     {
-        if ( pluginMessage.getTag().equals( "BungeeCord" ) )
+        if ( pluginMessage.getTag().equals( PluginMessage.BUNGEE_CHANNEL_LEGACY ) || pluginMessage.getTag().equals( PluginMessage.BUNGEE_CHANNEL_MODERN ) )
         {
             throw CancelSendSignal.INSTANCE;
         }
@@ -245,11 +337,52 @@ public class UpstreamBridge extends PacketHandler
             throw CancelSendSignal.INSTANCE;
         }
 
-        // TODO: Unregister as well?
-        if ( PluginMessage.SHOULD_RELAY.apply( pluginMessage ) )
+        con.getPendingConnection().relayMessage( pluginMessage );
+    }
+
+    @Override
+    public void handle(LoginAcknowledged loginAcknowledged) throws Exception
+    {
+        configureServer();
+    }
+
+    @Override
+    public void handle(StartConfiguration startConfiguration) throws Exception
+    {
+        configureServer();
+    }
+
+    private void configureServer()
+    {
+        ChannelWrapper ch = con.getServer().getCh();
+        if ( ch.getDecodeProtocol() == Protocol.LOGIN )
         {
-            con.getPendingConnection().getRelayMessages().add( pluginMessage );
+            ch.setDecodeProtocol( Protocol.CONFIGURATION );
+            ch.write( new LoginAcknowledged() );
+            ch.setEncodeProtocol( Protocol.CONFIGURATION );
+
+            con.getServer().sendQueuedPackets();
+
+            throw CancelSendSignal.INSTANCE;
         }
+    }
+
+    @Override
+    public void handle(FinishConfiguration finishConfiguration) throws Exception
+    {
+        con.sendQueuedPackets();
+    }
+
+    @Override
+    public void handle(CookieResponse cookieResponse) throws Exception
+    {
+        con.getPendingConnection().handle( cookieResponse );
+    }
+
+    @Override
+    public void handle(LoginPayloadResponse loginPayloadResponse) throws Exception
+    {
+        con.getPendingConnection().handle( loginPayloadResponse );
     }
 
     @Override

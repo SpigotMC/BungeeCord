@@ -23,11 +23,14 @@ public class ClientSettings extends DefinedPacket
     private byte difficulty;
     private byte skinParts;
     private int mainHand;
+    private boolean disableTextFiltering;
+    private boolean allowServerListing;
+    private ParticleStatus particleStatus;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        locale = readString( buf );
+        locale = readString( buf, 16 );
         viewDistance = buf.readByte();
         chatFlags = protocolVersion >= ProtocolConstants.MINECRAFT_1_9 ? DefinedPacket.readVarInt( buf ) : buf.readUnsignedByte();
         chatColours = buf.readBoolean();
@@ -35,6 +38,18 @@ public class ClientSettings extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
         {
             mainHand = DefinedPacket.readVarInt( buf );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_17 )
+        {
+            disableTextFiltering = buf.readBoolean();
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_18 )
+        {
+            allowServerListing = buf.readBoolean();
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
+        {
+            particleStatus = ParticleStatus.values()[readVarInt( buf )];
         }
     }
 
@@ -56,11 +71,30 @@ public class ClientSettings extends DefinedPacket
         {
             DefinedPacket.writeVarInt( mainHand, buf );
         }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_17 )
+        {
+            buf.writeBoolean( disableTextFiltering );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_18 )
+        {
+            buf.writeBoolean( allowServerListing );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
+        {
+            writeVarInt( particleStatus.ordinal(), buf );
+        }
     }
 
     @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {
         handler.handle( this );
+    }
+
+    public enum ParticleStatus
+    {
+        ALL,
+        DECREASED,
+        MINIMAL;
     }
 }

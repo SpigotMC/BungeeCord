@@ -7,6 +7,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -69,6 +70,17 @@ public class Util
     }
 
     /**
+     * Formats an char as a unicode value.
+     *
+     * @param c the character to format
+     * @return the unicode representation of the character
+     */
+    public static String unicode(char c)
+    {
+        return "\\u" + String.format( "%04x", (int) c ).toUpperCase( Locale.ROOT );
+    }
+
+    /**
      * Constructs a pretty one line version of a {@link Throwable}. Useful for
      * debugging.
      *
@@ -77,10 +89,23 @@ public class Util
      */
     public static String exception(Throwable t)
     {
+        return exception( t, true );
+    }
+
+    /**
+     * Constructs a pretty one line version of a {@link Throwable}. Useful for
+     * debugging.
+     *
+     * @param t the {@link Throwable} to format.
+     * @param includeLineNumbers whether to include line numbers
+     * @return a string representing information about the {@link Throwable}
+     */
+    public static String exception(Throwable t, boolean includeLineNumbers)
+    {
         // TODO: We should use clear manually written exceptions
         StackTraceElement[] trace = t.getStackTrace();
         return t.getClass().getSimpleName() + " : " + t.getMessage()
-                + ( ( trace.length > 0 ) ? " @ " + t.getStackTrace()[0].getClassName() + ":" + t.getStackTrace()[0].getLineNumber() : "" );
+                + ( ( includeLineNumbers && trace.length > 0 ) ? " @ " + t.getStackTrace()[0].getClassName() + ":" + t.getStackTrace()[0].getLineNumber() : "" );
     }
 
     public static String csv(Iterable<?> objects)
@@ -88,6 +113,16 @@ public class Util
         return format( objects, ", " );
     }
 
+    /**
+     * Returns a string of objects, each separated by a separator.
+     *
+     * @param objects the objects to join
+     * @param separators the separator
+     * @return joined string
+     * @see String#join(java.lang.CharSequence, java.lang.Iterable)
+     * @deprecated use {@link String} join methods
+     */
+    @Deprecated
     public static String format(Iterable<?> objects, String separators)
     {
         return Joiner.on( separators ).join( objects );

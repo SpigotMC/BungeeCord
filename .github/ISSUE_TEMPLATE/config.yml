@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Configuration help
+    url: https://www.spigotmc.org/forums/bungeecord-help.70/create-thread
+    about: Help for configuring bungeecord will only be answered in spigotmc.org forums.
+  - name: I have a problem with a bungee plugin
+    url: https://www.spigotmc.org/forums/bungeecord-plugin-help.71/create-thread
+    about: Help about plugins can be recieved in spigotmc.org forums.
+  - name: Questions and discussions
+    url: https://www.spigotmc.org/forums/bungeecord-discussion.21/create-thread
+    about: spigotmc.org forums are the best place to ask your questions regarding bungeecord.
+  - name: Plugin creation help
+    url: https://www.spigotmc.org/forums/bungeecord-plugin-development.23/create-thread
+    about: Plugin creation help for bungee plugins can be recieved in spigotmc.org forums.

@@ -13,6 +13,8 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
 @RequiredArgsConstructor
@@ -30,6 +32,7 @@ public class ServerConnection implements Server
     private final boolean forgeServer = false;
     @Getter
     private final Queue<KeepAliveData> keepAlives = new ArrayDeque<>();
+    private final Queue<DefinedPacket> packetQueue = new ArrayDeque<>();
 
     private final Unsafe unsafe = new Unsafe()
     {
@@ -38,12 +41,61 @@ public class ServerConnection implements Server
         {
             ch.write( packet );
         }
+
+        @Override
+        public void sendPacketQueued(DefinedPacket packet)
+        {
+            if ( ch.getEncodeVersion() >= ProtocolConstants.MINECRAFT_1_20_2 )
+            {
+                ServerConnection.this.sendPacketQueued( packet );
+            } else
+            {
+                sendPacket( packet );
+            }
+        }
     };
+
+    public void sendPacketQueued(DefinedPacket packet)
+    {
+        ch.scheduleIfNecessary( () ->
+        {
+            if ( ch.isClosed() )
+            {
+                return;
+            }
+            Protocol encodeProtocol = ch.getEncodeProtocol();
+            if ( !encodeProtocol.TO_SERVER.hasPacket( packet.getClass(), ch.getEncodeVersion() ) )
+            {
+                // we should limit this so bad api usage won't oom the server.
+                Preconditions.checkState( packetQueue.size() <= 4096, "too many queued packets" );
+                packetQueue.add( packet );
+            } else
+            {
+                unsafe().sendPacket( packet );
+            }
+        } );
+    }
+
+    public void sendQueuedPackets()
+    {
+        ch.scheduleIfNecessary( () ->
+        {
+            if ( ch.isClosed() )
+            {
+                return;
+            }
+            DefinedPacket packet;
+            while ( ( packet = packetQueue.poll() ) != null )
+            {
+                unsafe().sendPacket( packet );
+            }
+        } );
+    }
 
     @Override
     public void sendData(String channel, byte[] data)
     {
-        unsafe().sendPacket( new PluginMessage( channel, data, forgeServer ) );
+        sendPacketQueued( new PluginMessage( channel, data, forgeServer ) );
     }
 
     @Override
@@ -57,6 +109,7 @@ public class ServerConnection implements Server
     {
         Preconditions.checkArgument( reason.length == 0, "Server cannot have disconnect reason" );
 
+        isObsolete = true;
         ch.close();
     }
 

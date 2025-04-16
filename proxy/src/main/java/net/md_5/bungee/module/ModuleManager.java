@@ -31,10 +31,12 @@ public class ModuleManager
         knownSources.put( "jenkins", new JenkinsModuleSource() );
     }
 
+    // CHECKSTYLE:OFF
     @SuppressFBWarnings(
             {
                 "SF_SWITCH_FALLTHROUGH", "SF_SWITCH_NO_DEFAULT"
             })
+    // CHECKSTYLE:ON
     public void load(ProxyServer proxy, File moduleDirectory) throws Exception
     {
         moduleDirectory.mkdir();
@@ -42,7 +44,7 @@ public class ModuleManager
         ModuleVersion bungeeVersion = ModuleVersion.parse( proxy.getVersion() );
         if ( bungeeVersion == null )
         {
-            System.out.println( "Couldn't detect bungee version. Custom build?" );
+            proxy.getLogger().warning( "Couldn't detect bungee version. Custom build?" );
             return;
         }
 
@@ -103,19 +105,19 @@ public class ModuleManager
             ModuleSource source = knownSources.get( uri.getScheme() );
             if ( source == null )
             {
-                System.out.println( "Unknown module source: " + s );
+                proxy.getLogger().warning( "Unknown module source: " + s );
                 continue;
             }
             String name = uri.getAuthority();
             if ( name == null )
             {
-                System.out.println( "Unknown module host: " + s );
+                proxy.getLogger().warning( "Unknown module host: " + s );
                 continue;
             }
 
             ModuleSpec spec = new ModuleSpec( name, new File( moduleDirectory, name + ".jar" ), source );
             modules.add( spec );
-            System.out.println( "Discovered module: " + spec );
+            proxy.getLogger().info( "Discovered module: " + spec );
         }
 
         for ( ModuleSpec module : modules )
@@ -124,7 +126,7 @@ public class ModuleManager
 
             if ( !bungeeVersion.equals( moduleVersion ) )
             {
-                System.out.println( "Attempting to update plugin from " + moduleVersion + " to " + bungeeVersion );
+                proxy.getLogger().info( "Attempting to update plugin from " + moduleVersion + " to " + bungeeVersion );
                 module.getProvider().retrieve( module, bungeeVersion );
             }
         }

@@ -1,16 +1,18 @@
 package net.md_5.bungee.util;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ScoreComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Content;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.score.Score;
+import net.md_5.bungee.protocol.ProtocolConstants;
 
 /**
  * This class transforms chat components by attempting to replace transformable
@@ -32,6 +34,27 @@ public final class ChatComponentTransformer
      */
     private static final Pattern SELECTOR_PATTERN = Pattern.compile( "^@([pares])(?:\\[([^ ]*)\\])?$" );
 
+    public BaseComponent legacyHoverTransform(ProxiedPlayer player, BaseComponent next)
+    {
+        if ( player.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_16 )
+        {
+            if ( next.getHoverEvent() == null || next.getHoverEvent().isLegacy() )
+            {
+                return next;
+            }
+            next = next.duplicate();
+            next.getHoverEvent().setLegacy( true );
+            if ( next.getHoverEvent().getContents().size() > 1 )
+            {
+                Content exception = next.getHoverEvent().getContents().get( 0 );
+                next.getHoverEvent().getContents().clear();
+                next.getHoverEvent().getContents().add( exception );
+            }
+        }
+
+        return next;
+    }
+
     public static ChatComponentTransformer getInstance()
     {
         return INSTANCE;
@@ -44,35 +67,54 @@ public final class ChatComponentTransformer
      * {@link BaseComponent#getExtra()}).
      *
      * @param player player
-     * @param component the component to transform
+     * @param components the component to transform
      * @return the transformed component, or an array containing a single empty
      * TextComponent if the components are null or empty
      * @throws IllegalArgumentException if an entity selector pattern is present
      */
-    public BaseComponent[] transform(ProxiedPlayer player, BaseComponent... component)
+    public BaseComponent transform(ProxiedPlayer player, BaseComponent components)
     {
-        if ( component == null || component.length < 1 || ( component.length == 1 && component[0] == null ) )
+        return transform( player, false, components );
+    }
+
+    /**
+     * Transform a set of components, and attempt to transform the transformable
+     * fields. Entity selectors <b>cannot</b> be evaluated. This will
+     * recursively search for all extra components (see
+     * {@link BaseComponent#getExtra()}).
+     *
+     * @param player player
+     * @param transformHover if the hover event should replace contents with
+     * value
+     * @param root the component to transform
+     * @return the transformed component, or an array containing a single empty
+     * TextComponent if the components are null or empty
+     * @throws IllegalArgumentException if an entity selector pattern is present
+     */
+    public BaseComponent transform(ProxiedPlayer player, boolean transformHover, BaseComponent root)
+    {
+        if ( root == null )
         {
-            return new BaseComponent[]
-            {
-                new TextComponent( "" )
-            };
+            return new TextComponent( "" );
         }
 
-        for ( BaseComponent root : component )
+        if ( transformHover )
         {
-            if ( root.getExtra() != null && !root.getExtra().isEmpty() )
-            {
-                List<BaseComponent> list = Lists.newArrayList( transform( player, root.getExtra().toArray( new BaseComponent[ root.getExtra().size() ] ) ) );
-                root.setExtra( list );
-            }
-
-            if ( root instanceof ScoreComponent )
-            {
-                transformScoreComponent( player, (ScoreComponent) root );
-            }
+            root = legacyHoverTransform( player, root );
         }
-        return component;
+
+        if ( root.getExtra() != null && !root.getExtra().isEmpty() )
+        {
+            List<BaseComponent> list = root.getExtra().stream().map( (extra) -> transform( player, transformHover, extra ) ).collect( Collectors.toList() );
+            root.setExtra( list );
+        }
+
+        if ( root instanceof ScoreComponent )
+        {
+            transformScoreComponent( player, (ScoreComponent) root );
+        }
+
+        return root;
     }
 
     /**

@@ -2,7 +2,6 @@ package net.md_5.bungee.protocol.packet;
 
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -12,7 +11,6 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class Chat extends DefinedPacket
 {
@@ -32,10 +30,17 @@ public class Chat extends DefinedPacket
         this( message, position, EMPTY_UUID );
     }
 
+    public Chat(String message, byte position, UUID sender)
+    {
+        this.message = message;
+        this.position = position;
+        this.sender = sender == null ? EMPTY_UUID : sender;
+    }
+
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        message = readString( buf );
+        message = readString( buf, ( direction == ProtocolConstants.Direction.TO_CLIENT ) ? 262144 : ( protocolVersion >= ProtocolConstants.MINECRAFT_1_11 ? 256 : 100 ) );
         if ( direction == ProtocolConstants.Direction.TO_CLIENT )
         {
             position = buf.readByte();
@@ -49,7 +54,7 @@ public class Chat extends DefinedPacket
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        writeString( message, buf );
+        writeString( message, buf, ( direction == ProtocolConstants.Direction.TO_CLIENT ) ? 262144 : ( protocolVersion >= ProtocolConstants.MINECRAFT_1_11 ? 256 : 100 ) );
         if ( direction == ProtocolConstants.Direction.TO_CLIENT )
         {
             buf.writeByte( position );

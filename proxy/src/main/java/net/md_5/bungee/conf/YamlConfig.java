@@ -1,6 +1,5 @@
 package net.md_5.bungee.conf;
 
-import com.google.common.base.Charsets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -95,7 +95,7 @@ public class YamlConfig implements ConfigurationAdapter
             } ) );
             set( "permissions.admin", Arrays.asList( new String[]
             {
-                "bungeecord.command.alert", "bungeecord.command.end", "bungeecord.command.ip", "bungeecord.command.reload"
+                "bungeecord.command.alert", "bungeecord.command.end", "bungeecord.command.ip", "bungeecord.command.reload", "bungeecord.command.kick", "bungeecord.command.send", "bungeecord.command.find"
             } ) );
         }
 
@@ -176,7 +176,7 @@ public class YamlConfig implements ConfigurationAdapter
     {
         try
         {
-            try ( Writer wr = new OutputStreamWriter( new FileOutputStream( file ), Charsets.UTF_8 ) )
+            try ( Writer wr = new OutputStreamWriter( new FileOutputStream( file ), StandardCharsets.UTF_8 ) )
             {
                 yaml.dump( config, wr );
             }
@@ -189,7 +189,9 @@ public class YamlConfig implements ConfigurationAdapter
     @Override
     public int getInt(String path, int def)
     {
-        return get( path, def );
+        // #3791: Sometimes third-party tools rewrite large ints into doubles
+        Number number = get( path, def );
+        return number.intValue();
     }
 
     @Override
@@ -299,7 +301,10 @@ public class YamlConfig implements ConfigurationAdapter
     @SuppressWarnings("unchecked")
     public Collection<String> getGroups(String player)
     {
-        Collection<String> groups = get( "groups." + player, null );
+        // #1270: Do this to support player names with .
+        Map<String, Collection<String>> raw = get( "groups", Collections.emptyMap() );
+        Collection<String> groups = raw.get( player );
+
         Collection<String> ret = ( groups == null ) ? new HashSet<String>() : new HashSet<>( groups );
         ret.add( "default" );
         return ret;

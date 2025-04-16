@@ -13,13 +13,23 @@ import net.md_5.bungee.api.chat.KeybindComponent;
 public class KeybindComponentSerializer extends BaseComponentSerializer implements JsonSerializer<KeybindComponent>, JsonDeserializer<KeybindComponent>
 {
 
+    public KeybindComponentSerializer(VersionedComponentSerializer serializer)
+    {
+        super( serializer );
+    }
+
     @Override
     public KeybindComponent deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        KeybindComponent component = new KeybindComponent();
         JsonObject object = json.getAsJsonObject();
+        JsonElement keybind = object.get( "keybind" );
+        if ( keybind == null )
+        {
+            throw new JsonParseException( "Could not parse JSON: missing 'keybind' property" );
+        }
+        KeybindComponent component = new KeybindComponent();
         deserialize( object, component, context );
-        component.setKeybind( object.get( "keybind" ).getAsString() );
+        component.setKeybind( keybind.getAsString() );
         return component;
     }
 

@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor
@@ -18,20 +19,32 @@ public class ScoreboardDisplay extends DefinedPacket
     /**
      * 0 = list, 1 = side, 2 = below.
      */
-    private byte position;
+    private int position;
     private String name;
 
     @Override
-    public void read(ByteBuf buf)
+    public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        position = buf.readByte();
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_2 )
+        {
+            position = readVarInt( buf );
+        } else
+        {
+            position = buf.readByte();
+        }
         name = readString( buf );
     }
 
     @Override
-    public void write(ByteBuf buf)
+    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        buf.writeByte( position );
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_2 )
+        {
+            writeVarInt( position, buf );
+        } else
+        {
+            buf.writeByte( position );
+        }
         writeString( name, buf );
     }
 

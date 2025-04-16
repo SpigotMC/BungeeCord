@@ -38,7 +38,7 @@ public class CommandSend extends Command implements TabExecutor
             this.sender = sender;
             for ( ServerConnectRequest.Result result : ServerConnectRequest.Result.values() )
             {
-                results.put( result, new ArrayList<String>() );
+                results.put( result, Collections.synchronizedList( new ArrayList<>() ) );
             }
         }
 

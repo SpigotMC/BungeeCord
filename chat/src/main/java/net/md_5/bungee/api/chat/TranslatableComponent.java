@@ -19,7 +19,7 @@ import net.md_5.bungee.chat.TranslationRegistry;
 public final class TranslatableComponent extends BaseComponent
 {
 
-    private final Pattern format = Pattern.compile( "%(?:(\\d+)\\$)?([A-Za-z%]|$)" );
+    private static final Pattern FORMAT = Pattern.compile( "%(?:(\\d+)\\$)?([A-Za-z%]|$)" );
 
     /**
      * The key into the Minecraft locale files to use for the translation. The
@@ -30,6 +30,10 @@ public final class TranslatableComponent extends BaseComponent
      * The components to substitute into the translation
      */
     private List<BaseComponent> with;
+    /**
+     * The fallback, if the translation is not found
+     */
+    private String fallback;
 
     /**
      * Creates a translatable component from the original to clone it.
@@ -40,10 +44,11 @@ public final class TranslatableComponent extends BaseComponent
     {
         super( original );
         setTranslate( original.getTranslate() );
+        setFallback( original.getFallback() );
 
         if ( original.getWith() != null )
         {
-            List<BaseComponent> temp = new ArrayList<BaseComponent>();
+            List<BaseComponent> temp = new ArrayList<>();
             for ( BaseComponent baseComponent : original.getWith() )
             {
                 temp.add( baseComponent.duplicate() );
@@ -80,6 +85,21 @@ public final class TranslatableComponent extends BaseComponent
             }
             setWith( temp );
         }
+    }
+
+    /**
+     * Creates a translatable component with the passed substitutions
+     *
+     * @param translatable the translatable object
+     * @param with the {@link java.lang.String}s and
+     * {@link net.md_5.bungee.api.chat.BaseComponent}s to use into the
+     * translation
+     * @see #translate
+     * @see #setWith(java.util.List)
+     */
+    public TranslatableComponent(TranslationProvider translatable, Object... with)
+    {
+        this( translatable.getTranslationKey(), with );
     }
 
     /**
@@ -153,7 +173,12 @@ public final class TranslatableComponent extends BaseComponent
     {
         String trans = TranslationRegistry.INSTANCE.translate( translate );
 
-        Matcher matcher = format.matcher( trans );
+        if ( trans.equals( translate ) && fallback != null )
+        {
+            trans = fallback;
+        }
+
+        Matcher matcher = FORMAT.matcher( trans );
         int position = 0;
         int i = 0;
         while ( matcher.find( position ) )

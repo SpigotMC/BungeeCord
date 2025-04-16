@@ -4,10 +4,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.eventbus.Subscribe;
+import com.google.common.graph.GraphBuilder;
+import com.google.common.graph.Graphs;
+import com.google.common.graph.MutableGraph;
 import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,6 +23,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
@@ -31,6 +37,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.event.EventBus;
 import net.md_5.bungee.event.EventHandler;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.introspector.PropertyUtils;
@@ -49,10 +56,15 @@ public final class PluginManager
     private final Yaml yaml;
     private final EventBus eventBus;
     private final Map<String, Plugin> plugins = new LinkedHashMap<>();
+    private final MutableGraph<String> dependencyGraph = GraphBuilder.directed().build();
+    private final LibraryLoader libraryLoader;
     private final Map<String, Command> commandMap = new HashMap<>();
     private Map<String, PluginDescription> toLoad = new HashMap<>();
     private final Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
     private final Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
+
+    private final ReadWriteLock commandsLock = new ReentrantReadWriteLock();
+    private final Lock listenersLock = new ReentrantLock();
 
     @SuppressWarnings("unchecked")
     public PluginManager(ProxyServer proxy)
@@ -60,13 +72,24 @@ public final class PluginManager
         this.proxy = proxy;
 
         // Ignore unknown entries in the plugin descriptions
-        Constructor yamlConstructor = new Constructor();
+        Constructor yamlConstructor = new Constructor( new LoaderOptions() );
         PropertyUtils propertyUtils = yamlConstructor.getPropertyUtils();
         propertyUtils.setSkipMissingProperties( true );
         yamlConstructor.setPropertyUtils( propertyUtils );
         yaml = new Yaml( yamlConstructor );
 
         eventBus = new EventBus( proxy.getLogger() );
+
+        LibraryLoader libraryLoader = null;
+        try
+        {
+            libraryLoader = new LibraryLoader( proxy.getLogger() );
+        } catch ( NoClassDefFoundError ex )
+        {
+            // Provided depends were not added back
+            proxy.getLogger().warning( "Could not initialize LibraryLoader (missing dependencies?)" );
+        }
+        this.libraryLoader = libraryLoader;
     }
 
     /**
@@ -77,12 +100,19 @@ public final class PluginManager
      */
     public void registerCommand(Plugin plugin, Command command)
     {
-        commandMap.put( command.getName().toLowerCase( Locale.ROOT ), command );
-        for ( String alias : command.getAliases() )
+        commandsLock.writeLock().lock();
+        try
         {
-            commandMap.put( alias.toLowerCase( Locale.ROOT ), command );
+            commandMap.put( command.getName().toLowerCase( Locale.ROOT ), command );
+            for ( String alias : command.getAliases() )
+            {
+                commandMap.put( alias.toLowerCase( Locale.ROOT ), command );
+            }
+            commandsByPlugin.put( plugin, command );
+        } finally
+        {
+            commandsLock.writeLock().unlock();
         }
-        commandsByPlugin.put( plugin, command );
     }
 
     /**
@@ -92,8 +122,15 @@ public final class PluginManager
      */
     public void unregisterCommand(Command command)
     {
-        while ( commandMap.values().remove( command ) );
-        commandsByPlugin.values().remove( command );
+        commandsLock.writeLock().lock();
+        try
+        {
+            while ( commandMap.values().remove( command ) );
+            commandsByPlugin.values().remove( command );
+        } finally
+        {
+            commandsLock.writeLock().unlock();
+        }
     }
 
     /**
@@ -103,11 +140,18 @@ public final class PluginManager
      */
     public void unregisterCommands(Plugin plugin)
     {
-        for ( Iterator<Command> it = commandsByPlugin.get( plugin ).iterator(); it.hasNext(); )
+        commandsLock.writeLock().lock();
+        try
         {
-            Command command = it.next();
-            while ( commandMap.values().remove( command ) );
-            it.remove();
+            for ( Iterator<Command> it = commandsByPlugin.get( plugin ).iterator(); it.hasNext(); )
+            {
+                Command command = it.next();
+                while ( commandMap.values().remove( command ) );
+                it.remove();
+            }
+        } finally
+        {
+            commandsLock.writeLock().unlock();
         }
     }
 
@@ -121,7 +165,14 @@ public final class PluginManager
             return null;
         }
 
-        return commandMap.get( commandLower );
+        commandsLock.readLock().lock();
+        try
+        {
+            return commandMap.get( commandLower );
+        } finally
+        {
+            commandsLock.readLock().unlock();
+        }
     }
 
     /**
@@ -172,7 +223,7 @@ public final class PluginManager
         {
             if ( tabResults == null )
             {
-                sender.sendMessage( proxy.getTranslation( "no_permission" ) );
+                sender.sendMessage( ( command.getPermissionMessage() == null ) ? proxy.getTranslation( "no_permission" ) : command.getPermissionMessage() );
             }
             return true;
         }
@@ -309,6 +360,7 @@ public final class PluginManager
                 status = false;
             }
 
+            dependencyGraph.putEdge( plugin.getName(), dependName );
             if ( !status )
             {
                 break;
@@ -320,10 +372,7 @@ public final class PluginManager
         {
             try
             {
-                URLClassLoader loader = new PluginClassloader( proxy, plugin, new URL[]
-                {
-                    plugin.getFile().toURI().toURL()
-                } );
+                URLClassLoader loader = new PluginClassloader( proxy, plugin, plugin.getFile(), ( libraryLoader != null ) ? libraryLoader.createLoader( plugin ) : null );
                 Class<?> main = loader.loadClass( plugin.getMain() );
                 Plugin clazz = (Plugin) main.getDeclaredConstructor().newInstance();
 
@@ -335,7 +384,7 @@ public final class PluginManager
                 } );
             } catch ( Throwable t )
             {
-                proxy.getLogger().log( Level.WARNING, "Error enabling plugin " + plugin.getName(), t );
+                proxy.getLogger().log( Level.WARNING, "Error loading plugin " + plugin.getName(), t );
             }
         }
 
@@ -420,13 +469,20 @@ public final class PluginManager
      */
     public void registerListener(Plugin plugin, Listener listener)
     {
-        for ( Method method : listener.getClass().getDeclaredMethods() )
+        listenersLock.lock();
+        try
         {
-            Preconditions.checkArgument( !method.isAnnotationPresent( Subscribe.class ),
+            for ( Method method : listener.getClass().getDeclaredMethods() )
+            {
+                Preconditions.checkArgument( !method.isAnnotationPresent( Subscribe.class ),
                     "Listener %s has registered using deprecated subscribe annotation! Please update to @EventHandler.", listener );
+            }
+            eventBus.register( listener );
+            listenersByPlugin.put( plugin, listener );
+        } finally
+        {
+            listenersLock.unlock();
         }
-        eventBus.register( listener );
-        listenersByPlugin.put( plugin, listener );
     }
 
     /**
@@ -436,8 +492,15 @@ public final class PluginManager
      */
     public void unregisterListener(Listener listener)
     {
-        eventBus.unregister( listener );
-        listenersByPlugin.values().remove( listener );
+        listenersLock.lock();
+        try
+        {
+            eventBus.unregister( listener );
+            listenersByPlugin.values().remove( listener );
+        } finally
+        {
+            listenersLock.unlock();
+        }
     }
 
     /**
@@ -447,10 +510,17 @@ public final class PluginManager
      */
     public void unregisterListeners(Plugin plugin)
     {
-        for ( Iterator<Listener> it = listenersByPlugin.get( plugin ).iterator(); it.hasNext(); )
+        listenersLock.lock();
+        try
         {
-            eventBus.unregister( it.next() );
-            it.remove();
+            for ( Iterator<Listener> it = listenersByPlugin.get( plugin ).iterator(); it.hasNext(); )
+            {
+                eventBus.unregister( it.next() );
+                it.remove();
+            }
+        } finally
+        {
+            listenersLock.unlock();
         }
     }
 
@@ -461,6 +531,28 @@ public final class PluginManager
      */
     public Collection<Map.Entry<String, Command>> getCommands()
     {
-        return Collections.unmodifiableCollection( commandMap.entrySet() );
+        commandsLock.readLock().lock();
+        try
+        {
+            return Collections.unmodifiableCollection( commandMap.entrySet() );
+        } finally
+        {
+            commandsLock.readLock().unlock();
+        }
+    }
+
+    boolean isTransitiveDepend(PluginDescription plugin, PluginDescription depend)
+    {
+        Preconditions.checkArgument( plugin != null, "plugin" );
+        Preconditions.checkArgument( depend != null, "depend" );
+
+        if ( dependencyGraph.nodes().contains( plugin.getName() ) )
+        {
+            if ( Graphs.reachableNodes( dependencyGraph, plugin.getName() ).contains( depend.getName() ) )
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

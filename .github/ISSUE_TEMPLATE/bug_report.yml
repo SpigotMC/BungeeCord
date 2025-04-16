@@ -1,0 +1,63 @@
+name: Bug inside BungeeCord
+description: Create a bug report about a problem inside BungeeCord.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        #### Report a bug inside bungeecord
+        Issues happening with forks of BungeeCord should **not** be reported here.
+  - type: input
+    id: bungee-version
+    attributes:
+      label: Bungeecord version
+      description: The output of the /bungee command (or just the bungee build number) (execute in bungeecord console for easy text copy)
+      placeholder: e.g. git:BungeeCord-Bootstrap:1.xx-SNAPSHOT:xxxxxxx:xxxx
+    validations:
+      required: true
+  - type: input
+    id: server-version
+    attributes:
+      label: Server version
+      description: The output of the /version command (execute in server console for easy text copy)
+      placeholder: "e.g. git-Spigot-xxxxxxx-xxxxxxx (MC: 1.x.x)"
+  - type: input
+    id: client-version
+    attributes:
+      label: Client version
+      description: Minecraft Client Version
+      placeholder: e.g. 1.18.2
+  - type: textarea
+    id: bungee-plugins
+    attributes:
+      label: Bungeecord plugins
+      description: Please list all BungeeCord plugins you are using.
+    validations:
+      required: true
+  - type: textarea
+    id: the-bug
+    attributes:
+      label: The bug
+      description: Please describe the bug. Include **details** you find neccessary. If you just have a question, please ask it in [SpigotMC Forums](https://www.spigotmc.org) and not here.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log output (links)
+      description: Please put your log output inbetween three backticks (```` ``` ````). Upload your log files to [gist.github.com](https://gist.github.com) and put them in here.
+      placeholder: |
+        ```
+        log output
+        ```
+  - type: checkboxes
+    id: checkboxes
+    attributes:
+      label: Checking
+      options:
+        - label: I am using BungeeCord and **not a fork**. Issues with forks should not be reported here.
+          required: true
+        - label: I think this is **not** an issue with a bungeecord plugin.
+          required: true
+        - label: I have not read these checkboxes and therefore I just ticked them all.
+        - label: This is not a question or plugin creation help request.
+          required: true
