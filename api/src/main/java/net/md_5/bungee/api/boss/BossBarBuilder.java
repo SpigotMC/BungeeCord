@@ -15,7 +15,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 public final class BossBarBuilder
 {
 
-    private BaseComponent[] title;
+    private BaseComponent title;
     private BarColor color;
     private BarStyle style;
     private float progress;
@@ -27,7 +27,7 @@ public final class BossBarBuilder
      *
      * @param title boss bar title
      */
-    public BossBarBuilder(BaseComponent[] title)
+    public BossBarBuilder(BaseComponent title)
     {
         this.title = title;
         color = BarColor.PINK;
@@ -59,7 +59,7 @@ public final class BossBarBuilder
      * @param title the title you wish to set
      * @return this BossBarBuilder for chaining
      */
-    public BossBarBuilder title(BaseComponent[] title)
+    public BossBarBuilder title(BaseComponent title)
     {
         Preconditions.checkNotNull( title, "title" );
         this.title = title;

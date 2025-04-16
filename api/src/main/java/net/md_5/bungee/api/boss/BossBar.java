@@ -68,14 +68,14 @@ public interface BossBar
      *
      * @return title (name)
      */
-    BaseComponent[] getTitle();
+    BaseComponent getTitle();
 
     /**
      * Sets a new boss bar title (name)
      *
      * @param title the title you wish to be displayed on the boss bar
      */
-    void setTitle(BaseComponent[] title);
+    void setTitle(BaseComponent title);
 
     /**
      * Gets the progress of the boss bar. Represents a float number between

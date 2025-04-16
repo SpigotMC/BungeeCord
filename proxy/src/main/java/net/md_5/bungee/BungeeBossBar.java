@@ -4,19 +4,22 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Synchronized;
 import lombok.ToString;
 import net.md_5.bungee.api.boss.BarColor;
 import net.md_5.bungee.api.boss.BarFlag;
 import net.md_5.bungee.api.boss.BarStyle;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.BossBar;
@@ -25,9 +28,9 @@ import net.md_5.bungee.protocol.packet.BossBar;
 @EqualsAndHashCode
 public class BungeeBossBar implements net.md_5.bungee.api.boss.BossBar
 {
-
+    private static final Object HOLDER = new Object();
     @Getter
-    private BaseComponent[] title;
+    private BaseComponent title;
     @Getter
     private BarColor color;
     @Getter
@@ -36,16 +39,19 @@ public class BungeeBossBar implements net.md_5.bungee.api.boss.BossBar
     private float progress;
     @Getter
     private boolean visible;
-
-    private Set<ProxiedPlayer> players;
-    private EnumSet<BarFlag> flags;
-
-    @ToString.Exclude
+    @Getter
     private final UUID uuid = UUID.randomUUID();
+
+    // use a synchronized map to avoid concurrent modification exceptions
+    // also use weak reference, so we don't have to remove them after they disconnect
+    // key will just be garbage collected
+    private final Map<ProxiedPlayer, Object> players = Collections.synchronizedMap( new WeakHashMap<>() );
+    private final Set<BarFlag> flags = Collections.synchronizedSet( EnumSet.noneOf( BarFlag.class ) );
+
     @ToString.Exclude
     private final BossBar removePacket;
 
-    public BungeeBossBar(BaseComponent[] title, BarColor color, BarStyle style, float progress)
+    public BungeeBossBar(BaseComponent title, BarColor color, BarStyle style, float progress)
     {
         this.title = Preconditions.checkNotNull( title, "title" );
         this.color = Preconditions.checkNotNull( color, "color" );
@@ -53,8 +59,6 @@ public class BungeeBossBar implements net.md_5.bungee.api.boss.BossBar
         Preconditions.checkArgument( 0 <= progress && progress <= 1, "Progress may not be lower than 0 or greater than 1" );
         this.progress = progress;
         this.visible = true;
-        this.players = new HashSet<>();
-        this.flags = EnumSet.noneOf( BarFlag.class );
         this.removePacket = new BossBar( uuid, 1 );
     }
 
@@ -70,14 +74,16 @@ public class BungeeBossBar implements net.md_5.bungee.api.boss.BossBar
         Preconditions.checkNotNull( player, "player" );
         Preconditions.checkArgument( canBeAdded( player ),
                 player.getName() + " cannot be added to BossBar ( make sure to use canBeAdded to avoid such errors )" );
-        if ( !canBeAdded( player ) )
+
+        if ( !player.isConnected() ) // already disconnected
         {
             return;
         }
-        players.add( player );
-        if ( player.isConnected() && visible )
+
+        // the player is already registered for this BossBar do not send the packet again
+        if ( players.put( player, HOLDER ) == null && visible )
         {
-            sendPacket( player, addPacket() );
+            player.unsafe().sendPacketQueued( addPacket() );
         }
     }
 
@@ -98,7 +104,7 @@ public class BungeeBossBar implements net.md_5.bungee.api.boss.BossBar
         players.remove( player );
         if ( player.isConnected() && visible )
         {
-            sendPacket( player, removePacket );
+            player.unsafe().sendPacketQueued( removePacket );
         }
     }
 
@@ -122,17 +128,17 @@ public class BungeeBossBar implements net.md_5.bungee.api.boss.BossBar
     @Override
     public Collection<ProxiedPlayer> getPlayers()
     {
-        return ImmutableList.copyOf( players );
+        return ImmutableList.copyOf( players.keySet() );
     }
 
     @Override
-    public void setTitle(BaseComponent[] title)
+    public void setTitle(BaseComponent title)
     {
         this.title = Preconditions.checkNotNull( title, "title" );
         if ( visible )
         {
             BossBar packet = new BossBar( uuid, 3 );
-            packet.setTitle( ComponentSerializer.toString( title ) );
+            packet.setTitle( title );
             sendToAffected( packet );
         }
     }
@@ -199,6 +205,7 @@ public class BungeeBossBar implements net.md_5.bungee.api.boss.BossBar
         }
     }
 
+    @Synchronized
     @Override
     public void removeFlag(BarFlag flag)
     {
@@ -253,7 +260,7 @@ public class BungeeBossBar implements net.md_5.bungee.api.boss.BossBar
     private BossBar addPacket()
     {
         BossBar packet = new BossBar( uuid, 0 );
-        packet.setTitle( ComponentSerializer.toString( title ) );
+        packet.setTitle( title );
         packet.setColor( color.ordinal() );
         packet.setDivision( style.ordinal() );
         packet.setHealth( progress );
@@ -263,17 +270,17 @@ public class BungeeBossBar implements net.md_5.bungee.api.boss.BossBar
 
     private void sendToAffected(DefinedPacket packet)
     {
-        for ( ProxiedPlayer player : players )
+        Iterator<ProxiedPlayer> iterator = players.keySet().iterator();
+        while ( iterator.hasNext() )
         {
-            sendPacket( player, packet );
-        }
-    }
-
-    private void sendPacket(ProxiedPlayer player, DefinedPacket packet)
-    {
-        if ( player.isConnected() )
-        {
-            player.unsafe().sendPacket( packet );
+            ProxiedPlayer player = iterator.next();
+            if ( player.isConnected() )
+            {
+                player.unsafe().sendPacketQueued( packet );
+            } else
+            {
+                iterator.remove();
+            }
         }
     }
 }

@@ -826,11 +826,11 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
-    public BossBar createBossBar(BaseComponent[] title, BarColor color, BarStyle division, float health)
+    public BossBar createBossBar(BaseComponent title, BarColor color, BarStyle division, float health)
     {
         return new BungeeBossBar( title, color, division, health );
     }
-    
+
     @Override
     public Unsafe unsafe()
     {

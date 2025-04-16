@@ -323,7 +323,7 @@ public abstract class ProxyServer
      * @param style the style of the boss bar
      * @return boss bar
      */
-    public BossBar createBossBar(BaseComponent[] title, BarColor color, BarStyle style)
+    public BossBar createBossBar(BaseComponent title, BarColor color, BarStyle style)
     {
         return createBossBar( title, color, style, 1.0f );
     }
@@ -337,7 +337,7 @@ public abstract class ProxyServer
      * @param progress the progress of the boss bar
      * @return boss bar
      */
-    public abstract BossBar createBossBar(BaseComponent[] title, BarColor color, BarStyle style, float progress);
+    public abstract BossBar createBossBar(BaseComponent title, BarColor color, BarStyle style, float progress);
 
     /**
      * Get the unsafe methods of this class.
