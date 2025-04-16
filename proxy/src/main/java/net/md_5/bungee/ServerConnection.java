@@ -72,7 +72,8 @@ public class ServerConnection implements Server
                     packetQueue.add( packet );
                 } else
                 {
-                    BungeeCord.getInstance().getLogger().warning( "Too many queued packets. Bad API usage? Try removing plugins and report to the authors. This prevented the server from overloading." );
+                    BungeeCord.getInstance().getLogger().warning( "Too many queued packets to server. Bad API usage? Try removing plugins and report to the authors. This prevented the server from overloading." );
+                    ch.close();
                 }
             } else
             {
