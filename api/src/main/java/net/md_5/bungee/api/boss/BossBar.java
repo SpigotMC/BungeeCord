@@ -20,12 +20,13 @@ public interface BossBar
     boolean canBeAdded(ProxiedPlayer player);
 
     /**
-     * Adds a player to view the boss bar. If the player is not connected or
-     * the boss bar is not visible, it will not be sent.
+     * Adds a player to view the boss bar if possible.
      *
      * @param player the player you wish to see the boss bar
+     * @return if the player was added. If the player is disconnected,
+     * his version is less than 1.9, or he is already viewing the bar, return false
      */
-    void addPlayer(ProxiedPlayer player);
+    boolean addPlayer(ProxiedPlayer player);
 
     /**
      * Adds all players to view the boss bar.
@@ -36,12 +37,12 @@ public interface BossBar
     void addPlayers(Iterable<ProxiedPlayer> players);
 
     /**
-     * Removes the specified player from viewing the boss bar. If the player is not
-     * connected or the boss bar is not viewable the removal packet won't be sent.
+     * Removes the specified player from viewing the boss bar.
      *
      * @param player the player you wish to remove from the boss bar
+     * @return if the player was viewing the boss bar and was successfully removed
      */
-    void removePlayer(ProxiedPlayer player);
+    boolean removePlayer(ProxiedPlayer player);
 
     /**
      * Removes all specified players from viewing the boss bar.

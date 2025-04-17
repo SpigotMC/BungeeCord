@@ -66,21 +66,19 @@ public class BungeeBossBar implements net.md_5.bungee.api.boss.BossBar
     }
 
     @Override
-    public void addPlayer(ProxiedPlayer player)
+    public boolean addPlayer(ProxiedPlayer player)
     {
         Preconditions.checkNotNull( player, "player" );
-        Preconditions.checkArgument( canBeAdded( player ),
-                player.getName() + " cannot be added to BossBar ( make sure to use canBeAdded to avoid such errors )" );
-
-        if ( !player.isConnected() ) // already disconnected
+        if ( !canBeAdded( player ) || !player.isConnected() ) // already disconnected
         {
-            return;
+            return false;
         }
-
-        if ( players.add( player ) && visible )
+        boolean added = players.add( player );
+        if ( added && visible )
         {
             player.unsafe().sendPacketQueued( addPacket() );
         }
+        return added;
     }
 
     @Override
@@ -94,13 +92,15 @@ public class BungeeBossBar implements net.md_5.bungee.api.boss.BossBar
     }
 
     @Override
-    public void removePlayer(ProxiedPlayer player)
+    public boolean removePlayer(ProxiedPlayer player)
     {
         Preconditions.checkNotNull( player, "player" );
-        if ( players.remove( player ) && player.isConnected() && visible )
+        boolean removed = players.remove( player );
+        if ( removed && player.isConnected() && visible )
         {
             player.unsafe().sendPacketQueued( removePacket );
         }
+        return removed;
     }
 
     @Override
