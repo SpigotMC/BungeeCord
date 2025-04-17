@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
@@ -27,7 +26,6 @@ import net.md_5.bungee.protocol.packet.BossBar;
 @EqualsAndHashCode
 public class BungeeBossBar implements net.md_5.bungee.api.boss.BossBar
 {
-    private static final Object HOLDER = new Object();
     @Getter
     private BaseComponent title;
     @Getter
@@ -39,13 +37,10 @@ public class BungeeBossBar implements net.md_5.bungee.api.boss.BossBar
     @Getter
     private boolean visible;
     @Getter
-    private final UUID uuid = UUID.randomUUID();
+    private final UUID uuid;
 
-    // use a synchronized map to avoid concurrent modification exceptions
-    // also use weak reference, so we don't have to remove them after they disconnect
-    // key will just be garbage collected
-    private final Map<ProxiedPlayer, Object> players = Collections.synchronizedMap( new WeakHashMap<>() );
-    private final Set<BarFlag> flags = Collections.synchronizedSet( EnumSet.noneOf( BarFlag.class ) );
+    private final Set<ProxiedPlayer> players;
+    private final Set<BarFlag> flags;
 
     @ToString.Exclude
     private final BossBar removePacket;
@@ -58,6 +53,9 @@ public class BungeeBossBar implements net.md_5.bungee.api.boss.BossBar
         Preconditions.checkArgument( 0 <= progress && progress <= 1, "Progress may not be lower than 0 or greater than 1" );
         this.progress = progress;
         this.visible = true;
+        this.uuid = UUID.randomUUID();
+        this.players = Collections.synchronizedSet( Collections.newSetFromMap( new WeakHashMap<>() ) );
+        this.flags = Collections.synchronizedSet( EnumSet.noneOf( BarFlag.class ) );
         this.removePacket = new BossBar( uuid, 1 );
     }
 
@@ -79,8 +77,7 @@ public class BungeeBossBar implements net.md_5.bungee.api.boss.BossBar
             return;
         }
 
-        // the player is already registered for this BossBar do not send the packet again
-        if ( players.put( player, HOLDER ) == null && visible )
+        if ( players.add( player ) && visible )
         {
             player.unsafe().sendPacketQueued( addPacket() );
         }
@@ -100,8 +97,7 @@ public class BungeeBossBar implements net.md_5.bungee.api.boss.BossBar
     public void removePlayer(ProxiedPlayer player)
     {
         Preconditions.checkNotNull( player, "player" );
-        players.remove( player );
-        if ( player.isConnected() && visible )
+        if ( players.remove( player ) && player.isConnected() && visible )
         {
             player.unsafe().sendPacketQueued( removePacket );
         }
@@ -127,7 +123,7 @@ public class BungeeBossBar implements net.md_5.bungee.api.boss.BossBar
     @Override
     public Collection<ProxiedPlayer> getPlayers()
     {
-        return ImmutableList.copyOf( players.keySet() );
+        return ImmutableList.copyOf( players );
     }
 
     @Override
@@ -268,7 +264,7 @@ public class BungeeBossBar implements net.md_5.bungee.api.boss.BossBar
 
     private void sendToAffected(DefinedPacket packet)
     {
-        Iterator<ProxiedPlayer> iterator = players.keySet().iterator();
+        Iterator<ProxiedPlayer> iterator = players.iterator();
         while ( iterator.hasNext() )
         {
             ProxiedPlayer player = iterator.next();
@@ -277,6 +273,7 @@ public class BungeeBossBar implements net.md_5.bungee.api.boss.BossBar
                 player.unsafe().sendPacketQueued( packet );
             } else
             {
+                // remove players from the list if they are disconnected
                 iterator.remove();
             }
         }
