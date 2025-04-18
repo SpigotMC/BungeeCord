@@ -21,6 +21,7 @@ import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.SettingsChangedEvent;
 import net.md_5.bungee.api.event.TabCompleteEvent;
+import net.md_5.bungee.bossbar.BossBarHandle;
 import net.md_5.bungee.entitymap.EntityMap;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.netty.ChannelWrapper;
@@ -73,6 +74,8 @@ public class UpstreamBridge extends PacketHandler
         PlayerDisconnectEvent event = new PlayerDisconnectEvent( con );
         bungee.getPluginManager().callEvent( event );
         con.getTabListHandler().onDisconnect();
+        con.getBungeeBossBarHandles().forEach( BossBarHandle::onPlayerDisconnect );
+        con.getBungeeBossBarHandles().clear();
         BungeeCord.getInstance().removeConnection( con );
 
         if ( con.getServer() != null )

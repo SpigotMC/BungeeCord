@@ -10,6 +10,7 @@ import io.netty.util.internal.PlatformDependent;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -38,6 +39,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.score.Scoreboard;
+import net.md_5.bungee.bossbar.BossBarHandle;
 import net.md_5.bungee.chat.VersionedComponentSerializer;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.entitymap.EntityMap;
@@ -129,6 +131,8 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     @Setter
     private String lastCommandTabbed;
+    @Getter
+    private final Collection<BossBarHandle> bungeeBossBarHandles = new ArrayList<>();
     /*========================================================================*/
     @Getter
     private String displayName;
