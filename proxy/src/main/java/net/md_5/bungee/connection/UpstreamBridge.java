@@ -33,7 +33,6 @@ import net.md_5.bungee.protocol.packet.ClientChat;
 import net.md_5.bungee.protocol.packet.ClientCommand;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.CookieResponse;
-import net.md_5.bungee.protocol.packet.FinishConfiguration;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.LoginAcknowledged;
 import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
@@ -365,12 +364,6 @@ public class UpstreamBridge extends PacketHandler
 
             throw CancelSendSignal.INSTANCE;
         }
-    }
-
-    @Override
-    public void handle(FinishConfiguration finishConfiguration) throws Exception
-    {
-        con.sendQueuedPackets();
     }
 
     @Override

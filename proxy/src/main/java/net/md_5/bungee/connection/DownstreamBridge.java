@@ -55,6 +55,7 @@ import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.Commands;
+import net.md_5.bungee.protocol.packet.FinishConfiguration;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.Login;
@@ -798,6 +799,16 @@ public class DownstreamBridge extends PacketHandler
         receivedLogin = true;
         ServerConnector.handleLogin( bungee, server.getCh(), con, server.getInfo(), null, server, login );
 
+        throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void handle(FinishConfiguration finishConfiguration) throws Exception
+    {
+        // the clients protocol will change to GAME after this packet
+        con.unsafe().sendPacket( finishConfiguration );
+        // send queued packets as early as possible
+        con.sendQueuedPackets();
         throw CancelSendSignal.INSTANCE;
     }
 
