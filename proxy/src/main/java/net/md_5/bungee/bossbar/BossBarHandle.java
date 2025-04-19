@@ -1,14 +1,14 @@
 package net.md_5.bungee.bossbar;
 
 import net.md_5.bungee.UserConnection;
-import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.BossBar;
 
-public class BossBarHandle
+public abstract class BossBarHandle
 {
-    private final UserConnection player;
-    private final BungeeBossBar bungeeBossBar;
-    private BossBarMeta lastSendMeta;
+    protected final UserConnection player;
+    protected final BungeeBossBar bungeeBossBar;
+    protected BossBarMeta lastSendMeta;
 
     public BossBarHandle(UserConnection player, BungeeBossBar bungeeBossBar)
     {
@@ -17,43 +17,68 @@ public class BossBarHandle
         trySend();
     }
 
-    public void trySend()
+    public abstract void onServerSwitch();
+
+    public abstract void onServerConnected();
+
+    public abstract void onPlayerDisconnect();
+
+    abstract void tryRemove();
+
+    abstract void trySend();
+
+    static BossBarHandle forPlayer(UserConnection player, BungeeBossBar bar)
     {
-        if ( player.getCh().getEncodeProtocol() == Protocol.GAME )
+        if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_2 )
         {
-            sendPackets();
+            return new ModernBossBarHandle( player, bar );
+        } else
+        {
+            return new LegacyBossBarHandle( player, bar );
         }
     }
 
-    public void onServerSwitch()
+    protected BossBar addPacket()
     {
-        tryRemove();
+        BossBar packet = new BossBar( bungeeBossBar.getUuid(), 0 );
+        packet.setTitle( bungeeBossBar.getTitle() );
+        packet.setColor( bungeeBossBar.getColor().ordinal() );
+        packet.setDivision( bungeeBossBar.getStyle().ordinal() );
+        packet.setHealth( bungeeBossBar.getProgress() );
+        packet.setFlags( bungeeBossBar.serializeFlags() );
+        return packet;
     }
 
-    public void tryRemove()
+    protected BossBar updateProgressPacket()
     {
-        // only remove in game otherwise it is already removed
-        if ( player.getCh().getEncodeProtocol() == Protocol.GAME )
-        {
-            if ( lastSendMeta != null && lastSendMeta.isVisible() )
-            {
-                player.unsafe().sendPacket( bungeeBossBar.getRemovePacket() );
-            }
-        }
-        lastSendMeta = null;
+        BossBar packet = new BossBar( bungeeBossBar.getUuid(), 2 );
+        packet.setHealth( bungeeBossBar.getProgress() );
+        return packet;
     }
 
-    public void onServerConnected()
+    protected BossBar updateTitlePacket()
     {
-        trySend();
+        BossBar packet = new BossBar( bungeeBossBar.getUuid(), 3 );
+        packet.setTitle( bungeeBossBar.getTitle() );
+        return packet;
     }
 
-    public void onPlayerDisconnect()
+    protected BossBar updateColorAndDivision()
     {
-        bungeeBossBar.disconnectRemove( player );
+        BossBar packet = new BossBar( bungeeBossBar.getUuid(), 4 );
+        packet.setColor( bungeeBossBar.getColor().ordinal() );
+        packet.setDivision( bungeeBossBar.getStyle().ordinal() );
+        return packet;
     }
 
-    private void sendPackets()
+    protected BossBar updateFlagsPacket()
+    {
+        BossBar packet = new BossBar( bungeeBossBar.getUuid(), 5 );
+        packet.setFlags( bungeeBossBar.serializeFlags() );
+        return packet;
+    }
+
+    protected void sendPackets()
     {
         if ( lastSendMeta == null )
         {
@@ -89,45 +114,5 @@ public class BossBarHandle
                 player.unsafe().sendPacket( updateColorAndDivision() );
             }
         }
-    }
-
-    private BossBar addPacket()
-    {
-        BossBar packet = new BossBar( bungeeBossBar.getUuid(), 0 );
-        packet.setTitle( bungeeBossBar.getTitle() );
-        packet.setColor( bungeeBossBar.getColor().ordinal() );
-        packet.setDivision( bungeeBossBar.getStyle().ordinal() );
-        packet.setHealth( bungeeBossBar.getProgress() );
-        packet.setFlags( bungeeBossBar.serializeFlags() );
-        return packet;
-    }
-
-    private BossBar updateProgressPacket()
-    {
-        BossBar packet = new BossBar( bungeeBossBar.getUuid(), 2 );
-        packet.setHealth( bungeeBossBar.getProgress() );
-        return packet;
-    }
-
-    private BossBar updateTitlePacket()
-    {
-        BossBar packet = new BossBar( bungeeBossBar.getUuid(), 3 );
-        packet.setTitle( bungeeBossBar.getTitle() );
-        return packet;
-    }
-
-    private BossBar updateColorAndDivision()
-    {
-        BossBar packet = new BossBar( bungeeBossBar.getUuid(), 4 );
-        packet.setColor( bungeeBossBar.getColor().ordinal() );
-        packet.setDivision( bungeeBossBar.getStyle().ordinal() );
-        return packet;
-    }
-
-    private BossBar updateFlagsPacket()
-    {
-        BossBar packet = new BossBar( bungeeBossBar.getUuid(), 5 );
-        packet.setFlags( bungeeBossBar.serializeFlags() );
-        return packet;
     }
 }

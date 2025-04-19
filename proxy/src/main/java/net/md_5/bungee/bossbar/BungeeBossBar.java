@@ -56,7 +56,7 @@ public class BungeeBossBar extends BossBarMeta implements net.md_5.bungee.api.bo
         {
             return false;
         }
-        BossBarHandle handle = new BossBarHandle( connection, this );
+        BossBarHandle handle = BossBarHandle.forPlayer( connection, this );
         players.put( connection, handle );
         connection.getBungeeBossBarHandles().add( handle );
         return true;
