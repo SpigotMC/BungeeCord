@@ -778,6 +778,11 @@ public final class UserConnection implements ProxiedPlayer
         return this.getPendingConnection().getExtraDataInHandshake();
     }
 
+    public String getClientBrand()
+    {
+        return getPendingConnection().getClientBrand();
+    }
+
     public void setCompressionThreshold(int compressionThreshold)
     {
         if ( !ch.isClosing() && this.compressionThreshold == -1 && compressionThreshold >= 0 )
