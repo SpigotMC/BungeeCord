@@ -156,6 +156,13 @@ public class BungeeCord extends ProxyServer
     {
         // TODO: Proper fallback when we interface the manager
         registerChannel( PluginMessage.BUNGEE_CHANNEL_LEGACY );
+        registerChannel( PluginMessage.BUNGEE_CHANNEL_MODERN );
+        registerChannel( "minecraft:brand" );
+        registerChannel( "MC|Brand" );
+        registerChannel( "minecraft:register" );
+        registerChannel( "REGISTER" );
+        registerChannel( "minecraft:unregister" );
+        registerChannel( "UNREGISTER" );
     }
 
     public static BungeeCord getInstance()
