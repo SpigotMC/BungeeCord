@@ -2,6 +2,7 @@ package net.md_5.bungee.connection;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
+import io.netty.buffer.Unpooled;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -96,6 +97,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private EncryptionRequest request;
     @Getter
     private PluginMessage brandMessage;
+    @Getter
+    private String clientBrand;
     @Getter
     private final Set<String> registeredChannels = new HashSet<>();
     private State thisState = State.HANDSHAKE;
@@ -849,6 +852,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         } else if ( input.getTag().equals( "MC|Brand" ) || input.getTag().equals( "minecraft:brand" ) )
         {
             brandMessage = input;
+            clientBrand = DefinedPacket.readString( Unpooled.wrappedBuffer( input.getData() ) );
         }
     }
 
