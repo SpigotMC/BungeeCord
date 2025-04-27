@@ -3,9 +3,7 @@ package net.md_5.bungee.log;
 import java.io.IOException;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
-import java.util.regex.Pattern;
 import jline.console.ConsoleReader;
-import lombok.Data;
 import net.md_5.bungee.api.ChatColor;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Erase;
@@ -13,44 +11,90 @@ import org.fusesource.jansi.Ansi.Erase;
 public class ColouredWriter extends Handler
 {
 
-    @Data
-    private static class ReplacementSpecification
-    {
+    private static final int TABLE_SIZE = 67;
 
-        private final Pattern pattern;
-        private final String replacement;
+    private static final int OFFSET = '0';
+
+    private static final int UPPERCASE_OFFSET = 32;
+
+    private static final String[] ANSI_TABLE = new String[ TABLE_SIZE ];
+
+    static
+    {
+        ANSI_TABLE[ ChatColor.BLACK.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLACK ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.DARK_BLUE.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLUE ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.DARK_GREEN.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.GREEN ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.DARK_AQUA.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.CYAN ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.DARK_RED.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.RED ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.DARK_PURPLE.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.MAGENTA ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.GOLD.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.YELLOW ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.GRAY.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.WHITE ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.DARK_GRAY.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLACK ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.BLUE.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLUE ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.GREEN.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.GREEN ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.AQUA.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.CYAN ).boldOff().toString();
+        ANSI_TABLE[ ChatColor.RED.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.RED ).bold().toString();
+        ANSI_TABLE[ ChatColor.LIGHT_PURPLE.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.MAGENTA ).bold().toString();
+        ANSI_TABLE[ ChatColor.YELLOW.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.YELLOW ).bold().toString();
+        ANSI_TABLE[ ChatColor.WHITE.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.WHITE ).bold().toString();
+        ANSI_TABLE[ ChatColor.MAGIC.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.BLINK_SLOW ).toString();
+        ANSI_TABLE[ ChatColor.BOLD.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.UNDERLINE_DOUBLE ).toString();
+        ANSI_TABLE[ ChatColor.STRIKETHROUGH.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.STRIKETHROUGH_ON ).toString();
+        ANSI_TABLE[ ChatColor.UNDERLINE.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.UNDERLINE ).toString();
+        ANSI_TABLE[ ChatColor.ITALIC.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.ITALIC ).toString();
+        ANSI_TABLE[ ChatColor.RESET.toString().charAt( 1 ) - OFFSET ] = Ansi.ansi().a( Ansi.Attribute.RESET ).toString();
+
+        // Add uppercase chars for case insensitivity
+        for ( int index = 0; index < TABLE_SIZE; index++ )
+        {
+            if ( ANSI_TABLE[ index ] != null )
+            {
+                int colorCode = index + OFFSET;
+                if ( colorCode >= 'a' && colorCode <= 'r' )
+                {
+                    ANSI_TABLE[ colorCode - UPPERCASE_OFFSET - OFFSET ] = ANSI_TABLE[ index ];
+                }
+            }
+        }
     }
 
-    private static ReplacementSpecification compile(ChatColor color, String ansi)
+    private static final String formatAnsi(String msg)
     {
-        return new ReplacementSpecification( Pattern.compile( "(?i)" + color.toString() ), ansi );
-    }
+        StringBuilder stringBuilder = new StringBuilder();
+        char[] chars = msg.toCharArray();
+        for ( int index = 0; index < chars.length; index++ )
+        {
+            char currentChar = chars[ index ];
+            if ( currentChar == '§' )
+            {
+                if ( index == chars.length - 1 )
+                {
+                    return stringBuilder.append( '§' ).toString();
+                }
+                char predictedColorCode = chars[++index];
+                int tableIndex = predictedColorCode - OFFSET;
+                if ( tableIndex >= 0 && tableIndex < TABLE_SIZE )
+                {
+                    String ansi = ANSI_TABLE[ tableIndex ];
+                    if ( ansi != null )
+                    {
+                        stringBuilder.append( ansi );
+                    } else
+                    {
+                        stringBuilder.append( '§' ).append( predictedColorCode );
+                    }
+                } else
+                {
+                    stringBuilder.append( '§' ).append( predictedColorCode );
+                }
+            } else
+            {
+                stringBuilder.append( currentChar );
+            }
+        }
 
-    private static final ReplacementSpecification[] REPLACEMENTS = new ReplacementSpecification[]
-    {
-        compile( ChatColor.BLACK, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLACK ).boldOff().toString() ),
-        compile( ChatColor.DARK_BLUE, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLUE ).boldOff().toString() ),
-        compile( ChatColor.DARK_GREEN, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.GREEN ).boldOff().toString() ),
-        compile( ChatColor.DARK_AQUA, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.CYAN ).boldOff().toString() ),
-        compile( ChatColor.DARK_RED, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.RED ).boldOff().toString() ),
-        compile( ChatColor.DARK_PURPLE, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.MAGENTA ).boldOff().toString() ),
-        compile( ChatColor.GOLD, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.YELLOW ).boldOff().toString() ),
-        compile( ChatColor.GRAY, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.WHITE ).boldOff().toString() ),
-        compile( ChatColor.DARK_GRAY, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLACK ).bold().toString() ),
-        compile( ChatColor.BLUE, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.BLUE ).bold().toString() ),
-        compile( ChatColor.GREEN, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.GREEN ).bold().toString() ),
-        compile( ChatColor.AQUA, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.CYAN ).bold().toString() ),
-        compile( ChatColor.RED, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.RED ).bold().toString() ),
-        compile( ChatColor.LIGHT_PURPLE, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.MAGENTA ).bold().toString() ),
-        compile( ChatColor.YELLOW, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.YELLOW ).bold().toString() ),
-        compile( ChatColor.WHITE, Ansi.ansi().a( Ansi.Attribute.RESET ).fg( Ansi.Color.WHITE ).bold().toString() ),
-        compile( ChatColor.MAGIC, Ansi.ansi().a( Ansi.Attribute.BLINK_SLOW ).toString() ),
-        compile( ChatColor.BOLD, Ansi.ansi().a( Ansi.Attribute.UNDERLINE_DOUBLE ).toString() ),
-        compile( ChatColor.STRIKETHROUGH, Ansi.ansi().a( Ansi.Attribute.STRIKETHROUGH_ON ).toString() ),
-        compile( ChatColor.UNDERLINE, Ansi.ansi().a( Ansi.Attribute.UNDERLINE ).toString() ),
-        compile( ChatColor.ITALIC, Ansi.ansi().a( Ansi.Attribute.ITALIC ).toString() ),
-        compile( ChatColor.RESET, Ansi.ansi().a( Ansi.Attribute.RESET ).toString() ),
-    };
+        return stringBuilder.toString();
+    }
     //
     private final ConsoleReader console;
 
@@ -61,13 +105,9 @@ public class ColouredWriter extends Handler
 
     public void print(String s)
     {
-        for ( ReplacementSpecification replacement : REPLACEMENTS )
-        {
-            s = replacement.pattern.matcher( s ).replaceAll( replacement.replacement );
-        }
         try
         {
-            console.print( Ansi.ansi().eraseLine( Erase.ALL ).toString() + ConsoleReader.RESET_LINE + s + Ansi.ansi().reset().toString() );
+            console.print( Ansi.ansi().eraseLine( Erase.ALL ).toString() + ConsoleReader.RESET_LINE + formatAnsi( s ) + Ansi.ansi().reset().toString() );
             console.drawLine();
             console.flush();
         } catch ( IOException ex )
