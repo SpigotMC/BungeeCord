@@ -295,8 +295,21 @@ public final class TextComponent extends BaseComponent
     }
 
     @Override
-    public String toString()
+    String toStringName()
     {
-        return "TextComponent{text=" + text + ", " + super.toString() + '}';
+        return "Text";
     }
+
+    @Override
+    boolean toString(StringBuilder builder, boolean comma)
+    {
+        if ( comma )
+        {
+            builder.append( ", " );
+        }
+        comma = true;
+        builder.append( "t=" ).append( text );
+        return super.toString( builder, comma );
+    }
+
 }
