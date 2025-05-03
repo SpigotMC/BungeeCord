@@ -50,6 +50,7 @@ public class ProtocolConstants
     public static final int MINECRAFT_1_21_2 = 768;
     public static final int MINECRAFT_1_21_4 = 769;
     public static final int MINECRAFT_1_21_5 = 770;
+    public static final int MINECRAFT_1_21_6 = 1073742072;
     public static final List<String> SUPPORTED_VERSIONS;
     public static final List<Integer> SUPPORTED_VERSION_IDS;
 
@@ -120,7 +121,7 @@ public class ProtocolConstants
         if ( SNAPSHOT_SUPPORT )
         {
             // supportedVersions.add( "1.21.x" );
-            // supportedVersionIds.add( ProtocolConstants.MINECRAFT_1_21_5 );
+            supportedVersionIds.add( ProtocolConstants.MINECRAFT_1_21_6 );
         }
 
         SUPPORTED_VERSIONS = supportedVersions.build();
