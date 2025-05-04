@@ -185,6 +185,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
 
     /**
      * Make this player chat (say something), to the server he is currently on.
+     * WARNING: This function is no longer supported in all versions >= 1.19 and will throw an exception.
      *
      * @param message the message to say
      */
