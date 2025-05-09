@@ -8,6 +8,8 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelFuture;
@@ -228,16 +230,24 @@ public class BungeeCord extends ProxyServer
         getPluginManager().registerCommand( null, new CommandBungee() );
         getPluginManager().registerCommand( null, new CommandPerms() );
 
+        ByteBuf directBuffer = Unpooled.directBuffer();
+        boolean hasMemoryAddress = directBuffer.hasMemoryAddress();
+        directBuffer.release();
+        if ( !hasMemoryAddress )
+        {
+            logger.warning( "Memory addresses are not available in direct buffers" );
+        }
+
         if ( !Boolean.getBoolean( "net.md_5.bungee.native.disable" ) )
         {
-            if ( EncryptionUtil.nativeFactory.load() )
+            if ( hasMemoryAddress && EncryptionUtil.nativeFactory.load() )
             {
                 logger.info( "Using mbed TLS based native cipher." );
             } else
             {
                 logger.info( "Using standard Java JCE cipher." );
             }
-            if ( CompressFactory.zlib.load() )
+            if ( hasMemoryAddress && CompressFactory.zlib.load() )
             {
                 logger.info( "Using zlib based native compressor." );
             } else
