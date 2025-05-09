@@ -8,6 +8,7 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
@@ -229,7 +230,9 @@ public class BungeeCord extends ProxyServer
         getPluginManager().registerCommand( null, new CommandBungee() );
         getPluginManager().registerCommand( null, new CommandPerms() );
 
-        boolean hasMemoryAddress = Unpooled.directBuffer().hasMemoryAddress();
+        ByteBuf directBuffer = Unpooled.directBuffer();
+        boolean hasMemoryAddress = directBuffer.hasMemoryAddress();
+        directBuffer.release();
         if ( !hasMemoryAddress )
         {
             logger.warning( "Memory addresses are not available in direct buffers" );
