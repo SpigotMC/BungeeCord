@@ -265,9 +265,9 @@ public class BungeeCord extends ProxyServer
         // https://github.com/netty/netty/wiki/Netty-4.2-Migration-Guide
         // The adaptive allocator, the new default allocator since Netty 4.2, has some memory issues.
         // Setting it globally also ensures that any plugins would also use the pooled allocator.
-        if ( System.getProperty("io.netty.allocator.type") == null )
+        if ( System.getProperty( "io.netty.allocator.type" ) == null )
         {
-            System.setProperty("io.netty.allocator.type", "pooled");
+            System.setProperty( "io.netty.allocator.type", "pooled" );
         }
 
         eventLoops = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
