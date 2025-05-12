@@ -1,7 +1,6 @@
 package net.md_5.bungee.netty;
 
 import com.google.common.base.Preconditions;
-import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelOption;
@@ -219,9 +218,6 @@ public class PipelineUtils
             {
                 // IP_TOS is not supported (Windows XP / Windows Server 2003)
             }
-            // https://github.com/netty/netty/wiki/Netty-4.2-Migration-Guide
-            // TODO: check for AdaptiveByteBufAllocator
-            ch.config().setAllocator( PooledByteBufAllocator.DEFAULT );
             ch.config().setWriteBufferWaterMark( MARK );
 
             ch.pipeline().addLast( FRAME_DECODER, new Varint21FrameDecoder() );
