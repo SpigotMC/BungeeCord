@@ -32,8 +32,9 @@ public class CustomClickEvent extends Event implements Cancellable
      */
     private final String id;
     /**
-     * Form data, may be null. If a form submission, usually contains a key
-     * {@link ACTION_KEY} with the ID of the relevant submission action.
+     * Form data, may be null. If a form submission, usually contains a
+     * {@code CustomClickEvent.ACTION_KEY} key with the ID of the relevant
+     * submission action.
      */
     private final Map<String, String> data;
     /**
