@@ -745,8 +745,8 @@ public class Commands extends DefinedPacket
                 get( "minecraft:resource_key", RAW_STRING ),
                 get( "minecraft:template_mirror", VOID ),
                 get( "minecraft:template_rotation", VOID ),
-                get( "minecraft:uuid", VOID ),
-                get( "minecraft:heightmap", VOID )
+                get( "minecraft:heightmap", VOID ),
+                get( "minecraft:uuid", VOID )
             };
 
             IDS_1_20_3 = new ArgumentSerializer[]
@@ -799,8 +799,8 @@ public class Commands extends DefinedPacket
                 get( "minecraft:resource_key", RAW_STRING ),
                 get( "minecraft:template_mirror", VOID ),
                 get( "minecraft:template_rotation", VOID ),
-                get( "minecraft:uuid", VOID ),
-                get( "minecraft:heightmap", VOID )
+                get( "minecraft:heightmap", VOID ),
+                get( "minecraft:uuid", VOID )
             };
 
             IDS_1_20_5 = new ArgumentSerializer[]
@@ -854,11 +854,11 @@ public class Commands extends DefinedPacket
                 get( "minecraft:resource_key", RAW_STRING ),
                 get( "minecraft:template_mirror", VOID ),
                 get( "minecraft:template_rotation", VOID ),
-                get( "minecraft:uuid", VOID ),
                 get( "minecraft:heightmap", VOID ),
                 get( "minecraft:loot_table", VOID ),
                 get( "minecraft:loot_predicate", VOID ),
-                get( "minecraft:loot_modifier", VOID )
+                get( "minecraft:loot_modifier", VOID ),
+                get( "minecraft:uuid", VOID )
             };
 
             IDS_1_21_5 = new ArgumentSerializer[]
@@ -913,11 +913,11 @@ public class Commands extends DefinedPacket
                 get( "minecraft:resource_selector", RAW_STRING ),
                 get( "minecraft:template_mirror", VOID ),
                 get( "minecraft:template_rotation", VOID ),
-                get( "minecraft:uuid", VOID ),
                 get( "minecraft:heightmap", VOID ),
                 get( "minecraft:loot_table", VOID ),
                 get( "minecraft:loot_predicate", VOID ),
-                get( "minecraft:loot_modifier", VOID )
+                get( "minecraft:loot_modifier", VOID ),
+                get( "minecraft:uuid", VOID )
             };
 
             IDS_1_21_6 = new ArgumentSerializer[]
@@ -973,11 +973,12 @@ public class Commands extends DefinedPacket
                 get( "minecraft:resource_selector", RAW_STRING ),
                 get( "minecraft:template_mirror", VOID ),
                 get( "minecraft:template_rotation", VOID ),
-                get( "minecraft:uuid", VOID ),
                 get( "minecraft:heightmap", VOID ),
                 get( "minecraft:loot_table", VOID ),
                 get( "minecraft:loot_predicate", VOID ),
-                get( "minecraft:loot_modifier", VOID )
+                get( "minecraft:loot_modifier", VOID ),
+                get( "minecraft:dialog", VOID ),
+                get( "minecraft:uuid", VOID )
             };
         }
 

@@ -28,6 +28,10 @@ import net.md_5.bungee.api.chat.hover.content.Item;
 import net.md_5.bungee.api.chat.hover.content.ItemSerializer;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.api.chat.hover.content.TextSerializer;
+import net.md_5.bungee.api.dialog.Dialog;
+import net.md_5.bungee.api.dialog.chat.ShowDialogClickEvent;
+import net.md_5.bungee.dialog.DialogSerializer;
+import net.md_5.bungee.dialog.ShowDialogClickEventSerializer;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Experimental
@@ -40,10 +44,14 @@ public class VersionedComponentSerializer implements JsonDeserializer<BaseCompon
     @Getter
     @ApiStatus.Internal
     private final ChatVersion version;
+    @Getter
+    @ApiStatus.Internal
+    private final DialogSerializer dialogSerializer;
 
     public VersionedComponentSerializer(ChatVersion version)
     {
         this.version = version;
+        this.dialogSerializer = new DialogSerializer( this );
         this.gson = new GsonBuilder().
                 registerTypeAdapter( BaseComponent.class, this ).
                 registerTypeAdapter( TextComponent.class, new TextComponentSerializer( this ) ).
@@ -56,6 +64,9 @@ public class VersionedComponentSerializer implements JsonDeserializer<BaseCompon
                 registerTypeAdapter( Text.class, new TextSerializer() ).
                 registerTypeAdapter( Item.class, new ItemSerializer() ).
                 registerTypeAdapter( ItemTag.class, new ItemTag.Serializer() ).
+                // Dialogs
+                registerTypeAdapter( Dialog.class, dialogSerializer ).
+                registerTypeAdapter( ShowDialogClickEvent.class, new ShowDialogClickEventSerializer() ).
                 create();
     }
 

@@ -4,12 +4,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import org.jetbrains.annotations.ApiStatus;
 
 @Getter
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public final class ClickEvent
+@ApiStatus.NonExtendable
+public class ClickEvent
 {
 
     /**
@@ -53,10 +55,18 @@ public final class ClickEvent
          */
         CHANGE_PAGE,
         /**
+         * Must use subclass ShowDialogClickEvent.
+         */
+        SHOW_DIALOG,
+        /**
          * Copy the string given by
          * {@link net.md_5.bungee.api.chat.ClickEvent#value} into the player's
          * clipboard.
          */
-        COPY_TO_CLIPBOARD
+        COPY_TO_CLIPBOARD,
+        /**
+         * Must use subclass {@link ClickEventCustom}.
+         */
+        CUSTOM,
     }
 }

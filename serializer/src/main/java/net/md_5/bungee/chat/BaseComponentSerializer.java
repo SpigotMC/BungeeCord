@@ -13,9 +13,11 @@ import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ClickEventCustom;
 import net.md_5.bungee.api.chat.ComponentStyle;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.hover.content.Content;
+import net.md_5.bungee.api.dialog.chat.ShowDialogClickEvent;
 
 @RequiredArgsConstructor
 public class BaseComponentSerializer
@@ -58,6 +60,12 @@ public class BaseComponentSerializer
                         int page = clickEvent.get( "page" ).getAsInt();
                         Preconditions.checkArgument( page >= 0, "Page number has to be positive" );
                         component.setClickEvent( new ClickEvent( action, Integer.toString( page ) ) );
+                        break;
+                    case SHOW_DIALOG:
+                        component.setClickEvent( context.deserialize( clickEvent.get( "dialog" ), ShowDialogClickEvent.class ) );
+                        break;
+                    case CUSTOM:
+                        component.setClickEvent( new ClickEventCustom( clickEvent.get( "id" ).getAsString(), ( clickEvent.has( "payload" ) ) ? clickEvent.get( "payload" ).getAsString() : null ) );
                         break;
                     default:
                         component.setClickEvent( new ClickEvent( action, ( clickEvent.has( "value" ) ) ? clickEvent.get( "value" ).getAsString() : "" ) );
@@ -181,6 +189,17 @@ public class BaseComponentSerializer
                                 break;
                             case CHANGE_PAGE:
                                 clickEvent.addProperty( "page", Integer.parseInt( component.getClickEvent().getValue() ) );
+                                break;
+                            case SHOW_DIALOG:
+                                clickEvent.add( "dialog", context.serialize( component.getClickEvent() ) );
+                                break;
+                            case CUSTOM:
+                                ClickEventCustom custom = (ClickEventCustom) component.getClickEvent();
+                                clickEvent.addProperty( "id", custom.getValue() );
+                                if ( custom.getPayload() != null )
+                                {
+                                    clickEvent.addProperty( "payload", custom.getPayload() );
+                                }
                                 break;
                             default:
                                 clickEvent.addProperty( "value", component.getClickEvent().getValue() );

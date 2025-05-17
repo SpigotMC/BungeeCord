@@ -35,12 +35,14 @@
         <module>bootstrap</module>
         <module>chat</module>
         <module>config</module>
+        <module>dialog</module>
         <module>event</module>
         <module>log</module>
         <module>module</module>
         <module>protocol</module>
         <module>proxy</module>
         <module>query</module>
+        <module>serializer</module>
         <module>slf4j</module>
         <module>native</module>
     </modules>

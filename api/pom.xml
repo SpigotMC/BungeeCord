@@ -33,6 +33,12 @@
         </dependency>
         <dependency>
             <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-dialog</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.md-5</groupId>
             <artifactId>bungeecord-event</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
