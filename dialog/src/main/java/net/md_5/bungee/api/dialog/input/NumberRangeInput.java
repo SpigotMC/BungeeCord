@@ -16,17 +16,17 @@ public class NumberRangeInput extends DialogInput
     private int width;
     private BaseComponent label;
     private String labelFormat;
-    private int start;
-    private int end;
-    private int steps;
-    private int initial;
+    private float start;
+    private float end;
+    private float step;
+    private float initial;
 
-    public NumberRangeInput(String key, BaseComponent label, int start, int end, int steps)
+    public NumberRangeInput(String key, BaseComponent label, float start, float end, float step)
     {
-        this( key, 200, label, "options.generic_value", start, end, steps, start );
+        this( key, 200, label, "options.generic_value", start, end, step, start );
     }
 
-    public NumberRangeInput(String key, int width, BaseComponent label, String labelFormat, int start, int end, int steps, int initial)
+    public NumberRangeInput(String key, int width, BaseComponent label, String labelFormat, float start, float end, float step, float initial)
     {
         super( "minecraft:number_range", key );
         this.width = width;
@@ -34,7 +34,7 @@ public class NumberRangeInput extends DialogInput
         this.labelFormat = labelFormat;
         this.start = start;
         this.end = end;
-        this.steps = steps;
+        this.step = step;
         this.initial = initial;
     }
 }

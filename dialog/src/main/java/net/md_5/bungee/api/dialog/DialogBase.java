@@ -1,6 +1,8 @@
 package net.md_5.bungee.api.dialog;
 
 import java.util.List;
+
+import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public final class DialogBase
      * The name which is used for any buttons leading to this dialog (eg from a
      * {@link DialogListDialog}). Otherwise defaults to {@link #title}.
      */
+    @SerializedName("external_title")
     private BaseComponent externalTitle;
     /**
      * The body elements which make up this dialog.
@@ -34,5 +37,6 @@ public final class DialogBase
     /**
      * Whether this dialog can be closed with the escape key (default: true).
      */
-    private boolean canCloseWithEscape;
+    @SerializedName("can_close_with_escape")
+    private boolean canCloseWithEscape = true;
 }
