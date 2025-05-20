@@ -13,12 +13,30 @@ import net.md_5.bungee.api.chat.BaseComponent;
 public class NumberRangeInput extends DialogInput
 {
 
+    /**
+     * The width of the input (default 200)
+     */
     private int width;
+    /**
+     * The label of the slider
+     */
     private BaseComponent label;
     private String labelFormat;
+    /**
+     * The start position of the slider (leftmost position)
+     */
     private float start;
+    /**
+     * The end position of the slider (rightmost position)
+     */
     private float end;
+    /**
+     * The steps in which the input will be increased or decreased, or null if no specific steps
+     */
     private Float step;
+    /**
+     * The initial value of number input, or null to fall back to the middle
+     */
     private Float initial;
 
     public NumberRangeInput(String key, BaseComponent label, float start, float end)
