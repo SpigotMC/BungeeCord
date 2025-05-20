@@ -32,13 +32,22 @@ public final class MultiActionInputFormDialog implements Dialog
      * provided.
      */
     private List<DialogSubmitAction> actions;
+    /**
+     * The amount of columns (default: 2)
+     */
+    private int columns;
 
     public MultiActionInputFormDialog(DialogBase base, DialogInput input, DialogSubmitAction action)
     {
-        this( base, Arrays.asList( input ), Arrays.asList( action ) );
+        this( base, Arrays.asList( input ), Arrays.asList( action ), 2 );
     }
 
-    public MultiActionInputFormDialog(DialogBase base, List<DialogInput> inputs, List<DialogSubmitAction> actions)
+    public MultiActionInputFormDialog(DialogBase base, DialogInput input, DialogSubmitAction action, int columns)
+    {
+        this( base, Arrays.asList( input ), Arrays.asList( action ), columns );
+    }
+
+    public MultiActionInputFormDialog(DialogBase base, List<DialogInput> inputs, List<DialogSubmitAction> actions, int columns)
     {
         Preconditions.checkArgument( inputs != null && !inputs.isEmpty(), "At least one input must be provided" );
         Preconditions.checkArgument( actions != null && !actions.isEmpty(), "At least one action must be provided" );
@@ -46,5 +55,6 @@ public final class MultiActionInputFormDialog implements Dialog
         this.base = base;
         this.inputs = inputs;
         this.actions = actions;
+        this.columns = columns;
     }
 }
