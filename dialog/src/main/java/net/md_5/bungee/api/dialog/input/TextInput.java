@@ -14,10 +14,22 @@ import net.md_5.bungee.api.chat.BaseComponent;
 public class TextInput extends DialogInput
 {
 
+    /**
+     * The width of this text input
+     */
     private int width;
+    /**
+     * The label of this text input
+     */
     private BaseComponent label;
+    /**
+     * The visibility of this text inputs label
+     */
     @SerializedName("label_visible")
     private boolean labelVisible;
+    /**
+     * The initial value of this text input
+     */
     private String initial;
     @SerializedName("max_length")
     private int maxLength;
@@ -53,10 +65,13 @@ public class TextInput extends DialogInput
     @EqualsAndHashCode(callSuper = false)
     public static class Multiline {
         /**
-         * The maximum length of input
+         * The maximum length of input, or null to disable any limits
          */
         @SerializedName("max_lines")
         private Integer maxLines;
+        /**
+         * The height of this input, default value is 32
+         */
         private Integer height = 32;
     }
 }
