@@ -5,13 +5,23 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import net.md_5.bungee.api.chat.BaseComponent;
 
+/**
+ * Represents a dialog body which consists of text constrained to a certain
+ * width.
+ */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class PlainMessageBody extends DialogBody
 {
 
+    /**
+     * The text body.
+     */
     private BaseComponent contents;
+    /**
+     * The maximum width (default: 200).
+     */
     private int width;
 
     public PlainMessageBody(BaseComponent contents)

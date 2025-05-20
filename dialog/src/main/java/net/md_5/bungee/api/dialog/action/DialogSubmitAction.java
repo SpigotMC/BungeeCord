@@ -8,6 +8,10 @@ import lombok.experimental.Accessors;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.dialog.submit.DialogSubmission;
 
+/**
+ * Represents a dialog button associated with the submission of a form dialog
+ * containing inputs.
+ */
 @Data
 @Accessors(fluent = true)
 @ToString(callSuper = true)
@@ -15,7 +19,14 @@ import net.md_5.bungee.api.dialog.submit.DialogSubmission;
 public class DialogSubmitAction extends DialogAction
 {
 
+    /**
+     * The ID of the button, used to distinguish submissions initiated via
+     * different buttons on the dialog.
+     */
     private String id;
+    /**
+     * The submission action to take.
+     */
     @SerializedName("on_submit")
     private DialogSubmission onSubmit;
 
