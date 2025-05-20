@@ -63,7 +63,8 @@ public class TextInput extends DialogInput
     @Accessors(fluent = true)
     @ToString(callSuper = true)
     @EqualsAndHashCode(callSuper = false)
-    public static class Multiline {
+    public static class Multiline
+    {
         /**
          * The maximum length of input, or null to disable any limits
          */
