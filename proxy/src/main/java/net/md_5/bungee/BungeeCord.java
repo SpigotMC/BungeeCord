@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.Format;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -85,6 +86,7 @@ import net.md_5.bungee.protocol.channel.BungeeChannelInitializer;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
+import net.md_5.bungee.util.BungeeTranslationUtil;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.fusesource.jansi.AnsiConsole;
 import org.slf4j.impl.JDK14LoggerFactory;
@@ -107,7 +109,7 @@ public class BungeeCord extends ProxyServer
     /**
      * Localization formats.
      */
-    private Map<String, Format> messageFormats;
+    private Map<String, MessageFormat> messageFormats;
     public EventLoopGroup eventLoops;
     /**
      * locations.yml save thread.
@@ -570,7 +572,7 @@ public class BungeeCord extends ProxyServer
 
     public final void reloadMessages()
     {
-        Map<String, Format> cachedFormats = new HashMap<>();
+        Map<String, MessageFormat> cachedFormats = new HashMap<>();
 
         File file = new File( "messages.properties" );
         if ( file.isFile() )
@@ -597,7 +599,7 @@ public class BungeeCord extends ProxyServer
         messageFormats = Collections.unmodifiableMap( cachedFormats );
     }
 
-    private void cacheResourceBundle(Map<String, Format> map, ResourceBundle resourceBundle)
+    private static void cacheResourceBundle(Map<String, MessageFormat> map, ResourceBundle resourceBundle)
     {
         Enumeration<String> keys = resourceBundle.getKeys();
         while ( keys.hasMoreElements() )
@@ -610,17 +612,22 @@ public class BungeeCord extends ProxyServer
     public String getTranslation(String name, Object... args)
     {
         Format format = messageFormats.get( name );
-        return ( format != null ) ? format.format( args ) : "<translation '" + name + "' missing>";
+        return ( format != null ) ? format.format( args ) : "<translation '" + name + "' missing, args=" + Arrays.toString( args ) + ">";
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    public BaseComponent getTranslationComponent(String name, Object... args)
+    {
+        return BungeeTranslationUtil.getTranslationComponent0( messageFormats.get( name ).toPattern(), args );
+    }
+
+    @Override
     public Collection<ProxiedPlayer> getPlayers()
     {
         connectionLock.readLock().lock();
         try
         {
-            return Collections.unmodifiableCollection( new HashSet( connections.values() ) );
+            return Collections.unmodifiableCollection( new HashSet<>( connections.values() ) );
         } finally
         {
             connectionLock.readLock().unlock();
