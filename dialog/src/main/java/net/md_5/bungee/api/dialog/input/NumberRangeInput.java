@@ -6,6 +6,9 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 import net.md_5.bungee.api.chat.BaseComponent;
 
+/**
+ * Represents a number slider input.
+ */
 @Data
 @Accessors(fluent = true)
 @ToString(callSuper = true)
@@ -14,28 +17,33 @@ public class NumberRangeInput extends DialogInput
 {
 
     /**
-     * The width of the input (default 200)
+     * The width of the input (default: 200, minimum: 1, maximum: 1024).
      */
     private int width;
     /**
-     * The label of the slider
+     * The label of the slider.
      */
     private BaseComponent label;
+    /**
+     * A translate key used to display the label value (default:
+     * options.generic_value).
+     */
     private String labelFormat;
     /**
-     * The start position of the slider (leftmost position)
+     * The start position of the slider (leftmost position).
      */
     private float start;
     /**
-     * The end position of the slider (rightmost position)
+     * The end position of the slider (rightmost position).
      */
     private float end;
     /**
-     * The steps in which the input will be increased or decreased, or null if no specific steps
+     * The steps in which the input will be increased or decreased, or null if
+     * no specific steps.
      */
     private Float step;
     /**
-     * The initial value of number input, or null to fall back to the middle
+     * The initial value of number input, or null to fall back to the middle.
      */
     private Float initial;
 

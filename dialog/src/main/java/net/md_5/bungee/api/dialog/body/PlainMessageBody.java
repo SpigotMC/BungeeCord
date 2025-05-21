@@ -20,7 +20,7 @@ public class PlainMessageBody extends DialogBody
      */
     private BaseComponent contents;
     /**
-     * The maximum width (default: 200).
+     * The maximum width (default: 200, minimum: 1, maximum: 1024).
      */
     private int width;
 

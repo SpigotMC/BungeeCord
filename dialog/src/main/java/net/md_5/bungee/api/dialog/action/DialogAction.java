@@ -21,7 +21,7 @@ public class DialogAction
      */
     private BaseComponent tooltip;
     /**
-     * The width of the button (default: 150).
+     * The width of the button (default: 150, minimum: 1, maximum: 1024).
      */
     private int width;
 
