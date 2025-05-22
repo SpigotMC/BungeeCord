@@ -394,12 +394,20 @@ public class UpstreamBridge extends PacketHandler
             for ( String line : lines )
             {
                 String[] split = line.split( "\t", 2 );
-                parsed.put( split[0], ( split.length > 1 ) ? split[1] : "" );
+                if ( split.length > 1 )
+                {
+                    parsed.put( split[0], split[1] );
+                }
             }
-            data = parsed.build();
+            data = parsed.buildOrThrow();
+
+            if ( data.isEmpty() )
+            {
+                data = null;
+            }
         }
 
-        CustomClickEvent event = new CustomClickEvent( con, customClickAction.getId(), data );
+        CustomClickEvent event = new CustomClickEvent( con, customClickAction.getId(), customClickAction.getData(), data );
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
             throw CancelSendSignal.INSTANCE;

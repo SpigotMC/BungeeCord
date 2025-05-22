@@ -7,6 +7,7 @@ import lombok.ToString;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Cancellable;
 import net.md_5.bungee.api.plugin.Event;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Called after a {@link ProxiedPlayer} runs a custom action from a chat event
@@ -15,6 +16,7 @@ import net.md_5.bungee.api.plugin.Event;
 @Data
 @ToString(callSuper = false)
 @EqualsAndHashCode(callSuper = false)
+@ApiStatus.Experimental
 public class CustomClickEvent extends Event implements Cancellable
 {
 
@@ -32,11 +34,19 @@ public class CustomClickEvent extends Event implements Cancellable
      */
     private final String id;
     /**
-     * Form data, may be null. If a form submission, usually contains a
+     * The raw data as submitted.
+     */
+    private final String rawData;
+    /**
+     * The parsed form data.
+     * <br>
+     * If a form submission, usually contains a
      * {@code CustomClickEvent.ACTION_KEY} key with the ID of the relevant
      * submission action.
+     * <br>
+     * If not a form submission, then may be null.
      */
-    private final Map<String, String> data;
+    private final Map<String, String> parsedData;
     /**
      * Cancelled state.
      */
