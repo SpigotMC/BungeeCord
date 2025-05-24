@@ -3,12 +3,14 @@ package net.md_5.bungee.api.dialog.action;
 import com.google.common.base.Preconditions;
 import lombok.Data;
 import lombok.NonNull;
+import lombok.experimental.Accessors;
 import net.md_5.bungee.api.chat.BaseComponent;
 
 /**
  * Represents a dialog action which will usually appear as a button.
  */
 @Data
+@Accessors(fluent = true)
 public class DialogAction
 {
 

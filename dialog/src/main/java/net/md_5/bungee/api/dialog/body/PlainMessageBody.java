@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
+import lombok.experimental.Accessors;
 import net.md_5.bungee.api.chat.BaseComponent;
 
 /**
@@ -12,6 +13,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
  * width.
  */
 @Data
+@Accessors(fluent = true)
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class PlainMessageBody extends DialogBody
@@ -36,10 +38,10 @@ public class PlainMessageBody extends DialogBody
     {
         super( "minecraft:plain_message" );
         this.contents = contents;
-        setWidth( width );
+        width( width );
     }
 
-    public void setWidth(Integer width)
+    public void width(Integer width)
     {
         Preconditions.checkArgument( width == null || ( width >= 1 && width <= 1024 ), "width must be between 1 and 1024" );
         this.width = width;
