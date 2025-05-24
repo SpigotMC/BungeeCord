@@ -103,7 +103,7 @@ public class TextInput extends DialogInput
 
     public TextInput width(Integer width)
     {
-        Preconditions.checkArgument( width == null ||( width >= 1 && width <= 1024 ), "width must be between 1 and 1024" );
+        Preconditions.checkArgument( width == null || ( width >= 1 && width <= 1024 ), "width must be between 1 and 1024" );
         this.width = width;
         return this;
     }

@@ -60,7 +60,7 @@ public final class ServerLinksDialog implements Dialog
 
     public ServerLinksDialog buttonWidth(Integer buttonWidth)
     {
-        Preconditions.checkArgument( buttonWidth== null || buttonWidth >= 1 && buttonWidth <= 1024, "buttonWidth must be between 1 and 1024" );
+        Preconditions.checkArgument( buttonWidth == null || ( buttonWidth >= 1 && buttonWidth <= 1024 ), "buttonWidth must be between 1 and 1024" );
         this.buttonWidth = buttonWidth;
         return this;
     }
