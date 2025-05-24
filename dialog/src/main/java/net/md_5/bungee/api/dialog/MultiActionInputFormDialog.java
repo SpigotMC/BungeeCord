@@ -10,7 +10,6 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 import net.md_5.bungee.api.dialog.action.DialogSubmitAction;
 import net.md_5.bungee.api.dialog.input.DialogInput;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a dialog which contains a variety of inputs and a multiple submit

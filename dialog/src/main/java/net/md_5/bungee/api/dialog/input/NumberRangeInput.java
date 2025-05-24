@@ -89,7 +89,7 @@ public class NumberRangeInput extends DialogInput
         // we need to calculate if the initial value is between start and end, regardless of the order
         float min = Math.min( start, end );
         float max = Math.max( start, end );
-        Preconditions.checkArgument( step == null || (initial >= min && initial <= max), "step must be null or between start and end" );
+        Preconditions.checkArgument( step == null || ( initial >= min && initial <= max ), "step must be null or between start and end" );
         this.initial = initial;
         return this;
     }

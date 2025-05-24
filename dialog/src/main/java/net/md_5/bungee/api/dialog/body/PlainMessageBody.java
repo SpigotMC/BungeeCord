@@ -41,7 +41,7 @@ public class PlainMessageBody extends DialogBody
 
     public void setWidth(int width)
     {
-        Preconditions.checkArgument( width >= 1 && width <= 1024, "width must be between 1 and 1024");
+        Preconditions.checkArgument( width >= 1 && width <= 1024, "width must be between 1 and 1024" );
         this.width = width;
     }
 }
