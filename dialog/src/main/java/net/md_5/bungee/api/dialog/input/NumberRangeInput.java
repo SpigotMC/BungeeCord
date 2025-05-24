@@ -1,7 +1,9 @@
 package net.md_5.bungee.api.dialog.input;
 
+import com.google.common.base.Preconditions;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -23,6 +25,7 @@ public class NumberRangeInput extends DialogInput
     /**
      * The label of the slider.
      */
+    @NonNull
     private BaseComponent label;
     /**
      * A translate key used to display the label value (default:
@@ -47,22 +50,22 @@ public class NumberRangeInput extends DialogInput
      */
     private Float initial;
 
-    public NumberRangeInput(String key, BaseComponent label, float start, float end)
+    public NumberRangeInput(@NonNull String key, @NonNull BaseComponent label, float start, float end)
     {
         this( key, 200, label, "options.generic_value", start, end, null, null );
     }
 
-    public NumberRangeInput(String key, BaseComponent label, float start, float end, Float step)
+    public NumberRangeInput(@NonNull String key, @NonNull BaseComponent label, float start, float end, Float step)
     {
         this( key, 200, label, "options.generic_value", start, end, step, null );
     }
 
-    public NumberRangeInput(String key, BaseComponent label, float start, float end, Float step, Float initial)
+    public NumberRangeInput(@NonNull String key, @NonNull BaseComponent label, float start, float end, Float step, Float initial)
     {
         this( key, 200, label, "options.generic_value", start, end, step, initial );
     }
 
-    public NumberRangeInput(String key, int width, BaseComponent label, String labelFormat, float start, float end, Float step, Float initial)
+    public NumberRangeInput(@NonNull String key, int width, @NonNull BaseComponent label, String labelFormat, float start, float end, Float step, Float initial)
     {
         super( "minecraft:number_range", key );
         this.width = width;
@@ -70,7 +73,24 @@ public class NumberRangeInput extends DialogInput
         this.labelFormat = labelFormat;
         this.start = start;
         this.end = end;
+        step( step );
+        initial( initial );
+    }
+
+    public NumberRangeInput step(Float step)
+    {
+        Preconditions.checkArgument( step == null || step > 0, "step must be null or greater than zero" );
         this.step = step;
+        return this;
+    }
+
+    public NumberRangeInput initial(Float initial)
+    {
+        // we need to calculate if the initial value is between start and end, regardless of the order
+        float min = Math.min( start, end );
+        float max = Math.max( start, end );
+        Preconditions.checkArgument( step == null || (initial >= min && initial <= max), "step must be null or between start and end" );
         this.initial = initial;
+        return this;
     }
 }

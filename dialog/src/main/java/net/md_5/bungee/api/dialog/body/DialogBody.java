@@ -1,6 +1,7 @@
 package net.md_5.bungee.api.dialog.body;
 
 import lombok.Data;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -13,6 +14,7 @@ public abstract class DialogBody
     /**
      * The internal body type.
      */
+    @NonNull
     @ApiStatus.Internal
     private final String type;
 }

@@ -1,8 +1,11 @@
 package net.md_5.bungee.api.dialog.input;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -24,6 +27,7 @@ public class TextInput extends DialogInput
     /**
      * The label of this text input.
      */
+    @NonNull
     private BaseComponent label;
     /**
      * The visibility of this text input's label.
@@ -44,20 +48,20 @@ public class TextInput extends DialogInput
      */
     private Multiline multiline;
 
-    public TextInput(String key, BaseComponent label)
+    public TextInput(@NonNull String key, @NonNull BaseComponent label)
     {
         this( key, 200, label, true, null, 32, null );
     }
 
-    public TextInput(String key, int width, BaseComponent label, boolean labelVisible, String initial, Integer maxLength)
+    public TextInput(@NonNull String key, int width, @NonNull BaseComponent label, boolean labelVisible, String initial, Integer maxLength)
     {
         this( key, width, label, labelVisible, initial, maxLength, null );
     }
 
-    public TextInput(String key, int width, BaseComponent label, boolean labelVisible, String initial, Integer maxLength, Multiline multiline)
+    public TextInput(@NonNull String key, int width, @NonNull BaseComponent label, boolean labelVisible, String initial, Integer maxLength, Multiline multiline)
     {
         super( "minecraft:text", key );
-        this.width = width;
+        width( width );
         this.label = label;
         this.labelVisible = labelVisible;
         this.initial = initial;
@@ -69,6 +73,7 @@ public class TextInput extends DialogInput
      * Configuration data for a multiline input.
      */
     @Data
+    @NoArgsConstructor
     @Accessors(fluent = true)
     public static class Multiline
     {
@@ -81,6 +86,25 @@ public class TextInput extends DialogInput
         /**
          * The height of this input (default: 32, minimum: 1, maximum: 512).
          */
-        private Integer height = 32;
+        private Integer height;
+
+        public Multiline(Integer maxLines, Integer height)
+        {
+            height( height ).maxLines( maxLines );
+        }
+
+        public Multiline height(Integer height)
+        {
+            Preconditions.checkArgument( height == null || height >= 1 && height <= 512, "height must null or be between 1 and 512" );
+            this.height = height;
+            return this;
+        }
+    }
+
+    public TextInput width(int width)
+    {
+        Preconditions.checkArgument( width >= 1 && width <= 1024, "width must be between 1 and 1024" );
+        this.width = width;
+        return this;
     }
 }

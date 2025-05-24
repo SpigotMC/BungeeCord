@@ -2,6 +2,7 @@ package net.md_5.bungee.api.dialog.input;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.experimental.Accessors;
 import net.md_5.bungee.api.chat.BaseComponent;
 
@@ -19,6 +20,7 @@ public class InputOption
      * The string value associated with this option, to be submitted when
      * selected.
      */
+    @NonNull
     private String id;
     /**
      * The text to display for this option.
@@ -30,7 +32,7 @@ public class InputOption
      */
     private boolean initial;
 
-    public InputOption(String id)
+    public InputOption(@NonNull String id)
     {
         this( id, null, false );
     }

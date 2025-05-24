@@ -3,6 +3,7 @@ package net.md_5.bungee.api.dialog.action;
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -23,6 +24,7 @@ public class DialogSubmitAction extends DialogAction
      * The ID of the button, used to distinguish submissions initiated via
      * different buttons on the dialog.
      */
+    @NonNull
     private String id;
     /**
      * The submission action to take.
@@ -30,12 +32,12 @@ public class DialogSubmitAction extends DialogAction
     @SerializedName("on_submit")
     private DialogSubmission onSubmit;
 
-    public DialogSubmitAction(String id, DialogSubmission onSubmit, BaseComponent label)
+    public DialogSubmitAction(@NonNull String id, DialogSubmission onSubmit, @NonNull  BaseComponent label)
     {
         this( id, onSubmit, label, null, 150 );
     }
 
-    public DialogSubmitAction(String id, DialogSubmission onSubmit, BaseComponent label, BaseComponent tooltip, int width)
+    public DialogSubmitAction(@NonNull String id, DialogSubmission onSubmit, @NonNull  BaseComponent label, BaseComponent tooltip, int width)
     {
         super( label, tooltip, width );
         this.id = id;
