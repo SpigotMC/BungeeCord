@@ -2,6 +2,7 @@ package net.md_5.bungee.api.dialog.submit;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
@@ -24,9 +25,10 @@ public class CommandTemplateSubmission extends DialogSubmission
      * The <code>action</code> key is special and will be replaced with the
      * {@link net.md_5.bungee.api.dialog.action.DialogSubmitAction#id}.
      */
+    @NonNull
     private String template;
 
-    public CommandTemplateSubmission(String template)
+    public CommandTemplateSubmission(@NonNull String template)
     {
         super( "minecraft:command_template" );
         this.template = template;

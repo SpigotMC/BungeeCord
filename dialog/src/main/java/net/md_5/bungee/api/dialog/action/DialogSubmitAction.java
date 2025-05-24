@@ -29,15 +29,16 @@ public class DialogSubmitAction extends DialogAction
     /**
      * The submission action to take.
      */
+    @NonNull
     @SerializedName("on_submit")
     private DialogSubmission onSubmit;
 
-    public DialogSubmitAction(@NonNull String id, DialogSubmission onSubmit, @NonNull BaseComponent label)
+    public DialogSubmitAction(@NonNull String id, @NonNull DialogSubmission onSubmit, @NonNull BaseComponent label)
     {
         this( id, onSubmit, label, null, 150 );
     }
 
-    public DialogSubmitAction(@NonNull String id, DialogSubmission onSubmit, @NonNull BaseComponent label, BaseComponent tooltip, int width)
+    public DialogSubmitAction(@NonNull String id, @NonNull DialogSubmission onSubmit, @NonNull BaseComponent label, BaseComponent tooltip, int width)
     {
         super( label, tooltip, width );
         this.id = id;
