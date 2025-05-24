@@ -32,10 +32,10 @@ public class DialogClickAction extends DialogAction
 
     public DialogClickAction(ClickEvent onClick, @NonNull BaseComponent label)
     {
-        this( onClick, label, null, 150 );
+        this( onClick, label, null, null );
     }
 
-    public DialogClickAction(ClickEvent onClick, @NonNull BaseComponent label, BaseComponent tooltip, int width)
+    public DialogClickAction(ClickEvent onClick, @NonNull BaseComponent label, BaseComponent tooltip, Integer width)
     {
         super( label, tooltip, width );
         this.onClick = onClick;

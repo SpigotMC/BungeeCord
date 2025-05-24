@@ -35,10 +35,10 @@ public class DialogSubmitAction extends DialogAction
 
     public DialogSubmitAction(@NonNull String id, @NonNull DialogSubmission onSubmit, @NonNull BaseComponent label)
     {
-        this( id, onSubmit, label, null, 150 );
+        this( id, onSubmit, label, null, null );
     }
 
-    public DialogSubmitAction(@NonNull String id, @NonNull DialogSubmission onSubmit, @NonNull BaseComponent label, BaseComponent tooltip, int width)
+    public DialogSubmitAction(@NonNull String id, @NonNull DialogSubmission onSubmit, @NonNull BaseComponent label, BaseComponent tooltip, Integer width)
     {
         super( label, tooltip, width );
         this.id = id;

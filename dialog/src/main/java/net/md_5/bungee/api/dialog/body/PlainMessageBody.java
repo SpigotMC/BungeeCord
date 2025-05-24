@@ -25,14 +25,14 @@ public class PlainMessageBody extends DialogBody
     /**
      * The maximum width (default: 200, minimum: 1, maximum: 1024).
      */
-    private int width;
+    private Integer width;
 
     public PlainMessageBody(@NonNull BaseComponent contents)
     {
-        this( contents, 200 );
+        this( contents, null );
     }
 
-    public PlainMessageBody(@NonNull BaseComponent contents, int width)
+    public PlainMessageBody(@NonNull BaseComponent contents, Integer width)
     {
         super( "minecraft:plain_message" );
         this.contents = contents;

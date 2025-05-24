@@ -24,9 +24,9 @@ public class DialogAction
     /**
      * The width of the button (default: 150, minimum: 1, maximum: 1024).
      */
-    private int width;
+    private Integer width;
 
-    public DialogAction(@NonNull BaseComponent label, BaseComponent tooltip, int width)
+    public DialogAction(@NonNull BaseComponent label, BaseComponent tooltip, Integer width)
     {
         this.label = label;
         this.tooltip = tooltip;
@@ -35,12 +35,12 @@ public class DialogAction
 
     public DialogAction(BaseComponent label)
     {
-        this( label, null, 150 );
+        this( label, null, null );
     }
 
-    public void setWidth(int width)
+    public void setWidth(Integer width)
     {
-        Preconditions.checkArgument( width >= 1 && width <= 1024, "width must be between 1 and 1024" );
+        Preconditions.checkArgument( width == null || ( width >= 1 && width <= 1024 ), "width must be between 1 and 1024" );
         this.width = width;
     }
 }
