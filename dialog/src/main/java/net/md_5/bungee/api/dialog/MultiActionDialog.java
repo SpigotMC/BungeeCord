@@ -34,7 +34,7 @@ public final class MultiActionDialog implements Dialog
     /**
      * The number of columns for the dialog buttons (default: 2).
      */
-    private int columns;
+    private Integer columns;
     /**
      * The {@link ClickEvent} activated when the dialog is cancelled.
      */
@@ -46,7 +46,7 @@ public final class MultiActionDialog implements Dialog
         this( base, Arrays.asList( actions ), 2, null );
     }
 
-    public MultiActionDialog(@NonNull DialogBase base, @NonNull List<DialogClickAction> actions, int columns, ClickEvent onCancel)
+    public MultiActionDialog(@NonNull DialogBase base, @NonNull List<DialogClickAction> actions, Integer columns, ClickEvent onCancel)
     {
         Preconditions.checkArgument( !actions.isEmpty(), "At least one action must be provided" );
 
@@ -56,9 +56,9 @@ public final class MultiActionDialog implements Dialog
         this.onCancel = onCancel;
     }
 
-    public MultiActionDialog columns(int columns)
+    public MultiActionDialog columns(Integer columns)
     {
-        Preconditions.checkArgument( columns > 0, "At least one column is required" );
+        Preconditions.checkArgument( columns == null || columns > 0, "At least one column is required" );
         this.columns = columns;
         return this;
     }

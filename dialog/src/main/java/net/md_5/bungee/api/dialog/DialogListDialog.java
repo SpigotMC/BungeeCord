@@ -36,19 +36,19 @@ public final class DialogListDialog implements Dialog
     /**
      * The number of columns for the dialog buttons (default: 2).
      */
-    private int columns;
+    private Integer columns;
     /**
      * The width of the dialog buttons (default: 150, minimum: 1, maximum: 1024).
      */
     @SerializedName("button_width")
-    private int buttonWidth;
+    private Integer buttonWidth;
 
     public DialogListDialog(@NonNull DialogBase base, Dialog... dialogs)
     {
-        this( base, Arrays.asList( dialogs ), null, 2, 150 );
+        this( base, Arrays.asList( dialogs ), null, null, null );
     }
 
-    public DialogListDialog(@NonNull DialogBase base, List<Dialog> dialogs, ClickEvent onCancel, int columns, int buttonWidth)
+    public DialogListDialog(@NonNull DialogBase base, List<Dialog> dialogs, ClickEvent onCancel, Integer columns, Integer buttonWidth)
     {
         this.base = base;
         this.dialogs = dialogs;
@@ -57,16 +57,16 @@ public final class DialogListDialog implements Dialog
         buttonWidth( buttonWidth );
     }
 
-    public DialogListDialog columns(int columns)
+    public DialogListDialog columns(Integer columns)
     {
-        Preconditions.checkArgument( columns > 0, "At least one column is required" );
+        Preconditions.checkArgument( columns == null || columns > 0, "At least one column is required" );
         this.columns = columns;
         return this;
     }
 
-    public DialogListDialog buttonWidth(int buttonWidth)
+    public DialogListDialog buttonWidth(Integer buttonWidth)
     {
-        Preconditions.checkArgument( buttonWidth >= 1 && buttonWidth <= 1024, "buttonWidth must be between 1 and 1024" );
+        Preconditions.checkArgument( buttonWidth == null || buttonWidth >= 1 && buttonWidth <= 1024, "buttonWidth must be between 1 and 1024" );
         this.buttonWidth = buttonWidth;
         return this;
     }

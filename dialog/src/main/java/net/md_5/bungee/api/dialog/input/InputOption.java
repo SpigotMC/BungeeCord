@@ -30,10 +30,10 @@ public class InputOption
      * Whether this option is the one initially selected. Only one option may
      * have this value as true (default: first option).
      */
-    private boolean initial;
+    private Boolean initial;
 
     public InputOption(@NonNull String id)
     {
-        this( id, null, false );
+        this( id, null, null );
     }
 }

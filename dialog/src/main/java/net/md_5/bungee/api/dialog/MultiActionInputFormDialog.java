@@ -39,19 +39,19 @@ public final class MultiActionInputFormDialog implements Dialog
     /**
      * The amount of columns (default: 2)
      */
-    private int columns;
+    private Integer columns;
 
     public MultiActionInputFormDialog(@NonNull DialogBase base, @NonNull DialogInput input, @NonNull DialogSubmitAction action)
     {
         this( base, Arrays.asList( input ), Arrays.asList( action ), 2 );
     }
 
-    public MultiActionInputFormDialog(@NonNull DialogBase base, @NonNull DialogInput input, @NonNull DialogSubmitAction action, int columns)
+    public MultiActionInputFormDialog(@NonNull DialogBase base, @NonNull DialogInput input, @NonNull DialogSubmitAction action, Integer columns)
     {
         this( base, Arrays.asList( input ), Arrays.asList( action ), columns );
     }
 
-    public MultiActionInputFormDialog(@NonNull DialogBase base, @NonNull List<DialogInput> inputs, @NonNull List<DialogSubmitAction> actions, int columns)
+    public MultiActionInputFormDialog(@NonNull DialogBase base, @NonNull List<DialogInput> inputs, @NonNull List<DialogSubmitAction> actions, Integer columns)
     {
         Preconditions.checkArgument( !inputs.isEmpty(), "At least one input must be provided" );
         Preconditions.checkArgument( !actions.isEmpty(), "At least one action must be provided" );
@@ -62,9 +62,9 @@ public final class MultiActionInputFormDialog implements Dialog
         columns( columns );
     }
 
-    public MultiActionInputFormDialog columns(int columns)
+    public MultiActionInputFormDialog columns(Integer columns)
     {
-        Preconditions.checkArgument( columns > 0, "At least one column is required" );
+        Preconditions.checkArgument( columns == null || columns > 0, "At least one column is required" );
         this.columns = columns;
         return this;
     }

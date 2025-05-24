@@ -31,19 +31,19 @@ public final class ServerLinksDialog implements Dialog
     /**
      * The number of columns for the dialog buttons (default: 2).
      */
-    private int columns;
+    private Integer columns;
     /**
      * The width of the dialog buttons (default: 150, minimum: 1, maximum: 1024).
      */
     @SerializedName("button_width")
-    private int buttonWidth;
+    private Integer buttonWidth;
 
     public ServerLinksDialog(@NonNull DialogBase base)
     {
-        this( base, null, 2, 150 );
+        this( base, null, null, null );
     }
 
-    public ServerLinksDialog(@NonNull DialogBase base, ClickEvent onClick, int columns, int buttonWidth)
+    public ServerLinksDialog(@NonNull DialogBase base, ClickEvent onClick, Integer columns, Integer buttonWidth)
     {
         this.base = base;
         this.onClick = onClick;
@@ -51,16 +51,16 @@ public final class ServerLinksDialog implements Dialog
         buttonWidth( buttonWidth );
     }
 
-    public ServerLinksDialog columns(int columns)
+    public ServerLinksDialog columns(Integer columns)
     {
-        Preconditions.checkArgument( columns > 0, "At least one column is required" );
+        Preconditions.checkArgument( columns == null || columns > 0, "At least one column is required" );
         this.columns = columns;
         return this;
     }
 
-    public ServerLinksDialog buttonWidth(int buttonWidth)
+    public ServerLinksDialog buttonWidth(Integer buttonWidth)
     {
-        Preconditions.checkArgument( buttonWidth >= 1 && buttonWidth <= 1024, "buttonWidth must be between 1 and 1024" );
+        Preconditions.checkArgument( buttonWidth== null || buttonWidth >= 1 && buttonWidth <= 1024, "buttonWidth must be between 1 and 1024" );
         this.buttonWidth = buttonWidth;
         return this;
     }

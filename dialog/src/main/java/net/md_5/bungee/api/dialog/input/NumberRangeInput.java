@@ -21,7 +21,7 @@ public class NumberRangeInput extends DialogInput
     /**
      * The width of the input (default: 200, minimum: 1, maximum: 1024).
      */
-    private int width;
+    private Integer width;
     /**
      * The label of the slider.
      */
@@ -52,29 +52,36 @@ public class NumberRangeInput extends DialogInput
 
     public NumberRangeInput(@NonNull String key, @NonNull BaseComponent label, float start, float end)
     {
-        this( key, 200, label, "options.generic_value", start, end, null, null );
+        this( key, null, label, "options.generic_value", start, end, null, null );
     }
 
     public NumberRangeInput(@NonNull String key, @NonNull BaseComponent label, float start, float end, Float step)
     {
-        this( key, 200, label, "options.generic_value", start, end, step, null );
+        this( key, null, label, "options.generic_value", start, end, step, null );
     }
 
     public NumberRangeInput(@NonNull String key, @NonNull BaseComponent label, float start, float end, Float step, Float initial)
     {
-        this( key, 200, label, "options.generic_value", start, end, step, initial );
+        this( key, null, label, "options.generic_value", start, end, step, initial );
     }
 
-    public NumberRangeInput(@NonNull String key, int width, @NonNull BaseComponent label, String labelFormat, float start, float end, Float step, Float initial)
+    public NumberRangeInput(@NonNull String key, Integer width, @NonNull BaseComponent label, String labelFormat, float start, float end, Float step, Float initial)
     {
         super( "minecraft:number_range", key );
-        this.width = width;
+        width( width );
         this.label = label;
         this.labelFormat = labelFormat;
         this.start = start;
         this.end = end;
         step( step );
         initial( initial );
+    }
+
+    public NumberRangeInput width(Integer width)
+    {
+        Preconditions.checkArgument( width == null || ( width >= 1 && width <= 1024 ), "with must be between 1 and 1024" );
+        this.width = width;
+        return this;
     }
 
     public NumberRangeInput step(Float step)

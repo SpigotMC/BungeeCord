@@ -23,7 +23,7 @@ public class TextInput extends DialogInput
     /**
      * The width of this text input (default: 200, minimum: 1, maximum: 1024).
      */
-    private int width;
+    private Integer width;
     /**
      * The label of this text input.
      */
@@ -33,7 +33,7 @@ public class TextInput extends DialogInput
      * The visibility of this text input's label.
      */
     @SerializedName("label_visible")
-    private boolean labelVisible;
+    private Boolean labelVisible;
     /**
      * The initial value of this text input.
      */
@@ -42,7 +42,7 @@ public class TextInput extends DialogInput
      * The maximum length of the input (default: 32).
      */
     @SerializedName("max_length")
-    private int maxLength;
+    private Integer maxLength;
     /**
      * If present, allows users to input multiple lines.
      */
@@ -50,15 +50,15 @@ public class TextInput extends DialogInput
 
     public TextInput(@NonNull String key, @NonNull BaseComponent label)
     {
-        this( key, 200, label, true, null, 32, null );
+        this( key, 200, label, null, null, null, null );
     }
 
-    public TextInput(@NonNull String key, int width, @NonNull BaseComponent label, boolean labelVisible, String initial, Integer maxLength)
+    public TextInput(@NonNull String key, Integer width, @NonNull BaseComponent label, Boolean labelVisible, String initial, Integer maxLength)
     {
         this( key, width, label, labelVisible, initial, maxLength, null );
     }
 
-    public TextInput(@NonNull String key, int width, @NonNull BaseComponent label, boolean labelVisible, String initial, Integer maxLength, Multiline multiline)
+    public TextInput(@NonNull String key, Integer width, @NonNull BaseComponent label, Boolean labelVisible, String initial, Integer maxLength, Multiline multiline)
     {
         super( "minecraft:text", key );
         width( width );
@@ -101,9 +101,9 @@ public class TextInput extends DialogInput
         }
     }
 
-    public TextInput width(int width)
+    public TextInput width(Integer width)
     {
-        Preconditions.checkArgument( width >= 1 && width <= 1024, "width must be between 1 and 1024" );
+        Preconditions.checkArgument( width == null ||( width >= 1 && width <= 1024 ), "width must be between 1 and 1024" );
         this.width = width;
         return this;
     }
