@@ -3,6 +3,7 @@ package net.md_5.bungee.api.dialog;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 import net.md_5.bungee.api.dialog.action.DialogClickAction;
@@ -19,6 +20,7 @@ import net.md_5.bungee.api.dialog.action.DialogClickAction;
 public final class NoticeDialog implements Dialog
 {
 
+    @NonNull
     @Accessors(fluent = false)
     private DialogBase base;
     /**
