@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 import net.md_5.bungee.api.dialog.action.DialogSubmitAction;
@@ -22,39 +23,49 @@ public final class MultiActionInputFormDialog implements Dialog
 {
 
     @Accessors(fluent = false)
+    @NonNull
     private DialogBase base;
     /**
      * The inputs to the dialog. At least one input must be provided.
      */
+    @NonNull
     private List<DialogInput> inputs;
     /**
      * The action/submit buttons for the dialog. At least one action must be
      * provided.
      */
+    @NonNull
     private List<DialogSubmitAction> actions;
     /**
      * The amount of columns (default: 2)
      */
-    private int columns;
+    private Integer columns;
 
-    public MultiActionInputFormDialog(DialogBase base, DialogInput input, DialogSubmitAction action)
+    public MultiActionInputFormDialog(@NonNull DialogBase base, @NonNull DialogInput input, @NonNull DialogSubmitAction action)
     {
         this( base, Arrays.asList( input ), Arrays.asList( action ), 2 );
     }
 
-    public MultiActionInputFormDialog(DialogBase base, DialogInput input, DialogSubmitAction action, int columns)
+    public MultiActionInputFormDialog(@NonNull DialogBase base, @NonNull DialogInput input, @NonNull DialogSubmitAction action, Integer columns)
     {
         this( base, Arrays.asList( input ), Arrays.asList( action ), columns );
     }
 
-    public MultiActionInputFormDialog(DialogBase base, List<DialogInput> inputs, List<DialogSubmitAction> actions, int columns)
+    public MultiActionInputFormDialog(@NonNull DialogBase base, @NonNull List<DialogInput> inputs, @NonNull List<DialogSubmitAction> actions, Integer columns)
     {
-        Preconditions.checkArgument( inputs != null && !inputs.isEmpty(), "At least one input must be provided" );
-        Preconditions.checkArgument( actions != null && !actions.isEmpty(), "At least one action must be provided" );
+        Preconditions.checkArgument( !inputs.isEmpty(), "At least one input must be provided" );
+        Preconditions.checkArgument( !actions.isEmpty(), "At least one action must be provided" );
 
         this.base = base;
         this.inputs = inputs;
         this.actions = actions;
+        columns( columns );
+    }
+
+    public MultiActionInputFormDialog columns(Integer columns)
+    {
+        Preconditions.checkArgument( columns == null || columns > 0, "At least one column is required" );
         this.columns = columns;
+        return this;
     }
 }

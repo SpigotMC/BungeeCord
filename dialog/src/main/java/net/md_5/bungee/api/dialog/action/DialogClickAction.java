@@ -3,6 +3,7 @@ package net.md_5.bungee.api.dialog.action;
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -24,17 +25,17 @@ public class DialogClickAction extends DialogAction
     @SerializedName("on_click")
     private ClickEvent onClick;
 
-    public DialogClickAction(BaseComponent label)
+    public DialogClickAction(@NonNull BaseComponent label)
     {
         this( null, label );
     }
 
-    public DialogClickAction(ClickEvent onClick, BaseComponent label)
+    public DialogClickAction(ClickEvent onClick, @NonNull BaseComponent label)
     {
-        this( onClick, label, null, 150 );
+        this( onClick, label, null, null );
     }
 
-    public DialogClickAction(ClickEvent onClick, BaseComponent label, BaseComponent tooltip, int width)
+    public DialogClickAction(ClickEvent onClick, @NonNull BaseComponent label, BaseComponent tooltip, Integer width)
     {
         super( label, tooltip, width );
         this.onClick = onClick;

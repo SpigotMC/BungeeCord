@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -22,6 +23,7 @@ public final class DialogBase
     /**
      * The mandatory dialog title.
      */
+    @NonNull
     private final BaseComponent title;
     /**
      * The name which is used for any buttons leading to this dialog (eg from a
@@ -37,5 +39,5 @@ public final class DialogBase
      * Whether this dialog can be closed with the escape key (default: true).
      */
     @SerializedName("can_close_with_escape")
-    private boolean canCloseWithEscape = true;
+    private Boolean canCloseWithEscape;
 }
