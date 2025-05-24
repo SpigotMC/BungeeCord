@@ -39,5 +39,5 @@ public final class DialogBase
      * Whether this dialog can be closed with the escape key (default: true).
      */
     @SerializedName("can_close_with_escape")
-    private boolean canCloseWithEscape = true;
+    private Boolean canCloseWithEscape;
 }
