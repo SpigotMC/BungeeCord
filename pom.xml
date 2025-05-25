@@ -285,7 +285,7 @@
             <properties>
                 <maven.compiler.proc>full</maven.compiler.proc>
             </properties>
-        </profile>        
+        </profile>
         <profile>
             <id>dist</id>
             <build>
