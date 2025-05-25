@@ -86,7 +86,7 @@ import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.fusesource.jansi.AnsiConsole;
-import org.slf4j.impl.JDK14LoggerFactory;
+import org.slf4j.jul.JDK14LoggerFactory;
 
 /**
  * Main BungeeCord proxy class.
