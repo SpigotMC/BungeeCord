@@ -2,7 +2,6 @@ package net.md_5.bungee.api.dialog.chat;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.dialog.Dialog;
 
@@ -11,7 +10,6 @@ import net.md_5.bungee.api.dialog.Dialog;
  * dialog.
  */
 @Data
-@Accessors(fluent = true)
 @EqualsAndHashCode(callSuper = false)
 public class ShowDialogClickEvent extends ClickEvent
 {

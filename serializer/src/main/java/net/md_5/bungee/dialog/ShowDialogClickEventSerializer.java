@@ -28,11 +28,11 @@ public class ShowDialogClickEventSerializer implements JsonDeserializer<ShowDial
     @Override
     public JsonElement serialize(ShowDialogClickEvent src, Type typeOfSrc, JsonSerializationContext context)
     {
-        if ( src.reference() != null )
+        if ( src.getReference() != null )
         {
-            return new JsonPrimitive( src.reference() );
+            return new JsonPrimitive( src.getReference() );
         }
 
-        return context.serialize( src.dialog(), Dialog.class );
+        return context.serialize( src.getDialog(), Dialog.class );
     }
 }
