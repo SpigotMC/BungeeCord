@@ -17,6 +17,7 @@ public class DialogInput
     /**
      * The internal input type.
      */
+    @NonNull
     @ApiStatus.Internal
     private final String type;
     /**

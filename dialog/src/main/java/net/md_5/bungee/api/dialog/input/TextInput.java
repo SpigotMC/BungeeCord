@@ -50,7 +50,7 @@ public class TextInput extends DialogInput
 
     public TextInput(@NonNull String key, @NonNull BaseComponent label)
     {
-        this( key, 200, label, null, null, null, null );
+        this( key, null, label, null, null, null, null );
     }
 
     public TextInput(@NonNull String key, Integer width, @NonNull BaseComponent label, Boolean labelVisible, String initial, Integer maxLength)

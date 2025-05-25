@@ -43,7 +43,7 @@ public final class MultiActionInputFormDialog implements Dialog
 
     public MultiActionInputFormDialog(@NonNull DialogBase base, @NonNull DialogInput input, @NonNull DialogSubmitAction action)
     {
-        this( base, Arrays.asList( input ), Arrays.asList( action ), 2 );
+        this( base, Arrays.asList( input ), Arrays.asList( action ), null );
     }
 
     public MultiActionInputFormDialog(@NonNull DialogBase base, @NonNull DialogInput input, @NonNull DialogSubmitAction action, Integer columns)

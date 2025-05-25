@@ -5,7 +5,6 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.dialog.body.DialogBody;
@@ -15,7 +14,6 @@ import net.md_5.bungee.api.dialog.body.DialogBody;
  */
 @Data
 @AllArgsConstructor
-@RequiredArgsConstructor
 @Accessors(fluent = true)
 public final class DialogBase
 {
@@ -24,7 +22,7 @@ public final class DialogBase
      * The mandatory dialog title.
      */
     @NonNull
-    private final BaseComponent title;
+    private BaseComponent title;
     /**
      * The name which is used for any buttons leading to this dialog (eg from a
      * {@link DialogListDialog}). Otherwise defaults to {@link #title}.
@@ -40,4 +38,9 @@ public final class DialogBase
      */
     @SerializedName("can_close_with_escape")
     private Boolean canCloseWithEscape;
+
+    public DialogBase(@NonNull BaseComponent title)
+    {
+        this( title, null, null, null );
+    }
 }
