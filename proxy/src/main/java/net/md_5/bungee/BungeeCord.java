@@ -8,8 +8,6 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelFuture;
@@ -74,6 +72,7 @@ import net.md_5.bungee.compress.CompressFactory;
 import net.md_5.bungee.conf.Configuration;
 import net.md_5.bungee.conf.YamlConfig;
 import net.md_5.bungee.forge.ForgeConstants;
+import net.md_5.bungee.jni.NativeCode;
 import net.md_5.bungee.log.BungeeLogger;
 import net.md_5.bungee.log.LoggingForwardHandler;
 import net.md_5.bungee.log.LoggingOutputStream;
@@ -232,32 +231,19 @@ public class BungeeCord extends ProxyServer
 
         if ( !Boolean.getBoolean( "net.md_5.bungee.native.disable" ) )
         {
-            ByteBuf directBuffer = null;
-            boolean hasMemoryAddress = false;
-            try
-            {
-                directBuffer = Unpooled.directBuffer();
-                hasMemoryAddress = directBuffer.hasMemoryAddress();
-            } finally
-            {
-                if ( directBuffer != null )
-                {
-                    directBuffer.release();
-                }
-            }
-            if ( !hasMemoryAddress )
+            if ( !NativeCode.hasDirectBuffers() )
             {
                 logger.warning( "Memory addresses are not available in direct buffers" );
             }
 
-            if ( hasMemoryAddress && EncryptionUtil.nativeFactory.load() )
+            if ( EncryptionUtil.nativeFactory.load() )
             {
                 logger.info( "Using mbed TLS based native cipher." );
             } else
             {
                 logger.info( "Using standard Java JCE cipher." );
             }
-            if ( hasMemoryAddress && CompressFactory.zlib.load() )
+            if ( CompressFactory.zlib.load() )
             {
                 logger.info( "Using zlib based native compressor." );
             } else
