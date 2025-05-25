@@ -35,7 +35,7 @@ public class DialogAction
         setWidth( width );
     }
 
-    public DialogAction(BaseComponent label)
+    public DialogAction(@NonNull BaseComponent label)
     {
         this( label, null, null );
     }

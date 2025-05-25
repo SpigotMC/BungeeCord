@@ -43,7 +43,7 @@ public final class MultiActionDialog implements Dialog
 
     public MultiActionDialog(@NonNull DialogBase base, @NonNull DialogClickAction... actions)
     {
-        this( base, Arrays.asList( actions ), 2, null );
+        this( base, Arrays.asList( actions ), null, null );
     }
 
     public MultiActionDialog(@NonNull DialogBase base, @NonNull List<DialogClickAction> actions, Integer columns, ClickEvent onCancel)
