@@ -95,6 +95,8 @@ public class VersionedComponentSerializer implements JsonDeserializer<BaseCompon
 
     @ApiStatus.Internal
     public static final ThreadLocal<Set<BaseComponent>> serializedComponents = new ThreadLocal<Set<BaseComponent>>();
+    @ApiStatus.Internal
+    public static final ThreadLocal<Set<Dialog>> serializedDialogs = new ThreadLocal<Set<Dialog>>();
 
     /**
      * Parse a JSON-compliant String as an array of base components. The input

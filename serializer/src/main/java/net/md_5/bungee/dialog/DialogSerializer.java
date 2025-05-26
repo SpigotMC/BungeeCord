@@ -13,6 +13,9 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.dialog.ConfirmationDialog;
 import net.md_5.bungee.api.dialog.Dialog;
@@ -102,16 +105,34 @@ public class DialogSerializer implements JsonDeserializer<Dialog>, JsonSerialize
             return JsonNull.INSTANCE;
         }
 
-        Class<? extends Dialog> realType = src.getClass();
-        String type = TYPES.inverse().get( realType );
-        Preconditions.checkArgument( type != null, "Unknown type %s", typeOfSrc );
+        boolean first = VersionedComponentSerializer.serializedDialogs.get() == null;
+        if ( first )
+        {
+            VersionedComponentSerializer.serializedDialogs.set( Collections.newSetFromMap( new IdentityHashMap<Dialog, Boolean>() ) );
+        }
 
-        JsonObject object = (JsonObject) context.serialize( src, realType );
-        object.addProperty( "type", type );
+        try
+        {
+            Preconditions.checkArgument( !VersionedComponentSerializer.serializedDialogs.get().contains( src ), "Dialog loop" );
+            VersionedComponentSerializer.serializedDialogs.get().add( src );
+            Class<? extends Dialog> realType = src.getClass();
+            String type = TYPES.inverse().get( realType );
+            Preconditions.checkArgument( type != null, "Unknown type %s", typeOfSrc );
 
-        JsonObject base = (JsonObject) context.serialize( src.getBase() );
-        object.asMap().putAll( base.asMap() );
+            JsonObject object = (JsonObject) context.serialize( src, realType );
+            object.addProperty( "type", type );
 
-        return object;
+            JsonObject base = (JsonObject) context.serialize( src.getBase() );
+            object.asMap().putAll( base.asMap() );
+
+            return object;
+        } finally
+        {
+            VersionedComponentSerializer.serializedDialogs.get().remove( src );
+            if ( first )
+            {
+                VersionedComponentSerializer.serializedDialogs.set( null );
+            }
+        }
     }
 }
