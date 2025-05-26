@@ -15,6 +15,7 @@ import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.IdentityHashMap;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.dialog.ConfirmationDialog;
 import net.md_5.bungee.api.dialog.Dialog;
@@ -26,10 +27,13 @@ import net.md_5.bungee.api.dialog.NoticeDialog;
 import net.md_5.bungee.api.dialog.ServerLinksDialog;
 import net.md_5.bungee.api.dialog.SimpleInputFormDialog;
 import net.md_5.bungee.chat.VersionedComponentSerializer;
+import org.jetbrains.annotations.ApiStatus;
 
 @RequiredArgsConstructor
 public class DialogSerializer implements JsonDeserializer<Dialog>, JsonSerializer<Dialog>
 {
+    @ApiStatus.Internal
+    public static final ThreadLocal<Set<Dialog>> serializedDialogs = new ThreadLocal<Set<Dialog>>();
 
     private static final BiMap<String, Class<? extends Dialog>> TYPES;
     private final VersionedComponentSerializer serializer;
@@ -104,16 +108,16 @@ public class DialogSerializer implements JsonDeserializer<Dialog>, JsonSerialize
             return JsonNull.INSTANCE;
         }
 
-        boolean first = VersionedComponentSerializer.serializedDialogs.get() == null;
+        boolean first = serializedDialogs.get() == null;
         if ( first )
         {
-            VersionedComponentSerializer.serializedDialogs.set( Collections.newSetFromMap( new IdentityHashMap<Dialog, Boolean>() ) );
+            serializedDialogs.set( Collections.newSetFromMap( new IdentityHashMap<Dialog, Boolean>() ) );
         }
 
         try
         {
-            Preconditions.checkArgument( !VersionedComponentSerializer.serializedDialogs.get().contains( src ), "Dialog loop" );
-            VersionedComponentSerializer.serializedDialogs.get().add( src );
+            Preconditions.checkArgument( !serializedDialogs.get().contains( src ), "Dialog loop" );
+            serializedDialogs.get().add( src );
             Class<? extends Dialog> realType = src.getClass();
             String type = TYPES.inverse().get( realType );
             Preconditions.checkArgument( type != null, "Unknown type %s", typeOfSrc );
@@ -127,10 +131,10 @@ public class DialogSerializer implements JsonDeserializer<Dialog>, JsonSerialize
             return object;
         } finally
         {
-            VersionedComponentSerializer.serializedDialogs.get().remove( src );
+            serializedDialogs.get().remove( src );
             if ( first )
             {
-                VersionedComponentSerializer.serializedDialogs.set( null );
+                serializedDialogs.set( null );
             }
         }
     }
