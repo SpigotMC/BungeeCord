@@ -15,7 +15,6 @@ import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.IdentityHashMap;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.dialog.ConfirmationDialog;
 import net.md_5.bungee.api.dialog.Dialog;
