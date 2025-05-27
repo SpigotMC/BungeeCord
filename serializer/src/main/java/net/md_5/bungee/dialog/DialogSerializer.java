@@ -13,6 +13,9 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.dialog.ConfirmationDialog;
 import net.md_5.bungee.api.dialog.Dialog;
@@ -28,7 +31,7 @@ import net.md_5.bungee.chat.VersionedComponentSerializer;
 @RequiredArgsConstructor
 public class DialogSerializer implements JsonDeserializer<Dialog>, JsonSerializer<Dialog>
 {
-
+    private static final ThreadLocal<Set<Dialog>> serializedDialogs = new ThreadLocal<Set<Dialog>>();
     private static final BiMap<String, Class<? extends Dialog>> TYPES;
     private final VersionedComponentSerializer serializer;
 
@@ -102,16 +105,35 @@ public class DialogSerializer implements JsonDeserializer<Dialog>, JsonSerialize
             return JsonNull.INSTANCE;
         }
 
-        Class<? extends Dialog> realType = src.getClass();
-        String type = TYPES.inverse().get( realType );
-        Preconditions.checkArgument( type != null, "Unknown type %s", typeOfSrc );
+        boolean first = serializedDialogs.get() == null;
+        if ( first )
+        {
+            serializedDialogs.set( Collections.newSetFromMap( new IdentityHashMap<Dialog, Boolean>() ) );
+        }
 
-        JsonObject object = (JsonObject) context.serialize( src, realType );
-        object.addProperty( "type", type );
+        try
+        {
+            Preconditions.checkArgument( !serializedDialogs.get().contains( src ), "Dialog loop" );
+            serializedDialogs.get().add( src );
 
-        JsonObject base = (JsonObject) context.serialize( src.getBase() );
-        object.asMap().putAll( base.asMap() );
+            Class<? extends Dialog> realType = src.getClass();
+            String type = TYPES.inverse().get( realType );
+            Preconditions.checkArgument( type != null, "Unknown type %s", typeOfSrc );
 
-        return object;
+            JsonObject object = (JsonObject) context.serialize( src, realType );
+            object.addProperty( "type", type );
+
+            JsonObject base = (JsonObject) context.serialize( src.getBase() );
+            object.asMap().putAll( base.asMap() );
+
+            return object;
+        } finally
+        {
+            serializedDialogs.get().remove( src );
+            if ( first )
+            {
+                serializedDialogs.set( null );
+            }
+        }
     }
 }
