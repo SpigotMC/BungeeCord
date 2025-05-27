@@ -32,9 +32,7 @@ import org.jetbrains.annotations.ApiStatus;
 @RequiredArgsConstructor
 public class DialogSerializer implements JsonDeserializer<Dialog>, JsonSerializer<Dialog>
 {
-    @ApiStatus.Internal
-    public static final ThreadLocal<Set<Dialog>> serializedDialogs = new ThreadLocal<Set<Dialog>>();
-
+    private static final ThreadLocal<Set<Dialog>> serializedDialogs = new ThreadLocal<Set<Dialog>>();
     private static final BiMap<String, Class<? extends Dialog>> TYPES;
     private final VersionedComponentSerializer serializer;
 
