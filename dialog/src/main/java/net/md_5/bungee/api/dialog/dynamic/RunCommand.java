@@ -1,4 +1,4 @@
-package net.md_5.bungee.api.dialog.submit;
+package net.md_5.bungee.api.dialog.dynamic;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -7,21 +7,16 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 
 /**
- * Submits the form with the given ID and a single payload specified by the
- * template.
+ * Executes a command. If the command requires a permission
+ * higher than 0, a confirmation dialog will be shown by the client.
  */
 @Data
 @Accessors(fluent = true)
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class CustomTemplateSubmission extends DialogSubmission
+public class RunCommand extends DynamicType
 {
 
-    /**
-     * The namespaced key of the submission.
-     */
-    @NonNull
-    private String id;
     /**
      * The template to be applied, where variables of the form
      * <code>$(key)</code> will be replaced by their
@@ -33,10 +28,9 @@ public class CustomTemplateSubmission extends DialogSubmission
     @NonNull
     private String template;
 
-    public CustomTemplateSubmission(@NonNull String id, @NonNull String template)
+    public RunCommand(@NonNull String template)
     {
-        super( "minecraft:custom_template" );
-        this.id = id;
+        super( "dynamic/run_command" );
         this.template = template;
     }
 }

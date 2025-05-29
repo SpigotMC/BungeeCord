@@ -22,16 +22,14 @@ import net.md_5.bungee.api.dialog.Dialog;
 import net.md_5.bungee.api.dialog.DialogBase;
 import net.md_5.bungee.api.dialog.DialogListDialog;
 import net.md_5.bungee.api.dialog.MultiActionDialog;
-import net.md_5.bungee.api.dialog.MultiActionInputFormDialog;
 import net.md_5.bungee.api.dialog.NoticeDialog;
 import net.md_5.bungee.api.dialog.ServerLinksDialog;
-import net.md_5.bungee.api.dialog.SimpleInputFormDialog;
 import net.md_5.bungee.chat.VersionedComponentSerializer;
 
 @RequiredArgsConstructor
 public class DialogSerializer implements JsonDeserializer<Dialog>, JsonSerializer<Dialog>
 {
-    private static final ThreadLocal<Set<Dialog>> serializedDialogs = new ThreadLocal<Set<Dialog>>();
+    private static final ThreadLocal<Set<Dialog>> serializedDialogs = new ThreadLocal<>();
     private static final BiMap<String, Class<? extends Dialog>> TYPES;
     private final VersionedComponentSerializer serializer;
 
@@ -44,8 +42,6 @@ public class DialogSerializer implements JsonDeserializer<Dialog>, JsonSerialize
         builder.put( "minecraft:multi_action", MultiActionDialog.class );
         builder.put( "minecraft:server_links", ServerLinksDialog.class );
         builder.put( "minecraft:dialog_list", DialogListDialog.class );
-        builder.put( "minecraft:simple_input_form", SimpleInputFormDialog.class );
-        builder.put( "minecraft:multi_action_input_form", MultiActionInputFormDialog.class );
 
         TYPES = builder.build();
     }
@@ -108,7 +104,7 @@ public class DialogSerializer implements JsonDeserializer<Dialog>, JsonSerialize
         boolean first = serializedDialogs.get() == null;
         if ( first )
         {
-            serializedDialogs.set( Collections.newSetFromMap( new IdentityHashMap<Dialog, Boolean>() ) );
+            serializedDialogs.set( Collections.newSetFromMap( new IdentityHashMap<>() ) );
         }
 
         try

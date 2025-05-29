@@ -9,6 +9,7 @@ import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import se.llbit.nbt.Tag;
 
 @Data
 @NoArgsConstructor
@@ -18,20 +19,20 @@ public class CustomClickAction extends DefinedPacket
 {
 
     private String id;
-    private String data;
+    private Tag data;
 
     @Override
     public void read(ByteBuf buf, Protocol protocol, ProtocolConstants.Direction direction, int protocolVersion)
     {
         id = readString( buf );
-        data = readNullable( DefinedPacket::readString, buf );
+        data = readNullable( (buf0) -> readTag( buf0, protocolVersion ), buf );
     }
 
     @Override
     public void write(ByteBuf buf, Protocol protocol, ProtocolConstants.Direction direction, int protocolVersion)
     {
         writeString( id, buf );
-        writeNullable( data, DefinedPacket::writeString, buf );
+        writeNullable( data, (data0, buf0) -> writeTag( data0, buf0, protocolVersion ), buf );
     }
 
     @Override

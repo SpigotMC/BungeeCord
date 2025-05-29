@@ -1,6 +1,6 @@
 package net.md_5.bungee.api.event;
 
-import java.util.Map;
+import com.google.gson.JsonElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -34,19 +34,9 @@ public class CustomClickEvent extends Event implements Cancellable
      */
     private final String id;
     /**
-     * The raw data as submitted.
+     * The data as submitted.
      */
-    private final String rawData;
-    /**
-     * The parsed form data.
-     * <br>
-     * If a form submission, usually contains a
-     * {@code CustomClickEvent.ACTION_KEY} key with the ID of the relevant
-     * submission action.
-     * <br>
-     * If not a form submission, then may be null.
-     */
-    private final Map<String, String> parsedData;
+    private final JsonElement data;
     /**
      * Cancelled state.
      */

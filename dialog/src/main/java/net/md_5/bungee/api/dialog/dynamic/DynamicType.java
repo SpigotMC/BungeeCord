@@ -1,4 +1,4 @@
-package net.md_5.bungee.api.dialog.submit;
+package net.md_5.bungee.api.dialog.dynamic;
 
 import lombok.Data;
 import lombok.NonNull;
@@ -10,7 +10,7 @@ import org.jetbrains.annotations.ApiStatus;
  */
 @Data
 @Accessors(fluent = true)
-public class DialogSubmission
+public class DynamicType
 {
 
     /**

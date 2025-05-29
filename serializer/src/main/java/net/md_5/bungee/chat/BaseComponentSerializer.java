@@ -12,12 +12,9 @@ import java.util.IdentityHashMap;
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ClickEventCustom;
 import net.md_5.bungee.api.chat.ComponentStyle;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.hover.content.Content;
-import net.md_5.bungee.api.dialog.chat.ShowDialogClickEvent;
 
 @RequiredArgsConstructor
 public class BaseComponentSerializer
@@ -44,36 +41,12 @@ public class BaseComponentSerializer
         }
         if ( clickEvent != null )
         {
-            ClickEvent.Action action = ClickEvent.Action.valueOf( clickEvent.get( "action" ).getAsString().toUpperCase( Locale.ROOT ) );
             if ( newClickEvent )
             {
-                switch ( action )
-                {
-                    case OPEN_URL:
-                        component.setClickEvent( new ClickEvent( action, clickEvent.get( "url" ).getAsString() ) );
-                        break;
-                    case RUN_COMMAND:
-                    case SUGGEST_COMMAND:
-                        component.setClickEvent( new ClickEvent( action, clickEvent.get( "command" ).getAsString() ) );
-                        break;
-                    case CHANGE_PAGE:
-                        int page = clickEvent.get( "page" ).getAsInt();
-                        Preconditions.checkArgument( page >= 0, "Page number has to be positive" );
-                        component.setClickEvent( new ClickEvent( action, Integer.toString( page ) ) );
-                        break;
-                    case SHOW_DIALOG:
-                        component.setClickEvent( context.deserialize( clickEvent.get( "dialog" ), ShowDialogClickEvent.class ) );
-                        break;
-                    case CUSTOM:
-                        component.setClickEvent( new ClickEventCustom( clickEvent.get( "id" ).getAsString(), ( clickEvent.has( "payload" ) ) ? clickEvent.get( "payload" ).getAsString() : null ) );
-                        break;
-                    default:
-                        component.setClickEvent( new ClickEvent( action, ( clickEvent.has( "value" ) ) ? clickEvent.get( "value" ).getAsString() : "" ) );
-                        break;
-                }
+                component.setClickEvent( ClickEventSerializer.NEW.deserialize( clickEvent, context ) );
             } else
             {
-                component.setClickEvent( new ClickEvent( action, ( clickEvent.has( "value" ) ) ? clickEvent.get( "value" ).getAsString() : "" ) );
+                component.setClickEvent( ClickEventSerializer.OLD.deserialize( clickEvent, context ) );
             }
         }
 
@@ -171,50 +144,17 @@ public class BaseComponentSerializer
             //Events
             if ( component.getClickEvent() != null )
             {
-                JsonObject clickEvent = new JsonObject();
-                String actionName = component.getClickEvent().getAction().toString().toLowerCase( Locale.ROOT );
-                clickEvent.addProperty( "action", actionName.toLowerCase( Locale.ROOT ) );
                 switch ( serializer.getVersion() )
                 {
                     case V1_21_5:
-                        ClickEvent.Action action = ClickEvent.Action.valueOf( actionName.toUpperCase( Locale.ROOT ) );
-                        switch ( action )
-                        {
-                            case OPEN_URL:
-                                clickEvent.addProperty( "url", component.getClickEvent().getValue() );
-                                break;
-                            case RUN_COMMAND:
-                            case SUGGEST_COMMAND:
-                                clickEvent.addProperty( "command", component.getClickEvent().getValue() );
-                                break;
-                            case CHANGE_PAGE:
-                                clickEvent.addProperty( "page", Integer.parseInt( component.getClickEvent().getValue() ) );
-                                break;
-                            case SHOW_DIALOG:
-                                clickEvent.add( "dialog", context.serialize( component.getClickEvent() ) );
-                                break;
-                            case CUSTOM:
-                                ClickEventCustom custom = (ClickEventCustom) component.getClickEvent();
-                                clickEvent.addProperty( "id", custom.getValue() );
-                                if ( custom.getPayload() != null )
-                                {
-                                    clickEvent.addProperty( "payload", custom.getPayload() );
-                                }
-                                break;
-                            default:
-                                clickEvent.addProperty( "value", component.getClickEvent().getValue() );
-                                break;
-                        }
-                        object.add( "click_event", clickEvent );
+                        object.add( "click_event", ClickEventSerializer.NEW.serialize( component.getClickEvent(), context ) );
                         break;
                     case V1_16:
-                        clickEvent.addProperty( "value", component.getClickEvent().getValue() );
-                        object.add( "clickEvent", clickEvent );
+                        object.add( "clickEvent", ClickEventSerializer.OLD.serialize( component.getClickEvent(), context ) );
                         break;
                     default:
                         throw new IllegalArgumentException( "Unknown version " + serializer.getVersion() );
                 }
-
             }
             if ( component.getHoverEvent() != null )
             {

@@ -9,8 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.dialog.action.DialogClickAction;
+import net.md_5.bungee.api.dialog.action.DialogAction;
 
 /**
  * Represents a dialog with text a list of action buttons grouped into columns
@@ -30,30 +29,30 @@ public final class MultiActionDialog implements Dialog
      * The action buttons in the dialog. At least one must be provided.
      */
     @NonNull
-    private List<DialogClickAction> actions;
+    private List<DialogAction> actions;
     /**
      * The number of columns for the dialog buttons (default: 2).
      */
     private Integer columns;
     /**
-     * The {@link ClickEvent} activated when the dialog is cancelled.
+     * The {@link DialogAction} activated when the dialog is exited.
      */
-    @SerializedName("on_cancel")
-    private ClickEvent onCancel;
+    @SerializedName("exit_action")
+    private DialogAction exitAction;
 
-    public MultiActionDialog(@NonNull DialogBase base, @NonNull DialogClickAction... actions)
+    public MultiActionDialog(@NonNull DialogBase base, @NonNull DialogAction... actions)
     {
         this( base, Arrays.asList( actions ), null, null );
     }
 
-    public MultiActionDialog(@NonNull DialogBase base, @NonNull List<DialogClickAction> actions, Integer columns, ClickEvent onCancel)
+    public MultiActionDialog(@NonNull DialogBase base, @NonNull List<DialogAction> actions, Integer columns, DialogAction exitAction)
     {
         Preconditions.checkArgument( !actions.isEmpty(), "At least one action must be provided" );
 
         this.base = base;
         this.actions = actions;
         columns( columns );
-        this.onCancel = onCancel;
+        this.exitAction = exitAction;
     }
 
     public MultiActionDialog columns(Integer columns)

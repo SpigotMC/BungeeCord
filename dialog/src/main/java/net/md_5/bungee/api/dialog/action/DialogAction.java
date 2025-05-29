@@ -11,7 +11,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
  */
 @Data
 @Accessors(fluent = true)
-public class DialogAction
+public abstract class DialogAction
 {
 
     /**
