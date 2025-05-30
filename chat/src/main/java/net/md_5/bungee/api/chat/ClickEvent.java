@@ -3,7 +3,6 @@ package net.md_5.bungee.api.chat;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -11,7 +10,8 @@ import org.jetbrains.annotations.ApiStatus;
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public final class ClickEvent
+@ApiStatus.NonExtendable
+public class ClickEvent
 {
 
     /**
@@ -24,13 +24,6 @@ public final class ClickEvent
      * @see Action
      */
     private final String value;
-
-    /**
-     * Returns whether this click event is used for version above 1.21.4
-     */
-    @Setter
-    @ApiStatus.Internal
-    private boolean v1_21_5 = false;
 
     public enum Action
     {
@@ -62,10 +55,18 @@ public final class ClickEvent
          */
         CHANGE_PAGE,
         /**
+         * Must use subclass ShowDialogClickEvent.
+         */
+        SHOW_DIALOG,
+        /**
          * Copy the string given by
          * {@link net.md_5.bungee.api.chat.ClickEvent#value} into the player's
          * clipboard.
          */
-        COPY_TO_CLIPBOARD
+        COPY_TO_CLIPBOARD,
+        /**
+         * Must use subclass {@link ClickEventCustom}.
+         */
+        CUSTOM,
     }
 }

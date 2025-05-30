@@ -12,12 +12,17 @@ import lombok.Setter;
 public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
 {
 
+    public MinecraftDecoder(Protocol protocol, boolean server, int protocolVersion)
+    {
+        this( protocol, server, protocolVersion, shouldCopyBuffer( protocol, protocolVersion ) );
+    }
+
     @Getter
-    @Setter
     private Protocol protocol;
     private final boolean server;
     @Setter
     private int protocolVersion;
+    private boolean copyBuffer;
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
@@ -30,8 +35,7 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
         }
 
         Protocol.DirectionData prot = ( server ) ? protocol.TO_SERVER : protocol.TO_CLIENT;
-        ByteBuf slice = in.copy(); // Can't slice this one due to EntityMap :(
-
+        ByteBuf slice = ( copyBuffer ) ? in.copy() : in.retainedSlice();
         try
         {
             int packetId = DefinedPacket.readVarInt( in );
@@ -59,5 +63,18 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
                 slice.release();
             }
         }
+    }
+
+    public void setProtocol(Protocol protocol)
+    {
+        this.protocol = protocol;
+        this.copyBuffer = shouldCopyBuffer( protocol, protocolVersion );
+    }
+
+    private static boolean shouldCopyBuffer(Protocol protocol, int protocolVersion)
+    {
+        // We only use the entity map in game state, we can avoid many buffer copies by checking this
+        // EntityMap is removed for 1.20.2 and up
+        return protocol == Protocol.GAME && protocolVersion < ProtocolConstants.MINECRAFT_1_20_2;
     }
 }

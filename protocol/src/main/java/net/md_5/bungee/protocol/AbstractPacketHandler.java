@@ -2,6 +2,7 @@ package net.md_5.bungee.protocol;
 
 import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.Chat;
+import net.md_5.bungee.protocol.packet.ClearDialog;
 import net.md_5.bungee.protocol.packet.ClearTitles;
 import net.md_5.bungee.protocol.packet.ClientChat;
 import net.md_5.bungee.protocol.packet.ClientCommand;
@@ -10,6 +11,7 @@ import net.md_5.bungee.protocol.packet.ClientStatus;
 import net.md_5.bungee.protocol.packet.Commands;
 import net.md_5.bungee.protocol.packet.CookieRequest;
 import net.md_5.bungee.protocol.packet.CookieResponse;
+import net.md_5.bungee.protocol.packet.CustomClickAction;
 import net.md_5.bungee.protocol.packet.DisconnectReportDetails;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
 import net.md_5.bungee.protocol.packet.EncryptionResponse;
@@ -41,6 +43,7 @@ import net.md_5.bungee.protocol.packet.ScoreboardScoreReset;
 import net.md_5.bungee.protocol.packet.ServerData;
 import net.md_5.bungee.protocol.packet.ServerLinks;
 import net.md_5.bungee.protocol.packet.SetCompression;
+import net.md_5.bungee.protocol.packet.ShowDialog;
 import net.md_5.bungee.protocol.packet.StartConfiguration;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
@@ -276,6 +279,18 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(ServerLinks serverLinks) throws Exception
+    {
+    }
+
+    public void handle(ShowDialog showDialog) throws Exception
+    {
+    }
+
+    public void handle(ClearDialog clearDialog) throws Exception
+    {
+    }
+
+    public void handle(CustomClickAction customClickAction) throws Exception
     {
     }
 }

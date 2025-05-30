@@ -1,6 +1,8 @@
 package net.md_5.bungee.jni;
 
 import com.google.common.io.ByteStreams;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -93,7 +95,31 @@ public final class NativeCode<T>
         return loaded;
     }
 
+    public static boolean hasDirectBuffers()
+    {
+        ByteBuf directBuffer = null;
+        boolean hasMemoryAddress = false;
+        try
+        {
+            directBuffer = Unpooled.directBuffer();
+            hasMemoryAddress = directBuffer.hasMemoryAddress();
+        } finally
+        {
+            if ( directBuffer != null )
+            {
+                directBuffer.release();
+            }
+        }
+
+        return hasMemoryAddress;
+    }
+
     public static boolean isSupported()
+    {
+        return isSupportedPlatformAndArch() && hasDirectBuffers();
+    }
+
+    private static boolean isSupportedPlatformAndArch()
     {
         return "Linux".equals( System.getProperty( "os.name" ) ) && ( isAmd64() || isAarch64() );
     }

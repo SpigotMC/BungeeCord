@@ -3,12 +3,14 @@ package net.md_5.bungee.connection;
 import com.google.gson.Gson;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.BungeeServerInfo;
+import net.md_5.bungee.PlayerInfoSerializer;
 import net.md_5.bungee.api.Callback;
+import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.chat.VersionedComponentSerializer;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.netty.PipelineUtils;
@@ -26,6 +28,9 @@ import net.md_5.bungee.util.QuietException;
 public class PingHandler extends PacketHandler
 {
 
+    static final Gson gson = VersionedComponentSerializer.getDefault().getGson().newBuilder()
+            .registerTypeAdapter( ServerPing.PlayerInfo.class, new PlayerInfoSerializer() )
+            .registerTypeAdapter( Favicon.class, Favicon.getFaviconTypeAdapter() ).create();
     private final ServerInfo target;
     private final Callback<ServerPing> callback;
     private final int protocol;
@@ -65,7 +70,6 @@ public class PingHandler extends PacketHandler
     @SuppressFBWarnings("UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
     public void handle(StatusResponse statusResponse) throws Exception
     {
-        Gson gson = BungeeCord.getInstance().gson;
         ServerPing serverPing = gson.fromJson( statusResponse.getResponse(), ServerPing.class );
         ( (BungeeServerInfo) target ).cachePing( serverPing );
         callback.done( serverPing, null );
