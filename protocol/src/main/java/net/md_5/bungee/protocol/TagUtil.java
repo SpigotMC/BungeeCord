@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.AccessLevel;
@@ -72,7 +72,7 @@ public final class TagUtil
             }
         } else if ( json instanceof JsonObject )
         {
-            CompoundTag compoundTag = new CompoundTag();
+            CompoundTag compoundTag = new CompoundTag( new LinkedHashMap<>() );
             for ( Map.Entry<String, JsonElement> property : ( (JsonObject) json ).entrySet() )
             {
                 compoundTag.getValue().put( property.getKey(), fromJson( property.getValue() ) );
@@ -141,7 +141,7 @@ public final class TagUtil
                         TypedTag subTag = fromJson( jsonEl );
                         if ( listType == Tag.COMPOUND && !( subTag instanceof CompoundTag ) )
                         {
-                            CompoundTag wrapper = new CompoundTag( new HashMap<>() );
+                            CompoundTag wrapper = new CompoundTag( new LinkedHashMap<>() );
                             wrapper.getValue().put( "", subTag );
                             subTag = wrapper;
                         }

@@ -4,16 +4,19 @@ import com.google.common.base.Preconditions;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import net.md_5.bungee.nbt.Tag;
 import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.nbt.exception.NbtFormatException;
 import net.md_5.bungee.nbt.limit.NbtLimiter;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CompoundTag implements TypedTag
 {
     private static final int MAP_SIZE_IN_BYTES = 48;
@@ -21,22 +24,12 @@ public class CompoundTag implements TypedTag
 
     private Map<String, TypedTag> value;
 
-    public CompoundTag(Map<String, TypedTag> value)
-    {
-        this.value = value;
-    }
-
-    public CompoundTag()
-    {
-        this( new LinkedHashMap<>() );
-    }
-
     @Override
     public void read(DataInput input, NbtLimiter limiter) throws IOException
     {
         limiter.push();
         limiter.countBytes( MAP_SIZE_IN_BYTES );
-        Map<String, TypedTag> map = new HashMap<>();
+        Map<String, TypedTag> map = new LinkedHashMap<>();
         for ( byte type; ( type = input.readByte() ) != Tag.END; )
         {
             String name = readString( input, limiter );

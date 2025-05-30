@@ -35,9 +35,8 @@ public class TagUtilTest
     @Test
     public void testStringLiteral()
     {
-        // this test will fail with our new impl because we use a hashmap now (like vanilla does)
-        // and the order of the elements is not guaranteed
-        //testDissembleReassemble( "{\"text\":\"\",\"extra\":[\"hello\",{\"text\":\"there\",\"color\":\"#ff0000\"},{\"text\":\"friend\",\"font\":\"minecraft:default\"}]}" );
+        // this test only passes if the CompoundTags are backed by a LinkedHashMap
+        testDissembleReassemble( "{\"text\":\"\",\"extra\":[\"hello\",{\"text\":\"there\",\"color\":\"#ff0000\"},{\"text\":\"friend\",\"font\":\"minecraft:default\"}]}" );
     }
 
     public void testCreateMixedList(JsonArray array)

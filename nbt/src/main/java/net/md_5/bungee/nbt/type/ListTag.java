@@ -6,30 +6,23 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import net.md_5.bungee.nbt.Tag;
 import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.nbt.exception.NbtFormatException;
 import net.md_5.bungee.nbt.limit.NbtLimiter;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ListTag implements TypedTag
 {
     public static final int LIST_HEADER = 12;
 
     private List<TypedTag> value;
     private byte listType;
-
-    public ListTag(List<TypedTag> value, byte listType)
-    {
-        this.value = value;
-        this.listType = listType;
-    }
-
-    public ListTag()
-    {
-        this( new ArrayList<>(), Tag.END );
-    }
 
     @Override
     public void read(DataInput input, NbtLimiter limiter) throws IOException

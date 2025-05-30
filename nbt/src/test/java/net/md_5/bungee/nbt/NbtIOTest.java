@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -238,7 +239,7 @@ public class NbtIOTest
         byte[] deserialized = Tag.toByteArray( compoundTag );
         CompoundTag reSerialized = (CompoundTag) Tag.fromByteArray( deserialized );
         assertEquals( reSerialized, compoundTag );
-        Map<String, TypedTag> map2 = new HashMap<>();
+        Map<String, TypedTag> map2 = new LinkedHashMap<>();
         map2.put( "", new EndTag() );
         CompoundTag compoundTag2 = new CompoundTag( map2 );
         assertThrows( NbtFormatException.class, () -> Tag.toByteArray( compoundTag2 ) );

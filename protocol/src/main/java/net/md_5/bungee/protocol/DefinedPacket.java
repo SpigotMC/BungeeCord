@@ -22,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentStyle;
-import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.nbt.NamedTag;
 import net.md_5.bungee.nbt.Tag;
 import net.md_5.bungee.nbt.TypedTag;
