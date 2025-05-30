@@ -454,24 +454,29 @@ public abstract class DefinedPacket
         }
     }
 
-    @SneakyThrows
     public static Tag readTag(ByteBuf input, int protocolVersion)
     {
         DataInputStream in = new DataInputStream( new ByteBufInputStream( input ) );
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_2 )
+        try
         {
-            byte type = in.readByte();
-            if ( type == 0 )
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_2 )
             {
-                return EndTag.INSTANCE;
-            } else
-            {
-                return Tag.readById( type, in, new NbtLimiter( 1 << 21 ) );
+                byte type = in.readByte();
+                if ( type == 0 )
+                {
+                    return EndTag.INSTANCE;
+                } else
+                {
+                    return Tag.readById( type, in, new NbtLimiter( 1 << 21 ) );
+                }
             }
+            NamedTag namedTag = new NamedTag();
+            namedTag.read( in, new NbtLimiter( 1 << 21 ) );
+            return namedTag;
+        } catch ( IOException ex )
+        {
+            throw new RuntimeException( "Exception reading tag", ex );
         }
-        NamedTag namedTag = new NamedTag();
-        namedTag.read( in, new NbtLimiter( 1 << 21 ) );
-        return namedTag;
     }
 
     public static void writeTag(Tag tag, ByteBuf output, int protocolVersion)
