@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-import net.md_5.bungee.api.dialog.action.DialogAction;
+import net.md_5.bungee.api.dialog.action.ActionButton;
 
 /**
  * Represents a dialog which shows the links configured/sent from the server.
@@ -23,15 +23,15 @@ public final class ServerLinksDialog implements Dialog
     @Accessors(fluent = false)
     private DialogBase base;
     /**
-     * The optional {@link DialogAction} for this dialog.
+     * The optional {@link ActionButton} for this dialog.
      */
     @SerializedName("action")
-    private DialogAction action;
+    private ActionButton action;
     /**
-     * The {@link DialogAction} activated when the dialog is exited.
+     * The {@link ActionButton} activated when the dialog is exited.
      */
     @SerializedName("exit_action")
-    private DialogAction exitAction;
+    private ActionButton exitAction;
     /**
      * The number of columns for the dialog buttons (default: 2).
      */
@@ -47,7 +47,7 @@ public final class ServerLinksDialog implements Dialog
         this( base, null, null, null );
     }
 
-    public ServerLinksDialog(@NonNull DialogBase base, DialogAction action, Integer columns, Integer buttonWidth)
+    public ServerLinksDialog(@NonNull DialogBase base, ActionButton action, Integer columns, Integer buttonWidth)
     {
         this.base = base;
         this.action = action;

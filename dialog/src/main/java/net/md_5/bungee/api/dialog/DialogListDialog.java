@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-import net.md_5.bungee.api.dialog.action.DialogAction;
+import net.md_5.bungee.api.dialog.action.ActionButton;
 
 /**
  * Represents a dialog which contains buttons that link to other dialogs.
@@ -29,10 +29,10 @@ public final class DialogListDialog implements Dialog
      */
     private List<Dialog> dialogs;
     /**
-     * The {@link DialogAction} activated when the dialog is exited.
+     * The {@link ActionButton} activated when the dialog is exited.
      */
     @SerializedName("exit_action")
-    private DialogAction exitAction;
+    private ActionButton exitAction;
     /**
      * The number of columns for the dialog buttons (default: 2).
      */
@@ -48,7 +48,7 @@ public final class DialogListDialog implements Dialog
         this( base, Arrays.asList( dialogs ), null, null, null );
     }
 
-    public DialogListDialog(@NonNull DialogBase base, List<Dialog> dialogs, DialogAction exitAction, Integer columns, Integer buttonWidth)
+    public DialogListDialog(@NonNull DialogBase base, List<Dialog> dialogs, ActionButton exitAction, Integer columns, Integer buttonWidth)
     {
         this.base = base;
         this.dialogs = dialogs;

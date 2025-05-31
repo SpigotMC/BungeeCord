@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-import net.md_5.bungee.api.dialog.action.DialogAction;
+import net.md_5.bungee.api.dialog.action.ActionButton;
 
 /**
  * Represents a simple dialog with text and two actions at the bottom (default:
@@ -26,11 +26,11 @@ public final class ConfirmationDialog implements Dialog
     /**
      * The "yes" click action / bottom (appears on the left).
      */
-    private DialogAction yes;
+    private ActionButton yes;
     /**
      * The "no" click action / bottom (appears on the right).
      */
-    private DialogAction no;
+    private ActionButton no;
 
     public ConfirmationDialog(@NonNull DialogBase base)
     {

@@ -1,7 +1,6 @@
-package net.md_5.bungee.api.dialog.dynamic;
+package net.md_5.bungee.api.dialog.action;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -13,8 +12,7 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(fluent = true)
 @ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-public class RunCommand extends DynamicType
+public class RunCommandAction implements Action
 {
 
     /**
@@ -24,10 +22,4 @@ public class RunCommand extends DynamicType
      */
     @NonNull
     private String template;
-
-    public RunCommand(@NonNull String template)
-    {
-        super( "dynamic/run_command" );
-        this.template = template;
-    }
 }

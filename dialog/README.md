@@ -30,7 +30,7 @@ Sample Plugin
                                             new TextInput( "second", new ComponentBuilder( "Second" ).build() )
                                     )
                             ) )
-                    .action( new DynamicAction( new ComponentBuilder( "Submit Button" ).build(), new Custom( "customform" ) ) );
+                    .action( new ActionButton( new ComponentBuilder( "Submit Button" ).build(), new CustomClickAction( "customform" ) ) );
 
             player.sendMessage( new ComponentBuilder( "click me" ).event( new ShowDialogClickEvent( notice ) ).build() );
         }

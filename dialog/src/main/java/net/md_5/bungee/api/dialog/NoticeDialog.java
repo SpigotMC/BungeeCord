@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-import net.md_5.bungee.api.dialog.action.DialogAction;
+import net.md_5.bungee.api.dialog.action.ActionButton;
 
 /**
  * Represents a simple dialog with text and one action at the bottom (default:
@@ -26,7 +26,7 @@ public final class NoticeDialog implements Dialog
     /**
      * The "OK" action button for the dialog.
      */
-    private DialogAction action;
+    private ActionButton action;
 
     public NoticeDialog(DialogBase base)
     {

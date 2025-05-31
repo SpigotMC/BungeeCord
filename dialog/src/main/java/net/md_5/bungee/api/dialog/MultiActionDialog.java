@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-import net.md_5.bungee.api.dialog.action.DialogAction;
+import net.md_5.bungee.api.dialog.action.ActionButton;
 
 /**
  * Represents a dialog with text a list of action buttons grouped into columns
@@ -29,23 +29,23 @@ public final class MultiActionDialog implements Dialog
      * The action buttons in the dialog. At least one must be provided.
      */
     @NonNull
-    private List<DialogAction> actions;
+    private List<ActionButton> actions;
     /**
      * The number of columns for the dialog buttons (default: 2).
      */
     private Integer columns;
     /**
-     * The {@link DialogAction} activated when the dialog is exited.
+     * The {@link ActionButton} activated when the dialog is exited.
      */
     @SerializedName("exit_action")
-    private DialogAction exitAction;
+    private ActionButton exitAction;
 
-    public MultiActionDialog(@NonNull DialogBase base, @NonNull DialogAction... actions)
+    public MultiActionDialog(@NonNull DialogBase base, @NonNull ActionButton... actions)
     {
         this( base, Arrays.asList( actions ), null, null );
     }
 
-    public MultiActionDialog(@NonNull DialogBase base, @NonNull List<DialogAction> actions, Integer columns, DialogAction exitAction)
+    public MultiActionDialog(@NonNull DialogBase base, @NonNull List<ActionButton> actions, Integer columns, ActionButton exitAction)
     {
         Preconditions.checkArgument( !actions.isEmpty(), "At least one action must be provided" );
 
