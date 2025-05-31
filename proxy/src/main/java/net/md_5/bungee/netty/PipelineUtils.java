@@ -1,5 +1,6 @@
 package net.md_5.bungee.netty;
 
+import static net.md_5.bungee.protocol.channel.PipelineConstants.*;
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
@@ -101,9 +102,9 @@ public class PipelineUtils
 
         ProxyServer.getInstance().unsafe().setBackendChannelInitializer( BungeeChannelInitializer.create( ch ->
         {
-            PipelineUtils.BASE_SERVERSIDE.accept( ch );
-            ch.pipeline().addAfter( PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, false, ProxyServer.getInstance().getProtocolVersion() ) );
-            ch.pipeline().addAfter( PipelineUtils.FRAME_PREPENDER_AND_COMPRESS, PipelineUtils.PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, false, ProxyServer.getInstance().getProtocolVersion() ) );
+            BASE_SERVERSIDE.accept( ch );
+            ch.pipeline().addAfter( FRAME_DECODER, PACKET_DECODER, new MinecraftDecoder( Protocol.HANDSHAKE, false, ProxyServer.getInstance().getProtocolVersion() ) );
+            ch.pipeline().addAfter( FRAME_PREPENDER_AND_COMPRESS, PACKET_ENCODER, new MinecraftEncoder( Protocol.HANDSHAKE, false, ProxyServer.getInstance().getProtocolVersion() ) );
 
             return true;
         } ) );
@@ -114,17 +115,6 @@ public class PipelineUtils
     private static final ChannelAcceptor BASE = new Base( false );
     private static final ChannelAcceptor BASE_SERVERSIDE = new Base( true );
     private static final KickStringWriter legacyKicker = new KickStringWriter();
-    public static final String TIMEOUT_HANDLER = "timeout";
-    public static final String WRITE_TIMEOUT_HANDLER = "write-timeout";
-    public static final String PACKET_DECODER = "packet-decoder";
-    public static final String PACKET_ENCODER = "packet-encoder";
-    public static final String BOSS_HANDLER = "inbound-boss";
-    public static final String ENCRYPT_HANDLER = "encrypt";
-    public static final String DECRYPT_HANDLER = "decrypt";
-    public static final String FRAME_DECODER = "frame-decoder";
-    public static final String FRAME_PREPENDER_AND_COMPRESS = "frame-prepender-compress";
-    public static final String LEGACY_DECODER = "legacy-decoder";
-    public static final String LEGACY_KICKER = "legacy-kick";
 
     private static boolean epoll;
     private static boolean io_uring;
