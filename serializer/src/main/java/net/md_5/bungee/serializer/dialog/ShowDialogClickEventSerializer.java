@@ -1,4 +1,4 @@
-package net.md_5.bungee.dialog;
+package net.md_5.bungee.serializer.dialog;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;

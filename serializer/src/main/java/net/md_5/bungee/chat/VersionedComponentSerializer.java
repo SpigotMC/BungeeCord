@@ -30,9 +30,9 @@ import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.api.chat.hover.content.TextSerializer;
 import net.md_5.bungee.api.dialog.Dialog;
 import net.md_5.bungee.api.dialog.chat.ShowDialogClickEvent;
-import net.md_5.bungee.dialog.ChatClickEventWrapperSerializer;
-import net.md_5.bungee.dialog.DialogSerializer;
-import net.md_5.bungee.dialog.ShowDialogClickEventSerializer;
+import net.md_5.bungee.serializer.dialog.ChatClickEventWrapperSerializer;
+import net.md_5.bungee.serializer.dialog.DialogSerializer;
+import net.md_5.bungee.serializer.dialog.ShowDialogClickEventSerializer;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Experimental

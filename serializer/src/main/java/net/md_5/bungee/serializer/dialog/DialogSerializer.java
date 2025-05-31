@@ -1,4 +1,4 @@
-package net.md_5.bungee.dialog;
+package net.md_5.bungee.serializer.dialog;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
