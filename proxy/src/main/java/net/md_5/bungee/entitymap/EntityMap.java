@@ -1,6 +1,5 @@
 package net.md_5.bungee.entitymap;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import java.io.DataInputStream;
@@ -140,7 +139,6 @@ public abstract class EntityMap
         }
     }
 
-    @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
     protected static void rewriteVarInt(ByteBuf packet, int oldId, int newId, int offset)
     {
         // Need to rewrite the packet because VarInts are variable length

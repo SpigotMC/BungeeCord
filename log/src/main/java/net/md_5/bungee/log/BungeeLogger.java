@@ -1,6 +1,5 @@
 package net.md_5.bungee.log;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -13,13 +12,6 @@ public class BungeeLogger extends Logger
 
     private final LogDispatcher dispatcher = new LogDispatcher( this );
 
-    // CHECKSTYLE:OFF
-    @SuppressWarnings(
-            {
-                "CallToPrintStackTrace", "CallToThreadStartDuringObjectConstruction"
-            })
-    // CHECKSTYLE:ON
-    @SuppressFBWarnings("SC_START_IN_CTOR")
     public BungeeLogger(String loggerName, String filePattern, ConsoleReader reader)
     {
         super( loggerName, null );

@@ -1,6 +1,5 @@
 package net.md_5.bungee.entitymap;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -25,7 +24,6 @@ class EntityMap_1_16_2 extends EntityMap
     private final int spectateId;
 
     @Override
-    @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
     public void rewriteClientbound(ByteBuf packet, int oldId, int newId, int protocolVersion)
     {
         if ( spawnPlayerId == -1 )

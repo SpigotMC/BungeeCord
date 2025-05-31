@@ -18,7 +18,6 @@ public class ConciseFormatter extends Formatter
     private final boolean coloured;
 
     @Override
-    @SuppressWarnings("ThrowableResultIgnored")
     public String format(LogRecord record)
     {
         StringBuilder formatted = new StringBuilder();
