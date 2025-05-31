@@ -21,11 +21,6 @@ public class CustomClickEvent extends Event implements Cancellable
 {
 
     /**
-     * Map key containing the form action, if available.
-     */
-    public static final String ACTION_KEY = "action";
-    //
-    /**
      * Player who clicked.
      */
     private final ProxiedPlayer player;
