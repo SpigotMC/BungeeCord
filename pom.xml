@@ -45,6 +45,7 @@
         <module>serializer</module>
         <module>slf4j</module>
         <module>native</module>
+        <module>nbt</module>
     </modules>
 
     <scm>

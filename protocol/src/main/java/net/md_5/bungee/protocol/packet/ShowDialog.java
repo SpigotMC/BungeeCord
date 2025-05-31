@@ -7,13 +7,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.dialog.Dialog;
+import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.ChatSerializer;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Either;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.TagUtil;
-import se.llbit.nbt.SpecificTag;
 
 @Data
 @NoArgsConstructor
@@ -39,7 +39,7 @@ public class ShowDialog extends DefinedPacket
 
     protected static Dialog readDialog(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        SpecificTag nbt = (SpecificTag) readTag( buf, protocolVersion );
+        TypedTag nbt = (TypedTag) readTag( buf, protocolVersion );
         JsonElement json = TagUtil.toJson( nbt );
         return ChatSerializer.forVersion( protocolVersion ).getDialogSerializer().deserialize( json );
     }
@@ -60,7 +60,7 @@ public class ShowDialog extends DefinedPacket
     protected static void writeDialog(Dialog dialog, ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
         JsonElement json = ChatSerializer.forVersion( protocolVersion ).getDialogSerializer().toJson( dialog );
-        SpecificTag nbt = TagUtil.fromJson( json );
+        TypedTag nbt = TagUtil.fromJson( json );
 
         writeTag( nbt, buf, protocolVersion );
     }

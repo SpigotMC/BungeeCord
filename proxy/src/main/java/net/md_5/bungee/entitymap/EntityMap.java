@@ -4,12 +4,13 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import java.io.DataInputStream;
+import java.io.IOException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.md_5.bungee.nbt.NamedTag;
+import net.md_5.bungee.nbt.limit.NBTLimiter;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import se.llbit.nbt.NamedTag;
-import se.llbit.nbt.Tag;
 
 /**
  * Class to rewrite integers within packets.
@@ -275,10 +276,13 @@ public abstract class EntityMap
                     DefinedPacket.readVarInt( packet );
                     break;
                 case 13:
-                    Tag tag = NamedTag.read( new DataInputStream( new ByteBufInputStream( packet ) ) );
-                    if ( tag.isError() )
+                    NamedTag tag = new NamedTag();
+                    try
                     {
-                        throw new RuntimeException( tag.error() );
+                        tag.read( new DataInputStream( new ByteBufInputStream( packet ) ), NBTLimiter.unlimitedSize() );
+                    } catch ( IOException ioException )
+                    {
+                        throw new RuntimeException( ioException );
                     }
                     break;
                 case 15:
@@ -321,10 +325,13 @@ public abstract class EntityMap
             {
                 packet.readerIndex( position );
 
-                Tag tag = NamedTag.read( new DataInputStream( new ByteBufInputStream( packet ) ) );
-                if ( tag.isError() )
+                NamedTag tag = new NamedTag();
+                try
                 {
-                    throw new RuntimeException( tag.error() );
+                    tag.read( new DataInputStream( new ByteBufInputStream( packet ) ), NBTLimiter.unlimitedSize() );
+                } catch ( IOException ioException )
+                {
+                    throw new RuntimeException( ioException );
                 }
             }
         }

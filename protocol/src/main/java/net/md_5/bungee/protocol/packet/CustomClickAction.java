@@ -5,11 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import se.llbit.nbt.Tag;
 
 @Data
 @NoArgsConstructor
@@ -19,13 +19,13 @@ public class CustomClickAction extends DefinedPacket
 {
 
     private String id;
-    private Tag data;
+    private TypedTag data;
 
     @Override
     public void read(ByteBuf buf, Protocol protocol, ProtocolConstants.Direction direction, int protocolVersion)
     {
         id = readString( buf );
-        data = readNullable( (buf0) -> readTag( buf0, protocolVersion ), buf );
+        data = readNullable( (buf0) -> (TypedTag) readTag( buf0, protocolVersion ), buf );
     }
 
     @Override

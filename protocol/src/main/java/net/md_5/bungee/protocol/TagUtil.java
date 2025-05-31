@@ -7,31 +7,32 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import se.llbit.nbt.ByteArrayTag;
-import se.llbit.nbt.ByteTag;
-import se.llbit.nbt.CompoundTag;
-import se.llbit.nbt.DoubleTag;
-import se.llbit.nbt.FloatTag;
-import se.llbit.nbt.IntArrayTag;
-import se.llbit.nbt.IntTag;
-import se.llbit.nbt.ListTag;
-import se.llbit.nbt.LongArrayTag;
-import se.llbit.nbt.LongTag;
-import se.llbit.nbt.NamedTag;
-import se.llbit.nbt.ShortTag;
-import se.llbit.nbt.SpecificTag;
-import se.llbit.nbt.StringTag;
-import se.llbit.nbt.Tag;
+import net.md_5.bungee.nbt.Tag;
+import net.md_5.bungee.nbt.TypedTag;
+import net.md_5.bungee.nbt.type.ByteArrayTag;
+import net.md_5.bungee.nbt.type.ByteTag;
+import net.md_5.bungee.nbt.type.CompoundTag;
+import net.md_5.bungee.nbt.type.DoubleTag;
+import net.md_5.bungee.nbt.type.EndTag;
+import net.md_5.bungee.nbt.type.FloatTag;
+import net.md_5.bungee.nbt.type.IntArrayTag;
+import net.md_5.bungee.nbt.type.IntTag;
+import net.md_5.bungee.nbt.type.ListTag;
+import net.md_5.bungee.nbt.type.LongArrayTag;
+import net.md_5.bungee.nbt.type.LongTag;
+import net.md_5.bungee.nbt.type.ShortTag;
+import net.md_5.bungee.nbt.type.StringTag;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class TagUtil
 {
 
-    public static SpecificTag fromJson(JsonElement json)
+    public static TypedTag fromJson(JsonElement json)
     {
         if ( json instanceof JsonPrimitive )
         {
@@ -64,17 +65,17 @@ public final class TagUtil
                 return new StringTag( jsonPrimitive.getAsString() );
             } else if ( jsonPrimitive.isBoolean() )
             {
-                return new ByteTag( jsonPrimitive.getAsBoolean() ? 1 : 0 );
+                return new ByteTag( (byte) ( jsonPrimitive.getAsBoolean() ? 1 : 0 ) );
             } else
             {
                 throw new IllegalArgumentException( "Unknown JSON primitive: " + jsonPrimitive );
             }
         } else if ( json instanceof JsonObject )
         {
-            CompoundTag compoundTag = new CompoundTag();
+            CompoundTag compoundTag = new CompoundTag( new LinkedHashMap<>() );
             for ( Map.Entry<String, JsonElement> property : ( (JsonObject) json ).entrySet() )
             {
-                compoundTag.add( property.getKey(), fromJson( property.getValue() ) );
+                compoundTag.getValue().put( property.getKey(), fromJson( property.getValue() ) );
             }
 
             return compoundTag;
@@ -82,103 +83,103 @@ public final class TagUtil
         {
             List<JsonElement> jsonArray = ( (JsonArray) json ).asList();
 
-            Integer listType = null;
+            Byte listType = null;
 
             for ( JsonElement jsonEl : jsonArray )
             {
-                int type = fromJson( jsonEl ).tagType();
+                byte type = fromJson( jsonEl ).getId();
                 if ( listType == null )
                 {
                     listType = type;
                 } else if ( listType != type )
                 {
-                    listType = Tag.TAG_COMPOUND;
+                    listType = Tag.COMPOUND;
                     break;
                 }
             }
 
             if ( listType == null )
             {
-                return new ListTag( Tag.TAG_END, Collections.emptyList() );
+                return new ListTag( Collections.emptyList(), Tag.END );
             }
 
-            SpecificTag listTag;
+            TypedTag listTag;
             switch ( listType )
             {
-                case Tag.TAG_BYTE:
+                case Tag.BYTE:
                     byte[] bytes = new byte[ jsonArray.size() ];
                     for ( int i = 0; i < bytes.length; i++ )
                     {
-                        bytes[i] = (Byte) ( (JsonPrimitive) jsonArray.get( i ) ).getAsNumber();
+                        bytes[i] = (Byte) ( jsonArray.get( i ) ).getAsNumber();
                     }
 
                     listTag = new ByteArrayTag( bytes );
                     break;
-                case Tag.TAG_INT:
+                case Tag.INT:
                     int[] ints = new int[ jsonArray.size() ];
                     for ( int i = 0; i < ints.length; i++ )
                     {
-                        ints[i] = (Integer) ( (JsonPrimitive) jsonArray.get( i ) ).getAsNumber();
+                        ints[i] = (Integer) ( jsonArray.get( i ) ).getAsNumber();
                     }
 
                     listTag = new IntArrayTag( ints );
                     break;
-                case Tag.TAG_LONG:
+                case Tag.LONG:
                     long[] longs = new long[ jsonArray.size() ];
                     for ( int i = 0; i < longs.length; i++ )
                     {
-                        longs[i] = (Long) ( (JsonPrimitive) jsonArray.get( i ) ).getAsNumber();
+                        longs[i] = (Long) ( jsonArray.get( i ) ).getAsNumber();
                     }
 
                     listTag = new LongArrayTag( longs );
                     break;
                 default:
-                    List<SpecificTag> tagItems = new ArrayList<>( jsonArray.size() );
+                    List<TypedTag> tagItems = new ArrayList<>( jsonArray.size() );
 
                     for ( JsonElement jsonEl : jsonArray )
                     {
-                        SpecificTag subTag = fromJson( jsonEl );
-                        if ( listType == Tag.TAG_COMPOUND && !( subTag instanceof CompoundTag ) )
+                        TypedTag subTag = fromJson( jsonEl );
+                        if ( listType == Tag.COMPOUND && !( subTag instanceof CompoundTag ) )
                         {
-                            CompoundTag wrapper = new CompoundTag();
-                            wrapper.add( "", subTag );
+                            CompoundTag wrapper = new CompoundTag( new LinkedHashMap<>() );
+                            wrapper.getValue().put( "", subTag );
                             subTag = wrapper;
                         }
 
                         tagItems.add( subTag );
                     }
 
-                    listTag = new ListTag( listType, tagItems );
+                    listTag = new ListTag( tagItems, listType );
                     break;
             }
 
             return listTag;
         } else if ( json instanceof JsonNull )
         {
-            return Tag.END;
+            return EndTag.INSTANCE;
         }
 
         throw new IllegalArgumentException( "Unknown JSON element: " + json );
     }
 
-    public static JsonElement toJson(SpecificTag tag)
+    public static JsonElement toJson(TypedTag tag)
     {
-        switch ( tag.tagType() )
+        switch ( tag.getId() )
         {
-            case Tag.TAG_BYTE:
-                return new JsonPrimitive( (byte) ( (ByteTag) tag ).getData() );
-            case Tag.TAG_SHORT:
-                return new JsonPrimitive( ( (ShortTag) tag ).getData() );
-            case Tag.TAG_INT:
-                return new JsonPrimitive( ( (IntTag) tag ).getData() );
-            case Tag.TAG_LONG:
-                return new JsonPrimitive( ( (LongTag) tag ).getData() );
-            case Tag.TAG_FLOAT:
-                return new JsonPrimitive( ( (FloatTag) tag ).getData() );
-            case Tag.TAG_DOUBLE:
-                return new JsonPrimitive( ( (DoubleTag) tag ).getData() );
-            case Tag.TAG_BYTE_ARRAY:
-                byte[] byteArray = ( (ByteArrayTag) tag ).getData();
+            case Tag.BYTE:
+                return new JsonPrimitive( ( (ByteTag) tag ).getValue() );
+            case Tag.SHORT:
+                return new JsonPrimitive( ( (ShortTag) tag ).getValue() );
+            case Tag.INT:
+                return new JsonPrimitive( ( (IntTag) tag ).getValue() );
+            case Tag.LONG:
+                return new JsonPrimitive( ( (LongTag) tag ).getValue() );
+            case Tag.FLOAT:
+                return new JsonPrimitive( ( (FloatTag) tag ).getValue() );
+            case Tag.DOUBLE:
+                return new JsonPrimitive( ( (DoubleTag) tag ).getValue() );
+            case Tag.BYTE_ARRAY:
+                byte[] byteArray = ( (ByteArrayTag) tag ).getValue();
 
                 JsonArray jsonByteArray = new JsonArray( byteArray.length );
                 for ( byte b : byteArray )
@@ -187,21 +188,21 @@ public final class TagUtil
                 }
 
                 return jsonByteArray;
-            case Tag.TAG_STRING:
-                return new JsonPrimitive( ( (StringTag) tag ).getData() );
-            case Tag.TAG_LIST:
-                List<SpecificTag> items = ( (ListTag) tag ).items;
+            case Tag.STRING:
+                return new JsonPrimitive( ( (StringTag) tag ).getValue() );
+            case Tag.LIST:
+                List<TypedTag> items = ( (ListTag) tag ).getValue();
 
                 JsonArray jsonList = new JsonArray( items.size() );
-                for ( SpecificTag subTag : items )
+                for ( TypedTag subTag : items )
                 {
                     if ( subTag instanceof CompoundTag )
                     {
                         CompoundTag compound = (CompoundTag) subTag;
-                        if ( compound.size() == 1 )
+                        if ( compound.getValue().size() == 1 )
                         {
-                            SpecificTag first = (SpecificTag) compound.get( "" );
-                            if ( !first.isError() )
+                            TypedTag first = compound.getValue().get( "" );
+                            if ( first != null )
                             {
                                 jsonList.add( toJson( first ) );
                                 continue;
@@ -213,16 +214,13 @@ public final class TagUtil
                 }
 
                 return jsonList;
-            case Tag.TAG_COMPOUND:
+            case Tag.COMPOUND:
                 JsonObject jsonObject = new JsonObject();
-                for ( NamedTag subTag : (CompoundTag) tag )
-                {
-                    jsonObject.add( subTag.name(), toJson( subTag.getTag() ) );
-                }
-
+                CompoundTag compoundTag = (CompoundTag) tag;
+                compoundTag.getValue().forEach( (key, value) -> jsonObject.add( key, toJson( value ) ) );
                 return jsonObject;
-            case Tag.TAG_INT_ARRAY:
-                int[] intArray = ( (IntArrayTag) tag ).getData();
+            case Tag.INT_ARRAY:
+                int[] intArray = ( (IntArrayTag) tag ).getValue();
 
                 JsonArray jsonIntArray = new JsonArray( intArray.length );
                 for ( int i : intArray )
@@ -231,8 +229,8 @@ public final class TagUtil
                 }
 
                 return jsonIntArray;
-            case Tag.TAG_LONG_ARRAY:
-                long[] longArray = ( (LongArrayTag) tag ).getData();
+            case Tag.LONG_ARRAY:
+                long[] longArray = ( (LongArrayTag) tag ).getValue();
 
                 JsonArray jsonLongArray = new JsonArray( longArray.length );
                 for ( long l : longArray )
