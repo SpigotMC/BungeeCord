@@ -1,22 +1,22 @@
 package net.md_5.bungee.util;
 
-import gnu.trove.strategy.HashingStrategy;
+import it.unimi.dsi.fastutil.Hash;
 import java.util.Locale;
 
-class CaseInsensitiveHashingStrategy implements HashingStrategy
+class CaseInsensitiveHashingStrategy implements Hash.Strategy<String>
 {
 
     static final CaseInsensitiveHashingStrategy INSTANCE = new CaseInsensitiveHashingStrategy();
 
     @Override
-    public int computeHashCode(Object object)
+    public int hashCode(String object)
     {
-        return ( (String) object ).toLowerCase( Locale.ROOT ).hashCode();
+        return object.toLowerCase( Locale.ROOT ).hashCode();
     }
 
     @Override
-    public boolean equals(Object o1, Object o2)
+    public boolean equals(String o1, String o2)
     {
-        return o1.equals( o2 ) || ( o1 instanceof String && o2 instanceof String && ( (String) o1 ).toLowerCase( Locale.ROOT ).equals( ( (String) o2 ).toLowerCase( Locale.ROOT ) ) );
+        return o1.equals( o2 ) || ( o1 instanceof String && o2 instanceof String && o1.toLowerCase( Locale.ROOT ).equals( o2.toLowerCase( Locale.ROOT ) ) );
     }
 }

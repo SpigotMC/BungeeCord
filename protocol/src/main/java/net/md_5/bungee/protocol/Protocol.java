@@ -2,10 +2,10 @@ package net.md_5.bungee.protocol;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import gnu.trove.map.TIntObjectMap;
-import gnu.trove.map.TObjectIntMap;
-import gnu.trove.map.hash.TIntObjectHashMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.function.Supplier;
 import lombok.Data;
 import lombok.Getter;
@@ -922,7 +922,7 @@ public enum Protocol
     {
 
         private final int protocolVersion;
-        private final TObjectIntMap<Class<? extends DefinedPacket>> packetMap = new TObjectIntHashMap<>( MAX_PACKET_ID );
+        private final Object2IntMap<Class<? extends DefinedPacket>> packetMap = new Object2IntOpenHashMap<>( MAX_PACKET_ID );
         @SuppressWarnings("unchecked")
         private final Supplier<? extends DefinedPacket>[] packetConstructors = new Supplier[ MAX_PACKET_ID ];
     }
@@ -944,7 +944,7 @@ public enum Protocol
     public static final class DirectionData
     {
 
-        private final TIntObjectMap<ProtocolData> protocols = new TIntObjectHashMap<>();
+        private final Int2ObjectMap<ProtocolData> protocols = new Int2ObjectOpenHashMap<>();
         //
         private final Protocol protocolPhase;
         @Getter
@@ -966,7 +966,7 @@ public enum Protocol
             ProtocolData protocol = protocols.get( version );
             if ( protocol == null && ( protocolPhase != Protocol.GAME ) )
             {
-                protocol = Iterables.getFirst( protocols.valueCollection(), null );
+                protocol = Iterables.getFirst( protocols.values(), null );
             }
             return protocol;
         }

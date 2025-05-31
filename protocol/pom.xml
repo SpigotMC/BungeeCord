@@ -52,9 +52,9 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>net.sf.trove4j</groupId>
-            <artifactId>core</artifactId>
-            <version>3.1.0</version>
+            <groupId>it.unimi.dsi</groupId>
+            <artifactId>fastutil-core</artifactId>
+            <version>8.5.15</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
