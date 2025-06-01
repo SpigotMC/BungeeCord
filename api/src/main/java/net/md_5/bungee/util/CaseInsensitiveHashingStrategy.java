@@ -11,6 +11,11 @@ class CaseInsensitiveHashingStrategy implements Hash.Strategy<String>
     @Override
     public int hashCode(String object)
     {
+        if ( object == null )
+        {
+            return 0;
+        }
+
         return object.toLowerCase( Locale.ROOT ).hashCode();
     }
 
@@ -27,6 +32,6 @@ class CaseInsensitiveHashingStrategy implements Hash.Strategy<String>
             return false;
         }
 
-        return o1.equals(o2) || o1.toLowerCase( Locale.ROOT ).equals(o2.toLowerCase( Locale.ROOT ) );
+        return o1.equals( o2 ) || o1.toLowerCase( Locale.ROOT ).equals( o2.toLowerCase( Locale.ROOT ) );
     }
 }
