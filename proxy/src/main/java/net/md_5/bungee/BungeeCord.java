@@ -44,7 +44,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jline.console.ConsoleReader;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
@@ -84,7 +83,10 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import net.md_5.bungee.util.CaseInsensitiveMap;
-import org.fusesource.jansi.AnsiConsole;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
 import org.slf4j.impl.JDK14LoggerFactory;
 
 /**
@@ -146,7 +148,7 @@ public class BungeeCord extends ProxyServer
     @Getter
     private final BungeeScheduler scheduler = new BungeeScheduler();
     @Getter
-    private final ConsoleReader consoleReader;
+    private final LineReader consoleReader;
     @Getter
     private final Logger logger;
     @Getter
@@ -195,10 +197,11 @@ public class BungeeCord extends ProxyServer
         // BungeeCord. This version is only used when extracting the libraries to their temp folder.
         System.setProperty( "library.jansi.version", "BungeeCord" );
 
-        AnsiConsole.systemInstall();
-        consoleReader = new ConsoleReader();
-        consoleReader.setExpandEvents( false );
-        consoleReader.addCompleter( new ConsoleCommandCompleter( this ) );
+        Terminal terminal = TerminalBuilder.builder().build();
+        consoleReader = LineReaderBuilder.builder().terminal( terminal )
+                .option( LineReader.Option.DISABLE_EVENT_EXPANSION, true )
+                .completer( new ConsoleCommandCompleter( this ) )
+                .build();
 
         logger = new BungeeLogger( "BungeeCord", "proxy.log", consoleReader );
         JDK14LoggerFactory.LOGGER = logger;

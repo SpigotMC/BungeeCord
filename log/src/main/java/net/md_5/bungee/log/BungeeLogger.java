@@ -5,14 +5,14 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-import jline.console.ConsoleReader;
+import org.jline.reader.LineReader;
 
 public class BungeeLogger extends Logger
 {
 
     private final LogDispatcher dispatcher = new LogDispatcher( this );
 
-    public BungeeLogger(String loggerName, String filePattern, ConsoleReader reader)
+    public BungeeLogger(String loggerName, String filePattern, LineReader reader)
     {
         super( loggerName, null );
         setLevel( Level.ALL );
