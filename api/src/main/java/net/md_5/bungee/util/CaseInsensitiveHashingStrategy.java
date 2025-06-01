@@ -11,12 +11,27 @@ class CaseInsensitiveHashingStrategy implements Hash.Strategy<String>
     @Override
     public int hashCode(String object)
     {
+        if ( object == null )
+        {
+            return 0;
+        }
+
         return object.toLowerCase( Locale.ROOT ).hashCode();
     }
 
     @Override
     public boolean equals(String o1, String o2)
     {
-        return o1.equals( o2 ) || ( o1 instanceof String && o2 instanceof String && o1.toLowerCase( Locale.ROOT ).equals( o2.toLowerCase( Locale.ROOT ) ) );
+        if ( o1 == o2 )
+        {
+            return true;
+        }
+
+        if ( o1 == null || o2 == null )
+        {
+            return false;
+        }
+
+        return o1.equals( o2 ) || o1.toLowerCase( Locale.ROOT ).equals( o2.toLowerCase( Locale.ROOT ) );
     }
 }
