@@ -32,6 +32,87 @@ import net.md_5.bungee.nbt.type.StringTag;
 public final class TagUtil
 {
 
+    private static byte nbtTypeOfJson(JsonElement json)
+    {
+        if ( json instanceof JsonPrimitive )
+        {
+            JsonPrimitive jsonPrimitive = (JsonPrimitive) json;
+            if ( jsonPrimitive.isNumber() )
+            {
+                Number number = json.getAsNumber();
+
+                if ( number instanceof Byte )
+                {
+                    return Tag.BYTE;
+                } else if ( number instanceof Short )
+                {
+                    return Tag.SHORT;
+                } else if ( number instanceof Integer )
+                {
+                    return Tag.INT;
+                } else if ( number instanceof Long )
+                {
+                    return Tag.LONG;
+                } else if ( number instanceof Float )
+                {
+                    return Tag.FLOAT;
+                } else if ( number instanceof Double )
+                {
+                    return Tag.DOUBLE;
+                }
+            } else if ( jsonPrimitive.isString() )
+            {
+                return Tag.STRING;
+            } else if ( jsonPrimitive.isBoolean() )
+            {
+                return Tag.BYTE;
+            }
+            throw new IllegalArgumentException( "Unknown JSON primitive: " + jsonPrimitive );
+        } else if ( json instanceof JsonObject )
+        {
+            return Tag.COMPOUND;
+        } else if ( json instanceof JsonArray )
+        {
+            JsonArray array = json.getAsJsonArray();
+
+            Byte listType = null;
+            for ( JsonElement jsonEl : array )
+            {
+                byte type = nbtTypeOfJson( jsonEl );
+                if ( listType == null )
+                {
+                    listType = type;
+                } else if ( listType != type )
+                {
+                    listType = Tag.COMPOUND;
+                    break;
+                }
+            }
+
+            if ( listType == null )
+            {
+                return Tag.LIST;
+            }
+
+            switch ( listType )
+            {
+                case Tag.BYTE:
+                    return Tag.BYTE_ARRAY;
+                case Tag.INT:
+                    return Tag.INT_ARRAY;
+                case Tag.LONG:
+                    return Tag.LONG_ARRAY;
+                default:
+                    return Tag.LIST;
+            }
+        } else if ( json instanceof JsonNull )
+        {
+            return Tag.END;
+        }
+
+        throw new IllegalArgumentException( "Unknown JSON element: " + json );
+    }
+
     public static TypedTag fromJson(JsonElement json)
     {
         if ( json instanceof JsonPrimitive )
@@ -66,10 +147,8 @@ public final class TagUtil
             } else if ( jsonPrimitive.isBoolean() )
             {
                 return new ByteTag( (byte) ( jsonPrimitive.getAsBoolean() ? 1 : 0 ) );
-            } else
-            {
-                throw new IllegalArgumentException( "Unknown JSON primitive: " + jsonPrimitive );
             }
+            throw new IllegalArgumentException( "Unknown JSON primitive: " + jsonPrimitive );
         } else if ( json instanceof JsonObject )
         {
             CompoundTag compoundTag = new CompoundTag( new LinkedHashMap<>() );
@@ -87,7 +166,7 @@ public final class TagUtil
 
             for ( JsonElement jsonEl : jsonArray )
             {
-                byte type = fromJson( jsonEl ).getId();
+                byte type = nbtTypeOfJson( jsonEl );
                 if ( listType == null )
                 {
                     listType = type;
@@ -98,8 +177,13 @@ public final class TagUtil
                 }
             }
 
-            if ( listType == null )
+            if ( listType == null || listType == Tag.END )
             {
+                if ( !jsonArray.isEmpty() )
+                {
+                    throw new IllegalArgumentException( "Invalid end tag in json array: " + json );
+                }
+
                 return new ListTag( Collections.emptyList(), Tag.END );
             }
 
