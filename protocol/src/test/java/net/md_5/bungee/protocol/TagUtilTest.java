@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import net.md_5.bungee.nbt.Tag;
 import net.md_5.bungee.nbt.TypedTag;
@@ -223,5 +224,17 @@ public class TagUtilTest
             StringTag string = (StringTag) item;
             assertEquals( array.get( i ).getAsString(), string.getValue() );
         }
+    }
+
+    @Test
+    public void testRecursive()
+    {
+        JsonElement jsonElement = JsonParser.parseString( "{\"extra\":[{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"},{\"color\":\"#00FFFF\",\"text\":\"<\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}\n" );
+
+        long start = System.currentTimeMillis();
+        TagUtil.fromJson( jsonElement );
+        long end = System.currentTimeMillis();
+
+        System.out.println( "Time passed: " + ( end - start ) + "ms" );
     }
 }
