@@ -87,7 +87,7 @@ import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
-import org.slf4j.impl.JDK14LoggerFactory;
+import org.slf4j.jul.JDK14LoggerFactory;
 
 /**
  * Main BungeeCord proxy class.
