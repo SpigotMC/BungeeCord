@@ -20,7 +20,7 @@
     <licenses>
         <license>
             <name>BSD-3-Clause</name>
-            <url>https://github.com/SpigotMC/BungeeCord/blob/master/dialog/LICENSE</url>
+            <url>https://github.com/SpigotMC/BungeeCord/blob/master/nbt/LICENSE</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
