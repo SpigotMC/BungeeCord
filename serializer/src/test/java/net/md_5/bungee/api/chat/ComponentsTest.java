@@ -868,4 +868,10 @@ public class ComponentsTest
     {
         return BaseComponent.toLegacyText( TextComponent.fromLegacyText( legacyText ) );
     }
+
+    @Test
+    public void testArrayParsing()
+    {
+        System.out.println( ComponentSerializer.deserialize( "[Outfluencer,[\" \",is,[\" very\",\" cool \",[b,dfg28dhz,[c,[a,thisisacoolcomponent]]]]]]" ).toPlainText() );
+    }
 }

@@ -13,14 +13,7 @@ import com.google.gson.JsonPrimitive;
 import java.lang.reflect.Type;
 import java.util.Set;
 import lombok.Getter;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentStyle;
-import net.md_5.bungee.api.chat.ItemTag;
-import net.md_5.bungee.api.chat.KeybindComponent;
-import net.md_5.bungee.api.chat.ScoreComponent;
-import net.md_5.bungee.api.chat.SelectorComponent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.TranslatableComponent;
+import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.api.chat.hover.content.Content;
 import net.md_5.bungee.api.chat.hover.content.Entity;
 import net.md_5.bungee.api.chat.hover.content.EntitySerializer;
@@ -143,7 +136,6 @@ public class VersionedComponentSerializer implements JsonDeserializer<BaseCompon
     public BaseComponent deserialize(String json)
     {
         JsonElement jsonElement = JsonParser.parseString( json );
-
         return deserialize( jsonElement );
     }
 
@@ -261,6 +253,18 @@ public class VersionedComponentSerializer implements JsonDeserializer<BaseCompon
         {
             return new TextComponent( json.getAsString() );
         }
+
+        if ( json.isJsonArray() )
+        {
+            JsonArray arr = json.getAsJsonArray();
+            BaseComponent[] components = new BaseComponent[arr.size()];
+            for ( int i = 0; i < arr.size(); i++ )
+            {
+                components[i] = deserialize( arr.get( i ), BaseComponent.class, context );
+            }
+            return TextComponent.fromArray( components );
+        }
+
         JsonObject object = json.getAsJsonObject();
         if ( object.has( "translate" ) )
         {
