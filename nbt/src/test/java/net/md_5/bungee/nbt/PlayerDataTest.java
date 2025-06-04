@@ -22,8 +22,7 @@ public class PlayerDataTest
         File file = new File( Objects.requireNonNull( classLoader.getResource( "playerdata.nbt" ) ).toURI() );
         FileInputStream fileInputStream = new FileInputStream( file );
         DataInputStream dis = new DataInputStream( fileInputStream );
-        NamedTag namedTag = new NamedTag();
-        namedTag.read( dis, NBTLimiter.unlimitedSize() );
+        NamedTag namedTag = Tag.readNamedTag( dis, NBTLimiter.unlimitedSize() );
         assertInstanceOf( CompoundTag.class, namedTag.getTag() );
         assertEquals( namedTag.getName(), "" );
     }
