@@ -143,6 +143,7 @@ public class VersionedComponentSerializer implements JsonDeserializer<BaseCompon
     public BaseComponent deserialize(String json)
     {
         JsonElement jsonElement = JsonParser.parseString( json );
+
         return deserialize( jsonElement );
     }
 
