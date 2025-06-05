@@ -50,14 +50,14 @@ public final class KeybindComponent extends BaseComponent
     }
 
     @Override
-    protected void toPlainText(StringBuilder builder)
+    protected void toPlainText(StringVisitor builder)
     {
         builder.append( getKeybind() );
         super.toPlainText( builder );
     }
 
     @Override
-    protected void toLegacyText(StringBuilder builder)
+    protected void toLegacyText(StringVisitor builder)
     {
         addFormat( builder );
         builder.append( getKeybind() );

@@ -156,20 +156,20 @@ public final class TranslatableComponent extends BaseComponent
     }
 
     @Override
-    protected void toPlainText(StringBuilder builder)
+    protected void toPlainText(StringVisitor builder)
     {
         convert( builder, false );
         super.toPlainText( builder );
     }
 
     @Override
-    protected void toLegacyText(StringBuilder builder)
+    protected void toLegacyText(StringVisitor builder)
     {
         convert( builder, true );
         super.toLegacyText( builder );
     }
 
-    private void convert(StringBuilder builder, boolean applyFormat)
+    private void convert(StringVisitor builder, boolean applyFormat)
     {
         String trans = TranslationRegistry.INSTANCE.translate( translate );
 

@@ -565,6 +565,15 @@ public class ComponentsTest
     }
 
     @Test
+    public void testLong()
+    {
+        BaseComponent test = ComponentSerializer.deserialize( "{\"translate\":\"%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s\",\"with\":[{\"translate\":\"%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s\",\"with\":[{\"translate\":\"%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s\",\"with\":[{\"translate\":\"%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s\",\"with\":[{\"translate\":\"%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s\",\"with\":[{\"translate\":\"%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s\",\"with\":[{\"translate\":\"%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s\",\"with\":[{\"translate\":\"%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s\",\"with\":[{\"translate\":\"%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s\",\"with\":[{\"translate\":\"%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s%1$s\",\"with\":[\"Test\"]}]}]}]}]}]}]}]}]}]}" );
+
+        assertThrows( RuntimeException.class, test::toLegacyText );
+        assertThrows( RuntimeException.class, test::toPlainText );
+    }
+
+    @Test
     public void testBuilderCreate()
     {
         testBuilder(
