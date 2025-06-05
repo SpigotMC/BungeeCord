@@ -872,6 +872,7 @@ public class ComponentsTest
     @Test
     public void testArrayParsing()
     {
-        System.out.println( ComponentSerializer.deserialize( "[Outfluencer,[\" \",is,[\" very\",\" cool \",[b,dfg28dhz,[c,[a,thisisacoolcomponent]]]]]]" ).toPlainText() );
+        assertEquals( "Outfluencer is very cool bdfg28dhzcathisisacoolcomponent",
+            ComponentSerializer.deserialize( "[Outfluencer,[\" \",is,[\" very\",\" cool \",[b,dfg28dhz,[c,[a,thisisacoolcomponent]]]]]]" ).toPlainText() );
     }
 }
