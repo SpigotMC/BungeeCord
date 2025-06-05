@@ -66,7 +66,7 @@ public interface Tag
     /**
      * Reads the data into this tag.
      *
-     * @param input   the input to read from
+     * @param input the input to read from
      * @param limiter the limiter for this read operation
      * @throws IOException if an exception occurs during io operations
      */
@@ -85,8 +85,8 @@ public interface Tag
      * based on the specified tag type, with limitations of the
      * {@link NBTLimiter}.
      *
-     * @param id      the nbt type
-     * @param input   the input to read from
+     * @param id the nbt type
+     * @param input the input to read from
      * @param limiter the limiter for this read operation
      * @return the deserialized {@link Tag}
      * @throws IOException if an exception occurs during io operations
@@ -107,7 +107,7 @@ public interface Tag
      * Reads a {@link NamedTag} from the given {@link DataInput},
      * with limitations of the {@link NBTLimiter}.
      *
-     * @param input   the data input to read from
+     * @param input the data input to read from
      * @param limiter the limiter for this read operation
      * @return the deserialized {@link NamedTag}
      * @throws IOException if an exception occurs during io operations
@@ -153,7 +153,7 @@ public interface Tag
      * Deserializes the given byte array into a {@link TypedTag},
      * with limitations of the {@link NBTLimiter}.
      *
-     * @param data    the byte array to read from
+     * @param data the byte array to read from
      * @param limiter the limiter for this read operation
      * @return the deserialized {@link TypedTag}
      * @throws IOException if an exception occurs during io operations
