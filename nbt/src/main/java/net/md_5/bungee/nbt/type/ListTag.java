@@ -33,6 +33,11 @@ public class ListTag implements TypedTag
         listType = input.readByte();
         int length = input.readInt();
 
+        if ( length < 0 )
+        {
+            throw new NBTFormatException( "ListTag length cannot be negative" );
+        }
+
         if ( listType == Tag.END && length > 0 )
         {
             throw new NBTFormatException( "Missing type in ListTag" );
