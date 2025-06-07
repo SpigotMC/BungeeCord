@@ -81,12 +81,14 @@ public interface Tag
     void write(DataOutput output) throws IOException;
 
     /**
-     * Reads the data of the {@link DataInput} and parses it into a {@link Tag}.
+     * Reads a {@link Tag} from the given {@link DataInput},
+     * based on the specified tag type, with limitations of the
+     * {@link NBTLimiter}.
      *
      * @param id the nbt type
-     * @param input input to read from
-     * @param limiter limitation of the read data
-     * @return the initialized {@link Tag}
+     * @param input the input to read from
+     * @param limiter the limiter for this read operation
+     * @return the deserialized {@link Tag}
      * @throws IOException if an exception occurs during io operations
      */
     static TypedTag readById(byte id, DataInput input, NBTLimiter limiter) throws IOException
@@ -101,6 +103,15 @@ public interface Tag
         return tag;
     }
 
+    /**
+     * Reads a {@link NamedTag} from the given {@link DataInput},
+     * with limitations of the {@link NBTLimiter}.
+     *
+     * @param input the data input to read from
+     * @param limiter the limiter for this read operation
+     * @return the deserialized {@link NamedTag}
+     * @throws IOException if an exception occurs during io operations
+     */
     static NamedTag readNamedTag(DataInput input, NBTLimiter limiter) throws IOException
     {
         NamedTag namedTag = new NamedTag();
@@ -108,6 +119,14 @@ public interface Tag
         return namedTag;
     }
 
+    /**
+     * Serializes the given {@link TypedTag} into a byte array.
+     * This is the inverse operation of {@link #fromByteArray(byte[])}.
+     *
+     * @param tag the tag to convert
+     * @return the serialized byte array
+     * @throws IOException if an exception occurs during io operations
+     */
     static byte[] toByteArray(TypedTag tag) throws IOException
     {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -117,11 +136,28 @@ public interface Tag
         return byteArrayOutputStream.toByteArray();
     }
 
+    /**
+     * Deserializes the given byte array into a {@link TypedTag}.
+     * This is the inverse operation of {@link #toByteArray(TypedTag)}.
+     *
+     * @param data the byte array to read from
+     * @return the deserialized {@link TypedTag}
+     * @throws IOException if an exception occurs during io operations
+     */
     static TypedTag fromByteArray(byte[] data) throws IOException
     {
         return fromByteArray( data, NBTLimiter.unlimitedSize() );
     }
 
+    /**
+     * Deserializes the given byte array into a {@link TypedTag},
+     * with limitations of the {@link NBTLimiter}.
+     *
+     * @param data the byte array to read from
+     * @param limiter the limiter for this read operation
+     * @return the deserialized {@link TypedTag}
+     * @throws IOException if an exception occurs during io operations
+     */
     static TypedTag fromByteArray(byte[] data, NBTLimiter limiter) throws IOException
     {
         DataInputStream stream = new DataInputStream( new ByteArrayInputStream( data ) );
