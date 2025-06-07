@@ -39,6 +39,7 @@ import net.md_5.bungee.protocol.Either;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.packet.BundleDelimiter;
 import net.md_5.bungee.protocol.packet.CookieRequest;
 import net.md_5.bungee.protocol.packet.CookieResponse;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
@@ -369,9 +370,13 @@ public class ServerConnector extends PacketHandler
         {
             if ( user.getServer() != null )
             {
-                // Begin config mode
                 if ( user.getCh().getEncodeProtocol() != Protocol.CONFIGURATION )
                 {
+                    if ( user.isBundling() )
+                    {
+                        user.toggleBundling();
+                        user.unsafe().sendPacket( new BundleDelimiter() );
+                    }
                     user.unsafe().sendPacket( new StartConfiguration() );
                 }
             } else
