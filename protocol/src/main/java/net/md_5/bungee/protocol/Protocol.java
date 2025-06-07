@@ -875,6 +875,11 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_20_2, 0x03 ),
                     map( ProtocolConstants.MINECRAFT_1_20_5, 0x04 )
             );
+            TO_SERVER.registerPacket(
+                    CustomClickAction.class,
+                    CustomClickAction::new,
+                    map( ProtocolConstants.MINECRAFT_1_21_6, 0x08 )
+            );
         }
     };
     /*========================================================================*/

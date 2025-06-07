@@ -454,6 +454,11 @@ public abstract class DefinedPacket
 
     public static Tag readTag(ByteBuf input, int protocolVersion)
     {
+        return readTag( input, protocolVersion, new NBTLimiter( 1 << 21 ) );
+    }
+
+    public static Tag readTag(ByteBuf input, int protocolVersion, NBTLimiter limiter)
+    {
         DataInputStream in = new DataInputStream( new ByteBufInputStream( input ) );
         try
         {
@@ -465,11 +470,11 @@ public abstract class DefinedPacket
                     return EndTag.INSTANCE;
                 } else
                 {
-                    return Tag.readById( type, in, new NBTLimiter( 1 << 21 ) );
+                    return Tag.readById( type, in, limiter );
                 }
             }
             NamedTag namedTag = new NamedTag();
-            namedTag.read( in, new NBTLimiter( 1 << 21 ) );
+            namedTag.read( in, limiter );
             return namedTag;
         } catch ( IOException ex )
         {
