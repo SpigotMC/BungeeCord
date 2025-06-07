@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.nbt.TypedTag;
+import net.md_5.bungee.nbt.limit.NBTLimiter;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
@@ -25,7 +26,7 @@ public class CustomClickAction extends DefinedPacket
     public void read(ByteBuf buf, Protocol protocol, ProtocolConstants.Direction direction, int protocolVersion)
     {
         id = readString( buf );
-        data = readNullable( (buf0) -> (TypedTag) readTag( buf0, protocolVersion ), buf );
+        data = readNullable( (buf0) -> (TypedTag) readTag( buf0, protocolVersion, new NBTLimiter( 32768L, 16 ) ), buf );
     }
 
     @Override
