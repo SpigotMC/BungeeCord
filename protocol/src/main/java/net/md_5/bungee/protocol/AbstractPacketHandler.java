@@ -1,6 +1,7 @@
 package net.md_5.bungee.protocol;
 
 import net.md_5.bungee.protocol.packet.BossBar;
+import net.md_5.bungee.protocol.packet.BundleDelimiter;
 import net.md_5.bungee.protocol.packet.Chat;
 import net.md_5.bungee.protocol.packet.ClearDialog;
 import net.md_5.bungee.protocol.packet.ClearTitles;
@@ -291,6 +292,10 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(CustomClickAction customClickAction) throws Exception
+    {
+    }
+
+    public void handle(BundleDelimiter bundleDelimiter) throws Exception
     {
     }
 }

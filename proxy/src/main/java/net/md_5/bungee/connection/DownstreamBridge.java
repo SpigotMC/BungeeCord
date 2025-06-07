@@ -54,6 +54,7 @@ import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.BossBar;
+import net.md_5.bungee.protocol.packet.BundleDelimiter;
 import net.md_5.bungee.protocol.packet.Commands;
 import net.md_5.bungee.protocol.packet.FinishConfiguration;
 import net.md_5.bungee.protocol.packet.KeepAlive;
@@ -810,6 +811,12 @@ public class DownstreamBridge extends PacketHandler
         // send queued packets as early as possible
         con.sendQueuedPackets();
         throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void handle(BundleDelimiter bundleDelimiter) throws Exception
+    {
+        con.toggleBundling();
     }
 
     @Override
