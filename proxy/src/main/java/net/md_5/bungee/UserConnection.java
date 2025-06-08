@@ -114,6 +114,14 @@ public final class UserConnection implements ProxiedPlayer
     // Used for trying multiple servers in order
     @Setter
     private Queue<String> serverJoinQueue;
+    @Getter
+    @Setter
+    private boolean bundling;
+
+    public void toggleBundling()
+    {
+        bundling = !bundling;
+    }
     /*========================================================================*/
     private final Collection<String> groups = new CaseInsensitiveSet();
     private final Collection<String> permissions = new CaseInsensitiveSet();
