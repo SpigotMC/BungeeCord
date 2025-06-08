@@ -1,15 +1,7 @@
 package net.md_5.bungee.protocol.packet;
 
-import com.google.common.collect.ImmutableMap;
 import io.netty.buffer.ByteBuf;
-import java.util.Arrays;
-import java.util.Map;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
@@ -31,12 +23,9 @@ public class Team extends DefinedPacket
     private Either<String, BaseComponent> displayName;
     private Either<String, BaseComponent> prefix;
     private Either<String, BaseComponent> suffix;
-    private NameTagVisibility nameTagVisibility;
-    private CollisionRule collisionRule;
-    // Pre 1.21.5, do not "parse" these values as the Strings may be invalid
-    // If they are invalid the vanilla client just ignores them, see #3799
-    private String nameTagVisibilityString;
-    private String collisionRuleString;
+    //
+    private Either<String, NameTagVisibility> nameTagVisibility;
+    private Either<String, CollisionRule> collisionRule;
     //
     private int color;
     private byte friendlyFire;
@@ -72,15 +61,14 @@ public class Team extends DefinedPacket
             friendlyFire = buf.readByte();
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_5 )
             {
-                nameTagVisibility = NameTagVisibility.BY_ID[readVarInt( buf )];
-                collisionRule = CollisionRule.BY_ID[readVarInt( buf )];
+                nameTagVisibility = Either.right( NameTagVisibility.BY_ID[readVarInt( buf )] );
+                collisionRule = Either.right( CollisionRule.BY_ID[readVarInt( buf )] );
             } else
             {
-                nameTagVisibilityString = readString( buf );
-
+                nameTagVisibility = Either.left( readString( buf ) );
                 if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
                 {
-                    collisionRuleString = readString( buf );
+                    collisionRule = Either.left( readString( buf ) );
                 }
             }
             color = ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? readVarInt( buf ) : buf.readByte();
@@ -117,14 +105,14 @@ public class Team extends DefinedPacket
             buf.writeByte( friendlyFire );
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_5 )
             {
-                writeVarInt( nameTagVisibility.ordinal(), buf );
-                writeVarInt( collisionRule.ordinal(), buf );
+                writeVarInt( nameTagVisibility.getRight().ordinal(), buf );
+                writeVarInt( collisionRule.getRight().ordinal(), buf );
             } else
             {
-                writeString( nameTagVisibilityString, buf );
+                writeString( nameTagVisibility.getLeft(), buf );
                 if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
                 {
-                    writeString( collisionRuleString, buf );
+                    writeString( collisionRule.getLeft(), buf );
                 }
             }
 
@@ -166,22 +154,7 @@ public class Team extends DefinedPacket
         //
         private final String key;
         //
-        private static final Map<String, NameTagVisibility> BY_NAME;
-        private static final NameTagVisibility[] BY_ID;
-
-        static
-        {
-            NameTagVisibility[] values = NameTagVisibility.values();
-            ImmutableMap.Builder<String, NameTagVisibility> builder = ImmutableMap.builderWithExpectedSize( values.length );
-
-            for ( NameTagVisibility e : values )
-            {
-                builder.put( e.key, e );
-            }
-
-            BY_NAME = builder.build();
-            BY_ID = Arrays.copyOf( values, values.length - 1 ); // Ignore dummy UNKNOWN value
-        }
+        private static final NameTagVisibility[] BY_ID = values();
     }
 
     @Getter
@@ -196,20 +169,6 @@ public class Team extends DefinedPacket
         //
         private final String key;
         //
-        private static final Map<String, CollisionRule> BY_NAME;
-        private static final CollisionRule[] BY_ID;
-
-        static
-        {
-            CollisionRule[] values = BY_ID = CollisionRule.values();
-            ImmutableMap.Builder<String, CollisionRule> builder = ImmutableMap.builderWithExpectedSize( values.length );
-
-            for ( CollisionRule e : values )
-            {
-                builder.put( e.key, e );
-            }
-
-            BY_NAME = builder.build();
-        }
+        private static final CollisionRule[] BY_ID = CollisionRule.values();
     }
 }
