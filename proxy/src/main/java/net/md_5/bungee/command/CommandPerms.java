@@ -12,7 +12,7 @@ public class CommandPerms extends Command
 
     public CommandPerms()
     {
-        super( "perms" );
+        super( "perms", "bungeecord.command.perms" );
     }
 
     @Override
