@@ -45,6 +45,7 @@ import net.md_5.bungee.protocol.packet.ServerData;
 import net.md_5.bungee.protocol.packet.ServerLinks;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.ShowDialog;
+import net.md_5.bungee.protocol.packet.ShowDialogDirect;
 import net.md_5.bungee.protocol.packet.StartConfiguration;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
@@ -284,6 +285,10 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(ShowDialog showDialog) throws Exception
+    {
+    }
+
+    public void handle(ShowDialogDirect showDialogDirect) throws Exception
     {
     }
 
