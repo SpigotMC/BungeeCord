@@ -62,6 +62,7 @@ import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.ShowDialog;
+import net.md_5.bungee.protocol.packet.ShowDialogDirect;
 import net.md_5.bungee.protocol.packet.StoreCookie;
 import net.md_5.bungee.protocol.packet.SystemChat;
 import net.md_5.bungee.protocol.packet.Transfer;
@@ -850,6 +851,12 @@ public final class UserConnection implements ProxiedPlayer
     public void showDialog(Dialog dialog)
     {
         Preconditions.checkState( getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_21_6, "Dialogs are only supported in 1.21.6 and above" );
+
+        if ( ch.getEncodeProtocol() == Protocol.CONFIGURATION )
+        {
+            unsafe.sendPacket( new ShowDialogDirect( dialog ) );
+            return;
+        }
 
         unsafe.sendPacket( new ShowDialog( Either.right( dialog ) ) );
     }
