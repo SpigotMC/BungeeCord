@@ -51,6 +51,7 @@ import net.md_5.bungee.protocol.packet.ServerData;
 import net.md_5.bungee.protocol.packet.ServerLinks;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.ShowDialog;
+import net.md_5.bungee.protocol.packet.ShowDialogDirect;
 import net.md_5.bungee.protocol.packet.StartConfiguration;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
@@ -856,6 +857,16 @@ public enum Protocol
                     ServerLinks.class,
                     ServerLinks::new,
                     map( ProtocolConstants.MINECRAFT_1_21, 0x10 )
+            );
+            TO_CLIENT.registerPacket(
+                    ClearDialog.class,
+                    ClearDialog::new,
+                    map( ProtocolConstants.MINECRAFT_1_21_6, 0x11 )
+            );
+            TO_CLIENT.registerPacket(
+                    ShowDialogDirect.class,
+                    ShowDialogDirect::new,
+                    map( ProtocolConstants.MINECRAFT_1_21_6, 0x12 )
             );
 
             TO_SERVER.registerPacket(
