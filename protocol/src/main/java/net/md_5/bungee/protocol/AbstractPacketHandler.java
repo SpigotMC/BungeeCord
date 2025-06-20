@@ -8,7 +8,6 @@ import net.md_5.bungee.protocol.packet.ClearTitles;
 import net.md_5.bungee.protocol.packet.ClientChat;
 import net.md_5.bungee.protocol.packet.ClientCommand;
 import net.md_5.bungee.protocol.packet.ClientSettings;
-import net.md_5.bungee.protocol.packet.ClientStatus;
 import net.md_5.bungee.protocol.packet.Commands;
 import net.md_5.bungee.protocol.packet.CookieRequest;
 import net.md_5.bungee.protocol.packet.CookieResponse;
@@ -125,10 +124,6 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(ClientSettings settings) throws Exception
-    {
-    }
-
-    public void handle(ClientStatus clientStatus) throws Exception
     {
     }
 
