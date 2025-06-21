@@ -23,6 +23,7 @@ import net.md_5.bungee.protocol.OverflowPacketException;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.packet.Kick;
+import net.md_5.bungee.protocol.util.ChatComponentDeserializable;
 import net.md_5.bungee.util.PacketLimiter;
 import net.md_5.bungee.util.QuietException;
 
@@ -123,7 +124,7 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
             {
                 // we shouldn't tell the player what limits he exceeds by default
                 // but if someone applies custom message we should allow them to display counter and bytes
-                channel.close( handler instanceof UpstreamBridge ? new Kick( TextComponent.fromLegacy( ProxyServer.getInstance().getTranslation( "packet_limit_kick", limiter.getCounter(), limiter.getDataCounter() ) ) ) : null );
+                channel.close( handler instanceof UpstreamBridge ? new Kick( new ChatComponentDeserializable( TextComponent.fromLegacy( ProxyServer.getInstance().getTranslation( "packet_limit_kick", limiter.getCounter(), limiter.getDataCounter() ) ) ) ) : null );
                 // but the server admin should know
                 ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} exceeded packet limit ({1} packets and {2} bytes per second)", new Object[]
                 {

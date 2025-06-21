@@ -5,10 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.util.ChatDeserializable;
 
 @Data
 @NoArgsConstructor
@@ -17,7 +17,7 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 public class ServerData extends DefinedPacket
 {
 
-    private BaseComponent motd;
+    private ChatDeserializable motd;
     private Object icon;
     private boolean preview;
     private boolean enforceSecure;

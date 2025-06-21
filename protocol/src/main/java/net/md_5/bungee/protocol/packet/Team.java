@@ -10,11 +10,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.Either;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.util.ChatDeserializable;
+import net.md_5.bungee.protocol.util.Either;
 
 @Data
 @NoArgsConstructor
@@ -28,9 +28,9 @@ public class Team extends DefinedPacket
      * 0 - create, 1 remove, 2 info update, 3 player add, 4 player remove.
      */
     private byte mode;
-    private Either<String, BaseComponent> displayName;
-    private Either<String, BaseComponent> prefix;
-    private Either<String, BaseComponent> suffix;
+    private Either<String, ChatDeserializable> displayName;
+    private Either<String, ChatDeserializable> prefix;
+    private Either<String, ChatDeserializable> suffix;
     private NameTagVisibility nameTagVisibility;
     private CollisionRule collisionRule;
     private int color;
