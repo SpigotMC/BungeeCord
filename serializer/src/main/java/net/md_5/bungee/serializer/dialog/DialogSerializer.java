@@ -121,6 +121,7 @@ public class DialogSerializer implements JsonDeserializer<Dialog>, JsonSerialize
 
             JsonObject base = (JsonObject) context.serialize( src.getBase() );
             object.asMap().putAll( base.asMap() );
+            object.remove( "base" );
 
             return object;
         } finally
