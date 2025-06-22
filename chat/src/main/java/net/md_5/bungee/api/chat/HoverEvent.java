@@ -13,7 +13,6 @@ import net.md_5.bungee.api.chat.hover.content.Content;
 import net.md_5.bungee.api.chat.hover.content.Entity;
 import net.md_5.bungee.api.chat.hover.content.Item;
 import net.md_5.bungee.api.chat.hover.content.Text;
-import net.md_5.bungee.chat.ComponentSerializer;
 import org.jetbrains.annotations.ApiStatus;
 
 @Getter
@@ -37,30 +36,6 @@ public final class HoverEvent
     @Setter
     @ApiStatus.Internal
     private boolean legacy = false;
-
-    /**
-     * Returns whether this hover event is used for version above 1.21.4
-     */
-    @ApiStatus.Internal
-    private boolean v1_21_5 = false;
-
-    /**
-     * Set the compatibility to 1.21.5, also modifies the underlying entities.
-     *
-     * @param v1_21_5 the compatibility to set
-     */
-    @ApiStatus.Internal
-    public void setV1_21_5(boolean v1_21_5)
-    {
-        this.v1_21_5 = v1_21_5;
-        for ( Content content : contents )
-        {
-            if ( content instanceof Entity )
-            {
-                ( (Entity) content ).setV1_21_5( v1_21_5 );
-            }
-        }
-    }
 
     /**
      * Creates event with an action and a list of contents.
@@ -95,22 +70,6 @@ public final class HoverEvent
         this.action = action;
         this.contents = new ArrayList<>( Collections.singletonList( new Text( value ) ) );
         this.legacy = true;
-    }
-
-    @Deprecated
-    public BaseComponent[] getValue()
-    {
-        Content content = contents.get( 0 );
-        if ( content instanceof Text && ( (Text) content ).getValue() instanceof BaseComponent[] )
-        {
-            return (BaseComponent[]) ( (Text) content ).getValue();
-        }
-
-        TextComponent component = new TextComponent( ComponentSerializer.toString( content ) );
-        return new BaseComponent[]
-        {
-            component
-        };
     }
 
     /**

@@ -280,14 +280,14 @@ public final class TextComponent extends BaseComponent
     }
 
     @Override
-    protected void toPlainText(StringBuilder builder)
+    protected void toPlainText(StringVisitor builder)
     {
         builder.append( text );
         super.toPlainText( builder );
     }
 
     @Override
-    protected void toLegacyText(StringBuilder builder)
+    protected void toLegacyText(StringVisitor builder)
     {
         addFormat( builder );
         builder.append( text );

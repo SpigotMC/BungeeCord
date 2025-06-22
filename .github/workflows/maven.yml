@@ -4,12 +4,12 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     strategy:
       fail-fast: false
       matrix:
-        java: [8, 11, 17, 21]
+        java: [8, 11, 17, 21, 25-ea]
 
     name: Java ${{ matrix.java }}
 

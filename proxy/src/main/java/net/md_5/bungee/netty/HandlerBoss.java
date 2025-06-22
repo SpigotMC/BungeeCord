@@ -7,6 +7,7 @@ import io.netty.handler.codec.CorruptedFrameException;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.haproxy.HAProxyMessage;
 import io.netty.handler.timeout.ReadTimeoutException;
+import io.netty.handler.timeout.WriteTimeoutException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.logging.Level;
@@ -176,6 +177,9 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
                 if ( cause instanceof ReadTimeoutException )
                 {
                     ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - read timed out", handler );
+                } else if ( cause instanceof WriteTimeoutException )
+                {
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - write timed out", handler );
                 } else if ( cause instanceof DecoderException )
                 {
                     if ( cause instanceof CorruptedFrameException )

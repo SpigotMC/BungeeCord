@@ -35,6 +35,7 @@ import org.eclipse.aether.transport.http.HttpTransporterFactory;
 class LibraryLoader
 {
 
+    private static final String REPOSITORY_PROPERTY = "net.md_5.bungee.api.plugin.centralURL";
     private final Logger logger;
     private final RepositorySystem repository;
     private final DefaultRepositorySystemSession session;
@@ -68,7 +69,7 @@ class LibraryLoader
         session.setSystemProperties( System.getProperties() );
         session.setReadOnly();
 
-        this.repositories = repository.newResolutionRepositories( session, Arrays.asList( new RemoteRepository.Builder( "central", "default", "https://repo.maven.apache.org/maven2" ).build() ) );
+        this.repositories = repository.newResolutionRepositories( session, Arrays.asList( new RemoteRepository.Builder( "central", "default", System.getProperty( REPOSITORY_PROPERTY, "https://repo.maven.apache.org/maven2" ) ).build() ) );
     }
 
     public ClassLoader createLoader(PluginDescription desc)

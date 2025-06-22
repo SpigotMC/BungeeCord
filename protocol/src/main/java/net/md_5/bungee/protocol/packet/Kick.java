@@ -6,8 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
+import net.md_5.bungee.protocol.ChatSerializer;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
@@ -26,7 +26,7 @@ public class Kick extends DefinedPacket
     {
         if ( protocol == Protocol.LOGIN )
         {
-            message = ComponentSerializer.deserialize( readString( buf ) );
+            message = ChatSerializer.forVersion( protocolVersion ).deserialize( readString( buf ) );
         } else
         {
             message = readBaseComponent( buf, protocolVersion );
@@ -38,7 +38,7 @@ public class Kick extends DefinedPacket
     {
         if ( protocol == Protocol.LOGIN )
         {
-            writeString( ComponentSerializer.toString( message ), buf );
+            writeString( ChatSerializer.forVersion( protocolVersion ).toString( message ), buf );
         } else
         {
             writeBaseComponent( message, buf, protocolVersion );

@@ -21,11 +21,11 @@ import java.util.function.BiConsumer;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentStyle;
-import net.md_5.bungee.chat.ComponentSerializer;
-import se.llbit.nbt.ErrorTag;
-import se.llbit.nbt.NamedTag;
-import se.llbit.nbt.SpecificTag;
-import se.llbit.nbt.Tag;
+import net.md_5.bungee.nbt.NamedTag;
+import net.md_5.bungee.nbt.Tag;
+import net.md_5.bungee.nbt.TypedTag;
+import net.md_5.bungee.nbt.limit.NBTLimiter;
+import net.md_5.bungee.nbt.type.EndTag;
 
 @RequiredArgsConstructor
 public abstract class DefinedPacket
@@ -117,24 +117,24 @@ public abstract class DefinedPacket
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
         {
-            SpecificTag nbt = (SpecificTag) readTag( buf, protocolVersion );
+            TypedTag nbt = (TypedTag) readTag( buf, protocolVersion );
             JsonElement json = TagUtil.toJson( nbt );
 
-            return ComponentSerializer.deserialize( json );
+            return ChatSerializer.forVersion( protocolVersion ).deserialize( json );
         } else
         {
             String string = readString( buf, maxStringLength );
 
-            return ComponentSerializer.deserialize( string );
+            return ChatSerializer.forVersion( protocolVersion ).deserialize( string );
         }
     }
 
     public static ComponentStyle readComponentStyle(ByteBuf buf, int protocolVersion)
     {
-        SpecificTag nbt = (SpecificTag) readTag( buf, protocolVersion );
+        TypedTag nbt = (TypedTag) readTag( buf, protocolVersion );
         JsonElement json = TagUtil.toJson( nbt );
 
-        return ComponentSerializer.deserializeStyle( json );
+        return ChatSerializer.forVersion( protocolVersion ).deserializeStyle( json );
     }
 
     public static void writeEitherBaseComponent(Either<String, BaseComponent> message, ByteBuf buf, int protocolVersion)
@@ -152,13 +152,12 @@ public abstract class DefinedPacket
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
         {
-            JsonElement json = ComponentSerializer.toJson( message );
-            SpecificTag nbt = TagUtil.fromJson( json );
-
+            JsonElement json = ChatSerializer.forVersion( protocolVersion ).toJson( message );
+            TypedTag nbt = TagUtil.fromJson( json );
             writeTag( nbt, buf, protocolVersion );
         } else
         {
-            String string = ComponentSerializer.toString( message );
+            String string = ChatSerializer.forVersion( protocolVersion ).toString( message );
 
             writeString( string, buf );
         }
@@ -166,9 +165,8 @@ public abstract class DefinedPacket
 
     public static void writeComponentStyle(ComponentStyle style, ByteBuf buf, int protocolVersion)
     {
-        JsonElement json = ComponentSerializer.toJson( style );
-        SpecificTag nbt = TagUtil.fromJson( json );
-
+        JsonElement json = ChatSerializer.forVersion( protocolVersion ).toJson( style );
+        TypedTag nbt = TagUtil.fromJson( json );
         writeTag( nbt, buf, protocolVersion );
     }
 
@@ -456,30 +454,32 @@ public abstract class DefinedPacket
 
     public static Tag readTag(ByteBuf input, int protocolVersion)
     {
+        return readTag( input, protocolVersion, new NBTLimiter( 1 << 21 ) );
+    }
+
+    public static Tag readTag(ByteBuf input, int protocolVersion, NBTLimiter limiter)
+    {
         DataInputStream in = new DataInputStream( new ByteBufInputStream( input ) );
-        Tag tag;
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_2 )
+        try
         {
-            try
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_2 )
             {
                 byte type = in.readByte();
                 if ( type == 0 )
                 {
-                    return Tag.END;
+                    return EndTag.INSTANCE;
                 } else
                 {
-                    tag = SpecificTag.read( type, in );
+                    return Tag.readById( type, in, limiter );
                 }
-            } catch ( IOException ex )
-            {
-                tag = new ErrorTag( "IOException while reading tag type:\n" + ex.getMessage() );
             }
-        } else
+            NamedTag namedTag = new NamedTag();
+            namedTag.read( in, limiter );
+            return namedTag;
+        } catch ( IOException ex )
         {
-            tag = NamedTag.read( in );
+            throw new RuntimeException( "Exception reading tag", ex );
         }
-        Preconditions.checkArgument( !tag.isError(), "Error reading tag: %s", tag.error() );
-        return tag;
     }
 
     public static void writeTag(Tag tag, ByteBuf output, int protocolVersion)
@@ -487,11 +487,11 @@ public abstract class DefinedPacket
         DataOutputStream out = new DataOutputStream( new ByteBufOutputStream( output ) );
         try
         {
-            if ( tag instanceof SpecificTag )
+            if ( tag instanceof TypedTag )
             {
-                SpecificTag specificTag = (SpecificTag) tag;
-                specificTag.writeType( out );
-                specificTag.write( out );
+                TypedTag typedTag = (TypedTag) tag;
+                out.writeByte( typedTag.getId() );
+                typedTag.write( out );
             } else
             {
                 tag.write( out );

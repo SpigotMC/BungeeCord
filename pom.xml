@@ -5,7 +5,7 @@
 
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-parent</artifactId>
-    <version>1.21-R0.1-SNAPSHOT</version>
+    <version>1.21-R0.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>BungeeCord-Parent</name>
@@ -35,14 +35,17 @@
         <module>bootstrap</module>
         <module>chat</module>
         <module>config</module>
+        <module>dialog</module>
         <module>event</module>
         <module>log</module>
         <module>module</module>
         <module>protocol</module>
         <module>proxy</module>
         <module>query</module>
+        <module>serializer</module>
         <module>slf4j</module>
         <module>native</module>
+        <module>nbt</module>
     </modules>
 
     <scm>
@@ -72,7 +75,7 @@
 
     <properties>
         <build.number>unknown</build.number>
-        <lombok.version>1.18.36</lombok.version>
+        <lombok.version>1.18.38</lombok.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -83,7 +86,7 @@
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-bom</artifactId>
-                <version>4.1.115.Final</version>
+                <version>4.2.1.Final</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -99,14 +102,8 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>33.3.1-jre</version>
+            <version>33.4.8-jre</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>findbugs-annotations</artifactId>
-            <version>3.0.1</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>
@@ -182,7 +179,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <version>1.23</version>
+                <version>1.24</version>
                 <executions>
                     <execution>
                         <phase>process-classes</phase>
@@ -283,7 +280,7 @@
             <properties>
                 <maven.compiler.proc>full</maven.compiler.proc>
             </properties>
-        </profile>        
+        </profile>
         <profile>
             <id>dist</id>
             <build>

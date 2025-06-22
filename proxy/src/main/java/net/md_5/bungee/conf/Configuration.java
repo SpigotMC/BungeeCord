@@ -1,7 +1,6 @@
 package net.md_5.bungee.conf;
 
 import com.google.common.base.Preconditions;
-import gnu.trove.map.TMap;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -42,7 +41,7 @@ public class Configuration implements ProxyConfig
     /**
      * Set of all servers.
      */
-    private TMap<String, ServerInfo> servers;
+    private Map<String, ServerInfo> servers;
     /**
      * Should we check minecraft.net auth.
      */

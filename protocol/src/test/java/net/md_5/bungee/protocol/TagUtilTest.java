@@ -5,17 +5,18 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import net.md_5.bungee.nbt.Tag;
+import net.md_5.bungee.nbt.TypedTag;
+import net.md_5.bungee.nbt.type.ByteArrayTag;
+import net.md_5.bungee.nbt.type.CompoundTag;
+import net.md_5.bungee.nbt.type.IntArrayTag;
+import net.md_5.bungee.nbt.type.IntTag;
+import net.md_5.bungee.nbt.type.ListTag;
+import net.md_5.bungee.nbt.type.LongArrayTag;
+import net.md_5.bungee.nbt.type.StringTag;
 import org.junit.jupiter.api.Test;
-import se.llbit.nbt.ByteArrayTag;
-import se.llbit.nbt.CompoundTag;
-import se.llbit.nbt.IntArrayTag;
-import se.llbit.nbt.IntTag;
-import se.llbit.nbt.ListTag;
-import se.llbit.nbt.LongArrayTag;
-import se.llbit.nbt.SpecificTag;
-import se.llbit.nbt.StringTag;
-import se.llbit.nbt.Tag;
 
 public class TagUtilTest
 {
@@ -25,7 +26,7 @@ public class TagUtilTest
     private static void testDissembleReassemble(String json)
     {
         JsonElement parsedJson = GSON.fromJson( json, JsonElement.class );
-        SpecificTag nbt = TagUtil.fromJson( parsedJson );
+        TypedTag nbt = TagUtil.fromJson( parsedJson );
         JsonElement convertedElement = TagUtil.toJson( nbt );
 
         String convertedJson = GSON.toJson( convertedElement );
@@ -35,18 +36,19 @@ public class TagUtilTest
     @Test
     public void testStringLiteral()
     {
+        // this test only passes if the CompoundTags are backed by a LinkedHashMap
         testDissembleReassemble( "{\"text\":\"\",\"extra\":[\"hello\",{\"text\":\"there\",\"color\":\"#ff0000\"},{\"text\":\"friend\",\"font\":\"minecraft:default\"}]}" );
     }
 
     public void testCreateMixedList(JsonArray array)
     {
-        SpecificTag tag = TagUtil.fromJson( array );
+        TypedTag tag = TagUtil.fromJson( array );
         assertInstanceOf( ListTag.class, tag );
         ListTag list = (ListTag) tag;
-        assertEquals( SpecificTag.TAG_COMPOUND, list.getType() );
-        assertEquals( array.size(), list.size() );
+        assertEquals( Tag.COMPOUND, list.getListType() );
+        assertEquals( array.size(), list.getValue().size() );
 
-        for ( int i = 0; i < list.size(); i++ )
+        for ( int i = 0; i < list.getValue().size(); i++ )
         {
             assertTrue( i < array.size() );
 
@@ -77,7 +79,7 @@ public class TagUtilTest
                             assertInstanceOf( IntTag.class, value );
 
                             IntTag integer = (IntTag) value;
-                            assertEquals( array.get( i ).getAsInt(), integer.getData() );
+                            assertEquals( array.get( i ).getAsInt(), integer.getValue() );
                         }
 
                     } else if ( primitive.isString() )
@@ -85,7 +87,7 @@ public class TagUtilTest
                         assertInstanceOf( StringTag.class, value );
 
                         StringTag string = (StringTag) value;
-                        assertEquals( array.get( i ).getAsString(), string.getData() );
+                        assertEquals( array.get( i ).getAsString(), string.getValue() );
                     }
                 }
             }
@@ -129,11 +131,11 @@ public class TagUtilTest
     public void testCreateEmptyList()
     {
         JsonArray array = new JsonArray();
-        SpecificTag tag = TagUtil.fromJson( array );
+        TypedTag tag = TagUtil.fromJson( array );
         assertInstanceOf( ListTag.class, tag );
         ListTag list = (ListTag) tag;
         assertEquals( 0, list.size() );
-        assertEquals( Tag.TAG_END, list.getType() );
+        assertEquals( Tag.END, list.getListType() );
     }
 
     @Test
@@ -143,16 +145,16 @@ public class TagUtilTest
         array.add( ( (byte) 1 ) );
         array.add( ( (byte) 2 ) );
 
-        SpecificTag tag = TagUtil.fromJson( array );
+        TypedTag tag = TagUtil.fromJson( array );
         assertInstanceOf( ByteArrayTag.class, tag );
         ByteArrayTag byteArray = (ByteArrayTag) tag;
-        assertEquals( 2, byteArray.getData().length );
+        assertEquals( 2, byteArray.getValue().length );
 
-        for ( int i = 0; i < byteArray.getData().length; i++ )
+        for ( int i = 0; i < byteArray.getValue().length; i++ )
         {
             assertTrue( i < array.size() );
 
-            byte item = byteArray.getData()[i];
+            byte item = byteArray.getValue()[i];
             assertEquals( array.get( i ).getAsByte(), item );
         }
     }
@@ -164,16 +166,16 @@ public class TagUtilTest
         array.add( 1 );
         array.add( 2 );
 
-        SpecificTag tag = TagUtil.fromJson( array );
+        TypedTag tag = TagUtil.fromJson( array );
         assertInstanceOf( IntArrayTag.class, tag );
         IntArrayTag intArray = (IntArrayTag) tag;
-        assertEquals( 2, intArray.getData().length );
+        assertEquals( 2, intArray.getValue().length );
 
-        for ( int i = 0; i < intArray.getData().length; i++ )
+        for ( int i = 0; i < intArray.getValue().length; i++ )
         {
             assertTrue( i < array.size() );
 
-            int item = intArray.getData()[i];
+            int item = intArray.getValue()[i];
             assertEquals( array.get( i ).getAsInt(), item );
         }
     }
@@ -185,16 +187,16 @@ public class TagUtilTest
         array.add( 1L );
         array.add( 2L );
 
-        SpecificTag tag = TagUtil.fromJson( array );
+        TypedTag tag = TagUtil.fromJson( array );
         assertInstanceOf( LongArrayTag.class, tag );
         LongArrayTag intArray = (LongArrayTag) tag;
-        assertEquals( 2, intArray.getData().length );
+        assertEquals( 2, intArray.getValue().length );
 
-        for ( int i = 0; i < intArray.getData().length; i++ )
+        for ( int i = 0; i < intArray.getValue().length; i++ )
         {
             assertTrue( i < array.size() );
 
-            long item = intArray.getData()[i];
+            long item = intArray.getValue()[i];
             assertEquals( array.get( i ).getAsLong(), item );
         }
     }
@@ -206,10 +208,10 @@ public class TagUtilTest
         array.add( "a" );
         array.add( "b" );
 
-        SpecificTag tag = TagUtil.fromJson( array );
+        TypedTag tag = TagUtil.fromJson( array );
         assertInstanceOf( ListTag.class, tag );
         ListTag list = (ListTag) tag;
-        assertEquals( SpecificTag.TAG_STRING, list.getType() );
+        assertEquals( Tag.STRING, list.getListType() );
         assertEquals( 2, list.size() );
 
         for ( int i = 0; i < list.size(); i++ )
@@ -220,7 +222,19 @@ public class TagUtilTest
             assertInstanceOf( StringTag.class, item );
 
             StringTag string = (StringTag) item;
-            assertEquals( array.get( i ).getAsString(), string.getData() );
+            assertEquals( array.get( i ).getAsString(), string.getValue() );
         }
+    }
+
+    @Test
+    public void testRecursive()
+    {
+        JsonElement jsonElement = JsonParser.parseString( "{\"extra\":[{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"}],\"text\":\"\"},{\"extra\":[{\"extra\":[{\"color\":\"#FF0000\",\"text\":\"f\"},{\"color\":\"#00FFFF\",\"text\":\"<\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}],\"text\":\"\"}\n" );
+
+        long start = System.currentTimeMillis();
+        TagUtil.fromJson( jsonElement );
+        long end = System.currentTimeMillis();
+
+        System.out.println( "Time passed: " + ( end - start ) + "ms" );
     }
 }

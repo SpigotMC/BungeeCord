@@ -29,7 +29,6 @@ public class HttpClient
     public static final int TIMEOUT = 5000;
     private static final Cache<String, InetAddress> addressCache = CacheBuilder.newBuilder().expireAfterWrite( 1, TimeUnit.MINUTES ).build();
 
-    @SuppressWarnings("UnusedAssignment")
     public static void get(String url, EventLoop eventLoop, final Callback<String> callback)
     {
         Preconditions.checkNotNull( url, "url" );
