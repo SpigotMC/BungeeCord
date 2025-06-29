@@ -48,6 +48,38 @@ public abstract class DefinedPacket
         }
     }
 
+    public <T> T readLengthPrefixed(Function<ByteBuf, T> reader, ByteBuf buf, int maxSize)
+    {
+        int size = readVarInt( buf );
+
+        if ( size > maxSize )
+        {
+            throw new OverflowPacketException( "Cannot read length prefixed with limit " + maxSize + " (got size of " + size + ")" );
+        }
+
+        return reader.apply( buf.readSlice( size ) );
+    }
+
+    public <T> void writeLengthPrefixed(T value, BiConsumer<T, ByteBuf> writer, ByteBuf buf, int maxSize)
+    {
+        ByteBuf tempBuffer = buf.alloc().buffer();
+        try
+        {
+            writer.accept( value, tempBuffer );
+
+            if ( tempBuffer.readableBytes() > maxSize )
+            {
+                throw new OverflowPacketException( "Cannot write length prefixed with limit " + maxSize + " (got size of " + tempBuffer.readableBytes() + ")" );
+            }
+
+            writeVarInt( tempBuffer.readableBytes(), buf );
+            buf.writeBytes( tempBuffer );
+        } finally
+        {
+            tempBuffer.release();
+        }
+    }
+
     public static void writeString(String s, ByteBuf buf)
     {
         writeString( s, buf, Short.MAX_VALUE );

@@ -323,6 +323,8 @@ public final class TagUtil
                 }
 
                 return jsonLongArray;
+            case Tag.END:
+                return JsonNull.INSTANCE;
             default:
                 throw new IllegalArgumentException( "Unknown NBT tag: " + tag );
         }
