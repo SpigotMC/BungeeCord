@@ -37,11 +37,6 @@ public class CustomClickAction extends DefinedPacket
     }
 
     @Override
-    public void write(ByteBuf buf)
-    {
-    }
-
-    @Override
     public void handle(AbstractPacketHandler handler) throws Exception
     {
         handler.handle( this );
