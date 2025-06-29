@@ -18,6 +18,7 @@ import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.channel.PipelineConstants;
 import net.md_5.bungee.protocol.packet.Kick;
 
 public class ChannelWrapper
@@ -177,6 +178,13 @@ public class ChannelWrapper
         ch.pipeline().addBefore( baseName, name, handler );
     }
 
+    public void addAfter(String baseName, String name, ChannelHandler handler)
+    {
+        Preconditions.checkState( ch.eventLoop().inEventLoop(), "cannot add handler outside of event loop" );
+        ch.pipeline().flush();
+        ch.pipeline().addAfter( baseName, name, handler );
+    }
+
     public Channel getHandle()
     {
         return ch;
@@ -196,14 +204,14 @@ public class ChannelWrapper
 
             if ( decompressor == null )
             {
-                addBefore( PipelineUtils.PACKET_DECODER, "decompress", decompressor = new PacketDecompressor() );
+                addAfter( PipelineConstants.FRAME_DECODER, PipelineConstants.DECOMPRESS, decompressor = new PacketDecompressor() );
             }
         } else
         {
             compressor.setCompress( false );
             if ( decompressor != null )
             {
-                ch.pipeline().remove( "decompress" );
+                ch.pipeline().remove( PipelineConstants.DECOMPRESS );
             }
         }
 
