@@ -12,11 +12,11 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.chat.VersionedComponentSerializer;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
-import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
+import net.md_5.bungee.protocol.channel.PipelineConstants;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
@@ -41,8 +41,8 @@ public class PingHandler extends PacketHandler
         this.channel = channel;
         MinecraftEncoder encoder = new MinecraftEncoder( Protocol.HANDSHAKE, false, protocol );
 
-        channel.getHandle().pipeline().addAfter( PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder( Protocol.STATUS, false, ProxyServer.getInstance().getProtocolVersion() ) );
-        channel.getHandle().pipeline().addAfter( PipelineUtils.FRAME_PREPENDER_AND_COMPRESS, PipelineUtils.PACKET_ENCODER, encoder );
+        channel.getHandle().pipeline().addAfter( PipelineConstants.FRAME_DECODER, PipelineConstants.PACKET_DECODER, new MinecraftDecoder( Protocol.STATUS, false, ProxyServer.getInstance().getProtocolVersion() ) );
+        channel.getHandle().pipeline().addAfter( PipelineConstants.FRAME_PREPENDER_AND_COMPRESS, PipelineConstants.PACKET_ENCODER, encoder );
 
         channel.write( new Handshake( protocol, target.getAddress().getHostString(), target.getAddress().getPort(), 1 ) );
 
