@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 import net.md_5.bungee.nbt.Tag;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.Location;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.data.Location;
 
 @Data
 @NoArgsConstructor
