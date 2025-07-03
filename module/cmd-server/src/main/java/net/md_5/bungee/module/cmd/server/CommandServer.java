@@ -82,9 +82,8 @@ public class CommandServer extends Command implements TabExecutor
     {
         final String serverFilter = ( args.length == 0 ) ? "" : args[0].toLowerCase( Locale.ROOT );
         return ProxyServer.getInstance().getServers().values().stream()
-                .filter( serverInfo -> serverInfo.canAccess( sender ) )
+                .filter( serverInfo -> serverInfo.getName().toLowerCase( Locale.ROOT ).startsWith( serverFilter ) && serverInfo.canAccess( sender ) )
                 .map( ServerInfo::getName )
-                .filter( serverName -> serverName.toLowerCase( Locale.ROOT ).startsWith( serverFilter ) )
                 .collect( Collectors.toList() );
     }
 }
