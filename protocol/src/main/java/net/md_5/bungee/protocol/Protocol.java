@@ -134,6 +134,7 @@ public enum Protocol
             TO_CLIENT.registerPacket(
                     Chat.class,
                     Chat::new,
+                    RegisterType.ENCODE,
                     map( ProtocolConstants.MINECRAFT_1_8, 0x02 ),
                     map( ProtocolConstants.MINECRAFT_1_9, 0x0F ),
                     map( ProtocolConstants.MINECRAFT_1_13, 0x0E ),
