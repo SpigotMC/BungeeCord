@@ -191,6 +191,8 @@ public final class TextComponent extends BaseComponent
                 component = new TextComponent( old );
                 String urlString = message.substring( i, pos );
                 component.setText( urlString );
+
+                urlString = urlString.replaceAll( "\\p{Cntrl}", "" );
                 component.setClickEvent( new ClickEvent( ClickEvent.Action.OPEN_URL,
                         urlString.startsWith( "http" ) ? urlString : "http://" + urlString ) );
                 appender.accept( component );
