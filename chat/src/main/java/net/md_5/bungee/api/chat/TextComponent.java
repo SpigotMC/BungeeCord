@@ -170,7 +170,7 @@ public final class TextComponent extends BaseComponent
                 }
                 continue;
             }
-            int pos = message.indexOf( ' ', i );
+            int pos = indexOfSpecial( message, i );
             if ( pos == -1 )
             {
                 pos = message.length();
@@ -191,8 +191,6 @@ public final class TextComponent extends BaseComponent
                 component = new TextComponent( old );
                 String urlString = message.substring( i, pos );
                 component.setText( urlString );
-
-                urlString = urlString.replaceAll( "\\p{Cntrl}", "" );
                 component.setClickEvent( new ClickEvent( ClickEvent.Action.OPEN_URL,
                         urlString.startsWith( "http" ) ? urlString : "http://" + urlString ) );
                 appender.accept( component );
@@ -205,6 +203,20 @@ public final class TextComponent extends BaseComponent
 
         component.setText( builder.toString() );
         appender.accept( component );
+    }
+
+    private static int indexOfSpecial(String message, int pos)
+    {
+        for ( int i = pos; i < message.length(); i++ )
+        {
+            char c = message.charAt( i );
+
+            if ( c == ' ' || Character.isISOControl( c ) )
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
