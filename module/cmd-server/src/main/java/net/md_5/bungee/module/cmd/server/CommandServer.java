@@ -2,7 +2,6 @@ package net.md_5.bungee.module.cmd.server;
 
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -81,9 +80,9 @@ public class CommandServer extends Command implements TabExecutor
     public Iterable<String> onTabComplete(final CommandSender sender, final String[] args)
     {
         final String serverFilter = ( args.length == 0 ) ? "" : args[0].toLowerCase( Locale.ROOT );
-        return ProxyServer.getInstance().getServers().values().stream()
+        return () -> ProxyServer.getInstance().getServers().values().stream()
                 .filter( serverInfo -> serverInfo.getName().toLowerCase( Locale.ROOT ).startsWith( serverFilter ) && serverInfo.canAccess( sender ) )
                 .map( ServerInfo::getName )
-                .collect( Collectors.toList() );
+                .iterator();
     }
 }
