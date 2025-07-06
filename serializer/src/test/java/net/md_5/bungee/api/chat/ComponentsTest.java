@@ -193,6 +193,21 @@ public class ComponentsTest
     }
 
     @Test
+    public void testToLegacyFromLegacyNew()
+    {
+        String text = "" + GREEN + BOLD + "Hello " + WHITE + MAGIC + "world" + GRAY + "!";
+        assertEquals( text, BaseComponent.toLegacyText( TextComponent.fromLegacy( text ) ) );
+    }
+
+    @Test
+    public void testNoColorComponent()
+    {
+        String json = "{\"text\":\"Hello World\"}";
+        BaseComponent[] components = ComponentSerializer.parse( json );
+        assertEquals( "Hello World", BaseComponent.toLegacyText( components ) );
+    }
+
+    @Test
     public void testComponentBuilderCursorInvalidPos()
     {
         ComponentBuilder builder = new ComponentBuilder();
@@ -473,8 +488,7 @@ public class ComponentsTest
                 ComponentBuilder::build,
                 (component, index) -> component.getExtra().get( index ),
                 (component) -> BaseComponent.toPlainText( component ),
-                // An extra format code is appended to the beginning because there is an empty TextComponent at the start of every component
-                WHITE.toString() + YELLOW + "Hello " + GREEN + "world!",
+                YELLOW + "Hello " + GREEN + "world!",
                 (component) -> BaseComponent.toLegacyText( component )
         );
     }
@@ -512,8 +526,7 @@ public class ComponentsTest
         testBuilderAppendLegacy(
                 ComponentBuilder::build,
                 (component) -> BaseComponent.toPlainText( component ),
-                // An extra format code is appended to the beginning because there is an empty TextComponent at the start of every component
-                WHITE.toString() + YELLOW + "Hello " + GREEN + "world!",
+                YELLOW + "Hello " + GREEN + "world!",
                 (component) -> BaseComponent.toLegacyText( component )
         );
     }
@@ -550,9 +563,7 @@ public class ComponentsTest
         BaseComponent[] test2 = TextComponent.fromLegacyText( "Text http://spigotmc.org " + GREEN + "google.com/test" );
 
         assertEquals( "Text http://spigotmc.org google.com/test", BaseComponent.toPlainText( test2 ) );
-        //The extra ChatColor instances are sometimes inserted when not needed but it doesn't change the result
-        assertEquals( WHITE + "Text " + WHITE + "http://spigotmc.org" + WHITE
-                + " " + GREEN + "google.com/test" + GREEN, BaseComponent.toLegacyText( test2 ) );
+        assertEquals( "Text http://spigotmc.org " + GREEN + "google.com/test" + GREEN, BaseComponent.toLegacyText( test2 ) );
 
         ClickEvent url1 = test2[1].getClickEvent();
         assertNotNull( url1 );
@@ -592,7 +603,7 @@ public class ComponentsTest
                 ComponentBuilder::build,
                 (component) -> BaseComponent.toPlainText( component ),
                 // An extra format code is appended to the beginning because there is an empty TextComponent at the start of every component
-                WHITE.toString() + RED + "Hello " + BLUE + BOLD + "World" + YELLOW + BOLD + "!",
+                RED + "Hello " + BLUE + BOLD + "World" + YELLOW + BOLD + "!",
                 (component) -> BaseComponent.toLegacyText( component )
         );
     }
@@ -884,5 +895,49 @@ public class ComponentsTest
     {
         assertEquals( "Outfluencer is very cool bdfg28dhzcathisisacoolcomponent",
             ComponentSerializer.deserialize( "[Outfluencer,[\" \",is,[\" very\",\" cool \",[b,dfg28dhz,[c,[a,thisisacoolcomponent]]]]]]" ).toPlainText() );
+    }
+
+    @Test
+    public void testExtraFormatting()
+    {
+        BaseComponent component = new ComponentBuilder( "Hello " ).color( GOLD ).build();
+        component.addExtra( new ComponentBuilder( "World" ).bold( true ).build() );
+        component.addExtra( new ComponentBuilder( "!" ).color( RED ).build() );
+        component.addExtra( new ComponentBuilder( " xd" ).build() );
+
+        assertEquals( "Hello World! xd", component.toPlainText() );
+        assertEquals( GOLD + "Hello " + GOLD + BOLD + "World" + RED + "!" + GOLD + " xd", component.toLegacyText() );
+    }
+
+    @Test
+    public void testExtraFormattingNested()
+    {
+        BaseComponent component = new ComponentBuilder( "Hello " ).color( GOLD ).build();
+        component.addExtra( new TextComponent( new ComponentBuilder( "World" ).bold( true ).build() ) );
+        component.addExtra( new TextComponent( new ComponentBuilder( "!" ).color( RED ).build() ) );
+        component.addExtra( new TextComponent( new ComponentBuilder( " xd" ).build() ) );
+
+        assertEquals( "Hello World! xd", component.toPlainText() );
+        // Empty extra text component 2 (holding extra "!") adds the redudant gold formatting,
+        // see TextComponent#toLegacyText comment as to why we keep it
+        assertEquals( GOLD + "Hello " + GOLD + GOLD + BOLD + "World" + GOLD + RED + "!" + GOLD + GOLD + " xd",
+                component.toLegacyText() );
+    }
+
+    @Test
+    public void testArrayToLegacyConversionContext()
+    {
+        TextComponent world = new TextComponent( "World" );
+        world.setBold( true );
+        BaseComponent[] components = new BaseComponent[]
+        {
+            new TextComponent( "Hello " ),
+            world,
+            new TextComponent( "!" )
+        };
+
+        assertEquals( "Hello World!", BaseComponent.toPlainText( components ) );
+        // fails, actual result doesn't reset or whiten the "!": "Hello §lWorld!"
+        assertEquals( "Hello " + BOLD + "World" + RESET + "!", BaseComponent.toLegacyText( components ) );
     }
 }

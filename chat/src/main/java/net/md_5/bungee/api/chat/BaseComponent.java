@@ -719,7 +719,10 @@ public abstract class BaseComponent
 
     void addFormat(StringVisitor builder)
     {
-        builder.append( getColor() );
+        if ( style.hasColor() || parent != null )
+        {
+            builder.append( getColor() );
+        }
         if ( isBold() )
         {
             builder.append( ChatColor.BOLD );
