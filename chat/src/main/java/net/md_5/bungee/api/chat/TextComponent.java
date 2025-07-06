@@ -287,11 +287,44 @@ public final class TextComponent extends BaseComponent
     }
 
     @Override
-    protected void toLegacyText(StringVisitor builder)
+    protected ComponentStyle toLegacyText(StringVisitor builder, ChatColor baseColor, ComponentStyle currentLegacy)
     {
-        addFormat( builder );
-        builder.append( text );
-        super.toLegacyText( builder );
+        // Add formatting code and text if this component has text
+        if ( text != null && !text.isEmpty() )
+        {
+            currentLegacy = addFormat( builder, baseColor, currentLegacy );
+            builder.append( text );
+            return super.toLegacyText( builder, baseColor, currentLegacy );
+        }
+        // Text is empty
+
+        // If this component or its parents have no style set, no need to check more
+        if ( !hasStyleNested() )
+        {
+            return super.toLegacyText( builder, baseColor, currentLegacy );
+        }
+        // find out if immediate next component will set color
+        // do just best-effort first-depth checking, whether color is overridden
+        // this prevents e.g. empty text componenets (which only hold extras) with extras to add redundant formatting
+        if ( getExtra() != null && !getExtra().isEmpty() )
+        {
+            for ( BaseComponent extra : getExtra() )
+            {
+                if ( extra instanceof TextComponent )
+                {
+                    // text componenets can be empty, can only skip format if not empty
+                    String eText = ( (TextComponent) extra ).getText();
+                    if ( eText == null || !eText.isEmpty() )
+                    {
+                        return super.toLegacyText( builder, baseColor, currentLegacy );
+                    }
+                }
+                // other components never skip adding format, so we can skip it here
+                return super.toLegacyText( builder, baseColor, currentLegacy );
+            }
+        }
+        currentLegacy = addFormat( builder, baseColor, currentLegacy );
+        return super.toLegacyText( builder, baseColor, currentLegacy );
     }
 
     @Override

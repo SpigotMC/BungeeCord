@@ -563,7 +563,7 @@ public class ComponentsTest
         BaseComponent[] test2 = TextComponent.fromLegacyText( "Text http://spigotmc.org " + GREEN + "google.com/test" );
 
         assertEquals( "Text http://spigotmc.org google.com/test", BaseComponent.toPlainText( test2 ) );
-        assertEquals( "Text http://spigotmc.org " + GREEN + "google.com/test" + GREEN, BaseComponent.toLegacyText( test2 ) );
+        assertEquals( "Text http://spigotmc.org " + GREEN + "google.com/test", BaseComponent.toLegacyText( test2 ) );
 
         ClickEvent url1 = test2[1].getClickEvent();
         assertNotNull( url1 );
@@ -602,7 +602,6 @@ public class ComponentsTest
         testBuilder(
                 ComponentBuilder::build,
                 (component) -> BaseComponent.toPlainText( component ),
-                // An extra format code is appended to the beginning because there is an empty TextComponent at the start of every component
                 RED + "Hello " + BLUE + BOLD + "World" + YELLOW + BOLD + "!",
                 (component) -> BaseComponent.toLegacyText( component )
         );
@@ -906,7 +905,7 @@ public class ComponentsTest
         component.addExtra( new ComponentBuilder( " xd" ).build() );
 
         assertEquals( "Hello World! xd", component.toPlainText() );
-        assertEquals( GOLD + "Hello " + GOLD + BOLD + "World" + RED + "!" + GOLD + " xd", component.toLegacyText() );
+        assertEquals( GOLD + "Hello " + BOLD + "World" + RED + "!" + GOLD + " xd", component.toLegacyText() );
     }
 
     @Test
@@ -918,9 +917,7 @@ public class ComponentsTest
         component.addExtra( new TextComponent( new ComponentBuilder( " xd" ).build() ) );
 
         assertEquals( "Hello World! xd", component.toPlainText() );
-        // Empty extra text component 2 (holding extra "!") adds the redudant gold formatting,
-        // see TextComponent#toLegacyText comment as to why we keep it
-        assertEquals( GOLD + "Hello " + GOLD + GOLD + BOLD + "World" + GOLD + RED + "!" + GOLD + GOLD + " xd",
+        assertEquals( GOLD + "Hello " + BOLD + "World" + RED + "!" + GOLD + " xd",
                 component.toLegacyText() );
     }
 
@@ -937,7 +934,6 @@ public class ComponentsTest
         };
 
         assertEquals( "Hello World!", BaseComponent.toPlainText( components ) );
-        // fails, actual result doesn't reset or whiten the "!": "Hello §lWorld!"
         assertEquals( "Hello " + BOLD + "World" + RESET + "!", BaseComponent.toLegacyText( components ) );
     }
 }
