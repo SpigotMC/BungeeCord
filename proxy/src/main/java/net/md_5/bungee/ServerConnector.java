@@ -25,6 +25,7 @@ import net.md_5.bungee.api.score.Objective;
 import net.md_5.bungee.api.score.Score;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.api.score.Team;
+import net.md_5.bungee.bossbar.BossBarHandle;
 import net.md_5.bungee.connection.CancelSendSignal;
 import net.md_5.bungee.connection.DownstreamBridge;
 import net.md_5.bungee.connection.LoginResult;
@@ -354,6 +355,8 @@ public class ServerConnector extends PacketHandler
             }
             user.setDimension( login.getDimension() );
         }
+
+        user.getBungeeBossBarHandles().forEach( BossBarHandle::onServerConnected );
     }
 
     private void cutThrough(ServerConnection server)
@@ -399,6 +402,8 @@ public class ServerConnector extends PacketHandler
         user.getPendingConnects().remove( target );
         user.setServerJoinQueue( null );
         user.setDimensionChange( false );
+        user.getBungeeBossBarHandles().forEach( BossBarHandle::onServerSwitch );
+
 
         ServerInfo from = ( user.getServer() == null ) ? null : user.getServer().getInfo();
         user.setServer( server );
