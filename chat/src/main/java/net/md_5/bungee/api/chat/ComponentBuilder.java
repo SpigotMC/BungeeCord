@@ -502,6 +502,10 @@ public final class ComponentBuilder
     public BaseComponent build()
     {
         TextComponent base = new TextComponent();
+        if ( parts.size() == 1 )
+        {
+            return parts.get( 0 );
+        }
         if ( !parts.isEmpty() )
         {
             List<BaseComponent> cloned = new ArrayList<>( parts );
