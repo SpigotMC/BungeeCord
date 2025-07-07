@@ -4,10 +4,10 @@ import io.netty.buffer.ByteBuf;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.util.ChatDeserializable;
 
 @Data
 @NoArgsConstructor
@@ -18,7 +18,7 @@ public class Title extends DefinedPacket
     private Action action;
 
     // TITLE & SUBTITLE
-    private BaseComponent text;
+    private ChatDeserializable text;
 
     // TIMES
     private int fadeIn;

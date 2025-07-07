@@ -223,6 +223,15 @@ public class VersionedComponentSerializer implements JsonDeserializer<BaseCompon
     }
 
     /**
+     * @param object the object to serialize
+     * @return the JSON string representation of the object
+     */
+    public String toString(JsonElement object)
+    {
+        return gson.toJson( object );
+    }
+
+    /**
      * @param content the content to serialize
      * @return the JSON string representation of the object
      * @deprecated for legacy internal use only

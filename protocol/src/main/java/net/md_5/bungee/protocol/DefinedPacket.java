@@ -3,6 +3,7 @@ package net.md_5.bungee.protocol;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
@@ -26,6 +27,16 @@ import net.md_5.bungee.nbt.Tag;
 import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.nbt.limit.NBTLimiter;
 import net.md_5.bungee.nbt.type.EndTag;
+import net.md_5.bungee.protocol.data.NumberFormat;
+import net.md_5.bungee.protocol.data.PlayerPublicKey;
+import net.md_5.bungee.protocol.data.Property;
+import net.md_5.bungee.protocol.util.ChatDeserializable;
+import net.md_5.bungee.protocol.util.ChatDeserializableJson;
+import net.md_5.bungee.protocol.util.ChatDeserializableTag;
+import net.md_5.bungee.protocol.util.ChatNewDeserializable;
+import net.md_5.bungee.protocol.util.ChatNewDeserializableTag;
+import net.md_5.bungee.protocol.util.Either;
+import net.md_5.bungee.protocol.util.TagUtil;
 
 @RequiredArgsConstructor
 public abstract class DefinedPacket
@@ -135,17 +146,33 @@ public abstract class DefinedPacket
         return s;
     }
 
-    public static Either<String, BaseComponent> readEitherBaseComponent(ByteBuf buf, int protocolVersion, boolean string)
+    public static Either<String, ChatDeserializable> readEitherBaseComponent(ByteBuf buf, int protocolVersion, boolean string)
     {
-        return ( string ) ? Either.left( readString( buf ) ) : Either.right( readBaseComponent( buf, protocolVersion ) );
+        return string ? Either.left( readString( buf ) ) : Either.right( readBaseComponent( buf, protocolVersion ) );
     }
 
-    public static BaseComponent readBaseComponent(ByteBuf buf, int protocolVersion)
+    public static ChatDeserializable readBaseComponent(ByteBuf buf, int protocolVersion)
     {
         return readBaseComponent( buf, Short.MAX_VALUE, protocolVersion );
     }
 
-    public static BaseComponent readBaseComponent(ByteBuf buf, int maxStringLength, int protocolVersion)
+    public static ChatDeserializable readBaseComponent(ByteBuf buf, int maxStringLength, int protocolVersion)
+    {
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
+        {
+            return new ChatDeserializableTag( protocolVersion, (TypedTag) readTag( buf, protocolVersion ) );
+        } else
+        {
+            return new ChatDeserializableJson( protocolVersion, readString( buf, maxStringLength ) );
+        }
+    }
+
+    public static BaseComponent readRawComponent(ByteBuf buf, int protocolVersion)
+    {
+        return readRawComponent( buf, Short.MAX_VALUE, protocolVersion );
+    }
+
+    public static BaseComponent readRawComponent(ByteBuf buf, int maxStringLength, int protocolVersion)
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
         {
@@ -161,6 +188,13 @@ public abstract class DefinedPacket
         }
     }
 
+    public static ChatNewDeserializable readNewBaseComponent(ByteBuf buf, int protocolVersion)
+    {
+        TypedTag nbt = (TypedTag) readTag( buf, protocolVersion );
+
+        return new ChatNewDeserializableTag( protocolVersion, nbt );
+    }
+
     public static ComponentStyle readComponentStyle(ByteBuf buf, int protocolVersion)
     {
         TypedTag nbt = (TypedTag) readTag( buf, protocolVersion );
@@ -169,7 +203,7 @@ public abstract class DefinedPacket
         return ChatSerializer.forVersion( protocolVersion ).deserializeStyle( json );
     }
 
-    public static void writeEitherBaseComponent(Either<String, BaseComponent> message, ByteBuf buf, int protocolVersion)
+    public static void writeEitherBaseComponent(Either<String, ChatDeserializable> message, ByteBuf buf, int protocolVersion)
     {
         if ( message.isLeft() )
         {
@@ -180,7 +214,52 @@ public abstract class DefinedPacket
         }
     }
 
-    public static void writeBaseComponent(BaseComponent message, ByteBuf buf, int protocolVersion)
+    public static void writeBaseComponent(ChatDeserializable message, ByteBuf buf, int protocolVersion)
+    {
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
+        {
+            if ( message.hasDeserialized() )
+            {
+                BaseComponent baseComponent = message.get();
+                JsonElement json = ChatSerializer.forVersion( protocolVersion ).toJson( baseComponent );
+                TypedTag nbt = TagUtil.fromJson( json );
+
+                writeTag( nbt, buf, protocolVersion );
+            } else
+            {
+                Either<String, TypedTag> eitherStrJsonElem = message.original();
+                if ( eitherStrJsonElem.isLeft() )
+                {
+                    writeTag( TagUtil.fromJson( JsonParser.parseString( eitherStrJsonElem.getLeft() ) ), buf, protocolVersion );
+                } else
+                {
+                    writeTag( eitherStrJsonElem.getRight(), buf, protocolVersion );
+                }
+            }
+        } else
+        {
+            if ( message.hasDeserialized() )
+            {
+                String string = ChatSerializer.forVersion( protocolVersion ).toString( message.get() );
+
+                writeString( string, buf );
+            } else
+            {
+                Either<String, TypedTag> eitherStrJsonElem = message.original();
+                if ( eitherStrJsonElem.isLeft() )
+                {
+                    writeString( eitherStrJsonElem.getLeft(), buf );
+                } else
+                {
+                    String string = ChatSerializer.forVersion( protocolVersion ).toString( TagUtil.toJson( eitherStrJsonElem.getRight() ) );
+
+                    writeString( string, buf );
+                }
+            }
+        }
+    }
+
+    public static void writeRawComponent(BaseComponent message, ByteBuf buf, int protocolVersion)
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
         {
@@ -193,6 +272,19 @@ public abstract class DefinedPacket
 
             writeString( string, buf );
         }
+    }
+
+    public static void writeNewBaseComponent(ChatNewDeserializable message, ByteBuf buf, int protocolVersion)
+    {
+        TypedTag nbt;
+        if ( message.hasDeserialized() )
+        {
+            nbt = TagUtil.fromJson( ChatSerializer.forVersion( protocolVersion ).toJson( message.get() ) );
+        } else
+        {
+            nbt = message.original();
+        }
+        writeTag( nbt, buf, protocolVersion );
     }
 
     public static void writeComponentStyle(ComponentStyle style, ByteBuf buf, int protocolVersion)
@@ -463,7 +555,7 @@ public abstract class DefinedPacket
                 writeComponentStyle( (ComponentStyle) format.getValue(), buf, protocolVersion );
                 break;
             case FIXED:
-                writeBaseComponent( (BaseComponent) format.getValue(), buf, protocolVersion );
+                writeRawComponent( (BaseComponent) format.getValue(), buf, protocolVersion );
                 break;
         }
     }
@@ -478,7 +570,7 @@ public abstract class DefinedPacket
             case 1:
                 return new NumberFormat( NumberFormat.Type.STYLED, readComponentStyle( buf, protocolVersion ) );
             case 2:
-                return new NumberFormat( NumberFormat.Type.FIXED, readBaseComponent( buf, protocolVersion ) );
+                return new NumberFormat( NumberFormat.Type.FIXED, readRawComponent( buf, protocolVersion ) );
             default:
                 throw new IllegalArgumentException( "Unknown number format " + format );
         }

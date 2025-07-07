@@ -1,4 +1,4 @@
-package net.md_5.bungee.protocol;
+package net.md_5.bungee.protocol.data;
 
 import io.netty.buffer.ByteBuf;
 import java.util.BitSet;
@@ -6,6 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import net.md_5.bungee.protocol.AbstractPacketHandler;
+import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.ProtocolConstants;
 
 @Data
 @NoArgsConstructor

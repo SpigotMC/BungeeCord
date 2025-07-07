@@ -5,11 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.Either;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.util.ChatNewDeserializable;
+import net.md_5.bungee.protocol.util.Either;
 
 @Data
 @NoArgsConstructor
@@ -27,13 +27,13 @@ public class ServerLinks extends DefinedPacket
         links = new Link[ len ];
         for ( int i = 0; i < len; i++ )
         {
-            Either<LinkType, BaseComponent> type;
+            Either<LinkType, ChatNewDeserializable> type;
             if ( buf.readBoolean() )
             {
                 type = Either.left( LinkType.values()[readVarInt( buf )] );
             } else
             {
-                type = Either.right( readBaseComponent( buf, protocolVersion ) );
+                type = Either.right( readNewBaseComponent( buf, protocolVersion ) );
             }
             String url = readString( buf );
 
@@ -47,7 +47,7 @@ public class ServerLinks extends DefinedPacket
         writeVarInt( links.length, buf );
         for ( Link link : links )
         {
-            Either<LinkType, BaseComponent> type = link.getType();
+            Either<LinkType, ChatNewDeserializable> type = link.getType();
             if ( type.isLeft() )
             {
                 buf.writeBoolean( true );
@@ -55,7 +55,7 @@ public class ServerLinks extends DefinedPacket
             } else
             {
                 buf.writeBoolean( false );
-                writeBaseComponent( type.getRight(), buf, protocolVersion );
+                writeNewBaseComponent( type.getRight(), buf, protocolVersion );
             }
             writeString( link.getUrl(), buf );
         }
@@ -86,7 +86,7 @@ public class ServerLinks extends DefinedPacket
     public static class Link
     {
 
-        private final Either<LinkType, BaseComponent> type;
+        private final Either<LinkType, ChatNewDeserializable> type;
         private final String url;
     }
 }

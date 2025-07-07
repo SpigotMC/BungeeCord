@@ -11,6 +11,7 @@ import net.md_5.bungee.protocol.packet.ClearTitles;
 import net.md_5.bungee.protocol.packet.Subtitle;
 import net.md_5.bungee.protocol.packet.Title.Action;
 import net.md_5.bungee.protocol.packet.TitleTimes;
+import net.md_5.bungee.protocol.util.ChatComponentDeserializable;
 
 public class BungeeTitle implements Title
 {
@@ -53,7 +54,7 @@ public class BungeeTitle implements Title
             title = new TitlePacketHolder<>( packet, packet );
         }
 
-        title.oldPacket.setText( text ); // = newPacket
+        title.oldPacket.setText( new ChatComponentDeserializable( text ) ); // = newPacket
         return this;
     }
 
@@ -71,8 +72,8 @@ public class BungeeTitle implements Title
             subtitle = new TitlePacketHolder<>( new net.md_5.bungee.protocol.packet.Title( Action.SUBTITLE ), new Subtitle() );
         }
 
-        subtitle.oldPacket.setText( text );
-        subtitle.newPacket.setText( text );
+        subtitle.oldPacket.setText( new ChatComponentDeserializable( text ) );
+        subtitle.newPacket.setText( new ChatComponentDeserializable( text ) );
         return this;
     }
 

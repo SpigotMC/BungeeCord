@@ -3,7 +3,7 @@ package net.md_5.bungee.connection;
 import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import net.md_5.bungee.protocol.Property;
+import net.md_5.bungee.protocol.data.Property;
 
 @Data
 @AllArgsConstructor
