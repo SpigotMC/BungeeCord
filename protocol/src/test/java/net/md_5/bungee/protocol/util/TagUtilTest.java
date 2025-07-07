@@ -1,4 +1,4 @@
-package net.md_5.bungee.protocol;
+package net.md_5.bungee.protocol.util;
 
 import static org.junit.jupiter.api.Assertions.*;
 import com.google.gson.Gson;
