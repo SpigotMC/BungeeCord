@@ -562,6 +562,13 @@ public class ComponentsTest
         assertNotNull( url2 );
         assertTrue( url2.getAction() == ClickEvent.Action.OPEN_URL );
         assertEquals( "http://google.com/test", url2.getValue() );
+
+        BaseComponent[] test3 = TextComponent.fromLegacyText( "Text\nhttp://google.com\n newline3" );
+        ClickEvent url3 = test3[1].getClickEvent();
+        assertNotNull( url3 );
+        assertTrue( url3.getAction() == ClickEvent.Action.OPEN_URL );
+        assertEquals( "http://google.com", url3.getValue() );
+        assertEquals( "\n newline3", BaseComponent.toPlainText( test3[2] ) );
     }
 
     @Test
