@@ -10,7 +10,7 @@ public class CommandBungee extends Command
 
     public CommandBungee()
     {
-        super( "bungee" );
+        super( "bungee", "bungeecord.command.bungee" );
     }
 
     @Override
