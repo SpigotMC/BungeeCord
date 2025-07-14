@@ -27,10 +27,10 @@ public class ServerLinks extends DefinedPacket
         links = new Link[ len ];
         for ( int i = 0; i < len; i++ )
         {
-            Either<LinkType, BaseComponent> type;
+            Either<Integer, BaseComponent> type;
             if ( buf.readBoolean() )
             {
-                type = Either.left( LinkType.values()[readVarInt( buf )] );
+                type = Either.left( readVarInt( buf ) );
             } else
             {
                 type = Either.right( readBaseComponent( buf, protocolVersion ) );
@@ -47,11 +47,11 @@ public class ServerLinks extends DefinedPacket
         writeVarInt( links.length, buf );
         for ( Link link : links )
         {
-            Either<LinkType, BaseComponent> type = link.getType();
+            Either<Integer, BaseComponent> type = link.getType();
             if ( type.isLeft() )
             {
                 buf.writeBoolean( true );
-                writeVarInt( type.getLeft().ordinal(), buf );
+                writeVarInt( type.getLeft(), buf );
             } else
             {
                 buf.writeBoolean( false );
@@ -67,26 +67,11 @@ public class ServerLinks extends DefinedPacket
         handler.handle( this );
     }
 
-    public enum LinkType
-    {
-
-        REPORT_BUG,
-        COMMUNITY_GUIDELINES,
-        SUPPORT,
-        STATUS,
-        FEEDBACK,
-        COMMUNITY,
-        WEBSITE,
-        FORUMS,
-        NEWS,
-        ANNOUNCEMENTS;
-    }
-
     @Data
     public static class Link
     {
 
-        private final Either<LinkType, BaseComponent> type;
+        private final Either<Integer, BaseComponent> type;
         private final String url;
     }
 }

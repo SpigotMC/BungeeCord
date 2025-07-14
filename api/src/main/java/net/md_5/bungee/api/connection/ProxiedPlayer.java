@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.connection;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -8,6 +9,7 @@ import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ServerConnectRequest;
+import net.md_5.bungee.api.ServerLink;
 import net.md_5.bungee.api.SkinConfiguration;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -410,4 +412,15 @@ public interface ProxiedPlayer extends Connection, CommandSender
      */
     @ApiStatus.Experimental
     void showDialog(Dialog dialog);
+
+    /**
+     * Sends server links to the player.
+     * Note: The links already sent to the player will be overwritten.
+     * Also, the backend server is able to override Links sent by the Proxy
+     *
+     * @param serverLinks the server links to send
+     * @throws IllegalStateException if the players version is not at least
+     * 1.21
+     */
+    void sendServerLinks(List<ServerLink> serverLinks);
 }
