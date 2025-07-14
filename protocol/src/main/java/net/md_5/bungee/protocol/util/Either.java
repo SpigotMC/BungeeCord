@@ -1,4 +1,4 @@
-package net.md_5.bungee.protocol;
+package net.md_5.bungee.protocol.util;
 
 import java.util.function.Function;
 import lombok.AccessLevel;

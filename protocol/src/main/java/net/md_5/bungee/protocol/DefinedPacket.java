@@ -26,6 +26,11 @@ import net.md_5.bungee.nbt.Tag;
 import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.nbt.limit.NBTLimiter;
 import net.md_5.bungee.nbt.type.EndTag;
+import net.md_5.bungee.protocol.data.NumberFormat;
+import net.md_5.bungee.protocol.data.PlayerPublicKey;
+import net.md_5.bungee.protocol.data.Property;
+import net.md_5.bungee.protocol.util.Either;
+import net.md_5.bungee.protocol.util.TagUtil;
 
 @RequiredArgsConstructor
 public abstract class DefinedPacket
