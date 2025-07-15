@@ -34,7 +34,7 @@ public final class ServerLink
      * @param type the type of the link
      * @param url the URL to be displayed
      */
-    public ServerLink(LinkType type, @NonNull String url)
+    public ServerLink(@NonNull LinkType type, @NonNull String url)
     {
         this.type = type;
         this.label = null;
@@ -46,7 +46,7 @@ public final class ServerLink
      * @param label the label to be displayed
      * @param url the URL to be displayed
      */
-    public ServerLink(BaseComponent label, @NonNull String url)
+    public ServerLink(@NonNull BaseComponent label, @NonNull String url)
     {
         this.type = null;
         this.label = label;
