@@ -869,13 +869,9 @@ public final class UserConnection implements ProxiedPlayer
     {
         Preconditions.checkState( getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_21, "Server links are only supported in 1.21 and above" );
 
-        ServerLinks.Link[] links = new ServerLinks.Link[serverLinks.size()];
-
-        for ( int i = 0; i < serverLinks.size(); i++ )
-        {
-            ServerLink link = serverLinks.get( i );
-            links[i] = new ServerLinks.Link( link.getType() != null ? Either.left( link.getType().ordinal() ) : Either.right( link.getLabel() ), link.getUrl() );
-        }
+        ServerLinks.Link[] links = serverLinks.stream()
+                .map( link -> new ServerLinks.Link( link.getType() != null ? Either.left( link.getType().ordinal() ) : Either.right( link.getLabel() ), link.getUrl() ) )
+                .toArray( ServerLinks.Link[]::new );
 
         unsafe.sendPacket( new ServerLinks( links ) );
     }
