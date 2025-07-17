@@ -129,8 +129,7 @@ public abstract class DefinedPacket
             throw new OverflowPacketException( "Cannot receive string longer than " + maxLen * 3 + " (got " + len + " bytes)" );
         }
 
-        String s = buf.toString( buf.readerIndex(), len, StandardCharsets.UTF_8 );
-        buf.readerIndex( buf.readerIndex() + len );
+        String s = buf.readString( len, StandardCharsets.UTF_8 );
 
         if ( s.length() > maxLen )
         {
