@@ -13,10 +13,12 @@ import net.md_5.bungee.protocol.DefinedPacket;
 /**
  * prepends length of message and optionally compresses message beforehand
  * <br>
- * combining these operations allows to keep space infront of compressed data for length varint
+ * combining these operations allows to keep space infront of compressed data
+ * for length varint
  */
 public class LengthPrependerAndCompressor extends MessageToMessageEncoder<ByteBuf>
 {
+
     // reasonable to not support length varints > 4 byte (268435455 byte > 268MB)
     // if ever changed to smaller than 4, also change varintSize method to check for that
     private static final byte MAX_SUPPORTED_VARINT_LENGTH_LEN = 4;

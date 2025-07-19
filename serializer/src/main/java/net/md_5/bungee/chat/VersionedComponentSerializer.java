@@ -265,7 +265,7 @@ public class VersionedComponentSerializer implements JsonDeserializer<BaseCompon
         if ( json.isJsonArray() )
         {
             JsonArray arr = json.getAsJsonArray();
-            BaseComponent[] components = new BaseComponent[arr.size()];
+            BaseComponent[] components = new BaseComponent[ arr.size() ];
             for ( int i = 0; i < arr.size(); i++ )
             {
                 components[i] = deserialize( arr.get( i ), BaseComponent.class, context );

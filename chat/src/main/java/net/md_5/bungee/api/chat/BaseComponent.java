@@ -313,8 +313,9 @@ public abstract class BaseComponent
     }
 
     /**
-     * Returns the shadow color of this component. This uses the parent's shadow color if this
-     * component doesn't have one. null is returned if no shadow color is found.
+     * Returns the shadow color of this component. This uses the parent's shadow
+     * color if this component doesn't have one. null is returned if no shadow
+     * color is found.
      *
      * @return the shadow color of this component
      */

@@ -474,8 +474,7 @@ public final class PluginManager
         {
             for ( Method method : listener.getClass().getDeclaredMethods() )
             {
-                Preconditions.checkArgument( !method.isAnnotationPresent( Subscribe.class ),
-                    "Listener %s has registered using deprecated subscribe annotation! Please update to @EventHandler.", listener );
+                Preconditions.checkArgument( !method.isAnnotationPresent( Subscribe.class ), "Listener %s has registered using deprecated subscribe annotation! Please update to @EventHandler.", listener );
             }
             eventBus.register( listener );
             listenersByPlugin.put( plugin, listener );

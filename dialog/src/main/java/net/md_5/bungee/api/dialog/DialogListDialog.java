@@ -38,7 +38,8 @@ public final class DialogListDialog implements Dialog
      */
     private Integer columns;
     /**
-     * The width of the dialog buttons (default: 150, minimum: 1, maximum: 1024).
+     * The width of the dialog buttons (default: 150, minimum: 1, maximum:
+     * 1024).
      */
     @SerializedName("button_width")
     private Integer buttonWidth;

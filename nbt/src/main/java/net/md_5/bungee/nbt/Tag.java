@@ -81,9 +81,8 @@ public interface Tag
     void write(DataOutput output) throws IOException;
 
     /**
-     * Reads a {@link Tag} from the given {@link DataInput},
-     * based on the specified tag type, with limitations of the
-     * {@link NBTLimiter}.
+     * Reads a {@link Tag} from the given {@link DataInput}, based on the
+     * specified tag type, with limitations of the {@link NBTLimiter}.
      *
      * @param id the nbt type
      * @param input the input to read from
@@ -104,8 +103,8 @@ public interface Tag
     }
 
     /**
-     * Reads a {@link NamedTag} from the given {@link DataInput},
-     * with limitations of the {@link NBTLimiter}.
+     * Reads a {@link NamedTag} from the given {@link DataInput}, with
+     * limitations of the {@link NBTLimiter}.
      *
      * @param input the data input to read from
      * @param limiter the limiter for this read operation
@@ -120,8 +119,8 @@ public interface Tag
     }
 
     /**
-     * Serializes the given {@link TypedTag} into a byte array.
-     * This is the inverse operation of {@link #fromByteArray(byte[])}.
+     * Serializes the given {@link TypedTag} into a byte array. This is the
+     * inverse operation of {@link #fromByteArray(byte[])}.
      *
      * @param tag the tag to convert
      * @return the serialized byte array
@@ -137,8 +136,8 @@ public interface Tag
     }
 
     /**
-     * Deserializes the given byte array into a {@link TypedTag}.
-     * This is the inverse operation of {@link #toByteArray(TypedTag)}.
+     * Deserializes the given byte array into a {@link TypedTag}. This is the
+     * inverse operation of {@link #toByteArray(TypedTag)}.
      *
      * @param data the byte array to read from
      * @return the deserialized {@link TypedTag}
@@ -150,8 +149,8 @@ public interface Tag
     }
 
     /**
-     * Deserializes the given byte array into a {@link TypedTag},
-     * with limitations of the {@link NBTLimiter}.
+     * Deserializes the given byte array into a {@link TypedTag}, with
+     * limitations of the {@link NBTLimiter}.
      *
      * @param data the byte array to read from
      * @param limiter the limiter for this read operation

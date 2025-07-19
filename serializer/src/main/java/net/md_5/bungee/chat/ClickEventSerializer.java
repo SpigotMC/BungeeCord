@@ -20,11 +20,12 @@ public class ClickEventSerializer
     public static final ClickEventSerializer NEW = new ClickEventSerializer( ClickType.NEW );
     public static final ClickEventSerializer DIALOG = new ClickEventSerializer( ClickType.DIALOG );
     //
+    private final ClickType type;
+
     public enum ClickType
     {
         OLD, NEW, DIALOG;
     }
-    private final ClickType type;
 
     public ClickEvent deserialize(JsonObject clickEvent, JsonDeserializationContext context) throws JsonParseException
     {

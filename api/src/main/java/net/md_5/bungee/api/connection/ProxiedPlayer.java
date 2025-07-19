@@ -386,6 +386,7 @@ public interface ProxiedPlayer extends Connection, CommandSender
 
     /**
      * Gets the client brand of this player.
+     *
      * If the player has not sent a brand packet yet, it will return null.
      *
      * @return the brand of the client, or null if not received yet

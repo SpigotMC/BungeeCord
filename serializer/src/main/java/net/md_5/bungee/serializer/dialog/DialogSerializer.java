@@ -29,6 +29,7 @@ import net.md_5.bungee.chat.VersionedComponentSerializer;
 @RequiredArgsConstructor
 public class DialogSerializer implements JsonDeserializer<Dialog>, JsonSerializer<Dialog>
 {
+
     private static final ThreadLocal<Set<Dialog>> serializedDialogs = new ThreadLocal<>();
     private static final BiMap<String, Class<? extends Dialog>> TYPES;
     private final VersionedComponentSerializer serializer;

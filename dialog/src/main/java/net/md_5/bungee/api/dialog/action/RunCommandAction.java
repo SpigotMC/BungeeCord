@@ -6,8 +6,8 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 
 /**
- * Executes a command. If the command requires a permission
- * higher than 0, a confirmation dialog will be shown by the client.
+ * Executes a command. If the command requires a permission higher than 0, a
+ * confirmation dialog will be shown by the client.
  */
 @Data
 @Accessors(fluent = true)
