@@ -23,7 +23,7 @@ import net.md_5.bungee.nbt.TypedTag;
 import net.md_5.bungee.protocol.util.TagUtil;
 import org.junit.jupiter.api.Test;
 
-class NbtComponentConverterTest
+class NbtToComponentConverterTest
 {
     private static TypedTag toJsonToNbt(BaseComponent component)
     {
@@ -42,14 +42,14 @@ class NbtComponentConverterTest
     {
         BaseComponent original = new TextComponent( "Hello NBT!" );
 
-        assertEquals( original, NbtComponentConverter.toComponent( toJsonToNbt( original ) ) );
+        assertEquals( original, NbtToComponentConverter.toComponent( toJsonToNbt( original ) ) );
     }
 
     @Test
     public void testColorized()
     {
         BaseComponent test = TextComponent.fromLegacy( AQUA + "Aqua " + RED + BOLD + "RedBold" );
-        BaseComponent converted = NbtComponentConverter.toComponent( toJsonToNbt( test ) );
+        BaseComponent converted = NbtToComponentConverter.toComponent( toJsonToNbt( test ) );
 
         assertEquals( test, converted );
         assertEquals( test.toPlainText(), converted.toPlainText() );
@@ -60,7 +60,7 @@ class NbtComponentConverterTest
     public void testArrayAndClickEvent()
     {
         BaseComponent[] test = TextComponent.fromLegacyText( "Text http://spigotmc.org " + GREEN + "google.com/test" );
-        BaseComponent[] converted = NbtComponentConverter.toComponentArray( toJsonToNbt( test ) );
+        BaseComponent[] converted = NbtToComponentConverter.toComponentArray( toJsonToNbt( test ) );
 
         assertArrayEquals( test, converted );
         assertEquals( BaseComponent.toPlainText( test ), BaseComponent.toPlainText( converted ) );
@@ -110,7 +110,7 @@ class NbtComponentConverterTest
                             new Item( "itemid", 4, ItemTag.ofNbt( "bla" ) ) ) )
                 .append( "n", ComponentBuilder.FormatRetention.NONE )
                 .build();
-        BaseComponent converted = NbtComponentConverter.toComponent( toJsonToNbt( test ) );
+        BaseComponent converted = NbtToComponentConverter.toComponent( toJsonToNbt( test ) );
 
         VersionedComponentSerializer serializer = VersionedComponentSerializer.forVersion( ChatVersion.V1_21_5 );
         System.out.println( serializer.toString( test ) );

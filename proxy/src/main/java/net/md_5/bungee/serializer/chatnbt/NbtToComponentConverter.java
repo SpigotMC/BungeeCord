@@ -41,7 +41,7 @@ import net.md_5.bungee.nbt.type.LongTag;
 import net.md_5.bungee.nbt.type.ShortTag;
 import net.md_5.bungee.nbt.type.StringTag;
 
-public class NbtComponentConverter
+public class NbtToComponentConverter
 {
     /**
      * Converts a NBT tag to a BaseComponent.
@@ -73,7 +73,7 @@ public class NbtComponentConverter
                 return new TextComponent( extras );
             case Tag.LIST:
                 ListTag list = (ListTag) nbt;
-                return new TextComponent( list.getValue().stream().map( NbtComponentConverter::toComponent ).toArray( BaseComponent[]::new ) );
+                return new TextComponent( list.getValue().stream().map( NbtToComponentConverter::toComponent ).toArray( BaseComponent[]::new ) );
             case Tag.COMPOUND:
                 return componentFromCompound( (CompoundTag) nbt );
             case Tag.INT_ARRAY:
@@ -131,7 +131,7 @@ public class NbtComponentConverter
                 return convertedBytes;
             case Tag.LIST:
                 ListTag list = (ListTag) nbt;
-                return list.getValue().stream().map( NbtComponentConverter::toComponent ).toArray( BaseComponent[]::new );
+                return list.getValue().stream().map( NbtToComponentConverter::toComponent ).toArray( BaseComponent[]::new );
             case Tag.INT_ARRAY:
                 int[] intArray = ( (IntArrayTag) nbt ).getValue();
                 BaseComponent[] convertedInts = new BaseComponent[ intArray.length ];
@@ -268,7 +268,7 @@ public class NbtComponentConverter
         if ( extra != null && extra.getId() == Tag.LIST )
         {
             ListTag list = (ListTag) extra;
-            component.setExtra( list.getValue().stream().map( NbtComponentConverter::toComponent ).collect( Collectors.toList() ) );
+            component.setExtra( list.getValue().stream().map( NbtToComponentConverter::toComponent ).collect( Collectors.toList() ) );
         }
         return component;
     }
@@ -312,14 +312,14 @@ public class NbtComponentConverter
                 // If it is possible to be parsed as BaseComponent, attempt to parse as so.
                 if ( value.getId() == Tag.LIST )
                 {
-                    BaseComponent[] components = NbtComponentConverter.toComponentArray( value );
+                    BaseComponent[] components = toComponentArray( value );
                     if ( components != null )
                     {
                         return new HoverEvent( action, components );
                     }
                 } else
                 {
-                    BaseComponent component = NbtComponentConverter.toComponent( value );
+                    BaseComponent component = toComponent( value );
                     if ( component != null )
                     {
                         return new HoverEvent( action, new BaseComponent[]{component} );
@@ -380,7 +380,7 @@ public class NbtComponentConverter
             if ( with != null && with.getId() == Tag.LIST )
             {
                 ListTag list = (ListTag) with;
-                component.setWith( list.getValue().stream().map( NbtComponentConverter::toComponent ).collect( Collectors.toList() ) );
+                component.setWith( list.getValue().stream().map( NbtToComponentConverter::toComponent ).collect( Collectors.toList() ) );
             }
             TypedTag fallback = map.get( "fallback" );
             if ( fallback != null && fallback.getId() == Tag.STRING )
@@ -457,7 +457,7 @@ public class NbtComponentConverter
                 return new Text( nbtToString( nbt ) );
             case Tag.LIST:
                 ListTag list = (ListTag) nbt;
-                BaseComponent[] components = list.getValue().stream().map( NbtComponentConverter::toComponent ).toArray( BaseComponent[]::new );
+                BaseComponent[] components = list.getValue().stream().map( NbtToComponentConverter::toComponent ).toArray( BaseComponent[]::new );
                 return new Text( components );
             case Tag.COMPOUND:
                 return new Text( toComponent( nbt ) );
