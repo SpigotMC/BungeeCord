@@ -781,7 +781,7 @@ public abstract class BaseComponent
     @Override
     public String toString()
     {
-        return toSting( true );
+        return toString( true );
     }
 
     // this is private, I added docs anyway
@@ -849,7 +849,7 @@ public abstract class BaseComponent
         // Skip the base if its fully empty
         if ( !isEmpty() )
         {
-            builder.append( ", " ).append( toSting( true ) );
+            builder.append( ", " ).append( toString( true ) );
         }
 
         builder.append( ')' );
@@ -857,7 +857,7 @@ public abstract class BaseComponent
         return builder.toString();
     }
 
-    public String toSting(boolean skipNulls)
+    public String toString(boolean skipNulls)
     {
         return toString( "BaseComponent", skipNulls,
             "style", hasStyle() || !skipNulls ? style : null, // I guess we should also skip, empty styles
