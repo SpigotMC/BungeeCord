@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -29,6 +30,7 @@ import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerConnectRequest;
+import net.md_5.bungee.api.ServerLink;
 import net.md_5.bungee.api.SkinConfiguration;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -59,6 +61,7 @@ import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.ServerLinks;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.ShowDialog;
 import net.md_5.bungee.protocol.packet.ShowDialogDirect;
@@ -859,5 +862,17 @@ public final class UserConnection implements ProxiedPlayer
         }
 
         unsafe.sendPacket( new ShowDialog( Either.right( dialog ) ) );
+    }
+
+    @Override
+    public void sendServerLinks(List<ServerLink> serverLinks)
+    {
+        Preconditions.checkState( getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_21, "Server links are only supported in 1.21 and above" );
+
+        ServerLinks.Link[] links = serverLinks.stream()
+                .map( link -> new ServerLinks.Link( link.getType() != null ? Either.left( link.getType().ordinal() ) : Either.right( link.getLabel() ), link.getUrl() ) )
+                .toArray( ServerLinks.Link[]::new );
+
+        unsafe.sendPacket( new ServerLinks( links ) );
     }
 }
