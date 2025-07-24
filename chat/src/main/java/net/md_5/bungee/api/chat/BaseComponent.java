@@ -773,15 +773,15 @@ public abstract class BaseComponent
         }
     }
 
-    public boolean isEmpty()
-    {
-        return !hasFormatting() && ( extra == null || extra.isEmpty() );
-    }
-
     @Override
     public String toString()
     {
         return toString( true );
+    }
+
+    private boolean isEmpty()
+    {
+        return !hasFormatting() && ( extra == null || extra.isEmpty() );
     }
 
     // this is private, I added docs anyway
@@ -857,7 +857,7 @@ public abstract class BaseComponent
         return builder.toString();
     }
 
-    public String toString(boolean skipNulls)
+    private String toString(boolean skipNulls)
     {
         return toString( "BaseComponent", skipNulls,
             "style", hasStyle() || !skipNulls ? style : null, // I guess we should also skip, empty styles
