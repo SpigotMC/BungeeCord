@@ -101,6 +101,49 @@ public class ComponentsTest
     }
 
     @Test
+    public void testNullValues()
+    {
+        JsonObject item = JsonParser.parseString( "{\"components\":{\"minecraft:enchantments\":{\"minecraft:mending\":1},\"minecraft:repair_cost\":5},\"DataVersion\":4440}" ).getAsJsonObject();
+        Item hoverItem = new Item( item );
+        assertNull( hoverItem.getId(), "id should be null before serialization" );
+        assertEquals( -1, hoverItem.getCount() );
+        assertNotNull( hoverItem.getComponents() );
+        assertNull( hoverItem.getTag() );
+        BaseComponent text = new TextComponent( "Test" );
+        text.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_ITEM, hoverItem ) );
+        // serialize
+        String serialized = ComponentSerializer.toString( text );
+        // default id is stone, should not serialize `count` if -1
+        assertEquals( "{\"hoverEvent\":{\"action\":\"show_item\",\"contents\":{\"id\":\"minecraft:stone\",\"components\":{\"minecraft:enchantments\":{\"minecraft:mending\":1},\"minecraft:repair_cost\":5}}},\"text\":\"Test\"}", serialized );
+        // round trip
+        HoverEvent hoverEvent = ComponentSerializer.deserialize( serialized ).getHoverEvent();
+        Item parsedItem = (Item) hoverEvent.getContents().get( 0 );
+        assertEquals( "minecraft:stone", parsedItem.getId(), "id should be stone after round trip" );
+        assertEquals( -1, parsedItem.getCount() );
+        assertEquals( 1, parsedItem.getComponents().getAsJsonObject().get( "minecraft:enchantments" ).getAsJsonObject().get( "minecraft:mending" ).getAsInt() );
+        assertEquals( 5, parsedItem.getComponents().getAsJsonObject().get( "minecraft:repair_cost" ).getAsInt() );
+    }
+
+    @Test
+    public void testNullTag()
+    {
+        ItemTag itemTag = ItemTag.ofNbt( "{\"minecraft:enchantments\":{\"minecraft:mending\":1},\"minecraft:repair_cost\":5}" );
+        Item hoveritem = new Item( null, -1, itemTag );
+        BaseComponent text = new TextComponent( "Test" );
+        text.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_ITEM, hoveritem ) );
+        String serialized = ComponentSerializer.toString( text );
+        // default id is air for legacy Tag data system
+        assertEquals( "{\"hoverEvent\":{\"action\":\"show_item\",\"contents\":{\"id\":\"minecraft:air\",\"tag\":\"{\\\"minecraft:enchantments\\\":{\\\"minecraft:mending\\\":1},\\\"minecraft:repair_cost\\\":5}\"}},\"text\":\"Test\"}", serialized );
+        // round trip
+        HoverEvent hoverEvent = ComponentSerializer.deserialize( serialized ).getHoverEvent();
+        Item parsedItem = (Item) hoverEvent.getContents().get( 0 );
+        assertEquals( "minecraft:air", parsedItem.getId(), "id should be air after round trip" );
+        assertEquals( -1, parsedItem.getCount() );
+        assertNotNull( parsedItem.getTag() );
+        assertEquals( "{\"minecraft:enchantments\":{\"minecraft:mending\":1},\"minecraft:repair_cost\":5}", parsedItem.getTag().getNbt() );
+    }
+
+    @Test
     public void testItemComponents()
     {
         JsonObject item = JsonParser.parseString( "{\"id\":\"minecraft:elytra\",\"count\":1,\"components\":{\"minecraft:enchantments\":{\"minecraft:mending\":1},\"minecraft:repair_cost\":5},\"DataVersion\":4440}" ).getAsJsonObject();
