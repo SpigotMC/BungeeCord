@@ -2,6 +2,8 @@ package net.md_5.bungee.api.chat;
 
 import static net.md_5.bungee.api.ChatColor.*;
 import static org.junit.jupiter.api.Assertions.*;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.awt.Color;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -9,6 +11,7 @@ import java.util.function.Function;
 import java.util.function.ObjIntConsumer;
 import java.util.function.Supplier;
 import net.md_5.bungee.api.chat.hover.content.Entity;
+import net.md_5.bungee.api.chat.hover.content.Item;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.junit.jupiter.api.Test;
@@ -95,6 +98,69 @@ public class ComponentsTest
         BaseComponent[] uuidComponent = ComponentSerializer.parse( "{\"translate\":\"multiplayer.player.joined\",\"with\":[{\"text\":\"Rexcantor64\",\"hoverEvent\":{\"contents\":{\"type\":\"minecraft:player\",\"id\":[1328556382,-2138814985,-1895806765,-1039963041],\"name\":\"Rexcantor64\"},\"action\":\"show_entity\"},\"insertion\":\"Rexcantor64\",\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"/tell Rexcantor64 \"}}],\"color\":\"yellow\"}" );
         assertEquals( "4f30295e-8084-45f7-8f00-48d3c2036c5f", ( (Entity) ( (TranslatableComponent) uuidComponent[0] ).getWith().get( 0 ).getHoverEvent().getContents().get( 0 ) ).getId() );
         testDissembleReassemble( uuidComponent );
+    }
+
+    @Test
+    public void testItemComponents()
+    {
+        JsonObject item = JsonParser.parseString( "{\"id\":\"minecraft:elytra\",\"count\":1,\"components\":{\"minecraft:enchantments\":{\"minecraft:mending\":1},\"minecraft:repair_cost\":5},\"DataVersion\":4440}" ).getAsJsonObject();
+        Item parsedItem = new Item( item );
+        assertEquals( "minecraft:elytra", parsedItem.getId() );
+        assertEquals( 1, parsedItem.getCount() );
+        assertNotNull( parsedItem.getComponents() );
+        JsonObject components = parsedItem.getComponents().getAsJsonObject();
+        assertEquals( 1, components.getAsJsonObject( "minecraft:enchantments" ).get( "minecraft:mending" ).getAsInt() );
+        assertEquals( 5, components.get( "minecraft:repair_cost" ).getAsInt() );
+    }
+
+    @Test
+    public void testItemComponentsSerialization()
+    {
+        // Build a modern item with components
+        JsonObject customName = new JsonObject();
+        customName.addProperty( "text", "Sky Wings" );
+        JsonObject components = new JsonObject();
+        components.add( "minecraft:custom_name", customName );
+        JsonObject enchantments = new JsonObject();
+        enchantments.addProperty( "minecraft:mending", 1 );
+        components.add( "minecraft:enchantments", enchantments );
+        JsonObject repairCost = new JsonObject();
+        repairCost.addProperty( "minecraft:repair_cost", 4 );
+        components.add( "minecraft:repair_cost", repairCost );
+
+        Item item = new Item( "minecraft:elytra", 1, components );
+        HoverEvent hoverEvent = new HoverEvent( HoverEvent.Action.SHOW_ITEM, item );
+
+        TextComponent component = new TextComponent( "Test" );
+        component.setHoverEvent( hoverEvent );
+
+        String json = ComponentSerializer.toString( component );
+
+        // Validate JSON shape uses modern keys and preserves components
+        JsonObject root = JsonParser.parseString( json ).getAsJsonObject();
+        JsonObject hover = root.getAsJsonObject( "hoverEvent" );
+        assertNotNull( hover );
+        JsonObject contents = hover.getAsJsonObject( "contents" );
+        assertNotNull( contents );
+        assertEquals( "minecraft:elytra", contents.get( "id" ).getAsString() );
+        assertEquals( 1, contents.get( "Count" ).getAsInt() );
+        assertTrue( contents.has( "components" ) );
+        assertEquals( "Sky Wings", contents.getAsJsonObject( "components" )
+                .getAsJsonObject( "minecraft:custom_name" )
+                .get( "text" ).getAsString() );
+        assertEquals( 1, contents.getAsJsonObject( "components" )
+                .getAsJsonObject( "minecraft:enchantments" )
+                .get( "minecraft:mending" ).getAsInt() );
+        assertEquals( 4, contents.getAsJsonObject( "components" )
+                .getAsJsonObject( "minecraft:repair_cost" )
+                .get( "minecraft:repair_cost" ).getAsInt() );
+
+        // Round-trip back to object and validate fields
+        BaseComponent deserialized = ComponentSerializer.deserialize( json );
+        Item parsedItem = (Item) deserialized.getHoverEvent().getContents().get( 0 );
+        assertEquals( "minecraft:elytra", parsedItem.getId() );
+        assertEquals( 1, parsedItem.getCount() );
+        assertNotNull( parsedItem.getComponents() );
     }
 
     @Test

@@ -49,6 +49,7 @@ public class ItemSerializer implements JsonSerializer<Item>, JsonDeserializer<It
         return new Item(
                 ( value.has( "id" ) ) ? value.get( "id" ).getAsString() : null,
                 count,
+                ( value.has( "components" ) ) ? context.deserialize( value.get( "components" ), JsonElement.class ) : null,
                 ( value.has( "tag" ) ) ? context.deserialize( value.get( "tag" ), ItemTag.class ) : null
         );
     }
@@ -61,6 +62,10 @@ public class ItemSerializer implements JsonSerializer<Item>, JsonDeserializer<It
         if ( content.getCount() != -1 )
         {
             object.addProperty( "Count", content.getCount() );
+        }
+        if ( content.getComponents() != null )
+        {
+            object.add( "components", context.serialize( content.getComponents() ) );
         }
         if ( content.getTag() != null )
         {

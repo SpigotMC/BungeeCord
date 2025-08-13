@@ -1,10 +1,10 @@
 package net.md_5.bungee.api.chat.hover.content;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.ItemTag;
 
@@ -34,6 +34,14 @@ public class Item extends Content
     private ItemTag tag;
 
     /**
+     * Example code:
+     * <pre>
+     * ItemTag tag = ItemTag.ofNbt(item.getItemMeta().getAsString());
+     * new HoverEvent(HoverEvent.Action.SHOW_ITEM, new Item(item.getType().getKey().toString(), item.getAmount(), tag));
+     * </pre>
+     * @param id The item id.
+     * @param count The item count.
+     * @param tag The item tag.
      * @deprecated Since 1.20.5+, you need to use the new constructors for the Item Components system instead.
      */
     @Deprecated
@@ -52,14 +60,14 @@ public class Item extends Content
      * </pre>
      * @param itemJson The item to create the hover event for.
      */
-    public Item(JsonObject itemJson) 
+    public Item(JsonObject itemJson)
     {
-        JsonElement itemId = itemJson.get("id");
-        JsonElement itemCount = itemJson.get("count");
+        JsonElement itemId = itemJson.get( "id" );
+        JsonElement itemCount = itemJson.get( "count" );
 
         this.id = itemId != null ? itemId.getAsString() : null;
         this.count = itemCount != null ? itemCount.getAsInt() : -1;
-        this.components = itemJson.get("components");
+        this.components = itemJson.get( "components" );
     }
 
     /**
@@ -68,11 +76,26 @@ public class Item extends Content
      * @param count The item count.
      * @param components The item components.
      */
-    public Item(String id, int count, JsonElement components) 
+    public Item(String id, int count, JsonElement components)
     {
         this.id = id;
         this.count = count;
         this.components = components;
+    }
+
+    /**
+     * This constructor should only be used internally by the deserializer. You should use the new constructors for the Item Components system instead.
+     * @param id The item id.
+     * @param count The item count.
+     * @param components The item components.
+     * @param tag The item tag.
+     */
+    public Item(String id, int count, JsonElement components, ItemTag tag)
+    {
+        this.id = id;
+        this.count = count;
+        this.components = components;
+        this.tag = tag;
     }
 
     @Override
