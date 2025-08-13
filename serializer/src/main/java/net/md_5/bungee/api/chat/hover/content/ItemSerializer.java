@@ -72,7 +72,7 @@ public class ItemSerializer implements JsonSerializer<Item>, JsonDeserializer<It
     @Override
     public JsonElement serialize(Item content, Type type, JsonSerializationContext context)
     {
-        boolean isLegacy = content.getTag() != null;
+        boolean isLegacy = content.getTag() != null && content.getComponents() == null;
 
         JsonObject object = new JsonObject();
         // Default to air for legacy, stone for modern (air is no longer allowed)
