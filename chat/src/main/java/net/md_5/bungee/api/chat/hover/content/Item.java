@@ -39,10 +39,10 @@ public class Item extends Content
      * ItemTag tag = ItemTag.ofNbt(item.getItemMeta().getAsString());
      * new HoverEvent(HoverEvent.Action.SHOW_ITEM, new Item(item.getType().getKey().toString(), item.getAmount(), tag));
      * </pre>
-     * @param id The item id.
+     * @param id The item id. Defaults to: 'minecraft:air'
      * @param count The item count.
      * @param tag The item tag.
-     * @deprecated Since 1.20.5+, you need to use the new constructors for the Item Components system instead.
+     * @deprecated Since 1.20.5+ you need to use the new constructors for the Item Components system instead {@link Item#Item(JsonObject)} or {@link Item#Item(String, int, JsonElement)}
      */
     @Deprecated
     public Item(String id, int count, ItemTag tag)
@@ -56,7 +56,27 @@ public class Item extends Content
      * Note: You need to use this constructor with versions 1.20.5 and higher.
      * Example code:
      * <pre>
-     * new HoverEvent(HoverEvent.Action.SHOW_ITEM, new Item(Bukkit.getUnsafe().serializeItemAsJson(ItemStack item)))
+     * // Simple one line constructor using Paper's `serializeItemAsJson` method
+     * JsonObject itemJson = Bukkit.getUnsafe().serializeItemAsJson(ItemStack item);
+     * Item hoveritem = new Item();
+     * new HoverEvent(HoverEvent.Action.SHOW_ITEM, hoveritem)
+     *
+     * // Alternatively, use another method to serialize the components to a JsonObject
+     * // and use your custom JsonObject to create the Item.
+     * JsonObject jsonItem = JsonParser.parseString("""
+     * {
+     *     "id": "minecraft:elytra",
+     *     "count": 1,
+     *     "components": {
+     *         "minecraft:custom_name": "Sky Wings",
+     *         "minecraft:enchantments": {
+     *             "minecraft:mending": 1
+     *         }
+     *     }
+     * }
+     * """).getAsJsonObject()
+     * Item hoveritem = new Item(jsonItem);
+     * new HoverEvent(HoverEvent.Action.SHOW_ITEM, hoveritem)
      * </pre>
      * @param itemJson The item to create the hover event for.
      */
@@ -64,7 +84,6 @@ public class Item extends Content
     {
         JsonElement itemId = itemJson.get( "id" );
         JsonElement itemCount = itemJson.get( "count" );
-
         this.id = itemId != null ? itemId.getAsString() : null;
         this.count = itemCount != null ? itemCount.getAsInt() : -1;
         this.components = itemJson.get( "components" );
@@ -72,7 +91,7 @@ public class Item extends Content
 
     /**
      * Note: You can only use this constructor with versions 1.20.5 and higher.
-     * @param id The item id.
+     * @param id The item id. Defaults to 'minecraft:stone' if no id is provided.
      * @param count The item count.
      * @param components The item components.
      */
@@ -84,7 +103,8 @@ public class Item extends Content
     }
 
     /**
-     * This constructor should only be used internally by the deserializer. You should use the new constructors for the Item Components system instead.
+     * This constructor should only be used internally by the deserializer.
+     * You should use the new constructors for the Item Components system instead. {@link Item#Item(JsonObject)} or {@link Item#Item(String, int, JsonElement)}
      * @param id The item id.
      * @param count The item count.
      * @param components The item components.
