@@ -75,8 +75,8 @@ public class ItemSerializer implements JsonSerializer<Item>, JsonDeserializer<It
         boolean isLegacy = content.getTag() != null;
 
         JsonObject object = new JsonObject();
-        // Default to air for legacy, dirt for modern (air is no longer allowed)
-        String idDefault = isLegacy ? "minecraft:air" : "minecraft:dirt";
+        // Default to air for legacy, stone for modern (air is no longer allowed)
+        String idDefault = isLegacy ? "minecraft:air" : "minecraft:stone";
         object.addProperty( ID_KEY, ( content.getId() == null ) ? idDefault : content.getId() );
 
         if ( content.getCount() != -1 )
