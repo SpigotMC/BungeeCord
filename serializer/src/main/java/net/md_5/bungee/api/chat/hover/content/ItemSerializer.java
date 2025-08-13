@@ -28,6 +28,8 @@ public class ItemSerializer implements JsonSerializer<Item>, JsonDeserializer<It
     {
         JsonObject value = element.getAsJsonObject();
 
+        // Default to -1 since no count is serialized for legacy
+        // but count will ALWAYS be serialized for modern
         int count = -1;
         JsonPrimitive countObj = null;
         if ( value.has( COUNT_KEY ) )

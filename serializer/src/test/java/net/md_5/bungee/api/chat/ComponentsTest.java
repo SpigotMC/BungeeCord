@@ -101,25 +101,33 @@ public class ComponentsTest
     }
 
     @Test
+    public void testNullComponents()
+    {
+        Item item = new Item( "minecraft:elytra", null );
+        assertEquals( "minecraft:elytra", item.getId() );
+        assertEquals( 1, item.getCount() );
+    }
+
+    @Test
     public void testNullValues()
     {
         JsonObject item = JsonParser.parseString( "{\"components\":{\"minecraft:enchantments\":{\"minecraft:mending\":1},\"minecraft:repair_cost\":5},\"DataVersion\":4440}" ).getAsJsonObject();
         Item hoverItem = new Item( item );
         assertNull( hoverItem.getId(), "id should be null before serialization" );
-        assertEquals( -1, hoverItem.getCount() );
+        assertEquals( 1, hoverItem.getCount() );
         assertNotNull( hoverItem.getComponents() );
         assertNull( hoverItem.getTag() );
         BaseComponent text = new TextComponent( "Test" );
         text.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_ITEM, hoverItem ) );
         // serialize
         String serialized = ComponentSerializer.toString( text );
-        // default id is stone, should not serialize `count` if -1
-        assertEquals( "{\"hoverEvent\":{\"action\":\"show_item\",\"contents\":{\"id\":\"minecraft:stone\",\"components\":{\"minecraft:enchantments\":{\"minecraft:mending\":1},\"minecraft:repair_cost\":5}}},\"text\":\"Test\"}", serialized );
+        // default id is stone, should always serialize count if using the modern components system
+        assertEquals( "{\"hoverEvent\":{\"action\":\"show_item\",\"contents\":{\"id\":\"minecraft:stone\",\"count\":1,\"components\":{\"minecraft:enchantments\":{\"minecraft:mending\":1},\"minecraft:repair_cost\":5}}},\"text\":\"Test\"}", serialized );
         // round trip
         HoverEvent hoverEvent = ComponentSerializer.deserialize( serialized ).getHoverEvent();
         Item parsedItem = (Item) hoverEvent.getContents().get( 0 );
         assertEquals( "minecraft:stone", parsedItem.getId(), "id should be stone after round trip" );
-        assertEquals( -1, parsedItem.getCount() );
+        assertEquals( 1, parsedItem.getCount() );
         assertEquals( 1, parsedItem.getComponents().getAsJsonObject().get( "minecraft:enchantments" ).getAsJsonObject().get( "minecraft:mending" ).getAsInt() );
         assertEquals( 5, parsedItem.getComponents().getAsJsonObject().get( "minecraft:repair_cost" ).getAsInt() );
     }
@@ -195,7 +203,7 @@ public class ComponentsTest
         components.add( "minecraft:enchantments", new JsonObject() );
         components.getAsJsonObject( "minecraft:enchantments" ).addProperty( "minecraft:mending", 1 );
 
-        Item item = new Item( "minecraft:elytra", 1, components );
+        Item item = new Item( "minecraft:elytra", components, 1 );
         HoverEvent hoverEvent = new HoverEvent( HoverEvent.Action.SHOW_ITEM, item );
 
         TextComponent component = new TextComponent( "Test" );
