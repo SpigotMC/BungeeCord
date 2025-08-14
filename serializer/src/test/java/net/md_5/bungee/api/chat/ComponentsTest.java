@@ -101,6 +101,20 @@ public class ComponentsTest
     }
 
     @Test
+    public void testLegacyNullConstructor()
+    {
+        // Test that the legacy constructor with null tag is serialized correctly as the new constructor if tag is null
+        Item item = new Item( "minecraft:elytra", 1, null );
+        assertEquals( "minecraft:elytra", item.getId() );
+        assertEquals( 1, item.getCount() );
+        assertNull( item.getComponents() );
+        assertNull( item.getTag() );
+        BaseComponent text = new TextComponent( "Test" );
+        text.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_ITEM, item ) );
+        assertEquals( "{\"hoverEvent\":{\"action\":\"show_item\",\"contents\":{\"id\":\"minecraft:elytra\",\"count\":1}},\"text\":\"Test\"}", ComponentSerializer.toString( text ) );
+    }
+
+    @Test
     public void testNullComponents()
     {
         Item item = new Item( "minecraft:elytra", null );
