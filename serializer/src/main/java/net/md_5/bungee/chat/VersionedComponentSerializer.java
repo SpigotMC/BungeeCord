@@ -21,6 +21,7 @@ import net.md_5.bungee.api.chat.ScoreComponent;
 import net.md_5.bungee.api.chat.SelectorComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
+import net.md_5.bungee.api.chat.ObjectComponent;
 import net.md_5.bungee.api.chat.hover.content.Content;
 import net.md_5.bungee.api.chat.hover.content.Entity;
 import net.md_5.bungee.api.chat.hover.content.EntitySerializer;
@@ -61,6 +62,7 @@ public class VersionedComponentSerializer implements JsonDeserializer<BaseCompon
                 registerTypeAdapter( KeybindComponent.class, new KeybindComponentSerializer( this ) ).
                 registerTypeAdapter( ScoreComponent.class, new ScoreComponentSerializer( this ) ).
                 registerTypeAdapter( SelectorComponent.class, new SelectorComponentSerializer( this ) ).
+                registerTypeAdapter( ObjectComponent.class, new ObjectComponentSerializer( this ) ).
                 registerTypeAdapter( ComponentStyle.class, new ComponentStyleSerializer() ).
                 registerTypeAdapter( Entity.class, new EntitySerializer( this ) ).
                 registerTypeAdapter( Text.class, new TextSerializer() ).
