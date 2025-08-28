@@ -7,9 +7,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import net.md_5.bungee.api.chat.ObjectComponent;
-
 import java.lang.reflect.Type;
+import net.md_5.bungee.api.chat.ObjectComponent;
 
 public class ObjectComponentSerializer extends BaseComponentSerializer implements JsonSerializer<ObjectComponent>, JsonDeserializer<ObjectComponent>
 {
@@ -47,7 +46,7 @@ public class ObjectComponentSerializer extends BaseComponentSerializer implement
         {
             object.addProperty( "sprite", src.getSprite() );
         }
-        if (src.getAtlas() != null)
+        if ( src.getAtlas() != null )
         {
             object.addProperty( "atlas", src.getAtlas() );
         }
