@@ -292,6 +292,10 @@ public class VersionedComponentSerializer implements JsonDeserializer<BaseCompon
         {
             return context.deserialize( json, SelectorComponent.class );
         }
+        if ( object.has( "player" ) || object.has( "sprite" ) )
+        {
+            return context.deserialize( json, ObjectComponent.class );
+        }
         return context.deserialize( json, TextComponent.class );
     }
 }
