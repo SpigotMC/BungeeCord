@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
-import org.jetbrains.annotations.ApiStatus;
+import net.md_5.bungee.api.chat.objects.ChatObject;
 
 /**
  * An object component that can be used to display objects.
@@ -21,60 +21,28 @@ import org.jetbrains.annotations.ApiStatus;
 public final class ObjectComponent extends BaseComponent
 {
 
-    /**
-     * The name of the players head to be displayed.
-     */
-    private String player;
+    private ChatObject object;
 
     /**
-     * The namespaced ID of a sprite atlas, default value: minecraft:blocks
+     * Creates a ObjectComponent from a given ChatObject
+     * See {@link net.md_5.bungee.api.chat.objects.PlayerObject}
+     * and {@link net.md_5.bungee.api.chat.objects.SpriteObject}
+     * @param object the ChatObject
      */
-    private String atlas;
-
-    /**
-     * The namespaced ID of a sprite in atlas, for example item/porkchop
-     */
-    private String sprite;
-
-    /**
-     * Creates a player head object component.
-     * @param player the name of the player
-     */
-    public ObjectComponent(@NonNull String player)
+    public ObjectComponent(@NonNull ChatObject object)
     {
-        setPlayer( player );
+        this.object = object;
     }
 
     /**
-     * Creates a sprite object component.
-     * @param atlas the namespaced ID of a sprite atlas, default value: minecraft:blocks
-     * @param sprite the namespaced ID of a sprite in atlas, for example item/porkchop
-     */
-    public ObjectComponent(String atlas, @NonNull String sprite)
-    {
-        setAtlas( atlas );
-        setSprite( sprite );
-    }
-
-    @ApiStatus.Internal
-    public ObjectComponent(String player, String atlas, String sprite)
-    {
-        setPlayer( player );
-        setAtlas( atlas );
-        setSprite( sprite );
-    }
-
-    /**
-     * Creates a score component from the original to clone it.
+     * Creates an object component from the original to clone it.
      *
      * @param original the original for the new score component
      */
     public ObjectComponent(ObjectComponent original)
     {
         super( original );
-        setPlayer( original.getPlayer() );
-        setAtlas( original.getAtlas() );
-        setSprite( original.getSprite() );
+        setObject( original.object );
     }
 
     @Override
