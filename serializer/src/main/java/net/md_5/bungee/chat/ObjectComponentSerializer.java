@@ -79,39 +79,44 @@ public class ObjectComponentSerializer extends BaseComponentSerializer implement
             return object;
         }
 
-        PlayerObject player = (PlayerObject) src.getObject();
-
-        if ( player.getHat() != null )
+        if ( src.getObject() instanceof PlayerObject )
         {
-            object.addProperty( "hat", player.getHat() );
+            PlayerObject player = (PlayerObject) src.getObject();
+
+            if ( player.getHat() != null )
+            {
+                object.addProperty( "hat", player.getHat() );
+            }
+
+            JsonObject playerObj = new JsonObject();
+            Profile profile = player.getProfile();
+
+            if ( profile.getName() != null )
+            {
+                playerObj.addProperty( "name", profile.getName() );
+            }
+
+            if ( profile.getUuid() != null )
+            {
+                int[] uuidArray = new int[4];
+                long most = profile.getUuid().getMostSignificantBits();
+                long least = profile.getUuid().getLeastSignificantBits();
+                uuidArray[0] = (int) ( most >> 32 );
+                uuidArray[1] = (int) most;
+                uuidArray[2] = (int) ( least >> 32 );
+                uuidArray[3] = (int) least;
+                playerObj.add( "id", context.serialize( uuidArray ) );
+            }
+
+            if ( profile.getProperties() != null )
+            {
+                playerObj.add( "properties", context.serialize( profile.getProperties(), Property[].class ) );
+            }
+            object.add( "player", playerObj );
+            return object;
         }
 
-        JsonObject playerObj = new JsonObject();
-        Profile profile = player.getProfile();
-
-        if ( profile.getName() != null )
-        {
-            playerObj.addProperty( "name", profile.getName() );
-        }
-
-        if ( profile.getUuid() != null )
-        {
-            int[] uuidArray = new int[4];
-            long most = profile.getUuid().getMostSignificantBits();
-            long least = profile.getUuid().getLeastSignificantBits();
-            uuidArray[0] = (int) ( most >> 32 );
-            uuidArray[1] = (int) most;
-            uuidArray[2] = (int) ( least >> 32 );
-            uuidArray[3] = (int) least;
-            playerObj.add( "id", context.serialize( uuidArray ) );
-        }
-
-        if ( profile.getProperties() != null )
-        {
-            playerObj.add( "properties", context.serialize( profile.getProperties(), Property[].class ) );
-        }
-        object.add( "player", playerObj );
-        return object;
+        throw new JsonParseException( "Could not serialize ObjectComponent: unknown object type " + src.getObject().getClass() );
     }
 
     private static UUID parseUUID(int[] array)
