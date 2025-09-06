@@ -13,6 +13,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.PluginMessage;
@@ -33,6 +34,10 @@ public class ServerConnection implements Server
     @Getter
     private final Queue<KeepAliveData> keepAlives = new ArrayDeque<>();
     private final Queue<DefinedPacket> packetQueue = new ArrayDeque<>();
+    private final Queue<PacketWrapper> configurationQueue = new ArrayDeque<>();
+    @Getter
+    @Setter
+    private boolean configQueueing;
 
     private final Unsafe unsafe = new Unsafe()
     {
@@ -88,6 +93,35 @@ public class ServerConnection implements Server
             while ( ( packet = packetQueue.poll() ) != null )
             {
                 unsafe().sendPacket( packet );
+            }
+        } );
+    }
+
+    public void queueConfigPacket(PacketWrapper packetWrapper)
+    {
+        ch.scheduleIfNecessary( () ->
+        {
+            if ( ch.isClosed() )
+            {
+                return;
+            }
+            Preconditions.checkState( configurationQueue.size() <= 1024, "too many queued packets in configurationQueue" );
+            configurationQueue.add( packetWrapper );
+        } );
+    }
+
+    public void sendQueuedConfigPackets(UserConnection player)
+    {
+        ch.scheduleIfNecessary( () ->
+        {
+            if ( ch.isClosed() )
+            {
+                return;
+            }
+            PacketWrapper packet;
+            while ( ( packet = configurationQueue.poll() ) != null )
+            {
+                player.sendPacket( packet );
             }
         } );
     }

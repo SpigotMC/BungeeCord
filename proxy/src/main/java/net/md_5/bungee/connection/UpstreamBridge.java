@@ -18,6 +18,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.CustomClickEvent;
+import net.md_5.bungee.api.event.PlayerConfigurationEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.SettingsChangedEvent;
@@ -356,17 +357,41 @@ public class UpstreamBridge extends PacketHandler
 
     private void configureServer()
     {
-        ChannelWrapper ch = con.getServer().getCh();
-        if ( ch.getDecodeProtocol() == Protocol.LOGIN )
+        ServerConnection serverConnection = con.getServer();
+        serverConnection.getCh().scheduleIfNecessary( () ->
         {
+            ChannelWrapper ch = serverConnection.getCh();
+            boolean login = ch.getDecodeProtocol() == Protocol.LOGIN;
             ch.setDecodeProtocol( Protocol.CONFIGURATION );
             ch.write( new LoginAcknowledged() );
             ch.setEncodeProtocol( Protocol.CONFIGURATION );
+            if ( login )
+            {
+                serverConnection.sendQueuedPackets();
+            }
 
-            con.getServer().sendQueuedPackets();
+            callConfigurationEvent( serverConnection );
+        } );
+        throw CancelSendSignal.INSTANCE;
 
-            throw CancelSendSignal.INSTANCE;
-        }
+    }
+
+    private void callConfigurationEvent(ServerConnection serverConnection)
+    {
+        serverConnection.setConfigQueueing( true );
+        bungee.getPluginManager().callEvent( new PlayerConfigurationEvent( con, (event, error) ->
+        {
+            serverConnection.getCh().scheduleIfNecessary( () ->
+            {
+                serverConnection.setConfigQueueing( false );
+                // server had changed or player disconnected
+                if ( !con.isConnected() || con.getServer() != serverConnection )
+                {
+                    return;
+                }
+                serverConnection.sendQueuedConfigPackets( con );
+            } );
+        } ) );
     }
 
     @Override
