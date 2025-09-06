@@ -17,6 +17,5 @@ public class PlayerConfigurationEvent extends AsyncEvent<PlayerConfigurationEven
     {
         super( done );
         this.player = player;
-
     }
 }

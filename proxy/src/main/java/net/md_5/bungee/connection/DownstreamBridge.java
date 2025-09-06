@@ -159,7 +159,7 @@ public class DownstreamBridge extends PacketHandler
 
         if ( packet.packet == null && server.isConfigQueueing() )
         {
-            // I want to be 1ßß% sure this does not leak, so we use an unpooled copy.
+            // I want to be 100% sure this does not leak, so we use an unpooled copy.
             ByteBuf unpooled = Unpooled.copiedBuffer( packet.buf );
             server.queueConfigPacket( new PacketWrapper( null, unpooled, packet.protocol ) );
             return;
