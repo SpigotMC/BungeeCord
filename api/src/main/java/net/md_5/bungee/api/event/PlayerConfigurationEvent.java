@@ -18,10 +18,29 @@ public class PlayerConfigurationEvent extends AsyncEvent<PlayerConfigurationEven
      * The player entering configuration phase.
      */
     private ProxiedPlayer player;
+    private Reason reason;
 
-    public PlayerConfigurationEvent(ProxiedPlayer player, Callback<PlayerConfigurationEvent> done)
+    public PlayerConfigurationEvent(ProxiedPlayer player, Reason reason, Callback<PlayerConfigurationEvent> done)
     {
         super( done );
         this.player = player;
+        this.reason = reason;
+    }
+
+    public enum Reason
+    {
+        /**
+         * Player is switching from login phase to config phase.
+         * This only happens once per connection.
+         */
+        LOGIN,
+
+        /**
+         * Player is switching from game phase to config phase.
+         * This can happen multiple times per connection.
+         * For example, when switching servers.
+         * Or if the backend itself reconfigures the player.
+         */
+        RECONFIGURE
     }
 }

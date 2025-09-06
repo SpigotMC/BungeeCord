@@ -363,23 +363,25 @@ public class UpstreamBridge extends PacketHandler
             ChannelWrapper ch = serverConnection.getCh();
             boolean login = ch.getDecodeProtocol() == Protocol.LOGIN;
             ch.setDecodeProtocol( Protocol.CONFIGURATION );
-            ch.write( new LoginAcknowledged() );
+            // send login ack if the player was in login state before otherwise start config
+            ch.write( login ? new LoginAcknowledged() : new StartConfiguration() );
             ch.setEncodeProtocol( Protocol.CONFIGURATION );
             if ( login )
             {
                 serverConnection.sendQueuedPackets();
             }
 
-            callConfigurationEvent( serverConnection );
+            callConfigurationEvent( serverConnection, login );
         } );
         throw CancelSendSignal.INSTANCE;
 
     }
 
-    private void callConfigurationEvent(ServerConnection serverConnection)
+    private void callConfigurationEvent(ServerConnection serverConnection, boolean login)
     {
         serverConnection.setConfigQueueing( true );
-        bungee.getPluginManager().callEvent( new PlayerConfigurationEvent( con, (event, error) ->
+        PlayerConfigurationEvent.Reason reason = login ? PlayerConfigurationEvent.Reason.LOGIN : PlayerConfigurationEvent.Reason.RECONFIGURE;
+        bungee.getPluginManager().callEvent( new PlayerConfigurationEvent( con, reason, (event, error) ->
         {
             serverConnection.getCh().scheduleIfNecessary( () ->
             {
