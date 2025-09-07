@@ -363,7 +363,7 @@ public class UpstreamBridge extends PacketHandler
         {
             boolean login = serverChannel.getDecodeProtocol() == Protocol.LOGIN;
             serverChannel.setDecodeProtocol( Protocol.CONFIGURATION );
-            // send login ack if the player was in login state before otherwise start config
+            // send login ack if the player was in login state before, otherwise start config
             serverChannel.write( login ? new LoginAcknowledged() : new StartConfiguration() );
             serverChannel.setEncodeProtocol( Protocol.CONFIGURATION );
             if ( login )

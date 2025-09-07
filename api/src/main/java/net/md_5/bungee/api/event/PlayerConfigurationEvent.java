@@ -39,10 +39,10 @@ public class PlayerConfigurationEvent extends AsyncEvent<PlayerConfigurationEven
         LOGIN,
 
         /**
-         * Player is switching from game phase to config phase.
-         * This can happen multiple times per connection.
-         * For example, when switching servers.
-         * Or if the backend itself reconfigures the player.
+         * Player is switching from game phase to config phase,
+         * this can happen multiple times per connection.
+         * Usually happens on server switch and
+         * when the backend itself reconfigures the player.
          */
         RECONFIGURE
     }
