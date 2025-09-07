@@ -34,10 +34,58 @@ public class ServerConnection implements Server
     @Getter
     private final Queue<KeepAliveData> keepAlives = new ArrayDeque<>();
     private final Queue<DefinedPacket> packetQueue = new ArrayDeque<>();
-    private final Queue<PacketWrapper> configurationQueue = new ArrayDeque<>();
-    @Getter
-    @Setter
-    private boolean configQueueing;
+    // This should only be accessed inside this connections event loop to prevent race conditions
+    private Queue<PacketWrapper> configQueue;
+
+    public boolean isQueuingConfigPackets()
+    {
+        Preconditions.checkState( ch.getHandle().eventLoop().inEventLoop(), "not in event loop" );
+        return configQueue != null;
+    }
+
+    /*
+     * Sets up a config queue, so config packets can be queued and sent after PlayerConfigurationEvent.
+     */
+    public void queueConfigPackets()
+    {
+        Preconditions.checkState( ch.getHandle().eventLoop().inEventLoop(), "not in event loop" );
+        Preconditions.checkState( configQueue == null, "already holding back config packets" );
+        configQueue = new ArrayDeque<>();
+    }
+
+    /*
+     * Queues a config packet to be sent after PlayerConfigurationEvent.
+     */
+    public void queueConfigPacket(PacketWrapper packetWrapper)
+    {
+        Preconditions.checkState( ch.getHandle().eventLoop().inEventLoop(), "not in event loop" );
+        Preconditions.checkNotNull( configQueue, "not holding back config packets" );
+        Preconditions.checkNotNull( packetWrapper, "packetWrapper can not be null" );
+        Preconditions.checkState( configQueue.add( packetWrapper ), "could not add packetWrapper into configQueue" );
+    }
+
+    /*
+     * Releases all queued config packets to the given player.
+     * Note: if the player is not on this server anymore, the packets will be discarded.
+     */
+    public void releaseConfigPackets(UserConnection player)
+    {
+        Preconditions.checkState( ch.getHandle().eventLoop().inEventLoop(), "not in event loop" );
+        Preconditions.checkNotNull( configQueue, "not holding back config packets" );
+        Preconditions.checkNotNull( player, "player can not be null" );
+
+        final Queue<PacketWrapper> queue = configQueue;
+        configQueue = null;
+
+        player.getCh().scheduleIfNecessary( () ->
+        {
+            if ( !player.isConnected() || player.getServer() != this )
+            {
+                return;
+            }
+            queue.forEach( player::sendPacket );
+        } );
+    }
 
     private final Unsafe unsafe = new Unsafe()
     {

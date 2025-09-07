@@ -157,7 +157,8 @@ public class DownstreamBridge extends PacketHandler
             rewrite.rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId(), con.getPendingConnection().getVersion() );
         }
 
-        if ( packet.packet == null && server.isConfigQueueing() )
+        // Queue for PlayerConfigurationEvent
+        if ( packet.packet == null && packet.protocol == Protocol.CONFIGURATION && server.isQueuingConfigPackets() )
         {
             // I want to be 100% sure this does not leak, so we use an unpooled copy.
             ByteBuf unpooled = Unpooled.copiedBuffer( packet.buf );

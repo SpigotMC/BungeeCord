@@ -358,14 +358,14 @@ public class UpstreamBridge extends PacketHandler
     private void configureServer()
     {
         ServerConnection serverConnection = con.getServer();
-        serverConnection.getCh().scheduleIfNecessary( () ->
+        ChannelWrapper serverChannel = serverConnection.getCh();
+        serverChannel.scheduleIfNecessary( () ->
         {
-            ChannelWrapper ch = serverConnection.getCh();
-            boolean login = ch.getDecodeProtocol() == Protocol.LOGIN;
-            ch.setDecodeProtocol( Protocol.CONFIGURATION );
+            boolean login = serverChannel.getDecodeProtocol() == Protocol.LOGIN;
+            serverChannel.setDecodeProtocol( Protocol.CONFIGURATION );
             // send login ack if the player was in login state before otherwise start config
-            ch.write( login ? new LoginAcknowledged() : new StartConfiguration() );
-            ch.setEncodeProtocol( Protocol.CONFIGURATION );
+            serverChannel.write( login ? new LoginAcknowledged() : new StartConfiguration() );
+            serverChannel.setEncodeProtocol( Protocol.CONFIGURATION );
             if ( login )
             {
                 serverConnection.sendQueuedPackets();
@@ -379,19 +379,13 @@ public class UpstreamBridge extends PacketHandler
 
     private void callConfigurationEvent(ServerConnection serverConnection, boolean login)
     {
-        serverConnection.setConfigQueueing( true );
+        serverConnection.queueConfigPackets();
         PlayerConfigurationEvent.Reason reason = login ? PlayerConfigurationEvent.Reason.LOGIN : PlayerConfigurationEvent.Reason.RECONFIGURE;
         bungee.getPluginManager().callEvent( new PlayerConfigurationEvent( con, reason, (event, error) ->
         {
             serverConnection.getCh().scheduleIfNecessary( () ->
             {
-                serverConnection.setConfigQueueing( false );
-                // server had changed or player disconnected
-                if ( !con.isConnected() || con.getServer() != serverConnection )
-                {
-                    return;
-                }
-                serverConnection.sendQueuedConfigPackets( con );
+                serverConnection.releaseConfigPackets( con );
             } );
         } ) );
     }
