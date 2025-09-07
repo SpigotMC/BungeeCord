@@ -145,35 +145,6 @@ public class ServerConnection implements Server
         } );
     }
 
-    public void queueConfigPacket(PacketWrapper packetWrapper)
-    {
-        ch.scheduleIfNecessary( () ->
-        {
-            if ( ch.isClosed() )
-            {
-                return;
-            }
-            Preconditions.checkState( configurationQueue.size() <= 1024, "too many queued packets in configurationQueue" );
-            configurationQueue.add( packetWrapper );
-        } );
-    }
-
-    public void sendQueuedConfigPackets(UserConnection player)
-    {
-        ch.scheduleIfNecessary( () ->
-        {
-            if ( ch.isClosed() )
-            {
-                return;
-            }
-            PacketWrapper packet;
-            while ( ( packet = configurationQueue.poll() ) != null )
-            {
-                player.sendPacket( packet );
-            }
-        } );
-    }
-
     @Override
     public void sendData(String channel, byte[] data)
     {
