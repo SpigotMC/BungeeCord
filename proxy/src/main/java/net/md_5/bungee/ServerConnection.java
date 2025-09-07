@@ -49,7 +49,7 @@ public class ServerConnection implements Server
     public void queueConfigPackets()
     {
         Preconditions.checkState( ch.getHandle().eventLoop().inEventLoop(), "not in event loop" );
-        Preconditions.checkState( configQueue == null, "already holding back config packets" );
+        Preconditions.checkState( configQueue == null, "already queueing config packets" );
         configQueue = new ArrayDeque<>();
     }
 
@@ -59,7 +59,7 @@ public class ServerConnection implements Server
     public void queueConfigPacket(PacketWrapper packetWrapper)
     {
         Preconditions.checkState( ch.getHandle().eventLoop().inEventLoop(), "not in event loop" );
-        Preconditions.checkNotNull( configQueue, "not holding back config packets" );
+        Preconditions.checkNotNull( configQueue, "not queueing config packets" );
         Preconditions.checkNotNull( packetWrapper, "packetWrapper can not be null" );
         Preconditions.checkState( configQueue.size() <= 1024, "too many queued config packets" );
         Preconditions.checkState( configQueue.add( packetWrapper ), "could not add packetWrapper into configQueue" );
