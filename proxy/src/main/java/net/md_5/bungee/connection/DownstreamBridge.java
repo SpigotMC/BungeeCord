@@ -177,6 +177,14 @@ public class DownstreamBridge extends PacketHandler
         {
             server.getKeepAlives().add( new KeepAliveData( alive.getRandomId(), System.currentTimeMillis() ) );
         }
+
+        // In 1.20.2 the server can enter game phase and send KeepAlive to the client while the client is still config phase,
+        // resulting in clientside exceptions because of different packet ids.
+        // To fix this, we don't forward the ByteBuf and just send the packet manually.
+        // I think the reason for that is that in 1.20.2 the server does not wait for any responses of the client
+        // in config phase, so it directly send finish config enters game and then waits for client and sends KeepAlive.
+        con.unsafe().sendPacket( alive );
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override
