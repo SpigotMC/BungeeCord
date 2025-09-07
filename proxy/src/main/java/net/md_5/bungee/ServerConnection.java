@@ -61,6 +61,7 @@ public class ServerConnection implements Server
         Preconditions.checkState( ch.getHandle().eventLoop().inEventLoop(), "not in event loop" );
         Preconditions.checkNotNull( configQueue, "not holding back config packets" );
         Preconditions.checkNotNull( packetWrapper, "packetWrapper can not be null" );
+        Preconditions.checkState( configQueue.size() <= 1024, "too many queued config packets" );
         Preconditions.checkState( configQueue.add( packetWrapper ), "could not add packetWrapper into configQueue" );
     }
 
