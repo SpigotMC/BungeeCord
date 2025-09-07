@@ -16,6 +16,7 @@ import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.packet.FinishConfiguration;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
 @RequiredArgsConstructor
@@ -36,11 +37,24 @@ public class ServerConnection implements Server
     private final Queue<DefinedPacket> packetQueue = new ArrayDeque<>();
     // This should only be accessed inside this connections event loop to prevent race conditions
     private Queue<PacketWrapper> configQueue;
+    private boolean receivedConfigFinish;
 
     public boolean isQueuingConfigPackets()
     {
         Preconditions.checkState( ch.getHandle().eventLoop().inEventLoop(), "not in event loop" );
         return configQueue != null;
+    }
+
+    public void onConfigFinished(UserConnection con)
+    {
+        Preconditions.checkState( ch.getHandle().eventLoop().inEventLoop(), "not in event loop" );
+        if ( isQueuingConfigPackets() )
+        {
+            receivedConfigFinish = true;
+        } else
+        {
+            finishConfigPhase( con );
+        }
     }
 
     /*
@@ -78,14 +92,25 @@ public class ServerConnection implements Server
         final Queue<PacketWrapper> queue = configQueue;
         configQueue = null;
 
-        player.getCh().scheduleIfNecessary( () ->
+        if ( !player.isConnected() || player.getServer() != this )
         {
-            if ( !player.isConnected() || player.getServer() != this )
-            {
-                return;
-            }
-            queue.forEach( player::sendPacket );
-        } );
+            return;
+        }
+        queue.forEach( player::sendPacket );
+
+        if ( receivedConfigFinish )
+        {
+            finishConfigPhase( player );
+        }
+    }
+
+    public void finishConfigPhase(UserConnection player)
+    {
+        Preconditions.checkState( ch.getHandle().eventLoop().inEventLoop(), "not in event loop" );
+        player.unsafe().sendPacket( new FinishConfiguration() );
+        // send queued packets as early as possible
+        player.sendQueuedPackets();
+        receivedConfigFinish = false;
     }
 
     private final Unsafe unsafe = new Unsafe()
