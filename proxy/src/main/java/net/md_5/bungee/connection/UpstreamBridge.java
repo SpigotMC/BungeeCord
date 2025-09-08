@@ -359,20 +359,17 @@ public class UpstreamBridge extends PacketHandler
     {
         ServerConnection serverConnection = con.getServer();
         ChannelWrapper serverChannel = serverConnection.getCh();
-        serverChannel.scheduleIfNecessary( () ->
+        boolean login = serverChannel.getDecodeProtocol() == Protocol.LOGIN;
+        serverChannel.setDecodeProtocol( Protocol.CONFIGURATION );
+        // send login ack if the player was in login state before, otherwise start config
+        serverChannel.write( login ? new LoginAcknowledged() : new StartConfiguration() );
+        serverChannel.setEncodeProtocol( Protocol.CONFIGURATION );
+        if ( login )
         {
-            boolean login = serverChannel.getDecodeProtocol() == Protocol.LOGIN;
-            serverChannel.setDecodeProtocol( Protocol.CONFIGURATION );
-            // send login ack if the player was in login state before, otherwise start config
-            serverChannel.write( login ? new LoginAcknowledged() : new StartConfiguration() );
-            serverChannel.setEncodeProtocol( Protocol.CONFIGURATION );
-            if ( login )
-            {
-                serverConnection.sendQueuedPackets();
-            }
+            serverConnection.sendQueuedPackets();
+        }
 
-            callConfigurationEvent( serverConnection, login );
-        } );
+        callConfigurationEvent( serverConnection, login );
         throw CancelSendSignal.INSTANCE;
 
     }
