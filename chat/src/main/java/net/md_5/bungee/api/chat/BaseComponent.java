@@ -8,12 +8,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder.FormatRetention;
 
 @Setter
-@ToString(exclude = "parent")
 @EqualsAndHashCode(exclude = "parent")
 public abstract class BaseComponent
 {
@@ -772,5 +770,56 @@ public abstract class BaseComponent
 
             builder.append( s );
         }
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder( toStringName() ).append( "{" );
+        toString( builder, false );
+        return builder.append( "}" ).toString();
+    }
+
+    String toStringName()
+    {
+        return "BaseComponent";
+    }
+
+    boolean toString(StringBuilder builder, boolean comma)
+    {
+        if ( style != null )
+        {
+            comma = style.toString( builder, comma );
+        }
+        if ( insertion != null )
+        {
+            if ( comma ) builder.append( ", " );
+            comma = true;
+            builder.append( "insertion=" ).append( insertion );
+        }
+        if ( clickEvent != null )
+        {
+            if ( comma ) builder.append( ", " );
+            comma = true;
+            builder.append( "clickEvent=" ).append( clickEvent );
+        }
+        if ( hoverEvent != null )
+        {
+            if ( comma ) builder.append( ", " );
+            comma = true;
+            builder.append( "hoverEvent=" ).append( hoverEvent );
+        }
+        if ( reset )
+        {
+            if ( comma ) builder.append( ", " );
+            comma = true;
+            builder.append( "reset" );
+        }
+        if ( extra != null )
+        {
+            if ( comma ) builder.append( ", " );
+            builder.append( "extra=" ).append( extra );
+        }
+        return comma;
     }
 }
