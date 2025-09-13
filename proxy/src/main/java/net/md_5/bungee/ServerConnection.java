@@ -13,8 +13,10 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.packet.FinishConfiguration;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
 @RequiredArgsConstructor
@@ -33,6 +35,83 @@ public class ServerConnection implements Server
     @Getter
     private final Queue<KeepAliveData> keepAlives = new ArrayDeque<>();
     private final Queue<DefinedPacket> packetQueue = new ArrayDeque<>();
+    // This should only be accessed inside this connections event loop to prevent race conditions
+    private Queue<PacketWrapper> configQueue;
+    private boolean receivedConfigFinish;
+
+    public boolean isQueuingConfigPackets()
+    {
+        Preconditions.checkState( ch.getHandle().eventLoop().inEventLoop(), "not in event loop" );
+        return configQueue != null;
+    }
+
+    public void onConfigFinished(UserConnection con)
+    {
+        Preconditions.checkState( ch.getHandle().eventLoop().inEventLoop(), "not in event loop" );
+        if ( isQueuingConfigPackets() )
+        {
+            receivedConfigFinish = true;
+        } else
+        {
+            finishConfigPhase( con );
+        }
+    }
+
+    /*
+     * Sets up a config queue, so config packets can be queued and sent after PlayerConfigurationEvent.
+     */
+    public void queueConfigPackets()
+    {
+        Preconditions.checkState( ch.getHandle().eventLoop().inEventLoop(), "not in event loop" );
+        Preconditions.checkState( configQueue == null, "already queueing config packets" );
+        configQueue = new ArrayDeque<>();
+    }
+
+    /*
+     * Queues a config packet to be sent after PlayerConfigurationEvent.
+     */
+    public void queueConfigPacket(PacketWrapper packetWrapper)
+    {
+        Preconditions.checkState( ch.getHandle().eventLoop().inEventLoop(), "not in event loop" );
+        Preconditions.checkNotNull( configQueue, "not queueing config packets" );
+        Preconditions.checkNotNull( packetWrapper, "packetWrapper can not be null" );
+        Preconditions.checkState( configQueue.size() <= 1024, "too many queued config packets" );
+        Preconditions.checkState( configQueue.add( packetWrapper ), "could not add packetWrapper into configQueue" );
+    }
+
+    /*
+     * Releases all queued config packets to the given player.
+     * Note: if the player is not on this server anymore, the packets will be discarded.
+     */
+    public void releaseConfigPackets(UserConnection player)
+    {
+        Preconditions.checkState( ch.getHandle().eventLoop().inEventLoop(), "not in event loop" );
+        Preconditions.checkNotNull( configQueue, "not holding back config packets" );
+        Preconditions.checkNotNull( player, "player can not be null" );
+
+        final Queue<PacketWrapper> queue = configQueue;
+        configQueue = null;
+
+        if ( !player.isConnected() || player.getServer() != this )
+        {
+            return;
+        }
+        queue.forEach( player::sendPacket );
+
+        if ( receivedConfigFinish )
+        {
+            finishConfigPhase( player );
+        }
+    }
+
+    public void finishConfigPhase(UserConnection player)
+    {
+        Preconditions.checkState( ch.getHandle().eventLoop().inEventLoop(), "not in event loop" );
+        player.unsafe().sendPacket( new FinishConfiguration() );
+        // send queued packets as early as possible
+        player.sendQueuedPackets();
+        receivedConfigFinish = false;
+    }
 
     private final Unsafe unsafe = new Unsafe()
     {
