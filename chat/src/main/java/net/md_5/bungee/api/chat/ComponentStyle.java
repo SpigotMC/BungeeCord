@@ -260,4 +260,19 @@ public final class ComponentStyle implements Cloneable
                 .strikethrough( other.strikethrough )
                 .obfuscated( other.obfuscated );
     }
+
+    @Override
+    public String toString()
+    {
+        return BaseComponent.toString( "ComponentStyle", true,
+            "color", color,
+            "shadowColor", shadowColor,
+            "font", font,
+            "bold", bold,
+            "italic", italic,
+            "underlined", underlined,
+            "strikethrough", strikethrough,
+            "obfuscated", obfuscated
+        );
+    }
 }
