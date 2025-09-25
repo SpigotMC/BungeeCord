@@ -30,6 +30,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
+import lombok.Locked;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -98,21 +99,15 @@ public final class PluginManager
      * @param plugin the plugin owning this command
      * @param command the command to register
      */
+    @Locked.Write("commandsLock")
     public void registerCommand(Plugin plugin, Command command)
     {
-        commandsLock.writeLock().lock();
-        try
+        commandMap.put( command.getName().toLowerCase( Locale.ROOT ), command );
+        for ( String alias : command.getAliases() )
         {
-            commandMap.put( command.getName().toLowerCase( Locale.ROOT ), command );
-            for ( String alias : command.getAliases() )
-            {
-                commandMap.put( alias.toLowerCase( Locale.ROOT ), command );
-            }
-            commandsByPlugin.put( plugin, command );
-        } finally
-        {
-            commandsLock.writeLock().unlock();
+            commandMap.put( alias.toLowerCase( Locale.ROOT ), command );
         }
+        commandsByPlugin.put( plugin, command );
     }
 
     /**
@@ -120,17 +115,11 @@ public final class PluginManager
      *
      * @param command the command to unregister
      */
+    @Locked.Write("commandsLock")
     public void unregisterCommand(Command command)
     {
-        commandsLock.writeLock().lock();
-        try
-        {
-            while ( commandMap.values().remove( command ) );
-            commandsByPlugin.values().remove( command );
-        } finally
-        {
-            commandsLock.writeLock().unlock();
-        }
+        while ( commandMap.values().remove( command ) );
+        commandsByPlugin.values().remove( command );
     }
 
     /**
@@ -138,20 +127,14 @@ public final class PluginManager
      *
      * @param plugin the plugin to register the commands of
      */
+    @Locked.Write("commandsLock")
     public void unregisterCommands(Plugin plugin)
     {
-        commandsLock.writeLock().lock();
-        try
+        for ( Iterator<Command> it = commandsByPlugin.get( plugin ).iterator(); it.hasNext(); )
         {
-            for ( Iterator<Command> it = commandsByPlugin.get( plugin ).iterator(); it.hasNext(); )
-            {
-                Command command = it.next();
-                while ( commandMap.values().remove( command ) );
-                it.remove();
-            }
-        } finally
-        {
-            commandsLock.writeLock().unlock();
+            Command command = it.next();
+            while ( commandMap.values().remove( command ) );
+            it.remove();
         }
     }
 
@@ -528,16 +511,10 @@ public final class PluginManager
      *
      * @return commands
      */
+    @Locked.Read("commandsLock")
     public Collection<Map.Entry<String, Command>> getCommands()
     {
-        commandsLock.readLock().lock();
-        try
-        {
-            return Collections.unmodifiableCollection( commandMap.entrySet() );
-        } finally
-        {
-            commandsLock.readLock().unlock();
-        }
+        return Collections.unmodifiableCollection( commandMap.entrySet() );
     }
 
     boolean isTransitiveDepend(PluginDescription plugin, PluginDescription depend)
