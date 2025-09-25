@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
+import lombok.Locked;
 import net.md_5.bungee.api.AbstractReconnectHandler;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -53,31 +54,17 @@ public class YamlReconnectHandler extends AbstractReconnectHandler
     }
 
     @Override
+    @Locked.Read("lock")
     protected ServerInfo getStoredServer(ProxiedPlayer player)
     {
-        ServerInfo server = null;
-        lock.readLock().lock();
-        try
-        {
-            server = ProxyServer.getInstance().getServerInfo( data.get( key( player ) ) );
-        } finally
-        {
-            lock.readLock().unlock();
-        }
-        return server;
+        return ProxyServer.getInstance().getServerInfo( data.get( key( player ) ) );
     }
 
     @Override
+    @Locked.Write("lock")
     public void setServer(ProxiedPlayer player)
     {
-        lock.writeLock().lock();
-        try
-        {
-            data.put( key( player ), ( player.getReconnectServer() != null ) ? player.getReconnectServer().getName() : player.getServer().getInfo().getName() );
-        } finally
-        {
-            lock.writeLock().unlock();
-        }
+        data.put( key( player ), ( player.getReconnectServer() != null ) ? player.getReconnectServer().getName() : player.getServer().getInfo().getName() );
     }
 
     private String key(ProxiedPlayer player)
