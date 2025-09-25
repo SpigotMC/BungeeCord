@@ -450,21 +450,15 @@ public final class PluginManager
      * @param plugin the owning plugin
      * @param listener the listener to register events for
      */
+    @Locked("listenersLock")
     public void registerListener(Plugin plugin, Listener listener)
     {
-        listenersLock.lock();
-        try
+        for ( Method method : listener.getClass().getDeclaredMethods() )
         {
-            for ( Method method : listener.getClass().getDeclaredMethods() )
-            {
-                Preconditions.checkArgument( !method.isAnnotationPresent( Subscribe.class ), "Listener %s has registered using deprecated subscribe annotation! Please update to @EventHandler.", listener );
-            }
-            eventBus.register( listener );
-            listenersByPlugin.put( plugin, listener );
-        } finally
-        {
-            listenersLock.unlock();
+            Preconditions.checkArgument( !method.isAnnotationPresent( Subscribe.class ), "Listener %s has registered using deprecated subscribe annotation! Please update to @EventHandler.", listener );
         }
+        eventBus.register( listener );
+        listenersByPlugin.put( plugin, listener );
     }
 
     /**
@@ -472,17 +466,11 @@ public final class PluginManager
      *
      * @param listener the listener to unregister
      */
+    @Locked("listenersLock")
     public void unregisterListener(Listener listener)
     {
-        listenersLock.lock();
-        try
-        {
-            eventBus.unregister( listener );
-            listenersByPlugin.values().remove( listener );
-        } finally
-        {
-            listenersLock.unlock();
-        }
+        eventBus.unregister( listener );
+        listenersByPlugin.values().remove( listener );
     }
 
     /**
@@ -490,19 +478,13 @@ public final class PluginManager
      *
      * @param plugin target plugin
      */
+    @Locked("listenersLock")
     public void unregisterListeners(Plugin plugin)
     {
-        listenersLock.lock();
-        try
+        for ( Iterator<Listener> it = listenersByPlugin.get( plugin ).iterator(); it.hasNext(); )
         {
-            for ( Iterator<Listener> it = listenersByPlugin.get( plugin ).iterator(); it.hasNext(); )
-            {
-                eventBus.unregister( it.next() );
-                it.remove();
-            }
-        } finally
-        {
-            listenersLock.unlock();
+            eventBus.unregister( it.next() );
+            it.remove();
         }
     }
 
