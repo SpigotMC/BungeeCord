@@ -19,6 +19,7 @@
     <description>Proxy component of the Elastic Portal Suite</description>
 
     <properties>
+        <skipPublishing>true</skipPublishing>
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>

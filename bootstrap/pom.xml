@@ -19,6 +19,7 @@
     <description>Java 1.6 loader for BungeeCord</description>
 
     <properties>
+        <skipPublishing>true</skipPublishing>
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <maven.compiler.source>1.6</maven.compiler.source>
