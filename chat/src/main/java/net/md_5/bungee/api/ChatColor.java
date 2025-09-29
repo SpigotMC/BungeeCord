@@ -19,20 +19,25 @@ public final class ChatColor
      * The special character which prefixes all chat colour codes. Use this if
      * you need to dynamically convert colour codes from your custom format.
      */
+    @SuppressWarnings("UnnecessaryUnicodeEscape")
     public static final char COLOR_CHAR = '\u00A7';
     public static final String ALL_CODES = "0123456789AaBbCcDdEeFfKkLlMmNnOoRrXx";
+    static final ChatColor[] COLORS = new ChatColor[16];
+    private static final int[] COLORS_HEX = new int[16];
+    private static final int MAX_CLOSEST_COLOR_DIST_SQ = 16130;
+
     /**
      * Pattern to remove all colour codes.
      */
-    public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile( "(?i)" + String.valueOf( COLOR_CHAR ) + "[0-9A-FK-ORX]" );
+    public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile( "(?i)" + COLOR_CHAR + "[0-9A-FK-ORX]" );
     /**
      * Colour instances keyed by their active character.
      */
-    private static final Map<Character, ChatColor> BY_CHAR = new HashMap<Character, ChatColor>();
+    private static final Map<Character, ChatColor> BY_CHAR = new HashMap<>();
     /**
      * Colour instances keyed by their name.
      */
-    private static final Map<String, ChatColor> BY_NAME = new HashMap<String, ChatColor>();
+    private static final Map<String, ChatColor> BY_NAME = new HashMap<>();
     /**
      * Represents black.
      */
@@ -121,10 +126,12 @@ public final class ChatColor
      * Resets all previous chat colors or formats.
      */
     public static final ChatColor RESET = new ChatColor( 'r', "reset" );
+
     /**
      * Count used for populating legacy ordinal.
      */
     private static int count = 0;
+
     /**
      * This colour's colour char prefixed by the {@link #COLOR_CHAR}.
      */
@@ -155,6 +162,11 @@ public final class ChatColor
 
         BY_CHAR.put( code, this );
         BY_NAME.put( name.toUpperCase( Locale.ROOT ), this );
+        if ( color != null )
+        {
+            COLORS[ this.ordinal ] = this;
+            COLORS_HEX[ this.ordinal ] = color.getRGB() & 0xFFFFFF;
+        }
     }
 
     private ChatColor(String name, String toString, int rgb)
@@ -223,6 +235,44 @@ public final class ChatColor
             }
         }
         return new String( b );
+    }
+
+    /**
+     * Finds the closest default ChatColor to the given target color using squared
+     * Euclidean distance in sRGB space.
+     *
+     * @param target the color to match
+     * @return the closest ChatColor
+     */
+    public static ChatColor closestDefaultColor(Color target)
+    {
+        Preconditions.checkNotNull( target, "target cannot be null" );
+        int targetRed = target.getRed();
+        int targetGreen = target.getGreen();
+        int targetBlue = target.getBlue();
+
+        ChatColor result = null;
+        int smallestDistance = Integer.MAX_VALUE;
+
+        for ( int i = 0, length = COLORS_HEX.length; i < length; i++ )
+        {
+            int colorValue = COLORS_HEX[ i ];
+            int redDiff = ( colorValue >> 16 & 0xFF ) - targetRed;
+            int greenDiff = ( colorValue >> 8 & 0xFF ) - targetGreen;
+            int blueDiff = ( colorValue & 0xFF ) - targetBlue;
+            int distance = redDiff * redDiff + greenDiff * greenDiff + blueDiff * blueDiff;
+
+            if ( distance < smallestDistance )
+            {
+                smallestDistance = distance;
+                result = COLORS[ i ];
+            }
+            if ( distance < MAX_CLOSEST_COLOR_DIST_SQ )
+            {
+                break;
+            }
+        }
+        return Preconditions.checkNotNull( result, "Could not find a match for " + target );
     }
 
     /**
