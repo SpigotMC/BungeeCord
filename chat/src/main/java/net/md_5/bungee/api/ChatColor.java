@@ -226,6 +226,44 @@ public final class ChatColor
     }
 
     /**
+     * Finds the closest default ChatColor to the given target color using squared
+     * Euclidean distance in sRGB space.
+     *
+     * @param target the color to match
+     * @return the closest ChatColor
+     */
+    public static ChatColor closestDefaultColor(Color target)
+    {
+        Preconditions.checkNotNull( target, "target cannot be null" );
+        int targetRed = target.getRed();
+        int targetGreen = target.getGreen();
+        int targetBlue = target.getBlue();
+
+        ChatColor result = null;
+        int smallestDistance = Integer.MAX_VALUE;
+
+        for ( ChatColor value : values() )
+        {
+            Color color = value.getColor();
+            if ( color == null )
+            {
+                continue;
+            }
+            int redDiff = color.getRed() - targetRed;
+            int greenDiff = color.getGreen() - targetGreen;
+            int blueDiff = color.getBlue() - targetBlue;
+            int distance = redDiff * redDiff + greenDiff * greenDiff + blueDiff * blueDiff;
+
+            if ( distance < smallestDistance )
+            {
+                smallestDistance = distance;
+                result = value;
+            }
+        }
+        return Preconditions.checkNotNull( result, "Could not find a match for " + target );
+    }
+
+    /**
      * Get the colour represented by the specified code.
      *
      * @param code the code to search for
