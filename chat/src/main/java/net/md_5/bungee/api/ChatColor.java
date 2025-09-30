@@ -2,6 +2,7 @@ package net.md_5.bungee.api;
 
 import com.google.common.base.Preconditions;
 import java.awt.Color;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -126,6 +127,12 @@ public final class ChatColor
      */
     private static int count = 0;
     /**
+     * An array of only the colors
+     */
+    private static final ChatColor[] DEFAULT_COLORS = Arrays.stream( values() )
+            .filter( c -> c.getColor() != null )
+            .toArray( ChatColor[]::new );
+    /**
      * This colour's colour char prefixed by the {@link #COLOR_CHAR}.
      */
     private final String toString;
@@ -242,13 +249,10 @@ public final class ChatColor
         ChatColor result = null;
         int smallestDistance = Integer.MAX_VALUE;
 
-        for ( ChatColor value : values() )
+        for ( ChatColor value : DEFAULT_COLORS )
         {
             Color color = value.getColor();
-            if ( color == null )
-            {
-                continue;
-            }
+
             int redDiff = color.getRed() - targetRed;
             int greenDiff = color.getGreen() - targetGreen;
             int blueDiff = color.getBlue() - targetBlue;
