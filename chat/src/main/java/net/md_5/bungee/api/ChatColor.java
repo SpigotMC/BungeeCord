@@ -23,8 +23,13 @@ public final class ChatColor
     public static final char COLOR_CHAR = '\u00A7';
     public static final String ALL_CODES = "0123456789AaBbCcDdEeFfKkLlMmNnOoRrXx";
     static final ChatColor[] COLORS = new ChatColor[16];
-    private static final int[] COLORS_HEX = new int[16];
-    private static final int MAX_CLOSEST_COLOR_DIST_SQ = 16130;
+    /**
+     * If a color has this distance or less to the target color,
+     * it is guaranteed to be the closest color.
+     * <p>
+     * Calculation of this vlaue can be found in ChatColorTest.
+     */
+    private static final int MAX_CLOSEST_COLOR_DIST_SQ = 3613;
 
     /**
      * Pattern to remove all colour codes.
@@ -165,7 +170,6 @@ public final class ChatColor
         if ( color != null )
         {
             COLORS[ this.ordinal ] = this;
-            COLORS_HEX[ this.ordinal ] = color.getRGB() & 0xFFFFFF;
         }
     }
 
@@ -254,20 +258,20 @@ public final class ChatColor
         ChatColor result = null;
         int smallestDistance = Integer.MAX_VALUE;
 
-        for ( int i = 0, length = COLORS_HEX.length; i < length; i++ )
+        for ( ChatColor chatColor : COLORS )
         {
-            int colorValue = COLORS_HEX[ i ];
-            int redDiff = ( colorValue >> 16 & 0xFF ) - targetRed;
-            int greenDiff = ( colorValue >> 8 & 0xFF ) - targetGreen;
-            int blueDiff = ( colorValue & 0xFF ) - targetBlue;
+            Color color = chatColor.getColor();
+            int redDiff = color.getRed() - targetRed;
+            int greenDiff = color.getGreen() - targetGreen;
+            int blueDiff = color.getBlue() - targetBlue;
             int distance = redDiff * redDiff + greenDiff * greenDiff + blueDiff * blueDiff;
 
             if ( distance < smallestDistance )
             {
                 smallestDistance = distance;
-                result = COLORS[ i ];
+                result = chatColor;
             }
-            if ( distance < MAX_CLOSEST_COLOR_DIST_SQ )
+            if ( distance <= MAX_CLOSEST_COLOR_DIST_SQ )
             {
                 break;
             }
