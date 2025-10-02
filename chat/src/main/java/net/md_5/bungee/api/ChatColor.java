@@ -27,9 +27,9 @@ public final class ChatColor
      * If a color has this distance or less to the target color,
      * it is guaranteed to be the closest color.
      * <p>
-     * Calculation of this vlaue can be found in ChatColorTest.
+     * Calculation of this value can be found in ChatColorTest.
      */
-    private static final int MAX_CLOSEST_COLOR_DIST_SQ = 3613;
+    private static final int MAX_CLOSEST_COLOR_DIST_SQ = 3697;
 
     /**
      * Pattern to remove all colour codes.
@@ -247,6 +247,8 @@ public final class ChatColor
      *
      * @param target the color to match
      * @return the closest ChatColor
+     * @implNote For colors equally distant to two or more default colors, the
+     * color with the lower ordinal is returned.
      */
     public static ChatColor closestDefaultColor(Color target)
     {
@@ -270,10 +272,10 @@ public final class ChatColor
             {
                 smallestDistance = distance;
                 result = chatColor;
-            }
-            if ( distance <= MAX_CLOSEST_COLOR_DIST_SQ )
-            {
-                break;
+                if ( distance <= MAX_CLOSEST_COLOR_DIST_SQ )
+                {
+                    break;
+                }
             }
         }
         return Preconditions.checkNotNull( result, "Could not find a match for " + target );

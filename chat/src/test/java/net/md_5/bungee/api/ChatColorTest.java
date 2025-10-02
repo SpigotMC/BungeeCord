@@ -11,10 +11,10 @@ public class ChatColorTest
      * Find the highest distance at which the distance of a color to a color of {@linkplain ChatColor#COLORS} can be,
      * so that there is no other color closer.
      * <p>
-     * When searching for the closest fixed color for any color, if encountering a distance smaller than this value,
+     * When searching for the closest fixed color for any color, if encountering a distance equal or smaller than this value,
      * we can be sure that this is indeed the closest color without having to check all other colors.
      *
-     * @return the maximum distance squared, {@code 3613}
+     * @return the maximum distance squared, {@code 3697}
      */
     private static int calcMaxClosestColorDistSq()
     {
@@ -53,19 +53,21 @@ public class ChatColorTest
                             closestIndex = i;
                         }
                     }
-                    // Find second-closest color
+                    // Find second-closest color, ignore same-distance colors
                     int secondClosestDistSq = Integer.MAX_VALUE;
+                    //int secondClosestIndex = -1;
                     for ( int i = 0; i < length; i++ )
                     {
                         if ( i == closestIndex ) continue;
 
-                        int dr = r - red[i];
-                        int dg = g - green[i];
-                        int db = b - blue[i];
+                        int dr = r - red[ i ];
+                        int dg = g - green[ i ];
+                        int db = b - blue[ i ];
                         int distSq = dr * dr + dg * dg + db * db;
-                        if ( distSq < secondClosestDistSq )
+                        if ( distSq < secondClosestDistSq && distSq > closestDistSq )
                         {
                             secondClosestDistSq = distSq;
+                            //secondClosestIndex = i;
                         }
                     }
                     // If true, this color is the furthest away from its closest color
@@ -73,17 +75,24 @@ public class ChatColorTest
                     if ( secondClosestDistSq < minDistSq )
                     {
                         minDistSq = secondClosestDistSq;
+                        //System.out.println( "New max non-offending distance-sq: " + ( minDistSq - 1) + " at color "
+                        //        + r + "," + g + "," + b + " with closest color " + ChatColor.COLORS[ closestIndex ]
+                        //        + " with distance-sq " + closestDistSq + " and second closest color "
+                        //        + ChatColor.COLORS[ secondClosestIndex ] + " at distance-sq " + secondClosestDistSq );
                     }
                 }
             }
         }
-        return minDistSq;
+        // minDistSq is the distance-sq to the second-closest color, so that is
+        // the smallest possibly offending distance-sq. So just subtract 1 to
+        // get highest non-offending distance-sq
+        return minDistSq - 1;
     }
 
     @Test
     public void testMaxClosestColorDistSq()
     {
-        assertEquals( 3613, calcMaxClosestColorDistSq() );
+        assertEquals( 3697, calcMaxClosestColorDistSq() );
     }
 
     @Test
