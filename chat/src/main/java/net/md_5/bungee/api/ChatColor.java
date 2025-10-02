@@ -244,11 +244,12 @@ public final class ChatColor
     /**
      * Finds the closest default ChatColor to the given target color using squared
      * Euclidean distance in sRGB space.
+     * <p>
+     * For colors equally distant to two or more default colors, the color with
+     * the lower ordinal is returned.
      *
      * @param target the color to match
      * @return the closest ChatColor
-     * @implNote For colors equally distant to two or more default colors, the
-     * color with the lower ordinal is returned.
      */
     public static ChatColor closestDefaultColor(Color target)
     {
