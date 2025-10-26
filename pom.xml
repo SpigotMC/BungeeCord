@@ -59,7 +59,7 @@
     </issueManagement>
     <ciManagement>
         <system>jenkins</system>
-        <url>http://ci.md-5.net/job/BungeeCord</url>
+        <url>https://hub.spigotmc.org/jenkins/job/BungeeCord/</url>
     </ciManagement>
 
     <distributionManagement>
