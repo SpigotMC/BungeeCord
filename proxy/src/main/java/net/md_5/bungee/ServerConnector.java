@@ -221,7 +221,7 @@ public class ServerConnector extends PacketHandler
         ServerConnectedEvent event = new ServerConnectedEvent( user, server );
         bungee.getPluginManager().callEvent( event );
 
-         // Already sent after config start
+        // Already sent after config start
         if ( user.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_20_2 )
         {
             ch.write( BungeeCord.getInstance().registerChannels( user.getPendingConnection().getVersion() ) );
