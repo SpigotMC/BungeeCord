@@ -111,7 +111,8 @@ public class Configuration implements ProxyConfig
 
         Preconditions.checkArgument( listeners != null && !listeners.isEmpty(), "No listeners defined." );
 
-        for ( String path : (Collection<String>) adapter.getList( "plugin_directories", Collections.emptyList() ) ) {
+        for ( String path : (Collection<String>) adapter.getList( "plugin_directories", Collections.emptyList() ) )
+        {
             File directory = new File( path );
             Preconditions.checkArgument( directory.isDirectory(), "'%s' isn't a valid plugin directory", path );
             pluginDirectories.add( directory );

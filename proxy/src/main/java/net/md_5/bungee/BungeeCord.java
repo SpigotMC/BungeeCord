@@ -285,14 +285,16 @@ public class BungeeCord extends ProxyServer
         moduleManager.load( this, moduleDirectory );
         pluginManager.detectPlugins( moduleDirectory );
 
+        config.load();
+
         pluginsFolder.mkdir();
-        for ( File pluginDirectory : pluginDirectories ) {
+        for ( File pluginDirectory : pluginDirectories )
+        {
             pluginDirectory.mkdir();
             pluginManager.detectPlugins( pluginDirectory );
         }
 
         pluginManager.loadPlugins();
-        config.load();
 
         if ( config.isForgeSupport() )
         {

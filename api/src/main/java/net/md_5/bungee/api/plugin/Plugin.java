@@ -76,7 +76,7 @@ public class Plugin
      */
     public final File getDataFolder()
     {
-        return new File( getProxy().getPluginsFolder(), getDescription().getName() );
+        return new File( getProxy().getPluginManager().matchPluginDirectory( description ), getDescription().getName() );
     }
 
     /**

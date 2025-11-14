@@ -237,6 +237,13 @@ public abstract class ProxyServer
     public abstract File getPluginsFolder();
 
     /**
+     * Return all the plugin directories.
+     *
+     * @return all the plugin directories
+     */
+    public abstract Collection<File> getPluginDirectories();
+
+    /**
      * Get the scheduler instance for this proxy.
      *
      * @return the in use scheduler
