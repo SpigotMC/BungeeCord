@@ -237,7 +237,7 @@ public abstract class ProxyServer
     public abstract File getPluginsFolder();
 
     /**
-     * Return all the plugin directories.
+     * Return all the directories to load plugins from.
      *
      * @return all the plugin directories
      */
