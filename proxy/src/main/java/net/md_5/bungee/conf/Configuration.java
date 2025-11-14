@@ -3,10 +3,7 @@ package net.md_5.bungee.conf;
 import com.google.common.base.Preconditions;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import javax.imageio.ImageIO;
 import lombok.Getter;
@@ -70,6 +67,7 @@ public class Configuration implements ProxyConfig
     private boolean rejectTransfers;
     private int maxPacketsPerSecond = 1 << 12;
     private int maxPacketDataPerSecond = 1 << 25;
+    private final Collection<File> pluginDirectories = new ArrayList<>( Collections.singletonList( new File( "plugins" ) ) );
 
     public void load()
     {
@@ -112,6 +110,12 @@ public class Configuration implements ProxyConfig
         disabledCommands = new CaseInsensitiveSet( (Collection<String>) adapter.getList( "disabled_commands", Arrays.asList( "disabledcommandhere" ) ) );
 
         Preconditions.checkArgument( listeners != null && !listeners.isEmpty(), "No listeners defined." );
+
+        for ( String path : (Collection<String>) adapter.getList( "plugin_directories", Collections.emptyList() ) ) {
+            File directory = new File( path );
+            Preconditions.checkArgument( directory.isDirectory(), "'%s' isn't a valid plugin directory", path );
+            pluginDirectories.add( directory );
+        }
 
         Map<String, ServerInfo> newServers = adapter.getServers();
         Preconditions.checkArgument( newServers != null && !newServers.isEmpty(), "No servers defined" );

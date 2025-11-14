@@ -1,5 +1,6 @@
 package net.md_5.bungee.api;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Map;
 import net.md_5.bungee.api.config.ListenerInfo;
@@ -125,4 +126,10 @@ public interface ProxyConfig
      * @return favicon
      */
     Favicon getFaviconObject();
+
+    /**
+     * The directories to load plugin from.
+     * @return directories
+     */
+    Collection<File> getPluginDirectories();
 }

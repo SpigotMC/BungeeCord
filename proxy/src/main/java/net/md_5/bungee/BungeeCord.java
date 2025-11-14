@@ -147,6 +147,8 @@ public class BungeeCord extends ProxyServer
     @Getter
     private final File pluginsFolder = new File( "plugins" );
     @Getter
+    private final Collection<File> pluginDirectories = config.getPluginDirectories();
+    @Getter
     private final BungeeScheduler scheduler = new BungeeScheduler();
     @Getter
     private final LineReader consoleReader;
@@ -284,7 +286,10 @@ public class BungeeCord extends ProxyServer
         pluginManager.detectPlugins( moduleDirectory );
 
         pluginsFolder.mkdir();
-        pluginManager.detectPlugins( pluginsFolder );
+        for ( File pluginDirectory : pluginDirectories ) {
+            pluginDirectory.mkdir();
+            pluginManager.detectPlugins( pluginDirectory );
+        }
 
         pluginManager.loadPlugins();
         config.load();
