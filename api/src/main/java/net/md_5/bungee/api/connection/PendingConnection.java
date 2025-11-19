@@ -97,7 +97,6 @@ public interface PendingConnection extends Connection
      *
      * @return true if the connection has been transferred
      */
-    @ApiStatus.Experimental
     boolean isTransferred();
 
     /**
