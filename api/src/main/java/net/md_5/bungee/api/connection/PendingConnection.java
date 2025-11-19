@@ -4,7 +4,6 @@ import java.net.InetSocketAddress;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import net.md_5.bungee.api.config.ListenerInfo;
-import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Represents a user attempting to log into the proxy.
