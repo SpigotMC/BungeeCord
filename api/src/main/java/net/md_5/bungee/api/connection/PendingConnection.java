@@ -110,7 +110,6 @@ public interface PendingConnection extends Connection
      * @throws IllegalStateException if the player's version is not at least
      * 1.20.5
      */
-    @ApiStatus.Experimental
     CompletableFuture<byte[]> retrieveCookie(String cookie);
 
     /**
