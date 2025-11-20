@@ -4,7 +4,6 @@ import java.net.InetSocketAddress;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import net.md_5.bungee.api.config.ListenerInfo;
-import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Represents a user attempting to log into the proxy.
@@ -97,7 +96,6 @@ public interface PendingConnection extends Connection
      *
      * @return true if the connection has been transferred
      */
-    @ApiStatus.Experimental
     boolean isTransferred();
 
     /**
@@ -111,7 +109,6 @@ public interface PendingConnection extends Connection
      * @throws IllegalStateException if the player's version is not at least
      * 1.20.5
      */
-    @ApiStatus.Experimental
     CompletableFuture<byte[]> retrieveCookie(String cookie);
 
     /**
@@ -125,6 +122,5 @@ public interface PendingConnection extends Connection
      * @throws IllegalStateException if the player's version is not at least
      * 1.13
      */
-    @ApiStatus.Experimental
     CompletableFuture<byte[]> sendData(String channel, byte[] data);
 }
