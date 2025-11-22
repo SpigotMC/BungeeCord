@@ -6,13 +6,13 @@
     <parent>
         <groupId>net.md-5</groupId>
         <artifactId>bungeecord-parent</artifactId>
-        <version>1.21-R0.4-SNAPSHOT</version>
+        <version>1.21-R0.5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-module</artifactId>
-    <version>1.21-R0.4-SNAPSHOT</version>
+    <version>1.21-R0.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>BungeeCord Modules</name>
@@ -30,6 +30,7 @@
 
     <properties>
         <module.author>SpigotMC</module.author>
+        <skipPublishing>true</skipPublishing>
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>

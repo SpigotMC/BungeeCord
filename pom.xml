@@ -5,7 +5,7 @@
 
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-parent</artifactId>
-    <version>1.21-R0.4-SNAPSHOT</version>
+    <version>1.21-R0.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>BungeeCord-Parent</name>
@@ -59,7 +59,7 @@
     </issueManagement>
     <ciManagement>
         <system>jenkins</system>
-        <url>http://ci.md-5.net/job/BungeeCord</url>
+        <url>https://hub.spigotmc.org/jenkins/job/BungeeCord/</url>
     </ciManagement>
 
     <distributionManagement>
@@ -86,7 +86,7 @@
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-bom</artifactId>
-                <version>4.2.3.Final</version>
+                <version>4.2.7.Final</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -372,6 +372,12 @@
                                 </goals>
                             </execution>
                         </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.9.0</version>
+                        <extensions>true</extensions>
                     </plugin>
                 </plugins>
             </build>

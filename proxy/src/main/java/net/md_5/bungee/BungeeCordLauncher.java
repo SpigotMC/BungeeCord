@@ -56,7 +56,7 @@ public class BungeeCordLauncher
             if ( buildDate.before( deadline.getTime() ) )
             {
                 System.err.println( "*** Warning, this build is outdated ***" );
-                System.err.println( "*** Please download a new build from http://ci.md-5.net/job/BungeeCord ***" );
+                System.err.println( "*** Please download a new build from https://www.spigotmc.org/go/bungeecord-dl ***" );
                 System.err.println( "*** You will get NO support regarding this build ***" );
                 System.err.println( "*** Server will start in 10 seconds ***" );
                 Thread.sleep( TimeUnit.SECONDS.toMillis( 10 ) );
