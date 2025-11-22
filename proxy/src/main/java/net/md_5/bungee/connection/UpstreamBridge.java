@@ -366,6 +366,8 @@ public class UpstreamBridge extends PacketHandler
         serverChannel.setEncodeProtocol( Protocol.CONFIGURATION );
         if ( login )
         {
+            // send the registered plugin channel as soon as the server is in config state
+            serverChannel.write( BungeeCord.getInstance().registerChannels( con.getPendingConnection().getVersion() ) );
             serverConnection.sendQueuedPackets();
         }
 
