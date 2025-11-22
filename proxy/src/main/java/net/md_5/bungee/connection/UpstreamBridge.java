@@ -16,6 +16,7 @@ import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.CustomClickEvent;
+import net.md_5.bungee.api.event.PlayerConfigurationEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.SettingsChangedEvent;
@@ -320,19 +321,41 @@ public class UpstreamBridge extends PacketHandler
 
     private void configureServer()
     {
-        ChannelWrapper ch = con.getServer().getCh();
-        if ( ch.getDecodeProtocol() == Protocol.LOGIN )
+        ServerConnection serverConnection = con.getServer();
+        ChannelWrapper serverChannel = serverConnection.getCh();
+        boolean login = serverChannel.getDecodeProtocol() == Protocol.LOGIN;
+        serverChannel.setDecodeProtocol( Protocol.CONFIGURATION );
+        // send login ack if the player was in login state before, otherwise start config
+        serverChannel.write( login ? new LoginAcknowledged() : new StartConfiguration() );
+        serverChannel.setEncodeProtocol( Protocol.CONFIGURATION );
+        if ( login )
         {
-            ch.setDecodeProtocol( Protocol.CONFIGURATION );
-            ch.write( new LoginAcknowledged() );
-            ch.setEncodeProtocol( Protocol.CONFIGURATION );
-
             // send the registered plugin channel as soon as the server is in config state
-            ch.write( BungeeCord.getInstance().registerChannels( con.getPendingConnection().getVersion() ) );
-            con.getServer().sendQueuedPackets();
-
-            throw CancelSendSignal.INSTANCE;
+            serverChannel.write( BungeeCord.getInstance().registerChannels( con.getPendingConnection().getVersion() ) );
+            serverConnection.sendQueuedPackets();
         }
+
+        callConfigurationEvent( serverConnection, login );
+        throw CancelSendSignal.INSTANCE;
+
+    }
+
+    private void callConfigurationEvent(ServerConnection serverConnection, boolean login)
+    {
+        serverConnection.queueConfigPackets();
+        PlayerConfigurationEvent.Reason reason = login ? PlayerConfigurationEvent.Reason.LOGIN : PlayerConfigurationEvent.Reason.RECONFIGURE;
+        bungee.getPluginManager().callEvent( new PlayerConfigurationEvent( con, reason, (event, error) ->
+        {
+            serverConnection.getCh().scheduleIfNecessary( () ->
+            {
+                // if the server has already disconnected, keep the config state of the client clean
+                // by not sending the packets from the backend, so he has a chance to connect to another server.
+                if ( !serverConnection.getCh().isClosing() )
+                {
+                    serverConnection.releaseConfigPackets( con );
+                }
+            } );
+        } ) );
     }
 
     @Override
