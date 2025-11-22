@@ -1,6 +1,7 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
+import io.netty.channel.ChannelFutureListener;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayDeque;
@@ -65,6 +66,26 @@ public class ServerConnection implements Server
         Preconditions.checkState( ch.getHandle().eventLoop().inEventLoop(), "not in event loop" );
         Preconditions.checkState( configQueue == null, "already queueing config packets" );
         configQueue = new ArrayDeque<>();
+
+        // these packets have to be released when the channel closes
+        // otherwise we would have a big memory leak
+        ch.getHandle().closeFuture().addListener( (ChannelFutureListener) channelFuture -> releaseCachedPacketWrappers( null ) );
+    }
+
+
+    /*
+     * Releases cached packet wrappers, either by sending them to the given player,
+     * or by releasing them directly if the player is null.
+     */
+    private void releaseCachedPacketWrappers(UserConnection userConnection)
+    {
+        Preconditions.checkState( ch.getHandle().eventLoop().inEventLoop(), "not in event loop" );
+        if ( configQueue != null )
+        {
+            configQueue.forEach( userConnection != null ? userConnection::sendPacket : PacketWrapper::trySingleRelease );
+            configQueue.clear();
+            configQueue = null;
+        }
     }
 
     /*
@@ -89,14 +110,13 @@ public class ServerConnection implements Server
         Preconditions.checkNotNull( configQueue, "not holding back config packets" );
         Preconditions.checkNotNull( player, "player can not be null" );
 
-        final Queue<PacketWrapper> queue = configQueue;
-        configQueue = null;
-
         if ( !player.isConnected() || player.getServer() != this )
         {
+            releaseCachedPacketWrappers( null );
             return;
         }
-        queue.forEach( player::sendPacket );
+
+        releaseCachedPacketWrappers( player );
 
         if ( receivedConfigFinish )
         {

@@ -160,9 +160,7 @@ public class DownstreamBridge extends PacketHandler
         // Queue for PlayerConfigurationEvent
         if ( packet.packet == null && packet.protocol == Protocol.CONFIGURATION && server.isQueuingConfigPackets() )
         {
-            // I want to be 100% sure this does not leak, so we use an unpooled copy.
-            ByteBuf unpooled = Unpooled.copiedBuffer( packet.buf );
-            server.queueConfigPacket( new PacketWrapper( null, unpooled, packet.protocol ) );
+            server.queueConfigPacket( new PacketWrapper( null, packet.buf.retain(), packet.protocol ) );
             return;
         }
 
