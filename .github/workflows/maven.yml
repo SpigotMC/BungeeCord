@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [8, 11, 17, 21, 25-ea]
+        java: [8, 11, 17, 21, 25]
 
     name: Java ${{ matrix.java }}
 

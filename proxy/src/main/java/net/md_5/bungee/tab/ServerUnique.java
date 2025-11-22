@@ -22,12 +22,17 @@ public class ServerUnique extends TabList
     @Override
     public void onUpdate(PlayerListItem playerListItem)
     {
-        for ( PlayerListItem.Item item : playerListItem.getItems() )
+        PlayerListItem.Action action = playerListItem.getAction();
+
+        if ( action == PlayerListItem.Action.ADD_PLAYER )
         {
-            if ( playerListItem.getAction() == PlayerListItem.Action.ADD_PLAYER )
+            for ( PlayerListItem.Item item : playerListItem.getItems() )
             {
                 uuids.add( item.getUuid() );
-            } else if ( playerListItem.getAction() == PlayerListItem.Action.REMOVE_PLAYER )
+            }
+        } else if ( action == PlayerListItem.Action.REMOVE_PLAYER )
+        {
+            for ( PlayerListItem.Item item : playerListItem.getItems() )
             {
                 uuids.remove( item.getUuid() );
             }
@@ -48,14 +53,11 @@ public class ServerUnique extends TabList
     @Override
     public void onUpdate(PlayerListItemUpdate playerListItem)
     {
-        for ( PlayerListItem.Item item : playerListItem.getItems() )
+        if ( playerListItem.getActions().contains( PlayerListItemUpdate.Action.ADD_PLAYER ) )
         {
-            for ( PlayerListItemUpdate.Action action : playerListItem.getActions() )
+            for ( PlayerListItem.Item item : playerListItem.getItems() )
             {
-                if ( action == PlayerListItemUpdate.Action.ADD_PLAYER )
-                {
-                    uuids.add( item.getUuid() );
-                }
+                uuids.add( item.getUuid() );
             }
         }
         player.unsafe().sendPacket( playerListItem );
@@ -73,7 +75,7 @@ public class ServerUnique extends TabList
         if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_19_3 )
         {
             PlayerListItemRemove packet = new PlayerListItemRemove();
-            packet.setUuids( uuids.stream().toArray( UUID[]::new ) );
+            packet.setUuids( uuids.toArray( new UUID[ 0 ] ) );
             player.unsafe().sendPacket( packet );
         } else
         {

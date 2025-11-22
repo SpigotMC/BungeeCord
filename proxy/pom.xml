@@ -6,19 +6,20 @@
     <parent>
         <groupId>net.md-5</groupId>
         <artifactId>bungeecord-parent</artifactId>
-        <version>1.21-R0.4-SNAPSHOT</version>
+        <version>1.21-R0.5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>net.md-5</groupId>
     <artifactId>bungeecord-proxy</artifactId>
-    <version>1.21-R0.4-SNAPSHOT</version>
+    <version>1.21-R0.5-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>BungeeCord-Proxy</name>
     <description>Proxy component of the Elastic Portal Suite</description>
 
     <properties>
+        <skipPublishing>true</skipPublishing>
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
