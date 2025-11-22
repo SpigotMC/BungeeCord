@@ -384,7 +384,12 @@ public class UpstreamBridge extends PacketHandler
         {
             serverConnection.getCh().scheduleIfNecessary( () ->
             {
-                serverConnection.releaseConfigPackets( con );
+                // if the server has already disconnected, keep the config state of the client clean
+                // by not sending the packets from the backend, so he has a chance to connect to another server.
+                if ( !serverConnection.getCh().isClosing() )
+                {
+                    serverConnection.releaseConfigPackets( con );
+                }
             } );
         } ) );
     }
