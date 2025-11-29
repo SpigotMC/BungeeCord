@@ -1,21 +1,30 @@
 package net.md_5.bungee.event;
 
-import java.lang.reflect.InvocationTargetException;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@AllArgsConstructor
 public class EventHandlerMethod
 {
 
     @Getter
     private final Object listener;
     @Getter
-    private final Method method;
+    private final MethodHandle methodHandle;
 
-    public void invoke(Object event) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException
+    public EventHandlerMethod(Object listener, Method method) throws IllegalAccessException
     {
-        method.invoke( listener, event );
+        this.listener = listener;
+        this.methodHandle = MethodHandles.lookup()
+            .unreflect( method )
+            .bindTo( listener )
+            .asType( MethodType.methodType( void.class, Object.class ) );
+    }
+
+    public void invoke(Object event) throws Throwable
+    {
+        methodHandle.invokeExact( event );
     }
 }
