@@ -11,7 +11,6 @@ public class EventHandlerMethod
 
     @Getter
     private final Object listener;
-    @Getter
     private final MethodHandle methodHandle;
 
     public EventHandlerMethod(Object listener, Method method) throws IllegalAccessException
