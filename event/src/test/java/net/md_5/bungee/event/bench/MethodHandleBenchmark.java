@@ -5,6 +5,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
+import lombok.Data;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -26,19 +27,21 @@ import org.openjdk.jmh.infra.Blackhole;
 public class MethodHandleBenchmark
 {
 
+    @Data
     public static class TestEvent
     {
+        private final Blackhole blackhole;
     }
 
     public static class TestListener
     {
         public void onEvent(TestEvent e)
         {
+            e.blackhole.consume( 1 );
         }
     }
 
     // Variables we need
-    private TestEvent event;
     private TestListener listener;
     private Method reflectionMethod;
     private MethodHandle methodHandle;
@@ -46,7 +49,6 @@ public class MethodHandleBenchmark
     @Setup
     public void setup() throws Throwable
     {
-        event = new TestEvent();
         listener = new TestListener();
 
         // Setup Reflection
@@ -59,18 +61,18 @@ public class MethodHandleBenchmark
     @Benchmark
     public void testDirectCall(Blackhole bh)
     {
-        listener.onEvent( event );
+        listener.onEvent( new TestEvent( bh ) );
     }
 
     @Benchmark
     public void testReflection(Blackhole bh) throws Exception
     {
-        reflectionMethod.invoke( listener, event );
+        reflectionMethod.invoke( listener, new TestEvent( bh ) );
     }
 
     @Benchmark
     public void testMethodHandle(Blackhole bh) throws Throwable
     {
-        methodHandle.invokeExact( (Object) event );
+        methodHandle.invokeExact( (Object) new TestEvent( bh ) );
     }
 }
