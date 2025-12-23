@@ -811,14 +811,12 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(Login login) throws Exception
     {
-        // if the backend reconfigures the connection it can send multiple login packets
-        if ( !receivedLogin )
-        {
-            receivedLogin = true;
-            ServerConnector.handleLogin( bungee, server.getCh(), con, server.getInfo(), null, server, login );
+        Preconditions.checkState( !receivedLogin, "Not expecting login" );
 
-            throw CancelSendSignal.INSTANCE;
-        }
+        receivedLogin = true;
+        ServerConnector.handleLogin( bungee, server.getCh(), con, server.getInfo(), null, server, login );
+
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override
