@@ -33,6 +33,9 @@ public class ServerConnection implements Server
     @Getter
     private final Queue<KeepAliveData> keepAlives = new ArrayDeque<>();
     private final Queue<DefinedPacket> packetQueue = new ArrayDeque<>();
+    @Getter
+    @Setter
+    private boolean firstLogin;
 
     private final Unsafe unsafe = new Unsafe()
     {
