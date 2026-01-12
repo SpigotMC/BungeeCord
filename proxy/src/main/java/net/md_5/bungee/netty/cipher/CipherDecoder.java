@@ -13,14 +13,14 @@ public class CipherDecoder extends FastByteToByteDecoder
     private final BungeeCipher cipher;
 
     @Override
-    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception
-    {
-        cipher.free();
-    }
-
-    @Override
     protected ByteBuf decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception
     {
         return cipher.cipher( ctx, in );
+    }
+
+    @Override
+    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception
+    {
+        cipher.free();
     }
 }

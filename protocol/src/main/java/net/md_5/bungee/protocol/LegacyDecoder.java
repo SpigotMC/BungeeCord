@@ -35,5 +35,4 @@ public class LegacyDecoder extends ClearableByteToMessageDecoder
         in.resetReaderIndex();
         ctx.pipeline().remove( this );
     }
-
 }
