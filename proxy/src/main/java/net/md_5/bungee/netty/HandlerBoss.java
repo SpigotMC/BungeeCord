@@ -230,6 +230,6 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
             }
         }
 
-        ctx.close();
+        channel.close();
     }
 }
