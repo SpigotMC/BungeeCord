@@ -74,7 +74,8 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception
+    {
         // clear internal buffer, so there is no more stuff going to the pipeline after channel is closed
         internalBuffer().clear();
         super.channelInactive( ctx );
