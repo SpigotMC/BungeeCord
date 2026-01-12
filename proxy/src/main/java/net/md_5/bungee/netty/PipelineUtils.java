@@ -220,7 +220,7 @@ public class PipelineUtils
             }
             ch.config().setWriteBufferWaterMark( MARK );
 
-            ch.pipeline().addLast( FRAME_DECODER, new Varint21FrameDecoder() );
+            ch.pipeline().addLast( FRAME_DECODER, new Varint21FrameDecoder( !toServer ) );
             ch.pipeline().addLast( TIMEOUT_HANDLER, new ReadTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
             ch.pipeline().addLast( WRITE_TIMEOUT_HANDLER, new WriteTimeoutHandler( BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS ) );
             // No encryption bungee -> server, therefore use extra buffer to avoid copying everything for length prepending
