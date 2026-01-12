@@ -3,11 +3,10 @@ package net.md_5.bungee.protocol;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.CorruptedFrameException;
 import java.util.List;
 
-public class Varint21FrameDecoder extends ByteToMessageDecoder
+public class Varint21FrameDecoder extends ClearableByteToMessageDecoder
 {
 
     private static boolean DIRECT_WARNING;
@@ -64,21 +63,4 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
 
         throw new CorruptedFrameException( "length wider than 21-bit" );
     }
-
-    @Override
-    protected void decodeLast(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
-    {
-        // clear internal buffer
-        in.clear();
-        super.decodeLast( ctx, in, out );
-    }
-
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception
-    {
-        // clear internal buffer, so there is no more stuff going to the pipeline after channel is closed
-        internalBuffer().clear();
-        super.channelInactive( ctx );
-    }
-
 }
