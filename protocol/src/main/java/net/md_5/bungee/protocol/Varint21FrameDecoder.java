@@ -6,14 +6,11 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.CorruptedFrameException;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 public class Varint21FrameDecoder extends ByteToMessageDecoder
 {
 
     private static boolean DIRECT_WARNING;
-    private final boolean releaseOnClose;
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
@@ -71,13 +68,16 @@ public class Varint21FrameDecoder extends ByteToMessageDecoder
     @Override
     protected void decodeLast(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
     {
-        if ( releaseOnClose )
-        {
-            // releases the cumulation buffer
-            in.release();
-        } else
-        {
-            super.decodeLast( ctx, in, out );
-        }
+        // clear internal buffer
+        in.clear();
+        super.decodeLast( ctx, in, out );
     }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        // clear internal buffer, so there is no more stuff going to the pipeline after channel is closed
+        internalBuffer().clear();
+        super.channelInactive( ctx );
+    }
+
 }

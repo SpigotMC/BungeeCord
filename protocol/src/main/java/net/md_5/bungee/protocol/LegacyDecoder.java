@@ -40,7 +40,15 @@ public class LegacyDecoder extends ByteToMessageDecoder
     @Override
     protected void decodeLast(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
     {
-        // releases the cumulation buffer
-        in.release();
+        // clear internal buffer
+        in.clear();
+        super.decodeLast( ctx, in, out );
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        // clear internal buffer, so there is no more stuff going to the pipeline after channel is closed
+        internalBuffer().clear();
+        super.channelInactive( ctx );
     }
 }
