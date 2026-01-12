@@ -14,13 +14,6 @@ public class LegacyDecoder extends ByteToMessageDecoder
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
     {
-        // See check in Varint21FrameDecoder for more details
-        if ( !ctx.channel().isActive() )
-        {
-            in.skipBytes( in.readableBytes() );
-            return;
-        }
-
         if ( !in.isReadable() )
         {
             return;
@@ -42,5 +35,12 @@ public class LegacyDecoder extends ByteToMessageDecoder
 
         in.resetReaderIndex();
         ctx.pipeline().remove( this );
+    }
+
+    @Override
+    protected void decodeLast(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
+    {
+        // releases the cumulation buffer
+        in.release();
     }
 }
