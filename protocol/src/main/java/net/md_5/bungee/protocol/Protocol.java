@@ -695,7 +695,7 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_20_5, 0x04 ),
                     map( ProtocolConstants.MINECRAFT_1_21_2, 0x05 ),
                     map( ProtocolConstants.MINECRAFT_1_21_6, 0x06 ),
-                    map( ProtocolConstants.MINECRAFT_26_1, 0x07)
+                    map( ProtocolConstants.MINECRAFT_26_1, 0x07 )
             );
             TO_SERVER.registerPacket(
                     ClientChat.class,
