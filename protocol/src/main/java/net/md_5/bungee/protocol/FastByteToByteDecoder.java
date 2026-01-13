@@ -24,9 +24,9 @@ public abstract class FastByteToByteDecoder extends ChannelInboundHandlerAdapter
             } catch ( Exception e )
             {
                 throw new DecoderException( e );
-            } finally 
+            } finally
             {
-                ReferenceCountUtil.release( msg );   
+                ReferenceCountUtil.release( msg );
             }
             if ( out != null )
             {
