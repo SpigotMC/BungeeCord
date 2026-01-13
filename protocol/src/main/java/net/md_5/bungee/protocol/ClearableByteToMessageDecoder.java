@@ -5,6 +5,15 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import java.util.List;
 
+/**
+ * A {@link ByteToMessageDecoder} that clears its internal buffer when the channel is
+ * about to become inactive or when a {@link #CLEAR_PIPELINE} event is triggered.
+ *
+ * This is useful to prevent any unwanted data from being processed after the
+ * channel is closed.
+ *
+ * The {@link #CLEAR_PIPELINE} userEvent should only be triggered by the close logic.
+ */
 public abstract class ClearableByteToMessageDecoder extends ByteToMessageDecoder
 {
 
@@ -29,6 +38,7 @@ public abstract class ClearableByteToMessageDecoder extends ByteToMessageDecoder
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception
     {
+        // this will be triggered by the ChannelWrapper close logic
         if ( evt == CLEAR_PIPELINE )
         {
             internalBuffer().clear();
