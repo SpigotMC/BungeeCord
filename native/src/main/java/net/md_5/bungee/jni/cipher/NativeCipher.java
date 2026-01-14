@@ -62,11 +62,9 @@ public class NativeCipher implements BungeeCipher
     @Override
     public ByteBuf cipher(ChannelHandlerContext ctx, ByteBuf in) throws GeneralSecurityException
     {
-        int readableBytes = in.readableBytes();
-        ByteBuf heapOut = ctx.alloc().directBuffer( readableBytes ); // CFB8
-        cipher( in, heapOut );
+        cipher( in, in );
 
-        return heapOut;
+        return in.retain();
     }
 
     @Override
