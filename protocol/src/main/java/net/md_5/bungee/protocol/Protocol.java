@@ -1028,9 +1028,9 @@ public enum Protocol
     {
 
         private final int protocolVersion;
-        private final Object2IntMap<Class<? extends DefinedPacket>> packetMap = new Object2IntOpenHashMap<>( MAX_PACKET_ID );
+        private final Object2IntMap<Class<? extends DefinedPacket>> packetMap = new Object2IntOpenHashMap<>( MAX_PACKET_ID + 1 );
         @SuppressWarnings("unchecked")
-        private final Supplier<? extends DefinedPacket>[] packetConstructors = new Supplier[ MAX_PACKET_ID ];
+        private final Supplier<? extends DefinedPacket>[] packetConstructors = new Supplier[ MAX_PACKET_ID + 1 ];
     }
 
     @Data
@@ -1104,7 +1104,7 @@ public enum Protocol
             {
                 throw new BadPacketException( "Unsupported protocol version " + version );
             }
-            if ( id >= MAX_PACKET_ID || id < 0 )
+            if ( id > MAX_PACKET_ID || id < 0 )
             {
                 throw new BadPacketException( "Packet with id " + id + " outside of range" );
             }
