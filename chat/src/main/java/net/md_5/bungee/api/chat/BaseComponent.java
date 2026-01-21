@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.chat;
 
+import com.google.common.base.Preconditions;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,12 +9,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder.FormatRetention;
 
 @Setter
-@ToString(exclude = "parent")
 @EqualsAndHashCode(exclude = "parent")
 public abstract class BaseComponent
 {
@@ -772,5 +771,100 @@ public abstract class BaseComponent
 
             builder.append( s );
         }
+    }
+
+    @Override
+    public String toString()
+    {
+        return toString( true );
+    }
+
+    private boolean isEmpty()
+    {
+        return !hasFormatting() && ( extra == null || extra.isEmpty() );
+    }
+
+    // this is private, I added docs anyway
+    /**
+     * Converts a class name and objects to a string representation.
+     *
+     * @param className the name of the class to use in the string representation,
+     * if the string is null the name and brackets will be skipped.
+     * @param skipNulls whether to skip null values in the string representation
+     * @param objects the objects to convert to a string representation,
+     * every odd object is a name and even a value
+     * @return the string representation
+     */
+    static String toString(String className, boolean skipNulls, Object... objects)
+    {
+        if ( objects == null )
+        {
+            objects = new Object[0];
+        }
+
+        Preconditions.checkArgument( objects.length % 2 == 0, "Objects must be even length ( [name, value] )" );
+
+        boolean hasName = className != null, first = true;
+        StringBuilder builder = new StringBuilder( hasName ? className : "" );
+        if ( hasName )
+        {
+            builder.append( '(' );
+        }
+
+        for ( int i = 0; i < objects.length; i += 2 )
+        {
+            Object name = Preconditions.checkNotNull( objects[i], "Name of field cannot be null" );
+            Object value = objects[i + 1];
+
+            if ( skipNulls && value == null )
+            {
+                continue;
+            }
+
+            if ( !first )
+            {
+                builder.append( ", " );
+            }
+            builder.append( name ).append( '=' ).append( value );
+            first = false;
+        }
+
+        if ( hasName )
+        {
+            builder.append( ')' );
+        }
+
+        return builder.toString();
+    }
+
+    protected String componentToString(Object... objects)
+    {
+        StringBuilder builder = new StringBuilder( getClass().getSimpleName() );
+
+        builder.append( '(' );
+
+        // add all fields of the component, without null skips
+        builder.append( toString( null, false, objects ) );
+
+        // Skip the base if its fully empty
+        if ( !isEmpty() )
+        {
+            builder.append( ", " ).append( toString( true ) );
+        }
+
+        builder.append( ')' );
+
+        return builder.toString();
+    }
+
+    private String toString(boolean skipNulls)
+    {
+        return toString( "BaseComponent", skipNulls,
+            "style", hasStyle() || !skipNulls ? style : null, // I guess we should also skip, empty styles
+            "insertion", insertion,
+            "clickEvent", clickEvent,
+            "hoverEvent", hoverEvent,
+            "extra", extra
+        );
     }
 }

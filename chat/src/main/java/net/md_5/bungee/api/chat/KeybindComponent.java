@@ -4,11 +4,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public final class KeybindComponent extends BaseComponent
@@ -63,4 +61,11 @@ public final class KeybindComponent extends BaseComponent
         builder.append( getKeybind() );
         super.toLegacyText( builder );
     }
+
+    @Override
+    public String toString()
+    {
+        return componentToString( "keybind", keybind );
+    }
+
 }
