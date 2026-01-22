@@ -3,7 +3,6 @@ package net.md_5.bungee.api.chat;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 /**
@@ -20,7 +19,6 @@ import lombok.ToString;
  * As of 1.12.2, a bug ( MC-56373 ) prevents full usage within hover events.
  */
 @Getter
-@Setter
 @ToString
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -60,6 +58,33 @@ public final class SelectorComponent extends BaseComponent
     public SelectorComponent(String selector)
     {
         setSelector( selector );
+    }
+
+    /**
+     * Sets the entity target selector (@p, @a, @r, @e, or @s) and, optionally,
+     * selector arguments (e.g. @e[r=10,type=Creeper]).
+     *
+     * @param selector new entity target selector
+     * @return this
+     */
+    public SelectorComponent setSelector(String selector)
+    {
+        this.selector = selector;
+        return this;
+    }
+
+    /**
+     * Sets the separator of multiple selected entities.
+     * <br>
+     * The default is {@code {"color": "gray", "text": ", "}}.
+     *
+     * @param separator new separator component
+     * @return this
+     */
+    public SelectorComponent setSeparator(BaseComponent separator)
+    {
+        this.separator = separator;
+        return this;
     }
 
     @Override

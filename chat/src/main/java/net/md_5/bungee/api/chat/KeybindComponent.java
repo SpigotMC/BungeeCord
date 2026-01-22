@@ -3,11 +3,9 @@ package net.md_5.bungee.api.chat;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
 @Getter
-@Setter
 @ToString
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -41,6 +39,20 @@ public final class KeybindComponent extends BaseComponent
     public KeybindComponent(String keybind)
     {
         setKeybind( keybind );
+    }
+
+    /**
+     * Sets the keybind identifier to use.
+     * <br>
+     * Will be replaced with the actual key the client is using.
+     *
+     * @param keybind new keybind identifier
+     * @return this
+     */
+    public KeybindComponent setKeybind(String keybind)
+    {
+        this.keybind = keybind;
+        return this;
     }
 
     @Override

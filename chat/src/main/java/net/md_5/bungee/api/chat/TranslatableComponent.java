@@ -7,12 +7,10 @@ import java.util.regex.Pattern;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 import net.md_5.bungee.chat.TranslationRegistry;
 
 @Getter
-@Setter
 @ToString
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -31,7 +29,7 @@ public final class TranslatableComponent extends BaseComponent
      */
     private List<BaseComponent> with;
     /**
-     * The fallback, if the translation is not found
+     * The fallback text, if the translation is not found
      */
     private String fallback;
 
@@ -114,18 +112,46 @@ public final class TranslatableComponent extends BaseComponent
     }
 
     /**
+     * Sets The key into the Minecraft locale files to use for the translation.
+     * The text depends on the client's locale setting. The console is always
+     * en_US.
+     *
+     * @param translate new translation key
+     * @return this
+     */
+    public TranslatableComponent setTranslate(String translate)
+    {
+        this.translate = translate;
+        return this;
+    }
+
+    /**
      * Sets the translation substitutions to be used in this component. Removes
      * any previously set substitutions
      *
      * @param components the components to substitute
+     * @return this
      */
-    public void setWith(List<BaseComponent> components)
+    public TranslatableComponent setWith(List<BaseComponent> components)
     {
         for ( BaseComponent component : components )
         {
             component.parent = this;
         }
         with = components;
+        return this;
+    }
+
+    /**
+     * Sets the fallback text, if the translation is not found.
+     *
+     * @param fallback new fallback text
+     * @return this
+     */
+    public TranslatableComponent setFallback(String fallback)
+    {
+        this.fallback = fallback;
+        return this;
     }
 
     /**
@@ -133,10 +159,11 @@ public final class TranslatableComponent extends BaseComponent
      * component's formatting
      *
      * @param text the text to substitute
+     * @return this
      */
-    public void addWith(String text)
+    public TranslatableComponent addWith(String text)
     {
-        addWith( new TextComponent( text ) );
+        return addWith( new TextComponent( text ) );
     }
 
     /**
@@ -144,8 +171,9 @@ public final class TranslatableComponent extends BaseComponent
      * this component's formatting
      *
      * @param component the component to substitute
+     * @return this
      */
-    public void addWith(BaseComponent component)
+    public TranslatableComponent addWith(BaseComponent component)
     {
         if ( with == null )
         {
@@ -153,6 +181,7 @@ public final class TranslatableComponent extends BaseComponent
         }
         component.parent = this;
         with.add( component );
+        return this;
     }
 
     @Override
@@ -225,7 +254,7 @@ public final class TranslatableComponent extends BaseComponent
             {
                 addFormat( builder );
             }
-            builder.append( trans.substring( position, trans.length() ) );
+            builder.append( trans.substring( position ) );
         }
     }
 }

@@ -3,7 +3,6 @@ package net.md_5.bungee.api.chat;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 /**
@@ -24,7 +23,6 @@ import lombok.ToString;
  * As of 1.12.2, a bug ( MC-56373 ) prevents full usage within hover events.
  */
 @Getter
-@Setter
 @ToString
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -76,6 +74,43 @@ public final class ScoreComponent extends BaseComponent
         setName( original.getName() );
         setObjective( original.getObjective() );
         setValue( original.getValue() );
+    }
+
+    /**
+     * Sets the name of the entity whose score should be displayed.
+     *
+     * @param name new entity name
+     * @return this
+     */
+    public ScoreComponent setName(String name)
+    {
+        this.name = name;
+        return this;
+    }
+
+    /**
+     * Sets the internal name of the objective the score is attached to.
+     *
+     * @param objective new scoreboard objective name
+     * @return this
+     */
+    public ScoreComponent setObjective(String objective)
+    {
+        this.objective = objective;
+        return this;
+    }
+
+    /**
+     * Sets the value to use instead of the one present in the Scoreboard.
+     *
+     * @param value value to use instead of the scoreboard value, or null or
+     *              empty string to use the scoreboard value
+     * @return this
+     */
+    public ScoreComponent setValue(String value)
+    {
+        this.value = value;
+        return this;
     }
 
     @Override

@@ -8,11 +8,9 @@ import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;
 
 @Getter
-@Setter
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public final class TextComponent extends BaseComponent
@@ -280,6 +278,18 @@ public final class TextComponent extends BaseComponent
             return;
         }
         setExtra( new ArrayList<BaseComponent>( Arrays.asList( extras ) ) );
+    }
+
+    /**
+     * Sets the text of the component that will be displayed to the client.
+     *
+     * @param text new text to display
+     * @return this
+     */
+    public TextComponent setText(String text)
+    {
+        this.text = text;
+        return this;
     }
 
     /**

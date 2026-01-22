@@ -3,7 +3,6 @@ package net.md_5.bungee.api.chat;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 import lombok.ToString;
 import net.md_5.bungee.api.chat.objects.ChatObject;
 
@@ -16,7 +15,6 @@ import net.md_5.bungee.api.chat.objects.ChatObject;
  * Note: this was added in Minecraft 1.21.9.
  */
 @Getter
-@Setter
 @ToString
 @EqualsAndHashCode(callSuper = true)
 public final class ObjectComponent extends BaseComponent
@@ -46,6 +44,18 @@ public final class ObjectComponent extends BaseComponent
     {
         super( original );
         setObject( original.object );
+    }
+
+    /**
+     * Sets the ChatObject displayed by this component.
+     *
+     * @param object new ChatObject
+     * @return null
+     */
+    public ObjectComponent setObject(@NonNull ChatObject object)
+    {
+        this.object = object;
+        return this;
     }
 
     @Override
