@@ -12,7 +12,6 @@ import lombok.ToString;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder.FormatRetention;
 
-@Setter
 @ToString(exclude = "parent")
 @EqualsAndHashCode(exclude = "parent")
 public abstract class BaseComponent
@@ -56,6 +55,7 @@ public abstract class BaseComponent
      * Whether this component rejects previous formatting
      */
     @Getter
+    @Setter
     private transient boolean reset;
 
     /**
@@ -86,10 +86,11 @@ public abstract class BaseComponent
      * formatting will be replaced.
      *
      * @param component the component to copy from
+     * @return this
      */
-    public void copyFormatting(BaseComponent component)
+    public BaseComponent copyFormatting(BaseComponent component)
     {
-        copyFormatting( component, FormatRetention.ALL, true );
+        return copyFormatting( component, FormatRetention.ALL, true );
     }
 
     /**
@@ -98,10 +99,11 @@ public abstract class BaseComponent
      * @param component the component to copy from
      * @param replace if already set formatting should be replaced by the new
      * component
+     * @return this
      */
-    public void copyFormatting(BaseComponent component, boolean replace)
+    public BaseComponent copyFormatting(BaseComponent component, boolean replace)
     {
-        copyFormatting( component, FormatRetention.ALL, replace );
+        return copyFormatting( component, FormatRetention.ALL, replace );
     }
 
     /**
@@ -111,8 +113,9 @@ public abstract class BaseComponent
      * @param retention the formatting to copy
      * @param replace if already set formatting should be replaced by the new
      * component
+     * @return this
      */
-    public void copyFormatting(BaseComponent component, FormatRetention retention, boolean replace)
+    public BaseComponent copyFormatting(BaseComponent component, FormatRetention retention, boolean replace)
     {
         if ( retention == FormatRetention.EVENTS || retention == FormatRetention.ALL )
         {
@@ -164,14 +167,16 @@ public abstract class BaseComponent
                 setInsertion( component.getInsertion() );
             }
         }
+        return this;
     }
 
     /**
      * Retains only the specified formatting.
      *
      * @param retention the formatting to retain
+     * @return this
      */
-    public void retain(FormatRetention retention)
+    public BaseComponent retain(FormatRetention retention)
     {
         if ( retention == FormatRetention.FORMATTING || retention == FormatRetention.NONE )
         {
@@ -189,6 +194,7 @@ public abstract class BaseComponent
             setObfuscated( null );
             setInsertion( null );
         }
+        return this;
     }
 
     /**
@@ -252,10 +258,12 @@ public abstract class BaseComponent
      * all style values on this component.
      *
      * @param style the style to set, or null to set all style values to default
+     * @return this
      */
-    public void setStyle(ComponentStyle style)
+    public BaseComponent setStyle(ComponentStyle style)
     {
         this.style = ( style != null ) ? style.clone() : new ComponentStyle();
+        return this;
     }
 
     /**
@@ -265,10 +273,12 @@ public abstract class BaseComponent
      * {@link ChatColor#color} should not be null).</b>
      *
      * @param color the component color, or null to use the default
+     * @return this
      */
-    public void setColor(ChatColor color)
+    public BaseComponent setColor(ChatColor color)
     {
         this.style.setColor( color );
+        return this;
     }
 
     /**
@@ -306,10 +316,12 @@ public abstract class BaseComponent
      * Set this component's shadow color.
      *
      * @param color the component shadow color, or null to use the default
+     * @return this
      */
-    public void setShadowColor(Color color)
+    public BaseComponent setShadowColor(Color color)
     {
         this.style.setShadowColor( color );
+        return this;
     }
 
     /**
@@ -347,10 +359,12 @@ public abstract class BaseComponent
      * Set this component's font.
      *
      * @param font the font to set, or null to use the default
+     * @return this
      */
-    public void setFont(String font)
+    public BaseComponent setFont(String font)
     {
         this.style.setFont( font );
+        return this;
     }
 
     /**
@@ -387,10 +401,12 @@ public abstract class BaseComponent
      * Set whether or not this component is bold.
      *
      * @param bold the new bold state, or null to use the default
+     * @return this
      */
-    public void setBold(Boolean bold)
+    public BaseComponent setBold(Boolean bold)
     {
         this.style.setBold( bold );
+        return this;
     }
 
     /**
@@ -424,10 +440,12 @@ public abstract class BaseComponent
      * Set whether or not this component is italic.
      *
      * @param italic the new italic state, or null to use the default
+     * @return this
      */
-    public void setItalic(Boolean italic)
+    public BaseComponent setItalic(Boolean italic)
     {
         this.style.setItalic( italic );
+        return this;
     }
 
     /**
@@ -461,10 +479,12 @@ public abstract class BaseComponent
      * Set whether or not this component is underlined.
      *
      * @param underlined the new underlined state, or null to use the default
+     * @return this
      */
-    public void setUnderlined(Boolean underlined)
+    public BaseComponent setUnderlined(Boolean underlined)
     {
         this.style.setUnderlined( underlined );
+        return this;
     }
 
     /**
@@ -499,10 +519,12 @@ public abstract class BaseComponent
      *
      * @param strikethrough the new strikethrough state, or null to use the
      * default
+     * @return this
      */
-    public void setStrikethrough(Boolean strikethrough)
+    public BaseComponent setStrikethrough(Boolean strikethrough)
     {
         this.style.setStrikethrough( strikethrough );
+        return this;
     }
 
     /**
@@ -536,10 +558,12 @@ public abstract class BaseComponent
      * Set whether or not this component is obfuscated.
      *
      * @param obfuscated the new obfuscated state, or null to use the default
+     * @return this
      */
-    public void setObfuscated(Boolean obfuscated)
+    public BaseComponent setObfuscated(Boolean obfuscated)
     {
         this.style.setObfuscated( obfuscated );
+        return this;
     }
 
     /**
@@ -577,8 +601,9 @@ public abstract class BaseComponent
      * not override the style set in this component.
      *
      * @param style the style to apply
+     * @return this
      */
-    public void applyStyle(ComponentStyle style)
+    public BaseComponent applyStyle(ComponentStyle style)
     {
         if ( style.hasColor() )
         {
@@ -612,15 +637,37 @@ public abstract class BaseComponent
         {
             setObfuscated( style.isObfuscatedRaw() );
         }
+        return this;
     }
 
-    public void setExtra(List<BaseComponent> components)
+    /**
+     * Set the text to insert into the chat when this component (and child
+     * components) are clicked while pressing the shift key.
+     *
+     * @param insertion the new insertion text, or null to use the default
+     * @return this
+     */
+    public BaseComponent setInsertion(String insertion)
+    {
+        this.insertion = insertion;
+        return this;
+    }
+
+    /**
+     * Set the list of appended components that inherit this component's
+     * formatting and events.
+     *
+     * @param components new list of extra components
+     * @return this
+     */
+    public BaseComponent setExtra(List<BaseComponent> components)
     {
         for ( BaseComponent component : components )
         {
             component.parent = this;
         }
         extra = components;
+        return this;
     }
 
     /**
@@ -628,10 +675,11 @@ public abstract class BaseComponent
      * component's formatting
      *
      * @param text the text to append
+     * @return this
      */
-    public void addExtra(String text)
+    public BaseComponent addExtra(String text)
     {
-        addExtra( new TextComponent( text ) );
+        return addExtra( new TextComponent( text ) );
     }
 
     /**
@@ -639,8 +687,9 @@ public abstract class BaseComponent
      * component's formatting
      *
      * @param component the component to append
+     * @return this
      */
-    public void addExtra(BaseComponent component)
+    public BaseComponent addExtra(BaseComponent component)
     {
         if ( extra == null )
         {
@@ -648,6 +697,33 @@ public abstract class BaseComponent
         }
         component.parent = this;
         extra.add( component );
+        return this;
+    }
+
+    /**
+     * Set the action to perform when this component (and child components) are
+     * clicked
+     *
+     * @param clickEvent the new click event, or null to use the default
+     * @return this
+     */
+    public BaseComponent setClickEvent(ClickEvent clickEvent)
+    {
+        this.clickEvent = clickEvent;
+        return this;
+    }
+
+    /**
+     * Set the action to perform when this component (and child components) are
+     * hovered over
+     *
+     * @param hoverEvent the new hover event, or null to use the default
+     * @return this
+     */
+    public BaseComponent setHoverEvent(HoverEvent hoverEvent)
+    {
+        this.hoverEvent = hoverEvent;
+        return this;
     }
 
     /**
@@ -744,7 +820,7 @@ public abstract class BaseComponent
     }
 
     @FunctionalInterface
-    protected static interface StringVisitor
+    protected interface StringVisitor
     {
 
         void append(String s);
