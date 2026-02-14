@@ -234,7 +234,7 @@ public final class PluginManager
         } catch ( Exception ex )
         {
             sender.sendMessage( ChatColor.RED + "An internal error occurred whilst executing this command, please check the console log for details." );
-            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Error in dispatching command", ex );
+            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Error in dispatching command: " + command.getName(), ex );
         }
         return true;
     }
