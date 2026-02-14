@@ -41,6 +41,7 @@ import net.md_5.bungee.api.event.ServerDisconnectEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.event.TabCompleteResponseEvent;
 import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.plugin.TabExecutor;
 import net.md_5.bungee.api.score.Objective;
 import net.md_5.bungee.api.score.Position;
 import net.md_5.bungee.api.score.Score;
@@ -763,15 +764,33 @@ public class DownstreamBridge extends PacketHandler
 
         for ( Map.Entry<String, Command> command : bungee.getPluginManager().getCommands() )
         {
-            if ( !bungee.getDisabledCommands().contains( command.getKey() ) && commands.getRoot().getChild( command.getKey() ) == null && command.getValue().hasPermission( con ) )
+            if ( !bungee.getDisabledCommands().contains( command.getKey() ) && command.getValue().hasPermission( con ) )
             {
-                CommandNode dummy = LiteralArgumentBuilder.literal( command.getKey() ).executes( DUMMY_COMMAND )
-                        .then( RequiredArgumentBuilder.argument( "args", StringArgumentType.greedyString() )
-                                .suggests( Commands.SuggestionRegistry.ASK_SERVER ).executes( DUMMY_COMMAND ) )
-                        .build();
-                commands.getRoot().addChild( dummy );
+                boolean insertDummy = true;
 
-                modified = true;
+                CommandNode child = commands.getRoot().getChild( command.getKey() );
+                if ( child != null )
+                {
+                    if ( command.getValue() instanceof TabExecutor )
+                    {
+                        // Allow Bungee command to handle tab completion rather than Brigadier
+                        commands.getRoot().getChildren().remove( child );
+                    } else
+                    {
+                        insertDummy = false;
+                    }
+                }
+
+                if ( insertDummy )
+                {
+                    CommandNode dummy = LiteralArgumentBuilder.literal( command.getKey() ).executes( DUMMY_COMMAND )
+                            .then( RequiredArgumentBuilder.argument( "args", StringArgumentType.greedyString() )
+                                    .suggests( Commands.SuggestionRegistry.ASK_SERVER ).executes( DUMMY_COMMAND ) )
+                            .build();
+                    commands.getRoot().addChild( dummy );
+
+                    modified = true;
+                }
             }
         }
 
