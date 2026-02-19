@@ -225,6 +225,17 @@ public class ServerConnector extends PacketHandler
         if ( user.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_20_2 )
         {
             ch.write( BungeeCord.getInstance().registerChannels( user.getPendingConnection().getVersion() ) );
+
+            PluginMessage brandMessage = user.getPendingConnection().getBrandMessage();
+            if ( brandMessage != null )
+            {
+                ch.write( brandMessage );
+            }
+
+            if ( user.getSettings() != null )
+            {
+                ch.write( user.getSettings() );
+            }
         }
         Queue<DefinedPacket> packetQueue = target.getPacketQueue();
         synchronized ( packetQueue )
@@ -235,21 +246,10 @@ public class ServerConnector extends PacketHandler
             }
         }
 
-        PluginMessage brandMessage = user.getPendingConnection().getBrandMessage();
-        if ( brandMessage != null )
-        {
-            ch.write( brandMessage );
-        }
-
         Set<String> registeredChannels = user.getPendingConnection().getRegisteredChannels();
         if ( !registeredChannels.isEmpty() )
         {
             ch.write( new PluginMessage( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ? "minecraft:register" : "REGISTER", Joiner.on( "\0" ).join( registeredChannels ).getBytes( StandardCharsets.UTF_8 ), false ) );
-        }
-
-        if ( user.getSettings() != null )
-        {
-            ch.write( user.getSettings() );
         }
 
         if ( user.getForgeClientHandler().getClientModList() == null && !user.getForgeClientHandler().isHandshakeComplete() ) // Vanilla
