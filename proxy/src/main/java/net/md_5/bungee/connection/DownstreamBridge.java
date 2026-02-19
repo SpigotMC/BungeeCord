@@ -29,12 +29,14 @@ import net.md_5.bungee.ServerConnection.KeepAliveData;
 import net.md_5.bungee.ServerConnector;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
+import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
+import net.md_5.bungee.api.event.PlayerConfigurationEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerDisconnectEvent;
@@ -168,6 +170,8 @@ public class DownstreamBridge extends PacketHandler
         {
             server.getKeepAlives().add( new KeepAliveData( alive.getRandomId(), System.currentTimeMillis() ) );
         }
+        con.unsafe().sendPacket( alive );
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override
@@ -825,10 +829,19 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(FinishConfiguration finishConfiguration) throws Exception
     {
-        // the clients protocol will change to GAME after this packet
-        con.unsafe().sendPacket( finishConfiguration );
-        // send queued packets as early as possible
-        con.sendQueuedPackets();
+        PlayerConfigurationEvent event = new PlayerConfigurationEvent(
+                con,
+                server.isFirstLogin() ? PlayerConfigurationEvent.Reason.LOGIN : PlayerConfigurationEvent.Reason.RECONFIGURE,
+                eventLoopCallback( (result, error) ->
+                {
+                    // the clients protocol will change to GAME after this packet
+                    con.unsafe().sendPacket( finishConfiguration );
+                    // send queued packets as early as possible
+                    con.sendQueuedPackets();
+                } )
+        );
+        server.setFirstLogin( false );
+        bungee.getPluginManager().callEvent( event );
         throw CancelSendSignal.INSTANCE;
     }
 
@@ -842,5 +855,30 @@ public class DownstreamBridge extends PacketHandler
     public String toString()
     {
         return "[" + con.getName() + "] <-> DownstreamBridge <-> [" + server.getInfo().getName() + "]";
+    }
+
+    // this method is used for event execution
+    // if this connection is disconnected during an event-call, the original callback is not called
+    // if the event was executed async, we execute the callback on the eventloop again
+    // otherwise netty will schedule any pipeline related call by itself, this decreases performance
+    private <T> Callback<T> eventLoopCallback(Callback<T> callback)
+    {
+        return (result, error) ->
+        {
+            server.getCh().scheduleIfNecessary( () ->
+            {
+                if ( server.getCh().isClosing() || con.getCh().isClosing() )
+                {
+                    return;
+                }
+
+                if ( !server.getInfo().equals( con.getServer().getInfo() ) )
+                {
+                    return;
+                }
+
+                callback.done( result, error );
+            } );
+        };
     }
 }
