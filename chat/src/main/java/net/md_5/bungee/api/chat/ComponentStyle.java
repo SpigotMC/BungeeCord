@@ -226,6 +226,97 @@ public final class ComponentStyle implements Cloneable
     }
 
     @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder( "ComponentStyle{" );
+        toString( builder, false );
+        return builder.append( "}" ).toString();
+    }
+
+    boolean toString(StringBuilder builder, boolean comma)
+    {
+        if ( color != null )
+        {
+            if ( comma ) builder.append( ", " );
+            comma = true;
+            builder.append( "color=" ).append( color );
+        }
+        if ( shadowColor != null )
+        {
+            if ( comma ) builder.append( ", " );
+            comma = true;
+            builder.append( "shadowColor=" ).append( shadowColor );
+        }
+        if ( font != null )
+        {
+            if ( comma ) builder.append( ", " );
+            comma = true;
+            builder.append( "font=" ).append( font );
+        }
+        if ( bold != null )
+        {
+            if ( comma ) builder.append( ", " );
+            comma = true;
+            if ( bold )
+            {
+                builder.append( "bold" );
+            } else
+            {
+                builder.append( "bold=false" );
+            }
+        }
+        if ( italic != null )
+        {
+            if ( comma ) builder.append( ", " );
+            comma = true;
+            if ( italic )
+            {
+                builder.append( "italic" );
+            } else
+            {
+                builder.append( "italic=false" );
+            }
+        }
+        if ( underlined != null )
+        {
+            if ( comma ) builder.append( ", " );
+            comma = true;
+            if ( underlined )
+            {
+                builder.append( "underlined" );
+            } else
+            {
+                builder.append( "underlined=false" );
+            }
+        }
+        if ( strikethrough != null )
+        {
+            if ( comma ) builder.append( ", " );
+            comma = true;
+            if ( strikethrough )
+            {
+                builder.append( "strikethrough" );
+            } else
+            {
+                builder.append( "strikethrough=false" );
+            }
+        }
+        if ( obfuscated != null )
+        {
+            if ( comma ) builder.append( ", " );
+            comma = true;
+            if ( obfuscated )
+            {
+                builder.append( "obfuscated" );
+            } else
+            {
+                builder.append( "obfuscated=false" );
+            }
+        }
+        return comma;
+    }
+
+    @Override
     public ComponentStyle clone()
     {
         return new ComponentStyle( color, shadowColor, font, bold, italic, underlined, strikethrough, obfuscated );
