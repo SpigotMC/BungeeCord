@@ -157,6 +157,14 @@ public class DownstreamBridge extends PacketHandler
         {
             rewrite.rewriteClientbound( packet.buf, con.getServerEntityId(), con.getClientEntityId(), con.getPendingConnection().getVersion() );
         }
+
+        // Queue for PlayerConfigurationEvent
+        if ( packet.packet == null && packet.protocol == Protocol.CONFIGURATION && server.isQueuingConfigPackets() )
+        {
+            server.queueConfigPacket( new PacketWrapper( null, packet.buf.retain(), packet.protocol ) );
+            return;
+        }
+
         con.sendPacket( packet );
     }
 
@@ -168,6 +176,14 @@ public class DownstreamBridge extends PacketHandler
         {
             server.getKeepAlives().add( new KeepAliveData( alive.getRandomId(), System.currentTimeMillis() ) );
         }
+
+        // In 1.20.2 the server can enter game phase and send KeepAlive to the client while the client is still config phase,
+        // resulting in clientside exceptions because of different packet ids.
+        // To fix this, we don't forward the ByteBuf and just send the packet manually.
+        // I think the reason for that is that in 1.20.2 the server does not wait for any responses of the client
+        // in config phase, so it directly send finish config enters game and then waits for client and sends KeepAlive.
+        con.unsafe().sendPacket( alive );
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override
@@ -825,10 +841,7 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(FinishConfiguration finishConfiguration) throws Exception
     {
-        // the clients protocol will change to GAME after this packet
-        con.unsafe().sendPacket( finishConfiguration );
-        // send queued packets as early as possible
-        con.sendQueuedPackets();
+        server.onConfigFinished( con );
         throw CancelSendSignal.INSTANCE;
     }
 
