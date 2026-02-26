@@ -42,6 +42,7 @@ import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.ClientExceptionEvent;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.PlayerHandshakeEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
@@ -178,6 +179,9 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void exception(Throwable t) throws Exception
     {
+        ClientExceptionEvent event = new ClientExceptionEvent( this, t );
+        bungee.getPluginManager().callEvent( event );
+
         if ( canSendKickMessage() )
         {
             disconnect( ChatColor.RED + Util.exception( t ) );
