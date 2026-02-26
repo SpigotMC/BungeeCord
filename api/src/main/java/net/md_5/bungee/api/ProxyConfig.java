@@ -87,6 +87,15 @@ public interface ProxyConfig
     int getServerConnectTimeout();
 
     /**
+     * Should all plugin and proxy executed requests for a player to a server require
+     * direct access permission to a server. This is disabled by default, by setting to
+     * true; this will be enabled. This flag can also be toggled in the ServerConnectRequest instance
+     *
+     * @return true if players need authorisation for connections
+     */
+    boolean isRequireAccess();
+
+    /**
      * Time in milliseconds before timing out a ping request from the proxy to a
      * server when attempting to request server list info.
      *
