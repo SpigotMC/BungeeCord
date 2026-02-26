@@ -61,6 +61,7 @@ public final class PluginManager
     private final LibraryLoader libraryLoader;
     private final Map<String, Command> commandMap = new HashMap<>();
     private Map<String, PluginDescription> toLoad = new HashMap<>();
+    private final Map<PluginDescription, File> pluginDirectoryToPlugin = new HashMap<>();
     private final Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
     private final Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
 
@@ -406,6 +407,7 @@ public final class PluginManager
 
                         desc.setFile( file );
                         toLoad.put( desc.getName(), desc );
+                        pluginDirectoryToPlugin.put( desc, folder );
                     }
                 } catch ( Exception ex )
                 {
@@ -486,6 +488,17 @@ public final class PluginManager
             eventBus.unregister( it.next() );
             it.remove();
         }
+    }
+
+    /**
+     * Gets which directory is the plugin in.
+     *
+     * @param desc plugin description
+     * @return the directory
+     */
+    public File matchPluginDirectory(PluginDescription desc)
+    {
+        return pluginDirectoryToPlugin.get( desc );
     }
 
     /**
