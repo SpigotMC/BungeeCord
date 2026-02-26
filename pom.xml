@@ -194,6 +194,13 @@
                         <artifactId>java18</artifactId>
                         <version>1.0</version>
                     </signature>
+                    <ignores>
+                        <!-- Allow using MethodHandle APIs even if the signature implies they don't exist -->
+                        <ignore>java.lang.invoke.MethodHandle</ignore>
+                        <ignore>java.lang.invoke.MethodHandles</ignore>
+                        <ignore>java.lang.invoke.MethodHandles$Lookup</ignore>
+                        <ignore>java.lang.invoke.MethodType</ignore>
+                    </ignores>
                 </configuration>
             </plugin>
             <plugin>
