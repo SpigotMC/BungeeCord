@@ -32,11 +32,11 @@ public class EventBusTest
         latch.countDown();
     }
 
-    public static class FirstEvent
+    public static class FirstEvent implements EventBusEvent
     {
     }
 
-    public static class SecondEvent
+    public static class SecondEvent implements EventBusEvent
     {
     }
 }
