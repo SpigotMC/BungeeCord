@@ -54,4 +54,14 @@ public class PluginDescription
      * Optional libraries.
      */
     private List<String> libraries = new LinkedList<>();
+    /**
+     * Optional: libraries to be excluded from download. A clear use example is having
+     * 2 versions of the same library. This can be achieved by having a library
+     * which packs a library the plugin already packs via {@link #getLibraries()}
+     * and suddenly, BungeeCord ends up with 2 different versions of the same library,
+     * when there can be 1! Or another hilarious case: having a download of a library,
+     * already packed in the BungeeCord jar!
+     * <p>Syntax is the same as in {@link #getLibraries()}
+     */
+    private List<String> excludedTransitiveLibraries = new LinkedList<>();
 }
