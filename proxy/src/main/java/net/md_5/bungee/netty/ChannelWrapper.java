@@ -194,17 +194,11 @@ public class ChannelWrapper
             }
             compressor.setThreshold( compressionThreshold );
 
-            if ( decompressor == null )
-            {
-                addBefore( PipelineUtils.PACKET_DECODER, "decompress", decompressor = new PacketDecompressor() );
-            }
+            decompressor.setEnabled( true );
         } else
         {
             compressor.setCompress( false );
-            if ( decompressor != null )
-            {
-                ch.pipeline().remove( "decompress" );
-            }
+            decompressor.setEnabled( false );
         }
 
         // disable use of composite buffers if we use natives

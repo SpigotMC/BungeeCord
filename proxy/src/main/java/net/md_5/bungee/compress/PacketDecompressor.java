@@ -13,23 +13,24 @@ public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
 {
 
     private static final int MAX_DECOMPRESSED_LEN = 1 << 23;
-    private final BungeeZlib zlib = CompressFactory.zlib.newInstance();
 
-    @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws Exception
-    {
-        zlib.init( false, 0 );
-    }
+    private BungeeZlib zlib;
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception
     {
-        zlib.free();
+        setEnabled( false );
     }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
     {
+        if ( zlib == null )
+        {
+            out.add( in.retain() );
+            return;
+        }
+
         int size = DefinedPacket.readVarInt( in );
         if ( size == 0 )
         {
@@ -60,4 +61,18 @@ public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
             }
         }
     }
+
+    public void setEnabled(boolean enabled)
+    {
+        if ( enabled && this.zlib == null )
+        {
+            zlib = CompressFactory.zlib.newInstance();
+            zlib.init( false, 0 );
+        } else if ( !enabled && this.zlib != null )
+        {
+            zlib.free();
+            zlib = null;
+        }
+    }
+
 }
