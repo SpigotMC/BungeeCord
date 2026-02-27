@@ -67,8 +67,14 @@ public class ServerConnection implements Server
             if ( !encodeProtocol.TO_SERVER.hasPacket( packet.getClass(), ch.getEncodeVersion() ) )
             {
                 // we should limit this so bad api usage won't oom the server.
-                Preconditions.checkState( packetQueue.size() <= 4096, "too many queued packets" );
-                packetQueue.add( packet );
+                if ( packetQueue.size() <= 4096 )
+                {
+                    packetQueue.add( packet );
+                } else
+                {
+                    BungeeCord.getInstance().getLogger().warning( "Too many queued packets to server. Bad API usage? Try removing plugins and report to the authors. This prevented the server from overloading." );
+                    ch.close();
+                }
             } else
             {
                 unsafe().sendPacket( packet );
