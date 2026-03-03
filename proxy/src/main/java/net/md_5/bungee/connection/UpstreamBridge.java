@@ -329,6 +329,14 @@ public class UpstreamBridge extends PacketHandler
 
             // send the registered plugin channel as soon as the server is in config state
             ch.write( BungeeCord.getInstance().registerChannels( con.getPendingConnection().getVersion() ) );
+            if ( con.getSettings() != null )
+            {
+                ch.write( con.getSettings() );
+            }
+            if ( con.getPendingConnection().getBrandMessage() != null )
+            {
+                ch.write( con.getPendingConnection().getBrandMessage() );
+            }
             con.getServer().sendQueuedPackets();
 
             throw CancelSendSignal.INSTANCE;
