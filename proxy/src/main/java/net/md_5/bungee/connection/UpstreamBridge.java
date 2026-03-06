@@ -309,6 +309,7 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(LoginAcknowledged loginAcknowledged) throws Exception
     {
+        con.getServer().setFirstLogin( true );
         configureServer();
     }
 
