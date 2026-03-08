@@ -98,7 +98,7 @@ public class ObjectComponentSerializer extends BaseComponentSerializer implement
 
             if ( profile.getUuid() != null )
             {
-                int[] uuidArray = new int[4];
+                int[] uuidArray = new int[ 4 ];
                 long most = profile.getUuid().getMostSignificantBits();
                 long least = profile.getUuid().getLeastSignificantBits();
                 uuidArray[0] = (int) ( most >> 32 );
