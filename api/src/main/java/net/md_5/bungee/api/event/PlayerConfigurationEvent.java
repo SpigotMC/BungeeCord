@@ -18,11 +18,11 @@ public class PlayerConfigurationEvent extends AsyncEvent<PlayerConfigurationEven
     /**
      * The player entering configuration phase.
      */
-    private ProxiedPlayer player;
+    private final ProxiedPlayer player;
     /**
      * The reason the player is entering configuration phase.
      */
-    private Reason reason;
+    private final Reason reason;
 
     public PlayerConfigurationEvent(ProxiedPlayer player, Reason reason, Callback<PlayerConfigurationEvent> done)
     {
