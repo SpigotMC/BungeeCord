@@ -57,21 +57,21 @@
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-resolver-provider</artifactId>
-            <version>3.9.6</version>
+            <version>3.9.13</version>
             <!-- not part of the API proper -->
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.resolver</groupId>
             <artifactId>maven-resolver-connector-basic</artifactId>
-            <version>1.9.18</version>
+            <version>1.9.27</version>
             <!-- not part of the API proper -->
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.resolver</groupId>
             <artifactId>maven-resolver-transport-http</artifactId>
-            <version>1.9.18</version>
+            <version>1.9.27</version>
             <!-- not part of the API proper -->
             <scope>provided</scope>
         </dependency>
