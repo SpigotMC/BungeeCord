@@ -207,16 +207,14 @@
                             <rules>
                                 <dependencyConvergence>
                                     <excludes>
-                                        <!-- org.apache.maven:maven-resolver-provider is inconsistent -->
-                                        <exclude>org.apache.commons:commons-lang3</exclude>
-                                        <!-- org.apache.maven:maven-resolver-transport-http is inconsistent -->
-                                        <exclude>org.apache.httpcomponents:httpcore</exclude>
+                                        <!-- We use SLF4J 2 (#3834) -->
+                                        <exclude>org.slf4j:slf4j-api</exclude>
                                     </excludes>
                                 </dependencyConvergence>
                             </rules>
                         </configuration>
                         <goals>
-                            <!--<goal>enforce</goal>--> <!-- Disabled until maven-resolver is upgraded again. -->
+                            <goal>enforce</goal>
                         </goals>
                     </execution>
                 </executions>
