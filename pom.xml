@@ -38,6 +38,7 @@
         <module>dialog</module>
         <module>event</module>
         <module>log</module>
+        <module>maven-resolver</module>
         <module>module</module>
         <module>protocol</module>
         <module>proxy</module>

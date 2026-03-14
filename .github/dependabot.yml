@@ -17,24 +17,12 @@ updates:
         # Requires Java 17
       - dependency-name: "org.apache.maven:maven-resolver-provider"
         update-types: ["version-update:semver-major"]
-        # Synchronised with maven-resolver-provider
-      - dependency-name: "org.apache.maven.resolver:maven-resolver-connector-basic"
-        update-types: ["version-update:semver-major"]
-        # Synchronised with maven-resolver-provider
-      - dependency-name: "org.apache.maven.resolver:maven-resolver-transport-http"
-        update-types: ["version-update:semver-major"]
         # Requires Java 11
       - dependency-name: "org.jline:jline"
         update-types: ["version-update:semver-major"]
         # Requires Java 17
       - dependency-name: "org.junit.jupiter:junit-jupiter"
         update-types: ["version-update:semver-major"]
-    groups:
-      maven-resolver:
-        patterns:
-          - "org.apache.maven:maven-resolver-provider"
-          - "org.apache.maven.resolver:maven-resolver-connector-basic"
-          - "org.apache.maven.resolver:maven-resolver-transport-http"
 
   - package-ecosystem: "github-actions"
     directory: "/"
