@@ -1,6 +1,6 @@
 [submodule "native/mbedtls"]
 	path = native/mbedtls
-	url = https://github.com/ARMmbed/mbedtls.git
+	url = https://github.com/Mbed-TLS/mbedtls.git
 [submodule "native/zlib"]
 	path = native/zlib
-	url = https://github.com/cloudflare/zlib.git
+	url = https://github.com/zlib-ng/zlib-ng.git
