@@ -7,7 +7,13 @@ import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 /**
- * Called when the player enters configuration phase.
+ * Called during the players configuration phase.
+ *
+ * For clients with version 1.20.3 or lower this event is called when the
+ * proxy received the FinishConfiguration packet from the backend and
+ * for newer version its called when the proxy received the KnownPack packet.
+ * In both cases the packet is holded back end sent to the client when the 
+ * event completes.
  */
 @Data
 @ToString(callSuper = false)
