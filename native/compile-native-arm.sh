@@ -17,7 +17,7 @@ echo "Compiling mbedtls"
 (cd mbedtls && CFLAGS="-fPIC -I$CWD/src/main/c -DMBEDTLS_USER_CONFIG_FILE='<mbedtls_custom_config.h>'" make CC=aarch64-linux-gnu-gcc AR=aarch64-linux-gnu-ar no_test)
 
 echo "Compiling zlib"
-(cd zlib && CFLAGS="-fPIC -DNO_GZIP" CC=aarch64-linux-gnu-gcc CHOST=arm64 ./configure --static && make CFLAGS="-fPIC -march=armv8-a+crc" CC=aarch64-linux-gnu-gcc AR=aarch64-linux-gnu-ar)
+(cd zlib && CFLAGS="-fPIC -DNO_GZIP" CC=aarch64-linux-gnu-gcc CHOST=arm64 ./configure --sprefix="bungee_" --static && make CFLAGS="-fPIC -march=armv8-a+crc" CC=aarch64-linux-gnu-gcc AR=aarch64-linux-gnu-ar)
 
 CC="aarch64-linux-gnu-gcc"
 CFLAGS="-c -fPIC -O3 -Wall -Werror -I$JAVA_HOME/include/ -I$JAVA_HOME/include/linux/"

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <zlib.h>
+#include <zlib-ng.h>
 #include "shared.h"
 #if !defined(__aarch64__)
 #include "cpuid_helper.h"
@@ -38,37 +38,37 @@ JNIEXPORT jboolean JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_che
 }
 
 void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_reset(JNIEnv* env, jobject obj, jlong ctx, jboolean compress) {
-    z_stream* stream = (z_stream*) ctx;
-    int ret = (compress) ? deflateReset(stream) : inflateReset(stream);
+    zng_stream* stream = (zng_stream*) ctx;
+    int ret = (compress) ? zng_deflateReset(stream) : zng_inflateReset(stream);
 
     if (ret != Z_OK) {
-        throwException(env, "Could not reset z_stream", ret);
+        throwException(env, "Could not reset zng_stream", ret);
     }
 }
 
 void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_end(JNIEnv* env, jobject obj, jlong ctx, jboolean compress) {
-    z_stream* stream = (z_stream*) ctx;
-    int ret = (compress) ? deflateEnd(stream) : inflateEnd(stream);
+    zng_stream* stream = (zng_stream*) ctx;
+    int ret = (compress) ? zng_deflateEnd(stream) : zng_inflateEnd(stream);
 
     free(stream);
 
     if (ret != Z_OK) {
-        throwException(env, "Could not free z_stream: ", ret);
+        throwException(env, "Could not free zng_stream: ", ret);
     }
 }
 
 jlong JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_init(JNIEnv* env, jobject obj, jboolean compress, jint level) {
-    z_stream* stream = (z_stream*) calloc(1, sizeof (z_stream));
+    zng_stream* stream = (zng_stream*) calloc(1, sizeof (zng_stream));
     if (!stream) {
-        throwOutOfMemoryError(env, "Failed to calloc new z_stream");
+        throwOutOfMemoryError(env, "Failed to calloc new zng_stream");
         return 0;
     }
 
-    int ret = (compress) ? deflateInit(stream, level) : inflateInit(stream);
+    int ret = (compress) ? zng_deflateInit(stream, level) : zng_inflateInit(stream);
 
     if (ret != Z_OK) {
         free(stream);
-        throwException(env, "Could not init z_stream", ret);
+        throwException(env, "Could not init zng_stream", ret);
         return 0;
     }
 
@@ -76,7 +76,7 @@ jlong JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_init(JNIEnv* env
 }
 
 jint JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_process(JNIEnv* env, jobject obj, jlong ctx, jlong in, jint inLength, jlong out, jint outLength, jboolean compress) {
-    z_stream* stream = (z_stream*) ctx;
+    zng_stream* stream = (zng_stream*) ctx;
 
     stream->avail_in = inLength;
     stream->next_in = (byte*) in;
@@ -84,7 +84,7 @@ jint JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_process(JNIEnv* e
     stream->avail_out = outLength;
     stream->next_out = (byte*) out;
 
-    int ret = (compress) ? deflate(stream, Z_FINISH) : inflate(stream, Z_PARTIAL_FLUSH);
+    int ret = (compress) ? zng_deflate(stream, Z_FINISH) : zng_inflate(stream, Z_PARTIAL_FLUSH);
 
     switch (ret) {
         case Z_STREAM_END:
@@ -93,7 +93,7 @@ jint JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_process(JNIEnv* e
         case Z_OK:
             break;
         default:
-            throwException(env, "Unknown z_stream return code", ret);
+            throwException(env, "Unknown zng_stream return code", ret);
             return -1;
     }
 
