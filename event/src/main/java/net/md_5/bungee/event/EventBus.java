@@ -1,7 +1,7 @@
 package net.md_5.bungee.event;
 
 import com.google.common.collect.ImmutableSet;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.invoke.WrongMethodTypeException;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -47,15 +47,12 @@ public class EventBus
                 try
                 {
                     method.invoke( event );
-                } catch ( IllegalAccessException ex )
+                } catch ( WrongMethodTypeException ex )
                 {
-                    throw new Error( "Method became inaccessible: " + event, ex );
-                } catch ( IllegalArgumentException ex )
+                    throw new Error( "MethodHandle called with wrong method type: " + event, ex );
+                } catch ( Throwable ex )
                 {
-                    throw new Error( "Method rejected target/argument: " + event, ex );
-                } catch ( InvocationTargetException ex )
-                {
-                    logger.log( Level.WARNING, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, method.getListener() ), ex.getCause() );
+                    logger.log( Level.WARNING, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, method.getListener() ), ex );
                 }
 
                 long elapsed = System.nanoTime() - start;
@@ -180,8 +177,14 @@ public class EventBus
                     {
                         for ( Method method : listenerHandlers.getValue() )
                         {
-                            EventHandlerMethod ehm = new EventHandlerMethod( listenerHandlers.getKey(), method );
-                            handlersList.add( ehm );
+                            try
+                            {
+                                EventHandlerMethod ehm = new EventHandlerMethod( listenerHandlers.getKey(), method );
+                                handlersList.add( ehm );
+                            } catch ( IllegalAccessException e )
+                            {
+                                logger.log( Level.WARNING, MessageFormat.format( "Could not access event handler method {0} in listener {1}", method, listenerHandlers.getKey() ), e );
+                            }
                         }
                     }
                 }
