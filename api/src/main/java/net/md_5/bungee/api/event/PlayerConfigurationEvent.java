@@ -7,7 +7,11 @@ import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 /**
- * Called when the player enters configuration phase.
+ * Called at an appropriate time during the player's configuration phase.
+ *
+ * This event will be called at an unspecified time when the player is in the
+ * configuration phase, usually towards the end of that phase but always prior
+ * to the completion of that phase.
  */
 @Data
 @ToString(callSuper = false)
@@ -18,11 +22,11 @@ public class PlayerConfigurationEvent extends AsyncEvent<PlayerConfigurationEven
     /**
      * The player entering configuration phase.
      */
-    private ProxiedPlayer player;
+    private final ProxiedPlayer player;
     /**
      * The reason the player is entering configuration phase.
      */
-    private Reason reason;
+    private final Reason reason;
 
     public PlayerConfigurationEvent(ProxiedPlayer player, Reason reason, Callback<PlayerConfigurationEvent> done)
     {

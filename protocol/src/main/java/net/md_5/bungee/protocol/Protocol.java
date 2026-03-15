@@ -30,6 +30,7 @@ import net.md_5.bungee.protocol.packet.GameState;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Kick;
+import net.md_5.bungee.protocol.packet.KnownPacks;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.LoginAcknowledged;
 import net.md_5.bungee.protocol.packet.LoginPayloadRequest;
@@ -927,6 +928,11 @@ public enum Protocol
                     Transfer::new,
                     RegisterType.ENCODE,
                     map( ProtocolConstants.MINECRAFT_1_20_5, 0x0B )
+            );
+            TO_CLIENT.registerPacket(
+                    KnownPacks.class,
+                    KnownPacks::new,
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x0E )
             );
             TO_CLIENT.registerPacket(
                     DisconnectReportDetails.class,

@@ -62,6 +62,7 @@ import net.md_5.bungee.protocol.packet.Commands;
 import net.md_5.bungee.protocol.packet.FinishConfiguration;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Kick;
+import net.md_5.bungee.protocol.packet.KnownPacks;
 import net.md_5.bungee.protocol.packet.Login;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
@@ -834,19 +835,30 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(FinishConfiguration finishConfiguration) throws Exception
     {
-        PlayerConfigurationEvent event = new PlayerConfigurationEvent(
-                con,
-                server.isFirstLogin() ? PlayerConfigurationEvent.Reason.LOGIN : PlayerConfigurationEvent.Reason.RECONFIGURE,
-                eventLoopCallback( (result, error) ->
-                {
-                    // the clients protocol will change to GAME after this packet
-                    con.unsafe().sendPacket( finishConfiguration );
-                    // send queued packets as early as possible
-                    con.sendQueuedPackets();
-                } )
-        );
-        server.setFirstLogin( false );
-        bungee.getPluginManager().callEvent( event );
+        Runnable finish = () ->
+        {
+            con.unsafe().sendPacket( finishConfiguration );
+            con.sendQueuedPackets();
+        };
+        // fire the event here as we can keep the connection alive pre 1.20.5.
+        // for newer clients use the KnownPacks packet.
+        if ( con.getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_20_3 )
+        {
+            callConfigEvent( finish );
+        } else
+        {
+            finish.run();
+        }
+
+        throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void handle(KnownPacks knownPacks) throws Exception
+    {
+        // call PlayerConfiguration event here.
+        // For older clients its called when FinishConfiguration is received.
+        callConfigEvent( () -> con.unsafe().sendPacket( knownPacks ) );
         throw CancelSendSignal.INSTANCE;
     }
 
@@ -885,5 +897,16 @@ public class DownstreamBridge extends PacketHandler
                 callback.done( result, error );
             } );
         };
+    }
+
+    private void callConfigEvent(Runnable runnable)
+    {
+        PlayerConfigurationEvent event = new PlayerConfigurationEvent(
+                con,
+                server.isFirstLogin() ? PlayerConfigurationEvent.Reason.LOGIN : PlayerConfigurationEvent.Reason.RECONFIGURE,
+                eventLoopCallback( (result, error) -> runnable.run() )
+        );
+        server.setFirstLogin( false );
+        bungee.getPluginManager().callEvent( event );
     }
 }

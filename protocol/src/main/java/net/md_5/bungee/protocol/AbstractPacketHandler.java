@@ -21,6 +21,7 @@ import net.md_5.bungee.protocol.packet.GameState;
 import net.md_5.bungee.protocol.packet.Handshake;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.Kick;
+import net.md_5.bungee.protocol.packet.KnownPacks;
 import net.md_5.bungee.protocol.packet.LegacyHandshake;
 import net.md_5.bungee.protocol.packet.LegacyPing;
 import net.md_5.bungee.protocol.packet.Login;
@@ -296,6 +297,10 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(BundleDelimiter bundleDelimiter) throws Exception
+    {
+    }
+
+    public void handle(KnownPacks knownPacks) throws Exception
     {
     }
 }
