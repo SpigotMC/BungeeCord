@@ -36,15 +36,15 @@ import net.md_5.bungee.protocol.util.TagUtil;
 public abstract class DefinedPacket
 {
 
-    private static void checkSize(int size, int maxSize, String msg)
+    private static void checkSize(int size, int maxSize, String context)
     {
         if ( size < 0 )
         {
-            throw new OverflowPacketException( "Size cannot be negative (got " + size + ")" );
+            throw new OverflowPacketException( context + ", size cannot be negative (got " + size + ")" );
         }
         if ( size > maxSize )
         {
-            throw new OverflowPacketException( msg );
+            throw new OverflowPacketException( context + ", size " + size + " exceeds maximum of " + maxSize );
         }
     }
 
@@ -68,7 +68,7 @@ public abstract class DefinedPacket
     public static <T> T readLengthPrefixed(Function<ByteBuf, T> reader, ByteBuf buf, int maxSize)
     {
         int size = readVarInt( buf );
-        checkSize( size, maxSize, "Cannot read length prefixed with limit " + maxSize + " (got size of " + size + ")" );
+        checkSize( size, maxSize, "Cannot read length prefixed" );
         return reader.apply( buf.readSlice( size ) );
     }
 
@@ -79,7 +79,7 @@ public abstract class DefinedPacket
         {
             writer.accept( value, tempBuffer );
 
-            checkSize( tempBuffer.readableBytes(), maxSize, "Cannot write length prefixed with limit " + maxSize + " (got size of " + tempBuffer.readableBytes() + ")" );
+            checkSize( tempBuffer.readableBytes(), maxSize, "Cannot read length prefixed" );
             writeVarInt( tempBuffer.readableBytes(), buf );
             buf.writeBytes( tempBuffer );
         } finally
@@ -95,10 +95,10 @@ public abstract class DefinedPacket
 
     public static void writeString(String s, ByteBuf buf, int maxLength)
     {
-        checkSize( s.length(), maxLength, "Cannot send string longer than " + maxLength + " (got " + s.length() + " characters)" );
+        checkSize( s.length(), maxLength, "Cannot write string" );
 
         byte[] b = s.getBytes( StandardCharsets.UTF_8 );
-        checkSize( b.length, maxLength * 3, "Cannot send string longer than " + ( maxLength * 3 ) + " (got " + b.length + " bytes)" );
+        checkSize( b.length, maxLength * 3, "Cannot write string" );
 
         writeVarInt( b.length, buf );
         buf.writeBytes( b );
@@ -121,10 +121,10 @@ public abstract class DefinedPacket
     public static String readString(ByteBuf buf, int maxLen)
     {
         int len = readVarInt( buf );
-        checkSize( len, maxLen * 3, "Cannot receive string longer than " + maxLen * 3 + " (got " + len + " bytes)" );
+        checkSize( len, maxLen * 3, "Cannot read string" );
 
         String s = buf.readString( len, StandardCharsets.UTF_8 );
-        checkSize( s.length(), maxLen, "Cannot receive string longer than " + maxLen + " (got " + s.length() + " characters)" );
+        checkSize( s.length(), maxLen, "Cannot read string" );
 
         return s;
     }
@@ -198,7 +198,7 @@ public abstract class DefinedPacket
 
     public static void writeArray(byte[] b, ByteBuf buf)
     {
-        checkSize( b.length, Short.MAX_VALUE, "Cannot send byte array longer than " + Short.MAX_VALUE + " (got " + b.length + " bytes)" );
+        checkSize( b.length, Short.MAX_VALUE, "Cannot write byte array" );
         writeVarInt( b.length, buf );
         buf.writeBytes( b );
     }
@@ -219,8 +219,8 @@ public abstract class DefinedPacket
     public static byte[] readArray(ByteBuf buf, int limit)
     {
         int len = readVarInt( buf );
-        checkSize( len, limit, "Cannot receive byte array longer than " + limit + " (got " + len + " bytes)" );
-        checkSize( len, buf.readableBytes(), "Cannot read byte array of size " + len + " (readable bytes " + buf.readableBytes() + ")" );
+        checkSize( len, limit, "Cannot write byte array" );
+        checkSize( len, buf.readableBytes(), "Cannot write byte array" );
         byte[] ret = new byte[ len ];
         buf.readBytes( ret );
         return ret;
@@ -230,7 +230,7 @@ public abstract class DefinedPacket
     {
         int len = readVarInt( buf );
         // varint is at least 1 byte
-        checkSize( len, buf.readableBytes(), "Cannot receive int array longer than " + buf.readableBytes() + " bytes (got " + len + " ints)" );
+        checkSize( len, buf.readableBytes(), "Cannot read int array" );
         int[] ret = new int[ len ];
 
         for ( int i = 0; i < len; i++ )
@@ -255,7 +255,7 @@ public abstract class DefinedPacket
         int len = readVarInt( buf );
 
         // empty string is one byte
-        checkSize( len, buf.readableBytes(), "Cannot receive string array longer than " + buf.readableBytes() );
+        checkSize( len, buf.readableBytes(), "Cannot read string array" );
         List<String> ret = new ArrayList<>( len );
         for ( int i = 0; i < len; i++ )
         {
@@ -280,7 +280,7 @@ public abstract class DefinedPacket
 
             out |= ( in & 0x7F ) << ( bytes++ * 7 );
 
-            checkSize( bytes, maxBytes, "VarInt too big (max " + maxBytes + ")" );
+            checkSize( bytes, maxBytes, "VarInt too big" );
 
             if ( ( in & 0x80 ) != 0x80 )
             {
@@ -403,7 +403,7 @@ public abstract class DefinedPacket
     public static Property[] readProperties(ByteBuf buf)
     {
         int len = readVarInt( buf );
-        checkSize( len, buf.readableBytes(), "Cannot receive property array longer than " + buf.readableBytes() );
+        checkSize( len, buf.readableBytes(), "Cannot read property array" );
         Property[] properties = new Property[ len ];
         for ( int j = 0; j < properties.length; j++ )
         {
@@ -567,7 +567,7 @@ public abstract class DefinedPacket
 
     public static void writeFixedBitSet(BitSet bits, int size, ByteBuf buf)
     {
-        checkSize( bits.length(), size, "BitSet too large (expected " + size + " got " + bits.length() + ")" );
+        checkSize( bits.length(), size, "Cannot write BitSet" );
         buf.writeBytes( Arrays.copyOf( bits.toByteArray(), ( size + 7 ) >> 3 ) );
     }
 
