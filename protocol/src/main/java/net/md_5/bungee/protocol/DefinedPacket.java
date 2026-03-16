@@ -229,8 +229,8 @@ public abstract class DefinedPacket
     public static int[] readVarIntArray(ByteBuf buf)
     {
         int len = readVarInt( buf );
-        int readableInts = buf.readableBytes() / Integer.BYTES;
-        checkSize( len, readableInts, "Cannot receive int array longer than " + readableInts + " (got " + len + " ints)" );
+        // varint is at least 1 byte
+        checkSize( len, buf.readableBytes(), "Cannot receive int array longer than " + buf.readableBytes() + " (got " + len + " ints)" );
         int[] ret = new int[ len ];
 
         for ( int i = 0; i < len; i++ )
