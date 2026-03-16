@@ -1,619 +1,1164 @@
-package net.md_5.bungee.protocol;
+package net.md_5.bungee.protocol.packet;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.gson.JsonElement;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.LongArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import com.mojang.brigadier.tree.ArgumentCommandNode;
+import com.mojang.brigadier.tree.CommandNode;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.mojang.brigadier.tree.RootCommandNode;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
-import io.netty.buffer.ByteBufOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.EnumSet;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.UUID;
-import java.util.function.BiConsumer;
-import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentStyle;
-import net.md_5.bungee.nbt.NamedTag;
-import net.md_5.bungee.nbt.Tag;
-import net.md_5.bungee.nbt.TypedTag;
-import net.md_5.bungee.nbt.limit.NBTLimiter;
-import net.md_5.bungee.nbt.type.EndTag;
-import net.md_5.bungee.protocol.data.NumberFormat;
-import net.md_5.bungee.protocol.data.PlayerPublicKey;
-import net.md_5.bungee.protocol.data.Property;
-import net.md_5.bungee.protocol.util.Either;
-import net.md_5.bungee.protocol.util.TagUtil;
+import java.util.concurrent.CompletableFuture;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import net.md_5.bungee.protocol.AbstractPacketHandler;
+import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.ProtocolConstants;
 
-@RequiredArgsConstructor
-public abstract class DefinedPacket
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
+public class Commands extends DefinedPacket
 {
 
-    private static void checkSize(int size, int maxSize, String msg)
-    {
-        if ( size < 0 )
-        {
-            throw new OverflowPacketException( "Size cannot be negative (got " + size + ")" );
-        }
-        if ( size > maxSize )
-        {
-            throw new OverflowPacketException( msg );
-        }
-    }
-
-    public static <T> T readNullable(Function<ByteBuf, T> reader, ByteBuf buf)
-    {
-        return buf.readBoolean() ? reader.apply( buf ) : null;
-    }
-
-    public static <T> void writeNullable(T t0, BiConsumer<T, ByteBuf> writer, ByteBuf buf)
-    {
-        if ( t0 != null )
-        {
-            buf.writeBoolean( true );
-            writer.accept( t0, buf );
-        } else
-        {
-            buf.writeBoolean( false );
-        }
-    }
-
-    public static <T> T readLengthPrefixed(Function<ByteBuf, T> reader, ByteBuf buf, int maxSize)
-    {
-        int size = readVarInt( buf );
-        checkSize( size, maxSize, "Cannot read length prefixed with limit " + maxSize + " (got size of " + size + ")" );
-        return reader.apply( buf.readSlice( size ) );
-    }
-
-    public static <T> void writeLengthPrefixed(T value, BiConsumer<T, ByteBuf> writer, ByteBuf buf, int maxSize)
-    {
-        ByteBuf tempBuffer = buf.alloc().buffer();
-        try
-        {
-            writer.accept( value, tempBuffer );
-
-            checkSize( tempBuffer.readableBytes(), maxSize, "Cannot write length prefixed with limit " + maxSize + " (got size of " + tempBuffer.readableBytes() + ")" );
-            writeVarInt( tempBuffer.readableBytes(), buf );
-            buf.writeBytes( tempBuffer );
-        } finally
-        {
-            tempBuffer.release();
-        }
-    }
-
-    public static void writeString(String s, ByteBuf buf)
-    {
-        writeString( s, buf, Short.MAX_VALUE );
-    }
-
-    public static void writeString(String s, ByteBuf buf, int maxLength)
-    {
-        checkSize( s.length(), maxLength, "Cannot send string longer than " + maxLength + " (got " + s.length() + " characters)" );
-
-        byte[] b = s.getBytes( StandardCharsets.UTF_8 );
-        checkSize( b.length, maxLength * 3, "Cannot send string longer than " + ( maxLength * 3 ) + " (got " + b.length + " bytes)" );
-
-        writeVarInt( b.length, buf );
-        buf.writeBytes( b );
-    }
-
-    public static <T> T readStringMapKey(ByteBuf buf, Map<String, T> map)
-    {
-        String string = readString( buf );
-        T result = map.get( string );
-        Preconditions.checkArgument( result != null, "Unknown string key %s", string );
-
-        return result;
-    }
-
-    public static String readString(ByteBuf buf)
-    {
-        return readString( buf, Short.MAX_VALUE );
-    }
-
-    public static String readString(ByteBuf buf, int maxLen)
-    {
-        int len = readVarInt( buf );
-        checkSize( len, maxLen * 3, "Cannot receive string longer than " + maxLen * 3 + " (got " + len + " bytes)" );
-
-        String s = buf.readString( len, StandardCharsets.UTF_8 );
-        checkSize( s.length(), maxLen, "Cannot receive string longer than " + maxLen + " (got " + s.length() + " characters)" );
-
-        return s;
-    }
-
-    public static Either<String, BaseComponent> readEitherBaseComponent(ByteBuf buf, int protocolVersion, boolean string)
-    {
-        return ( string ) ? Either.left( readString( buf ) ) : Either.right( readBaseComponent( buf, protocolVersion ) );
-    }
-
-    public static BaseComponent readBaseComponent(ByteBuf buf, int protocolVersion)
-    {
-        return readBaseComponent( buf, Short.MAX_VALUE, protocolVersion );
-    }
-
-    public static BaseComponent readBaseComponent(ByteBuf buf, int maxStringLength, int protocolVersion)
-    {
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
-        {
-            TypedTag nbt = (TypedTag) readTag( buf, protocolVersion );
-            JsonElement json = TagUtil.toJson( nbt );
-
-            return ChatSerializer.forVersion( protocolVersion ).deserialize( json );
-        } else
-        {
-            String string = readString( buf, maxStringLength );
-
-            return ChatSerializer.forVersion( protocolVersion ).deserialize( string );
-        }
-    }
-
-    public static ComponentStyle readComponentStyle(ByteBuf buf, int protocolVersion)
-    {
-        TypedTag nbt = (TypedTag) readTag( buf, protocolVersion );
-        JsonElement json = TagUtil.toJson( nbt );
-
-        return ChatSerializer.forVersion( protocolVersion ).deserializeStyle( json );
-    }
-
-    public static void writeEitherBaseComponent(Either<String, BaseComponent> message, ByteBuf buf, int protocolVersion)
-    {
-        if ( message.isLeft() )
-        {
-            writeString( message.getLeft(), buf );
-        } else
-        {
-            writeBaseComponent( message.getRight(), buf, protocolVersion );
-        }
-    }
-
-    public static void writeBaseComponent(BaseComponent message, ByteBuf buf, int protocolVersion)
-    {
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
-        {
-            JsonElement json = ChatSerializer.forVersion( protocolVersion ).toJson( message );
-            TypedTag nbt = TagUtil.fromJson( json );
-            writeTag( nbt, buf, protocolVersion );
-        } else
-        {
-            String string = ChatSerializer.forVersion( protocolVersion ).toString( message );
-
-            writeString( string, buf );
-        }
-    }
-
-    public static void writeComponentStyle(ComponentStyle style, ByteBuf buf, int protocolVersion)
-    {
-        JsonElement json = ChatSerializer.forVersion( protocolVersion ).toJson( style );
-        TypedTag nbt = TagUtil.fromJson( json );
-        writeTag( nbt, buf, protocolVersion );
-    }
-
-    public static void writeArray(byte[] b, ByteBuf buf)
-    {
-        checkSize( b.length, Short.MAX_VALUE, "Cannot send byte array longer than " + Short.MAX_VALUE + " (got " + b.length + " bytes)" );
-        writeVarInt( b.length, buf );
-        buf.writeBytes( b );
-    }
-
-    public static byte[] toArray(ByteBuf buf)
-    {
-        byte[] ret = new byte[ buf.readableBytes() ];
-        buf.readBytes( ret );
-
-        return ret;
-    }
-
-    public static byte[] readArray(ByteBuf buf)
-    {
-        return readArray( buf, buf.readableBytes() );
-    }
-
-    public static byte[] readArray(ByteBuf buf, int limit)
-    {
-        int len = readVarInt( buf );
-        checkSize( len, limit, "Cannot receive byte array longer than " + limit + " (got " + len + " bytes)" );
-        checkSize( len, buf.readableBytes(), "Cannot read byte array of size " + len + " (readable bytes " + buf.readableBytes() + ")" );
-        byte[] ret = new byte[ len ];
-        buf.readBytes( ret );
-        return ret;
-    }
-
-    public static int[] readVarIntArray(ByteBuf buf)
-    {
-        int len = readVarInt( buf );
-        // varint is at least 1 byte
-        checkSize( len, buf.readableBytes(), "Cannot receive int array longer than " + buf.readableBytes() + " (got " + len + " ints)" );
-        int[] ret = new int[ len ];
-
-        for ( int i = 0; i < len; i++ )
-        {
-            ret[i] = readVarInt( buf );
-        }
-
-        return ret;
-    }
-
-    public static void writeStringArray(List<String> s, ByteBuf buf)
-    {
-        writeVarInt( s.size(), buf );
-        for ( String str : s )
-        {
-            writeString( str, buf );
-        }
-    }
-
-    public static List<String> readStringArray(ByteBuf buf)
-    {
-        int len = readVarInt( buf );
-
-        // empty string is one byte
-        checkSize( len, buf.readableBytes(), "Cannot receive int string array longer than " + buf.readableBytes() );
-        List<String> ret = new ArrayList<>( len );
-        for ( int i = 0; i < len; i++ )
-        {
-            ret.add( readString( buf ) );
-        }
-        return ret;
-    }
-
-    public static int readVarInt(ByteBuf input)
-    {
-        return readVarInt( input, 5 );
-    }
-
-    public static int readVarInt(ByteBuf input, int maxBytes)
-    {
-        int out = 0;
-        int bytes = 0;
-        byte in;
-        while ( true )
-        {
-            in = input.readByte();
-
-            out |= ( in & 0x7F ) << ( bytes++ * 7 );
-
-            checkSize( bytes, maxBytes, "VarInt too big (max " + maxBytes + ")" );
-
-            if ( ( in & 0x80 ) != 0x80 )
-            {
-                break;
-            }
-        }
-
-        return out;
-    }
-
-    public static void writeVarInt(int value, ByteBuf output)
-    {
-        int part;
-        while ( true )
-        {
-            part = value & 0x7F;
-
-            value >>>= 7;
-            if ( value != 0 )
-            {
-                part |= 0x80;
-            }
-
-            output.writeByte( part );
-
-            if ( value == 0 )
-            {
-                break;
-            }
-        }
-    }
-
-    public static void setVarInt(int value, ByteBuf output, int pos, int len)
-    {
-        switch ( len )
-        {
-            case 1:
-                output.setByte( pos, value );
-                break;
-            case 2:
-                output.setShort( pos, ( value & 0x7F | 0x80 ) << 8 | ( value >>> 7 & 0x7F ) );
-                break;
-            case 3:
-                output.setMedium( pos, ( value & 0x7F | 0x80 ) << 16 | ( value >>> 7 & 0x7F | 0x80 ) << 8 | ( value >>> 14 & 0x7F ) );
-                break;
-            case 4:
-                output.setInt( pos, ( value & 0x7F | 0x80 ) << 24 | ( value >>> 7 & 0x7F | 0x80 ) << 16 | ( value >>> 14 & 0x7F | 0x80 ) << 8 | ( value >>> 21 & 0x7F ) );
-                break;
-            case 5:
-                output.setInt( pos, ( value & 0x7F | 0x80 ) << 24 | ( value >>> 7 & 0x7F | 0x80 ) << 16 | ( value >>> 14 & 0x7F | 0x80 ) << 8 | ( value >>> 21 & 0x7F | 0x80 ) );
-                output.setByte( pos + 4, value >>> 28 );
-                break;
-            default:
-                throw new IllegalArgumentException( "Invalid varint len: " + len );
-        }
-    }
-
-    public static int readVarShort(ByteBuf buf)
-    {
-        int low = buf.readUnsignedShort();
-        int high = 0;
-        if ( ( low & 0x8000 ) != 0 )
-        {
-            low = low & 0x7FFF;
-            high = buf.readUnsignedByte();
-        }
-        return ( ( high & 0xFF ) << 15 ) | low;
-    }
-
-    public static void writeVarShort(ByteBuf buf, int toWrite)
-    {
-        int low = toWrite & 0x7FFF;
-        int high = ( toWrite & 0x7F8000 ) >> 15;
-        if ( high != 0 )
-        {
-            low = low | 0x8000;
-        }
-        buf.writeShort( low );
-        if ( high != 0 )
-        {
-            buf.writeByte( high );
-        }
-    }
-
-    public static void writeUUID(UUID value, ByteBuf output)
-    {
-        output.writeLong( value.getMostSignificantBits() );
-        output.writeLong( value.getLeastSignificantBits() );
-    }
-
-    public static UUID readUUID(ByteBuf input)
-    {
-        return new UUID( input.readLong(), input.readLong() );
-    }
-
-    public static void writeProperties(Property[] properties, ByteBuf buf)
-    {
-        if ( properties == null )
-        {
-            writeVarInt( 0, buf );
-            return;
-        }
-
-        writeVarInt( properties.length, buf );
-        for ( Property prop : properties )
-        {
-            writeString( prop.getName(), buf );
-            writeString( prop.getValue(), buf );
-            if ( prop.getSignature() != null )
-            {
-                buf.writeBoolean( true );
-                writeString( prop.getSignature(), buf );
-            } else
-            {
-                buf.writeBoolean( false );
-            }
-        }
-    }
-
-    public static Property[] readProperties(ByteBuf buf)
-    {
-        int len = readVarInt( buf );
-        checkSize( len, buf.readableBytes(), "Cannot receive int property array longer than " + buf.readableBytes() );
-        Property[] properties = new Property[ len ];
-        for ( int j = 0; j < properties.length; j++ )
-        {
-            String name = readString( buf );
-            String value = readString( buf );
-            if ( buf.readBoolean() )
-            {
-                properties[j] = new Property( name, value, DefinedPacket.readString( buf ) );
-            } else
-            {
-                properties[j] = new Property( name, value );
-            }
-        }
-
-        return properties;
-    }
-
-    public static void writePublicKey(PlayerPublicKey publicKey, ByteBuf buf)
-    {
-        if ( publicKey != null )
-        {
-            buf.writeBoolean( true );
-            buf.writeLong( publicKey.getExpiry() );
-            writeArray( publicKey.getKey(), buf );
-            writeArray( publicKey.getSignature(), buf );
-        } else
-        {
-            buf.writeBoolean( false );
-        }
-    }
-
-    public static PlayerPublicKey readPublicKey(ByteBuf buf)
-    {
-        if ( buf.readBoolean() )
-        {
-            return new PlayerPublicKey( buf.readLong(), readArray( buf, 512 ), readArray( buf, 4096 ) );
-        }
-
-        return null;
-    }
-
-    public static void writeNumberFormat(NumberFormat format, ByteBuf buf, int protocolVersion)
-    {
-        writeVarInt( format.getType().ordinal(), buf );
-        switch ( format.getType() )
-        {
-            case BLANK:
-                break;
-            case STYLED:
-                writeComponentStyle( (ComponentStyle) format.getValue(), buf, protocolVersion );
-                break;
-            case FIXED:
-                writeBaseComponent( (BaseComponent) format.getValue(), buf, protocolVersion );
-                break;
-        }
-    }
-
-    public static NumberFormat readNumberFormat(ByteBuf buf, int protocolVersion)
-    {
-        int format = readVarInt( buf );
-        switch ( format )
-        {
-            case 0:
-                return new NumberFormat( NumberFormat.Type.BLANK, null );
-            case 1:
-                return new NumberFormat( NumberFormat.Type.STYLED, readComponentStyle( buf, protocolVersion ) );
-            case 2:
-                return new NumberFormat( NumberFormat.Type.FIXED, readBaseComponent( buf, protocolVersion ) );
-            default:
-                throw new IllegalArgumentException( "Unknown number format " + format );
-        }
-    }
-
-    public static Tag readTag(ByteBuf input, int protocolVersion)
-    {
-        return readTag( input, protocolVersion, new NBTLimiter( 1 << 21 ) );
-    }
-
-    public static Tag readTag(ByteBuf input, int protocolVersion, NBTLimiter limiter)
-    {
-        DataInputStream in = new DataInputStream( new ByteBufInputStream( input ) );
-        try
-        {
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_2 )
-            {
-                byte type = in.readByte();
-                if ( type == 0 )
-                {
-                    return EndTag.INSTANCE;
-                } else
-                {
-                    return Tag.readById( type, in, limiter );
-                }
-            }
-            NamedTag namedTag = new NamedTag();
-            namedTag.read( in, limiter );
-            return namedTag;
-        } catch ( IOException ex )
-        {
-            throw new RuntimeException( "Exception reading tag", ex );
-        }
-    }
-
-    public static void writeTag(Tag tag, ByteBuf output, int protocolVersion)
-    {
-        DataOutputStream out = new DataOutputStream( new ByteBufOutputStream( output ) );
-        try
-        {
-            if ( tag instanceof TypedTag )
-            {
-                TypedTag typedTag = (TypedTag) tag;
-                out.writeByte( typedTag.getId() );
-                typedTag.write( out );
-            } else
-            {
-                tag.write( out );
-            }
-        } catch ( IOException ex )
-        {
-            throw new RuntimeException( "Exception writing tag", ex );
-        }
-    }
-
-    public static <E extends Enum<E>> void writeEnumSet(EnumSet<E> enumset, Class<E> oclass, ByteBuf buf)
-    {
-        E[] enums = oclass.getEnumConstants();
-        BitSet bits = new BitSet( enums.length );
-
-        for ( int i = 0; i < enums.length; ++i )
-        {
-            bits.set( i, enumset.contains( enums[i] ) );
-        }
-
-        writeFixedBitSet( bits, enums.length, buf );
-    }
-
-    public static <E extends Enum<E>> EnumSet<E> readEnumSet(Class<E> oclass, ByteBuf buf)
-    {
-        E[] enums = oclass.getEnumConstants();
-        BitSet bits = readFixedBitSet( enums.length, buf );
-        EnumSet<E> set = EnumSet.noneOf( oclass );
-
-        for ( int i = 0; i < enums.length; ++i )
-        {
-            if ( bits.get( i ) )
-            {
-                set.add( enums[i] );
-            }
-        }
-
-        return set;
-    }
-
-    public static BitSet readFixedBitSet(int i, ByteBuf buf)
-    {
-        byte[] bits = new byte[ ( i + 7 ) >> 3 ];
-        buf.readBytes( bits );
-
-        return BitSet.valueOf( bits );
-    }
-
-    public static void writeFixedBitSet(BitSet bits, int size, ByteBuf buf)
-    {
-        checkSize( bits.length(), size, "BitSet too large (expected " + size + " got " + bits.size() + ")" );
-        buf.writeBytes( Arrays.copyOf( bits.toByteArray(), ( size + 7 ) >> 3 ) );
-    }
-
-    public void read(ByteBuf buf)
-    {
-        throw new UnsupportedOperationException( "Packet must implement read method" );
-    }
-
-    public void read(ByteBuf buf, Protocol protocol, ProtocolConstants.Direction direction, int protocolVersion)
-    {
-        read( buf, direction, protocolVersion );
-    }
-
+    private static final int FLAG_TYPE = 0x3;
+    private static final int FLAG_EXECUTABLE = 0x4;
+    private static final int FLAG_REDIRECT = 0x8;
+    private static final int FLAG_SUGGESTIONS = 0x10;
+    //
+    private static final int NODE_ROOT = 0;
+    private static final int NODE_LITERAL = 1;
+    private static final int NODE_ARGUMENT = 2;
+    //
+    private RootCommandNode root;
+
+    @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        read( buf );
+        int nodeCount = readVarInt( buf );
+        NetworkNode[] nodes = new NetworkNode[ nodeCount ];
+        Deque<NetworkNode> nodeQueue = new ArrayDeque<>( nodes.length );
+
+        for ( int i = 0; i < nodeCount; i++ )
+        {
+            byte flags = buf.readByte();
+            int[] children = readVarIntArray( buf );
+            int redirectNode = ( ( flags & FLAG_REDIRECT ) != 0 ) ? readVarInt( buf ) : 0;
+            ArgumentBuilder argumentBuilder;
+
+            switch ( flags & FLAG_TYPE )
+            {
+                case NODE_ROOT:
+                    argumentBuilder = null;
+                    break;
+                case NODE_LITERAL:
+                    argumentBuilder = LiteralArgumentBuilder.literal( readString( buf ) );
+                    break;
+                case NODE_ARGUMENT:
+                    String name = readString( buf );
+                    argumentBuilder = RequiredArgumentBuilder.argument( name, ArgumentRegistry.read( buf, protocolVersion ) );
+
+                    if ( ( flags & FLAG_SUGGESTIONS ) != 0 )
+                    {
+                        String suggster = readString( buf );
+                        ( (RequiredArgumentBuilder) argumentBuilder ).suggests( SuggestionRegistry.getProvider( suggster ) );
+                    }
+                    break;
+                default:
+                    throw new IllegalArgumentException( "Unhandled node type " + flags );
+            }
+
+            NetworkNode node = new NetworkNode( argumentBuilder, flags, redirectNode, children );
+
+            nodes[i] = node;
+            nodeQueue.add( node );
+        }
+
+        boolean mustCycle;
+        do
+        {
+            if ( nodeQueue.isEmpty() )
+            {
+                int rootIndex = readVarInt( buf );
+                root = (RootCommandNode<?>) nodes[rootIndex].command;
+                return;
+            }
+
+            mustCycle = false;
+
+            for ( Iterator<NetworkNode> iter = nodeQueue.iterator(); iter.hasNext(); )
+            {
+                NetworkNode node = iter.next();
+                if ( node.buildSelf( nodes ) )
+                {
+                    iter.remove();
+                    mustCycle = true;
+                }
+            }
+        } while ( mustCycle );
+
+        throw new IllegalStateException( "Did not finish building root node" );
     }
 
-    public void write(ByteBuf buf)
-    {
-        throw new UnsupportedOperationException( "Packet must implement write method" );
-    }
-
-    public void write(ByteBuf buf, Protocol protocol, ProtocolConstants.Direction direction, int protocolVersion)
-    {
-        write( buf, direction, protocolVersion );
-    }
-
+    @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
     {
-        write( buf );
+        Map<CommandNode, Integer> indexMap = new LinkedHashMap<>();
+        Deque<CommandNode> nodeQueue = new ArrayDeque<>();
+        nodeQueue.add( root );
+
+        while ( !nodeQueue.isEmpty() )
+        {
+            CommandNode command = nodeQueue.pollFirst();
+
+            if ( !indexMap.containsKey( command ) )
+            {
+                // Index the new node
+                int currentIndex = indexMap.size();
+                indexMap.put( command, currentIndex );
+
+                // Queue children and redirect for processing
+                nodeQueue.addAll( command.getChildren() );
+                if ( command.getRedirect() != null )
+                {
+                    nodeQueue.add( command.getRedirect() );
+                }
+            }
+        }
+
+        // Write out size
+        writeVarInt( indexMap.size(), buf );
+
+        int currentIndex = 0;
+        for ( Map.Entry<CommandNode, Integer> entry : indexMap.entrySet() )
+        {
+            // Using a LinkedHashMap, but sanity check this assumption
+            Preconditions.checkState( entry.getValue() == currentIndex++, "Iteration out of order!" );
+
+            CommandNode node = entry.getKey();
+            byte flags = 0;
+
+            if ( node.getRedirect() != null )
+            {
+                flags |= FLAG_REDIRECT;
+            }
+            if ( node.getCommand() != null )
+            {
+                flags |= FLAG_EXECUTABLE;
+            }
+
+            if ( node instanceof RootCommandNode )
+            {
+                flags |= NODE_ROOT;
+            } else if ( node instanceof LiteralCommandNode )
+            {
+                flags |= NODE_LITERAL;
+            } else if ( node instanceof ArgumentCommandNode )
+            {
+                flags |= NODE_ARGUMENT;
+                if ( ( (ArgumentCommandNode) node ).getCustomSuggestions() != null )
+                {
+                    flags |= FLAG_SUGGESTIONS;
+                }
+            } else
+            {
+                throw new IllegalArgumentException( "Unhandled node type " + node );
+            }
+
+            buf.writeByte( flags );
+
+            writeVarInt( node.getChildren().size(), buf );
+            for ( CommandNode child : (Collection<CommandNode>) node.getChildren() )
+            {
+                writeVarInt( indexMap.get( child ), buf );
+            }
+            if ( node.getRedirect() != null )
+            {
+                writeVarInt( indexMap.get( node.getRedirect() ), buf );
+            }
+
+            if ( node instanceof LiteralCommandNode )
+            {
+                writeString( ( (LiteralCommandNode) node ).getLiteral(), buf );
+            } else if ( node instanceof ArgumentCommandNode )
+            {
+                ArgumentCommandNode argumentNode = (ArgumentCommandNode) node;
+
+                writeString( argumentNode.getName(), buf );
+                ArgumentRegistry.write( argumentNode.getType(), buf, protocolVersion );
+
+                if ( argumentNode.getCustomSuggestions() != null )
+                {
+                    writeString( SuggestionRegistry.getKey( argumentNode.getCustomSuggestions() ), buf );
+                }
+            }
+        }
+
+        // Get, check, and write the root index (should be first)
+        int rootIndex = indexMap.get( root );
+        Preconditions.checkState( rootIndex == 0, "How did root not land up at index 0?!?" );
+        writeVarInt( rootIndex, buf );
     }
 
-    public Protocol nextProtocol()
+    @Override
+    public void handle(AbstractPacketHandler handler) throws Exception
     {
-        return null;
+        handler.handle( this );
     }
 
-    public abstract void handle(AbstractPacketHandler handler) throws Exception;
+    @Data
+    private static class NetworkNode
+    {
 
-    @Override
-    public abstract boolean equals(Object obj);
+        private final ArgumentBuilder argumentBuilder;
+        private final byte flags;
+        private final int redirectNode;
+        private final int[] children;
+        private CommandNode command;
 
-    @Override
-    public abstract int hashCode();
+        private boolean buildSelf(NetworkNode[] otherNodes)
+        {
+            // First cycle
+            if ( command == null )
+            {
+                // Root node is merely the root
+                if ( argumentBuilder == null )
+                {
+                    command = new RootCommandNode();
+                } else
+                {
+                    // Add the redirect
+                    if ( ( flags & FLAG_REDIRECT ) != 0 )
+                    {
+                        if ( otherNodes[redirectNode].command == null )
+                        {
+                            return false;
+                        }
 
-    @Override
-    public abstract String toString();
+                        argumentBuilder.redirect( otherNodes[redirectNode].command );
+                    }
+
+                    // Add dummy executable
+                    if ( ( flags & FLAG_EXECUTABLE ) != 0 )
+                    {
+                        argumentBuilder.executes( new Command()
+                        {
+                            @Override
+                            public int run(CommandContext context) throws CommandSyntaxException
+                            {
+                                return 0;
+                            }
+                        } );
+                    }
+
+                    // Build our self command
+                    command = argumentBuilder.build();
+                }
+            }
+
+            // Check that we have processed all children thus far
+            for ( int childIndex : children )
+            {
+                if ( otherNodes[childIndex].command == null )
+                {
+                    // If not, we have to do another cycle
+                    return false;
+                }
+            }
+
+            for ( int childIndex : children )
+            {
+                CommandNode<?> child = otherNodes[childIndex].command;
+                Preconditions.checkArgument( !( child instanceof RootCommandNode ), "Cannot have RootCommandNode as child" );
+
+                command.addChild( child );
+            }
+
+            return true;
+        }
+    }
+
+    @Data
+    private static class ArgumentRegistry
+    {
+
+        private static final Map<String, ArgumentSerializer> PROVIDERS = new HashMap<>();
+        private static final ArgumentSerializer[] IDS_1_19;
+        private static final ArgumentSerializer[] IDS_1_19_3;
+        private static final ArgumentSerializer[] IDS_1_19_4;
+        private static final ArgumentSerializer[] IDS_1_20_3;
+        private static final ArgumentSerializer[] IDS_1_20_5;
+        private static final ArgumentSerializer[] IDS_1_21_5;
+        private static final ArgumentSerializer[] IDS_1_21_6;
+        private static final Map<Class<?>, ProperArgumentSerializer<?>> PROPER_PROVIDERS = new HashMap<>();
+        //
+        private static final ArgumentSerializer<Void> VOID = new ArgumentSerializer<Void>()
+        {
+            @Override
+            protected Void read(ByteBuf buf)
+            {
+                return null;
+            }
+
+            @Override
+            protected void write(ByteBuf buf, Void t)
+            {
+            }
+        };
+        private static final ArgumentSerializer<Boolean> BOOLEAN = new ArgumentSerializer<Boolean>()
+        {
+            @Override
+            protected Boolean read(ByteBuf buf)
+            {
+                return buf.readBoolean();
+            }
+
+            @Override
+            protected void write(ByteBuf buf, Boolean t)
+            {
+                buf.writeBoolean( t );
+            }
+        };
+        private static final ArgumentSerializer<Byte> BYTE = new ArgumentSerializer<Byte>()
+        {
+            @Override
+            protected Byte read(ByteBuf buf)
+            {
+                return buf.readByte();
+            }
+
+            @Override
+            protected void write(ByteBuf buf, Byte t)
+            {
+                buf.writeByte( t );
+            }
+        };
+        private static final ArgumentSerializer<FloatArgumentType> FLOAT_RANGE = new ArgumentSerializer<FloatArgumentType>()
+        {
+            @Override
+            protected FloatArgumentType read(ByteBuf buf)
+            {
+                byte flags = buf.readByte();
+                float min = ( flags & 0x1 ) != 0 ? buf.readFloat() : -Float.MAX_VALUE;
+                float max = ( flags & 0x2 ) != 0 ? buf.readFloat() : Float.MAX_VALUE;
+
+                return FloatArgumentType.floatArg( min, max );
+            }
+
+            @Override
+            protected void write(ByteBuf buf, FloatArgumentType t)
+            {
+                boolean hasMin = t.getMinimum() != -Float.MAX_VALUE;
+                boolean hasMax = t.getMaximum() != Float.MAX_VALUE;
+
+                buf.writeByte( binaryFlag( hasMin, hasMax ) );
+                if ( hasMin )
+                {
+                    buf.writeFloat( t.getMinimum() );
+                }
+                if ( hasMax )
+                {
+                    buf.writeFloat( t.getMaximum() );
+                }
+            }
+        };
+        private static final ArgumentSerializer<DoubleArgumentType> DOUBLE_RANGE = new ArgumentSerializer<DoubleArgumentType>()
+        {
+            @Override
+            protected DoubleArgumentType read(ByteBuf buf)
+            {
+                byte flags = buf.readByte();
+                double min = ( flags & 0x1 ) != 0 ? buf.readDouble() : -Double.MAX_VALUE;
+                double max = ( flags & 0x2 ) != 0 ? buf.readDouble() : Double.MAX_VALUE;
+
+                return DoubleArgumentType.doubleArg( min, max );
+            }
+
+            @Override
+            protected void write(ByteBuf buf, DoubleArgumentType t)
+            {
+                boolean hasMin = t.getMinimum() != -Double.MAX_VALUE;
+                boolean hasMax = t.getMaximum() != Double.MAX_VALUE;
+
+                buf.writeByte( binaryFlag( hasMin, hasMax ) );
+                if ( hasMin )
+                {
+                    buf.writeDouble( t.getMinimum() );
+                }
+                if ( hasMax )
+                {
+                    buf.writeDouble( t.getMaximum() );
+                }
+            }
+        };
+        private static final ArgumentSerializer<IntegerArgumentType> INTEGER_RANGE = new ArgumentSerializer<IntegerArgumentType>()
+        {
+            @Override
+            protected IntegerArgumentType read(ByteBuf buf)
+            {
+                byte flags = buf.readByte();
+                int min = ( flags & 0x1 ) != 0 ? buf.readInt() : Integer.MIN_VALUE;
+                int max = ( flags & 0x2 ) != 0 ? buf.readInt() : Integer.MAX_VALUE;
+
+                return IntegerArgumentType.integer( min, max );
+            }
+
+            @Override
+            protected void write(ByteBuf buf, IntegerArgumentType t)
+            {
+                boolean hasMin = t.getMinimum() != Integer.MIN_VALUE;
+                boolean hasMax = t.getMaximum() != Integer.MAX_VALUE;
+
+                buf.writeByte( binaryFlag( hasMin, hasMax ) );
+                if ( hasMin )
+                {
+                    buf.writeInt( t.getMinimum() );
+                }
+                if ( hasMax )
+                {
+                    buf.writeInt( t.getMaximum() );
+                }
+            }
+        };
+        private static final ArgumentSerializer<Integer> INTEGER = new ArgumentSerializer<Integer>()
+        {
+            @Override
+            protected Integer read(ByteBuf buf)
+            {
+                return buf.readInt();
+            }
+
+            @Override
+            protected void write(ByteBuf buf, Integer t)
+            {
+                buf.writeInt( t );
+            }
+        };
+        private static final ArgumentSerializer<LongArgumentType> LONG_RANGE = new ArgumentSerializer<LongArgumentType>()
+        {
+            @Override
+            protected LongArgumentType read(ByteBuf buf)
+            {
+                byte flags = buf.readByte();
+                long min = ( flags & 0x1 ) != 0 ? buf.readLong() : Long.MIN_VALUE;
+                long max = ( flags & 0x2 ) != 0 ? buf.readLong() : Long.MAX_VALUE;
+
+                return LongArgumentType.longArg( min, max );
+            }
+
+            @Override
+            protected void write(ByteBuf buf, LongArgumentType t)
+            {
+                boolean hasMin = t.getMinimum() != Long.MIN_VALUE;
+                boolean hasMax = t.getMaximum() != Long.MAX_VALUE;
+
+                buf.writeByte( binaryFlag( hasMin, hasMax ) );
+                if ( hasMin )
+                {
+                    buf.writeLong( t.getMinimum() );
+                }
+                if ( hasMax )
+                {
+                    buf.writeLong( t.getMaximum() );
+                }
+            }
+        };
+        private static final ProperArgumentSerializer<StringArgumentType> STRING = new ProperArgumentSerializer<StringArgumentType>()
+        {
+            @Override
+            protected StringArgumentType read(ByteBuf buf)
+            {
+                int val = readVarInt( buf );
+                switch ( val )
+                {
+                    case 0:
+                        return StringArgumentType.word();
+                    case 1:
+                        return StringArgumentType.string();
+                    case 2:
+                        return StringArgumentType.greedyString();
+                    default:
+                        throw new IllegalArgumentException( "Unknown string type " + val );
+                }
+            }
+
+            @Override
+            protected void write(ByteBuf buf, StringArgumentType t)
+            {
+                writeVarInt( t.getType().ordinal(), buf );
+            }
+
+            @Override
+            protected int getIntKey()
+            {
+                return 5;
+            }
+
+            @Override
+            protected String getKey()
+            {
+                return "brigadier:string";
+            }
+        };
+        private static final ArgumentSerializer<String> RAW_STRING = new ArgumentSerializer<String>()
+        {
+            @Override
+            protected String read(ByteBuf buf)
+            {
+                return DefinedPacket.readString( buf );
+            }
+
+            @Override
+            protected void write(ByteBuf buf, String t)
+            {
+                DefinedPacket.writeString( t, buf );
+            }
+        };
+
+        static
+        {
+            register( "brigadier:bool", VOID );
+            register( "brigadier:float", FLOAT_RANGE );
+            register( "brigadier:double", DOUBLE_RANGE );
+            register( "brigadier:integer", INTEGER_RANGE );
+            register( "brigadier:long", LONG_RANGE );
+
+            register( "brigadier:string", STRING );
+            PROPER_PROVIDERS.put( StringArgumentType.class, STRING );
+
+            register( "minecraft:entity", BYTE );
+            register( "minecraft:game_profile", VOID );
+            register( "minecraft:block_pos", VOID );
+            register( "minecraft:column_pos", VOID );
+            register( "minecraft:vec3", VOID );
+            register( "minecraft:vec2", VOID );
+            register( "minecraft:block_state", VOID );
+            register( "minecraft:block_predicate", VOID );
+            register( "minecraft:item_stack", VOID );
+            register( "minecraft:item_predicate", VOID );
+            register( "minecraft:color", VOID );
+            register( "minecraft:component", VOID );
+            register( "minecraft:message", VOID );
+            register( "minecraft:nbt_compound_tag", VOID ); // 1.14
+            register( "minecraft:nbt_tag", VOID ); // 1.14
+            register( "minecraft:nbt_path", VOID );
+            register( "minecraft:objective", VOID );
+            register( "minecraft:objective_criteria", VOID );
+            register( "minecraft:operation", VOID );
+            register( "minecraft:particle", VOID );
+            register( "minecraft:angle", VOID ); // 1.16.2
+            register( "minecraft:rotation", VOID );
+            register( "minecraft:scoreboard_slot", VOID );
+            register( "minecraft:score_holder", BYTE );
+            register( "minecraft:swizzle", VOID );
+            register( "minecraft:team", VOID );
+            register( "minecraft:item_slot", VOID );
+            register( "minecraft:resource_location", VOID );
+            register( "minecraft:mob_effect", VOID );
+            register( "minecraft:function", VOID );
+            register( "minecraft:entity_anchor", VOID );
+            register( "minecraft:int_range", VOID );
+            register( "minecraft:float_range", VOID );
+            register( "minecraft:item_enchantment", VOID );
+            register( "minecraft:entity_summon", VOID );
+            register( "minecraft:dimension", VOID );
+            register( "minecraft:time", VOID ); // 1.14
+            register( "minecraft:resource_or_tag", RAW_STRING ); // 1.18.2
+            register( "minecraft:resource", RAW_STRING ); // 1.18.2
+            register( "minecraft:uuid", VOID ); // 1.16
+
+            register( "minecraft:nbt", VOID ); // 1.13 // removed
+            IDS_1_19 = new ArgumentSerializer[]
+            {
+                get( "brigadier:bool", VOID ),
+                get( "brigadier:float", FLOAT_RANGE ),
+                get( "brigadier:double", DOUBLE_RANGE ),
+                get( "brigadier:integer", INTEGER_RANGE ),
+                get( "brigadier:long", LONG_RANGE ),
+                get( "brigadier:string", STRING ),
+                get( "minecraft:entity", BYTE ),
+                get( "minecraft:game_profile", VOID ),
+                get( "minecraft:block_pos", VOID ),
+                get( "minecraft:column_pos", VOID ),
+                get( "minecraft:vec3", VOID ),
+                get( "minecraft:vec2", VOID ),
+                get( "minecraft:block_state", VOID ),
+                get( "minecraft:block_predicate", VOID ),
+                get( "minecraft:item_stack", VOID ),
+                get( "minecraft:item_predicate", VOID ),
+                get( "minecraft:color", VOID ),
+                get( "minecraft:component", VOID ),
+                get( "minecraft:message", VOID ),
+                get( "minecraft:nbt_compound_tag", VOID ),
+                get( "minecraft:nbt_tag", VOID ),
+                get( "minecraft:nbt_path", VOID ),
+                get( "minecraft:objective", VOID ),
+                get( "minecraft:objective_criteria", VOID ),
+                get( "minecraft:operation", VOID ),
+                get( "minecraft:particle", VOID ),
+                get( "minecraft:angle", VOID ),
+                get( "minecraft:rotation", VOID ),
+                get( "minecraft:scoreboard_slot", VOID ),
+                get( "minecraft:score_holder", BYTE ),
+                get( "minecraft:swizzle", VOID ),
+                get( "minecraft:team", VOID ),
+                get( "minecraft:item_slot", VOID ),
+                get( "minecraft:resource_location", VOID ),
+                get( "minecraft:mob_effect", VOID ),
+                get( "minecraft:function", VOID ),
+                get( "minecraft:entity_anchor", VOID ),
+                get( "minecraft:int_range", VOID ),
+                get( "minecraft:float_range", VOID ),
+                get( "minecraft:item_enchantment", VOID ),
+                get( "minecraft:entity_summon", VOID ),
+                get( "minecraft:dimension", VOID ),
+                get( "minecraft:time", VOID ),
+                get( "minecraft:resource_or_tag", RAW_STRING ),
+                get( "minecraft:resource", RAW_STRING ),
+                get( "minecraft:template_mirror", VOID ),
+                get( "minecraft:template_rotation", VOID ),
+                get( "minecraft:uuid", VOID ),
+            };
+
+            IDS_1_19_3 = new ArgumentSerializer[]
+            {
+                get( "brigadier:bool", VOID ),
+                get( "brigadier:float", FLOAT_RANGE ),
+                get( "brigadier:double", DOUBLE_RANGE ),
+                get( "brigadier:integer", INTEGER_RANGE ),
+                get( "brigadier:long", LONG_RANGE ),
+                get( "brigadier:string", STRING ),
+                get( "minecraft:entity", BYTE ),
+                get( "minecraft:game_profile", VOID ),
+                get( "minecraft:block_pos", VOID ),
+                get( "minecraft:column_pos", VOID ),
+                get( "minecraft:vec3", VOID ),
+                get( "minecraft:vec2", VOID ),
+                get( "minecraft:block_state", VOID ),
+                get( "minecraft:block_predicate", VOID ),
+                get( "minecraft:item_stack", VOID ),
+                get( "minecraft:item_predicate", VOID ),
+                get( "minecraft:color", VOID ),
+                get( "minecraft:component", VOID ),
+                get( "minecraft:message", VOID ),
+                get( "minecraft:nbt_compound_tag", VOID ),
+                get( "minecraft:nbt_tag", VOID ),
+                get( "minecraft:nbt_path", VOID ),
+                get( "minecraft:objective", VOID ),
+                get( "minecraft:objective_criteria", VOID ),
+                get( "minecraft:operation", VOID ),
+                get( "minecraft:particle", VOID ),
+                get( "minecraft:angle", VOID ),
+                get( "minecraft:rotation", VOID ),
+                get( "minecraft:scoreboard_slot", VOID ),
+                get( "minecraft:score_holder", BYTE ),
+                get( "minecraft:swizzle", VOID ),
+                get( "minecraft:team", VOID ),
+                get( "minecraft:item_slot", VOID ),
+                get( "minecraft:resource_location", VOID ),
+                get( "minecraft:function", VOID ),
+                get( "minecraft:entity_anchor", VOID ),
+                get( "minecraft:int_range", VOID ),
+                get( "minecraft:float_range", VOID ),
+                get( "minecraft:dimension", VOID ),
+                get( "minecraft:gamemode", VOID ),
+                get( "minecraft:time", VOID ),
+                get( "minecraft:resource_or_tag", RAW_STRING ),
+                get( "minecraft:resource_or_tag_key", RAW_STRING ),
+                get( "minecraft:resource", RAW_STRING ),
+                get( "minecraft:resource_key", RAW_STRING ),
+                get( "minecraft:template_mirror", VOID ),
+                get( "minecraft:template_rotation", VOID ),
+                get( "minecraft:uuid", VOID )
+            };
+
+            IDS_1_19_4 = new ArgumentSerializer[]
+            {
+                get( "brigadier:bool", VOID ),
+                get( "brigadier:float", FLOAT_RANGE ),
+                get( "brigadier:double", DOUBLE_RANGE ),
+                get( "brigadier:integer", INTEGER_RANGE ),
+                get( "brigadier:long", LONG_RANGE ),
+                get( "brigadier:string", STRING ),
+                get( "minecraft:entity", BYTE ),
+                get( "minecraft:game_profile", VOID ),
+                get( "minecraft:block_pos", VOID ),
+                get( "minecraft:column_pos", VOID ),
+                get( "minecraft:vec3", VOID ),
+                get( "minecraft:vec2", VOID ),
+                get( "minecraft:block_state", VOID ),
+                get( "minecraft:block_predicate", VOID ),
+                get( "minecraft:item_stack", VOID ),
+                get( "minecraft:item_predicate", VOID ),
+                get( "minecraft:color", VOID ),
+                get( "minecraft:component", VOID ),
+                get( "minecraft:message", VOID ),
+                get( "minecraft:nbt_compound_tag", VOID ),
+                get( "minecraft:nbt_tag", VOID ),
+                get( "minecraft:nbt_path", VOID ),
+                get( "minecraft:objective", VOID ),
+                get( "minecraft:objective_criteria", VOID ),
+                get( "minecraft:operation", VOID ),
+                get( "minecraft:particle", VOID ),
+                get( "minecraft:angle", VOID ),
+                get( "minecraft:rotation", VOID ),
+                get( "minecraft:scoreboard_slot", VOID ),
+                get( "minecraft:score_holder", BYTE ),
+                get( "minecraft:swizzle", VOID ),
+                get( "minecraft:team", VOID ),
+                get( "minecraft:item_slot", VOID ),
+                get( "minecraft:resource_location", VOID ),
+                get( "minecraft:function", VOID ),
+                get( "minecraft:entity_anchor", VOID ),
+                get( "minecraft:int_range", VOID ),
+                get( "minecraft:float_range", VOID ),
+                get( "minecraft:dimension", VOID ),
+                get( "minecraft:gamemode", VOID ),
+                get( "minecraft:time", INTEGER ),
+                get( "minecraft:resource_or_tag", RAW_STRING ),
+                get( "minecraft:resource_or_tag_key", RAW_STRING ),
+                get( "minecraft:resource", RAW_STRING ),
+                get( "minecraft:resource_key", RAW_STRING ),
+                get( "minecraft:template_mirror", VOID ),
+                get( "minecraft:template_rotation", VOID ),
+                get( "minecraft:heightmap", VOID ),
+                get( "minecraft:uuid", VOID )
+            };
+
+            IDS_1_20_3 = new ArgumentSerializer[]
+            {
+                get( "brigadier:bool", VOID ),
+                get( "brigadier:float", FLOAT_RANGE ),
+                get( "brigadier:double", DOUBLE_RANGE ),
+                get( "brigadier:integer", INTEGER_RANGE ),
+                get( "brigadier:long", LONG_RANGE ),
+                get( "brigadier:string", STRING ),
+                get( "minecraft:entity", BYTE ),
+                get( "minecraft:game_profile", VOID ),
+                get( "minecraft:block_pos", VOID ),
+                get( "minecraft:column_pos", VOID ),
+                get( "minecraft:vec3", VOID ),
+                get( "minecraft:vec2", VOID ),
+                get( "minecraft:block_state", VOID ),
+                get( "minecraft:block_predicate", VOID ),
+                get( "minecraft:item_stack", VOID ),
+                get( "minecraft:item_predicate", VOID ),
+                get( "minecraft:color", VOID ),
+                get( "minecraft:component", VOID ),
+                get( "minecraft:style", VOID ),
+                get( "minecraft:message", VOID ),
+                get( "minecraft:nbt_compound_tag", VOID ),
+                get( "minecraft:nbt_tag", VOID ),
+                get( "minecraft:nbt_path", VOID ),
+                get( "minecraft:objective", VOID ),
+                get( "minecraft:objective_criteria", VOID ),
+                get( "minecraft:operation", VOID ),
+                get( "minecraft:particle", VOID ),
+                get( "minecraft:angle", VOID ),
+                get( "minecraft:rotation", VOID ),
+                get( "minecraft:scoreboard_slot", VOID ),
+                get( "minecraft:score_holder", BYTE ),
+                get( "minecraft:swizzle", VOID ),
+                get( "minecraft:team", VOID ),
+                get( "minecraft:item_slot", VOID ),
+                get( "minecraft:resource_location", VOID ),
+                get( "minecraft:function", VOID ),
+                get( "minecraft:entity_anchor", VOID ),
+                get( "minecraft:int_range", VOID ),
+                get( "minecraft:float_range", VOID ),
+                get( "minecraft:dimension", VOID ),
+                get( "minecraft:gamemode", VOID ),
+                get( "minecraft:time", INTEGER ),
+                get( "minecraft:resource_or_tag", RAW_STRING ),
+                get( "minecraft:resource_or_tag_key", RAW_STRING ),
+                get( "minecraft:resource", RAW_STRING ),
+                get( "minecraft:resource_key", RAW_STRING ),
+                get( "minecraft:template_mirror", VOID ),
+                get( "minecraft:template_rotation", VOID ),
+                get( "minecraft:heightmap", VOID ),
+                get( "minecraft:uuid", VOID )
+            };
+
+            IDS_1_20_5 = new ArgumentSerializer[]
+            {
+                get( "brigadier:bool", VOID ),
+                get( "brigadier:float", FLOAT_RANGE ),
+                get( "brigadier:double", DOUBLE_RANGE ),
+                get( "brigadier:integer", INTEGER_RANGE ),
+                get( "brigadier:long", LONG_RANGE ),
+                get( "brigadier:string", STRING ),
+                get( "minecraft:entity", BYTE ),
+                get( "minecraft:game_profile", VOID ),
+                get( "minecraft:block_pos", VOID ),
+                get( "minecraft:column_pos", VOID ),
+                get( "minecraft:vec3", VOID ),
+                get( "minecraft:vec2", VOID ),
+                get( "minecraft:block_state", VOID ),
+                get( "minecraft:block_predicate", VOID ),
+                get( "minecraft:item_stack", VOID ),
+                get( "minecraft:item_predicate", VOID ),
+                get( "minecraft:color", VOID ),
+                get( "minecraft:component", VOID ),
+                get( "minecraft:style", VOID ),
+                get( "minecraft:message", VOID ),
+                get( "minecraft:nbt_compound_tag", VOID ),
+                get( "minecraft:nbt_tag", VOID ),
+                get( "minecraft:nbt_path", VOID ),
+                get( "minecraft:objective", VOID ),
+                get( "minecraft:objective_criteria", VOID ),
+                get( "minecraft:operation", VOID ),
+                get( "minecraft:particle", VOID ),
+                get( "minecraft:angle", VOID ),
+                get( "minecraft:rotation", VOID ),
+                get( "minecraft:scoreboard_slot", VOID ),
+                get( "minecraft:score_holder", BYTE ),
+                get( "minecraft:swizzle", VOID ),
+                get( "minecraft:team", VOID ),
+                get( "minecraft:item_slot", VOID ),
+                get( "minecraft:item_slots", VOID ),
+                get( "minecraft:resource_location", VOID ),
+                get( "minecraft:function", VOID ),
+                get( "minecraft:entity_anchor", VOID ),
+                get( "minecraft:int_range", VOID ),
+                get( "minecraft:float_range", VOID ),
+                get( "minecraft:dimension", VOID ),
+                get( "minecraft:gamemode", VOID ),
+                get( "minecraft:time", INTEGER ),
+                get( "minecraft:resource_or_tag", RAW_STRING ),
+                get( "minecraft:resource_or_tag_key", RAW_STRING ),
+                get( "minecraft:resource", RAW_STRING ),
+                get( "minecraft:resource_key", RAW_STRING ),
+                get( "minecraft:template_mirror", VOID ),
+                get( "minecraft:template_rotation", VOID ),
+                get( "minecraft:heightmap", VOID ),
+                get( "minecraft:loot_table", VOID ),
+                get( "minecraft:loot_predicate", VOID ),
+                get( "minecraft:loot_modifier", VOID ),
+                get( "minecraft:uuid", VOID )
+            };
+
+            IDS_1_21_5 = new ArgumentSerializer[]
+            {
+                get( "brigadier:bool", VOID ),
+                get( "brigadier:float", FLOAT_RANGE ),
+                get( "brigadier:double", DOUBLE_RANGE ),
+                get( "brigadier:integer", INTEGER_RANGE ),
+                get( "brigadier:long", LONG_RANGE ),
+                get( "brigadier:string", STRING ),
+                get( "minecraft:entity", BYTE ),
+                get( "minecraft:game_profile", VOID ),
+                get( "minecraft:block_pos", VOID ),
+                get( "minecraft:column_pos", VOID ),
+                get( "minecraft:vec3", VOID ),
+                get( "minecraft:vec2", VOID ),
+                get( "minecraft:block_state", VOID ),
+                get( "minecraft:block_predicate", VOID ),
+                get( "minecraft:item_stack", VOID ),
+                get( "minecraft:item_predicate", VOID ),
+                get( "minecraft:color", VOID ),
+                get( "minecraft:component", VOID ),
+                get( "minecraft:style", VOID ),
+                get( "minecraft:message", VOID ),
+                get( "minecraft:nbt_compound_tag", VOID ),
+                get( "minecraft:nbt_tag", VOID ),
+                get( "minecraft:nbt_path", VOID ),
+                get( "minecraft:objective", VOID ),
+                get( "minecraft:objective_criteria", VOID ),
+                get( "minecraft:operation", VOID ),
+                get( "minecraft:particle", VOID ),
+                get( "minecraft:angle", VOID ),
+                get( "minecraft:rotation", VOID ),
+                get( "minecraft:scoreboard_slot", VOID ),
+                get( "minecraft:score_holder", BYTE ),
+                get( "minecraft:swizzle", VOID ),
+                get( "minecraft:team", VOID ),
+                get( "minecraft:item_slot", VOID ),
+                get( "minecraft:item_slots", VOID ),
+                get( "minecraft:resource_location", VOID ),
+                get( "minecraft:function", VOID ),
+                get( "minecraft:entity_anchor", VOID ),
+                get( "minecraft:int_range", VOID ),
+                get( "minecraft:float_range", VOID ),
+                get( "minecraft:dimension", VOID ),
+                get( "minecraft:gamemode", VOID ),
+                get( "minecraft:time", INTEGER ),
+                get( "minecraft:resource_or_tag", RAW_STRING ),
+                get( "minecraft:resource_or_tag_key", RAW_STRING ),
+                get( "minecraft:resource", RAW_STRING ),
+                get( "minecraft:resource_key", RAW_STRING ),
+                get( "minecraft:resource_selector", RAW_STRING ),
+                get( "minecraft:template_mirror", VOID ),
+                get( "minecraft:template_rotation", VOID ),
+                get( "minecraft:heightmap", VOID ),
+                get( "minecraft:loot_table", VOID ),
+                get( "minecraft:loot_predicate", VOID ),
+                get( "minecraft:loot_modifier", VOID ),
+                get( "minecraft:uuid", VOID )
+            };
+
+            IDS_1_21_6 = new ArgumentSerializer[]
+            {
+                get( "brigadier:bool", VOID ),
+                get( "brigadier:float", FLOAT_RANGE ),
+                get( "brigadier:double", DOUBLE_RANGE ),
+                get( "brigadier:integer", INTEGER_RANGE ),
+                get( "brigadier:long", LONG_RANGE ),
+                get( "brigadier:string", STRING ),
+                get( "minecraft:entity", BYTE ),
+                get( "minecraft:game_profile", VOID ),
+                get( "minecraft:block_pos", VOID ),
+                get( "minecraft:column_pos", VOID ),
+                get( "minecraft:vec3", VOID ),
+                get( "minecraft:vec2", VOID ),
+                get( "minecraft:block_state", VOID ),
+                get( "minecraft:block_predicate", VOID ),
+                get( "minecraft:item_stack", VOID ),
+                get( "minecraft:item_predicate", VOID ),
+                get( "minecraft:color", VOID ),
+                get( "minecraft:hex_color", VOID ),
+                get( "minecraft:component", VOID ),
+                get( "minecraft:style", VOID ),
+                get( "minecraft:message", VOID ),
+                get( "minecraft:nbt_compound_tag", VOID ),
+                get( "minecraft:nbt_tag", VOID ),
+                get( "minecraft:nbt_path", VOID ),
+                get( "minecraft:objective", VOID ),
+                get( "minecraft:objective_criteria", VOID ),
+                get( "minecraft:operation", VOID ),
+                get( "minecraft:particle", VOID ),
+                get( "minecraft:angle", VOID ),
+                get( "minecraft:rotation", VOID ),
+                get( "minecraft:scoreboard_slot", VOID ),
+                get( "minecraft:score_holder", BYTE ),
+                get( "minecraft:swizzle", VOID ),
+                get( "minecraft:team", VOID ),
+                get( "minecraft:item_slot", VOID ),
+                get( "minecraft:item_slots", VOID ),
+                get( "minecraft:resource_location", VOID ),
+                get( "minecraft:function", VOID ),
+                get( "minecraft:entity_anchor", VOID ),
+                get( "minecraft:int_range", VOID ),
+                get( "minecraft:float_range", VOID ),
+                get( "minecraft:dimension", VOID ),
+                get( "minecraft:gamemode", VOID ),
+                get( "minecraft:time", INTEGER ),
+                get( "minecraft:resource_or_tag", RAW_STRING ),
+                get( "minecraft:resource_or_tag_key", RAW_STRING ),
+                get( "minecraft:resource", RAW_STRING ),
+                get( "minecraft:resource_key", RAW_STRING ),
+                get( "minecraft:resource_selector", RAW_STRING ),
+                get( "minecraft:template_mirror", VOID ),
+                get( "minecraft:template_rotation", VOID ),
+                get( "minecraft:heightmap", VOID ),
+                get( "minecraft:loot_table", VOID ),
+                get( "minecraft:loot_predicate", VOID ),
+                get( "minecraft:loot_modifier", VOID ),
+                get( "minecraft:dialog", VOID ),
+                get( "minecraft:uuid", VOID )
+            };
+        }
+
+        private static void register(String name, ArgumentSerializer serializer)
+        {
+            PROVIDERS.put( name, serializer );
+        }
+
+        private static ArgumentSerializer get(String name, ArgumentSerializer serializer)
+        {
+            return serializer;
+        }
+
+        private static ArgumentType<?> read(ByteBuf buf, int protocolVersion)
+        {
+            Object key;
+            ArgumentSerializer reader;
+
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 )
+            {
+                key = readVarInt( buf );
+
+                if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_6 )
+                {
+                    reader = IDS_1_21_6[(Integer) key];
+                } else if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_5 )
+                {
+                    reader = IDS_1_21_5[(Integer) key];
+                } else if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
+                {
+                    reader = IDS_1_20_5[(Integer) key];
+                } else if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
+                {
+                    reader = IDS_1_20_3[(Integer) key];
+                } else if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_4 )
+                {
+                    reader = IDS_1_19_4[(Integer) key];
+                } else if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19_3 )
+                {
+                    reader = IDS_1_19_3[(Integer) key];
+                } else
+                {
+                    reader = IDS_1_19[(Integer) key];
+                }
+            } else
+            {
+                key = readString( buf );
+                reader = PROVIDERS.get( (String) key );
+            }
+
+            Preconditions.checkArgument( reader != null, "No provider for argument " + key );
+
+            Object val = reader.read( buf );
+            return val != null && PROPER_PROVIDERS.containsKey( val.getClass() ) ? (ArgumentType<?>) val : new DummyType( key, reader, val );
+        }
+
+        private static void write(ArgumentType<?> arg, ByteBuf buf, int protocolVersion)
+        {
+            ProperArgumentSerializer proper = PROPER_PROVIDERS.get( arg.getClass() );
+            if ( proper != null )
+            {
+                if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 )
+                {
+                    writeVarInt( proper.getIntKey(), buf );
+                } else
+                {
+                    writeString( proper.getKey(), buf );
+                }
+                proper.write( buf, arg );
+            } else
+            {
+                Preconditions.checkArgument( arg instanceof DummyType, "Non dummy arg " + arg.getClass() );
+
+                DummyType dummy = (DummyType) arg;
+                if ( dummy.key instanceof Integer )
+                {
+                    writeVarInt( (Integer) dummy.key, buf );
+                } else
+                {
+                    writeString( (String) dummy.key, buf );
+                }
+                dummy.serializer.write( buf, dummy.value );
+            }
+        }
+
+        @Data
+        private static class DummyType<T> implements ArgumentType<T>
+        {
+
+            private final Object key;
+            private final ArgumentSerializer<T> serializer;
+            private final T value;
+
+            @Override
+            public T parse(StringReader reader) throws CommandSyntaxException
+            {
+                throw new UnsupportedOperationException( "Not supported." );
+            }
+        }
+
+        private abstract static class ArgumentSerializer<T>
+        {
+
+            protected abstract T read(ByteBuf buf);
+
+            protected abstract void write(ByteBuf buf, T t);
+        }
+
+        private abstract static class ProperArgumentSerializer<T> extends ArgumentSerializer<T>
+        {
+
+            protected abstract int getIntKey();
+
+            protected abstract String getKey();
+        }
+    }
+
+    @Data
+    public static class SuggestionRegistry
+    {
+
+        public static final SuggestionProvider ASK_SERVER = new DummyProvider( "minecraft:ask_server" );
+        private static final Map<String, SuggestionProvider<DummyProvider>> PROVIDERS = new HashMap<>();
+
+        static
+        {
+            PROVIDERS.put( "minecraft:ask_server", ASK_SERVER );
+            registerDummy( "minecraft:all_recipes" );
+            registerDummy( "minecraft:available_sounds" );
+            registerDummy( "minecraft:available_biomes" );
+            registerDummy( "minecraft:summonable_entities" );
+        }
+
+        private static void registerDummy(String name)
+        {
+            PROVIDERS.put( name, new DummyProvider( name ) );
+        }
+
+        private static SuggestionProvider<DummyProvider> getProvider(String key)
+        {
+            SuggestionProvider<DummyProvider> provider = PROVIDERS.get( key );
+            Preconditions.checkArgument( provider != null, "Unknown completion provider " + key );
+
+            return provider;
+        }
+
+        private static String getKey(SuggestionProvider<DummyProvider> provider)
+        {
+            Preconditions.checkArgument( provider instanceof DummyProvider, "Non dummy provider " + provider );
+
+            return ( (DummyProvider) provider ).key;
+        }
+
+        @Data
+        private static final class DummyProvider implements SuggestionProvider<DummyProvider>
+        {
+
+            private final String key;
+
+            @Override
+            public CompletableFuture<Suggestions> getSuggestions(CommandContext<DummyProvider> context, SuggestionsBuilder builder) throws CommandSyntaxException
+            {
+                return builder.buildFuture();
+            }
+        }
+    }
+
+    private static byte binaryFlag(boolean first, boolean second)
+    {
+        byte ret = 0;
+
+        if ( first )
+        {
+            ret = (byte) ( ret | 0x1 );
+        }
+        if ( second )
+        {
+            ret = (byte) ( ret | 0x2 );
+        }
+
+        return ret;
+    }
 }
